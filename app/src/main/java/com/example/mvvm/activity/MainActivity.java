@@ -23,36 +23,4 @@ public class MainActivity extends BaseActivity<MainViewModel, ActivityMainBindin
         binding.setVm(viewModel);//控制器作为一个中间层，让viewmodel直接和数据交互，本身不再做繁复的逻辑处理
     }
 
-    @Override
-    public void initData() {
-        super.initData();
-//        BaseSubscribe.INSTANCE
-//                .download("cgdfgdf")
-//                .observeForever(new Observer<ResponseBody>() {
-//                    @Override
-//                    public void onChanged(ResponseBody responseBody) {
-//                        ResponseBody body =  responseBody;
-//                    }
-//                });
-
-//        BaseSubscribe.INSTANCE
-//                .getVerification("dsfsd",new HttpParams().append("dsadsa","sddas").getParams())
-//                .observeForever(new HttpSubscriber<Object>() {
-//                    @Override
-//                    protected void onSuccess(Object data) {
-//
-//                    }
-//
-//                    @Override
-//                    protected void onFailed(String msg) {
-//
-//                    }
-//
-//                    @Override
-//                    protected void onFinish() {
-//
-//                    }
-//                });
-    }
-
 }
