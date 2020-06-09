@@ -1,0 +1,106 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    signingConfigs {
+        debug {
+            keyAlias 'bitnew'
+            keyPassword 'Numbull.bitnew.2019'
+            storeFile file('./key.jks')
+            storePassword 'Numbull.bitnew.2019'
+        }
+
+        release {
+            keyAlias 'bitnew'
+            keyPassword 'Numbull.bitnew.2019'
+            storeFile file('./key.jks')
+            storePassword 'Numbull.bitnew.2019'
+        }
+    }
+
+    lintOptions {
+        disable 'GoogleAppIndexingWarning'
+    }
+
+    compileSdkVersion build_versions.compileSdkVersion
+
+    defaultConfig {
+        applicationId build_config.applicationId
+        minSdkVersion build_versions.minSdkVersion
+        targetSdkVersion build_versions.targetSdkVersion
+        versionCode build_versions.versionCode
+        versionName build_versions.versionName
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        //减少语言支持
+        resConfigs "zh"
+        //dex突破65535的限制
+        multiDexEnabled true
+        kapt {
+            arguments {
+                arg("moduleName", project.getName())
+            }
+        }
+    }
+
+    dataBinding {
+        enabled = true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            //架构支持
+            ndk {
+                abiFilter "armeabi"
+//                abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a'
+            }
+
+            //移除无用资源
+            splits {
+                density {
+                    enable true
+                    reset()
+                    include "mipmap-hdpi", "mipmap-xhdpi", "mipmap-xxhdpi"
+                    compatibleScreens 'small', 'normal', 'large', 'xlarge'
+                }
+            }
+
+            //去除gradle升级版本后映射文件的警告
+            lintOptions {
+                checkReleaseBuilds false
+                abortOnError false
+            }
+
+            minifyEnabled true//最小化资源包
+            shrinkResources true//去掉无用资源
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    //输出apk---包名_v版本名_日期.apk
+                    outputFileName = "example_v${variant.versionName}_" + new Date().format('yyyyMMdd') + ".apk"
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    //基础库
+    implementation project(':lib_common')
+//    implementation project(':lib_share')
+//    implementation project(':module_quotation')
+    //页面路由
+    implementation deps.alibaba.arouter
+    kapt deps.alibaba.arouter_compiler
+}

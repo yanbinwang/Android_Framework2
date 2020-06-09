@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+    Copyright 2017 Yan Zhenjie
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/durban_MatchParent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/durban_Toolbar.PopupTheme"
+        app:navigationIcon="@drawable/durban_ic_back_white">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:ellipsize="end"
+            android:lines="1"
+            android:scrollHorizontally="true"
+            android:text="@string/label_title_crop"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <LinearLayout
+        android:id="@+id/iv_controller_root"
+        style="@style/durban_WrapContent.WidthMatchParent"
+        android:layout_alignParentBottom="true"
+        android:background="@color/durban_ControllerBackground"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/durban_dp_10">
+
+        <LinearLayout
+            android:id="@+id/layout_controller_title_root"
+            style="@style/durban_WrapContent.WidthMatchParent">
+
+            <TextView
+                android:id="@+id/tv_controller_title_rotation"
+                style="@style/durban_WrapContent.WidthWeight.ControllerTitle"
+                android:text="@string/durban_controller_title_rotation" />
+
+            <TextView
+                android:id="@+id/tv_controller_title_scale"
+                style="@style/durban_WrapContent.WidthWeight.ControllerTitle"
+                android:text="@string/durban_controller_title_scale" />
+
+        </LinearLayout>
+
+        <LinearLayout style="@style/durban_MatchParent.ItemRoot">
+
+            <FrameLayout
+                android:id="@+id/layout_controller_rotation_left"
+                style="@style/durban_MatchParent.WidthWeight.ControllerItem">
+
+                <ImageView
+                    android:id="@+id/iv_controller_rotation_left"
+                    style="@style/durban_WrapContent.ControllerButton"
+                    android:src="@drawable/durban_ic_rotation_90_left_white" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/layout_controller_rotation_right"
+                style="@style/durban_MatchParent.WidthWeight.ControllerItem">
+
+                <ImageView
+                    android:id="@+id/iv_controller_rotation_right"
+                    style="@style/durban_WrapContent.ControllerButton"
+                    android:src="@drawable/durban_ic_rotation_90_right_white" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/layout_controller_scale_big"
+                style="@style/durban_MatchParent.WidthWeight.ControllerItem">
+
+                <ImageView
+                    android:id="@+id/iv_controller_scale_big"
+                    style="@style/durban_WrapContent.ControllerButton"
+                    android:src="@drawable/durban_ic_scale_out_white" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/layout_controller_scale_small"
+                style="@style/durban_MatchParent.WidthWeight.ControllerItem">
+
+                <ImageView
+                    android:id="@+id/iv_controller_scale_small"
+                    style="@style/durban_WrapContent.ControllerButton"
+                    android:src="@drawable/durban_ic_scale_in_white" />
+            </FrameLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/content_frame"
+        style="@style/durban_MatchParent"
+        android:layout_above="@id/iv_controller_root"
+        android:layout_below="@id/toolbar"
+        android:background="@color/durban_CropBackground">
+
+        <ImageView
+            android:id="@+id/image_view_logo"
+            android:layout_width="@dimen/durban_dp_200"
+            android:layout_height="@dimen/durban_dp_200"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/shape_tran"
+            tools:ignore="MissingPrefix" />
+
+        <com.yanzhenjie.durban.view.CropView
+            android:id="@+id/crop_view"
+            style="@style/durban_MatchParent"
+            android:alpha="0" />
+
+    </FrameLayout>
+
+</RelativeLayout>

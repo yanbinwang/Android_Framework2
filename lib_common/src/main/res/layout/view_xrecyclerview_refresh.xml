@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?><!-- 带刷新的recyclerview -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.example.common.widget.xrecyclerview.refresh.SwipeRefreshLayout
+        android:id="@+id/srl_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.example.common.widget.xrecyclerview.DetectionRecyclerView
+            android:id="@+id/rv_x"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never" />
+
+    </com.example.common.widget.xrecyclerview.refresh.SwipeRefreshLayout>
+
+    <com.example.common.widget.empty.EmptyLayout
+        android:id="@+id/el"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</RelativeLayout>
