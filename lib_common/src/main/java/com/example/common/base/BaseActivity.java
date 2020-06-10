@@ -5,11 +5,8 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,7 +16,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
-import com.example.common.base.bridge.BaseImpl;
 import com.example.common.base.bridge.BaseView;
 import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.base.page.PageParams;
@@ -31,8 +27,6 @@ import com.example.common.widget.dialog.LoadingDialog;
 import com.example.framework.utils.LogUtil;
 import com.example.framework.utils.StatusBarUtil;
 import com.example.framework.utils.ToastUtil;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
@@ -48,7 +42,7 @@ import java.util.TimerTask;
  * 在基类中实现绑定，向ViewModel中注入对应页面的activity和context，以及对对应页面的BaseViewModel中做生命周期的监控
  */
 @SuppressWarnings({"unchecked", "Raw"})
-public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDataBinding> extends AppCompatActivity implements BaseImpl, BaseView {
+public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDataBinding> extends AppCompatActivity implements BaseView {
     protected VM viewModel;
     protected VDB binding;
     protected WeakReference<Activity> activity;//基类activity弱引用
@@ -62,7 +56,7 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        initDataBinding(getLayoutInflater(), (ViewGroup) getWindow().getDecorView(), savedInstanceState);
+        initDataBinding();
         initViewModel();
         initView();
         initEvent();
@@ -71,19 +65,16 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
 
     protected abstract int getLayoutResID();
 
-    @Override
-    public View initDataBinding(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    protected void initDataBinding() {
         //如果当前页面有传入布局id，做绑定操作
         if (0 != getLayoutResID()) {
             //绑定的xml作为一个bind持有
             binding = DataBindingUtil.setContentView(this, getLayoutResID());
             binding.setLifecycleOwner(this);
         }
-        return null;
     }
 
-    @Override
-    public void initViewModel() {
+    protected void initViewModel() {
         if (null != binding) {
             Class modelClass;
             Type type = getClass().getGenericSuperclass();
@@ -100,8 +91,7 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     }
 
     //控件的事件绑定，请求的回调，页面的跳转完全可交由viewmodel实现
-    @Override
-    public void initView() {
+    protected void initView() {
         ARouter.getInstance().inject(this);
         activity = new WeakReference<>(this);
         context = new WeakReference<>(this);
@@ -109,8 +99,7 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
         loadingDialog = new LoadingDialog(this);
     }
 
-    @Override
-    public void initEvent() {
+    protected void initEvent() {
         LiveDataBus.get()
                 .with(TAG, LiveDataBusEvent.class)
                 .observe(this, event -> {
@@ -130,18 +119,42 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
                 });
     }
 
-    @Override
-    public void initData() {
+    protected void initData() {
     }
 
     @Override
-    public void setText(int res, String str) {
-        ((TextView) findViewById(res)).setText(str);
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (binding != null) {
+            binding.unbind();
+        }
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
+    @Override
+    public void log(String content) {
+        LogUtil.INSTANCE.e(TAG, content);
     }
 
     @Override
-    public void setTextColor(int res, int color) {
-        ((TextView) findViewById(res)).setTextColor(color);
+    public void showToast(String str) {
+        ToastUtil.INSTANCE.mackToastSHORT(str, getApplicationContext());
+    }
+
+    @Override
+    public void showDialog() {
+        showDialog(false);
+    }
+
+    @Override
+    public void showDialog(boolean isClose) {
+        loadingDialog.show(isClose);
+    }
+
+    @Override
+    public void hideDialog() {
+        loadingDialog.hide();
     }
 
     @Override
@@ -203,41 +216,6 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
                 view.setVisibility(View.GONE);
             }
         }
-    }
-
-    @Override
-    public void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        if (binding != null) {
-            binding.unbind();
-        }
-    }
-    // </editor-fold>
-
-    // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
-    @Override
-    public void log(String content) {
-        LogUtil.INSTANCE.e(TAG, content);
-    }
-
-    @Override
-    public void showToast(String str) {
-        ToastUtil.INSTANCE.mackToastSHORT(str, getApplicationContext());
-    }
-
-    @Override
-    public void showDialog() {
-        showDialog(false);
-    }
-
-    @Override
-    public void showDialog(boolean isClose) {
-        loadingDialog.show(isClose);
-    }
-
-    @Override
-    public void hideDialog() {
-        loadingDialog.hide();
     }
 
     @Override

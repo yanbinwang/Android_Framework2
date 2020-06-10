@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,7 +18,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
-import com.example.common.base.bridge.BaseImpl;
 import com.example.common.base.bridge.BaseView;
 import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.base.page.PageParams;
@@ -42,7 +40,7 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 /**
  * Created by WangYanBin on 2020/6/4.
  */
-public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDataBinding> extends Fragment implements BaseImpl, BaseView {
+public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDataBinding> extends Fragment implements BaseView {
     protected VM viewModel;
     protected VDB binding;
     protected WeakReference<Activity> activity;//基类activity弱引用
@@ -68,8 +66,7 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
         initData();
     }
 
-    @Override
-    public View initDataBinding(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    protected View initDataBinding(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (0 != getLayoutResID()) {
             binding = DataBindingUtil.inflate(inflater, getLayoutResID(), container, false);
             binding.setLifecycleOwner(this);
@@ -78,8 +75,7 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
-    @Override
-    public void initViewModel() {
+    protected void initViewModel() {
         if (null != binding) {
             Class modelClass;
             Type type = getClass().getGenericSuperclass();
@@ -94,30 +90,52 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
         }
     }
 
-    @Override
-    public void initView() {
+    protected void initView() {
         activity = new WeakReference<>(getActivity());
         context = new WeakReference<>(getContext());
         statusBarUtil = new StatusBarUtil(activity.get());
         loadingDialog = new LoadingDialog(context.get());
     }
 
-    @Override
-    public void initEvent() {
+    protected void initEvent() {
+    }
+
+    protected void initData() {
     }
 
     @Override
-    public void initData() {
+    public void onDetach() {
+        super.onDetach();
+        if (binding != null) {
+            binding.unbind();
+        }
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
+    @Override
+    public void log(String content) {
+        LogUtil.INSTANCE.e(TAG, content);
     }
 
     @Override
-    public void setText(int res, String str) {
-        ((TextView) binding.getRoot().findViewById(res)).setText(str);
+    public void showToast(String str) {
+        ToastUtil.INSTANCE.mackToastSHORT(str, requireContext().getApplicationContext());
     }
 
     @Override
-    public void setTextColor(int res, int color) {
-        ((TextView) binding.getRoot().findViewById(res)).setTextColor(color);
+    public void showDialog() {
+        showDialog(false);
+    }
+
+    @Override
+    public void showDialog(boolean isClose) {
+        loadingDialog.show(isClose);
+    }
+
+    @Override
+    public void hideDialog() {
+        loadingDialog.hide();
     }
 
     @Override
@@ -179,41 +197,6 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
                 view.setVisibility(View.GONE);
             }
         }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        if (binding != null) {
-            binding.unbind();
-        }
-    }
-    // </editor-fold>
-
-    // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
-    @Override
-    public void log(String content) {
-        LogUtil.INSTANCE.e(TAG, content);
-    }
-
-    @Override
-    public void showToast(String str) {
-        ToastUtil.INSTANCE.mackToastSHORT(str, requireContext().getApplicationContext());
-    }
-
-    @Override
-    public void showDialog() {
-        showDialog(false);
-    }
-
-    @Override
-    public void showDialog(boolean isClose) {
-        loadingDialog.show(isClose);
-    }
-
-    @Override
-    public void hideDialog() {
-        loadingDialog.hide();
     }
 
     @Override

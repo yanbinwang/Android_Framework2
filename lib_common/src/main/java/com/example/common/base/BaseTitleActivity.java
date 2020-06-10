@@ -1,10 +1,5 @@
 package com.example.common.base;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 
@@ -23,7 +18,7 @@ public abstract class BaseTitleActivity<VM extends BaseViewModel, VDB extends Vi
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     @Override
-    public View initDataBinding(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    protected void initDataBinding() {
         if (0 != getLayoutResID()) {
             //绑定的xml作为一个bind持有
             binding = DataBindingUtil.bind(getLayoutInflater().inflate(getLayoutResID(), null));
@@ -32,7 +27,6 @@ public abstract class BaseTitleActivity<VM extends BaseViewModel, VDB extends Vi
             ActivityBaseBinding baseBinding = DataBindingUtil.setContentView(this, R.layout.activity_base);
             baseBinding.flBaseContainer.addView(binding.getRoot());
         }
-        return null;
     }
 
     @Override
