@@ -11,9 +11,7 @@ import com.example.mvvm.activity.TestListActivity;
  */
 public class MainViewModel extends BaseViewModel {
 
-    @Override
-    public void initData() {
-        super.initData();
+    public void toTestRequest(){
         //        BaseSubscribe.INSTANCE
 //                .download("cgdfgdf")
 //                .observeForever(new Observer<ResponseBody>() {

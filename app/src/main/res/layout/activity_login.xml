@@ -7,6 +7,10 @@
             name="vm"
             type="com.example.mvvm.bridge.LoginViewModel" />
 
+        <variable
+            name="click"
+            type="com.example.mvvm.activity.LoginActivity.ClickProxy" />
+
     </data>
 
     <LinearLayout
@@ -34,7 +38,7 @@
             android:layout_height="50dp"
             android:layout_marginHorizontal="40dp"
             android:layout_marginTop="40dp"
-            android:onClick='@{()->vm.login()}'
+            android:onClick='@{()->click.toLogin()}'
             android:text="登录" />
 
     </LinearLayout>

@@ -1,7 +1,7 @@
 package com.example.mvvm.activity;
 
 
-import com.example.common.base.BaseActivity;
+import com.example.common.base.BaseTitleActivity;
 import com.example.mvvm.R;
 import com.example.mvvm.bridge.MainViewModel;
 import com.example.mvvm.databinding.ActivityMainBinding;
@@ -9,7 +9,7 @@ import com.example.mvvm.databinding.ActivityMainBinding;
 /**
  * Mvvm中，activity的代码量应该非常少，它并不和数据以及控件直接交互
  */
-public class MainActivity extends BaseActivity<MainViewModel, ActivityMainBinding> {
+public class MainActivity extends BaseTitleActivity<MainViewModel, ActivityMainBinding> {
 
     @Override
     protected int getLayoutResID() {

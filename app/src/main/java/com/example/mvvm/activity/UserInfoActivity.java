@@ -16,9 +16,14 @@ public class UserInfoActivity extends BaseActivity<UserInfoViewModel, ActivityUs
     }
 
     @Override
+    public void initView() {
+        super.initView();
+        binding.setVm(viewModel);
+    }
+
+    @Override
     public void initData() {
         super.initData();
-        binding.setVm(viewModel);
         viewModel.getPageModel();
     }
 

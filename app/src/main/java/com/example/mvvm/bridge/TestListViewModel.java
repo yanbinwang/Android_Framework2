@@ -16,9 +16,7 @@ import java.util.List;
 public class TestListViewModel extends BaseViewModel {
     private List<TestListModel> list = new ArrayList<>();
 
-    @Override
-    public void initData() {
-        super.initData();
+    public void getListData(){
         ActivityTestListBinding binding = getBinding();
         for (int i = 0; i < 10; i++) {
             list.add(new TestListModel("标题" + i, "描述" + i, "头像" + i));
