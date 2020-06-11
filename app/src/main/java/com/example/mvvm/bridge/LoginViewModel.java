@@ -18,9 +18,9 @@ public class LoginViewModel extends BaseViewModel {
 
     public void login(String account, String password) {
 //        ActivityLoginBinding binding = getBinding();
-        view.showDialog();
+        view.get().showDialog();
         Toast.makeText(context.get(), "当前执行了登录\n账号：" + account + "\n密码：" + password, Toast.LENGTH_SHORT).show();
-        view.hideDialog();
+        view.get().hideDialog();
 
         //do网络请求-将对象传递给下一个页面，或者直接当前页面处理，处理和mvc写法一致(失败的处理直接回调对应观察的数据,或者在baseviewmodel中处理)
         UserInfoModel model = new UserInfoModel("老王万寿无疆", 88, "bilibili");

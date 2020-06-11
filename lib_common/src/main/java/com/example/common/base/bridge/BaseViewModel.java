@@ -10,6 +10,7 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModel;
 
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
 /**
@@ -19,7 +20,7 @@ import java.lang.ref.WeakReference;
 public abstract class BaseViewModel extends ViewModel implements LifecycleObserver {
     protected WeakReference<Activity> activity;
     protected WeakReference<Context> context;
-    protected BaseView view;
+    protected SoftReference<BaseView> view;
     private ViewDataBinding binding;
     private final String TAG = getClass().getSimpleName().toLowerCase();//额外数据，查看log，观察当前activity是否被销毁
 
@@ -29,7 +30,7 @@ public abstract class BaseViewModel extends ViewModel implements LifecycleObserv
     public void attachView(Activity activity, Context context, BaseView view, ViewDataBinding binding) {
         this.activity = new WeakReference<>(activity);
         this.context = new WeakReference<>(context);
-        this.view = view;
+        this.view = new SoftReference<>(view);
         this.binding = binding;
     }
 
@@ -46,41 +47,41 @@ public abstract class BaseViewModel extends ViewModel implements LifecycleObserv
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onStart() {
-        view.log("onStart");
+        view.get().log("onStart");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     public void onResume() {
-        view.log("onResume");
+        view.get().log("onResume");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     public void onPause() {
-        view.log("onPause");
+        view.get().log("onPause");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onStop() {
-        view.log("onStop");
+        view.get().log("onStop");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void onDestroy() {
-        view.log("onDestroy");
+        view.get().log("onDestroy");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
     public void onAny() {
-        view.log("onAny");
+        view.get().log("onAny");
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        view.log("onCleared");
-        view = null;
+        view.get().log("onCleared");
         activity.clear();
         context.clear();
+        view.clear();
         if (binding != null) {
             binding.unbind();
         }

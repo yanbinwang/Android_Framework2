@@ -12,6 +12,7 @@ import android.webkit.WebViewClient;
 import androidx.databinding.BindingAdapter;
 
 import com.example.common.BaseApplication;
+import com.example.common.widget.XWebView;
 
 /**
  * Create by KunMinX at 2020/3/13
@@ -57,6 +58,12 @@ public class WebViewBindingAdapter {
         webSettings.setDisplayZoomControls(false);
         webSettings.setUseWideViewPort(true);
         webSettings.setLoadWithOverviewMode(true);
+        webView.loadUrl(loadPage);
+    }
+
+    @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface"})
+    @BindingAdapter(value = {"loadPage"}, requireAll = false)
+    public static void loadPage(XWebView webView, String loadPage) {
         webView.loadUrl(loadPage);
     }
 

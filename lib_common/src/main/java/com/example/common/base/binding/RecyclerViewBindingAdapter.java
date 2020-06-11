@@ -36,9 +36,7 @@ public class RecyclerViewBindingAdapter {
     @BindingAdapter(value = {"refreshList"})
     public static void refreshList(RecyclerView recyclerView, List list) {
         if (list != null) {
-//            ((BaseBindingAdapter) recyclerView.getAdapter()).setList(list);
-
-            //TODO 此处可通过 diffUtil 进一步优化用户体验
+            ((BaseBindingAdapter) recyclerView.getAdapter()).setList(list);
             recyclerView.getAdapter().notifyDataSetChanged();
         }
     }

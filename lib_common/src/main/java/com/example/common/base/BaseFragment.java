@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.example.common.base.bridge.BaseImpl;
 import com.example.common.base.bridge.BaseView;
 import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.base.page.PageParams;
@@ -40,7 +41,7 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 /**
  * Created by WangYanBin on 2020/6/4.
  */
-public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDataBinding> extends Fragment implements BaseView {
+public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDataBinding> extends Fragment implements BaseImpl,BaseView {
     protected VM viewModel;
     protected VDB binding;
     protected WeakReference<Activity> activity;//基类activity弱引用
@@ -66,7 +67,8 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
         initData();
     }
 
-    protected View initDataBinding(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    @Override
+    public View initDataBinding(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (0 != getLayoutResID()) {
             binding = DataBindingUtil.inflate(inflater, getLayoutResID(), container, false);
             binding.setLifecycleOwner(this);
@@ -75,7 +77,8 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
-    protected void initViewModel() {
+    @Override
+    public void initViewModel() {
         if (null != binding) {
             Class modelClass;
             Type type = getClass().getGenericSuperclass();
@@ -90,17 +93,20 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
         }
     }
 
-    protected void initView() {
+    @Override
+    public void initView() {
         activity = new WeakReference<>(getActivity());
         context = new WeakReference<>(getContext());
         statusBarUtil = new StatusBarUtil(activity.get());
         loadingDialog = new LoadingDialog(context.get());
     }
 
-    protected void initEvent() {
+    @Override
+    public void initEvent() {
     }
 
-    protected void initData() {
+    @Override
+    public void initData() {
     }
 
     @Override

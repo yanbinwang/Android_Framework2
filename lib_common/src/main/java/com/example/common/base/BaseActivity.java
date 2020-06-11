@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.Nullable;
@@ -16,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.example.common.base.bridge.BaseImpl;
 import com.example.common.base.bridge.BaseView;
 import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.base.page.PageParams;
@@ -42,7 +45,7 @@ import java.util.TimerTask;
  * 在基类中实现绑定，向ViewModel中注入对应页面的activity和context，以及对对应页面的BaseViewModel中做生命周期的监控
  */
 @SuppressWarnings({"unchecked", "Raw"})
-public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDataBinding> extends AppCompatActivity implements BaseView {
+public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDataBinding> extends AppCompatActivity implements BaseImpl, BaseView {
     protected VM viewModel;
     protected VDB binding;
     protected WeakReference<Activity> activity;//基类activity弱引用
@@ -56,7 +59,7 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        initDataBinding();
+        initDataBinding(getLayoutInflater(), (ViewGroup) getWindow().getDecorView(), savedInstanceState);
         initViewModel();
         initView();
         initEvent();
@@ -65,16 +68,19 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
 
     protected abstract int getLayoutResID();
 
-    protected void initDataBinding() {
+    @Override
+    public View initDataBinding(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         //如果当前页面有传入布局id，做绑定操作
         if (0 != getLayoutResID()) {
             //绑定的xml作为一个bind持有
             binding = DataBindingUtil.setContentView(this, getLayoutResID());
             binding.setLifecycleOwner(this);
         }
+        return null;
     }
 
-    protected void initViewModel() {
+    @Override
+    public void initViewModel() {
         if (null != binding) {
             Class modelClass;
             Type type = getClass().getGenericSuperclass();
@@ -91,7 +97,8 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     }
 
     //控件的事件绑定，请求的回调，页面的跳转完全可交由viewmodel实现
-    protected void initView() {
+    @Override
+    public void initView() {
         ARouter.getInstance().inject(this);
         activity = new WeakReference<>(this);
         context = new WeakReference<>(this);
@@ -99,7 +106,8 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
         loadingDialog = new LoadingDialog(this);
     }
 
-    protected void initEvent() {
+    @Override
+    public void initEvent() {
         LiveDataBus.get()
                 .with(TAG, LiveDataBusEvent.class)
                 .observe(this, event -> {
@@ -119,7 +127,8 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
                 });
     }
 
-    protected void initData() {
+    @Override
+    public void initData() {
     }
 
     @Override
