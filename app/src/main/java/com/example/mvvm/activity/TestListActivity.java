@@ -18,7 +18,7 @@ public class TestListActivity extends BaseActivity<TestListViewModel,ActivityTes
     @Override
     public void initView() {
         super.initView();
-        binding.setModel(viewModel);
+        binding.setVm(viewModel);
     }
 
     @Override

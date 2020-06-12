@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
         <variable
-            name="model"
+            name="vm"
             type="com.example.mvvm.bridge.TestListViewModel" />
+        
+        <variable
+            name="adapter"
+            type="com.example.mvvm.adapter.TestListAdapter" />
 
     </data>
 
@@ -15,6 +20,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rec_test"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 

@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 
 import com.example.common.base.binding.BaseBindingAdapter;
-import com.example.common.base.binding.BaseBindingViewHolder;
 import com.example.mvvm.R;
 import com.example.mvvm.databinding.ItemTestBinding;
 import com.example.mvvm.model.TestListModel;
@@ -27,12 +26,12 @@ public class TestListAdapter extends BaseBindingAdapter<TestListModel> {
 
     @NonNull
     @Override
-    public BaseBindingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public BaseBindingAdapter.BaseBindingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new BaseBindingViewHolder(DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_test, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull BaseBindingViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull BaseBindingAdapter.BaseBindingViewHolder holder, int position) {
         ItemTestBinding binding = holder.getBinding();
         binding.setModel(list.get(position));
     }
