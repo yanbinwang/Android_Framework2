@@ -3,6 +3,7 @@ package com.example.mvvm.bridge;
 import android.content.Intent;
 
 import com.example.common.base.bridge.BaseViewModel;
+import com.example.common.constant.ARouterPath;
 import com.example.mvvm.activity.LoginActivity;
 import com.example.mvvm.activity.TestListActivity;
 
@@ -42,12 +43,12 @@ public class MainViewModel extends BaseViewModel {
     }
 
     public void toLoginPage() {
-        activity.get().startActivity(new Intent(context.get(), LoginActivity.class));
+        view.get().navigation(ARouterPath.LoginActivity);
     }
 
 
-    public void toList() {
-        activity.get().startActivity(new Intent(context.get(), TestListActivity.class));
+    public void toListPage() {
+        view.get().navigation(ARouterPath.TestListActivity);
     }
 
 }

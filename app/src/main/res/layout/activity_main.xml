@@ -31,7 +31,7 @@
             android:layout_height="60mm"
             android:layout_marginHorizontal="20mm"
             android:background="@color/gray_9f9f9f"
-            android:onClick="@{()->vm.toList()}"
+            android:onClick="@{()->vm.toListPage()}"
             android:text="模拟加载列表"
             android:textColor="@color/black"
             android:textSize="24mm" />
