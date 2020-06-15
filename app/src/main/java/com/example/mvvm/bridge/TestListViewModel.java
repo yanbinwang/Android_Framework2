@@ -18,17 +18,12 @@ public class TestListViewModel extends BaseViewModel {
     public MutableLiveData<List<TestListModel>> dataList = new MutableLiveData<>();
 
     public void getListData() {
-//        ActivityTestListBinding binding = getBinding();
+        //模拟请求网络
         List<TestListModel> list = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             list.add(new TestListModel("标题" + i, "描述" + i, "头像" + i));
         }
         dataList.postValue(list);//将结果回调给P层
-//        //绑定适配器
-//        TestListAdapter adapter = new TestListAdapter(list);
-//        binding.setAdapter(adapter);
-//        dataList.postValue(list);
-//        binding.recTest.setAdapter(adapter);
     }
 
 }

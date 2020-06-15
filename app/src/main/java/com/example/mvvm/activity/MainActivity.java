@@ -23,7 +23,25 @@ public class MainActivity extends BaseTitleActivity<MainViewModel, ActivityMainB
     public void initView() {
         super.initView();
         titleBuilder.setTitle("10086").getDefault();
-        binding.setVm(viewModel);//控制器作为一个中间层，让viewmodel直接和数据交互，本身不再做繁复的逻辑处理
+        binding.setVm(viewModel);
+    }
+
+    @Override
+    public void initEvent() {
+        super.initEvent();
+        binding.setClick(new ClickProxy());
+    }
+
+    public class ClickProxy {
+
+        public void toLoginPage() {
+            navigation(ARouterPath.LoginActivity);
+        }
+
+        public void toListPage() {
+            navigation(ARouterPath.TestListActivity);
+        }
+
     }
 
 }

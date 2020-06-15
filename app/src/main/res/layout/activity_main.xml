@@ -7,6 +7,10 @@
             name="vm"
             type="com.example.mvvm.bridge.MainViewModel" />
 
+        <variable
+            name="click"
+            type="com.example.mvvm.activity.MainActivity.ClickProxy" />
+
     </data>
 
     <LinearLayout
@@ -20,7 +24,7 @@
             android:layout_height="60mm"
             android:layout_margin="20mm"
             android:background="@color/gray_9f9f9f"
-            android:onClick="@{()->vm.toLoginPage()}"
+            android:onClick="@{()->click.toLoginPage()}"
             android:text="模拟登陆"
             android:textColor="@color/black"
             android:textSize="24mm" />
@@ -31,7 +35,7 @@
             android:layout_height="60mm"
             android:layout_marginHorizontal="20mm"
             android:background="@color/gray_9f9f9f"
-            android:onClick="@{()->vm.toListPage()}"
+            android:onClick="@{()->click.toListPage()}"
             android:text="模拟加载列表"
             android:textColor="@color/black"
             android:textSize="24mm" />

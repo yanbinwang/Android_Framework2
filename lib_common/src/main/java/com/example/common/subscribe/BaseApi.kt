@@ -2,10 +2,9 @@ package com.example.common.subscribe
 
 import androidx.lifecycle.LiveData
 import com.example.common.constant.Constants.URL
-import com.example.common.model.BaseModel
+import com.example.common.http.ResponseBody
 import com.example.common.model.UploadModel
 import okhttp3.MultipartBody
-import okhttp3.ResponseBody
 import retrofit2.http.*
 
 /**
@@ -21,14 +20,14 @@ interface BaseApi {
     @Multipart
     @Streaming
     @POST(URL)
-    fun getUploadFile(@Header("User-Agent") agent: String, @Part partList: List<MultipartBody.Part>): LiveData<BaseModel<UploadModel>>
+    fun getUploadFile(@Header("User-Agent") agent: String, @Part partList: List<MultipartBody.Part>): LiveData<ResponseBody<UploadModel>>
 
     @FormUrlEncoded
     @POST(URL)
-    fun getSendVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): LiveData<BaseModel<Any>>
+    fun getSendVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): LiveData<ResponseBody<Any>>
 
     @FormUrlEncoded
     @POST(URL)
-    fun getVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): LiveData<BaseModel<Any>>
+    fun getVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): LiveData<ResponseBody<Any>>
 
 }

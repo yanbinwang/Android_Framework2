@@ -9,16 +9,23 @@ import java.util.List;
 
 /**
  * Created by WangYanBin on 2020/6/11.
+ * 基础适配器，保留无参构造方法，用于适配传入对象
  */
-public abstract class BaseBindingAdapter<T extends BaseObservable> extends RecyclerView.Adapter<BaseBindingAdapter.BaseBindingViewHolder>{
-    private List<T> list;
+public abstract class BaseBindingAdapter<T extends BaseObservable> extends RecyclerView.Adapter<BaseBindingAdapter.BaseBindingViewHolder> {
+    protected List<T> list;
 
-    public BaseBindingAdapter(List<T> list) {
-        this.list = list;
+    public BaseBindingAdapter() {
     }
+
+//    public BaseBindingAdapter(List<T> list) {
+//        this.list = list;
+//    }
 
     @Override
     public int getItemCount() {
+        if (null == list) {
+            return 0;
+        }
         return list.size();
     }
 
@@ -27,7 +34,7 @@ public abstract class BaseBindingAdapter<T extends BaseObservable> extends Recyc
         notifyDataSetChanged();
     }
 
-    public static class BaseBindingViewHolder extends RecyclerView.ViewHolder{
+    public static class BaseBindingViewHolder extends RecyclerView.ViewHolder {
         private ViewDataBinding binding;
 
         public BaseBindingViewHolder(@NonNull ViewDataBinding binding) {

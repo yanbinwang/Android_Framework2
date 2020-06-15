@@ -2,20 +2,18 @@ package com.example.common.http;
 
 import androidx.lifecycle.Observer;
 
-import com.example.common.model.BaseModel;
-
 /**
  * Created by WangYanBin on 2020/6/8.
  */
-public abstract class HttpSubscriber<T> implements Observer<BaseModel<T>> {
+public abstract class HttpSubscriber<T> implements Observer<ResponseBody<T>> {
 
     @Override
-    public void onChanged(BaseModel<T> baseModel) {
-        if (null != baseModel) {
-            String msg = baseModel.getMsg();
-            int e = baseModel.getE();
+    public void onChanged(ResponseBody<T> responseBody) {
+        if (null != responseBody) {
+            String msg = responseBody.getMsg();
+            int e = responseBody.getE();
             if (0 == e) {
-                onSuccess(baseModel.getData());
+                onSuccess(responseBody.getData());
             } else {
 //                //账号还没有登录，解密失败，重新获取
 //                if (100005 == e || 100008 == e) {

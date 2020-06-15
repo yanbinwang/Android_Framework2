@@ -10,12 +10,12 @@ import com.example.mvvm.model.UserInfoModel;
 public class UserInfoViewModel extends BaseViewModel {
     private UserInfoModel model;
 
-    //接收传递信息
-    public void getPageModel() {
-        ActivityUserInfoBinding binding = getBinding();
-        model = (UserInfoModel) activity.get().getIntent().getSerializableExtra("model");
-        binding.setModel(model);
-    }
+//    //接收传递信息
+//    public void getPageModel() {
+//        ActivityUserInfoBinding binding = getBinding();
+//        model = (UserInfoModel) activity.get().getIntent().getSerializableExtra("model");
+//        binding.setModel(model);
+//    }
 
 //    @BindingAdapter(value = "bind:loadImage", requireAll = true)
 //    public static void loadImage(ImageView image, String url) {

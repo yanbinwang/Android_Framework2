@@ -1,11 +1,10 @@
 package com.example.common.subscribe
 
 import androidx.lifecycle.LiveData
+import com.example.common.http.ResponseBody
 import com.example.common.http.factory.RetrofitFactory
-import com.example.common.model.BaseModel
 import com.example.common.model.UploadModel
 import okhttp3.MultipartBody
-import okhttp3.ResponseBody
 
 /**
  * author:wyb
@@ -18,15 +17,15 @@ object BaseSubscribe : BaseApi {
         return baseApi.download(downloadUrl)
     }
 
-    override fun getUploadFile(agent: String, partList: List<MultipartBody.Part>): LiveData<BaseModel<UploadModel>> {
+    override fun getUploadFile(agent: String, partList: List<MultipartBody.Part>): LiveData<ResponseBody<UploadModel>> {
         TODO("Not yet implemented")
     }
 
-    override fun getSendVerification(agent: String, map: Map<String, String>): LiveData<BaseModel<Any>> {
+    override fun getSendVerification(agent: String, map: Map<String, String>): LiveData<ResponseBody<Any>> {
         return baseApi.getSendVerification(agent, map)
     }
 
-    override fun getVerification(agent: String, map: Map<String, String>): LiveData<BaseModel<Any>> {
+    override fun getVerification(agent: String, map: Map<String, String>): LiveData<ResponseBody<Any>> {
         return baseApi.getVerification(agent, map)
     }
 

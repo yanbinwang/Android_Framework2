@@ -11,13 +11,15 @@ import com.example.mvvm.bridge.TestListViewModel;
 import com.example.mvvm.databinding.ActivityTestListBinding;
 import com.example.mvvm.model.TestListModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by WangYanBin on 2020/6/4.
  */
 @Route(path = ARouterPath.TestListActivity)
-public class TestListActivity extends BaseActivity<TestListViewModel,ActivityTestListBinding> {
+public class TestListActivity extends BaseActivity<TestListViewModel, ActivityTestListBinding> {
+    private TestListAdapter adapter;
 
     @Override
     protected int getLayoutResID() {
@@ -28,6 +30,7 @@ public class TestListActivity extends BaseActivity<TestListViewModel,ActivityTes
     public void initView() {
         super.initView();
         binding.setVm(viewModel);
+        adapter = new TestListAdapter();//可不写，在onchange中判初始化
     }
 
     @Override
@@ -35,9 +38,14 @@ public class TestListActivity extends BaseActivity<TestListViewModel,ActivityTes
         super.initEvent();
         viewModel.dataList.observe(this, new Observer<List<TestListModel>>() {
             @Override
-            public void onChanged(List<TestListModel> testListModels) {
+            public void onChanged(List<TestListModel> list) {
+//                if (null == adapter) {
+//                    adapter = new TestListAdapter(list);
+//                } else {
+                    adapter.setList(list);
+//                }
                 //绑定适配器
-                binding.setAdapter(new TestListAdapter(testListModels));
+                binding.setAdapter(adapter);
             }
         });
     }

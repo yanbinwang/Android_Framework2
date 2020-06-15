@@ -17,12 +17,18 @@ import java.util.List;
  * Created by WangYanBin on 2020/6/5.
  */
 public class TestListAdapter extends BaseBindingAdapter<TestListModel> {
-    private List<TestListModel> list;
+//    private List<TestListModel> list;
 
-    public TestListAdapter(List<TestListModel> list) {
-        super(list);
-        this.list = list;
-    }
+//    public TestListAdapter(List<TestListModel> list) {
+//        super(list);
+//        this.list = list;
+//    }
+
+//    @Override
+//    public void setList(List list) {
+//        super.setList(list);
+////        this.list = list;
+//    }
 
     @NonNull
     @Override
