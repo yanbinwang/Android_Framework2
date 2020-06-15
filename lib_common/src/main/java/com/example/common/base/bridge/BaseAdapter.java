@@ -1,4 +1,4 @@
-package com.example.common.base.binding;
+package com.example.common.base.bridge;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.BaseObservable;
@@ -11,10 +11,10 @@ import java.util.List;
  * Created by WangYanBin on 2020/6/11.
  * 基础适配器，保留无参构造方法，用于适配传入对象
  */
-public abstract class BaseBindingAdapter<T extends BaseObservable> extends RecyclerView.Adapter<BaseBindingAdapter.BaseBindingViewHolder> {
+public abstract class BaseAdapter<T extends BaseObservable> extends RecyclerView.Adapter<BaseAdapter.BaseBindingViewHolder> {
     protected List<T> list;
 
-    public BaseBindingAdapter() {
+    public BaseAdapter() {
     }
 
 //    public BaseBindingAdapter(List<T> list) {

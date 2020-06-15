@@ -3,6 +3,8 @@ package com.example.common.base.binding;
 import androidx.databinding.BindingAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.common.base.bridge.BaseAdapter;
+
 import java.util.List;
 
 /**
@@ -20,7 +22,7 @@ public class RecyclerViewBindingAdapter {
     @BindingAdapter(value = {"refreshList"})
     public static void refreshList(RecyclerView recyclerView, List list) {
         if (recyclerView != null && list != null) {
-            ((BaseBindingAdapter) recyclerView.getAdapter()).setList(list);
+            ((BaseAdapter) recyclerView.getAdapter()).setList(list);
         }
     }
 }
