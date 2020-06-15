@@ -37,7 +37,7 @@ public class RecyclerViewBindingAdapter {
     public static void refreshList(RecyclerView recyclerView, List list) {
         if (list != null) {
             ((BaseBindingAdapter) recyclerView.getAdapter()).setList(list);
-            recyclerView.getAdapter().notifyDataSetChanged();
+//            recyclerView.getAdapter().notifyDataSetChanged();
         }
     }
 }

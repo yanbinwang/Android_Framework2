@@ -1,39 +1,46 @@
 package com.example.common.widget.dialog;
 
-
 import android.content.Context;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.example.common.R;
-import com.example.common.widget.dialog.callback.OnAndDialogListener;
-
+import com.example.common.widget.dialog.callback.OnDialogListener;
 
 /**
  * author: wyb
  * date: 2017/8/25.
  * 安卓原生提示框
  */
-public class AndDialog {
+public class AndDialog extends AlertDialog.Builder {
 
-    public static void show(Context context, String tipStr, String contentStr, String sureStr, String cancelStr, OnAndDialogListener onAndDialogListener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.dialogStyle);
-        if (!TextUtils.isEmpty(tipStr)) {
-            builder.setTitle(tipStr);
+    public AndDialog(@NonNull Context context) {
+        super(context, R.style.dialogStyle);
+    }
+
+    public AndDialog show(String tipText, String contentText, String sureText, String cancelText, OnDialogListener onDialogListener) {
+        if (!TextUtils.isEmpty(tipText)) {
+            setTitle(tipText);
         }
-        builder.setMessage(TextUtils.isEmpty(contentStr) ? "" : contentStr);
-        builder.setNegativeButton(sureStr, (dialog, which) -> {
-            if (null != onAndDialogListener) {
-                onAndDialogListener.onDialogConfirm();
+        setMessage(TextUtils.isEmpty(contentText) ? "" : contentText);
+        setNegativeButton(sureText, (dialog, which) -> {
+            if (null != onDialogListener) {
+                onDialogListener.onDialogConfirm();
             }
         });
-        builder.setPositiveButton(cancelStr, (dialog, which) -> {
-            if (null != onAndDialogListener) {
-                onAndDialogListener.onDialogCancel();
+        setPositiveButton(cancelText, (dialog, which) -> {
+            if (null != onDialogListener) {
+                onDialogListener.onDialogCancel();
             }
         });
-        builder.show();
+        show();
+        return this;
+    }
+
+    public static AndDialog with(Context context) {
+        return new AndDialog(context);
     }
 
 }

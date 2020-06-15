@@ -4,12 +4,11 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.LinearLayout;
 
-import com.example.common.R;
+import androidx.annotation.NonNull;
 
-import java.lang.ref.WeakReference;
+import com.example.common.R;
 
 
 /**
@@ -17,39 +16,25 @@ import java.lang.ref.WeakReference;
  * 加载动画view
  */
 @SuppressLint("InflateParams")
-public class LoadingDialog {
-    private View view;
-    private WeakReference<Context> context;
-    private Dialog loadingDialog;
+public class LoadingDialog extends Dialog {
 
-    public LoadingDialog(Context context) {
-        super();
-        this.context = new WeakReference<>(context);
+    public LoadingDialog(@NonNull Context context) {
+        super(context, R.style.loadingStyle);
+        setContentView(LayoutInflater.from(context).inflate(R.layout.view_dialog_loading, null), new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
     }
 
-    public void show(boolean isClose) {
-        if (view == null) {
-            view = LayoutInflater.from(context.get()).inflate(R.layout.view_dialog_loading, null);
-//            TextView msgTxt = view.findViewById(R.id.msg_txt);
-//            if (!TextUtils.isEmpty(str)) {
-//                msgTxt.setText(str);
-//            }
-        }
-        if (loadingDialog == null) {
-            loadingDialog = new Dialog(context.get(), R.style.loadingStyle);
-            loadingDialog.setContentView(view, new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT));
-            loadingDialog.setCancelable(isClose);
-        }
-        if (!loadingDialog.isShowing()) {
-            loadingDialog.show();
+    public void show(boolean flag) {
+        setCancelable(flag);
+        if (!isShowing()) {
+            show();
         }
     }
 
     public void hide() {
-        if (loadingDialog != null && loadingDialog.isShowing()) {
-            loadingDialog.dismiss();
+        if (isShowing()) {
+            dismiss();
         }
     }
 

@@ -7,7 +7,7 @@ import android.os.Build
 import android.provider.Settings
 import com.example.common.R
 import com.example.common.widget.dialog.AndDialog
-import com.example.common.widget.dialog.callback.OnAndDialogListener
+import com.example.common.widget.dialog.callback.OnDialogListener
 import com.yanzhenjie.permission.AndPermission
 import com.yanzhenjie.permission.runtime.Permission
 import java.text.MessageFormat
@@ -56,7 +56,7 @@ class AndPermissionUtil(private val context: Context) {
 
                 //如果用户拒绝了开启权限
                 if (AndPermission.hasAlwaysDeniedPermission(context, permissions)) {
-                    AndDialog.show(context, context.getString(R.string.label_dialog_title), MessageFormat.format(context.getString(R.string.label_dialog_permission), result), context.getString(R.string.label_dialog_sure), context.getString(R.string.label_dialog_cancel), object : OnAndDialogListener {
+                    AndDialog.with(context).show(context.getString(R.string.label_dialog_title), MessageFormat.format(context.getString(R.string.label_dialog_permission), result), context.getString(R.string.label_dialog_sure), context.getString(R.string.label_dialog_cancel), object : OnDialogListener {
                         override fun onDialogConfirm() {
                             val packageURI = Uri.parse("package:" + context.packageName)
                             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageURI)

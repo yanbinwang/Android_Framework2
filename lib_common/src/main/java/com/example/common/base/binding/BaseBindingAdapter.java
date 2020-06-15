@@ -1,6 +1,7 @@
 package com.example.common.base.binding;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.BaseObservable;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -9,7 +10,7 @@ import java.util.List;
 /**
  * Created by WangYanBin on 2020/6/11.
  */
-public abstract class BaseBindingAdapter<T> extends RecyclerView.Adapter<BaseBindingAdapter.BaseBindingViewHolder>{
+public abstract class BaseBindingAdapter<T extends BaseObservable> extends RecyclerView.Adapter<BaseBindingAdapter.BaseBindingViewHolder>{
     private List<T> list;
 
     public BaseBindingAdapter(List<T> list) {
@@ -21,8 +22,9 @@ public abstract class BaseBindingAdapter<T> extends RecyclerView.Adapter<BaseBin
         return list.size();
     }
 
-    public void setList(List<T> list) {
+    public void setList(List list) {
         this.list = list;
+        notifyDataSetChanged();
     }
 
     public static class BaseBindingViewHolder extends RecyclerView.ViewHolder{
