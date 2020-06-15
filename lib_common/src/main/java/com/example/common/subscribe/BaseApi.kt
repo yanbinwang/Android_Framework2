@@ -15,7 +15,7 @@ interface BaseApi {
 
     @Streaming
     @GET
-    fun download(@Url downloadUrl: String): LiveData<ResponseBody>
+    fun download(@Url downloadUrl: String): LiveData<okhttp3.ResponseBody>
 
     @Multipart
     @Streaming

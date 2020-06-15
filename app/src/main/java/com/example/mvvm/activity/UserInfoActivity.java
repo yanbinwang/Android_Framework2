@@ -22,7 +22,7 @@ public class UserInfoActivity extends BaseActivity<UserInfoViewModel, ActivityUs
     @Override
     public void initView() {
         super.initView();
-        binding.setVm(viewModel);
+        binding.setViewModel(viewModel);
     }
 
     @Override

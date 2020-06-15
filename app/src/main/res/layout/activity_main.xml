@@ -4,7 +4,7 @@
     <data>
 
         <variable
-            name="vm"
+            name="viewModel"
             type="com.example.mvvm.bridge.MainViewModel" />
 
         <variable

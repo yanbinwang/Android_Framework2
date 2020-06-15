@@ -27,7 +27,7 @@ public class LoginActivity extends BaseActivity<LoginViewModel, ActivityLoginBin
     @Override
     public void initView() {
         super.initView();
-        binding.setVm(viewModel);
+        binding.setViewModel(viewModel);
     }
 
     @Override

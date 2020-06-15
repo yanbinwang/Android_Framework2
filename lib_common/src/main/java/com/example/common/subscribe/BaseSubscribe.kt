@@ -13,7 +13,7 @@ import okhttp3.MultipartBody
 object BaseSubscribe : BaseApi {
     private val baseApi = RetrofitFactory.instance.create(BaseApi::class.java)
 
-    override fun download(downloadUrl: String): LiveData<ResponseBody> {
+    override fun download(downloadUrl: String): LiveData<okhttp3.ResponseBody> {
         return baseApi.download(downloadUrl)
     }
 
