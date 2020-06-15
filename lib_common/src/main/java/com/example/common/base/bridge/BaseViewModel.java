@@ -10,6 +10,8 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModel;
 
+import com.example.common.BR;
+
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
@@ -28,6 +30,7 @@ public abstract class BaseViewModel extends ViewModel implements LifecycleObserv
     //binding在注入的时候通过泛型取得对应页面产生的binding，在基类中注入对应的bind进行强转，
     //这样在继承baseviewmodel中就可以直接取得对应的binding，不需要强转
     public void attachView(Activity activity, Context context, BaseView view, ViewDataBinding binding) {
+        binding.setVariable(BR._all, this);
         this.activity = new WeakReference<>(activity);
         this.context = new WeakReference<>(context);
         this.view = new SoftReference<>(view);

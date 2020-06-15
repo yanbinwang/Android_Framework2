@@ -20,12 +20,6 @@ public class UserInfoActivity extends BaseActivity<UserInfoViewModel, ActivityUs
     }
 
     @Override
-    public void initView() {
-        super.initView();
-        binding.setViewModel(viewModel);
-    }
-
-    @Override
     public void initData() {
         super.initData();
         binding.setModel((UserInfoModel) getIntent().getSerializableExtra("model"));

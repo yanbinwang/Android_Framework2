@@ -29,7 +29,6 @@ public class TestListActivity extends BaseActivity<TestListViewModel, ActivityTe
     @Override
     public void initView() {
         super.initView();
-        binding.setViewModel(viewModel);
         adapter = new TestListAdapter();//可不写，在onchange中判初始化
     }
 

@@ -21,10 +21,8 @@ public abstract class BaseTitleActivity<VM extends BaseViewModel, VDB extends Vi
     protected TitleBuilder titleBuilder;//标题工具类
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
-
     @Override
     public View initDataBinding(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-//        return super.initDataBinding(inflater, container, savedInstanceState);
         if (0 != getLayoutResID()) {
             //绑定的xml作为一个bind持有
             binding = DataBindingUtil.bind(getLayoutInflater().inflate(getLayoutResID(), null));

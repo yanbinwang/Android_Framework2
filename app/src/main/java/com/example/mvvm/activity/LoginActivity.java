@@ -25,12 +25,6 @@ public class LoginActivity extends BaseActivity<LoginViewModel, ActivityLoginBin
     }
 
     @Override
-    public void initView() {
-        super.initView();
-        binding.setViewModel(viewModel);
-    }
-
-    @Override
     public void initEvent() {
         super.initEvent();
         binding.setClick(new ClickProxy());
