@@ -6,7 +6,6 @@ import com.example.common.constant.ARouterPath;
 import com.example.mvvm.R;
 import com.example.mvvm.bridge.UserInfoViewModel;
 import com.example.mvvm.databinding.ActivityUserInfoBinding;
-import com.example.mvvm.model.UserInfoModel;
 
 /**
  * Created by WangYanBin on 2020/6/3.
@@ -20,10 +19,15 @@ public class UserInfoActivity extends BaseActivity<UserInfoViewModel, ActivityUs
     }
 
     @Override
+    public void initEvent() {
+        super.initEvent();
+        viewModel.userInfoModel.observe(this, userInfoModel -> binding.setModel(userInfoModel));
+    }
+
+    @Override
     public void initData() {
         super.initData();
-        UserInfoModel model = (UserInfoModel) getIntent().getSerializableExtra("model");
-        binding.setModel(model);
+        viewModel.getPageModel();
     }
 
 }
