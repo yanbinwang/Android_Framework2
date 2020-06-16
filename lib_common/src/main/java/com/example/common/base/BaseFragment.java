@@ -9,6 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,7 +51,7 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 /**
  * Created by WangYanBin on 2020/6/4.
  */
-public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDataBinding> extends Fragment implements BaseImpl,BaseView {
+public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDataBinding> extends Fragment implements BaseImpl, BaseView {
     protected VM viewModel;
     protected VDB binding;
     protected WeakReference<Activity> activity;//基类activity弱引用
@@ -150,106 +155,6 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
     }
 
     @Override
-    public boolean doResponse(String msg) {
-        if (TextUtils.isEmpty(msg)) {
-            msg = getString(R.string.label_response_err);
-        }
-        showToast(!NetWorkUtil.INSTANCE.isNetworkAvailable() ? getString(R.string.label_response_net_err) : msg);
-        return true;
-    }
-
-    @Override
-    public void emptyState(EmptyLayout emptyLayout, String msg) {
-        emptyLayout.setVisibility(View.VISIBLE);
-        if (doResponse(msg)) {
-            emptyLayout.showEmpty();
-        }
-        if (!NetWorkUtil.INSTANCE.isNetworkAvailable()) {
-            emptyLayout.showError();
-        }
-    }
-
-    @Override
-    public void emptyState(XRecyclerView xRecyclerView, String msg, int length) {
-        emptyState(xRecyclerView, msg, length, R.mipmap.img_data_empty, EmptyLayout.EMPTY_TXT);
-    }
-
-    @Override
-    public void emptyState(XRecyclerView xRecyclerView, String msg, int length, int imgInt, String emptyStr) {
-        doResponse(msg);
-        if (length > 0) {
-            return;
-        }
-        xRecyclerView.setVisibilityEmptyView(View.VISIBLE);
-        if (!NetWorkUtil.INSTANCE.isNetworkAvailable()) {
-            xRecyclerView.showError();
-        } else {
-            xRecyclerView.showEmpty(imgInt, emptyStr);
-        }
-    }
-
-    @Override
-    public void openDecor(View view) {
-        closeDecor();
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                ((InputMethodManager) activity.get().getSystemService(INPUT_METHOD_SERVICE)).toggleSoftInput(0,
-                        InputMethodManager.HIDE_NOT_ALWAYS);
-            }
-        }, 200);
-        if (view != null) {
-            InputMethodManager inputmanger = (InputMethodManager) activity.get().getSystemService(INPUT_METHOD_SERVICE);
-            inputmanger.showSoftInput(view, 2);
-        }
-    }
-
-    @Override
-    public void closeDecor() {
-        View decorView = activity.get().getWindow().peekDecorView();
-        // 隐藏软键盘
-        if (decorView != null) {
-            InputMethodManager inputmanger = (InputMethodManager) activity.get().getSystemService(INPUT_METHOD_SERVICE);
-            inputmanger.hideSoftInputFromWindow(decorView.getWindowToken(), 0);
-        }
-    }
-
-    @Override
-    public void setViewFocus(View view) {
-        view.setFocusable(true);//设置输入框可聚集
-        view.setFocusableInTouchMode(true);//设置触摸聚焦
-        view.requestFocus();//请求焦点
-        view.findFocus();//获取焦点
-    }
-
-    @Override
-    public void VISIBLE(View... views) {
-        for (View view : views) {
-            if (view != null) {
-                view.setVisibility(View.VISIBLE);
-            }
-        }
-    }
-
-    @Override
-    public void INVISIBLE(View... views) {
-        for (View view : views) {
-            if (view != null) {
-                view.setVisibility(View.INVISIBLE);
-            }
-        }
-    }
-
-    @Override
-    public void GONE(View... views) {
-        for (View view : views) {
-            if (view != null) {
-                view.setVisibility(View.GONE);
-            }
-        }
-    }
-
-    @Override
     public Activity navigation(String path) {
         return navigation(path, null);
     }
@@ -298,6 +203,134 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
             postcard.navigation(activity.get(), code);
         }
         return activity.get();
+    }
+
+    @Override
+    public boolean doResponse(String msg) {
+        if (TextUtils.isEmpty(msg)) {
+            msg = getString(R.string.label_response_err);
+        }
+        showToast(!NetWorkUtil.INSTANCE.isNetworkAvailable() ? getString(R.string.label_response_net_err) : msg);
+        return true;
+    }
+
+    @Override
+    public void emptyState(EmptyLayout emptyLayout, String msg) {
+        emptyLayout.setVisibility(View.VISIBLE);
+        if (doResponse(msg)) {
+            emptyLayout.showEmpty();
+        }
+        if (!NetWorkUtil.INSTANCE.isNetworkAvailable()) {
+            emptyLayout.showError();
+        }
+    }
+
+    @Override
+    public void emptyState(XRecyclerView xRecyclerView, String msg, int length) {
+        emptyState(xRecyclerView, msg, length, R.mipmap.img_data_empty, EmptyLayout.EMPTY_TXT);
+    }
+
+    @Override
+    public void emptyState(XRecyclerView xRecyclerView, String msg, int length, int imgInt, String emptyStr) {
+        doResponse(msg);
+        if (length > 0) {
+            return;
+        }
+        xRecyclerView.setVisibilityEmptyView(View.VISIBLE);
+        if (!NetWorkUtil.INSTANCE.isNetworkAvailable()) {
+            xRecyclerView.showError();
+        } else {
+            xRecyclerView.showEmpty(imgInt, emptyStr);
+        }
+    }
+
+    @Override
+    public boolean isEmpty(Object... objs) {
+        for (Object obj : objs) {
+            if (obj == null) {
+                return true;
+            } else if (obj instanceof String && obj.equals("")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void openDecor(View view) {
+        closeDecor();
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ((InputMethodManager) activity.get().getSystemService(INPUT_METHOD_SERVICE)).toggleSoftInput(0,
+                        InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+        }, 200);
+        if (view != null) {
+            InputMethodManager inputmanger = (InputMethodManager) activity.get().getSystemService(INPUT_METHOD_SERVICE);
+            inputmanger.showSoftInput(view, 2);
+        }
+    }
+
+    @Override
+    public void closeDecor() {
+        View decorView = activity.get().getWindow().peekDecorView();
+        // 隐藏软键盘
+        if (decorView != null) {
+            InputMethodManager inputmanger = (InputMethodManager) activity.get().getSystemService(INPUT_METHOD_SERVICE);
+            inputmanger.hideSoftInputFromWindow(decorView.getWindowToken(), 0);
+        }
+    }
+
+    @Override
+    public void setViewFocus(View view) {
+        view.setFocusable(true);//设置输入框可聚集
+        view.setFocusableInTouchMode(true);//设置触摸聚焦
+        view.requestFocus();//请求焦点
+        view.findFocus();//获取焦点
+    }
+
+    @Override
+    public String getViewValue(View view) {
+        if (view instanceof EditText) {
+            return ((EditText) view).getText().toString().trim();
+        } else if (view instanceof TextView) {
+            return ((TextView) view).getText().toString().trim();
+        } else if (view instanceof CheckBox) {
+            return ((CheckBox) view).getText().toString().trim();
+        } else if (view instanceof RadioButton) {
+            return ((RadioButton) view).getText().toString().trim();
+        } else if (view instanceof Button) {
+            return ((Button) view).getText().toString().trim();
+        }
+        return null;
+    }
+
+    @Override
+    public void VISIBLE(View... views) {
+        for (View view : views) {
+            if (view != null) {
+                view.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    @Override
+    public void INVISIBLE(View... views) {
+        for (View view : views) {
+            if (view != null) {
+                view.setVisibility(View.INVISIBLE);
+            }
+        }
+    }
+
+    @Override
+    public void GONE(View... views) {
+        for (View view : views) {
+            if (view != null) {
+                view.setVisibility(View.GONE);
+            }
+        }
     }
     // </editor-fold>
 

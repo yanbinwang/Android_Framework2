@@ -1,8 +1,6 @@
 package com.example.framework.utils
 
 import android.text.TextUtils
-import android.view.View
-import android.widget.*
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.util.regex.Pattern
@@ -12,38 +10,6 @@ import java.util.regex.Pattern
  * 字符串修改类
  */
 object StringUtil {
-
-    fun getViewValue(view: View?): String? {
-        when (view) {
-            is EditText -> {
-                return view.text.toString().trim { it <= ' ' }
-            }
-            is TextView -> {
-                return view.text.toString().trim { it <= ' ' }
-            }
-            is CheckBox -> {
-                return view.text.toString().trim { it <= ' ' }
-            }
-            is RadioButton -> {
-                return view.text.toString().trim { it <= ' ' }
-            }
-            is Button -> {
-                return view.text.toString().trim { it <= ' ' }
-            }
-            else -> return null
-        }
-    }
-
-    fun isEmpty(vararg objs: Any?): Boolean {
-        for (obj in objs) {
-            if (obj == null) {
-                return true
-            } else if (obj is String && obj == "") {
-                return true
-            }
-        }
-        return false
-    }
 
     fun processedString(source: String?, defaultStr: String?): String {
         return if (source == null) {

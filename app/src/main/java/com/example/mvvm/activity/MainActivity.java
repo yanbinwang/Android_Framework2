@@ -1,6 +1,8 @@
 package com.example.mvvm.activity;
 
 
+import android.view.View;
+
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.example.common.base.BaseTitleActivity;
 import com.example.common.constant.ARouterPath;
@@ -31,16 +33,19 @@ public class MainActivity extends BaseTitleActivity<MainViewModel, ActivityMainB
         binding.setClick(new ClickProxy());
     }
 
-    public class ClickProxy {
+    public class ClickProxy implements View.OnClickListener {
 
-        public void toLoginPage() {
-            navigation(ARouterPath.LoginActivity);
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()){
+                case R.id.btn_login:
+                    navigation(ARouterPath.LoginActivity);
+                    break;
+                case R.id.btn_list:
+                    navigation(ARouterPath.TestListActivity);
+                    break;
+            }
         }
-
-        public void toListPage() {
-            navigation(ARouterPath.TestListActivity);
-        }
-
     }
 
 }

@@ -15,18 +15,6 @@ import com.example.mvvm.model.TestListModel;
  * Created by WangYanBin on 2020/6/5.
  */
 public class TestListAdapter extends BaseAdapter<TestListModel> {
-//    private List<TestListModel> list;
-
-//    public TestListAdapter(List<TestListModel> list) {
-//        super(list);
-//        this.list = list;
-//    }
-
-//    @Override
-//    public void setList(List list) {
-//        super.setList(list);
-////        this.list = list;
-//    }
 
     @NonNull
     @Override

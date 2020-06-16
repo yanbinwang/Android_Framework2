@@ -17,10 +17,6 @@ public abstract class BaseAdapter<T extends BaseObservable> extends RecyclerView
     public BaseAdapter() {
     }
 
-//    public BaseBindingAdapter(List<T> list) {
-//        this.list = list;
-//    }
-
     @Override
     public int getItemCount() {
         if (null == list) {

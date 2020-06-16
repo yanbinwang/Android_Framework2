@@ -29,23 +29,16 @@ public class TestListActivity extends BaseActivity<TestListViewModel, ActivityTe
     @Override
     public void initView() {
         super.initView();
-        adapter = new TestListAdapter();//可不写，在onchange中判初始化
+        adapter = new TestListAdapter();
     }
 
     @Override
     public void initEvent() {
         super.initEvent();
-        viewModel.dataList.observe(this, new Observer<List<TestListModel>>() {
-            @Override
-            public void onChanged(List<TestListModel> list) {
-//                if (null == adapter) {
-//                    adapter = new TestListAdapter(list);
-//                } else {
-                    adapter.setList(list);
-//                }
-                //绑定适配器
-                binding.setAdapter(adapter);
-            }
+        viewModel.dataList.observe(this, list -> {
+            //绑定适配器
+            adapter.setList(list);
+            binding.setAdapter(adapter);
         });
     }
 

@@ -38,6 +38,16 @@ interface BaseView {
     fun hideDialog()
 
     /**
+     * 路由跳转
+     */
+    fun navigation(path: String): Activity
+
+    /**
+     * 路由跳转,带参数
+     */
+    fun navigation(path: String, params: PageParams): Activity
+
+    /**
      * 接口返回提示
      */
     fun doResponse(msg: String?): Boolean
@@ -58,6 +68,11 @@ interface BaseView {
     fun emptyState(xRecyclerView: XRecyclerView?, msg: String?, length: Int, imgInt: Int, emptyStr: String?)
 
     /**
+     * 对象判空（批量）
+     */
+    fun isEmpty(vararg objs: Any?): Boolean
+
+    /**
      * 虚拟键盘开启
      */
     fun openDecor(view: View?)
@@ -73,6 +88,11 @@ interface BaseView {
     fun setViewFocus(view: View?)
 
     /**
+     * 获取控件的基础值
+     */
+    fun getViewValue(view: View?): String?
+
+    /**
      * 控件显示
      */
     fun VISIBLE(vararg views: View?)
@@ -86,15 +106,5 @@ interface BaseView {
      * 控件隐藏（不占位）
      */
     fun GONE(vararg views: View?)
-
-    /**
-     * 路由跳转
-     */
-    fun navigation(path: String): Activity
-
-    /**
-     * 路由跳转,带参数
-     */
-    fun navigation(path: String, params: PageParams): Activity
 
 }

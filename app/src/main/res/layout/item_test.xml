@@ -15,38 +15,40 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:layout_width="80dp"
-            app:resource="@{model.avatar}"
-            android:layout_margin="20dp"
-            android:layout_height="80dp" />
+            android:layout_width="160mm"
+            android:layout_height="160mm"
+            android:layout_margin="40mm"
+            app:resource="@{model.avatar}" />
 
-<!--        <ImageView-->
-<!--            android:layout_width="80dp"-->
-<!--            android:layout_margin="20dp"-->
-<!--            android:layout_height="80dp" />-->
+        <!--        <ImageView-->
+        <!--            android:layout_width="80dp"-->
+        <!--            android:layout_margin="20dp"-->
+        <!--            android:layout_height="80dp" />-->
 
         <RelativeLayout
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp"
             android:layout_width="match_parent"
-            android:layout_height="80dp">
+            android:layout_height="160mm"
+            android:layout_marginVertical="40mm">
 
             <TextView
                 android:id="@+id/tv_title"
-                android:textSize="16sp"
-                android:text="@{model.title}"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:text="@{model.title}"
+                android:textColor="@color/gray_6c6c6c"
+                android:textSize="32mm" />
 
             <TextView
-                android:textSize="14sp"
-                android:text="@{model.describe}"
                 android:id="@+id/tv_describe"
-               android:layout_alignParentBottom="true"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:text="@{model.describe}"
+                android:textColor="@color/gray_6c6c6c"
+                android:textSize="28mm" />
 
         </RelativeLayout>
 
     </LinearLayout>
+
 </layout>
