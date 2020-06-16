@@ -1,7 +1,5 @@
 package com.example.mvvm.activity;
 
-import androidx.lifecycle.Observer;
-
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.example.common.base.BaseActivity;
 import com.example.common.constant.ARouterPath;
@@ -9,10 +7,6 @@ import com.example.mvvm.R;
 import com.example.mvvm.adapter.TestListAdapter;
 import com.example.mvvm.bridge.TestListViewModel;
 import com.example.mvvm.databinding.ActivityTestListBinding;
-import com.example.mvvm.model.TestListModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by WangYanBin on 2020/6/4.

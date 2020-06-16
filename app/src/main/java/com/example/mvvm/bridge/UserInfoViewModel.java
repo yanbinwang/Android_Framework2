@@ -8,7 +8,7 @@ import com.example.mvvm.model.UserInfoModel;
  * Created by WangYanBin on 2020/6/3.
  */
 public class UserInfoViewModel extends BaseViewModel {
-    private UserInfoModel model;
+//    private UserInfoModel model;
 
 //    //接收传递信息
 //    public void getPageModel() {
