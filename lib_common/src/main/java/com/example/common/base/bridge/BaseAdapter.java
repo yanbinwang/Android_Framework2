@@ -8,8 +8,6 @@ import androidx.databinding.BaseObservable;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.common.BR;
-
 import java.util.List;
 
 /**
@@ -27,6 +25,11 @@ public abstract class BaseAdapter<T extends BaseObservable> extends RecyclerView
         this.layoutId = layoutId;
     }
 
+    public BaseAdapter(List<T> list, int layoutId) {
+        this.list = list;
+        this.layoutId = layoutId;
+    }
+
     @NonNull
     @Override
     public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -40,10 +43,7 @@ public abstract class BaseAdapter<T extends BaseObservable> extends RecyclerView
 
     @Override
     public int getItemCount() {
-        if (null == list) {
-            return 0;
-        }
-        return list.size();
+        return list == null ? 0 : list.size();
     }
 
     public void setList(List list) {
