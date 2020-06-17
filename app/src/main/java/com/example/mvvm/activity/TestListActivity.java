@@ -23,7 +23,7 @@ public class TestListActivity extends BaseActivity<TestListViewModel, ActivityTe
     @Override
     public void initView() {
         super.initView();
-        adapter = new TestListAdapter();
+        adapter = new TestListAdapter(R.layout.item_test);
     }
 
     @Override
