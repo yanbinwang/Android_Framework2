@@ -66,17 +66,13 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         initDataBinding();
-        if (null != binding) {
-            return binding.getRoot();
-        } else {
-            return super.onCreateView(inflater, container, savedInstanceState);
-        }
+        initViewModel();
+        return binding != null ? binding.getRoot() : super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        initViewModel();
         initView();
         initEvent();
         initData();

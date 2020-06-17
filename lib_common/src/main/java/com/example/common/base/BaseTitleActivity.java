@@ -18,6 +18,7 @@ public abstract class BaseTitleActivity<VM extends BaseViewModel, VDB extends Vi
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     @Override
     public void initDataBinding() {
+        super.initDataBinding();
         if (0 != getLayoutResID()) {
             //绑定的xml作为一个bind持有
             binding = DataBindingUtil.bind(getLayoutInflater().inflate(getLayoutResID(), null));

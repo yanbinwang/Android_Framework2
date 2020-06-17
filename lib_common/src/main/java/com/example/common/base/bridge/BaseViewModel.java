@@ -18,6 +18,7 @@ import java.lang.ref.WeakReference;
 /**
  * Created by WangYanBin on 2020/6/3.
  * 所有ViewModel的基类，将本该属于BaseActivity的部分逻辑和操作View的相关方法放入该类实现
+ * 注入对应的View操作，对应的Binding文件，开发的时候可以随时存取和调用基类Activity的控件和方法
  */
 public abstract class BaseViewModel extends ViewModel implements LifecycleObserver {
     protected WeakReference<Activity> activity;
