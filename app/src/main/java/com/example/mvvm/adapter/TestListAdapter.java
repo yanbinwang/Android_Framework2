@@ -17,8 +17,10 @@ import com.example.mvvm.model.TestListModel;
  */
 public class TestListAdapter extends BaseAdapter<TestListModel> {
 
-    public TestListAdapter(int layoutId) {
-        super(layoutId);
+    @NonNull
+    @Override
+    public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new BaseViewHolder(DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_test, parent, false));
     }
 
     @Override
@@ -26,19 +28,5 @@ public class TestListAdapter extends BaseAdapter<TestListModel> {
         ItemTestBinding binding = holder.getBinding();
         binding.setModel(list.get(position));
     }
+
 }
-//public class TestListAdapter extends BaseAdapter<TestListModel> {
-//
-//    @NonNull
-//    @Override
-//    public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-//        return new BaseViewHolder(DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_test, parent, false));
-//    }
-//
-//    @Override
-//    public void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
-//        ItemTestBinding binding = holder.getBinding();
-//        binding.setModel(list.get(position));
-//    }
-//
-//}
