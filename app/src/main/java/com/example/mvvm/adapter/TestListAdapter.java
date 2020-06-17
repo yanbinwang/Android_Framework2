@@ -1,32 +1,39 @@
 package com.example.mvvm.adapter;
 
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 
-import com.example.common.base.bridge.BaseAdapter;
-import com.example.common.base.bridge.BaseViewHolder;
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.viewholder.BaseDataBindingHolder;
 import com.example.mvvm.R;
 import com.example.mvvm.databinding.ItemTestBinding;
 import com.example.mvvm.model.TestListModel;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Created by WangYanBin on 2020/6/5.
  */
-public class TestListAdapter extends BaseAdapter<TestListModel> {
+public class TestListAdapter extends BaseQuickAdapter<TestListModel, BaseDataBindingHolder> {
 
-    @NonNull
-    @Override
-    public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new BaseViewHolder(DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item_test, parent, false));
+    public TestListAdapter() {
+        super(R.layout.item_test);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
-        ItemTestBinding binding = holder.getBinding();
-        binding.setModel(list.get(position));
+    protected void onItemViewHolderCreated(@NotNull BaseDataBindingHolder viewHolder, int viewType) {
+        super.onItemViewHolderCreated(viewHolder, viewType);
+        DataBindingUtil.bind(viewHolder.itemView);
     }
 
+    @Override
+    protected void convert(@NotNull BaseDataBindingHolder helper, TestListModel item) {
+        if (item == null) {
+            return;
+        }
+        //设置数据
+        ItemTestBinding binding = (ItemTestBinding) helper.getDataBinding();
+        if (binding != null) {
+            binding.setModel(item);
+        }
+    }
 }

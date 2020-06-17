@@ -72,7 +72,8 @@ dependencies {
     api deps.okhttp3
     api deps.autosize
     api deps.mmkv
+    api deps.adapterhelper
+    api deps.tkrefreshlayout
     api deps.recovery
     api deps.wechat
-    api deps.tkrefreshlayout
 }

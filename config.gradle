@@ -27,9 +27,10 @@ versions.material = "1.0.0"
 versions.okhttp = "3.14.0"
 versions.autosize = "1.1.2"
 versions.mmkv = "1.1.2"
+versions.adapterhelper = "3.0.4"
+versions.tkrefreshlayout = "1.0.7"
 versions.recovery = "1.0.0"
 versions.wechat = "5.1.4"
-versions.tkrefreshlayout = "1.0.7"
 
 //安卓x库
 def androidx = [:]
@@ -71,9 +72,10 @@ deps.material = "com.google.android.material:material:$versions.material"//desig
 deps.okhttp3 = "com.squareup.okhttp3:okhttp:$versions.okhttp"//okhttp
 deps.autosize = "me.jessyan:autosize:$versions.autosize"//今日头条布局兼容
 deps.mmkv = "com.tencent:mmkv-static:$versions.mmkv"//腾讯读写库
+deps.adapterhelper = "com.github.CymChad:BaseRecyclerViewAdapterHelper:$versions.adapterhelper"//封装的适配器
+deps.tkrefreshlayout = "com.lcodecorex:tkrefreshlayout:$versions.tkrefreshlayout"//刷新控件
 deps.recovery = "com.zxy.android:recovery:$versions.recovery"//闪退抓捕
 deps.wechat = "com.tencent.mm.opensdk:wechat-sdk-android-without-mta:$versions.wechat"//微信
-deps.tkrefreshlayout = "com.lcodecorex:tkrefreshlayout:$versions.tkrefreshlayout"//刷新控件
 ext.deps = deps
 //---------------------------------------------全局引用配置结束---------------------------------------------
 
