@@ -65,7 +65,12 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return initDataBinding(inflater, container, savedInstanceState);
+        initDataBinding();
+        if (null != binding) {
+            return binding.getRoot();
+        } else {
+            return super.onCreateView(inflater, container, savedInstanceState);
+        }
     }
 
     @Override
@@ -78,28 +83,33 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
     }
 
     @Override
-    public View initDataBinding(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public void initDataBinding() {
         if (0 != getLayoutResID()) {
-            binding = DataBindingUtil.inflate(inflater, getLayoutResID(), container, false);
+            binding = DataBindingUtil.inflate(getLayoutInflater(), getLayoutResID(), (ViewGroup) getActivity().getWindow().getDecorView(), false);
             binding.setLifecycleOwner(this);
-            return binding.getRoot();
         }
-        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
     public void initViewModel() {
         if (null != binding) {
-            Class modelClass;
-            Type type = getClass().getGenericSuperclass();
-            if (type instanceof ParameterizedType) {
-                modelClass = (Class) ((ParameterizedType) type).getActualTypeArguments()[0];
-            } else {
-                //如果没有指定泛型参数，则默认使用BaseViewModel
-                modelClass = BaseViewModel.class;
+            try {
+                Type superClass = getClass().getGenericSuperclass();
+                ParameterizedType parameterizedType = (ParameterizedType) superClass;
+                Type type = null;
+                if (parameterizedType != null) {
+                    type = parameterizedType.getActualTypeArguments()[0];
+                }
+                Class<VM> vmClass = (Class<VM>) type;
+                if (vmClass != null) {
+                    vmClass.newInstance();
+                    viewModel = new ViewModelProvider(this).get(vmClass);
+                    viewModel.attachView(getActivity(), getContext(), this, binding);//注入绑定和上下文
+                    getLifecycle().addObserver(viewModel);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            viewModel = (VM) new ViewModelProvider(this).get(modelClass);
-            viewModel.attachView(getActivity(), getContext(), this, binding);
         }
     }
 

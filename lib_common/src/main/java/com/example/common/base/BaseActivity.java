@@ -6,9 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -69,7 +67,7 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        initDataBinding(getLayoutInflater(), (ViewGroup) getWindow().getDecorView(), savedInstanceState);
+        initDataBinding();
         initViewModel();
         initView();
         initEvent();
@@ -79,30 +77,35 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     protected abstract int getLayoutResID();
 
     @Override
-    public View initDataBinding(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public void initDataBinding() {
         //如果当前页面有传入布局id，做绑定操作
         if (0 != getLayoutResID()) {
             //绑定的xml作为一个bind持有
             binding = DataBindingUtil.setContentView(this, getLayoutResID());
             binding.setLifecycleOwner(this);
         }
-        return null;
     }
 
     @Override
     public void initViewModel() {
         if (null != binding) {
-            Class modelClass;
-            Type type = getClass().getGenericSuperclass();
-            if (type instanceof ParameterizedType) {
-                modelClass = (Class) ((ParameterizedType) type).getActualTypeArguments()[0];
-            } else {
-                //如果没有指定泛型参数，则默认使用BaseViewModel
-                modelClass = BaseViewModel.class;
+            try {
+                Type superClass = getClass().getGenericSuperclass();
+                ParameterizedType parameterizedType = (ParameterizedType) superClass;
+                Type type = null;
+                if (parameterizedType != null) {
+                    type = parameterizedType.getActualTypeArguments()[0];
+                }
+                Class<VM> vmClass = (Class<VM>) type;
+                if (vmClass != null) {
+                    vmClass.newInstance();
+                    viewModel = new ViewModelProvider(this).get(vmClass);
+                    viewModel.attachView(this, this, this, binding);//注入绑定和上下文
+                    getLifecycle().addObserver(viewModel);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            viewModel = (VM) new ViewModelProvider(this).get(modelClass);
-            viewModel.attachView(this, this, this, binding);//注入绑定和上下文
-            getLifecycle().addObserver(viewModel);
         }
     }
 
