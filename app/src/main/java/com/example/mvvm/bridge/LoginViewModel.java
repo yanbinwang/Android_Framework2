@@ -24,7 +24,7 @@ public class LoginViewModel extends BaseViewModel {
             BaseSubscribe.INSTANCE
                     .getTestApi()
                     //传入对应的生命周期避免内存泄漏
-                    .observe(getBinding().getLifecycleOwner(),new HttpSubscriber<Object>() {
+                    .observe(getOwner(),new HttpSubscriber<Object>() {
                         @Override
                         protected void onSuccess(Object data) {
 
