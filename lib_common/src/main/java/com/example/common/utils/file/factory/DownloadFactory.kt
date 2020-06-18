@@ -1,14 +1,13 @@
 package com.example.common.utils.file.factory
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Looper
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import com.example.common.subscribe.BaseSubscribe.download
 import com.example.common.utils.file.FileUtil
 import com.example.common.utils.file.callback.OnDownloadListener
-import com.example.framework.widget.WeakHandler
+import com.example.framework.os.WeakHandler
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -20,7 +19,8 @@ import java.io.InputStream
  */
 @SuppressLint("CheckResult")
 class DownloadFactory private constructor() {
-    private val weakHandler: WeakHandler = WeakHandler(Looper.getMainLooper())
+    private val weakHandler: WeakHandler =
+        WeakHandler(Looper.getMainLooper())
 
     companion object {
         val instance: DownloadFactory by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {

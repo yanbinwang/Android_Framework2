@@ -38,6 +38,31 @@ public class LoginActivity extends BaseTitleActivity<LoginViewModel, ActivityLog
         binding.setClick(new ClickProxy());
         //类似mvp的接口回调,通过观察泛型内容随时刷新变化
         viewModel.userInfoModel.observe(this, userInfoModel -> navigation(ARouterPath.UserInfoActivity, new PageParams().append("model", userInfoModel)).finish());
+
+
+//        viewModel.getData();
+//        for (int i = 0; i < 1000; i++) {
+//            int position = i;
+//            log("当前第" + position + "个请求开始！");
+////            LiveDataBus.BusMutableLiveData x = new LiveDataBus.BusMutableLiveData();
+//            BaseSubscribe.INSTANCE
+//                    .getTestApi()
+//                    .observe(this,new HttpSubscriber<Object>() {
+//                        @Override
+//                        protected void onSuccess(Object data) {
+//
+//                        }
+//
+//                        @Override
+//                        protected void onFailed(String msg) {
+//                        }
+//
+//                        @Override
+//                        protected void onFinish() {
+//                            log("当前第" + position + "个请求结束！");
+//                        }
+//                    });
+//        }
     }
 
     //点击的绑定（也可直接写在viewmodel中）

@@ -1,6 +1,6 @@
 package com.example.common.http.adapter
 
-import androidx.lifecycle.LiveData
+import com.example.framework.os.lifecycle.BusMutableLiveData
 import retrofit2.Call
 import retrofit2.CallAdapter
 import retrofit2.Callback
@@ -11,10 +11,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * Created by WangYanBin on 2020/6/8.
  */
-class LiveDataCallAdapter<R>(var type: Type) : CallAdapter<R, LiveData<R>> {
+class LiveDataCallAdapter<R>(var type: Type) : CallAdapter<R, BusMutableLiveData<R>> {
 
-    override fun adapt(call: Call<R>?): LiveData<R> {
-        return object : LiveData<R>() {
+    override fun adapt(call: Call<R>?): BusMutableLiveData<R> {
+        return object : BusMutableLiveData<R>() {
             //这个作用是业务在多线程中,业务处理的线程安全问题,确保单一线程作业
             val flag = AtomicBoolean(false)
             override fun onActive() {

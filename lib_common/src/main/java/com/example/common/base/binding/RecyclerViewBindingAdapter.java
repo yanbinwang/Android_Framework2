@@ -34,12 +34,12 @@ public class RecyclerViewBindingAdapter {
         }
     }
 
-    @BindingAdapter(value = {"itemDecoration"})
-    public static void setItemDecoration(XRecyclerView recyclerView, int horizontalSpace, int verticalSpace, boolean hasHorizontalEdge, boolean hasVerticalEdge) {
-        if (recyclerView != null) {
-            recyclerView.addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge);
-        }
-    }
+//    @BindingAdapter(value = {"itemDecoration"})
+//    public static void setItemDecoration(XRecyclerView recyclerView, int horizontalSpace, int verticalSpace, boolean hasHorizontalEdge, boolean hasVerticalEdge) {
+//        if (recyclerView != null) {
+//            recyclerView.addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge);
+//        }
+//    }
 
     @BindingAdapter(value = {"emptyBackgroundColor"})
     public static void setEmptyBackgroundColor(XRecyclerView recyclerView, int color) {

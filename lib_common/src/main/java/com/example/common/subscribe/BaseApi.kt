@@ -30,4 +30,7 @@ interface BaseApi {
     @POST(URL)
     fun getVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): LiveData<ResponseBody<Any>>
 
+    @GET("URL")
+    fun getTestApi(): LiveData<ResponseBody<Any>>
+
 }
