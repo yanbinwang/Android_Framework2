@@ -7,7 +7,7 @@ import androidx.lifecycle.Observer
 import com.example.common.subscribe.BaseSubscribe.download
 import com.example.common.utils.file.FileUtil
 import com.example.common.utils.file.callback.OnDownloadListener
-import com.example.framework.os.WeakHandler
+import com.example.framework.widget.WeakHandler
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException

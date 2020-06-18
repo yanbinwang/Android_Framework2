@@ -2,7 +2,7 @@ package com.example.common.bus;
 
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.framework.os.lifecycle.BusMutableLiveData;
+import com.example.framework.widget.lifecycle.BusMutableLiveData;
 
 import java.util.HashMap;
 import java.util.Map;

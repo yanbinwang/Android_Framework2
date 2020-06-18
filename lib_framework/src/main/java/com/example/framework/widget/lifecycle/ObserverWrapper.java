@@ -1,4 +1,4 @@
-package com.example.framework.os.lifecycle;
+package com.example.framework.widget.lifecycle;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
