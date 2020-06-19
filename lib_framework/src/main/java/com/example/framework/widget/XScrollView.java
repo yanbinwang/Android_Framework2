@@ -51,11 +51,11 @@ public class XScrollView extends ScrollView {
                 setTop(false);
                 downX = (int) e.getRawX();
                 downY = (int) e.getRawY();
-                LogUtil.INSTANCE.i("-----::----downY-----::", downY + "");
+                LogUtil.i("-----::----downY-----::", downY + "");
                 break;
             case MotionEvent.ACTION_MOVE:
                 int moveY = (int) e.getRawY();
-                LogUtil.INSTANCE.i("-----::----moveY-----::", moveY + "");
+                LogUtil.i("-----::----moveY-----::", moveY + "");
                 //判断是向下滑动，才设置为true
                 if (downY - moveY > 0) {
                     setTop(true);
