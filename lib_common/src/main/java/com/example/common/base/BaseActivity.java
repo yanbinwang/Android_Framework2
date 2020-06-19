@@ -36,7 +36,7 @@ import com.example.common.widget.dialog.LoadingDialog;
 import com.example.common.widget.empty.EmptyLayout;
 import com.example.common.widget.xrecyclerview.XRecyclerView;
 import com.example.framework.utils.LogUtil;
-import com.example.framework.utils.StatusBarUtil;
+import com.example.common.utils.bulider.StatusBarBuilder;
 import com.example.framework.utils.ToastUtil;
 
 import java.io.Serializable;
@@ -58,7 +58,7 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     protected VDB binding;
     protected WeakReference<Activity> activity;//基类activity弱引用
     protected WeakReference<Context> context;//基类context弱引用
-    protected StatusBarUtil statusBarUtil;//状态栏工具类
+    protected StatusBarBuilder statusBarBuilder;//状态栏工具类
     private LoadingDialog loadingDialog;//刷新球控件，相当于加载动画
     private final String TAG = getClass().getSimpleName().toLowerCase();//额外数据，查看log，观察当前activity是否被销毁
 
@@ -115,7 +115,7 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
         ARouter.getInstance().inject(this);
         activity = new WeakReference<>(this);
         context = new WeakReference<>(this);
-        statusBarUtil = new StatusBarUtil(this);
+        statusBarBuilder = new StatusBarBuilder(this);
         loadingDialog = new LoadingDialog(this);
     }
 
@@ -156,12 +156,12 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     @Override
     public void log(String content) {
-        LogUtil.INSTANCE.e(TAG, content);
+        LogUtil.e(TAG, content);
     }
 
     @Override
     public void showToast(String str) {
-        ToastUtil.INSTANCE.mackToastSHORT(str, getApplicationContext());
+        ToastUtil.mackToastSHORT(str, getApplicationContext());
     }
 
     @Override

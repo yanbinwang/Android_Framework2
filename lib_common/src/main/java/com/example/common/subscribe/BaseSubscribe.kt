@@ -29,6 +29,10 @@ object BaseSubscribe : BaseApi {
         return baseApi.getVerification(agent, map)
     }
 
+    override fun getTestApi(): LiveData<ResponseBody<Any>> {
+        return baseApi.getTestApi()
+    }
+
 //    //上传图片接口
 //    fun getUploadFile(header: Int, partList: MutableList<MultipartBody.Part>, resourceSubscriber: ResourceSubscriber<BaseBean<UploadBean>>): Disposable {
 //        val params = Params().getParams(timestamp)

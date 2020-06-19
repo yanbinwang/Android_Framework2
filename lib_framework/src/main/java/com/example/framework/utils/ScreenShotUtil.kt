@@ -13,9 +13,10 @@ import java.lang.ref.WeakReference
  * date: 2019/1/28.
  * 截图工具类
  */
-object ScreenCaptureUtil {
+object ScreenShotUtil {
 
     //截取除了导航栏之外的整个屏幕
+    @JvmStatic
     fun getWholeViewBitmap(activity: Activity): Bitmap {
         val mActivity = WeakReference(activity)
         val dView = mActivity.get()!!.window.decorView
@@ -25,6 +26,7 @@ object ScreenCaptureUtil {
     }
 
     //获取View在屏幕可见区域的截图
+    @JvmStatic
     fun getViewBitmap(view: View): Bitmap {
         //        //开启缓存功能
         //        view.setDrawingCacheEnabled(true);
@@ -39,6 +41,7 @@ object ScreenCaptureUtil {
     }
 
     //截取scrollview的屏幕
+    @JvmStatic
     fun getScrollViewBitmap(scrollView: ScrollView): Bitmap {
         var height = 0
         for (i in 0 until scrollView.childCount) {
@@ -48,6 +51,7 @@ object ScreenCaptureUtil {
     }
 
     //截取scrollview的屏幕(传入高度)
+    @JvmStatic
     fun getScrollViewBitmap(scrollView: ScrollView, height: Int): Bitmap {
         val bitmap = Bitmap.createBitmap(scrollView.width, height, Bitmap.Config.RGB_565)
         val canvas = Canvas(bitmap)
@@ -56,6 +60,7 @@ object ScreenCaptureUtil {
     }
 
     //截取nestedScrollView的屏幕
+    @JvmStatic
     fun getNestedScrollViewBitmap(nestedScrollView: NestedScrollView): Bitmap {
         var height = 0
         for (i in 0 until nestedScrollView.childCount) {
@@ -65,6 +70,7 @@ object ScreenCaptureUtil {
     }
 
     //截取nestedScrollView的屏幕(传入高度)
+    @JvmStatic
     fun getNestedScrollViewBitmap(nestedScrollView: NestedScrollView, height: Int): Bitmap {
         val bitmap = Bitmap.createBitmap(nestedScrollView.width, height, Bitmap.Config.RGB_565)
         val canvas = Canvas(bitmap)
@@ -73,6 +79,7 @@ object ScreenCaptureUtil {
     }
 
     //横向拼接
+    @JvmStatic
     fun addHorizontalBitmap(first: Bitmap, second: Bitmap): Bitmap {
         val width = first.width + second.width
         val height = Math.max(first.height, second.height)
@@ -84,6 +91,7 @@ object ScreenCaptureUtil {
     }
 
     //纵向拼接
+    @JvmStatic
     fun addVerticalBitmap(first: Bitmap, second: Bitmap): Bitmap {
         val width = Math.max(first.width, second.width)
         val height = first.height + second.height

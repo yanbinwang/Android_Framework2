@@ -3,7 +3,6 @@ package com.example.mvvm.bridge;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.common.base.bridge.BaseViewModel;
-import com.example.mvvm.databinding.ActivityUserInfoBinding;
 import com.example.mvvm.model.UserInfoModel;
 
 /**

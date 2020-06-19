@@ -13,22 +13,22 @@ import com.example.framework.utils.DisplayUtil;
  * date: 2017/11/24.
  * 自动换行的容器
  */
-public class WordWrapView extends ViewGroup {
+public class WordWrapLayout extends ViewGroup {
     private static int PADDING_HOR;//水平方向padding
     private static int PADDING_VERTICAL;//垂直方向padding
     private static int CHILD_MARGIN;//view左右间距
 
-    public WordWrapView(Context context) {
+    public WordWrapLayout(Context context) {
         super(context);
         init(context);
     }
 
-    public WordWrapView(Context context, AttributeSet attrs, int defStyle) {
+    public WordWrapLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context);
     }
 
-    public WordWrapView(Context context, AttributeSet attrs) {
+    public WordWrapLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }

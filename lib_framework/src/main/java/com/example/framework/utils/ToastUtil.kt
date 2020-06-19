@@ -12,6 +12,7 @@ import android.widget.Toast
 object ToastUtil {
     private var toast: Toast? = null
 
+    @JvmStatic
     fun mackToastSHORT(str: String, context: Context) {
         if (toast == null) {
             toast = Toast.makeText(context, str, Toast.LENGTH_SHORT)
@@ -22,6 +23,7 @@ object ToastUtil {
 
     }
 
+    @JvmStatic
     fun mackToastLONG(str: String, context: Context) {
         if (toast == null) {
             toast = Toast.makeText(context, str, Toast.LENGTH_LONG)

@@ -7,6 +7,7 @@ import android.util.Log;
 import androidx.databinding.ViewDataBinding;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModel;
 
@@ -40,6 +41,10 @@ public abstract class BaseViewModel extends ViewModel implements LifecycleObserv
 
     protected <VDB extends ViewDataBinding> VDB getBinding() {
         return (VDB) binding;
+    }
+
+    protected LifecycleOwner getOwner() {
+        return binding.getLifecycleOwner();
     }
     // </editor-fold>
 

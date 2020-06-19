@@ -1,4 +1,4 @@
-package com.example.common.widget.xrecyclerview;
+package com.example.common.widget.xrecyclerview.callback;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;

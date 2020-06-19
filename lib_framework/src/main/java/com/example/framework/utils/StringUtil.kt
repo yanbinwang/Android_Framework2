@@ -11,6 +11,7 @@ import java.util.regex.Pattern
  */
 object StringUtil {
 
+    @JvmStatic
     fun processedString(source: String?, defaultStr: String?): String {
         return if (source == null) {
             defaultStr!!
@@ -24,6 +25,7 @@ object StringUtil {
     }
 
     //提取链接中的参数
+    @JvmStatic
     fun getValueByName(url: String, name: String): String {
         var result = ""
         val index = url.indexOf("?")
@@ -39,6 +41,7 @@ object StringUtil {
     }
 
     //隐藏手机号码的中间4位
+    @JvmStatic
     fun Hide4BitLetter(input: String): String {
         var result = ""
         if (isMobilePhone(input)) {
@@ -57,6 +60,7 @@ object StringUtil {
     }
 
     //验证手机号
+    @JvmStatic
     fun isMobilePhone(strMobilePhone: String): Boolean {
         val result: Boolean
         val patternString = "^1[0-9]{10}$"
@@ -65,11 +69,13 @@ object StringUtil {
     }
 
     //获取系统时间
+    @JvmStatic
     fun getTimeStamp(): String {
         return (System.currentTimeMillis() / 1000).toString()
     }
 
     //截取小数点后X位
+    @JvmStatic
     fun getFormat(doubleValue: String, decimalPlace: Int): String {
         if (TextUtils.isEmpty(doubleValue)) {
             return ""
@@ -85,41 +91,21 @@ object StringUtil {
     }
 
     //返回密码强度
+    @JvmStatic
     fun checkSecurity(pwd: String): Int {
         if (TextUtils.isEmpty(pwd)) {
             return 0
         }
         //纯数字、纯字母、纯特殊字符
-        if (pwd.length < 8 || Pattern.matches("^\\d+$", pwd) || Pattern.matches(
-                "^[a-z]+$",
-                pwd
-            ) || Pattern.matches("^[A-Z]+$", pwd) || Pattern.matches("^[@#$%^&]+$", pwd)
-        ) {
+        if (pwd.length < 8 || Pattern.matches("^\\d+$", pwd) || Pattern.matches("^[a-z]+$", pwd) || Pattern.matches("^[A-Z]+$", pwd) || Pattern.matches("^[@#$%^&]+$", pwd)) {
             return 1
         }
         //字母+数字、字母+特殊字符、数字+特殊字符
-        if (Pattern.matches(
-                "^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$",
-                pwd
-            ) || Pattern.matches(
-                "^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$",
-                pwd
-            ) || Pattern.matches("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$", pwd) || Pattern.matches(
-                "^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$",
-                pwd
-            ) || Pattern.matches(
-                "^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$",
-                pwd
-            ) || Pattern.matches("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$", pwd)
-        ) {
+        if (Pattern.matches("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$", pwd) || Pattern.matches("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$", pwd) || Pattern.matches("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$", pwd) || Pattern.matches("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$", pwd) || Pattern.matches("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$", pwd) || Pattern.matches("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$", pwd)) {
             return 2
         }
         //字母+数字+特殊字符
-        if (Pattern.matches(
-                "^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$",
-                pwd
-            )
-        ) {
+        if (Pattern.matches("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$", pwd)) {
             return 3
         }
         return 3

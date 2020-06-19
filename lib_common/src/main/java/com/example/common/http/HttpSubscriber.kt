@@ -1,19 +1,18 @@
-package com.example.common.http;
+package com.example.common.http
 
-import androidx.lifecycle.Observer;
+import androidx.lifecycle.Observer
 
 /**
  * Created by WangYanBin on 2020/6/8.
  */
-public abstract class HttpSubscriber<T> implements Observer<ResponseBody<T>> {
+abstract class HttpSubscriber<T> : Observer<ResponseBody<T>?> {
 
-    @Override
-    public void onChanged(ResponseBody<T> responseBody) {
+    override fun onChanged(responseBody: ResponseBody<T>?) {
         if (null != responseBody) {
-            String msg = responseBody.getMsg();
-            int e = responseBody.getE();
+            val msg = responseBody.msg
+            val e = responseBody.e
             if (0 == e) {
-                onSuccess(responseBody.getData());
+                onSuccess(responseBody.data)
             } else {
 //                //账号还没有登录，解密失败，重新获取
 //                if (100005 == e || 100008 == e) {
@@ -25,18 +24,18 @@ public abstract class HttpSubscriber<T> implements Observer<ResponseBody<T>> {
 //                if (100002 == e) {
 //                    ARouter.getInstance().build(ARouterPath.UnlockIPActivity).navigation();
 //                }
-                onFailed(msg);
+                onFailed(msg)
             }
         } else {
-            onFailed("");
+            onFailed("")
         }
-        onFinish();
+        onFinish()
     }
 
-    protected abstract void onSuccess(T data);
+    protected abstract fun onSuccess(data: T?)
 
-    protected abstract void onFailed(String msg);
+    protected abstract fun onFailed(msg: String?)
 
-    protected abstract void onFinish();
+    protected abstract fun onFinish()
 
 }

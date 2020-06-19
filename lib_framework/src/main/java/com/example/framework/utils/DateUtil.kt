@@ -14,21 +14,21 @@ import java.util.*
  */
 object DateUtil {
     //后台一般会返回的日期形式的字符串
-    val EN_M_FORMAT = "MM"
-    val EN_MD_FORMAT = "MM-dd"
-    val EN_HM_FORMAT = "HH:mm"
-    val EN_HMS_FORMAT = "HH:mm:ss"
-    val EN_YM_FORMAT = "yyyy-MM"
-    val EN_YMD_FORMAT = "yyyy-MM-dd"
-    val EN_YMDHM_FORMAT = "yyyy-MM-dd HH:mm"
-    val EN_YMDHMS_FORMAT = "yyyy-MM-dd HH:mm:ss"
-    val CN_M_FORMAT = "M月"
-    val CN_MD_FORMAT = "M月d日"
-    val CN_HM_FORMAT = "HH时mm分"
-    val CN_YM_FORMAT = "yyyy年M月"
-    val CN_YMD_FORMAT = "yyyy年MM月dd日"
-    val CN_YMDHM_FORMAT = "yyyy年MM月dd日 HH时mm分"
-    val CN_YMDHMS_FORMAT = "yyyy年MM月dd日 HH时mm分ss秒"
+    const val EN_M_FORMAT = "MM"
+    const val EN_MD_FORMAT = "MM-dd"
+    const val EN_HM_FORMAT = "HH:mm"
+    const val EN_HMS_FORMAT = "HH:mm:ss"
+    const val EN_YM_FORMAT = "yyyy-MM"
+    const val EN_YMD_FORMAT = "yyyy-MM-dd"
+    const val EN_YMDHM_FORMAT = "yyyy-MM-dd HH:mm"
+    const val EN_YMDHMS_FORMAT = "yyyy-MM-dd HH:mm:ss"
+    const val CN_M_FORMAT = "M月"
+    const val CN_MD_FORMAT = "M月d日"
+    const val CN_HM_FORMAT = "HH时mm分"
+    const val CN_YM_FORMAT = "yyyy年M月"
+    const val CN_YMD_FORMAT = "yyyy年MM月dd日"
+    const val CN_YMDHM_FORMAT = "yyyy年MM月dd日 HH时mm分"
+    const val CN_YMDHMS_FORMAT = "yyyy年MM月dd日 HH时mm分ss秒"
 
     /**
      * 获取转换日期
@@ -38,6 +38,7 @@ object DateUtil {
      * @param dateFormat 本转换的日期
      * @return
      */
+    @JvmStatic
     fun getDateFormat(fromFormat: String, toFormat: String, dateFormat: String): String? {
         var dateFormatStr: String? = null
         if (!TextUtils.isEmpty(dateFormat)) {
@@ -63,6 +64,7 @@ object DateUtil {
      * @param dateFormat
      * @return
      */
+    @JvmStatic
     fun getDateTime(format: String, dateFormat: String): Long {
         try {
             val simpleDateFormat = SimpleDateFormat(format, Locale.getDefault())
@@ -81,6 +83,7 @@ object DateUtil {
      * @param timestamp
      * @return
      */
+    @JvmStatic
     fun getDateTimeStr(format: String, timestamp: Long): String {
         //传入格式转换成日期
         val simpleDateFormat = SimpleDateFormat(format, Locale.getDefault())
@@ -92,6 +95,7 @@ object DateUtil {
      * @param time
      * @return
      */
+    @JvmStatic
     fun getTimeStr(time: Long): String {
         if (time <= 0) {
             return "00:00"
@@ -110,6 +114,7 @@ object DateUtil {
      * @param json 整体json
      * @return
      */
+    @JvmStatic
     fun getJsonDateTime(name: String, json: String): Long {
         var timestamp: Long = 0
         try {
@@ -129,6 +134,7 @@ object DateUtil {
      * @param toDate   比较日期
      * @return
      */
+    @JvmStatic
     fun compareDate(fromDate: String, toDate: String): Int {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         try {
@@ -156,6 +162,7 @@ object DateUtil {
      * @param inputDate
      * @return
      */
+    @JvmStatic
     fun isToday(inputDate: Date): Boolean {
         var flag = false
         // 获取当前系统时间
@@ -188,6 +195,7 @@ object DateUtil {
      * @param inputDate
      * @return
      */
+    @JvmStatic
     fun getWeekOfMonth(inputDate: String): Int {
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) //设置时间格式
         try {
@@ -208,6 +216,7 @@ object DateUtil {
      * @param inputDate
      * @return
      */
+    @JvmStatic
     fun getWeekOfDate(inputDate: String): Int {
         //周报时间
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) //设置时间格式
@@ -233,6 +242,7 @@ object DateUtil {
      * @param inputDate
      * @return
      */
+    @JvmStatic
     fun getDateWeekStr(inputDate: String): String {
         val week = getWeekOfDate(inputDate)
         var weekStr = ""

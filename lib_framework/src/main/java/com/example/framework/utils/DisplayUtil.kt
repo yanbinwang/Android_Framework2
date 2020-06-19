@@ -13,18 +13,21 @@ object DisplayUtil {
     private val TAG = "DisplayUtil"
 
     //dip转px
+    @JvmStatic
     fun dip2px(context: Context, dipValue: Float): Int {
         val scale = context.resources.displayMetrics.density
         return (dipValue * scale + 0.5f).toInt()
     }
 
     //px转dip
+    @JvmStatic
     fun px2dip(context: Context, pxValue: Float): Int {
         val scale = context.resources.displayMetrics.density
         return (pxValue / scale + 0.5f).toInt()
     }
 
     //获取屏幕长宽比
+    @JvmStatic
     fun getScreenRate(context: Context): Float {
         val P = getScreenMetrics(context)
         val H = P.y.toFloat()
@@ -33,6 +36,7 @@ object DisplayUtil {
     }
 
     //获取屏幕宽度和高度，单位为px
+    @JvmStatic
     private fun getScreenMetrics(context: Context): Point {
         val dm = context.resources.displayMetrics
         val w_screen = dm.widthPixels
@@ -41,6 +45,7 @@ object DisplayUtil {
     }
 
     //获取本地的dp值
+    @JvmStatic
     fun getXmlDef(context: Context, id: Int): Int {
         val value = TypedValue()
         context.resources.getValue(id, value, true)

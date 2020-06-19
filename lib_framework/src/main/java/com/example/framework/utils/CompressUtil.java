@@ -36,7 +36,7 @@ public class CompressUtil {
             options -= 10;
             bitmap.compress(Bitmap.CompressFormat.JPEG, options, byteArrayOutputStream);
         }
-        LogUtil.INSTANCE.e("length", byteArrayOutputStream.toByteArray().length + "");
+        LogUtil.e("length", byteArrayOutputStream.toByteArray().length + "");
         return byteArrayOutputStream;
     }
 
@@ -47,12 +47,12 @@ public class CompressUtil {
         Matrix matrix = new Matrix();
         if (width > 720) {
             size = 720f / width;
-            LogUtil.INSTANCE.e("w", bitmap.getWidth() + "");
-            LogUtil.INSTANCE.e("h", bitmap.getHeight() + "");
+            LogUtil.e("w", bitmap.getWidth() + "");
+            LogUtil.e("h", bitmap.getHeight() + "");
         } else if (height > 1280) {
             size = 1280f / height;
-            LogUtil.INSTANCE.e("w", bitmap.getWidth() + "");
-            LogUtil.INSTANCE.e("h", bitmap.getHeight() + "");
+            LogUtil.e("w", bitmap.getWidth() + "");
+            LogUtil.e("h", bitmap.getHeight() + "");
         }
         matrix.postScale(size, size);
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
@@ -67,7 +67,7 @@ public class CompressUtil {
     public static File scale(Context context, File mFile, long fileMaxSize) {
         long fileSize = mFile.length();
         float scaleSize = 1;
-        LogUtil.INSTANCE.e("fileSize_old", mFile.length() / 1024 + "kb");
+        LogUtil.e("fileSize_old", mFile.length() / 1024 + "kb");
         if (fileSize >= fileMaxSize) {
             try {
                 BitmapFactory.Options options = new BitmapFactory.Options();
@@ -98,14 +98,14 @@ public class CompressUtil {
                 fileOutputStream.flush();
                 fileOutputStream.close();
                 bitmap.recycle();
-                LogUtil.INSTANCE.e("fileSize", fTemp.length() / 1024 + "kb");
+                LogUtil.e("fileSize", fTemp.length() / 1024 + "kb");
                 return fTemp;
             } catch (IOException e) {
                 e.printStackTrace();
                 return mFile;
             }
         } else {
-            LogUtil.INSTANCE.e("fileSize", mFile.length() / 1024 + "kb");
+            LogUtil.e("fileSize", mFile.length() / 1024 + "kb");
             return mFile;
         }
     }
