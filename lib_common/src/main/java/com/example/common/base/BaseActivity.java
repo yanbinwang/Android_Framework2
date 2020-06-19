@@ -50,7 +50,7 @@ import java.util.TimerTask;
 /**
  * Created by WangYanBin on 2020/6/3.
  * 对应页面传入继承自BaseViewModel的数据模型类，以及由系统生成的ViewDataBinding绑定类
- * 在基类中实现绑定，向ViewModel中注入对应页面的activity和context，以及对对应页面的BaseViewModel中做生命周期的监控
+ * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context
  */
 @SuppressWarnings({"unchecked", "Raw"})
 public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDataBinding> extends AppCompatActivity implements BaseImpl, BaseView {
