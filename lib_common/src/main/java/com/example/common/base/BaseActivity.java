@@ -32,11 +32,11 @@ import com.example.common.bus.LiveDataBusEvent;
 import com.example.common.constant.Constants;
 import com.example.common.constant.Extras;
 import com.example.common.utils.NetWorkUtil;
+import com.example.common.utils.bulider.StatusBarBuilder;
 import com.example.common.widget.dialog.LoadingDialog;
 import com.example.common.widget.empty.EmptyLayout;
 import com.example.common.widget.xrecyclerview.XRecyclerView;
 import com.example.framework.utils.LogUtil;
-import com.example.common.utils.bulider.StatusBarBuilder;
 import com.example.framework.utils.ToastUtil;
 
 import java.io.Serializable;
@@ -75,6 +75,11 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     }
 
     protected abstract int getLayoutResID();
+
+    protected VDB setVariable(int variableId, Object value) {
+        binding.setVariable(variableId, value);
+        return binding;
+    }
 
     @Override
     public void initDataBinding() {

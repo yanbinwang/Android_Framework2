@@ -6,6 +6,7 @@ import android.view.View;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.example.common.base.BaseTitleActivity;
 import com.example.common.constant.ARouterPath;
+import com.example.mvvm.BR;
 import com.example.mvvm.R;
 import com.example.mvvm.bridge.MainViewModel;
 import com.example.mvvm.databinding.ActivityMainBinding;
@@ -33,14 +34,12 @@ public class MainActivity extends BaseTitleActivity<MainViewModel, ActivityMainB
     @Override
     public void initEvent() {
         super.initEvent();
-//        binding.setVariable(BR.click, new ClickProxy());
-        binding.setClick(new ClickProxy());
+        setVariable(BR.click, new ClickProxy());
     }
 
-    public class ClickProxy implements View.OnClickListener {
+    public class ClickProxy {
 
-        @Override
-        public void onClick(View v) {
+        public View.OnClickListener onClickListener = v -> {
             switch (v.getId()) {
                 case R.id.btn_login:
                     navigation(ARouterPath.LoginActivity);
@@ -49,7 +48,8 @@ public class MainActivity extends BaseTitleActivity<MainViewModel, ActivityMainB
                     navigation(ARouterPath.TestListActivity);
                     break;
             }
-        }
+        };
+
     }
 
 }

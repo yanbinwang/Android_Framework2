@@ -43,7 +43,7 @@
             android:layout_marginTop="80mm"
             android:background="@color/gray_9f9f9f"
             android:enabled="false"
-            android:onClick='@{(v)->click.onClick(v)}'
+            android:onClick='@{(v)->click.onClickListener.onClick(v)}'
             android:text="登录"
             android:textColor="@color/black" />
 

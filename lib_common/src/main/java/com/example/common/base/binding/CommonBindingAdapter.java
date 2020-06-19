@@ -43,6 +43,16 @@ public class CommonBindingAdapter {
         textView.setTextColor(textView.getResources().getColor(textColorRes));
     }
 
+    @BindingAdapter(value = {"visible"})
+    public static void setVisible(View view, boolean visible) {
+        view.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    @BindingAdapter(value = {"selected"})
+    public static void setSelected(View view, boolean select) {
+        view.setSelected(select);
+    }
+
     @BindingAdapter(value = {"adjustWidth"})
     public static void setAdjustWidth(View view, int adjustWidth) {
         ViewGroup.LayoutParams params = view.getLayoutParams();
