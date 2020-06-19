@@ -29,6 +29,7 @@ public class MainActivity extends BaseTitleActivity<MainViewModel, ActivityMainB
     public void initView() {
         super.initView();
         titleBuilder.setTitle("10086").getDefault();
+
     }
 
     @Override
