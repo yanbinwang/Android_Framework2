@@ -156,12 +156,12 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     @Override
     public void log(String content) {
-        LogUtil.INSTANCE.e(TAG, content);
+        LogUtil.e(TAG, content);
     }
 
     @Override
     public void showToast(String str) {
-        ToastUtil.INSTANCE.mackToastSHORT(str, getApplicationContext());
+        ToastUtil.mackToastSHORT(str, getApplicationContext());
     }
 
     @Override

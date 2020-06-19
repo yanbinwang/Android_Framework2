@@ -9,6 +9,7 @@ import android.content.Context
  */
 object ClipboardUtil {
 
+    @JvmStatic
     fun putTextIntoClip(context: Context, label: String, text: String) {
         val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         //创建ClipData对象
@@ -17,6 +18,7 @@ object ClipboardUtil {
         clipboardManager.primaryClip = clipData
     }
 
+    @JvmStatic
     fun getTextFromClip(context: Context): String {
         val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         //判断剪切版时候有内容
