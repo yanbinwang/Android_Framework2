@@ -250,7 +250,7 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
         if (doResponse(msg)) {
             emptyLayout.showEmpty();
         }
-        if (!NetWorkUtil.INSTANCE.isNetworkAvailable()) {
+        if (!NetWorkUtil.isNetworkAvailable()) {
             emptyLayout.showError();
         }
     }
@@ -267,7 +267,7 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
             return;
         }
         xRecyclerView.setVisibilityEmptyView(View.VISIBLE);
-        if (!NetWorkUtil.INSTANCE.isNetworkAvailable()) {
+        if (!NetWorkUtil.isNetworkAvailable()) {
             xRecyclerView.showError();
         } else {
             xRecyclerView.showEmpty(imgInt, emptyStr);

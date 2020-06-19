@@ -221,7 +221,7 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
         if (TextUtils.isEmpty(msg)) {
             msg = getString(R.string.label_response_err);
         }
-        showToast(!NetWorkUtil.INSTANCE.isNetworkAvailable() ? getString(R.string.label_response_net_err) : msg);
+        showToast(!NetWorkUtil.isNetworkAvailable() ? getString(R.string.label_response_net_err) : msg);
         return true;
     }
 
@@ -231,7 +231,7 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
         if (doResponse(msg)) {
             emptyLayout.showEmpty();
         }
-        if (!NetWorkUtil.INSTANCE.isNetworkAvailable()) {
+        if (!NetWorkUtil.isNetworkAvailable()) {
             emptyLayout.showError();
         }
     }
@@ -248,7 +248,7 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
             return;
         }
         xRecyclerView.setVisibilityEmptyView(View.VISIBLE);
-        if (!NetWorkUtil.INSTANCE.isNetworkAvailable()) {
+        if (!NetWorkUtil.isNetworkAvailable()) {
             xRecyclerView.showError();
         } else {
             xRecyclerView.showEmpty(imgInt, emptyStr);

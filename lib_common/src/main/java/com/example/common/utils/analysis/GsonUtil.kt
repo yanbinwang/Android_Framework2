@@ -13,6 +13,7 @@ object GsonUtil {
                 BooleanTypeAdapter()
             ).create()
 
+    @JvmStatic
     fun <T> jsonToObj(json: String, className: Class<T>): T? {
         var ret: T? = null
         try {
@@ -22,6 +23,7 @@ object GsonUtil {
         return ret
     }
 
+    @JvmStatic
     fun objToJson(obj: Any): String? {
         var ret: String? = null
         try {

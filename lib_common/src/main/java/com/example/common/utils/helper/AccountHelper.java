@@ -48,7 +48,7 @@ public class AccountHelper {
     //存储用户对象
     public static void setUserBean(UserModel bean) {
         if (null != bean) {
-            mmkv.encode(Constants.USER_BEAN, GsonUtil.INSTANCE.objToJson(bean));
+            mmkv.encode(Constants.USER_BEAN, GsonUtil.objToJson(bean));
         }
     }
 
@@ -57,7 +57,7 @@ public class AccountHelper {
         UserModel userInfoBean = null;
         String userInfoJson = mmkv.decodeString(Constants.USER_BEAN);
         if (!TextUtils.isEmpty(userInfoJson)) {
-            userInfoBean = GsonUtil.INSTANCE.jsonToObj(userInfoJson, UserModel.class);
+            userInfoBean = GsonUtil.jsonToObj(userInfoJson, UserModel.class);
         }
         return userInfoBean;
     }

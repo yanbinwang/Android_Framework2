@@ -35,9 +35,9 @@ public class WordWrapLayout extends ViewGroup {
 
     //默认的一些属性设置
     private void init(Context context) {
-        PADDING_HOR = DisplayUtil.INSTANCE.dip2px(context, 10);
-        PADDING_VERTICAL = DisplayUtil.INSTANCE.dip2px(context, 5);
-        CHILD_MARGIN = DisplayUtil.INSTANCE.dip2px(context, 10);
+        PADDING_HOR = DisplayUtil.dip2px(context, 10);
+        PADDING_VERTICAL = DisplayUtil.dip2px(context, 5);
+        CHILD_MARGIN = DisplayUtil.dip2px(context, 10);
     }
 
     //返回控件的位置

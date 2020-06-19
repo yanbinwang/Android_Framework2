@@ -18,6 +18,7 @@ object NetWorkUtil {
     private var context: Context = BaseApplication.getInstance().applicationContext
 
     //验证是否联网
+    @JvmStatic
     fun isNetworkAvailable(): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
@@ -29,6 +30,7 @@ object NetWorkUtil {
     }
 
     //无线网络=1 移动网络=0 没有连接网络=-1
+    @JvmStatic
     fun getNetWorkState(): Int {
         //得到连接管理器对象
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
