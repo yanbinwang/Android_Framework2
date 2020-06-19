@@ -1,4 +1,4 @@
-package com.example.common.utils
+package com.example.common.utils.bulider
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -10,7 +10,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 
 import com.example.common.R
-import com.example.framework.utils.StatusBarUtil
 
 import java.lang.ref.WeakReference
 
@@ -26,11 +25,12 @@ class TitleBuilder(activity: Activity) {
     private var mainTitleTxt: TextView? = null
     private var mainLeftTxt: TextView? = null
     private var mainRightTxt: TextView? = null //页面标题,左侧文字,右侧文字
-    private val statusBarUtil: StatusBarUtil
+    private val statusBarBuilder: StatusBarBuilder
 
     init {
-        statusBarUtil = StatusBarUtil(mActivity.get()!!)
-        statusBarUtil.setStatusBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.white))
+        statusBarBuilder =
+            StatusBarBuilder(mActivity.get()!!)
+        statusBarBuilder.setStatusBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.white))
         instanceObjects()
     }
 
@@ -66,7 +66,7 @@ class TitleBuilder(activity: Activity) {
     fun hideTitle(isDark: Boolean): TitleBuilder {
         view?.visibility = View.GONE
         mainLine?.visibility = View.GONE
-        statusBarUtil.setStatusBarLightMode(isDark)
+        statusBarBuilder.setStatusBarLightMode(isDark)
         return this
     }
 
@@ -95,7 +95,7 @@ class TitleBuilder(activity: Activity) {
         } else {
             mainLine?.visibility = View.GONE
         }
-        statusBarUtil.setStatusBarLightMode(isDark)
+        statusBarBuilder.setStatusBarLightMode(isDark)
         return this
     }
 
@@ -105,7 +105,7 @@ class TitleBuilder(activity: Activity) {
     }
 
     fun setTitleBackgroundColor(color: Int): TitleBuilder {
-        statusBarUtil.setStatusBarColor(color)
+        statusBarBuilder.setStatusBarColor(color)
         view?.setBackgroundColor(color)
         return this
     }
@@ -163,14 +163,14 @@ class TitleBuilder(activity: Activity) {
     //透明标题头(自己实现导航栏，默认白色)
     fun setTransparentStatus(): TitleBuilder {
         hideTitle(false)
-        statusBarUtil.setTransparentStatus()
+        statusBarBuilder.setTransparentStatus()
         return this
     }
 
     //透明标题头(自己实现导航栏，默认黑色)
     fun setTransparentDarkStatus(): TitleBuilder {
         hideTitle()
-        statusBarUtil.setTransparentDarkStatus()
+        statusBarBuilder.setTransparentDarkStatus()
         return this
     }
 

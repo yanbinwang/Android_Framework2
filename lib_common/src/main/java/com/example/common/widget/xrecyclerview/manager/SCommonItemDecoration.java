@@ -1,4 +1,4 @@
-package com.example.common.widget.xrecyclerview;
+package com.example.common.widget.xrecyclerview.manager;
 
 import android.graphics.Rect;
 import android.util.SparseArray;

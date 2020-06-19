@@ -17,7 +17,7 @@ import android.view.animation.OvershootInterpolator;
 
 import com.example.common.R;
 
-public class SwipeMenuView extends ViewGroup {
+public class SwipeMenuLayout extends ViewGroup {
 
     private int mScaleTouchSlop;//为了处理单击事件的冲突
     private int mMaxVelocity;//计算滑动速度用
@@ -45,7 +45,7 @@ public class SwipeMenuView extends ViewGroup {
     private boolean isUserSwiped;
 
     //存储的是当前正在展开的View
-    private static SwipeMenuView mViewCache;
+    private static SwipeMenuLayout mViewCache;
 
     //防止多只手指一起滑我的flag 在每次down里判断， touch事件结束清空
     private static boolean isTouching;
@@ -70,15 +70,15 @@ public class SwipeMenuView extends ViewGroup {
      */
     private boolean isLeftSwipe;
 
-    public SwipeMenuView(Context context) {
+    public SwipeMenuLayout(Context context) {
         this(context, null);
     }
 
-    public SwipeMenuView(Context context, AttributeSet attrs) {
+    public SwipeMenuLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public SwipeMenuView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SwipeMenuLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs, defStyleAttr);
     }
@@ -106,7 +106,7 @@ public class SwipeMenuView extends ViewGroup {
      *
      * @param ios
      */
-    public SwipeMenuView setIos(boolean ios) {
+    public SwipeMenuLayout setIos(boolean ios) {
         isIos = ios;
         return this;
     }
@@ -121,7 +121,7 @@ public class SwipeMenuView extends ViewGroup {
      * @param leftSwipe
      * @return
      */
-    public SwipeMenuView setLeftSwipe(boolean leftSwipe) {
+    public SwipeMenuLayout setLeftSwipe(boolean leftSwipe) {
         isLeftSwipe = leftSwipe;
         return this;
     }
@@ -131,7 +131,7 @@ public class SwipeMenuView extends ViewGroup {
      *
      * @return
      */
-    public static SwipeMenuView getViewCache() {
+    public static SwipeMenuLayout getViewCache() {
         return mViewCache;
     }
 
@@ -147,16 +147,16 @@ public class SwipeMenuView extends ViewGroup {
         isIos = true;
         //左滑右滑的开关,默认左滑打开菜单
         isLeftSwipe = true;
-        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SwipeMenuView, defStyleAttr, 0);
+        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SwipeMenuLayout, defStyleAttr, 0);
         int count = ta.getIndexCount();
         for (int i = 0; i < count; i++) {
             int attr = ta.getIndex(i);
             //如果引用成AndroidLib 资源都不是常量，无法使用switch case
-            if (attr == R.styleable.SwipeMenuView_swipeEnable) {
+            if (attr == R.styleable.SwipeMenuLayout_swipeEnable) {
                 isSwipeEnable = ta.getBoolean(attr, true);
-            } else if (attr == R.styleable.SwipeMenuView_ios) {
+            } else if (attr == R.styleable.SwipeMenuLayout_ios) {
                 isIos = ta.getBoolean(attr, true);
-            } else if (attr == R.styleable.SwipeMenuView_leftSwipe) {
+            } else if (attr == R.styleable.SwipeMenuLayout_leftSwipe) {
                 isLeftSwipe = ta.getBoolean(attr, true);
             }
         }
@@ -468,7 +468,7 @@ public class SwipeMenuView extends ViewGroup {
         /*mScroller.startScroll(getScrollX(), 0, mRightMenuWidths - getScrollX(), 0);
         invalidate();*/
         //展开就加入ViewCache：
-        mViewCache = SwipeMenuView.this;
+        mViewCache = SwipeMenuLayout.this;
 
         //2016 11 13 add 侧滑菜单展开，屏蔽content长按
         if (null != mContentView) {

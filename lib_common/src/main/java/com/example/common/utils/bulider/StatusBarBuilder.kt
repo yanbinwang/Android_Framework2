@@ -1,4 +1,4 @@
-package com.example.framework.utils
+package com.example.common.utils.bulider
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -16,7 +16,7 @@ import java.lang.ref.WeakReference
  * 从5.0+开始兼容色值
  */
 @SuppressLint("PrivateApi","InlinedApi")
-class StatusBarUtil(activity: Activity) {
+class StatusBarBuilder(activity: Activity) {
     //弱应用传入的activity
     private val mActivity : WeakReference<Activity> = WeakReference(activity)
 

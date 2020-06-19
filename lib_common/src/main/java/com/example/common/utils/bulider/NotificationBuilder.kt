@@ -1,4 +1,4 @@
-package com.example.common.utils
+package com.example.common.utils.bulider
 
 import android.app.*
 import android.content.Intent
@@ -12,7 +12,7 @@ import java.lang.ref.WeakReference
  * author:wyb
  * 通知工具类
  */
-class NotificationUtil(activity: Activity) {
+class NotificationBuilder(activity: Activity) {
     private var mBuilder: NotificationCompat.Builder? = null
     private val mNotificationManager: NotificationManager
     private val mActivity: WeakReference<Activity> = WeakReference(activity)

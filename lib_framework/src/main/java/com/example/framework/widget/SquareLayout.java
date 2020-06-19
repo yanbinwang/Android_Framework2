@@ -9,16 +9,16 @@ import android.widget.RelativeLayout;
  * date: 2017/8/29.
  * 嵌套的外层布局，使view的宽高一致
  */
-public class SquareView extends RelativeLayout {
-    public SquareView(Context context) {
+public class SquareLayout extends RelativeLayout {
+    public SquareLayout(Context context) {
         super(context);
     }
 
-    public SquareView(Context context, AttributeSet attrs) {
+    public SquareLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public SquareView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SquareLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 

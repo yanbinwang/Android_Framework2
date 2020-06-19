@@ -7,7 +7,7 @@ import android.content.Context
 /**
  * 粘贴板工具类
  */
-object ClipUtil {
+object ClipboardUtil {
 
     fun putTextIntoClip(context: Context, label: String, text: String) {
         val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

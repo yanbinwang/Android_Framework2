@@ -13,24 +13,24 @@ import com.example.framework.utils.LogUtil;
  * Created by wyb on 2017/6/28.
  * 可监听滑动范围的scrollview
  */
-public class MyScrollView extends ScrollView {
+public class XScrollView extends ScrollView {
     private int downX;
     private int downY;
     private int mTouchSlop;
     private boolean isTop = false;//是不是滑动到了最低端 ；使用这个方法，解决了上拉加载的问题
     private OnScrollToBottomListener onScrollToBottom;
 
-    public MyScrollView(Context context) {
+    public XScrollView(Context context) {
         super(context);
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }
 
-    public MyScrollView(Context context, AttributeSet attrs) {
+    public XScrollView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }
 
-    public MyScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public XScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }

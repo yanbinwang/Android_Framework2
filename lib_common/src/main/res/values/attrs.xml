@@ -43,7 +43,7 @@
     </declare-styleable>
 
     <!-- 侧滑控件 -->
-    <declare-styleable name="SwipeMenuView">
+    <declare-styleable name="SwipeMenuLayout">
         <attr name="swipeEnable" format="boolean"/>
         <attr name="ios" format="boolean"/>
         <attr name="leftSwipe" format="boolean"/>

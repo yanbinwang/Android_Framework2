@@ -13,7 +13,7 @@ import java.lang.ref.WeakReference
  * date: 2019/1/28.
  * 截图工具类
  */
-object ScreenCaptureUtil {
+object ScreenShotUtil {
 
     //截取除了导航栏之外的整个屏幕
     fun getWholeViewBitmap(activity: Activity): Bitmap {

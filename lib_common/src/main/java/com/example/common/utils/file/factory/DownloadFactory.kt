@@ -7,7 +7,7 @@ import androidx.lifecycle.Observer
 import com.example.common.subscribe.BaseSubscribe.download
 import com.example.common.utils.file.FileUtil
 import com.example.common.utils.file.callback.OnDownloadListener
-import com.example.framework.widget.WeakHandler
+import com.example.framework.utils.WeakHandler
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -28,8 +28,8 @@ class DownloadFactory private constructor() {
         }
     }
 
-    fun download(owner: LifecycleOwner, downloadUrl: String, saveDir: String, fileName: String, onDownloadListener: OnDownloadListener) {
-        FileUtil.deleteDir(saveDir)
+    fun download(owner: LifecycleOwner, downloadUrl: String, filePath: String, fileName: String, onDownloadListener: OnDownloadListener) {
+        FileUtil.deleteDir(filePath)
         download(downloadUrl)
             .observe(owner, Observer {
                 object : Thread() {
@@ -41,7 +41,7 @@ class DownloadFactory private constructor() {
                         try {
                             inputStream = it.byteStream()
                             val total = it.contentLength()
-                            val file = File(FileUtil.isExistDir(saveDir), fileName)
+                            val file = File(FileUtil.isExistDir(filePath), fileName)
                             fileOutputStream = FileOutputStream(file)
                             var sum: Long = 0
                             while (((inputStream.read(buf)).also { len = it }) != -1) {
