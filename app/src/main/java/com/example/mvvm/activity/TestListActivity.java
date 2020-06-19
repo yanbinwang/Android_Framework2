@@ -14,27 +14,24 @@ import com.example.mvvm.databinding.ActivityTestListBinding;
  */
 @Route(path = ARouterPath.TestListActivity)
 public class TestListActivity extends BaseActivity<TestListViewModel, ActivityTestListBinding> {
-//    private TestListAdapter adapter;
 
     @Override
     protected int getLayoutResID() {
         return R.layout.activity_test_list;
     }
 
-//    @Override
-//    public void initView() {
-//        super.initView();
-//        //绑定适配器
-//        adapter = new TestListAdapter();
-//        setVariable(BR.adapter, adapter);
-//    }
+    @Override
+    public void initView() {
+        super.initView();
+        //绑定适配器
+        setVariable(BR.adapter, new TestListAdapter());
+    }
 
     @Override
     public void initEvent() {
         super.initEvent();
-//        viewModel.dataList.observe(this, list -> adapter.setList(list));
         viewModel.dataList.observe(this, list -> {
-            setVariable(BR.adapter, new TestListAdapter(list));
+            binding.getAdapter().setList(list);
         });
     }
 
