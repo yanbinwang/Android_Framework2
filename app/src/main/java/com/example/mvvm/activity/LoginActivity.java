@@ -8,6 +8,7 @@ import com.example.common.base.BaseTitleActivity;
 import com.example.common.base.page.PageParams;
 import com.example.common.base.proxy.SimpleTextWatcher;
 import com.example.common.constant.ARouterPath;
+import com.example.mvvm.BR;
 import com.example.mvvm.R;
 import com.example.mvvm.bridge.LoginViewModel;
 import com.example.mvvm.databinding.ActivityLoginBinding;
@@ -35,7 +36,7 @@ public class LoginActivity extends BaseTitleActivity<LoginViewModel, ActivityLog
     @Override
     public void initEvent() {
         super.initEvent();
-        binding.setClick(new ClickProxy());
+        setVariable(BR.event, new PageEvent());
         //类似mvp的接口回调,通过观察泛型内容随时刷新变化
         viewModel.userInfoModel.observe(this, userInfoModel -> navigation(ARouterPath.UserInfoActivity, new PageParams().append("model", userInfoModel)).finish());
 
@@ -66,7 +67,7 @@ public class LoginActivity extends BaseTitleActivity<LoginViewModel, ActivityLog
     }
 
     //点击的绑定（也可直接写在viewmodel中）
-    public class ClickProxy implements View.OnClickListener {
+    public class PageEvent {
 
         public TextWatcher textWatcher = new SimpleTextWatcher() {
 
@@ -77,14 +78,13 @@ public class LoginActivity extends BaseTitleActivity<LoginViewModel, ActivityLog
             }
         };
 
-        @Override
-        public void onClick(View v) {
+        public View.OnClickListener onClickListener = v -> {
             switch (v.getId()) {
                 case R.id.btn_login:
                     viewModel.login(getViewValue(binding.etAccount), getViewValue(binding.etPassword));
                     break;
             }
-        }
+        };
 
     }
 

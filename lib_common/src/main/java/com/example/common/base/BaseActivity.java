@@ -32,11 +32,11 @@ import com.example.common.bus.LiveDataBusEvent;
 import com.example.common.constant.Constants;
 import com.example.common.constant.Extras;
 import com.example.common.utils.NetWorkUtil;
+import com.example.common.utils.bulider.StatusBarBuilder;
 import com.example.common.widget.dialog.LoadingDialog;
 import com.example.common.widget.empty.EmptyLayout;
 import com.example.common.widget.xrecyclerview.XRecyclerView;
 import com.example.framework.utils.LogUtil;
-import com.example.common.utils.bulider.StatusBarBuilder;
 import com.example.framework.utils.ToastUtil;
 
 import java.io.Serializable;
@@ -50,7 +50,7 @@ import java.util.TimerTask;
 /**
  * Created by WangYanBin on 2020/6/3.
  * 对应页面传入继承自BaseViewModel的数据模型类，以及由系统生成的ViewDataBinding绑定类
- * 在基类中实现绑定，向ViewModel中注入对应页面的activity和context，以及对对应页面的BaseViewModel中做生命周期的监控
+ * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context
  */
 @SuppressWarnings({"unchecked", "Raw"})
 public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDataBinding> extends AppCompatActivity implements BaseImpl, BaseView {
@@ -75,6 +75,11 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     }
 
     protected abstract int getLayoutResID();
+
+    protected VDB setVariable(int variableId, Object value) {
+        binding.setVariable(variableId, value);
+        return binding;
+    }
 
     @Override
     public void initDataBinding() {

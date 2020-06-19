@@ -15,13 +15,13 @@ import com.example.common.BaseApplication;
 import com.example.common.widget.XWebView;
 
 /**
- * Create by KunMinX at 2020/3/13
+ * Create by wyb at 2020/3/13
  */
 public class WebViewBindingAdapter {
 
     @SuppressLint("SetJavaScriptEnabled")
     @BindingAdapter(value = {"pageAssetPath"}, requireAll = false)
-    public static void loadAssetsPage(WebView webView, String assetPath) {
+    public static void setLoadAssetsPage(WebView webView, String assetPath) {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -47,7 +47,7 @@ public class WebViewBindingAdapter {
 
     @SuppressLint("SetJavaScriptEnabled")
     @BindingAdapter(value = {"loadPage"}, requireAll = false)
-    public static void loadPage(WebView webView, String loadPage) {
+    public static void setLoadPage(WebView webView, String loadPage) {
         webView.setWebViewClient(new WebViewClient());
         webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         WebSettings webSettings = webView.getSettings();
@@ -62,9 +62,9 @@ public class WebViewBindingAdapter {
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface"})
-    @BindingAdapter(value = {"loadPage"}, requireAll = false)
-    public static void loadPage(XWebView webView, String loadPage) {
-        webView.loadUrl(loadPage);
+    @BindingAdapter(value = {"loadPageUrl"}, requireAll = false)
+    public static void setLoadPage(XWebView webView, String loadPageUrl) {
+        webView.loadUrl(loadPageUrl);
     }
 
 }

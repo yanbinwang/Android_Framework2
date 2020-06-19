@@ -9,6 +9,9 @@ import com.example.mvvm.databinding.ItemTestBinding;
 import com.example.mvvm.model.TestListModel;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * Created by WangYanBin on 2020/6/5.
@@ -17,6 +20,10 @@ public class TestListAdapter extends BaseQuickAdapter<TestListModel, BaseDataBin
 
     public TestListAdapter() {
         super(R.layout.item_test);
+    }
+
+    public TestListAdapter(List<TestListModel> data) {
+        super(R.layout.item_test, data);
     }
 
     @Override

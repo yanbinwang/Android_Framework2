@@ -8,8 +8,8 @@
             type="com.example.mvvm.bridge.MainViewModel" />
 
         <variable
-            name="click"
-            type="com.example.mvvm.activity.MainActivity.ClickProxy" />
+            name="event"
+            type="com.example.mvvm.activity.MainActivity.PageEvent" />
 
     </data>
 
@@ -24,7 +24,7 @@
             android:layout_height="60mm"
             android:layout_margin="20mm"
             android:background="@color/gray_9f9f9f"
-            android:onClick="@{(v)->click.onClick(v)}"
+            android:onClick="@{(v)->event.onClickListener.onClick(v)}"
             android:text="模拟登陆"
             android:textColor="@color/black"
             android:textSize="24mm" />
@@ -35,7 +35,7 @@
             android:layout_height="60mm"
             android:layout_marginHorizontal="20mm"
             android:background="@color/gray_9f9f9f"
-            android:onClick="@{(v)->click.onClick(v)}"
+            android:onClick="@{(v)->event.onClickListener.onClick(v)}"
             android:text="模拟加载列表"
             android:textColor="@color/black"
             android:textSize="24mm" />
