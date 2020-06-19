@@ -9,8 +9,8 @@
             type="com.example.mvvm.bridge.LoginViewModel" />
 
         <variable
-            name="click"
-            type="com.example.mvvm.activity.LoginActivity.ClickProxy" />
+            name="event"
+            type="com.example.mvvm.activity.LoginActivity.PageEvent" />
 
     </data>
 
@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="80mm"
             android:layout_marginHorizontal="40mm"
-            app:addTextChangedListener="@{click.textWatcher}" />
+            app:addTextChangedListener="@{event.textWatcher}" />
 
         <EditText
             android:id="@+id/et_password"
@@ -33,7 +33,7 @@
             android:layout_height="80mm"
             android:layout_marginHorizontal="40mm"
             android:layout_marginTop="40mm"
-            app:addTextChangedListener="@{click.textWatcher}" />
+            app:addTextChangedListener="@{event.textWatcher}" />
 
         <Button
             android:id="@+id/btn_login"
@@ -43,7 +43,7 @@
             android:layout_marginTop="80mm"
             android:background="@color/gray_9f9f9f"
             android:enabled="false"
-            android:onClick='@{(v)->click.onClickListener.onClick(v)}'
+            android:onClick='@{(v)->event.onClickListener.onClick(v)}'
             android:text="登录"
             android:textColor="@color/black" />
 

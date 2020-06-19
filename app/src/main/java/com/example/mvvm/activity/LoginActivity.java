@@ -36,7 +36,7 @@ public class LoginActivity extends BaseTitleActivity<LoginViewModel, ActivityLog
     @Override
     public void initEvent() {
         super.initEvent();
-        setVariable(BR.click, new ClickProxy());
+        setVariable(BR.event, new PageEvent());
         //类似mvp的接口回调,通过观察泛型内容随时刷新变化
         viewModel.userInfoModel.observe(this, userInfoModel -> navigation(ARouterPath.UserInfoActivity, new PageParams().append("model", userInfoModel)).finish());
 
@@ -67,7 +67,7 @@ public class LoginActivity extends BaseTitleActivity<LoginViewModel, ActivityLog
     }
 
     //点击的绑定（也可直接写在viewmodel中）
-    public class ClickProxy {
+    public class PageEvent {
 
         public TextWatcher textWatcher = new SimpleTextWatcher() {
 

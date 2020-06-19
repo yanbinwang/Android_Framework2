@@ -34,10 +34,10 @@ public class MainActivity extends BaseTitleActivity<MainViewModel, ActivityMainB
     @Override
     public void initEvent() {
         super.initEvent();
-        setVariable(BR.click, new ClickProxy());
+        setVariable(BR.event, new PageEvent());
     }
 
-    public class ClickProxy {
+    public class PageEvent {
 
         public View.OnClickListener onClickListener = v -> {
             switch (v.getId()) {
