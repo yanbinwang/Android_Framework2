@@ -33,6 +33,7 @@ public class MainActivity extends BaseTitleActivity<MainViewModel, ActivityMainB
     @Override
     public void initEvent() {
         super.initEvent();
+//        binding.setVariable(BR.click, new ClickProxy());
         binding.setClick(new ClickProxy());
     }
 
@@ -40,7 +41,7 @@ public class MainActivity extends BaseTitleActivity<MainViewModel, ActivityMainB
 
         @Override
         public void onClick(View v) {
-            switch (v.getId()){
+            switch (v.getId()) {
                 case R.id.btn_login:
                     navigation(ARouterPath.LoginActivity);
                     break;

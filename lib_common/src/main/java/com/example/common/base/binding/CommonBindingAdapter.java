@@ -21,37 +21,37 @@ public class CommonBindingAdapter {
         imageView.setImageResource(imageRes);
     }
 
-    @BindingAdapter(value = {"imageDisplay"})
+    @BindingAdapter(value = {"imageUrl"})
     public static void setImageDisplay(ImageView view, String url) {
         ImageLoader.Companion.getInstance().displayImage(view, url);
     }
 
-//    @BindingAdapter(value = {"imageRoundDisplay"})
-//    public static void setImageRoundDisplay(ImageView view, String url, int roundingRadius) {
-//        ImageLoader.Companion.getInstance().displayRoundImage(view, url, roundingRadius);
-//    }
+    @BindingAdapter(value = {"imageRoundUrl", "imageRoundRadius"})
+    public static void setImageRoundDisplay(ImageView view, String url, int roundingRadius) {
+        ImageLoader.Companion.getInstance().displayRoundImage(view, url, roundingRadius);
+    }
 
-    @BindingAdapter(value = {"imageCircleDisplay"})
+    @BindingAdapter(value = {"imageCircleUrl"})
     public static void setImageCircleDisplay(ImageView view, String url) {
         ImageLoader.Companion.getInstance().displayCircleImage(view, url);
     }
     //---------------------------------------------图片注入结束---------------------------------------------
 
     //---------------------------------------------系统方法注入开始---------------------------------------------
-    @BindingAdapter(value = {"textColor"})
+    @BindingAdapter(value = {"textColorRes"})
     public static void setTextColor(TextView textView, int textColorRes) {
         textView.setTextColor(textView.getResources().getColor(textColorRes));
     }
 
     @BindingAdapter(value = {"adjustWidth"})
-    public static void adjustWidth(View view, int adjustWidth) {
+    public static void setAdjustWidth(View view, int adjustWidth) {
         ViewGroup.LayoutParams params = view.getLayoutParams();
         params.width = adjustWidth;
         view.setLayoutParams(params);
     }
 
     @BindingAdapter(value = {"adjustHeight"})
-    public static void adjustHeight(View view, int adjustHeight) {
+    public static void setAdjustHeight(View view, int adjustHeight) {
         ViewGroup.LayoutParams params = view.getLayoutParams();
         params.height = adjustHeight;
         view.setLayoutParams(params);
