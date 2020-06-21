@@ -217,22 +217,21 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
     }
 
     @Override
-    public boolean doResponse(String msg) {
+    public void doResponse(String msg) {
         if (TextUtils.isEmpty(msg)) {
             msg = getString(R.string.label_response_err);
         }
         showToast(!NetWorkUtil.isNetworkAvailable() ? getString(R.string.label_response_net_err) : msg);
-        return true;
     }
 
     @Override
     public void emptyState(EmptyLayout emptyLayout, String msg) {
-        emptyLayout.setVisibility(View.VISIBLE);
-        if (doResponse(msg)) {
-            emptyLayout.showEmpty();
-        }
+        doResponse(msg);
+        VISIBLE(emptyLayout);
         if (!NetWorkUtil.isNetworkAvailable()) {
             emptyLayout.showError();
+        } else {
+            emptyLayout.showEmpty();
         }
     }
 
@@ -242,16 +241,17 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
     }
 
     @Override
-    public void emptyState(XRecyclerView xRecyclerView, String msg, int length, int imgInt, String emptyStr) {
+    public void emptyState(XRecyclerView xRecyclerView, String msg, int length, int imgRes, String emptyText) {
         doResponse(msg);
         if (length > 0) {
             return;
         }
+        xRecyclerView.setRefreshing(false);
         xRecyclerView.setVisibilityEmptyView(View.VISIBLE);
         if (!NetWorkUtil.isNetworkAvailable()) {
             xRecyclerView.showError();
         } else {
-            xRecyclerView.showEmpty(imgInt, emptyStr);
+            xRecyclerView.showEmpty(imgRes, emptyText);
         }
     }
 
