@@ -1,4 +1,4 @@
-package com.example.common.utils
+package com.example.common.base.page
 
 import android.text.TextUtils
 import android.view.View
@@ -12,7 +12,7 @@ import com.example.framework.utils.ToastUtil.mackToastSHORT
 /**
  * 遮罩层操作
  */
-object EmptyStateUtil {
+object PageMask {
 
     @JvmStatic
     fun doResponse(msg: String?) {
@@ -25,12 +25,12 @@ object EmptyStateUtil {
     }
 
     @JvmStatic
-    fun emptyState(emptyLayout: EmptyLayout, msg: String?) {
-        emptyState(emptyLayout, msg, -1, null)
+    fun setEmptyState(emptyLayout: EmptyLayout, msg: String?) {
+        setEmptyState(emptyLayout, msg, -1, null)
     }
 
     @JvmStatic
-    fun emptyState(emptyLayout: EmptyLayout, msg: String?, imgRes: Int, emptyText: String?) {
+    fun setEmptyState(emptyLayout: EmptyLayout, msg: String?, imgRes: Int, emptyText: String?) {
         doResponse(msg)
         emptyLayout.visibility = View.VISIBLE
         if (!isNetworkAvailable()) {
@@ -41,12 +41,12 @@ object EmptyStateUtil {
     }
 
     @JvmStatic
-    fun listEmptyState(xRecyclerView: XRecyclerView, refresh: Boolean, msg: String?, length: Int) {
-        listEmptyState(xRecyclerView, refresh, msg, length, -1, null)
+    fun setListEmptyState(xRecyclerView: XRecyclerView, refresh: Boolean, msg: String?, length: Int) {
+        setListEmptyState(xRecyclerView, refresh, msg, length, -1, null)
     }
 
     @JvmStatic
-    fun listEmptyState(xRecyclerView: XRecyclerView, refresh: Boolean, msg: String?, length: Int, imgRes: Int, emptyText: String?) {
+    fun setListEmptyState(xRecyclerView: XRecyclerView, refresh: Boolean, msg: String?, length: Int, imgRes: Int, emptyText: String?) {
         val emptyLayout = xRecyclerView.emptyView
         xRecyclerView.setRefreshing(false)
         //区分此次刷新是否成功
@@ -57,7 +57,7 @@ object EmptyStateUtil {
                 doResponse(msg)
                 return
             }
-            emptyState(emptyLayout, msg, imgRes, emptyText)
+            setEmptyState(emptyLayout, msg, imgRes, emptyText)
         }
     }
 
