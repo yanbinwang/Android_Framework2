@@ -12,7 +12,7 @@ import com.example.framework.utils.ToastUtil.mackToastSHORT
 /**
  * 遮罩层操作
  */
-object EmptyUtil {
+object EmptyStateUtil {
 
     @JvmStatic
     fun doResponse(msg: String?) {
