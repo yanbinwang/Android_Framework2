@@ -245,31 +245,38 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
 
     @Override
     public void emptyState(EmptyLayout emptyLayout, String msg) {
+        emptyState(emptyLayout, msg, -1, null);
+    }
+
+    @Override
+    public void emptyState(EmptyLayout emptyLayout, String msg, int imgRes, String emptyText) {
         doResponse(msg);
         VISIBLE(emptyLayout);
         if (!NetWorkUtil.isNetworkAvailable()) {
             emptyLayout.showError();
         } else {
-            emptyLayout.showEmpty();
+            emptyLayout.showEmpty(imgRes, emptyText);
         }
     }
 
     @Override
-    public void emptyState(XRecyclerView xRecyclerView, String msg, int length) {
-        emptyState(xRecyclerView, msg, length, R.mipmap.img_data_empty, EmptyLayout.EMPTY_TXT);
+    public void listEmptyState(XRecyclerView xRecyclerView, boolean refresh, String msg, int length) {
+        listEmptyState(xRecyclerView, refresh, msg, length, -1, null);
     }
 
     @Override
-    public void emptyState(XRecyclerView xRecyclerView, String msg, int length, int imgRes, String emptyText) {
-        doResponse(msg);
-        if (length > 0) {
-            return;
-        }
-        xRecyclerView.setVisibilityEmptyView(View.VISIBLE);
-        if (!NetWorkUtil.isNetworkAvailable()) {
-            xRecyclerView.showError();
+    public void listEmptyState(XRecyclerView xRecyclerView, boolean refresh, String msg, int length, int imgRes, String emptyText) {
+        EmptyLayout emptyLayout = xRecyclerView.getEmptyView();
+        xRecyclerView.setRefreshing(false);
+        //区分此次刷新是否成功
+        if (refresh) {
+            GONE(emptyLayout);
         } else {
-            xRecyclerView.showEmpty(imgRes, emptyText);
+            if (length > 0) {
+                doResponse(msg);
+                return;
+            }
+            emptyState(emptyLayout, msg, imgRes, emptyText);
         }
     }
 

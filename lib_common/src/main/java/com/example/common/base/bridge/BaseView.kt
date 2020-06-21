@@ -58,14 +58,19 @@ interface BaseView {
     fun emptyState(emptyLayout: EmptyLayout?, msg: String?)
 
     /**
+     * 遮罩层处理（自定义错误图片）
+     */
+    fun emptyState(emptyLayout: EmptyLayout?, msg: String?, imgRes: Int, emptyText: String?)
+
+    /**
      * 列表遮罩层处理
      */
-    fun emptyState(xRecyclerView: XRecyclerView?, msg: String?, length: Int)
+    fun listEmptyState(xRecyclerView: XRecyclerView?, refresh: Boolean, msg: String?, length: Int)
 
     /**
      * 列表遮罩层处理（自定义错误图片）
      */
-    fun emptyState(xRecyclerView: XRecyclerView?, msg: String?, length: Int, imgRes: Int, emptyText: String?)
+    fun listEmptyState(xRecyclerView: XRecyclerView?, refresh: Boolean, msg: String?, length: Int, imgRes: Int, emptyText: String?)
 
     /**
      * 对象判空（批量）

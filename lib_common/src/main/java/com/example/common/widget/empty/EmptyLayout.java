@@ -126,7 +126,7 @@ public class EmptyLayout extends ViewGroup {
     }
 
     //当数据为空时(显示需要显示的图片，以及内容字)---传入图片-1：原图 0：不需要图片 default：传入的图片
-    public void showEmpty(int resId, String emptyStr) {
+    public void showEmpty(int resId, String emptyText) {
         emptyRefresh.setVisibility(View.VISIBLE);
         ivEmpty.setBackgroundResource(0);
         if (-1 == resId) {
@@ -139,10 +139,10 @@ public class EmptyLayout extends ViewGroup {
             ivEmpty.setImageResource(resId);
         }
         tvEmpty.setVisibility(View.VISIBLE);
-        if (TextUtils.isEmpty(emptyStr)) {
+        if (TextUtils.isEmpty(emptyText)) {
             tvEmpty.setText(EMPTY_TXT);
         } else {
-            tvEmpty.setText(emptyStr);
+            tvEmpty.setText(emptyText);
         }
     }
 
