@@ -5,7 +5,7 @@ package com.example.common.utils.permission
  * date: 2018/6/11.
  * 权限回调监听
  */
-interface OnAndPermissionListener {
+interface OnPermissionsListener {
 
     fun onAndPermissionListener(isGranted: Boolean = false)
 
