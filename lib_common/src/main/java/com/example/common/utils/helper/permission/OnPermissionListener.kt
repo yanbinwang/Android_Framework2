@@ -7,6 +7,6 @@ package com.example.common.utils.helper.permission
  */
 interface OnPermissionListener {
 
-    fun onAndPermissionListener(isGranted: Boolean = false)
+    fun onPermissionListener(isGranted: Boolean = false)
 
 }

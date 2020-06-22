@@ -35,7 +35,7 @@ public class MainActivity extends BaseTitleActivity<MainViewModel, ActivityMainB
                 .getPermissions()
                 .setPermissionCallBack(new OnPermissionListener() {
                     @Override
-                    public void onAndPermissionListener(boolean isGranted) {
+                    public void onPermissionListener(boolean isGranted) {
                         if(isGranted){
                             showToast("dfsdfdsfsd");
                         }
