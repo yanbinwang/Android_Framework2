@@ -1,8 +1,4 @@
-package com.example.common.bus;
-
-import androidx.lifecycle.MutableLiveData;
-
-import com.example.framework.utils.lifecycle.BusMutableLiveData;
+package com.example.framework.utils.lifecycle;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,14 +21,14 @@ public final class LiveDataBus {
         return SingletonHolder.DEFAULT_BUS;
     }
 
-    public <T> MutableLiveData<T> with(String key, Class<T> type) {
+    public <T> BusMutableLiveData<T> with(String key, Class<T> type) {
         if (!bus.containsKey(key)) {
             bus.put(key, new BusMutableLiveData<>());
         }
-        return (MutableLiveData<T>) bus.get(key);
+        return (BusMutableLiveData<T>) bus.get(key);
     }
 
-    public MutableLiveData<Object> with(String key) {
+    public BusMutableLiveData<Object> with(String key) {
         return with(key, Object.class);
     }
 

@@ -21,17 +21,13 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
-import com.example.common.BuildConfig;
 import com.example.common.base.bridge.BaseImpl;
 import com.example.common.base.bridge.BaseView;
 import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.base.page.PageParams;
-import com.example.common.bus.LiveDataBus;
-import com.example.common.bus.LiveDataBusEvent;
-import com.example.common.constant.Constants;
 import com.example.common.constant.Extras;
+import com.example.common.utils.ActivityCollector;
 import com.example.common.utils.bulider.StatusBarBuilder;
-import com.example.common.utils.file.FileUtil;
 import com.example.common.widget.dialog.LoadingDialog;
 import com.example.framework.utils.LogUtil;
 import com.example.framework.utils.ToastUtil;
@@ -63,6 +59,7 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityCollector.addActivity(this);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         initDataBinding();
         initViewModel();
@@ -123,19 +120,6 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
 
     @Override
     public void initEvent() {
-//        LiveDataBus.get()
-//                .with(Constants.APPLICATION_ID, LiveDataBusEvent.class)
-//                .observe(this, event -> {
-//                    String action = event.getAction();
-//                    switch (action) {
-//                        //注销登出
-//                        case Constants.APP_USER_LOGIN_OUT:
-//                            if (!"mainactivity".equals(TAG)) {
-//                                finish();
-//                            }
-//                            break;
-//                    }
-//                });
     }
 
     @Override
@@ -145,6 +129,7 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        ActivityCollector.removeActivity(this);
         if (binding != null) {
             binding.unbind();
         }

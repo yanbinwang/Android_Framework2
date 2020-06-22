@@ -1,8 +1,13 @@
 package com.example.mvvm.activity;
 
+import android.content.Intent;
+import android.view.View;
+
 import com.alibaba.android.arouter.facade.annotation.Route;
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.example.common.base.BaseActivity;
 import com.example.common.constant.ARouterPath;
+import com.example.common.utils.ActivityCollector;
 import com.example.mvvm.R;
 import com.example.mvvm.bridge.UserInfoViewModel;
 import com.example.mvvm.databinding.ActivityUserInfoBinding;
@@ -22,6 +27,14 @@ public class UserInfoActivity extends BaseActivity<UserInfoViewModel, ActivityUs
     public void initEvent() {
         super.initEvent();
         viewModel.userInfoModel.observe(this, userInfoModel -> binding.setModel(userInfoModel));
+
+        binding.btnTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ActivityCollector.finishAll();
+                navigation(ARouterPath.TestListActivity);
+            }
+        });
     }
 
     @Override
