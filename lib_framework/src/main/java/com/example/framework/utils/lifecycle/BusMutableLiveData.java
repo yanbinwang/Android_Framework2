@@ -1,4 +1,4 @@
-package com.example.framework.widget.lifecycle;
+package com.example.framework.utils.lifecycle;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
