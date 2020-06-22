@@ -45,7 +45,8 @@ class AlbumHelper(activity: Activity) {
                         // 图片压缩质量，请参考：Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
                         .compressQuality(90)
                         // 裁剪时的手势支持：ROTATE, SCALE, ALL, NONE.
-                        .gesture(Durban.GESTURE_SCALE).controller(
+                        .gesture(Durban.GESTURE_SCALE)
+                        .controller(
                             Controller.newBuilder().enable(false) // 是否开启控制面板。
                                 .rotation(true) // 是否有旋转按钮。
                                 .rotationTitle(true) // 旋转控制按钮上面的标题。
@@ -72,7 +73,8 @@ class AlbumHelper(activity: Activity) {
                     .statusBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.grey_333333)) // 状态栏颜色。
                     .toolBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.grey_333333)) // Toolbar颜色。
                     .build()
-            ).camera(isCamera).columnCount(3) // 页面列表的列数。
+            )
+            .camera(isCamera).columnCount(3) // 页面列表的列数。
             .onResult { result ->
                 val resultSize = result[0].size
                 if (resultSize > 10 * 1024 * 1024) {
