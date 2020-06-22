@@ -23,15 +23,26 @@ class AlbumHelper(activity: Activity) {
     private var onAlbumListener: OnAlbumListener? = null //单选回调监听
 
     //跳转至相机
-    fun toCamera(isTailor: Boolean) {
+    fun toCamera(isTailor: Boolean): AlbumHelper {
         Album.camera(mActivity.get()) //相机功能。
             .image() //拍照。
             .onResult { result ->
                 if (isTailor) {
                     Durban.with(mActivity.get())
                         // 裁剪界面的标题。
-                        .title(" ").statusBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.grey_333333)) // 状态栏颜色。
-                        .toolBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.grey_333333)) // Toolbar颜色。
+                        .title(" ")
+                        .statusBarColor(
+                            ContextCompat.getColor(
+                                mActivity.get()!!,
+                                R.color.grey_333333
+                            )
+                        ) // 状态栏颜色。
+                        .toolBarColor(
+                            ContextCompat.getColor(
+                                mActivity.get()!!,
+                                R.color.grey_333333
+                            )
+                        ) // Toolbar颜色。
                         // 图片路径list或者数组。
                         .inputImagePaths(result)
                         // 图片输出文件夹路径。
@@ -61,17 +72,28 @@ class AlbumHelper(activity: Activity) {
                     }
                 }
             }.start()
+        return this
     }
 
     //跳转至相册
-    fun toPhotoAlbum(isCamera: Boolean, isTailor: Boolean) {
+    fun toPhotoAlbum(isCamera: Boolean, isTailor: Boolean): AlbumHelper {
         Album.image(mActivity.get()) //选择图片。
             .singleChoice() //多选模式为：multipleChoice,单选模式为：singleChoice()。
             .widget(
                 Widget.newDarkBuilder(mActivity.get()) //状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
                     .title(" ") //标题 ---标题颜色只有黑色白色
-                    .statusBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.grey_333333)) // 状态栏颜色。
-                    .toolBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.grey_333333)) // Toolbar颜色。
+                    .statusBarColor(
+                        ContextCompat.getColor(
+                            mActivity.get()!!,
+                            R.color.grey_333333
+                        )
+                    ) // 状态栏颜色。
+                    .toolBarColor(
+                        ContextCompat.getColor(
+                            mActivity.get()!!,
+                            R.color.grey_333333
+                        )
+                    ) // Toolbar颜色。
                     .build()
             )
             .camera(isCamera).columnCount(3) // 页面列表的列数。
@@ -87,8 +109,19 @@ class AlbumHelper(activity: Activity) {
                 if (isTailor) {
                     Durban.with(mActivity.get())
                         // 裁剪界面的标题。
-                        .title(" ").statusBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.grey_333333)) // 状态栏颜色。
-                        .toolBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.grey_333333)) // Toolbar颜色。
+                        .title(" ")
+                        .statusBarColor(
+                            ContextCompat.getColor(
+                                mActivity.get()!!,
+                                R.color.grey_333333
+                            )
+                        ) // 状态栏颜色。
+                        .toolBarColor(
+                            ContextCompat.getColor(
+                                mActivity.get()!!,
+                                R.color.grey_333333
+                            )
+                        ) // Toolbar颜色。
                         // 图片路径list或者数组。
                         .inputImagePaths(result[0].path)
                         // 图片输出文件夹路径。
@@ -117,10 +150,12 @@ class AlbumHelper(activity: Activity) {
                     }
                 }
             }.start()
+        return this
     }
 
-    fun setAlbumCallBack(onAlbumListener: OnAlbumListener) {
+    fun setAlbumCallBack(onAlbumListener: OnAlbumListener): AlbumHelper {
         this.onAlbumListener = onAlbumListener
+        return this
     }
 
     companion object {
