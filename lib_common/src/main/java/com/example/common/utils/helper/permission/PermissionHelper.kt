@@ -29,11 +29,11 @@ class PermissionHelper(context: Context) {
     )
 
     //检测权限(默认拿全部，可单独拿某个权限组)
-    fun checkPermission(): PermissionHelper {
-        return checkPermission(*permissionGroup)
+    fun getPermissions(): PermissionHelper {
+        return getPermissions(*permissionGroup)
     }
 
-    fun checkPermission(vararg groups: Array<String>): PermissionHelper {
+    fun getPermissions(vararg groups: Array<String>): PermissionHelper {
         //6.0+系统做特殊处理
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             AndPermission.with(mContext.get())
@@ -98,7 +98,7 @@ class PermissionHelper(context: Context) {
         return this
     }
 
-    fun setAlbumCallBack(onPermissionListener: OnPermissionListener): PermissionHelper {
+    fun setPermissionCallBack(onPermissionListener: OnPermissionListener): PermissionHelper {
         this.onPermissionListener = onPermissionListener
         return this
     }

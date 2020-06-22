@@ -6,6 +6,8 @@ import android.view.View;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.example.common.base.BaseTitleActivity;
 import com.example.common.constant.ARouterPath;
+import com.example.common.utils.helper.permission.OnPermissionListener;
+import com.example.common.utils.helper.permission.PermissionHelper;
 import com.example.mvvm.BR;
 import com.example.mvvm.R;
 import com.example.mvvm.bridge.MainViewModel;
@@ -29,6 +31,16 @@ public class MainActivity extends BaseTitleActivity<MainViewModel, ActivityMainB
     public void initView() {
         super.initView();
         titleBuilder.setTitle("10086").getDefault();
+        PermissionHelper.Companion.with(this)
+                .getPermissions()
+                .setPermissionCallBack(new OnPermissionListener() {
+                    @Override
+                    public void onAndPermissionListener(boolean isGranted) {
+                        if(isGranted){
+                            showToast("dfsdfdsfsd");
+                        }
+                    }
+                });
     }
 
     @Override

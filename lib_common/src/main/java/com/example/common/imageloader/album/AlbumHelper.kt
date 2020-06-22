@@ -76,7 +76,7 @@ class AlbumHelper(activity: Activity) {
     }
 
     //跳转至相册
-    fun toPhotoAlbum(isCamera: Boolean, isTailor: Boolean): AlbumHelper {
+    fun toAlbum(isCamera: Boolean, isTailor: Boolean): AlbumHelper {
         Album.image(mActivity.get()) //选择图片。
             .singleChoice() //多选模式为：multipleChoice,单选模式为：singleChoice()。
             .widget(
