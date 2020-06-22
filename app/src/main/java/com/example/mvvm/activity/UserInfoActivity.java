@@ -30,4 +30,9 @@ public class UserInfoActivity extends BaseActivity<UserInfoViewModel, ActivityUs
         viewModel.getPageModel();
     }
 
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        LiveDataBus.get().with(LIVEDATA_KEY).postValue(new LiveDataBusEvent(Constants.APP_USER_LOGIN_OUT));
+//    }
 }
