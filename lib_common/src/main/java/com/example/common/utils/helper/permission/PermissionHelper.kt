@@ -21,12 +21,12 @@ import java.text.MessageFormat
  */
 class PermissionHelper(context: Context) {
     private val mContext: WeakReference<Context> = WeakReference(context)
-    private var onPermissionListener: OnPermissionListener? = null
     private val permissionGroup = arrayOf(
         Permission.Group.CAMERA, //拍摄照片，录制视频
         Permission.Group.MICROPHONE, //录制音频(腾讯x5)
         Permission.Group.STORAGE//访问照片。媒体。内容和文件
     )
+    private var onPermissionListener: OnPermissionListener? = null
 
     //检测权限(默认拿全部，可单独拿某个权限组)
     fun getPermissions(): PermissionHelper {
