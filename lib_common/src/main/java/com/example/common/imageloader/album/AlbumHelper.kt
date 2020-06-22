@@ -23,11 +23,11 @@ class AlbumHelper(activity: Activity) {
     private var onAlbumListener: OnAlbumListener? = null //单选回调监听
 
     //跳转至相机
-    fun toCamera(isNeedTailor: Boolean) {
+    fun toCamera(isTailor: Boolean) {
         Album.camera(mActivity.get()) //相机功能。
             .image() //拍照。
             .onResult { result ->
-                if (isNeedTailor) {
+                if (isTailor) {
                     Durban.with(mActivity.get())
                         // 裁剪界面的标题。
                         .title(" ").statusBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.grey_333333)) // 状态栏颜色。
@@ -63,7 +63,7 @@ class AlbumHelper(activity: Activity) {
     }
 
     //跳转至相册
-    fun toPhotoAlbum(isNeedCamera: Boolean, isNeedTailor: Boolean) {
+    fun toPhotoAlbum(isCamera: Boolean, isTailor: Boolean) {
         Album.image(mActivity.get()) //选择图片。
             .singleChoice() //多选模式为：multipleChoice,单选模式为：singleChoice()。
             .widget(
@@ -72,7 +72,7 @@ class AlbumHelper(activity: Activity) {
                     .statusBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.grey_333333)) // 状态栏颜色。
                     .toolBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.grey_333333)) // Toolbar颜色。
                     .build()
-            ).camera(isNeedCamera).columnCount(3) // 页面列表的列数。
+            ).camera(isCamera).columnCount(3) // 页面列表的列数。
             .onResult { result ->
                 val resultSize = result[0].size
                 if (resultSize > 10 * 1024 * 1024) {
@@ -82,7 +82,7 @@ class AlbumHelper(activity: Activity) {
                     )
                     return@onResult
                 }
-                if (isNeedTailor) {
+                if (isTailor) {
                     Durban.with(mActivity.get())
                         // 裁剪界面的标题。
                         .title(" ").statusBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.grey_333333)) // 状态栏颜色。
