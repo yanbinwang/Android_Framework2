@@ -1,4 +1,4 @@
-package com.example.common.utils.permission
+package com.example.common.utils.helper.permission
 
 import android.content.Context
 import android.content.Intent
@@ -18,25 +18,25 @@ import java.text.MessageFormat
  * 获取选项工具类
  * 根据项目需求哪取需要的权限组
  */
-class Permissions(private val context: Context) {
+class PermissionHelper(private val context: Context) {
     private val permissionGroup = arrayOf(Permission.Group.CAMERA, //拍摄照片，录制视频
             Permission.Group.MICROPHONE, //录制音频(腾讯x5)
             Permission.Group.STORAGE) //访问照片。媒体。内容和文件
 
     //检测权限(默认拿全部，可单独拿某个权限组)
-    fun checkPermission(onPermissionsListener: OnPermissionsListener?) {
-        checkPermission(onPermissionsListener, *permissionGroup)
+    fun checkPermission(onPermissionListener: OnPermissionListener?) {
+        checkPermission(onPermissionListener, *permissionGroup)
     }
 
-    fun checkPermission(onPermissionsListener: OnPermissionsListener?, vararg groups: Array<String>) {
+    fun checkPermission(onPermissionListener: OnPermissionListener?, vararg groups: Array<String>) {
         //6.0+系统做特殊处理
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             AndPermission.with(context).runtime().permission(*groups).onGranted {
                 // 权限申请成功回调
-                onPermissionsListener?.onAndPermissionListener(true)
+                onPermissionListener?.onAndPermissionListener(true)
             }.onDenied { permissions ->
                 // 权限申请失败回调
-                onPermissionsListener?.onAndPermissionListener(false)
+                onPermissionListener?.onAndPermissionListener(false)
                 //提示参数
                 var result: String? = null
                 if (permissions.isNotEmpty()) {
@@ -68,7 +68,7 @@ class Permissions(private val context: Context) {
                 }
             }.start()
         } else {
-            onPermissionsListener?.onAndPermissionListener(true)
+            onPermissionListener?.onAndPermissionListener(true)
         }
     }
 

@@ -18,7 +18,7 @@ import java.lang.ref.WeakReference
  * 调用该类之前需检测权限，activity属性设为
  * android:configChanges="orientation|keyboardHidden|screenSize"
  */
-class AlbumUtil(activity: Activity) {
+class AlbumHelper(activity: Activity) {
     private val mActivity: WeakReference<Activity> = WeakReference(activity)
     private var onAlbumListener: OnAlbumListener? = null //单选回调监听
 
@@ -122,8 +122,8 @@ class AlbumUtil(activity: Activity) {
     }
 
     companion object {
-        fun with(activity: Activity?): AlbumUtil {
-            return AlbumUtil(activity!!)
+        fun with(activity: Activity?): AlbumHelper {
+            return AlbumHelper(activity!!)
         }
     }
 
