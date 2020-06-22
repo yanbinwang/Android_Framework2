@@ -31,16 +31,14 @@ public class LoginActivity extends BaseTitleActivity<LoginViewModel, ActivityLog
     public void initView() {
         super.initView();
         titleBuilder.setTitle("登录").getDefault();
+        setVariable(BR.event, new PageEvent());
     }
 
     @Override
     public void initEvent() {
         super.initEvent();
-        setVariable(BR.event, new PageEvent());
         //类似mvp的接口回调,通过观察泛型内容随时刷新变化
         viewModel.userInfoModel.observe(this, userInfoModel -> navigation(ARouterPath.UserInfoActivity, new PageParams().append("model", userInfoModel)).finish());
-
-
 //        viewModel.getData();
 //        for (int i = 0; i < 1000; i++) {
 //            int position = i;
