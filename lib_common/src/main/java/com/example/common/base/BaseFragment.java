@@ -59,9 +59,9 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     protected abstract int getLayoutResID();
 
-    protected VDB setVariable(int variableId, Object value) {
+    public BaseFragment addBindingParam(int variableId, Object value) {
         binding.setVariable(variableId, value);
-        return binding;
+        return this;
     }
 
     @Override

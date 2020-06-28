@@ -70,9 +70,9 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
 
     protected abstract int getLayoutResID();
 
-    protected VDB setVariable(int variableId, Object value) {
+    public BaseActivity addBindingParam(int variableId, Object value) {
         binding.setVariable(variableId, value);
-        return binding;
+        return this;
     }
 
     @Override

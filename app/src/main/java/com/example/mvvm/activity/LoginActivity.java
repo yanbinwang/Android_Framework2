@@ -31,7 +31,7 @@ public class LoginActivity extends BaseTitleActivity<LoginViewModel, ActivityLog
     public void initView() {
         super.initView();
         titleBuilder.setTitle("登录").getDefault();
-        setVariable(BR.event, new PageEvent());
+        addBindingParam(BR.event, new PageEvent());
     }
 
     @Override

@@ -26,8 +26,8 @@ public class UserInfoActivity extends BaseActivity<BaseViewModel, ActivityUserIn
     @Override
     public void initView() {
         super.initView();
-        setVariable(BR.model, getIntent().getSerializableExtra("model"))
-                .setVariable(BR.event, new PageEvent());
+        addBindingParam(BR.model, getIntent().getSerializableExtra("model"))
+                .addBindingParam(BR.event, new PageEvent());
     }
 
     public class PageEvent {

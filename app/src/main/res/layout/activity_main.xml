@@ -4,10 +4,6 @@
     <data>
 
         <variable
-            name="viewModel"
-            type="com.example.mvvm.bridge.MainViewModel" />
-
-        <variable
             name="event"
             type="com.example.mvvm.activity.MainActivity.PageEvent" />
 
