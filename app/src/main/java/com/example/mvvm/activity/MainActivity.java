@@ -30,6 +30,7 @@ public class MainActivity extends BaseTitleActivity<BaseViewModel, ActivityMainB
         super.initView();
         titleBuilder.setTitle("10086").getDefault();
         addBindingParam(BR.event, new PageEvent());
+
     }
 
     public class PageEvent {
