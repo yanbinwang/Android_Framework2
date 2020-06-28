@@ -17,6 +17,7 @@ import com.example.common.widget.dialog.callback.OnConfirmDialogListener;
 import com.example.common.widget.dialog.callback.OnConfirmOrCancelDialogListener;
 import com.example.framework.utils.AnimationLoader;
 
+
 /**
  * author: wyb
  * date: 2017/8/25.
@@ -25,6 +26,8 @@ import com.example.framework.utils.AnimationLoader;
 @SuppressLint("InflateParams")
 public class AppDialog extends Dialog {
     private AnimationSet mAnimIn, mAnimOut;
+    private OnConfirmOrCancelDialogListener onConfirmOrCancelDialogListener;
+    private OnConfirmDialogListener onConfirmDialogListener;
 
     public AppDialog(@NonNull Context context) {
         super(context, R.style.appDialogStyle);
@@ -34,14 +37,13 @@ public class AppDialog extends Dialog {
     }
 
     //包含確定取消的提示框
-    public AppDialog show(String tipText, String contentText, String sureText, String cancelText, OnConfirmOrCancelDialogListener onConfirmOrCancelDialogListener) {
+    public AppDialog setParams(String tipText, String contentText, String sureText, String cancelText) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.view_dialog_confirm_or_cancel, null);
         setContentView(view, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         //当布局show出来的时候执行开始动画
         setOnShowListener(dialog -> view.startAnimation(mAnimIn));
         //当布局销毁时执行结束动画
         setOnDismissListener(dialog -> view.startAnimation(mAnimOut));
-        show();
         //标题
         TextView dialogTipTxt = findViewById(R.id.tv_dialog_tip);
         //内容
@@ -86,14 +88,13 @@ public class AppDialog extends Dialog {
     }
 
     //包含確定的提示框
-    public AppDialog show(String tipText, String contentText, String sureText, OnConfirmDialogListener onConfirmDialogListener) {
+    public AppDialog setParams(String tipText, String contentText, String sureText) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.view_dialog_confirm, null);
         setContentView(view, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         //当布局show出来的时候执行开始动画
         setOnShowListener(dialog -> view.startAnimation(mAnimIn));
         //当布局销毁时执行结束动画
         setOnDismissListener(dialog -> view.startAnimation(mAnimOut));
-        show();
 
         //标题
         TextView dialogTipTxt = findViewById(R.id.tv_dialog_tip);
@@ -124,6 +125,16 @@ public class AppDialog extends Dialog {
                 onConfirmDialogListener.onDialogConfirm();
             }
         });
+        return this;
+    }
+
+    public AppDialog setOnConfirmOrCancelDialogListener(OnConfirmOrCancelDialogListener onConfirmOrCancelDialogListener) {
+        this.onConfirmOrCancelDialogListener = onConfirmOrCancelDialogListener;
+        return this;
+    }
+
+    public AppDialog setOnConfirmDialogListener(OnConfirmDialogListener onConfirmDialogListener) {
+        this.onConfirmDialogListener = onConfirmDialogListener;
         return this;
     }
 

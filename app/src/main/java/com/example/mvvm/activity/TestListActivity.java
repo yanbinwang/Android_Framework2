@@ -24,7 +24,7 @@ public class TestListActivity extends BaseActivity<TestListViewModel, ActivityTe
     public void initView() {
         super.initView();
         //绑定适配器
-        setVariable(BR.adapter, new TestListAdapter());
+        addBindingParam(BR.adapter, new TestListAdapter());
     }
 
     @Override

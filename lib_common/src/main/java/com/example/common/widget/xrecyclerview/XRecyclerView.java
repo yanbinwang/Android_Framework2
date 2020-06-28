@@ -202,6 +202,11 @@ public class XRecyclerView extends ViewGroup {
         rvX.scrollToPosition(position);
     }
 
+    //获取空布局
+    public EmptyLayout getEmptyView() {
+        return el;
+    }
+
     //添加分隔线
     public void addItemDecoration(int horizontalSpace, int verticalSpace, boolean hasHorizontalEdge, boolean hasVerticalEdge) {
         SparseArray<SCommonItemDecoration.ItemDecorationProps> propMap = new SparseArray<>();

@@ -89,6 +89,12 @@ object DataCleanManager {
     private fun deleteFilesByDirectory(directory: File) {
         if (directory.exists() && directory.isDirectory) {
             for (item in directory.listFiles()) {
+                if (null == item) continue
+                //不删除mmkv
+                if (item.isDirectory) {
+                    if (item.name == "MMKV" || item.name == "mmkv") continue
+                    deleteFilesByDirectory(item)
+                }
                 item.delete()
             }
         }

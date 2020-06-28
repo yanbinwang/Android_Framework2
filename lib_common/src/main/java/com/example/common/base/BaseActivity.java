@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -22,20 +21,14 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
-import com.example.common.R;
 import com.example.common.base.bridge.BaseImpl;
 import com.example.common.base.bridge.BaseView;
 import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.base.page.PageParams;
-import com.example.common.bus.LiveDataBus;
-import com.example.common.bus.LiveDataBusEvent;
-import com.example.common.constant.Constants;
 import com.example.common.constant.Extras;
-import com.example.common.utils.NetWorkUtil;
+import com.example.common.utils.ActivityCollector;
 import com.example.common.utils.bulider.StatusBarBuilder;
 import com.example.common.widget.dialog.LoadingDialog;
-import com.example.common.widget.empty.EmptyLayout;
-import com.example.common.widget.xrecyclerview.XRecyclerView;
 import com.example.framework.utils.LogUtil;
 import com.example.framework.utils.ToastUtil;
 
@@ -66,6 +59,7 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityCollector.addActivity(this);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         initDataBinding();
         initViewModel();
@@ -76,9 +70,9 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
 
     protected abstract int getLayoutResID();
 
-    protected VDB setVariable(int variableId, Object value) {
+    public BaseActivity addBindingParam(int variableId, Object value) {
         binding.setVariable(variableId, value);
-        return binding;
+        return this;
     }
 
     @Override
@@ -126,23 +120,6 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
 
     @Override
     public void initEvent() {
-        LiveDataBus.get()
-                .with(TAG, LiveDataBusEvent.class)
-                .observe(this, event -> {
-                    String action = event.getAction();
-                    switch (action) {
-                        //注销登出
-                        case Constants.APP_USER_LOGIN_OUT:
-                            if (!"mainactivity".equals(TAG)) {
-                                finish();
-                            }
-                            break;
-                        //切换语言
-                        case Constants.APP_SWITCH_LANGUAGE:
-                            finish();
-                            break;
-                    }
-                });
     }
 
     @Override
@@ -152,6 +129,7 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        ActivityCollector.removeActivity(this);
         if (binding != null) {
             binding.unbind();
         }
@@ -233,45 +211,6 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
             postcard.navigation(this, code);
         }
         return this;
-    }
-
-    @Override
-    public boolean doResponse(String msg) {
-        if (TextUtils.isEmpty(msg)) {
-            msg = getString(R.string.label_response_err);
-        }
-        showToast(!NetWorkUtil.INSTANCE.isNetworkAvailable() ? getString(R.string.label_response_net_err) : msg);
-        return true;
-    }
-
-    @Override
-    public void emptyState(EmptyLayout emptyLayout, String msg) {
-        emptyLayout.setVisibility(View.VISIBLE);
-        if (doResponse(msg)) {
-            emptyLayout.showEmpty();
-        }
-        if (!NetWorkUtil.INSTANCE.isNetworkAvailable()) {
-            emptyLayout.showError();
-        }
-    }
-
-    @Override
-    public void emptyState(XRecyclerView xRecyclerView, String msg, int length) {
-        emptyState(xRecyclerView, msg, length, R.mipmap.img_data_empty, EmptyLayout.EMPTY_TXT);
-    }
-
-    @Override
-    public void emptyState(XRecyclerView xRecyclerView, String msg, int length, int imgInt, String emptyStr) {
-        doResponse(msg);
-        if (length > 0) {
-            return;
-        }
-        xRecyclerView.setVisibilityEmptyView(View.VISIBLE);
-        if (!NetWorkUtil.INSTANCE.isNetworkAvailable()) {
-            xRecyclerView.showError();
-        } else {
-            xRecyclerView.showEmpty(imgInt, emptyStr);
-        }
     }
 
     @Override

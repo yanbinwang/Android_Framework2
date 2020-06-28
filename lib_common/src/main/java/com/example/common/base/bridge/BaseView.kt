@@ -3,8 +3,6 @@ package com.example.common.base.bridge
 import android.app.Activity
 import android.view.View
 import com.example.common.base.page.PageParams
-import com.example.common.widget.empty.EmptyLayout
-import com.example.common.widget.xrecyclerview.XRecyclerView
 
 /**
  * Created by WangYanBin on 2020/6/8.
@@ -46,26 +44,6 @@ interface BaseView {
      * 路由跳转,带参数
      */
     fun navigation(path: String, params: PageParams): Activity
-
-    /**
-     * 接口返回提示
-     */
-    fun doResponse(msg: String?): Boolean
-
-    /**
-     * 遮罩层处理
-     */
-    fun emptyState(emptyLayout: EmptyLayout?, msg: String?)
-
-    /**
-     * 列表遮罩层处理
-     */
-    fun emptyState(xRecyclerView: XRecyclerView?, msg: String?, length: Int)
-
-    /**
-     * 列表遮罩层处理（自定义错误图片）
-     */
-    fun emptyState(xRecyclerView: XRecyclerView?, msg: String?, length: Int, imgInt: Int, emptyStr: String?)
 
     /**
      * 对象判空（批量）

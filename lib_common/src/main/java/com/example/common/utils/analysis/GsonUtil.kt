@@ -9,10 +9,9 @@ import com.google.gson.GsonBuilder
 object GsonUtil {
     private val gson = GsonBuilder().setLenient()//json宽松,针对json格式不规范
             .disableHtmlEscaping()//防止特殊字符出现乱码
-            .registerTypeAdapter(Boolean::class.java,
-                BooleanTypeAdapter()
-            ).create()
+            .registerTypeAdapter(Boolean::class.java, BooleanTypeAdapter()).create()
 
+    @JvmStatic
     fun <T> jsonToObj(json: String, className: Class<T>): T? {
         var ret: T? = null
         try {
@@ -22,6 +21,7 @@ object GsonUtil {
         return ret
     }
 
+    @JvmStatic
     fun objToJson(obj: Any): String? {
         var ret: String? = null
         try {

@@ -4,12 +4,12 @@
     <data>
 
         <variable
-            name="viewModel"
-            type="com.example.mvvm.bridge.UserInfoViewModel" />
-
-        <variable
             name="model"
             type="com.example.mvvm.model.UserInfoModel" />
+
+        <variable
+            name="event"
+            type="com.example.mvvm.activity.UserInfoActivity.PageEvent" />
 
     </data>
 
@@ -18,6 +18,16 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_test"
+            android:text="test"
+            android:textSize="28mm"
+            android:background="@color/gray_6c6c6c"
+            android:textColor="@color/white"
+            android:onClick="@{event.onClickListener}"
+            android:layout_width="match_parent"
+            android:layout_height="100mm"/>
 
         <ImageView
             android:id="@+id/iv_avatar"

@@ -28,8 +28,7 @@ class TitleBuilder(activity: Activity) {
     private val statusBarBuilder: StatusBarBuilder
 
     init {
-        statusBarBuilder =
-            StatusBarBuilder(mActivity.get()!!)
+        statusBarBuilder = StatusBarBuilder(mActivity.get()!!)
         statusBarBuilder.setStatusBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.white))
         instanceObjects()
     }

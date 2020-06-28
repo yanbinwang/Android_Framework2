@@ -1,5 +1,6 @@
 package com.example.common.widget.dialog;
 
+
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -9,18 +10,20 @@ import androidx.appcompat.app.AlertDialog;
 import com.example.common.R;
 import com.example.common.widget.dialog.callback.OnDialogListener;
 
+
 /**
  * author: wyb
  * date: 2017/8/25.
  * 安卓原生提示框
  */
 public class AndDialog extends AlertDialog.Builder {
+    private OnDialogListener onDialogListener;
 
     public AndDialog(@NonNull Context context) {
         super(context, R.style.dialogStyle);
     }
 
-    public AndDialog show(String tipText, String contentText, String sureText, String cancelText, OnDialogListener onDialogListener) {
+    public AndDialog setParams(String tipText, String contentText, String sureText, String cancelText) {
         if (!TextUtils.isEmpty(tipText)) {
             setTitle(tipText);
         }
@@ -35,7 +38,11 @@ public class AndDialog extends AlertDialog.Builder {
                 onDialogListener.onDialogCancel();
             }
         });
-        show();
+        return this;
+    }
+
+    public AndDialog setOnDialogListener(OnDialogListener onDialogListener) {
+        this.onDialogListener = onDialogListener;
         return this;
     }
 
