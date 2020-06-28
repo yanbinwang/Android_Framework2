@@ -1,22 +1,22 @@
 package com.example.mvvm.activity;
 
-import android.content.Intent;
 import android.view.View;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
-import com.alibaba.android.arouter.launcher.ARouter;
+import com.chad.library.BR;
 import com.example.common.base.BaseActivity;
+import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.constant.ARouterPath;
 import com.example.common.utils.ActivityCollector;
 import com.example.mvvm.R;
-import com.example.mvvm.bridge.UserInfoViewModel;
 import com.example.mvvm.databinding.ActivityUserInfoBinding;
 
 /**
  * Created by WangYanBin on 2020/6/3.
+ * ViewModel可不写，但是binding必须传
  */
 @Route(path = ARouterPath.UserInfoActivity)
-public class UserInfoActivity extends BaseActivity<UserInfoViewModel, ActivityUserInfoBinding> {
+public class UserInfoActivity extends BaseActivity<BaseViewModel, ActivityUserInfoBinding> {
 
     @Override
     protected int getLayoutResID() {
@@ -24,28 +24,23 @@ public class UserInfoActivity extends BaseActivity<UserInfoViewModel, ActivityUs
     }
 
     @Override
-    public void initEvent() {
-        super.initEvent();
-        viewModel.userInfoModel.observe(this, userInfoModel -> binding.setModel(userInfoModel));
+    public void initView() {
+        super.initView();
+        setVariable(BR.model, getIntent().getSerializableExtra("model"))
+                .setVariable(BR.event, new PageEvent());
+    }
 
-        binding.btnTest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ActivityCollector.finishAll();
-                navigation(ARouterPath.TestListActivity);
+    public class PageEvent {
+
+        public View.OnClickListener onClickListener = v -> {
+            switch (v.getId()) {
+                case R.id.btn_test:
+                    ActivityCollector.finishAll();
+                    navigation(ARouterPath.TestListActivity);
+                    break;
             }
-        });
+        };
+
     }
 
-    @Override
-    public void initData() {
-        super.initData();
-        viewModel.getPageModel();
-    }
-
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        LiveDataBus.get().with(LIVEDATA_KEY).postValue(new LiveDataBusEvent(Constants.APP_USER_LOGIN_OUT));
-//    }
 }
