@@ -114,8 +114,8 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
         ARouter.getInstance().inject(this);
         activity = new WeakReference<>(this);
         context = new WeakReference<>(this);
-        statusBarBuilder = new StatusBarBuilder(this);
-        loadingDialog = new LoadingDialog(this);
+        statusBarBuilder = new StatusBarBuilder(activity.get());
+        loadingDialog = new LoadingDialog(context.get());
     }
 
     @Override
