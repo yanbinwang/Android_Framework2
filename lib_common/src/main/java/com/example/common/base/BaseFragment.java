@@ -59,11 +59,6 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     protected abstract int getLayoutResID();
 
-    public BaseFragment addBindingParam(int variableId, Object value) {
-        binding.setVariable(variableId, value);
-        return this;
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         convertView = inflater.inflate(getLayoutResID(), container, false);

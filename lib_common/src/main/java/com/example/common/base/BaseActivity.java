@@ -70,11 +70,6 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
 
     protected abstract int getLayoutResID();
 
-    public BaseActivity addBindingParam(int variableId, Object value) {
-        binding.setVariable(variableId, value);
-        return this;
-    }
-
     @Override
     public void initDataBinding() {
         //如果当前页面有传入布局id，做绑定操作
