@@ -5,7 +5,6 @@ import android.view.View;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.chad.library.BR;
 import com.example.common.base.BaseActivity;
-import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.constant.ARouterPath;
 import com.example.common.utils.ActivityCollector;
 import com.example.mvvm.R;
@@ -16,7 +15,7 @@ import com.example.mvvm.databinding.ActivityUserInfoBinding;
  * ViewModel可不写，但是binding必须传
  */
 @Route(path = ARouterPath.UserInfoActivity)
-public class UserInfoActivity extends BaseActivity<BaseViewModel, ActivityUserInfoBinding> {
+public class UserInfoActivity extends BaseActivity<ActivityUserInfoBinding> {
 
     @Override
     protected int getLayoutResID() {

@@ -5,7 +5,6 @@ import android.view.View;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.example.common.base.BaseTitleActivity;
-import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.constant.ARouterPath;
 import com.example.mvvm.BR;
 import com.example.mvvm.R;
@@ -18,7 +17,7 @@ import com.example.mvvm.databinding.ActivityMainBinding;
  * 3）需要处理逻辑的方法，以及从任何入口进去到Activity内的数据，例如上一个类传过来的数据，网络请求获取的数据等等，都放在ViewModel中
  */
 @Route(path = ARouterPath.MainActivity)
-public class MainActivity extends BaseTitleActivity<BaseViewModel, ActivityMainBinding> {
+public class MainActivity extends BaseTitleActivity<ActivityMainBinding> {
 
     @Override
     protected int getLayoutResID() {

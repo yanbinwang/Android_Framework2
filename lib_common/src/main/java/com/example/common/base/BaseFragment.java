@@ -35,8 +35,6 @@ import com.example.framework.utils.ToastUtil;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -46,12 +44,12 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 /**
  * Created by WangYanBin on 2020/6/4.
  */
-public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDataBinding> extends Fragment implements BaseImpl, BaseView {
-    protected VM viewModel;
+public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment implements BaseImpl, BaseView {
     protected VDB binding;
     protected WeakReference<Activity> activity;//基类activity弱引用
     protected WeakReference<Context> context;//基类context弱引用
     protected StatusBarBuilder statusBarBuilder;//状态栏工具类
+    private BaseViewModel viewModel;//数据模型
     private View convertView;//传入的View（子类获取view通过getView方法）
     private LoadingDialog loadingDialog;//刷新球控件，相当于加载动画
     private final String TAG = getClass().getSimpleName().toLowerCase();//额外数据，查看log，观察当前activity是否被销毁
@@ -59,12 +57,19 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     protected abstract int getLayoutResID();
 
+    protected <VM extends BaseViewModel> VM getViewModel(Class<VM> vmClass) {
+        if (null == viewModel) {
+            viewModel = new ViewModelProvider(this).get(vmClass);
+            viewModel.attachView(getActivity(), getContext(), this, binding);//注入绑定和上下文
+            getLifecycle().addObserver(viewModel);
+        }
+        return (VM) viewModel;
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         convertView = inflater.inflate(getLayoutResID(), container, false);
         initDataBinding();
-        initViewModel();
-//        return binding != null ? binding.getRoot() : super.onCreateView(inflater, container, savedInstanceState);
         return null != binding ? binding.getRoot() : convertView;
     }
 
@@ -79,32 +84,8 @@ public abstract class BaseFragment<VM extends BaseViewModel, VDB extends ViewDat
     @Override
     public void initDataBinding() {
         if (0 != getLayoutResID()) {
-//            binding = DataBindingUtil.inflate(getLayoutInflater(), getLayoutResID(), (ViewGroup) getActivity().getWindow().getDecorView(), false);
             binding = DataBindingUtil.bind(convertView);
             binding.setLifecycleOwner(this);
-        }
-    }
-
-    @Override
-    public void initViewModel() {
-        if (null != binding) {
-            try {
-                Type superClass = getClass().getGenericSuperclass();
-                ParameterizedType parameterizedType = (ParameterizedType) superClass;
-                Type type = null;
-                if (parameterizedType != null) {
-                    type = parameterizedType.getActualTypeArguments()[0];
-                }
-                Class<VM> vmClass = (Class<VM>) type;
-                if (vmClass != null) {
-                    vmClass.newInstance();
-                    viewModel = new ViewModelProvider(this).get(vmClass);
-                    viewModel.attachView(getActivity(), getContext(), this, binding);//注入绑定和上下文
-                    getLifecycle().addObserver(viewModel);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 

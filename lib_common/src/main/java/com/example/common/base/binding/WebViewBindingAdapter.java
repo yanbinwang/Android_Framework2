@@ -20,7 +20,7 @@ import com.example.common.widget.XWebView;
 public class WebViewBindingAdapter {
 
     @SuppressLint("SetJavaScriptEnabled")
-    @BindingAdapter(value = {"pageAssetPath"}, requireAll = false)
+    @BindingAdapter(value = {"app:pageAssetPath"}, requireAll = false)
     public static void setLoadAssetsPage(WebView webView, String assetPath) {
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -46,7 +46,7 @@ public class WebViewBindingAdapter {
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    @BindingAdapter(value = {"loadPage"}, requireAll = false)
+    @BindingAdapter(value = {"app:loadPage"}, requireAll = false)
     public static void setLoadPage(WebView webView, String loadPage) {
         webView.setWebViewClient(new WebViewClient());
         webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
@@ -62,7 +62,7 @@ public class WebViewBindingAdapter {
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface"})
-    @BindingAdapter(value = {"loadPageUrl"}, requireAll = false)
+    @BindingAdapter(value = {"app:loadPageUrl"}, requireAll = false)
     public static void setLoadPage(XWebView webView, String loadPageUrl) {
         webView.loadUrl(loadPageUrl);
     }

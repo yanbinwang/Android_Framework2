@@ -34,8 +34,6 @@ import com.example.framework.utils.ToastUtil;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -46,12 +44,12 @@ import java.util.TimerTask;
  * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context
  */
 @SuppressWarnings({"unchecked", "Raw"})
-public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDataBinding> extends AppCompatActivity implements BaseImpl, BaseView {
-    protected VM viewModel;
+public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompatActivity implements BaseImpl, BaseView {
     protected VDB binding;
     protected WeakReference<Activity> activity;//基类activity弱引用
     protected WeakReference<Context> context;//基类context弱引用
     protected StatusBarBuilder statusBarBuilder;//状态栏工具类
+    private BaseViewModel viewModel;//数据模型
     private LoadingDialog loadingDialog;//刷新球控件，相当于加载动画
     private final String TAG = getClass().getSimpleName().toLowerCase();//额外数据，查看log，观察当前activity是否被销毁
 
@@ -62,13 +60,21 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
         ActivityCollector.addActivity(this);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         initDataBinding();
-        initViewModel();
         initView();
         initEvent();
         initData();
     }
 
     protected abstract int getLayoutResID();
+
+    protected <VM extends BaseViewModel> VM getViewModel(Class<VM> vmClass) {
+        if (null == viewModel) {
+            viewModel = new ViewModelProvider(this).get(vmClass);
+            viewModel.attachView(this, this, this, binding);//注入绑定和上下文
+            getLifecycle().addObserver(viewModel);
+        }
+        return (VM) viewModel;
+    }
 
     @Override
     public void initDataBinding() {
@@ -77,29 +83,6 @@ public abstract class BaseActivity<VM extends BaseViewModel, VDB extends ViewDat
             //绑定的xml作为一个bind持有
             binding = DataBindingUtil.setContentView(this, getLayoutResID());
             binding.setLifecycleOwner(this);
-        }
-    }
-
-    @Override
-    public void initViewModel() {
-        if (null != binding) {
-            try {
-                Type superClass = getClass().getGenericSuperclass();
-                ParameterizedType parameterizedType = (ParameterizedType) superClass;
-                Type type = null;
-                if (parameterizedType != null) {
-                    type = parameterizedType.getActualTypeArguments()[0];
-                }
-                Class<VM> vmClass = (Class<VM>) type;
-                if (vmClass != null) {
-                    vmClass.newInstance();
-                    viewModel = new ViewModelProvider(this).get(vmClass);
-                    viewModel.attachView(this, this, this, binding);//注入绑定和上下文
-                    getLifecycle().addObserver(viewModel);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 

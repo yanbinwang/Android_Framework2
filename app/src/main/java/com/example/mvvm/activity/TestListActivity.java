@@ -13,7 +13,8 @@ import com.example.mvvm.databinding.ActivityTestListBinding;
  * Created by WangYanBin on 2020/6/4.
  */
 @Route(path = ARouterPath.TestListActivity)
-public class TestListActivity extends BaseActivity<TestListViewModel, ActivityTestListBinding> {
+public class TestListActivity extends BaseActivity<ActivityTestListBinding> {
+    private TestListViewModel viewModel;
 
     @Override
     protected int getLayoutResID() {
@@ -23,6 +24,7 @@ public class TestListActivity extends BaseActivity<TestListViewModel, ActivityTe
     @Override
     public void initView() {
         super.initView();
+        viewModel = getViewModel(TestListViewModel.class);
         //绑定适配器
         binding.setVariable(BR.adapter, new TestListAdapter());
     }

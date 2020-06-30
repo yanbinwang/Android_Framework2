@@ -20,7 +20,8 @@ import org.jetbrains.annotations.NotNull;
  * 模拟用户登录页
  */
 @Route(path = ARouterPath.LoginActivity)
-public class LoginActivity extends BaseTitleActivity<LoginViewModel, ActivityLoginBinding> {
+public class LoginActivity extends BaseTitleActivity<ActivityLoginBinding> {
+    private LoginViewModel viewModel;
 
     @Override
     protected int getLayoutResID() {
@@ -30,6 +31,7 @@ public class LoginActivity extends BaseTitleActivity<LoginViewModel, ActivityLog
     @Override
     public void initView() {
         super.initView();
+        viewModel = getViewModel(LoginViewModel.class);
         titleBuilder.setTitle("登录").getDefault();
         binding.setVariable(BR.event, new PageEvent());
     }

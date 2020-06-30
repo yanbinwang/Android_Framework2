@@ -16,39 +16,39 @@ import com.example.common.imageloader.ImageLoader;
 public class CommonBindingAdapter {
 
     //---------------------------------------------图片注入开始---------------------------------------------
-    @BindingAdapter(value = {"imageRes"})
+    @BindingAdapter(value = {"app:imageRes"})
     public static void setImageRes(ImageView imageView, int imageRes) {
         imageView.setImageResource(imageRes);
     }
 
-    @BindingAdapter(value = {"imageUrl"})
+    @BindingAdapter(value = {"app:imageUrl"})
     public static void setImageDisplay(ImageView view, String url) {
         ImageLoader.Companion.getInstance().displayImage(view, url);
     }
 
-    @BindingAdapter(value = {"imageRoundUrl", "imageRoundRadius"})
+    @BindingAdapter(value = {"app:imageRoundUrl", "app:imageRoundRadius"})
     public static void setImageRoundDisplay(ImageView view, String url, int roundingRadius) {
         ImageLoader.Companion.getInstance().displayRoundImage(view, url, roundingRadius);
     }
 
-    @BindingAdapter(value = {"imageCircleUrl"})
+    @BindingAdapter(value = {"app:imageCircleUrl"})
     public static void setImageCircleDisplay(ImageView view, String url) {
         ImageLoader.Companion.getInstance().displayCircleImage(view, url);
     }
     //---------------------------------------------图片注入结束---------------------------------------------
 
     //---------------------------------------------系统方法注入开始---------------------------------------------
-    @BindingAdapter(value = {"textColorRes"})
+    @BindingAdapter(value = {"app:textColorRes"})
     public static void setTextColor(TextView textView, int textColorRes) {
         textView.setTextColor(textView.getResources().getColor(textColorRes));
     }
 
-    @BindingAdapter(value = {"visible"})
+    @BindingAdapter(value = {"app:visible"})
     public static void setVisible(View view, boolean visible) {
         view.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
-    @BindingAdapter(value = {"selected"})
+    @BindingAdapter(value = {"app:selected"})
     public static void setSelected(View view, boolean select) {
         view.setSelected(select);
     }
@@ -60,7 +60,7 @@ public class CommonBindingAdapter {
         view.setLayoutParams(params);
     }
 
-    @BindingAdapter(value = {"adjustHeight"})
+    @BindingAdapter(value = {"app:adjustHeight"})
     public static void setAdjustHeight(View view, int adjustHeight) {
         ViewGroup.LayoutParams params = view.getLayoutParams();
         params.height = adjustHeight;
