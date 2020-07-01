@@ -32,7 +32,7 @@ public class TestListActivity extends BaseActivity<ActivityTestListBinding> {
     @Override
     public void initEvent() {
         super.initEvent();
-        viewModel.dataList.observe(this, list -> {
+        viewModel.getDataList().observe(this, list -> {
             binding.getAdapter().setList(list);
         });
     }

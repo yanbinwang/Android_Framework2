@@ -40,7 +40,7 @@ public class LoginActivity extends BaseTitleActivity<ActivityLoginBinding> {
     public void initEvent() {
         super.initEvent();
         //类似mvp的接口回调,通过观察泛型内容随时刷新变化
-        viewModel.userInfoModel.observe(this, userInfoModel -> navigation(ARouterPath.UserInfoActivity, new PageParams().append("model", userInfoModel)));
+        viewModel.getUserInfoModel().observe(this, userInfoModel -> navigation(ARouterPath.UserInfoActivity, new PageParams().append("model", userInfoModel)));
 //        viewModel.getData();
 //        for (int i = 0; i < 1000; i++) {
 //            int position = i;
