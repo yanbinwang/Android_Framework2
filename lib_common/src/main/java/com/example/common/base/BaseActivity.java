@@ -59,7 +59,6 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
         super.onCreate(savedInstanceState);
         ActivityCollector.addActivity(this);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        initDataBinding();
         initView();
         initEvent();
         initData();
@@ -67,7 +66,7 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
 
     protected abstract int getLayoutResID();
 
-    protected <VM extends BaseViewModel> VM getViewModel(Class<VM> vmClass) {
+    protected <VM extends BaseViewModel> VM createViewModel(Class<VM> vmClass) {
         if (null == viewModel) {
             viewModel = new ViewModelProvider(this).get(vmClass);
             viewModel.attachView(this, this, this, binding);//注入绑定和上下文
@@ -76,20 +75,14 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
         return (VM) viewModel;
     }
 
-    @Override
-    public void initDataBinding() {
-        //如果当前页面有传入布局id，做绑定操作
-        if (0 != getLayoutResID()) {
-            //绑定的xml作为一个bind持有
-            binding = DataBindingUtil.setContentView(this, getLayoutResID());
-            binding.setLifecycleOwner(this);
-        }
-    }
-
     //控件的事件绑定，请求的回调，页面的跳转完全可交由viewmodel实现
     @Override
     public void initView() {
         ARouter.getInstance().inject(this);
+        if (0 != getLayoutResID()) {
+            binding = DataBindingUtil.setContentView(this, getLayoutResID());
+            binding.setLifecycleOwner(this);
+        }
         activity = new WeakReference<>(this);
         context = new WeakReference<>(this);
         statusBarBuilder = new StatusBarBuilder(activity.get());

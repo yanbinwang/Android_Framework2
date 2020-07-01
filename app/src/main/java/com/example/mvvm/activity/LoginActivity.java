@@ -31,7 +31,7 @@ public class LoginActivity extends BaseTitleActivity<ActivityLoginBinding> {
     @Override
     public void initView() {
         super.initView();
-        viewModel = getViewModel(LoginViewModel.class);
+        viewModel = createViewModel(LoginViewModel.class);
         titleBuilder.setTitle("登录").getDefault();
         binding.setVariable(BR.event, new PageEvent());
     }

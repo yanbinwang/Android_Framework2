@@ -46,11 +46,11 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
  */
 public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment implements BaseImpl, BaseView {
     protected VDB binding;
+    protected View convertView;//传入的View（子类获取view通过getView方法）
     protected WeakReference<Activity> activity;//基类activity弱引用
     protected WeakReference<Context> context;//基类context弱引用
     protected StatusBarBuilder statusBarBuilder;//状态栏工具类
     private BaseViewModel viewModel;//数据模型
-    private View convertView;//传入的View（子类获取view通过getView方法）
     private LoadingDialog loadingDialog;//刷新球控件，相当于加载动画
     private final String TAG = getClass().getSimpleName().toLowerCase();//额外数据，查看log，观察当前activity是否被销毁
 
@@ -69,7 +69,10 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         convertView = inflater.inflate(getLayoutResID(), container, false);
-        initDataBinding();
+        if (0 != getLayoutResID()) {
+            binding = DataBindingUtil.inflate(inflater, getLayoutResID(), container, false);
+            binding.setLifecycleOwner(this);
+        }
         return null != binding ? binding.getRoot() : convertView;
     }
 
@@ -79,14 +82,6 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
         initView();
         initEvent();
         initData();
-    }
-
-    @Override
-    public void initDataBinding() {
-        if (0 != getLayoutResID()) {
-            binding = DataBindingUtil.bind(convertView);
-            binding.setLifecycleOwner(this);
-        }
     }
 
     @Override

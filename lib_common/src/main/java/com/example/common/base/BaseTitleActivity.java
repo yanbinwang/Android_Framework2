@@ -16,20 +16,14 @@ public abstract class BaseTitleActivity<VDB extends ViewDataBinding> extends Bas
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     @Override
-    public void initDataBinding() {
-        super.initDataBinding();
+    public void initView() {
+        super.initView();
         if (0 != getLayoutResID()) {
-            //根布局包含标题头，将绑定的xml添加进去
             binding = DataBindingUtil.bind(getLayoutInflater().inflate(getLayoutResID(), null));
             binding.setLifecycleOwner(this);
             ActivityBaseBinding baseBinding = DataBindingUtil.setContentView(this, R.layout.activity_base);
             baseBinding.flBaseContainer.addView(binding.getRoot());
         }
-    }
-
-    @Override
-    public void initView() {
-        super.initView();
         titleBuilder = new TitleBuilder(this);
     }
     // </editor-fold>

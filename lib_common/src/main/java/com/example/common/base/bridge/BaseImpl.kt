@@ -7,11 +7,6 @@ package com.example.common.base.bridge
 interface BaseImpl {
 
     /**
-     * 初始化控件绑定
-     */
-    fun initDataBinding()
-
-    /**
      * 初始化控件
      */
     fun initView()

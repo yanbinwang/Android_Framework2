@@ -1,5 +1,7 @@
 package com.example.framework.utils.lifecycle;
 
+import androidx.lifecycle.MutableLiveData;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,14 +23,16 @@ public final class LiveDataBus {
         return SingletonHolder.DEFAULT_BUS;
     }
 
-    public <T> BusMutableLiveData<T> with(String key, Class<T> type) {
+    //注册订阅方法，传入消息名称，类型
+    public <T> MutableLiveData<T> with(String key, Class<T> type) {
         if (!bus.containsKey(key)) {
             bus.put(key, new BusMutableLiveData<>());
         }
-        return (BusMutableLiveData<T>) bus.get(key);
+        return (MutableLiveData<T>) bus.get(key);
     }
 
-    public BusMutableLiveData<Object> with(String key) {
+    //发送消息方法，传入消息名称
+    public MutableLiveData<Object> with(String key) {
         return with(key, Object.class);
     }
 

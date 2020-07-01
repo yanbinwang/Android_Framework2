@@ -24,7 +24,7 @@ public class TestListActivity extends BaseActivity<ActivityTestListBinding> {
     @Override
     public void initView() {
         super.initView();
-        viewModel = getViewModel(TestListViewModel.class);
+        viewModel = createViewModel(TestListViewModel.class);
         //绑定适配器
         binding.setVariable(BR.adapter, new TestListAdapter());
     }

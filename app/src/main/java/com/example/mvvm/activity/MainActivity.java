@@ -3,9 +3,13 @@ package com.example.mvvm.activity;
 
 import android.view.View;
 
+import androidx.lifecycle.Observer;
+
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.example.common.base.BaseTitleActivity;
 import com.example.common.constant.ARouterPath;
+import com.example.common.constant.Constants;
+import com.example.framework.utils.lifecycle.LiveDataBus;
 import com.example.mvvm.BR;
 import com.example.mvvm.R;
 import com.example.mvvm.databinding.ActivityMainBinding;
@@ -29,6 +33,18 @@ public class MainActivity extends BaseTitleActivity<ActivityMainBinding> {
         super.initView();
         titleBuilder.setTitle("10086").getDefault();
         binding.setVariable(BR.event, new PageEvent());
+    }
+
+    @Override
+    public void initEvent() {
+        super.initEvent();
+        //注册订阅
+        LiveDataBus.get().with(Constants.APP_USER_LOGIN_OUT, String.class).observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                titleBuilder.setTitle(s).getDefault();
+            }
+        });
     }
 
     public class PageEvent {
