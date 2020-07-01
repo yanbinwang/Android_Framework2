@@ -11,9 +11,9 @@ import java.io.Serializable;
  * Created by WangYanBin on 2020/6/3.
  */
 public class UserInfoModel extends BaseObservable implements Serializable {
-     private String name;
-     private int age;
-     private String avatar;
+    private String name;
+    private int age;
+    private String avatar;
 
     public UserInfoModel(String name, int age, String avatar) {
         this.name = name;
