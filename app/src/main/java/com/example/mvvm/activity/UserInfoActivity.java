@@ -5,9 +5,10 @@ import android.view.View;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.chad.library.BR;
 import com.example.common.base.BaseActivity;
-import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.constant.ARouterPath;
+import com.example.common.constant.Constants;
 import com.example.common.utils.ActivityCollector;
+import com.example.framework.utils.lifecycle.LiveDataBus;
 import com.example.mvvm.R;
 import com.example.mvvm.databinding.ActivityUserInfoBinding;
 
@@ -16,7 +17,7 @@ import com.example.mvvm.databinding.ActivityUserInfoBinding;
  * ViewModel可不写，但是binding必须传
  */
 @Route(path = ARouterPath.UserInfoActivity)
-public class UserInfoActivity extends BaseActivity<BaseViewModel, ActivityUserInfoBinding> {
+public class UserInfoActivity extends BaseActivity<ActivityUserInfoBinding> {
 
     @Override
     protected int getLayoutResID() {
@@ -26,8 +27,8 @@ public class UserInfoActivity extends BaseActivity<BaseViewModel, ActivityUserIn
     @Override
     public void initView() {
         super.initView();
-        addBindingParam(BR.model, getIntent().getSerializableExtra("model"))
-                .addBindingParam(BR.event, new PageEvent());
+        binding.setVariable(BR.model, getIntent().getSerializableExtra("model"));
+        binding.setVariable(BR.event, new PageEvent());
     }
 
     public class PageEvent {
@@ -35,8 +36,11 @@ public class UserInfoActivity extends BaseActivity<BaseViewModel, ActivityUserIn
         public View.OnClickListener onClickListener = v -> {
             switch (v.getId()) {
                 case R.id.btn_test:
-                    ActivityCollector.finishAll();
-                    navigation(ARouterPath.TestListActivity);
+//                    ActivityCollector.finishAll();
+//                    navigation(ARouterPath.TestListActivity);
+                    //发送消息
+                    LiveDataBus.get().with(Constants.APP_USER_LOGIN_OUT).postValue("50998");
+                    finish();
                     break;
             }
         };

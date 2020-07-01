@@ -3,6 +3,7 @@ package com.example.mvvm.bridge;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.common.base.bridge.BaseViewModel;
+import com.example.mvvm.databinding.ItemTestBinding;
 import com.example.mvvm.model.TestListModel;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  * Created by WangYanBin on 2020/6/4.
  */
-public class TestListViewModel extends BaseViewModel {
+public class TestListViewModel extends BaseViewModel<ItemTestBinding> {
     public MutableLiveData<List<TestListModel>> dataList = new MutableLiveData<>();
 
     public void getListData() {

@@ -5,14 +5,13 @@ import android.widget.Toast;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.common.base.bridge.BaseViewModel;
-import com.example.common.http.HttpSubscriber;
-import com.example.common.subscribe.BaseSubscribe;
+import com.example.mvvm.databinding.ActivityLoginBinding;
 import com.example.mvvm.model.UserInfoModel;
 
 /**
  * Created by WangYanBin on 2020/6/3.
  */
-public class LoginViewModel extends BaseViewModel {
+public class LoginViewModel extends BaseViewModel<ActivityLoginBinding> {
     public MutableLiveData<UserInfoModel> userInfoModel = new MutableLiveData<>();//接口得到的用户对象，泛型string也可替换为对象
 
 //    public void getData(){
