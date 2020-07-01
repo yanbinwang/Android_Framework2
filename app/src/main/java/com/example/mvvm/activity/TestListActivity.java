@@ -1,5 +1,7 @@
 package com.example.mvvm.activity;
 
+import android.view.View;
+
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.example.common.base.BaseActivity;
 import com.example.common.constant.ARouterPath;
@@ -34,6 +36,14 @@ public class TestListActivity extends BaseActivity<ActivityTestListBinding> {
         super.initEvent();
         viewModel.getDataList().observe(this, list -> {
             binding.getAdapter().setList(list);
+        });
+
+        //临时写
+        binding.btnTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewModel.getListData();
+            }
         });
     }
 
