@@ -11,6 +11,13 @@ class TestListViewModel : BaseViewModel() {
     var dataList = MutableLiveData<MutableList<TestListModel>>()
 
     fun getListData() {
+//        var refresh = false
+//        if(refresh){
+//            dataList.value=ArrayList()
+//        }else{
+//            dataList.value?.addAll()
+//        }
+
         //模拟请求网络
         var list: MutableList<TestListModel>? = dataList.value
         if (null != dataList.value && dataList.value!!.isNotEmpty()) {
