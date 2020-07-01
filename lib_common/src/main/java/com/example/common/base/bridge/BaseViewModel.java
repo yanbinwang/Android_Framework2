@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 
 import androidx.databinding.ViewDataBinding;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModel;
 
 import com.example.common.BR;
@@ -22,7 +24,6 @@ public abstract class BaseViewModel<VDB extends ViewDataBinding> extends ViewMod
     protected WeakReference<Context> context;
     protected SoftReference<BaseView> view;
     protected VDB binding;
-//    private final String TAG = getClass().getSimpleName().toLowerCase();
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     //传入基类生成的binding，在ViewModel中建立关联，让被关联的ViewModel可以获取到binding和对应binding的LifecycleOwner
@@ -44,40 +45,33 @@ public abstract class BaseViewModel<VDB extends ViewDataBinding> extends ViewMod
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="生命周期回调">
-//    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-//    public void onCreate() {
-//        view.get().log("onCreate");
-//    }
-//
-//    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-//    public void onStart() {
-//        view.get().log("onStart");
-//    }
-//
-//    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-//    public void onResume() {
-//        view.get().log("onResume");
-//    }
-//
-//    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-//    public void onPause() {
-//        view.get().log("onPause");
-//    }
-//
-//    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-//    public void onStop() {
-//        view.get().log("onStop");
-//    }
-//
-//    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-//    public void onDestroy() {
-//        view.get().log("onDestroy");
-//    }
-//
-//    @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
-//    public void onAny() {
-//        view.get().log("onAny");
-//    }
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    protected void onCreate() {
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    protected void onStart() {
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    protected void onResume() {
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    protected void onPause() {
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    protected void onStop() {
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    protected void onDestroy() {
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+    protected void onAny() {
+    }
 
     @Override
     protected void onCleared() {
