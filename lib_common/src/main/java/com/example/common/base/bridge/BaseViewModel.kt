@@ -2,10 +2,9 @@ package com.example.common.base.bridge
 
 import android.app.Activity
 import android.content.Context
-import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
-import com.example.common.BR
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 
@@ -14,27 +13,19 @@ import java.lang.ref.WeakReference
  * 所有ViewModel的基类，将本该属于BaseActivity的部分逻辑和操作View的相关方法放入该类实现
  * 注入BaseView，Binding文件，开发的时候可以随时存取和调用基类Activity的控件和方法
  */
-abstract class BaseViewModel<VDB : ViewDataBinding?> : ViewModel(), LifecycleObserver {
+abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     protected var activity: WeakReference<Activity>? = null
     protected var context: WeakReference<Context>? = null
     protected var view: SoftReference<BaseView>? = null
-    protected var binding: VDB? = null
+    protected var owner: LifecycleOwner? = null
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    fun attachView(activity: Activity, context: Context, view: BaseView, binding: VDB) {
+    fun attachView(activity: Activity, context: Context, view: BaseView, owner: LifecycleOwner) {
         this.activity = WeakReference(activity)
         this.context = WeakReference(context)
         this.view = SoftReference(view)
-        this.binding = binding
-        this.binding?.setVariable(BR._all, this)
+        this.owner = owner
     }
-    //    public VDB getBinding() {
-    //        return binding;
-    //    }
-    //
-    //    protected LifecycleOwner getOwner() {
-    //        return binding.getLifecycleOwner();
-    //    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="生命周期回调">
@@ -78,9 +69,6 @@ abstract class BaseViewModel<VDB : ViewDataBinding?> : ViewModel(), LifecycleObs
         activity!!.clear()
         context!!.clear()
         view!!.clear()
-        if (binding != null) {
-            binding?.unbind()
-        }
     }
     // </editor-fold>
 
