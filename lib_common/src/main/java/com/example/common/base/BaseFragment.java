@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.example.common.BR;
 import com.example.common.base.bridge.BaseImpl;
 import com.example.common.base.bridge.BaseView;
 import com.example.common.base.bridge.BaseViewModel;
@@ -60,8 +61,11 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
     protected <VM extends BaseViewModel> VM getViewModel(Class<VM> vmClass) {
         if (null == viewModel) {
             viewModel = new ViewModelProvider(this).get(vmClass);
-            viewModel.attachView(getActivity(), getContext(), this, binding);//注入绑定和上下文
             getLifecycle().addObserver(viewModel);
+            if (null != binding) {
+                binding.setVariable(BR._all, viewModel);
+                viewModel.attachView(getActivity(), getContext(), this, binding.getLifecycleOwner());
+            }
         }
         return (VM) viewModel;
     }

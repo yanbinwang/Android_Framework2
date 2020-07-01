@@ -73,7 +73,7 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
             getLifecycle().addObserver(viewModel);
             if (null != binding) {
                 binding.setVariable(BR._all, viewModel);
-                viewModel.attachView(this, this, this, binding.getLifecycleOwner());//注入绑定和上下文
+                viewModel.attachView(this, this, this, binding.getLifecycleOwner());
             }
         }
         return (VM) viewModel;
