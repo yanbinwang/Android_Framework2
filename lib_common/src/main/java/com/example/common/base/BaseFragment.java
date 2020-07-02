@@ -57,7 +57,7 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     protected abstract int getLayoutResID();
 
-    protected <VM extends BaseViewModel> VM getViewModel(Class<VM> vmClass) {
+    protected <VM extends BaseViewModel> VM createViewModel(Class<VM> vmClass) {
         if (null == viewModel) {
             viewModel = new ViewModelProvider(this).get(vmClass);
             viewModel.attachView(getActivity(), getContext(), this, binding.getLifecycleOwner());
@@ -98,92 +98,6 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
 
     @Override
     public void initData() {
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        if (binding != null) {
-            binding.unbind();
-        }
-    }
-    // </editor-fold>
-
-    // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
-    @Override
-    public void log(String content) {
-        LogUtil.e(TAG, content);
-    }
-
-    @Override
-    public void showToast(String str) {
-        ToastUtil.mackToastSHORT(str, requireContext().getApplicationContext());
-    }
-
-    @Override
-    public void showDialog() {
-        showDialog(false);
-    }
-
-    @Override
-    public void showDialog(boolean isClose) {
-        loadingDialog.show(isClose);
-    }
-
-    @Override
-    public void hideDialog() {
-        loadingDialog.hide();
-    }
-
-    @Override
-    public Activity navigation(String path) {
-        return navigation(path, null);
-    }
-
-    @Override
-    public Activity navigation(String path, PageParams pageParams) {
-        Postcard postcard = ARouter.getInstance().build(path);
-        Integer code = null;
-        if (pageParams != null) {
-            Map<String, Object> map = pageParams.getParams();
-            for (String key : map.keySet()) {
-                Object value = map.get(key);
-                Class<?> cls = value.getClass();
-                if (key.equals(Extras.REQUEST_CODE)) {
-                    code = (Integer) value;
-                    continue;
-                }
-                if (cls == String.class) {
-                    postcard.withString(key, (String) value);
-                } else if (value instanceof Parcelable) {
-                    postcard.withParcelable(key, (Parcelable) value);
-                } else if (value instanceof Serializable) {
-                    postcard.withSerializable(key, (Serializable) value);
-                } else if (cls == int.class) {
-                    postcard.withInt(key, (int) value);
-                } else if (cls == long.class) {
-                    postcard.withLong(key, (long) value);
-                } else if (cls == boolean.class) {
-                    postcard.withBoolean(key, (boolean) value);
-                } else if (cls == float.class) {
-                    postcard.withFloat(key, (float) value);
-                } else if (cls == double.class) {
-                    postcard.withDouble(key, (double) value);
-                } else if (cls == char[].class) {
-                    postcard.withCharArray(key, (char[]) value);
-                } else if (cls == Bundle.class) {
-                    postcard.withBundle(key, (Bundle) value);
-                } else {
-                    throw new RuntimeException("不支持参数类型" + ": " + cls.getSimpleName());
-                }
-            }
-        }
-        if (code == null) {
-            postcard.navigation();
-        } else {
-            postcard.navigation(activity.get(), code);
-        }
-        return activity.get();
     }
 
     @Override
@@ -273,6 +187,92 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
                 view.setVisibility(View.GONE);
             }
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        if (binding != null) {
+            binding.unbind();
+        }
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
+    @Override
+    public void log(String content) {
+        LogUtil.e(TAG, content);
+    }
+
+    @Override
+    public void showToast(String str) {
+        ToastUtil.mackToastSHORT(str, requireContext().getApplicationContext());
+    }
+
+    @Override
+    public void showDialog() {
+        showDialog(false);
+    }
+
+    @Override
+    public void showDialog(boolean isClose) {
+        loadingDialog.show(isClose);
+    }
+
+    @Override
+    public void hideDialog() {
+        loadingDialog.hide();
+    }
+
+    @Override
+    public Activity navigation(String path) {
+        return navigation(path, null);
+    }
+
+    @Override
+    public Activity navigation(String path, PageParams pageParams) {
+        Postcard postcard = ARouter.getInstance().build(path);
+        Integer code = null;
+        if (pageParams != null) {
+            Map<String, Object> map = pageParams.getParams();
+            for (String key : map.keySet()) {
+                Object value = map.get(key);
+                Class<?> cls = value.getClass();
+                if (key.equals(Extras.REQUEST_CODE)) {
+                    code = (Integer) value;
+                    continue;
+                }
+                if (cls == String.class) {
+                    postcard.withString(key, (String) value);
+                } else if (value instanceof Parcelable) {
+                    postcard.withParcelable(key, (Parcelable) value);
+                } else if (value instanceof Serializable) {
+                    postcard.withSerializable(key, (Serializable) value);
+                } else if (cls == int.class) {
+                    postcard.withInt(key, (int) value);
+                } else if (cls == long.class) {
+                    postcard.withLong(key, (long) value);
+                } else if (cls == boolean.class) {
+                    postcard.withBoolean(key, (boolean) value);
+                } else if (cls == float.class) {
+                    postcard.withFloat(key, (float) value);
+                } else if (cls == double.class) {
+                    postcard.withDouble(key, (double) value);
+                } else if (cls == char[].class) {
+                    postcard.withCharArray(key, (char[]) value);
+                } else if (cls == Bundle.class) {
+                    postcard.withBundle(key, (Bundle) value);
+                } else {
+                    throw new RuntimeException("不支持参数类型" + ": " + cls.getSimpleName());
+                }
+            }
+        }
+        if (code == null) {
+            postcard.navigation();
+        } else {
+            postcard.navigation(activity.get(), code);
+        }
+        return activity.get();
     }
     // </editor-fold>
 
