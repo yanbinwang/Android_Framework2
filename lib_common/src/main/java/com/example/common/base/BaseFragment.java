@@ -57,15 +57,6 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     protected abstract int getLayoutResID();
 
-    protected <VM extends BaseViewModel> VM getViewModel(Class<VM> vmClass) {
-        if (null == viewModel) {
-            viewModel = new ViewModelProvider(this).get(vmClass);
-            viewModel.attachView(getActivity(), getContext(), this, binding.getLifecycleOwner());
-            getLifecycle().addObserver(viewModel);
-        }
-        return (VM) viewModel;
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         convertView = inflater.inflate(getLayoutResID(), container, false);
@@ -98,6 +89,16 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
 
     @Override
     public void initData() {
+    }
+
+    @Override
+    public <VM extends BaseViewModel> VM createViewModel(Class<VM> vmClass) {
+        if (null == viewModel) {
+            viewModel = new ViewModelProvider(this).get(vmClass);
+            viewModel.attachView(getActivity(), getContext(), this, binding.getLifecycleOwner());
+            getLifecycle().addObserver(viewModel);
+        }
+        return (VM) viewModel;
     }
 
     @Override

@@ -66,15 +66,6 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
 
     protected abstract int getLayoutResID();
 
-    protected <VM extends BaseViewModel> VM createViewModel(Class<VM> vmClass) {
-        if (null == viewModel) {
-            viewModel = new ViewModelProvider(this).get(vmClass);
-            viewModel.attachView(this, this, this, binding.getLifecycleOwner());
-            getLifecycle().addObserver(viewModel);
-        }
-        return (VM) viewModel;
-    }
-
     //控件的事件绑定，请求的回调，页面的跳转完全可交由viewmodel实现
     @Override
     public void initView() {
@@ -95,6 +86,16 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
 
     @Override
     public void initData() {
+    }
+
+    @Override
+    public <VM extends BaseViewModel> VM createViewModel(Class<VM> vmClass) {
+        if (null == viewModel) {
+            viewModel = new ViewModelProvider(this).get(vmClass);
+            viewModel.attachView(this, this, this, binding.getLifecycleOwner());
+            getLifecycle().addObserver(viewModel);
+        }
+        return (VM) viewModel;
     }
 
     @Override

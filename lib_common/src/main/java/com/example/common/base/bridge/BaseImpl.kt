@@ -24,6 +24,11 @@ interface BaseImpl {
     fun initData()
 
     /**
+     * 构建数据模型
+     */
+    fun <VM : BaseViewModel?> createViewModel(vmClass: Class<VM>?): VM
+
+    /**
      * 对象判空（批量）
      */
     fun isEmpty(vararg objs: Any?): Boolean
