@@ -14,16 +14,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+<!--        <ImageView-->
+<!--            android:layout_width="160mm"-->
+<!--            android:layout_height="160mm"-->
+<!--            android:layout_margin="40mm"-->
+<!--            android:onClick="@{model.setBackgroundResource}"-->
+<!--            app:resource="@{model.avatar}" />-->
+
         <ImageView
             android:layout_width="160mm"
             android:layout_height="160mm"
             android:layout_margin="40mm"
             app:resource="@{model.avatar}" />
-
-        <!--        <ImageView-->
-        <!--            android:layout_width="80dp"-->
-        <!--            android:layout_margin="20dp"-->
-        <!--            android:layout_height="80dp" />-->
 
         <RelativeLayout
             android:layout_width="match_parent"
