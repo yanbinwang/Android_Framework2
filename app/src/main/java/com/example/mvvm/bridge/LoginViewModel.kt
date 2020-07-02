@@ -9,7 +9,7 @@ import com.example.mvvm.model.UserInfoModel
 /**
  * Created by WangYanBin on 2020/6/3.
  */
-class LoginViewModel : BaseViewModel<ActivityLoginBinding?>() {
+class LoginViewModel : BaseViewModel() {
     var userInfoModel = MutableLiveData<UserInfoModel>() //接口得到的用户对象，泛型string也可替换为对象
 
     //    public void getData(){

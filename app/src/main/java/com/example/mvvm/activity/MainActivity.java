@@ -17,8 +17,8 @@ import com.example.mvvm.databinding.ActivityMainBinding;
 /**
  * MVVM中，Activity的代码量应该非常少，它并不和数据及控件直接交互，可不写页面的ViewModel，但有xml存在的页面则必须传入Binding文件
  * 1）如果页面涉及到View操作必须在xml文件里套入layout和data标签，让系统生成对应的Binding文件传入基类注入
- * 2）不处理逻辑的操作代码放在Activity，其余的都丢给ViewModel处理，然后通过LiveData回调操作
- * 3）需要处理逻辑的方法，以及从任何入口进去到Activity内的数据，例如上一个类传过来的数据，网络请求获取的数据等等，都放在ViewModel中
+ * 2）不处理逻辑的操作代码以及从任何入口进去到Activity内的数据放在Activity，其余的都丢给ViewModel处理，然后通过LiveData回调操作，例如上一个类传过来的数据，事件点击（类似P层回调）
+ * 3）需要处理逻辑的方法，例如网络请求获取的数据，都放在ViewModel中，涉及到UI刷新则通过回调让Activity去修改数据
  */
 @Route(path = ARouterPath.MainActivity)
 public class MainActivity extends BaseTitleActivity<ActivityMainBinding> {
