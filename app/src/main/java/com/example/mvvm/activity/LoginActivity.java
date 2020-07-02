@@ -78,13 +78,13 @@ public class LoginActivity extends BaseTitleActivity<ActivityLoginBinding> {
             }
         };
 
-        public View.OnClickListener onClickListener = v -> {
+        public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.btn_login:
                     viewModel.login(getViewValue(binding.etAccount), getViewValue(binding.etPassword));
                     break;
             }
-        };
+        }
 
     }
 

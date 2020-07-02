@@ -1,5 +1,6 @@
 package com.example.mvvm.model;
 
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -59,5 +60,9 @@ public class TestListModel extends BaseObservable {
         Toast.makeText(image.getContext(), url, Toast.LENGTH_SHORT).show();
         image.setBackgroundResource(R.mipmap.ic_launcher_round);
     }
+
+//    public  void setBackgroundResource(View image) {
+//        image.setBackgroundResource(R.mipmap.ic_launcher);
+//    }
 
 }

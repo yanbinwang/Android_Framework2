@@ -49,7 +49,7 @@ public class MainActivity extends BaseTitleActivity<ActivityMainBinding> {
 
     public class PageEvent {
 
-        public View.OnClickListener onClickListener = v -> {
+        public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.btn_login:
                     navigation(ARouterPath.LoginActivity);
@@ -58,7 +58,7 @@ public class MainActivity extends BaseTitleActivity<ActivityMainBinding> {
                     navigation(ARouterPath.TestListActivity);
                     break;
             }
-        };
+        }
 
     }
 
