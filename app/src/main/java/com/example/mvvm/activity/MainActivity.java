@@ -45,7 +45,6 @@ public class MainActivity extends BaseTitleActivity<ActivityMainBinding> {
                 titleBuilder.setTitle(s).getDefault();
             }
         });
-
     }
 
     public class PageEvent {
