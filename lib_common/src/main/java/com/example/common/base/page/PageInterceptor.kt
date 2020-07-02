@@ -21,10 +21,10 @@ import com.example.common.utils.helper.AccountHelper
  */
 @Interceptor(priority = 1, name = "全局拦截器")
 class PageInterceptor : IInterceptor {
-    private val TAG = "ARouterInterceptor"
+    private val TAG = "PageInterceptor"
 
     override fun process(postcard: Postcard, callback: InterceptorCallback) {
-        LogUtil.e(TAG, "ARouterInterceptor 开始执行")
+        LogUtil.e(TAG, "PageInterceptor 开始执行")
         //给需要跳转的页面添加值为Constants.LOGIN_INTERCEPTOR_CODE的extra参数，用来标记是否需要用户先登录才可以访问该页面
         //先判断需不需要
         if (postcard.extra == Constants.LOGIN_INTERCEPTOR_CODE) {
@@ -40,7 +40,7 @@ class PageInterceptor : IInterceptor {
     }
 
     override fun init(context: Context) {
-        LogUtil.e(TAG, "ARouterInterceptor 初始化")
+        LogUtil.e(TAG, "PageInterceptor 初始化")
     }
 
 }
