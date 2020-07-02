@@ -25,6 +25,8 @@
             android:layout_width="match_parent"
             android:layout_height="80mm"
             android:layout_marginHorizontal="40mm"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
             app:addTextChangedListener="@{event.textWatcher}" />
 
         <EditText
@@ -33,6 +35,8 @@
             android:layout_height="80mm"
             android:layout_marginHorizontal="40mm"
             android:layout_marginTop="40mm"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
             app:addTextChangedListener="@{event.textWatcher}" />
 
         <Button
@@ -43,7 +47,7 @@
             android:layout_marginTop="80mm"
             android:background="@color/gray_9f9f9f"
             android:enabled="false"
-            android:onClick='@{(v)->event.onClickListener.onClick(v)}'
+            android:onClick='@{event.onClick}'
             android:text="登录"
             android:textColor="@color/black" />
 

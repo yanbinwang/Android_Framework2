@@ -25,7 +25,7 @@
             android:textSize="28mm"
             android:background="@color/gray_6c6c6c"
             android:textColor="@color/white"
-            android:onClick="@{event.onClickListener}"
+            android:onClick="@{event.onClick}"
             android:layout_width="match_parent"
             android:layout_height="100mm"/>
 

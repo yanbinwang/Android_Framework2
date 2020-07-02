@@ -7,7 +7,6 @@ import com.chad.library.BR;
 import com.example.common.base.BaseActivity;
 import com.example.common.constant.ARouterPath;
 import com.example.common.constant.Constants;
-import com.example.common.utils.ActivityCollector;
 import com.example.framework.utils.lifecycle.LiveDataBus;
 import com.example.mvvm.R;
 import com.example.mvvm.databinding.ActivityUserInfoBinding;
@@ -33,7 +32,7 @@ public class UserInfoActivity extends BaseActivity<ActivityUserInfoBinding> {
 
     public class PageEvent {
 
-        public View.OnClickListener onClickListener = v -> {
+        public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.btn_test:
 //                    ActivityCollector.finishAll();
@@ -43,7 +42,7 @@ public class UserInfoActivity extends BaseActivity<ActivityUserInfoBinding> {
                     finish();
                     break;
             }
-        };
+        }
 
     }
 
