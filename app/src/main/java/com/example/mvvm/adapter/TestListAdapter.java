@@ -9,7 +9,6 @@ import com.example.mvvm.databinding.ItemTestBinding;
 import com.example.mvvm.model.TestListModel;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 

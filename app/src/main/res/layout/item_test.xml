@@ -25,7 +25,7 @@
             android:layout_width="160mm"
             android:layout_height="160mm"
             android:layout_margin="40mm"
-            app:resource="@{model.avatar}" />
+            android:src="@mipmap/ic_launcher" />
 
         <RelativeLayout
             android:layout_width="match_parent"
