@@ -13,14 +13,15 @@ import com.example.common.BaseApplication
  * date: 2018/8/13.
  * 网路监测类
  */
-@SuppressLint("StaticFieldLeak","MissingPermission")
+@SuppressLint("StaticFieldLeak", "MissingPermission")
 object NetWorkUtil {
-    private var context: Context = BaseApplication.getInstance().applicationContext
+    private var context: Context = BaseApplication.instance.applicationContext
 
     //验证是否联网
     @JvmStatic
     fun isNetworkAvailable(): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
         if (networkInfo != null && networkInfo.isConnected) {
             //当前网络是连接的
@@ -33,7 +34,8 @@ object NetWorkUtil {
     @JvmStatic
     fun getNetWorkState(): Int {
         //得到连接管理器对象
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
         if (networkInfo != null && networkInfo.isConnected) {
             if (networkInfo.type == ConnectivityManager.TYPE_WIFI) {
@@ -49,7 +51,8 @@ object NetWorkUtil {
 
     //判断当前网络环境是否为wifi
     fun isWifi(): Boolean {
-        val connectivity = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivity =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         return connectivity.activeNetworkInfo.type == ConnectivityManager.TYPE_WIFI
     }
 
@@ -64,7 +67,8 @@ object NetWorkUtil {
             netType = "wifi"
         } else if (nType == ConnectivityManager.TYPE_MOBILE) {
             val nSubType = networkInfo.subtype
-            val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            val telephonyManager =
+                context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             netType = when {
                 nSubType == TelephonyManager.NETWORK_TYPE_LTE && !telephonyManager.isNetworkRoaming -> "4G"
                 nSubType == TelephonyManager.NETWORK_TYPE_UMTS || nSubType == TelephonyManager.NETWORK_TYPE_HSDPA || nSubType == TelephonyManager.NETWORK_TYPE_EVDO_0 && !telephonyManager.isNetworkRoaming -> "3G"

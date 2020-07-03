@@ -14,10 +14,10 @@ import java.lang.ref.WeakReference
  * 注入BaseView，Binding文件，开发的时候可以随时存取和调用基类Activity的控件和方法
  */
 abstract class BaseViewModel : ViewModel(), LifecycleObserver {
-    protected var activity: WeakReference<Activity>? = null
-    protected var context: WeakReference<Context>? = null
-    protected var view: SoftReference<BaseView>? = null
-    protected var owner: LifecycleOwner? = null
+    private var activity: WeakReference<Activity>? = null
+    private var context: WeakReference<Context>? = null
+    private var view: SoftReference<BaseView>? = null
+    private var owner: LifecycleOwner? = null
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun attachView(activity: Activity, context: Context, view: BaseView, owner: LifecycleOwner) {
@@ -26,42 +26,58 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
         this.view = SoftReference(view)
         this.owner = owner
     }
+
+    protected fun getActivity(): Activity {
+        return activity?.get()!!
+    }
+
+    protected fun getContext(): Context {
+        return context?.get()!!
+    }
+
+    protected fun getView(): BaseView {
+        return view?.get()!!
+    }
+
+    protected fun getOwner(): LifecycleOwner {
+        return owner!!
+    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="生命周期回调">
     //    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     //    public void onCreate() {
-    //        view.get().log("onCreate");
+    //        getView()?.log("onCreate");
     //    }
     //
     //    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     //    public void onStart() {
-    //        view.get().log("onStart");
+    //        getView()?.log("onStart");
     //    }
     //
     //    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     //    public void onResume() {
-    //        view.get().log("onResume");
+    //        getView()?.log("onResume");
     //    }
     //
     //    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     //    public void onPause() {
-    //        view.get().log("onPause");
+    //        getView()?.log("onPause");
     //    }
     //
     //    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     //    public void onStop() {
-    //        view.get().log("onStop");
+    //        getView()?.log("onStop");
     //    }
     //
     //    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     //    public void onDestroy() {
-    //        view.get().log("onDestroy");
+    //        getView()?.log("onDestroy");
     //    }
     //
     //    @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
     //    public void onAny() {
-    //        view.get().log("onAny");
+    //        getView()?.log("onAny");
     //    }
     //
     override fun onCleared() {
@@ -69,6 +85,7 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
         activity!!.clear()
         context!!.clear()
         view!!.clear()
+        owner = null
     }
     // </editor-fold>
 

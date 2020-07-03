@@ -17,7 +17,7 @@ object PageMask {
     @JvmStatic
     fun doResponse(msg: String?) {
         var str = msg
-        val context = BaseApplication.getInstance().applicationContext
+        val context = BaseApplication.instance.applicationContext
         if (TextUtils.isEmpty(str)) {
             str = context.getString(R.string.label_response_err)
         }

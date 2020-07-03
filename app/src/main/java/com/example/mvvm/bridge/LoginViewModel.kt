@@ -1,9 +1,7 @@
 package com.example.mvvm.bridge
 
-import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
-import com.example.mvvm.databinding.ActivityLoginBinding
 import com.example.mvvm.model.UserInfoModel
 
 /**
@@ -39,9 +37,9 @@ class LoginViewModel : BaseViewModel() {
     //    }
 
     fun login(account: String, password: String) {
-        view?.get()?.showDialog()
-        Toast.makeText(context?.get(), "当前执行了登录\n账号：$account\n密码：$password", Toast.LENGTH_SHORT).show()
-        view?.get()?.hideDialog()
+        getView().showDialog()
+        getView().showToast("当前执行了登录\n账号：$account\n密码：$password")
+        getView().hideDialog()
 
         //do网络请求-将对象传递给下一个页面，或者直接当前页面处理，处理和mvc写法一致(失败的处理直接回调对应观察的数据,或者在baseviewmodel中处理)
         val model = UserInfoModel("老王万寿无疆", 88, "bilibili")
