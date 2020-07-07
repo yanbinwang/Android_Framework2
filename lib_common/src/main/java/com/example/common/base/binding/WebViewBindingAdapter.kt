@@ -15,6 +15,7 @@ import com.example.common.widget.XWebView
  */
 object WebViewBindingAdapter {
 
+    @JvmStatic
     @SuppressLint("SetJavaScriptEnabled")
     @BindingAdapter(value = ["app:pageAssetPath"], requireAll = false)
     fun setLoadAssetsPage(webView: WebView, assetPath: String) {
@@ -40,6 +41,7 @@ object WebViewBindingAdapter {
         webView.loadUrl(url)
     }
 
+    @JvmStatic
     @SuppressLint("SetJavaScriptEnabled")
     @BindingAdapter(value = ["app:loadPage"], requireAll = false)
     fun setLoadPage(webView: WebView, loadPage: String?) {
@@ -56,6 +58,7 @@ object WebViewBindingAdapter {
         webView.loadUrl(loadPage)
     }
 
+    @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["app:loadPageUrl"], requireAll = false)
     fun setLoadPage(webView: XWebView, loadPageUrl: String?) {

@@ -3,6 +3,7 @@ package com.example.common.base.binding
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import com.example.common.imageloader.ImageLoader.Companion.instance
 
@@ -13,21 +14,25 @@ import com.example.common.imageloader.ImageLoader.Companion.instance
 object CommonBindingAdapter {
 
     //---------------------------------------------图片注入开始---------------------------------------------
+    @JvmStatic
     @BindingAdapter(value = ["app:imageRes"])
     fun setImageRes(imageView: ImageView, imageRes: Int) {
         imageView.setImageResource(imageRes)
     }
 
+    @JvmStatic
     @BindingAdapter(value = ["app:imageUrl"])
     fun setImageDisplay(view: ImageView?, url: String?) {
         instance.displayImage(view, url)
     }
 
+    @JvmStatic
     @BindingAdapter(value = ["app:imageRoundUrl", "app:imageRoundRadius"])
     fun setImageRoundDisplay(view: ImageView?, url: String?, roundingRadius: Int) {
         instance.displayRoundImage(view, url, roundingRadius)
     }
 
+    @JvmStatic
     @BindingAdapter(value = ["app:imageCircleUrl"])
     fun setImageCircleDisplay(view: ImageView?, url: String?) {
         instance.displayCircleImage(view, url)
@@ -35,21 +40,26 @@ object CommonBindingAdapter {
     //---------------------------------------------图片注入结束---------------------------------------------
 
     //---------------------------------------------系统方法注入开始---------------------------------------------
+    @JvmStatic
     @BindingAdapter(value = ["app:textColorRes"])
     fun setTextColor(textView: TextView, textColorRes: Int) {
-        textView.setTextColor(textView.resources.getColor(textColorRes))
+//        textView.setTextColor(textView.resources.getColor(textColorRes))
+        textView.setTextColor(ContextCompat.getColor(textView.context, textColorRes))
     }
 
+    @JvmStatic
     @BindingAdapter(value = ["app:visible"])
     fun setVisible(view: View, visible: Boolean) {
         view.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
+    @JvmStatic
     @BindingAdapter(value = ["app:selected"])
     fun setSelected(view: View, select: Boolean) {
         view.isSelected = select
     }
 
+    @JvmStatic
     @BindingAdapter(value = ["adjustWidth"])
     fun setAdjustWidth(view: View, adjustWidth: Int) {
         val params = view.layoutParams
@@ -57,6 +67,7 @@ object CommonBindingAdapter {
         view.layoutParams = params
     }
 
+    @JvmStatic
     @BindingAdapter(value = ["app:adjustHeight"])
     fun setAdjustHeight(view: View, adjustHeight: Int) {
         val params = view.layoutParams

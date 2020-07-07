@@ -18,20 +18,20 @@ import com.example.mvvm.R;
 public class TestListModel extends BaseObservable {
     private String title;
     private String describe;
-    private String avatar;
+    private int avatar;
 
-    public TestListModel(String title, String describe, String avatar) {
+    public TestListModel(String title, String describe, int avatar) {
         this.title = title;
         this.describe = describe;
         this.avatar = avatar;
     }
 
     @Bindable
-    public String getAvatar() {
+    public int getAvatar() {
         return avatar;
     }
 
-    public void setAvatar(String avatar) {
+    public void setAvatar(int avatar) {
         this.avatar = avatar;
         notifyPropertyChanged(BR.avatar);
     }

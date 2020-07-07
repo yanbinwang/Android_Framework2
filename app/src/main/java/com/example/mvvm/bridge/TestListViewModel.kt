@@ -2,6 +2,7 @@ package com.example.mvvm.bridge
 
 import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
+import com.example.mvvm.R
 import com.example.mvvm.model.TestListModel
 
 /**
@@ -26,7 +27,7 @@ class TestListViewModel : BaseViewModel() {
         }else{
             list = ArrayList()
             for (i in 0..9) {
-                list.add(TestListModel("标题$i", "描述$i", "头像$i"))
+                list.add(TestListModel("标题$i", "描述$i", R.mipmap.ic_launcher_round))
             }
         }
         dataList.postValue(list) //将结果回调
