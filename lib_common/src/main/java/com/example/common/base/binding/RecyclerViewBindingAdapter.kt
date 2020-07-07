@@ -11,6 +11,7 @@ import com.example.common.widget.xrecyclerview.callback.OnRefreshListener
  */
 object RecyclerViewBindingAdapter {
 
+    @JvmStatic
     @BindingAdapter(value = ["app:adapter"])
     fun setAdapter(recyclerView: XRecyclerView?, adapter: RecyclerView.Adapter<*>?) {
         if (recyclerView != null && adapter != null) {
@@ -18,21 +19,25 @@ object RecyclerViewBindingAdapter {
         }
     }
 
+    @JvmStatic
     @BindingAdapter(value = ["app:itemNormalSpace"])
     fun setNormalItemDecoration(recyclerView: XRecyclerView?, itemNormalSpace: Int) {
         recyclerView?.addItemDecoration(itemNormalSpace, 0, true, false)
     }
 
+    @JvmStatic
     @BindingAdapter(value = ["app:itemAroundSpace"])
     fun setAroundItemDecoration(recyclerView: XRecyclerView?, itemAroundSpace: Int) {
         recyclerView?.addItemDecoration(itemAroundSpace, itemAroundSpace, true, true)
     }
 
+    @JvmStatic
     @BindingAdapter(value = ["app:emptyBackgroundColor"])
     fun setEmptyBackgroundColor(recyclerView: XRecyclerView?, color: Int) {
         recyclerView?.setEmptyBackgroundColor(color)
     }
 
+    @JvmStatic
     @BindingAdapter(value = ["app:refreshListener"])
     fun setOnRefreshListener(recyclerView: XRecyclerView?, onRefreshListener: OnRefreshListener?) {
         recyclerView?.setOnRefreshListener(onRefreshListener)

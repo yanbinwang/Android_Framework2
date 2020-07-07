@@ -1,6 +1,5 @@
 package com.example.mvvm.model;
 
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -13,24 +12,26 @@ import com.example.mvvm.R;
 
 /**
  * Created by WangYanBin on 2020/6/4.
+ * 单纯的赋值不需要使用java，直接kt对象即可
+ * 复杂的使用kt待研究
  */
 public class TestListModel extends BaseObservable {
     private String title;
     private String describe;
-    private String avatar;
+    private int avatar;
 
-    public TestListModel(String title, String describe, String avatar) {
+    public TestListModel(String title, String describe, int avatar) {
         this.title = title;
         this.describe = describe;
         this.avatar = avatar;
     }
 
     @Bindable
-    public String getAvatar() {
+    public int getAvatar() {
         return avatar;
     }
 
-    public void setAvatar(String avatar) {
+    public void setAvatar(int avatar) {
         this.avatar = avatar;
         notifyPropertyChanged(BR.avatar);
     }
