@@ -31,7 +31,7 @@ object FileUtil {
     @JvmStatic
     fun createCacheDir(): String? {
         val file = File(
-            BaseApplication.instance.externalCacheDir.toString() +
+            BaseApplication.getInstance().externalCacheDir.toString() +
                     File.separator +
                     "log"
         )
