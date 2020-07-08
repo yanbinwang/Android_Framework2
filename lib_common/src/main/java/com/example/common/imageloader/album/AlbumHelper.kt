@@ -20,6 +20,7 @@ import java.lang.ref.WeakReference
  */
 class AlbumHelper(activity: Activity) {
     private val mActivity: WeakReference<Activity> = WeakReference(activity)
+    private val outputPatch = Constants.SDCARD_PATH + "/" + Constants.APPLICATION_NAME + "/裁剪"//裁剪后图片保存位置
     private var onAlbumListener: OnAlbumListener? = null //单选回调监听
 
     //跳转至相机
@@ -31,22 +32,24 @@ class AlbumHelper(activity: Activity) {
                     Durban.with(mActivity.get())
                         // 裁剪界面的标题。
                         .title(" ")
+                        // 状态栏颜色。
                         .statusBarColor(
                             ContextCompat.getColor(
                                 mActivity.get()!!,
                                 R.color.grey_333333
                             )
-                        ) // 状态栏颜色。
+                        )
+                        // Toolbar颜色。
                         .toolBarColor(
                             ContextCompat.getColor(
                                 mActivity.get()!!,
                                 R.color.grey_333333
                             )
-                        ) // Toolbar颜色。
+                        )
                         // 图片路径list或者数组。
                         .inputImagePaths(result)
                         // 图片输出文件夹路径。
-                        .outputDirectory(Constants.SDCARD_PATH + "/" + Constants.APPLICATION_NAME + "/裁剪")
+                        .outputDirectory(outputPatch)
                         // 裁剪图片输出的最大宽高。
                         .maxWidthHeight(500, 500)
                         // 裁剪时的宽高比。
@@ -81,19 +84,22 @@ class AlbumHelper(activity: Activity) {
             .singleChoice() //多选模式为：multipleChoice,单选模式为：singleChoice()。
             .widget(
                 Widget.newDarkBuilder(mActivity.get()) //状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
-                    .title(" ") //标题 ---标题颜色只有黑色白色
+                    //标题 ---标题颜色只有黑色白色
+                    .title(" ")
+                    // 状态栏颜色。
                     .statusBarColor(
                         ContextCompat.getColor(
                             mActivity.get()!!,
                             R.color.grey_333333
                         )
-                    ) // 状态栏颜色。
+                    )
+                    // Toolbar颜色。
                     .toolBarColor(
                         ContextCompat.getColor(
                             mActivity.get()!!,
                             R.color.grey_333333
                         )
-                    ) // Toolbar颜色。
+                    )
                     .build()
             )
             .camera(isCamera).columnCount(3) // 页面列表的列数。
@@ -110,22 +116,24 @@ class AlbumHelper(activity: Activity) {
                     Durban.with(mActivity.get())
                         // 裁剪界面的标题。
                         .title(" ")
+                        // 状态栏颜色。
                         .statusBarColor(
                             ContextCompat.getColor(
                                 mActivity.get()!!,
                                 R.color.grey_333333
                             )
-                        ) // 状态栏颜色。
+                        )
+                        // Toolbar颜色。
                         .toolBarColor(
                             ContextCompat.getColor(
                                 mActivity.get()!!,
                                 R.color.grey_333333
                             )
-                        ) // Toolbar颜色。
+                        )
                         // 图片路径list或者数组。
                         .inputImagePaths(result[0].path)
                         // 图片输出文件夹路径。
-                        .outputDirectory(Constants.SDCARD_PATH + "/" + Constants.APPLICATION_NAME + "/裁剪")
+                        .outputDirectory(outputPatch)
                         // 裁剪图片输出的最大宽高。
                         .maxWidthHeight(500, 500)
                         // 裁剪时的宽高比。
