@@ -74,14 +74,14 @@ public class LoginActivity extends BaseTitleActivity<ActivityLoginBinding> {
             @Override
             public void onTextChanged(@NotNull CharSequence s, int start, int before, int count) {
                 super.onTextChanged(s, start, before, count);
-                binding.btnLogin.setEnabled(!isEmpty(getViewValue(binding.etAccount), getViewValue(binding.etPassword)));
+                binding.btnLogin.setEnabled(!isEmpty(getParameters(binding.etAccount), getParameters(binding.etPassword)));
             }
         };
 
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.btn_login:
-                    viewModel.login(getViewValue(binding.etAccount), getViewValue(binding.etPassword));
+                    viewModel.login(getParameters(binding.etAccount), getParameters(binding.etPassword));
                     break;
             }
         }
