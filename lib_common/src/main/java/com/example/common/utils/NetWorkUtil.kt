@@ -15,7 +15,7 @@ import com.example.common.BaseApplication
  */
 @SuppressLint("StaticFieldLeak", "MissingPermission")
 object NetWorkUtil {
-    private var context: Context = BaseApplication.getInstance().applicationContext
+    private var context: Context = BaseApplication.instance.applicationContext
 
     //验证是否联网
     @JvmStatic
