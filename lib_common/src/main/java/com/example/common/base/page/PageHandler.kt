@@ -26,12 +26,7 @@ object PageHandler {
 
     @JvmStatic
     fun setEmptyState(emptyLayout: EmptyLayout, msg: String?) {
-        setEmptyState(
-            emptyLayout,
-            msg,
-            -1,
-            null
-        )
+        setEmptyState(emptyLayout, msg, -1, null)
     }
 
     @JvmStatic
@@ -47,14 +42,7 @@ object PageHandler {
 
     @JvmStatic
     fun setListEmptyState(xRecyclerView: XRecyclerView, refresh: Boolean, msg: String?, length: Int) {
-        setListEmptyState(
-            xRecyclerView,
-            refresh,
-            msg,
-            length,
-            -1,
-            null
-        )
+        setListEmptyState(xRecyclerView, refresh, msg, length, -1, null)
     }
 
     @JvmStatic
@@ -69,12 +57,7 @@ object PageHandler {
                 doResponse(msg)
                 return
             }
-            setEmptyState(
-                emptyLayout,
-                msg,
-                imgRes,
-                emptyText
-            )
+            setEmptyState(emptyLayout, msg, imgRes, emptyText)
         }
     }
 
