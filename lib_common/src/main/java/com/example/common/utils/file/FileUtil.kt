@@ -153,8 +153,7 @@ object FileUtil {
         val screenImagePath: String
         //输出
         try {
-            val rootDir =
-                Constants.BASE_PATH.absolutePath + "/" + Constants.APPLICATION_NAME + "/截屏"
+            val rootDir = Constants.SDCARD_PATH + "/" + Constants.APPLICATION_NAME + "/截屏"
             val downloadFile = File(rootDir)
             if (!downloadFile.mkdirs()) {
                 //需要权限
