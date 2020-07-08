@@ -10,9 +10,9 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.ToastUtil.mackToastSHORT
 
 /**
- * 遮罩层操作
+ * 遮罩层和提示操作
  */
-object PageMask {
+object PageHandler {
 
     @JvmStatic
     fun doResponse(msg: String?) {
@@ -26,7 +26,12 @@ object PageMask {
 
     @JvmStatic
     fun setEmptyState(emptyLayout: EmptyLayout, msg: String?) {
-        setEmptyState(emptyLayout, msg, -1, null)
+        setEmptyState(
+            emptyLayout,
+            msg,
+            -1,
+            null
+        )
     }
 
     @JvmStatic
@@ -42,7 +47,14 @@ object PageMask {
 
     @JvmStatic
     fun setListEmptyState(xRecyclerView: XRecyclerView, refresh: Boolean, msg: String?, length: Int) {
-        setListEmptyState(xRecyclerView, refresh, msg, length, -1, null)
+        setListEmptyState(
+            xRecyclerView,
+            refresh,
+            msg,
+            length,
+            -1,
+            null
+        )
     }
 
     @JvmStatic
@@ -57,7 +69,12 @@ object PageMask {
                 doResponse(msg)
                 return
             }
-            setEmptyState(emptyLayout, msg, imgRes, emptyText)
+            setEmptyState(
+                emptyLayout,
+                msg,
+                imgRes,
+                emptyText
+            )
         }
     }
 
