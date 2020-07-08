@@ -19,8 +19,7 @@ import java.io.InputStream
  */
 @SuppressLint("CheckResult")
 class DownloadFactory private constructor() {
-    private val weakHandler: WeakHandler =
-        WeakHandler(Looper.getMainLooper())
+    private val weakHandler: WeakHandler = WeakHandler(Looper.getMainLooper())
 
     companion object {
         val instance: DownloadFactory by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
@@ -30,39 +29,39 @@ class DownloadFactory private constructor() {
 
     fun download(owner: LifecycleOwner, downloadUrl: String, filePath: String, fileName: String, onDownloadListener: OnDownloadListener) {
         FileUtil.deleteDir(filePath)
-        download(downloadUrl)
-            .observe(owner, Observer {
-                object : Thread() {
-                    override fun run() {
-                        var inputStream: InputStream? = null
+        download(downloadUrl).observe(owner, Observer {
+            object : Thread() {
+                override fun run() {
+                    var inputStream: InputStream? = null
+                    var fileOutputStream: FileOutputStream? = null
+                    try {
+                        val file = File(FileUtil.isExistDir(filePath), fileName)
                         val buf = ByteArray(2048)
+                        val total = it.contentLength()
+                        inputStream = it.byteStream()
+                        fileOutputStream = FileOutputStream(file)
                         var len: Int
-                        var fileOutputStream: FileOutputStream? = null
+                        var sum: Long = 0
+                        while (((inputStream.read(buf)).also { len = it }) != -1) {
+                            fileOutputStream.write(buf, 0, len)
+                            sum += len.toLong()
+                            val progress = (sum * 1.0f / total * 100).toInt()
+                            weakHandler.post { onDownloadListener.onDownloading(progress) }
+                        }
+                        fileOutputStream.flush()
+                        weakHandler.post { onDownloadListener.onDownloadSuccess(file.path) }
+                    } catch (e: Exception) {
+                        weakHandler.post { onDownloadListener.onDownloadFailed(e) }
+                    } finally {
                         try {
-                            inputStream = it.byteStream()
-                            val total = it.contentLength()
-                            val file = File(FileUtil.isExistDir(filePath), fileName)
-                            fileOutputStream = FileOutputStream(file)
-                            var sum: Long = 0
-                            while (((inputStream.read(buf)).also { len = it }) != -1) {
-                                fileOutputStream.write(buf, 0, len)
-                                sum += len.toLong()
-                                val progress = (sum * 1.0f / total * 100).toInt()
-                                weakHandler.post { onDownloadListener.onDownloading(progress) }
-                            }
-                            fileOutputStream.flush()
-                            weakHandler.post { onDownloadListener.onDownloadSuccess(file.path) }
-                        } catch (e: Exception) {
-                            weakHandler.post { onDownloadListener.onDownloadFailed(e) }
-                        } finally {
-                            try {
-                                inputStream?.close()
-                                fileOutputStream?.close()
-                            } catch (ignored: IOException) {
-                            }
+                            inputStream?.close()
+                            fileOutputStream?.close()
+                        } catch (ignored: IOException) {
                         }
                     }
-                }.start()
-            })
+                }
+            }.start()
+        })
     }
+
 }

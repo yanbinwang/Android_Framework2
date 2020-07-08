@@ -36,6 +36,28 @@
             android:textColor="@color/black"
             android:textSize="24mm" />
 
+        <Button
+            android:id="@+id/btn_download"
+            android:layout_width="match_parent"
+            android:layout_height="60mm"
+            android:layout_marginHorizontal="20mm"
+            android:layout_marginTop="20mm"
+            android:background="@color/gray_9f9f9f"
+            android:onClick="@{event.onClick}"
+            android:text="下载"
+            android:textColor="@color/black"
+            android:textSize="24mm" />
+
+        <TextView
+            android:id="@+id/tv_download"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20mm"
+            android:layout_marginTop="20mm"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:textSize="28mm" />
+
     </LinearLayout>
 
 </layout>

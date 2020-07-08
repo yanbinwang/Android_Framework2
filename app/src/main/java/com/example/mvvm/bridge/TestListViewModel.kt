@@ -24,7 +24,7 @@ class TestListViewModel : BaseViewModel() {
         if (null != dataList.value && dataList.value!!.isNotEmpty()) {
             getView().showToast("有数据了，清空")
             list?.clear()
-        }else{
+        } else {
             list = ArrayList()
             for (i in 0..9) {
                 list.add(TestListModel("标题$i", "描述$i", R.mipmap.ic_launcher_round))
