@@ -1,18 +1,17 @@
-package com.example.common.base.page
+package com.example.common.widget.empty
 
 import android.text.TextUtils
 import android.view.View
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
-import com.example.common.widget.empty.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.ToastUtil.mackToastSHORT
 
 /**
  * 遮罩层操作
  */
-object PageMask {
+object EmptyHandler {
 
     @JvmStatic
     fun doResponse(msg: String?) {
