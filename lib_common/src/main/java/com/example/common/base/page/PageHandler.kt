@@ -1,17 +1,18 @@
-package com.example.common.widget.empty
+package com.example.common.base.page
 
 import android.text.TextUtils
 import android.view.View
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
+import com.example.common.widget.empty.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.ToastUtil.mackToastSHORT
 
 /**
- * 遮罩层操作
+ * 遮罩层和提示操作
  */
-object EmptyHandler {
+object PageHandler {
 
     @JvmStatic
     fun doResponse(msg: String?) {
@@ -25,7 +26,12 @@ object EmptyHandler {
 
     @JvmStatic
     fun setEmptyState(emptyLayout: EmptyLayout, msg: String?) {
-        setEmptyState(emptyLayout, msg, -1, null)
+        setEmptyState(
+            emptyLayout,
+            msg,
+            -1,
+            null
+        )
     }
 
     @JvmStatic
@@ -41,7 +47,14 @@ object EmptyHandler {
 
     @JvmStatic
     fun setListEmptyState(xRecyclerView: XRecyclerView, refresh: Boolean, msg: String?, length: Int) {
-        setListEmptyState(xRecyclerView, refresh, msg, length, -1, null)
+        setListEmptyState(
+            xRecyclerView,
+            refresh,
+            msg,
+            length,
+            -1,
+            null
+        )
     }
 
     @JvmStatic
@@ -56,7 +69,12 @@ object EmptyHandler {
                 doResponse(msg)
                 return
             }
-            setEmptyState(emptyLayout, msg, imgRes, emptyText)
+            setEmptyState(
+                emptyLayout,
+                msg,
+                imgRes,
+                emptyText
+            )
         }
     }
 
