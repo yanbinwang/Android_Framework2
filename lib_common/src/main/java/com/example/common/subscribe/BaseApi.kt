@@ -1,7 +1,6 @@
 package com.example.common.subscribe
 
 import androidx.lifecycle.LiveData
-import com.example.common.constant.Constants.URL
 import com.example.common.http.ResponseBody
 import com.example.common.model.UploadModel
 import okhttp3.MultipartBody
@@ -19,18 +18,18 @@ interface BaseApi {
 
     @Multipart
     @Streaming
-    @POST(URL)
+    @POST("http://www.baidu.com")
     fun getUploadFile(@Header("User-Agent") agent: String, @Part partList: List<MultipartBody.Part>): LiveData<ResponseBody<UploadModel>>
 
     @FormUrlEncoded
-    @POST(URL)
+    @POST("http://www.baidu.com")
     fun getSendVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): LiveData<ResponseBody<Any>>
 
     @FormUrlEncoded
-    @POST(URL)
+    @POST("http://www.baidu.com")
     fun getVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): LiveData<ResponseBody<Any>>
 
-    @GET("URL")
+    @GET("http://www.baidu.com")
     fun getTestApi(): LiveData<ResponseBody<Any>>
 
 }

@@ -48,14 +48,14 @@ public class AccountHelper {
     //存储用户对象
     public static void setUserBean(UserModel bean) {
         if (null != bean) {
-            mmkv.encode(Constants.USER_BEAN, GsonUtil.objToJson(bean));
+            mmkv.encode(Constants.KEY_USER_MODEL, GsonUtil.objToJson(bean));
         }
     }
 
     //获取用户对象
     public static UserModel getUserBean() {
         UserModel userInfoBean = null;
-        String userInfoJson = mmkv.decodeString(Constants.USER_BEAN);
+        String userInfoJson = mmkv.decodeString(Constants.KEY_USER_MODEL);
         if (!TextUtils.isEmpty(userInfoJson)) {
             userInfoBean = GsonUtil.jsonToObj(userInfoJson, UserModel.class);
         }
@@ -133,7 +133,7 @@ public class AccountHelper {
 
     //用户注销操作（清除信息,清除用户凭证）
     public static void signOut() {
-        mmkv.encode(Constants.USER_BEAN, "");
+        mmkv.encode(Constants.KEY_USER_MODEL, "");
     }
 
 }

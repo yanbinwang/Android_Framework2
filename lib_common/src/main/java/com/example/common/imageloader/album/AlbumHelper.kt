@@ -46,7 +46,7 @@ class AlbumHelper(activity: Activity) {
                         // 图片路径list或者数组。
                         .inputImagePaths(result)
                         // 图片输出文件夹路径。
-                        .outputDirectory(Constants.BASE_PATH.absolutePath + "/" + Constants.APPLICATION_NAME + "/裁剪")
+                        .outputDirectory(Constants.SDCARD_PATH + "/" + Constants.APPLICATION_NAME + "/裁剪")
                         // 裁剪图片输出的最大宽高。
                         .maxWidthHeight(500, 500)
                         // 裁剪时的宽高比。
@@ -125,7 +125,7 @@ class AlbumHelper(activity: Activity) {
                         // 图片路径list或者数组。
                         .inputImagePaths(result[0].path)
                         // 图片输出文件夹路径。
-                        .outputDirectory(Constants.BASE_PATH.absolutePath + "/" + Constants.APPLICATION_NAME + "/裁剪")
+                        .outputDirectory(Constants.SDCARD_PATH + "/" + Constants.APPLICATION_NAME + "/裁剪")
                         // 裁剪图片输出的最大宽高。
                         .maxWidthHeight(500, 500)
                         // 裁剪时的宽高比。
