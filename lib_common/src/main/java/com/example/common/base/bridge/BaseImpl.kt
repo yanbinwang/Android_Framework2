@@ -41,12 +41,12 @@ interface BaseImpl {
     /**
      * 让一个view获得焦点
      */
-    fun setViewFocus(view: View?)
+    fun getFocus(view: View?)
 
     /**
      * 获取控件的基础值
      */
-    fun getViewValue(view: View?): String?
+    fun getParameters(view: View?): String?
 
     /**
      * 控件显示

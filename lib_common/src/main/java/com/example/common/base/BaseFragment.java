@@ -139,7 +139,7 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
     }
 
     @Override
-    public void setViewFocus(View view) {
+    public void getFocus(View view) {
         view.setFocusable(true);//设置输入框可聚集
         view.setFocusableInTouchMode(true);//设置触摸聚焦
         view.requestFocus();//请求焦点
@@ -147,7 +147,7 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
     }
 
     @Override
-    public String getViewValue(View view) {
+    public String getParameters(View view) {
         if (view instanceof EditText) {
             return ((EditText) view).getText().toString().trim();
         } else if (view instanceof TextView) {
