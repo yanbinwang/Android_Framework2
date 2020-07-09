@@ -97,16 +97,16 @@ public class BaseApplication extends Application {
         );
         //腾讯读写mmkv初始化
         MMKV.initialize(this);
-        //网络请求类初始化
-        OkHttpFactory.Companion.getInstance();
-        RetrofitFactory.Companion.getInstance();
-        //文件上传下载类初始化
-        UploadFactory.Companion.getInstance();
-        DownloadFactory.Companion.getInstance();
-        //实例化抓包文件
-        CrashHandler.Companion.getInstance();
-        //图片库初始化
-        ImageLoader.Companion.getInstance();
+//        //网络请求类初始化
+//        OkHttpFactory.Companion.getInstance();
+//        RetrofitFactory.Companion.getInstance();
+//        //文件上传下载类初始化
+//        UploadFactory.Companion.getInstance();
+//        DownloadFactory.Companion.getInstance();
+//        //实例化抓包文件
+//        CrashHandler.Companion.getInstance();
+//        //图片库初始化
+//        ImageLoader.Companion.getInstance();
         //在程序运行时取值，保证长宽静态变量不丢失
         DisplayMetrics metric = new DisplayMetrics();
         WindowManager mWindowManager = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);

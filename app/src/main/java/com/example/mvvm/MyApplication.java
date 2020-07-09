@@ -1,9 +1,13 @@
 package com.example.mvvm;
 
+import android.os.Looper;
+import android.util.Log;
+
 import com.example.common.BaseApplication;
 import com.example.common.constant.Constants;
 import com.example.common.utils.file.FileUtil;
 import com.example.framework.BuildConfig;
+import com.example.framework.utils.LogUtil;
 import com.example.mvvm.activity.MainActivity;
 import com.zxy.recovery.core.Recovery;
 
@@ -65,6 +69,29 @@ public class MyApplication extends BaseApplication {
         Constants.APPLICATION_ID = FileUtil.getApplicationId(this);
 //        //分享工具类初始化
 //        ShareSDKUtil.getInstance();
-    }
 
+        while (true) {
+            try {
+                Looper.loop();
+            } catch (Throwable e) {
+                String stackTraceString = Log.getStackTraceString(e);
+                if (e instanceof NullPointerException) {
+                    LogUtil.i("AppCatch -", stackTraceString);
+                } else if (e instanceof IllegalStateException) {
+                    LogUtil.i("AppCatch -", stackTraceString);
+                } else if (e instanceof ArrayIndexOutOfBoundsException) {
+                    LogUtil.i("AppCatch -", stackTraceString);
+                } else if (e instanceof IndexOutOfBoundsException) {
+                    LogUtil.i("AppCatch -", stackTraceString);
+                } else if (e instanceof OutOfMemoryError) {
+                    LogUtil.i("AppCatch -", stackTraceString);
+                } else if (e instanceof NumberFormatException) {
+                    LogUtil.i("AppCatch -", stackTraceString);
+                } else {
+                    throw e;
+                }
+            }
+        }
+
+    }
 }
