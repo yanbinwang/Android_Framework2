@@ -7,7 +7,6 @@ import com.example.common.BaseApplication;
 import com.example.common.constant.Constants;
 import com.example.common.utils.file.FileUtil;
 import com.example.framework.BuildConfig;
-import com.example.framework.utils.LogUtil;
 import com.example.mvvm.activity.MainActivity;
 import com.zxy.recovery.core.Recovery;
 
@@ -39,27 +38,52 @@ public class MyApplication extends BaseApplication {
         //单列返回值（能让程序在任意地方取到context）
         instance = this;
         init();
-
     }
 
     //初始化一些第三方控件和单例工具类等
     private void init() {
-        //debug	是否开启debug模式
-        //recoverInBackgroud 当应用在后台时发生Crash，是否需要进行恢复
-        //recoverStack	是否恢复整个Activity Stack，否则将恢复栈顶Activity
-        //mainPage	回退的界面
-        //callback	发生Crash时的回调
-        //silent	SilentMode	是否使用静默恢复，如果设置为true的情况下，那么在发生Crash时将不显示RecoveryActivity界面来进行恢复，而是自动的恢复Activity的堆栈和数据，也就是无界面恢复
-        Recovery.getInstance()
-                .debug(true)
-                .recoverInBackground(false)
-                .recoverStack(true)
-                .mainPage(MainActivity.class)
-                .recoverEnabled(BuildConfig.ISDEBUG)//发布版本不跳转
+        if (BuildConfig.ISDEBUG) {
+            //debug	是否开启debug模式
+            //recoverInBackgroud 当应用在后台时发生Crash，是否需要进行恢复
+            //recoverStack	是否恢复整个Activity Stack，否则将恢复栈顶Activity
+            //mainPage	回退的界面
+            //callback	发生Crash时的回调
+            //silent	SilentMode	是否使用静默恢复，如果设置为true的情况下，那么在发生Crash时将不显示RecoveryActivity界面来进行恢复，而是自动的恢复Activity的堆栈和数据，也就是无界面恢复
+            Recovery.getInstance()
+                    .debug(true)
+                    .recoverInBackground(false)
+                    .recoverStack(true)
+                    .mainPage(MainActivity.class)
+                    .recoverEnabled(true)//发布版本不跳转
 //                .callback(new MyCrashCallback())
-                .silent(false, Recovery.SilentMode.RECOVER_ACTIVITY_STACK)
+                    .silent(false, Recovery.SilentMode.RECOVER_ACTIVITY_STACK)
 //                .skip(TestActivity.class)
-                .init(this);
+                    .init(this);
+        } else {
+            //当前若是发布包，接管系统loop，让用户感知不到程序闪退
+            while (true) {
+                try {
+                    Looper.loop();
+                } catch (Throwable e) {
+                    String stackTraceString = Log.getStackTraceString(e);
+                    if (e instanceof NullPointerException) {
+                        System.out.println("AppCatch -" + stackTraceString);
+                    } else if (e instanceof IllegalStateException) {
+                        System.out.println("AppCatch -" + stackTraceString);
+                    } else if (e instanceof ArrayIndexOutOfBoundsException) {
+                        System.out.println("AppCatch -" + stackTraceString);
+                    } else if (e instanceof IndexOutOfBoundsException) {
+                        System.out.println("AppCatch -" + stackTraceString);
+                    } else if (e instanceof OutOfMemoryError) {
+                        System.out.println("AppCatch -" + stackTraceString);
+                    } else if (e instanceof NumberFormatException) {
+                        System.out.println("AppCatch -" + stackTraceString);
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+        }
 //        //初始化推送
 //        NotificationUtil.getInstance();
 //        PushManager.getInstance().initialize(this, GetuiPushService.class);
@@ -69,29 +93,6 @@ public class MyApplication extends BaseApplication {
         Constants.APPLICATION_ID = FileUtil.getApplicationId(this);
 //        //分享工具类初始化
 //        ShareSDKUtil.getInstance();
-
-//        while (true) {
-//            try {
-//                Looper.loop();
-//            } catch (Throwable e) {
-//                String stackTraceString = Log.getStackTraceString(e);
-//                if (e instanceof NullPointerException) {
-//                    LogUtil.i("AppCatch -", stackTraceString);
-//                } else if (e instanceof IllegalStateException) {
-//                    LogUtil.i("AppCatch -", stackTraceString);
-//                } else if (e instanceof ArrayIndexOutOfBoundsException) {
-//                    LogUtil.i("AppCatch -", stackTraceString);
-//                } else if (e instanceof IndexOutOfBoundsException) {
-//                    LogUtil.i("AppCatch -", stackTraceString);
-//                } else if (e instanceof OutOfMemoryError) {
-//                    LogUtil.i("AppCatch -", stackTraceString);
-//                } else if (e instanceof NumberFormatException) {
-//                    LogUtil.i("AppCatch -", stackTraceString);
-//                } else {
-//                    throw e;
-//                }
-//            }
-//        }
-
     }
+
 }
