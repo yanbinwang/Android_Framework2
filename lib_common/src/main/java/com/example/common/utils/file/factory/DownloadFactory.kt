@@ -22,7 +22,7 @@ class DownloadFactory private constructor() {
     private val weakHandler: WeakHandler = WeakHandler(Looper.getMainLooper())
 
     companion object {
-        val instance: DownloadFactory by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
+        val instance: DownloadFactory by lazy {
             DownloadFactory()
         }
     }

@@ -21,7 +21,7 @@ class UploadFactory private constructor() {
     private var onUploadListener: OnUploadListener? = null
 
     companion object {
-        val instance: UploadFactory by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
+        val instance: UploadFactory by lazy {
             UploadFactory()
         }
     }

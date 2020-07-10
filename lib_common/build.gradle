@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion build_versions.compileSdkVersion
@@ -11,9 +12,9 @@ android {
         versionCode build_versions.versionCode
         versionName build_versions.versionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [moduleName: project.getName()]
+        kapt {
+            arguments {
+                arg("moduleName", project.getName())
             }
         }
     }
@@ -57,10 +58,10 @@ dependencies {
     //图片加载
     api deps.bumptech.glide
     api deps.bumptech.glide_okhttp3
-    annotationProcessor deps.bumptech.glide_compiler
+    kapt deps.bumptech.glide_compiler
     //页面路由
     api deps.alibaba.arouter
-    annotationProcessor deps.alibaba.arouter_compiler
+    kapt deps.alibaba.arouter_compiler
     //严正杰相册，裁剪，权限库
     api deps.yanzhenjie.album
     api deps.yanzhenjie.durban

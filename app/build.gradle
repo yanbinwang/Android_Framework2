@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     signingConfigs {
@@ -36,9 +37,9 @@ android {
         resConfigs "zh"
         //dex突破65535的限制
         multiDexEnabled true
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [moduleName: project.getName()]
+        kapt {
+            arguments {
+                arg("moduleName", project.getName())
             }
         }
     }
@@ -99,5 +100,5 @@ dependencies {
 //    implementation project(':module_quotation')
     //页面路由
     implementation deps.alibaba.arouter
-    annotationProcessor deps.alibaba.arouter_compiler
+    kapt deps.alibaba.arouter_compiler
 }
