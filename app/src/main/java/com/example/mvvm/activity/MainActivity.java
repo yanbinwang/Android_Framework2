@@ -42,8 +42,6 @@ public class MainActivity extends BaseTitleActivity<ActivityMainBinding> {
         super.initView();
         titleBuilder.setTitle("10086").getDefault();
         binding.setVariable(BR.event, new PageEvent());
-
-        AppDialog.with(this).setParams("dsf","dsf","sdf","dfsf").show();
     }
 
     @Override
