@@ -31,7 +31,6 @@ import com.example.common.R;
  */
 @SuppressLint("InflateParams")
 public class EmptyLayout extends ViewGroup {
-    private Context context;
     private View contextView;
     private SwipeRefreshLayout emptyRefresh;//外层刷新
     private ImageView ivEmpty;//内容
@@ -42,22 +41,33 @@ public class EmptyLayout extends ViewGroup {
 
     public EmptyLayout(Context context) {
         super(context);
-        init(context, null);
+        init();
     }
 
     public EmptyLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
-        init(context, attrs);
+        init();
     }
 
     public EmptyLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context, attrs);
+        init();
     }
 
-    private void init(Context context, AttributeSet attrs) {
-        this.context = context;
-        initView();
+    private void init() {
+        contextView = LayoutInflater.from(getContext()).inflate(R.layout.view_empty, null);
+        emptyRefresh = contextView.findViewById(R.id.srl_empty_refresh);
+        ivEmpty = contextView.findViewById(R.id.iv_empty);
+        tvEmpty = contextView.findViewById(R.id.tv_empty);
+        emptyRefresh.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.blue_2e60df));
+        emptyRefresh.setOnRefreshListener(() -> {
+            emptyRefresh.setRefreshing(false);
+            if (null != onEmptyRefreshListener) {
+                onEmptyRefreshListener.onRefreshListener();
+            }
+        });
+        contextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));//设置LayoutParams
+        contextView.setOnClickListener(null);
     }
 
     @Override
@@ -83,22 +93,6 @@ public class EmptyLayout extends ViewGroup {
     protected void onFinishInflate() {
         super.onFinishInflate();
         addView(contextView);
-    }
-
-    private void initView() {
-        contextView = LayoutInflater.from(context).inflate(R.layout.view_empty, null);
-        emptyRefresh = contextView.findViewById(R.id.srl_empty_refresh);
-        ivEmpty = contextView.findViewById(R.id.iv_empty);
-        tvEmpty = contextView.findViewById(R.id.tv_empty);
-        emptyRefresh.setColorSchemeColors(ContextCompat.getColor(context, R.color.blue_2e60df));
-        emptyRefresh.setOnRefreshListener(() -> {
-            emptyRefresh.setRefreshing(false);
-            if (null != onEmptyRefreshListener) {
-                onEmptyRefreshListener.onRefreshListener();
-            }
-        });
-        contextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));//设置LayoutParams
-        contextView.setOnClickListener(null);
     }
 
     //设置列表所需的emptyview
