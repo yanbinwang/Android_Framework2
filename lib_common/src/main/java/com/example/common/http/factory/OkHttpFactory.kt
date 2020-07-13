@@ -29,7 +29,7 @@ class OkHttpFactory private constructor() {
             .build()
 
     companion object {
-        val instance: OkHttpFactory by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
+        val instance: OkHttpFactory by lazy {
             OkHttpFactory()
         }
     }

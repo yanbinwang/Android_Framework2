@@ -19,7 +19,7 @@ class RetrofitFactory private constructor() {
             .build()
 
     companion object {
-        val instance: RetrofitFactory by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
+        val instance: RetrofitFactory by lazy {
             RetrofitFactory()
         }
     }
