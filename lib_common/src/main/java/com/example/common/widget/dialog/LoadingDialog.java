@@ -7,8 +7,10 @@ import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 
 import com.example.common.R;
+import com.example.common.databinding.ViewDialogLoadingBinding;
 
 
 /**
@@ -20,7 +22,8 @@ public class LoadingDialog extends Dialog {
 
     public LoadingDialog(@NonNull Context context) {
         super(context, R.style.loadingStyle);
-        setContentView(LayoutInflater.from(context).inflate(R.layout.view_dialog_loading, null), new LinearLayout.LayoutParams(
+        ViewDialogLoadingBinding binding = DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_dialog_loading, null));
+        setContentView(binding.getRoot(), new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
     }

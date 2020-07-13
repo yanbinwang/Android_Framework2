@@ -29,7 +29,6 @@ import com.example.framework.utils.DisplayUtil;
  */
 @SuppressLint("InflateParams")
 public class XRecyclerView extends ViewGroup {
-    private Context context;
     private EmptyLayout el;//自定义封装的空布局
     private SwipeRefreshLayout srlRefresh;//刷新控件 类型1才有
     private DetectionRecyclerView rvX;//数据列表
@@ -48,7 +47,6 @@ public class XRecyclerView extends ViewGroup {
     }
 
     private void init(Context context, AttributeSet attrs) {
-        this.context = context;
         TypedArray mTypedArray = context.obtainStyledAttributes(attrs, R.styleable.XRecyclerView);
         refreshType = mTypedArray.getInt(R.styleable.XRecyclerView_refreshType, 0);
         refreshDirection = mTypedArray.getInt(R.styleable.XRecyclerView_refreshDirection, 2);
@@ -87,10 +85,10 @@ public class XRecyclerView extends ViewGroup {
         switch (refreshType) {
             //不带刷新
             case 0:
-                view = LayoutInflater.from(context).inflate(R.layout.view_xrecyclerview, null);
+                view = LayoutInflater.from(getContext()).inflate(R.layout.view_xrecyclerview, null);
                 rvX = view.findViewById(R.id.rv_x);
                 if (0 != emptyType) {
-                    el = new EmptyLayout(context);
+                    el = new EmptyLayout(getContext());
                     rvX.setEmptyView(el.setListView(rvX));
                     rvX.setHasFixedSize(true);
                     rvX.setItemAnimator(new DefaultItemAnimator());
@@ -103,7 +101,7 @@ public class XRecyclerView extends ViewGroup {
                 break;
             //带刷新
             case 1:
-                view = LayoutInflater.from(context).inflate(R.layout.view_xrecyclerview_refresh, null);
+                view = LayoutInflater.from(getContext()).inflate(R.layout.view_xrecyclerview_refresh, null);
                 el = view.findViewById(R.id.el);
                 srlRefresh = view.findViewById(R.id.srl_refresh);
                 srlRefresh.setColorSchemeResources(R.color.blue_2e60df);
@@ -210,7 +208,7 @@ public class XRecyclerView extends ViewGroup {
     //添加分隔线
     public void addItemDecoration(int horizontalSpace, int verticalSpace, boolean hasHorizontalEdge, boolean hasVerticalEdge) {
         SparseArray<SCommonItemDecoration.ItemDecorationProps> propMap = new SparseArray<>();
-        SCommonItemDecoration.ItemDecorationProps prop1 = new SCommonItemDecoration.ItemDecorationProps(DisplayUtil.dip2px(context, horizontalSpace), DisplayUtil.dip2px(context, verticalSpace), hasHorizontalEdge, hasVerticalEdge);
+        SCommonItemDecoration.ItemDecorationProps prop1 = new SCommonItemDecoration.ItemDecorationProps(DisplayUtil.dip2px(getContext(), horizontalSpace), DisplayUtil.dip2px(getContext(), verticalSpace), hasHorizontalEdge, hasVerticalEdge);
         propMap.put(0, prop1);
         rvX.addItemDecoration(new SCommonItemDecoration(propMap));
     }
