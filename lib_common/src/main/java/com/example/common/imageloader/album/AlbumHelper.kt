@@ -19,30 +19,30 @@ import java.lang.ref.WeakReference
  * android:configChanges="orientation|keyboardHidden|screenSize"
  */
 class AlbumHelper(activity: Activity) {
-    private val mActivity: WeakReference<Activity> = WeakReference(activity)
+    private val weakActivity: WeakReference<Activity> = WeakReference(activity)
     private val outputPatch = Constants.SDCARD_PATH + "/" + Constants.APPLICATION_NAME + "/裁剪"//裁剪后图片保存位置
     private var onAlbumListener: OnAlbumListener? = null //单选回调监听
 
     //跳转至相机
     fun toCamera(isTailor: Boolean): AlbumHelper {
-        Album.camera(mActivity.get()) //相机功能。
+        Album.camera(weakActivity.get()) //相机功能。
             .image() //拍照。
             .onResult { result ->
                 if (isTailor) {
-                    Durban.with(mActivity.get())
+                    Durban.with(weakActivity.get())
                         // 裁剪界面的标题。
                         .title(" ")
                         // 状态栏颜色。
                         .statusBarColor(
                             ContextCompat.getColor(
-                                mActivity.get()!!,
+                                weakActivity.get()!!,
                                 R.color.grey_333333
                             )
                         )
                         // Toolbar颜色。
                         .toolBarColor(
                             ContextCompat.getColor(
-                                mActivity.get()!!,
+                                weakActivity.get()!!,
                                 R.color.grey_333333
                             )
                         )
@@ -80,23 +80,23 @@ class AlbumHelper(activity: Activity) {
 
     //跳转至相册
     fun toAlbum(isCamera: Boolean, isTailor: Boolean): AlbumHelper {
-        Album.image(mActivity.get()) //选择图片。
+        Album.image(weakActivity.get()) //选择图片。
             .singleChoice() //多选模式为：multipleChoice,单选模式为：singleChoice()。
             .widget(
-                Widget.newDarkBuilder(mActivity.get()) //状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
+                Widget.newDarkBuilder(weakActivity.get()) //状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
                     //标题 ---标题颜色只有黑色白色
                     .title(" ")
                     // 状态栏颜色。
                     .statusBarColor(
                         ContextCompat.getColor(
-                            mActivity.get()!!,
+                            weakActivity.get()!!,
                             R.color.grey_333333
                         )
                     )
                     // Toolbar颜色。
                     .toolBarColor(
                         ContextCompat.getColor(
-                            mActivity.get()!!,
+                            weakActivity.get()!!,
                             R.color.grey_333333
                         )
                     )
@@ -107,26 +107,26 @@ class AlbumHelper(activity: Activity) {
                 val resultSize = result[0].size
                 if (resultSize > 10 * 1024 * 1024) {
                     ToastUtil.mackToastSHORT(
-                        mActivity.get()!!.getString(R.string.toast_album_choice),
-                        mActivity.get()!!.applicationContext
+                        weakActivity.get()!!.getString(R.string.toast_album_choice),
+                        weakActivity.get()!!.applicationContext
                     )
                     return@onResult
                 }
                 if (isTailor) {
-                    Durban.with(mActivity.get())
+                    Durban.with(weakActivity.get())
                         // 裁剪界面的标题。
                         .title(" ")
                         // 状态栏颜色。
                         .statusBarColor(
                             ContextCompat.getColor(
-                                mActivity.get()!!,
+                                weakActivity.get()!!,
                                 R.color.grey_333333
                             )
                         )
                         // Toolbar颜色。
                         .toolBarColor(
                             ContextCompat.getColor(
-                                mActivity.get()!!,
+                                weakActivity.get()!!,
                                 R.color.grey_333333
                             )
                         )

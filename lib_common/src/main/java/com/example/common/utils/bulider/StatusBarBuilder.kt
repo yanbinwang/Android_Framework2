@@ -18,18 +18,18 @@ import java.lang.ref.WeakReference
 @SuppressLint("PrivateApi","InlinedApi")
 class StatusBarBuilder(activity: Activity) {
     //弱应用传入的activity
-    private val mActivity : WeakReference<Activity> = WeakReference(activity)
+    private val weakActivity : WeakReference<Activity> = WeakReference(activity)
 
     //隐藏导航栏
     fun setHideStatus() {
-        mActivity.get()!!.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        mActivity.get()!!.window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        weakActivity.get()!!.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        weakActivity.get()!!.window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
     }
 
     //透明状态栏(白电池)
     fun setTransparentStatus() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val window = mActivity.get()!!.window
+            val window = weakActivity.get()!!.window
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -42,7 +42,7 @@ class StatusBarBuilder(activity: Activity) {
     //透明状态栏(黑电池)
     fun setTransparentDarkStatus() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val window = mActivity.get()!!.window
+            val window = weakActivity.get()!!.window
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
@@ -54,7 +54,7 @@ class StatusBarBuilder(activity: Activity) {
 
     //设置状态栏颜色
     fun setStatusBarColor(colorId: Int) {
-        val window = mActivity.get()!!.window
+        val window = weakActivity.get()!!.window
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.statusBarColor = colorId
         } else {
@@ -65,7 +65,7 @@ class StatusBarBuilder(activity: Activity) {
 
     //状态栏黑色UI(只处理安卓6.0+的系统)
     fun setStatusBarLightMode(isDark: Boolean) {
-        val window = mActivity.get()!!.window
+        val window = weakActivity.get()!!.window
         //如果大于7.0的系统，国内已经兼容谷歌黑电池的架构
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             setNormalStatusBarLightMode(window, isDark)
@@ -73,8 +73,8 @@ class StatusBarBuilder(activity: Activity) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 setNormalStatusBarLightMode(window, isDark)
                 //如果是6.0的系统，小米魅族有不同的处理
-                setMiuiStatusBarLightMode(mActivity.get()!!.window, isDark)
-                setFlymeStatusBarLightMode(mActivity.get()!!.window, isDark)
+                setMiuiStatusBarLightMode(weakActivity.get()!!.window, isDark)
+                setFlymeStatusBarLightMode(weakActivity.get()!!.window, isDark)
             }
         }
     }

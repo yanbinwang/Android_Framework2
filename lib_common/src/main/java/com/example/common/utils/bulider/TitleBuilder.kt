@@ -15,7 +15,8 @@ import java.lang.ref.WeakReference
 
 @SuppressLint("InflateParams")
 class TitleBuilder(activity: Activity) {
-    private val mActivity: WeakReference<Activity> = WeakReference(activity)
+    private val weakActivity: WeakReference<Activity> = WeakReference(activity)
+    private val statusBarBuilder: StatusBarBuilder
     private var view: View? = null
     private var mainLine: View? = null //标题线
     private var mainLeftLin: LinearLayout? = null
@@ -25,16 +26,15 @@ class TitleBuilder(activity: Activity) {
     private var mainTitleTxt: TextView? = null
     private var mainLeftTxt: TextView? = null
     private var mainRightTxt: TextView? = null //页面标题,左侧文字,右侧文字
-    private val statusBarBuilder: StatusBarBuilder
 
     init {
-        statusBarBuilder = StatusBarBuilder(mActivity.get()!!)
-        statusBarBuilder.setStatusBarColor(ContextCompat.getColor(mActivity.get()!!, R.color.white))
+        statusBarBuilder = StatusBarBuilder(weakActivity.get()!!)
+        statusBarBuilder.setStatusBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.white))
         instanceObjects()
     }
 
     private fun instanceObjects() {
-        view = mActivity.get()?.findViewById(R.id.rl_main)
+        view = weakActivity.get()?.findViewById(R.id.rl_main)
         mainTitleTxt = view?.findViewById(R.id.tv_main_title)
         mainLeftTxt = view?.findViewById(R.id.tv_main_left)
         mainRightTxt = view?.findViewById(R.id.tv_main_right)
@@ -47,7 +47,7 @@ class TitleBuilder(activity: Activity) {
 
     fun getDefault(): TitleBuilder {
         mainLeftLin?.visibility = View.VISIBLE
-        mainLeftLin?.setOnClickListener { mActivity.get()?.finish() }
+        mainLeftLin?.setOnClickListener { weakActivity.get()?.finish() }
         return this
     }
 
@@ -80,7 +80,7 @@ class TitleBuilder(activity: Activity) {
     }
 
     fun setTitle(titleStr: String, isShade: Boolean, isDark: Boolean): TitleBuilder {
-        setTitle(titleStr, ContextCompat.getColor(mActivity.get()!!, R.color.black), isShade, isDark)
+        setTitle(titleStr, ContextCompat.getColor(weakActivity.get()!!, R.color.black), isShade, isDark)
         return this
     }
 

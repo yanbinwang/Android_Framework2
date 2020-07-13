@@ -10,5 +10,4 @@ interface OnConfirmOrCancelDialogListener {
 
     fun onDialogCancel()
 
-
 }
