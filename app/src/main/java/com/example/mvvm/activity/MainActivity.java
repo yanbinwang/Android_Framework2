@@ -95,5 +95,4 @@ public class MainActivity extends BaseTitleActivity<ActivityMainBinding> {
             }
         }
     }
-
 }
