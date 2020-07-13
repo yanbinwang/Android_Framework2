@@ -63,7 +63,14 @@ public class TestListActivity extends BaseActivity<ActivityTestListBinding> {
         binding.getAdapter().setOnItemChildClickListener(new OnItemChildClickListener() {
             @Override
             public void onItemChildClick(@NonNull BaseQuickAdapter adapter, @NonNull View view, int position) {
-                showToast("图片点击：" + position);
+                switch (view.getId()){
+                    case R.id.iv_img:
+                        showToast("图片点击：" + position);
+                        break;
+                    case R.id.tv_title:
+                        showToast("标题点击：" + position);
+                        break;
+                }
             }
         });
     }

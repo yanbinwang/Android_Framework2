@@ -28,8 +28,8 @@ class TestListAdapter :
         //设置数据
         val binding: ItemTestBinding = holder.dataBinding as ItemTestBinding
         binding.model = item
-
         binding.ivImg.setOnClickListener { v -> setOnItemChildClick(v, holder.adapterPosition); }
+        binding.tvTitle.setOnClickListener { v -> setOnItemChildClick(v,holder.adapterPosition) }
     }
 
 }
