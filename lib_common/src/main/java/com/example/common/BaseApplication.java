@@ -45,6 +45,13 @@ public class BaseApplication extends Application {
     public static BaseApplication instance;
 
     public static BaseApplication getInstance() {
+        if (instance == null) {
+            synchronized (BaseApplication.class) {
+                if (instance == null) {
+                    instance = new BaseApplication();
+                }
+            }
+        }
         return instance;
     }
 
@@ -55,8 +62,6 @@ public class BaseApplication extends Application {
 
     //初始化一些第三方控件和单例工具类等
     private void initialize() {
-        //单列返回值（能让程序在任意地方取到context）
-        instance = this;
         //布局初始化
         AutoSizeConfig.getInstance().getUnitsManager()
                 .setSupportDP(false)
