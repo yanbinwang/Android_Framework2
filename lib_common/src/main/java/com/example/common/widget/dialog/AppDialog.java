@@ -10,11 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 
 import com.example.common.R;
-import com.example.common.databinding.ViewDialogConfirmBinding;
-import com.example.common.databinding.ViewDialogConfirmOrCancelBinding;
-import com.example.common.widget.dialog.callback.OnConfirmDialogListener;
-import com.example.common.widget.dialog.callback.OnConfirmOrCancelDialogListener;
-
+import com.example.common.databinding.ViewDialogBinding;
+import com.example.common.widget.dialog.callback.OnDialogListener;
 
 /**
  * author: wyb
@@ -23,22 +20,27 @@ import com.example.common.widget.dialog.callback.OnConfirmOrCancelDialogListener
  */
 @SuppressLint("InflateParams")
 public class AppDialog extends BaseDialog {
-    private OnConfirmOrCancelDialogListener onConfirmOrCancelDialogListener;
-    private OnConfirmDialogListener onConfirmDialogListener;
+    private OnDialogListener onDialogListener;
 
     public AppDialog(@NonNull Context context) {
         super(context);
     }
 
-    //包含確定取消的提示框
+    //App统一提示框
     public AppDialog setParams(String tipText, String contentText, String sureText, String cancelText) {
-        ViewDialogConfirmOrCancelBinding binding = DataBindingUtil.bind(LayoutInflater.from(getContext()).inflate(R.layout.view_dialog_confirm_or_cancel, null));
+        ViewDialogBinding binding = DataBindingUtil.bind(LayoutInflater.from(getContext()).inflate(R.layout.view_dialog, null));
         setDialogContentView(binding.getRoot(), true, false);
 
         //如果没有传入标题字段,则隐藏标题view
         if (TextUtils.isEmpty(tipText)) {
             binding.tvDialogTip.setVisibility(View.GONE);
         }
+        //如果没有传入取消字段,则隐藏取消view
+        if (TextUtils.isEmpty(cancelText)) {
+            binding.viewLine.setVisibility(View.GONE);
+            binding.tvDialogCancel.setVisibility(View.GONE);
+        }
+
         //对控件赋值
         binding.tvDialogTip.setText(TextUtils.isEmpty(tipText) ? "" : tipText);
         binding.tvDialogContainer.setText(TextUtils.isEmpty(contentText) ? "" : contentText);
@@ -53,57 +55,23 @@ public class AppDialog extends BaseDialog {
         //点击了取消按钮的回调
         binding.tvDialogCancel.setOnClickListener(v -> {
             dismiss();
-            if (null != onConfirmOrCancelDialogListener) {
-                onConfirmOrCancelDialogListener.onDialogCancel();
+            if (null != onDialogListener) {
+                onDialogListener.onDialogCancel();
             }
         });
 
         //点击了确定按钮的回调
         binding.tvDialogSure.setOnClickListener(v -> {
             dismiss();
-            if (null != onConfirmOrCancelDialogListener) {
-                onConfirmOrCancelDialogListener.onDialogConfirm();
+            if (null != onDialogListener) {
+                onDialogListener.onDialogConfirm();
             }
         });
         return this;
     }
 
-    //包含確定的提示框
-    public AppDialog setParams(String tipText, String contentText, String sureText) {
-        ViewDialogConfirmBinding binding = DataBindingUtil.bind(LayoutInflater.from(getContext()).inflate(R.layout.view_dialog_confirm, null));
-        setDialogContentView(binding.getRoot(), true, false);
-
-        //如果没有传入标题字段,则隐藏标题view
-        if (TextUtils.isEmpty(tipText)) {
-            binding.tvDialogTip.setVisibility(View.GONE);
-        }
-        //对控件赋值
-        binding.tvDialogTip.setText(TextUtils.isEmpty(tipText) ? "" : tipText);
-        binding.tvDialogContainer.setText(TextUtils.isEmpty(contentText) ? "" : contentText);
-        binding.tvDialogSure.setText(TextUtils.isEmpty(sureText) ? "" : sureText);
-
-//        if (tipText.contains("发现新版本")) {
-//            dialogContentTxt.setGravity(Gravity.START);
-//            setOnKeyListener((dialog, keyCode, event) -> true);
-//        }
-
-        //点击了确定按钮的回调
-        binding.tvDialogSure.setOnClickListener(v -> {
-            dismiss();
-            if (null != onConfirmDialogListener) {
-                onConfirmDialogListener.onDialogConfirm();
-            }
-        });
-        return this;
-    }
-
-    public AppDialog setOnConfirmOrCancelDialogListener(OnConfirmOrCancelDialogListener onConfirmOrCancelDialogListener) {
-        this.onConfirmOrCancelDialogListener = onConfirmOrCancelDialogListener;
-        return this;
-    }
-
-    public AppDialog setOnConfirmDialogListener(OnConfirmDialogListener onConfirmDialogListener) {
-        this.onConfirmDialogListener = onConfirmDialogListener;
+    public AppDialog setOnDialogListener(OnDialogListener onDialogListener) {
+        this.onDialogListener = onDialogListener;
         return this;
     }
 

@@ -7,14 +7,13 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.databinding.DataBindingUtil;
 
 import com.example.common.R;
+import com.example.common.databinding.ViewEmptyBinding;
 
 
 /**
@@ -31,13 +30,9 @@ import com.example.common.R;
  */
 @SuppressLint("InflateParams")
 public class EmptyLayout extends ViewGroup {
-    private View contextView;
-    private SwipeRefreshLayout emptyRefresh;//外层刷新
-    private ImageView ivEmpty;//内容
-    private TextView tvEmpty;//文本
+    private ViewEmptyBinding binding;
     private OnEmptyRefreshListener onEmptyRefreshListener;
-    public static String EMPTY_TXT = "没有数据";//数据为空时的内容
-    public static String ERROR_TXT = "没有网络";//数据加载失败的内容
+    public static String EMPTY_TXT = "没有数据", ERROR_TXT = "没有网络";//数据为空时的内容,数据加载失败的内容
 
     public EmptyLayout(Context context) {
         super(context);
@@ -55,19 +50,16 @@ public class EmptyLayout extends ViewGroup {
     }
 
     private void init() {
-        contextView = LayoutInflater.from(getContext()).inflate(R.layout.view_empty, null);
-        emptyRefresh = contextView.findViewById(R.id.srl_empty_refresh);
-        ivEmpty = contextView.findViewById(R.id.iv_empty);
-        tvEmpty = contextView.findViewById(R.id.tv_empty);
-        emptyRefresh.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.blue_2e60df));
-        emptyRefresh.setOnRefreshListener(() -> {
-            emptyRefresh.setRefreshing(false);
+        binding = DataBindingUtil.bind(LayoutInflater.from(getContext()).inflate(R.layout.view_empty, null));
+        binding.srlEmptyRefresh.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.blue_2e60df));
+        binding.srlEmptyRefresh.setOnRefreshListener(() -> {
+            binding.srlEmptyRefresh.setRefreshing(false);
             if (null != onEmptyRefreshListener) {
                 onEmptyRefreshListener.onRefreshListener();
             }
         });
-        contextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));//设置LayoutParams
-        contextView.setOnClickListener(null);
+        binding.getRoot().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));//设置LayoutParams
+        binding.getRoot().setOnClickListener(null);
     }
 
     @Override
@@ -92,67 +84,67 @@ public class EmptyLayout extends ViewGroup {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        addView(contextView);
+        addView(binding.getRoot());
     }
 
     //设置列表所需的emptyview
     public View setListView(View listView) {
-        removeView(contextView);
-        ((ViewGroup) listView.getParent()).addView(contextView);//添加到当前的View hierarchy
-        return contextView;
+        removeView(binding.getRoot());
+        ((ViewGroup) listView.getParent()).addView(binding.getRoot());//添加到当前的View hierarchy
+        return binding.getRoot();
     }
 
     //当数据正在加载的时候显示（接口返回快速时会造成闪屏）
     public void showLoading() {
-        emptyRefresh.setVisibility(View.GONE);
-        ivEmpty.setVisibility(View.GONE);
-        tvEmpty.setVisibility(View.GONE);
+        binding.srlEmptyRefresh.setVisibility(View.GONE);
+        binding.ivEmpty.setVisibility(View.GONE);
+        binding.tvEmpty.setVisibility(View.GONE);
     }
 
     //当数据为空时(显示需要显示的图片，以及内容字)
     public void showEmpty() {
-        emptyRefresh.setVisibility(View.VISIBLE);
-        ivEmpty.setVisibility(View.VISIBLE);
-        ivEmpty.setBackgroundResource(0);
-        ivEmpty.setImageResource(R.mipmap.img_data_empty);
-        tvEmpty.setVisibility(View.VISIBLE);
-        tvEmpty.setText(EMPTY_TXT);
+        binding.srlEmptyRefresh.setVisibility(View.VISIBLE);
+        binding.ivEmpty.setVisibility(View.VISIBLE);
+        binding.ivEmpty.setBackgroundResource(0);
+        binding.ivEmpty.setImageResource(R.mipmap.img_data_empty);
+        binding.tvEmpty.setVisibility(View.VISIBLE);
+        binding.tvEmpty.setText(EMPTY_TXT);
     }
 
     //当数据为空时(显示需要显示的图片，以及内容字)---传入图片-1：原图 0：不需要图片 default：传入的图片
     public void showEmpty(int resId, String emptyText) {
-        emptyRefresh.setVisibility(View.VISIBLE);
-        ivEmpty.setBackgroundResource(0);
+        binding.srlEmptyRefresh.setVisibility(View.VISIBLE);
+        binding.ivEmpty.setBackgroundResource(0);
         if (-1 == resId) {
-            ivEmpty.setVisibility(View.VISIBLE);
-            ivEmpty.setImageResource(R.mipmap.img_net_err);
+            binding.ivEmpty.setVisibility(View.VISIBLE);
+            binding.ivEmpty.setImageResource(R.mipmap.img_net_err);
         } else if (0 == resId) {
-            ivEmpty.setVisibility(View.GONE);
+            binding.ivEmpty.setVisibility(View.GONE);
         } else {
-            ivEmpty.setVisibility(View.VISIBLE);
-            ivEmpty.setImageResource(resId);
+            binding.ivEmpty.setVisibility(View.VISIBLE);
+            binding.ivEmpty.setImageResource(resId);
         }
-        tvEmpty.setVisibility(View.VISIBLE);
+        binding.tvEmpty.setVisibility(View.VISIBLE);
         if (TextUtils.isEmpty(emptyText)) {
-            tvEmpty.setText(EMPTY_TXT);
+            binding.tvEmpty.setText(EMPTY_TXT);
         } else {
-            tvEmpty.setText(emptyText);
+            binding.tvEmpty.setText(emptyText);
         }
     }
 
     //当数据错误时（没有网络）
     public void showError() {
-        emptyRefresh.setVisibility(View.VISIBLE);
-        ivEmpty.setVisibility(View.VISIBLE);
-        ivEmpty.setBackgroundResource(0);
-        ivEmpty.setImageResource(R.mipmap.img_net_err);
-        tvEmpty.setVisibility(View.VISIBLE);
-        tvEmpty.setText(ERROR_TXT);
+        binding.srlEmptyRefresh.setVisibility(View.VISIBLE);
+        binding.ivEmpty.setVisibility(View.VISIBLE);
+        binding.ivEmpty.setBackgroundResource(0);
+        binding.ivEmpty.setImageResource(R.mipmap.img_net_err);
+        binding.tvEmpty.setVisibility(View.VISIBLE);
+        binding.tvEmpty.setText(ERROR_TXT);
     }
 
     //设置背景颜色
     public void setBackgroundColor(int color) {
-        emptyRefresh.setBackgroundColor(color);
+        binding.srlEmptyRefresh.setBackgroundColor(color);
     }
 
     //设置点击
