@@ -21,17 +21,13 @@ public abstract class BasePopupWindow extends PopupWindow {
     private WindowManager.LayoutParams layoutParams;
 
     public BasePopupWindow(Activity activity) {
-        init(activity, false);
+        this(activity, false);
     }
 
     public BasePopupWindow(Activity activity, boolean dark) {
-        init(activity, dark);
-    }
-
-    private void init(Activity activity, boolean dark) {
-        this.dark = dark;
         this.weakActivity = new WeakReference<>(activity);
         this.layoutParams = weakActivity.get().getWindow().getAttributes();
+        this.dark = dark;
     }
 
     protected void setPopupWindowContentView(View view) {
