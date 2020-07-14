@@ -30,18 +30,12 @@ public class MyApplication extends BaseApplication {
     public static MyApplication instance;
 
     public static MyApplication getInstance() {
-        if (instance == null) {
-            synchronized (MyApplication.class) {
-                if (instance == null) {
-                    instance = new MyApplication();
-                }
-            }
-        }
         return instance;
     }
 
     public void onCreate() {
         super.onCreate();
+        instance = this;
         initialize();
     }
 
