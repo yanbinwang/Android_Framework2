@@ -45,18 +45,12 @@ public class BaseApplication extends Application {
     public static BaseApplication instance;
 
     public static BaseApplication getInstance() {
-        if (instance == null) {
-            synchronized (BaseApplication.class) {
-                if (instance == null) {
-                    instance = new BaseApplication();
-                }
-            }
-        }
         return instance;
     }
 
     public void onCreate() {
         super.onCreate();
+        instance = this;
         initialize();
     }
 
