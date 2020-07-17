@@ -1,7 +1,6 @@
 package com.example.common.http.callback
 
 import androidx.lifecycle.Observer
-import com.example.common.http.ResponseBody
 
 /**
  * Created by WangYanBin on 2020/6/8.

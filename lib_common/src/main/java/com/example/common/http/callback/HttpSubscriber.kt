@@ -1,7 +1,5 @@
 package com.example.common.http.callback
 
-import com.example.common.http.ResponseBody
-
 /**
  * Created by WangYanBin on 2020/7/17.
  * 请求通过拿取Observer对象再做处理
