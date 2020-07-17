@@ -14,14 +14,14 @@ import com.example.mvvm.model.TestListModel
  * Created by WangYanBin on 2020/7/10.
  */
 class TestListAdapter :
-    BaseQuickAdapter<TestListModel?, BaseDataBindingHolder<*>>(R.layout.item_test) {
+    BaseQuickAdapter<TestListModel, BaseDataBindingHolder<*>>(R.layout.item_test) {
 
     override fun onItemViewHolderCreated(viewHolder: BaseDataBindingHolder<*>, viewType: Int) {
         super.onItemViewHolderCreated(viewHolder, viewType)
         DataBindingUtil.bind<ViewDataBinding>(viewHolder.itemView)
     }
 
-    override fun convert(holder: BaseDataBindingHolder<*>, item: TestListModel?) {
+    override fun convert(holder: BaseDataBindingHolder<*>, item: TestListModel) {
         if (item == null) {
             return
         }
