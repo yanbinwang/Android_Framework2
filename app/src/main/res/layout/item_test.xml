@@ -21,18 +21,19 @@
 <!--            android:onClick="@{model.setBackgroundResource}"-->
 <!--            app:resource="@{model.avatar}" />-->
 
-<!--        <ImageView-->
-<!--            android:layout_width="160mm"-->
-<!--            android:layout_height="160mm"-->
-<!--            android:layout_margin="40mm"-->
-<!--            app:resource="@{model.avatar}" />-->
-
         <ImageView
             android:id="@+id/iv_img"
             android:layout_width="160mm"
             android:layout_height="160mm"
             android:layout_margin="40mm"
-            app:imageRes="@{model.avatar}" />
+            app:resource="@{model.avatar}" />
+
+<!--        <ImageView-->
+<!--            android:id="@+id/iv_img"-->
+<!--            android:layout_width="160mm"-->
+<!--            android:layout_height="160mm"-->
+<!--            android:layout_margin="40mm"-->
+<!--            app:imageRes="@{model.avatar}" />-->
 
         <RelativeLayout
             android:layout_width="match_parent"
