@@ -21,13 +21,15 @@ class LiveDataCallAdapter<R>(var type: Type) : CallAdapter<R, BusMutableLiveData
                 super.onActive()
                 if (flag.compareAndSet(false, true)) {
                     call!!.enqueue(object : Callback<R> {
-                        override fun onFailure(call: Call<R>?, t: Throwable?) {
-                            postValue(null)
-                        }
 
                         override fun onResponse(call: Call<R>?, response: Response<R>?) {
                             postValue(response?.body())
                         }
+
+                        override fun onFailure(call: Call<R>?, t: Throwable?) {
+                            postValue(null)
+                        }
+
                     })
                 }
             }

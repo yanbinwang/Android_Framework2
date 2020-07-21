@@ -2,6 +2,8 @@ package com.example.mvvm.bridge
 
 import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
+import com.example.common.http.callback.HttpSubscriber
+import com.example.common.subscribe.BaseSubscribe
 import com.example.mvvm.model.UserInfoModel
 
 /**
@@ -9,6 +11,21 @@ import com.example.mvvm.model.UserInfoModel
  */
 class LoginViewModel : BaseViewModel() {
     var userInfoModel = MutableLiveData<UserInfoModel>() //接口得到的用户对象，泛型string也可替换为对象
+
+    fun getData(){
+        BaseSubscribe
+            .getTestApi()
+            .observe(getOwner(),object : HttpSubscriber<Any>(){
+
+                override fun onSuccess(data: Any?) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onFailed(msg: String?) {
+                    TODO("Not yet implemented")
+                }
+            })
+    }
 
     //    public void getData(){
     //        for (int i = 0; i < 1000; i++) {

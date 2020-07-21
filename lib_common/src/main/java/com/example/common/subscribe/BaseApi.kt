@@ -1,7 +1,7 @@
 package com.example.common.subscribe
 
 import androidx.lifecycle.LiveData
-import com.example.common.http.ResponseBody
+import com.example.common.http.callback.ResponseBody
 import com.example.common.model.UploadModel
 import okhttp3.MultipartBody
 import retrofit2.http.*

@@ -1,13 +1,15 @@
-package com.example.common.http
-
-import androidx.lifecycle.Observer
+package com.example.common.http.callback
 
 /**
- * Created by WangYanBin on 2020/6/8.
+ * Created by WangYanBin on 2020/7/17.
+ * 请求通过拿取Observer对象再做处理
  */
-abstract class HttpSubscriber<T> : Observer<ResponseBody<T>?> {
+abstract class HttpSubscriber<T> : HttpObserver<T>() {
 
-    override fun onChanged(responseBody: ResponseBody<T>?) {
+    override fun onStart() {
+    }
+
+    override fun onNext(responseBody: ResponseBody<T>?) {
         if (null != responseBody) {
             val msg = responseBody.msg
             val e = responseBody.e
@@ -29,13 +31,14 @@ abstract class HttpSubscriber<T> : Observer<ResponseBody<T>?> {
         } else {
             onFailed("")
         }
-        onFinish()
+        onComplete()
+    }
+
+    override fun onComplete() {
     }
 
     protected abstract fun onSuccess(data: T?)
 
     protected abstract fun onFailed(msg: String?)
-
-    protected abstract fun onFinish()
 
 }
