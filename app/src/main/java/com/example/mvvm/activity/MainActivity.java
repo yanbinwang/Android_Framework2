@@ -12,7 +12,6 @@ import com.example.common.constant.Constants;
 import com.example.common.utils.file.callback.OnDownloadListener;
 import com.example.common.utils.file.factory.DownloadFactory;
 import com.example.common.utils.helper.permission.PermissionHelper;
-import com.example.common.widget.dialog.AppDialog;
 import com.example.framework.utils.lifecycle.LiveDataBus;
 import com.example.mvvm.BR;
 import com.example.mvvm.R;

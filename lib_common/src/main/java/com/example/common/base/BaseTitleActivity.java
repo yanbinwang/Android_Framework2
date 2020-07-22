@@ -5,6 +5,7 @@ import androidx.databinding.ViewDataBinding;
 
 import com.example.common.R;
 import com.example.common.databinding.ActivityBaseBinding;
+import com.example.common.databinding.ViewTitleBarBinding;
 import com.example.common.utils.bulider.TitleBuilder;
 
 /**
@@ -23,8 +24,8 @@ public abstract class BaseTitleActivity<VDB extends ViewDataBinding> extends Bas
             binding.setLifecycleOwner(this);
             ActivityBaseBinding baseBinding = DataBindingUtil.setContentView(this, R.layout.activity_base);
             baseBinding.flBaseContainer.addView(binding.getRoot());
+            titleBuilder = new TitleBuilder(this, baseBinding.titleContainer);
         }
-        titleBuilder = new TitleBuilder(this);
     }
     // </editor-fold>
 
