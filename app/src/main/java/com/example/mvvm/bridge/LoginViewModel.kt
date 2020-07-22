@@ -17,6 +17,11 @@ class LoginViewModel : BaseViewModel() {
             .getTestApi()
             .observe(getOwner(),object : HttpSubscriber<Any>(){
 
+                override fun onStart() {
+                    super.onStart()
+                    getView().showDialog()
+                }
+
                 override fun onSuccess(data: Any?) {
                     TODO("Not yet implemented")
                 }
@@ -24,6 +29,12 @@ class LoginViewModel : BaseViewModel() {
                 override fun onFailed(msg: String?) {
                     TODO("Not yet implemented")
                 }
+
+//                override fun onComplete() {
+//                    super.onComplete()
+//                    getView().hideDialog()
+//                }
+
             })
     }
 

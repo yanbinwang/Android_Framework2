@@ -81,7 +81,8 @@ public class LoginActivity extends BaseTitleActivity<ActivityLoginBinding> {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.btn_login:
-                    viewModel.login(getParameters(binding.etAccount), getParameters(binding.etPassword));
+//                    viewModel.login(getParameters(binding.etAccount), getParameters(binding.etPassword));
+                    viewModel.getData();
                     break;
             }
         }
