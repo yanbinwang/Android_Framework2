@@ -59,7 +59,8 @@ public class LoginActivity extends BaseTitleActivity<ActivityLoginBinding> {
 //                        }
 //
 //                        @Override
-//                        protected void onFinish() {
+//                        protected void onComplete() {
+//                            super.onComplete();
 //                            log("当前第" + position + "个请求结束！");
 //                        }
 //                    });

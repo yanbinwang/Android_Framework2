@@ -6,19 +6,19 @@ import androidx.lifecycle.Observer
  * Created by WangYanBin on 2020/6/8.
  * 针对网络请求回调的解析处理
  */
-abstract class HttpObserver<T> : Observer<ResponseBody<T>?> {
+abstract class HttpObserver<T> : Observer<ApiResponse<T>?> {
 
     constructor() {
         onStart()
     }
 
-    override fun onChanged(responseBody: ResponseBody<T>?) {
-        onNext(responseBody)
+    override fun onChanged(apiResponse: ApiResponse<T>?) {
+        onNext(apiResponse)
     }
 
     protected abstract fun onStart()
 
-    protected abstract fun onNext(responseBody: ResponseBody<T>?)
+    protected abstract fun onNext(apiResponse: ApiResponse<T>?)
 
     protected abstract fun onComplete()
 
