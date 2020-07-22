@@ -59,7 +59,8 @@ public class LoginActivity extends BaseTitleActivity<ActivityLoginBinding> {
 //                        }
 //
 //                        @Override
-//                        protected void onFinish() {
+//                        protected void onComplete() {
+//                            super.onComplete();
 //                            log("当前第" + position + "个请求结束！");
 //                        }
 //                    });
@@ -81,8 +82,7 @@ public class LoginActivity extends BaseTitleActivity<ActivityLoginBinding> {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.btn_login:
-//                    viewModel.login(getParameters(binding.etAccount), getParameters(binding.etPassword));
-                    viewModel.getData();
+                    viewModel.login(getParameters(binding.etAccount), getParameters(binding.etPassword));
                     break;
             }
         }
