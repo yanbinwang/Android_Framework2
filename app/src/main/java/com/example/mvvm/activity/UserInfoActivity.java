@@ -7,7 +7,7 @@ import com.chad.library.BR;
 import com.example.common.base.BaseActivity;
 import com.example.common.constant.ARouterPath;
 import com.example.common.constant.Constants;
-import com.example.framework.utils.lifecycle.LiveDataBus;
+import com.example.common.bus.LiveDataBus;
 import com.example.mvvm.R;
 import com.example.mvvm.databinding.ActivityUserInfoBinding;
 
@@ -38,7 +38,7 @@ public class UserInfoActivity extends BaseActivity<ActivityUserInfoBinding> {
 //                    ActivityCollector.finishAll();
 //                    navigation(ARouterPath.TestListActivity);
                     //发送消息
-                    LiveDataBus.get().with(Constants.APP_USER_LOGIN_OUT).postValue("50998");
+                    LiveDataBus.get().post(Constants.APP_USER_LOGIN_OUT).postValue("50998");
                     finish();
                     break;
             }

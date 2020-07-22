@@ -1,6 +1,6 @@
 package com.example.common.http.adapter
 
-import com.example.framework.utils.lifecycle.BusMutableLiveData
+import com.example.common.bus.BusMutableLiveData
 import retrofit2.Call
 import retrofit2.CallAdapter
 import retrofit2.Callback

@@ -1,6 +1,7 @@
-package com.example.framework.utils.lifecycle;
+package com.example.common.bus;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -14,7 +15,7 @@ import java.util.Map;
 /**
  * Created by WangYanBin on 2020/6/18.
  */
-public class BusMutableLiveData <T> extends MutableLiveData<T> {
+public class BusMutableLiveData<T> extends MutableLiveData<T> {
     private Map<Observer, Observer> observerMap = new HashMap<>();
 
     @Override
@@ -72,6 +73,38 @@ public class BusMutableLiveData <T> extends MutableLiveData<T> {
         Object objectVersion = fieldVersion.get(this);
         //set wrapper's version
         fieldLastVersion.set(objectWrapper, objectVersion);
+    }
+
+    private class ObserverWrapper<T> implements Observer<T> {
+
+        private Observer<T> observer;
+
+        public ObserverWrapper(Observer<T> observer) {
+            this.observer = observer;
+        }
+
+        @Override
+        public void onChanged(@Nullable T t) {
+            if (observer != null) {
+                if (isCallOnObserve()) {
+                    return;
+                }
+                observer.onChanged(t);
+            }
+        }
+
+        private boolean isCallOnObserve() {
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            if (stackTrace != null && stackTrace.length > 0) {
+                for (StackTraceElement element : stackTrace) {
+                    if ("android.arch.lifecycle.LiveData".equals(element.getClassName()) &&
+                            "observeForever".equals(element.getMethodName())) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 
 }
