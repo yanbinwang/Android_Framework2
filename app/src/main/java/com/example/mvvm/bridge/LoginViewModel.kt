@@ -23,11 +23,9 @@ class LoginViewModel : BaseViewModel() {
                 }
 
                 override fun onSuccess(data: Any?) {
-                    TODO("Not yet implemented")
                 }
 
                 override fun onFailed(msg: String?) {
-                    TODO("Not yet implemented")
                 }
 
 //                override fun onComplete() {

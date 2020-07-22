@@ -28,6 +28,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     companion object {
+        @JvmStatic
         val instance: ImageLoader by lazy {
             ImageLoader()
         }

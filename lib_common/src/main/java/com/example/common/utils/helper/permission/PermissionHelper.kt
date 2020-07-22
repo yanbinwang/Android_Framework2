@@ -107,6 +107,7 @@ class PermissionHelper(context: Context) {
     }
 
     companion object {
+        @JvmStatic
         fun with(context: Context?): PermissionHelper {
             return PermissionHelper(context!!)
         }

@@ -28,6 +28,7 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
     private val TAG = "CrashHandler" //文件name
 
     companion object {
+        @JvmStatic
         val instance: CrashHandler by lazy {
             CrashHandler()
         }

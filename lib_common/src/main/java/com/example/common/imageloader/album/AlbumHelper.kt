@@ -167,6 +167,7 @@ class AlbumHelper(activity: Activity) {
     }
 
     companion object {
+        @JvmStatic
         fun with(activity: Activity?): AlbumHelper {
             return AlbumHelper(activity!!)
         }

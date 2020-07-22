@@ -66,13 +66,13 @@ public class MainActivity extends BaseTitleActivity<ActivityMainBinding> {
                     navigation(ARouterPath.TestListActivity);
                     break;
                 case R.id.btn_download:
-                    PermissionHelper.Companion.with(context.get())
+                    PermissionHelper.with(context.get())
                             .getPermissions(Permission.Group.STORAGE)
                             .setPermissionCallBack(isGranted -> {
                                 if (isGranted) {
                                     String filePath = Constants.SDCARD_PATH + "/" + Constants.APPLICATION_NAME;
                                     String fileName = Constants.APPLICATION_NAME + ".apk";
-                                    DownloadFactory.Companion.getInstance().download(binding.getLifecycleOwner(), "https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk", filePath, fileName, new OnDownloadListener() {
+                                    DownloadFactory.getInstance().download(binding.getLifecycleOwner(), "https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk", filePath, fileName, new OnDownloadListener() {
                                         @Override
                                         public void onDownloadSuccess(@Nullable String path) {
                                             showToast("下载完成");
