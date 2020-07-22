@@ -22,6 +22,7 @@ class DownloadFactory private constructor() {
     private val weakHandler: WeakHandler = WeakHandler(Looper.getMainLooper())
 
     companion object {
+        @JvmStatic
         val instance: DownloadFactory by lazy {
             DownloadFactory()
         }

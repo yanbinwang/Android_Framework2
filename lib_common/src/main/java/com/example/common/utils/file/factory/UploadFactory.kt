@@ -21,6 +21,7 @@ class UploadFactory private constructor() {
     private var onUploadListener: OnUploadListener? = null
 
     companion object {
+        @JvmStatic
         val instance: UploadFactory by lazy {
             UploadFactory()
         }
