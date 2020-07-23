@@ -17,21 +17,21 @@ public class XWebView extends WebView {
 
     public XWebView(Context context) {
         super(context);
-        initWebSetting();
+        initialize();
     }
 
     public XWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initWebSetting();
+        initialize();
     }
 
     public XWebView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initWebSetting();
+        initialize();
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface"})
-    private void initWebSetting() {
+    private void initialize() {
         WebSettings webSettings = this.getSettings();
         //设置WebView属性，能够执行Javascript脚本
         webSettings.setJavaScriptEnabled(true);

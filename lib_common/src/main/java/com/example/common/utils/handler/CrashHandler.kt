@@ -1,4 +1,4 @@
-package com.example.common.utils.file
+package com.example.common.utils.handler
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -9,6 +9,7 @@ import androidx.core.app.ActivityCompat
 import com.example.common.BaseApplication
 import com.example.common.BuildConfig
 import com.example.common.constant.Constants
+import com.example.common.utils.file.FileUtil
 import com.example.framework.utils.LogUtil
 import java.io.*
 import java.text.SimpleDateFormat
