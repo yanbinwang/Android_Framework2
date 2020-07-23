@@ -14,32 +14,34 @@ import com.example.framework.utils.LogUtil;
  * 可监听滑动范围的scrollview
  */
 public class XScrollView extends ScrollView {
-    private int downX;
-    private int downY;
-    private int mTouchSlop;
-    private boolean isTop = false;//是不是滑动到了最低端 ；使用这个方法，解决了上拉加载的问题
-    private OnScrollToBottomListener onScrollToBottom;
+    private int mTouchSlop, downY;
+    private boolean isTop;//是否滑动到顶端
+    private OnScrollToBottomListener onScrollBottomListener;
 
     public XScrollView(Context context) {
         super(context);
-        mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+        initialize();
     }
 
     public XScrollView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+        initialize();
     }
 
     public XScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+        initialize();
+    }
+
+    private void initialize() {
+        mTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
     }
 
     @Override
     protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
         super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
-        if (scrollY != 0 && null != onScrollToBottom && isTop()) {
-            onScrollToBottom.onScrollBottomListener(clampedY);
+        if (scrollY != 0 && null != onScrollBottomListener && isTop()) {
+            onScrollBottomListener.onScrollBottomListener(clampedY);
         }
     }
 
@@ -49,7 +51,6 @@ public class XScrollView extends ScrollView {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 setTop(false);
-                downX = (int) e.getRawX();
                 downY = (int) e.getRawY();
                 LogUtil.i("-----::----downY-----::", downY + "");
                 break;
@@ -77,12 +78,14 @@ public class XScrollView extends ScrollView {
         isTop = top;
     }
 
-    public void setOnScrollToBottomLintener(OnScrollToBottomListener listener) {
-        onScrollToBottom = listener;
+    public void setOnScrollToBottomListener(OnScrollToBottomListener onScrollBottomListener) {
+        this.onScrollBottomListener = onScrollBottomListener;
     }
 
     public interface OnScrollToBottomListener {
+
         void onScrollBottomListener(boolean isBottom);
+
     }
 
 }

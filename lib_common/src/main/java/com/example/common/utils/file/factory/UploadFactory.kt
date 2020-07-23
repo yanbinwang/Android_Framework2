@@ -36,12 +36,12 @@ class UploadFactory private constructor() {
             //对传入的图片进行压缩
             var fileCompress: File
             fileCompress = if (0L == fileMaxSize) {
-                CompressUtil.scale(context, file)
+                CompressUtil.scale(context, file)!!
             } else {
-                CompressUtil.scale(context, file, fileMaxSize)
+                CompressUtil.scale(context, file, fileMaxSize)!!
             }
             //部分手机图片需要进行旋转
-            fileCompress = CompressUtil.degreeImage(context, fileCompress)
+            fileCompress = CompressUtil.degreeImage(context, fileCompress)!!
             val requestFile: RequestBody
             requestFile = if (file.name.endsWith(".png")) {
                 RequestBody.create(MediaType.parse("image/png"), fileCompress)

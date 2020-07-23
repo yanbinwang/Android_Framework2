@@ -38,15 +38,15 @@ public class XRecyclerView extends ViewGroup {
 
     public XRecyclerView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context, attrs);
+        initialize(context, attrs);
     }
 
     public XRecyclerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context, attrs);
+        initialize(context, attrs);
     }
 
-    private void init(Context context, AttributeSet attrs) {
+    private void initialize(Context context, AttributeSet attrs) {
         TypedArray mTypedArray = context.obtainStyledAttributes(attrs, R.styleable.XRecyclerView);
         refreshType = mTypedArray.getInt(R.styleable.XRecyclerView_refreshType, 0);
         refreshDirection = mTypedArray.getInt(R.styleable.XRecyclerView_refreshDirection, 2);

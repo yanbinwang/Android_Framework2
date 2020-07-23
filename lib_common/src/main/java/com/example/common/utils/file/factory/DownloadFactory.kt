@@ -7,7 +7,7 @@ import androidx.lifecycle.Observer
 import com.example.common.subscribe.BaseSubscribe.download
 import com.example.common.utils.file.FileUtil
 import com.example.common.utils.file.callback.OnDownloadListener
-import com.example.framework.utils.WeakHandler
+import com.example.common.utils.handler.WeakHandler
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -19,7 +19,8 @@ import java.io.InputStream
  */
 @SuppressLint("CheckResult")
 class DownloadFactory private constructor() {
-    private val weakHandler: WeakHandler = WeakHandler(Looper.getMainLooper())
+    private val weakHandler: WeakHandler =
+        WeakHandler(Looper.getMainLooper())
 
     companion object {
         @JvmStatic

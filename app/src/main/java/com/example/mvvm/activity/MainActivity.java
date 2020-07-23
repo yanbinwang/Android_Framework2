@@ -12,7 +12,7 @@ import com.example.common.constant.Constants;
 import com.example.common.utils.file.callback.OnDownloadListener;
 import com.example.common.utils.file.factory.DownloadFactory;
 import com.example.common.utils.helper.permission.PermissionHelper;
-import com.example.framework.utils.lifecycle.LiveDataBus;
+import com.example.common.bus.LiveDataBus;
 import com.example.mvvm.BR;
 import com.example.mvvm.R;
 import com.example.mvvm.databinding.ActivityMainBinding;
@@ -47,7 +47,7 @@ public class MainActivity extends BaseTitleActivity<ActivityMainBinding> {
     public void initEvent() {
         super.initEvent();
         //注册订阅
-        LiveDataBus.get().with(Constants.APP_USER_LOGIN_OUT, String.class).observe(this, new Observer<String>() {
+        LiveDataBus.get().toFlowable(Constants.APP_USER_LOGIN_OUT, String.class).observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
                 titleBuilder.setTitle(s).getDefault();

@@ -20,24 +20,24 @@ public class WordWrapLayout extends ViewGroup {
 
     public WordWrapLayout(Context context) {
         super(context);
-        init(context);
+        initialize();
     }
 
     public WordWrapLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(context);
+        initialize();
     }
 
     public WordWrapLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        initialize();
     }
 
     //默认的一些属性设置
-    private void init(Context context) {
-        PADDING_HOR = DisplayUtil.dip2px(context, 10);
-        PADDING_VERTICAL = DisplayUtil.dip2px(context, 5);
-        CHILD_MARGIN = DisplayUtil.dip2px(context, 10);
+    private void initialize() {
+        PADDING_HOR = DisplayUtil.dip2px(getContext(), 10);
+        PADDING_VERTICAL = DisplayUtil.dip2px(getContext(), 5);
+        CHILD_MARGIN = DisplayUtil.dip2px(getContext(), 10);
     }
 
     //返回控件的位置
