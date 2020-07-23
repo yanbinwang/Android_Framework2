@@ -9,6 +9,8 @@ import java.lang.ref.SoftReference
  * Created by WangYanBin on 2020/6/3.
  * 所有ViewModel的基类，将本该属于BaseActivity的部分逻辑和操作View的相关方法放入该类实现
  * 注入BaseView，LifecycleOwner，开发的时候可以随时存取和调用基类Activity的基础控件和方法
+ * LifecycleObserver-->观察宿主的生命周期
+ * LifecycleOwner->获取被观察者
  */
 abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), LifecycleObserver {
     private var view: SoftReference<BaseView>? = null//基础UI操作
