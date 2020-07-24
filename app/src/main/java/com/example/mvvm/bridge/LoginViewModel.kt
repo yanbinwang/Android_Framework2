@@ -3,7 +3,7 @@ package com.example.mvvm.bridge
 import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.http.callback.HttpSubscriber
-import com.example.common.subscribe.BaseSubscribe
+import com.example.common.subscribe.BaseSubscribe.getTestApi
 import com.example.mvvm.model.UserInfoModel
 
 /**
@@ -12,55 +12,70 @@ import com.example.mvvm.model.UserInfoModel
 class LoginViewModel : BaseViewModel() {
     var userInfoModel = MutableLiveData<UserInfoModel>() //接口得到的用户对象，泛型string也可替换为对象
 
-    fun getData(){
-        BaseSubscribe
-            .getTestApi()
-            .observe(getOwner(),object : HttpSubscriber<Any>(){
+    fun getData() {
+        for (i in 0..999) {
+            getTestApi()
+                .observe(getOwner(), object : HttpSubscriber<Any>() {
 
-                override fun onStart() {
-                    super.onStart()
-                    getView().showDialog()
-                }
+                    override fun onSuccess(data: Any?) {}
 
-                override fun onSuccess(data: Any?) {
-                }
+                    override fun onFailed(msg: String?) {}
 
-                override fun onFailed(msg: String?) {
-                }
+                    override fun onComplete() {
+                        super.onComplete()
+                        getView().log("当前第" + i + "个请求结束！")
+                    }
+                })
+        }
 
-//                override fun onComplete() {
-//                    super.onComplete()
-//                    getView().hideDialog()
+//        BaseSubscribe
+//            .getTestApi()
+//            .observe(this,object : HttpSubscriber<Any>(){
+//
+//                override fun onStart() {
+//                    super.onStart()
+//                    getView().showDialog()
 //                }
-
-            })
+//
+//                override fun onSuccess(data: Any?) {
+//                }
+//
+//                override fun onFailed(msg: String?) {
+//                }
+//
+////                override fun onComplete() {
+////                    super.onComplete()
+////                    getView().hideDialog()
+////                }
+//
+//            })
     }
 
-    //    public void getData(){
-    //        for (int i = 0; i < 1000; i++) {
-    //            int position = i;
-    //            view.get().log("当前第" + position + "个请求开始！");
-    ////            LiveDataBus.BusMutableLiveData x = new LiveDataBus.BusMutableLiveData();
-    //            BaseSubscribe.INSTANCE
-    //                    .getTestApi()
-    //                    //传入对应的生命周期避免内存泄漏
-    //                    .observe(getOwner(),new HttpSubscriber<Object>() {
-    //                        @Override
-    //                        protected void onSuccess(Object data) {
-    //
-    //                        }
-    //
-    //                        @Override
-    //                        protected void onFailed(String msg) {
-    //                        }
-    //
-    //                        @Override
-    //                        protected void onFinish() {
-    //                            view.get().log("当前第" + position + "个请求结束！");
-    //                        }
-    //                    });
-    //        }
-    //    }
+//        public void getData(){
+//            for (int i = 0; i < 1000; i++) {
+//                int position = i;
+//                view.get().log("当前第" + position + "个请求开始！");
+//    //            LiveDataBus.BusMutableLiveData x = new LiveDataBus.BusMutableLiveData();
+//                BaseSubscribe.INSTANCE
+//                        .getTestApi()
+//                        //传入对应的生命周期避免内存泄漏
+//                        .observe(getOwner(),new HttpSubscriber<Object>() {
+//                            @Override
+//                            protected void onSuccess(Object data) {
+//
+//                            }
+//
+//                            @Override
+//                            protected void onFailed(String msg) {
+//                            }
+//
+//                            @Override
+//                            protected void onFinish() {
+//                                view.get().log("当前第" + position + "个请求结束！");
+//                            }
+//                        });
+//            }
+//        }
 
     fun login(account: String, password: String) {
         getView().showDialog()

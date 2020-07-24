@@ -3,6 +3,7 @@ package com.example.common.widget.dialog;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -26,8 +27,16 @@ public class AppDialog extends BaseDialog {
         super(context);
     }
 
-    //App统一提示框
+    public AppDialog setParams(String tipText, String contentText, String sureText) {
+        return setParams(tipText, contentText, sureText, "");
+    }
+
     public AppDialog setParams(String tipText, String contentText, String sureText, String cancelText) {
+        return setParams(tipText, contentText, sureText, cancelText, TextGravityState.LEFT);
+    }
+
+    //App统一提示框
+    public AppDialog setParams(String tipText, String contentText, String sureText, String cancelText, TextGravityState state) {
         ViewDialogBinding binding = DataBindingUtil.bind(LayoutInflater.from(getContext()).inflate(R.layout.view_dialog, null));
         setDialogContentView(binding.getRoot(), true, false);
 
@@ -40,17 +49,24 @@ public class AppDialog extends BaseDialog {
             binding.viewLine.setVisibility(View.GONE);
             binding.tvDialogCancel.setVisibility(View.GONE);
         }
+        //文案方向
+        switch (state) {
+            case LEFT:
+                binding.tvDialogContainer.setGravity(Gravity.LEFT);
+                break;
+            case CENTER:
+                binding.tvDialogContainer.setGravity(Gravity.CENTER);
+                break;
+            case RIGHT:
+                binding.tvDialogContainer.setGravity(Gravity.RIGHT);
+                break;
+        }
 
         //对控件赋值
         binding.tvDialogTip.setText(TextUtils.isEmpty(tipText) ? "" : tipText);
         binding.tvDialogContainer.setText(TextUtils.isEmpty(contentText) ? "" : contentText);
         binding.tvDialogSure.setText(TextUtils.isEmpty(sureText) ? "" : sureText);
         binding.tvDialogCancel.setText(TextUtils.isEmpty(cancelText) ? "" : cancelText);
-
-//        if (tipText.contains("发现新版本") || tipText.equals("安装应用")) {
-//            dialogContentTxt.setGravity(Gravity.START);
-//            setOnKeyListener((dialog, keyCode, event) -> true);
-//        }
 
         //点击了取消按钮的回调
         binding.tvDialogCancel.setOnClickListener(v -> {
@@ -77,6 +93,10 @@ public class AppDialog extends BaseDialog {
 
     public static AppDialog with(Context context) {
         return new AppDialog(context);
+    }
+
+    public enum TextGravityState {
+        LEFT, CENTER, RIGHT
     }
 
 }

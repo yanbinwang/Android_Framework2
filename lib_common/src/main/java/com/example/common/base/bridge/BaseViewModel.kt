@@ -38,37 +38,30 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
     // <editor-fold defaultstate="collapsed" desc="生命周期回调">
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun onCreate() {
-//        getView().log("onCreate");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onStart() {
-//        getView().log("onStart");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun onResume() {
-//        getView().log("onResume");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     fun onPause() {
-//        getView().log("onPause");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun onStop() {
-//        getView().log("onStop");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun onDestroy() {
-//        getView().log("onDestroy");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
     fun onAny() {
-//        getView().log("onAny");
     }
 
     override fun onCleared() {
