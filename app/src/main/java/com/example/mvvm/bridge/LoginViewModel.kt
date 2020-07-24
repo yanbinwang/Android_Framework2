@@ -14,18 +14,19 @@ class LoginViewModel : BaseViewModel() {
 
     fun getData() {
         for (i in 0..999) {
-            getTestApi()
-                .observe(getOwner(), object : HttpSubscriber<Any>() {
+            addDisposable(getTestApi(), object : HttpSubscriber<Any>() {
 
-                    override fun onSuccess(data: Any?) {}
+                override fun onSuccess(data: Any?) {
+                }
 
-                    override fun onFailed(msg: String?) {}
+                override fun onFailed(msg: String?) {
+                }
 
-                    override fun onComplete() {
-                        super.onComplete()
-                        getView().log("当前第" + i + "个请求结束！")
-                    }
-                })
+                override fun onComplete() {
+                    super.onComplete()
+                    getView().log("当前第" + i + "个请求结束！")
+                }
+            })
         }
 
 //        BaseSubscribe

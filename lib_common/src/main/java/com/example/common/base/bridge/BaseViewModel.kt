@@ -3,6 +3,8 @@ package com.example.common.base.bridge
 import android.content.Context
 import androidx.lifecycle.*
 import com.example.common.BaseApplication
+import com.example.common.http.callback.ApiResponse
+import com.example.common.http.callback.HttpSubscriber
 import java.lang.ref.SoftReference
 
 /**
@@ -17,9 +19,13 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
     private var owner: LifecycleOwner? = null//被观察者
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    fun attachView(view: BaseView, owner: LifecycleOwner) {
+    fun initialize(view: BaseView, owner: LifecycleOwner) {
         this.view = SoftReference(view)
         this.owner = owner
+    }
+
+    protected fun <T> addDisposable(liveData: LiveData<ApiResponse<T>>, subscriber: HttpSubscriber<T>) {
+        liveData.observe(getOwner(), subscriber)
     }
 
     protected fun getContext(): Context {
@@ -30,8 +36,14 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
         return view?.get()!!
     }
 
-    protected fun getOwner(): LifecycleOwner {
+    private fun getOwner(): LifecycleOwner {
         return owner!!
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        view!!.clear()
+        owner = null
     }
     // </editor-fold>
 
@@ -62,12 +74,6 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
 
     @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
     fun onAny() {
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        view!!.clear()
-        owner = null
     }
     // </editor-fold>
 

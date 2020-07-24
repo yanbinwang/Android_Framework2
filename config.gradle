@@ -92,8 +92,8 @@ ext.build_versions = build_versions
 //基础参数配置
 def build_config = [:]
 build_config.applicationId = "com.example.mvvm"//主appId（包名）
-//build_config.LOCALHOST_DEBUG = "\"https://www.baidu.com/\""//测试环境
-build_config.LOCALHOST_DEBUG = "\"https://netcar.dev.yoogate.cn/\""//测试环境
+build_config.LOCALHOST_DEBUG = "\"https://www.baidu.com/\""//测试环境
+//build_config.LOCALHOST_DEBUG = "\"https://netcar.dev.yoogate.cn/\""//测试环境
 build_config.LOCALHOST_RELEASE = "\"https://netcar.yoogate.cn/\""//生产环境
 ext.build_config = build_config
 
