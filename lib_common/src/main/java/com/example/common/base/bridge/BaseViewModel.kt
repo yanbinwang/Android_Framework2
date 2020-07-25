@@ -5,6 +5,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.*
 import com.example.common.BaseApplication
 import com.example.common.http.callback.ApiResponse
+import com.example.common.http.callback.HttpObserver
 import com.example.common.http.callback.HttpSubscriber
 import java.lang.ref.SoftReference
 
@@ -26,6 +27,10 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
     }
 
     protected fun <T> addDisposable(liveData: LiveData<ApiResponse<T>>, subscriber: HttpSubscriber<T>) {
+        liveData.observe(binding?.lifecycleOwner!!, subscriber)
+    }
+
+    protected fun <T> addDisposable(liveData: LiveData<T>, subscriber: HttpObserver<T>) {
         liveData.observe(binding?.lifecycleOwner!!, subscriber)
     }
 
