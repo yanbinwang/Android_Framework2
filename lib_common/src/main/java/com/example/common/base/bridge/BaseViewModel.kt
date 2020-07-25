@@ -20,7 +20,7 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
     private var view: SoftReference<BaseView>? = null//基础UI操作
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    fun initialize(binding: ViewDataBinding,view: BaseView) {
+    fun initialize(binding: ViewDataBinding, view: BaseView) {
         this.binding = binding
         this.view = SoftReference(view)
     }
@@ -43,8 +43,8 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
 
     override fun onCleared() {
         super.onCleared()
-        view!!.clear()
         binding = null
+        view!!.clear()
     }
     // </editor-fold>
 
