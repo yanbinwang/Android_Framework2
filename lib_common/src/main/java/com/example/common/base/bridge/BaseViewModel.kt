@@ -1,6 +1,7 @@
 package com.example.common.base.bridge
 
 import android.content.Context
+import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.*
 import com.example.common.BaseApplication
 import com.example.common.http.callback.ApiResponse
@@ -15,17 +16,17 @@ import java.lang.ref.SoftReference
  * LifecycleOwner->获取被观察者
  */
 abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), LifecycleObserver {
+    private var binding: ViewDataBinding? = null//数据绑定类
     private var view: SoftReference<BaseView>? = null//基础UI操作
-    private var owner: LifecycleOwner? = null//被观察者
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    fun initialize(view: BaseView, owner: LifecycleOwner) {
+    fun initialize(binding: ViewDataBinding,view: BaseView) {
+        this.binding = binding
         this.view = SoftReference(view)
-        this.owner = owner
     }
 
     protected fun <T> addDisposable(liveData: LiveData<ApiResponse<T>>, subscriber: HttpSubscriber<T>) {
-        liveData.observe(getOwner(), subscriber)
+        liveData.observe(binding?.lifecycleOwner!!, subscriber)
     }
 
     protected fun getContext(): Context {
@@ -36,14 +37,14 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
         return view?.get()!!
     }
 
-    private fun getOwner(): LifecycleOwner {
-        return owner!!
+    private fun <VDB : ViewDataBinding> getBinding(): ViewDataBinding {
+        return binding as VDB
     }
 
     override fun onCleared() {
         super.onCleared()
         view!!.clear()
-        owner = null
+        binding = null
     }
     // </editor-fold>
 
