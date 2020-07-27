@@ -20,7 +20,7 @@ import java.lang.ref.WeakReference
  */
 class AlbumHelper(activity: Activity) {
     private val weakActivity: WeakReference<Activity> = WeakReference(activity)
-    private val outputPatch = Constants.SDCARD_PATH + "/" + Constants.APPLICATION_NAME + "/裁剪"//裁剪后图片保存位置
+    private val outputPatch = Constants.APPLICATION_FILE_PATH + "/裁剪"//裁剪后图片保存位置
     private var onAlbumListener: OnAlbumListener? = null //单选回调监听
 
     //跳转至相机

@@ -21,9 +21,11 @@ object Constants {
     @JvmField
     var DEVICE_ID: String? = null//当前手机设备id
     @JvmField
+    var APPLICATION_ID: String? = null//当前包名
+    @JvmField
     var APPLICATION_NAME: String? = null//当前应用名
     @JvmField
-    var APPLICATION_ID: String? = null//当前包名
+    var APPLICATION_FILE_PATH: String? = null//默认文件保存路径，sd卡下的应用名文件夹
 
     //app内接口的一些默认配置字段
     @JvmField
