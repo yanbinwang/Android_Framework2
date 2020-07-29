@@ -12,6 +12,7 @@ import android.widget.Toast
 object ToastUtil {
     private var toast: Toast? = null
 
+    @Synchronized
     @JvmStatic
     fun mackToastSHORT(str: String, context: Context) {
         if (toast == null) {
@@ -23,6 +24,7 @@ object ToastUtil {
 
     }
 
+    @Synchronized
     @JvmStatic
     fun mackToastLONG(str: String, context: Context) {
         if (toast == null) {
