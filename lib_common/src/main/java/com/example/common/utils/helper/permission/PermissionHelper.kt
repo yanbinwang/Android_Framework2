@@ -26,7 +26,7 @@ class PermissionHelper(context: Context) {
         Permission.Group.MICROPHONE, //录制音频(腾讯x5)
         Permission.Group.STORAGE//访问照片。媒体。内容和文件
     )
-    private var onPermissionListener: OnPermissionListener? = null
+    private var onPermissionCallBack: OnPermissionCallBack? = null
 
     //检测权限(默认拿全部，可单独拿某个权限组)
     fun getPermissions(): PermissionHelper {
@@ -41,11 +41,11 @@ class PermissionHelper(context: Context) {
                 .permission(*groups)
                 .onGranted {
                     // 权限申请成功回调
-                    onPermissionListener?.onPermissionListener(true)
+                    onPermissionCallBack?.onPermissionListener(true)
                 }
                 .onDenied { permissions ->
                     // 权限申请失败回调
-                    onPermissionListener?.onPermissionListener(false)
+                    onPermissionCallBack?.onPermissionListener(false)
                     //提示参数
                     var result: String? = null
                     if (permissions.isNotEmpty()) {
@@ -96,13 +96,13 @@ class PermissionHelper(context: Context) {
                     }
                 }.start()
         } else {
-            onPermissionListener?.onPermissionListener(true)
+            onPermissionCallBack?.onPermissionListener(true)
         }
         return this
     }
 
-    fun setPermissionCallBack(onPermissionListener: OnPermissionListener): PermissionHelper {
-        this.onPermissionListener = onPermissionListener
+    fun setPermissionCallBack(onPermissionCallBack: OnPermissionCallBack): PermissionHelper {
+        this.onPermissionCallBack = onPermissionCallBack
         return this
     }
 

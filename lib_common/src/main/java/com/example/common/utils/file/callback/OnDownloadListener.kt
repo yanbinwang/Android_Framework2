@@ -14,4 +14,7 @@ interface OnDownloadListener {
     //下载失败
     fun onDownloadFailed(e: Throwable?)
 
+    //下载完成
+    fun onDownloadComplete()
+
 }
