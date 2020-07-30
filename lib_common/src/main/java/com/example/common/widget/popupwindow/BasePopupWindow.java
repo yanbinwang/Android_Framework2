@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
 
+import androidx.databinding.ViewDataBinding;
+
 import com.example.common.R;
 
 import java.lang.ref.WeakReference;
@@ -17,6 +19,7 @@ import java.lang.ref.WeakReference;
  */
 public abstract class BasePopupWindow extends PopupWindow {
     private boolean dark;
+    private ViewDataBinding binding;
     private WeakReference<Activity> weakActivity;
     private WindowManager.LayoutParams layoutParams;
 
@@ -30,8 +33,9 @@ public abstract class BasePopupWindow extends PopupWindow {
         this.dark = dark;
     }
 
-    protected void setPopupWindowContentView(View view) {
-        setContentView(view);
+    protected void createDataBinding(ViewDataBinding binding) {
+        this.binding = binding;
+        setContentView(binding.getRoot());
         setFocusable(true);
         setOutsideTouchable(true);
         setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -39,7 +43,11 @@ public abstract class BasePopupWindow extends PopupWindow {
         setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
         setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
         setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        setHideAttributes();
+        setDismissAttributes();
+    }
+
+    protected <VB extends ViewDataBinding> VB getBinding() {
+        return (VB) binding;
     }
 
     private void setShowAttributes() {
@@ -49,7 +57,7 @@ public abstract class BasePopupWindow extends PopupWindow {
         }
     }
 
-    private void setHideAttributes() {
+    private void setDismissAttributes() {
         if (dark) {
             setOnDismissListener(() -> {
                 layoutParams.alpha = 1f;

@@ -25,6 +25,7 @@ public class AppDialog extends BaseDialog {
 
     public AppDialog(@NonNull Context context) {
         super(context);
+        createDataBinding(DataBindingUtil.bind(LayoutInflater.from(getContext()).inflate(R.layout.view_dialog, null)), true, false);
     }
 
     public AppDialog setParams(String tipText, String contentText, String sureText) {
@@ -37,9 +38,7 @@ public class AppDialog extends BaseDialog {
 
     //App统一提示框
     public AppDialog setParams(String tipText, String contentText, String sureText, String cancelText, TextGravityState state) {
-        ViewDialogBinding binding = DataBindingUtil.bind(LayoutInflater.from(getContext()).inflate(R.layout.view_dialog, null));
-        setDialogContentView(binding.getRoot(), true, false);
-
+        ViewDialogBinding binding = getBinding();
         //如果没有传入标题字段,则隐藏标题view
         if (TextUtils.isEmpty(tipText)) {
             binding.tvDialogTip.setVisibility(View.GONE);
