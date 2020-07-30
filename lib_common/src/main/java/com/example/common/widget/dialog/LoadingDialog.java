@@ -19,7 +19,7 @@ public class LoadingDialog extends BaseDialog {
 
     public LoadingDialog(@NonNull Context context) {
         super(context, R.style.loadingStyle);
-        setDialogContentView(DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_dialog_loading, null)).getRoot());
+        createDataBinding(DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_dialog_loading, null)));
     }
 
     public void show(boolean flag) {
