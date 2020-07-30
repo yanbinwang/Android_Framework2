@@ -1,4 +1,4 @@
-package com.example.framework.utils
+package com.example.base.utils
 
 import android.app.Activity
 import android.graphics.Bitmap
@@ -47,7 +47,10 @@ object ScreenShotUtil {
         for (i in 0 until scrollView.childCount) {
             height += scrollView.getChildAt(i).height
         }
-        return getScrollViewBitmap(scrollView, height)
+        return getScrollViewBitmap(
+            scrollView,
+            height
+        )
     }
 
     //截取scrollview的屏幕(传入高度)
@@ -66,7 +69,10 @@ object ScreenShotUtil {
         for (i in 0 until nestedScrollView.childCount) {
             height += nestedScrollView.getChildAt(i).height
         }
-        return getNestedScrollViewBitmap(nestedScrollView, height)
+        return getNestedScrollViewBitmap(
+            nestedScrollView,
+            height
+        )
     }
 
     //截取nestedScrollView的屏幕(传入高度)

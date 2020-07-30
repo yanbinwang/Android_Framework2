@@ -18,7 +18,7 @@ import com.example.common.widget.xrecyclerview.callback.OnRefreshListener;
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration;
 import com.example.common.widget.xrecyclerview.refresh.SwipeRefreshLayout;
 import com.example.common.widget.xrecyclerview.refresh.SwipeRefreshLayoutDirection;
-import com.example.framework.utils.DisplayUtil;
+import com.example.base.utils.DisplayUtil;
 
 /**
  * author: wyb

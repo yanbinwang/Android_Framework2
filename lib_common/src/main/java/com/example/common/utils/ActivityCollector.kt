@@ -1,7 +1,7 @@
 package com.example.common.utils
 
 import android.app.Activity
-import com.example.framework.utils.LogUtil
+import com.example.base.utils.LogUtil
 import java.util.*
 
 /**

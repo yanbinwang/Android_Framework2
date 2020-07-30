@@ -1,11 +1,11 @@
-package com.example.framework.widget;
+package com.example.base.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.framework.utils.DisplayUtil;
+import com.example.base.utils.DisplayUtil;
 
 
 /**

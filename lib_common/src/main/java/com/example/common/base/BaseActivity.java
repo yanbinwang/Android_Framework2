@@ -29,8 +29,8 @@ import com.example.common.constant.Extras;
 import com.example.common.utils.ActivityCollector;
 import com.example.common.utils.bulider.StatusBarBuilder;
 import com.example.common.widget.dialog.LoadingDialog;
-import com.example.framework.utils.LogUtil;
-import com.example.framework.utils.ToastUtil;
+import com.example.base.utils.LogUtil;
+import com.example.base.utils.ToastUtil;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;

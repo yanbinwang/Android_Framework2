@@ -1,4 +1,4 @@
-package com.example.framework.widget;
+package com.example.base.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -6,7 +6,7 @@ import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.widget.ScrollView;
 
-import com.example.framework.utils.LogUtil;
+import com.example.base.utils.LogUtil;
 
 
 /**

@@ -7,7 +7,7 @@ import com.example.common.constant.Constants
 import com.example.common.constant.RequestCode
 import com.example.common.utils.helper.permission.OnPermissionCallBack
 import com.example.common.utils.helper.permission.PermissionHelper
-import com.example.framework.utils.ToastUtil
+import com.example.base.utils.ToastUtil
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.api.widget.Widget
 import com.yanzhenjie.durban.Controller

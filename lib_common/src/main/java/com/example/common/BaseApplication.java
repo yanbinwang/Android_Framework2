@@ -20,7 +20,7 @@ import android.widget.AbsListView;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.example.common.constant.Constants;
 import com.example.common.imageloader.glide.callback.GlideAlbumLoader;
-import com.example.framework.utils.LogUtil;
+import com.example.base.utils.LogUtil;
 import com.tencent.mmkv.MMKV;
 import com.tencent.smtt.sdk.QbSdk;
 import com.yanzhenjie.album.Album;
