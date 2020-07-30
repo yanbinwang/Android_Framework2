@@ -30,8 +30,8 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
         liveData.observe(binding?.lifecycleOwner!!, subscriber)
     }
 
-    protected fun <T> addDisposable(liveData: LiveData<T>, subscriber: HttpObserver<T>) {
-        liveData.observe(binding?.lifecycleOwner!!, subscriber)
+    protected fun <T> addDisposable(liveData: LiveData<T>, observer: HttpObserver<T>) {
+        liveData.observe(binding?.lifecycleOwner!!, observer)
     }
 
     protected fun getContext(): Context {
