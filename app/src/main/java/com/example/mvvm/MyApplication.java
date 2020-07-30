@@ -6,7 +6,7 @@ import android.util.Log;
 import com.example.common.BaseApplication;
 import com.example.common.constant.Constants;
 import com.example.common.utils.file.FileUtil;
-import com.example.framework.BuildConfig;
+import com.example.base.BuildConfig;
 import com.example.mvvm.activity.MainActivity;
 import com.zxy.recovery.core.Recovery;
 

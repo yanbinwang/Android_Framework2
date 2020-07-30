@@ -1,7 +1,7 @@
 package com.example.common.http.interceptor
 
 import com.example.common.BuildConfig
-import com.example.framework.utils.LogUtil
+import com.example.base.utils.LogUtil
 import okhttp3.Headers
 import okhttp3.Interceptor
 import okhttp3.Response

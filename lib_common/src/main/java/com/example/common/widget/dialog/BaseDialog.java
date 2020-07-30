@@ -9,7 +9,7 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 
 import com.example.common.R;
-import com.example.framework.utils.AnimationLoader;
+import com.example.base.utils.AnimationLoader;
 
 /**
  * Created by WangYanBin on 2020/7/13.

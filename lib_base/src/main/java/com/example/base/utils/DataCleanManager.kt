@@ -1,4 +1,4 @@
-package com.example.framework.utils
+package com.example.base.utils
 
 import android.content.Context
 import android.os.Environment
@@ -61,14 +61,20 @@ object DataCleanManager {
     @JvmStatic
     fun cleanExternalCache(context: Context) {
         if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
-            deleteFilesByDirectory(context.externalCacheDir)
+            deleteFilesByDirectory(
+                context.externalCacheDir
+            )
         }
     }
 
     //清除自定义路径下的文件，使用需小心，请不要误删。而且只支持目录下的文件删除
     @JvmStatic
     fun cleanCustomCache(filePath: String) {
-        deleteFilesByDirectory(File(filePath))
+        deleteFilesByDirectory(
+            File(
+                filePath
+            )
+        )
     }
 
     //清除本应用所有的数据
@@ -93,7 +99,9 @@ object DataCleanManager {
                 //不删除mmkv
                 if (item.isDirectory) {
                     if (item.name == "MMKV" || item.name == "mmkv") continue
-                    deleteFilesByDirectory(item)
+                    deleteFilesByDirectory(
+                        item
+                    )
                 }
                 item.delete()
             }
