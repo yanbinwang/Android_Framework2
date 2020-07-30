@@ -63,6 +63,7 @@ class DownloadFactory private constructor() {
                     }
                 }
             }.start()
+            weakHandler.post { onDownloadListener.onDownloadComplete() }
         })
     }
 

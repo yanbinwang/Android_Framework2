@@ -34,16 +34,17 @@ interface GlideImpl {
     //---------------------------------------------圆形图片加载开始---------------------------------------------
     fun displayCircleImage(view: ImageView?, string: String?)
 
-    fun displayCircleImage(view: ImageView?, string: String?, errorId: Int
-    )
+    fun displayCircleImage(view: ImageView?, string: String?, errorId: Int)
     //---------------------------------------------圆形图片加载开始---------------------------------------------
 
     //---------------------------------------------图片库方法开始---------------------------------------------
-    val cacheDir: File?
+    fun downloadImage(string: String?, width: Int, height: Int, requestListener: RequestListener<File?>?)
 
     fun clearMemoryCache()
 
     fun clearDiskCache()
+
+    val cacheDir: File?
     //---------------------------------------------图片库方法结束---------------------------------------------
 
 }

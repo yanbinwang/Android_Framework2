@@ -87,9 +87,10 @@ public class MyApplication extends BaseApplication {
 //        NotificationUtil.getInstance();
 //        PushManager.getInstance().initialize(this, GetuiPushService.class);
 //        PushManager.getInstance().registerPushIntentService(this, GetuiIntentService.class);
-        //获取应用名和包名
-        Constants.APPLICATION_NAME = FileUtil.getApplicationName(this);
+        //获取应用名。包名。默认保存文件路径
         Constants.APPLICATION_ID = FileUtil.getApplicationId(this);
+        Constants.APPLICATION_NAME = FileUtil.getApplicationName(this);
+        Constants.APPLICATION_FILE_PATH = Constants.SDCARD_PATH + "/" + Constants.APPLICATION_NAME;
 //        //分享工具类初始化
 //        ShareSDKUtil.getInstance();
     }

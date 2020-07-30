@@ -31,8 +31,8 @@ public class LoginActivity extends BaseTitleActivity<ActivityLoginBinding> {
     @Override
     public void initView() {
         super.initView();
-        viewModel = createViewModel(LoginViewModel.class);
         titleBuilder.setTitle("登录").getDefault();
+        viewModel = createViewModel(LoginViewModel.class);
         binding.setVariable(BR.event, new PageEvent());
     }
 
@@ -40,7 +40,7 @@ public class LoginActivity extends BaseTitleActivity<ActivityLoginBinding> {
     public void initEvent() {
         super.initEvent();
         //类似mvp的接口回调,通过观察泛型内容随时刷新变化
-        viewModel.getUserInfoModel().observe(this, userInfoModel -> navigation(ARouterPath.UserInfoActivity, new PageParams().append("model", userInfoModel)));
+        viewModel.getUserInfoLiveData().observe(this, userInfoModel -> navigation(ARouterPath.UserInfoActivity, new PageParams().append("model", userInfoModel)));
 //        for (int i = 0; i < 1000; i++) {
 //            int position = i;
 //            log("当前第" + position + "个请求开始！");

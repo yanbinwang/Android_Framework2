@@ -43,6 +43,6 @@ interface BaseView {
     /**
      * 路由跳转,带参数
      */
-    fun navigation(path: String, params: PageParams): Activity
+    fun navigation(path: String, params: PageParams?): Activity
 
 }

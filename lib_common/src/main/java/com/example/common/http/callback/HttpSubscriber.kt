@@ -2,9 +2,12 @@ package com.example.common.http.callback
 
 /**
  * Created by WangYanBin on 2020/7/17.
- * 请求通过拿取Observer对象再做处理
+ * 请求通过拿取Observer对象再做处理，对上一级的3个回调再处理，
+ * onNext分为了成功失败，剥除了外层的嵌套判断，用于项目内部服务器请求回调
+ * onSuccess->请求成功，直接回调对象
+ * onFailed->请求失败，获取失败原因
  */
-abstract class HttpSubscriber<T> : HttpObserver<T>() {
+abstract class HttpSubscriber<T> : HttpObserver<ApiResponse<T>?>() {
 
     override fun onStart() {
     }
@@ -31,7 +34,6 @@ abstract class HttpSubscriber<T> : HttpObserver<T>() {
         } else {
             onFailed("")
         }
-        onComplete()
     }
 
     override fun onComplete() {
