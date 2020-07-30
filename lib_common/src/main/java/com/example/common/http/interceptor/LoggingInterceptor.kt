@@ -37,8 +37,7 @@ internal class LoggingInterceptor : Interceptor {
             val buffer = Buffer()
             requestBody!!.writeTo(buffer)
 
-            var charset: Charset? =
-                UTF8
+            var charset: Charset? = UTF8
             val contentType = requestBody.contentType()
             if (contentType != null) {
                 charset = contentType.charset(UTF8)
@@ -62,10 +61,9 @@ internal class LoggingInterceptor : Interceptor {
         if (HttpHeaders.hasBody(response) && !bodyEncoded(response.headers())) {
             val source = responseBody.source()
             source.request(java.lang.Long.MAX_VALUE) // Buffer the entire body.
-            val buffer = source.buffer()
+            val buffer = source.buffer
 
-            var charset: Charset? =
-                UTF8
+            var charset: Charset? = UTF8
             val contentType = responseBody.contentType()
             if (contentType != null) {
                 charset = contentType.charset(UTF8)
