@@ -18,7 +18,7 @@ import com.example.base.utils.AnimationLoader;
 public abstract class BaseDialog extends Dialog {
 
     public BaseDialog(@NonNull Context context) {
-        super(context, R.style.dialogStyle);
+        super(context, R.style.appDialogStyle);
     }
 
     public BaseDialog(@NonNull Context context, int themeResId) {
