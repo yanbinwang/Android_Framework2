@@ -4,13 +4,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
 
 import com.example.common.R;
+import com.example.common.base.BaseDialog;
 import com.example.common.databinding.ViewDialogBinding;
 import com.example.common.widget.dialog.callback.OnDialogListener;
 
@@ -20,12 +19,17 @@ import com.example.common.widget.dialog.callback.OnDialogListener;
  * 类似苹果的弹出窗口类
  */
 @SuppressLint("InflateParams")
-public class AppDialog extends BaseDialog {
+public class AppDialog extends BaseDialog<ViewDialogBinding> {
     private OnDialogListener onDialogListener;
 
     public AppDialog(@NonNull Context context) {
         super(context);
-        createDataBinding(DataBindingUtil.bind(LayoutInflater.from(getContext()).inflate(R.layout.view_dialog, null)), true, false);
+        initialize(true, false);
+    }
+
+    @Override
+    protected int getLayoutResID() {
+        return R.layout.view_dialog;
     }
 
     public AppDialog setParams(String tipText, String contentText, String sureText) {
@@ -33,12 +37,11 @@ public class AppDialog extends BaseDialog {
     }
 
     public AppDialog setParams(String tipText, String contentText, String sureText, String cancelText) {
-        return setParams(tipText, contentText, sureText, cancelText, TextGravityState.LEFT);
+        return setParams(tipText, contentText, sureText, cancelText, true);
     }
 
     //App统一提示框
-    public AppDialog setParams(String tipText, String contentText, String sureText, String cancelText, TextGravityState state) {
-        ViewDialogBinding binding = getBinding();
+    public AppDialog setParams(String tipText, String contentText, String sureText, String cancelText, boolean center) {
         //如果没有传入标题字段,则隐藏标题view
         if (TextUtils.isEmpty(tipText)) {
             binding.tvDialogTip.setVisibility(View.GONE);
@@ -49,17 +52,7 @@ public class AppDialog extends BaseDialog {
             binding.tvDialogCancel.setVisibility(View.GONE);
         }
         //文案方向
-        switch (state) {
-            case LEFT:
-                binding.tvDialogContainer.setGravity(Gravity.LEFT);
-                break;
-            case CENTER:
-                binding.tvDialogContainer.setGravity(Gravity.CENTER);
-                break;
-            case RIGHT:
-                binding.tvDialogContainer.setGravity(Gravity.RIGHT);
-                break;
-        }
+        binding.tvDialogContainer.setGravity(center ? Gravity.CENTER : Gravity.LEFT);
 
         //对控件赋值
         binding.tvDialogTip.setText(TextUtils.isEmpty(tipText) ? "" : tipText);
@@ -92,10 +85,6 @@ public class AppDialog extends BaseDialog {
 
     public static AppDialog with(Context context) {
         return new AppDialog(context);
-    }
-
-    public enum TextGravityState {
-        LEFT, CENTER, RIGHT
     }
 
 }
