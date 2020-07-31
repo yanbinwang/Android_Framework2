@@ -7,15 +7,13 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.FutureTarget
-import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.example.common.BaseApplication
 import com.example.common.R
-import com.example.common.constant.Constants
 import com.example.common.imageloader.glide.callback.GlideImpl
 import com.example.common.imageloader.glide.callback.GlideModule
+import com.example.common.imageloader.glide.callback.GlideRequestListener
 import com.example.common.imageloader.glide.transform.CornerTransform
-import com.example.common.utils.file.FileUtil
 import java.io.File
 
 /**
@@ -45,11 +43,11 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         displayImage(view, string, R.drawable.shape_loading_normal, errorId, null)
     }
 
-    override fun displayImage(view: ImageView?, string: String?, requestListener: RequestListener<Drawable?>?) {
+    override fun displayImage(view: ImageView?, string: String?, requestListener: GlideRequestListener<Drawable?>?) {
         displayImage(view, string, R.drawable.shape_loading_normal, 0, requestListener)
     }
 
-    override fun displayImage(view: ImageView?, string: String?, placeholderId: Int, errorId: Int, requestListener: RequestListener<Drawable?>?) {
+    override fun displayImage(view: ImageView?, string: String?, placeholderId: Int, errorId: Int, requestListener: GlideRequestListener<Drawable?>?) {
         manager!!
             .load(string)
             .placeholder(placeholderId)
@@ -103,7 +101,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view!!)
     }
 
-    override fun downloadImage(string: String?, width: Int, height: Int, requestListener: RequestListener<File?>?) {
+    override fun downloadImage(string: String?, width: Int, height: Int, requestListener: GlideRequestListener<File?>?) {
 //        //创建保存的文件目录
 //        val destFile = File(FileUtil.isExistDir(Constants.APPLICATION_FILE_PATH + "/图片"))
         //下载对应的图片文件
