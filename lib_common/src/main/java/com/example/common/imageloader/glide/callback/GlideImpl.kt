@@ -2,7 +2,6 @@ package com.example.common.imageloader.glide.callback
 
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
-import com.bumptech.glide.request.RequestListener
 import java.io.File
 
 /**
@@ -26,9 +25,9 @@ interface GlideImpl {
 
     fun displayRoundImage(view: ImageView?, string: String?, errorId: Int, roundingRadius: Int)
 
-    fun displayRoundImage(view: ImageView?, string: String?, roundingRadius: Int, leftTop: Boolean, rightTop: Boolean, leftBottom: Boolean, rightBottom: Boolean)
+    fun displayRoundImage(view: ImageView?, string: String?, roundingRadius: Int, overRide: BooleanArray)
 
-    fun displayRoundImage(view: ImageView?, string: String?, errorId: Int, roundingRadius: Int, leftTop: Boolean, rightTop: Boolean, leftBottom: Boolean, rightBottom: Boolean)
+    fun displayRoundImage(view: ImageView?, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray)
     //---------------------------------------------圆角图片加载开始---------------------------------------------
 
     //---------------------------------------------圆形图片加载开始---------------------------------------------
