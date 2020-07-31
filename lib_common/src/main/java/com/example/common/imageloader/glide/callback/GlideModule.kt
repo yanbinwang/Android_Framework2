@@ -18,7 +18,8 @@ import java.io.InputStream
  * date: 2017/11/15.
  */
 @GlideModule
-open class GlideModule : AppGlideModule() {
+abstract class GlideModule : AppGlideModule() {
+
     override fun applyOptions(context: Context, builder: GlideBuilder) {
         //        int memoryCacheSizeBytes = 1024 * 1024 * 20; // 20mb
         //        builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
