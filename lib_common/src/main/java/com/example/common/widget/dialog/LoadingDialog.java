@@ -2,12 +2,12 @@ package com.example.common.widget.dialog;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.view.LayoutInflater;
 
 import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
 
 import com.example.common.R;
+import com.example.common.base.BaseDialog;
+import com.example.common.databinding.ViewDialogLoadingBinding;
 
 
 /**
@@ -15,11 +15,16 @@ import com.example.common.R;
  * 加载动画view
  */
 @SuppressLint("InflateParams")
-public class LoadingDialog extends BaseDialog {
+public class LoadingDialog extends BaseDialog<ViewDialogLoadingBinding> {
 
     public LoadingDialog(@NonNull Context context) {
         super(context, R.style.loadingStyle);
-        createDataBinding(DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_dialog_loading, null)));
+        initialize();
+    }
+
+    @Override
+    protected int getLayoutResID() {
+        return R.layout.view_dialog_loading;
     }
 
     public void show(boolean flag) {
