@@ -21,16 +21,15 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.example.base.utils.LogUtil;
+import com.example.base.utils.ToastUtil;
 import com.example.common.base.bridge.BaseImpl;
 import com.example.common.base.bridge.BaseView;
 import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.base.page.PageParams;
 import com.example.common.constant.Extras;
-import com.example.common.utils.ActivityCollector;
 import com.example.common.utils.bulider.StatusBarBuilder;
 import com.example.common.widget.dialog.LoadingDialog;
-import com.example.base.utils.LogUtil;
-import com.example.base.utils.ToastUtil;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
@@ -57,7 +56,6 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityCollector.addActivity(this);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         initView();
         initEvent();
@@ -69,7 +67,7 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
     protected <VM extends BaseViewModel> VM createViewModel(Class<VM> vmClass) {
         if (null == viewModel) {
             viewModel = new ViewModelProvider(this).get(vmClass);
-            viewModel.initialize(binding,this);
+            viewModel.initialize(binding, this);
             getLifecycle().addObserver(viewModel);
         }
         return (VM) viewModel;
@@ -189,7 +187,6 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        ActivityCollector.removeActivity(this);
         if (binding != null) {
             binding.unbind();
         }

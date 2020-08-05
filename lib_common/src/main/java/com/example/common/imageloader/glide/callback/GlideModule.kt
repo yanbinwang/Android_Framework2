@@ -18,7 +18,7 @@ import java.io.InputStream
  * date: 2017/11/15.
  */
 @GlideModule
-abstract class GlideModule : AppGlideModule() {
+open class GlideModule : AppGlideModule() {
 
     override fun applyOptions(context: Context, builder: GlideBuilder) {
         //        int memoryCacheSizeBytes = 1024 * 1024 * 20; // 20mb
@@ -45,7 +45,11 @@ abstract class GlideModule : AppGlideModule() {
 
     //注册自定义组件
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-        registry.replace(GlideUrl::class.java, InputStream::class.java, OkHttpUrlLoader.Factory(OkHttpFactory.instance.okHttpClient))
+        registry.replace(
+            GlideUrl::class.java,
+            InputStream::class.java,
+            OkHttpUrlLoader.Factory(OkHttpFactory.instance.okHttpClient)
+        )
     }
 
 }
