@@ -1,6 +1,5 @@
 package com.example.common.widget.dialog;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -18,7 +17,6 @@ import com.example.common.widget.dialog.callback.OnDialogListener;
  * date: 2017/8/25.
  * 类似苹果的弹出窗口类
  */
-@SuppressLint("InflateParams")
 public class AppDialog extends BaseDialog<ViewDialogBinding> {
     private OnDialogListener onDialogListener;
 
