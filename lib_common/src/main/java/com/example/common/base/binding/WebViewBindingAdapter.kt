@@ -17,19 +17,18 @@ object WebViewBindingAdapter {
 
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled")
-    @BindingAdapter(value = ["app:pageAssetPath"], requireAll = false)
+    @BindingAdapter(value = ["app:pageAssetPath"])
     fun setLoadAssetsPage(webView: WebView, assetPath: String) {
         webView.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(
-                view: WebView,
-                request: WebResourceRequest
-            ): Boolean {
+
+            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val uri = request.url
                 val intent = Intent(Intent.ACTION_VIEW, uri)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 BaseApplication.instance.startActivity(intent)
                 return true
             }
+
         }
         webView.scrollBarStyle = View.SCROLLBARS_INSIDE_OVERLAY
         val webSettings = webView.settings
@@ -46,8 +45,8 @@ object WebViewBindingAdapter {
 
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled")
-    @BindingAdapter(value = ["app:loadPage"], requireAll = false)
-    fun setLoadPage(webView: WebView, loadPage: String?) {
+    @BindingAdapter(value = ["app:loadPage"])
+    fun setLoadPage(webView: WebView, loadPageUrl: String?) {
         webView.webViewClient = WebViewClient()
         webView.scrollBarStyle = View.SCROLLBARS_INSIDE_OVERLAY
         val webSettings = webView.settings
@@ -58,12 +57,12 @@ object WebViewBindingAdapter {
         webSettings.displayZoomControls = false
         webSettings.useWideViewPort = true
         webSettings.loadWithOverviewMode = true
-        webView.loadUrl(loadPage)
+        webView.loadUrl(loadPageUrl)
     }
 
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
-    @BindingAdapter(value = ["app:loadPageUrl"], requireAll = false)
+    @BindingAdapter(value = ["app:loadPageUrl"])
     fun setLoadPage(webView: XWebView, loadPageUrl: String?) {
         webView.loadUrl(loadPageUrl)
     }
