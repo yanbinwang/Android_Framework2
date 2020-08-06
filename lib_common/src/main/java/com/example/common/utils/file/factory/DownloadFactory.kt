@@ -19,8 +19,7 @@ import java.io.InputStream
  */
 @SuppressLint("CheckResult")
 class DownloadFactory private constructor() {
-    private val weakHandler: WeakHandler =
-        WeakHandler(Looper.getMainLooper())
+    private val weakHandler: WeakHandler = WeakHandler(Looper.getMainLooper())
 
     companion object {
         @JvmStatic
@@ -29,9 +28,9 @@ class DownloadFactory private constructor() {
         }
     }
 
-    fun download(owner: LifecycleOwner, downloadUrl: String, filePath: String, fileName: String, onDownloadListener: OnDownloadListener) {
+    fun download(lifecycleOwner: LifecycleOwner, downloadUrl: String, filePath: String, fileName: String, onDownloadListener: OnDownloadListener) {
         FileUtil.deleteDir(filePath)
-        download(downloadUrl).observe(owner, Observer {
+        download(downloadUrl).observe(lifecycleOwner, Observer {
             object : Thread() {
                 override fun run() {
                     var inputStream: InputStream? = null
@@ -51,9 +50,15 @@ class DownloadFactory private constructor() {
                             weakHandler.post { onDownloadListener.onDownloading(progress) }
                         }
                         fileOutputStream.flush()
-                        weakHandler.post { onDownloadListener.onDownloadSuccess(file.path) }
+                        weakHandler.post {
+                            onDownloadListener.onDownloadSuccess(file.path)
+                            onDownloadListener.onDownloadComplete()
+                        }
                     } catch (e: Exception) {
-                        weakHandler.post { onDownloadListener.onDownloadFailed(e) }
+                        weakHandler.post {
+                            onDownloadListener.onDownloadFailed(e)
+                            onDownloadListener.onDownloadComplete()
+                        }
                     } finally {
                         try {
                             inputStream?.close()
@@ -63,7 +68,6 @@ class DownloadFactory private constructor() {
                     }
                 }
             }.start()
-            weakHandler.post { onDownloadListener.onDownloadComplete() }
         })
     }
 
