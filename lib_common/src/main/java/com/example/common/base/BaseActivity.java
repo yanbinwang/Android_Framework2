@@ -42,7 +42,7 @@ import java.util.TimerTask;
  * 对应页面传入继承自BaseViewModel的数据模型类，以及由系统生成的ViewDataBinding绑定类
  * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context
  */
-@SuppressWarnings({"unchecked", "Raw"})
+@SuppressWarnings({"Raw"})
 public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompatActivity implements BaseImpl, BaseView {
     protected VDB binding;
     protected WeakReference<Activity> activity;//基类activity弱引用

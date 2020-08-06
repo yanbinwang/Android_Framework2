@@ -1,11 +1,10 @@
 package com.example.common.base.binding
 
+import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
-import com.example.common.imageloader.ImageLoader.Companion.instance
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -27,6 +26,20 @@ object CommonBindingAdapter {
         val params = view.layoutParams
         params.height = adjustHeight
         view.layoutParams = params
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["app:spannableSize", "app:spannableStart", "app:spannableEnd"])
+    fun setSpannable(view: TextView, spannableSize: Int, spannableStart: Int, spannableEnd: Int) {
+        val spannableStringBuilder = SpannableStringBuilder()
+        spannableStringBuilder.append(view.text)
+        spannableStringBuilder.setSpan(
+            spannableSize,
+            spannableStart,
+            spannableEnd,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        view.text = spannableStringBuilder
     }
 
 }
