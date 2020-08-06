@@ -12,7 +12,7 @@ import androidx.lifecycle.Observer
  */
 abstract class HttpObserver<T> : Observer<T?> {
 
-    constructor() {
+    init {
         onStart()
     }
 

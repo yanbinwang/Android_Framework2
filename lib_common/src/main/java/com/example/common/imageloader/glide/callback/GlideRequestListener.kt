@@ -1,18 +1,21 @@
 package com.example.common.imageloader.glide.callback
 
+import android.os.Looper
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.example.common.utils.handler.WeakHandler
 
 /**
  * Created by WangYanBin on 2020/7/31.
  * 图片下载监听
  */
 abstract class GlideRequestListener<R> : RequestListener<R> {
+    private val weakHandler: WeakHandler = WeakHandler(Looper.getMainLooper())
 
-    constructor() {
-        onStart()
+    init {
+        weakHandler.post { onStart() }
     }
 
     override fun onResourceReady(resource: R, model: Any?, target: Target<R>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
@@ -26,8 +29,10 @@ abstract class GlideRequestListener<R> : RequestListener<R> {
     }
 
     private fun doResult(resource: R?) {
-        onNext(resource)
-        onComplete()
+        weakHandler.post {
+            onNext(resource)
+            onComplete()
+        }
     }
 
     protected abstract fun onStart()
