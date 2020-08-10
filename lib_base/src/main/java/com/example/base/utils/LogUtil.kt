@@ -95,4 +95,5 @@ object LogUtil {
             Log.v(defaultTag, "$methodName:    $msg")
         }
     }
+
 }

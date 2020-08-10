@@ -42,7 +42,7 @@ object StringUtil {
 
     //隐藏手机号码的中间4位
     @JvmStatic
-    fun Hide4BitLetter(input: String): String {
+    fun hide4BitLetter(input: String): String {
         var result = ""
         if (isMobilePhone(input)) {
             val ch = input.toCharArray()

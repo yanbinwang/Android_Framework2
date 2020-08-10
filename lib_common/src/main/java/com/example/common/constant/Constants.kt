@@ -26,32 +26,23 @@ object Constants {
     var APPLICATION_NAME: String? = null//当前应用名
     @JvmField
     var APPLICATION_FILE_PATH: String? = null//默认文件保存路径，sd卡下的应用名文件夹
+    @JvmField
+    var SDCARD_PATH = Environment.getExternalStorageDirectory().absolutePath//sd卡的根路径mnt/sdcard
 
     //app内接口的一些默认配置字段
-    @JvmField
-    var LOGIN_INTERCEPTOR_CODE = 1 //阿里路由登录全局拦截器编号
-    @JvmField
-    var PUSH_NOTIFY_ID = 0 //固定通知id
-    @JvmField
-    var PUSH_CHANNEL_ID = "shuniuyun" //推送渠道id
-    @JvmField
-    var PUSH_CHANNEL_NAME = "数牛金服" //推送渠道名
-    @JvmField
-    var LIMIT = "10" //取的页数
-    @JvmField
-    var WX_APP_ID = "wx92fdc4b6ab9647cd" //微信的appId
-    @JvmField
-    val SDCARD_PATH = Environment.getExternalStorageDirectory().absolutePath //sd卡的根路径mnt/sdcard
+    const val LOGIN_INTERCEPTOR_CODE = 1 //阿里路由登录全局拦截器编号
+    const val PUSH_NOTIFY_ID = 0 //固定通知id
+    const val PUSH_CHANNEL_ID = "shuniuyun" //推送渠道id
+    const val PUSH_CHANNEL_NAME = "数牛金服" //推送渠道名
+    const val LIMIT = "10" //取的页数
+    const val WX_APP_ID = "wx92fdc4b6ab9647cd" //微信的appId
 
     //MMKV存储字段
-    @JvmField
-    var KEY_USER_MODEL = "keyUserModel" //用户类json
+    const val KEY_USER_MODEL = "keyUserModel" //用户类json
 
     //系统广播
-    @JvmField
-    var APP_USER_LOGIN = "com.bitnew.tech.APP_USER_LOGIN" //用户登录
-    @JvmField
-    var APP_USER_LOGIN_OUT = "com.bitnew.tech.APP_USER_LOGIN_OUT" //用户注销
+    const val APP_USER_LOGIN = "com.bitnew.tech.APP_USER_LOGIN" //用户登录
+    const val APP_USER_LOGIN_OUT = "com.bitnew.tech.APP_USER_LOGIN_OUT" //用户注销
     //    public static final String APP_USER_INFO_UPDATE = "com.bitnew.tech.APP_USER_INFO_UPDATE";//用户信息更新
     //    public static final String APP_SHARE_SUCCESS = "com.bitnew.tech.APP_SHARE_SUCCESS";//分享成功
     //    public static final String APP_SHARE_CANCEL = "com.bitnew.tech.APP_SHARE_CANCEL";//分享取消

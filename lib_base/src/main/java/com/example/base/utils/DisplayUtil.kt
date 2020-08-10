@@ -29,10 +29,10 @@ object DisplayUtil {
     //获取屏幕长宽比
     @JvmStatic
     fun getScreenRate(context: Context): Float {
-        val P = getScreenMetrics(context)
-        val H = P.y.toFloat()
-        val W = P.x.toFloat()
-        return H / W
+        val pixel = getScreenMetrics(context)
+        val height = pixel.y.toFloat()
+        val width = pixel.x.toFloat()
+        return height / width
     }
 
     //获取屏幕宽度和高度，单位为px

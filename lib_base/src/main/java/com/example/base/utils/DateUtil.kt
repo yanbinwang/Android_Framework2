@@ -52,7 +52,6 @@ object DateUtil {
             } catch (e: ParseException) {
                 e.printStackTrace()
             }
-
         }
         return dateFormatStr
     }
@@ -73,7 +72,6 @@ object DateUtil {
         } catch (e: ParseException) {
             e.printStackTrace()
         }
-
         return 0
     }
 
@@ -123,7 +121,6 @@ object DateUtil {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
         return timestamp
     }
 
@@ -140,19 +137,22 @@ object DateUtil {
         try {
             val comparedDate = dateFormat.parse(fromDate)
             val comparedDate2 = dateFormat.parse(toDate)
-            if (comparedDate.time > comparedDate2.time) {
-                LogUtil.e("日程时间大于系统时间")
-                return 1
-            } else if (comparedDate.time < comparedDate2.time) {
-                LogUtil.e("日程时间小于系统时间")
-                return -1
-            } else {
-                return 0
+            return when {
+                comparedDate.time > comparedDate2.time -> {
+                    LogUtil.e("日程时间大于系统时间")
+                    1
+                }
+                comparedDate.time < comparedDate2.time -> {
+                    LogUtil.e("日程时间小于系统时间")
+                    -1
+                }
+                else -> {
+                    0
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
         return 0
     }
 
@@ -224,11 +224,11 @@ object DateUtil {
             val time = simpleDateFormat.parse(inputDate)
             val calendar = Calendar.getInstance()
             calendar.time = time
-            var week_index = calendar.get(Calendar.DAY_OF_WEEK) - 1
-            if (week_index < 0) {
-                week_index = 0
+            var weekIndex = calendar.get(Calendar.DAY_OF_WEEK) - 1
+            if (weekIndex < 0) {
+                weekIndex = 0
             }
-            return week_index
+            return weekIndex
         } catch (e: ParseException) {
             e.printStackTrace()
         }
@@ -246,20 +246,14 @@ object DateUtil {
     fun getDateWeekStr(inputDate: String): String {
         val week = getWeekOfDate(inputDate)
         var weekStr = ""
-        if (0 == week) {
-            weekStr = "星期天"
-        } else if (1 == week) {
-            weekStr = "星期一"
-        } else if (2 == week) {
-            weekStr = "星期二"
-        } else if (3 == week) {
-            weekStr = "星期三"
-        } else if (4 == week) {
-            weekStr = "星期四"
-        } else if (5 == week) {
-            weekStr = "星期五"
-        } else if (6 == week) {
-            weekStr = "星期六"
+        when (week) {
+            0 -> weekStr = "星期天"
+            1 -> weekStr = "星期一"
+            2 -> weekStr = "星期二"
+            3 -> weekStr = "星期三"
+            4 -> weekStr = "星期四"
+            5 -> weekStr = "星期五"
+            6 -> weekStr = "星期六"
         }
         return weekStr
     }
