@@ -34,7 +34,10 @@ object ScreenShotUtil {
         //        view.buildDrawingCache();
         //        //获取缓存Bitmap
         //        return Bitmap.createBitmap(view.getDrawingCache());
-        view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
         view.layout(0, 0, view.measuredWidth, view.measuredHeight)
         view.buildDrawingCache()
         return view.drawingCache
@@ -47,10 +50,7 @@ object ScreenShotUtil {
         for (i in 0 until scrollView.childCount) {
             height += scrollView.getChildAt(i).height
         }
-        return getScrollViewBitmap(
-            scrollView,
-            height
-        )
+        return getScrollViewBitmap(scrollView, height)
     }
 
     //截取scrollview的屏幕(传入高度)
@@ -69,10 +69,7 @@ object ScreenShotUtil {
         for (i in 0 until nestedScrollView.childCount) {
             height += nestedScrollView.getChildAt(i).height
         }
-        return getNestedScrollViewBitmap(
-            nestedScrollView,
-            height
-        )
+        return getNestedScrollViewBitmap(nestedScrollView, height)
     }
 
     //截取nestedScrollView的屏幕(传入高度)

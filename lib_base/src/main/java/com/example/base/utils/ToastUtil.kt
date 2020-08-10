@@ -21,7 +21,6 @@ object ToastUtil {
             toast?.setText(str)
         }
         toast?.show()
-
     }
 
     @Synchronized
