@@ -13,7 +13,7 @@ import com.example.common.utils.helper.AccountHelper
 
 /**
  * author:wyb
- * 阿里Aroite全局拦截器
+ * 阿里ARouter全局拦截器
  * (@Route(path = RouterPages.MUSIC_CLASS, extras = Constants.LOGIN_INTERCEPTOR_CODE))
  * 拦截器会在跳转之间执行，多个拦截器会按优先级顺序依次执行
  * priority: 优先级，越小，优先级越高
