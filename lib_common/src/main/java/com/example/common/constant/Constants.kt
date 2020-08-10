@@ -36,6 +36,9 @@ object Constants {
     const val PUSH_CHANNEL_NAME = "数牛金服" //推送渠道名
     const val LIMIT = "10" //取的页数
     const val WX_APP_ID = "wx92fdc4b6ab9647cd" //微信的appId
+    const val ADAPTER_ITEM_VIEW_TYPE_HEAD: Int = 1
+    const val ADAPTER_ITEM_VIEW_TYPE_BODY = 2
+    const val ADAPTER_ITEM_VIEW_TYPE_BOTTOM = 3
 
     //MMKV存储字段
     const val KEY_USER_MODEL = "keyUserModel" //用户类json
