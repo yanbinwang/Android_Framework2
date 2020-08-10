@@ -49,7 +49,7 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
     override fun onCleared() {
         super.onCleared()
         binding = null
-        view!!.clear()
+        view?.clear()
     }
     // </editor-fold>
 
