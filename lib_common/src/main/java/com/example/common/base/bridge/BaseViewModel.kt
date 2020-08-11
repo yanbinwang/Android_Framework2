@@ -42,7 +42,7 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
         return view?.get()!!
     }
 
-    private fun <VDB : ViewDataBinding> getBinding(): ViewDataBinding {
+    protected fun <VDB : ViewDataBinding> getBinding(): ViewDataBinding {
         return binding as VDB
     }
 
@@ -53,34 +53,34 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="生命周期回调">
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onCreate() {
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun onStart() {
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    fun onResume() {
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    fun onPause() {
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun onStop() {
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroy() {
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
-    fun onAny() {
-    }
-    // </editor-fold>
+//    // <editor-fold defaultstate="collapsed" desc="生命周期回调">
+//    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+//    fun onCreate() {
+//    }
+//
+//    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+//    fun onStart() {
+//    }
+//
+//    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+//    fun onResume() {
+//    }
+//
+//    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+//    fun onPause() {
+//    }
+//
+//    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+//    fun onStop() {
+//    }
+//
+//    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+//    fun onDestroy() {
+//    }
+//
+//    @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+//    fun onAny() {
+//    }
+//    // </editor-fold>
 
 }
