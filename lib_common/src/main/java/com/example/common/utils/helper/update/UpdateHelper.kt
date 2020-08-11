@@ -34,23 +34,23 @@ class UpdateHelper private constructor() {
                         val fileName = Constants.APPLICATION_NAME + ".apk"
                         DownloadFactory.instance.download(binding.lifecycleOwner!!, downloadUrl, filePath, fileName, object : OnDownloadListener {
 
-                                init {
+                                override fun onStart() {
                                     onUpdateCallBack?.onStart()
                                 }
 
-                                override fun onDownloadSuccess(path: String?) {
+                                override fun onSuccess(path: String?) {
 
                                 }
 
-                                override fun onDownloading(progress: Int) {
+                                override fun onLoading(progress: Int) {
 
                                 }
 
-                                override fun onDownloadFailed(e: Throwable?) {
+                                override fun onFailed(e: Throwable?) {
 
                                 }
 
-                                override fun onDownloadComplete() {
+                                override fun onComplete() {
                                     onUpdateCallBack?.onComplete()
                                 }
 

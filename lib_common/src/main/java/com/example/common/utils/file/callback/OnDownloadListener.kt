@@ -5,16 +5,19 @@ package com.example.common.utils.file.callback
  */
 interface OnDownloadListener {
 
+    //下载开始
+    fun onStart()
+
     //下载成功
-    fun onDownloadSuccess(path: String?)
+    fun onSuccess(path: String?)
 
     //下载进度
-    fun onDownloading(progress: Int = 0)
+    fun onLoading(progress: Int = 0)
 
     //下载失败
-    fun onDownloadFailed(e: Throwable?)
+    fun onFailed(e: Throwable?)
 
     //下载完成
-    fun onDownloadComplete()
+    fun onComplete()
 
 }
