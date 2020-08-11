@@ -77,10 +77,11 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
             if (!onClickListenerField.isAccessible) {
                 onClickListenerField.isAccessible = true
             }
-            val mOnClickListener = onClickListenerField[listenerInfoObj] as View.OnClickListener
+            val mOnClickListener = onClickListenerField[listenerInfoObj] as? View.OnClickListener
             if (mOnClickListener !is ProxyOnclickListener) {
                 //自定义代理事件监听器
-                val onClickListenerProxy: View.OnClickListener = ProxyOnclickListener(mOnClickListener)
+                val onClickListenerProxy: View.OnClickListener =
+                    ProxyOnclickListener(mOnClickListener)
                 //更换
                 onClickListenerField[listenerInfoObj] = onClickListenerProxy
             } else {
@@ -91,13 +92,8 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
         }
     }
 
-    private class ProxyOnclickListener : View.OnClickListener {
-        private var onclick: View.OnClickListener? = null
+    private class ProxyOnclickListener(private var onclick: View.OnClickListener?) : View.OnClickListener {
         private var lastClickTime: Long = 0
-
-        constructor(onclick: View.OnClickListener?) {
-            this.onclick = onclick
-        }
 
         override fun onClick(v: View?) {
             //点击时间控制
