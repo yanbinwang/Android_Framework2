@@ -29,16 +29,11 @@ abstract class GlideRequestListener<R> : RequestListener<R> {
     }
 
     private fun doResult(resource: R?) {
-        weakHandler.post {
-            onNext(resource)
-            onComplete()
-        }
+        weakHandler.post { onComplete(resource) }
     }
 
     protected abstract fun onStart()
 
-    protected abstract fun onNext(resource: R?)
-
-    protected abstract fun onComplete()
+    protected abstract fun onComplete(resource: R?)
 
 }

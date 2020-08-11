@@ -22,7 +22,8 @@ class UpdateHelper private constructor() {
     }
 
     //统一下载，进入app以及设置中的检测版本皆是一样的逻辑，弹框-检测权限-开启下载
-    fun download(binding: ViewDataBinding, downloadUrl: String, onUpdateCallBack: OnUpdateCallBack?) {
+    @JvmOverloads
+    fun download(binding: ViewDataBinding, downloadUrl: String, onUpdateCallBack: OnUpdateCallBack? = null) {
         PermissionHelper.with(binding.root.context)
             .getPermissions(Permission.Group.STORAGE)
             .setPermissionCallBack(object : OnPermissionCallBack {
