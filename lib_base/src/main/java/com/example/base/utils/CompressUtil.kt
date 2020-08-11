@@ -17,10 +17,7 @@ object CompressUtil {
 
     @JvmStatic
     fun compressImg(image: Bitmap?): ByteArrayOutputStream? {
-        return compressImg(
-            image,
-            defaultLength
-        )
+        return compressImg(image, defaultLength)
     }
 
     @JvmStatic
@@ -63,11 +60,7 @@ object CompressUtil {
     @JvmStatic
     fun scale(context: Context?, mFile: File?): File? {
         val fileMaxSize = 100 * 1024.toLong()
-        return scale(
-            context,
-            mFile,
-            fileMaxSize
-        )
+        return scale(context, mFile, fileMaxSize)
     }
 
     @JvmStatic
@@ -89,8 +82,7 @@ object CompressUtil {
                 options.inJustDecodeBounds = false
                 options.inSampleSize = (scaleSize + 0.5).toInt()
                 bitmap = BitmapFactory.decodeFile(mFile.path, options)
-                bitmap =
-                    compressImgBySize(bitmap)
+                bitmap = compressImgBySize(bitmap)
                 val fTemp = File(
                     context!!.applicationContext.externalCacheDir,
                     System.currentTimeMillis().toString() + "img.jpg"
@@ -119,9 +111,7 @@ object CompressUtil {
     @JvmStatic
     fun scale(context: Context?, bitmap: Bitmap?): Bitmap? {
         var bitmap = bitmap!!
-        val fileSize: Long = getBitmapSize(
-            bitmap
-        ).toLong()
+        val fileSize: Long = getBitmapSize(bitmap).toLong()
         var scaleSize = 1f
         val fileMaxSize = 100 * 1024.toLong()
         return if (fileSize >= fileMaxSize) {
@@ -137,9 +127,7 @@ object CompressUtil {
                 }
                 options.inJustDecodeBounds = false
                 options.inSampleSize = (scaleSize + 0.5).toInt()
-                bitmap = compressImgBySize(
-                    bitmap
-                )!!
+                bitmap = compressImgBySize(bitmap)!!
                 val file = File(
                     context!!.applicationContext.externalCacheDir,
                     System.currentTimeMillis().toString() + "img.jpg"
@@ -182,8 +170,7 @@ object CompressUtil {
 
     @JvmStatic
     fun degreeImage(context: Context, mFile: File): File? {
-        val degree =
-            readImageDegree(mFile.path)
+        val degree = readImageDegree(mFile.path)
         var bitmap: Bitmap
         return if (degree != 0) {
             //旋转图片

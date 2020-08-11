@@ -11,7 +11,9 @@ import okhttp3.MultipartBody
  * 通用接口类
  */
 object BaseSubscribe : BaseApi {
-    private val baseApi = RetrofitFactory.instance.create(BaseApi::class.java)
+    private val baseApi by lazy {
+        RetrofitFactory.instance.create(BaseApi::class.java)
+    }
 
     override fun download(downloadUrl: String): LiveData<okhttp3.ResponseBody> {
         return baseApi.download(downloadUrl)

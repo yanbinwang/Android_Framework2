@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.http.callback.HttpSubscriber
 import com.example.common.subscribe.BaseSubscribe.getTestApi
+import com.example.mvvm.databinding.ActivityLoginBinding
 import com.example.mvvm.model.UserInfoModel
 
 /**
@@ -13,6 +14,7 @@ class LoginViewModel : BaseViewModel() {
     var userInfoLiveData = MutableLiveData<UserInfoModel>() //接口得到的用户对象，泛型string也可替换为对象
 
     fun getData() {
+        val binding = getBinding<ActivityLoginBinding>()
         for (i in 0..999) {
             addDisposable(getTestApi(), object : HttpSubscriber<Any>() {
 
