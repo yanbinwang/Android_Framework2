@@ -12,12 +12,12 @@ abstract class HttpSubscriber<T> : HttpObserver<ApiResponse<T>?>() {
     override fun onStart() {
     }
 
-    override fun onNext(apiResponse: ApiResponse<T>?) {
-        if (null != apiResponse) {
-            val msg = apiResponse.msg
-            val e = apiResponse.e
+    override fun onNext(t: ApiResponse<T>?) {
+        if (null != t) {
+            val msg = t.msg
+            val e = t.e
             if (0 == e) {
-                onSuccess(apiResponse.data)
+                onSuccess(t.data)
             } else {
 //                //账号还没有登录，解密失败，重新获取
 //                if (100005 == e || 100008 == e) {
