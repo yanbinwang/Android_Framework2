@@ -10,7 +10,6 @@ import android.util.TypedValue
  * @author wyb
  */
 object DisplayUtil {
-    private val TAG = "DisplayUtil"
 
     //dip转px
     @JvmStatic
@@ -39,9 +38,9 @@ object DisplayUtil {
     @JvmStatic
     private fun getScreenMetrics(context: Context): Point {
         val dm = context.resources.displayMetrics
-        val w_screen = dm.widthPixels
-        val h_screen = dm.heightPixels
-        return Point(w_screen, h_screen)
+        val widthScreen = dm.widthPixels
+        val heightScreen = dm.heightPixels
+        return Point(widthScreen, heightScreen)
     }
 
     //获取本地的dp值

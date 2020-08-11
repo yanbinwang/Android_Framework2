@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.telephony.TelephonyManager
+
 import com.example.common.BaseApplication
 
 /**
@@ -14,7 +15,10 @@ import com.example.common.BaseApplication
  */
 @SuppressLint("StaticFieldLeak", "MissingPermission")
 object NetWorkUtil {
-    private var context: Context = BaseApplication.instance.applicationContext
+    //等效于懒加载，使用时取值，之后复用
+    private val context by lazy {
+        BaseApplication.instance.applicationContext
+    }
 
     //验证是否联网
     @JvmStatic
@@ -59,7 +63,6 @@ object NetWorkUtil {
         var netType = ""
         val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = manager.activeNetworkInfo ?: return "NULL"
-
         val nType = networkInfo.type
         if (nType == ConnectivityManager.TYPE_WIFI) {
             netType = "wifi"

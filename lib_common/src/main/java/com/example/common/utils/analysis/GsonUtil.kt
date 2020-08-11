@@ -7,9 +7,11 @@ import com.google.gson.GsonBuilder
  * 对象转换类
  */
 object GsonUtil {
-    private val gson = GsonBuilder().setLenient()//json宽松,针对json格式不规范
+    private val gson by lazy {
+        GsonBuilder().setLenient()//json宽松,针对json格式不规范
             .disableHtmlEscaping()//防止特殊字符出现乱码
             .registerTypeAdapter(Boolean::class.java, BooleanTypeAdapter()).create()
+    }
 
     @JvmStatic
     fun <T> jsonToObj(json: String, className: Class<T>): T? {
