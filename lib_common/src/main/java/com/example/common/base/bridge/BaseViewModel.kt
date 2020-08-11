@@ -42,7 +42,7 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
         return view?.get()!!
     }
 
-    protected fun <VDB : ViewDataBinding> getBinding(): ViewDataBinding {
+    protected fun <VDB : ViewDataBinding> getBinding(): VDB {
         return binding as VDB
     }
 

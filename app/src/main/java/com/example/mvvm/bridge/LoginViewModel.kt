@@ -11,10 +11,13 @@ import com.example.mvvm.model.UserInfoModel
  * Created by WangYanBin on 2020/6/3.
  */
 class LoginViewModel : BaseViewModel() {
+    //    val binding by lazy {
+//        getBinding<ActivityLoginBinding>()
+//    }
+//    var binding = getBinding<ActivityLoginBinding>()
     var userInfoLiveData = MutableLiveData<UserInfoModel>() //接口得到的用户对象，泛型string也可替换为对象
 
     fun getData() {
-        val binding = getBinding<ActivityLoginBinding>()
         for (i in 0..999) {
             addDisposable(getTestApi(), object : HttpSubscriber<Any>() {
 
