@@ -30,11 +30,11 @@ class DownloadFactory private constructor() {
     }
 
     fun download(lifecycleOwner: LifecycleOwner, downloadUrl: String, filePath: String, fileName: String, onDownloadListener: OnDownloadListener?) {
-        complete = false
         FileUtil.deleteDir(filePath)
         download(downloadUrl).observe(lifecycleOwner, object : HttpObserver<ResponseBody>() {
 
             override fun onStart() {
+                complete = false
                 weakHandler.post { onDownloadListener?.onStart() }
             }
 
