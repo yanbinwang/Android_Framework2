@@ -2,15 +2,14 @@ package com.example.common.utils.handler
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.PackageManager
 import android.text.TextUtils
 import androidx.core.app.ActivityCompat
+import com.example.base.utils.LogUtil
 import com.example.common.BaseApplication
 import com.example.common.BuildConfig
 import com.example.common.constant.Constants
 import com.example.common.utils.file.FileUtil
-import com.example.base.utils.LogUtil
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -24,8 +23,8 @@ import kotlin.system.exitProcess
  */
 @SuppressLint("StaticFieldLeak")
 class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
-    private var context: Context = BaseApplication.instance.applicationContext
-    private var mDefaultHandler: Thread.UncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
+    private var context = BaseApplication.instance.applicationContext
+    private var mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler()
     private val TAG = "CrashHandler" //文件name
 
     companion object {
@@ -73,7 +72,12 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 try {
                     if (FileUtil.hasSDCard()) {
-                        val logFile = File(FileUtil.createCacheDir() + File.separator + Constants.APPLICATION_NAME + "_v" + BuildConfig.VERSION_NAME + "_exception_" + SimpleDateFormat("yyyy_MM_dd_hh_mm_ss", Locale.getDefault()).format(Date()) + ".log")
+                        val logFile = File(
+                            FileUtil.createCacheDir() + File.separator + Constants.APPLICATION_NAME + "_v" + BuildConfig.VERSION_NAME + "_exception_" + SimpleDateFormat(
+                                "yyyy_MM_dd_hh_mm_ss",
+                                Locale.getDefault()
+                            ).format(Date()) + ".log"
+                        )
                         logFile.createNewFile() //6.0+的系统需要写入权限才能生成对应文件
                         val bufferedWriter = BufferedWriter(FileWriter(logFile, true))
                         bufferedWriter.write(result)

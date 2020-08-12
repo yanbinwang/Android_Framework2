@@ -10,7 +10,7 @@ import java.lang.ref.WeakReference
 
 @SuppressLint("InflateParams")
 class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding) {
-    private val weakActivity: WeakReference<Activity> = WeakReference(activity)
+    private val weakActivity = WeakReference(activity)
     private val statusBarBuilder: StatusBarBuilder
 
     init {
@@ -53,7 +53,12 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     }
 
     fun setTitle(titleStr: String, isShade: Boolean, isDark: Boolean): TitleBuilder {
-        setTitle(titleStr, ContextCompat.getColor(weakActivity.get()!!, R.color.black), isShade, isDark)
+        setTitle(
+            titleStr,
+            ContextCompat.getColor(weakActivity.get()!!, R.color.black),
+            isShade,
+            isDark
+        )
         return this
     }
 

@@ -20,7 +20,7 @@ import java.text.MessageFormat
  * 根据项目需求哪取需要的权限组
  */
 class PermissionHelper(context: Context) {
-    private val mContext: WeakReference<Context> = WeakReference(context)
+    private val weakContext = WeakReference(context)
     private val permissionGroup = arrayOf(
         Permission.Group.CAMERA, //拍摄照片，录制视频
         Permission.Group.MICROPHONE, //录制音频(腾讯x5)
@@ -36,7 +36,7 @@ class PermissionHelper(context: Context) {
     fun getPermissions(vararg groups: Array<String>): PermissionHelper {
         //6.0+系统做特殊处理
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            AndPermission.with(mContext.get())
+            AndPermission.with(weakContext.get())
                 .runtime()
                 .permission(*groups)
                 .onGranted {
@@ -58,36 +58,36 @@ class PermissionHelper(context: Context) {
                         }
                         when (permissionIndex) {
                             0 -> result =
-                                mContext.get()?.getString(R.string.label_permissions_camera)
+                                weakContext.get()?.getString(R.string.label_permissions_camera)
                             1 -> result =
-                                mContext.get()?.getString(R.string.label_permissions_microphone)
+                                weakContext.get()?.getString(R.string.label_permissions_microphone)
                             2 -> result =
-                                mContext.get()?.getString(R.string.label_permissions_storage)
+                                weakContext.get()?.getString(R.string.label_permissions_storage)
                         }
                     }
 
                     //如果用户拒绝了开启权限
-                    if (AndPermission.hasAlwaysDeniedPermission(mContext.get(), permissions)) {
-                        AndDialog.with(mContext.get())
+                    if (AndPermission.hasAlwaysDeniedPermission(weakContext.get(), permissions)) {
+                        AndDialog.with(weakContext.get())
                             .setParams(
-                                mContext.get()?.getString(R.string.label_dialog_title),
+                                weakContext.get()?.getString(R.string.label_dialog_title),
                                 MessageFormat.format(
-                                    mContext.get()?.getString(R.string.label_dialog_permission),
+                                    weakContext.get()?.getString(R.string.label_dialog_permission),
                                     result
                                 ),
-                                mContext.get()?.getString(R.string.label_dialog_sure),
-                                mContext.get()?.getString(R.string.label_dialog_cancel)
+                                weakContext.get()?.getString(R.string.label_dialog_sure),
+                                weakContext.get()?.getString(R.string.label_dialog_cancel)
                             )
                             .setOnDialogListener(object : OnDialogListener {
                                 override fun onDialogConfirm() {
                                     val packageURI =
-                                        Uri.parse("package:" + mContext.get()?.packageName)
+                                        Uri.parse("package:" + weakContext.get()?.packageName)
                                     val intent =
                                         Intent(
                                             Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                                             packageURI
                                         )
-                                    mContext.get()?.startActivity(intent)
+                                    weakContext.get()?.startActivity(intent)
                                 }
 
                                 override fun onDialogCancel() {}

@@ -1,9 +1,8 @@
 package com.example.common.utils.file.factory
 
-import android.content.Context
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.BaseApplication
 import com.example.base.utils.CompressUtil
+import com.example.common.BaseApplication
 import com.example.common.utils.file.callback.OnUploadListener
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -17,7 +16,7 @@ import java.util.*
  * 图片上传工具类
  */
 class UploadFactory private constructor() {
-    private val context:Context = BaseApplication.instance.applicationContext
+    private val context = BaseApplication.instance.applicationContext
     private var onUploadListener: OnUploadListener? = null
 
     companion object {
@@ -29,7 +28,7 @@ class UploadFactory private constructor() {
 
     //手动配置压缩比例
     @JvmOverloads
-    fun toUpload(owner: LifecycleOwner, filePaths: ArrayList<String>, fileMaxSize: Long = 0)  {
+    fun toUpload(owner: LifecycleOwner, filePaths: ArrayList<String>, fileMaxSize: Long = 0) {
         val parts = ArrayList<MultipartBody.Part>()
         for (path in filePaths) {
             val file = File(path)
@@ -48,7 +47,8 @@ class UploadFactory private constructor() {
             } else {
                 RequestBody.create(MediaType.parse("image/jpeg"), fileCompress)
             }
-            val filePart = MultipartBody.Part.createFormData("file[]", fileCompress.name, requestFile)
+            val filePart =
+                MultipartBody.Part.createFormData("file[]", fileCompress.name, requestFile)
             parts.add(filePart)
         }
 //        onFilesUploadListener?.onFilesUploadStart()

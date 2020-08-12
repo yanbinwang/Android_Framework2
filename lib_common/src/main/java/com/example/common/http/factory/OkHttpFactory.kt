@@ -18,8 +18,8 @@ class OkHttpFactory private constructor() {
             .readTimeout(6, TimeUnit.SECONDS) //设置读超时
             .writeTimeout(6, TimeUnit.SECONDS) //设置写超时
             .retryOnConnectionFailure(true)
-            .addInterceptor(LoggingInterceptor())//日志监听
             .addInterceptor(UserAgentInterceptor())//请求加头
+            .addInterceptor(LoggingInterceptor())//日志监听
             .addInterceptor(RetryServerInterceptor())//重新构建请求
             .connectionPool(
                 ConnectionPool(

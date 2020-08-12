@@ -15,10 +15,11 @@ import java.lang.ref.WeakReference
 class NotificationBuilder(activity: Activity) {
     private var mBuilder: NotificationCompat.Builder? = null
     private val mNotificationManager: NotificationManager
-    private val mActivity: WeakReference<Activity> = WeakReference(activity)
+    private val mActivity = WeakReference(activity)
 
     init {
-        mNotificationManager = mActivity.get()?.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as NotificationManager
+        mNotificationManager = mActivity.get()
+            ?.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as NotificationManager
     }
 
     //构建通知栏
@@ -30,7 +31,9 @@ class NotificationBuilder(activity: Activity) {
             mNotificationManager.createNotificationChannel(channel)
         }
         mBuilder = NotificationCompat.Builder(mActivity.get()!!, Constants.PUSH_CHANNEL_ID)
-        mBuilder!!.setContentTitle(title).setContentText(text).setSmallIcon(smallIcon).setLargeIcon(largeIcon).setOngoing(true).setAutoCancel(true).setWhen(System.currentTimeMillis())
+        mBuilder!!.setContentTitle(title).setContentText(text).setSmallIcon(smallIcon)
+            .setLargeIcon(largeIcon).setOngoing(true).setAutoCancel(true)
+            .setWhen(System.currentTimeMillis())
         mNotificationManager.notify(id, mBuilder!!.build())
     }
 
