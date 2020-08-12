@@ -1,7 +1,7 @@
 package com.example.common.http.interceptor
 
-import com.example.common.BuildConfig
 import com.example.base.utils.LogUtil
+import com.example.common.BuildConfig
 import okhttp3.Headers
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -17,14 +17,17 @@ import java.nio.charset.Charset
  */
 internal class LoggingInterceptor : Interceptor {
 
+    companion object {
+        private val UTF8 = Charset.forName("UTF-8")
+    }
+
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         var queryParameter: String? = null
         var result: String? = null
-        val headerValues: String
 
         val request = chain.request()
-        headerValues = request.headers().toString()
+        val headerValues = request.headers().toString()
         //不包含User-Agent不是公司的请求链接，不做拦截
         if (!headerValues.contains("User-Agent")) {
             return chain.proceed(request)
@@ -32,7 +35,6 @@ internal class LoggingInterceptor : Interceptor {
 
         val requestBody = request.body()
         val hasRequestBody = requestBody != null
-
         if (hasRequestBody && !bodyEncoded(request.headers())) {
             val buffer = Buffer()
             requestBody!!.writeTo(buffer)
@@ -57,7 +59,6 @@ internal class LoggingInterceptor : Interceptor {
 
         val responseBody = response.body()
         val contentLength = responseBody!!.contentLength()
-
         if (HttpHeaders.hasBody(response) && !bodyEncoded(response.headers())) {
             val source = responseBody.source()
             source.request(java.lang.Long.MAX_VALUE) // Buffer the entire body.
@@ -83,14 +84,9 @@ internal class LoggingInterceptor : Interceptor {
         return response
     }
 
-    private fun interceptLogging(headerValues: String, queryParameter: String?, result: String?) {
-        LogUtil.e("LoggingInterceptor", " " +
-                "\n————————————————————————请求开始————————————————————————" +
-                "\n请求头:\n" + headerValues.trim { it <= ' ' } +
-                "\n请求地址:\n" + BuildConfig.LOCALHOST +
-                "\n请求参数:\n" + queryParameter +
-                "\n返回参数:\n" + result +
-                "\n————————————————————————请求结束————————————————————————")
+    private fun bodyEncoded(headers: Headers): Boolean {
+        val contentEncoding = headers.get("Content-Encoding")
+        return contentEncoding != null && !contentEncoding.equals("identity", ignoreCase = true)
     }
 
     private fun isPlaintext(buffer: Buffer): Boolean {
@@ -111,16 +107,16 @@ internal class LoggingInterceptor : Interceptor {
         } catch (e: EOFException) {
             return false // Truncated UTF-8 sequence.
         }
-
     }
 
-    private fun bodyEncoded(headers: Headers): Boolean {
-        val contentEncoding = headers.get("Content-Encoding")
-        return contentEncoding != null && !contentEncoding.equals("identity", ignoreCase = true)
-    }
-
-    companion object {
-        private val UTF8 = Charset.forName("UTF-8")
+    private fun interceptLogging(headerValues: String, queryParameter: String?, result: String?) {
+        LogUtil.e("LoggingInterceptor", " " +
+                "\n————————————————————————请求开始————————————————————————" +
+                "\n请求头:\n" + headerValues.trim { it <= ' ' } +
+                "\n请求地址:\n" + BuildConfig.LOCALHOST +
+                "\n请求参数:\n" + queryParameter +
+                "\n返回参数:\n" + result +
+                "\n————————————————————————请求结束————————————————————————")
     }
 
 }
