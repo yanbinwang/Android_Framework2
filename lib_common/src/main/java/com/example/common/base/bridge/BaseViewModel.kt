@@ -26,11 +26,11 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
         this.view = SoftReference(view)
     }
 
-    protected fun <T> addDisposable(liveData: LiveData<ApiResponse<T>>, subscriber: HttpSubscriber<T>) {
+    protected fun <T> observe(liveData: LiveData<ApiResponse<T>>, subscriber: HttpSubscriber<T>) {
         liveData.observe(binding?.lifecycleOwner!!, subscriber)
     }
 
-    protected fun <T> addDisposable(liveData: LiveData<T>, observer: HttpObserver<T>) {
+    protected fun <T> observe(liveData: LiveData<T>, observer: HttpObserver<T>) {
         liveData.observe(binding?.lifecycleOwner!!, observer)
     }
 

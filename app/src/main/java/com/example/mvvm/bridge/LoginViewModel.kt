@@ -4,7 +4,6 @@ import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.http.callback.HttpSubscriber
 import com.example.common.subscribe.BaseSubscribe.getTestApi
-import com.example.mvvm.databinding.ActivityLoginBinding
 import com.example.mvvm.model.UserInfoModel
 
 /**
@@ -19,7 +18,7 @@ class LoginViewModel : BaseViewModel() {
 
     fun getData() {
         for (i in 0..999) {
-            addDisposable(getTestApi(), object : HttpSubscriber<Any>() {
+            observe(getTestApi(), object : HttpSubscriber<Any>() {
 
                 override fun onSuccess(data: Any?) {
                 }
