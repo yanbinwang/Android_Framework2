@@ -21,10 +21,9 @@ internal class LoggingInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         var queryParameter: String? = null
         var result: String? = null
-        val headerValues: String
 
         val request = chain.request()
-        headerValues = request.headers().toString()
+        val headerValues = request.headers().toString()
         //不包含User-Agent不是公司的请求链接，不做拦截
         if (!headerValues.contains("User-Agent")) {
             return chain.proceed(request)
@@ -32,7 +31,6 @@ internal class LoggingInterceptor : Interceptor {
 
         val requestBody = request.body()
         val hasRequestBody = requestBody != null
-
         if (hasRequestBody && !bodyEncoded(request.headers())) {
             val buffer = Buffer()
             requestBody!!.writeTo(buffer)
@@ -57,7 +55,6 @@ internal class LoggingInterceptor : Interceptor {
 
         val responseBody = response.body()
         val contentLength = responseBody!!.contentLength()
-
         if (HttpHeaders.hasBody(response) && !bodyEncoded(response.headers())) {
             val source = responseBody.source()
             source.request(java.lang.Long.MAX_VALUE) // Buffer the entire body.
