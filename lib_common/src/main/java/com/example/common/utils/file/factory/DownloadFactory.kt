@@ -2,7 +2,7 @@ package com.example.common.utils.file.factory
 
 import android.os.Looper
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
+import com.example.common.http.callback.HttpObserver
 import com.example.common.subscribe.BaseSubscribe.download
 import com.example.common.utils.file.FileUtil
 import com.example.common.utils.file.callback.OnDownloadListener
@@ -20,6 +20,7 @@ import java.util.concurrent.Executors
 class DownloadFactory private constructor() {
     private val weakHandler = WeakHandler(Looper.getMainLooper())
     private val executors = Executors.newSingleThreadExecutor()
+    private var complete = false//请求在完成并返回对象后又发起了线程下载，所以回调监听需要保证线程完成在回调
 
     companion object {
         @JvmStatic
@@ -29,23 +30,24 @@ class DownloadFactory private constructor() {
     }
 
     fun download(lifecycleOwner: LifecycleOwner, downloadUrl: String, filePath: String, fileName: String, onDownloadListener: OnDownloadListener?) {
+        complete = false
         FileUtil.deleteDir(filePath)
-        download(downloadUrl).observe(lifecycleOwner, object : Observer<ResponseBody> {
+        download(downloadUrl).observe(lifecycleOwner, object : HttpObserver<ResponseBody>() {
 
-            init {
+            override fun onStart() {
                 weakHandler.post { onDownloadListener?.onStart() }
             }
 
-            override fun onChanged(it: ResponseBody?) {
-                if (null != it) {
+            override fun onNext(t: ResponseBody?) {
+                if (null != t) {
                     executors.execute {
                         var inputStream: InputStream? = null
                         var fileOutputStream: FileOutputStream? = null
                         try {
                             val file = File(FileUtil.isExistDir(filePath), fileName)
                             val buf = ByteArray(2048)
-                            val total = it.contentLength()
-                            inputStream = it.byteStream()
+                            val total = t.contentLength()
+                            inputStream = t.byteStream()
                             fileOutputStream = FileOutputStream(file)
                             var len: Int
                             var sum: Long = 0
@@ -62,20 +64,24 @@ class DownloadFactory private constructor() {
                         } finally {
                             inputStream?.close()
                             fileOutputStream?.close()
+                            complete = true
                             onComplete()
                         }
                     }
                     executors.isShutdown
                 } else {
                     weakHandler.post { onDownloadListener?.onFailed(null) }
+                    complete = true
                     onComplete()
                 }
             }
 
-            fun onComplete() {
-                weakHandler.post { onDownloadListener?.onComplete() }
+            override fun onComplete() {
+                if (complete) {
+                    complete = false
+                    weakHandler.post { onDownloadListener?.onComplete() }
+                }
             }
-
         })
     }
 
