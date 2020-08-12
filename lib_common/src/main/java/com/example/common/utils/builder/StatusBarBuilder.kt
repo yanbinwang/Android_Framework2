@@ -1,4 +1,4 @@
-package com.example.common.utils.bulider
+package com.example.common.utils.builder
 
 import android.annotation.SuppressLint
 import android.app.Activity

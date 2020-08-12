@@ -5,8 +5,7 @@ import androidx.databinding.ViewDataBinding;
 
 import com.example.common.R;
 import com.example.common.databinding.ActivityBaseBinding;
-import com.example.common.databinding.ViewTitleBarBinding;
-import com.example.common.utils.bulider.TitleBuilder;
+import com.example.common.utils.builder.TitleBuilder;
 
 /**
  * Created by WangYanBin on 2020/6/10.
