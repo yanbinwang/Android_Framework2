@@ -28,7 +28,7 @@ import com.example.common.base.bridge.BaseView;
 import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.base.page.PageParams;
 import com.example.common.constant.Extras;
-import com.example.common.utils.bulider.StatusBarBuilder;
+import com.example.common.utils.builder.StatusBarBuilder;
 import com.example.common.widget.dialog.LoadingDialog;
 import com.example.base.utils.LogUtil;
 import com.example.base.utils.ToastUtil;
