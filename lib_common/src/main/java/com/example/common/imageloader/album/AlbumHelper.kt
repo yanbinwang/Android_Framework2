@@ -2,12 +2,12 @@ package com.example.common.imageloader.album
 
 import android.app.Activity
 import androidx.core.content.ContextCompat
+import com.example.base.utils.ToastUtil
 import com.example.common.R
 import com.example.common.constant.Constants
 import com.example.common.constant.RequestCode
 import com.example.common.utils.helper.permission.OnPermissionCallBack
 import com.example.common.utils.helper.permission.PermissionHelper
-import com.example.base.utils.ToastUtil
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.api.widget.Widget
 import com.yanzhenjie.durban.Controller
@@ -22,7 +22,7 @@ import java.lang.ref.WeakReference
  * android:configChanges="orientation|keyboardHidden|screenSize"
  */
 class AlbumHelper(activity: Activity) {
-    private val weakActivity: WeakReference<Activity> = WeakReference(activity)
+    private val weakActivity = WeakReference(activity)
     private val outputPatch = Constants.APPLICATION_FILE_PATH + "/裁剪"//裁剪后图片保存位置
     private var onAlbumListener: OnAlbumListener? = null //单选回调监听
 

@@ -1,6 +1,5 @@
 package com.example.common.imageloader
 
-import android.content.Context
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import com.bumptech.glide.Glide
@@ -20,7 +19,7 @@ import java.io.File
  * 图片加载库使用Application上下文，Glide请求将不受Activity/Fragment生命周期控制。
  */
 class ImageLoader private constructor() : GlideModule(), GlideImpl {
-    private var context: Context = BaseApplication.instance.applicationContext
+    private var context = BaseApplication.instance.applicationContext
     private var manager: RequestManager? = null
 
     init {

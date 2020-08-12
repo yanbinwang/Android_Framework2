@@ -15,15 +15,18 @@ import java.lang.ref.WeakReference
  * 导航栏工具类（）
  * 从5.0+开始兼容色值
  */
-@SuppressLint("PrivateApi","InlinedApi")
+@SuppressLint("PrivateApi", "InlinedApi")
 class StatusBarBuilder(activity: Activity) {
     //弱应用传入的activity
-    private val weakActivity : WeakReference<Activity> = WeakReference(activity)
+    private val weakActivity = WeakReference(activity)
 
     //隐藏导航栏
     fun setHideStatus() {
         weakActivity.get()!!.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        weakActivity.get()!!.window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        weakActivity.get()!!.window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
     }
 
     //透明状态栏(白电池)
@@ -99,7 +102,11 @@ class StatusBarBuilder(activity: Activity) {
             val layoutParams = Class.forName("android.view.MiuiWindowManager\$LayoutParams")
             val field = layoutParams.getField("EXTRA_FLAG_STATUS_BAR_DARK_MODE")
             darkModeFlag = field.getInt(layoutParams)
-            val extraFlagField = clazz.getMethod("setExtraFlags", Int::class.javaPrimitiveType, Int::class.javaPrimitiveType)
+            val extraFlagField = clazz.getMethod(
+                "setExtraFlags",
+                Int::class.javaPrimitiveType,
+                Int::class.javaPrimitiveType
+            )
             if (isDark) {
                 extraFlagField.invoke(window, darkModeFlag, darkModeFlag)  //状态栏透明且黑色字体
             } else {
@@ -107,7 +114,6 @@ class StatusBarBuilder(activity: Activity) {
             }
         } catch (ignored: Exception) {
         }
-
     }
 
     //设置状态栏图标和魅族特定的文字风格 可以用来判断是否为Flyme用户
