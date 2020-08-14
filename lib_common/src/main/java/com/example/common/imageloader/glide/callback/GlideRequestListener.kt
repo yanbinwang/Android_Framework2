@@ -12,7 +12,7 @@ import com.example.common.utils.handler.WeakHandler
  * 图片下载监听
  */
 abstract class GlideRequestListener<R> : RequestListener<R> {
-    private val weakHandler: WeakHandler = WeakHandler(Looper.getMainLooper())
+    private val weakHandler = WeakHandler(Looper.getMainLooper())
 
     init {
         weakHandler.post { onStart() }

@@ -16,7 +16,7 @@ import java.util.*
  * 图片上传工具类
  */
 class UploadFactory private constructor() {
-    private val context = BaseApplication.instance.applicationContext
+    private val context = BaseApplication.instance?.applicationContext!!
     private var onUploadListener: OnUploadListener? = null
 
     companion object {

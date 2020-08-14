@@ -16,7 +16,7 @@ import java.lang.ref.SoftReference
  * LifecycleObserver-->观察宿主的生命周期
  * LifecycleOwner->获取被观察者
  */
-abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), LifecycleObserver {
+abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     private var binding: ViewDataBinding? = null//数据绑定类
     private var view: SoftReference<BaseView>? = null//基础UI操作
 
@@ -35,7 +35,7 @@ abstract class BaseViewModel : AndroidViewModel(BaseApplication.instance), Lifec
     }
 
     protected fun getContext(): Context {
-        return getApplication<BaseApplication>().applicationContext
+        return BaseApplication.instance?.applicationContext!!
     }
 
     protected fun getView(): BaseView {

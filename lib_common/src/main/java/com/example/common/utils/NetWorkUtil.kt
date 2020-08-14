@@ -17,7 +17,7 @@ import com.example.common.BaseApplication
 object NetWorkUtil {
     //等效于懒加载，使用时取值，之后复用
     private val context by lazy {
-        BaseApplication.instance.applicationContext
+        BaseApplication.instance?.applicationContext!!
     }
 
     //验证是否联网

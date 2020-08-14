@@ -6,21 +6,15 @@ import android.view.View;
 import androidx.lifecycle.Observer;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
+import com.example.base.utils.ToastUtil;
 import com.example.common.base.BaseTitleActivity;
+import com.example.common.bus.LiveDataBus;
 import com.example.common.constant.ARouterPath;
 import com.example.common.constant.Constants;
-import com.example.common.utils.file.callback.OnDownloadListener;
-import com.example.common.utils.file.factory.DownloadFactory;
-import com.example.common.utils.helper.permission.PermissionHelper;
-import com.example.common.bus.LiveDataBus;
 import com.example.mvvm.BR;
+import com.example.mvvm.MyApplication;
 import com.example.mvvm.R;
 import com.example.mvvm.databinding.ActivityMainBinding;
-import com.yanzhenjie.permission.runtime.Permission;
-
-import org.jetbrains.annotations.Nullable;
-
-import java.text.MessageFormat;
 
 /**
  * MVVM中，Activity的代码量应该非常少，它并不和数据及控件直接交互，可不写页面的ViewModel，但有xml存在的页面则必须传入Binding文件
@@ -41,6 +35,7 @@ public class MainActivity extends BaseTitleActivity<ActivityMainBinding> {
         super.initView();
         titleBuilder.setTitle("10086").getDefault();
         binding.setVariable(BR.event, new PageEvent());
+        ToastUtil.mackToastSHORT("dfsdfsd", MyApplication.instance.getApplicationContext());
     }
 
     @Override

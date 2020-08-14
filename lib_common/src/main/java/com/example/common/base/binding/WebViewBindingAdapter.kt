@@ -25,7 +25,7 @@ object WebViewBindingAdapter {
                 val uri = request.url
                 val intent = Intent(Intent.ACTION_VIEW, uri)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                BaseApplication.instance.startActivity(intent)
+                BaseApplication.instance?.applicationContext!!.startActivity(intent)
                 return true
             }
 
