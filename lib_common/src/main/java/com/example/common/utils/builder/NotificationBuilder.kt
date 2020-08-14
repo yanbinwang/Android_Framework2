@@ -13,13 +13,12 @@ import java.lang.ref.WeakReference
  * 通知工具类
  */
 class NotificationBuilder(activity: Activity) {
-    private var mBuilder: NotificationCompat.Builder? = null
-    private val mNotificationManager: NotificationManager
-    private val mActivity = WeakReference(activity)
+    private val weakActivity = WeakReference(activity)
+    private val notificationManager: NotificationManager
+    private var builder: NotificationCompat.Builder? = null
 
     init {
-        mNotificationManager = mActivity.get()
-            ?.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager = weakActivity.get()?.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as NotificationManager
     }
 
     //构建通知栏
@@ -28,38 +27,38 @@ class NotificationBuilder(activity: Activity) {
             val channel = NotificationChannel(Constants.PUSH_CHANNEL_ID, Constants.PUSH_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH)
             channel.enableVibration(false)
             channel.enableLights(false)
-            mNotificationManager.createNotificationChannel(channel)
+            notificationManager.createNotificationChannel(channel)
         }
-        mBuilder = NotificationCompat.Builder(mActivity.get()!!, Constants.PUSH_CHANNEL_ID)
-        mBuilder!!.setContentTitle(title).setContentText(text).setSmallIcon(smallIcon)
+        builder = NotificationCompat.Builder(weakActivity.get()!!, Constants.PUSH_CHANNEL_ID)
+        builder!!.setContentTitle(title).setContentText(text).setSmallIcon(smallIcon)
             .setLargeIcon(largeIcon).setOngoing(true).setAutoCancel(true)
             .setWhen(System.currentTimeMillis())
-        mNotificationManager.notify(id, mBuilder!!.build())
+        notificationManager.notify(id, builder!!.build())
     }
 
     //构建通知栏跳转
     fun setPendingIntent(id: Int, title: String, text: String, setupApkIntent: Intent) {
-        val contentIntent = PendingIntent.getActivity(mActivity.get(), 0, setupApkIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        mBuilder!!.setContentIntent(contentIntent).setContentTitle(title).setContentText(text).setProgress(0, 0, false).setDefaults(Notification.DEFAULT_ALL)
-        val notification = mBuilder!!.build()
+        val contentIntent = PendingIntent.getActivity(weakActivity.get(), 0, setupApkIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        builder!!.setContentIntent(contentIntent).setContentTitle(title).setContentText(text).setProgress(0, 0, false).setDefaults(Notification.DEFAULT_ALL)
+        val notification = builder!!.build()
         notification.flags = Notification.FLAG_AUTO_CANCEL
-        mNotificationManager.notify(id, notification)
+        notificationManager.notify(id, notification)
     }
 
     //构建进度条
     fun setProgress(id: Int, progress: Int, title: String, text: String) {
-        mBuilder!!.setContentTitle(title).setContentText(text).setProgress(100, progress, false).setWhen(System.currentTimeMillis())
-        val notification = mBuilder!!.build()
+        builder!!.setContentTitle(title).setContentText(text).setProgress(100, progress, false).setWhen(System.currentTimeMillis())
+        val notification = builder!!.build()
         notification.flags = Notification.FLAG_AUTO_CANCEL or Notification.FLAG_ONLY_ALERT_ONCE
-        mNotificationManager.notify(id, notification)
+        notificationManager.notify(id, notification)
     }
 
     //取消构建
     fun setCancel(id: Int, title: String, text: String) {
-        mBuilder!!.setContentTitle(title).setContentText(text)
-        val notification = mBuilder!!.build()
+        builder!!.setContentTitle(title).setContentText(text)
+        val notification = builder!!.build()
         notification.flags = Notification.FLAG_AUTO_CANCEL
-        mNotificationManager.notify(id, notification)
+        notificationManager.notify(id, notification)
     }
 
 }
