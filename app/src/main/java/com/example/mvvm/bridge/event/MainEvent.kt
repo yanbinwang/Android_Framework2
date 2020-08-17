@@ -1,19 +1,19 @@
 package com.example.mvvm.bridge.event
 
 import android.view.View
-import com.example.common.base.bridge.BaseViewModel
 import com.example.common.constant.ARouterPath
 import com.example.mvvm.R
+import com.example.mvvm.activity.MainActivity
 
 /**
  * Created by WangYanBin on 2020/8/17.
  */
-class MainEvent : BaseViewModel() {
+class MainEvent : MainActivity() {
 
     fun onClick(v: View) {
         when (v.id) {
-            R.id.btn_login -> getView().navigation(ARouterPath.LoginActivity)
-            R.id.btn_list -> getView().navigation(ARouterPath.TestListActivity)
+            R.id.btn_login -> navigation(ARouterPath.LoginActivity)
+            R.id.btn_list -> navigation(ARouterPath.TestListActivity)
             R.id.btn_download -> {
 //                    PermissionHelper.with(context.get())
 //                            .getPermissions(Permission.Group.STORAGE)

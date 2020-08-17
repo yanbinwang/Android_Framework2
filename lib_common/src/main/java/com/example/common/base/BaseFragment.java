@@ -50,7 +50,7 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
     protected WeakReference<Activity> activity;//基类activity弱引用
     protected WeakReference<Context> context;//基类context弱引用
     protected StatusBarBuilder statusBarBuilder;//状态栏工具类
-    private BaseViewModel viewModel;//数据模型
+    private BaseViewModel baseViewModel;//数据模型
     private LoadingDialog loadingDialog;//刷新球控件，相当于加载动画
     private final String TAG = getClass().getSimpleName().toLowerCase();//额外数据，查看log，观察当前activity是否被销毁
 
@@ -58,12 +58,12 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
     protected abstract int getLayoutResID();
 
     protected <VM extends BaseViewModel> VM createViewModel(Class<VM> vmClass) {
-        if (null == viewModel) {
-            viewModel = new ViewModelProvider(this).get(vmClass);
-            viewModel.initialize(binding,this);
-            getLifecycle().addObserver(viewModel);
+        if (null == baseViewModel) {
+            baseViewModel = new ViewModelProvider(this).get(vmClass);
+            baseViewModel.initialize(binding,this);
+            getLifecycle().addObserver(baseViewModel);
         }
-        return (VM) viewModel;
+        return (VM) baseViewModel;
     }
 
     @Override

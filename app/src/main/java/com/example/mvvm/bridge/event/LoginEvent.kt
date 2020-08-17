@@ -25,7 +25,7 @@ class LoginEvent : LoginActivity() {
     fun onClick(v: View) {
         when (v.id) {
             R.id.btn_login ->
-                viewModel.login(getParameters(binding?.etAccount)!!, getParameters(binding?.etPassword)!!);
+                viewModel.login(getParameters(binding?.etAccount)!!, getParameters(binding?.etPassword)!!)
 //                viewModel.getData()
         }
     }
