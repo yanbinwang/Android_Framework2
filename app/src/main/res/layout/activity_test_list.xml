@@ -9,6 +9,10 @@
             type="com.example.mvvm.bridge.TestListViewModel" />
 
         <variable
+            name="event"
+            type="com.example.mvvm.bridge.event.TestListEvent" />
+
+        <variable
             name="adapter"
             type="com.example.mvvm.adapter.TestListAdapter" />
 
@@ -25,13 +29,25 @@
             android:layout_height="200mm"
             android:background="@color/black"
             android:text="添加数据"
+            android:onClick="@{event.onClick}"
             android:textColor="@color/white" />
 
-        <androidx.recyclerview.widget.RecyclerView
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/rec_test"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            app:adapter="@{adapter}"-->
+<!--            app:itemClickListener="@{event.itemClickListener}"-->
+<!--            app:itemChildClickListener="@{event.itemChildClickListener}"-->
+<!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />-->
+
+        <com.example.common.widget.xrecyclerview.XRecyclerView
             android:id="@+id/rec_test"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:adapter="@{adapter}"
+            app:emptyType="equipped"
+            app:itemNormalSpace="@{10}"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </LinearLayout>

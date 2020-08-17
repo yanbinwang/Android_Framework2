@@ -10,7 +10,7 @@
 
         <variable
             name="event"
-            type="com.example.mvvm.activity.LoginActivity.PageEvent" />
+            type="com.example.mvvm.bridge.event.LoginEvent" />
 
     </data>
 

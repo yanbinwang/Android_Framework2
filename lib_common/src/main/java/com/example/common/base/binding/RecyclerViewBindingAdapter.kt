@@ -2,6 +2,9 @@ package com.example.common.base.binding
 
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.listener.OnItemChildClickListener
+import com.chad.library.adapter.base.listener.OnItemClickListener
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.callback.OnRefreshListener
 
@@ -13,7 +16,7 @@ object RecyclerViewBindingAdapter {
 
     @JvmStatic
     @BindingAdapter(value = ["app:adapter"])
-    fun setAdapter(recyclerView: XRecyclerView?, adapter: RecyclerView.Adapter<*>?) {
+    fun setAdapter(recyclerView: XRecyclerView?, adapter: BaseQuickAdapter<*, *>?) {
         if (recyclerView != null && adapter != null) {
             recyclerView.recyclerView.adapter = adapter
         }
@@ -35,6 +38,20 @@ object RecyclerViewBindingAdapter {
     @BindingAdapter(value = ["app:emptyBackgroundColor"])
     fun setEmptyBackgroundColor(recyclerView: XRecyclerView?, color: Int) {
         recyclerView?.setEmptyBackgroundColor(color)
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["app:itemClickListener"])
+    fun setOnItemClickListener(recyclerView: XRecyclerView?, onItemClickListener: OnItemClickListener?) {
+        val adapter: BaseQuickAdapter<*, *> = recyclerView?.recyclerView?.adapter as BaseQuickAdapter<*, *>
+        adapter.setOnItemClickListener(onItemClickListener)
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["app:itemChildClickListener"])
+    fun setOnItemClickListener(recyclerView: XRecyclerView?, onItemChildClickListener: OnItemChildClickListener?) {
+        val adapter: BaseQuickAdapter<*, *> = recyclerView?.recyclerView?.adapter as BaseQuickAdapter<*, *>
+        adapter.setOnItemChildClickListener(onItemChildClickListener)
     }
 
     @JvmStatic

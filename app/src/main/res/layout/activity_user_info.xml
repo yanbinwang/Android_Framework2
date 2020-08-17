@@ -9,7 +9,7 @@
 
         <variable
             name="event"
-            type="com.example.mvvm.activity.UserInfoActivity.PageEvent" />
+            type="com.example.mvvm.bridge.event.UserInfoEvent" />
 
     </data>
 

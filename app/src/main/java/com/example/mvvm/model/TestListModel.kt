@@ -1,26 +1,31 @@
 package com.example.mvvm.model
 
+import android.os.Parcelable
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
+import kotlinx.android.parcel.Parcelize
 
 /**
  * Created by WangYanBin on 2020/7/7.
  * 对象内部可写自定义方法，缩减适配器代码
  */
+@Parcelize
 class TestListModel(
     var title: String? = null,
     var describe: String? = null,
     var avatar: Int
-) {
+) : Parcelable {
+
     companion object {
 
         @JvmStatic
         @BindingAdapter(value = ["app:resource"])
         fun setResource(image: ImageView?, avatar: Int) {
-            image?.setBackgroundResource(avatar);
+            image?.setBackgroundResource(avatar)
         }
 
     }
+
 }
 
 //public class TestListModel extends BaseObservable {

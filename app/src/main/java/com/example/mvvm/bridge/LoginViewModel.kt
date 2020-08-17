@@ -9,7 +9,7 @@ import com.example.mvvm.model.UserInfoModel
 /**
  * Created by WangYanBin on 2020/6/3.
  */
-class LoginViewModel : BaseViewModel() {
+open class LoginViewModel : BaseViewModel() {
     //    val binding by lazy {
 //        getBinding<ActivityLoginBinding>()
 //    }

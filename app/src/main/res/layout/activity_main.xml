@@ -5,7 +5,7 @@
 
         <variable
             name="event"
-            type="com.example.mvvm.activity.MainActivity.PageEvent" />
+            type="com.example.mvvm.bridge.event.MainEvent" />
 
     </data>
 
