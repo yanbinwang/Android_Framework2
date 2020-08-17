@@ -8,7 +8,7 @@ import com.example.mvvm.model.TestListModel
 /**
  * Created by WangYanBin on 2020/6/4.
  */
-open class TestListViewModel : BaseViewModel() {
+class TestListViewModel : BaseViewModel() {
     var dataList = MutableLiveData<MutableList<TestListModel>>()
 
     fun getListData() {
