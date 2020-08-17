@@ -1,12 +1,14 @@
 package com.example.mvvm.activity
 
+import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.chad.library.BR
 import com.example.common.base.BaseActivity
+import com.example.common.bus.LiveDataBus
 import com.example.common.constant.ARouterPath
+import com.example.common.constant.Constants
 import com.example.common.constant.Extras
 import com.example.mvvm.R
-import com.example.mvvm.bridge.event.UserInfoEvent
 import com.example.mvvm.databinding.ActivityUserInfoBinding
 
 /**
@@ -14,7 +16,7 @@ import com.example.mvvm.databinding.ActivityUserInfoBinding
  * ViewModel可不写，但是binding必须传
  */
 @Route(path = ARouterPath.UserInfoActivity)
-open class UserInfoActivity : BaseActivity<ActivityUserInfoBinding>() {
+class UserInfoActivity : BaseActivity<ActivityUserInfoBinding>() {
 
     override fun getLayoutResID(): Int {
         return R.layout.activity_user_info
@@ -23,7 +25,21 @@ open class UserInfoActivity : BaseActivity<ActivityUserInfoBinding>() {
     override fun initView() {
         super.initView()
         binding?.setVariable(BR.model, intent.getParcelableExtra(Extras.BUNDLE_MODEL))
-        binding?.setVariable(BR.event, UserInfoEvent())
+    }
+
+    override fun initEvent() {
+        super.initEvent()
+        onClick(View.OnClickListener { v ->
+            when (v.id) {
+                R.id.btn_test -> {
+                    //                ActivityCollector.finishAll()
+                    //                navigation(ARouterPath.TestListActivity)
+                    //发送消息
+                    LiveDataBus.get().post(Constants.APP_USER_LOGIN_OUT).postValue("50998")
+                    finish()
+                }
+            }
+        }, binding?.btnTest)
     }
 
 }

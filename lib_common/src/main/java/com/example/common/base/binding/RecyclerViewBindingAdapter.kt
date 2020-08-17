@@ -40,24 +40,24 @@ object RecyclerViewBindingAdapter {
         recyclerView?.setEmptyBackgroundColor(color)
     }
 
-    @JvmStatic
-    @BindingAdapter(value = ["app:itemClickListener"])
-    fun setOnItemClickListener(recyclerView: XRecyclerView?, onItemClickListener: OnItemClickListener?) {
-        val adapter: BaseQuickAdapter<*, *> = recyclerView?.recyclerView?.adapter as BaseQuickAdapter<*, *>
-        adapter.setOnItemClickListener(onItemClickListener)
-    }
-
-    @JvmStatic
-    @BindingAdapter(value = ["app:itemChildClickListener"])
-    fun setOnItemClickListener(recyclerView: XRecyclerView?, onItemChildClickListener: OnItemChildClickListener?) {
-        val adapter: BaseQuickAdapter<*, *> = recyclerView?.recyclerView?.adapter as BaseQuickAdapter<*, *>
-        adapter.setOnItemChildClickListener(onItemChildClickListener)
-    }
-
-    @JvmStatic
-    @BindingAdapter(value = ["app:refreshListener"])
-    fun setOnRefreshListener(recyclerView: XRecyclerView?, onRefreshListener: OnRefreshListener?) {
-        recyclerView?.setOnRefreshListener(onRefreshListener)
-    }
+//    @JvmStatic
+//    @BindingAdapter(value = ["app:itemClickListener"])
+//    fun setOnItemClickListener(recyclerView: XRecyclerView?, onItemClickListener: OnItemClickListener?) {
+//        val adapter: BaseQuickAdapter<*, *> ?= recyclerView?.recyclerView?.adapter as? BaseQuickAdapter<*, *>
+//        adapter?.setOnItemClickListener(onItemClickListener)
+//    }
+//
+//    @JvmStatic
+//    @BindingAdapter(value = ["app:itemChildClickListener"])
+//    fun setOnItemClickListener(recyclerView: XRecyclerView?, onItemChildClickListener: OnItemChildClickListener?) {
+//        val adapter: BaseQuickAdapter<*, *> = recyclerView?.recyclerView?.adapter as BaseQuickAdapter<*, *>
+//        adapter.setOnItemChildClickListener(onItemChildClickListener)
+//    }
+//
+//    @JvmStatic
+//    @BindingAdapter(value = ["app:refreshListener"])
+//    fun setOnRefreshListener(recyclerView: XRecyclerView?, onRefreshListener: OnRefreshListener?) {
+//        recyclerView?.setOnRefreshListener(onRefreshListener)
+//    }
 
 }

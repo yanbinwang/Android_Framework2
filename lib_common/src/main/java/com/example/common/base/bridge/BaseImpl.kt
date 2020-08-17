@@ -1,6 +1,7 @@
 package com.example.common.base.bridge
 
 import android.view.View
+import com.example.common.base.proxy.SimpleTextWatcher
 
 /**
  * Created by WangYanBin on 2020/6/11.
@@ -47,6 +48,16 @@ interface BaseImpl {
      * 获取控件的基础值
      */
     fun getParameters(view: View?): String?
+
+    /**
+     * 批量注入输入监听
+     */
+    fun onTextChanged(simpleTextWatcher: SimpleTextWatcher?, vararg views: View?)
+
+    /**
+     * 批量注入点击事件
+     */
+    fun onClick(onClickListener: View.OnClickListener?, vararg views: View?)
 
     /**
      * 控件显示

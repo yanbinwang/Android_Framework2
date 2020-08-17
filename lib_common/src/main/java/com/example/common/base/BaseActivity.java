@@ -27,6 +27,7 @@ import com.example.common.base.bridge.BaseImpl;
 import com.example.common.base.bridge.BaseView;
 import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.base.page.PageParams;
+import com.example.common.base.proxy.SimpleTextWatcher;
 import com.example.common.constant.Extras;
 import com.example.common.utils.builder.StatusBarBuilder;
 import com.example.common.widget.dialog.LoadingDialog;
@@ -155,6 +156,24 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
             return ((Button) view).getText().toString().trim();
         }
         return null;
+    }
+
+    @Override
+    public void onTextChanged(SimpleTextWatcher simpleTextWatcher, View... views) {
+        for (View view : views) {
+            if (view instanceof EditText) {
+                ((EditText) view).addTextChangedListener(simpleTextWatcher);
+            }
+        }
+    }
+
+    @Override
+    public void onClick(View.OnClickListener onClickListener, View... views) {
+        for (View view : views) {
+            if (view != null) {
+                view.setOnClickListener(onClickListener);
+            }
+        }
     }
 
     @Override

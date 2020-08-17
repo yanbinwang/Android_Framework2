@@ -7,10 +7,6 @@
             name="model"
             type="com.example.mvvm.model.UserInfoModel" />
 
-        <variable
-            name="event"
-            type="com.example.mvvm.bridge.event.UserInfoEvent" />
-
     </data>
 
     <LinearLayout
@@ -25,7 +21,6 @@
             android:textSize="28mm"
             android:background="@color/gray_6c6c6c"
             android:textColor="@color/white"
-            android:onClick="@{event.onClick}"
             android:layout_width="match_parent"
             android:layout_height="100mm"/>
 
