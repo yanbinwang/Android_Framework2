@@ -47,8 +47,8 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
             when (v.id) {
                 R.id.btn_login ->
                     viewModel.login(
-                        getParameters(binding?.etAccount)!!,
-                        getParameters(binding?.etPassword)!!
+                        getParameters(binding?.etAccount),
+                        getParameters(binding?.etPassword)
                     )
 //                viewModel.getData()
             }

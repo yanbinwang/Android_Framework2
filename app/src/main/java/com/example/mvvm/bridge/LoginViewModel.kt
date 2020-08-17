@@ -82,7 +82,7 @@ open class LoginViewModel : BaseViewModel() {
 //            }
 //        }
 
-    fun login(account: String, password: String) {
+    fun login(account: String?, password: String?) {
         getView().showDialog()
         getView().showToast("当前执行了登录\n账号：$account\n密码：$password")
         getView().hideDialog()
