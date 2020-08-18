@@ -29,17 +29,13 @@ class UserInfoActivity : BaseActivity<ActivityUserInfoBinding>() {
 
     override fun initEvent() {
         super.initEvent()
-        onClick(View.OnClickListener { v ->
-            when (v.id) {
-                R.id.btn_test -> {
-                    //                ActivityCollector.finishAll()
-                    //                navigation(ARouterPath.TestListActivity)
-                    //发送消息
-                    LiveDataBus.get().post(Constants.APP_USER_LOGIN_OUT).postValue("50998")
-                    finish()
-                }
+        binding?.btnTest?.setOnClickListener {
+            View.OnClickListener {
+                //发送消息
+                LiveDataBus.get().post(Constants.APP_USER_LOGIN_OUT).postValue("50998")
+                finish()
             }
-        }, binding?.btnTest)
+        }
     }
 
 }

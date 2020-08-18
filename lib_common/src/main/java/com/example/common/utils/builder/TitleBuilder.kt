@@ -53,12 +53,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     }
 
     fun setTitle(titleStr: String, isShade: Boolean, isDark: Boolean): TitleBuilder {
-        setTitle(
-            titleStr,
-            ContextCompat.getColor(weakActivity.get()!!, R.color.black),
-            isShade,
-            isDark
-        )
+        setTitle(titleStr, ContextCompat.getColor(weakActivity.get()!!, R.color.black), isShade, isDark)
         return this
     }
 

@@ -33,26 +33,18 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
 
     override fun initEvent() {
         super.initEvent()
-        onTextChanged(object : SimpleTextWatcher() {
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                super.onTextChanged(s, start, before, count)
-                binding?.btnLogin?.isEnabled = !isEmpty(
+        //多个写成全局，单个写成匿名
+        onTextChanged(textWatcher, binding?.etAccount, binding?.etPassword)
+
+        binding?.btnLogin?.setOnClickListener {
+            View.OnClickListener {
+                viewModel.login(
                     getParameters(binding?.etAccount),
                     getParameters(binding?.etPassword)
                 )
-            }
-        }, binding?.etAccount, binding?.etPassword)
-
-        onClick(View.OnClickListener { v ->
-            when (v.id) {
-                R.id.btn_login ->
-                    viewModel.login(
-                        getParameters(binding?.etAccount),
-                        getParameters(binding?.etPassword)
-                    )
 //                viewModel.getData()
             }
-        }, binding.btnLogin)
+        }
 
         //类似mvp的接口回调,通过观察泛型内容随时刷新变化
         viewModel.userInfoLiveData.observe(this, Observer {
@@ -61,6 +53,18 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
                 PageParams().append(Extras.BUNDLE_MODEL, it)
             )
         })
+    }
+
+    private var textWatcher: SimpleTextWatcher = object : SimpleTextWatcher() {
+
+        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+            super.onTextChanged(s, start, before, count)
+            binding?.btnLogin?.isEnabled = !isEmpty(
+                getParameters(binding?.etAccount),
+                getParameters(binding?.etPassword)
+            )
+        }
+
     }
 
 }

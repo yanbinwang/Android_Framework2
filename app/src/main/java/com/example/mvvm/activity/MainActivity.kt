@@ -18,7 +18,7 @@ import com.example.mvvm.databinding.ActivityMainBinding
  * 3）需要处理逻辑的方法，例如网络请求获取的数据，都放在ViewModel中，涉及到UI刷新则通过回调让Activity去修改数据
  */
 @Route(path = ARouterPath.MainActivity)
-class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
+class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListener {
 
     override fun getLayoutResID(): Int {
         return R.layout.activity_main
@@ -31,44 +31,56 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
 
     override fun initEvent() {
         super.initEvent()
-        onClick(View.OnClickListener { v ->
-            when (v.id) {
-                R.id.btn_login -> navigation(ARouterPath.LoginActivity)
-                R.id.btn_list -> navigation(ARouterPath.TestListActivity)
-                R.id.btn_download -> {
-                    //                    PermissionHelper.with(context.get())
-                    //                            .getPermissions(Permission.Group.STORAGE)
-                    //                            .setPermissionCallBack(isGranted -> {
-                    //                                if (isGranted) {
-                    //                                    String filePath = Constants.APPLICATION_FILE_PATH + "/安装包";
-                    //                                    String fileName = Constants.APPLICATION_NAME + ".apk";
-                    //                                    DownloadFactory.getInstance().download(binding.getLifecycleOwner(), "https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk", filePath, fileName, new OnDownloadListener() {
-                    //                                        @Override
-                    //                                        public void onDownloadSuccess(@Nullable String path) {
-                    //                                            showToast("下载完成");
-                    //                                        }
-                    //
-                    //                                        @Override
-                    //                                        public void onDownloading(int progress) {
-                    //                                            binding.tvDownload.setText(MessageFormat.format("当前进度：{0}", progress));
-                    //                                        }
-                    //
-                    //                                        @Override
-                    //                                        public void onDownloadFailed(@Nullable Throwable e) {
-                    //                                            showToast("下载失败");
-                    //                                        }
-                    //                                    });
-                    //                                }
-                    //                            });
-                }
-            }
-        }, binding?.btnLogin, binding?.btnList, binding?.btnDownload)
+        onClick(this, binding?.btnLogin, binding?.btnList, binding?.btnDownload)
 
         //注册订阅
         LiveDataBus.get().toFlowable(Constants.APP_USER_LOGIN_OUT, String::class.java)
             .observe(this, Observer {
                 titleBuilder.setTitle(it).getDefault()
             })
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.btn_login -> navigation(ARouterPath.LoginActivity)
+            R.id.btn_list -> navigation(ARouterPath.TestListActivity)
+            R.id.btn_download -> {
+//                PermissionHelper.with(context.get())
+//                    .getPermissions(Permission.Group.STORAGE)
+//                    .setPermissionCallBack(isGranted -> {
+//                    if (isGranted) {
+//                        String filePath = Constants . APPLICATION_FILE_PATH +"/安装包";
+//                        String fileName = Constants . APPLICATION_NAME +".apk";
+//                        DownloadFactory.getInstance().download(
+//                            binding.getLifecycleOwner(),
+//                            "https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk",
+//                            filePath,
+//                            fileName,
+//                            new OnDownloadListener () {
+//                                @Override
+//                                public void onDownloadSuccess(@Nullable String path) {
+//                                    showToast("下载完成");
+//                                }
+//
+//                                @Override
+//                                public void onDownloading(int progress) {
+//                                    binding.tvDownload.setText(
+//                                        MessageFormat.format(
+//                                            "当前进度：{0}",
+//                                            progress
+//                                        )
+//                                    );
+//                                }
+//
+//                                @Override
+//                                public void onDownloadFailed(@Nullable Throwable e) {
+//                                    showToast("下载失败");
+//                                }
+//                            })
+//                    }
+//                })
+            }
+        }
     }
 
 }

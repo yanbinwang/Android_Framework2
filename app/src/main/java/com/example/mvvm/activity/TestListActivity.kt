@@ -33,11 +33,7 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
 
     override fun initEvent() {
         super.initEvent()
-        onClick(View.OnClickListener { v ->
-            when (v.id) {
-                R.id.btn_test -> viewModel.getListData()
-            }
-        }, binding?.btnTest)
+        binding?.btnTest?.setOnClickListener { View.OnClickListener { viewModel.getListData() } }
 
         binding?.adapter?.setOnItemClickListener { _, _, position -> showToast("整体点击：$position") }
         binding?.adapter?.setOnItemChildClickListener { _, view, position ->
