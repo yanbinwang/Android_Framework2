@@ -11,6 +11,7 @@ import com.yanzhenjie.permission.runtime.Permission
 /**
  * Created by WangYanBin on 2020/7/27.
  * 下载应用工具类,应用可能采取弹窗动画等形式
+ * 请求接口-（弹出窗口-点击下载-检测权限-开启下载工具类）
  */
 class UpdateHelper private constructor() {
 
