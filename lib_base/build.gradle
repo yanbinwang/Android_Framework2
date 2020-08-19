@@ -43,6 +43,7 @@ dependencies {
     //安卓x库
     api deps.androidx.appcompat
     api deps.androidx.recyclerview
+    api deps.androidx.swiperefreshlayout
     api deps.androidx.viewmodel
     api deps.androidx.livedata
     //其余第三方库
