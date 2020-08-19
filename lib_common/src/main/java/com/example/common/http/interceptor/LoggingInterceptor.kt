@@ -5,7 +5,7 @@ import com.example.common.BuildConfig
 import okhttp3.Headers
 import okhttp3.Interceptor
 import okhttp3.Response
-import okhttp3.internal.http.HttpHeaders
+import okhttp3.internal.http.promisesBody
 import okio.Buffer
 import java.io.EOFException
 import java.io.IOException
@@ -27,15 +27,15 @@ internal class LoggingInterceptor : Interceptor {
         var result: String? = null
 
         val request = chain.request()
-        val headerValues = request.headers().toString()
+        val headerValues = request.headers.toString()
         //不包含User-Agent不是公司的请求链接，不做拦截
         if (!headerValues.contains("User-Agent")) {
             return chain.proceed(request)
         }
 
-        val requestBody = request.body()
+        val requestBody = request.body
         val hasRequestBody = requestBody != null
-        if (hasRequestBody && !bodyEncoded(request.headers())) {
+        if (hasRequestBody && !bodyEncoded(request.headers)) {
             val buffer = Buffer()
             requestBody!!.writeTo(buffer)
 
@@ -57,9 +57,9 @@ internal class LoggingInterceptor : Interceptor {
             throw e
         }
 
-        val responseBody = response.body()
+        val responseBody = response.body
         val contentLength = responseBody!!.contentLength()
-        if (HttpHeaders.hasBody(response) && !bodyEncoded(response.headers())) {
+        if (response.promisesBody() && !bodyEncoded(response.headers)) {
             val source = responseBody.source()
             source.request(java.lang.Long.MAX_VALUE) // Buffer the entire body.
             val buffer = source.buffer
@@ -92,7 +92,7 @@ internal class LoggingInterceptor : Interceptor {
     private fun isPlaintext(buffer: Buffer): Boolean {
         try {
             val prefix = Buffer()
-            val byteCount = if (buffer.size() < 64) buffer.size() else 64
+            val byteCount = if (buffer.size < 64) buffer.size else 64
             buffer.copyTo(prefix, 0, byteCount)
             for (i in 0..15) {
                 if (prefix.exhausted()) {

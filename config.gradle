@@ -25,7 +25,7 @@ versions.permission = "2.0.3"
 //------------------------------------------------------------------------------------------
 versions.kotlin = "1.4.0"
 versions.material = "1.2.0"
-versions.okhttp = "3.14.0"
+versions.okhttp = "4.8.1"
 versions.autosize = "1.2.1"
 versions.mmkv = "1.2.2"
 versions.adapterhelper = "3.0.4"

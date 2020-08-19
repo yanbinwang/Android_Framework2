@@ -5,6 +5,7 @@ import com.example.base.utils.CompressUtil
 import com.example.common.BaseApplication
 import com.example.common.utils.file.callback.OnUploadListener
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
@@ -43,12 +44,11 @@ class UploadFactory private constructor() {
             fileCompress = CompressUtil.degreeImage(context, fileCompress)!!
             val requestFile: RequestBody
             requestFile = if (file.name.endsWith(".png")) {
-                RequestBody.create(MediaType.parse("image/png"), fileCompress)
+                RequestBody.create("image/png".toMediaTypeOrNull(), fileCompress)
             } else {
-                RequestBody.create(MediaType.parse("image/jpeg"), fileCompress)
+                RequestBody.create("image/jpeg".toMediaTypeOrNull(), fileCompress)
             }
-            val filePart =
-                MultipartBody.Part.createFormData("file[]", fileCompress.name, requestFile)
+            val filePart = MultipartBody.Part.createFormData("file[]", fileCompress.name, requestFile)
             parts.add(filePart)
         }
 //        onFilesUploadListener?.onFilesUploadStart()

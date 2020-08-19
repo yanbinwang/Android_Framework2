@@ -1,6 +1,5 @@
 package com.example.mvvm.activity
 
-import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.chad.library.BR
 import com.example.common.base.BaseActivity
@@ -24,17 +23,15 @@ class UserInfoActivity : BaseActivity<ActivityUserInfoBinding>() {
 
     override fun initView() {
         super.initView()
-        binding?.setVariable(BR.model, intent.getParcelableExtra(Extras.BUNDLE_MODEL))
+        binding.setVariable(BR.model, intent.getParcelableExtra(Extras.BUNDLE_MODEL))
     }
 
     override fun initEvent() {
         super.initEvent()
-        binding?.btnTest?.setOnClickListener {
-            View.OnClickListener {
-                //发送消息
-                LiveDataBus.get().post(Constants.APP_USER_LOGIN_OUT).postValue("50998")
-                finish()
-            }
+        binding.btnTest.setOnClickListener {
+            //发送消息
+            LiveDataBus.get().post(Constants.APP_USER_LOGIN_OUT).postValue("50998")
+            finish()
         }
     }
 
