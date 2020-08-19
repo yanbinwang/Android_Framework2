@@ -1,12 +1,8 @@
 package com.example.common.base.binding
 
 import androidx.databinding.BindingAdapter
-import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
-import com.chad.library.adapter.base.listener.OnItemChildClickListener
-import com.chad.library.adapter.base.listener.OnItemClickListener
 import com.example.common.widget.xrecyclerview.XRecyclerView
-import com.example.common.widget.xrecyclerview.callback.OnRefreshListener
 
 /**
  * Create by wyb at 20/4/18
@@ -16,27 +12,27 @@ object RecyclerViewBindingAdapter {
 
     @JvmStatic
     @BindingAdapter(value = ["app:adapter"])
-    fun setAdapter(recyclerView: XRecyclerView?, adapter: BaseQuickAdapter<*, *>?) {
-        if (recyclerView != null && adapter != null) {
+    fun setAdapter(recyclerView: XRecyclerView, adapter: BaseQuickAdapter<*, *>?) {
+        if (adapter != null) {
             recyclerView.recyclerView.adapter = adapter
         }
     }
 
     @JvmStatic
     @BindingAdapter(value = ["app:itemNormalSpace"])
-    fun setNormalItemDecoration(recyclerView: XRecyclerView?, itemNormalSpace: Int) {
+    fun setNormalItemDecoration(recyclerView: XRecyclerView, itemNormalSpace: Int) {
         recyclerView?.addItemDecoration(itemNormalSpace, 0, true, false)
     }
 
     @JvmStatic
     @BindingAdapter(value = ["app:itemAroundSpace"])
-    fun setAroundItemDecoration(recyclerView: XRecyclerView?, itemAroundSpace: Int) {
+    fun setAroundItemDecoration(recyclerView: XRecyclerView, itemAroundSpace: Int) {
         recyclerView?.addItemDecoration(itemAroundSpace, itemAroundSpace, true, true)
     }
 
     @JvmStatic
     @BindingAdapter(value = ["app:emptyBackgroundColor"])
-    fun setEmptyBackgroundColor(recyclerView: XRecyclerView?, color: Int) {
+    fun setEmptyBackgroundColor(recyclerView: XRecyclerView, color: Int) {
         recyclerView?.setEmptyBackgroundColor(color)
     }
 

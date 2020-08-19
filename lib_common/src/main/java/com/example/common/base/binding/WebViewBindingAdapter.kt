@@ -18,7 +18,7 @@ object WebViewBindingAdapter {
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled")
     @BindingAdapter(value = ["app:pageAssetPath"])
-    fun setLoadAssetsPage(webView: WebView, assetPath: String) {
+    fun setLoadAssetsPage(webView: WebView, assetPath: String?) {
         webView.webViewClient = object : WebViewClient() {
 
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
