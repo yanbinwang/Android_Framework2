@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
  * retrofit单例
  */
 class RetrofitFactory private constructor() {
-    private val retrofit: Retrofit = Retrofit.Builder()
+    private val retrofit = Retrofit.Builder()
             .client(OkHttpFactory.instance.okHttpClient)
             .baseUrl(BuildConfig.LOCALHOST)
             .addConverterFactory(GsonConverterFactory.create())

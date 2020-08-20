@@ -9,4 +9,10 @@ class ApiResponse<T> {
     var e: Int = 0//状态码
     var msg: String? = null//信息
     var data: T? = null//数据
+
+    constructor(e: Int, msg: String?, data: T?) {
+        this.e = e
+        this.msg = msg
+        this.data = data
+    }
 }
