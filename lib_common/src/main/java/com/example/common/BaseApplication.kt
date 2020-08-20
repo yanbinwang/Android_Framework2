@@ -7,6 +7,7 @@ import com.alibaba.android.arouter.launcher.ARouter
 import com.example.base.utils.LogUtil.d
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
 import com.example.common.imageloader.glide.callback.GlideAlbumLoader
+import com.example.common.utils.handler.CrashHandler
 import com.example.common.utils.helper.ConfigHelper
 import com.tencent.mmkv.MMKV
 import com.tencent.smtt.sdk.QbSdk
@@ -63,6 +64,8 @@ open class BaseApplication : Application() {
             ARouter.openLog()
             ARouter.openDebug()
         }
+        //异常捕获初始化
+        CrashHandler.instance
         //开启调试模式(如果在InstantRun模式下运行，必须开启调试模式！线上版本需要关闭,否则有安全风险)
         ARouter.init(this)
         //腾讯读写mmkv初始化
