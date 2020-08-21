@@ -35,7 +35,7 @@ class DownloadFactory private constructor() {
 
             override fun onStart() {
                 complete = false
-                weakHandler.post { onDownloadListener?.onStart() }
+                onDownloadListener?.onStart()
             }
 
             override fun onNext(t: ResponseBody?) {
@@ -70,7 +70,7 @@ class DownloadFactory private constructor() {
                     }
                     executors.isShutdown
                 } else {
-                    weakHandler.post { onDownloadListener?.onFailed(null) }
+                    onDownloadListener?.onFailed(null)
                     complete = true
                     onComplete()
                 }
@@ -79,7 +79,7 @@ class DownloadFactory private constructor() {
             override fun onComplete() {
                 if (complete) {
                     complete = false
-                    weakHandler.post { onDownloadListener?.onComplete() }
+                    onDownloadListener?.onComplete()
                 }
             }
         })
