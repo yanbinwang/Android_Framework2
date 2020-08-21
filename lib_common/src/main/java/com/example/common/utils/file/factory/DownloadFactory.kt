@@ -1,25 +1,22 @@
 package com.example.common.utils.file.factory
 
-import android.os.Looper
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.http.callback.HttpObserver
 import com.example.common.subscribe.BaseSubscribe.download
 import com.example.common.utils.file.FileUtil
 import com.example.common.utils.file.callback.OnDownloadListener
-import com.example.common.utils.handler.WeakHandler
+import kotlinx.coroutines.*
 import okhttp3.ResponseBody
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.util.concurrent.Executors
 
 /**
  * author: wyb
  * 下载单例
  */
 class DownloadFactory private constructor() {
-    private val weakHandler = WeakHandler(Looper.getMainLooper())
-    private val executors = Executors.newSingleThreadExecutor()
+    private var job: Job? = null//kotlin协程
     private var complete = false//请求在完成并返回对象后又发起了线程下载，所以回调监听需要保证线程完成在回调
 
     companion object {
@@ -40,7 +37,7 @@ class DownloadFactory private constructor() {
 
             override fun onNext(t: ResponseBody?) {
                 if (null != t) {
-                    executors.execute {
+                    job = GlobalScope.launch(Dispatchers.IO) {
                         var inputStream: InputStream? = null
                         var fileOutputStream: FileOutputStream? = null
                         try {
@@ -55,12 +52,12 @@ class DownloadFactory private constructor() {
                                 fileOutputStream.write(buf, 0, len)
                                 sum += len.toLong()
                                 val progress = (sum * 1.0f / total * 100).toInt()
-                                weakHandler.post { onDownloadListener?.onLoading(progress) }
+                                withContext(Dispatchers.Main) { onDownloadListener?.onLoading(progress) }
                             }
                             fileOutputStream.flush()
-                            weakHandler.post { onDownloadListener?.onSuccess(file.path) }
+                            withContext(Dispatchers.Main) { onDownloadListener?.onSuccess(file.path) }
                         } catch (e: Exception) {
-                            weakHandler.post { onDownloadListener?.onFailed(e) }
+                            withContext(Dispatchers.Main) { onDownloadListener?.onFailed(e) }
                         } finally {
                             inputStream?.close()
                             fileOutputStream?.close()
@@ -68,7 +65,6 @@ class DownloadFactory private constructor() {
                             onComplete()
                         }
                     }
-                    executors.isShutdown
                 } else {
                     onDownloadListener?.onFailed(null)
                     complete = true
@@ -78,6 +74,7 @@ class DownloadFactory private constructor() {
 
             override fun onComplete() {
                 if (complete) {
+                    job?.cancel()
                     complete = false
                     onDownloadListener?.onComplete()
                 }

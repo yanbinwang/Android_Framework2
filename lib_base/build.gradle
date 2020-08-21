@@ -45,7 +45,9 @@ dependencies {
     api deps.androidx.swiperefreshlayout
     api deps.androidx.viewmodel
     api deps.androidx.livedata
-    //其余第三方库
-    api deps.kotlin
+    //kotlin
+    api deps.kotlin.stdlib
+    api deps.kotlin.coroutines_android
+    //其余谷歌官方库
     api deps.material
 }
