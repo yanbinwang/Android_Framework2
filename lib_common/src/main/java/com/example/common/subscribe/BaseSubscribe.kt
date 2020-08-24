@@ -1,6 +1,5 @@
 package com.example.common.subscribe
 
-import androidx.lifecycle.LiveData
 import com.example.common.http.callback.ApiResponse
 import com.example.common.http.factory.RetrofitFactory
 import com.example.common.model.UploadModel
@@ -11,27 +10,28 @@ import okhttp3.MultipartBody
  * 通用接口类
  */
 object BaseSubscribe : BaseApi {
+
     private val baseApi by lazy {
         RetrofitFactory.instance.create(BaseApi::class.java)
     }
 
-    override fun download(downloadUrl: String): LiveData<okhttp3.ResponseBody> {
+    override suspend fun download(downloadUrl: String): okhttp3.ResponseBody {
         return baseApi.download(downloadUrl)
     }
 
-    override fun getUploadFile(agent: String, partList: List<MultipartBody.Part>): LiveData<ApiResponse<UploadModel>> {
+    override suspend fun getUploadFile(agent: String, partList: List<MultipartBody.Part>): ApiResponse<UploadModel> {
         TODO("Not yet implemented")
     }
 
-    override fun getSendVerification(agent: String, map: Map<String, String>): LiveData<ApiResponse<Any>> {
+    override suspend fun getSendVerification(agent: String, map: Map<String, String>): ApiResponse<Any> {
         return baseApi.getSendVerification(agent, map)
     }
 
-    override fun getVerification(agent: String, map: Map<String, String>): LiveData<ApiResponse<Any>> {
+    override suspend fun getVerification(agent: String, map: Map<String, String>): ApiResponse<Any> {
         return baseApi.getVerification(agent, map)
     }
 
-    override fun getTestApi(): LiveData<ApiResponse<Any>> {
+    override suspend fun getTestApi(): ApiResponse<Any> {
         return baseApi.getTestApi()
     }
 

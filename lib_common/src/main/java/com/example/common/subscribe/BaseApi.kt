@@ -1,6 +1,5 @@
 package com.example.common.subscribe
 
-import androidx.lifecycle.LiveData
 import com.example.common.http.callback.ApiResponse
 import com.example.common.model.UploadModel
 import okhttp3.MultipartBody
@@ -14,22 +13,22 @@ interface BaseApi {
 
     @Streaming
     @GET
-    fun download(@Url downloadUrl: String): LiveData<okhttp3.ResponseBody>
+    suspend fun download(@Url downloadUrl: String): okhttp3.ResponseBody
 
     @Multipart
     @Streaming
     @POST("http://www.baidu.com")
-    fun getUploadFile(@Header("User-Agent") agent: String, @Part partList: List<MultipartBody.Part>): LiveData<ApiResponse<UploadModel>>
+    suspend fun getUploadFile(@Header("User-Agent") agent: String, @Part partList: List<MultipartBody.Part>): ApiResponse<UploadModel>
 
     @FormUrlEncoded
     @POST("http://www.baidu.com")
-    fun getSendVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): LiveData<ApiResponse<Any>>
+    suspend fun getSendVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): ApiResponse<Any>
 
     @FormUrlEncoded
     @POST("http://www.baidu.com")
-    fun getVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): LiveData<ApiResponse<Any>>
+    suspend fun getVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): ApiResponse<Any>
 
     @GET("test")
-    fun getTestApi(): LiveData<ApiResponse<Any>>
+    suspend fun getTestApi(): ApiResponse<Any>
 
 }

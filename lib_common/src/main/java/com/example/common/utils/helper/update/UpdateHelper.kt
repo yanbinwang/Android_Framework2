@@ -1,5 +1,6 @@
 package com.example.common.utils.helper.update
 
+import android.content.Context
 import androidx.databinding.ViewDataBinding
 import com.example.common.constant.Constants
 import com.example.common.utils.file.callback.OnDownloadListener
@@ -24,8 +25,8 @@ class UpdateHelper private constructor() {
 
     //统一下载，进入app以及设置中的检测版本皆是一样的逻辑，弹框-检测权限-开启下载
     @JvmOverloads
-    fun download(binding: ViewDataBinding, downloadUrl: String, onUpdateCallBack: OnUpdateCallBack? = null) {
-        PermissionHelper.with(binding.root.context)
+    fun download(context: Context, downloadUrl: String, onUpdateCallBack: OnUpdateCallBack? = null) {
+        PermissionHelper.with(context)
             .getPermissions(Permission.Group.STORAGE)
             .setPermissionCallBack(object : OnPermissionCallBack {
 
@@ -33,7 +34,7 @@ class UpdateHelper private constructor() {
                     if (isGranted) {
                         val filePath = Constants.APPLICATION_FILE_PATH + "/安装包"
                         val fileName = Constants.APPLICATION_NAME + ".apk"
-                        DownloadFactory.instance.download(binding.lifecycleOwner!!, downloadUrl, filePath, fileName, object : OnDownloadListener {
+                        DownloadFactory.instance.download(downloadUrl, filePath, fileName, object : OnDownloadListener {
 
                                 override fun onStart() {
                                     onUpdateCallBack?.onStart()

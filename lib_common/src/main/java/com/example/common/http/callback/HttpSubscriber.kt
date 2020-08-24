@@ -5,7 +5,7 @@ package com.example.common.http.callback
  * 请求通过拿取Observer对象再做处理，对上一级的3个回调再处理，实现了开始和结束，项目内有需要可重写
  * onNext拆分为成功和失败，剥除了外层的嵌套判断，用于项目内部服务器请求回调
  */
-abstract class HttpSubscriber<T> : HttpObserver<ApiResponse<T>?>() {
+interface HttpSubscriber<T> : HttpObserver<ApiResponse<T>?> {
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onStart() {
@@ -42,11 +42,11 @@ abstract class HttpSubscriber<T> : HttpObserver<ApiResponse<T>?>() {
     /**
      * 请求成功，直接回调对象
      */
-    protected abstract fun onSuccess(data: T?)
+    fun onSuccess(data: T?)
 
     /**
      * 请求失败，获取失败原因
      */
-    protected abstract fun onFailed(msg: String?)
+    fun onFailed(msg: String?)
 
 }

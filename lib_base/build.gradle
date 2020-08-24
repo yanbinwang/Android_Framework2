@@ -47,7 +47,7 @@ dependencies {
     api deps.androidx.livedata
     //kotlin
     api deps.kotlin.stdlib
-    api deps.kotlin.coroutines_android
+//    api deps.kotlin.coroutines_android
     //其余谷歌官方库
     api deps.material
 }

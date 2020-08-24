@@ -68,7 +68,7 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
     protected <VM extends BaseViewModel> VM createViewModel(Class<VM> vmClass) {
         if (null == baseViewModel) {
             baseViewModel = new ViewModelProvider(this).get(vmClass);
-            baseViewModel.initialize(binding, this);
+            baseViewModel.attachView(this);
             getLifecycle().addObserver(baseViewModel);
         }
         return (VM) baseViewModel;

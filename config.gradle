@@ -10,7 +10,7 @@ versions.viewmodel = "2.2.0"
 versions.livedata = "2.2.0"
 //------------------------------------------------------------------------------------------
 versions.stdlib = "1.4.0"
-versions.coroutines_android = "1.1.1"
+//versions.coroutines_android = "1.1.1"
 //------------------------------------------------------------------------------------------
 versions.glide = "4.11.0"
 versions.glide_compiler = "4.11.0"
@@ -40,14 +40,14 @@ def androidx = [:]
 androidx.appcompat = "androidx.appcompat:appcompat:$versions.appcompat"
 androidx.recyclerview = "androidx.recyclerview:recyclerview:$versions.recyclerview"
 androidx.swiperefreshlayout = "androidx.swiperefreshlayout:swiperefreshlayout:$versions.swiperefreshlayout"
-androidx.viewmodel = "androidx.lifecycle:lifecycle-viewmodel:$versions.viewmodel"
-androidx.livedata = "androidx.lifecycle:lifecycle-livedata:$versions.livedata"
+androidx.viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.viewmodel"
+androidx.livedata = "androidx.lifecycle:lifecycle-livedata-ktx:$versions.livedata"
 deps.androidx = androidx
 
 //kotlin
 def kotlin = [:]
 kotlin.stdlib = "org.jetbrains.kotlin:kotlin-stdlib:$versions.stdlib"
-kotlin.coroutines_android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutines_android"
+//kotlin.coroutines_android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutines_android"
 deps.kotlin = kotlin
 
 //图片加载glide

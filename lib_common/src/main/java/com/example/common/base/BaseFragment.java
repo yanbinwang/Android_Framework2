@@ -23,6 +23,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.example.base.utils.LogUtil;
+import com.example.base.utils.ToastUtil;
 import com.example.common.base.bridge.BaseImpl;
 import com.example.common.base.bridge.BaseView;
 import com.example.common.base.bridge.BaseViewModel;
@@ -31,8 +33,6 @@ import com.example.common.base.proxy.SimpleTextWatcher;
 import com.example.common.constant.Extras;
 import com.example.common.utils.builder.StatusBarBuilder;
 import com.example.common.widget.dialog.LoadingDialog;
-import com.example.base.utils.LogUtil;
-import com.example.base.utils.ToastUtil;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
@@ -61,7 +61,7 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
     protected <VM extends BaseViewModel> VM createViewModel(Class<VM> vmClass) {
         if (null == baseViewModel) {
             baseViewModel = new ViewModelProvider(this).get(vmClass);
-            baseViewModel.initialize(binding,this);
+            baseViewModel.attachView(this);
             getLifecycle().addObserver(baseViewModel);
         }
         return (VM) baseViewModel;
