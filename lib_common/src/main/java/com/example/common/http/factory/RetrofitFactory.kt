@@ -1,7 +1,7 @@
 package com.example.common.http.factory
 
 import com.example.common.BuildConfig
-import com.example.common.http.adapter.CoroutineCallAdapterFactory
+import com.example.common.http.adapter.CustomGsonConverterFactory
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -14,8 +14,7 @@ class RetrofitFactory private constructor() {
     private val retrofit = Retrofit.Builder()
         .client(OkHttpFactory.instance.okHttpClient)
         .baseUrl(BuildConfig.LOCALHOST)
-        .addConverterFactory(GsonConverterFactory.create())
-//        .addCallAdapterFactory(CoroutineCallAdapterFactory())
+        .addConverterFactory(CustomGsonConverterFactory.create())
         .build()
 
     companion object {
