@@ -29,6 +29,6 @@ interface BaseApi {
     suspend fun getVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): ApiResponse<Any>
 
     @GET("test")
-    suspend fun getTestApi(): ApiResponse<Any>
+    suspend fun getTestApi(): Any
 
 }

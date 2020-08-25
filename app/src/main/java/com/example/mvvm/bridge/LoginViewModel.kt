@@ -2,7 +2,7 @@ package com.example.mvvm.bridge
 
 import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
-import com.example.common.http.callback.HttpSubscriber
+import com.example.common.http.callback.HttpObserver
 import com.example.common.subscribe.BaseSubscribe.getTestApi
 import com.example.mvvm.model.UserInfoModel
 import kotlinx.coroutines.launch
@@ -16,21 +16,18 @@ class LoginViewModel : BaseViewModel() {
     fun getData() {
         for (i in 0..999) {
             getUiScope().launch {
-                observe(getTestApi(), object : HttpSubscriber<Any> {
-
-                    override fun onSuccess(data: Any?) {
+                observe(getTestApi(), object : HttpObserver<Any> {
+                    override fun onStart() {
 
                     }
 
-                    override fun onFailed(msg: String?) {
+                    override fun onNext(t: Any?) {
 
                     }
 
                     override fun onComplete() {
-                        super.onComplete()
                         getView().log("当前第" + i + "个请求结束！")
                     }
-
                 })
             }
         }

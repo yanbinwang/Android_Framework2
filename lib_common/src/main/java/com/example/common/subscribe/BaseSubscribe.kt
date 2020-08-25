@@ -31,7 +31,7 @@ object BaseSubscribe : BaseApi {
         return baseApi.getVerification(agent, map)
     }
 
-    override suspend fun getTestApi(): ApiResponse<Any> {
+    override suspend fun getTestApi(): Any {
         return baseApi.getTestApi()
     }
 

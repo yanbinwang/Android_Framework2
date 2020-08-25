@@ -75,6 +75,4 @@ dependencies {
     api deps.tkrefreshlayout
     api deps.recovery
     api deps.wechat
-
-    api 'com.alibaba:fastjson:1.2.73'
 }
