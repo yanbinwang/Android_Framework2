@@ -1,6 +1,5 @@
 package com.example.mvvm.activity
 
-import android.view.View
 import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseTitleActivity
@@ -8,7 +7,6 @@ import com.example.common.base.page.PageParams
 import com.example.common.base.proxy.SimpleTextWatcher
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Extras
-import com.example.mvvm.R
 import com.example.mvvm.bridge.LoginViewModel
 import com.example.mvvm.databinding.ActivityLoginBinding
 
@@ -20,10 +18,6 @@ import com.example.mvvm.databinding.ActivityLoginBinding
 class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
     private val viewModel: LoginViewModel by lazy {
         createViewModel(LoginViewModel::class.java)
-    }
-
-    override fun getLayoutResID(): Int {
-        return R.layout.activity_login
     }
 
     override fun initView() {
@@ -41,7 +35,7 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
 //                getParameters(binding?.etAccount),
 //                getParameters(binding?.etPassword)
 //            )
-                viewModel.getData()
+            viewModel.getData()
         }
 
         //类似mvp的接口回调,通过观察泛型内容随时刷新变化

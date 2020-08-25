@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -36,6 +35,10 @@ import com.example.common.widget.dialog.LoadingDialog;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -47,7 +50,6 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
  */
 public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment implements BaseImpl, BaseView {
     protected VDB binding;
-    protected View convertView;//传入的View（子类获取view通过getView方法）
     protected WeakReference<Activity> activity;//基类activity弱引用
     protected WeakReference<Context> context;//基类context弱引用
     protected StatusBarBuilder statusBarBuilder;//状态栏工具类
@@ -56,12 +58,10 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
     private final String TAG = getClass().getSimpleName().toLowerCase();//额外数据，查看log，观察当前activity是否被销毁
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
-    protected abstract int getLayoutResID();
-
     protected <VM extends BaseViewModel> VM createViewModel(Class<VM> vmClass) {
         if (null == baseViewModel) {
             baseViewModel = new ViewModelProvider(this).get(vmClass);
-            baseViewModel.attachView(this);
+            baseViewModel.initialize(getActivity(), getContext(), this);
             getLifecycle().addObserver(baseViewModel);
         }
         return (VM) baseViewModel;
@@ -69,12 +69,16 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        convertView = inflater.inflate(getLayoutResID(), container, false);
-        if (0 != getLayoutResID()) {
-            binding = DataBindingUtil.inflate(inflater, getLayoutResID(), container, false);
-            binding.setLifecycleOwner(this);
+        log(TAG);
+        Type superclass = getClass().getGenericSuperclass();
+        Class<?> aClass = (Class<?>) ((ParameterizedType) superclass).getActualTypeArguments()[0];
+        try {
+            Method method = aClass.getDeclaredMethod("inflate", LayoutInflater.class, ViewGroup.class, boolean.class);
+            binding = (VDB) method.invoke(null, getLayoutInflater(), container, false);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
         }
-        return null != binding ? binding.getRoot() : convertView;
+        return binding.getRoot();
     }
 
     @Override

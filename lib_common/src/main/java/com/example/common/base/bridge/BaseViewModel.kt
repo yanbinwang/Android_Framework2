@@ -1,13 +1,14 @@
 package com.example.common.base.bridge
 
+import android.app.Activity
 import android.content.Context
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
 import com.example.common.BaseApplication
 import com.example.common.http.callback.HttpObserver
-import com.lcodecore.tkrefreshlayout.utils.LogUtil
 import kotlinx.coroutines.*
 import java.lang.ref.SoftReference
+import java.lang.ref.WeakReference
 
 /**
  * Created by WangYanBin on 2020/6/3.
@@ -16,36 +17,46 @@ import java.lang.ref.SoftReference
  * LifecycleObserver-->观察宿主的生命周期
  */
 abstract class BaseViewModel : ViewModel(), LifecycleObserver {
-    private var view: SoftReference<BaseView>? = null//基础UI操作
-    private val viewModelJob = SupervisorJob()//此ViewModel运行的所有协程所用的任务,终止这个任务将终止此ViewModel开始的所有协程
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)//所有协程的主作用域
+    private var weakActivity: WeakReference<Activity>? = null
+    private var weakContext: WeakReference<Context>? = null
+    private var softView: SoftReference<BaseView>? = null//基础UI操作
+    private var viewModelJob = SupervisorJob()//此ViewModel运行的所有协程所用的任务,终止这个任务将终止此ViewModel开始的所有协程
+    private var uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)//所有协程的主作用域
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    fun attachView(view: BaseView) {
-        this.view = SoftReference(view)
+    fun initialize(activity: Activity?, context: Context?, view: BaseView?) {
+        this.weakActivity = WeakReference(activity)
+        this.weakContext = WeakReference(context)
+        this.softView = SoftReference(view)
     }
 
-    protected fun <T> observe(t: T, subscriber: HttpObserver<T>) {
-        subscriber.onStart()
-        subscriber.onNext(t)
-        subscriber.onComplete()
+    protected fun <T> observe(t: T, subscriber: HttpObserver<T>?) {
+        subscriber?.onStart()
+        subscriber?.onNext(t)
+        subscriber?.onComplete()
     }
 
     protected fun getUiScope(): CoroutineScope {
         return uiScope
     }
 
+    protected fun getActivity(): Activity {
+        return weakActivity?.get()!!
+    }
+
     protected fun getContext(): Context {
-        return BaseApplication.instance?.applicationContext!!
+        return weakContext?.get()!!
     }
 
     protected fun getView(): BaseView {
-        return view?.get()!!
+        return softView?.get()!!
     }
 
     override fun onCleared() {
         super.onCleared()
-        view?.clear()
+        weakActivity?.clear()
+        weakContext?.clear()
+        softView?.clear()
         viewModelJob.cancel()
     }
     // </editor-fold>

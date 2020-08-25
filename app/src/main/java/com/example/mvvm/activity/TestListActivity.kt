@@ -20,10 +20,6 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
         createViewModel(TestListViewModel::class.java)
     }
 
-    override fun getLayoutResID(): Int {
-        return R.layout.activity_test_list
-    }
-
     override fun initView() {
         super.initView()
         //绑定适配器,监听

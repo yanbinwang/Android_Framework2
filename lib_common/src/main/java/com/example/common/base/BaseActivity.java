@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -34,6 +35,9 @@ import com.example.common.widget.dialog.LoadingDialog;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -58,17 +62,27 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        Type type = getClass().getGenericSuperclass();
+        if (type instanceof ParameterizedType) {
+            try {
+                Class<VDB> vbClass = (Class<VDB>) ((ParameterizedType) type).getActualTypeArguments()[0];
+                Method method = vbClass.getMethod("inflate", LayoutInflater.class);
+                binding = (VDB) method.invoke(null, getLayoutInflater());
+                binding.setLifecycleOwner(this);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            setContentView(binding.getRoot());
+        }
         initView();
         initEvent();
         initData();
     }
 
-    protected abstract int getLayoutResID();
-
     protected <VM extends BaseViewModel> VM createViewModel(Class<VM> vmClass) {
         if (null == baseViewModel) {
             baseViewModel = new ViewModelProvider(this).get(vmClass);
-            baseViewModel.attachView(this);
+            baseViewModel.initialize(this, this, this);
             getLifecycle().addObserver(baseViewModel);
         }
         return (VM) baseViewModel;
@@ -78,10 +92,6 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
     @Override
     public void initView() {
         ARouter.getInstance().inject(this);
-        if (0 != getLayoutResID()) {
-            binding = DataBindingUtil.setContentView(this, getLayoutResID());
-            binding.setLifecycleOwner(this);
-        }
         activity = new WeakReference<>(this);
         context = new WeakReference<>(this);
         statusBarBuilder = new StatusBarBuilder(activity.get());

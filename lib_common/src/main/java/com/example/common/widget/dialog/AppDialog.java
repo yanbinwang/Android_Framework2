@@ -7,7 +7,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.example.common.R;
 import com.example.common.base.BaseDialog;
 import com.example.common.databinding.ViewDialogBinding;
 import com.example.common.widget.dialog.callback.OnDialogListener;
@@ -23,11 +22,6 @@ public class AppDialog extends BaseDialog<ViewDialogBinding> {
     public AppDialog(@NonNull Context context) {
         super(context);
         initialize(true, false);
-    }
-
-    @Override
-    protected int getLayoutResID() {
-        return R.layout.view_dialog;
     }
 
     public AppDialog setParams(String tipText, String contentText, String sureText) {

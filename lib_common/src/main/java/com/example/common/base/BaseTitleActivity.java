@@ -1,9 +1,9 @@
 package com.example.common.base;
 
-import androidx.databinding.DataBindingUtil;
+import android.view.View;
+
 import androidx.databinding.ViewDataBinding;
 
-import com.example.common.R;
 import com.example.common.databinding.ActivityBaseBinding;
 import com.example.common.utils.builder.TitleBuilder;
 
@@ -16,15 +16,11 @@ public abstract class BaseTitleActivity<VDB extends ViewDataBinding> extends Bas
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     @Override
-    public void initView() {
-        super.initView();
-        if (0 != getLayoutResID()) {
-            binding = DataBindingUtil.bind(getLayoutInflater().inflate(getLayoutResID(), null));
-            binding.setLifecycleOwner(this);
-            ActivityBaseBinding baseBinding = DataBindingUtil.setContentView(this, R.layout.activity_base);
-            baseBinding.flBaseContainer.addView(binding.getRoot());
-            titleBuilder = new TitleBuilder(this, baseBinding.titleContainer);
-        }
+    public void setContentView(View view) {
+        ActivityBaseBinding baseBinding = ActivityBaseBinding.inflate(getLayoutInflater());
+        baseBinding.flBaseContainer.addView(binding.getRoot());
+        super.setContentView(baseBinding.getRoot());
+        titleBuilder = new TitleBuilder(this, baseBinding.titleContainer);
     }
     // </editor-fold>
 
