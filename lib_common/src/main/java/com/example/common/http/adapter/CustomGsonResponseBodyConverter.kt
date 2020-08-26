@@ -43,7 +43,7 @@ class CustomGsonResponseBodyConverter<T> : Converter<ResponseBody, T> {
         try {
             gson?.fromJson(response, Any::class.java)
         } catch (e: Exception) {
-            response = gson?.toJson(ApiResponse<Any?>(-1, response, null))!!
+            response = gson?.toJson(ApiResponse(-1, response, null))!!
         }
 
         val contentType = value.contentType()
