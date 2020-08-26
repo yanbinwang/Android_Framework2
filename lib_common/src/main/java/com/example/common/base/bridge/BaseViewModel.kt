@@ -2,6 +2,7 @@ package com.example.common.base.bridge
 
 import android.app.Activity
 import android.content.Context
+import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
 import com.example.common.BaseApplication
@@ -17,16 +18,16 @@ import java.lang.ref.WeakReference
  * LifecycleObserver-->观察宿主的生命周期
  */
 abstract class BaseViewModel : ViewModel(), LifecycleObserver {
-    private var weakActivity: WeakReference<Activity>? = null
-    private var weakContext: WeakReference<Context>? = null
+    private var binding: ViewDataBinding? = null//数据绑定类
+    private var weakActivity: WeakReference<Activity>? = null//引用的activity
     private var softView: SoftReference<BaseView>? = null//基础UI操作
     private var viewModelJob = SupervisorJob()//此ViewModel运行的所有协程所用的任务,终止这个任务将终止此ViewModel开始的所有协程
     private var uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)//所有协程的主作用域
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    fun initialize(activity: Activity?, context: Context?, view: BaseView?) {
+    fun initialize(binding: ViewDataBinding?, activity: Activity?, view: BaseView?) {
+        this.binding = binding
         this.weakActivity = WeakReference(activity)
-        this.weakContext = WeakReference(context)
         this.softView = SoftReference(view)
     }
 
@@ -40,12 +41,16 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
         return uiScope
     }
 
+    protected fun <VDB : ViewDataBinding> getBinding(): VDB {
+        return binding as VDB
+    }
+
     protected fun getActivity(): Activity {
         return weakActivity?.get()!!
     }
 
     protected fun getContext(): Context {
-        return weakContext?.get()!!
+        return binding?.root?.context!!
     }
 
     protected fun getView(): BaseView {
@@ -54,8 +59,8 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
 
     override fun onCleared() {
         super.onCleared()
+        binding = null
         weakActivity?.clear()
-        weakContext?.clear()
         softView?.clear()
         viewModelJob.cancel()
     }

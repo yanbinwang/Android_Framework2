@@ -48,7 +48,7 @@ final class CustomGsonResponseBodyConverter<T> implements Converter<ResponseBody
         String response = value.string();
         //尝试转换，格式转换异常则包装一个对象返回
         try {
-            gson.fromJson(response, ApiResponse.class);
+            gson.fromJson(response, Object.class);
         } catch (Exception e) {
             response = gson.toJson(new ApiResponse(-1, response, null));
         }
