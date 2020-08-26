@@ -14,6 +14,7 @@ import java.lang.reflect.Type
 class CustomGsonConverterFactory private constructor() : Converter.Factory() {
     private val gson = Gson()
 
+    //重载函数，运行后初始化当前对象
     companion object {
         @JvmName("create")
         @JvmStatic
