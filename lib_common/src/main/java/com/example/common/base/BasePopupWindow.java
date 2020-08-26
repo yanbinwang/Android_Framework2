@@ -8,12 +8,14 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
 
-import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 
 import com.example.common.R;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 /**
  * Created by WangYanBin on 2020/7/13.
@@ -36,8 +38,15 @@ public abstract class BasePopupWindow<VDB extends ViewDataBinding> extends Popup
     }
 
     protected void initialize() {
-        if (0 != getLayoutResID()) {
-            binding = DataBindingUtil.bind(LayoutInflater.from(weakActivity.get()).inflate(getLayoutResID(), null));
+        Type type = getClass().getGenericSuperclass();
+        if (type instanceof ParameterizedType) {
+            try {
+                Class<VDB> vbClass = (Class<VDB>) ((ParameterizedType) type).getActualTypeArguments()[0];
+                Method method = vbClass.getMethod("inflate", LayoutInflater.class);
+                binding = (VDB) method.invoke(null, weakActivity.get().getLayoutInflater());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             setContentView(binding.getRoot());
             setFocusable(true);
             setOutsideTouchable(true);
@@ -49,8 +58,6 @@ public abstract class BasePopupWindow<VDB extends ViewDataBinding> extends Popup
             setDismissAttributes();
         }
     }
-
-    protected abstract int getLayoutResID();
 
     @Override
     public void showAsDropDown(View anchor) {

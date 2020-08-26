@@ -20,11 +20,6 @@ public class LoadingDialog extends BaseDialog<ViewDialogLoadingBinding> {
     }
 
     @Override
-    protected int getLayoutResID() {
-        return R.layout.view_dialog_loading;
-    }
-
-    @Override
     protected void initialize() {
         super.initialize();
         setOnDismissListener(dialog -> binding.progress.stopSpinning());

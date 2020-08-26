@@ -14,12 +14,8 @@ import java.lang.ref.WeakReference
  */
 class NotificationBuilder(activity: Activity) {
     private val weakActivity = WeakReference(activity)
-    private val notificationManager: NotificationManager
+    private val notificationManager = weakActivity.get()?.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as NotificationManager
     private var builder: NotificationCompat.Builder? = null
-
-    init {
-        notificationManager = weakActivity.get()?.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as NotificationManager
-    }
 
     //构建通知栏
     fun createNotification(id: Int, smallIcon: Int, largeIcon: Bitmap, title: String, text: String) {
@@ -39,7 +35,8 @@ class NotificationBuilder(activity: Activity) {
     //构建通知栏跳转
     fun setPendingIntent(id: Int, title: String, text: String, setupApkIntent: Intent) {
         val contentIntent = PendingIntent.getActivity(weakActivity.get(), 0, setupApkIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        builder!!.setContentIntent(contentIntent).setContentTitle(title).setContentText(text).setProgress(0, 0, false).setDefaults(Notification.DEFAULT_ALL)
+        builder!!.setContentIntent(contentIntent).setContentTitle(title).setContentText(text)
+            .setProgress(0, 0, false).setDefaults(Notification.DEFAULT_ALL)
         val notification = builder!!.build()
         notification.flags = Notification.FLAG_AUTO_CANCEL
         notificationManager.notify(id, notification)
@@ -47,7 +44,8 @@ class NotificationBuilder(activity: Activity) {
 
     //构建进度条
     fun setProgress(id: Int, progress: Int, title: String, text: String) {
-        builder!!.setContentTitle(title).setContentText(text).setProgress(100, progress, false).setWhen(System.currentTimeMillis())
+        builder!!.setContentTitle(title).setContentText(text).setProgress(100, progress, false)
+            .setWhen(System.currentTimeMillis())
         val notification = builder!!.build()
         notification.flags = Notification.FLAG_AUTO_CANCEL or Notification.FLAG_ONLY_ALERT_ONCE
         notificationManager.notify(id, notification)

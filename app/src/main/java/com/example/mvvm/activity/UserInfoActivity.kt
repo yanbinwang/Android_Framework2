@@ -7,7 +7,6 @@ import com.example.common.bus.LiveDataBus
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
 import com.example.common.constant.Extras
-import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityUserInfoBinding
 
 /**
@@ -16,10 +15,6 @@ import com.example.mvvm.databinding.ActivityUserInfoBinding
  */
 @Route(path = ARouterPath.UserInfoActivity)
 class UserInfoActivity : BaseActivity<ActivityUserInfoBinding>() {
-
-    override fun getLayoutResID(): Int {
-        return R.layout.activity_user_info
-    }
 
     override fun initView() {
         super.initView()

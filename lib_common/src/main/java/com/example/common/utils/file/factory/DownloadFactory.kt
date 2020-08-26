@@ -76,6 +76,7 @@ class DownloadFactory private constructor() {
                 }
             }
 
+            //该回调在请求完成后即回调，并非表示下载完成，下载是通过下载链接得到body对象再开启子线程后回调监听
             override fun onComplete() {
                 if (complete) {
                     complete = false
