@@ -18,15 +18,15 @@ class LoginViewModel : BaseViewModel() {
             getUiScope().launch {
                 observe(getTestApi(), object : HttpObserver<Any> {
                     override fun onStart() {
-
+                        getView().log("onStart：当前第" + i + "个请求开始！")
                     }
 
                     override fun onNext(t: Any?) {
-
+                        getView().log("onNext：当前第" + i + "个请求回调！")
                     }
 
                     override fun onComplete() {
-                        getView().log("当前第" + i + "个请求结束！")
+                        getView().log("onComplete：当前第" + i + "个请求结束！")
                     }
                 })
             }

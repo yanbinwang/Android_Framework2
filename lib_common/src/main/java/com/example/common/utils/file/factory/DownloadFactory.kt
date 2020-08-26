@@ -23,38 +23,38 @@ class DownloadFactory private constructor() {
     }
 
     fun download(downloadUrl: String, filePath: String, fileName: String, onDownloadListener: OnDownloadListener?) {
-        FileUtil.deleteDir(filePath)
         job = GlobalScope.launch(Dispatchers.Main) {
+            FileUtil.deleteDir(filePath)
             onDownloadListener?.onStart()
-            val downloadBody = BaseSubscribe.download(downloadUrl)
-            withContext(Dispatchers.IO) {
-                var inputStream: InputStream? = null
-                var fileOutputStream: FileOutputStream? = null
-                try {
-                    val file = File(FileUtil.isExistDir(filePath), fileName)
-                    val buf = ByteArray(2048)
-                    val total = downloadBody.contentLength()
-                    inputStream = downloadBody.byteStream()
-                    fileOutputStream = FileOutputStream(file)
-                    var len: Int
-                    var sum: Long = 0
-                    while (((inputStream.read(buf)).also { len = it }) != -1) {
-                        fileOutputStream.write(buf, 0, len)
-                        sum += len.toLong()
-                        val progress = (sum * 1.0f / total * 100).toInt()
-                        withContext(Dispatchers.Main) { onDownloadListener?.onLoading(progress) }
-                    }
-                    fileOutputStream.flush()
-                    withContext(Dispatchers.Main) { onDownloadListener?.onSuccess(file.path) }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) { onDownloadListener?.onFailed(e) }
-                } finally {
-                    inputStream?.close()
-                    fileOutputStream?.close()
-                    withContext(Dispatchers.Main) { onDownloadListener?.onComplete() }
-                    job?.cancel()
-                }
+            withContext(Dispatchers.IO) { startDownload(BaseSubscribe.download(downloadUrl), File(FileUtil.isExistDir(filePath), fileName), onDownloadListener) }
+        }
+    }
+
+    private suspend fun startDownload(body: okhttp3.ResponseBody, file: File, onDownloadListener: OnDownloadListener?) {
+        var inputStream: InputStream? = null
+        var fileOutputStream: FileOutputStream? = null
+        try {
+            val buf = ByteArray(2048)
+            val total = body.contentLength()
+            inputStream = body.byteStream()
+            fileOutputStream = FileOutputStream(file)
+            var len: Int
+            var sum: Long = 0
+            while (((inputStream.read(buf)).also { len = it }) != -1) {
+                fileOutputStream.write(buf, 0, len)
+                sum += len.toLong()
+                val progress = (sum * 1.0f / total * 100).toInt()
+                withContext(Dispatchers.Main) { onDownloadListener?.onLoading(progress) }
             }
+            fileOutputStream.flush()
+            withContext(Dispatchers.Main) { onDownloadListener?.onSuccess(file.path) }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) { onDownloadListener?.onFailed(e) }
+        } finally {
+            inputStream?.close()
+            fileOutputStream?.close()
+            withContext(Dispatchers.Main) { onDownloadListener?.onComplete() }
+            job?.cancel()
         }
     }
 

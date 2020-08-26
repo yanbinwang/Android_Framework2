@@ -58,11 +58,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
                             if (isGranted) {
                                 val filePath = Constants.APPLICATION_FILE_PATH + "/安装包"
                                 val fileName = Constants.APPLICATION_NAME + ".apk"
-                                DownloadFactory.instance.download(
-                                    "https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk",
-                                    filePath,
-                                    fileName,
-                                    object : OnDownloadListener {
+                                DownloadFactory.instance.download("https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk", filePath, fileName, object : OnDownloadListener {
 
                                         override fun onStart() {
                                             showDialog()
