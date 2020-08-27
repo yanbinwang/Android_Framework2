@@ -25,12 +25,12 @@ class DownloadFactory private constructor() {
     fun download(downloadUrl: String, filePath: String, fileName: String, onDownloadListener: OnDownloadListener?) {
         job = GlobalScope.launch(Dispatchers.Main) {
             FileUtil.deleteDir(filePath)
-            onDownloadListener?.onStart()
             withContext(Dispatchers.IO) { startDownload(BaseSubscribe.download(downloadUrl), File(FileUtil.isExistDir(filePath), fileName), onDownloadListener) }
         }
     }
 
     private suspend fun startDownload(body: okhttp3.ResponseBody, file: File, onDownloadListener: OnDownloadListener?) {
+        withContext(Dispatchers.Main) { onDownloadListener?.onStart() }
         var inputStream: InputStream? = null
         var fileOutputStream: FileOutputStream? = null
         try {
