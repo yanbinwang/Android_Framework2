@@ -10,11 +10,9 @@ import kotlinx.coroutines.SupervisorJob
 
 /**
  * Created by WangYanBin on 2020/8/27.
- * 协程工具类，用于框架内网络请求，本身即协程体
+ * 用于框架内网络请求
  */
-class HttpCoroutine {
-    private var completableJob = SupervisorJob()//此ViewModel运行的所有协程所用的任务,终止这个任务将终止此ViewModel开始的所有协程
-    private var coroutineScope = CoroutineScope(Dispatchers.Main + completableJob)//所有协程的主作用域
+object HttpCoroutine {
 
     fun <T> observe(t: ApiResponse<T>, subscriber: HttpSubscriber<T>?) {
         observe(t, object : HttpObserver<ApiResponse<T>> {
@@ -38,14 +36,6 @@ class HttpCoroutine {
         subscriber?.onStart()
         subscriber?.onNext(t)
         subscriber?.onComplete()
-    }
-
-    fun getJob(): CompletableJob {
-        return completableJob
-    }
-
-    fun getScope(): CoroutineScope {
-        return coroutineScope
     }
 
 }

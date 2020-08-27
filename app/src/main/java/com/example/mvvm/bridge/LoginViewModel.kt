@@ -1,7 +1,9 @@
 package com.example.mvvm.bridge
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.common.base.bridge.BaseViewModel
+import com.example.common.http.HttpCoroutine
 import com.example.common.http.callback.HttpObserver
 import com.example.common.subscribe.BaseSubscribe.getTestApi
 import com.example.mvvm.model.UserInfoModel
@@ -15,8 +17,8 @@ class LoginViewModel : BaseViewModel() {
 
     fun getData() {
         for (i in 0..999) {
-            launch {
-                getCoroutine().observe(getTestApi(), object : HttpObserver<Any> {
+            viewModelScope.launch {
+                HttpCoroutine.observe(getTestApi(), object : HttpObserver<Any> {
                     override fun onStart() {
                         getView().log("onStart：当前第" + i + "个请求开始！")
                     }

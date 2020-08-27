@@ -7,13 +7,13 @@ import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
+import kotlin.coroutines.CoroutineContext
 
 /**
  * author: wyb
  * 下载单例
  */
-class DownloadFactory private constructor() {
-    private var job: Job? = null//kotlin协程
+class DownloadFactory private constructor() : CoroutineScope {
 
     companion object {
         @JvmStatic
@@ -22,8 +22,11 @@ class DownloadFactory private constructor() {
         }
     }
 
+    override val coroutineContext: CoroutineContext
+        get() = (Dispatchers.Main)
+
     fun download(downloadUrl: String, filePath: String, fileName: String, onDownloadListener: OnDownloadListener?) {
-        job = GlobalScope.launch(Dispatchers.Main) {
+        launch(Dispatchers.Main) {
             FileUtil.deleteDir(filePath)
             withContext(Dispatchers.IO) { startDownload(BaseSubscribe.download(downloadUrl), File(FileUtil.isExistDir(filePath), fileName), onDownloadListener) }
         }
@@ -54,7 +57,7 @@ class DownloadFactory private constructor() {
             inputStream?.close()
             fileOutputStream?.close()
             withContext(Dispatchers.Main) { onDownloadListener?.onComplete() }
-            job?.cancel()
+            cancel()
         }
     }
 

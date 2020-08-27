@@ -5,12 +5,8 @@ import android.content.Context
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
-import com.example.common.http.HttpCoroutine
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
-import kotlin.coroutines.CoroutineContext
 
 /**
  * Created by WangYanBin on 2020/6/3.
@@ -18,11 +14,10 @@ import kotlin.coroutines.CoroutineContext
  * 注入BaseView，LifecycleOwner，开发的时候可以随时存取和调用基类Activity的基础控件和方法
  * LifecycleObserver-->观察宿主的生命周期
  */
-abstract class BaseViewModel : ViewModel(), LifecycleObserver, CoroutineScope {
+abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     private var binding: ViewDataBinding? = null//数据绑定类
     private var weakActivity: WeakReference<Activity>? = null//引用的activity
     private var softView: SoftReference<BaseView>? = null//基础UI操作
-    private var coroutine = HttpCoroutine()
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(binding: ViewDataBinding?, activity: Activity?, view: BaseView?) {
@@ -33,10 +28,6 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver, CoroutineScope {
 
     protected fun <VDB : ViewDataBinding> getBinding(): VDB {
         return binding as VDB
-    }
-
-    protected fun getCoroutine(): HttpCoroutine {
-        return coroutine
     }
 
     protected fun getActivity(): Activity {
@@ -51,15 +42,11 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver, CoroutineScope {
         return softView?.get()!!
     }
 
-    override val coroutineContext: CoroutineContext
-        get() = coroutine.getScope().launch { }
-
     override fun onCleared() {
         super.onCleared()
         binding = null
         weakActivity?.clear()
         softView?.clear()
-        coroutine.getJob().cancel()
     }
     // </editor-fold>
 
