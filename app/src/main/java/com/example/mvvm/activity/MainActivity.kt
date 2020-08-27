@@ -59,7 +59,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
 
         //注册订阅
         LiveDataBus.get().toFlowable(Constants.APP_USER_LOGIN_OUT, String::class.java)
-            .observe(this, Observer {
+            .observe(this, {
                 titleBuilder.setTitle(it).getDefault()
             })
     }

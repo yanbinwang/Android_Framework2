@@ -53,4 +53,5 @@ class CustomGsonResponseBodyConverter<T> : Converter<ResponseBody, T> {
         val jsonReader = gson?.newJsonReader(reader)
         return value.use { adapter?.read(jsonReader) }
     }
+
 }

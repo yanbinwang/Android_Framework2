@@ -5,8 +5,9 @@ import android.content.Context
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
-import com.example.common.BaseApplication
+import com.example.common.http.callback.ApiResponse
 import com.example.common.http.callback.HttpObserver
+import com.example.common.http.callback.HttpSubscriber
 import kotlinx.coroutines.*
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
@@ -29,6 +30,24 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
         this.binding = binding
         this.weakActivity = WeakReference(activity)
         this.softView = SoftReference(view)
+    }
+
+    protected fun <T> observe(t: ApiResponse<T>, subscriber: HttpSubscriber<T>?) {
+        observe(t, object : HttpObserver<ApiResponse<T>> {
+
+            override fun onStart() {
+                subscriber?.onStart()
+            }
+
+            override fun onNext(t: ApiResponse<T>?) {
+                subscriber?.onNext(t)
+            }
+
+            override fun onComplete() {
+                subscriber?.onComplete()
+            }
+
+        })
     }
 
     protected fun <T> observe(t: T, subscriber: HttpObserver<T>?) {
