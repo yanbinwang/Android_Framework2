@@ -8,7 +8,9 @@ import androidx.lifecycle.ViewModel
 import com.example.common.http.callback.ApiResponse
 import com.example.common.http.callback.HttpObserver
 import com.example.common.http.callback.HttpSubscriber
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 
