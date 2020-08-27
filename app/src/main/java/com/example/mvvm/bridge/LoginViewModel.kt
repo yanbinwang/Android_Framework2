@@ -15,22 +15,23 @@ class LoginViewModel : BaseViewModel() {
 
     fun getData() {
         for (i in 0..999) {
-            getUiScope().launch {
-                observe(getTestApi(), object : HttpObserver<Any> {
-                    override fun onStart() {
-                        getView().log("onStart：当前第" + i + "个请求开始！")
-                    }
+            getCoroutine().apply {
+                launch {
+                    observe(getTestApi(), object : HttpObserver<Any> {
+                        override fun onStart() {
+                            getView().log("onStart：当前第" + i + "个请求开始！")
+                        }
 
-                    override fun onNext(t: Any?) {
-                        getView().log("onNext：当前第" + i + "个请求回调！")
-                    }
+                        override fun onNext(t: Any?) {
+                            getView().log("onNext：当前第" + i + "个请求回调！")
+                        }
 
-                    override fun onComplete() {
-                        getView().log("onComplete：当前第" + i + "个请求结束！")
-                    }
-                })
+                        override fun onComplete() {
+                            getView().log("onComplete：当前第" + i + "个请求结束！")
+                        }
+                    })
+                }
             }
-        }
 
 //        BaseSubscribe
 //            .getTestApi()
@@ -53,6 +54,7 @@ class LoginViewModel : BaseViewModel() {
 ////                }
 //
 //            })
+        }
     }
 
 //        public void getData(){

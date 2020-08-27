@@ -5,12 +5,7 @@ import android.content.Context
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
-import com.example.common.http.callback.ApiResponse
-import com.example.common.http.callback.HttpObserver
-import com.example.common.http.callback.HttpSubscriber
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import com.example.common.http.HttpCoroutine
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 
@@ -24,8 +19,7 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     private var binding: ViewDataBinding? = null//数据绑定类
     private var weakActivity: WeakReference<Activity>? = null//引用的activity
     private var softView: SoftReference<BaseView>? = null//基础UI操作
-    private var viewModelJob = SupervisorJob()//此ViewModel运行的所有协程所用的任务,终止这个任务将终止此ViewModel开始的所有协程
-    private var uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)//所有协程的主作用域
+    private var coroutine = HttpCoroutine()
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(binding: ViewDataBinding?, activity: Activity?, view: BaseView?) {
@@ -34,36 +28,12 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
         this.softView = SoftReference(view)
     }
 
-    protected fun <T> observe(t: ApiResponse<T>, subscriber: HttpSubscriber<T>?) {
-        observe(t, object : HttpObserver<ApiResponse<T>> {
-
-            override fun onStart() {
-                subscriber?.onStart()
-            }
-
-            override fun onNext(t: ApiResponse<T>?) {
-                subscriber?.onNext(t)
-            }
-
-            override fun onComplete() {
-                subscriber?.onComplete()
-            }
-
-        })
-    }
-
-    protected fun <T> observe(t: T, subscriber: HttpObserver<T>?) {
-        subscriber?.onStart()
-        subscriber?.onNext(t)
-        subscriber?.onComplete()
-    }
-
-    protected fun getUiScope(): CoroutineScope {
-        return uiScope
-    }
-
     protected fun <VDB : ViewDataBinding> getBinding(): VDB {
         return binding as VDB
+    }
+
+    protected fun getCoroutine(): HttpCoroutine {
+        return coroutine
     }
 
     protected fun getActivity(): Activity {
@@ -83,7 +53,7 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
         binding = null
         weakActivity?.clear()
         softView?.clear()
-        viewModelJob.cancel()
+        coroutine.cancel()
     }
     // </editor-fold>
 
