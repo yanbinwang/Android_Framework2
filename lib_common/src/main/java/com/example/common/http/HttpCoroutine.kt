@@ -3,10 +3,6 @@ package com.example.common.http
 import com.example.common.http.callback.ApiResponse
 import com.example.common.http.callback.HttpObserver
 import com.example.common.http.callback.HttpSubscriber
-import kotlinx.coroutines.CompletableJob
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 
 /**
  * Created by WangYanBin on 2020/8/27.
