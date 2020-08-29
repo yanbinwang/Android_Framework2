@@ -4,7 +4,11 @@ import android.app.Activity
 import android.content.Context
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import com.example.common.http.callback.ApiResponse
+import com.example.common.http.callback.HttpObserver
+import com.example.common.http.callback.HttpSubscriber
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 
@@ -24,6 +28,14 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
         this.binding = binding
         this.weakActivity = WeakReference(activity)
         this.softView = SoftReference(view)
+    }
+
+    protected fun <T> observe(liveData: LiveData<ApiResponse<T>>?, subscriber: HttpSubscriber<T>) {
+        liveData?.observe(binding?.lifecycleOwner!!, subscriber)
+    }
+
+    protected fun <T> observe(liveData: LiveData<T>?, observer: HttpObserver<T>) {
+        liveData?.observe(binding?.lifecycleOwner!!, observer)
     }
 
     protected fun <VDB : ViewDataBinding> getBinding(): VDB {
