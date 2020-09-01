@@ -1,4 +1,4 @@
-package com.example.common.http.callback
+package com.example.common.http.repository
 
 /**
  * author: wyb

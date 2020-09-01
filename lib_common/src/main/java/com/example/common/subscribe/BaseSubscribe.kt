@@ -1,7 +1,7 @@
 package com.example.common.subscribe
 
 import androidx.lifecycle.LiveData
-import com.example.common.http.callback.ApiResponse
+import com.example.common.http.repository.ApiResponse
 import com.example.common.http.factory.RetrofitFactory
 import com.example.common.model.UploadModel
 import okhttp3.MultipartBody
