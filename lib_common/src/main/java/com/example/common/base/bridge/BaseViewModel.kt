@@ -5,6 +5,13 @@ import android.content.Context
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.common.http.HttpRepository
+import com.example.common.http.callback.ApiResponse
+import com.example.common.http.callback.HttpObserver
+import com.example.common.http.callback.HttpSubscriber
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 
@@ -25,6 +32,14 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
         this.weakActivity = WeakReference(activity)
         this.softView = SoftReference(view)
     }
+
+    fun launch(block: suspend CoroutineScope.() -> Unit) = viewModelScope.launch {
+        block()
+    }
+
+    fun <T> apiCall(t: ApiResponse<T>, subscriber: HttpSubscriber<T>?) = HttpRepository.apiCall(t, subscriber)
+
+    fun <T> apiCall(t: T, subscriber: HttpObserver<T>?) = HttpRepository.apiCall(t, subscriber)
 
     protected fun <VDB : ViewDataBinding> getBinding(): VDB {
         return binding as VDB
