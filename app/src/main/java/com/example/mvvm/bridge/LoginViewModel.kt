@@ -2,8 +2,7 @@ package com.example.mvvm.bridge
 
 import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
-import com.example.common.http.repository.HttpObserver
-import com.example.common.subscribe.BaseSubscribe.getTestApi
+import com.example.common.subscribe.ApiSubscribe.getTestApi
 import com.example.mvvm.model.UserInfoModel
 
 /**
@@ -14,21 +13,26 @@ class LoginViewModel : BaseViewModel() {
 
     fun getData() {
         for (i in 0..999) {
+//            launch {
+//                apiCall(getTestApi(), object : HttpObserver<Any> {
+//                    override fun onStart() {
+//                        getView()?.log("onStart：当前第" + i + "个请求开始！")
+//                    }
+//
+//                    override fun onNext(t: Any?) {
+//                        getView()?.log("onNext：当前第" + i + "个请求回调！")
+//                    }
+//
+//                    override fun onComplete() {
+//                        getView()?.log("onComplete：当前第" + i + "个请求结束！")
+//                    }
+//                })
+//            }
             launch {
-                apiCall(getTestApi(), object : HttpObserver<Any> {
-                    override fun onStart() {
-                        getView()?.log("onStart：当前第" + i + "个请求开始！")
-                    }
-
-                    override fun onNext(t: Any?) {
-                        getView()?.log("onNext：当前第" + i + "个请求回调！")
-                    }
-
-                    override fun onComplete() {
-                        getView()?.log("onComplete：当前第" + i + "个请求结束！")
-                    }
-                })
+                var any = getTestApi()
             }
+
+
 //        BaseSubscribe
 //            .getTestApi()
 //            .observe(this,object : HttpSubscriber<Any>(){

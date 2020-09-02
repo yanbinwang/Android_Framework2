@@ -1,6 +1,6 @@
 package com.example.common.utils.file.factory
 
-import com.example.common.subscribe.BaseSubscribe
+import com.example.common.subscribe.ApiSubscribe
 import com.example.common.utils.file.FileUtil
 import com.example.common.utils.file.callback.OnDownloadListener
 import kotlinx.coroutines.*
@@ -28,7 +28,7 @@ class DownloadFactory private constructor() : CoroutineScope {
     fun download(downloadUrl: String, filePath: String, fileName: String, onDownloadListener: OnDownloadListener?) {
         launch(Dispatchers.Main) {
             FileUtil.deleteDir(filePath)
-            withContext(Dispatchers.IO) { startDownload(BaseSubscribe.download(downloadUrl), File(FileUtil.isExistDir(filePath), fileName), onDownloadListener) }
+            withContext(Dispatchers.IO) { startDownload(ApiSubscribe.download(downloadUrl), File(FileUtil.isExistDir(filePath), fileName), onDownloadListener) }
         }
     }
 

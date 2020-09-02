@@ -2,6 +2,7 @@ package com.example.common.subscribe
 
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.factory.RetrofitFactory
+import com.example.common.http.repository.ApiRepository
 import com.example.common.model.UploadModel
 import okhttp3.MultipartBody
 
@@ -9,7 +10,7 @@ import okhttp3.MultipartBody
  * author:wyb
  * 通用接口类
  */
-object BaseSubscribe : BaseApi {
+object ApiSubscribe : BaseApi, ApiRepository() {
 
     private val baseApi by lazy {
         RetrofitFactory.instance.create(BaseApi::class.java)
@@ -24,11 +25,11 @@ object BaseSubscribe : BaseApi {
     }
 
     override suspend fun getSendVerification(agent: String, map: Map<String, String>): ApiResponse<Any> {
-        return baseApi.getSendVerification(agent, map)
+        return apiCall { baseApi.getSendVerification(agent, map) }
     }
 
     override suspend fun getVerification(agent: String, map: Map<String, String>): ApiResponse<Any> {
-        return baseApi.getVerification(agent, map)
+        return apiCall { baseApi.getVerification(agent, map) }
     }
 
     override suspend fun getTestApi(): Any {

@@ -3,12 +3,9 @@ package com.example.common.base.bridge
 import android.app.Activity
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.common.http.repository.HttpCall
-import com.example.common.http.repository.ApiResponse
-import com.example.common.http.repository.HttpObserver
-import com.example.common.http.repository.HttpSubscriber
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.lang.ref.SoftReference
@@ -24,6 +21,7 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     private var binding: ViewDataBinding? = null//数据绑定类
     private var weakActivity: WeakReference<Activity>? = null//引用的activity
     private var softView: SoftReference<BaseView>? = null//基础UI操作
+     val error by lazy { MutableLiveData<Exception>() }
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(binding: ViewDataBinding?, activity: Activity?, view: BaseView?) {
@@ -33,15 +31,17 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     }
 
     protected fun launch(block: suspend CoroutineScope.() -> Unit) =
-        viewModelScope.launch { block() }
-
-    protected fun <T> apiCall(call: ApiResponse<T>, subscriber: HttpSubscriber<T>?) =
-        HttpCall.apiCall(call, subscriber)
-
-    protected fun <T> apiCall(call: T, observer: HttpObserver<T>?) =
-        HttpCall.apiCall(call, observer)
+        viewModelScope.launch {
+            try {
+                block()
+            } catch (e: Exception) {
+                error.value = e
+            }
+        }
 
     protected fun <VDB : ViewDataBinding> getBinding() = binding as VDB
+
+    protected fun getErrors() = error
 
     protected fun getActivity() = weakActivity?.get()
 
