@@ -59,7 +59,7 @@ class CustomGsonResponseBodyConverter<T> : Converter<ResponseBody, T> {
         val json = JSONObject().put("test", StringBuilder().append(value.toString()).toString());
         val length = json.get("test").toString().length
         //得到整体的消息体
-        var response = if (length >= 65534) {
+        var response = if (length > 65534) {
             BaseApplication.instance?.applicationContext?.getString(R.string.label_response_err)
                 ?: ""
         } else {
