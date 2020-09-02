@@ -1,5 +1,7 @@
 package com.example.common.http.adapter
 
+import com.example.common.BaseApplication
+import com.example.common.R
 import com.example.common.http.repository.ApiResponse
 import com.google.gson.Gson
 import com.google.gson.TypeAdapter
@@ -39,6 +41,13 @@ class CustomGsonResponseBodyConverter<T> : Converter<ResponseBody, T> {
 
         //得到整体的消息体
         var response = value.string()
+        //返回长度过长直接显示数据返回异常
+        val length = response.length
+        if (length >= 65534) {
+            response =
+                BaseApplication.instance?.applicationContext?.getString(R.string.label_response_err)
+                    ?: ""
+        }
         //尝试转换，格式转换异常则包装一个对象返回
         try {
             gson?.fromJson(response, Any::class.java)
