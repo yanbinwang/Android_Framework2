@@ -35,19 +35,19 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     protected fun launch(block: suspend CoroutineScope.() -> Unit) =
         viewModelScope.launch { block() }
 
-    protected fun <T> apiCall(t: ApiResponse<T>, subscriber: HttpSubscriber<T>?) =
-        HttpCall.apiCall(t, subscriber)
+    protected fun <T> apiCall(call: ApiResponse<T>, subscriber: HttpSubscriber<T>?) =
+        HttpCall.apiCall(call, subscriber)
 
-    protected fun <T> apiCall(t: T, subscriber: HttpObserver<T>?) =
-        HttpCall.apiCall(t, subscriber)
+    protected fun <T> apiCall(call: T, observer: HttpObserver<T>?) =
+        HttpCall.apiCall(call, observer)
 
     protected fun <VDB : ViewDataBinding> getBinding() = binding as VDB
 
-    protected fun getActivity() = weakActivity?.get()!!
+    protected fun getActivity() = weakActivity?.get()
 
-    protected fun getContext() = binding?.root?.context!!
+    protected fun getContext() = binding?.root?.context
 
-    protected fun getView() = softView?.get()!!
+    protected fun getView() = softView?.get()
 
     override fun onCleared() {
         super.onCleared()

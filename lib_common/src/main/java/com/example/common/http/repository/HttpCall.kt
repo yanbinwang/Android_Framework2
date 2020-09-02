@@ -6,28 +6,16 @@ package com.example.common.http.repository
  */
 object HttpCall {
 
-    fun <T> apiCall(t: ApiResponse<T>, subscriber: HttpSubscriber<T>?) {
-        apiCall(t, object : HttpObserver<ApiResponse<T>> {
-
-            override fun onStart() {
-                subscriber?.onStart()
-            }
-
-            override fun onNext(t: ApiResponse<T>?) {
-                subscriber?.onNext(t)
-            }
-
-            override fun onComplete() {
-                subscriber?.onComplete()
-            }
-
-        })
+    fun <T> apiCall(call: ApiResponse<T>, subscriber: HttpSubscriber<T>?) {
+        subscriber?.onStart()
+        subscriber?.onNext(call)
+        subscriber?.onComplete()
     }
 
-    fun <T> apiCall(t: T, subscriber: HttpObserver<T>?) {
-        subscriber?.onStart()
-        subscriber?.onNext(t)
-        subscriber?.onComplete()
+    fun <T> apiCall(call: T, observer: HttpObserver<T>?) {
+        observer?.onStart()
+        observer?.onNext(call)
+        observer?.onComplete()
     }
 
 }

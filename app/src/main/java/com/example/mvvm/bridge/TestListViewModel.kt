@@ -22,7 +22,7 @@ class TestListViewModel : BaseViewModel() {
         //模拟请求网络
         var list: MutableList<TestListModel>? = dataList.value
         if (null != dataList.value && dataList.value!!.isNotEmpty()) {
-            getView().showToast("有数据了，清空")
+            getView()?.showToast("有数据了，清空")
             list?.clear()
         } else {
             list = ArrayList()
