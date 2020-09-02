@@ -1,8 +1,11 @@
-package com.example.common.http
+package com.example.common.http.repository
 
 import android.text.TextUtils
 import java.util.*
 
+/**
+ * 请求参数封装类
+ */
 class HttpParams {
     private var map: MutableMap<String, String> = HashMap()
 

@@ -1,15 +1,14 @@
 package com.example.common.base.bridge
 
 import android.app.Activity
-import android.content.Context
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.common.http.HttpRepository
-import com.example.common.http.callback.ApiResponse
-import com.example.common.http.callback.HttpObserver
-import com.example.common.http.callback.HttpSubscriber
+import com.example.common.http.repository.HttpCall
+import com.example.common.http.repository.ApiResponse
+import com.example.common.http.repository.HttpObserver
+import com.example.common.http.repository.HttpSubscriber
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.lang.ref.SoftReference
@@ -33,29 +32,22 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
         this.softView = SoftReference(view)
     }
 
-    fun launch(block: suspend CoroutineScope.() -> Unit) = viewModelScope.launch {
-        block()
-    }
+    protected fun launch(block: suspend CoroutineScope.() -> Unit) =
+        viewModelScope.launch { block() }
 
-    fun <T> apiCall(t: ApiResponse<T>, subscriber: HttpSubscriber<T>?) = HttpRepository.apiCall(t, subscriber)
+    protected fun <T> apiCall(t: ApiResponse<T>, subscriber: HttpSubscriber<T>?) =
+        HttpCall.apiCall(t, subscriber)
 
-    fun <T> apiCall(t: T, subscriber: HttpObserver<T>?) = HttpRepository.apiCall(t, subscriber)
+    protected fun <T> apiCall(t: T, subscriber: HttpObserver<T>?) =
+        HttpCall.apiCall(t, subscriber)
 
-    protected fun <VDB : ViewDataBinding> getBinding(): VDB {
-        return binding as VDB
-    }
+    protected fun <VDB : ViewDataBinding> getBinding() = binding as VDB
 
-    protected fun getActivity(): Activity {
-        return weakActivity?.get()!!
-    }
+    protected fun getActivity() = weakActivity?.get()!!
 
-    protected fun getContext(): Context {
-        return binding?.root?.context!!
-    }
+    protected fun getContext() = binding?.root?.context!!
 
-    protected fun getView(): BaseView {
-        return softView?.get()!!
-    }
+    protected fun getView() = softView?.get()!!
 
     override fun onCleared() {
         super.onCleared()

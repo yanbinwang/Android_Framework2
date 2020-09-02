@@ -1,6 +1,6 @@
 package com.example.common.http.adapter
 
-import com.example.common.http.callback.ApiResponse
+import com.example.common.http.repository.ApiResponse
 import com.google.gson.Gson
 import com.google.gson.TypeAdapter
 import okhttp3.ResponseBody

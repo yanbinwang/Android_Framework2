@@ -1,14 +1,10 @@
-package com.example.common.http
-
-import com.example.common.http.callback.ApiResponse
-import com.example.common.http.callback.HttpObserver
-import com.example.common.http.callback.HttpSubscriber
+package com.example.common.http.repository
 
 /**
  * Created by WangYanBin on 2020/8/27.
  * 用于框架内网络请求
  */
-object HttpRepository {
+object HttpCall {
 
     fun <T> apiCall(t: ApiResponse<T>, subscriber: HttpSubscriber<T>?) {
         apiCall(t, object : HttpObserver<ApiResponse<T>> {
