@@ -6,6 +6,7 @@ import com.example.common.http.repository.ApiResponse
 import com.google.gson.Gson
 import com.google.gson.TypeAdapter
 import okhttp3.ResponseBody
+import org.json.JSONObject
 import retrofit2.Converter
 import java.io.ByteArrayInputStream
 import java.io.InputStream
@@ -55,15 +56,14 @@ class CustomGsonResponseBodyConverter<T> : Converter<ResponseBody, T> {
 //            response = gson?.toJson(ApiResponse(-1, response, null))!!
 //        }
         //返回长度过长直接显示数据返回异常
-        val builder = StringBuilder()
-        builder.append(value.toString())
-        val length = builder.toString().length
+        val json = JSONObject().put("test", StringBuilder().append(value.toString()).toString());
+        val length = json.get("test").toString().length
         //得到整体的消息体
         var response = if (length >= 65534) {
             BaseApplication.instance?.applicationContext?.getString(R.string.label_response_err)
                 ?: ""
         } else {
-            builder.toString()
+            json.get("test").toString()
         }
         //尝试转换，格式转换异常则包装一个对象返回
         try {
