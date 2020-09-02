@@ -39,14 +39,31 @@ class CustomGsonResponseBodyConverter<T> : Converter<ResponseBody, T> {
 //            throw new ApiException(httpStatus.getCode(), httpStatus.getMessage());
 //        }
 
-        //得到整体的消息体
-        var response = value.string()
+//        //得到整体的消息体
+//        var response = value.string()
+//        //返回长度过长直接显示数据返回异常
+//        val length = response.length
+//        if (length >= 65534) {
+//            response =
+//                BaseApplication.instance?.applicationContext?.getString(R.string.label_response_err)
+//                    ?: ""
+//        }
+//        //尝试转换，格式转换异常则包装一个对象返回
+//        try {
+//            gson?.fromJson(response, Any::class.java)
+//        } catch (e: Exception) {
+//            response = gson?.toJson(ApiResponse(-1, response, null))!!
+//        }
         //返回长度过长直接显示数据返回异常
-        val length = response.length
-        if (length >= 65534) {
-            response =
-                BaseApplication.instance?.applicationContext?.getString(R.string.label_response_err)
-                    ?: ""
+        val builder = StringBuilder()
+        builder.append(value.toString())
+        val length = builder.toString().length
+        //得到整体的消息体
+        var response = if (length >= 65534) {
+            BaseApplication.instance?.applicationContext?.getString(R.string.label_response_err)
+                ?: ""
+        } else {
+            builder.toString()
         }
         //尝试转换，格式转换异常则包装一个对象返回
         try {
