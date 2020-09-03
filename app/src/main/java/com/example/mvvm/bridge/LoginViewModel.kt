@@ -12,7 +12,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
  * Created by WangYanBin on 2020/6/3.
  */
 class LoginViewModel : BaseViewModel() {
-    val userInfoLiveData by lazy { MutableLiveData<UserInfoModel>() } //接口得到的用户对象，泛型string也可替换为对象
+    val userInfoData by lazy { MutableLiveData<UserInfoModel>() } //接口得到的用户对象，泛型string也可替换为对象
 
     fun getData() {
         for (i in 0..999) {
@@ -94,7 +94,7 @@ class LoginViewModel : BaseViewModel() {
 
         //do网络请求-将对象传递给下一个页面，或者直接当前页面处理，处理和mvc写法一致(失败的处理直接回调对应观察的数据,或者在baseviewmodel中处理)
         val model = UserInfoModel("老王万寿无疆", 88, "bilibili")
-        userInfoLiveData.postValue(model)
+        userInfoData.postValue(model)
     }
 
 }
