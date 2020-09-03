@@ -2,7 +2,8 @@ package com.example.mvvm.bridge
 
 import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
-import com.example.common.subscribe.ApiSubscribe.getTestApi
+import com.example.common.http.repository.HttpSubscriber
+import com.example.common.subscribe.BaseSubscribe.getTestApi
 import com.example.mvvm.model.UserInfoModel
 
 /**
@@ -16,14 +17,19 @@ class LoginViewModel : BaseViewModel() {
     fun getData() {
         for (i in 0..999) {
             launch {
-                try {
-                    getView()?.log("onStart：当前第" + i + "个请求开始！")
-                    testLiveData.postValue(getTestApi())
-                } catch (e: Exception) {
-                    errorMsg.postValue(apiMessage(e))
-                } finally {
-                    getView()?.log("onComplete：当前第" + i + "个请求结束！")
-                }
+                getView()?.log("onStart：当前第" + i + "个请求开始！")
+                apiCall(getTestApi(), object : HttpSubscriber<Any> {
+
+                    override fun onSuccess(data: Any?) {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun onFailed(e: Throwable?, msg: String?) {
+                        TODO("Not yet implemented")
+                    }
+
+                })
+                getView()?.log("onComplete：当前第" + i + "个请求结束！")
             }
         }
     }

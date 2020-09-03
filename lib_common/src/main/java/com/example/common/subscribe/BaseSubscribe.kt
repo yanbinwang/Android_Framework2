@@ -10,7 +10,7 @@ import okhttp3.MultipartBody
  * author:wyb
  * 通用接口类
  */
-object ApiSubscribe : BaseApi, ApiRepository() {
+object BaseSubscribe : BaseApi {
 
     private val baseApi by lazy {
         RetrofitFactory.instance.create(BaseApi::class.java)
@@ -25,15 +25,15 @@ object ApiSubscribe : BaseApi, ApiRepository() {
     }
 
     override suspend fun getSendVerification(agent: String, map: Map<String, String>): ApiResponse<Any> {
-        return apiCall { baseApi.getSendVerification(agent, map) }
+        return baseApi.getSendVerification(agent, map)
     }
 
     override suspend fun getVerification(agent: String, map: Map<String, String>): ApiResponse<Any> {
-        return apiCall { baseApi.getVerification(agent, map) }
+        return baseApi.getVerification(agent, map)
     }
 
     override suspend fun getTestApi(): ApiResponse<Any> {
-        return apiCall { baseApi.getTestApi() }
+        return baseApi.getTestApi()
     }
 
 //    //上传图片接口

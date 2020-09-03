@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.common.http.repository.ApiRepository
 import com.example.common.http.repository.ApiResponse
+import com.example.common.http.repository.HttpSubscriber
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.lang.ref.SoftReference
@@ -36,6 +37,9 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
             block()
         }
 
+    protected fun <T> apiCall(call: ApiResponse<T>, subscriber: HttpSubscriber<T>) =
+        ApiRepository.apiCall(call, subscriber)
+
     protected fun getActivity() = weakActivity?.get()
 
     protected fun getContext() = binding?.root?.context
@@ -43,8 +47,6 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     protected fun getView() = softView?.get()
 
     protected fun <VDB : ViewDataBinding> getBinding() = binding as VDB
-
-    protected fun apiMessage(e: Exception) = ApiRepository.apiMessage(e)
 
     override fun onCleared() {
         super.onCleared()

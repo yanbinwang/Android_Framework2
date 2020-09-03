@@ -1,56 +1,38 @@
 package com.example.common.http.repository
 
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.withContext
+import com.alibaba.android.arouter.launcher.ARouter
+import com.example.common.constant.ARouterPath
+import com.example.common.utils.helper.AccountHelper
 
 
 /**
  * Created by WangYanBin on 2020/9/2.
  * 针对协程返回的参数(协程只有成功和失败，成功返回对象，失败会上抛异常)
  */
-open class ApiRepository {
+object ApiRepository {
 
-    fun apiMessage(e: Exception): String? {
-        return when (e) {
-            is TokenInvalidException -> {
-//                AccountHelper.signOut()
-//                instance.post(RxBusEvent(Constants.APP_USER_LOGIN_OUT))
-//                ARouter.getInstance().build(ARouterPath.LoginActivity).navigation()
-                e.message
-            }
-            is IpLockedException -> {
-//                ARouter.getInstance().build(ARouterPath.UnlockIPActivity).navigation()
-                e.message
-            }
-            is ServersException -> {
-                e.message
-            }
-            else -> {
-                ""
-            }
-        }
-    }
-
-    suspend fun <T : Any> apiCall(call: suspend () -> ApiResponse<T>): ApiResponse<T> {
-        return withContext(IO) { call.invoke() }.apply {
-            //请求编号特殊处理
-            if (e != 200) {
-                when (e) {
-                    //账号被锁定--进入账号锁定页（其余页面不关闭）
-                    100002 -> throw TokenInvalidException(msg)
-                    //账号还没有登录，解密失败，重新获取
-                    100005, 100008 -> throw IpLockedException(msg)
-                    //其余非200情况都抛出异常
-                    else -> ServersException(msg)
+    fun <T> apiCall(call: ApiResponse<T>, subscriber: HttpSubscriber<T>) {
+        try {
+            val msg = call.msg
+            val e = call.e
+            if (0 == e) {
+                subscriber.onSuccess(call.data)
+            } else {
+                //账号还没有登录，解密失败，重新获取
+                if (100005 == e || 100008 == e) {
+                    AccountHelper.signOut()
+//                         instance.post(RxBusEvent(Constants.APP_USER_LOGIN_OUT))
+                    ARouter.getInstance().build(ARouterPath.LoginActivity).navigation()
                 }
+                //账号被锁定--进入账号锁定页（其余页面不关闭）
+                if (100002 == e) {
+//                         ARouter.getInstance().build(ARouterPath.UnlockIPActivity).navigation()
+                }
+                subscriber.onFailed(null, msg)
             }
+        } catch (e: Exception) {
+            subscriber.onFailed(e, "")
         }
     }
-
-    class TokenInvalidException(msg: String? = null) : Exception(msg)
-
-    class IpLockedException(msg: String? = null) : Exception(msg)
-
-    class ServersException(msg: String? = null) : Exception(msg)
 
 }
