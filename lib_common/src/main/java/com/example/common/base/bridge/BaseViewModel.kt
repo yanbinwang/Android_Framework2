@@ -6,6 +6,8 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.common.http.repository.ApiRepository
+import com.example.common.http.repository.ApiResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.lang.ref.SoftReference
@@ -21,7 +23,6 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     private var binding: ViewDataBinding? = null//数据绑定类
     private var weakActivity: WeakReference<Activity>? = null//引用的activity
     private var softView: SoftReference<BaseView>? = null//基础UI操作
-     val error by lazy { MutableLiveData<Exception>() }
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(binding: ViewDataBinding?, activity: Activity?, view: BaseView?) {
@@ -32,22 +33,18 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
 
     protected fun launch(block: suspend CoroutineScope.() -> Unit) =
         viewModelScope.launch {
-            try {
-                block()
-            } catch (e: Exception) {
-                error.value = e
-            }
+            block()
         }
-
-    protected fun <VDB : ViewDataBinding> getBinding() = binding as VDB
-
-    protected fun getErrors() = error
 
     protected fun getActivity() = weakActivity?.get()
 
     protected fun getContext() = binding?.root?.context
 
     protected fun getView() = softView?.get()
+
+    protected fun <VDB : ViewDataBinding> getBinding() = binding as VDB
+
+    protected fun apiMessage(e: Exception) = ApiRepository.apiMessage(e)
 
     override fun onCleared() {
         super.onCleared()

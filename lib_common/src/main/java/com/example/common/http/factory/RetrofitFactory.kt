@@ -3,6 +3,7 @@ package com.example.common.http.factory
 import com.example.common.BuildConfig
 import com.example.common.http.adapter.CustomGsonConverterFactory
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 /**
  * author: wyb
@@ -13,7 +14,8 @@ class RetrofitFactory private constructor() {
     private val retrofit = Retrofit.Builder()
         .client(OkHttpFactory.instance.okHttpClient)
         .baseUrl(BuildConfig.LOCALHOST)
-        .addConverterFactory(CustomGsonConverterFactory())
+//        .addConverterFactory(CustomGsonConverterFactory())
+        .addConverterFactory(GsonConverterFactory.create())
         .build()
 
     companion object {

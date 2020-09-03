@@ -32,8 +32,8 @@ object ApiSubscribe : BaseApi, ApiRepository() {
         return apiCall { baseApi.getVerification(agent, map) }
     }
 
-    override suspend fun getTestApi(): Any {
-        return baseApi.getTestApi()
+    override suspend fun getTestApi(): ApiResponse<Any> {
+        return apiCall { baseApi.getTestApi() }
     }
 
 //    //上传图片接口

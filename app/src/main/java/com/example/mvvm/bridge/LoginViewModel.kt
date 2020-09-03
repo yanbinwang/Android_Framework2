@@ -9,79 +9,24 @@ import com.example.mvvm.model.UserInfoModel
  * Created by WangYanBin on 2020/6/3.
  */
 class LoginViewModel : BaseViewModel() {
-    var userInfoLiveData = MutableLiveData<UserInfoModel>() //接口得到的用户对象，泛型string也可替换为对象
+    val userInfoLiveData by lazy { MutableLiveData<UserInfoModel>() }//接口得到的用户对象，泛型string也可替换为对象
+    val testLiveData by lazy { MutableLiveData<Any>() }
+    val errorMsg by lazy { MutableLiveData<String>() }
 
     fun getData() {
         for (i in 0..999) {
-//            launch {
-//                apiCall(getTestApi(), object : HttpObserver<Any> {
-//                    override fun onStart() {
-//                        getView()?.log("onStart：当前第" + i + "个请求开始！")
-//                    }
-//
-//                    override fun onNext(t: Any?) {
-//                        getView()?.log("onNext：当前第" + i + "个请求回调！")
-//                    }
-//
-//                    override fun onComplete() {
-//                        getView()?.log("onComplete：当前第" + i + "个请求结束！")
-//                    }
-//                })
-//            }
             launch {
-                var any = getTestApi()
+                try {
+                    getView()?.log("onStart：当前第" + i + "个请求开始！")
+                    testLiveData.postValue(getTestApi())
+                } catch (e: Exception) {
+                    errorMsg.postValue(apiMessage(e))
+                } finally {
+                    getView()?.log("onComplete：当前第" + i + "个请求结束！")
+                }
             }
-
-
-//        BaseSubscribe
-//            .getTestApi()
-//            .observe(this,object : HttpSubscriber<Any>(){
-//
-//                override fun onStart() {
-//                    super.onStart()
-//                    getView().showDialog()
-//                }
-//
-//                override fun onSuccess(data: Any?) {
-//                }
-//
-//                override fun onFailed(msg: String?) {
-//                }
-//
-////                override fun onComplete() {
-////                    super.onComplete()
-////                    getView().hideDialog()
-////                }
-//
-//            })
         }
     }
-
-//        public void getData(){
-//            for (int i = 0; i < 1000; i++) {
-//                int position = i;
-//                view.get().log("当前第" + position + "个请求开始！");
-//    //            LiveDataBus.BusMutableLiveData x = new LiveDataBus.BusMutableLiveData();
-//                BaseSubscribe.INSTANCE
-//                        .getTestApi()
-//                        //传入对应的生命周期避免内存泄漏
-//                        .observe(getOwner(),new HttpSubscriber<Object>() {
-//                            @Override
-//                            protected void onSuccess(Object data) {
-//
-//                            }
-//
-//                            @Override
-//                            protected void onFailed(String msg) {
-//                            }
-//
-//                            @Override
-//                            protected void onFinish() {
-//                                view.get().log("当前第" + position + "个请求结束！");
-//                            }
-//                        });
-//            }
-//        }
 
     fun login(account: String?, password: String?) {
         getView()?.showDialog()

@@ -10,6 +10,27 @@ import kotlinx.coroutines.withContext
  */
 open class ApiRepository {
 
+    fun apiMessage(e: Exception): String? {
+        return when (e) {
+            is TokenInvalidException -> {
+//                AccountHelper.signOut()
+//                instance.post(RxBusEvent(Constants.APP_USER_LOGIN_OUT))
+//                ARouter.getInstance().build(ARouterPath.LoginActivity).navigation()
+                e.message
+            }
+            is IpLockedException -> {
+//                ARouter.getInstance().build(ARouterPath.UnlockIPActivity).navigation()
+                e.message
+            }
+            is ServersException -> {
+                e.message
+            }
+            else -> {
+                ""
+            }
+        }
+    }
+
     suspend fun <T : Any> apiCall(call: suspend () -> ApiResponse<T>): ApiResponse<T> {
         return withContext(IO) { call.invoke() }.apply {
             //请求编号特殊处理
