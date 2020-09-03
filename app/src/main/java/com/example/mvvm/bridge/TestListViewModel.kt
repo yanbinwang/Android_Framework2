@@ -9,7 +9,7 @@ import com.example.mvvm.model.TestListModel
  * Created by WangYanBin on 2020/6/4.
  */
 class TestListViewModel : BaseViewModel() {
-    var dataList = MutableLiveData<MutableList<TestListModel>>()
+    val dataList by lazy { MutableLiveData<MutableList<TestListModel>>() }
 
     fun getListData() {
 //        var refresh = false
@@ -22,7 +22,7 @@ class TestListViewModel : BaseViewModel() {
         //模拟请求网络
         var list: MutableList<TestListModel>? = dataList.value
         if (null != dataList.value && dataList.value!!.isNotEmpty()) {
-            getView().showToast("有数据了，清空")
+            getView()?.showToast("有数据了，清空")
             list?.clear()
         } else {
             list = ArrayList()

@@ -47,8 +47,8 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     //xwebview的jar
     api files('libs/tbs_sdk_thirdapp_v3.6.0.1310_43612_sharewithdownload_withoutGame_obfs_20180706_163319.jar')
     //框架库
@@ -56,6 +56,7 @@ dependencies {
     //网络请求
     api deps.retrofit2.retrofit
     api deps.retrofit2.converter_gson
+    api deps.retrofit2.adapter_rxjava3
     //图片加载
     api deps.bumptech.glide
     api deps.bumptech.glide_okhttp3
@@ -69,6 +70,7 @@ dependencies {
     api deps.yanzhenjie.permission
     //其余第三方库
     api deps.okhttp3
+    api deps.rxandroid
     api deps.autosize
     api deps.mmkv
     api deps.adapterhelper

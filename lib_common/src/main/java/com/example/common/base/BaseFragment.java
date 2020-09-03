@@ -61,7 +61,7 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
     protected <VM extends BaseViewModel> VM createViewModel(Class<VM> vmClass) {
         if (null == baseViewModel) {
             baseViewModel = new ViewModelProvider(this).get(vmClass);
-            baseViewModel.initialize(binding, getActivity(), this);
+            baseViewModel.initialize(getActivity(), getContext(), this);
             getLifecycle().addObserver(baseViewModel);
         }
         return (VM) baseViewModel;

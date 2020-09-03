@@ -1,7 +1,6 @@
 package com.example.mvvm.activity
 
 import android.view.View
-import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseTitleActivity
 import com.example.common.bus.LiveDataBus
@@ -58,7 +57,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
                             if (isGranted) {
                                 val filePath = Constants.APPLICATION_FILE_PATH + "/安装包"
                                 val fileName = Constants.APPLICATION_NAME + ".apk"
-                                DownloadFactory.instance.download(binding.lifecycleOwner!!, "https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk", filePath, fileName, object : OnDownloadListener {
+                                DownloadFactory.instance.download("https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk", filePath, fileName, object : OnDownloadListener {
 
                                         override fun onStart() {
                                             showDialog()

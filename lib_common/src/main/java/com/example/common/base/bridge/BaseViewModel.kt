@@ -2,13 +2,10 @@ package com.example.common.base.bridge
 
 import android.app.Activity
 import android.content.Context
-import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.example.common.http.callback.ApiResponse
-import com.example.common.http.callback.HttpObserver
-import com.example.common.http.callback.HttpSubscriber
+import com.example.common.bus.DisposableManager
+import io.reactivex.rxjava3.disposables.Disposable
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 
@@ -21,45 +18,35 @@ import java.lang.ref.WeakReference
  */
 abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     private var weakActivity: WeakReference<Activity>? = null//引用的activity
+    private var weakContext: WeakReference<Context>? = null
     private var softView: SoftReference<BaseView>? = null//基础UI操作
-    private var binding: ViewDataBinding? = null//数据绑定类
+    private var disposableManager = DisposableManager()
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    fun initialize(binding: ViewDataBinding?, activity: Activity?, view: BaseView?) {
-        this.binding = binding
+    fun initialize(activity: Activity?, context: Context?, view: BaseView?) {
         this.weakActivity = WeakReference(activity)
+        this.weakContext = WeakReference(context)
         this.softView = SoftReference(view)
     }
 
-    protected fun <T> observe(liveData: LiveData<ApiResponse<T>>?, subscriber: HttpSubscriber<T>) {
-        liveData?.observe(binding?.lifecycleOwner!!, subscriber)
+    protected fun addDisposable(disposable: Disposable?) {
+        if (null != disposable) {
+            disposableManager.add(disposable)
+        }
     }
 
-    protected fun <T> observe(liveData: LiveData<T>?, observer: HttpObserver<T>) {
-        liveData?.observe(binding?.lifecycleOwner!!, observer)
-    }
+    protected fun getView() = softView?.get()
 
-    protected fun <VDB : ViewDataBinding> getBinding(): VDB {
-        return binding as VDB
-    }
+    protected fun getActivity() = weakActivity?.get()
 
-    protected fun getActivity(): Activity {
-        return weakActivity?.get()!!
-    }
-
-    protected fun getContext(): Context {
-        return binding?.root?.context!!
-    }
-
-    protected fun getView(): BaseView {
-        return softView?.get()!!
-    }
+    protected fun getContext() = weakContext?.get()
 
     override fun onCleared() {
         super.onCleared()
-        binding = null
         weakActivity?.clear()
+        weakContext?.clear()
         softView?.clear()
+        disposableManager.clear()
     }
     // </editor-fold>
 

@@ -1,9 +1,10 @@
 package com.example.common.subscribe
 
-import androidx.lifecycle.LiveData
-import com.example.common.http.callback.ApiResponse
+import com.example.common.http.repository.ApiResponse
 import com.example.common.model.UploadModel
+import io.reactivex.rxjava3.core.Flowable
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.http.*
 
 /**
@@ -14,22 +15,22 @@ interface BaseApi {
 
     @Streaming
     @GET
-    fun download(@Url downloadUrl: String): LiveData<okhttp3.ResponseBody>
+    fun getDownload(@Url downloadUrl: String): Flowable<ResponseBody>
 
     @Multipart
     @Streaming
     @POST("http://www.baidu.com")
-    fun getUploadFile(@Header("User-Agent") agent: String, @Part partList: List<MultipartBody.Part>): LiveData<ApiResponse<UploadModel>>
+    fun getUploadFile(@Header("User-Agent") agent: String, @Part partList: List<MultipartBody.Part>): Flowable<ApiResponse<UploadModel>>
 
     @FormUrlEncoded
     @POST("http://www.baidu.com")
-    fun getSendVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): LiveData<ApiResponse<Any>>
+    fun getSendVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): Flowable<ApiResponse<Any>>
 
     @FormUrlEncoded
     @POST("http://www.baidu.com")
-    fun getVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): LiveData<ApiResponse<Any>>
+    fun getVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): Flowable<ApiResponse<Any>>
 
     @GET("test")
-    fun getTestApi(): LiveData<ApiResponse<Any>>
+    fun getTestApi(): Flowable<ApiResponse<Any>>
 
 }

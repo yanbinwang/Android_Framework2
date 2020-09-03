@@ -1,10 +1,11 @@
 package com.example.common.subscribe
 
-import androidx.lifecycle.LiveData
-import com.example.common.http.callback.ApiResponse
 import com.example.common.http.factory.RetrofitFactory
+import com.example.common.http.repository.ApiResponse
 import com.example.common.model.UploadModel
+import io.reactivex.rxjava3.core.Flowable
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 
 /**
  * author:wyb
@@ -15,23 +16,23 @@ object BaseSubscribe : BaseApi {
         RetrofitFactory.instance.create(BaseApi::class.java)
     }
 
-    override fun download(downloadUrl: String): LiveData<okhttp3.ResponseBody> {
-        return baseApi.download(downloadUrl)
+    override fun getDownload(downloadUrl: String): Flowable<ResponseBody> {
+        return baseApi.getDownload(downloadUrl)
     }
 
-    override fun getUploadFile(agent: String, partList: List<MultipartBody.Part>): LiveData<ApiResponse<UploadModel>> {
+    override fun getUploadFile(agent: String, partList: List<MultipartBody.Part>): Flowable<ApiResponse<UploadModel>> {
         TODO("Not yet implemented")
     }
 
-    override fun getSendVerification(agent: String, map: Map<String, String>): LiveData<ApiResponse<Any>> {
+    override fun getSendVerification(agent: String, map: Map<String, String>): Flowable<ApiResponse<Any>> {
         return baseApi.getSendVerification(agent, map)
     }
 
-    override fun getVerification(agent: String, map: Map<String, String>): LiveData<ApiResponse<Any>> {
+    override fun getVerification(agent: String, map: Map<String, String>): Flowable<ApiResponse<Any>> {
         return baseApi.getVerification(agent, map)
     }
 
-    override fun getTestApi(): LiveData<ApiResponse<Any>> {
+    override fun getTestApi(): Flowable<ApiResponse<Any>> {
         return baseApi.getTestApi()
     }
 
