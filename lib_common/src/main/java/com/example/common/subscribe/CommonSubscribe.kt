@@ -10,30 +10,30 @@ import okhttp3.MultipartBody
  * author:wyb
  * 通用接口类
  */
-object BaseSubscribe : BaseApi {
+object CommonSubscribe : CommonApi, ApiRepository() {
 
-    private val baseApi by lazy {
-        RetrofitFactory.instance.create(BaseApi::class.java)
+    private val commonApi by lazy {
+        RetrofitFactory.instance.create(CommonApi::class.java)
     }
 
-    override suspend fun download(downloadUrl: String): okhttp3.ResponseBody {
-        return baseApi.download(downloadUrl)
+    override suspend fun getDownloadApi(downloadUrl: String): okhttp3.ResponseBody {
+        return commonApi.getDownloadApi(downloadUrl)
     }
 
-    override suspend fun getUploadFile(agent: String, partList: List<MultipartBody.Part>): ApiResponse<UploadModel> {
+    override suspend fun getUploadFileApi(agent: String, partList: List<MultipartBody.Part>): ApiResponse<UploadModel> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun getSendVerification(agent: String, map: Map<String, String>): ApiResponse<Any> {
-        return baseApi.getSendVerification(agent, map)
+    override suspend fun getSendVerificationApi(agent: String, map: Map<String, String>): ApiResponse<Any> {
+        return apiDispose { commonApi.getSendVerificationApi(agent, map) }
     }
 
-    override suspend fun getVerification(agent: String, map: Map<String, String>): ApiResponse<Any> {
-        return baseApi.getVerification(agent, map)
+    override suspend fun getVerificationApi(agent: String, map: Map<String, String>): ApiResponse<Any> {
+        return apiDispose { commonApi.getVerificationApi(agent, map) }
     }
 
     override suspend fun getTestApi(): ApiResponse<Any> {
-        return baseApi.getTestApi()
+        return apiDispose { commonApi.getTestApi() }
     }
 
 //    //上传图片接口

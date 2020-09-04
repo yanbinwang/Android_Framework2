@@ -2,8 +2,11 @@ package com.example.mvvm.bridge
 
 import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
+import com.example.common.http.repository.ApiRepository.Companion.apiCall
+import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.HttpSubscriber
-import com.example.common.subscribe.BaseSubscribe.getTestApi
+import com.example.common.subscribe.CommonSubscribe
+import com.example.common.subscribe.CommonSubscribe.getTestApi
 import com.example.mvvm.model.UserInfoModel
 
 /**
@@ -15,21 +18,41 @@ class LoginViewModel : BaseViewModel() {
     val errorMsg by lazy { MutableLiveData<String>() }
 
     fun getData() {
+
+
         for (i in 0..999) {
             launch {
                 getView()?.log("onStart：当前第" + i + "个请求开始！")
-                apiCall(getTestApi(), object : HttpSubscriber<Any> {
 
-                    override fun onSuccess(data: Any?) {
-                        TODO("Not yet implemented")
-                    }
 
-                    override fun onFailed(e: Throwable?, msg: String?) {
-                        TODO("Not yet implemented")
-                    }
+                CommonSubscribe.apply {
 
-                })
-                getView()?.log("onComplete：当前第" + i + "个请求结束！")
+                    apiCall(getTestApi(), object : HttpSubscriber<Any> {
+
+                        override fun onSuccess(data: Any?) {
+                            TODO("Not yet implemented")
+                        }
+
+                        override fun onFailed(e: Throwable?, msg: String?) {
+                            TODO("Not yet implemented")
+                        }
+
+                    })
+
+                }
+
+//                apiCall(getTestApi(), object : HttpSubscriber<Any> {
+//
+//                    override fun onSuccess(data: Any?) {
+//                        TODO("Not yet implemented")
+//                    }
+//
+//                    override fun onFailed(e: Throwable?, msg: String?) {
+//                        TODO("Not yet implemented")
+//                    }
+//
+//                })
+//                getView()?.log("onComplete：当前第" + i + "个请求结束！")
             }
         }
     }

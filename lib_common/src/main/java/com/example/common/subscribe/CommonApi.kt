@@ -9,24 +9,24 @@ import retrofit2.http.*
  * author:wyb
  * 通用接口类
  */
-interface BaseApi {
+interface CommonApi {
 
     @Streaming
     @GET
-    suspend fun download(@Url downloadUrl: String): okhttp3.ResponseBody
+    suspend fun getDownloadApi(@Url downloadUrl: String): okhttp3.ResponseBody
 
     @Multipart
     @Streaming
     @POST("http://www.baidu.com")
-    suspend fun getUploadFile(@Header("User-Agent") agent: String, @Part partList: List<MultipartBody.Part>): ApiResponse<UploadModel>
+    suspend fun getUploadFileApi(@Header("User-Agent") agent: String, @Part partList: List<MultipartBody.Part>): ApiResponse<UploadModel>
 
     @FormUrlEncoded
     @POST("http://www.baidu.com")
-    suspend fun getSendVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): ApiResponse<Any>
+    suspend fun getSendVerificationApi(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): ApiResponse<Any>
 
     @FormUrlEncoded
     @POST("http://www.baidu.com")
-    suspend fun getVerification(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): ApiResponse<Any>
+    suspend fun getVerificationApi(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): ApiResponse<Any>
 
     @GET("test")
     suspend fun getTestApi(): ApiResponse<Any>

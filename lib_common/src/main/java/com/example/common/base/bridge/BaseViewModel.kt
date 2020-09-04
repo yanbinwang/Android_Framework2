@@ -37,8 +37,8 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
             block()
         }
 
-    protected fun <T> apiCall(call: ApiResponse<T>, subscriber: HttpSubscriber<T>) =
-        ApiRepository.apiCall(call, subscriber)
+//    protected fun <T> apiCall(call: ApiResponse<T>, subscriber: HttpSubscriber<T>) =
+//        ApiRepository.apiCall(call, subscriber)
 
     protected fun getActivity() = weakActivity?.get()
 
