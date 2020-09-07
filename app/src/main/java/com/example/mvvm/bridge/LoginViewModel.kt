@@ -17,7 +17,7 @@ class LoginViewModel : BaseViewModel() {
     fun getData() {
         for (i in 0..999) {
             launch {
-                call(getTestApi(), object : HttpSubscriber<Any> {
+                call(getTestApi(), object : HttpSubscriber<Any>() {
 
                     override fun onStart() {
                         super.onStart()
@@ -38,10 +38,6 @@ class LoginViewModel : BaseViewModel() {
                     }
 
                 })
-
-
-                getView()?.log("onStart：当前第" + i + "个请求开始！")
-
 
 //                CommonSubscribe.apply {
 //

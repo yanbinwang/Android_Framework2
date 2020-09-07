@@ -8,7 +8,7 @@ import com.example.common.utils.helper.AccountHelper
  * Created by WangYanBin on 2020/9/3.
  * 继承原先的监听后对结果做处理（用于项目中的接口请求）
  */
-interface HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>> {
+abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     override fun onStart() {
@@ -49,11 +49,11 @@ interface HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>> {
     /**
      * 请求成功，直接回调对象
      */
-    fun onSuccess(data: T?)
+    abstract fun onSuccess(data: T?)
 
     /**
      * 请求失败，获取失败原因
      */
-    fun onFailed(e: Throwable?, msg: String?)
+    abstract fun onFailed(e: Throwable?, msg: String?)
 
 }
