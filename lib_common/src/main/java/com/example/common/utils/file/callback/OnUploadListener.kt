@@ -7,12 +7,12 @@ package com.example.common.utils.file.callback
  */
 interface OnUploadListener {
 
-    fun onFilesUploadStart()
+    fun onStart()
 
-    fun onFilesUploadSuccess(ossUrl: List<String>?)
+    fun onSuccess(ossUrl: List<String>?)
 
-    fun onFilesUploadFailed(e: Throwable?)
+    fun onFailed(e: Throwable?)
 
-    fun onFilesUploadFinish()
+    fun onComplete()
 
 }
