@@ -1,7 +1,7 @@
 package com.example.common.http.repository
 
-import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.withContext
 
 /**
  * Created by WangYanBin on 2020/9/2.
@@ -24,17 +24,6 @@ object ApiRepository {
     }
 
     suspend fun <T> apiCall(request: ApiResponse<T>?, subscriber: HttpSubscriber<T>?) {
-//        subscriber?.onStart()
-//        try {
-//            val res: ApiResponse<T>? = withContext(IO) { request }
-//            res?.let {
-//                subscriber?.onNext(it)
-//            }
-//        } catch (e: Exception) {
-//            subscriber?.onError(e)
-//        } finally {
-//            subscriber?.onComplete()
-//        }
         call(request, subscriber)
     }
 
