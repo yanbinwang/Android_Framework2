@@ -24,17 +24,18 @@ object ApiRepository {
     }
 
     suspend fun <T> apiCall(request: ApiResponse<T>?, subscriber: HttpSubscriber<T>?) {
-        subscriber?.onStart()
-        try {
-            val res: ApiResponse<T>? = withContext(IO) { request }
-            res?.let {
-                subscriber?.onNext(it)
-            }
-        } catch (e: Exception) {
-            subscriber?.onError(e)
-        } finally {
-            subscriber?.onComplete()
-        }
+//        subscriber?.onStart()
+//        try {
+//            val res: ApiResponse<T>? = withContext(IO) { request }
+//            res?.let {
+//                subscriber?.onNext(it)
+//            }
+//        } catch (e: Exception) {
+//            subscriber?.onError(e)
+//        } finally {
+//            subscriber?.onComplete()
+//        }
+        call(request, subscriber)
     }
 
 }
