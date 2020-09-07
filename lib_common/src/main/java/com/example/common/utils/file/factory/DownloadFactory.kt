@@ -31,7 +31,7 @@ class DownloadFactory private constructor() : CoroutineScope {
             FileUtil.deleteDir(filePath)
             onDownloadListener?.onStart()
             try {
-                startDownload(CommonSubscribe.getDownloadApi(downloadUrl), File(FileUtil.isExistDir(filePath), fileName), onDownloadListener)
+                withContext(Dispatchers.IO) { startDownload(CommonSubscribe.getDownloadApi(downloadUrl), File(FileUtil.isExistDir(filePath), fileName), onDownloadListener) }
             } catch (e: Exception) {
                 onDownloadListener?.onFailed(e)
             } finally {
@@ -42,32 +42,29 @@ class DownloadFactory private constructor() : CoroutineScope {
     }
 
     private suspend fun startDownload(body: ResponseBody, file: File, onDownloadListener: OnDownloadListener?) {
-        withContext(Dispatchers.IO) {
-            var inputStream: InputStream? = null
-            var fileOutputStream: FileOutputStream? = null
-            try {
-                val buf = ByteArray(2048)
-                val total = body.contentLength()
-                inputStream = body.byteStream()
-                fileOutputStream = FileOutputStream(file)
-                var len: Int
-                var sum: Long = 0
-                while (((inputStream.read(buf)).also { len = it }) != -1) {
-                    fileOutputStream.write(buf, 0, len)
-                    sum += len.toLong()
-                    val progress = (sum * 1.0f / total * 100).toInt()
-                    withContext(Dispatchers.Main) { onDownloadListener?.onLoading(progress) }
-                }
-                fileOutputStream.flush()
-                withContext(Dispatchers.Main) { onDownloadListener?.onSuccess(file.path) }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { onDownloadListener?.onFailed(e) }
-            } finally {
-                inputStream?.close()
-                fileOutputStream?.close()
+        var inputStream: InputStream? = null
+        var fileOutputStream: FileOutputStream? = null
+        try {
+            val buf = ByteArray(2048)
+            val total = body.contentLength()
+            inputStream = body.byteStream()
+            fileOutputStream = FileOutputStream(file)
+            var len: Int
+            var sum: Long = 0
+            while (((inputStream.read(buf)).also { len = it }) != -1) {
+                fileOutputStream.write(buf, 0, len)
+                sum += len.toLong()
+                val progress = (sum * 1.0f / total * 100).toInt()
+                withContext(Dispatchers.Main) { onDownloadListener?.onLoading(progress) }
             }
+            fileOutputStream.flush()
+            withContext(Dispatchers.Main) { onDownloadListener?.onSuccess(file.path) }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) { onDownloadListener?.onFailed(e) }
+        } finally {
+            inputStream?.close()
+            fileOutputStream?.close()
         }
-
     }
 
 }
