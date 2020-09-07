@@ -3,12 +3,12 @@ package com.example.common.base.bridge
 import android.app.Activity
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.common.http.repository.ApiRepository
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.HttpSubscriber
+import com.example.common.http.repository.ResourceSubscriber
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.lang.ref.SoftReference
@@ -32,13 +32,16 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
         this.softView = SoftReference(view)
     }
 
+    protected suspend fun <T> call(request: T, resourceSubscriber: ResourceSubscriber<T>?) =
+        ApiRepository.call(request, resourceSubscriber)
+
+    protected suspend fun <T> apiCall(request: ApiResponse<T>?, subscriber: HttpSubscriber<T>?) =
+        ApiRepository.apiCall(request, subscriber)
+
     protected fun launch(block: suspend CoroutineScope.() -> Unit) =
         viewModelScope.launch {
             block()
         }
-
-//    protected fun <T> apiCall(call: ApiResponse<T>, subscriber: HttpSubscriber<T>) =
-//        ApiRepository.apiCall(call, subscriber)
 
     protected fun getActivity() = weakActivity?.get()
 

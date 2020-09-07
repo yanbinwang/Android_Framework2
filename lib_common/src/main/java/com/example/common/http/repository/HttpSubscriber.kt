@@ -6,9 +6,11 @@ import com.example.common.utils.helper.AccountHelper
 
 /**
  * Created by WangYanBin on 2020/9/3.
+ * 继承原先的监听后对结果做处理（用于项目中的接口请求）
  */
 interface HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>> {
 
+    // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     override fun onStart() {
     }
 
@@ -36,9 +38,13 @@ interface HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>> {
         }
     }
 
-    override fun onComplete() {
+    override fun onError(e: Exception?) {
+        onFailed(e, "")
     }
 
+    override fun onComplete() {
+    }
+    // </editor-fold>
 
     /**
      * 请求成功，直接回调对象
