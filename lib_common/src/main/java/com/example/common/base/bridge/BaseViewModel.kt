@@ -1,7 +1,7 @@
 package com.example.common.base.bridge
 
 import android.app.Activity
-import androidx.databinding.ViewDataBinding
+import android.content.Context
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,14 +21,14 @@ import java.lang.ref.WeakReference
  * LifecycleObserver-->观察宿主的生命周期
  */
 abstract class BaseViewModel : ViewModel(), LifecycleObserver {
-    private var binding: ViewDataBinding? = null//数据绑定类
     private var weakActivity: WeakReference<Activity>? = null//引用的activity
+    private var weakContext: WeakReference<Context>? = null//引用的context
     private var softView: SoftReference<BaseView>? = null//基础UI操作
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    fun initialize(binding: ViewDataBinding?, activity: Activity?, view: BaseView?) {
-        this.binding = binding
+    fun initialize(activity: Activity?, context: Context?, view: BaseView?) {
         this.weakActivity = WeakReference(activity)
+        this.weakContext = WeakReference(context)
         this.softView = SoftReference(view)
     }
 
@@ -45,16 +45,14 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
 
     protected fun getActivity() = weakActivity?.get()
 
-    protected fun getContext() = binding?.root?.context
+    protected fun getContext() = weakContext?.get()
 
     protected fun getView() = softView?.get()
 
-    protected fun <VDB : ViewDataBinding> getBinding() = binding as VDB
-
     override fun onCleared() {
         super.onCleared()
-        binding = null
         weakActivity?.clear()
+        weakContext?.clear()
         softView?.clear()
     }
     // </editor-fold>
