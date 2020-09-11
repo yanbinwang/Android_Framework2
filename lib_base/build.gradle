@@ -1,7 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion build_versions.compileSdkVersion
@@ -39,14 +37,17 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     //安卓x库
     api deps.androidx.appcompat
     api deps.androidx.recyclerview
+    api deps.androidx.swiperefreshlayout
     api deps.androidx.viewmodel
     api deps.androidx.livedata
-    //其余第三方库
-    api deps.kotlin
+    //kotlin
+    api deps.kotlin.stdlib
+//    api deps.kotlin.coroutines_android
+    //其余谷歌官方库
     api deps.material
 }

@@ -16,25 +16,29 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.example.base.utils.LogUtil;
+import com.example.base.utils.ToastUtil;
 import com.example.common.base.bridge.BaseImpl;
 import com.example.common.base.bridge.BaseView;
 import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.base.page.PageParams;
+import com.example.common.base.proxy.SimpleTextWatcher;
 import com.example.common.constant.Extras;
 import com.example.common.utils.builder.StatusBarBuilder;
 import com.example.common.widget.dialog.LoadingDialog;
-import com.example.base.utils.LogUtil;
-import com.example.base.utils.ToastUtil;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -46,34 +50,35 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
  */
 public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment implements BaseImpl, BaseView {
     protected VDB binding;
-    protected View convertView;//传入的View（子类获取view通过getView方法）
     protected WeakReference<Activity> activity;//基类activity弱引用
     protected WeakReference<Context> context;//基类context弱引用
     protected StatusBarBuilder statusBarBuilder;//状态栏工具类
-    private BaseViewModel viewModel;//数据模型
+    private BaseViewModel baseViewModel;//数据模型
     private LoadingDialog loadingDialog;//刷新球控件，相当于加载动画
     private final String TAG = getClass().getSimpleName().toLowerCase();//额外数据，查看log，观察当前activity是否被销毁
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
-    protected abstract int getLayoutResID();
-
     protected <VM extends BaseViewModel> VM createViewModel(Class<VM> vmClass) {
-        if (null == viewModel) {
-            viewModel = new ViewModelProvider(this).get(vmClass);
-            viewModel.initialize(binding,this);
-            getLifecycle().addObserver(viewModel);
+        if (null == baseViewModel) {
+            baseViewModel = new ViewModelProvider(this).get(vmClass);
+            baseViewModel.initialize(getActivity(), getContext(), this);
+            getLifecycle().addObserver(baseViewModel);
         }
-        return (VM) viewModel;
+        return (VM) baseViewModel;
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        convertView = inflater.inflate(getLayoutResID(), container, false);
-        if (0 != getLayoutResID()) {
-            binding = DataBindingUtil.inflate(inflater, getLayoutResID(), container, false);
-            binding.setLifecycleOwner(this);
+        log(TAG);
+        Type superclass = getClass().getGenericSuperclass();
+        Class<?> aClass = (Class<?>) ((ParameterizedType) superclass).getActualTypeArguments()[0];
+        try {
+            Method method = aClass.getDeclaredMethod("inflate", LayoutInflater.class, ViewGroup.class, boolean.class);
+            binding = (VDB) method.invoke(null, getLayoutInflater(), container, false);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
         }
-        return null != binding ? binding.getRoot() : convertView;
+        return binding.getRoot();
     }
 
     @Override
@@ -160,6 +165,24 @@ public abstract class BaseFragment<VDB extends ViewDataBinding> extends Fragment
             return ((Button) view).getText().toString().trim();
         }
         return null;
+    }
+
+    @Override
+    public void onTextChanged(SimpleTextWatcher simpleTextWatcher, View... views) {
+        for (View view : views) {
+            if (view instanceof EditText) {
+                ((EditText) view).addTextChangedListener(simpleTextWatcher);
+            }
+        }
+    }
+
+    @Override
+    public void onClick(View.OnClickListener onClickListener, View... views) {
+        for (View view : views) {
+            if (view != null) {
+                view.setOnClickListener(onClickListener);
+            }
+        }
     }
 
     @Override

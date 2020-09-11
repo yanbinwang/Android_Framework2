@@ -7,11 +7,14 @@ import android.view.animation.AnimationSet;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 
 import com.example.base.utils.AnimationLoader;
 import com.example.common.R;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 /**
  * Created by WangYanBin on 2020/7/13.
@@ -39,8 +42,15 @@ public abstract class BaseDialog<VDB extends ViewDataBinding> extends Dialog {
      * @param close 是否可以关闭
      */
     protected void initialize(boolean anim, boolean close) {
-        if (0 != getLayoutResID()) {
-            binding = DataBindingUtil.bind(LayoutInflater.from(getContext()).inflate(getLayoutResID(), null));
+        Type type = getClass().getGenericSuperclass();
+        if (type instanceof ParameterizedType) {
+            try {
+                Class<VDB> vbClass = (Class<VDB>) ((ParameterizedType) type).getActualTypeArguments()[0];
+                Method method = vbClass.getMethod("inflate", LayoutInflater.class);
+                binding = (VDB) method.invoke(null, getLayoutInflater());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             setContentView(binding.getRoot(), new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             if (anim) {
                 AnimationSet mAnimIn = AnimationLoader.getInAnimation(getContext());
@@ -56,7 +66,5 @@ public abstract class BaseDialog<VDB extends ViewDataBinding> extends Dialog {
             }
         }
     }
-
-    protected abstract int getLayoutResID();
 
 }

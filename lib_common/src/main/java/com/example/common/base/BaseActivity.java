@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -27,12 +28,16 @@ import com.example.common.base.bridge.BaseImpl;
 import com.example.common.base.bridge.BaseView;
 import com.example.common.base.bridge.BaseViewModel;
 import com.example.common.base.page.PageParams;
+import com.example.common.base.proxy.SimpleTextWatcher;
 import com.example.common.constant.Extras;
 import com.example.common.utils.builder.StatusBarBuilder;
 import com.example.common.widget.dialog.LoadingDialog;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -48,7 +53,7 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
     protected WeakReference<Activity> activity;//基类activity弱引用
     protected WeakReference<Context> context;//基类context弱引用
     protected StatusBarBuilder statusBarBuilder;//状态栏工具类
-    private BaseViewModel viewModel;//数据模型
+    private BaseViewModel baseViewModel;//数据模型
     private LoadingDialog loadingDialog;//刷新球控件，相当于加载动画
     private final String TAG = getClass().getSimpleName().toLowerCase();//额外数据，查看log，观察当前activity是否被销毁
 
@@ -57,30 +62,36 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        Type type = getClass().getGenericSuperclass();
+        if (type instanceof ParameterizedType) {
+            try {
+                Class<VDB> vbClass = (Class<VDB>) ((ParameterizedType) type).getActualTypeArguments()[0];
+                Method method = vbClass.getMethod("inflate", LayoutInflater.class);
+                binding = (VDB) method.invoke(null, getLayoutInflater());
+                binding.setLifecycleOwner(this);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            setContentView(binding.getRoot());
+        }
         initView();
         initEvent();
         initData();
     }
 
-    protected abstract int getLayoutResID();
-
     protected <VM extends BaseViewModel> VM createViewModel(Class<VM> vmClass) {
-        if (null == viewModel) {
-            viewModel = new ViewModelProvider(this).get(vmClass);
-            viewModel.initialize(binding, this);
-            getLifecycle().addObserver(viewModel);
+        if (null == baseViewModel) {
+            baseViewModel = new ViewModelProvider(this).get(vmClass);
+            baseViewModel.initialize(this, this, this);
+            getLifecycle().addObserver(baseViewModel);
         }
-        return (VM) viewModel;
+        return (VM) baseViewModel;
     }
 
     //控件的事件绑定，请求的回调，页面的跳转完全可交由viewmodel实现
     @Override
     public void initView() {
         ARouter.getInstance().inject(this);
-        if (0 != getLayoutResID()) {
-            binding = DataBindingUtil.setContentView(this, getLayoutResID());
-            binding.setLifecycleOwner(this);
-        }
         activity = new WeakReference<>(this);
         context = new WeakReference<>(this);
         statusBarBuilder = new StatusBarBuilder(activity.get());
@@ -155,6 +166,24 @@ public abstract class BaseActivity<VDB extends ViewDataBinding> extends AppCompa
             return ((Button) view).getText().toString().trim();
         }
         return null;
+    }
+
+    @Override
+    public void onTextChanged(SimpleTextWatcher simpleTextWatcher, View... views) {
+        for (View view : views) {
+            if (view instanceof EditText) {
+                ((EditText) view).addTextChangedListener(simpleTextWatcher);
+            }
+        }
+    }
+
+    @Override
+    public void onClick(View.OnClickListener onClickListener, View... views) {
+        for (View view : views) {
+            if (view != null) {
+                view.setOnClickListener(onClickListener);
+            }
+        }
     }
 
     @Override

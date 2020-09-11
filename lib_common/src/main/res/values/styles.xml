@@ -10,7 +10,7 @@
         <!--        &lt;!&ndash; Appbar背景色 &ndash;&gt;-->
         <!--        <item name="colorPrimary">@android:color/transparent</item>-->
         <!-- 导航栏颜色 -->
-        <item name="colorPrimaryDark">@android:color/transparent</item>
+        <item name="colorPrimaryDark">@color/black</item>
         <!-- 底部导航栏颜色 -->
         <item name="android:navigationBarColor">@color/black</item>
         <!-- 页面背景色 -->

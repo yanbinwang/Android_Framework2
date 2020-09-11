@@ -1,8 +1,8 @@
 package com.example.common.subscribe
 
-import androidx.lifecycle.LiveData
-import com.example.common.http.callback.ApiResponse
+import com.example.common.http.repository.ApiResponse
 import com.example.common.http.factory.RetrofitFactory
+import com.example.common.http.repository.ApiRepository
 import com.example.common.model.UploadModel
 import okhttp3.MultipartBody
 
@@ -10,29 +10,30 @@ import okhttp3.MultipartBody
  * author:wyb
  * 通用接口类
  */
-object BaseSubscribe : BaseApi {
-    private val baseApi by lazy {
-        RetrofitFactory.instance.create(BaseApi::class.java)
+object CommonSubscribe : CommonApi {
+
+    private val commonApi by lazy {
+        RetrofitFactory.instance.create(CommonApi::class.java)
     }
 
-    override fun download(downloadUrl: String): LiveData<okhttp3.ResponseBody> {
-        return baseApi.download(downloadUrl)
+    override suspend fun getDownloadApi(downloadUrl: String): okhttp3.ResponseBody {
+        return commonApi.getDownloadApi(downloadUrl)
     }
 
-    override fun getUploadFile(agent: String, partList: List<MultipartBody.Part>): LiveData<ApiResponse<UploadModel>> {
+    override suspend fun getUploadFileApi(agent: String, partList: List<MultipartBody.Part>): ApiResponse<UploadModel> {
         TODO("Not yet implemented")
     }
 
-    override fun getSendVerification(agent: String, map: Map<String, String>): LiveData<ApiResponse<Any>> {
-        return baseApi.getSendVerification(agent, map)
+    override suspend fun getSendVerificationApi(agent: String, map: Map<String, String>): ApiResponse<Any> {
+        return commonApi.getSendVerificationApi(agent, map)
     }
 
-    override fun getVerification(agent: String, map: Map<String, String>): LiveData<ApiResponse<Any>> {
-        return baseApi.getVerification(agent, map)
+    override suspend fun getVerificationApi(agent: String, map: Map<String, String>): ApiResponse<Any> {
+        return commonApi.getVerificationApi(agent, map)
     }
 
-    override fun getTestApi(): LiveData<ApiResponse<Any>> {
-        return baseApi.getTestApi()
+    override suspend fun getTestApi(): ApiResponse<Any> {
+        return commonApi.getTestApi()
     }
 
 //    //上传图片接口

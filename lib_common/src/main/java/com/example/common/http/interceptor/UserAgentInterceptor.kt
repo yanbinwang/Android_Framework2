@@ -38,7 +38,7 @@ class UserAgentInterceptor : Interceptor {
         params["X-yoogurt-phone-model"] = Build.MODEL
         val builder = Headers.Builder()
         for (key in params.keys) {
-            builder.add(key, params[key])
+            builder.add(key, params[key]!!)
         }
         return builder.build()
     }

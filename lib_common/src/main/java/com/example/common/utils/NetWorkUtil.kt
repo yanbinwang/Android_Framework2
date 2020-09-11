@@ -4,8 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
-import android.telephony.TelephonyManager
-
 import com.example.common.BaseApplication
 
 /**
@@ -16,14 +14,13 @@ import com.example.common.BaseApplication
 @SuppressLint("StaticFieldLeak", "MissingPermission")
 object NetWorkUtil {
     //等效于懒加载，使用时取值，之后复用
-    private val context by lazy {
-        BaseApplication.instance.applicationContext
+    private val connectivityManager by lazy {
+        BaseApplication.instance?.applicationContext?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     }
 
     //验证是否联网
     @JvmStatic
     fun isNetworkAvailable(): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
         if (networkInfo != null && networkInfo.isConnected) {
             //当前网络是连接的
@@ -36,7 +33,6 @@ object NetWorkUtil {
     @JvmStatic
     fun getNetWorkState(): Int {
         //得到连接管理器对象
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
         if (networkInfo != null && networkInfo.isConnected) {
             if (networkInfo.type == ConnectivityManager.TYPE_WIFI) {
@@ -53,30 +49,29 @@ object NetWorkUtil {
     //判断当前网络环境是否为wifi
     @JvmStatic
     fun isWifi(): Boolean {
-        val connectivity = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return connectivity.activeNetworkInfo.type == ConnectivityManager.TYPE_WIFI
+        return connectivityManager.activeNetworkInfo.type == ConnectivityManager.TYPE_WIFI
     }
 
-    //获取网络状态
-    @JvmStatic
-    fun getAPNType(): String {
-        var netType = ""
-        val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val networkInfo = manager.activeNetworkInfo ?: return "NULL"
-        val nType = networkInfo.type
-        if (nType == ConnectivityManager.TYPE_WIFI) {
-            netType = "wifi"
-        } else if (nType == ConnectivityManager.TYPE_MOBILE) {
-            val nSubType = networkInfo.subtype
-            val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-            netType = when {
-                nSubType == TelephonyManager.NETWORK_TYPE_LTE && !telephonyManager.isNetworkRoaming -> "4G"
-                nSubType == TelephonyManager.NETWORK_TYPE_UMTS || nSubType == TelephonyManager.NETWORK_TYPE_HSDPA || nSubType == TelephonyManager.NETWORK_TYPE_EVDO_0 && !telephonyManager.isNetworkRoaming -> "3G"
-                nSubType == TelephonyManager.NETWORK_TYPE_GPRS || nSubType == TelephonyManager.NETWORK_TYPE_EDGE || nSubType == TelephonyManager.NETWORK_TYPE_CDMA && !telephonyManager.isNetworkRoaming -> "2G"
-                else -> "mobile"
-            }
-        }
-        return netType
-    }
+//    //获取网络状态
+//    @JvmStatic
+//    fun getAPNType(): String {
+//        var netType = ""
+//        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+//        val networkInfo = connectivityManager.activeNetworkInfo ?: return "NULL"
+//        val nType = networkInfo.type
+//        if (nType == ConnectivityManager.TYPE_WIFI) {
+//            netType = "wifi"
+//        } else if (nType == ConnectivityManager.TYPE_MOBILE) {
+//            val nSubType = networkInfo.subtype
+//            val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+//            netType = when {
+//                nSubType == TelephonyManager.NETWORK_TYPE_LTE && !telephonyManager.isNetworkRoaming -> "4G"
+//                nSubType == TelephonyManager.NETWORK_TYPE_UMTS || nSubType == TelephonyManager.NETWORK_TYPE_HSDPA || nSubType == TelephonyManager.NETWORK_TYPE_EVDO_0 && !telephonyManager.isNetworkRoaming -> "3G"
+//                nSubType == TelephonyManager.NETWORK_TYPE_GPRS || nSubType == TelephonyManager.NETWORK_TYPE_EDGE || nSubType == TelephonyManager.NETWORK_TYPE_CDMA && !telephonyManager.isNetworkRoaming -> "2G"
+//                else -> "mobile"
+//            }
+//        }
+//        return netType
+//    }
 
 }

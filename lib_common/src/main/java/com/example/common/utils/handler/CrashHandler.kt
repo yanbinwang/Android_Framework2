@@ -23,7 +23,7 @@ import kotlin.system.exitProcess
  */
 @SuppressLint("StaticFieldLeak")
 class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
-    private var context = BaseApplication.instance.applicationContext
+    private var context = BaseApplication.instance?.applicationContext!!
     private var mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler()
     private val TAG = "CrashHandler" //文件name
 

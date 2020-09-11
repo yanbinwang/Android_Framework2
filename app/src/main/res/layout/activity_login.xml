@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
 
         <variable
             name="viewModel"
             type="com.example.mvvm.bridge.LoginViewModel" />
-
-        <variable
-            name="event"
-            type="com.example.mvvm.activity.LoginActivity.PageEvent" />
 
     </data>
 
@@ -26,8 +21,7 @@
             android:layout_height="80mm"
             android:layout_marginHorizontal="40mm"
             android:textColor="@color/black"
-            android:textColorHint="@color/black"
-            app:addTextChangedListener="@{event.textWatcher}" />
+            android:textColorHint="@color/black" />
 
         <EditText
             android:id="@+id/et_password"
@@ -36,8 +30,7 @@
             android:layout_marginHorizontal="40mm"
             android:layout_marginTop="40mm"
             android:textColor="@color/black"
-            android:textColorHint="@color/black"
-            app:addTextChangedListener="@{event.textWatcher}" />
+            android:textColorHint="@color/black" />
 
         <Button
             android:id="@+id/btn_login"
@@ -47,7 +40,6 @@
             android:layout_marginTop="80mm"
             android:background="@color/gray_9f9f9f"
             android:enabled="false"
-            android:onClick='@{event.onClick}'
             android:text="登录"
             android:textColor="@color/black" />
 

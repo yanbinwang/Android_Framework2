@@ -19,12 +19,8 @@ import java.io.File
  * 图片加载库使用Application上下文，Glide请求将不受Activity/Fragment生命周期控制。
  */
 class ImageLoader private constructor() : GlideModule(), GlideImpl {
-    private var context = BaseApplication.instance.applicationContext
-    private var manager: RequestManager? = null
-
-    init {
-        this.manager = Glide.with(context)
-    }
+    private var context = BaseApplication.instance?.applicationContext!!
+    private var manager = Glide.with(context)
 
     companion object {
         @JvmStatic
@@ -46,7 +42,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun displayImage(view: ImageView?, string: String?, placeholderId: Int, errorId: Int, requestListener: GlideRequestListener<Drawable?>?) {
-        manager!!
+        manager
             .load(string)
             .placeholder(placeholderId)
             .error(errorId)
@@ -60,7 +56,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun displayRoundImage(view: ImageView?, string: String?, errorId: Int, roundingRadius: Int) {
-        manager!!
+        manager
             .load(string)
             .apply(RequestOptions.bitmapTransform(RoundedCorners(roundingRadius)))
             .placeholder(R.drawable.shape_loading_normal)
@@ -77,7 +73,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     override fun displayRoundImage(view: ImageView?, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
         val transformation = CornerTransform(context, roundingRadius.toFloat())
         transformation.setExceptCorner(overRide[0], overRide[1], overRide[2], overRide[3])
-        manager!!
+        manager
             .load(string)
             .transform(transformation)
             .placeholder(R.drawable.shape_loading_normal)
@@ -91,7 +87,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun displayCircleImage(view: ImageView?, string: String?, errorId: Int) {
-        manager!!
+        manager
             .load(string)
             .apply(RequestOptions.circleCropTransform())
             .placeholder(R.drawable.shape_loading_round)
@@ -112,7 +108,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
 //        //下载的文件从缓存目录拷贝到指定目录
 //        FileUtil.copyFile(srcFile.get(), destFile)
         //下载对应的图片文件
-        manager!!
+        manager
             .asFile()
             .load(string)
             .listener(requestListener)

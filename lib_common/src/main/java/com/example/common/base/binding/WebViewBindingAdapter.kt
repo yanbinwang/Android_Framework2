@@ -18,14 +18,14 @@ object WebViewBindingAdapter {
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled")
     @BindingAdapter(value = ["app:pageAssetPath"])
-    fun setLoadAssetsPage(webView: WebView, assetPath: String) {
+    fun setLoadAssetsPage(webView: WebView, assetPath: String?) {
         webView.webViewClient = object : WebViewClient() {
 
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val uri = request.url
                 val intent = Intent(Intent.ACTION_VIEW, uri)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                BaseApplication.instance.startActivity(intent)
+                BaseApplication.instance?.applicationContext!!.startActivity(intent)
                 return true
             }
 
