@@ -4,13 +4,6 @@ import android.app.Activity
 import android.content.Context
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.common.http.repository.ApiRepository
-import com.example.common.http.repository.ApiResponse
-import com.example.common.http.repository.HttpSubscriber
-import com.example.common.http.repository.ResourceSubscriber
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 
@@ -31,17 +24,6 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
         this.weakContext = WeakReference(context)
         this.softView = SoftReference(view)
     }
-
-    protected suspend fun <T> call(request: T, resourceSubscriber: ResourceSubscriber<T>?) =
-        ApiRepository.call(request, resourceSubscriber)
-
-    protected suspend fun <T> apiCall(request: ApiResponse<T>?, subscriber: HttpSubscriber<T>?) =
-        ApiRepository.apiCall(request, subscriber)
-
-    protected fun launch(block: suspend CoroutineScope.() -> Unit) =
-        viewModelScope.launch {
-            block()
-        }
 
     protected fun getActivity() = weakActivity?.get()
 
