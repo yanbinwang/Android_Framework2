@@ -28,35 +28,12 @@ suspend fun <T> T.call(resourceSubscriber: ResourceSubscriber<T>?) {
     try {
         val res: T? = withContext(IO) { t }
         res?.let {
-            resourceSubscriber?.onNext(it)
+            resourceSubscriber?.doResult(it)
         }
     } catch (e: Exception) {
-        resourceSubscriber?.onError(e)
+        resourceSubscriber?.doResult(null, e)
     } finally {
         resourceSubscriber?.onComplete()
         cancel()
     }
 }
-
-
-//object ApiRepository {
-//
-//    suspend fun <T> call(request: T?, resourceSubscriber: ResourceSubscriber<T>?) {
-//        resourceSubscriber?.onStart()
-//        try {
-//            val res: T? = withContext(IO) { request }
-//            res?.let {
-//                resourceSubscriber?.onNext(it)
-//            }
-//        } catch (e: Exception) {
-//            resourceSubscriber?.onError(e)
-//        } finally {
-//            resourceSubscriber?.onComplete()
-//        }
-//    }
-//
-//    suspend fun <T> apiCall(request: ApiResponse<T>?, subscriber: HttpSubscriber<T>?) {
-//        call(request, subscriber)
-//    }
-//
-//}

@@ -13,14 +13,9 @@ abstract class ResourceSubscriber<T> {
     abstract fun onStart()
 
     /**
-     * 请求完成
+     * 取值回调（协程只有成功，失败）
      */
-    abstract fun onNext(t: T?)
-
-    /**
-     * 请求报错（协程只有成功，失败）
-     */
-    abstract fun onError(e: Exception?)
+    abstract fun doResult(data: T? = null, throwable: Throwable? = null)
 
     /**
      * 一个请求完成
