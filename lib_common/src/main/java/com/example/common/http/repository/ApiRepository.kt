@@ -2,10 +2,9 @@ package com.example.common.http.repository
 
 import androidx.lifecycle.viewModelScope
 import com.example.common.base.bridge.BaseViewModel
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.NonCancellable.cancel
 
 /**
  * Created by WangYanBin on 2020/9/2.
@@ -18,9 +17,11 @@ fun BaseViewModel.launch(block: suspend CoroutineScope.() -> Unit) =
     }
 
 //项目请求监听扩展
+@OptIn(InternalCoroutinesApi::class)
 suspend fun <T> ApiResponse<T>.apiCall(subscriber: HttpSubscriber<T>?) = call(subscriber)
 
 //请求监听扩展
+@OptIn(InternalCoroutinesApi::class)
 suspend fun <T> T.call(resourceSubscriber: ResourceSubscriber<T>?) {
     val t = this
     resourceSubscriber?.onStart()
@@ -33,6 +34,7 @@ suspend fun <T> T.call(resourceSubscriber: ResourceSubscriber<T>?) {
         resourceSubscriber?.onError(e)
     } finally {
         resourceSubscriber?.onComplete()
+        cancel()
     }
 }
 

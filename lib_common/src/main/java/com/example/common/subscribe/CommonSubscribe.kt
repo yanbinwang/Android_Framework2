@@ -2,7 +2,6 @@ package com.example.common.subscribe
 
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.factory.RetrofitFactory
-import com.example.common.http.repository.ApiRepository
 import com.example.common.model.UploadModel
 import okhttp3.MultipartBody
 
