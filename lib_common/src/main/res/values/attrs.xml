@@ -16,12 +16,19 @@
     </declare-styleable>
 
     <!-- 刷新控件 -->
-    <declare-styleable name="SwipeRefreshLayout">
+    <declare-styleable name="XRefreshLayout">
         <attr name="direction">
             <enum name="top" value="0" />
             <enum name="bottom" value="1" />
             <enum name="both" value="2" />
         </attr>
+    </declare-styleable>
+
+    <!-- 侧滑控件 -->
+    <declare-styleable name="SwipeMenuLayout">
+        <attr name="swipeEnable" format="boolean"/>
+        <attr name="ios" format="boolean"/>
+        <attr name="leftSwipe" format="boolean"/>
     </declare-styleable>
 
     <!-- 自定义XRecyclerView -->
@@ -40,13 +47,6 @@
             <enum name="ordinary" value="0" />
             <enum name="equipped" value="1" />
         </attr>
-    </declare-styleable>
-
-    <!-- 侧滑控件 -->
-    <declare-styleable name="SwipeMenuLayout">
-        <attr name="swipeEnable" format="boolean"/>
-        <attr name="ios" format="boolean"/>
-        <attr name="leftSwipe" format="boolean"/>
     </declare-styleable>
 
 </resources>

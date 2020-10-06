@@ -3,18 +3,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.example.common.widget.xrecyclerview.refresh.SwipeRefreshLayout
-        android:id="@+id/srl_refresh"
+    <com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
+        android:id="@+id/x_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <com.example.common.widget.xrecyclerview.DetectionRecyclerView
-            android:id="@+id/rv_x"
+            android:id="@+id/d_rv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:overScrollMode="never" />
 
-    </com.example.common.widget.xrecyclerview.refresh.SwipeRefreshLayout>
+    </com.example.common.widget.xrecyclerview.refresh.XRefreshLayout>
 
     <com.example.common.widget.empty.EmptyLayout
         android:id="@+id/el"

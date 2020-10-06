@@ -21,14 +21,9 @@ interface BaseView {
     fun showToast(msg: String)
 
     /**
-     * 显示刷新球动画
+     * 刷新动画dialog
      */
-    fun showDialog()
-
-    /**
-     * 不能点击关闭的dialog
-     */
-    fun showDialog(isClose: Boolean)
+    fun showDialog(flag: Boolean = false)
 
     /**
      * 隐藏刷新球控件
@@ -38,11 +33,6 @@ interface BaseView {
     /**
      * 路由跳转
      */
-    fun navigation(path: String): Activity
-
-    /**
-     * 路由跳转,带参数
-     */
-    fun navigation(path: String, params: PageParams?): Activity
+    fun navigation(path: String, params: PageParams ?= null): Activity
 
 }

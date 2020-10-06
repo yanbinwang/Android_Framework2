@@ -2,8 +2,6 @@ package com.example.common.widget.dialog;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
-
 import com.example.common.R;
 import com.example.common.base.BaseDialog;
 import com.example.common.databinding.ViewDialogLoadingBinding;
@@ -14,7 +12,7 @@ import com.example.common.databinding.ViewDialogLoadingBinding;
  */
 public class LoadingDialog extends BaseDialog<ViewDialogLoadingBinding> {
 
-    public LoadingDialog(@NonNull Context context) {
+    public LoadingDialog(Context context) {
         super(context, R.style.loadingStyle);
         initialize();
     }

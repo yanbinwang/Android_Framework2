@@ -48,7 +48,7 @@ object PageHandler {
     @JvmStatic
     fun setListEmptyState(xRecyclerView: XRecyclerView, refresh: Boolean, msg: String?, length: Int, imgRes: Int, emptyText: String?) {
         val emptyLayout = xRecyclerView.emptyView
-        xRecyclerView.setRefreshing(false)
+        xRecyclerView.finishRefreshing()
         //区分此次刷新是否成功
         if (refresh) {
             emptyLayout.visibility = View.GONE

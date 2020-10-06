@@ -39,7 +39,7 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
             }
         }
 
-        viewModel.dataList.observe(this, Observer {
+        viewModel.dataListData.observe(this, Observer {
             binding.adapter?.setList(it)
         })
     }

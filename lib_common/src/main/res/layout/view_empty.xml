@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?><!-- 当列表为空或者没有网络时显示 -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data />
-
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/srl_empty_refresh"
+    <com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
+        android:id="@+id/x_empty_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/gray_f6f8ff">
+        app:direction="top">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -34,6 +33,6 @@
 
         </LinearLayout>
 
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </com.example.common.widget.xrecyclerview.refresh.XRefreshLayout>
 
 </layout>
