@@ -13,9 +13,6 @@ import com.example.common.utils.helper.AccountHelper
 abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    override fun onStart() {
-    }
-
     override fun onResult(data: ApiResponse<T>?, throwable: Throwable?) {
         if (null != data) {
             val msg = data.msg
@@ -38,9 +35,6 @@ abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
         } else {
             onFailed(throwable, "")
         }
-    }
-
-    override fun onComplete() {
     }
     // </editor-fold>
 

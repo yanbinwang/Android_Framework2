@@ -13,17 +13,17 @@ abstract class ResourceSubscriber<T> {
     /**
      * 请求开始
      */
-    abstract fun onStart()
+    open fun onStart() {}
 
     /**
      * 取值回调（协程只有成功，失败）
      */
-    abstract fun onResult(data: T? = null, throwable: Throwable? = null)
+    open fun onResult(data: T? = null, throwable: Throwable? = null) {}
 
     /**
      * 一个请求完成
      */
-    abstract fun onComplete()
+    open fun onComplete() {}
     // </editor-fold>
 
 }

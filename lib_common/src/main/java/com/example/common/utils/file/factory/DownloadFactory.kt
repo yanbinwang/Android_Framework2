@@ -1,5 +1,7 @@
 package com.example.common.utils.file.factory
 
+import com.example.common.http.repository.ResourceSubscriber
+import com.example.common.http.repository.call
 import com.example.common.subscribe.CommonSubscribe.getDownloadApi
 import com.example.common.utils.file.FileUtil
 import com.example.common.utils.file.callback.OnDownloadListener
@@ -30,42 +32,55 @@ class DownloadFactory private constructor() : CoroutineScope {
 
     fun download(downloadUrl: String, filePath: String, fileName: String, onDownloadListener: OnDownloadListener?) {
         launch(Dispatchers.Main) {
+            //清除目录下的所有文件
             FileUtil.deleteDir(filePath)
-            onDownloadListener?.onStart()
-            try {
-                withContext(Dispatchers.IO) { startDownload(getDownloadApi(downloadUrl), File(FileUtil.isExistDir(filePath), fileName), onDownloadListener) }
-            } catch (e: Exception) {
-                onDownloadListener?.onFailed(e)
-            } finally {
-                onDownloadListener?.onComplete()
-                cancel()
-            }
-        }
-    }
+            //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
+            val body = getDownloadApi(downloadUrl).call(object : ResourceSubscriber<ResponseBody>() {
 
-    private suspend fun startDownload(body: ResponseBody, file: File, onDownloadListener: OnDownloadListener?) {
-        var inputStream: InputStream? = null
-        var fileOutputStream: FileOutputStream? = null
-        try {
-            val buf = ByteArray(2048)
-            val total = body.contentLength()
-            inputStream = body.byteStream()
-            fileOutputStream = FileOutputStream(file)
-            var len: Int
-            var sum: Long = 0
-            while (((inputStream.read(buf)).also { len = it }) != -1) {
-                fileOutputStream.write(buf, 0, len)
-                sum += len.toLong()
-                val progress = (sum * 1.0f / total * 100).toInt()
-                withContext(Dispatchers.Main) { onDownloadListener?.onLoading(progress) }
+                    override fun onStart() {
+                        super.onStart()
+                        onDownloadListener?.onStart()
+                    }
+
+                    override fun onResult(data: ResponseBody?, throwable: Throwable?) {
+                        super.onResult(data, throwable)
+                        if (null == data) {
+                            onDownloadListener?.onFailed(throwable)
+                            onDownloadListener?.onComplete()
+                            cancel()
+                        }
+                    }
+
+                })
+            //在上一步协程成功并拿到对象后开始执行，创建一个安装的文件，开启io协程，写入
+            val file = File(FileUtil.isExistDir(filePath), fileName)
+            withContext(Dispatchers.IO) {
+                var inputStream: InputStream? = null
+                var fileOutputStream: FileOutputStream? = null
+                try {
+                    val buf = ByteArray(2048)
+                    val total = body.contentLength()
+                    inputStream = body.byteStream()
+                    fileOutputStream = FileOutputStream(file)
+                    var len: Int
+                    var sum: Long = 0
+                    while (((inputStream.read(buf)).also { len = it }) != -1) {
+                        fileOutputStream.write(buf, 0, len)
+                        sum += len.toLong()
+                        val progress = (sum * 1.0f / total * 100).toInt()
+                        withContext(Dispatchers.Main) { onDownloadListener?.onLoading(progress) }
+                    }
+                    fileOutputStream.flush()
+                    withContext(Dispatchers.Main) { onDownloadListener?.onSuccess(file.path) }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) { onDownloadListener?.onFailed(e) }
+                } finally {
+                    inputStream?.close()
+                    fileOutputStream?.close()
+                    withContext(Dispatchers.Main) { onDownloadListener?.onComplete() }
+                    cancel()
+                }
             }
-            fileOutputStream.flush()
-            withContext(Dispatchers.Main) { onDownloadListener?.onSuccess(file.path) }
-        } catch (e: Exception) {
-            withContext(Dispatchers.Main) { onDownloadListener?.onFailed(e) }
-        } finally {
-            inputStream?.close()
-            fileOutputStream?.close()
         }
     }
 
