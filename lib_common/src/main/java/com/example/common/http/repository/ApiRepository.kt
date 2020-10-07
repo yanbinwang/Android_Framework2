@@ -18,22 +18,24 @@ fun BaseViewModel.launch(block: suspend CoroutineScope.() -> Unit) =
 
 //项目请求监听扩展
 @OptIn(InternalCoroutinesApi::class)
-suspend fun <T> ApiResponse<T>.apiCall(subscriber: HttpSubscriber<T>?) = call(subscriber)
+suspend fun <T> ApiResponse<T>.apiCall(subscriber: HttpSubscriber<T>?): ApiResponse<T> =
+    call(subscriber)
 
 //请求监听扩展
 @OptIn(InternalCoroutinesApi::class)
-suspend fun <T> T.call(resourceSubscriber: ResourceSubscriber<T>?) {
+suspend fun <T> T.call(resourceSubscriber: ResourceSubscriber<T>?): T {
     val t = this
     resourceSubscriber?.onStart()
     try {
         val res: T? = withContext(IO) { t }
         res?.let {
-            resourceSubscriber?.doResult(it)
+            resourceSubscriber?.onResult(it)
         }
     } catch (e: Exception) {
-        resourceSubscriber?.doResult(null, e)
+        resourceSubscriber?.onResult(null, e)
     } finally {
         resourceSubscriber?.onComplete()
         cancel()
     }
+    return t
 }

@@ -6,7 +6,9 @@ import com.example.common.utils.helper.AccountHelper
 
 /**
  * Created by WangYanBin on 2020/9/3.
- * 继承原先的监听后对结果做处理（用于项目中的接口请求）
+ * 继承原先的监听后对结果做处理（用于项目中的接口请求，可不去实现成功和失败）
+ * onSuccess->成功直接将外层剥离取得对象T
+ * onFailed->失败返回失败异常，或服务器给予的失败提示文案
  */
 abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
 
@@ -14,7 +16,7 @@ abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
     override fun onStart() {
     }
 
-    override fun doResult(data: ApiResponse<T>?, throwable: Throwable?) {
+    override fun onResult(data: ApiResponse<T>?, throwable: Throwable?) {
         if (null != data) {
             val msg = data.msg
             val e = data.e
@@ -31,10 +33,10 @@ abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
                 if (100002 == e) {
 //                         ARouter.getInstance().build(ARouterPath.UnlockIPActivity).navigation()
                 }
-                onFailed(null, msg)
+                onFailed(throwable, msg)
             }
         } else {
-            onFailed(null, "")
+            onFailed(throwable, "")
         }
     }
 
@@ -45,11 +47,11 @@ abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
     /**
      * 请求成功，直接回调对象
      */
-    abstract fun onSuccess(data: T?)
+    open fun onSuccess(data: T?) {}
 
     /**
      * 请求失败，获取失败原因
      */
-    abstract fun onFailed(e: Throwable?, msg: String?)
+    open fun onFailed(e: Throwable?, msg: String?) {}
 
 }

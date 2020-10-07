@@ -2,7 +2,10 @@ package com.example.common.http.repository
 
 /**
  * Created by WangYanBin on 2020/9/3.
- * 参考rxjava回调，4个监听回调
+ * 参考rxjava回调，3个监听回调
+ * onStart->开始请求
+ * onResult->携程只有成功和失败，try和catch，故直接合并为onResult，对象为空就是失败，且外层要有约定的编码
+ * onComplete->请求完成
  */
 abstract class ResourceSubscriber<T> {
 
@@ -15,7 +18,7 @@ abstract class ResourceSubscriber<T> {
     /**
      * 取值回调（协程只有成功，失败）
      */
-    abstract fun doResult(data: T? = null, throwable: Throwable? = null)
+    abstract fun onResult(data: T? = null, throwable: Throwable? = null)
 
     /**
      * 一个请求完成

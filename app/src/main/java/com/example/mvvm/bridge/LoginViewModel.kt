@@ -19,23 +19,23 @@ class LoginViewModel : BaseViewModel() {
     fun getData() {
         for (i in 0..999) {
             launch {
-                getTestApi().call(object : HttpSubscriber<Any>() {
-                    override fun onStart() {
-                        super.onStart()
-                        getView()?.log("onStart：当前第" + i + "个请求开始！")
-                    }
+                val any = getTestApi().call(object : HttpSubscriber<Any>() {
+//                    override fun onStart() {
+//                        super.onStart()
+//                        getView()?.log("onStart：当前第" + i + "个请求开始！")
+//                    }
 
-                    override fun onSuccess(data: Any?) {
-                    }
+//                    override fun onSuccess(data: Any?) {
+//                    }
+//
+//                    override fun onFailed(e: Throwable?, msg: String?) {
+//                    }
 
-                    override fun onFailed(e: Throwable?, msg: String?) {
-                    }
-
-                    override fun onComplete() {
-                        super.onComplete()
-                        getView()?.log("onComplete：当前第" + i + "个请求结束！")
-                    }
-                })
+//                    override fun onComplete() {
+//                        super.onComplete()
+//                        getView()?.log("onComplete：当前第" + i + "个请求结束！")
+//                    }
+                }).data
 //                CommonSubscribe.apply {
 //
 //                    apiCall(getTestApi(), object : HttpSubscriber<Any> {
