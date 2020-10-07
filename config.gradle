@@ -5,7 +5,7 @@ ext.deps = [:]
 def versions = [:]
 versions.appcompat = "1.2.0"
 versions.recyclerview = "1.1.0"
-versions.swiperefreshlayout = "1.1.0"
+//versions.swiperefreshlayout = "1.1.0"
 versions.viewmodel = "2.2.0"
 versions.livedata = "2.2.0"
 //------------------------------------------------------------------------------------------
@@ -39,7 +39,7 @@ versions.wechat = "6.6.4"
 def androidx = [:]
 androidx.appcompat = "androidx.appcompat:appcompat:$versions.appcompat"
 androidx.recyclerview = "androidx.recyclerview:recyclerview:$versions.recyclerview"
-androidx.swiperefreshlayout = "androidx.swiperefreshlayout:swiperefreshlayout:$versions.swiperefreshlayout"
+//androidx.swiperefreshlayout = "androidx.swiperefreshlayout:swiperefreshlayout:$versions.swiperefreshlayout"
 androidx.viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.viewmodel"
 androidx.livedata = "androidx.lifecycle:lifecycle-livedata-ktx:$versions.livedata"
 deps.androidx = androidx
