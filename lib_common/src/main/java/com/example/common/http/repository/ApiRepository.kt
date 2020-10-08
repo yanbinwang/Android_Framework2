@@ -2,9 +2,10 @@ package com.example.common.http.repository
 
 import androidx.lifecycle.viewModelScope
 import com.example.common.base.bridge.BaseViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.NonCancellable.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Created by WangYanBin on 2020/9/2.
@@ -17,25 +18,24 @@ fun BaseViewModel.launch(block: suspend CoroutineScope.() -> Unit) =
     }
 
 //项目请求监听扩展
-@OptIn(InternalCoroutinesApi::class)
 suspend fun <T> ApiResponse<T>.apiCall(subscriber: HttpSubscriber<T>?): ApiResponse<T> =
     call(subscriber)
 
 //请求监听扩展
-@OptIn(InternalCoroutinesApi::class)
 suspend fun <T> T.call(resourceSubscriber: ResourceSubscriber<T>?): T {
-    val t = this
     resourceSubscriber?.onStart()
     try {
-        val res: T? = withContext(IO) { t }
-        res?.let {
-            resourceSubscriber?.onResult(it)
-        }
+        val res: T? = execute { this }
+        res?.let { resourceSubscriber?.onResult(it) }
     } catch (e: Exception) {
         resourceSubscriber?.onResult(null, e)
     } finally {
         resourceSubscriber?.onComplete()
-        cancel()
     }
-    return t
+    return this
+}
+
+//切换io线程，获取请求的对象
+private suspend fun <T> execute(block: () -> T): T {
+    return withContext(IO) { block() }
 }
