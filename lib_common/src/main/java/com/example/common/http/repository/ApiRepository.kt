@@ -36,6 +36,4 @@ suspend fun <T> T.call(resourceSubscriber: ResourceSubscriber<T>?): T {
 }
 
 //切换io线程，获取请求的对象
-private suspend fun <T> execute(block: () -> T): T {
-    return withContext(IO) { block() }
-}
+private suspend fun <T> execute(block: () -> T): T = withContext(IO) { block() }
