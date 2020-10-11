@@ -46,11 +46,11 @@ abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
     /**
      * 请求成功，直接回调对象
      */
-    open fun onSuccess(data: T?) {}
+    protected open fun onSuccess(data: T?) {}
 
     /**
      * 请求失败，获取失败原因
      */
-    open fun onFailed(e: Throwable?, msg: String?) {}
+    protected open fun onFailed(e: Throwable?, msg: String?) {}
 
 }
