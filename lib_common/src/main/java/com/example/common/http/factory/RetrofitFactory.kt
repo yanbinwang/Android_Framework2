@@ -14,7 +14,6 @@ class RetrofitFactory private constructor() {
     private val retrofit = Retrofit.Builder()
         .client(OkHttpFactory.instance.okHttpClient)
         .baseUrl(BuildConfig.LOCALHOST)
-//        .addConverterFactory(CustomGsonConverterFactory())
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

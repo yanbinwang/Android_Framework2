@@ -26,9 +26,9 @@ suspend fun <T> T.call(resourceSubscriber: ResourceSubscriber<T>?): T {
     resourceSubscriber?.onStart()
     try {
         val res: T? = execute { this }
-        res?.let { resourceSubscriber?.onResult(it) }
+        res?.let { resourceSubscriber?.onNext(it) }
     } catch (e: Exception) {
-        resourceSubscriber?.onResult(null, e)
+        resourceSubscriber?.onError(e)
     } finally {
         resourceSubscriber?.onComplete()
     }

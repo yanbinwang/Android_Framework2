@@ -42,13 +42,18 @@ class DownloadFactory private constructor() : CoroutineScope {
                         onDownloadListener?.onStart()
                     }
 
-                    override fun onResult(data: ResponseBody?, throwable: Throwable?) {
-                        super.onResult(data, throwable)
-                        if (null == data) {
-                            onDownloadListener?.onFailed(throwable)
-                            onDownloadListener?.onComplete()
-                            cancel()
+                    override fun onNext(t: ResponseBody?) {
+                        super.onNext(t)
+                        if (null == t) {
+                            onError(null)
                         }
+                    }
+
+                    override fun onError(throwable: Throwable?) {
+                        super.onError(throwable)
+                        onDownloadListener?.onFailed(throwable)
+                        onDownloadListener?.onComplete()
+                        cancel()
                     }
 
                 })

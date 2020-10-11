@@ -18,7 +18,12 @@ abstract class ResourceSubscriber<T> {
     /**
      * 取值回调（协程只有成功，失败）
      */
-    open fun onResult(data: T? = null, throwable: Throwable? = null) {}
+    open fun onNext(t: T? = null) {}
+
+    /**
+     * 请求异常
+     */
+    open fun onError(throwable: Throwable? = null) {}
 
     /**
      * 一个请求完成

@@ -13,12 +13,12 @@ import com.example.common.utils.helper.AccountHelper
 abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    override fun onResult(data: ApiResponse<T>?, throwable: Throwable?) {
-        if (null != data) {
-            val msg = data.msg
-            val e = data.e
+    override fun onNext(t: ApiResponse<T>?) {
+        if (null != t) {
+            val msg = t.msg
+            val e = t.e
             if (0 == e) {
-                onSuccess(data.data)
+                onSuccess(t.data)
             } else {
                 //账号还没有登录，解密失败，重新获取
                 if (100005 == e || 100008 == e) {
@@ -30,11 +30,16 @@ abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
                 if (100002 == e) {
 //                         ARouter.getInstance().build(ARouterPath.UnlockIPActivity).navigation()
                 }
-                onFailed(throwable, msg)
+                onFailed(null, msg)
             }
         } else {
-            onFailed(throwable, "")
+            onFailed(null, "")
         }
+    }
+
+    override fun onError(throwable: Throwable?) {
+        super.onError(throwable)
+        onFailed(throwable, "")
     }
     // </editor-fold>
 
