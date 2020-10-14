@@ -2,6 +2,7 @@ package com.example.common.subscribe
 
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.factory.RetrofitFactory
+import com.example.common.http.repository.invoke
 import com.example.common.model.UploadModel
 import okhttp3.MultipartBody
 
@@ -24,15 +25,15 @@ object CommonSubscribe : CommonApi {
     }
 
     override suspend fun getSendVerificationApi(agent: String, map: Map<String, String>): ApiResponse<Any> {
-        return commonApi.getSendVerificationApi(agent, map)
+        return commonApi.getSendVerificationApi(agent, map).invoke()
     }
 
     override suspend fun getVerificationApi(agent: String, map: Map<String, String>): ApiResponse<Any> {
-        return commonApi.getVerificationApi(agent, map)
+        return commonApi.getVerificationApi(agent, map).invoke()
     }
 
     override suspend fun getTestApi(): ApiResponse<Any> {
-        return commonApi.getTestApi()
+        return commonApi.getTestApi().invoke()
     }
 
 //    //上传图片接口

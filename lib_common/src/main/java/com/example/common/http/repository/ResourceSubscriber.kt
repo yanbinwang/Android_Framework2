@@ -13,22 +13,22 @@ abstract class ResourceSubscriber<T> {
     /**
      * 请求开始
      */
-    protected open fun onStart() {}
+    open fun onStart() {}
 
     /**
      * 取值回调（协程只有成功，失败）
      */
-    protected open fun onNext(t: T? = null) {}
+    open fun onNext(t: T? = null) {}
 
     /**
      * 请求异常
      */
-    protected open fun onError(throwable: Throwable? = null) {}
+    open fun onError(throwable: Throwable? = null) {}
 
     /**
      * 一个请求完成
      */
-    protected open fun onComplete() {}
+    open fun onComplete() {}
     // </editor-fold>
 
 }
