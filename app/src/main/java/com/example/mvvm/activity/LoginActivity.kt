@@ -60,8 +60,8 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
                 )
             )
             binding.btnLogin.isEnabled = !isEmpty(
-                getParameters(binding?.etAccount),
-                getParameters(binding?.etPassword)
+                getParameters(binding.etAccount),
+                getParameters(binding.etPassword)
             )
         }
 
