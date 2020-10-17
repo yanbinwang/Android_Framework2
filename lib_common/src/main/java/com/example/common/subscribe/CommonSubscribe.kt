@@ -11,10 +11,7 @@ import okhttp3.MultipartBody
  * 通用接口类
  */
 object CommonSubscribe : CommonApi {
-
-    private val commonApi by lazy {
-        RetrofitFactory.instance.create(CommonApi::class.java)
-    }
+    private val commonApi by lazy { RetrofitFactory.instance.create(CommonApi::class.java) }
 
     override suspend fun getDownloadApi(downloadUrl: String): okhttp3.ResponseBody {
         return commonApi.getDownloadApi(downloadUrl)

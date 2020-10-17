@@ -107,15 +107,11 @@ build_config.LOCALHOST_RELEASE = "\"https://netcar.yoogate.cn/\""//生产环境
 ext.build_config = build_config
 
 //全局build配置
-static def addRepos(RepositoryHandler handler) {
-    handler.maven {
-        url 'https://maven.google.com/'
-        name 'Google'
-    }
-
+def addRepos(RepositoryHandler handler) {
+    handler.google()
     handler.jcenter()
-//    handler.maven { url 'http://mvn.gt.igexin.com/nexus/content/repositories/releases/' }
     handler.maven { url 'https://jitpack.io' }
+    //    handler.maven { url 'http://mvn.gt.igexin.com/nexus/content/repositories/releases/' }
     handler.mavenCentral()
 }
 

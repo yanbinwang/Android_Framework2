@@ -1,7 +1,6 @@
 package com.example.common.http.factory
 
 import com.example.common.BuildConfig
-import com.example.common.http.adapter.CustomGsonConverterFactory
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
