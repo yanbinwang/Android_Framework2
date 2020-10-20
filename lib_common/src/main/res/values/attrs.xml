@@ -16,7 +16,7 @@
     </declare-styleable>
 
     <!-- 刷新控件 -->
-    <declare-styleable name="XRefreshLayout">
+    <declare-styleable name="SwipeRefreshLayout">
         <attr name="direction">
             <enum name="top" value="0" />
             <enum name="bottom" value="1" />

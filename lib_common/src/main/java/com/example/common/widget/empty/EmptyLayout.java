@@ -14,8 +14,7 @@ import androidx.databinding.DataBindingUtil;
 
 import com.example.common.R;
 import com.example.common.databinding.ViewEmptyBinding;
-import com.lcodecore.tkrefreshlayout.RefreshListenerAdapter;
-import com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout;
+import com.example.common.widget.xrecyclerview.refresh.callback.OnXRefreshListener;
 
 
 /**
@@ -55,11 +54,11 @@ public class EmptyLayout extends ViewGroup {
     private void initialize() {
         Context context = getContext();
         binding = DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_empty, null));
-        binding.xEmptyRefresh.setOnRefreshListener(new RefreshListenerAdapter() {
+        binding.xEmptyRefresh.setOnXRefreshListener(new OnXRefreshListener() {
 
             @Override
-            public void onRefresh(TwinklingRefreshLayout refreshLayout) {
-//                super.onRefresh(refreshLayout);
+            public void onRefresh() {
+                super.onRefresh();
                 //进入加载中，并停止刷新动画
                 showLoading();
                 binding.xEmptyRefresh.finishRefreshing();
@@ -67,7 +66,6 @@ public class EmptyLayout extends ViewGroup {
                     onEmptyRefreshListener.onRefreshListener();
                 }
             }
-
         });
         binding.getRoot().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));//设置LayoutParams
         binding.getRoot().setOnClickListener(null);
