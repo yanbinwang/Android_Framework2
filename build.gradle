@@ -3,13 +3,11 @@
 buildscript {
     apply from: 'config.gradle'
     addRepos(repositories)
-    ext.gradle_version = '4.0.1'
-    ext.kotlin_version = '1.4.0'
-    ext.MobSDK_version = '2018.0319.1724'
+    ext.gradle_version = '4.1.0'
+    ext.kotlin_version = '1.4.10'
     dependencies {
         classpath "com.android.tools.build:gradle:$gradle_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.mob.sdk:MobSDK:$MobSDK_version"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }

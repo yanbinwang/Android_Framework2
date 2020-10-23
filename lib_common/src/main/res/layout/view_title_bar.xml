@@ -16,22 +16,21 @@
                 android:id="@+id/ll_main_left"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20mm">
 
                 <ImageView
                     android:id="@+id/iv_main_left"
-                    android:layout_width="15mm"
-                    android:layout_height="24mm"
-                    android:layout_marginLeft="40mm"
-                    android:layout_marginRight="40mm"
+                    android:layout_width="40mm"
+                    android:layout_height="40mm"
+                    android:layout_marginHorizontal="20mm"
                     android:src="@mipmap/ic_btn_back" />
 
                 <TextView
                     android:id="@+id/tv_main_left"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="40mm"
-                    android:layout_marginRight="40mm"
+                    android:layout_marginHorizontal="20mm"
                     android:gravity="center"
                     android:lines="1"
                     android:textColor="@color/grey_333333"
@@ -53,21 +52,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
+                android:paddingHorizontal="20mm"
                 android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/iv_main_right"
                     android:layout_width="30mm"
                     android:layout_height="30mm"
-                    android:layout_marginLeft="40mm"
-                    android:layout_marginRight="40mm" />
+                    android:layout_marginHorizontal="20mm" />
 
                 <TextView
                     android:id="@+id/tv_main_right"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="40mm"
-                    android:layout_marginRight="40mm"
+                    android:layout_marginHorizontal="20mm"
                     android:gravity="center"
                     android:lines="1"
                     android:textColor="@color/grey_333333"
@@ -95,4 +93,5 @@
             android:visibility="gone" />
 
     </RelativeLayout>
+
 </layout>

@@ -9,7 +9,7 @@ import com.example.mvvm.model.TestListModel
  * Created by WangYanBin on 2020/6/4.
  */
 class TestListViewModel : BaseViewModel() {
-    var dataList = MutableLiveData<MutableList<TestListModel>>()
+    var dataListData = MutableLiveData<MutableList<TestListModel>>()
 
     fun getListData() {
 //        var refresh = false
@@ -20,8 +20,8 @@ class TestListViewModel : BaseViewModel() {
 //        }
 
         //模拟请求网络
-        var list: MutableList<TestListModel>? = dataList.value
-        if (null != dataList.value && dataList.value!!.isNotEmpty()) {
+        var list: MutableList<TestListModel>? = dataListData.value
+        if (null != dataListData.value && dataListData.value!!.isNotEmpty()) {
             getView()?.showToast("有数据了，清空")
             list?.clear()
         } else {
@@ -30,7 +30,7 @@ class TestListViewModel : BaseViewModel() {
                 list.add(TestListModel("标题$i", "描述$i", R.mipmap.ic_launcher_round))
             }
         }
-        dataList.postValue(list) //将结果回调
+        dataListData.postValue(list) //将结果回调
     }
 
 }

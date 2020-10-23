@@ -22,8 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10mm"
             android:layout_marginBottom="20mm"
-            android:paddingLeft="50mm"
-            android:paddingRight="50mm"
+            android:paddingHorizontal="50mm"
             android:text="@string/label_loading"
             android:textColor="@color/blue_2e60df"
             android:textSize="26mm" />

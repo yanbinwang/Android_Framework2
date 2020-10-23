@@ -11,14 +11,14 @@ import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.DefaultItemAnimator;
 
+import com.example.base.utils.DisplayUtil;
 import com.example.common.R;
 import com.example.common.widget.empty.EmptyLayout;
 import com.example.common.widget.xrecyclerview.callback.OnEmptyClickListener;
-import com.example.common.widget.xrecyclerview.callback.OnRefreshListener;
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration;
-import com.example.common.widget.xrecyclerview.refresh.SwipeRefreshLayout;
-import com.example.common.widget.xrecyclerview.refresh.SwipeRefreshLayoutDirection;
-import com.example.base.utils.DisplayUtil;
+import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout;
+import com.example.common.widget.xrecyclerview.refresh.callback.OnXRefreshListener;
+import com.example.common.widget.xrecyclerview.refresh.callback.SwipeRefreshLayoutDirection;
 
 /**
  * author: wyb
@@ -30,24 +30,24 @@ import com.example.base.utils.DisplayUtil;
 @SuppressLint("InflateParams")
 public class XRecyclerView extends ViewGroup {
     private EmptyLayout el;//自定义封装的空布局
-    private SwipeRefreshLayout srlRefresh;//刷新控件 类型1才有
-    private DetectionRecyclerView rvX;//数据列表
+    private XRefreshLayout xRefresh;//刷新控件 类型1才有
+    private DetectionRecyclerView dRv;//数据列表
     private OnEmptyClickListener onEmptyClickListener;//空布局点击
-    private OnRefreshListener onRefreshListener;//刷新回调
+    private OnXRefreshListener onXRefreshListener;//刷新回调
     private int refreshType, emptyType, refreshDirection;//页面类型(0无刷新-1带刷新)刷新类型（0顶部-1底部-2全部）是否具有空布局（0无-1有）
 
     public XRecyclerView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initialize(context, attrs);
+        initialize(attrs);
     }
 
     public XRecyclerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initialize(context, attrs);
+        initialize(attrs);
     }
 
-    private void initialize(Context context, AttributeSet attrs) {
-        TypedArray mTypedArray = context.obtainStyledAttributes(attrs, R.styleable.XRecyclerView);
+    private void initialize(AttributeSet attrs) {
+        TypedArray mTypedArray = getContext().obtainStyledAttributes(attrs, R.styleable.XRecyclerView);
         refreshType = mTypedArray.getInt(R.styleable.XRecyclerView_refreshType, 0);
         refreshDirection = mTypedArray.getInt(R.styleable.XRecyclerView_refreshDirection, 2);
         emptyType = mTypedArray.getInt(R.styleable.XRecyclerView_emptyType, 0);
@@ -86,12 +86,13 @@ public class XRecyclerView extends ViewGroup {
             //不带刷新
             case 0:
                 view = LayoutInflater.from(getContext()).inflate(R.layout.view_xrecyclerview, null);
-                rvX = view.findViewById(R.id.rv_x);
+                dRv = view.findViewById(R.id.d_rv);
                 if (0 != emptyType) {
                     el = new EmptyLayout(getContext());
-                    rvX.setEmptyView(el.setListView(rvX));
-                    rvX.setHasFixedSize(true);
-                    rvX.setItemAnimator(new DefaultItemAnimator());
+
+                    dRv.setEmptyView(el.setListView(dRv));
+                    dRv.setHasFixedSize(true);
+                    dRv.setItemAnimator(new DefaultItemAnimator());
                     el.setOnEmptyRefreshListener(() -> {
                         if (null != onEmptyClickListener) {
                             onEmptyClickListener.onClickListener();
@@ -103,22 +104,22 @@ public class XRecyclerView extends ViewGroup {
             case 1:
                 view = LayoutInflater.from(getContext()).inflate(R.layout.view_xrecyclerview_refresh, null);
                 el = view.findViewById(R.id.el);
-                srlRefresh = view.findViewById(R.id.srl_refresh);
-                srlRefresh.setColorSchemeResources(R.color.blue_2e60df);
+                xRefresh = view.findViewById(R.id.x_refresh);
+                dRv = view.findViewById(R.id.d_rv);
+                //设置刷新的方式，默认上下皆有
                 switch (refreshDirection) {
                     case 0:
-                        srlRefresh.setDirection(SwipeRefreshLayoutDirection.TOP);
+                        xRefresh.setDirection(SwipeRefreshLayoutDirection.TOP);
                         break;
                     case 1:
-                        srlRefresh.setDirection(SwipeRefreshLayoutDirection.BOTTOM);
+                        xRefresh.setDirection(SwipeRefreshLayoutDirection.BOTTOM);
                         break;
                     case 2:
-                        srlRefresh.setDirection(SwipeRefreshLayoutDirection.BOTH);
+                        xRefresh.setDirection(SwipeRefreshLayoutDirection.BOTH);
                         break;
                 }
-                rvX = view.findViewById(R.id.rv_x);
-                rvX.setHasFixedSize(true);
-                rvX.setItemAnimator(new DefaultItemAnimator());
+                dRv.setHasFixedSize(true);
+                dRv.setItemAnimator(new DefaultItemAnimator());
                 if (0 != emptyType) {
                     el.setOnEmptyRefreshListener(() -> {
                         if (null != onEmptyClickListener) {
@@ -128,21 +129,7 @@ public class XRecyclerView extends ViewGroup {
                 } else {
                     el.setVisibility(View.GONE);
                 }
-                srlRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh(int index) {
-                        if (null != onRefreshListener) {
-                            onRefreshListener.onRefresh();
-                        }
-                    }
-
-                    @Override
-                    public void onLoad(int index) {
-                        if (null != onRefreshListener) {
-                            onRefreshListener.onLoad();
-                        }
-                    }
-                });
+                xRefresh.setOnRefreshListener(onXRefreshListener);
                 break;
         }
         addView(view);
@@ -184,9 +171,9 @@ public class XRecyclerView extends ViewGroup {
     }
 
     //设置禁止刷新
-    public void setRefreshing(boolean refreshing) {
+    public void finishRefreshing() {
         if (refreshType == 1) {
-            srlRefresh.setRefreshing(refreshing);
+            xRefresh.finishRefreshing();
         }
     }
 
@@ -197,7 +184,7 @@ public class XRecyclerView extends ViewGroup {
 
     //选择下标
     public void scrollToPosition(int position) {
-        rvX.scrollToPosition(position);
+        dRv.scrollToPosition(position);
     }
 
     //获取空布局
@@ -210,20 +197,22 @@ public class XRecyclerView extends ViewGroup {
         SparseArray<SCommonItemDecoration.ItemDecorationProps> propMap = new SparseArray<>();
         SCommonItemDecoration.ItemDecorationProps prop1 = new SCommonItemDecoration.ItemDecorationProps(DisplayUtil.dip2px(getContext(), horizontalSpace), DisplayUtil.dip2px(getContext(), verticalSpace), hasHorizontalEdge, hasVerticalEdge);
         propMap.put(0, prop1);
-        rvX.addItemDecoration(new SCommonItemDecoration(propMap));
+        dRv.addItemDecoration(new SCommonItemDecoration(propMap));
     }
 
     //返回页面整体
     public DetectionRecyclerView getRecyclerView() {
-        return rvX;
+        return dRv;
     }
 
+    //空布局刷新
     public void setOnEmptyViewClickListener(OnEmptyClickListener onEmptyClickListener) {
         this.onEmptyClickListener = onEmptyClickListener;
     }
 
-    public void setOnRefreshListener(OnRefreshListener onRefreshListener) {
-        this.onRefreshListener = onRefreshListener;
+    //刷新页面刷新
+    public void setOnXRefreshListener(OnXRefreshListener onXRefreshListener) {
+        this.onXRefreshListener = onXRefreshListener;
     }
 
 }

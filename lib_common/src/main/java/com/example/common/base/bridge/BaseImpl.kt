@@ -37,7 +37,7 @@ interface BaseImpl {
     /**
      * 虚拟键盘关闭
      */
-    fun closeDecor()
+    fun closeDecor(view: View?)
 
     /**
      * 让一个view获得焦点

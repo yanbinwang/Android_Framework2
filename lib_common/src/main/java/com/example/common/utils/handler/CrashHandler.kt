@@ -15,7 +15,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.system.exitProcess
 
-
 /**
  * author: wyb
  * date: 2017/9/21.
@@ -73,7 +72,7 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
                 try {
                     if (FileUtil.hasSDCard()) {
                         val logFile = File(
-                            FileUtil.createCacheDir() + File.separator + Constants.APPLICATION_NAME + "_v" + BuildConfig.VERSION_NAME + "_exception_" + SimpleDateFormat(
+                            FileUtil.createCacheDir() + File.separator + Constants.APPLICATION_NAME + "_v" + Constants.VERSION_NAME + "_exception_" + SimpleDateFormat(
                                 "yyyy_MM_dd_hh_mm_ss",
                                 Locale.getDefault()
                             ).format(Date()) + ".log"

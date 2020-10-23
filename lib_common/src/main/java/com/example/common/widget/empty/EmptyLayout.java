@@ -14,6 +14,7 @@ import androidx.databinding.DataBindingUtil;
 
 import com.example.common.R;
 import com.example.common.databinding.ViewEmptyBinding;
+import com.example.common.widget.xrecyclerview.refresh.callback.OnXRefreshListener;
 
 
 /**
@@ -32,7 +33,8 @@ import com.example.common.databinding.ViewEmptyBinding;
 public class EmptyLayout extends ViewGroup {
     private ViewEmptyBinding binding;
     private OnEmptyRefreshListener onEmptyRefreshListener;
-    public static String EMPTY_TXT = "没有数据", ERROR_TXT = "没有网络";//数据为空时的内容,数据加载失败的内容
+    private final String EMPTY_TXT = "没有数据";//数据为空时的内容
+    private final String ERROR_TXT = "没有网络";//数据加载失败的内容
 
     public EmptyLayout(Context context) {
         super(context);
@@ -50,16 +52,25 @@ public class EmptyLayout extends ViewGroup {
     }
 
     private void initialize() {
-        binding = DataBindingUtil.bind(LayoutInflater.from(getContext()).inflate(R.layout.view_empty, null));
-        binding.srlEmptyRefresh.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.blue_2e60df));
-        binding.srlEmptyRefresh.setOnRefreshListener(() -> {
-            binding.srlEmptyRefresh.setRefreshing(false);
-            if (null != onEmptyRefreshListener) {
-                onEmptyRefreshListener.onRefreshListener();
+        Context context = getContext();
+        binding = DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_empty, null));
+        binding.xEmptyRefresh.setOnXRefreshListener(new OnXRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+                super.onRefresh();
+                //进入加载中，并停止刷新动画
+                showLoading();
+                binding.xEmptyRefresh.finishRefreshing();
+                if (null != onEmptyRefreshListener) {
+                    onEmptyRefreshListener.onRefreshListener();
+                }
             }
         });
         binding.getRoot().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));//设置LayoutParams
         binding.getRoot().setOnClickListener(null);
+        setBackgroundColor(ContextCompat.getColor(context, R.color.gray_f6f8ff));
+        showLoading();
     }
 
     @Override
@@ -96,14 +107,14 @@ public class EmptyLayout extends ViewGroup {
 
     //当数据正在加载的时候显示（接口返回快速时会造成闪屏）
     public void showLoading() {
-        binding.srlEmptyRefresh.setVisibility(View.GONE);
+        binding.xEmptyRefresh.setVisibility(View.GONE);
         binding.ivEmpty.setVisibility(View.GONE);
         binding.tvEmpty.setVisibility(View.GONE);
     }
 
     //当数据为空时(显示需要显示的图片，以及内容字)
     public void showEmpty() {
-        binding.srlEmptyRefresh.setVisibility(View.VISIBLE);
+        binding.xEmptyRefresh.setVisibility(View.VISIBLE);
         binding.ivEmpty.setVisibility(View.VISIBLE);
         binding.ivEmpty.setBackgroundResource(0);
         binding.ivEmpty.setImageResource(R.mipmap.img_data_empty);
@@ -113,7 +124,7 @@ public class EmptyLayout extends ViewGroup {
 
     //当数据为空时(显示需要显示的图片，以及内容字)---传入图片-1：原图 0：不需要图片 default：传入的图片
     public void showEmpty(int resId, String emptyText) {
-        binding.srlEmptyRefresh.setVisibility(View.VISIBLE);
+        binding.xEmptyRefresh.setVisibility(View.VISIBLE);
         binding.ivEmpty.setBackgroundResource(0);
         if (-1 == resId) {
             binding.ivEmpty.setVisibility(View.VISIBLE);
@@ -134,7 +145,7 @@ public class EmptyLayout extends ViewGroup {
 
     //当数据错误时（没有网络）
     public void showError() {
-        binding.srlEmptyRefresh.setVisibility(View.VISIBLE);
+        binding.xEmptyRefresh.setVisibility(View.VISIBLE);
         binding.ivEmpty.setVisibility(View.VISIBLE);
         binding.ivEmpty.setBackgroundResource(0);
         binding.ivEmpty.setImageResource(R.mipmap.img_net_err);
@@ -144,7 +155,7 @@ public class EmptyLayout extends ViewGroup {
 
     //设置背景颜色
     public void setBackgroundColor(int color) {
-        binding.srlEmptyRefresh.setBackgroundColor(color);
+        binding.xEmptyRefresh.setBackgroundColor(color);
     }
 
     //设置点击

@@ -5,11 +5,11 @@ ext.deps = [:]
 def versions = [:]
 versions.appcompat = "1.2.0"
 versions.recyclerview = "1.1.0"
-versions.swiperefreshlayout = "1.1.0"
+//versions.swiperefreshlayout = "1.1.0"
 versions.viewmodel = "2.2.0"
 versions.livedata = "2.2.0"
 //------------------------------------------------------------------------------------------
-versions.stdlib = "1.4.0"
+versions.stdlib = "1.4.10"
 //versions.coroutines_android = "1.1.1"
 //------------------------------------------------------------------------------------------
 versions.glide = "4.11.0"
@@ -31,7 +31,6 @@ versions.okhttp = "4.8.1"
 versions.autosize = "1.2.1"
 versions.mmkv = "1.2.2"
 versions.adapterhelper = "3.0.4"
-versions.tkrefreshlayout = "1.0.7"
 versions.recovery = "1.0.0"
 versions.wechat = "6.6.4"
 
@@ -39,7 +38,7 @@ versions.wechat = "6.6.4"
 def androidx = [:]
 androidx.appcompat = "androidx.appcompat:appcompat:$versions.appcompat"
 androidx.recyclerview = "androidx.recyclerview:recyclerview:$versions.recyclerview"
-androidx.swiperefreshlayout = "androidx.swiperefreshlayout:swiperefreshlayout:$versions.swiperefreshlayout"
+//androidx.swiperefreshlayout = "androidx.swiperefreshlayout:swiperefreshlayout:$versions.swiperefreshlayout"
 androidx.viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.viewmodel"
 androidx.livedata = "androidx.lifecycle:lifecycle-livedata-ktx:$versions.livedata"
 deps.androidx = androidx
@@ -82,7 +81,6 @@ deps.okhttp3 = "com.squareup.okhttp3:okhttp:$versions.okhttp"//okhttp
 deps.autosize = "me.jessyan:autosize:$versions.autosize"//今日头条布局兼容
 deps.mmkv = "com.tencent:mmkv-static:$versions.mmkv"//腾讯读写库
 deps.adapterhelper = "com.github.CymChad:BaseRecyclerViewAdapterHelper:$versions.adapterhelper"//封装的适配器
-deps.tkrefreshlayout = "com.lcodecorex:tkrefreshlayout:$versions.tkrefreshlayout"//刷新控件
 deps.recovery = "com.zxy.android:recovery:$versions.recovery"//闪退抓捕
 deps.wechat = "com.tencent.mm.opensdk:wechat-sdk-android-without-mta:$versions.wechat"//微信
 ext.deps = deps
@@ -107,16 +105,12 @@ build_config.LOCALHOST_RELEASE = "\"https://netcar.yoogate.cn/\""//生产环境
 ext.build_config = build_config
 
 //全局build配置
-static def addRepos(RepositoryHandler handler) {
-    handler.maven {
-        url 'https://maven.google.com/'
-        name 'Google'
-    }
-
-    handler.jcenter()
-//    handler.maven { url 'http://mvn.gt.igexin.com/nexus/content/repositories/releases/' }
-    handler.maven { url 'https://jitpack.io' }
-    handler.mavenCentral()
+def addRepos(repositories) {
+    repositories.google()
+    repositories.jcenter()
+    repositories.maven { url 'https://jitpack.io' }
+    //    repositories.maven { url 'http://mvn.gt.igexin.com/nexus/content/repositories/releases/' }
+    repositories.mavenCentral()
 }
 
 ext.addRepos = this.&addRepos

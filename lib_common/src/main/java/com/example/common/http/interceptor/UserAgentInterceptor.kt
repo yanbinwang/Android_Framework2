@@ -3,6 +3,7 @@ package com.example.common.http.interceptor
 import android.os.Build
 import android.util.ArrayMap
 import com.example.common.BuildConfig
+import com.example.common.constant.Constants
 import okhttp3.Headers
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -34,7 +35,7 @@ class UserAgentInterceptor : Interceptor {
         params["X-yoogurt-system-name"] = "Android"
         params["X-yoogurt-system-version"] = Build.VERSION.RELEASE
         params["X-yoogurt-api-version"] = "v1"
-        params["X-yoogurt-app-version"] = BuildConfig.VERSION_CODE.toString()
+        params["X-yoogurt-app-version"] = Constants.VERSION_CODE.toString()
         params["X-yoogurt-phone-model"] = Build.MODEL
         val builder = Headers.Builder()
         for (key in params.keys) {
