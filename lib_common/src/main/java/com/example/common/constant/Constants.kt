@@ -14,6 +14,12 @@ object Constants {
     var SCREEN_HEIGHT = 0//手机高度
     @JvmField
     var STATUS_BAR_HEIGHT = 0//导航栏高度
+    //------gradle4.1.0开始，库中不提供VERSION_CODE和VERSION_NAME，在主app中获取，赋值给全局静态变量------
+    @JvmField
+    var VERSION_CODE= 0//版本号
+    @JvmField
+    var VERSION_NAME: String? = null//版本名
+    //------------
     @JvmField
     var IP: String? = null//当前手机ip
     @JvmField

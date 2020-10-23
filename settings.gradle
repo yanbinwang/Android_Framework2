@@ -1,1 +1,4 @@
-include ':app', ':lib_base', ':lib_common'
+include ':app'
+include ':lib_common'
+include ':lib_base'
+rootProject.name = "Android_Framework2"

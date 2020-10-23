@@ -78,16 +78,16 @@ class MyApplication : BaseApplication() {
                 }
             }
         }
-
 //        //初始化推送
 //        NotificationUtil.getInstance();
 //        PushManager.getInstance().initialize(this, GetuiPushService.class);
 //        PushManager.getInstance().registerPushIntentService(this, GetuiIntentService.class);
-
         //获取应用名。包名。默认保存文件路径
         Constants.APPLICATION_ID = getApplicationId(this)
         Constants.APPLICATION_NAME = getApplicationName(this)
         Constants.APPLICATION_FILE_PATH = Constants.SDCARD_PATH + "/" + Constants.APPLICATION_NAME
+        Constants.VERSION_CODE = com.example.mvvm.BuildConfig.VERSION_CODE
+        Constants.VERSION_NAME = com.example.mvvm.BuildConfig.VERSION_NAME
     }
 
 }
