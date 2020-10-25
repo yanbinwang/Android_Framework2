@@ -114,12 +114,7 @@ public class EmptyLayout extends ViewGroup {
 
     //当数据为空时(显示需要显示的图片，以及内容字)
     public void showEmpty() {
-        binding.xEmptyRefresh.setVisibility(View.VISIBLE);
-        binding.ivEmpty.setVisibility(View.VISIBLE);
-        binding.ivEmpty.setBackgroundResource(0);
-        binding.ivEmpty.setImageResource(R.mipmap.img_data_empty);
-        binding.tvEmpty.setVisibility(View.VISIBLE);
-        binding.tvEmpty.setText(EMPTY_TXT);
+        showEmpty(-1, null);
     }
 
     //当数据为空时(显示需要显示的图片，以及内容字)---传入图片-1：原图 0：不需要图片 default：传入的图片
@@ -128,7 +123,7 @@ public class EmptyLayout extends ViewGroup {
         binding.ivEmpty.setBackgroundResource(0);
         if (-1 == resId) {
             binding.ivEmpty.setVisibility(View.VISIBLE);
-            binding.ivEmpty.setImageResource(R.mipmap.img_net_err);
+            binding.ivEmpty.setImageResource(R.mipmap.img_data_empty);
         } else if (0 == resId) {
             binding.ivEmpty.setVisibility(View.GONE);
         } else {
