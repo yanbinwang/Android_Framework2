@@ -7,11 +7,11 @@ import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.DefaultItemAnimator;
 
 import com.example.base.utils.DisplayUtil;
+import com.example.base.widget.SimpleViewGroup;
 import com.example.common.R;
 import com.example.common.widget.empty.EmptyLayout;
 import com.example.common.widget.xrecyclerview.callback.OnEmptyClickListener;
@@ -28,7 +28,7 @@ import com.example.common.widget.xrecyclerview.refresh.callback.SwipeRefreshLayo
  * onFinishInflate方法只有在布局文件中加载view实例会回调，如果直接new一个view的话是不会回调的。
  */
 @SuppressLint("InflateParams")
-public class XRecyclerView extends ViewGroup {
+public class XRecyclerView extends SimpleViewGroup {
     private EmptyLayout el;//自定义封装的空布局
     private XRefreshLayout xRefresh;//刷新控件 类型1才有
     private DetectionRecyclerView dRv;//数据列表
@@ -52,25 +52,6 @@ public class XRecyclerView extends ViewGroup {
         refreshDirection = mTypedArray.getInt(R.styleable.XRecyclerView_refreshDirection, 2);
         emptyType = mTypedArray.getInt(R.styleable.XRecyclerView_emptyType, 0);
         mTypedArray.recycle();
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View v = getChildAt(i);
-            v.measure(widthMeasureSpec, heightMeasureSpec);
-        }
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View v = getChildAt(i);
-            v.layout(0, 0, r, b);
-        }
     }
 
     //当view被手机绘制好的时候各个view方法的初始化
