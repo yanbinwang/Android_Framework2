@@ -7,8 +7,9 @@ import java.util.*
  * 请求参数封装类
  */
 class HttpParams {
-    private var map: MutableMap<String, String> = HashMap()
+    var map: MutableMap<String, String> = HashMap()//请求的参数map
 
+    //参数的添加
     fun append(key: String, value: String?): HttpParams {
         if (!TextUtils.isEmpty(value)) {
             if (value != null) {
@@ -18,17 +19,8 @@ class HttpParams {
         return this
     }
 
-    fun setMap(map: MutableMap<String, String>): HttpParams {
-        this.map = map
-        return this
-    }
-
-    fun getParams(): Map<String, String> {
-        return map
-    }
-
-//    //请求参数加密
-//    fun getParams(timestamp: String?): Map<String, String> {
+//    //参数加密
+//    fun signParams(timestamp: String?): Map<String, String> {
 //        map["timestamp"] = timestamp!!
 //        map["network"] = NetWorkUtil.getAPNType()
 //        map["sign"] = SecurityUtil.doSign(map)

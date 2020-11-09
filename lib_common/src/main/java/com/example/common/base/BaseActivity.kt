@@ -195,7 +195,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         val postcard = ARouter.getInstance().build(path)
         var code: Int? = null
         if (params != null) {
-            val map: Map<String, Any> = params.getParams()
+            val map: Map<String, Any> = params.map
             for (key in map.keys) {
                 val value = map[key]
                 val cls: Class<*> = value?.javaClass!!
@@ -204,20 +204,14 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                     continue
                 }
                 when {
-                    cls == String::class.java -> postcard.withString(key, value as String?)
                     value is Parcelable -> postcard.withParcelable(key, value as Parcelable?)
                     value is Serializable -> postcard.withSerializable(key, value as Serializable?)
+                    cls == String::class.java -> postcard.withString(key, value as String?)
                     cls == Int::class.javaPrimitiveType -> postcard.withInt(key, value as Int)
                     cls == Long::class.javaPrimitiveType -> postcard.withLong(key, value as Long)
-                    cls == Boolean::class.javaPrimitiveType -> postcard.withBoolean(
-                        key,
-                        value as Boolean
-                    )
+                    cls == Boolean::class.javaPrimitiveType -> postcard.withBoolean(key, value as Boolean)
                     cls == Float::class.javaPrimitiveType -> postcard.withFloat(key, value as Float)
-                    cls == Double::class.javaPrimitiveType -> postcard.withDouble(
-                        key,
-                        value as Double
-                    )
+                    cls == Double::class.javaPrimitiveType -> postcard.withDouble(key, value as Double)
                     cls == CharArray::class.java -> postcard.withCharArray(key, value as CharArray?)
                     cls == Bundle::class.java -> postcard.withBundle(key, value as Bundle?)
                     else -> throw RuntimeException("不支持参数类型" + ": " + cls.simpleName)
