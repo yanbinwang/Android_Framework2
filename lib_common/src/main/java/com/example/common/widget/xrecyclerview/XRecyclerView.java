@@ -17,7 +17,9 @@ import com.example.common.widget.empty.EmptyLayout;
 import com.example.common.widget.xrecyclerview.callback.OnEmptyClickListener;
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration;
 import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout;
+import com.example.common.widget.xrecyclerview.refresh.callback.OnXRefreshBottomListener;
 import com.example.common.widget.xrecyclerview.refresh.callback.OnXRefreshListener;
+import com.example.common.widget.xrecyclerview.refresh.callback.OnXRefreshTopListener;
 import com.example.common.widget.xrecyclerview.refresh.callback.SwipeRefreshLayoutDirection;
 
 /**
@@ -33,7 +35,6 @@ public class XRecyclerView extends SimpleViewGroup {
     private XRefreshLayout xRefresh;//刷新控件 类型1才有
     private DetectionRecyclerView dRv;//数据列表
     private OnEmptyClickListener onEmptyClickListener;//空布局点击
-    private OnXRefreshListener onXRefreshListener;//刷新回调
     private int refreshType, emptyType, refreshDirection;//页面类型(0无刷新-1带刷新)刷新类型（0顶部-1底部-2全部）是否具有空布局（0无-1有）
 
     public XRecyclerView(Context context, AttributeSet attrs) {
@@ -110,7 +111,6 @@ public class XRecyclerView extends SimpleViewGroup {
                 } else {
                     el.setVisibility(View.GONE);
                 }
-                xRefresh.setOnRefreshListener(onXRefreshListener);
                 break;
         }
         addView(view);
@@ -192,8 +192,22 @@ public class XRecyclerView extends SimpleViewGroup {
     }
 
     //刷新页面刷新
+    public void setOnXRefreshTopListener(OnXRefreshTopListener onXRefreshTopListener) {
+        if (refreshType == 1) {
+            xRefresh.setOnRefreshListener(onXRefreshTopListener);
+        }
+    }
+
+    public void setOnXRefreshBottomListener(OnXRefreshBottomListener onXRefreshBottomListener) {
+        if (refreshType == 1) {
+            xRefresh.setOnRefreshListener(onXRefreshBottomListener);
+        }
+    }
+
     public void setOnXRefreshListener(OnXRefreshListener onXRefreshListener) {
-        this.onXRefreshListener = onXRefreshListener;
+        if (refreshType == 1) {
+            xRefresh.setOnRefreshListener(onXRefreshListener);
+        }
     }
 
 }

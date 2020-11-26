@@ -1,6 +1,5 @@
 package com.example.common.utils.file
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -16,7 +15,6 @@ import com.example.common.BaseApplication
 import com.example.common.constant.Constants
 import java.io.*
 import java.lang.ref.SoftReference
-import java.lang.ref.WeakReference
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -30,11 +28,7 @@ object FileUtil {
     //创建日志和缓存目录
     @JvmStatic
     fun createCacheDir(): String? {
-        val file = File(
-            BaseApplication.instance?.externalCacheDir.toString() +
-                    File.separator +
-                    "log"
-        )
+        val file = File(BaseApplication.instance?.externalCacheDir.toString() + File.separator + "log")
         if (!file.exists()) {
             file.mkdir()
         }
@@ -245,24 +239,16 @@ object FileUtil {
 
     //获取安装跳转的行为
     @JvmStatic
-    private fun getSetupApk(activity: Activity, apkFilePath: String): Intent? {
-        val mActivity = WeakReference(activity)
+    private fun getSetupApk(context: Context, apkFilePath: String): Intent? {
         val intent = Intent(Intent.ACTION_VIEW)
         //判断是否是AndroidN以及更高的版本
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
             val file = File(apkFilePath)
-            val contentUri = FileProvider.getUriForFile(
-                mActivity.get()!!,
-                Constants.APPLICATION_ID + ".fileProvider",
-                file
-            )
+            val contentUri = FileProvider.getUriForFile(context, Constants.APPLICATION_ID + ".fileProvider", file)
             intent.setDataAndType(contentUri, "application/vnd.android.package-archive")
         } else {
-            intent.setDataAndType(
-                Uri.parse("file://$apkFilePath"),
-                "application/vnd.android.package-archive"
-            )
+            intent.setDataAndType(Uri.parse("file://$apkFilePath"), "application/vnd.android.package-archive")
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         return intent

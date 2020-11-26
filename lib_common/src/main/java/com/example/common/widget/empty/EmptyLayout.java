@@ -15,8 +15,6 @@ import androidx.databinding.DataBindingUtil;
 import com.example.base.widget.SimpleViewGroup;
 import com.example.common.R;
 import com.example.common.databinding.ViewEmptyBinding;
-import com.example.common.widget.xrecyclerview.refresh.callback.OnXRefreshListener;
-
 
 /**
  * Created by android on 2017/8/7.
@@ -55,22 +53,14 @@ public class EmptyLayout extends SimpleViewGroup {
     private void initialize() {
         Context context = getContext();
         binding = DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_empty, null));
-        binding.xEmptyRefresh.setOnXRefreshListener(new OnXRefreshListener() {
-
-            @Override
-            public void onRefresh() {
-                super.onRefresh();
-                //进入加载中，并停止刷新动画
-                showLoading();
-                binding.xEmptyRefresh.finishRefreshing();
-                if (null != onEmptyRefreshListener) {
-                    onEmptyRefreshListener.onRefreshListener();
-                }
+        binding.getRoot().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));//设置LayoutParams
+        binding.llContainer.setBackgroundColor(ContextCompat.getColor(context, R.color.gray_f6f8ff));
+//        binding.getRoot().setOnClickListener(null);
+        binding.getRoot().setOnClickListener(v -> {
+            if (null != onEmptyRefreshListener) {
+                onEmptyRefreshListener.onRefreshListener();
             }
         });
-        binding.getRoot().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));//设置LayoutParams
-        binding.getRoot().setOnClickListener(null);
-        setBackgroundColor(ContextCompat.getColor(context, R.color.gray_f6f8ff));
         showLoading();
     }
 
@@ -89,7 +79,6 @@ public class EmptyLayout extends SimpleViewGroup {
 
     //当数据正在加载的时候显示（接口返回快速时会造成闪屏）
     public void showLoading() {
-        binding.xEmptyRefresh.setVisibility(View.GONE);
         binding.ivEmpty.setVisibility(View.GONE);
         binding.tvEmpty.setVisibility(View.GONE);
     }
@@ -101,7 +90,6 @@ public class EmptyLayout extends SimpleViewGroup {
 
     //当数据为空时(显示需要显示的图片，以及内容字)---传入图片-1：原图 0：不需要图片 default：传入的图片
     public void showEmpty(int resId, String emptyText) {
-        binding.xEmptyRefresh.setVisibility(View.VISIBLE);
         binding.ivEmpty.setBackgroundResource(0);
         if (-1 == resId) {
             binding.ivEmpty.setVisibility(View.VISIBLE);
@@ -122,7 +110,6 @@ public class EmptyLayout extends SimpleViewGroup {
 
     //当数据错误时（没有网络）
     public void showError() {
-        binding.xEmptyRefresh.setVisibility(View.VISIBLE);
         binding.ivEmpty.setVisibility(View.VISIBLE);
         binding.ivEmpty.setBackgroundResource(0);
         binding.ivEmpty.setImageResource(R.mipmap.img_net_err);
@@ -132,7 +119,7 @@ public class EmptyLayout extends SimpleViewGroup {
 
     //设置背景颜色
     public void setBackgroundColor(int color) {
-        binding.xEmptyRefresh.setBackgroundColor(color);
+        binding.llContainer.setBackgroundColor(color);
     }
 
     //设置点击
