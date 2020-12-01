@@ -3,7 +3,7 @@ package com.example.mvvm.model
 import android.os.Parcelable
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 /**
  * Created by WangYanBin on 2020/7/7.

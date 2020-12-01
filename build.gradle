@@ -4,7 +4,7 @@ buildscript {
     apply from: 'config.gradle'
     addRepos(repositories)
     ext.gradle_version = '4.1.1'
-    ext.kotlin_version = '1.4.10'
+    ext.kotlin_version = '1.4.20'
     dependencies {
         classpath "com.android.tools.build:gradle:$gradle_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
