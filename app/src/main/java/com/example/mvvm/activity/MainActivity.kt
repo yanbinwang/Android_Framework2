@@ -70,7 +70,6 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
             R.id.btn_list -> navigation(ARouterPath.TestListActivity)
             R.id.btn_download -> {
                 PermissionHelper.with(context.get())
-                    .getPermissions(Permission.Group.STORAGE)
                     .setPermissionCallBack(object : OnPermissionCallBack {
                         override fun onPermissionListener(isGranted: Boolean) {
                             if (isGranted) {
@@ -101,7 +100,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
                                     })
                             }
                         }
-                    })
+                    }).getPermissions(Permission.Group.STORAGE)
 //                PermissionHelper.with(context.get())
 //                    .getPermissions(Permission.Group.STORAGE)
 //                    .setPermissionCallBack(isGranted -> {

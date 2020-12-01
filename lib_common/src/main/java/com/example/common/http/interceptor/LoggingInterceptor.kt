@@ -28,10 +28,10 @@ internal class LoggingInterceptor : Interceptor {
 
         val request = chain.request()
         val headerValues = request.headers.toString()
-        //不包含User-Agent不是公司的请求链接，不做拦截
-        if (!headerValues.contains("User-Agent")) {
-            return chain.proceed(request)
-        }
+//        //不包含User-Agent不是公司的请求链接，不做拦截
+//        if (!headerValues.contains("User-Agent")) {
+//            return chain.proceed(request)
+//        }
 
         val requestBody = request.body
         val hasRequestBody = requestBody != null
@@ -71,7 +71,7 @@ internal class LoggingInterceptor : Interceptor {
             }
 
             if (!isPlaintext(buffer)) {
-                interceptLogging(headerValues, queryParameter, null)
+                interceptLogging(headerValues, request.url.toString(), queryParameter, null)
                 return response
             }
 
@@ -80,7 +80,7 @@ internal class LoggingInterceptor : Interceptor {
             }
         }
 
-        interceptLogging(headerValues, queryParameter, result)
+        interceptLogging(headerValues, request.url.toString(), queryParameter, result)
         return response
     }
 
@@ -109,14 +109,38 @@ internal class LoggingInterceptor : Interceptor {
         }
     }
 
-    private fun interceptLogging(headerValues: String, queryParameter: String?, result: String?) {
+    private fun interceptLogging(headerValues: String, url:String, queryParameter: String?, result: String?) {
         LogUtil.e("LoggingInterceptor", " " +
                 "\n————————————————————————请求开始————————————————————————" +
                 "\n请求头:\n" + headerValues.trim { it <= ' ' } +
-                "\n请求地址:\n" + BuildConfig.LOCALHOST +
+                "\n请求地址:\n" + url +
                 "\n请求参数:\n" + queryParameter +
-                "\n返回参数:\n" + result +
+                "\n返回参数:\n" + decode(result) +
                 "\n————————————————————————请求结束————————————————————————")
+    }
+
+    private fun decode(unicodeStr: String?): String {
+        if (unicodeStr == null) {
+            return ""
+        }
+        val retBuf = StringBuffer()
+        val maxLoop = unicodeStr.length
+        var i = 0
+        while (i < maxLoop) {
+            if (unicodeStr.get(i) === '\\') {
+                if (i < maxLoop - 5 && (unicodeStr.get(i + 1) === 'u' || unicodeStr.get(i + 1) === 'U')) try {
+                    retBuf.append(Integer.parseInt(unicodeStr.substring(i + 2, i + 6), 16).toChar())
+                    i += 5
+                } catch (localNumberFormatException: NumberFormatException) {
+                    retBuf.append(unicodeStr.get(i))
+                }
+                else retBuf.append(unicodeStr.get(i))
+            } else {
+                retBuf.append(unicodeStr.get(i))
+            }
+            i++
+        }
+        return retBuf.toString()
     }
 
 }

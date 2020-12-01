@@ -13,8 +13,7 @@ import java.util.concurrent.TimeUnit
  * okhttp单例
  */
 class OkHttpFactory private constructor() {
-    val okHttpClient =
-        OkHttpClient.Builder().connectTimeout(6, TimeUnit.SECONDS)//设置连接超时
+    val okHttpClient = OkHttpClient.Builder().connectTimeout(6, TimeUnit.SECONDS)//设置连接超时
             .readTimeout(6, TimeUnit.SECONDS)//设置读超时
             .writeTimeout(6, TimeUnit.SECONDS)//设置写超时
             .retryOnConnectionFailure(true)

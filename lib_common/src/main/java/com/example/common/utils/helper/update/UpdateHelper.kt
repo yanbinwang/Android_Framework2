@@ -27,7 +27,6 @@ class UpdateHelper private constructor() {
     @JvmOverloads
     fun download(context: Context, downloadUrl: String, onUpdateCallBack: OnUpdateCallBack? = null) {
         PermissionHelper.with(context)
-            .getPermissions(Permission.Group.STORAGE)
             .setPermissionCallBack(object : OnPermissionCallBack {
 
                 override fun onPermissionListener(isGranted: Boolean) {
@@ -61,7 +60,7 @@ class UpdateHelper private constructor() {
                         onUpdateCallBack?.onComplete()
                     }
                 }
-            })
+            }).getPermissions(Permission.Group.STORAGE)
     }
 
 }

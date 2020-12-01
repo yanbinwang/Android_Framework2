@@ -29,10 +29,6 @@ class AlbumHelper(activity: Activity) {
     //跳转至相机
     fun toCamera(isTailor: Boolean): AlbumHelper {
         PermissionHelper.with(weakActivity.get())
-            .getPermissions(
-                Permission.Group.CAMERA,
-                Permission.Group.STORAGE
-            )
             .setPermissionCallBack(object : OnPermissionCallBack {
                 override fun onPermissionListener(isGranted: Boolean) {
                     if (isGranted) {
@@ -88,17 +84,16 @@ class AlbumHelper(activity: Activity) {
                             }.start()
                     }
                 }
-            })
+            }).getPermissions(
+                Permission.Group.CAMERA,
+                Permission.Group.STORAGE
+            )
         return this
     }
 
     //跳转至相册
     fun toAlbum(isCamera: Boolean, isTailor: Boolean): AlbumHelper {
         PermissionHelper.with(weakActivity.get())
-            .getPermissions(
-                Permission.Group.CAMERA,
-                Permission.Group.STORAGE
-            )
             .setPermissionCallBack(object : OnPermissionCallBack {
                 override fun onPermissionListener(isGranted: Boolean) {
                     if (isGranted) {
@@ -182,7 +177,10 @@ class AlbumHelper(activity: Activity) {
                             }.start()
                     }
                 }
-            })
+            }).getPermissions(
+                Permission.Group.CAMERA,
+                Permission.Group.STORAGE
+            )
         return this
     }
 
