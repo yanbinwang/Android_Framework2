@@ -3,10 +3,13 @@ package com.example.common.utils.helper;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
@@ -54,6 +57,9 @@ public class ConfigHelper {
         Constants.MAC = getMac();
         //获取手机的DeviceId
         Constants.DEVICE_ID = getDeviceId();
+        //版本名，版本号
+        Constants.VERSION_CODE = getAppVersionCode();
+        Constants.VERSION_NAME = getAppVersionName();
     }
 
     //获取当前设备ip地址
@@ -127,6 +133,36 @@ public class ConfigHelper {
         } catch (SecurityException e) {
             return null;
         }
+    }
+
+    //获取当前app version code
+    private static long getAppVersionCode() {
+        long appVersionCode = 0;
+        try {
+            PackageInfo packageInfo = context.getApplicationContext()
+                    .getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                appVersionCode = packageInfo.getLongVersionCode();
+            } else {
+                appVersionCode = packageInfo.versionCode;
+            }
+        } catch (PackageManager.NameNotFoundException ignored) {
+        }
+        return appVersionCode;
+    }
+
+    //获取当前app version name
+    private static String getAppVersionName() {
+        String appVersionName = "";
+        try {
+            PackageInfo packageInfo = context.getApplicationContext()
+                    .getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+            appVersionName = packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException ignored) {
+        }
+        return appVersionName;
     }
 
 }
