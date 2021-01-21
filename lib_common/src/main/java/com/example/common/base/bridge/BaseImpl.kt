@@ -60,6 +60,11 @@ interface BaseImpl {
     fun onClick(onClickListener: View.OnClickListener?, vararg views: View?)
 
     /**
+     * 控件不可操作
+     */
+    fun ENABLED(second: Long = 1000, vararg views: View?)
+
+    /**
      * 控件显示
      */
     fun VISIBLE(vararg views: View?)

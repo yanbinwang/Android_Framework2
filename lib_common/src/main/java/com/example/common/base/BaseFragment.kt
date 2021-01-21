@@ -158,6 +158,19 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         }
     }
 
+    override fun ENABLED(second: Long, vararg views: View?) {
+        for (view in views) {
+            if (view != null) {
+                view.isEnabled = false
+                Timer().schedule(object : TimerTask() {
+                    override fun run() {
+                        view.isEnabled = true
+                    }
+                }, second)
+            }
+        }
+    }
+
     override fun VISIBLE(vararg views: View?) {
         for (view in views) {
             if (view != null) {
@@ -195,6 +208,15 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun showToast(msg: String) {
         ToastUtil.mackToastSHORT(msg, requireContext().applicationContext)
+    }
+
+    override fun showIntercept(second: Long) {
+        showDialog(true)
+        Timer().schedule(object : TimerTask() {
+            override fun run() {
+                hideDialog()
+            }
+        }, second)
     }
 
     override fun showDialog(flag: Boolean) {

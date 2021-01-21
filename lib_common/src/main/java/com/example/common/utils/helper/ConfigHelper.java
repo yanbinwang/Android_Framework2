@@ -60,6 +60,8 @@ public class ConfigHelper {
         //版本名，版本号
         Constants.VERSION_CODE = getAppVersionCode();
         Constants.VERSION_NAME = getAppVersionName();
+        //获取应用名。包名。默认保存文件路径
+        Constants.APPLICATION_FILE_PATH = Constants.SDCARD_PATH + "/" + Constants.APPLICATION_NAME;
     }
 
     //获取当前设备ip地址

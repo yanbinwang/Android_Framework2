@@ -4,9 +4,6 @@ import android.os.Looper
 import android.util.Log
 import com.example.base.BuildConfig
 import com.example.common.BaseApplication
-import com.example.common.constant.Constants
-import com.example.common.utils.file.FileUtil.getApplicationId
-import com.example.common.utils.file.FileUtil.getApplicationName
 import com.example.mvvm.activity.MainActivity
 import com.zxy.recovery.core.Recovery
 
@@ -64,14 +61,6 @@ class MyApplication : BaseApplication() {
                 }
             }
         }
-//        //初始化推送
-//        NotificationUtil.getInstance();
-//        PushManager.getInstance().initialize(this, GetuiPushService.class);
-//        PushManager.getInstance().registerPushIntentService(this, GetuiIntentService.class);
-        //获取应用名。包名。默认保存文件路径
-        Constants.APPLICATION_ID = getApplicationId(this)
-        Constants.APPLICATION_NAME = getApplicationName(this)
-        Constants.APPLICATION_FILE_PATH = Constants.SDCARD_PATH + "/" + Constants.APPLICATION_NAME
     }
 
 }

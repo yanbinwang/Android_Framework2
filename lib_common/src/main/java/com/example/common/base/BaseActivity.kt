@@ -144,6 +144,19 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
     }
 
+    override fun ENABLED(second: Long, vararg views: View?) {
+        for (view in views) {
+            if (view != null) {
+                view.isEnabled = false
+                Timer().schedule(object : TimerTask() {
+                    override fun run() {
+                        view.isEnabled = true
+                    }
+                }, second)
+            }
+        }
+    }
+
     override fun VISIBLE(vararg views: View?) {
         for (view in views) {
             if (view != null) {
@@ -181,6 +194,15 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     override fun showToast(msg: String) {
         ToastUtil.mackToastSHORT(msg, applicationContext)
+    }
+
+    override fun showIntercept(second: Long) {
+        showDialog(true)
+        Timer().schedule(object : TimerTask() {
+            override fun run() {
+                hideDialog()
+            }
+        }, second)
     }
 
     override fun showDialog(flag: Boolean) {

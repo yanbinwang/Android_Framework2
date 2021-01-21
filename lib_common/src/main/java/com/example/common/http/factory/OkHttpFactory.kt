@@ -13,15 +13,25 @@ import java.util.concurrent.TimeUnit
  * okhttp单例
  */
 class OkHttpFactory private constructor() {
-    val okHttpClient = OkHttpClient.Builder().connectTimeout(6, TimeUnit.SECONDS)//设置连接超时
-            .readTimeout(6, TimeUnit.SECONDS)//设置读超时
-            .writeTimeout(6, TimeUnit.SECONDS)//设置写超时
-            .retryOnConnectionFailure(true)
-            .addInterceptor(UserAgentInterceptor())//请求加头
-            .addInterceptor(LoggingInterceptor())//日志监听
-            .addInterceptor(RetryServerInterceptor())//重新构建请求
-            .connectionPool(ConnectionPool(8, 15, TimeUnit.SECONDS))//根据自己的机型设置同时连接的个数和时间（项目中配置8个，和每个保持时间为15s）
-            .build()
+    //    val okHttpClient =
+//        OkHttpClient.Builder().connectTimeout(6, TimeUnit.SECONDS)//设置连接超时
+//            .readTimeout(6, TimeUnit.SECONDS)//设置读超时
+//            .writeTimeout(6, TimeUnit.SECONDS)//设置写超时
+//            .retryOnConnectionFailure(true)
+//            .addInterceptor(UserAgentInterceptor())//请求加头
+//            .addInterceptor(LoggingInterceptor())//日志监听
+////            .addInterceptor(RetryServerInterceptor())//重新构建请求
+//            .connectionPool(ConnectionPool(8, 15, TimeUnit.SECONDS))//根据自己的机型设置同时连接的个数和时间（项目中配置8个，和每个保持时间为15s）
+//            .build()
+    val okHttpClient = OkHttpClient.Builder()
+        .connectTimeout(6, TimeUnit.SECONDS)//设置连接超时
+        .writeTimeout(2, TimeUnit.HOURS)//设置写超时
+        .readTimeout(2, TimeUnit.HOURS)//设置读超时
+        .retryOnConnectionFailure(true)
+        .addInterceptor(UserAgentInterceptor())//请求加头
+        .addInterceptor(LoggingInterceptor())//日志监听
+//            .addInterceptor(RetryServerInterceptor())//重新构建请求
+        .build()
 
     companion object {
         @JvmStatic

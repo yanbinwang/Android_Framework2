@@ -1,13 +1,10 @@
 package com.example.common
 
-import android.app.ActivityManager
 import android.app.Application
-import android.content.Context
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.base.utils.LogUtil.d
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
 import com.example.common.imageloader.glide.callback.GlideAlbumLoader
-import com.example.common.utils.handler.CrashHandler
 import com.example.common.utils.helper.ConfigHelper
 import com.tencent.mmkv.MMKV
 import com.tencent.smtt.sdk.QbSdk
@@ -64,8 +61,8 @@ open class BaseApplication : Application() {
             ARouter.openLog()
             ARouter.openDebug()
         }
-        //异常捕获初始化
-        CrashHandler.instance
+//        //异常捕获初始化
+//        CrashHandler.instance
         //开启调试模式(如果在InstantRun模式下运行，必须开启调试模式！线上版本需要关闭,否则有安全风险)
         ARouter.init(this)
         //腾讯读写mmkv初始化
@@ -74,20 +71,6 @@ open class BaseApplication : Application() {
         ConfigHelper.initialize(this)
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
-    }
-
-    //当前应用是否在前台
-    fun isAppOnForeground(): Boolean {
-        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        val runningTaskInfos = activityManager.getRunningTasks(100)
-        val packageName = packageName
-        //100表示取的最大的任务数，info.topActivity表示当前正在运行的Activity，info.baseActivity表系统后台有此进程在运行
-        for (info in runningTaskInfos) {
-            if (info.topActivity.packageName == packageName || info.baseActivity.packageName == packageName) {
-                return true
-            }
-        }
-        return false
     }
 
 }

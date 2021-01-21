@@ -21,6 +21,11 @@ interface BaseView {
     fun showToast(msg: String)
 
     /**
+     * 弹出一个倒计时的dialog,默认1秒
+     */
+    fun showIntercept(second: Long = 1000)
+
+    /**
      * 刷新动画dialog
      */
     fun showDialog(flag: Boolean = false)
