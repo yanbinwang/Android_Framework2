@@ -1,9 +1,7 @@
 package com.example.common.http.factory
 
 import com.example.common.http.interceptor.LoggingInterceptor
-import com.example.common.http.interceptor.RetryServerInterceptor
 import com.example.common.http.interceptor.UserAgentInterceptor
-import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -28,7 +26,7 @@ class OkHttpFactory private constructor() {
         .writeTimeout(2, TimeUnit.HOURS)//设置写超时
         .readTimeout(2, TimeUnit.HOURS)//设置读超时
         .retryOnConnectionFailure(true)
-        .addInterceptor(UserAgentInterceptor())//请求加头
+        .addInterceptor(UserAgentInterceptor())//请求加头-部分下载不能加头，会造成下载错误
         .addInterceptor(LoggingInterceptor())//日志监听
 //            .addInterceptor(RetryServerInterceptor())//重新构建请求
         .build()

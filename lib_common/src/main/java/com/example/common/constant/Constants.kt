@@ -38,7 +38,7 @@ object Constants {
     const val APPLICATION_NAME = "简证"//当前应用名
     const val LOGIN_INTERCEPTOR_CODE = 1 //阿里路由登录全局拦截器编号
     const val PUSH_NOTIFY_ID = 0 //固定通知id
-    const val PUSH_CHANNEL_ID = "shuniuyun" //推送渠道id
+    const val PUSH_CHANNEL_ID = "dataqin" //推送渠道id
     const val PUSH_CHANNEL_NAME = "数秦科技" //推送渠道名
 //    const val LIMIT = "10" //取的页数
 //    const val WX_APP_ID = "wx92fdc4b6ab9647cd" //微信的appId
