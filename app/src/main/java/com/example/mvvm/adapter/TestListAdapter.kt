@@ -1,7 +1,5 @@
 package com.example.mvvm.adapter
 
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseDataBindingHolder
 import com.example.mvvm.R
@@ -11,19 +9,16 @@ import com.example.mvvm.model.TestListModel
 /**
  * Created by WangYanBin on 2020/7/10.
  */
-class TestListAdapter : BaseQuickAdapter<TestListModel, BaseDataBindingHolder<*>>(R.layout.item_test) {
+class TestListAdapter : BaseQuickAdapter<TestListModel, BaseDataBindingHolder<ItemTestBinding>>(R.layout.item_test) {
 
-    override fun onItemViewHolderCreated(viewHolder: BaseDataBindingHolder<*>, viewType: Int) {
-        super.onItemViewHolderCreated(viewHolder, viewType)
-        DataBindingUtil.bind<ViewDataBinding>(viewHolder.itemView)
-    }
-
-    override fun convert(holder: BaseDataBindingHolder<*>, item: TestListModel) {
-        //设置数据
-        val binding: ItemTestBinding = holder.dataBinding as ItemTestBinding
-        binding.model = item
-        binding.ivImg.setOnClickListener { v -> setOnItemChildClick(v, holder.adapterPosition); }
-        binding.tvTitle.setOnClickListener { v -> setOnItemChildClick(v,holder.adapterPosition) }
+    override fun convert(holder: BaseDataBindingHolder<ItemTestBinding>, item: TestListModel) {
+        holder.dataBinding?.apply {
+            //赋值
+            model = item
+            //设置事件
+            ivImg.setOnClickListener { v -> setOnItemChildClick(v, holder.adapterPosition); }
+            tvTitle.setOnClickListener { v -> setOnItemChildClick(v, holder.adapterPosition) }
+        }
     }
 
 }

@@ -27,7 +27,7 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
 
     override fun initEvent() {
         super.initEvent()
-        binding.btnTest.setOnClickListener { View.OnClickListener { viewModel.getListData() } }
+        binding.btnTest.setOnClickListener { viewModel.getListData() }
 
         binding.adapter?.setOnItemClickListener { _, _, position -> showToast("整体点击：$position") }
         binding.adapter?.setOnItemChildClickListener { _, view, position ->
@@ -37,7 +37,7 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
             }
         }
 
-        viewModel.dataListData.observe(this, Observer {
+        viewModel.dataListData.observe(this, {
             binding.adapter?.setList(it)
         })
     }
