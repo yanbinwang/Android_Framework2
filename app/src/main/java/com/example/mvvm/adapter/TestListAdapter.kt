@@ -16,7 +16,7 @@ class TestListAdapter : BaseQuickAdapter<TestListModel, BaseDataBindingHolder<It
             //赋值
             model = item
             //设置事件
-            ivImg.setOnClickListener { v -> setOnItemChildClick(v, holder.adapterPosition); }
+            ivImg.setOnClickListener { v -> setOnItemChildClick(v, holder.adapterPosition) }
             tvTitle.setOnClickListener { v -> setOnItemChildClick(v, holder.adapterPosition) }
         }
     }
