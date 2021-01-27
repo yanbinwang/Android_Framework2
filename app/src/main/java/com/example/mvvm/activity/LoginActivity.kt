@@ -16,9 +16,7 @@ import com.example.mvvm.databinding.ActivityLoginBinding
  */
 @Route(path = ARouterPath.LoginActivity)
 class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
-    private val viewModel: LoginViewModel by lazy {
-        createViewModel(LoginViewModel::class.java)
-    }
+    private val viewModel by lazy { createViewModel(LoginViewModel::class.java) }
 
     override fun initView() {
         super.initView()

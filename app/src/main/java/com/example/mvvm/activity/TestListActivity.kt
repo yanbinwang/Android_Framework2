@@ -16,9 +16,7 @@ import com.example.mvvm.databinding.ActivityTestListBinding
  */
 @Route(path = ARouterPath.TestListActivity)
 class TestListActivity : BaseActivity<ActivityTestListBinding>() {
-    private val viewModel: TestListViewModel by lazy {
-        createViewModel(TestListViewModel::class.java)
-    }
+    private val viewModel by lazy { createViewModel(TestListViewModel::class.java) }
 
     override fun initView() {
         super.initView()
