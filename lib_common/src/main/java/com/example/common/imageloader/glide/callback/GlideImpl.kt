@@ -10,6 +10,8 @@ import java.io.File
 interface GlideImpl {
 
     //---------------------------------------------图片加载开始---------------------------------------------
+    fun displayZoomImage(view: ImageView, string: String?)
+
     fun displayCoverImage(view: ImageView, string: String?)
 
     fun displayImage(view: ImageView?, string: String?)
