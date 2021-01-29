@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?><!-- 当列表为空或者没有网络时显示 -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
         android:id="@+id/ll_container"
@@ -13,7 +14,7 @@
             android:layout_width="300mm"
             android:layout_height="300mm"
             android:layout_marginBottom="30mm"
-            android:visibility="gone" />
+            tools:src="@mipmap/img_data_empty" />
 
         <TextView
             android:id="@+id/tv_empty"
@@ -23,7 +24,19 @@
             android:textColor="@color/blue_2e60df"
             android:textSize="30mm"
             android:textStyle="bold"
-            android:visibility="gone" />
+            tools:text="没有数据" />
+
+        <TextView
+            android:id="@+id/tv_refresh"
+            android:layout_width="100mm"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20mm"
+            android:background="@drawable/shape_empty_btn"
+            android:gravity="center"
+            android:paddingVertical="5mm"
+            android:text="刷新"
+            android:textColor="@color/black"
+            android:textSize="18mm" />
 
     </LinearLayout>
 

@@ -53,14 +53,16 @@ public class EmptyLayout extends SimpleViewGroup {
     private void initialize() {
         Context context = getContext();
         binding = DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_empty, null));
-        binding.getRoot().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));//设置LayoutParams
         binding.llContainer.setBackgroundColor(ContextCompat.getColor(context, R.color.gray_f6f8ff));
-//        binding.getRoot().setOnClickListener(null);
-        binding.getRoot().setOnClickListener(v -> {
+        binding.tvRefresh.setOnClickListener(v -> {
+            //进入加载中，并停止刷新动画
+            showLoading();
             if (null != onEmptyRefreshListener) {
                 onEmptyRefreshListener.onRefreshListener();
             }
         });
+        binding.getRoot().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));//设置LayoutParams
+        binding.getRoot().setOnClickListener(null);
         showLoading();
     }
 
@@ -81,6 +83,7 @@ public class EmptyLayout extends SimpleViewGroup {
     public void showLoading() {
         binding.ivEmpty.setVisibility(View.GONE);
         binding.tvEmpty.setVisibility(View.GONE);
+        binding.tvRefresh.setVisibility(View.GONE);
     }
 
     //当数据为空时(显示需要显示的图片，以及内容字)
@@ -106,6 +109,7 @@ public class EmptyLayout extends SimpleViewGroup {
         } else {
             binding.tvEmpty.setText(emptyText);
         }
+        binding.tvRefresh.setVisibility(View.VISIBLE);
     }
 
     //当数据错误时（没有网络）
@@ -115,6 +119,7 @@ public class EmptyLayout extends SimpleViewGroup {
         binding.ivEmpty.setImageResource(R.mipmap.img_net_err);
         binding.tvEmpty.setVisibility(View.VISIBLE);
         binding.tvEmpty.setText(ERROR_TXT);
+        binding.tvRefresh.setVisibility(View.VISIBLE);
     }
 
     //设置背景颜色
