@@ -22,7 +22,7 @@ fun BaseViewModel.launch(block: suspend CoroutineScope.() -> Unit) =
 
 //针对项目请求编号处理,需要处理的在请求文件里书写此扩展函数
 fun <T> ApiResponse<T>.invoke(): ApiResponse<T> {
-    when (e) {
+    when (code) {
         //账号还没有登录，解密失败，重新获取
         100005, 100008 -> {
             AccountHelper.signOut()

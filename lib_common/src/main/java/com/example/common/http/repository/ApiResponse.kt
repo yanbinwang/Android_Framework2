@@ -6,12 +6,12 @@ package com.example.common.http.repository
  * 接口外层地址（与服务器约定好对应格式）
  */
 class ApiResponse<T> {
-    var e: Int = 0//状态码
+    var code: Int = 0//状态码
     var msg: String? = null//信息
     var data: T? = null//数据
 
-    constructor(e: Int, msg: String?, data: T?) {
-        this.e = e
+    constructor(code: Int, msg: String?, data: T?) {
+        this.code = code
         this.msg = msg
         this.data = data
     }

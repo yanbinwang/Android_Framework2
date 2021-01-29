@@ -6,7 +6,7 @@ package com.example.common.http.repository
  * onSuccess->成功直接将外层剥离取得对象T
  * onFailed->失败返回失败异常，或服务器给予的失败提示文案
  */
-abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
+abstract class HttpSubscriber2<T> : ResourceSubscriber<ApiResponse<T>>() {
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     final override fun onNext(t: ApiResponse<T>?) {
@@ -16,7 +16,7 @@ abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
             if (0 == code) {
                 onSuccess(t.data)
             } else {
-                onFailed(Exception(), msg)
+                onFailed(Exception(), msg, code)
             }
         } else {
             onFailed(Exception(), "")
@@ -37,6 +37,6 @@ abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
     /**
      * 请求失败，获取失败原因
      */
-    open fun onFailed(e: Throwable?, msg: String?) {}
+    open fun onFailed(e: Throwable?, msg: String?, code: Int? = -1) {}
 
 }
