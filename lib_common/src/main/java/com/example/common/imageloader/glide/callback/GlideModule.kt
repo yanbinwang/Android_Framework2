@@ -10,8 +10,9 @@ import com.bumptech.glide.load.engine.cache.LruResourceCache
 import com.bumptech.glide.load.engine.cache.MemorySizeCalculator
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.module.AppGlideModule
-import com.example.common.http.factory.OkHttpFactory
+import okhttp3.OkHttpClient
 import java.io.InputStream
+import java.util.concurrent.TimeUnit
 
 /**
  * author: wyb
@@ -19,6 +20,15 @@ import java.io.InputStream
  */
 @GlideModule
 open class GlideModule : AppGlideModule() {
+    //加载图片不能做拦截，重新声明请求类
+    private val okHttpClient by lazy {
+        OkHttpClient.Builder()
+                .connectTimeout(6, TimeUnit.SECONDS)//设置连接超时
+                .writeTimeout(2, TimeUnit.HOURS)//设置写超时
+                .readTimeout(2, TimeUnit.HOURS)//设置读超时
+                .retryOnConnectionFailure(true)
+                .build()
+    }
 
     override fun applyOptions(context: Context, builder: GlideBuilder) {
         //        int memoryCacheSizeBytes = 1024 * 1024 * 20; // 20mb
@@ -43,13 +53,9 @@ open class GlideModule : AppGlideModule() {
         return false
     }
 
-//    //注册自定义组件
-//    override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-//        registry.replace(
-//            GlideUrl::class.java,
-//            InputStream::class.java,
-//            OkHttpUrlLoader.Factory(OkHttpFactory.instance.okHttpClient)
-//        )
-//    }
+    //注册自定义组件
+    override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
+        registry.replace(GlideUrl::class.java, InputStream::class.java, OkHttpUrlLoader.Factory(okHttpClient))
+    }
 
 }
