@@ -29,21 +29,21 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         }
     }
 
-    override fun displayZoomImage(view: ImageView, string: String?) {
+    override fun displayZoomImage(view: ImageView?, string: String?) {
         manager
             .asBitmap()
             .load(string)
             .placeholder(R.drawable.shape_loading_normal)
             .dontAnimate()
-            .into(ZoomTransform(view))
+            .into(ZoomTransform(view!!))
     }
 
-    override fun displayCoverImage(view: ImageView, string: String?) {
+    override fun displayCoverImage(view: ImageView?, string: String?) {
         manager
             .setDefaultRequestOptions(RequestOptions().frame(1000000))
             .load(string)
             .dontAnimate()
-            .into(view)
+            .into(view!!)
     }
 
     override fun displayImage(view: ImageView?, string: String?) {
