@@ -1,7 +1,7 @@
 package com.example.common.subscribe
 
-import com.example.common.http.repository.ApiResponse
 import com.example.common.http.factory.RetrofitFactory
+import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.invoke
 import com.example.common.model.UploadModel
 import okhttp3.MultipartBody
@@ -14,7 +14,7 @@ object CommonSubscribe : CommonApi {
     private val commonApi by lazy { RetrofitFactory.instance.create(CommonApi::class.java) }
 
     override suspend fun getDownloadApi(downloadUrl: String): okhttp3.ResponseBody {
-        return commonApi.getDownloadApi(downloadUrl)
+        return RetrofitFactory.instance.create2(CommonApi::class.java).getDownloadApi(downloadUrl)
     }
 
     override suspend fun getUploadFileApi(agent: String, partList: List<MultipartBody.Part>): ApiResponse<UploadModel> {
