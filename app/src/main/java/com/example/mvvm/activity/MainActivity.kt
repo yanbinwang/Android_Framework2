@@ -57,10 +57,10 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
         onClick(this, binding.btnLogin, binding.btnList, binding.btnDownload)
 
         //注册订阅
-        LiveDataBus.get().toFlowable(Constants.APP_USER_LOGIN_OUT, String::class.java).observe(this, {
+        LiveDataBus.instance.toFlowable(Constants.APP_USER_LOGIN_OUT, String::class.java).observe(this, {
             titleBuilder.setTitle(it).getDefault()
         })
-//        LiveDataBus.get().toFlowable(Constants.APP_USER_LOGIN, String::class.java).observe(this, {
+//        LiveDataBus.instance.toFlowable(Constants.APP_USER_LOGIN, String::class.java).observe(this, {
 //            binding.btnLogin.text = it
 //        })
     }
