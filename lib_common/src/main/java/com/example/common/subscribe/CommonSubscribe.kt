@@ -12,9 +12,10 @@ import okhttp3.MultipartBody
  */
 object CommonSubscribe : CommonApi {
     private val commonApi by lazy { RetrofitFactory.instance.create(CommonApi::class.java) }
+    private val downloadApi by lazy { RetrofitFactory.instance.create2(CommonApi::class.java) }
 
     override suspend fun getDownloadApi(downloadUrl: String): okhttp3.ResponseBody {
-        return RetrofitFactory.instance.create2(CommonApi::class.java).getDownloadApi(downloadUrl)
+        return downloadApi.getDownloadApi(downloadUrl)
     }
 
     override suspend fun getUploadFileApi(agent: String, partList: List<MultipartBody.Part>): ApiResponse<UploadModel> {
