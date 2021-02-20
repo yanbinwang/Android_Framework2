@@ -29,11 +29,11 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
         onTextChanged(textWatcher, binding.etAccount, binding.etPassword)
 
         binding.btnLogin.setOnClickListener {
-//            viewModel.login(
-//                getParameters(binding?.etAccount),
-//                getParameters(binding?.etPassword)
-//            )
-            viewModel.getData()
+            viewModel.login(
+                getParameters(binding?.etAccount),
+                getParameters(binding?.etPassword)
+            )
+//            viewModel.getData()
         }
 
         //类似mvp的接口回调,通过观察泛型内容随时刷新变化

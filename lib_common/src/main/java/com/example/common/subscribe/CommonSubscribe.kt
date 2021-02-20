@@ -3,8 +3,6 @@ package com.example.common.subscribe
 import com.example.common.http.factory.RetrofitFactory
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.invoke
-import com.example.common.model.UploadModel
-import okhttp3.MultipartBody
 
 /**
  * author:wyb
@@ -16,10 +14,6 @@ object CommonSubscribe : CommonApi {
 
     override suspend fun getDownloadApi(downloadUrl: String): okhttp3.ResponseBody {
         return downloadApi.getDownloadApi(downloadUrl)
-    }
-
-    override suspend fun getUploadFileApi(agent: String, partList: List<MultipartBody.Part>): ApiResponse<UploadModel> {
-        TODO("Not yet implemented")
     }
 
     override suspend fun getSendVerificationApi(agent: String, map: Map<String, String>): ApiResponse<Any> {

@@ -68,7 +68,7 @@ public class ConfigHelper {
     }
 
     //模拟触屏点击屏幕事件
-    public void touch(View view) {
+    public static void touch(View view) {
         long downTime = SystemClock.uptimeMillis();
         MotionEvent downEvent = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 0, 0, 0);
         MotionEvent upEvent = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0);

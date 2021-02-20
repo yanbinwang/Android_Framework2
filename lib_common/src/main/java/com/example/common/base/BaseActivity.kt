@@ -20,6 +20,9 @@ import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.page.PageParams
 import com.example.common.base.proxy.SimpleTextWatcher
+import com.example.common.bus.LiveDataBus
+import com.example.common.constant.ARouterPath
+import com.example.common.constant.Constants
 import com.example.common.constant.Extras
 import com.example.common.utils.builder.StatusBarBuilder
 import com.example.common.widget.dialog.LoadingDialog
@@ -77,6 +80,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun initEvent() {
+        LiveDataBus.get().toFlowable(Constants.APP_USER_LOGIN_OUT, String::class.java).observe(this, {
+            finish()
+//            navigation(ARouterPath.StartActivity)
+        })
     }
 
     override fun initData() {

@@ -1,7 +1,5 @@
 package com.example.mvvm.activity
 
-import android.view.View
-import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.constant.ARouterPath
@@ -22,7 +20,6 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
         super.initView()
         //绑定适配器,监听
         binding.setVariable(BR.adapter, TestListAdapter())
-        binding.setVariable(BR.event, TestListActivity())
     }
 
     override fun initEvent() {

@@ -15,11 +15,6 @@ interface CommonApi {
     @GET
     suspend fun getDownloadApi(@Url downloadUrl: String): okhttp3.ResponseBody
 
-    @Multipart
-    @Streaming
-    @POST("http://www.baidu.com")
-    suspend fun getUploadFileApi(@Header("User-Agent") agent: String, @Part partList: List<MultipartBody.Part>): ApiResponse<UploadModel>
-
     @FormUrlEncoded
     @POST("http://www.baidu.com")
     suspend fun getSendVerificationApi(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): ApiResponse<Any>

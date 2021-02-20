@@ -1,6 +1,5 @@
 package com.example.common.constant
 
-import android.os.Environment
 import com.example.common.BaseApplication
 
 /**
