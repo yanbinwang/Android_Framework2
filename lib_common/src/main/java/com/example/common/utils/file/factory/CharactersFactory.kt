@@ -17,8 +17,8 @@ import java.util.concurrent.Executors
  * 使用当前下载类
  */
 class CharactersFactory {
-    private val weakHandler = WeakHandler(Looper.getMainLooper())
-    private val executors = Executors.newSingleThreadExecutor()
+    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+    private val executors by lazy { Executors.newSingleThreadExecutor() }
 
     companion object {
         @JvmStatic
