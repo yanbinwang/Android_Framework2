@@ -150,7 +150,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                 view.isEnabled = false
                 Timer().schedule(object : TimerTask() {
                     override fun run() {
-                        view.isEnabled = true
+                        runOnUiThread { view.isEnabled = true }
                     }
                 }, second)
             }

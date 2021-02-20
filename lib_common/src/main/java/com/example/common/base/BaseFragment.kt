@@ -50,11 +50,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         return baseViewModel as VM
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         log(TAG)
         val superclass = javaClass.genericSuperclass
         val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>
@@ -121,8 +117,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     }
 
     override fun closeDecor(view: View?) {
-        val inputMethodManager = activity.get()
-            ?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+        val inputMethodManager = activity.get()?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
     }
 
@@ -164,7 +159,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
                 view.isEnabled = false
                 Timer().schedule(object : TimerTask() {
                     override fun run() {
-                        view.isEnabled = true
+                        activity.get()?.runOnUiThread { view.isEnabled = true }
                     }
                 }, second)
             }
