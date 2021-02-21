@@ -30,8 +30,8 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
 
         binding.btnLogin.setOnClickListener {
             viewModel.login(
-                getParameters(binding?.etAccount),
-                getParameters(binding?.etPassword)
+                getParameters(binding.etAccount),
+                getParameters(binding.etPassword)
             )
 //            viewModel.getData()
         }

@@ -31,7 +31,7 @@
             android:id="@+id/rec_test"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:adapter="@{adapter}"
+            app:initialize="@{adapter}"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </LinearLayout>

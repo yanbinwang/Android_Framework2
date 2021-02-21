@@ -6,6 +6,7 @@ import com.example.common.imageloader.ImageLoader
 
 /**
  * Created by WangYanBin on 2020/8/5.
+ * 图片的加载方法，写成自定义属性直接viewmodel赋值
  */
 object ImageViewBindingAdapter {
 
