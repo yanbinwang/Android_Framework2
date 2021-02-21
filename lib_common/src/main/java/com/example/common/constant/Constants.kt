@@ -39,7 +39,6 @@ object Constants {
     const val PUSH_NOTIFY_ID = 0 //固定通知id
     const val PUSH_CHANNEL_ID = "dataqin" //推送渠道id
     const val PUSH_CHANNEL_NAME = "数秦科技" //推送渠道名
-    const val LIVE_DATA_KEY = "com.bitnew.tech.LIVE_DATA_KEY"//消息订阅key
 //    const val LIMIT = "10" //取的页数
 //    const val WX_APP_ID = "wx92fdc4b6ab9647cd" //微信的appId
 
@@ -47,8 +46,9 @@ object Constants {
     const val KEY_USER_MODEL = "keyUserModel" //用户类json
 
     //系统广播
-    const val APP_USER_LOGIN = "com.bitnew.tech.APP_USER_LOGIN" //用户登录
-    const val APP_USER_LOGIN_OUT = "com.bitnew.tech.APP_USER_LOGIN_OUT" //用户注销
+    const val LIVE_DATA_KEY = "com.sqkj.oea.LIVE_DATA_KEY"//总消息订阅key
+    const val APP_USER_LOGIN = "com.sqkj.oea.APP_USER_LOGIN" //用户登录
+    const val APP_USER_LOGIN_OUT = "com.sqkj.oea.APP_USER_LOGIN_OUT" //用户注销
     //    public static final String APP_USER_INFO_UPDATE = "com.bitnew.tech.APP_USER_INFO_UPDATE";//用户信息更新
     //    public static final String APP_SHARE_SUCCESS = "com.bitnew.tech.APP_SHARE_SUCCESS";//分享成功
     //    public static final String APP_SHARE_CANCEL = "com.bitnew.tech.APP_SHARE_CANCEL";//分享取消

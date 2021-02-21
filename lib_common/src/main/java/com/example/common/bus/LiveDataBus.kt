@@ -31,12 +31,12 @@ class LiveDataBus private constructor() {
         return toFlowable(key, Any::class.java)
     }
 
-    //订阅
+    //项目订阅
     fun toFlowable(): MutableLiveData<LiveDataEvent> {
         return toFlowable(Constants.LIVE_DATA_KEY, LiveDataEvent::class.java)
     }
 
-    //通知
+    //项目通知
     fun post(event: LiveDataEvent) {
         toFlowable(Constants.LIVE_DATA_KEY, LiveDataEvent::class.java).postValue(event)
     }

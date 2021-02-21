@@ -21,19 +21,19 @@ object RecyclerViewBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["app:itemNormalSpace"])
     fun setNormalItemDecoration(recyclerView: XRecyclerView, itemNormalSpace: Int) {
-        recyclerView?.addItemDecoration(itemNormalSpace, 0, true, false)
+        recyclerView.addItemDecoration(itemNormalSpace, 0, true, false)
     }
 
     @JvmStatic
     @BindingAdapter(value = ["app:itemAroundSpace"])
     fun setAroundItemDecoration(recyclerView: XRecyclerView, itemAroundSpace: Int) {
-        recyclerView?.addItemDecoration(itemAroundSpace, itemAroundSpace, true, true)
+        recyclerView.addItemDecoration(itemAroundSpace, itemAroundSpace, true, true)
     }
 
     @JvmStatic
     @BindingAdapter(value = ["app:emptyBackgroundColor"])
     fun setEmptyBackgroundColor(recyclerView: XRecyclerView, color: Int) {
-        recyclerView?.setEmptyBackgroundColor(color)
+        recyclerView.setEmptyBackgroundColor(color)
     }
 
 //    @JvmStatic

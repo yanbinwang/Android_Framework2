@@ -16,6 +16,12 @@ object ImageViewBindingAdapter {
     }
 
     @JvmStatic
+    @BindingAdapter(value = ["app:imageZoomUrl"])
+    fun setImageZoomDisplay(view: ImageView, url: String?) {
+        ImageLoader.instance.displayZoomImage(view, url)
+    }
+
+    @JvmStatic
     @BindingAdapter(value = ["app:imageRoundUrl"])
     fun setImageRoundDisplay(view: ImageView, url: String?) {
         setImageRoundDisplay(view, url, 5)

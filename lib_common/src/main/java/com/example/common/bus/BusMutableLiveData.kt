@@ -8,7 +8,6 @@ import java.util.*
 
 /**
  *  Created by wangyanbin
- *
  */
 class BusMutableLiveData<T> : MutableLiveData<T>() {
     private val observerMap by lazy { HashMap<Observer<*>, Observer<*>>() }
