@@ -34,16 +34,16 @@ import java.util.List;
  */
 @SuppressLint({"MissingPermission", "HardwareIds", "StaticFieldLeak"})
 public class ConfigHelper {
-    private static MMKV mmkv;
+//    private static MMKV mmkv;
     private static Context context;
 
-    static {
-        mmkv = MMKV.defaultMMKV();
-    }
+//    static {
+//        mmkv = MMKV.defaultMMKV();
+//    }
 
     //获取手机的一些基本参数
     public static void initialize(Application application) {
-        context = application;
+        context = application.getApplicationContext();
         //在程序运行时取值，保证长宽静态变量不丢失
         DisplayMetrics metric = new DisplayMetrics();
         WindowManager mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
