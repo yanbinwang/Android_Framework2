@@ -19,15 +19,15 @@ object RecyclerViewBindingAdapter {
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["app:itemNormalSpace"])
-    fun setNormalItemDecoration(recyclerView: XRecyclerView, itemNormalSpace: Int) {
-        recyclerView.addItemDecoration(itemNormalSpace, 0, true, false)
+    @BindingAdapter(value = ["app:itemSpace"])
+    fun setItemDecoration(recyclerView: XRecyclerView, itemSpace: Int) {
+        recyclerView.addItemDecoration(itemSpace, 0, true, false)
     }
 
     @JvmStatic
     @BindingAdapter(value = ["app:itemAroundSpace"])
-    fun setAroundItemDecoration(recyclerView: XRecyclerView, itemAroundSpace: Int) {
-        recyclerView.addItemDecoration(itemAroundSpace, itemAroundSpace, true, true)
+    fun setAroundItemDecoration(recyclerView: XRecyclerView, itemSpace: Int) {
+        recyclerView.addItemDecoration(itemSpace, itemSpace, true, true)
     }
 
     @JvmStatic
