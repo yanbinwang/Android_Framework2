@@ -79,10 +79,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun initEvent() {
-        LiveDataBus.instance.toFlowable(Constants.APP_USER_LOGIN_OUT, String::class.java).observe(this, {
-            finish()
-//            navigation(ARouterPath.StartActivity)
-        })
+//        LiveDataBus.instance.toFlowable(Constants.APP_USER_LOGIN_OUT, String::class.java).observe(this, {
+//            finish()
+////            navigation(ARouterPath.StartActivity)
+//        })
     }
 
     override fun initData() {

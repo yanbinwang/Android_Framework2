@@ -3,6 +3,7 @@ package com.example.mvvm.activity
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.bus.LiveDataBus
+import com.example.common.bus.LiveDataEvent
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
 import com.example.common.constant.Extras
@@ -25,8 +26,8 @@ class UserInfoActivity : BaseActivity<ActivityUserInfoBinding>() {
         super.initEvent()
         binding.btnTest.setOnClickListener {
             //发送消息
-            LiveDataBus.instance.post(Constants.APP_USER_LOGIN_OUT).postValue("50998")
-            LiveDataBus.instance.post(Constants.APP_USER_LOGIN_OUT)
+            LiveDataBus.instance.post(LiveDataEvent(Constants.APP_USER_LOGIN, "50998"))
+            LiveDataBus.instance.post(LiveDataEvent(Constants.APP_USER_LOGIN_OUT, "4099"))
             finish()
         }
     }

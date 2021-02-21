@@ -39,11 +39,9 @@ object Constants {
     const val PUSH_NOTIFY_ID = 0 //固定通知id
     const val PUSH_CHANNEL_ID = "dataqin" //推送渠道id
     const val PUSH_CHANNEL_NAME = "数秦科技" //推送渠道名
+    const val LIVE_DATA_KEY = "com.bitnew.tech.LIVE_DATA_KEY"//消息订阅key
 //    const val LIMIT = "10" //取的页数
 //    const val WX_APP_ID = "wx92fdc4b6ab9647cd" //微信的appId
-//    const val ADAPTER_ITEM_VIEW_TYPE_HEAD: Int = 1
-//    const val ADAPTER_ITEM_VIEW_TYPE_BODY = 2
-//    const val ADAPTER_ITEM_VIEW_TYPE_BOTTOM = 3
 
     //MMKV存储字段
     const val KEY_USER_MODEL = "keyUserModel" //用户类json

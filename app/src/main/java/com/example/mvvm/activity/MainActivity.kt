@@ -57,12 +57,12 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
         onClick(this, binding.btnLogin, binding.btnList, binding.btnDownload)
 
         //注册订阅
-        LiveDataBus.instance.toFlowable(Constants.APP_USER_LOGIN_OUT, String::class.java).observe(this, {
-            titleBuilder.setTitle(it).getDefault()
+        LiveDataBus.instance.toFlowable().observe(this,{
+            when(it.getAction()){
+                Constants.APP_USER_LOGIN-> titleBuilder.setTitle(it.getStringExtra()).getDefault()
+                Constants.APP_USER_LOGIN_OUT-> binding.btnLogin.text = it.getStringExtra()
+            }
         })
-//        LiveDataBus.instance.toFlowable(Constants.APP_USER_LOGIN, String::class.java).observe(this, {
-//            binding.btnLogin.text = it
-//        })
     }
 
     override fun onClick(v: View?) {

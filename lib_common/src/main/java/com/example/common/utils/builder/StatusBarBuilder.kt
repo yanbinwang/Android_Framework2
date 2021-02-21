@@ -7,6 +7,8 @@ import android.os.Build
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import androidx.core.content.ContextCompat
+import com.example.common.R
 import java.lang.ref.WeakReference
 
 /**
@@ -52,6 +54,19 @@ class StatusBarBuilder(activity: Activity) {
             window.statusBarColor = Color.TRANSPARENT
             setMiuiStatusBarLightMode(window, true)
             setFlymeStatusBarLightMode(window, true)
+        }
+    }
+
+    //设置样式兼容（透明样式）
+    fun setTransparent(isDark: Boolean) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (isDark) {
+                setTransparentDarkStatus()
+            } else {
+                setTransparentStatus()
+            }
+        } else {
+            setStatusBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.black))
         }
     }
 
