@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.example.common.constant.Constants;
-import com.tencent.mmkv.MMKV;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -34,7 +33,7 @@ import java.util.List;
  */
 @SuppressLint({"MissingPermission", "HardwareIds", "StaticFieldLeak"})
 public class ConfigHelper {
-//    private static MMKV mmkv;
+    //    private static MMKV mmkv;
     private static Context context;
 
 //    static {
@@ -43,7 +42,7 @@ public class ConfigHelper {
 
     //获取手机的一些基本参数
     public static void initialize(Application application) {
-        context = application.getApplicationContext();
+        context = application;
         //在程序运行时取值，保证长宽静态变量不丢失
         DisplayMetrics metric = new DisplayMetrics();
         WindowManager mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -80,14 +79,15 @@ public class ConfigHelper {
 
     //获取当前设备ip地址
     private static String getIp() {
-        NetworkInfo info = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-        if (info != null && info.isConnected()) {
-            if (info.getType() == ConnectivityManager.TYPE_MOBILE) {//当前使用2G/3G/4G网络
+        NetworkInfo networkInfo = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            //当前使用2G/3G/4G网络
+            if (networkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
                 try {
-                    for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
-                        NetworkInterface intf = en.nextElement();
-                        for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
-                            InetAddress inetAddress = enumIpAddr.nextElement();
+                    for (Enumeration<NetworkInterface> enumeration = NetworkInterface.getNetworkInterfaces(); enumeration.hasMoreElements(); ) {
+                        NetworkInterface networkInterface = enumeration.nextElement();
+                        for (Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses(); inetAddresses.hasMoreElements(); ) {
+                            InetAddress inetAddress = inetAddresses.nextElement();
                             if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
                                 return inetAddress.getHostAddress();
                             }
@@ -96,7 +96,8 @@ public class ConfigHelper {
                 } catch (SocketException e) {
                     return null;
                 }
-            } else if (info.getType() == ConnectivityManager.TYPE_WIFI) {//当前使用无线网络
+                //当前使用无线网络
+            } else if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
                 WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
                 WifiInfo wifiInfo = wifiManager.getConnectionInfo();
                 //得到IPV4地址
