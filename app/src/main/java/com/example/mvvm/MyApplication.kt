@@ -56,7 +56,6 @@ class MyApplication : BaseApplication() {
                         is IndexOutOfBoundsException -> println("AppCatch -$stackTraceString")
                         is OutOfMemoryError -> println("AppCatch -$stackTraceString")
                         is NumberFormatException -> println("AppCatch -$stackTraceString")
-                        else -> throw e
                     }
                 }
             }
