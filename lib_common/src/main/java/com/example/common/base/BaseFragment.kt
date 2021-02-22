@@ -25,7 +25,6 @@ import com.example.common.constant.Extras
 import com.example.common.widget.dialog.LoadingDialog
 import java.io.Serializable
 import java.lang.ref.WeakReference
-import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.ParameterizedType
 import java.util.*
 
@@ -55,18 +54,9 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         val superclass = javaClass.genericSuperclass
         val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>
         try {
-            val method = aClass.getDeclaredMethod(
-                "inflate",
-                LayoutInflater::class.java,
-                ViewGroup::class.java,
-                Boolean::class.javaPrimitiveType
-            )
+            val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
             binding = method.invoke(null, layoutInflater, container, false) as VDB
-        } catch (e: NoSuchMethodException) {
-            e.printStackTrace()
-        } catch (e: IllegalAccessException) {
-            e.printStackTrace()
-        } catch (e: InvocationTargetException) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
         return binding.root

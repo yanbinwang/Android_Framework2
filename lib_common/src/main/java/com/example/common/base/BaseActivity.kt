@@ -61,13 +61,13 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         if (type is ParameterizedType) {
             try {
                 val vbClass = type.actualTypeArguments[0] as? Class<VDB>
-                val method = vbClass?.getMethod("inflate", LayoutInflater::class.java)
+                val method = vbClass?.getDeclaredMethod("inflate", LayoutInflater::class.java)
                 binding = method?.invoke(null, layoutInflater) as VDB
                 binding.lifecycleOwner = this
+                setContentView(binding.root)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            setContentView(binding.root)
         }
         initView()
         initEvent()
