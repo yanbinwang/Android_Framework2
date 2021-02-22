@@ -15,12 +15,22 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
 object CommonBindingAdapter {
 
     @JvmStatic
-    @BindingAdapter(value = ["app:initialize"])
-    fun setInitialize(xRec: XRecyclerView, adapter: BaseQuickAdapter<*, *>?) {
+    @BindingAdapter(value = ["app:adapter"])
+    fun setAdapter(xRec: XRecyclerView, adapter: BaseQuickAdapter<*, *>?) {
         if (adapter != null) {
             xRec.recyclerView.layoutManager = GridLayoutManager(xRec.context, 1)
             xRec.recyclerView.adapter = adapter
             xRec.addItemDecoration(1, 0, true, false)//默认是1的行数，留有空行
+        }
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["app:adapter2"])
+    fun setAdapter2(xRec: XRecyclerView, adapter: BaseQuickAdapter<*, *>?) {
+        if (adapter != null) {
+            xRec.recyclerView.layoutManager = GridLayoutManager(xRec.context, 1)
+            xRec.recyclerView.adapter = adapter
+            xRec.addItemDecoration(0, 0, false, false)
         }
     }
 
