@@ -56,7 +56,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+//        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {

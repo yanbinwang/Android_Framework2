@@ -48,12 +48,7 @@ object DocumentHelper {
                 splitList.add(tmpInfo.path!!)
             }
             if (length - offSet > 0) {
-                val tmpInfo: FileTmpInfo = getWrite(
-                    targetFile.absolutePath,
-                    count - 1,
-                    offSet,
-                    length
-                )
+                val tmpInfo: FileTmpInfo = getWrite(targetFile.absolutePath, count - 1, offSet, length)
                 splitList.add(tmpInfo.path!!)
             }
         } catch (e: IOException) {

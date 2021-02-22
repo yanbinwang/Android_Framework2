@@ -121,24 +121,14 @@ object FileUtil {
 
     //转换文件大小格式
     @JvmStatic
-    fun formatFileSize(fileS: Long): String? {
+    fun formatFileSize(fileS: Long): String {
         val df = DecimalFormat("#.00")
-        val fileSizeString: String
-        fileSizeString = when {
-            fileS < 1024 -> {
-                df.format(fileS.toDouble()) + "B"
-            }
-            fileS < 1048576 -> {
-                df.format(fileS.toDouble() / 1024) + "K"
-            }
-            fileS < 1073741824 -> {
-                df.format(fileS.toDouble() / 1048576) + "M"
-            }
-            else -> {
-                df.format(fileS.toDouble() / 1073741824) + "G"
-            }
+        return when {
+            fileS < 1024 -> df.format(fileS.toDouble()) + "B"
+            fileS < 1048576 -> df.format(fileS.toDouble() / 1024) + "K"
+            fileS < 1073741824 -> df.format(fileS.toDouble() / 1048576) + "M"
+            else -> df.format(fileS.toDouble() / 1073741824) + "G"
         }
-        return fileSizeString
     }
 
     //将Bitmap缓存到本地
@@ -163,7 +153,7 @@ object FileUtil {
             fileOutputStream.close()
         } catch (ignored: java.lang.Exception) {
         } finally {
-            bitmap!!.recycle()
+            bitmap?.recycle()
         }
     }
 
@@ -181,7 +171,7 @@ object FileUtil {
 
     //获取当前app的应用程序名称
     @JvmStatic
-    fun getApplicationName(context: Context): String? {
+    fun getApplicationName(context: Context): String {
         var packageManager: PackageManager? = null
         var applicationInfo: ApplicationInfo?
         try {
@@ -190,7 +180,7 @@ object FileUtil {
         } catch (e: PackageManager.NameNotFoundException) {
             applicationInfo = null
         }
-        return packageManager!!.getApplicationLabel(applicationInfo) as String
+        return packageManager?.getApplicationLabel(applicationInfo) as String
     }
 
     //获取当前app的应用程序名称
