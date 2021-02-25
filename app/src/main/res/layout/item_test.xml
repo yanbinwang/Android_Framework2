@@ -8,7 +8,7 @@
 
         <variable
             name="model"
-            type="com.example.mvvm.model.TestListModel" />
+            type="com.dataqin.mvvm.model.TestListModel" />
 
     </data>
 

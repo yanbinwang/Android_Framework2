@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.mvvm">
+    package="com.dataqin.mvvm">
 
     <!-- 系统 -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -19,7 +19,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".MyApplication"
+        android:name="com.dataqin.mvvm.MyApplication"
         android:allowBackup="false"
         android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
@@ -41,7 +41,7 @@
             android:value="1334" />
 
         <activity
-            android:name=".activity.SplashActivity"
+            android:name="com.dataqin.mvvm.activity.SplashActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/startTheme">
@@ -53,25 +53,25 @@
         </activity>
 
         <activity
-            android:name=".activity.MainActivity"
+            android:name="com.dataqin.mvvm.activity.MainActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.LoginActivity"
+            android:name="com.dataqin.mvvm.activity.LoginActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.UserInfoActivity"
+            android:name="com.dataqin.mvvm.activity.UserInfoActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.TestListActivity"
+            android:name="com.dataqin.mvvm.activity.TestListActivity"
             android:screenOrientation="portrait" />
 
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.mvvm.fileProvider"
+            android:authorities="com.dataqin.mvvm.fileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

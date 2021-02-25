@@ -8,7 +8,7 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <com.example.common.widget.ProgressWheel
+        <com.dataqin.common.widget.ProgressWheel
             android:id="@+id/progress"
             android:layout_width="160mm"
             android:layout_height="160mm"

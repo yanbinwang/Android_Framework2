@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <LinearLayout
+        android:layout_width="260mm"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="164mm">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="30mm"
+                android:layout_alignParentBottom="true"
+                android:background="@color/white" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="146mm"
+                android:layout_alignParentBottom="true"
+                android:src="@mipmap/img_aircraft" />
+
+            <ImageView
+                android:id="@+id/iv_close"
+                android:layout_width="22mm"
+                android:layout_height="62mm"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="13mm"
+                android:src="@mipmap/img_close" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shape_white"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20mm"
+                android:gravity="center"
+                android:textColor="@color/black_111b34"
+                android:textSize="16mm"
+                android:textStyle="bold"
+                tools:text="欢迎体验新版本V1.2.0" />
+
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="100mm"
+                android:layout_marginHorizontal="25mm"
+                android:layout_marginTop="12mm"
+                android:overScrollMode="never"
+                android:scrollbars="none">
+
+                <TextView
+                    android:id="@+id/tv_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:lineSpacingExtra="4mm"
+                    android:textColor="@color/black_666f83"
+                    android:textSize="14mm"
+                    tools:text="1. 新增首页悬赏公证功能\n2. 新增版本更新提示功能\n3. 新增———\n4. 这部分介绍新版本功能" />
+
+            </androidx.core.widget.NestedScrollView>
+
+            <ProgressBar
+                android:id="@+id/pb_process"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="5mm"
+                android:layout_marginHorizontal="25mm"
+                android:layout_marginTop="24mm"
+                android:max="100"
+                android:progress="0"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginTop="10mm"
+                android:layout_marginRight="25dp"
+                android:layout_marginBottom="40mm"
+                android:text="0%"
+                android:textColor="@color/blue_1e2b8e"
+                android:textSize="13mm"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btn_update"
+                android:layout_width="match_parent"
+                android:layout_height="40mm"
+                android:layout_marginHorizontal="25mm"
+                android:layout_marginTop="24mm"
+                android:layout_marginBottom="40mm"
+                android:background="@color/blue_1e2b8e"
+                android:gravity="center"
+                android:text="立即更新"
+                android:textColor="@color/white"
+                android:textSize="14mm" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

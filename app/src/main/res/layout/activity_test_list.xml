@@ -6,11 +6,11 @@
 
         <variable
             name="viewModel"
-            type="com.example.mvvm.bridge.TestListViewModel" />
+            type="com.dataqin.mvvm.bridge.TestListViewModel" />
 
         <variable
             name="adapter"
-            type="com.example.mvvm.adapter.TestListAdapter" />
+            type="com.dataqin.mvvm.adapter.TestListAdapter" />
 
     </data>
 
@@ -31,7 +31,7 @@
             android:id="@+id/rec_test"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:initialize="@{adapter}"
+            app:adapter="@{adapter}"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </LinearLayout>
