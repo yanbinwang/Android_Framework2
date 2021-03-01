@@ -46,14 +46,12 @@ open class BaseApplication : Application() {
         )
         //x5内核初始化接口
         QbSdk.initX5Environment(applicationContext, object : PreInitCallback {
-
             override fun onViewInitFinished(arg0: Boolean) {
                 //x5內核初始化完成的回调，为true表示x5内核加载成功，否则表示x5内核加载失败，会自动切换到系统内核。
                 d(" onViewInitFinished is $arg0")
             }
 
             override fun onCoreInitFinished() {}
-
         })
         //阿里路由跳转初始化
         if (BuildConfig.DEBUG) {

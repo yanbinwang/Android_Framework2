@@ -71,7 +71,6 @@ object CompressUtil {
             try {
                 val options = BitmapFactory.Options()
                 options.inJustDecodeBounds = true
-                var bitmap: Bitmap?
                 val width = options.outWidth
                 val height = options.outHeight
                 if (width > 720) {
@@ -81,20 +80,19 @@ object CompressUtil {
                 }
                 options.inJustDecodeBounds = false
                 options.inSampleSize = (scaleSize + 0.5).toInt()
-                bitmap = BitmapFactory.decodeFile(mFile.path, options)
+                var bitmap = BitmapFactory.decodeFile(mFile.path, options)
                 bitmap = compressImgBySize(bitmap)
                 val fTemp = File(
-                    context!!.applicationContext.externalCacheDir,
+                    context?.applicationContext?.externalCacheDir,
                     System.currentTimeMillis().toString() + "img.jpg"
                 )
-                val fileOutputStream: FileOutputStream
-                fileOutputStream = try {
+                val fileOutputStream: FileOutputStream = try {
                     FileOutputStream(fTemp)
                 } catch (e: FileNotFoundException) {
                     e.printStackTrace()
                     return mFile
                 }
-                bitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+                bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
                 fileOutputStream.flush()
                 fileOutputStream.close()
                 bitmap.recycle()
@@ -129,11 +127,10 @@ object CompressUtil {
                 options.inSampleSize = (scaleSize + 0.5).toInt()
                 bitmap = compressImgBySize(bitmap)!!
                 val file = File(
-                    context!!.applicationContext.externalCacheDir,
+                    context?.applicationContext?.externalCacheDir,
                     System.currentTimeMillis().toString() + "img.jpg"
                 )
-                val fileOutputStream: FileOutputStream
-                fileOutputStream = try {
+                val fileOutputStream: FileOutputStream = try {
                     FileOutputStream(file)
                 } catch (e: FileNotFoundException) {
                     e.printStackTrace()
@@ -169,7 +166,7 @@ object CompressUtil {
     }
 
     @JvmStatic
-    fun degreeImage(context: Context, mFile: File): File? {
+    fun degreeImage(context: Context, mFile: File): File {
         val degree = readImageDegree(mFile.path)
         var bitmap: Bitmap
         return if (degree != 0) {
