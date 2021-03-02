@@ -11,6 +11,12 @@ import com.example.common.imageloader.ImageLoader
 object ImageViewBindingAdapter {
 
     @JvmStatic
+    @BindingAdapter(value = ["app:imageResource"])
+    fun setImageResource(image: ImageView?, avatar: Int) {
+        image?.setBackgroundResource(avatar)
+    }
+
+    @JvmStatic
     @BindingAdapter(value = ["app:imageUrl"])
     fun setImageDisplay(view: ImageView, url: String?) {
         ImageLoader.instance.displayImage(view, url)
