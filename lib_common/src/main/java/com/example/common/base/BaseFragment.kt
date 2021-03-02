@@ -94,15 +94,10 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         closeDecor(view)
         Timer().schedule(object : TimerTask() {
             override fun run() {
-                (activity.get()
-                    ?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(
-                    0,
-                    InputMethodManager.HIDE_NOT_ALWAYS
-                )
+                (activity.get()?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
             }
         }, 200)
-        val inputMethodManager = activity.get()
-            ?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+        val inputMethodManager = activity.get()?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.showSoftInput(view, 2)
     }
 

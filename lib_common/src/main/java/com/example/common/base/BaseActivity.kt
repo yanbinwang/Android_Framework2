@@ -2,7 +2,6 @@ package com.example.common.base
 
 import android.app.Activity
 import android.content.Context
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
@@ -107,10 +106,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         closeDecor(view)
         Timer().schedule(object : TimerTask() {
             override fun run() {
-                (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(
-                    0,
-                    InputMethodManager.HIDE_NOT_ALWAYS
-                )
+                (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
             }
         }, 200)
         val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager

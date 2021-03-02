@@ -22,8 +22,8 @@ import java.text.MessageFormat
 class PermissionHelper(context: Context) {
     private val weakContext = WeakReference(context)
     private val permissionGroup = arrayOf(
-        Permission.Group.CAMERA, //拍摄照片，录制视频
-        Permission.Group.MICROPHONE, //录制音频(腾讯x5)
+        Permission.Group.CAMERA,//拍摄照片，录制视频
+        Permission.Group.MICROPHONE,//录制音频(腾讯x5)
         Permission.Group.STORAGE//访问照片。媒体。内容和文件
     )
     private var onPermissionCallBack: OnPermissionCallBack? = null
@@ -40,11 +40,11 @@ class PermissionHelper(context: Context) {
                 .runtime()
                 .permission(*groups)
                 .onGranted {
-                    // 权限申请成功回调
+                    //权限申请成功回调
                     onPermissionCallBack?.onPermissionListener(true)
                 }
                 .onDenied { permissions ->
-                    // 权限申请失败回调
+                    //权限申请失败回调
                     onPermissionCallBack?.onPermissionListener(false)
                     //提示参数
                     var result: String? = null
@@ -57,42 +57,25 @@ class PermissionHelper(context: Context) {
                             }
                         }
                         when (permissionIndex) {
-                            0 -> result =
-                                weakContext.get()?.getString(R.string.label_permissions_camera)
-                            1 -> result =
-                                weakContext.get()?.getString(R.string.label_permissions_microphone)
-                            2 -> result =
-                                weakContext.get()?.getString(R.string.label_permissions_storage)
+                            0 -> result = weakContext.get()?.getString(R.string.label_permissions_camera)
+                            1 -> result = weakContext.get()?.getString(R.string.label_permissions_microphone)
+                            2 -> result = weakContext.get()?.getString(R.string.label_permissions_storage)
                         }
                     }
 
                     //如果用户拒绝了开启权限
                     if (AndPermission.hasAlwaysDeniedPermission(weakContext.get(), permissions)) {
                         AndDialog.with(weakContext.get())
-                            .setParams(
-                                weakContext.get()?.getString(R.string.label_dialog_title),
-                                MessageFormat.format(
-                                    weakContext.get()?.getString(R.string.label_dialog_permission),
-                                    result
-                                ),
-                                weakContext.get()?.getString(R.string.label_dialog_sure),
-                                weakContext.get()?.getString(R.string.label_dialog_cancel)
-                            )
+                            .setParams(weakContext.get()?.getString(R.string.label_dialog_title), MessageFormat.format(weakContext.get()?.getString(R.string.label_dialog_permission), result), weakContext.get()?.getString(R.string.label_dialog_sure), weakContext.get()?.getString(R.string.label_dialog_cancel))
                             .setOnDialogListener(object : OnDialogListener {
                                 override fun onDialogConfirm() {
-                                    val packageURI =
-                                        Uri.parse("package:" + weakContext.get()?.packageName)
-                                    val intent =
-                                        Intent(
-                                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                            packageURI
-                                        )
+                                    val packageURI = Uri.parse("package:" + weakContext.get()?.packageName)
+                                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageURI)
                                     weakContext.get()?.startActivity(intent)
                                 }
 
                                 override fun onDialogCancel() {}
-                            })
-                            .show()
+                            }).show()
                     }
                 }.start()
         } else {

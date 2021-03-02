@@ -12,23 +12,27 @@ import java.util.concurrent.TimeUnit
  * retrofit单例
  */
 class RetrofitFactory private constructor() {
-    private val retrofit = Retrofit.Builder()
+    private val retrofit by lazy {
+        Retrofit.Builder()
             .client(OkHttpFactory.instance.okHttpClient)
             .baseUrl(BuildConfig.LOCALHOST)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
     //纯粹的网络请求，不加任何拦截
     private val retrofit2 by lazy {
         Retrofit.Builder()
-                .client(OkHttpClient.Builder()
-                        .connectTimeout(6, TimeUnit.SECONDS)//设置连接超时
-                        .writeTimeout(2, TimeUnit.HOURS)//设置写超时
-                        .readTimeout(2, TimeUnit.HOURS)//设置读超时
-                        .retryOnConnectionFailure(true)
-                        .build())
-                .baseUrl(BuildConfig.LOCALHOST)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
+            .client(
+                OkHttpClient.Builder()
+                    .connectTimeout(6, TimeUnit.SECONDS)//设置连接超时
+                    .writeTimeout(2, TimeUnit.HOURS)//设置写超时
+                    .readTimeout(2, TimeUnit.HOURS)//设置读超时
+                    .retryOnConnectionFailure(true)
+                    .build()
+            )
+            .baseUrl(BuildConfig.LOCALHOST)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
     }
 
     companion object {
