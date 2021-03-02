@@ -11,6 +11,7 @@ import com.example.common.utils.file.callback.OnDownloadListener
 import com.example.common.utils.file.factory.DownloadFactory
 import com.example.common.utils.helper.permission.OnPermissionCallBack
 import com.example.common.utils.helper.permission.PermissionHelper
+import com.example.common.widget.dialog.AndDialog
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.yanzhenjie.permission.runtime.Permission
@@ -70,38 +71,39 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
             R.id.btn_login -> navigation(ARouterPath.LoginActivity)
             R.id.btn_list -> navigation(ARouterPath.TestListActivity)
             R.id.btn_download -> {
-                PermissionHelper.with(context.get())
-                    .setPermissionCallBack(object : OnPermissionCallBack {
-                        override fun onPermissionListener(isGranted: Boolean) {
-                            if (isGranted) {
-                                val filePath = Constants.APPLICATION_FILE_PATH + "/安装包"
-                                val fileName = Constants.APPLICATION_NAME + ".apk"
-                                DownloadFactory.instance.download("https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk", filePath, fileName, object : OnDownloadListener {
-
-                                        override fun onStart() {
-                                            showDialog()
-                                        }
-
-                                        override fun onSuccess(path: String?) {
-
-                                        }
-
-                                        override fun onLoading(progress: Int) {
-                                            binding.tvDownload.text = progress.toString()
-                                        }
-
-                                        override fun onFailed(e: Throwable?) {
-
-                                        }
-
-                                        override fun onComplete() {
-                                            hideDialog()
-                                        }
-
-                                    })
-                            }
-                        }
-                    }).getPermissions(Permission.Group.STORAGE)
+                AndDialog.with(this).setParams("---","dsfsd","确定","取消").show()
+//                PermissionHelper.with(context.get())
+//                    .setPermissionCallBack(object : OnPermissionCallBack {
+//                        override fun onPermissionListener(isGranted: Boolean) {
+//                            if (isGranted) {
+//                                val filePath = Constants.APPLICATION_FILE_PATH + "/安装包"
+//                                val fileName = Constants.APPLICATION_NAME + ".apk"
+//                                DownloadFactory.instance.download("https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk", filePath, fileName, object : OnDownloadListener {
+//
+//                                        override fun onStart() {
+//                                            showDialog()
+//                                        }
+//
+//                                        override fun onSuccess(path: String?) {
+//
+//                                        }
+//
+//                                        override fun onLoading(progress: Int) {
+//                                            binding.tvDownload.text = progress.toString()
+//                                        }
+//
+//                                        override fun onFailed(e: Throwable?) {
+//
+//                                        }
+//
+//                                        override fun onComplete() {
+//                                            hideDialog()
+//                                        }
+//
+//                                    })
+//                            }
+//                        }
+//                    }).getPermissions(Permission.Group.STORAGE)
 //                PermissionHelper.with(context.get())
 //                    .getPermissions(Permission.Group.STORAGE)
 //                    .setPermissionCallBack(isGranted -> {
