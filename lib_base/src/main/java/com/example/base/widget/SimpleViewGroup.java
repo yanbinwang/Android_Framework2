@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 /**
  * 自定义控件继承viewgroup需要清除边距，使用当前类做处理
  */
-public class SimpleViewGroup extends ViewGroup {
+public abstract class SimpleViewGroup extends ViewGroup {
 
     public SimpleViewGroup(Context context) {
         super(context);
@@ -44,5 +44,18 @@ public class SimpleViewGroup extends ViewGroup {
             v.layout(0, 0, r, b);
         }
     }
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        if (getChildCount() <= 0) {
+            draw();
+        }
+    }
+
+    /**
+     * 容器在new的时候不会走onFinishInflate方法，需要手动调取
+     */
+    public abstract void draw();
 
 }

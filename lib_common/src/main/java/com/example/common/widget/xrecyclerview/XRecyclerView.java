@@ -55,10 +55,8 @@ public class XRecyclerView extends SimpleViewGroup {
         mTypedArray.recycle();
     }
 
-    //当view被手机绘制好的时候各个view方法的初始化
     @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
+    public void draw() {
         initRefreshType(refreshType);
     }
 
