@@ -69,7 +69,6 @@ public class XRecyclerView extends SimpleViewGroup {
                 dRv = view.findViewById(R.id.d_rv);
                 if (0 != emptyType) {
                     el = new EmptyLayout(getContext());
-
                     dRv.setEmptyView(el.setListView(dRv));
                     dRv.setHasFixedSize(true);
                     dRv.setItemAnimator(new DefaultItemAnimator());
@@ -142,8 +141,12 @@ public class XRecyclerView extends SimpleViewGroup {
         }
     }
 
+    public void hideEmpty() {
+        setEmptyVisibility(View.GONE);
+    }
+
     //类型1的时候才会显示
-    public void setVisibilityEmptyView(int visibility) {
+    public void setEmptyVisibility(int visibility) {
         if (refreshType == 1 && 0 != emptyType) {
             el.setVisibility(visibility);
         }
