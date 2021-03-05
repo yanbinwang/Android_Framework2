@@ -89,7 +89,7 @@ build_versions.minSdkVersion = 21//最低安装版本
 build_versions.targetSdkVersion = 28//最高安装版本
 build_versions.versionCode = 1//版本号
 build_versions.versionName = "1.0"//版本名
-build_versions.supportVersion = "1.0.0"//sdk版本
+//build_versions.supportVersion = "1.0.0"//sdk版本
 ext.build_versions = build_versions
 
 //基础参数配置

@@ -86,7 +86,7 @@ object FileUtil {
 
     //读取文件到文本（文本，找不到文件或读取错返回null）
     @JvmStatic
-    fun readText(filePath: String?): String? {
+    fun readText(filePath: String): String? {
         val f = File(filePath)
         if (f.exists()) {
             try {
@@ -106,9 +106,9 @@ object FileUtil {
 
     //获取文件大小
     @JvmStatic
-    fun getFileSize(file: File?): Long {
+    fun getFileSize(file: File): Long {
         var size: Long = 0
-        val fileList = file!!.listFiles()
+        val fileList = file.listFiles()
         for (mFile in fileList) {
             size = if (mFile.isDirectory) {
                 size + getFileSize(mFile)
@@ -148,7 +148,7 @@ object FileUtil {
                 Locale.getDefault()
             ).format(Date()) + ".png"
             val fileOutputStream = FileOutputStream(screenImagePath)
-            bitmap!!.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
+            bitmap?.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
             fileOutputStream.flush()
             fileOutputStream.close()
         } catch (ignored: java.lang.Exception) {
@@ -161,6 +161,22 @@ object FileUtil {
     @JvmStatic
     fun hasSDCard(): Boolean {
         return Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
+    }
+
+    //是否安装了XXX
+    @JvmStatic
+    fun isAvailable(context: Context, packageName: String): Boolean {
+        val packageManager = context.packageManager
+        val packageInfos = packageManager.getInstalledPackages(0)
+        if (packageInfos != null) {
+            for (i in packageInfos.indices) {
+                val pn = packageInfos[i].packageName
+                if (pn == packageName) {
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     //获取sdcard根目录
@@ -185,24 +201,8 @@ object FileUtil {
 
     //获取当前app的应用程序名称
     @JvmStatic
-    fun getApplicationId(context: Context?): String? {
-        return context?.packageName
-    }
-
-    //是否安装了XXX
-    @JvmStatic
-    fun isAvailable(context: Context, packageName: String): Boolean {
-        val packageManager = context.packageManager
-        val packageInfos = packageManager.getInstalledPackages(0)
-        if (packageInfos != null) {
-            for (i in packageInfos.indices) {
-                val pn = packageInfos[i].packageName
-                if (pn == packageName) {
-                    return true
-                }
-            }
-        }
-        return false
+    fun getApplicationId(context: Context): String? {
+        return context.packageName
     }
 
     //获取app的图标
@@ -217,7 +217,7 @@ object FileUtil {
                     if (drawable.opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
                 )
             )
-            val canvas = Canvas(bitmap.get())
+            val canvas = Canvas(bitmap.get()!!)
             //canvas.setBitmap(bitmap);
             drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
             drawable.draw(canvas)
@@ -229,7 +229,7 @@ object FileUtil {
 
     //获取安装跳转的行为
     @JvmStatic
-    private fun getSetupApk(context: Context, apkFilePath: String): Intent? {
+    private fun getSetupApk(context: Context, apkFilePath: String): Intent {
         val intent = Intent(Intent.ACTION_VIEW)
         //判断是否是AndroidN以及更高的版本
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
