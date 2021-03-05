@@ -57,9 +57,7 @@ public class XRecyclerView extends SimpleViewGroup {
 
     @Override
     public void draw() {
-        if (getChildCount() <= 0) {
-            initRefreshType(refreshType);
-        }
+        if (detectionInflate()) initRefreshType(refreshType);
     }
 
     private void initRefreshType(int refreshType) {
