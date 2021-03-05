@@ -48,9 +48,7 @@ public abstract class SimpleViewGroup extends ViewGroup {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        if (getChildCount() <= 0) {
-            draw();
-        }
+        draw();
     }
 
     /**

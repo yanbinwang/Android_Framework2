@@ -68,7 +68,9 @@ public class EmptyLayout extends SimpleViewGroup {
 
     @Override
     public void draw() {
-        addView(binding.getRoot());
+        if (getChildCount() <= 0) {
+            addView(binding.getRoot());
+        }
     }
 
     //设置列表所需的emptyview

@@ -31,9 +31,9 @@ import com.example.common.widget.xrecyclerview.refresh.callback.SwipeRefreshLayo
  */
 @SuppressLint("InflateParams")
 public class XRecyclerView extends SimpleViewGroup {
-    private EmptyLayout el;//自定义封装的空布局
-    private XRefreshLayout xRefresh;//刷新控件 类型1才有
-    private DetectionRecyclerView dRv;//数据列表
+    private EmptyLayout empty;//自定义封装的空布局
+    private XRefreshLayout refresh;//刷新控件 类型1才有
+    private DetectionRecyclerView recyclerView;//数据列表
     private OnEmptyClickListener onEmptyClickListener;//空布局点击
     private int refreshType, emptyType, refreshDirection;//页面类型(0无刷新-1带刷新)刷新类型（0顶部-1底部-2全部）是否具有空布局（0无-1有）
 
@@ -57,7 +57,9 @@ public class XRecyclerView extends SimpleViewGroup {
 
     @Override
     public void draw() {
-        initRefreshType(refreshType);
+        if (getChildCount() <= 0) {
+            initRefreshType(refreshType);
+        }
     }
 
     private void initRefreshType(int refreshType) {
@@ -66,13 +68,13 @@ public class XRecyclerView extends SimpleViewGroup {
             //不带刷新
             case 0:
                 view = LayoutInflater.from(getContext()).inflate(R.layout.view_xrecyclerview, null);
-                dRv = view.findViewById(R.id.d_rv);
+                recyclerView = view.findViewById(R.id.d_rv);
                 if (0 != emptyType) {
-                    el = new EmptyLayout(getContext());
-                    dRv.setEmptyView(el.setListView(dRv));
-                    dRv.setHasFixedSize(true);
-                    dRv.setItemAnimator(new DefaultItemAnimator());
-                    el.setOnEmptyRefreshListener(() -> {
+                    empty = new EmptyLayout(getContext());
+                    recyclerView.setEmptyView(empty.setListView(recyclerView));
+                    recyclerView.setHasFixedSize(true);
+                    recyclerView.setItemAnimator(new DefaultItemAnimator());
+                    empty.setOnEmptyRefreshListener(() -> {
                         if (null != onEmptyClickListener) {
                             onEmptyClickListener.onClickListener();
                         }
@@ -82,31 +84,31 @@ public class XRecyclerView extends SimpleViewGroup {
             //带刷新
             case 1:
                 view = LayoutInflater.from(getContext()).inflate(R.layout.view_xrecyclerview_refresh, null);
-                el = view.findViewById(R.id.el);
-                xRefresh = view.findViewById(R.id.x_refresh);
-                dRv = view.findViewById(R.id.d_rv);
+                empty = view.findViewById(R.id.el);
+                refresh = view.findViewById(R.id.x_refresh);
+                recyclerView = view.findViewById(R.id.d_rv);
                 //设置刷新的方式，默认上下皆有
                 switch (refreshDirection) {
                     case 0:
-                        xRefresh.setDirection(SwipeRefreshLayoutDirection.TOP);
+                        refresh.setDirection(SwipeRefreshLayoutDirection.TOP);
                         break;
                     case 1:
-                        xRefresh.setDirection(SwipeRefreshLayoutDirection.BOTTOM);
+                        refresh.setDirection(SwipeRefreshLayoutDirection.BOTTOM);
                         break;
                     case 2:
-                        xRefresh.setDirection(SwipeRefreshLayoutDirection.BOTH);
+                        refresh.setDirection(SwipeRefreshLayoutDirection.BOTH);
                         break;
                 }
-                dRv.setHasFixedSize(true);
-                dRv.setItemAnimator(new DefaultItemAnimator());
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setItemAnimator(new DefaultItemAnimator());
                 if (0 != emptyType) {
-                    el.setOnEmptyRefreshListener(() -> {
+                    empty.setOnEmptyRefreshListener(() -> {
                         if (null != onEmptyClickListener) {
                             onEmptyClickListener.onClickListener();
                         }
                     });
                 } else {
-                    el.setVisibility(View.GONE);
+                    empty.setVisibility(View.GONE);
                 }
                 break;
         }
@@ -116,28 +118,28 @@ public class XRecyclerView extends SimpleViewGroup {
     //当数据正在加载的时候显示
     public void showLoading() {
         if (0 != emptyType) {
-            el.showLoading();
+            empty.showLoading();
         }
     }
 
     //当数据为空时(显示需要显示的图片，以及内容字)
     public void showEmpty() {
         if (0 != emptyType) {
-            el.showEmpty();
+            empty.showEmpty();
         }
     }
 
     //当数据为空时(显示需要显示的图片，以及内容字)---传入图片
     public void showEmpty(int imgInt, String emptyStr) {
         if (0 != emptyType) {
-            el.showEmpty(imgInt, emptyStr);
+            empty.showEmpty(imgInt, emptyStr);
         }
     }
 
     //当数据错误时（没有网络）
     public void showError() {
         if (0 != emptyType) {
-            el.showError();
+            empty.showError();
         }
     }
 
@@ -148,30 +150,30 @@ public class XRecyclerView extends SimpleViewGroup {
     //类型1的时候才会显示
     public void setEmptyVisibility(int visibility) {
         if (refreshType == 1 && 0 != emptyType) {
-            el.setVisibility(visibility);
+            empty.setVisibility(visibility);
         }
     }
 
     //设置禁止刷新
     public void finishRefreshing() {
         if (refreshType == 1) {
-            xRefresh.finishRefreshing();
+            refresh.finishRefreshing();
         }
     }
 
     //修改背景颜色
     public void setEmptyBackgroundColor(int color) {
-        el.setBackgroundColor(color);
+        empty.setBackgroundColor(color);
     }
 
     //选择下标
     public void scrollToPosition(int position) {
-        dRv.scrollToPosition(position);
+        recyclerView.scrollToPosition(position);
     }
 
     //获取空布局
     public EmptyLayout getEmptyView() {
-        return el;
+        return empty;
     }
 
     //添加分隔线
@@ -179,12 +181,12 @@ public class XRecyclerView extends SimpleViewGroup {
         SparseArray<SCommonItemDecoration.ItemDecorationProps> propMap = new SparseArray<>();
         SCommonItemDecoration.ItemDecorationProps prop1 = new SCommonItemDecoration.ItemDecorationProps(DisplayUtil.dip2px(getContext(), horizontalSpace), DisplayUtil.dip2px(getContext(), verticalSpace), hasHorizontalEdge, hasVerticalEdge);
         propMap.put(0, prop1);
-        dRv.addItemDecoration(new SCommonItemDecoration(propMap));
+        recyclerView.addItemDecoration(new SCommonItemDecoration(propMap));
     }
 
     //返回页面整体
     public DetectionRecyclerView getRecyclerView() {
-        return dRv;
+        return recyclerView;
     }
 
     //空布局刷新
@@ -195,19 +197,19 @@ public class XRecyclerView extends SimpleViewGroup {
     //刷新页面刷新
     public void setOnXRefreshTopListener(OnXRefreshTopListener onXRefreshTopListener) {
         if (refreshType == 1) {
-            xRefresh.setOnRefreshListener(onXRefreshTopListener);
+            refresh.setOnRefreshListener(onXRefreshTopListener);
         }
     }
 
     public void setOnXRefreshBottomListener(OnXRefreshBottomListener onXRefreshBottomListener) {
         if (refreshType == 1) {
-            xRefresh.setOnRefreshListener(onXRefreshBottomListener);
+            refresh.setOnRefreshListener(onXRefreshBottomListener);
         }
     }
 
     public void setOnXRefreshListener(OnXRefreshListener onXRefreshListener) {
         if (refreshType == 1) {
-            xRefresh.setOnRefreshListener(onXRefreshListener);
+            refresh.setOnRefreshListener(onXRefreshListener);
         }
     }
 
