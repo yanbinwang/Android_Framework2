@@ -2,6 +2,7 @@ package com.example.common.base
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Resources
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
@@ -24,6 +25,7 @@ import com.example.common.constant.Constants
 import com.example.common.constant.Extras
 import com.example.common.utils.builder.StatusBarBuilder
 import com.example.common.widget.dialog.LoadingDialog
+import me.jessyan.autosize.AutoSizeCompat
 import java.io.Serializable
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
@@ -190,6 +192,12 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun onDestroy() {
         super.onDestroy()
         binding.unbind()
+    }
+
+    override fun getResources(): Resources {
+        AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
+        AutoSizeCompat.autoConvertDensity(super.getResources(), 750f, true)
+        return super.getResources()
     }
     // </editor-fold>
 
