@@ -15,11 +15,20 @@ abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
     private val baseBinding by lazy { ActivityBaseBinding.inflate(layoutInflater) }
     protected val titleBuilder by lazy { TitleBuilder(this, baseBinding.titleContainer) } //标题栏
     protected val emptyLayout by lazy { EmptyLayout(this) }
+    protected var drawEmpty = false
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun setContentView(view: View?) {
         baseBinding.flBaseContainer.addView(binding.root)
         super.setContentView(baseBinding.root)
+    }
+
+    override fun initView() {
+        super.initView()
+        //不需要的界面手动关闭，看UI设计
+        if (drawEmpty) {
+            showLoading()
+        }
     }
 
     protected fun showLoading() {
