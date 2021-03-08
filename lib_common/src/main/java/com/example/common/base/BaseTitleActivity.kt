@@ -11,7 +11,7 @@ import com.example.common.utils.builder.TitleBuilder
  * 带标题的基类，将整一个xml插入容器
  */
 abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
-    private val baseBinding by lazy { ActivityBaseBinding.inflate(layoutInflater) }
+    protected val baseBinding by lazy { ActivityBaseBinding.inflate(layoutInflater) }
     protected val titleBuilder by lazy { TitleBuilder(this, baseBinding.titleContainer) } //标题栏
     protected val emptyLayout by lazy { PageHandler.getEmpty(baseBinding.flBaseContainer) }
 
