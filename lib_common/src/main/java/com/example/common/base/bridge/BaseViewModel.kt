@@ -1,9 +1,12 @@
 package com.example.common.base.bridge
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.view.View
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
+import com.example.common.widget.empty.EmptyLayout
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 
@@ -13,16 +16,31 @@ import java.lang.ref.WeakReference
  * 注入BaseView，LifecycleOwner，开发的时候可以随时存取和调用基类Activity的基础控件和方法
  * LifecycleObserver-->观察宿主的生命周期
  */
+@SuppressLint("StaticFieldLeak")
 abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     private var weakActivity: WeakReference<Activity>? = null//引用的activity
     private var weakContext: WeakReference<Context>? = null//引用的context
     private var softView: SoftReference<BaseView>? = null//基础UI操作
+    private var emptyLayout: EmptyLayout? = null
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: Activity?, context: Context?, view: BaseView?) {
         this.weakActivity = WeakReference(activity)
         this.weakContext = WeakReference(context)
         this.softView = SoftReference(view)
+    }
+
+    protected fun addEmptyLayout(emptyLayout: EmptyLayout?) {
+        this.emptyLayout = emptyLayout
+        showEmptyLayout()
+    }
+
+    protected fun showEmptyLayout() {
+        emptyLayout?.showLoading()
+    }
+
+    protected fun hideEmptyLayout() {
+        emptyLayout?.visibility = View.GONE
     }
 
     protected fun getActivity() = weakActivity?.get()
