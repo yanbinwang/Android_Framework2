@@ -2,6 +2,7 @@ package com.example.common.base
 
 import android.view.View
 import androidx.databinding.ViewDataBinding
+import com.example.common.base.page.PageHandler
 import com.example.common.databinding.ActivityBaseBinding
 import com.example.common.utils.builder.TitleBuilder
 import com.example.common.widget.empty.EmptyLayout
@@ -34,6 +35,11 @@ abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
     protected fun showError() {
         initialize()
         emptyLayout.showError()
+    }
+
+    protected fun setEmptyState(msg: String?, resId: Int = -1, emptyText: String = "") {
+        initialize()
+        PageHandler.setEmptyState(emptyLayout, msg, resId, emptyText)
     }
 
     protected fun hideEmpty() {
