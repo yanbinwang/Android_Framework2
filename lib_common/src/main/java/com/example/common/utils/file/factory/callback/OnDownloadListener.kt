@@ -1,4 +1,4 @@
-package com.example.common.utils.file.callback
+package com.example.common.utils.file.factory.callback
 
 /**
  * Created by WangYanBin on 2020/6/1.

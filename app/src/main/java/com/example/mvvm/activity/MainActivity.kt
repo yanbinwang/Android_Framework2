@@ -7,11 +7,10 @@ import com.example.common.bus.LiveDataBus
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
-import com.example.common.utils.file.callback.OnDownloadListener
+import com.example.common.utils.file.factory.callback.OnDownloadListener
 import com.example.common.utils.file.factory.DownloadFactory
 import com.example.common.utils.helper.permission.OnPermissionCallBack
 import com.example.common.utils.helper.permission.PermissionHelper
-import com.example.common.widget.dialog.AndDialog
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.yanzhenjie.permission.runtime.Permission

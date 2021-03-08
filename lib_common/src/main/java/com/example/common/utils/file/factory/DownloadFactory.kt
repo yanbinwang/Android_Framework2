@@ -4,7 +4,7 @@ import com.example.common.http.repository.ResourceSubscriber
 import com.example.common.http.repository.call
 import com.example.common.subscribe.CommonSubscribe.getDownloadApi
 import com.example.common.utils.file.FileUtil
-import com.example.common.utils.file.callback.OnDownloadListener
+import com.example.common.utils.file.factory.callback.OnDownloadListener
 import kotlinx.coroutines.*
 import okhttp3.ResponseBody
 import java.io.File

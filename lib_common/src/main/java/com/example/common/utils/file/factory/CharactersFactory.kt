@@ -2,7 +2,7 @@ package com.example.common.utils.file.factory
 
 import android.os.Looper
 import com.example.common.utils.file.FileUtil
-import com.example.common.utils.file.callback.OnDownloadListener
+import com.example.common.utils.file.factory.callback.OnDownloadListener
 import com.example.common.utils.handler.WeakHandler
 import okhttp3.*
 import java.io.File
