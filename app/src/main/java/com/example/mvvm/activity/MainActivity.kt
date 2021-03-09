@@ -28,6 +28,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
     override fun initView() {
         super.initView()
         titleBuilder.setTitle("10086").getDefault()
+
 //        it指代titleBuilder类,let函数返回最后一行方法的值，想返回对象用also，不想写it可以用run函数，返回最后引用的方法的那个值，apply函数可以返回对象本身
 //        titleBuilder.let {
 //            it.setTitle("10086")
