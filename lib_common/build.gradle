@@ -75,4 +75,5 @@ dependencies {
     api deps.mmkv
     api deps.adapterhelper
     api deps.recovery
+    api deps.guide
 }
