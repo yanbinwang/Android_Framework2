@@ -1,6 +1,7 @@
 package com.example.common.utils.helper
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
@@ -13,7 +14,11 @@ import android.util.DisplayMetrics
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import com.app.hubert.guide.NewbieGuide
+import com.app.hubert.guide.model.GuidePage
 import com.example.common.constant.Constants
+import com.tencent.mmkv.MMKV
+import java.lang.ref.WeakReference
 import java.net.Inet4Address
 import java.net.NetworkInterface
 import java.net.SocketException
@@ -25,6 +30,7 @@ import java.util.*
  */
 @SuppressLint("MissingPermission", "HardwareIds", "StaticFieldLeak")
 object ConfigHelper {
+    private val mmkv by lazy { MMKV.defaultMMKV() }
     private var context: Context? = null
 
     fun initialize(application: Application) {
@@ -50,6 +56,31 @@ object ConfigHelper {
         Constants.VERSION_NAME = getAppVersionName()
         //获取应用名。包名。默认保存文件路径
         Constants.APPLICATION_FILE_PATH = Constants.SDCARD_PATH + "/" + Constants.APPLICATION_NAME
+    }
+
+    //遮罩引导
+    fun showGuide(activity: Activity, label: String, vararg pages: GuidePage) {
+        if (!obtainBehavior(label)) {
+            storageBehavior(label, true)
+            val weakActivity = WeakReference(activity)
+            val builder = NewbieGuide.with(weakActivity.get())//传入activity
+                .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
+                .alwaysShow(true)
+            for (page in pages) {
+                builder.addGuidePage(page)
+            }
+            builder.show()
+        }
+    }
+
+    //获取当前标签的行为-是否第一次启动，是否进入引导页等，针对用户的行为在用户类中单独管理
+    fun obtainBehavior(label: String): Boolean {
+        return mmkv.decodeBool(label, false)
+    }
+
+    //存储当前想标签行为
+    fun storageBehavior(label: String, value: Boolean): Boolean {
+        return mmkv.encode(label, value)
     }
 
     //模拟触屏点击屏幕事件

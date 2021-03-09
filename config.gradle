@@ -31,6 +31,7 @@ versions.autosize = "1.2.1"
 versions.mmkv = "1.2.2"
 versions.adapterhelper = "3.0.4"
 versions.recovery = "1.0.0"
+versions.guide = "v2.4.0"
 
 //安卓x库
 def androidx = [:]
@@ -79,6 +80,7 @@ deps.autosize = "me.jessyan:autosize:$versions.autosize"//今日头条布局兼�
 deps.mmkv = "com.tencent:mmkv-static:$versions.mmkv"//腾讯读写库
 deps.adapterhelper = "com.github.CymChad:BaseRecyclerViewAdapterHelper:$versions.adapterhelper"//封装的适配器
 deps.recovery = "com.zxy.android:recovery:$versions.recovery"//闪退抓捕
+deps.guide = "com.github.huburt-Hu:NewbieGuide:$versions.guide"//遮罩引导
 ext.deps = deps
 //---------------------------------------------全局引用配置结束---------------------------------------------
 
