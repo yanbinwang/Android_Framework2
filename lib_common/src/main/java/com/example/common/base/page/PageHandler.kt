@@ -17,6 +17,19 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
  */
 object PageHandler {
     /**
+     * 提示方法，根据接口返回的msg提示
+     */
+    @JvmStatic
+    fun doResponse(msg: String?) {
+        var str = msg
+        val context = BaseApplication.instance?.applicationContext!!
+        if (TextUtils.isEmpty(str)) {
+            str = context.getString(R.string.label_response_err)
+        }
+        mackToastSHORT(if (!isNetworkAvailable()) context.getString(R.string.label_response_net_err) else str!!, context)
+    }
+
+    /**
      * 详情页调取方法
      */
     @JvmStatic
@@ -87,19 +100,6 @@ object PageHandler {
     @JvmStatic
     fun getEmptyView(xRecyclerView: XRecyclerView): EmptyLayout {
         return xRecyclerView.emptyView
-    }
-
-    /**
-     * 提示方法，根据接口返回的msg提示
-     */
-    @JvmStatic
-    fun doResponse(msg: String?) {
-        var str = msg
-        val context = BaseApplication.instance?.applicationContext!!
-        if (TextUtils.isEmpty(str)) {
-            str = context.getString(R.string.label_response_err)
-        }
-        mackToastSHORT(if (!isNetworkAvailable()) context.getString(R.string.label_response_net_err) else str!!, context)
     }
 
 }
