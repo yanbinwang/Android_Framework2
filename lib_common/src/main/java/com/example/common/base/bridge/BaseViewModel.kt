@@ -7,8 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
-import com.example.common.base.page.getEmpty
-import com.example.common.base.page.getListEmpty
+import com.example.common.base.page.PageHandler
 import com.example.common.widget.empty.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import java.lang.ref.SoftReference
@@ -35,15 +34,17 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
         this.softView = SoftReference(view)
     }
 
-    fun addEmptyView(container: ViewGroup) {
-        this.softEmpty = SoftReference(container.context.getEmpty(container))
+    fun addEmptyView(container: ViewGroup):EmptyLayout {
+        this.softEmpty = SoftReference(PageHandler.getEmpty(container))
         showEmptyView()
+        return softEmpty?.get()!!
     }
 
-    fun addEmptyView(xRecyclerView: XRecyclerView) {
-        this.softEmpty = SoftReference(xRecyclerView.context.getListEmpty(xRecyclerView))
+    fun addEmptyView(xRecyclerView: XRecyclerView):EmptyLayout {
+        this.softEmpty = SoftReference(PageHandler.getListEmpty(xRecyclerView))
         this.softRecycler = SoftReference(xRecyclerView)
         showEmptyView()
+        return softEmpty?.get()!!
     }
 
     protected fun showEmptyView() {
