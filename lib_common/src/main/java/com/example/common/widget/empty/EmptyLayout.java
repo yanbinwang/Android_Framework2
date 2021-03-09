@@ -32,8 +32,8 @@ import com.example.common.databinding.ViewEmptyBinding;
 public class EmptyLayout extends SimpleViewGroup {
     private ViewEmptyBinding binding;
     private OnEmptyRefreshListener onEmptyRefreshListener;
-    private final String EMPTY_TXT = "没有数据";//数据为空时的内容
-    private final String ERROR_TXT = "没有网络";//数据加载失败的内容
+    private static final String EMPTY_TXT = "没有数据";//数据为空时的内容
+    private static final String ERROR_TXT = "没有网络";//数据加载失败的内容
 
     public EmptyLayout(Context context) {
         super(context);
@@ -103,11 +103,7 @@ public class EmptyLayout extends SimpleViewGroup {
             binding.ivEmpty.setImageResource(resId);
         }
         binding.tvEmpty.setVisibility(View.VISIBLE);
-        if (TextUtils.isEmpty(emptyText)) {
-            binding.tvEmpty.setText(EMPTY_TXT);
-        } else {
-            binding.tvEmpty.setText(emptyText);
-        }
+        binding.tvEmpty.setText(TextUtils.isEmpty(emptyText) ? EMPTY_TXT : emptyText);
         binding.tvRefresh.setVisibility(View.VISIBLE);
     }
 
