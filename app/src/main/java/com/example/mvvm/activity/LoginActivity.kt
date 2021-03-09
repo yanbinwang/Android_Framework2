@@ -1,6 +1,5 @@
 package com.example.mvvm.activity
 
-import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseTitleActivity
 import com.example.common.base.page.PageParams

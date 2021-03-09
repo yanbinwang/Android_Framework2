@@ -5,35 +5,27 @@ package com.example.common.base.page
  * 应用于刷新页面页数操作
  */
 class PageList {
-    private var index: Int = 1//当前页数
-    private var hasRefresh: Boolean? = false//是否刷新
-    private var hasNextPage: Boolean? = false//是否有下一页
+    var totalCount = 0//服务器数组总数
+    var currentCount = 0//当前页面数组数
+    var page = 1//当前页数
+    var hasRefresh = false//是否刷新
+
+    //是否需要加载更多
+    fun hasNextPage(): Boolean {
+        return currentCount < totalCount
+    }
 
     //刷新清空
     fun onRefresh() {
         hasRefresh = true
-        index = 1
-    }
-
-    //设置是否需要加载更多
-    fun hasNextPage(hasNextPage: Boolean?) {
-        this.hasNextPage = hasNextPage
-    }
-
-    fun hasRefresh(): Boolean {
-        return hasRefresh!!
-    }
-
-    //获取当前的数组长度
-    fun getIndex(): Int {
-        return index
+        page = 1
     }
 
     //加载更多
     fun onLoad(): Boolean {
-        return if (hasNextPage!!) {
+        return if (hasNextPage()) {
             hasRefresh = false
-            ++index
+            ++page
             true
         } else {
             false

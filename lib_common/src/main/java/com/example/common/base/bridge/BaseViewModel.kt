@@ -4,9 +4,12 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
+import com.example.common.base.page.PageHandler
 import com.example.common.widget.empty.EmptyLayout
+import com.example.common.widget.xrecyclerview.XRecyclerView
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 
@@ -21,6 +24,8 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     private var weakActivity: WeakReference<Activity>? = null//引用的activity
     private var weakContext: WeakReference<Context>? = null//引用的context
     private var softView: SoftReference<BaseView>? = null//基础UI操作
+    private var softEmpty: SoftReference<EmptyLayout>? = null
+    private var softRecycler: SoftReference<XRecyclerView>? = null
     private var emptyLayout: EmptyLayout? = null
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
@@ -30,17 +35,24 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
         this.softView = SoftReference(view)
     }
 
-    protected fun addEmptyLayout(emptyLayout: EmptyLayout?) {
-        this.emptyLayout = emptyLayout
-        showEmptyLayout()
+    fun addEmptyView(container: ViewGroup) {
+        this.softEmpty = SoftReference(PageHandler.getEmpty(container))
+        showEmptyView()
     }
 
-    protected fun showEmptyLayout() {
-        emptyLayout?.showLoading()
+    fun addEmptyView(xRecyclerView: XRecyclerView) {
+        this.softEmpty = SoftReference(PageHandler.getListEmpty(xRecyclerView))
+        this.softRecycler = SoftReference(xRecyclerView)
+        showEmptyView()
     }
 
-    protected fun hideEmptyLayout() {
-        emptyLayout?.visibility = View.GONE
+    protected fun showEmptyView() {
+        softEmpty?.get()?.showLoading()
+    }
+
+    protected fun hideEmptyView() {
+        softRecycler?.get()?.finishRefreshing()
+        softEmpty?.get()?.visibility = View.GONE
     }
 
     protected fun getActivity() = weakActivity?.get()
@@ -49,11 +61,17 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
 
     protected fun getView() = softView?.get()
 
+    protected fun getEmpty() = softEmpty?.get()
+
+    protected fun getRecycler() = softRecycler?.get()
+
     override fun onCleared() {
         super.onCleared()
         weakActivity?.clear()
         weakContext?.clear()
         softView?.clear()
+        softEmpty?.clear()
+        softRecycler?.clear()
     }
     // </editor-fold>
 
