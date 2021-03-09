@@ -24,8 +24,8 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     private var weakActivity: WeakReference<Activity>? = null//引用的activity
     private var weakContext: WeakReference<Context>? = null//引用的context
     private var softView: SoftReference<BaseView>? = null//基础UI操作
-    private var softEmpty: SoftReference<EmptyLayout>? = null
-    private var softRecycler: SoftReference<XRecyclerView>? = null
+    private var softEmpty: SoftReference<EmptyLayout>? = null//遮罩UI
+    private var softRecycler: SoftReference<XRecyclerView>? = null//列表UI
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: Activity?, context: Context?, view: BaseView?) {
@@ -34,17 +34,15 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
         this.softView = SoftReference(view)
     }
 
-    fun addEmptyView(container: ViewGroup):EmptyLayout {
-        this.softEmpty = SoftReference(PageHandler.getEmpty(container))
+    fun addEmptyView(container: ViewGroup) {
+        this.softEmpty = SoftReference(PageHandler.getEmptyView(container))
         showEmptyView()
-        return softEmpty?.get()!!
     }
 
-    fun addEmptyView(xRecyclerView: XRecyclerView):EmptyLayout {
-        this.softEmpty = SoftReference(PageHandler.getListEmpty(xRecyclerView))
+    fun addEmptyView(xRecyclerView: XRecyclerView) {
+        this.softEmpty = SoftReference(PageHandler.getEmptyView(xRecyclerView))
         this.softRecycler = SoftReference(xRecyclerView)
         showEmptyView()
-        return softEmpty?.get()!!
     }
 
     protected fun showEmptyView() {

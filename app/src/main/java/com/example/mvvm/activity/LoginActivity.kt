@@ -2,10 +2,12 @@ package com.example.mvvm.activity
 
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseTitleActivity
+import com.example.common.base.page.PageHandler
 import com.example.common.base.page.PageParams
 import com.example.common.base.proxy.SimpleTextWatcher
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Extras
+import com.example.common.widget.empty.OnEmptyRefreshListener
 import com.example.mvvm.bridge.LoginViewModel
 import com.example.mvvm.databinding.ActivityLoginBinding
 
@@ -20,6 +22,8 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
     override fun initView() {
         super.initView()
         titleBuilder.setTitle("登录").getDefault()
+
+//        viewModel.addEmptyView(baseBinding.flBaseContainer)
     }
 
     override fun initEvent() {
@@ -34,6 +38,12 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
             }
 
         }, binding.etAccount, binding.etPassword)
+
+        PageHandler.getEmptyView(baseBinding.flBaseContainer).setOnEmptyRefreshListener(object : OnEmptyRefreshListener{
+            override fun onRefreshListener() {
+                showToast("我点")
+            }
+        })
 
         binding.btnLogin.setOnClickListener {
             viewModel.login(getParameters(binding.etAccount), getParameters(binding.etPassword))
