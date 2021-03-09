@@ -7,7 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
-import com.example.common.base.page.PageHandler
+import com.example.common.base.page.getEmpty
+import com.example.common.base.page.getListEmpty
 import com.example.common.widget.empty.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import java.lang.ref.SoftReference
@@ -26,7 +27,6 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     private var softView: SoftReference<BaseView>? = null//基础UI操作
     private var softEmpty: SoftReference<EmptyLayout>? = null
     private var softRecycler: SoftReference<XRecyclerView>? = null
-    private var emptyLayout: EmptyLayout? = null
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: Activity?, context: Context?, view: BaseView?) {
@@ -36,12 +36,12 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     }
 
     fun addEmptyView(container: ViewGroup) {
-        this.softEmpty = SoftReference(PageHandler.getEmpty(container))
+        this.softEmpty = SoftReference(container.context.getEmpty(container))
         showEmptyView()
     }
 
     fun addEmptyView(xRecyclerView: XRecyclerView) {
-        this.softEmpty = SoftReference(PageHandler.getListEmpty(xRecyclerView))
+        this.softEmpty = SoftReference(xRecyclerView.context.getListEmpty(xRecyclerView))
         this.softRecycler = SoftReference(xRecyclerView)
         showEmptyView()
     }
