@@ -1,4 +1,4 @@
-package com.example.base.utils
+package com.dataqin.base.utils
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -13,7 +13,7 @@ object ClipboardUtil {
     fun putTextIntoClip(context: Context, label: String, text: String) {
         val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         //添加ClipData对象到剪切板中
-        clipboardManager.setPrimaryClip(ClipData.newPlainText(label, text))
+        clipboardManager.primaryClip = ClipData.newPlainText(label, text)
         if (clipboardManager.hasPrimaryClip()) {
             clipboardManager.primaryClip?.getItemAt(0)?.text
         }

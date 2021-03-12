@@ -1,6 +1,7 @@
-package com.example.base.utils
+package com.dataqin.base.utils
 
 import android.text.TextUtils
+import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.util.regex.Pattern
@@ -88,6 +89,33 @@ object StringUtil {
         val decimalFormat = DecimalFormat("0.$format")
         decimalFormat.roundingMode = RoundingMode.DOWN
         return decimalFormat.format(value)
+    }
+
+    //获取对应大小的文字
+    @JvmStatic
+    fun getFormatSize(size: Double): String {
+        val byteResult = size / 1024
+        if (byteResult < 1) {
+//            return size + "Byte";
+            return "<1K"
+        }
+        val kiloByteResult = byteResult / 1024
+        if (kiloByteResult < 1) {
+            val result1 = BigDecimal(byteResult.toString())
+            return result1.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "K"
+        }
+        val mByteResult = kiloByteResult / 1024
+        if (mByteResult < 1) {
+            val result2 = BigDecimal(kiloByteResult.toString())
+            return result2.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "M"
+        }
+        val gigaByteResult = mByteResult / 1024
+        if (gigaByteResult < 1) {
+            val result3 = BigDecimal(mByteResult.toString())
+            return result3.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "GB"
+        }
+        val teraByteResult = BigDecimal(gigaByteResult)
+        return (teraByteResult.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "TB")
     }
 
     //返回密码强度
