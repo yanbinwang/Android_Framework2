@@ -28,21 +28,23 @@ object FragmentHelper {
 
     @JvmStatic
     fun showFragment(tabNum: Int, load: Boolean = false) {
-        //commit只能提交一次，所以每次都需要重新实例化
-        val fragmentManager = weakActivity?.get()?.supportFragmentManager!!
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        if (load) {
-            for (i in fragmentList.indices) {
-                fragmentTransaction.add(containerViewId, fragmentList[i])
+        if (fragmentList.size > tabNum) {
+            //commit只能提交一次，所以每次都需要重新实例化
+            val fragmentManager = weakActivity?.get()?.supportFragmentManager!!
+            val fragmentTransaction = fragmentManager.beginTransaction()
+            if (load) {
+                for (i in fragmentList.indices) {
+                    fragmentTransaction.add(containerViewId, fragmentList[i])
+                }
             }
+            //全部隱藏后显示指定的页面
+            for (fragment in fragmentList) {
+                fragmentTransaction.hide(fragment)
+            }
+            fragmentTransaction.show(fragmentList[tabNum])
+            fragmentTransaction.commitAllowingStateLoss()
+            onTabClickListener?.onTabClickListener(tabNum)
         }
-        //全部隱藏后显示指定的页面
-        for (fragment in fragmentList) {
-            fragmentTransaction.hide(fragment)
-        }
-        fragmentTransaction.show(fragmentList[tabNum])
-        fragmentTransaction.commitAllowingStateLoss()
-        onTabClickListener?.onTabClickListener(tabNum)
     }
 
     interface OnTabClickListener {
