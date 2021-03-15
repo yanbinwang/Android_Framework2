@@ -17,7 +17,7 @@ object FragmentHelper {
     var onTabClickListener: OnTabClickListener? = null
 
     @JvmStatic
-    fun initialize(activity: AppCompatActivity, containerViewId: Int, fragmentList: ArrayList<Fragment>, isDark: Boolean = true, tabNum: Int = 0) {
+    fun initialize(activity: AppCompatActivity, containerViewId: Int, fragmentList: ArrayList<Fragment>, tabNum: Int = 0, isDark: Boolean = true) {
         this.weakActivity = WeakReference(activity)
         this.containerViewId = containerViewId
         this.fragmentList = fragmentList
