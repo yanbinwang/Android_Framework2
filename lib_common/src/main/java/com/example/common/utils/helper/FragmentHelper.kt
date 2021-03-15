@@ -12,17 +12,15 @@ import java.lang.ref.WeakReference
  */
 object FragmentHelper {
     private var containerViewId = 0
-    private var tagList = ArrayList<String>()
     private var fragmentList = ArrayList<Fragment>()
     private var weakActivity: WeakReference<AppCompatActivity>? = null
     var onTabClickListener: OnTabClickListener? = null
 
     @JvmStatic
-    fun initialize(activity: AppCompatActivity, containerViewId: Int, tagList: Array<String>, fragmentList: ArrayList<Fragment>, isDark: Boolean = true, tabNum: Int = 0) {
-        weakActivity = WeakReference(activity)
-        FragmentHelper.containerViewId = containerViewId
-        FragmentHelper.tagList = tagList.toList() as ArrayList<String>
-        FragmentHelper.fragmentList = fragmentList
+    fun initialize(activity: AppCompatActivity, containerViewId: Int, fragmentList: ArrayList<Fragment>, isDark: Boolean = true, tabNum: Int = 0) {
+        this.weakActivity = WeakReference(activity)
+        this.containerViewId = containerViewId
+        this.fragmentList = fragmentList
         //默认选中下标以及导航栏颜色
         StatusBarBuilder(activity).setTransparent(isDark)
         showFragment(tabNum, true)
@@ -35,7 +33,7 @@ object FragmentHelper {
         val fragmentTransaction = fragmentManager.beginTransaction()
         if (load) {
             for (i in fragmentList.indices) {
-                fragmentTransaction.add(containerViewId, fragmentList[i], tagList[i])
+                fragmentTransaction.add(containerViewId, fragmentList[i])
             }
         }
         //全部隱藏后显示指定的页面
