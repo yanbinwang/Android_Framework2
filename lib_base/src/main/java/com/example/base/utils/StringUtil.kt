@@ -1,4 +1,4 @@
-package com.dataqin.base.utils
+package com.example.base.utils
 
 import android.text.TextUtils
 import java.math.BigDecimal
@@ -12,6 +12,9 @@ import java.util.regex.Pattern
  */
 object StringUtil {
 
+    /**
+     * 如果值为空，展示默认值
+     */
     @JvmStatic
     fun processedString(source: String?, defaultStr: String?): String {
         return if (source == null) {
@@ -25,7 +28,9 @@ object StringUtil {
         }
     }
 
-    //提取链接中的参数
+    /**
+     * 提取链接中的参数
+     */
     @JvmStatic
     fun getValueByName(url: String, name: String): String {
         var result = ""
@@ -41,11 +46,13 @@ object StringUtil {
         return result
     }
 
-    //隐藏手机号码的中间4位
+    /**
+     * 隐藏手机号码的中间4位
+     */
     @JvmStatic
     fun hide4BitLetter(input: String): String {
         var result = ""
-        if (isMobilePhone(input)) {
+        if (isMobile(input)) {
             val ch = input.toCharArray()
             for (index in ch.indices) {
                 if (index in 3..6) {
@@ -60,22 +67,20 @@ object StringUtil {
         return result
     }
 
-    //验证手机号
+    /**
+     * 验证手机号
+     */
     @JvmStatic
-    fun isMobilePhone(strMobilePhone: String): Boolean {
+    fun isMobile(strMobilePhone: String): Boolean {
         val result: Boolean
         val patternString = "^1[0-9]{10}$"
         result = Pattern.matches(patternString, strMobilePhone)
         return result
     }
 
-    //获取系统时间
-    @JvmStatic
-    fun getTimeStamp(): String {
-        return (System.currentTimeMillis() / 1000).toString()
-    }
-
-    //截取小数点后X位
+    /**
+     * 截取小数点后X位
+     */
     @JvmStatic
     fun getFormat(doubleValue: String, decimalPlace: Int): String {
         if (TextUtils.isEmpty(doubleValue)) {
@@ -91,7 +96,9 @@ object StringUtil {
         return decimalFormat.format(value)
     }
 
-    //获取对应大小的文字
+    /**
+     * 获取对应大小的文字
+     */
     @JvmStatic
     fun getFormatSize(size: Double): String {
         val byteResult = size / 1024
@@ -118,7 +125,9 @@ object StringUtil {
         return (teraByteResult.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "TB")
     }
 
-    //返回密码强度
+    /**
+     * 返回密码强度
+     */
     @JvmStatic
     fun checkSecurity(pwd: String): Int {
         if (TextUtils.isEmpty(pwd)) {
