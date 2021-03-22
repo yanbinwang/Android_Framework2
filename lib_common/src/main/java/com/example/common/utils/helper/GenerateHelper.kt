@@ -6,7 +6,7 @@ import android.graphics.Color
 import android.os.Looper
 import android.view.View
 import com.example.common.constant.Constants
-import com.example.common.utils.handler.WeakHandler
+import com.example.base.utils.WeakHandler
 import java.util.concurrent.Executors
 
 /**

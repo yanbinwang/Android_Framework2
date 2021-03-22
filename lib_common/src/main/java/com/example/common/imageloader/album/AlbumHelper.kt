@@ -22,54 +22,24 @@ import java.lang.ref.WeakReference
  * android:configChanges="orientation|keyboardHidden|screenSize"
  */
 class AlbumHelper(activity: Activity) {
-    private val weakActivity = WeakReference(activity)
+    private val weakActivity: WeakReference<Activity> = WeakReference(activity)
     private val outputPatch = Constants.APPLICATION_FILE_PATH + "/裁剪"//裁剪后图片保存位置
     private var onAlbumListener: OnAlbumListener? = null //单选回调监听
 
     //跳转至相机
-    fun toCamera(isTailor: Boolean): AlbumHelper {
+    fun toCamera(isTailor: Boolean = false): AlbumHelper {
         PermissionHelper.with(weakActivity.get())
             .setPermissionCallBack(object : OnPermissionCallBack {
                 override fun onPermissionListener(isGranted: Boolean) {
                     if (isGranted) {
-                        Album.camera(weakActivity.get())//相机功能
+                        //相机功能
+                        Album.camera(weakActivity.get())
                             .image()//拍照
                             .onResult { result ->
                                 if (isTailor) {
-                                    Durban.with(weakActivity.get())
-                                        //裁剪界面的标题
-                                        .title(" ")
-                                        //状态栏颜色
-                                        .statusBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.grey_333333))
-                                        //Toolbar颜色
-                                        .toolBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.grey_333333))
-                                        //图片路径list或者数组
-                                        .inputImagePaths(result)
-                                        //图片输出文件夹路径
-                                        .outputDirectory(outputPatch)
-                                        //裁剪图片输出的最大宽高
-                                        .maxWidthHeight(500, 500)
-                                        //裁剪时的宽高比
-                                        .aspectRatio(1f, 1f)
-                                        //图片压缩格式：JPEG、PNG
-                                        .compressFormat(Durban.COMPRESS_JPEG)
-                                        //图片压缩质量，请参考：Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
-                                        .compressQuality(90)
-                                        //裁剪时的手势支持：ROTATE, SCALE, ALL, NONE.
-                                        .gesture(Durban.GESTURE_SCALE)
-                                        .controller(
-                                            Controller.newBuilder().enable(false)//是否开启控制面板
-                                                .rotation(true)//是否有旋转按钮
-                                                .rotationTitle(true)//旋转控制按钮上面的标题
-                                                .scale(true)//是否有缩放按钮
-                                                .scaleTitle(true)//缩放控制按钮上面的标题
-                                                .build()
-                                        )//创建控制面板配置
-                                        .requestCode(RequestCode.PHOTO_REQUEST).start()
+                                    toTailor(result)
                                 } else {
-                                    if (null != onAlbumListener) {
-                                        onAlbumListener!!.onAlbumListener(result)
-                                    }
+                                    onAlbumListener?.onAlbumListener(result)
                                 }
                             }.start()
                     }
@@ -79,23 +49,20 @@ class AlbumHelper(activity: Activity) {
     }
 
     //跳转至相册
-    fun toAlbum(isCamera: Boolean, isTailor: Boolean): AlbumHelper {
+    fun toAlbum(isCamera: Boolean = true, isTailor: Boolean = false): AlbumHelper {
         PermissionHelper.with(weakActivity.get())
             .setPermissionCallBack(object : OnPermissionCallBack {
                 override fun onPermissionListener(isGranted: Boolean) {
                     if (isGranted) {
                         Album.image(weakActivity.get())//选择图片
                             .singleChoice()//多选模式为：multipleChoice,单选模式为：singleChoice()
-                            .widget(
-                                Widget.newDarkBuilder(weakActivity.get())//状态栏是深色背景时的构建newDarkBuilder，状态栏是白色背景时的构建newLightBuilder
-                                    //标题 ---标题颜色只有黑色白色
-                                    .title(" ")
-                                    //状态栏颜色
-                                    .statusBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.grey_333333))
-                                    //Toolbar颜色
-                                    .toolBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.grey_333333))
-                                    .build()
-                            )
+                            .widget(Widget.newDarkBuilder(weakActivity.get())//状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
+                                //标题 ---标题颜色只有黑色白色
+                                .title(" ")
+                                //状态栏颜色
+                                .statusBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.grey_333333))
+                                //Toolbar颜色
+                                .toolBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.grey_333333)).build())
                             .camera(isCamera).columnCount(3)//页面列表的列数
                             .onResult { result ->
                                 val resultSize = result[0].size
@@ -104,45 +71,48 @@ class AlbumHelper(activity: Activity) {
                                     return@onResult
                                 }
                                 if (isTailor) {
-                                    Durban.with(weakActivity.get())
-                                        //裁剪界面的标题
-                                        .title(" ")
-                                        //状态栏颜色
-                                        .statusBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.grey_333333))
-                                        //Toolbar颜色
-                                        .toolBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.grey_333333))
-                                        //图片路径list或者数组
-                                        .inputImagePaths(result[0].path)
-                                        //图片输出文件夹路径
-                                        .outputDirectory(outputPatch)
-                                        //裁剪图片输出的最大宽高
-                                        .maxWidthHeight(500, 500)
-                                        //裁剪时的宽高比
-                                        .aspectRatio(1f, 1f)
-                                        //图片压缩格式：JPEG、PNG
-                                        .compressFormat(Durban.COMPRESS_JPEG)
-                                        //图片压缩质量，请参考：Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
-                                        .compressQuality(90)
-                                        //裁剪时的手势支持：ROTATE, SCALE, ALL, NONE.
-                                        .gesture(Durban.GESTURE_SCALE).controller(
-                                            Controller.newBuilder().enable(false)//是否开启控制面板
-                                                .rotation(true)//是否有旋转按钮
-                                                .rotationTitle(true)//旋转控制按钮上面的标题
-                                                .scale(true)//是否有缩放按钮
-                                                .scaleTitle(true)//缩放控制按钮上面的标题
-                                                .build()
-                                        )//创建控制面板配置
-                                        .requestCode(RequestCode.PHOTO_REQUEST).start()
+                                    toTailor(result[0].path)
                                 } else {
-                                    if (null != onAlbumListener) {
-                                        onAlbumListener!!.onAlbumListener(result[0].path)
-                                    }
+                                    onAlbumListener?.onAlbumListener(result[0].path)
                                 }
                             }.start()
                     }
                 }
             }).getPermissions(Permission.Group.CAMERA, Permission.Group.STORAGE)
         return this
+    }
+
+    //开始裁剪
+    private fun toTailor(vararg imagePathArray: String) {
+        Durban.with(weakActivity.get())
+            //裁剪界面的标题
+            .title(" ")
+            //状态栏颜色
+            .statusBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.grey_333333))
+            //Toolbar颜色
+            .toolBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.grey_333333))
+            //图片路径list或者数组
+            .inputImagePaths(*imagePathArray)
+            //图片输出文件夹路径
+            .outputDirectory(outputPatch)
+            //裁剪图片输出的最大宽高
+            .maxWidthHeight(500, 500)
+            //裁剪时的宽高比
+            .aspectRatio(1f, 1f)
+            //图片压缩格式：JPEG、PNG
+            .compressFormat(Durban.COMPRESS_JPEG)
+            //图片压缩质量，请参考：Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
+            .compressQuality(90)
+            //裁剪时的手势支持：ROTATE, SCALE, ALL, NONE.
+            .gesture(Durban.GESTURE_SCALE).controller(
+                Controller.newBuilder().enable(false)//是否开启控制面板
+                    .rotation(true)//是否有旋转按钮
+                    .rotationTitle(true)//旋转控制按钮上面的标题
+                    .scale(true)//是否有缩放按钮
+                    .scaleTitle(true)//缩放控制按钮上面的标题
+                    .build())
+            //创建控制面板配置
+            .requestCode(RequestCode.PHOTO_REQUEST).start()
     }
 
     fun setAlbumCallBack(onAlbumListener: OnAlbumListener): AlbumHelper {

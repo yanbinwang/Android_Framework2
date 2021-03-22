@@ -1,4 +1,4 @@
-package com.dataqin.base.utils
+package com.example.base.utils
 
 import android.content.ClipData
 import android.content.ClipboardManager

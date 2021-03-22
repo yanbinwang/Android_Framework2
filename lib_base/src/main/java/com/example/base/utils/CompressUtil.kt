@@ -1,4 +1,4 @@
-package com.dataqin.base.utils
+package com.example.base.utils
 
 import android.content.Context
 import android.graphics.Bitmap

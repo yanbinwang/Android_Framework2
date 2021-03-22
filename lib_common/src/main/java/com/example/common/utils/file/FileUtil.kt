@@ -9,9 +9,7 @@ import android.graphics.Canvas
 import android.graphics.PixelFormat
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import androidx.core.content.FileProvider
-import com.example.common.BaseApplication
 import com.example.common.constant.Constants
 import java.io.*
 import java.lang.ref.SoftReference
@@ -25,27 +23,17 @@ import java.util.*
  */
 object FileUtil {
 
-    //创建日志和缓存目录
-    @JvmStatic
-    fun createCacheDir(): String? {
-        val file = File(BaseApplication.instance?.externalCacheDir.toString() + File.separator + "log")
-        if (!file.exists()) {
-            file.mkdir()
-        }
-        return file.path
-    }
-
     //复制文件
     @JvmStatic
     @Throws(IOException::class)
-    fun copyFile(srcFile: String?, destFile: String?) {
+    fun copyFile(srcFile: String, destFile: String) {
         copyFile(File(srcFile), File(destFile))
     }
 
     @JvmStatic
     @Throws(IOException::class)
-    fun copyFile(srcFile: File?, destFile: File?) {
-        if (!destFile!!.exists()) {
+    fun copyFile(srcFile: File, destFile: File) {
+        if (!destFile.exists()) {
             destFile.createNewFile()
         }
 
@@ -67,16 +55,16 @@ object FileUtil {
     fun deleteDirWithFile(dir: File?) {
         if (dir == null || !dir.exists() || !dir.isDirectory) return
         for (file in dir.listFiles()) {
-            if (file.isFile) file.delete() // 删除所有文件
-            else if (file.isDirectory) deleteDirWithFile(file) // 递规的方式删除文件夹
+            if (file.isFile) file.delete() //删除所有文件
+            else if (file.isDirectory) deleteDirWithFile(file) //递规的方式删除文件夹
         }
-        dir.delete() // 删除目录本身
+        dir.delete() //删除目录本身
     }
 
     //判断下载目录是否存在
     @JvmStatic
     @Throws(IOException::class)
-    fun isExistDir(filePath: String?): String? {
+    fun isExistDir(filePath: String): String? {
         val downloadFile = File(filePath)
         if (!downloadFile.mkdirs()) {
             downloadFile.createNewFile()
@@ -131,39 +119,51 @@ object FileUtil {
         }
     }
 
-    //将Bitmap缓存到本地
+    //将Bitmap缓存到本地-待修整
     @JvmStatic
     fun saveBitmap(bitmap: Bitmap?) {
-        val screenImagePath: String
-        //输出
+//        val screenImagePath: String
+//        //输出
+//        try {
+//            val rootDir = Constants.APPLICATION_FILE_PATH + "/截屏"
+//            val downloadFile = File(rootDir)
+//            if (!downloadFile.mkdirs()) {
+//                //需要权限
+//                downloadFile.createNewFile()
+//            }
+//            screenImagePath = "$rootDir/screen_capture" + SimpleDateFormat(
+//                "yyyy_MM_dd_hh_mm_ss",
+//                Locale.getDefault()
+//            ).format(Date()) + ".png"
+//            val fileOutputStream = FileOutputStream(screenImagePath)
+//            bitmap?.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
+//            fileOutputStream.flush()
+//            fileOutputStream.close()
+//        } catch (ignored: java.lang.Exception) {
+//        } finally {
+//            bitmap?.recycle()
+//        }
+        val filePath: String
         try {
-            val rootDir = Constants.APPLICATION_FILE_PATH + "/截屏"
-            val downloadFile = File(rootDir)
-            if (!downloadFile.mkdirs()) {
-                //需要权限
-                downloadFile.createNewFile()
+            //输出
+            val rootDir = Constants.APPLICATION_FILE_PATH + "/下载图片"
+            val saveFile = File(rootDir)
+            //需要权限
+            if (!saveFile.mkdirs()) {
+                saveFile.createNewFile()
             }
-            screenImagePath = "$rootDir/screen_capture" + SimpleDateFormat(
-                "yyyy_MM_dd_hh_mm_ss",
-                Locale.getDefault()
-            ).format(Date()) + ".png"
-            val fileOutputStream = FileOutputStream(screenImagePath)
+            filePath = "$rootDir/" + SimpleDateFormat("yyyy_MM_dd_hh_mm_ss", Locale.getDefault()).format(Date()) + ".jpg"
+            val fileOutputStream = FileOutputStream(filePath)
             bitmap?.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
             fileOutputStream.flush()
             fileOutputStream.close()
-        } catch (ignored: java.lang.Exception) {
+        } catch (ignored: Exception) {
         } finally {
             bitmap?.recycle()
         }
     }
 
-    //判断sd卡是否存在
-    @JvmStatic
-    fun hasSDCard(): Boolean {
-        return Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
-    }
-
-    //是否安装了XXX
+    //是否安装了XXX应用
     @JvmStatic
     fun isAvailable(context: Context, packageName: String): Boolean {
         val packageManager = context.packageManager
@@ -177,12 +177,6 @@ object FileUtil {
             }
         }
         return false
-    }
-
-    //获取sdcard根目录
-    @JvmStatic
-    fun getSdCardPath(): String? {
-        return Environment.getExternalStorageDirectory().absolutePath
     }
 
     //获取当前app的应用程序名称
@@ -201,7 +195,7 @@ object FileUtil {
 
     //获取当前app的应用程序名称
     @JvmStatic
-    fun getApplicationId(context: Context): String? {
+    fun getApplicationId(context: Context): String {
         return context.packageName
     }
 
@@ -211,18 +205,14 @@ object FileUtil {
         try {
             val drawable = context.packageManager.getApplicationIcon(Constants.APPLICATION_ID)
             val bitmap = SoftReference(
-                Bitmap.createBitmap(
-                    drawable.intrinsicWidth,
-                    drawable.intrinsicHeight,
-                    if (drawable.opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
-                )
+                Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, if (drawable.opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565)
             )
             val canvas = Canvas(bitmap.get()!!)
             //canvas.setBitmap(bitmap);
             drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
             drawable.draw(canvas)
             return bitmap.get()
-        } catch (ignored: java.lang.Exception) {
+        } catch (ignored: Exception) {
         }
         return null
     }

@@ -1,8 +1,7 @@
-package com.example.common.utils.helper
+package com.example.base.utils
 
 import android.os.CountDownTimer
 import android.os.Looper
-import com.example.common.utils.handler.WeakHandler
 import java.util.*
 
 /**
