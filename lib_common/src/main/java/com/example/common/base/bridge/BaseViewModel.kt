@@ -36,33 +36,29 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
 
     fun setEmptyView(container: ViewGroup) {
         this.softEmpty = SoftReference(PageHandler.getEmptyView(container))
-        showEmptyView()
     }
 
     fun setEmptyView(xRecyclerView: XRecyclerView) {
         this.softEmpty = SoftReference(PageHandler.getEmptyView(xRecyclerView))
         this.softRecycler = SoftReference(xRecyclerView)
-        showEmptyView()
     }
 
-    protected fun showEmptyView() {
-        softEmpty?.get()?.showLoading()
-    }
+    fun getEmptyView() = softEmpty?.get()
 
-    protected fun hideEmptyView() {
+    protected fun dispose() {
         softRecycler?.get()?.finishRefreshing()
         softEmpty?.get()?.visibility = View.GONE
     }
+
+    protected fun getView() = softView?.get()
+
+    protected fun getRecycler() = softRecycler?.get()
 
     protected fun getActivity() = weakActivity?.get()
 
     protected fun getContext() = weakContext?.get()
 
-    protected fun getView() = softView?.get()
-
-    protected fun getEmpty() = softEmpty?.get()
-
-    protected fun getRecycler() = softRecycler?.get()
+    protected fun getString(resId: Int) = weakContext?.get()?.getString(resId)
 
     override fun onCleared() {
         super.onCleared()
