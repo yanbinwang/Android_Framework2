@@ -13,15 +13,8 @@ import java.io.*
  * 图片工具类
  */
 object CompressUtil {
-    private const val defaultLength = 512
-
     @JvmStatic
-    fun compressImg(image: Bitmap): ByteArrayOutputStream {
-        return compressImg(image, defaultLength)
-    }
-
-    @JvmStatic
-    fun compressImg(image: Bitmap, length: Int): ByteArrayOutputStream {
+    fun compressImg(image: Bitmap, length: Int= 512): ByteArrayOutputStream {
         var bitmap = image
         bitmap = compressImgBySize(bitmap)!!
         val byteArrayOutputStream = ByteArrayOutputStream()
@@ -58,13 +51,7 @@ object CompressUtil {
     }
 
     @JvmStatic
-    fun scale(context: Context, mFile: File): File {
-        val fileMaxSize = 100 * 1024.toLong()
-        return scale(context, mFile, fileMaxSize)
-    }
-
-    @JvmStatic
-    fun scale(context: Context, mFile: File, fileMaxSize: Long): File {
+    fun scale(context: Context, mFile: File, fileMaxSize: Long = 100 * 1024.toLong()): File {
         val fileSize = mFile.length()
         var scaleSize = 1f
         return if (fileSize >= fileMaxSize) {
@@ -86,7 +73,6 @@ object CompressUtil {
                 val fileOutputStream = try {
                     FileOutputStream(fTemp)
                 } catch (e: FileNotFoundException) {
-                    e.printStackTrace()
                     return mFile
                 }
                 bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
@@ -95,7 +81,6 @@ object CompressUtil {
                 bitmap?.recycle()
                 fTemp
             } catch (e: IOException) {
-                e.printStackTrace()
                 mFile
             }
         } else {
@@ -127,7 +112,6 @@ object CompressUtil {
                 val fileOutputStream = try {
                     FileOutputStream(file)
                 } catch (e: FileNotFoundException) {
-                    e.printStackTrace()
                     return bitmap
                 }
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
@@ -179,7 +163,6 @@ object CompressUtil {
                 bitmap.recycle()
                 fTemp
             } catch (e: IOException) {
-                e.printStackTrace()
                 mFile
             }
         } else {
@@ -195,7 +178,6 @@ object CompressUtil {
         try {
             exifInterface = ExifInterface(path)
         } catch (e: IOException) {
-            e.printStackTrace()
         }
         if (exifInterface != null) {
             val orientation = exifInterface.getAttributeInt(

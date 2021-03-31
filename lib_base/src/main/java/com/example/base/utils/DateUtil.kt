@@ -1,7 +1,6 @@
 package com.example.base.utils
 
 import android.text.TextUtils
-import org.json.JSONObject
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -39,21 +38,18 @@ object DateUtil {
      * @return
      */
     @JvmStatic
-    fun getDateFormat(fromFormat: String, toFormat: String, dateFormat: String): String? {
-        var dateFormatStr: String? = null
+    fun getDateFormat(fromFormat: String, toFormat: String, dateFormat: String): String {
+        var result = ""
         if (!TextUtils.isEmpty(dateFormat)) {
             try {
                 //传入格式转换成日期
-                val formSimpleDateFormat = SimpleDateFormat(fromFormat, Locale.getDefault())
-                val date = formSimpleDateFormat.parse(dateFormat)
+                val date = SimpleDateFormat(fromFormat, Locale.getDefault()).parse(dateFormat)
                 //日期转换成想要的格式
-                val toSimpleDateFormat = SimpleDateFormat(toFormat, Locale.getDefault())
-                dateFormatStr = toSimpleDateFormat.format(date)
+                result = SimpleDateFormat(toFormat, Locale.getDefault()).format(date)
             } catch (e: ParseException) {
-                e.printStackTrace()
             }
         }
-        return dateFormatStr
+        return result
     }
 
     /**
@@ -66,11 +62,8 @@ object DateUtil {
     @JvmStatic
     fun getDateTime(format: String, dateFormat: String): Long {
         try {
-            val simpleDateFormat = SimpleDateFormat(format, Locale.getDefault())
-            val date = simpleDateFormat.parse(dateFormat)
-            return date.time
+            return SimpleDateFormat(format, Locale.getDefault()).parse(dateFormat).time
         } catch (e: ParseException) {
-            e.printStackTrace()
         }
         return 0
     }
@@ -83,9 +76,18 @@ object DateUtil {
      */
     @JvmStatic
     fun getDateTimeStr(format: String, timestamp: Long): String {
-        //传入格式转换成日期
-        val simpleDateFormat = SimpleDateFormat(format, Locale.getDefault())
-        return simpleDateFormat.format(Date(timestamp))
+        return SimpleDateFormat(format, Locale.getDefault()).format(Date(timestamp))
+    }
+
+    /**
+     * 传入指定日期格式和日期類转换成字符串
+     * @param format
+     * @param timestamp
+     * @return
+     */
+    @JvmStatic
+    fun getDateTimeStr(format: String, date: Date): String {
+        return SimpleDateFormat(format, Locale.getDefault()).format(date)
     }
 
     /**
@@ -106,25 +108,6 @@ object DateUtil {
     }
 
     /**
-     * 根据传入的json取得服务器所下发的时间
-     *
-     * @param name 参数名
-     * @param json 整体json
-     * @return
-     */
-    @JvmStatic
-    fun getJsonDateTime(name: String, json: String): Long {
-        var timestamp: Long = 0
-        try {
-            val jsonObject = JSONObject(json)
-            timestamp = jsonObject.optLong(name)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return timestamp
-    }
-
-    /**
      * 日期对比（统一年月日形式）
      *
      * @param fromDate 被比较日期
@@ -138,20 +121,11 @@ object DateUtil {
             val comparedDate = dateFormat.parse(fromDate)
             val comparedDate2 = dateFormat.parse(toDate)
             return when {
-                comparedDate.time > comparedDate2.time -> {
-                    LogUtil.e("日程时间大于系统时间")
-                    1
-                }
-                comparedDate.time < comparedDate2.time -> {
-                    LogUtil.e("日程时间小于系统时间")
-                    -1
-                }
-                else -> {
-                    0
-                }
+                comparedDate.time > comparedDate2.time -> 1//日程时间大于系统时间
+                comparedDate.time < comparedDate2.time -> -1//日程时间小于系统时间
+                else -> 0
             }
         } catch (e: Exception) {
-            e.printStackTrace()
         }
         return 0
     }
@@ -165,26 +139,22 @@ object DateUtil {
     @JvmStatic
     fun isToday(inputDate: Date): Boolean {
         var flag = false
-        // 获取当前系统时间
-        val longDate = System.currentTimeMillis()
-        val nowDate = Date(longDate)
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val format = dateFormat.format(nowDate)
-        val subDate = format.substring(0, 10)
-        // 定义每天的24h时间范围
-        val beginTime = "$subDate 00:00:00"
-        val endTime = "$subDate 23:59:59"
-        var parseBeginTime: Date? = null
-        var parseEndTime: Date? = null
         try {
-            parseBeginTime = dateFormat.parse(beginTime)
-            parseEndTime = dateFormat.parse(endTime)
+            // 获取当前系统时间
+            val longDate = System.currentTimeMillis()
+            val nowDate = Date(longDate)
+            val dateFormat = SimpleDateFormat(EN_YMDHMS_FORMAT, Locale.getDefault())
+            val format = dateFormat.format(nowDate)
+            val subDate = format.substring(0, 10)
+            // 定义每天的24h时间范围
+            val beginTime = "$subDate 00:00:00"
+            val endTime = "$subDate 23:59:59"
+            val parseBeginTime = dateFormat.parse(beginTime)
+            val parseEndTime = dateFormat.parse(endTime)
+            if (inputDate.after(parseBeginTime) && inputDate.before(parseEndTime)) {
+                flag = true
+            }
         } catch (e: ParseException) {
-            e.printStackTrace()
-        }
-
-        if (inputDate.after(parseBeginTime) && inputDate.before(parseEndTime)) {
-            flag = true
         }
         return flag
     }
@@ -197,16 +167,14 @@ object DateUtil {
      */
     @JvmStatic
     fun getWeekOfMonth(inputDate: String): Int {
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) //设置时间格式
         try {
+            val simpleDateFormat = SimpleDateFormat(EN_YMD_FORMAT, Locale.getDefault())
             val time = simpleDateFormat.parse(inputDate)
             val calendar = Calendar.getInstance()
             calendar.time = time
             return calendar.get(Calendar.WEEK_OF_MONTH)
         } catch (e: ParseException) {
-            e.printStackTrace()
         }
-
         return 0
     }
 
@@ -218,9 +186,8 @@ object DateUtil {
      */
     @JvmStatic
     fun getWeekOfDate(inputDate: String): Int {
-        //周报时间
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) //设置时间格式
         try {
+            val simpleDateFormat = SimpleDateFormat(EN_YMD_FORMAT, Locale.getDefault())
             val time = simpleDateFormat.parse(inputDate)
             val calendar = Calendar.getInstance()
             calendar.time = time
@@ -230,9 +197,7 @@ object DateUtil {
             }
             return weekIndex
         } catch (e: ParseException) {
-            e.printStackTrace()
         }
-
         return 0
     }
 
@@ -244,18 +209,16 @@ object DateUtil {
      */
     @JvmStatic
     fun getDateWeekStr(inputDate: String): String {
-        val week = getWeekOfDate(inputDate)
-        var weekStr = ""
-        when (week) {
-            0 -> weekStr = "星期天"
-            1 -> weekStr = "星期一"
-            2 -> weekStr = "星期二"
-            3 -> weekStr = "星期三"
-            4 -> weekStr = "星期四"
-            5 -> weekStr = "星期五"
-            6 -> weekStr = "星期六"
+        return when (getWeekOfDate(inputDate)) {
+            0 -> "星期天"
+            1 -> "星期一"
+            2 -> "星期二"
+            3 -> "星期三"
+            4 -> "星期四"
+            5 -> "星期五"
+            6 -> "星期六"
+            else -> ""
         }
-        return weekStr
     }
 
 }

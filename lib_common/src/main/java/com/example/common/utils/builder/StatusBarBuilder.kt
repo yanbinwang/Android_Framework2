@@ -20,7 +20,7 @@ import java.lang.ref.WeakReference
 @SuppressLint("PrivateApi", "InlinedApi")
 class StatusBarBuilder(activity: Activity) {
     //弱应用传入的activity
-    private val weakActivity = WeakReference(activity)
+    private val weakActivity by lazy { WeakReference(activity) }
 
     //隐藏导航栏
     fun setHideStatus() {
