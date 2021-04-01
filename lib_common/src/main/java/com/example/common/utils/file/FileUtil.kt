@@ -2,8 +2,6 @@ package com.example.common.utils.file
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PixelFormat
@@ -23,7 +21,9 @@ import java.util.*
  */
 object FileUtil {
 
-    //复制文件
+    /**
+     * 复制文件
+     */
     @JvmStatic
     @Throws(IOException::class)
     fun copyFile(srcFile: String, destFile: String) {
@@ -44,9 +44,11 @@ object FileUtil {
         }
     }
 
+    /**
+     * 删除本地路径下的所有文件
+     */
     @JvmStatic
-    //删除本地路径下的所有文件
-    fun deleteDir(filePath: String?) {
+    fun deleteDir(filePath: String) {
         val dir = File(filePath)
         deleteDirWithFile(dir)
     }
@@ -61,10 +63,12 @@ object FileUtil {
         dir.delete() //删除目录本身
     }
 
-    //判断下载目录是否存在
+    /**
+     * 判断下载目录是否存在
+     */
     @JvmStatic
     @Throws(IOException::class)
-    fun isExistDir(filePath: String): String? {
+    fun isExistDir(filePath: String): String {
         val downloadFile = File(filePath)
         if (!downloadFile.mkdirs()) {
             downloadFile.createNewFile()
@@ -72,7 +76,9 @@ object FileUtil {
         return downloadFile.absolutePath
     }
 
-    //读取文件到文本（文本，找不到文件或读取错返回null）
+    /**
+     * 读取文件到文本（文本，找不到文件或读取错返回null）
+     */
     @JvmStatic
     fun readText(filePath: String): String? {
         val f = File(filePath)
@@ -86,13 +92,14 @@ object FileUtil {
                 }
                 return sb.toString()
             } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
         return null
     }
 
-    //获取文件大小
+    /**
+     * 获取文件大小
+     */
     @JvmStatic
     fun getFileSize(file: File): Long {
         var size: Long = 0
@@ -107,7 +114,9 @@ object FileUtil {
         return size
     }
 
-    //转换文件大小格式
+    /**
+     * 转换文件大小格式
+     */
     @JvmStatic
     fun formatFileSize(fileS: Long): String {
         val df = DecimalFormat("#.00")
@@ -119,7 +128,9 @@ object FileUtil {
         }
     }
 
-    //将Bitmap缓存到本地-待修整
+    /**
+     * 将Bitmap缓存到本地
+     */
     @JvmStatic
     fun saveBitmap(bitmap: Bitmap?) {
 //        val screenImagePath: String
@@ -163,7 +174,9 @@ object FileUtil {
         }
     }
 
-    //是否安装了XXX应用
+    /**
+     * 是否安装了XXX应用
+     */
     @JvmStatic
     fun isAvailable(context: Context, packageName: String): Boolean {
         val packageManager = context.packageManager
@@ -179,27 +192,9 @@ object FileUtil {
         return false
     }
 
-    //获取当前app的应用程序名称
-    @JvmStatic
-    fun getApplicationName(context: Context): String {
-        var packageManager: PackageManager? = null
-        var applicationInfo: ApplicationInfo?
-        try {
-            packageManager = context.applicationContext.packageManager
-            applicationInfo = packageManager.getApplicationInfo(context.packageName, 0)
-        } catch (e: PackageManager.NameNotFoundException) {
-            applicationInfo = null
-        }
-        return packageManager?.getApplicationLabel(applicationInfo) as String
-    }
-
-    //获取当前app的应用程序名称
-    @JvmStatic
-    fun getApplicationId(context: Context): String {
-        return context.packageName
-    }
-
-    //获取app的图标
+    /**
+     * 获取app的图标
+     */
     @JvmStatic
     fun getApplicationIcon(context: Context): Bitmap? {
         try {
@@ -217,7 +212,9 @@ object FileUtil {
         return null
     }
 
-    //获取安装跳转的行为
+    /**
+     * 获取安装跳转的行为
+     */
     @JvmStatic
     private fun getSetupApk(context: Context, apkFilePath: String): Intent {
         val intent = Intent(Intent.ACTION_VIEW)
