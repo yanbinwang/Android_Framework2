@@ -33,7 +33,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         manager
             .asBitmap()
             .load(string)
-            .placeholder(R.drawable.shape_loading_normal)
+            .placeholder(R.drawable.shape_image_loading)
             .dontAnimate()
             .into(ZoomTransform(view))
     }
@@ -51,11 +51,11 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun displayImage(view: ImageView, string: String?, errorId: Int) {
-        displayImage(view, string, R.drawable.shape_loading_normal, errorId, null)
+        displayImage(view, string, R.drawable.shape_image_loading, errorId, null)
     }
 
     override fun displayImage(view: ImageView, string: String?, requestListener: GlideRequestListener<Drawable?>?) {
-        displayImage(view, string, R.drawable.shape_loading_normal, 0, requestListener)
+        displayImage(view, string, R.drawable.shape_image_loading, 0, requestListener)
     }
 
     override fun displayImage(view: ImageView, string: String?, placeholderId: Int, errorId: Int, requestListener: GlideRequestListener<Drawable?>?) {
@@ -76,7 +76,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         manager
             .load(string)
             .apply(RequestOptions.bitmapTransform(RoundedCorners(roundingRadius)))
-            .placeholder(R.drawable.shape_loading_normal)
+            .placeholder(R.drawable.shape_image_loading)
             .error(errorId)
             .dontAnimate()
             .into(view)
@@ -93,21 +93,21 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         manager
             .load(string)
             .transform(transformation)
-            .placeholder(R.drawable.shape_loading_normal)
+            .placeholder(R.drawable.shape_image_loading)
             .error(errorId)
             .dontAnimate()
             .into(view)
     }
 
     override fun displayCircleImage(view: ImageView, string: String?) {
-        displayCircleImage(view, string, R.drawable.shape_loading_round)
+        displayCircleImage(view, string, R.drawable.shape_image_loading_round)
     }
 
     override fun displayCircleImage(view: ImageView, string: String?, errorId: Int) {
         manager
             .load(string)
             .apply(RequestOptions.circleCropTransform())
-            .placeholder(R.drawable.shape_loading_round)
+            .placeholder(R.drawable.shape_image_loading_round)
             .error(errorId)
             .dontAnimate()
             .into(view)
