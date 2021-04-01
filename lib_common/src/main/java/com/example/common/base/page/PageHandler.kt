@@ -33,12 +33,7 @@ object PageHandler {
      * 详情页调取方法
      */
     @JvmStatic
-    fun setState(container: ViewGroup, msg: String?) {
-        setState(container, msg, -1, null)
-    }
-
-    @JvmStatic
-    fun setState(container: ViewGroup, msg: String?, imgRes: Int, emptyText: String?) {
+    fun setState(container: ViewGroup, msg: String?, imgRes: Int = -1, text: String? = null) {
         val emptyLayout = if (container is EmptyLayout) {
             container
         } else {
@@ -46,34 +41,21 @@ object PageHandler {
         }
         doResponse(msg)
         emptyLayout.visibility = View.VISIBLE
-        if (!isNetworkAvailable()) {
-            emptyLayout.showError()
-        } else {
-            emptyLayout.showEmpty(imgRes, emptyText)
-        }
+        emptyLayout.showError(imgRes, text)
     }
 
     /**
      * 列表页调取方法
      */
     @JvmStatic
-    fun setState(xRecyclerView: XRecyclerView, refresh: Boolean, msg: String?, length: Int) {
-        setState(xRecyclerView, refresh, msg, length, -1, null)
-    }
-
-    @JvmStatic
-    fun setState(xRecyclerView: XRecyclerView, refresh: Boolean, msg: String?, length: Int, imgRes: Int, emptyText: String?) {
-        val emptyLayout = getEmptyView(xRecyclerView)
+    fun setState(xRecyclerView: XRecyclerView, msg: String?, length: Int = 0, imgRes: Int = -1, text: String? = null) {
         xRecyclerView.finishRefreshing()
-        //区分此次刷新是否成功
-        if (refresh) {
-            emptyLayout.visibility = View.GONE
+        val emptyLayout = getEmptyView(xRecyclerView)
+        //判断集合长度，有长度不展示emptyview只做提示
+        if (length > 0) {
+            doResponse(msg)
         } else {
-            if (length > 0) {
-                doResponse(msg)
-                return
-            }
-            setState(emptyLayout, msg, imgRes, emptyText)
+            setState(emptyLayout, msg, imgRes, text)
         }
     }
 
