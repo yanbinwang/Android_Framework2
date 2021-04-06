@@ -24,11 +24,7 @@ class StatusBarBuilder(activity: Activity) {
 
     //隐藏导航栏
     fun setHideStatus() {
-        weakActivity.get()!!.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        weakActivity.get()!!.window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
-        )
+        weakActivity.get()?.window?.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
     }
 
     //透明状态栏(白电池)

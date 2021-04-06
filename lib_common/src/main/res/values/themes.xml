@@ -1,5 +1,6 @@
 <resources>
 
+    <!-- 全局app样式 -->
     <style name="AppTheme" parent="AppTheme.Base" />
 
     <style name="AppTheme.Base" parent="Theme.AppCompat">
@@ -8,7 +9,7 @@
         <!-- 设置页面切换动画 -->
         <item name="android:windowAnimationStyle">@style/activityAnimation</item>
         <!--        &lt;!&ndash; Appbar背景色 &ndash;&gt;-->
-        <!--        <item name="colorPrimary">@android:color/transparent</item>-->
+        <!--        <item name="colorPrimary">@color/black</item>-->
         <!-- 导航栏颜色 -->
         <item name="colorPrimaryDark">@color/black</item>
         <!-- 底部导航栏颜色 -->
@@ -47,51 +48,45 @@
         <item name="android:background">@color/gray_f6f8ff</item>
     </style>
 
-    <!-- 无头全屏样式 -->
-    <style name="noTitleTheme" parent="Theme.AppCompat.NoActionBar">
-        <!--        <item name="android:windowNoTitle">true</item>-->
-        <!--        <item name="android:windowFullscreen">true</item>-->
-        <!--        <item name="android:windowBackground">@android:color/transparent</item>-->
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="colorPrimaryDark">@android:color/transparent</item>
+    <!-- 底部弹窗动画 -->
+    <style name="pushBottomAnimStyle">
+        <!-- 指定显示的动画xml -->
+        <item name="android:windowEnterAnimation">@anim/set_translate_bottom_in</item>
+        <!-- 指定消失的动画xml -->
+        <item name="android:windowExitAnimation">@anim/set_translate_bottom_out</item>
+    </style>
+
+    <!-- 黑样式-用于白电池界面 -->
+    <style name="blackTheme" parent="AppTheme">
+        <item name="colorPrimaryDark">@color/black</item>
         <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:windowBackground">@color/black</item>
+        <item name="android:windowAnimationStyle">@null</item>
     </style>
 
-    <!-- 无头全屏透明样式 -->
-    <style name="noTitleTransTheme" parent="Theme.AppCompat.NoActionBar">
+    <!-- 白样式-用于黑电池界面 -->
+    <style name="whiteTheme" parent="AppTheme">
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="android:navigationBarColor">@color/black</item><!-- 白色导航栏底部也得是黑色的 -->
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
+    <!-- 透明样式,透明页面使用 -->
+    <style name="fullScreenTransTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <!--是否浮现在activity之上-->
+        <item name="android:windowBackground">@color/white_00ffffff</item>
         <item name="android:windowIsFloating">true</item>
-        <!--是否半透明-->
         <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
     </style>
 
-    <!-- 剔除动画，非全屏 -->
-    <style name="noAnimTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:background">@android:color/transparent</item>
+    <!-- 透明样式,微信支付使用 -->
+    <style name="fullScreenAlphaTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:background">@color/white_00ffffff</item>
+        <item name="android:windowAnimationStyle">@null</item><!-- 留意 -->
         <item name="android:windowNoTitle">true</item>
-        <item name="android:activityOpenEnterAnimation">@null</item>
-        <item name="android:activityOpenExitAnimation">@null</item>
-        <item name="android:activityCloseEnterAnimation">@null</item>
-        <item name="android:activityCloseExitAnimation">@null</item>
-        <item name="android:taskOpenEnterAnimation">@null</item>
-        <item name="android:taskOpenExitAnimation">@null</item>
-        <item name="android:taskCloseEnterAnimation">@null</item>
-        <item name="android:taskCloseExitAnimation">@null</item>
-        <item name="android:taskToFrontEnterAnimation">@null</item>
-        <item name="android:taskToFrontExitAnimation">@null</item>
-        <item name="android:taskToBackEnterAnimation">@null</item>
-        <item name="android:taskToBackExitAnimation">@null</item>
-    </style>
-
-    <!-- 剔除动画，全屏 -->
-    <style name="noAnimFullScreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:background">@android:color/transparent</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
         <item name="android:activityOpenEnterAnimation">@null</item>
         <item name="android:activityOpenExitAnimation">@null</item>
         <item name="android:activityCloseEnterAnimation">@null</item>
@@ -115,14 +110,6 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:background">@null</item>
         <item name="android:backgroundDimEnabled">false</item>
-    </style>
-
-    <!-- 底部弹窗动画 -->
-    <style name="pushBottomAnimStyle">
-        <!-- 指定显示的动画xml -->
-        <item name="android:windowEnterAnimation">@anim/set_translate_bottom_in</item>
-        <!-- 指定消失的动画xml -->
-        <item name="android:windowExitAnimation">@anim/set_translate_bottom_out</item>
     </style>
 
     <!-- 提示框样式 -->
