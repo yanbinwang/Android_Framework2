@@ -1,5 +1,8 @@
 package com.example.common.utils.file.download
 
+import android.util.Patterns
+import com.example.base.utils.ToastUtil
+import com.example.common.BaseApplication
 import com.example.common.http.repository.ResourceSubscriber
 import com.example.common.http.repository.call
 import com.example.common.subscribe.CommonSubscribe.getDownloadApi
@@ -30,6 +33,10 @@ class DownloadFactory private constructor() : CoroutineScope {
         get() = (Dispatchers.Main)
 
     fun download(downloadUrl: String, filePath: String, fileName: String, onDownloadListener: OnDownloadListener?) {
+        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
+            ToastUtil.mackToastSHORT("链接地址不合法", BaseApplication.instance?.applicationContext!!)
+            return
+        }
         launch(Dispatchers.Main) {
             //清除目录下的所有文件
             FileUtil.deleteDir(filePath)

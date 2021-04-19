@@ -54,10 +54,10 @@ public class EmptyLayout extends SimpleViewGroup {
         Context context = getContext();
         binding = DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_empty, null));
         binding.llContainer.setBackgroundColor(ContextCompat.getColor(context, R.color.gray_f6f8ff));
-
+        //设置样式
         binding.getRoot().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));//设置LayoutParams
         binding.getRoot().setBackgroundColor(ContextCompat.getColor(context, R.color.gray_f6f8ff));
-
+        //设置监听
         binding.tvRefresh.setOnClickListener(v -> {
             //进入加载中，并停止刷新动画
             showLoading();
@@ -87,6 +87,7 @@ public class EmptyLayout extends SimpleViewGroup {
      * 数据加载中
      */
     public void showLoading() {
+        setVisibility(View.VISIBLE);
         binding.ivEmpty.setImageResource(R.mipmap.img_data_loading);
         binding.tvEmpty.setText("正在玩命加载数据...");
         binding.tvRefresh.setVisibility(View.GONE);
@@ -100,6 +101,7 @@ public class EmptyLayout extends SimpleViewGroup {
      * 数据为空--只会在200并且无数据的时候展示
      */
     public void showEmpty(int resId, String text) {
+        setVisibility(View.VISIBLE);
         binding.ivEmpty.setImageResource(-1 == resId ? R.mipmap.img_data_empty : resId);
         binding.tvEmpty.setText(TextUtils.isEmpty(text) ? "这里还什么都没有呢~" : text);
         binding.tvRefresh.setVisibility(View.GONE);
@@ -114,6 +116,7 @@ public class EmptyLayout extends SimpleViewGroup {
      * 无网络优先级最高
      */
     public void showError(int resId, String text) {
+        setVisibility(View.VISIBLE);
         if(!isNetworkAvailable()){
             binding.ivEmpty.setImageResource(R.mipmap.img_data_net_error);
             binding.tvEmpty.setText("暂无网络，试试刷新页面吧~");

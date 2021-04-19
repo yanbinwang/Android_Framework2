@@ -45,7 +45,7 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
 
     fun getEmptyView() = softEmpty?.get()
 
-    protected fun dispose() {
+    protected fun pageDispose() {
         softRecycler?.get()?.finishRefreshing()
         softEmpty?.get()?.visibility = View.GONE
     }
