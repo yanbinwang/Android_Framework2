@@ -13,21 +13,21 @@ import java.util.*
  */
 object DateUtil {
     //后台一般会返回的日期形式的字符串
-    const val EN_M_FORMAT = "MM"
-    const val EN_MD_FORMAT = "MM-dd"
-    const val EN_HM_FORMAT = "HH:mm"
-    const val EN_HMS_FORMAT = "HH:mm:ss"
-    const val EN_YM_FORMAT = "yyyy-MM"
-    const val EN_YMD_FORMAT = "yyyy-MM-dd"
-    const val EN_YMDHM_FORMAT = "yyyy-MM-dd HH:mm"
-    const val EN_YMDHMS_FORMAT = "yyyy-MM-dd HH:mm:ss"
-    const val CN_M_FORMAT = "M月"
-    const val CN_MD_FORMAT = "M月d日"
-    const val CN_HM_FORMAT = "HH时mm分"
-    const val CN_YM_FORMAT = "yyyy年M月"
-    const val CN_YMD_FORMAT = "yyyy年MM月dd日"
-    const val CN_YMDHM_FORMAT = "yyyy年MM月dd日 HH时mm分"
-    const val CN_YMDHMS_FORMAT = "yyyy年MM月dd日 HH时mm分ss秒"
+    const val EN_M = "MM"
+    const val EN_MD = "MM-dd"
+    const val EN_HM = "HH:mm"
+    const val EN_HMS = "HH:mm:ss"
+    const val EN_YM = "yyyy-MM"
+    const val EN_YMD = "yyyy-MM-dd"
+    const val EN_YMDHM = "yyyy-MM-dd HH:mm"
+    const val EN_YMDHMS = "yyyy-MM-dd HH:mm:ss"
+    const val CN_M = "M月"
+    const val CN_MD = "M月d日"
+    const val CN_HM = "HH时mm分"
+    const val CN_YM = "yyyy年M月"
+    const val CN_YMD = "yyyy年MM月dd日"
+    const val CN_YMDHM = "yyyy年MM月dd日 HH时mm分"
+    const val CN_YMDHMS = "yyyy年MM月dd日 HH时mm分ss秒"
 
     /**
      * 获取转换日期
@@ -97,9 +97,7 @@ object DateUtil {
      */
     @JvmStatic
     fun getTimeStr(time: Long): String {
-        if (time <= 0) {
-            return "00:00"
-        }
+        if (time <= 0) return "00:00"
         val second = (time / 1000 / 60).toInt()
         val million = (time / 1000 % 60).toInt()
         val f = if (second >= 10) second.toString() else "0$second"
@@ -143,7 +141,7 @@ object DateUtil {
             // 获取当前系统时间
             val longDate = System.currentTimeMillis()
             val nowDate = Date(longDate)
-            val dateFormat = SimpleDateFormat(EN_YMDHMS_FORMAT, Locale.getDefault())
+            val dateFormat = SimpleDateFormat(EN_YMDHMS, Locale.getDefault())
             val format = dateFormat.format(nowDate)
             val subDate = format.substring(0, 10)
             // 定义每天的24h时间范围
@@ -151,9 +149,7 @@ object DateUtil {
             val endTime = "$subDate 23:59:59"
             val parseBeginTime = dateFormat.parse(beginTime)
             val parseEndTime = dateFormat.parse(endTime)
-            if (inputDate.after(parseBeginTime) && inputDate.before(parseEndTime)) {
-                flag = true
-            }
+            if (inputDate.after(parseBeginTime) && inputDate.before(parseEndTime)) flag = true
         } catch (e: ParseException) {
         }
         return flag
@@ -168,7 +164,7 @@ object DateUtil {
     @JvmStatic
     fun getWeekOfMonth(inputDate: String): Int {
         try {
-            val simpleDateFormat = SimpleDateFormat(EN_YMD_FORMAT, Locale.getDefault())
+            val simpleDateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
             val time = simpleDateFormat.parse(inputDate)
             val calendar = Calendar.getInstance()
             calendar.time = time
@@ -187,14 +183,12 @@ object DateUtil {
     @JvmStatic
     fun getWeekOfDate(inputDate: String): Int {
         try {
-            val simpleDateFormat = SimpleDateFormat(EN_YMD_FORMAT, Locale.getDefault())
+            val simpleDateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
             val time = simpleDateFormat.parse(inputDate)
             val calendar = Calendar.getInstance()
             calendar.time = time
             var weekIndex = calendar.get(Calendar.DAY_OF_WEEK) - 1
-            if (weekIndex < 0) {
-                weekIndex = 0
-            }
+            if (weekIndex < 0) weekIndex = 0
             return weekIndex
         } catch (e: ParseException) {
         }

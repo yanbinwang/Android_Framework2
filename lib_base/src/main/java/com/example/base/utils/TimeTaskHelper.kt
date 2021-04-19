@@ -51,11 +51,11 @@ object TimeTaskHelper {
         if (null == countDownTimer) {
             countDownTimer = object : CountDownTimer(second * 1000, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
-                    onCountDownListener?.onTick(millisUntilFinished / 1000)
+                    weakHandler.post { onCountDownListener?.onTick(millisUntilFinished / 1000) }
                 }
 
                 override fun onFinish() {
-                    onCountDownListener?.onFinish()
+                    weakHandler.post { onCountDownListener?.onFinish() }
                 }
             }
         }

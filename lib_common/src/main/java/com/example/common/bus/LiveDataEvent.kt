@@ -19,18 +19,14 @@ class LiveDataEvent {
     //带布尔类型的广播
     constructor(action: String, value: Boolean) {
         this.action = action
-        if (args == null) {
-            args = Bundle()
-        }
+        if (args == null) args = Bundle()
         args?.putBoolean(action, value)
     }
 
     //带字符串类型的广播
     constructor(action: String, value: String) {
         this.action = action
-        if (args == null) {
-            args = Bundle()
-        }
+        if (args == null) args = Bundle()
         args?.putString(action, value)
     }
 
