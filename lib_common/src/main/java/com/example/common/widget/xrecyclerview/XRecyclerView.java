@@ -74,7 +74,7 @@ public class XRecyclerView extends SimpleViewGroup {
                     recycler.setItemAnimator(new DefaultItemAnimator());
                     empty.setOnEmptyRefreshListener(() -> {
                         if (null != onEmptyClickListener) {
-                            onEmptyClickListener.onClickListener();
+                            onEmptyClickListener.onClick();
                         }
                     });
                 }
@@ -102,7 +102,7 @@ public class XRecyclerView extends SimpleViewGroup {
                 if (0 != emptyType) {
                     empty.setOnEmptyRefreshListener(() -> {
                         if (null != onEmptyClickListener) {
-                            onEmptyClickListener.onClickListener();
+                            onEmptyClickListener.onClick();
                         }
                     });
                 } else {

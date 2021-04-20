@@ -40,7 +40,7 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
         }, binding.etAccount, binding.etPassword)
 
         PageHandler.getEmptyView(baseBinding.flBaseContainer).setOnEmptyRefreshListener(object : OnEmptyRefreshListener{
-            override fun onRefreshListener() {
+            override fun onRefresh() {
                 showToast("我点")
             }
         })
