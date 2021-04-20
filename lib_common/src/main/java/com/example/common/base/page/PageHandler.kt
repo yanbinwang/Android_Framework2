@@ -23,9 +23,7 @@ object PageHandler {
     fun doResponse(msg: String?) {
         var str = msg
         val context = BaseApplication.instance?.applicationContext!!
-        if (TextUtils.isEmpty(str)) {
-            str = context.getString(R.string.label_response_err)
-        }
+        if (TextUtils.isEmpty(str)) str = context.getString(R.string.label_response_err)
         mackToastSHORT(if (!isNetworkAvailable()) context.getString(R.string.label_response_net_err) else str!!, context)
     }
 
@@ -34,11 +32,7 @@ object PageHandler {
      */
     @JvmStatic
     fun setState(container: ViewGroup, msg: String?, imgRes: Int = -1, text: String? = null) {
-        val emptyLayout = if (container is EmptyLayout) {
-            container
-        } else {
-            getEmptyView(container)
-        }
+        val emptyLayout = if (container is EmptyLayout) container else getEmptyView(container)
         doResponse(msg)
         emptyLayout.visibility = View.VISIBLE
         emptyLayout.showError(imgRes, text)
@@ -52,11 +46,7 @@ object PageHandler {
         xRecyclerView.finishRefreshing()
         val emptyLayout = getEmptyView(xRecyclerView)
         //判断集合长度，有长度不展示emptyview只做提示
-        if (length > 0) {
-            doResponse(msg)
-        } else {
-            setState(emptyLayout, msg, imgRes, text)
-        }
+        if (length > 0) doResponse(msg) else setState(emptyLayout, msg, imgRes, text)
     }
 
     /**
@@ -70,9 +60,7 @@ object PageHandler {
             emptyLayout.draw()
             emptyLayout.showLoading()
             container.addView(emptyLayout)
-        } else {
-            emptyLayout = container.getChildAt(1) as EmptyLayout
-        }
+        } else emptyLayout = container.getChildAt(1) as EmptyLayout
         return emptyLayout
     }
 
