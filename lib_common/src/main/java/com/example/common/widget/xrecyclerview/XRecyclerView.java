@@ -18,8 +18,8 @@ import com.example.common.R;
 import com.example.common.widget.empty.EmptyLayout;
 import com.example.common.widget.xrecyclerview.callback.OnEmptyClickListener;
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration;
+import com.example.common.widget.xrecyclerview.refresh.SwipeRefreshLayout;
 import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout;
-import com.example.common.widget.xrecyclerview.refresh.callback.OnXRefreshListener;
 import com.example.common.widget.xrecyclerview.refresh.callback.SwipeRefreshLayoutDirection;
 
 /**
@@ -35,7 +35,6 @@ public class XRecyclerView extends SimpleViewGroup {
     private XRefreshLayout refresh;//刷新控件 类型1才有
     private DetectionRecyclerView recycler;//数据列表
     private OnEmptyClickListener onEmptyClickListener;//空布局点击
-    private OnXRefreshListener onXRefreshListener;//刷新回调
     private int refreshType, emptyType, refreshDirection;//页面类型(0无刷新-1带刷新)刷新类型（0顶部-1底部-2全部）是否具有空布局（0无-1有）
 
     public XRecyclerView(Context context, AttributeSet attrs) {
@@ -109,7 +108,6 @@ public class XRecyclerView extends SimpleViewGroup {
                 } else {
                     empty.setVisibility(View.GONE);
                 }
-                refresh.setOnRefreshListener(onXRefreshListener);
                 break;
         }
         addView(view);
@@ -155,8 +153,10 @@ public class XRecyclerView extends SimpleViewGroup {
     /**
      * 刷新页面刷新
      */
-    public void setOnXRefreshListener(OnXRefreshListener onXRefreshListener) {
-        this.onXRefreshListener = onXRefreshListener;
+    public void setOnRefreshListener(SwipeRefreshLayout.OnRefreshListener onRefreshListener) {
+        if (refreshType == 1) {
+            refresh.setOnRefreshListener(onRefreshListener);
+        }
     }
 
     /**
