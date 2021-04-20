@@ -41,11 +41,11 @@ class PermissionHelper(context: Context) {
                 .permission(*groups)
                 .onGranted {
                     //权限申请成功回调
-                    onPermissionCallBack?.onPermissionListener(true)
+                    onPermissionCallBack?.onPermission(true)
                 }
                 .onDenied { permissions ->
                     //权限申请失败回调
-                    onPermissionCallBack?.onPermissionListener(false)
+                    onPermissionCallBack?.onPermission(false)
                     //提示参数
                     var result: String? = null
                     if (permissions.isNotEmpty()) {
@@ -66,7 +66,7 @@ class PermissionHelper(context: Context) {
                     //如果用户拒绝了开启权限
                     if (AndPermission.hasAlwaysDeniedPermission(weakContext.get(), permissions)) {
                         AndDialog.with(weakContext.get())
-                            .setParams(weakContext.get()?.getString(R.string.label_dialog_title), MessageFormat.format(weakContext.get()?.getString(R.string.label_dialog_permission), result), weakContext.get()?.getString(R.string.label_dialog_sure), weakContext.get()?.getString(R.string.label_dialog_cancel))
+                            .setParams(weakContext.get()?.getString(R.string.label_window_title), MessageFormat.format(weakContext.get()?.getString(R.string.label_window_permission), result), weakContext.get()?.getString(R.string.label_window_sure), weakContext.get()?.getString(R.string.label_window_cancel))
                             .setOnDialogListener(object : OnDialogListener {
                                 override fun onDialogConfirm() {
                                     val packageURI = Uri.parse("package:" + weakContext.get()?.packageName)
@@ -79,7 +79,7 @@ class PermissionHelper(context: Context) {
                     }
                 }.start()
         } else {
-            onPermissionCallBack?.onPermissionListener(true)
+            onPermissionCallBack?.onPermission(true)
         }
         return this
     }

@@ -72,7 +72,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
             R.id.btn_download -> {
                 PermissionHelper.with(context.get())
                     .setPermissionCallBack(object : OnPermissionCallBack {
-                        override fun onPermissionListener(isGranted: Boolean) {
+                        override fun onPermission(isGranted: Boolean) {
                             if (isGranted) {
                                 val filePath = Constants.APPLICATION_FILE_PATH + "/安装包"
                                 val fileName = Constants.APPLICATION_NAME + ".apk"

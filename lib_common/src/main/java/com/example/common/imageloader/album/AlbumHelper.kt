@@ -30,7 +30,7 @@ class AlbumHelper(activity: Activity) {
     fun toCamera(isTailor: Boolean = false): AlbumHelper {
         PermissionHelper.with(weakActivity.get())
             .setPermissionCallBack(object : OnPermissionCallBack {
-                override fun onPermissionListener(isGranted: Boolean) {
+                override fun onPermission(isGranted: Boolean) {
                     if (isGranted) {
                         //相机功能
                         Album.camera(weakActivity.get())
@@ -39,7 +39,7 @@ class AlbumHelper(activity: Activity) {
                                 if (isTailor) {
                                     toTailor(result)
                                 } else {
-                                    onAlbumListener?.onAlbumListener(result)
+                                    onAlbumListener?.onAlbum(result)
                                 }
                             }.start()
                     }
@@ -52,7 +52,7 @@ class AlbumHelper(activity: Activity) {
     fun toAlbum(isCamera: Boolean = true, isTailor: Boolean = false): AlbumHelper {
         PermissionHelper.with(weakActivity.get())
             .setPermissionCallBack(object : OnPermissionCallBack {
-                override fun onPermissionListener(isGranted: Boolean) {
+                override fun onPermission(isGranted: Boolean) {
                     if (isGranted) {
                         Album.image(weakActivity.get())//选择图片
                             .singleChoice()//多选模式为：multipleChoice,单选模式为：singleChoice()
@@ -73,7 +73,7 @@ class AlbumHelper(activity: Activity) {
                                 if (isTailor) {
                                     toTailor(result[0].path)
                                 } else {
-                                    onAlbumListener?.onAlbumListener(result[0].path)
+                                    onAlbumListener?.onAlbum(result[0].path)
                                 }
                             }.start()
                     }

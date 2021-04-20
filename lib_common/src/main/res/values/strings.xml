@@ -1,10 +1,10 @@
 <resources>
     <!-- app内的一些提示 -->
     <string name="toast_album_choice">请选择10M以内的图片</string>
-    <string name="label_dialog_title">系统提示</string>
-    <string name="label_dialog_sure">确定</string>
-    <string name="label_dialog_cancel">取消</string>
-    <string name="label_dialog_permission">缺少{0},请前往设置页面开启</string>
+    <string name="label_window_title">系统提示</string>
+    <string name="label_window_sure">确定</string>
+    <string name="label_window_cancel">取消</string>
+    <string name="label_window_permission">缺少{0},请前往设置页面开启</string>
 
     <!-- 权限库的的提示语句 -->
     <string name="label_permissions_camera">相机权限,该权限用于拍摄图片</string>
