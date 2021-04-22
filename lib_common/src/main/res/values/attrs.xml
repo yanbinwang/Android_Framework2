@@ -49,4 +49,11 @@
         </attr>
     </declare-styleable>
 
+    <!-- 自动伸缩的textview -->
+    <declare-styleable name="AutofitTextView">
+        <attr name="minTextSize" format="dimension" />
+        <attr name="precision" format="float" />
+        <attr name="sizeToFit" format="boolean" />
+    </declare-styleable>
+
 </resources>

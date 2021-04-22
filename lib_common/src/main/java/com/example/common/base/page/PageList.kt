@@ -27,9 +27,7 @@ class PageList {
             hasRefresh = false
             ++page
             true
-        } else {
-            false
-        }
+        } else false
     }
 
 }

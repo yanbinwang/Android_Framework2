@@ -58,7 +58,7 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
 
     protected fun getContext() = weakContext?.get()
 
-    protected fun getString(resId: Int) = weakContext?.get()?.getString(resId)
+    protected fun getString(resId: Int) = weakContext?.get()?.getString(resId)!!
 
     override fun onCleared() {
         super.onCleared()

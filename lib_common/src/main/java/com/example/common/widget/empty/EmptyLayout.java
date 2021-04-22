@@ -89,7 +89,7 @@ public class EmptyLayout extends SimpleViewGroup {
     public void showLoading() {
         setVisibility(View.VISIBLE);
         binding.ivEmpty.setImageResource(R.mipmap.img_data_loading);
-        binding.tvEmpty.setText("正在玩命加载数据...");
+        binding.tvEmpty.setText(getContext().getString(R.string.label_data_loading));
         binding.tvRefresh.setVisibility(View.GONE);
     }
 
@@ -103,7 +103,7 @@ public class EmptyLayout extends SimpleViewGroup {
     public void showEmpty(int resId, String text) {
         setVisibility(View.VISIBLE);
         binding.ivEmpty.setImageResource(-1 == resId ? R.mipmap.img_data_empty : resId);
-        binding.tvEmpty.setText(TextUtils.isEmpty(text) ? "这里还什么都没有呢~" : text);
+        binding.tvEmpty.setText(TextUtils.isEmpty(text) ? getContext().getString(R.string.label_data_empty) : text);
         binding.tvRefresh.setVisibility(View.GONE);
     }
 
@@ -119,10 +119,10 @@ public class EmptyLayout extends SimpleViewGroup {
         setVisibility(View.VISIBLE);
         if(!isNetworkAvailable()){
             binding.ivEmpty.setImageResource(R.mipmap.img_data_net_error);
-            binding.tvEmpty.setText("暂无网络，试试刷新页面吧~");
+            binding.tvEmpty.setText(getContext().getString(R.string.label_data_net_error));
         }else{
             binding.ivEmpty.setImageResource(-1 == resId ? R.mipmap.img_data_error : resId);
-            binding.tvEmpty.setText(TextUtils.isEmpty(text) ? "页面加载失败，请重试" : text);
+            binding.tvEmpty.setText(TextUtils.isEmpty(text) ? getContext().getString(R.string.label_data_error) : text);
         }
         binding.tvRefresh.setVisibility(View.VISIBLE);
     }

@@ -23,8 +23,8 @@ object PageHandler {
     fun doResponse(msg: String?) {
         var str = msg
         val context = BaseApplication.instance?.applicationContext!!
-        if (TextUtils.isEmpty(str)) str = context.getString(R.string.label_response_err)
-        mackToastSHORT(if (!isNetworkAvailable()) context.getString(R.string.label_response_net_err) else str!!, context)
+        if (TextUtils.isEmpty(str)) str = context.getString(R.string.label_response_error)
+        mackToastSHORT(if (!isNetworkAvailable()) context.getString(R.string.label_response_net_error) else str!!, context)
     }
 
     /**
@@ -34,8 +34,10 @@ object PageHandler {
     fun setState(container: ViewGroup, msg: String?, imgRes: Int = -1, text: String? = null) {
         val emptyLayout = if (container is EmptyLayout) container else getEmptyView(container)
         doResponse(msg)
-        emptyLayout.visibility = View.VISIBLE
-        emptyLayout.showError(imgRes, text)
+        emptyLayout.apply {
+            visibility = View.VISIBLE
+            showError(imgRes, text)
+        }
     }
 
     /**
@@ -57,8 +59,10 @@ object PageHandler {
         val emptyLayout: EmptyLayout?
         if (container.childCount <= 1) {
             emptyLayout = EmptyLayout(container.context)
-            emptyLayout.draw()
-            emptyLayout.showLoading()
+            emptyLayout.apply {
+                draw()
+                showLoading()
+            }
             container.addView(emptyLayout)
         } else emptyLayout = container.getChildAt(1) as EmptyLayout
         return emptyLayout

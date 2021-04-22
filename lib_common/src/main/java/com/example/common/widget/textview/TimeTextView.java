@@ -1,4 +1,4 @@
-package com.example.common.widget;
+package com.example.common.widget.textview;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -18,19 +18,19 @@ import java.text.MessageFormat;
  * 配置enable的xml和默認text文案即可
  */
 @SuppressLint("AppCompatCustomView")
-public class TimerTextView extends TextView {
+public class TimeTextView extends TextView {
 
-    public TimerTextView(Context context) {
+    public TimeTextView(Context context) {
         super(context);
         initialize();
     }
 
-    public TimerTextView(Context context, @Nullable AttributeSet attrs) {
+    public TimeTextView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         initialize();
     }
 
-    public TimerTextView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public TimeTextView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initialize();
     }
