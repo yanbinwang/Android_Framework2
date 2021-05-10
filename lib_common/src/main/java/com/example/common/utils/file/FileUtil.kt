@@ -216,7 +216,7 @@ object FileUtil {
      * 获取安装跳转的行为
      */
     @JvmStatic
-    private fun getSetupApk(context: Context, apkFilePath: String): Intent {
+    fun getSetupApk(context: Context, apkFilePath: String): Intent {
         val intent = Intent(Intent.ACTION_VIEW)
         //判断是否是AndroidN以及更高的版本
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

@@ -34,7 +34,8 @@ class AlbumHelper(activity: Activity) {
                     if (isGranted) {
                         //相机功能
                         Album.camera(weakActivity.get())
-                            .image()//拍照
+                            //拍照
+                            .image()
                             .onResult { result ->
                                 if (isTailor) {
                                     toTailor(result)
@@ -54,9 +55,12 @@ class AlbumHelper(activity: Activity) {
             .setPermissionCallBack(object : OnPermissionCallBack {
                 override fun onPermission(isGranted: Boolean) {
                     if (isGranted) {
-                        Album.image(weakActivity.get())//选择图片
-                            .singleChoice()//多选模式为：multipleChoice,单选模式为：singleChoice()
-                            .widget(Widget.newDarkBuilder(weakActivity.get())//状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
+                        //选择图片
+                        Album.image(weakActivity.get())
+                            //多选模式为：multipleChoice,单选模式为：singleChoice()
+                            .singleChoice()
+                            //状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
+                            .widget(Widget.newDarkBuilder(weakActivity.get())
                                 //标题 ---标题颜色只有黑色白色
                                 .title(" ")
                                 //状态栏颜色

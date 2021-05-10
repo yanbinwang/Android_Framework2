@@ -56,7 +56,7 @@ object TimeTaskHelper {
 
     /**
      * 倒计时-开始
-     * second-秒
+     * second-秒，onFinish时调用stopCountDown销毁这次行为
      */
     @JvmStatic
     fun startCountDown(second: Long, onCountDownListener: OnCountDownListener?) {

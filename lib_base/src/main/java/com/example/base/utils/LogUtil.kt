@@ -12,72 +12,52 @@ object LogUtil {
 
     @JvmStatic
     fun v(msg: String) {
-        if (debug) {
-            Log.v(defaultTag, msg)
-        }
+        if (debug) Log.v(defaultTag, msg)
     }
 
     @JvmStatic
     fun v(tag: String, msg: String) {
-        if (debug) {
-            Log.v(tag, msg)
-        }
+        if (debug) Log.v(tag, msg)
     }
 
     @JvmStatic
     fun d(msg: String) {
-        if (debug) {
-            Log.d(defaultTag, msg)
-        }
+        if (debug) Log.d(defaultTag, msg)
     }
 
     @JvmStatic
     fun d(tag: String, msg: String) {
-        if (debug) {
-            Log.d(tag, msg)
-        }
+        if (debug) Log.d(tag, msg)
     }
 
     @JvmStatic
     fun i(msg: String) {
-        if (debug) {
-            Log.i(defaultTag, msg)
-        }
+        if (debug) Log.i(defaultTag, msg)
     }
 
     @JvmStatic
     fun i(tag: String, msg: String) {
-        if (debug) {
-            Log.i(tag, msg)
-        }
+        if (debug) Log.i(tag, msg)
     }
 
     @JvmStatic
     fun w(msg: String) {
-        if (debug) {
-            Log.w(defaultTag, msg)
-        }
+        if (debug) Log.w(defaultTag, msg)
     }
 
     @JvmStatic
     fun w(tag: String, msg: String) {
-        if (debug) {
-            Log.w(tag, msg)
-        }
+        if (debug) Log.w(tag, msg)
     }
 
     @JvmStatic
     fun e(msg: String) {
-        if (debug) {
-            Log.e(defaultTag, msg)
-        }
+        if (debug) Log.e(defaultTag, msg)
     }
 
     @JvmStatic
     fun e(tag: String, msg: String) {
-        if (debug) {
-            Log.e(tag, msg)
-        }
+        if (debug) Log.e(tag, msg)
     }
 
     @JvmStatic
