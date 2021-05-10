@@ -1,6 +1,5 @@
 package com.example.base.utils
 
-import android.os.CountDownTimer
 import android.os.Looper
 import java.util.*
 
@@ -12,22 +11,35 @@ import java.util.*
 object TimeTaskHelper {
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
-    private var countDownTimer: CountDownTimer? = null
+    private var countDownTimer: Timer? = null
+    private var countDownTimerTask: TimerTask? = null
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+
+    /**
+     * 延时任务
+     */
+    @JvmStatic
+    fun schedule(millisecond: Long = 1000, onTaskListener: OnTaskListener?) {
+        Timer().schedule(object : TimerTask() {
+            override fun run() {
+                weakHandler.post { onTaskListener?.run() }
+            }
+        }, millisecond)
+    }
 
     /**
      * 计时-开始
      */
     @JvmStatic
-    fun startTask(millisecond: Long = 1000, onCountDownListener: OnCountUpListener?) {
+    fun startTask(millisecond: Long = 1000, onTaskListener: OnTaskListener?) {
         if (timer == null) {
             timer = Timer()
             timerTask = object : TimerTask() {
                 override fun run() {
-                    weakHandler.post { onCountDownListener?.run() }
+                    weakHandler.post { onTaskListener?.run() }
                 }
             }
-            timer?.schedule(timerTask, millisecond, millisecond) //1s后执行timer，之后每隔1s执行一次
+            timer?.schedule(timerTask, 0, millisecond)
         }
     }
 
@@ -48,18 +60,22 @@ object TimeTaskHelper {
      */
     @JvmStatic
     fun startCountDown(second: Long, onCountDownListener: OnCountDownListener?) {
+        var time = 0L
         if (null == countDownTimer) {
-            countDownTimer = object : CountDownTimer(second * 1000, 1000) {
-                override fun onTick(millisUntilFinished: Long) {
-                    weakHandler.post { onCountDownListener?.onTick(millisUntilFinished / 1000) }
-                }
-
-                override fun onFinish() {
-                    weakHandler.post { onCountDownListener?.onFinish() }
+            countDownTimer = Timer()
+            countDownTimerTask = object : TimerTask() {
+                override fun run() {
+                    time++
+                    if (time == second) {
+                        time = 0L
+                        weakHandler.post { onCountDownListener?.onFinish() }
+                    } else {
+                        weakHandler.post { onCountDownListener?.onTick(second - time) }
+                    }
                 }
             }
+            countDownTimer?.schedule(countDownTimerTask, 0, 1000)
         }
-        countDownTimer?.start()
     }
 
     /**
@@ -67,7 +83,9 @@ object TimeTaskHelper {
      */
     @JvmStatic
     fun stopCountDown() {
+        countDownTimerTask?.cancel()
         countDownTimer?.cancel()
+        countDownTimerTask = null
         countDownTimer = null
     }
 
@@ -80,7 +98,7 @@ object TimeTaskHelper {
         stopCountDown()
     }
 
-    interface OnCountUpListener {
+    interface OnTaskListener {
 
         fun run()
 

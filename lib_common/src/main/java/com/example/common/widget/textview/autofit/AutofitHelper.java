@@ -18,7 +18,8 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
-import com.dataqin.common.R;
+
+import com.example.common.R;
 
 import java.util.ArrayList;
 
