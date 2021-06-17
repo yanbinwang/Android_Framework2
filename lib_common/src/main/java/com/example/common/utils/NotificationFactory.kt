@@ -44,11 +44,10 @@ class NotificationFactory private constructor() {
             setSmallIcon(smallIcon)//状态栏显示的小图标
             setLargeIcon(BitmapFactory.decodeResource(context?.resources, largeIcon))//状态栏下拉显示的大图标
             setDefaults(NotificationCompat.DEFAULT_ALL)
+            setContentIntent(PendingIntent.getActivity(context, 1, intent ?: Intent(), PendingIntent.FLAG_ONE_SHOT))//intent为空说明此次为普通推送
         }
-        //intent为空说明此次为普通推送
-        builder.setContentIntent(PendingIntent.getActivity(context, 1, intent ?: Intent(), PendingIntent.FLAG_ONE_SHOT))
         val notification = builder.build()
-        getNotificationChannel()
+        createChannel()
         notificationManager.notify(if (TextUtils.isEmpty(id)) 0 else id.hashCode(), notification)
     }
 
@@ -69,36 +68,22 @@ class NotificationFactory private constructor() {
         }
         val notification = builder.build()
         notification?.flags = Notification.FLAG_AUTO_CANCEL or Notification.FLAG_ONLY_ALERT_ONCE
-        getNotificationChannel()
+        createChannel()
         notificationManager.notify(id.toInt(), notification)
     }
 
     /**
      * 获取渠道
+     * 8.0+系统需要创建一个推送渠道
      */
-    private fun getNotificationChannel() {
-        //8.0+系统需要创建一个推送渠道
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.createNotificationChannel(NotificationChannel(Constants.PUSH_CHANNEL_ID, Constants.PUSH_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH))
-        }
-    }
-
-    /**
-     * 判断当前是否开启通知，方便用户接受推送消息
-     */
-    fun isNotificationEnabled(activity: Activity): Boolean {
-        val weakActivity = WeakReference(activity)
-        return try {
-            NotificationManagerCompat.from(weakActivity.get()!!).areNotificationsEnabled()
-        } catch (e: Exception) {
-            false
-        }
+    private fun createChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) notificationManager.createNotificationChannel(NotificationChannel(Constants.PUSH_CHANNEL_ID, Constants.PUSH_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH))
     }
 
     /**
      * 跳转通知的设置界面
      */
-    fun settingNotification(activity: Activity) {
+    fun setting(activity: Activity) {
         val weakActivity = WeakReference(activity)
         val intent = Intent()
         when {
@@ -121,6 +106,17 @@ class NotificationFactory private constructor() {
         }
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         weakActivity.get()?.startActivity(intent)
+    }
+
+    /**
+     * 判断当前是否开启通知，方便用户接受推送消息
+     */
+    fun isEnabled(context: Context): Boolean {
+        return try {
+            NotificationManagerCompat.from(context).areNotificationsEnabled()
+        } catch (e: Exception) {
+            false
+        }
     }
 
 }

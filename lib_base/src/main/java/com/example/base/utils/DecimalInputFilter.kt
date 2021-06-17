@@ -48,25 +48,17 @@ class DecimalInputFilter : InputFilter {
         val sourceText = source.toString()
         val destText = dest.toString()
         //验证删除等按键
-        if (TextUtils.isEmpty(sourceText)) {
-            return ""
-        }
+        if (TextUtils.isEmpty(sourceText)) return ""
         val matcher = mPattern.matcher(source)
         //已经输入小数点的情况下，只能输入数字
         if (destText.contains(point)) {
             if (!matcher.matches()) {
                 return ""
-            } else {
-                if (point == source.toString()) {  //只能输入一个小数点
-                    return ""
-                }
-            }
+            } else if (point == source.toString()) return ""//只能输入一个小数点
             //验证小数点精度，保证小数点后只能输入两位
             val index = destText.indexOf(point)
             val length = dend - index
-            if (length > decimalPoint) {
-                return dest?.subSequence(dstart, dend)!!
-            }
+            if (length > decimalPoint) return dest?.subSequence(dstart, dend)!!
         } else {
             /**
              * 没有输入小数点的情况下，只能输入小数点和数字
@@ -76,19 +68,19 @@ class DecimalInputFilter : InputFilter {
             if (!matcher.matches()) {
                 return ""
             } else {
-                if (point == source.toString() && TextUtils.isEmpty(destText)) {  //首位不能输入小数点
+                //首位不能输入小数点
+                if (point == source.toString() && TextUtils.isEmpty(destText)) {
                     return ""
-                } else if (point != source.toString() && zero == destText) { //如果首位输入0，接下来只能输入小数点
+                    //如果首位输入0，接下来只能输入小数点
+                } else if (point != source.toString() && zero == destText) {
                     return ""
                 }
             }
         }
-
         //验证输入金额的大小
         val sumText = (destText + sourceText).toDouble()
-        if (sumText > maxValue) {
-            return dest?.subSequence(dstart, dend)!!
-        }
+        if (sumText > maxValue) return dest?.subSequence(dstart, dend)!!
         return dest?.subSequence(dstart, dend).toString() + sourceText
     }
+
 }

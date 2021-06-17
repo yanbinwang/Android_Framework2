@@ -56,7 +56,7 @@ public class AppDialog extends BaseDialog<ViewDialogBinding> {
         binding.tvDialogCancel.setOnClickListener(v -> {
             dismiss();
             if (null != onDialogListener) {
-                onDialogListener.onDialogCancel();
+                onDialogListener.onCancel();
             }
         });
 
@@ -64,7 +64,7 @@ public class AppDialog extends BaseDialog<ViewDialogBinding> {
         binding.tvDialogSure.setOnClickListener(v -> {
             dismiss();
             if (null != onDialogListener) {
-                onDialogListener.onDialogConfirm();
+                onDialogListener.onConfirm();
             }
         });
         return this;

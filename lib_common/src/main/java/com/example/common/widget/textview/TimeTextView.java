@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-import com.example.base.utils.TimeTaskHelper;
+import com.example.base.utils.TimerHelper;
 
 import java.text.MessageFormat;
 
@@ -45,7 +45,7 @@ public class TimeTextView extends TextView {
     }
 
     public void countDown(long second) {
-        TimeTaskHelper.startCountDown(second, new TimeTaskHelper.OnCountDownListener() {
+        TimerHelper.startDownTask(new TimerHelper.OnCountDownListener() {
             @Override
             public void onFinish() {
                 setEnabled(true);
@@ -57,13 +57,13 @@ public class TimeTextView extends TextView {
                 setEnabled(false);
                 setText(MessageFormat.format("已发送{0}S", second));
             }
-        });
+        }, second);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        TimeTaskHelper.stopCountDown();
+        TimerHelper.stopDownTask();
     }
 
 }

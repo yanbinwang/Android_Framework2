@@ -28,14 +28,14 @@ public class AndDialog extends AlertDialog.Builder {
         setMessage(TextUtils.isEmpty(contentText) ? "" : contentText);
         setPositiveButton(sureText, (dialog, which) -> {
             if (null != onDialogListener) {
-                onDialogListener.onDialogConfirm();
+                onDialogListener.onConfirm();
             }
         });
         //如果没有传入取消字段,则隐藏取消
         if (!TextUtils.isEmpty(cancelText)) {
             setNegativeButton(cancelText, (dialog, which) -> {
                 if (null != onDialogListener) {
-                    onDialogListener.onDialogCancel();
+                    onDialogListener.onCancel();
                 }
             });
         }

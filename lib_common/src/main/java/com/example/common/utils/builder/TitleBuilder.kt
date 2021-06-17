@@ -17,37 +17,13 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
         statusBarBuilder.setStatusBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.white))
     }
 
-    fun getDefault(): TitleBuilder {
-        binding.llMainLeft.apply {
-            visibility = View.VISIBLE
-            setOnClickListener { weakActivity.get()?.finish() }
-
-        }
-        return this
-    }
-
-    fun hideBack(): TitleBuilder {
-        binding.llMainLeft.apply {
-            visibility = View.GONE
-            setOnClickListener(null)
-        }
-        return this
-    }
-
-    fun hideTitle(isDark: Boolean = true): TitleBuilder {
-        statusBarBuilder.setStatusBarLightMode(isDark)
-        binding.rlMain.visibility = View.GONE
-        binding.vMainLine.visibility = View.GONE
-        return this
-    }
-
-    fun setTitle(titleStr: String, color: Int = ContextCompat.getColor(weakActivity.get()!!, R.color.black), isShade: Boolean = false, isDark: Boolean = true): TitleBuilder {
-        statusBarBuilder.setStatusBarLightMode(isDark)
+    fun setTitle(titleStr: String, shade: Boolean = false, dark: Boolean = true): TitleBuilder {
+        statusBarBuilder.setStatusBarLightMode(dark)
         binding.tvMainTitle.apply {
             text = titleStr
-            setTextColor(color)
+            setTextColor(ContextCompat.getColor(weakActivity.get()!!, if(dark) R.color.black else R.color.white))
         }
-        binding.vMainLine.visibility = if (isShade) View.VISIBLE else View.GONE
+        binding.vMainLine.visibility = if (shade) View.VISIBLE else View.GONE
         return this
     }
 
@@ -135,6 +111,29 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     fun setTransparentDarkStatus(): TitleBuilder {
         hideTitle()
         statusBarBuilder.setTransparentDarkStatus()
+        return this
+    }
+
+    fun hideBack(): TitleBuilder {
+        binding.llMainLeft.apply {
+            visibility = View.GONE
+            setOnClickListener(null)
+        }
+        return this
+    }
+
+    fun hideTitle(dark: Boolean = true): TitleBuilder {
+        statusBarBuilder.setStatusBarLightMode(dark)
+        binding.rlMain.visibility = View.GONE
+        binding.vMainLine.visibility = View.GONE
+        return this
+    }
+
+    fun getDefault(): TitleBuilder {
+        binding.llMainLeft.apply {
+            visibility = View.VISIBLE
+            setOnClickListener { weakActivity.get()?.finish() }
+        }
         return this
     }
 

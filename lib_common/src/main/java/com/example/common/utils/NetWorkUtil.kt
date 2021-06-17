@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
+import android.net.wifi.WifiConfiguration
+import android.net.wifi.WifiManager
 import android.telephony.TelephonyManager
 
 import com.example.common.BaseApplication
@@ -15,23 +17,40 @@ import com.example.common.BaseApplication
  */
 @SuppressLint("StaticFieldLeak", "MissingPermission")
 object NetWorkUtil {
-    //等效于懒加载，使用时取值，之后复用
     private val context by lazy { BaseApplication.instance?.applicationContext!! }
     private val connectivityManager by lazy { context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager }
-    private val telephonyManager by lazy { context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager }
+    private const val SECURITY_NONE = 0
+    private const val SECURITY_WEP = 1
+    private const val SECURITY_PSK = 2
+    private const val SECURITY_EAP = 3
 
-    //验证是否联网
+    /**
+     * 验证是否联网
+     */
     @JvmStatic
     fun isNetworkAvailable(): Boolean {
         val networkInfo = connectivityManager.activeNetworkInfo
         if (networkInfo != null && networkInfo.isConnected) {
-            //当前网络是连接的
             return networkInfo.state == NetworkInfo.State.CONNECTED
         }
         return false
     }
 
-    //无线网络=1 移动网络=0 没有连接网络=-1
+    /**
+     * 判断当前网络环境是否为wifi
+     */
+    @JvmStatic
+    fun isWifi(): Boolean {
+        try {
+            return connectivityManager.activeNetworkInfo?.type == ConnectivityManager.TYPE_WIFI
+        } catch (ignored: Exception) {
+        }
+        return false
+    }
+
+    /**
+     * 无线网络=1 移动网络=0 没有连接网络=-1
+     */
     @JvmStatic
     fun getNetWorkState(): Int {
         val networkInfo = connectivityManager.activeNetworkInfo
@@ -41,36 +60,47 @@ object NetWorkUtil {
             } else if (networkInfo.type == ConnectivityManager.TYPE_MOBILE) {
                 return 0
             }
-        } else {
-            return -1
-        }
+        } else return -1
         return -1
     }
 
-    //判断当前网络环境是否为wifi
+    /**
+     * 获取当前wifi密码的加密策略
+     */
     @JvmStatic
-    fun isWifi(): Boolean {
-        return connectivityManager.activeNetworkInfo.type == ConnectivityManager.TYPE_WIFI
-    }
-
-    //获取网络状态
-    @JvmStatic
-    fun getAPNType(): String {
-        var netType = ""
-        val networkInfo = connectivityManager.activeNetworkInfo ?: return "NULL"
-        val nType = networkInfo.type
-        if (nType == ConnectivityManager.TYPE_WIFI) {
-            netType = "wifi"
-        } else if (nType == ConnectivityManager.TYPE_MOBILE) {
-            val nSubType = networkInfo.subtype
-            netType = when {
-                nSubType == TelephonyManager.NETWORK_TYPE_LTE && !telephonyManager.isNetworkRoaming -> "4G"
-                nSubType == TelephonyManager.NETWORK_TYPE_UMTS || nSubType == TelephonyManager.NETWORK_TYPE_HSDPA || nSubType == TelephonyManager.NETWORK_TYPE_EVDO_0 && !telephonyManager.isNetworkRoaming -> "3G"
-                nSubType == TelephonyManager.NETWORK_TYPE_GPRS || nSubType == TelephonyManager.NETWORK_TYPE_EDGE || nSubType == TelephonyManager.NETWORK_TYPE_CDMA && !telephonyManager.isNetworkRoaming -> "2G"
-                else -> "mobile"
+    fun getWifiSecurity(): String {
+        var result = "NONE"
+        if (isWifi()) {
+            val mWifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val info = mWifiManager.connectionInfo
+            //得到配置好的网络连接
+            val wifiConfigList = mWifiManager.configuredNetworks
+            for (wifiConfiguration in wifiConfigList) {
+                //配置过的SSID
+                var configSSid = wifiConfiguration.SSID
+                configSSid = configSSid.replace("\"", "")
+                //当前连接SSID
+                var currentSSid = info.ssid
+                currentSSid = currentSSid.replace("\"", "")
+                //比较networkId，防止配置网络保存相同的SSID
+                if (currentSSid.equals(configSSid) && (info.networkId == wifiConfiguration.networkId)) {
+                    result = when (getSecurity(wifiConfiguration)) {
+                        0 -> "NONE"
+                        1 -> "WPA_EAP"
+                        2 -> "WPA_PSK"
+                        else -> "IEEE8021X"
+                    }
+                }
             }
         }
-        return netType
+        return result
+    }
+
+    private fun getSecurity(config: WifiConfiguration): Int {
+        if (config.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_PSK)) return SECURITY_PSK
+        if (config.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_EAP) || config.allowedKeyManagement.get(
+                WifiConfiguration.KeyMgmt.IEEE8021X)) return SECURITY_EAP
+        return if (config.wepKeys[0] != null) SECURITY_WEP else SECURITY_NONE
     }
 
 }

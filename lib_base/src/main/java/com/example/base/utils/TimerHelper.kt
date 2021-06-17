@@ -8,18 +8,18 @@ import java.util.*
  *  时间工具类
  *  默认1秒，分计数和倒计时
  */
-object TimeTaskHelper {
+object TimerHelper {
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
-    private var countDownTimer: Timer? = null
-    private var countDownTimerTask: TimerTask? = null
+    private var downTimer: Timer? = null
+    private var downTimerTask: TimerTask? = null
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
 
     /**
-     * 延时任务
+     * 延时任务-容易造成内存泄漏
      */
     @JvmStatic
-    fun schedule(millisecond: Long = 1000, onTaskListener: OnTaskListener?) {
+    fun schedule(onTaskListener: OnTaskListener? = null, millisecond: Long = 1000) {
         Timer().schedule(object : TimerTask() {
             override fun run() {
                 weakHandler.post { onTaskListener?.run() }
@@ -31,7 +31,7 @@ object TimeTaskHelper {
      * 计时-开始
      */
     @JvmStatic
-    fun startTask(millisecond: Long = 1000, onTaskListener: OnTaskListener?) {
+    fun startTask(onTaskListener: OnTaskListener? = null, millisecond: Long = 1000) {
         if (timer == null) {
             timer = Timer()
             timerTask = object : TimerTask() {
@@ -39,7 +39,7 @@ object TimeTaskHelper {
                     weakHandler.post { onTaskListener?.run() }
                 }
             }
-            timer?.schedule(timerTask, 0, millisecond)
+            timer?.schedule(timerTask, millisecond)
         }
     }
 
@@ -56,25 +56,25 @@ object TimeTaskHelper {
 
     /**
      * 倒计时-开始
-     * second-秒，onFinish时调用stopCountDown销毁这次行为
+     * second-秒
      */
     @JvmStatic
-    fun startCountDown(second: Long, onCountDownListener: OnCountDownListener?) {
+    fun startDownTask(onCountDownListener: OnCountDownListener? = null, second: Long = 1) {
         var time = 0L
-        if (null == countDownTimer) {
-            countDownTimer = Timer()
-            countDownTimerTask = object : TimerTask() {
+        if (null == downTimer) {
+            downTimer = Timer()
+            downTimerTask = object : TimerTask() {
                 override fun run() {
                     time++
                     if (time == second) {
-                        time = 0L
                         weakHandler.post { onCountDownListener?.onFinish() }
+                        stopDownTask()
                     } else {
                         weakHandler.post { onCountDownListener?.onTick(second - time) }
                     }
                 }
             }
-            countDownTimer?.schedule(countDownTimerTask, 0, 1000)
+            downTimer?.schedule(downTimerTask,  0, 1000)
         }
     }
 
@@ -82,11 +82,11 @@ object TimeTaskHelper {
      * 倒计时-结束
      */
     @JvmStatic
-    fun stopCountDown() {
-        countDownTimerTask?.cancel()
-        countDownTimer?.cancel()
-        countDownTimerTask = null
-        countDownTimer = null
+    fun stopDownTask() {
+        downTimerTask?.cancel()
+        downTimer?.cancel()
+        downTimerTask = null
+        downTimer = null
     }
 
     /**
@@ -95,7 +95,7 @@ object TimeTaskHelper {
     @JvmStatic
     fun destroy() {
         stopTask()
-        stopCountDown()
+        stopDownTask()
     }
 
     interface OnTaskListener {

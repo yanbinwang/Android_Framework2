@@ -8,11 +8,11 @@ import com.example.base.BuildConfig
  */
 object LogUtil {
     private const val debug = BuildConfig.ISDEBUG
-    private const val defaultTag = "dota" // 默认的tag
+    private const val TAG = "dota" // 默认的tag
 
     @JvmStatic
     fun v(msg: String) {
-        if (debug) Log.v(defaultTag, msg)
+        if (debug) Log.v(TAG, msg)
     }
 
     @JvmStatic
@@ -22,7 +22,7 @@ object LogUtil {
 
     @JvmStatic
     fun d(msg: String) {
-        if (debug) Log.d(defaultTag, msg)
+        if (debug) Log.d(TAG, msg)
     }
 
     @JvmStatic
@@ -32,7 +32,7 @@ object LogUtil {
 
     @JvmStatic
     fun i(msg: String) {
-        if (debug) Log.i(defaultTag, msg)
+        if (debug) Log.i(TAG, msg)
     }
 
     @JvmStatic
@@ -42,7 +42,7 @@ object LogUtil {
 
     @JvmStatic
     fun w(msg: String) {
-        if (debug) Log.w(defaultTag, msg)
+        if (debug) Log.w(TAG, msg)
     }
 
     @JvmStatic
@@ -52,7 +52,7 @@ object LogUtil {
 
     @JvmStatic
     fun e(msg: String) {
-        if (debug) Log.e(defaultTag, msg)
+        if (debug) Log.e(TAG, msg)
     }
 
     @JvmStatic
@@ -62,18 +62,12 @@ object LogUtil {
 
     @JvmStatic
     fun m() {
-        if (debug) {
-            val methodName = Exception().stackTrace[1].methodName
-            Log.v(defaultTag, methodName)
-        }
+        if (debug) Log.v(TAG, Exception().stackTrace[1].methodName)
     }
 
     @JvmStatic
     fun m(msg: String) {
-        if (debug) {
-            val methodName = Exception().stackTrace[1].methodName
-            Log.v(defaultTag, "$methodName:    $msg")
-        }
+        if (debug) Log.v(TAG, "${Exception().stackTrace[1].methodName}:    $msg")
     }
 
 }

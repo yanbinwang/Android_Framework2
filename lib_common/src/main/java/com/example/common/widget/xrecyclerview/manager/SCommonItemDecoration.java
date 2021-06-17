@@ -78,7 +78,6 @@ public class SCommonItemDecoration extends RecyclerView.ItemDecoration {
                 left = props.getVerticalSpace() * spanIndex / spanCount;
                 right = props.getVerticalSpace() * (spanCount - (spanIndex + spanSize - 1) - 1) / spanCount;
             }
-
             if (isFirstRowOrColumn) { // First row
                 if (props.getHasHorizontalEdge()) {
                     top = props.getHorizontalSpace();
@@ -117,10 +116,10 @@ public class SCommonItemDecoration extends RecyclerView.ItemDecoration {
     }
 
     public static class ItemDecorationProps {
-        private final boolean hasVerticalEdge;
-        private final boolean hasHorizontalEdge;
         private final int verticalSpace;
         private final int horizontalSpace;
+        private final boolean hasVerticalEdge;
+        private final boolean hasHorizontalEdge;
 
         public ItemDecorationProps(int horizontalSpace, int verticalSpace, boolean hasHorizontalEdge, boolean hasVerticalEdge) {
             this.verticalSpace = verticalSpace;

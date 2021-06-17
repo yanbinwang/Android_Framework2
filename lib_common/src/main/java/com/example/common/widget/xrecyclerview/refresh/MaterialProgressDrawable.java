@@ -35,18 +35,24 @@ import java.util.ArrayList;
  */
 @SuppressWarnings("unused")
 class MaterialProgressDrawable extends Drawable implements Animatable {
-    private double mHeight;
-    private double mWidth;
     private float mRotation;
     private float mRotationCount;
+    private double mHeight;
+    private double mWidth;
     private Animation mAnimation;
     private Animation mFinishAnimation;
 
+    private final Ring mRing;
     private final View mParent;
     private final Resources mResources;
-    private final Ring mRing;
     private final ArrayList<Animation> mAnimators = new ArrayList<>();
 
+    private static final int ARROW_WIDTH = 10;
+    private static final int ARROW_HEIGHT = 5;
+    private static final int ARROW_WIDTH_LARGE = 12;
+    private static final int CIRCLE_DIAMETER = 40;
+    private static final int CIRCLE_DIAMETER_LARGE = 56;
+    private static final int ANIMATION_DURATION = 1000 * 80 / 60;
     private static final float CENTER_RADIUS = 8.75f;
     private static final float STROKE_WIDTH = 2.5f;
     private static final float CENTER_RADIUS_LARGE = 12.5f;
@@ -54,21 +60,14 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
     private static final float NUM_POINTS = 5f;
     private static final float ARROW_OFFSET_ANGLE = 5;
     private static final float MAX_PROGRESS_ARC = .8f;
-    private static final int CIRCLE_DIAMETER = 40;
-    private static final int CIRCLE_DIAMETER_LARGE = 56;
-    private static final int ANIMATION_DURATION = 1000 * 80 / 60;
-    private static final int ARROW_WIDTH = 10;
-    private static final int ARROW_HEIGHT = 5;
-    private static final int ARROW_WIDTH_LARGE = 12;
     private static final int ARROW_HEIGHT_LARGE = 6;
     private static final Interpolator LINEAR_INTERPOLATOR = new LinearInterpolator();
     private static final Interpolator END_CURVE_INTERPOLATOR = new EndCurveInterpolator();
     private static final Interpolator START_CURVE_INTERPOLATOR = new StartCurveInterpolator();
     private static final Interpolator EASE_INTERPOLATOR = new AccelerateDecelerateInterpolator();
 
-    public static final int LARGE = 0;
-    public static final int DEFAULT = 1;
-
+    public final static int LARGE = 0;
+    public final static int DEFAULT = 1;
     @Retention(RetentionPolicy.CLASS)
     @IntDef({LARGE, DEFAULT})
     public @interface ProgressDrawableSize {
@@ -268,7 +267,6 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
                 final float startingEndTrim = ring.getStartingEndTrim();
                 final float startingTrim = ring.getStartingStartTrim();
                 final float startingRotation = ring.getStartingRotation();
-
                 final float minArc = MAX_PROGRESS_ARC - minProgressArc;
                 final float endTrim = startingEndTrim + (minArc * START_CURVE_INTERPOLATOR.getInterpolation(interpolatedTime));
                 ring.setEndTrim(endTrim);
@@ -310,7 +308,11 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
 
     private static class Ring {
         private boolean mShowArrow;
-        private double mRingCenterRadius;
+        private int mArrowWidth;
+        private int mArrowHeight;
+        private int mAlpha;
+        private int mColorIndex;
+        private int mBackgroundColor;
         private float mStartingStartTrim;
         private float mStartingEndTrim;
         private float mStartingRotation;
@@ -320,11 +322,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         private float mRotation = 0.0f;
         private float mStrokeWidth = 5.0f;
         private float mStrokeInset = 2.5f;
-        private int mArrowWidth;
-        private int mArrowHeight;
-        private int mAlpha;
-        private int mColorIndex;
-        private int mBackgroundColor;
+        private double mRingCenterRadius;
         private int[] mColors;
         private Path mArrow;
 
@@ -360,7 +358,6 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
             final float startAngle = (mStartTrim + mRotation) * 360;
             final float endAngle = (mEndTrim + mRotation) * 360;
             float sweepAngle = endAngle - startAngle;
-
             mPaint.setColor(mColors[mColorIndex]);
             c.drawArc(arcBounds, startAngle, sweepAngle, false, mPaint);
             drawTriangle(c, startAngle, sweepAngle, bounds);
@@ -384,7 +381,6 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
                 float inset = (int) mStrokeInset / 2f * mArrowScale;
                 float x = (float) (mRingCenterRadius * Math.cos(0) + bounds.exactCenterX());
                 float y = (float) (mRingCenterRadius * Math.sin(0) + bounds.exactCenterY());
-
                 mArrow.moveTo(0, 0);
                 mArrow.lineTo(mArrowWidth * mArrowScale, 0);
                 mArrow.lineTo((mArrowWidth * mArrowScale / 2), (mArrowHeight * mArrowScale));

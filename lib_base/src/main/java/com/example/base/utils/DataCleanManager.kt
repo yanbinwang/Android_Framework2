@@ -1,5 +1,6 @@
 package com.example.base.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Environment
 
@@ -25,6 +26,7 @@ import java.io.File
  * DataCleanManager.cleanInternalCache(getContext());
  * view.setText("0.0M");
  */
+@SuppressLint("SdCardPath")
 object DataCleanManager {
 
     /**
@@ -73,7 +75,7 @@ object DataCleanManager {
     @JvmStatic
     fun cleanExternalCache(context: Context) {
         if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
-            deleteFilesByDirectory(context.externalCacheDir)
+            deleteFilesByDirectory(context.externalCacheDir!!)
         }
     }
 
@@ -109,7 +111,7 @@ object DataCleanManager {
             for (item in directory.listFiles()) {
                 if (null == item) continue
                 if (item.isDirectory) {
-                    //不删除mmkv
+                    //不删除mmkv文件
                     if (item.name == "MMKV" || item.name == "mmkv") continue
                     deleteFilesByDirectory(item)
                 }

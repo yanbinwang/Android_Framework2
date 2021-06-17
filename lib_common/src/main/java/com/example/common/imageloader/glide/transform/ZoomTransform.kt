@@ -18,7 +18,7 @@ class ZoomTransform(target: ImageView) : ImageViewTarget<Bitmap>(target) {
     private var target: ImageView? = target
 
     override fun setResource(resource: Bitmap?) {
-        view.setImageBitmap(resource);
+        view.setImageBitmap(resource)
         //获取原图的宽高
         val width = resource?.width
         val height = resource?.height

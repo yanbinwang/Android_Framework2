@@ -123,7 +123,7 @@ object DateUtil {
                 comparedDate.time < comparedDate2.time -> -1//日程时间小于系统时间
                 else -> 0
             }
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
         }
         return 0
     }
@@ -138,13 +138,13 @@ object DateUtil {
     fun isToday(inputDate: Date): Boolean {
         var flag = false
         try {
-            // 获取当前系统时间
+            //获取当前系统时间
             val longDate = System.currentTimeMillis()
             val nowDate = Date(longDate)
             val dateFormat = SimpleDateFormat(EN_YMDHMS, Locale.getDefault())
             val format = dateFormat.format(nowDate)
             val subDate = format.substring(0, 10)
-            // 定义每天的24h时间范围
+            //定义每天的24h时间范围
             val beginTime = "$subDate 00:00:00"
             val endTime = "$subDate 23:59:59"
             val parseBeginTime = dateFormat.parse(beginTime)

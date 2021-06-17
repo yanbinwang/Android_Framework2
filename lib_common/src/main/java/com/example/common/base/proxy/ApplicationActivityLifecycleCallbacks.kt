@@ -15,26 +15,26 @@ import com.example.base.utils.LogUtil.e
 @SuppressLint("DiscouragedPrivateApi", "PrivateApi")
 class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
 
-    override fun onActivityPaused(activity: Activity?) {
+    override fun onActivityPaused(activity: Activity) {
     }
 
-    override fun onActivityResumed(activity: Activity?) {
+    override fun onActivityResumed(activity: Activity) {
     }
 
-    override fun onActivityStarted(activity: Activity?) {
+    override fun onActivityStarted(activity: Activity) {
     }
 
-    override fun onActivityDestroyed(activity: Activity?) {
+    override fun onActivityDestroyed(activity: Activity) {
     }
 
-    override fun onActivitySaveInstanceState(activity: Activity?, outState: Bundle?) {
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
     }
 
-    override fun onActivityStopped(activity: Activity?) {
+    override fun onActivityStopped(activity: Activity) {
     }
 
-    override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
-        activity?.window?.decorView?.viewTreeObserver?.addOnGlobalLayoutListener {
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+        activity.window?.decorView?.viewTreeObserver?.addOnGlobalLayoutListener {
             proxyOnClick(activity.window.decorView, 5)
         }
     }
@@ -46,20 +46,14 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
                 val existAncestorRecycle = recycledContainerDeep > 0
                 if (view !is AbsListView || existAncestorRecycle) {
                     getClickListenerForView(view)
-                    if (existAncestorRecycle) {
-                        recycledContainerDeep++
-                    }
-                } else {
-                    recycledContainerDeep = 1
-                }
+                    if (existAncestorRecycle) recycledContainerDeep++
+                } else recycledContainerDeep = 1
                 val childCount = view.childCount
                 for (i in 0 until childCount) {
                     val child = view.getChildAt(i)
                     proxyOnClick(child, recycledContainerDeep)
                 }
-            } else {
-                getClickListenerForView(view)
-            }
+            } else getClickListenerForView(view)
         }
     }
 
@@ -68,27 +62,17 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
             val viewClazz = Class.forName("android.view.View")
             //事件监听器都是这个实例保存的
             val listenerInfoMethod = viewClazz.getDeclaredMethod("getListenerInfo")
-            if (!listenerInfoMethod.isAccessible) {
-                listenerInfoMethod.isAccessible = true
-            }
+            if (!listenerInfoMethod.isAccessible) listenerInfoMethod.isAccessible = true
             val listenerInfoObj = listenerInfoMethod.invoke(view)
             val listenerInfoClazz = Class.forName("android.view.View\$ListenerInfo")
             val onClickListenerField = listenerInfoClazz.getDeclaredField("mOnClickListener")
-            if (!onClickListenerField.isAccessible) {
-                onClickListenerField.isAccessible = true
-            }
+            if (!onClickListenerField.isAccessible) onClickListenerField.isAccessible = true
             val mOnClickListener = onClickListenerField[listenerInfoObj] as? View.OnClickListener
             if (mOnClickListener !is ProxyOnclickListener) {
                 //自定义代理事件监听器
-                val onClickListenerProxy: View.OnClickListener =
-                    ProxyOnclickListener(mOnClickListener)
-                //更换
-                onClickListenerField[listenerInfoObj] = onClickListenerProxy
-            } else {
-                e("OnClickListenerProxy", "setted proxy listener ")
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
+                onClickListenerField[listenerInfoObj] = ProxyOnclickListener(mOnClickListener)
+            } else e("OnClickListenerProxy", "setted proxy listener ")
+        } catch (ignored: Exception) {
         }
     }
 

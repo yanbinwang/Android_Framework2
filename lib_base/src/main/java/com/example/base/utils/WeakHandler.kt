@@ -58,9 +58,7 @@ class WeakHandler {
     }
 
     private fun wrapRunnable(r: Runnable?): WeakRunnable {
-        if (r == null) {
-            throw NullPointerException("Runnable can't be null")
-        }
+        if (r == null) throw NullPointerException("Runnable can't be null")
         val hardRef = ChainedRef(mLock, r)
         mRunnables.insertAfter(hardRef)
         return hardRef.wrapper!!
@@ -68,16 +66,12 @@ class WeakHandler {
 
     fun removeCallbacks(r: Runnable) {
         val runnable: WeakRunnable? = mRunnables.remove(r)
-        if (runnable != null) {
-            mExec!!.removeCallbacks(runnable)
-        }
+        if (runnable != null) mExec?.removeCallbacks(runnable)
     }
 
     fun removeCallbacks(r: Runnable, token: Any) {
         val runnable: WeakRunnable? = mRunnables.remove(r)
-        if (runnable != null) {
-            mExec!!.removeCallbacks(runnable, token)
-        }
+        if (runnable != null) mExec?.removeCallbacks(runnable, token)
     }
 
     fun sendMessage(msg: Message): Boolean {
@@ -109,15 +103,15 @@ class WeakHandler {
     }
 
     fun removeMessages(what: Int) {
-        mExec!!.removeMessages(what)
+        mExec?.removeMessages(what)
     }
 
     fun removeMessages(what: Int, obj: Any?) {
-        mExec!!.removeMessages(what, obj)
+        mExec?.removeMessages(what, obj)
     }
 
     fun removeCallbacksAndMessages(token: Any) {
-        mExec!!.removeCallbacksAndMessages(token)
+        mExec?.removeCallbacksAndMessages(token)
     }
 
     fun hasMessages(what: Int): Boolean {
@@ -152,9 +146,7 @@ class WeakHandler {
         }
 
         override fun handleMessage(msg: Message) {
-            if (mCallback == null) {
-                return
-            }
+            if (mCallback == null) return
             val callback = mCallback?.get() ?: return
             callback.handleMessage(msg)
         }
@@ -175,10 +167,10 @@ class WeakHandler {
     }
 
     private class ChainedRef(lock: Lock, r: Runnable?) {
-        var next: ChainedRef? = null
-        var prev: ChainedRef? = null
         var lock: Lock? = lock
         var runnable: Runnable? = r
+        var next: ChainedRef? = null
+        var prev: ChainedRef? = null
         var wrapper: WeakRunnable? = null
 
         init {
@@ -188,12 +180,8 @@ class WeakHandler {
         fun remove(): WeakRunnable? {
             lock?.lock()
             try {
-                if (prev != null) {
-                    prev?.next = next
-                }
-                if (next != null) {
-                    next?.prev = prev
-                }
+                if (prev != null) prev?.next = next
+                if (next != null) next?.prev = prev
                 prev = null
                 next = null
             } finally {
@@ -205,9 +193,7 @@ class WeakHandler {
         fun insertAfter(candidate: ChainedRef) {
             lock?.lock()
             try {
-                if (next != null) {
-                    next?.prev = candidate
-                }
+                if (next != null) next?.prev = candidate
                 candidate.next = next
                 next = candidate
                 candidate.prev = this
@@ -221,9 +207,7 @@ class WeakHandler {
             try {
                 var curr: ChainedRef? = next
                 while (curr != null) {
-                    if (curr.runnable === obj) {
-                        return curr.remove()
-                    }
+                    if (curr.runnable === obj) return curr.remove()
                     curr = curr.next
                 }
             } finally {

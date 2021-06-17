@@ -16,12 +16,12 @@ object StringUtil {
      * 如果值为空，展示默认值
      */
     @JvmStatic
-    fun processedString(source: String?, defaultStr: String?): String {
+    fun processedString(source: String?, defaultStr: String = ""): String {
         return if (source == null) {
-            defaultStr!!
+            defaultStr
         } else {
             if (source.trim { it <= ' ' }.isEmpty()) {
-                defaultStr!!
+                defaultStr
             } else {
                 source
             }
@@ -71,22 +71,15 @@ object StringUtil {
      * 验证手机号
      */
     @JvmStatic
-    fun isMobile(strMobilePhone: String): Boolean {
-        val result: Boolean
-        val patternString = "^1[0-9]{10}$"
-        result = Pattern.matches(patternString, strMobilePhone)
-        return result
-    }
+    fun isMobile(strMobilePhone: String) = Pattern.matches("^1[0-9]{10}$", strMobilePhone)
 
     /**
      * 截取小数点后X位
      */
     @JvmStatic
     fun getFormat(doubleValue: String, decimalPlace: Int): String {
-        if (TextUtils.isEmpty(doubleValue)) {
-            return ""
-        }
-        val value = java.lang.Double.parseDouble(doubleValue)
+        if (TextUtils.isEmpty(doubleValue)) return ""
+        val value = doubleValue.toDouble()
         val format = StringBuilder()
         for (i in 0 until decimalPlace) {
             format.append("0")
@@ -102,25 +95,13 @@ object StringUtil {
     @JvmStatic
     fun getFormatSize(size: Double): String {
         val byteResult = size / 1024
-        if (byteResult < 1) {
-//            return size + "Byte";
-            return "<1K"
-        }
+        if (byteResult < 1) return "<1K"
         val kiloByteResult = byteResult / 1024
-        if (kiloByteResult < 1) {
-            val result1 = BigDecimal(byteResult.toString())
-            return result1.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "K"
-        }
+        if (kiloByteResult < 1) return BigDecimal(byteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "K"
         val mByteResult = kiloByteResult / 1024
-        if (mByteResult < 1) {
-            val result2 = BigDecimal(kiloByteResult.toString())
-            return result2.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "M"
-        }
+        if (mByteResult < 1) return BigDecimal(kiloByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "M"
         val gigaByteResult = mByteResult / 1024
-        if (gigaByteResult < 1) {
-            val result3 = BigDecimal(mByteResult.toString())
-            return result3.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "GB"
-        }
+        if (gigaByteResult < 1) return BigDecimal(mByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "GB"
         val teraByteResult = BigDecimal(gigaByteResult)
         return (teraByteResult.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "TB")
     }
@@ -130,21 +111,13 @@ object StringUtil {
      */
     @JvmStatic
     fun checkSecurity(pwd: String): Int {
-        if (TextUtils.isEmpty(pwd)) {
-            return 0
-        }
+        if (TextUtils.isEmpty(pwd)) return 0
         //纯数字、纯字母、纯特殊字符
-        if (pwd.length < 8 || Pattern.matches("^\\d+$", pwd) || Pattern.matches("^[a-z]+$", pwd) || Pattern.matches("^[A-Z]+$", pwd) || Pattern.matches("^[@#$%^&]+$", pwd)) {
-            return 1
-        }
+        if (pwd.length < 8 || Pattern.matches("^\\d+$", pwd) || Pattern.matches("^[a-z]+$", pwd) || Pattern.matches("^[A-Z]+$", pwd) || Pattern.matches("^[@#$%^&]+$", pwd)) return 1
         //字母+数字、字母+特殊字符、数字+特殊字符
-        if (Pattern.matches("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$", pwd) || Pattern.matches("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$", pwd) || Pattern.matches("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$", pwd) || Pattern.matches("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$", pwd) || Pattern.matches("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$", pwd) || Pattern.matches("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$", pwd)) {
-            return 2
-        }
+        if (Pattern.matches("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$", pwd) || Pattern.matches("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$", pwd) || Pattern.matches("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$", pwd) || Pattern.matches("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$", pwd) || Pattern.matches("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$", pwd) || Pattern.matches("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$", pwd)) return 2
         //字母+数字+特殊字符
-        if (Pattern.matches("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$", pwd)) {
-            return 3
-        }
+        if (Pattern.matches("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$", pwd)) return 3
         return 3
     }
 

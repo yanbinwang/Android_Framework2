@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.example.base.utils.DisplayUtil;
+import com.example.base.utils.DisplayUtilKt;
 import com.example.base.widget.SimpleViewGroup;
 import com.example.common.R;
 import com.example.common.widget.empty.EmptyLayout;
@@ -49,9 +49,9 @@ public class XRecyclerView extends SimpleViewGroup {
 
     private void initialize(AttributeSet attrs) {
         TypedArray mTypedArray = getContext().obtainStyledAttributes(attrs, R.styleable.XRecyclerView);
-        refreshType = mTypedArray.getInt(R.styleable.XRecyclerView_refreshType, 0);
+        refreshType = mTypedArray.getInt(R.styleable.XRecyclerView_refresh, 0);
         refreshDirection = mTypedArray.getInt(R.styleable.XRecyclerView_refreshDirection, 2);
-        emptyType = mTypedArray.getInt(R.styleable.XRecyclerView_emptyType, 0);
+        emptyType = mTypedArray.getInt(R.styleable.XRecyclerView_empty, 0);
         mTypedArray.recycle();
     }
 
@@ -235,7 +235,7 @@ public class XRecyclerView extends SimpleViewGroup {
      */
     public void addItemDecoration(int horizontalSpace, int verticalSpace, boolean hasHorizontalEdge, boolean hasVerticalEdge) {
         SparseArray<SCommonItemDecoration.ItemDecorationProps> propMap = new SparseArray<>();
-        SCommonItemDecoration.ItemDecorationProps prop1 = new SCommonItemDecoration.ItemDecorationProps(DisplayUtil.dip2px(getContext(), horizontalSpace), DisplayUtil.dip2px(getContext(), verticalSpace), hasHorizontalEdge, hasVerticalEdge);
+        SCommonItemDecoration.ItemDecorationProps prop1 = new SCommonItemDecoration.ItemDecorationProps(DisplayUtilKt.dip2px(getContext(), horizontalSpace), DisplayUtilKt.dip2px(getContext(), verticalSpace), hasHorizontalEdge, hasVerticalEdge);
         propMap.put(0, prop1);
         recycler.addItemDecoration(new SCommonItemDecoration(propMap));
     }

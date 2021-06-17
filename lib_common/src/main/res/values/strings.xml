@@ -7,6 +7,7 @@
     <string name="label_window_permission">缺少{0},请前往设置页面开启</string>
 
     <!-- 权限库的的提示语句 -->
+    <string name="label_permissions_location">定位权限,该权限用于取证定位</string>
     <string name="label_permissions_camera">相机权限,该权限用于拍摄图片</string>
     <string name="label_permissions_microphone">麦克风权限,该权限用于接受推送通知时候的提醒音效等</string>
     <string name="label_permissions_storage">存储空间权限,该权限用于应用升级安装和文件存储</string>

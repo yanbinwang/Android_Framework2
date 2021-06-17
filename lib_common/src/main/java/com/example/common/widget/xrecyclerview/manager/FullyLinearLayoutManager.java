@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.base.utils.LogUtil;
 
-
 /**
  * author: wyb
  * date: 2017/9/5.

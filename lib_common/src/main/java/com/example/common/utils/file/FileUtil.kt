@@ -5,14 +5,16 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PixelFormat
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.core.content.FileProvider
+import com.example.base.utils.DateUtil
 import com.example.common.constant.Constants
 import java.io.*
 import java.lang.ref.SoftReference
 import java.text.DecimalFormat
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -22,26 +24,78 @@ import java.util.*
 object FileUtil {
 
     /**
+     * 是否安装了XXX应用
+     */
+    @JvmStatic
+    fun isAvailable(context: Context, packageName: String): Boolean {
+        val packageManager = context.packageManager
+        val packageInfos = packageManager.getInstalledPackages(0)
+        for (i in packageInfos.indices) {
+            val pn = packageInfos[i].packageName
+            if (pn == packageName) return true
+        }
+        return false
+    }
+
+    /**
+     * 是否Root-报错或获取失败都为未Root
+     */
+    @JvmStatic
+    fun isRoot(): Boolean {
+        var file :File
+        val paths = arrayOf("/system/bin/", "/system/xbin/", "/system/sbin/", "/sbin/", "/vendor/bin/")
+        try {
+            for (element in paths) {
+                file = File(element + "su")
+                if (file.exists()) return true
+            }
+        } catch (ignored: Exception) {
+        }
+        return false
+    }
+
+    /**
+     * 判断手机是否开启开发者模式
+     */
+    @JvmStatic
+    fun isAdbEnabled(context: Context) = (Settings.Secure.getInt(context.contentResolver, Settings.Global.ADB_ENABLED, 0) > 0)
+
+    /**
+     * 判断下载目录是否存在
+     */
+    @JvmStatic
+    @Throws(IOException::class)
+    fun isExistDir(filePath: String): String {
+        val downloadFile = File(filePath)
+        if (!downloadFile.mkdirs()) downloadFile.createNewFile()
+        return downloadFile.absolutePath
+    }
+
+    /**
      * 复制文件
      */
     @JvmStatic
     @Throws(IOException::class)
-    fun copyFile(srcFile: String, destFile: String) {
-        copyFile(File(srcFile), File(destFile))
-    }
+    fun copyFile(srcFile: String, destFile: String) = copyFile(File(srcFile), File(destFile))
 
     @JvmStatic
     @Throws(IOException::class)
     fun copyFile(srcFile: File, destFile: File) {
-        if (!destFile.exists()) {
-            destFile.createNewFile()
-        }
-
+        if (!destFile.exists()) destFile.createNewFile()
         FileInputStream(srcFile).channel.use { source ->
             FileOutputStream(destFile).channel.use { destination ->
                 destination.transferFrom(source, 0, source.size())
             }
         }
+    }
+
+    /**
+     * 删除文件
+     */
+    @JvmStatic
+    fun deleteFile(filePath: String) {
+        val file = File(filePath)
+        if (file.isFile && file.exists()) file.delete()
     }
 
     /**
@@ -64,16 +118,34 @@ object FileUtil {
     }
 
     /**
-     * 判断下载目录是否存在
+     * 将bitmap存成文件至指定目录下-读写权限
+     * BitmapFactory.decodeResource(resources, R.mipmap.img_qr_code)
      */
     @JvmStatic
-    @Throws(IOException::class)
-    fun isExistDir(filePath: String): String {
-        val downloadFile = File(filePath)
-        if (!downloadFile.mkdirs()) {
-            downloadFile.createNewFile()
+    fun saveBitmap(context: Context, bitmap: Bitmap, quality: Int = 100): Boolean {
+        return saveBitmap(context, bitmap, Constants.APPLICATION_FILE_PATH + "/图片", true, quality)
+    }
+
+    @JvmStatic
+    fun saveBitmap(context: Context, bitmap: Bitmap, root: String = Constants.APPLICATION_FILE_PATH + "/图片", formatJpg: Boolean = false, quality: Int = 100): Boolean {
+        try {
+            val storeDir = File(root)
+            if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
+            val file = File(storeDir, DateUtil.getDateTimeStr(DateUtil.EN_YMDHMS, Date()) + if (formatJpg) ".jpg" else ".png")
+            //通过io流的方式来压缩保存图片
+            val fileOutputStream = FileOutputStream(file)
+            val result = bitmap.compress(if (formatJpg) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG, quality, fileOutputStream)//png的话100不响应，但是可以维持图片透明度
+            fileOutputStream.flush()
+            fileOutputStream.close()
+            //保存图片后发送广播通知更新数据库
+            MediaScannerConnection.scanFile(context, arrayOf(file.toString()), arrayOf(file.name), null)
+//            context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)))
+            return result
+        } catch (ignored: Exception) {
+        } finally {
+            bitmap.recycle()
         }
-        return downloadFile.absolutePath
+        return false
     }
 
     /**
@@ -81,37 +153,18 @@ object FileUtil {
      */
     @JvmStatic
     fun readText(filePath: String): String? {
-        val f = File(filePath)
-        if (f.exists()) {
+        val file = File(filePath)
+        if (file.exists()) {
             try {
-                val sb = StringBuilder()
-                var s: String?
-                val br = BufferedReader(InputStreamReader(FileInputStream(f)))
-                while (br.readLine().also { s = it } != null) {
-                    sb.append(s)
-                }
-                return sb.toString()
-            } catch (e: Exception) {
+                val stringBuilder = StringBuilder()
+                var str: String?
+                val bufferedReader = BufferedReader(InputStreamReader(FileInputStream(file)))
+                while (bufferedReader.readLine().also { str = it } != null) stringBuilder.append(str)
+                return stringBuilder.toString()
+            } catch (ignored: Exception) {
             }
         }
         return null
-    }
-
-    /**
-     * 获取文件大小
-     */
-    @JvmStatic
-    fun getFileSize(file: File): Long {
-        var size: Long = 0
-        val fileList = file.listFiles()
-        for (mFile in fileList) {
-            size = if (mFile.isDirectory) {
-                size + getFileSize(mFile)
-            } else {
-                size + mFile.length()
-            }
-        }
-        return size
     }
 
     /**
@@ -129,67 +182,19 @@ object FileUtil {
     }
 
     /**
-     * 将Bitmap缓存到本地
+     * 获取文件大小
      */
     @JvmStatic
-    fun saveBitmap(bitmap: Bitmap?) {
-//        val screenImagePath: String
-//        //输出
-//        try {
-//            val rootDir = Constants.APPLICATION_FILE_PATH + "/截屏"
-//            val downloadFile = File(rootDir)
-//            if (!downloadFile.mkdirs()) {
-//                //需要权限
-//                downloadFile.createNewFile()
-//            }
-//            screenImagePath = "$rootDir/screen_capture" + SimpleDateFormat(
-//                "yyyy_MM_dd_hh_mm_ss",
-//                Locale.getDefault()
-//            ).format(Date()) + ".png"
-//            val fileOutputStream = FileOutputStream(screenImagePath)
-//            bitmap?.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
-//            fileOutputStream.flush()
-//            fileOutputStream.close()
-//        } catch (ignored: java.lang.Exception) {
-//        } finally {
-//            bitmap?.recycle()
-//        }
-        val filePath: String
-        try {
-            //输出
-            val rootDir = Constants.APPLICATION_FILE_PATH + "/下载图片"
-            val saveFile = File(rootDir)
-            //需要权限
-            if (!saveFile.mkdirs()) {
-                saveFile.createNewFile()
-            }
-            filePath = "$rootDir/" + SimpleDateFormat("yyyy_MM_dd_hh_mm_ss", Locale.getDefault()).format(Date()) + ".jpg"
-            val fileOutputStream = FileOutputStream(filePath)
-            bitmap?.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
-            fileOutputStream.flush()
-            fileOutputStream.close()
-        } catch (ignored: Exception) {
-        } finally {
-            bitmap?.recycle()
-        }
-    }
-
-    /**
-     * 是否安装了XXX应用
-     */
-    @JvmStatic
-    fun isAvailable(context: Context, packageName: String): Boolean {
-        val packageManager = context.packageManager
-        val packageInfos = packageManager.getInstalledPackages(0)
-        if (packageInfos != null) {
-            for (i in packageInfos.indices) {
-                val pn = packageInfos[i].packageName
-                if (pn == packageName) {
-                    return true
-                }
+    fun getFileSize(file: File): Long {
+        var size: Long = 0
+        for (mFile in file.listFiles()) {
+            size = if (mFile.isDirectory) {
+                size + getFileSize(mFile)
+            } else {
+                size + mFile.length()
             }
         }
-        return false
+        return size
     }
 
     /**
@@ -199,9 +204,7 @@ object FileUtil {
     fun getApplicationIcon(context: Context): Bitmap? {
         try {
             val drawable = context.packageManager.getApplicationIcon(Constants.APPLICATION_ID)
-            val bitmap = SoftReference(
-                Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, if (drawable.opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565)
-            )
+            val bitmap = SoftReference(Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, if (drawable.opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565))
             val canvas = Canvas(bitmap.get()!!)
             //canvas.setBitmap(bitmap);
             drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
@@ -229,6 +232,22 @@ object FileUtil {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         return intent
+    }
+
+    /**
+     * 获取手机cpu信息-报错或获取失败显示暂无
+     */
+    @JvmStatic
+    fun getCpuInfo(): String {
+        try {
+            val fr = FileReader("/proc/cpuinfo")
+            val br = BufferedReader(fr)
+            val text = br.readLine()
+            val array = text.split(":\\s+".toRegex(), 2).toTypedArray()
+            return array[1]
+        } catch (ignored: Exception) {
+        }
+        return "暂无"
     }
 
 }

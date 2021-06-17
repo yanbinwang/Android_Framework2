@@ -13,6 +13,7 @@ import java.io.*
  * 图片工具类
  */
 object CompressUtil {
+
     @JvmStatic
     fun compressImg(image: Bitmap, length: Int= 512): ByteArrayOutputStream {
         var bitmap = image
@@ -83,9 +84,7 @@ object CompressUtil {
             } catch (e: IOException) {
                 mFile
             }
-        } else {
-            mFile
-        }
+        } else mFile
     }
 
     @JvmStatic
@@ -121,9 +120,7 @@ object CompressUtil {
             } catch (e: IOException) {
                 bitmap
             }
-        } else {
-            bitmap
-        }
+        } else bitmap
     }
 
     @JvmStatic
@@ -165,26 +162,20 @@ object CompressUtil {
             } catch (e: IOException) {
                 mFile
             }
-        } else {
-            mFile
-        }
+        } else mFile
     }
 
     //读取图片的方向
     private fun readImageDegree(path: String): Int {
         var degree = 0
-        // 读取图片文件信息的类ExifInterface
+        //读取图片文件信息的类ExifInterface
         var exifInterface: ExifInterface? = null
         try {
             exifInterface = ExifInterface(path)
         } catch (e: IOException) {
         }
         if (exifInterface != null) {
-            val orientation = exifInterface.getAttributeInt(
-                ExifInterface.TAG_ORIENTATION,
-                ExifInterface.ORIENTATION_NORMAL
-            )
-            when (orientation) {
+            when (exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
                 ExifInterface.ORIENTATION_ROTATE_90 -> degree = 90
                 ExifInterface.ORIENTATION_ROTATE_180 -> degree = 180
                 ExifInterface.ORIENTATION_ROTATE_270 -> degree = 270

@@ -26,12 +26,12 @@ class CircleImageView extends ImageView {
     private Animation.AnimationListener mListener;
     private final int mShadowRadius;
     //PX
-    private static final float X_OFFSET = 0f;
-    private static final float Y_OFFSET = 1.75f;
-    private static final float SHADOW_RADIUS = 3.5f;
     private static final int SHADOW_ELEVATION = 4;
     private static final int KEY_SHADOW_COLOR = 0x1E000000;
     private static final int FILL_SHADOW_COLOR = 0x3D000000;
+    private static final float X_OFFSET = 0f;
+    private static final float Y_OFFSET = 1.75f;
+    private static final float SHADOW_RADIUS = 3.5f;
 
     public CircleImageView(Context context, int color, final float radius) {
         super(context);
@@ -55,10 +55,6 @@ class CircleImageView extends ImageView {
         setBackground(circle);
     }
 
-    private boolean elevationSupported() {
-        return android.os.Build.VERSION.SDK_INT >= 21;
-    }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -67,8 +63,8 @@ class CircleImageView extends ImageView {
         }
     }
 
-    public void setAnimationListener(Animation.AnimationListener listener) {
-        mListener = listener;
+    private boolean elevationSupported() {
+        return android.os.Build.VERSION.SDK_INT >= 21;
     }
 
     @Override
@@ -85,6 +81,10 @@ class CircleImageView extends ImageView {
         if (mListener != null) {
             mListener.onAnimationEnd(getAnimation());
         }
+    }
+
+    public void setAnimationListener(Animation.AnimationListener listener) {
+        mListener = listener;
     }
 
     public void setBackgroundColor(int colorRes) {
