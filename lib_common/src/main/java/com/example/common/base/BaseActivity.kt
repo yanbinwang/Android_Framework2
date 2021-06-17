@@ -66,8 +66,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                 binding = method?.invoke(null, layoutInflater) as VDB
                 binding.lifecycleOwner = this
                 setContentView(binding.root)
-            } catch (e: Exception) {
-                e.printStackTrace()
+            } catch (ignored: Exception) {
             }
         }
         initView()

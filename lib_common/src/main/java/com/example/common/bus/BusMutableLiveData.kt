@@ -17,7 +17,6 @@ class BusMutableLiveData<T> : MutableLiveData<T>() {
         try {
             hook(observer)
         } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 

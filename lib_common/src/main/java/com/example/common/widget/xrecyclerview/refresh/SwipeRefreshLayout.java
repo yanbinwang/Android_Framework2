@@ -446,8 +446,7 @@ public class SwipeRefreshLayout extends ViewGroup {
                             return absListView.getChildAt(lastIndex).getBottom() == absListView.getPaddingBottom();
                         }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Exception ignored) {
                 }
                 return true;
             } else {
