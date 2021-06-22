@@ -176,10 +176,8 @@ object DateUtil {
     @JvmStatic
     fun getWeekOfMonth(source: String): Int {
         try {
-            val simpleDateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
-            val time = simpleDateFormat.parse(source)
             val calendar = Calendar.getInstance()
-            calendar.time = time
+            calendar.time = SimpleDateFormat(EN_YMD, Locale.getDefault()).parse(source)
             return calendar.get(Calendar.WEEK_OF_MONTH)
         } catch (e: ParseException) {
         }
@@ -196,10 +194,8 @@ object DateUtil {
     @JvmStatic
     fun getWeekOfDate(source: String): Int {
         try {
-            val simpleDateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
-            val time = simpleDateFormat.parse(source)
             val calendar = Calendar.getInstance()
-            calendar.time = time
+            calendar.time = SimpleDateFormat(EN_YMD, Locale.getDefault()).parse(source)
             var weekIndex = calendar.get(Calendar.DAY_OF_WEEK) - 1
             if (weekIndex < 0) weekIndex = 0
             return weekIndex
