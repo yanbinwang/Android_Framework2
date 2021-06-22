@@ -50,7 +50,7 @@ object CompressUtil {
     }
 
     @JvmStatic
-    fun scale(context: Context, file: File, fileMaxSize: Long = 100 * 1024.toLong()): File {
+    fun scale(context: Context, file: File, fileMaxSize: Long = 100 * 1024): File {
         val fileSize = file.length()
         var scaleSize = 1f
         return if (fileSize >= fileMaxSize) {
@@ -67,7 +67,7 @@ object CompressUtil {
                 options.inJustDecodeBounds = false
                 options.inSampleSize = (scaleSize + 0.5).toInt()
                 var bitmap = BitmapFactory.decodeFile(file.path, options)
-                bitmap = compressImgBySize(bitmap!!)
+                bitmap = compressImgBySize(bitmap)
                 val tempFile = File(context.applicationContext?.externalCacheDir, "${DateUtil.getDateTimeStr("yyyyMMdd_HHmmss", Date())}.jpg")
                 val fileOutputStream = try {
                     FileOutputStream(tempFile)
@@ -87,9 +87,9 @@ object CompressUtil {
 
     @JvmStatic
     fun scale(context: Context, bitmap: Bitmap): Bitmap {
-        val fileSize = getBitmapSize(bitmap).toLong()
+        val fileSize = getBitmapSize(bitmap)
         var scaleSize = 1f
-        val fileMaxSize = 100 * 1024L
+        val fileMaxSize = 100 * 1024
         return if (fileSize >= fileMaxSize) {
             try {
                 val options = BitmapFactory.Options()
@@ -126,7 +126,7 @@ object CompressUtil {
     }
 
     @Throws(IOException::class)
-    fun getBytes(inputStream: InputStream): ByteArray? {
+    fun getBytes(inputStream: InputStream): ByteArray {
         val byteArrayOutputStream = ByteArrayOutputStream()
         val buffer = ByteArray(1024) // 用数据装
         var len: Int
@@ -141,10 +141,10 @@ object CompressUtil {
     fun degreeImage(context: Context, file: File): File {
         val degree = readImageDegree(file.path)
         var bitmap: Bitmap
-        return if (degree != 0) {
+        return if (degree != 0f) {
             //旋转图片
             val matrix = Matrix()
-            matrix.postRotate(degree.toFloat())
+            matrix.postRotate(degree)
             bitmap = BitmapFactory.decodeFile(file.path)
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
             val tempFile = File(context.applicationContext?.externalCacheDir, DateUtil.getDateTimeStr("yyyyMMdd_HHmmss", Date()) + ".jpg")
@@ -163,8 +163,8 @@ object CompressUtil {
     }
 
     //读取图片的方向
-    private fun readImageDegree(path: String): Int {
-        var degree = 0
+    private fun readImageDegree(path: String): Float {
+        var degree = 0f
         //读取图片文件信息的类ExifInterface
         var exifInterface: ExifInterface? = null
         try {
@@ -172,9 +172,9 @@ object CompressUtil {
         } catch (e: IOException) {
         } finally {
             when (exifInterface?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
-                ExifInterface.ORIENTATION_ROTATE_90 -> degree = 90
-                ExifInterface.ORIENTATION_ROTATE_180 -> degree = 180
-                ExifInterface.ORIENTATION_ROTATE_270 -> degree = 270
+                ExifInterface.ORIENTATION_ROTATE_90 -> degree = 90f
+                ExifInterface.ORIENTATION_ROTATE_180 -> degree = 180f
+                ExifInterface.ORIENTATION_ROTATE_270 -> degree = 270f
             }
         }
         return degree
