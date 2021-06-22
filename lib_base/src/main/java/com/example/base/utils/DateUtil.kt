@@ -34,16 +34,16 @@ object DateUtil {
      *
      * @param fromFormat 被转换的日期格式
      * @param toFormat   要转换的日期格式
-     * @param dateFormat 本转换的日期
+     * @param source 被转换的日期
      * @return
      */
     @JvmStatic
-    fun getDateFormat(fromFormat: String, toFormat: String, dateFormat: String): String {
+    fun getDateFormat(fromFormat: String, toFormat: String, source: String): String {
         var result = ""
-        if (!TextUtils.isEmpty(dateFormat)) {
+        if (!TextUtils.isEmpty(source)) {
             try {
                 //传入格式转换成日期
-                val date = SimpleDateFormat(fromFormat, Locale.getDefault()).parse(dateFormat)
+                val date = SimpleDateFormat(fromFormat, Locale.getDefault()).parse(source)
                 //日期转换成想要的格式
                 result = SimpleDateFormat(toFormat, Locale.getDefault()).format(date)
             } catch (e: ParseException) {
@@ -56,13 +56,13 @@ object DateUtil {
      * 传入指定日期格式的字符串转成毫秒
      *
      * @param format
-     * @param dateFormat
+     * @param source
      * @return
      */
     @JvmStatic
-    fun getDateTime(format: String, dateFormat: String): Long {
+    fun getDateTime(format: String, source: String): Long {
         try {
-            return SimpleDateFormat(format, Locale.getDefault()).parse(dateFormat).time
+            return SimpleDateFormat(format, Locale.getDefault()).parse(source).time
         } catch (e: ParseException) {
         }
         return 0
@@ -70,6 +70,7 @@ object DateUtil {
 
     /**
      * 传入指定日期格式和毫秒转换成字符串
+     *
      * @param format
      * @param timestamp
      * @return
@@ -81,8 +82,9 @@ object DateUtil {
 
     /**
      * 传入指定日期格式和日期類转换成字符串
+     *
      * @param format
-     * @param timestamp
+     * @param date
      * @return
      */
     @JvmStatic
@@ -92,14 +94,15 @@ object DateUtil {
 
     /**
      * 传入毫秒转换成00:00的格式
-     * @param time
+     *
+     * @param timestamp
      * @return
      */
     @JvmStatic
-    fun getTimeStr(time: Long): String {
-        if (time <= 0) return "00:00"
-        val second = (time / 1000 / 60).toInt()
-        val million = (time / 1000 % 60).toInt()
+    fun getTimeStr(timestamp: Long): String {
+        if (timestamp <= 0) return "00:00"
+        val second = (timestamp / 1000 / 60).toInt()
+        val million = (timestamp / 1000 % 60).toInt()
         val f = if (second >= 10) second.toString() else "0$second"
         val m = if (million >= 10) million.toString() else "0$million"
         return "$f:$m"
@@ -108,16 +111,16 @@ object DateUtil {
     /**
      * 日期对比（统一年月日形式）
      *
-     * @param fromDate 被比较日期
-     * @param toDate   比较日期
+     * @param fromSource 被比较日期
+     * @param toSource   比较日期
      * @return
      */
     @JvmStatic
-    fun compareDate(fromDate: String, toDate: String): Int {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    fun compareDate(fromSource: String, toSource: String): Int {
+        val dateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
         try {
-            val comparedDate = dateFormat.parse(fromDate)
-            val comparedDate2 = dateFormat.parse(toDate)
+            val comparedDate = dateFormat.parse(fromSource)
+            val comparedDate2 = dateFormat.parse(toSource)
             return when {
                 comparedDate.time > comparedDate2.time -> 1//日程时间大于系统时间
                 comparedDate.time < comparedDate2.time -> -1//日程时间小于系统时间
