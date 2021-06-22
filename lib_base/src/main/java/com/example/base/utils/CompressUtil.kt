@@ -7,6 +7,7 @@ import android.graphics.Matrix
 import android.media.ExifInterface
 import com.example.base.utils.LogUtil.e
 import java.io.*
+import java.util.*
 
 /**
  * Created by WangYanBin on 2020/7/23.
@@ -15,9 +16,8 @@ import java.io.*
 object CompressUtil {
 
     @JvmStatic
-    fun compressImg(image: Bitmap, length: Int= 512): ByteArrayOutputStream {
-        var bitmap = image
-        bitmap = compressImgBySize(bitmap)!!
+    fun compressImg(bitmap: Bitmap, length: Int = 512): ByteArrayOutputStream {
+        compressImgBySize(bitmap)
         val byteArrayOutputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
         var options = 100
@@ -31,8 +31,7 @@ object CompressUtil {
     }
 
     @JvmStatic
-    fun compressImgBySize(image: Bitmap): Bitmap? {
-        var bitmap = image
+    fun compressImgBySize(bitmap: Bitmap): Bitmap {
         var size = 1f
         val width = bitmap.width
         val height = bitmap.height
@@ -47,13 +46,12 @@ object CompressUtil {
             e("h", bitmap.height.toString() + "")
         }
         matrix.postScale(size, size)
-        bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true)
-        return bitmap
+        return Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true)
     }
 
     @JvmStatic
-    fun scale(context: Context?, mFile: File, fileMaxSize: Long = 100 * 1024.toLong()): File {
-        val fileSize = mFile.length()
+    fun scale(context: Context, file: File, fileMaxSize: Long = 100 * 1024.toLong()): File {
+        val fileSize = file.length()
         var scaleSize = 1f
         return if (fileSize >= fileMaxSize) {
             try {
@@ -62,37 +60,36 @@ object CompressUtil {
                 val width = options.outWidth
                 val height = options.outHeight
                 if (width > 720) {
-                    scaleSize = width / 480.toFloat()
+                    scaleSize = width / 480f
                 } else if (height > 1280) {
-                    scaleSize = width / 1080.toFloat()
+                    scaleSize = width / 1080f
                 }
                 options.inJustDecodeBounds = false
                 options.inSampleSize = (scaleSize + 0.5).toInt()
-                var bitmap: Bitmap? = BitmapFactory.decodeFile(mFile.path, options)
+                var bitmap = BitmapFactory.decodeFile(file.path, options)
                 bitmap = compressImgBySize(bitmap!!)
-                val fTemp = File(context?.applicationContext?.externalCacheDir, System.currentTimeMillis().toString() + "img.jpg")
+                val tempFile = File(context.applicationContext?.externalCacheDir, "${DateUtil.getDateTimeStr("yyyyMMdd_HHmmss", Date())}.jpg")
                 val fileOutputStream = try {
-                    FileOutputStream(fTemp)
+                    FileOutputStream(tempFile)
                 } catch (e: FileNotFoundException) {
-                    return mFile
+                    return file
                 }
-                bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
                 fileOutputStream.flush()
                 fileOutputStream.close()
-                bitmap?.recycle()
-                fTemp
+                bitmap.recycle()
+                tempFile
             } catch (e: IOException) {
-                mFile
+                file
             }
-        } else mFile
+        } else file
     }
 
     @JvmStatic
-    fun scale(context: Context?, image: Bitmap): Bitmap {
-        var bitmap = image
-        val fileSize: Long = getBitmapSize(bitmap).toLong()
+    fun scale(context: Context, bitmap: Bitmap): Bitmap {
+        val fileSize = getBitmapSize(bitmap).toLong()
         var scaleSize = 1f
-        val fileMaxSize = 100 * 1024.toLong()
+        val fileMaxSize = 100 * 1024L
         return if (fileSize >= fileMaxSize) {
             try {
                 val options = BitmapFactory.Options()
@@ -100,14 +97,14 @@ object CompressUtil {
                 val width = options.outWidth
                 val height = options.outHeight
                 if (width > 720) {
-                    scaleSize = width / 480.toFloat()
+                    scaleSize = width / 480f
                 } else if (height > 1280) {
-                    scaleSize = width / 1080.toFloat()
+                    scaleSize = width / 1080f
                 }
                 options.inJustDecodeBounds = false
                 options.inSampleSize = (scaleSize + 0.5).toInt()
-                bitmap = compressImgBySize(bitmap)!!
-                val file = File(context?.applicationContext?.externalCacheDir, System.currentTimeMillis().toString() + "img.jpg")
+                compressImgBySize(bitmap)
+                val file = File(context.applicationContext?.externalCacheDir, "${DateUtil.getDateTimeStr("yyyyMMdd_HHmmss", Date())}.jpg")
                 val fileOutputStream = try {
                     FileOutputStream(file)
                 } catch (e: FileNotFoundException) {
@@ -141,28 +138,28 @@ object CompressUtil {
     }
 
     @JvmStatic
-    fun degreeImage(context: Context?, mFile: File): File {
-        val degree = readImageDegree(mFile.path)
+    fun degreeImage(context: Context, file: File): File {
+        val degree = readImageDegree(file.path)
         var bitmap: Bitmap
         return if (degree != 0) {
             //旋转图片
             val matrix = Matrix()
             matrix.postRotate(degree.toFloat())
-            bitmap = BitmapFactory.decodeFile(mFile.path)
+            bitmap = BitmapFactory.decodeFile(file.path)
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-            val fTemp = File(context?.applicationContext?.externalCacheDir, System.currentTimeMillis().toString() + "img.jpg")
+            val tempFile = File(context.applicationContext?.externalCacheDir, DateUtil.getDateTimeStr("yyyyMMdd_HHmmss", Date()) + ".jpg")
             val fileOutputStream: FileOutputStream
             try {
-                fileOutputStream = FileOutputStream(fTemp)
+                fileOutputStream = FileOutputStream(tempFile)
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
                 fileOutputStream.flush()
                 fileOutputStream.close()
                 bitmap.recycle()
-                fTemp
+                tempFile
             } catch (e: IOException) {
-                mFile
+                file
             }
-        } else mFile
+        } else file
     }
 
     //读取图片的方向
@@ -173,9 +170,8 @@ object CompressUtil {
         try {
             exifInterface = ExifInterface(path)
         } catch (e: IOException) {
-        }
-        if (exifInterface != null) {
-            when (exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
+        } finally {
+            when (exifInterface?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
                 ExifInterface.ORIENTATION_ROTATE_90 -> degree = 90
                 ExifInterface.ORIENTATION_ROTATE_180 -> degree = 180
                 ExifInterface.ORIENTATION_ROTATE_270 -> degree = 270
