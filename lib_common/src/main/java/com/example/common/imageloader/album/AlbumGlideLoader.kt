@@ -1,4 +1,4 @@
-package com.example.common.imageloader.glide.callback
+package com.example.common.imageloader.album
 
 import android.widget.ImageView
 import com.bumptech.glide.Glide
@@ -11,7 +11,7 @@ import com.yanzhenjie.album.AlbumLoader
  * date: 2017/8/29.
  * 相册使用glide图片加载库
  */
-class GlideAlbumLoader : AlbumLoader {
+class AlbumGlideLoader : AlbumLoader {
 
     override fun load(imageView: ImageView, albumFile: AlbumFile) {
         load(imageView, albumFile.path)

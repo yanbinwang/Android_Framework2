@@ -26,11 +26,6 @@ class LiveDataBus private constructor() {
         return bus[key] as MutableLiveData<T>
     }
 
-//    //通知方法，传入消息名称，通过postValue发送数据
-//    fun post(key: String): MutableLiveData<Any> {
-//        return toFlowable(key, Any::class.java)
-//    }
-
     //项目订阅
     fun toFlowable(): MutableLiveData<LiveDataEvent> {
         return toFlowable(Constants.LIVE_DATA_KEY, LiveDataEvent::class.java)

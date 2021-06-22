@@ -8,6 +8,7 @@ import android.graphics.PixelFormat
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
+import android.provider.MediaStore
 import android.provider.Settings
 import androidx.core.content.FileProvider
 import com.example.base.utils.DateUtil
@@ -138,7 +139,9 @@ object FileUtil {
             fileOutputStream.flush()
             fileOutputStream.close()
             //保存图片后发送广播通知更新数据库
-            MediaScannerConnection.scanFile(context, arrayOf(file.toString()), arrayOf(file.name), null)
+            MediaStore.Images.Media.insertImage(context.contentResolver, file.absolutePath, file.name, null)
+            context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + file.path)))
+//            MediaScannerConnection.scanFile(context, arrayOf(file.toString()), arrayOf(file.name), null)
 //            context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)))
             return result
         } catch (ignored: Exception) {

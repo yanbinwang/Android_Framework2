@@ -2,6 +2,7 @@ package com.example.common.imageloader.glide.callback
 
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
+import com.dataqin.common.imageloader.glide.callback.progress.OnProgressLoaderListener
 import java.io.File
 
 /**
@@ -13,6 +14,8 @@ interface GlideImpl {
     fun displayZoomImage(view: ImageView, string: String?)
 
     fun displayCoverImage(view: ImageView, string: String?)
+
+    fun displayProgressImage(view: ImageView, string: String, progressListener: OnProgressLoaderListener?)
 
     fun displayImage(view: ImageView, string: String?)
 

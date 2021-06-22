@@ -3,6 +3,7 @@ package com.example.common.imageloader
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.example.common.BaseApplication
@@ -10,6 +11,9 @@ import com.example.common.R
 import com.example.common.imageloader.glide.callback.GlideImpl
 import com.example.common.imageloader.glide.callback.GlideModule
 import com.example.common.imageloader.glide.callback.GlideRequestListener
+import com.example.common.imageloader.glide.callback.progress.OnProgressLoaderListener
+import com.example.common.imageloader.glide.callback.progress.ProgressInterceptor
+import com.example.common.imageloader.glide.callback.progress.ProgressListener
 import com.example.common.imageloader.glide.transform.CornerTransform
 import com.example.common.imageloader.glide.transform.ZoomTransform
 import java.io.File
@@ -43,6 +47,30 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .setDefaultRequestOptions(RequestOptions().frame(1000000))
             .load(string)
             .dontAnimate()
+            .into(view)
+    }
+
+    override fun displayProgressImage(view: ImageView, string: String, progressListener: OnProgressLoaderListener?) {
+        ProgressInterceptor.addListener(string, object : ProgressListener {
+            override fun onProgress(progress: Int) {
+                progressListener?.onProgress(progress)
+            }
+        })
+        manager
+            .load(string)
+            .apply(RequestOptions()
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE))
+            .addListener(object : GlideRequestListener<Drawable?>() {
+                override fun onStart() {
+                    progressListener?.onStart()
+                }
+
+                override fun onComplete(resource: Drawable?) {
+                    ProgressInterceptor.removeListener(string)
+                    progressListener?.onComplete()
+                }
+            })
             .into(view)
     }
 

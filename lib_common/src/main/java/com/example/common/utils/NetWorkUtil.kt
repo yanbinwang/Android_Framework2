@@ -98,8 +98,7 @@ object NetWorkUtil {
 
     private fun getSecurity(config: WifiConfiguration): Int {
         if (config.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_PSK)) return SECURITY_PSK
-        if (config.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_EAP) || config.allowedKeyManagement.get(
-                WifiConfiguration.KeyMgmt.IEEE8021X)) return SECURITY_EAP
+        if (config.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_EAP) || config.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.IEEE8021X)) return SECURITY_EAP
         return if (config.wepKeys[0] != null) SECURITY_WEP else SECURITY_NONE
     }
 

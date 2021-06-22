@@ -4,7 +4,7 @@ import android.app.Application
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.base.utils.LogUtil.d
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
-import com.example.common.imageloader.glide.callback.GlideAlbumLoader
+import com.example.common.imageloader.album.AlbumGlideLoader
 import com.example.common.utils.helper.ConfigHelper
 import com.tencent.mmkv.MMKV
 import com.tencent.smtt.sdk.QbSdk
@@ -40,7 +40,7 @@ open class BaseApplication : Application() {
         //初始化图片库类
         Album.initialize(
             AlbumConfig.newBuilder(this)
-                .setAlbumLoader(GlideAlbumLoader()) //设置Album加载器。
+                .setAlbumLoader(AlbumGlideLoader()) //设置Album加载器。
                 .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
                 .build()
         )
