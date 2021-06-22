@@ -49,10 +49,10 @@ class PermissionHelper(context: Context) {
                         //权限申请成功回调
                         onPermissionCallBack?.onPermission(true)
                     }
-                    .onDenied { permissions ->
+                    .onDenied {
                         //权限申请失败回调-安卓Q定位为使用期间允许，此处做一次检测
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            if (checkSelfLocation() && permissions.size == 1 && listOf(*Permission.Group.LOCATION).contains(permissions[0])) {
+                            if (checkSelfLocation() && it.size == 1 && listOf(*Permission.Group.LOCATION).contains(it[0])) {
                                 onPermissionCallBack?.onPermission(true)
                                 return@onDenied
                             }
@@ -61,7 +61,7 @@ class PermissionHelper(context: Context) {
                         if (denied) {
                             var permissionIndex = 0
                             for (i in permissionGroup.indices) {
-                                if (listOf(*permissionGroup[i]).contains(permissions[0])) {
+                                if (listOf(*permissionGroup[i]).contains(it[0])) {
                                     permissionIndex = i
                                     break
                                 }
@@ -75,7 +75,7 @@ class PermissionHelper(context: Context) {
                                 else -> null
                             }
                             //如果用户拒绝了开启权限
-                            if (AndPermission.hasAlwaysDeniedPermission(weakContext.get(), permissions)) {
+                            if (AndPermission.hasAlwaysDeniedPermission(weakContext.get(), it)) {
                                 AndDialog.with(weakContext.get())
                                     .setParams(weakContext.get()?.getString(R.string.label_window_title), MessageFormat.format(weakContext.get()
                                         ?.getString(R.string.label_window_permission), result), weakContext.get()?.getString(R.string.label_window_sure), weakContext.get()?.getString(R.string.label_window_cancel))
