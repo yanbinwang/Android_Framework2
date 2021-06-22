@@ -38,6 +38,7 @@ object DateUtil {
      * @param source 被转换的日期
      * @return
      */
+    @Synchronized
     @JvmStatic
     fun getDateFormat(fromFormat: String, toFormat: String, source: String): String {
         var result = ""
@@ -60,6 +61,7 @@ object DateUtil {
      * @param source 日期
      * @return
      */
+    @Synchronized
     @JvmStatic
     fun getDateTime(format: String, source: String): Long {
         try {
@@ -76,6 +78,7 @@ object DateUtil {
      * @param timestamp 时间戳
      * @return
      */
+    @Synchronized
     @JvmStatic
     fun getDateTimeStr(format: String, timestamp: Long): String {
         return SimpleDateFormat(format, Locale.getDefault()).format(Date(timestamp))
@@ -88,6 +91,7 @@ object DateUtil {
      * @param date 日期类
      * @return
      */
+    @Synchronized
     @JvmStatic
     fun getDateTimeStr(format: String, date: Date): String {
         return SimpleDateFormat(format, Locale.getDefault()).format(date)
@@ -99,6 +103,7 @@ object DateUtil {
      * @param timestamp 时间戳
      * @return
      */
+    @Synchronized
     @JvmStatic
     fun getTimeStr(timestamp: Long): String {
         if (timestamp <= 0) return "00:00"
@@ -116,6 +121,7 @@ object DateUtil {
      * @param toSource   比较日期b
      * @return
      */
+    @Synchronized
     @JvmStatic
     fun compareDate(fromSource: String, toSource: String): Int {
         val dateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
@@ -138,6 +144,7 @@ object DateUtil {
      * @param inputDate 日期类
      * @return
      */
+    @Synchronized
     @JvmStatic
     fun isToday(inputDate: Date): Boolean {
         var flag = false
@@ -165,6 +172,7 @@ object DateUtil {
      * @param source 日期（yyyy-MM-dd）
      * @return
      */
+    @Synchronized
     @JvmStatic
     fun getWeekOfMonth(source: String): Int {
         try {
@@ -184,6 +192,7 @@ object DateUtil {
      * @param source 日期（yyyy-MM-dd）
      * @return
      */
+    @Synchronized
     @JvmStatic
     fun getWeekOfDate(source: String): Int {
         try {
@@ -205,6 +214,7 @@ object DateUtil {
      * @param source 日期（yyyy-MM-dd）
      * @return
      */
+    @Synchronized
     @JvmStatic
     fun getDateWeekStr(source: String): String {
         return when (getWeekOfDate(source)) {
