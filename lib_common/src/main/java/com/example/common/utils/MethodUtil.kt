@@ -25,10 +25,20 @@ import java.text.DecimalFormat
 //------------------------------------按钮，控件行为工具类------------------------------------
 
 /**
+ * 当小数位不超过两位时，补0
+ */
+fun Double.completion() = DecimalFormat("0.00").format(this) ?: ""
+
+/**
+ * 当小数位超过两位时，只显示两位，但只有一位或没有，则不需要补0
+ */
+fun Double.rounding() = DecimalFormat("0.##").format(this) ?: ""
+
+/**
  * 震动
  */
 @SuppressLint("MissingPermission")
-fun View.setVibrate(milliseconds: Long) {
+fun View.vibrate(milliseconds: Long) {
     val vibrator = (context.getSystemService(VIBRATOR_SERVICE) as Vibrator)
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
         vibrator.vibrate(milliseconds)
@@ -40,43 +50,27 @@ fun View.setVibrate(milliseconds: Long) {
 /**
  * 开启一个网页
  */
-fun View.openWebsite(url: String) {
-    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-}
+fun View.openWebsite(url: String) = context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 
 /**
  * 空出状态栏高度
  */
-fun RelativeLayout.rlTopMargin(){
+fun RelativeLayout.topMargin() {
     val params = layoutParams as RelativeLayout.LayoutParams
     params.topMargin = Constants.STATUS_BAR_HEIGHT
     layoutParams = params
 }
 
-fun LinearLayout.llTopMargin(){
+fun LinearLayout.topMargin() {
     val params = layoutParams as LinearLayout.LayoutParams
     params.topMargin = Constants.STATUS_BAR_HEIGHT
     layoutParams = params
 }
 
 /**
- * 当小数位不超过两位时，补0
- */
-fun TextView.setDecimalFormat(number: Double) {
-    text = DecimalFormat("0.00").format(number)
-}
-
-/**
- * 当小数位超过两位时，只显示两位，但只有一位或没有，则不需要补0
- */
-fun TextView.setDecimalFormat2(number: Double) {
-    text = DecimalFormat("0.##").format(number)
-}
-
-/**
  * 设置textview内容当中某一段的颜色
  */
-fun TextView.setSpannable(textStr: String, keyword: String, colorRes: Int = R.color.blue_0d86ff) {
+fun TextView.setSpan(textStr: String, keyword: String, colorRes: Int = R.color.blue_0d86ff) {
     val spannable = SpannableString(textStr)
     val index = textStr.indexOf(keyword)
     if (index != -1) {
