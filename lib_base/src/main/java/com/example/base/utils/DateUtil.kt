@@ -24,6 +24,7 @@ object DateUtil {
     const val CN_M = "M月"
     const val CN_MD = "M月d日"
     const val CN_HM = "HH时mm分"
+    const val CN_HMS = "HH时mm分ss秒"
     const val CN_YM = "yyyy年M月"
     const val CN_YMD = "yyyy年MM月dd日"
     const val CN_YMDHM = "yyyy年MM月dd日 HH时mm分"
@@ -55,8 +56,8 @@ object DateUtil {
     /**
      * 传入指定日期格式的字符串转成毫秒
      *
-     * @param format
-     * @param source
+     * @param format 日期格式
+     * @param source 日期
      * @return
      */
     @JvmStatic
@@ -71,8 +72,8 @@ object DateUtil {
     /**
      * 传入指定日期格式和毫秒转换成字符串
      *
-     * @param format
-     * @param timestamp
+     * @param format 日期格式
+     * @param timestamp 时间戳
      * @return
      */
     @JvmStatic
@@ -83,8 +84,8 @@ object DateUtil {
     /**
      * 传入指定日期格式和日期類转换成字符串
      *
-     * @param format
-     * @param date
+     * @param format 日期格式
+     * @param date 日期类
      * @return
      */
     @JvmStatic
@@ -95,7 +96,7 @@ object DateUtil {
     /**
      * 传入毫秒转换成00:00的格式
      *
-     * @param timestamp
+     * @param timestamp 时间戳
      * @return
      */
     @JvmStatic
@@ -111,8 +112,8 @@ object DateUtil {
     /**
      * 日期对比（统一年月日形式）
      *
-     * @param fromSource 被比较日期
-     * @param toSource   比较日期
+     * @param fromSource 比较日期a
+     * @param toSource   比较日期b
      * @return
      */
     @JvmStatic
@@ -134,7 +135,7 @@ object DateUtil {
     /**
      * 传入日期是否为手机当日
      *
-     * @param inputDate
+     * @param inputDate 日期类
      * @return
      */
     @JvmStatic
@@ -161,14 +162,14 @@ object DateUtil {
     /**
      * 获取日期的当月的第几周
      *
-     * @param inputDate
+     * @param source 日期（yyyy-MM-dd）
      * @return
      */
     @JvmStatic
-    fun getWeekOfMonth(inputDate: String): Int {
+    fun getWeekOfMonth(source: String): Int {
         try {
             val simpleDateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
-            val time = simpleDateFormat.parse(inputDate)
+            val time = simpleDateFormat.parse(source)
             val calendar = Calendar.getInstance()
             calendar.time = time
             return calendar.get(Calendar.WEEK_OF_MONTH)
@@ -180,14 +181,14 @@ object DateUtil {
     /**
      * 获取日期是第几周
      *
-     * @param inputDate
+     * @param source 日期（yyyy-MM-dd）
      * @return
      */
     @JvmStatic
-    fun getWeekOfDate(inputDate: String): Int {
+    fun getWeekOfDate(source: String): Int {
         try {
             val simpleDateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
-            val time = simpleDateFormat.parse(inputDate)
+            val time = simpleDateFormat.parse(source)
             val calendar = Calendar.getInstance()
             calendar.time = time
             var weekIndex = calendar.get(Calendar.DAY_OF_WEEK) - 1
@@ -201,12 +202,12 @@ object DateUtil {
     /**
      * 返回中文形式的星期
      *
-     * @param inputDate
+     * @param source 日期（yyyy-MM-dd）
      * @return
      */
     @JvmStatic
-    fun getDateWeekStr(inputDate: String): String {
-        return when (getWeekOfDate(inputDate)) {
+    fun getDateWeekStr(source: String): String {
+        return when (getWeekOfDate(source)) {
             0 -> "星期天"
             1 -> "星期一"
             2 -> "星期二"
