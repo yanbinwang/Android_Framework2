@@ -23,7 +23,7 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
         super.initView()
         titleBuilder.setTitle("登录").getDefault()
 
-//        viewModel.addEmptyView(baseBinding.flBaseContainer)
+//        viewModel.setEmptyView(baseBinding.flBaseContainer)
     }
 
     override fun initEvent() {
@@ -39,11 +39,11 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
 
         }, binding.etAccount, binding.etPassword)
 
-        PageHandler.getEmptyView(baseBinding.flBaseContainer).setOnEmptyRefreshListener(object : OnEmptyRefreshListener{
-            override fun onRefresh() {
-                showToast("我点")
-            }
-        })
+//        PageHandler.getEmptyView(baseBinding.flBaseContainer).setOnEmptyRefreshListener(object : OnEmptyRefreshListener{
+//            override fun onRefresh() {
+//                showToast("我点")
+//            }
+//        })
 
         binding.btnLogin.setOnClickListener {
             viewModel.login(getParameters(binding.etAccount), getParameters(binding.etPassword))

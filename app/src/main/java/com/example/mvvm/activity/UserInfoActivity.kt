@@ -26,8 +26,9 @@ class UserInfoActivity : BaseActivity<ActivityUserInfoBinding>() {
         super.initEvent()
         binding.btnTest.setOnClickListener {
             //发送消息
-            LiveDataBus.instance.post(LiveDataEvent(Constants.APP_USER_LOGIN, "50998"))
-            LiveDataBus.instance.post(LiveDataEvent(Constants.APP_USER_LOGIN_OUT))
+            LiveDataBus.instance.post(
+                LiveDataEvent(Constants.APP_USER_LOGIN, "50998"),
+                LiveDataEvent(Constants.APP_USER_LOGIN_OUT))
             finish()
         }
     }

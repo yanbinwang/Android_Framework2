@@ -2,7 +2,7 @@ package com.example.common.imageloader.glide.callback
 
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
-import com.dataqin.common.imageloader.glide.callback.progress.OnProgressLoaderListener
+import com.example.common.imageloader.glide.callback.progress.OnProgressLoaderListener
 import java.io.File
 
 /**

@@ -132,7 +132,7 @@ object FileUtil {
         try {
             val storeDir = File(root)
             if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
-            val file = File(storeDir, DateUtil.getDateTimeStr(DateUtil.EN_YMDHMS, Date()) + if (formatJpg) ".jpg" else ".png")
+            val file = File(storeDir, DateUtil.getDateTime(DateUtil.EN_YMDHMS, Date()) + if (formatJpg) ".jpg" else ".png")
             //通过io流的方式来压缩保存图片
             val fileOutputStream = FileOutputStream(file)
             val result = bitmap.compress(if (formatJpg) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG, quality, fileOutputStream)//png的话100不响应，但是可以维持图片透明度

@@ -80,7 +80,6 @@
         <activity
             android:name=".activity.TestListActivity"
             android:screenOrientation="portrait" />
-
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"
