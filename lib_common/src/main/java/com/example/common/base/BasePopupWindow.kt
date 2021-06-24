@@ -79,8 +79,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding> : PopupWindow {
                 animationStyle = R.style.pushBottomAnimStyle
             }
         } else {
-            enterTransition = null
-            exitTransition = null
+//            enterTransition = null
+//            exitTransition = null
             animationStyle = -1
         }
     }
