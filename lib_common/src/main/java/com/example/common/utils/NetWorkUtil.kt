@@ -1,105 +1,67 @@
 package com.example.common.utils
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
-import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiManager
-import android.telephony.TelephonyManager
-
+import com.example.base.utils.LogUtil
 import com.example.common.BaseApplication
+import com.example.common.base.proxy.NetworkCallbackImpl
 
 /**
  * author: wyb
  * date: 2018/8/13.
  * 网路监测类
  */
-@SuppressLint("StaticFieldLeak", "MissingPermission")
 object NetWorkUtil {
     private val context by lazy { BaseApplication.instance?.applicationContext!! }
-    private val connectivityManager by lazy { context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager }
-    private const val SECURITY_NONE = 0
-    private const val SECURITY_WEP = 1
-    private const val SECURITY_PSK = 2
-    private const val SECURITY_EAP = 3
 
     /**
      * 验证是否联网
      */
     @JvmStatic
-    fun isNetworkAvailable(): Boolean {
-        val networkInfo = connectivityManager.activeNetworkInfo
-        if (networkInfo != null && networkInfo.isConnected) {
-            return networkInfo.state == NetworkInfo.State.CONNECTED
-        }
-        return false
-    }
+    fun isNetworkAvailable() = NetworkCallbackImpl.available
 
     /**
      * 判断当前网络环境是否为wifi
      */
     @JvmStatic
-    fun isWifi(): Boolean {
-        try {
-            return connectivityManager.activeNetworkInfo?.type == ConnectivityManager.TYPE_WIFI
-        } catch (ignored: Exception) {
-        }
-        return false
-    }
+    fun isWifi() = getNetWorkState() == 0
 
     /**
-     * 无线网络=1 移动网络=0 没有连接网络=-1
+     * WIFI网络=0 蜂窝网络=1 其他网络（未知网络，包括蓝牙、VPN、LoWPAN）=-1
      */
     @JvmStatic
-    fun getNetWorkState(): Int {
-        val networkInfo = connectivityManager.activeNetworkInfo
-        if (networkInfo != null && networkInfo.isConnected) {
-            if (networkInfo.type == ConnectivityManager.TYPE_WIFI) {
-                return 1
-            } else if (networkInfo.type == ConnectivityManager.TYPE_MOBILE) {
-                return 0
-            }
-        } else return -1
-        return -1
-    }
+    fun getNetWorkState() = NetworkCallbackImpl.netState
 
     /**
-     * 获取当前wifi密码的加密策略
+     * 获取当前wifi密码的加密策略(需要定位权限)
+     * 无线路由器里带有的加密模式主要有：WEP，WPA-PSK（TKIP），WPA2-PSK（AES）和WPA-PSK（TKIP）+WPA2-PSK（AES）。
+     * WPA2-PSK的加密方式基本无法破解，无线网络加密一般需要用此种加密方式才可以有效防止不被蹭网，考虑到设备兼容性，有WPA-PSK（TKIP）+WPA2-PSK（AES）混合加密选项的话一般选择此项，加密性能好，兼容性也广。
+     * WEP是Wired Equivalent Privacy（有线等效保密）的英文缩写，目前常见的是64位WEP加密和128位WEP加密。它是一种最老也是最不安全的加密方式，不建议大家选用。
+     * WPA是WEP加密的改进版，包含两种方式：预共享密钥和Radius密钥（远程用户拨号认证系统）。其中预共享密钥（pre-share key缩写为PSK）有两种密码方式：TKIP和AES，而RADIUS密钥利用RADIUS服务器认证并可以动态选择TKIP、AES、WEP方式。相比TKIP，AES具有更好的安全系数，建议用户使用。
+     * WPA2即WPA加密的升级版。WPA2同样也分为TKIP和AES两种方式，因此也建议选AES加密不要选TKIP。
      */
     @JvmStatic
     fun getWifiSecurity(): String {
         var result = "NONE"
         if (isWifi()) {
-            val mWifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            val info = mWifiManager.connectionInfo
-            //得到配置好的网络连接
-            val wifiConfigList = mWifiManager.configuredNetworks
-            for (wifiConfiguration in wifiConfigList) {
-                //配置过的SSID
-                var configSSid = wifiConfiguration.SSID
-                configSSid = configSSid.replace("\"", "")
-                //当前连接SSID
-                var currentSSid = info.ssid
-                currentSSid = currentSSid.replace("\"", "")
-                //比较networkId，防止配置网络保存相同的SSID
-                if (currentSSid.equals(configSSid) && (info.networkId == wifiConfiguration.networkId)) {
-                    result = when (getSecurity(wifiConfiguration)) {
-                        0 -> "NONE"
-                        1 -> "WPA_EAP"
-                        2 -> "WPA_PSK"
-                        else -> "IEEE8021X"
+            val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val connectionInfo = wifiManager.connectionInfo
+            for (scanResult in wifiManager.scanResults) {
+                val capabilities = scanResult.capabilities
+                LogUtil.e(" \nconnectionInfo的ssid:${connectionInfo.bssid}\nscanResult的ssid:${scanResult.BSSID}\ncapabilities:$capabilities")
+                if (scanResult.BSSID.contains(connectionInfo.bssid)) {
+                    result = when {
+                        capabilities.contains("WPA2-PSK") -> "WPA2-PSK"
+                        capabilities.contains("WPA2") -> "WPA2"
+                        capabilities.contains("WEP") -> "WEP"
+                        capabilities.contains("WPA") -> "WPA"
+                        else -> "NONE"
                     }
+                    break
                 }
             }
         }
         return result
-    }
-
-    private fun getSecurity(config: WifiConfiguration): Int {
-        if (config.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_PSK)) return SECURITY_PSK
-        if (config.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_EAP) || config.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.IEEE8021X)) return SECURITY_EAP
-        return if (config.wepKeys[0] != null) SECURITY_WEP else SECURITY_NONE
     }
 
 }

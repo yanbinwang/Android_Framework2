@@ -158,7 +158,7 @@ object ConfigHelper {
 
     //获取当前设备的id
     private fun getDeviceId(): String? {
-        val telephonyManager = (context?.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager)
+        val telephonyManager = (context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager)
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 telephonyManager.imei
@@ -168,11 +168,6 @@ object ConfigHelper {
         } catch (e: SecurityException) {
             null
         }
-//        return try {
-//            (context?.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager).deviceId
-//        } catch (e: SecurityException) {
-//            null
-//        }
     }
 
     //获取当前app version code

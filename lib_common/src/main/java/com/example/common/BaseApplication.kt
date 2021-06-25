@@ -1,9 +1,14 @@
 package com.example.common
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkRequest
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.base.utils.LogUtil.d
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
+import com.example.common.base.proxy.NetworkCallbackImpl
 import com.example.common.imageloader.album.AlbumGlideLoader
 import com.example.common.utils.helper.ConfigHelper
 import com.tencent.mmkv.MMKV
@@ -18,6 +23,7 @@ import java.util.*
 /**
  * Created by WangYanBin on 2020/8/14.
  */
+@SuppressLint("MissingPermission")
 open class BaseApplication : Application() {
 
     companion object {
@@ -42,8 +48,7 @@ open class BaseApplication : Application() {
             AlbumConfig.newBuilder(this)
                 .setAlbumLoader(AlbumGlideLoader()) //设置Album加载器。
                 .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
-                .build()
-        )
+                .build())
         //x5内核初始化接口
         QbSdk.initX5Environment(applicationContext, object : PreInitCallback {
             override fun onViewInitFinished(arg0: Boolean) {
@@ -55,8 +60,7 @@ open class BaseApplication : Application() {
         })
         //阿里路由跳转初始化
         if (BuildConfig.DEBUG) {
-            //打印日志
-            ARouter.openLog()
+            ARouter.openLog()//打印日志
             ARouter.openDebug()
         }
         //开启调试模式(如果在InstantRun模式下运行，必须开启调试模式！线上版本需要关闭,否则有安全风险)
@@ -67,6 +71,8 @@ open class BaseApplication : Application() {
         ConfigHelper.initialize(this)
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
+        //注册网络监听
+        (getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager).registerNetworkCallback(NetworkRequest.Builder().build(), NetworkCallbackImpl())
     }
 
 }
