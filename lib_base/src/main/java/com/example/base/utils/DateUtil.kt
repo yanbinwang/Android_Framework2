@@ -42,14 +42,12 @@ object DateUtil {
         var flag = false
         try {
             //获取当前系统时间
-            val longDate = System.currentTimeMillis()
-            val nowDate = Date(longDate)
-            val dateFormat = SimpleDateFormat(EN_YMDHMS, Locale.getDefault())
-            val format = dateFormat.format(nowDate)
-            val subDate = format.substring(0, 10)
+            val subDate = getDateTime(EN_YMD, System.currentTimeMillis())
             //定义每天的24h时间范围
             val beginTime = "$subDate 00:00:00"
             val endTime = "$subDate 23:59:59"
+            //转换Date
+            val dateFormat = SimpleDateFormat(EN_YMDHMS, Locale.getDefault())
             val parseBeginTime = dateFormat.parse(beginTime)
             val parseEndTime = dateFormat.parse(endTime)
             if (inputDate.after(parseBeginTime) && inputDate.before(parseEndTime)) flag = true
@@ -94,14 +92,12 @@ object DateUtil {
     @JvmStatic
     fun getDateFormat(fromFormat: String, toFormat: String, source: String): String {
         var result = ""
-        if (!TextUtils.isEmpty(source)) {
-            try {
-                //传入格式转换成日期
-                val date = SimpleDateFormat(fromFormat, Locale.getDefault()).parse(source)
-                //日期转换成想要的格式
-                result = SimpleDateFormat(toFormat, Locale.getDefault()).format(date)
-            } catch (ignored: ParseException) {
-            }
+        try {
+            //传入格式转换成日期
+            val date = SimpleDateFormat(fromFormat, Locale.getDefault()).parse(source)
+            //日期转换成想要的格式
+            result = SimpleDateFormat(toFormat, Locale.getDefault()).format(date)
+        } catch (ignored: ParseException) {
         }
         return result
     }
