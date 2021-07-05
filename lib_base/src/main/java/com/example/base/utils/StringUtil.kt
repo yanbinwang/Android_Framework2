@@ -1,5 +1,3 @@
-package com.example.base.utils
-
 import android.text.TextUtils
 import java.math.BigDecimal
 import java.math.RoundingMode

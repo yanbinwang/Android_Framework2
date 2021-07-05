@@ -16,7 +16,7 @@ class BusMutableLiveData<T> : MutableLiveData<T>() {
         super.observe(owner, observer)
         try {
             hook(observer)
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
         }
     }
 
@@ -31,12 +31,8 @@ class BusMutableLiveData<T> : MutableLiveData<T>() {
         methodGet.isAccessible = true
         val objectWrapperEntry = methodGet.invoke(objectObservers, observer)
         var objectWrapper: Any? = null
-        if (objectWrapperEntry is Map.Entry<*, *>) {
-            objectWrapper = objectWrapperEntry.value
-        }
-        if (objectWrapper == null) {
-            throw NullPointerException("Wrapper can not be bull!")
-        }
+        if (objectWrapperEntry is Map.Entry<*, *>) objectWrapper = objectWrapperEntry.value
+        if (objectWrapper == null) throw NullPointerException("Wrapper can not be bull!")
         val classObserverWrapper = objectWrapper.javaClass.superclass
         val fieldLastVersion = classObserverWrapper.getDeclaredField("mLastVersion")
         fieldLastVersion.isAccessible = true
@@ -53,20 +49,16 @@ class BusMutableLiveData<T> : MutableLiveData<T>() {
 
         override fun onChanged(t: T) {
             if (observer != null) {
-                if (isCallOnObserve()) {
-                    return
-                }
+                if (isCallOnObserve()) return
                 observer?.onChanged(t)
             }
         }
 
         private fun isCallOnObserve(): Boolean {
             val stackTrace = Thread.currentThread().stackTrace
-            if (stackTrace != null && stackTrace.isNotEmpty()) {
+            if (stackTrace.isNotEmpty()) {
                 for (element in stackTrace) {
-                    if ("android.arch.lifecycle.LiveData" == element.className && "observeForever" == element.methodName) {
-                        return true
-                    }
+                    if ("android.arch.lifecycle.LiveData" == element.className && "observeForever" == element.methodName) return true
                 }
             }
             return false
@@ -74,9 +66,7 @@ class BusMutableLiveData<T> : MutableLiveData<T>() {
     }
 
     override fun observeForever(observer: Observer<in T>) {
-        if (!observerMap.containsKey(observer)) {
-            observerMap[observer] = ObserverWrapper(observer)
-        }
+        if (!observerMap.containsKey(observer)) observerMap[observer] = ObserverWrapper(observer)
         super.observeForever(observerMap[observer] as Observer<in T>)
     }
 

@@ -8,6 +8,7 @@ import java.util.*
  *  Created by wangyanbin
  *  时间工具类
  *  默认1秒，分计数和倒计时
+ *  一个页面计时和倒计时有且只有一个存在，多种可考虑使用rxjava自带
  */
 object TimerHelper {
     private var timer: Timer? = null

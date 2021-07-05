@@ -10,29 +10,32 @@ import android.os.Vibrator
 import android.text.InputFilter
 import android.text.SpannableString
 import android.text.Spanned
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
 import android.text.style.ForegroundColorSpan
 import android.view.View
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.core.content.ContextCompat
 import com.example.base.utils.DecimalInputFilter
 import com.example.common.R
 import com.example.common.constant.Constants
-import java.text.DecimalFormat
 
 //------------------------------------按钮，控件行为工具类------------------------------------
 
 /**
- * 当小数位不超过两位时，补0
+ * 空出状态栏高度
  */
-fun Double.completion() = DecimalFormat("0.00").format(this) ?: ""
+fun RelativeLayout.topMargin() {
+    val params = layoutParams as RelativeLayout.LayoutParams
+    params.topMargin = Constants.STATUS_BAR_HEIGHT
+    layoutParams = params
+}
 
-/**
- * 当小数位超过两位时，只显示两位，但只有一位或没有，则不需要补0
- */
-fun Double.rounding() = DecimalFormat("0.##").format(this) ?: ""
+fun LinearLayout.topMargin() {
+    val params = layoutParams as LinearLayout.LayoutParams
+    params.topMargin = Constants.STATUS_BAR_HEIGHT
+    layoutParams = params
+}
 
 /**
  * 震动
@@ -53,19 +56,9 @@ fun View.vibrate(milliseconds: Long) {
 fun View.openWebsite(url: String) = context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 
 /**
- * 空出状态栏高度
+ * 设置按钮显影图片
  */
-fun RelativeLayout.topMargin() {
-    val params = layoutParams as RelativeLayout.LayoutParams
-    params.topMargin = Constants.STATUS_BAR_HEIGHT
-    layoutParams = params
-}
-
-fun LinearLayout.topMargin() {
-    val params = layoutParams as LinearLayout.LayoutParams
-    params.topMargin = Constants.STATUS_BAR_HEIGHT
-    layoutParams = params
-}
+fun ImageView.setDisplayResource(display: Boolean, showId: Int, hideId: Int) = setBackgroundResource(if (!display) showId else hideId)
 
 /**
  * 设置textview内容当中某一段的颜色
@@ -79,30 +72,31 @@ fun TextView.setSpan(textStr: String, keyword: String, colorRes: Int = R.color.b
     }
 }
 
-///**
-// * EditText输入密码是否可见(显隐)
-// */
-//fun EditText.inputTransformation(isDisplay: Boolean, imageView: ImageView): Boolean {
-//    if (!isDisplay) {
-//        //display password text, for example "123456"
-//        transformationMethod = HideReturnsTransformationMethod.getInstance()
-//        try {
-//            setSelection(text.length)
-////            imageView.setBackgroundResource(R.mipmap.ic_text_show)
-//        } catch (e: Exception) {
-//        }
-//    } else {
-//        //hide password, display "."
-//        transformationMethod = PasswordTransformationMethod.getInstance()
-//        try {
-//            setSelection(text.length)
-////            imageView.setBackgroundResource(R.mipmap.ic_text_hide)
-//        } catch (e: Exception) {
-//        }
-//    }
-//    postInvalidate()
-//    return !isDisplay
-//}
+/**
+ * 设置显示内容和对应文本颜色
+ */
+fun TextView.setState(textStr: String, colorRes: Int = R.color.blue_0d86ff) {
+    text = textStr
+    setTextColor(ContextCompat.getColor(context, colorRes))
+}
+
+/**
+ * EditText输入密码是否可见(显隐)
+ */
+fun EditText.inputTransformation(): Boolean {
+    try {
+        transformationMethod = if(transformationMethod == HideReturnsTransformationMethod.getInstance()) {
+            PasswordTransformationMethod.getInstance()
+        } else {
+            HideReturnsTransformationMethod.getInstance()
+        }
+        setSelection(text.length)
+        postInvalidate()
+    } catch (ignored: Exception) {
+    } finally {
+        return transformationMethod == HideReturnsTransformationMethod.getInstance()
+    }
+}
 
 /**
  * EditText输入金额小数限制

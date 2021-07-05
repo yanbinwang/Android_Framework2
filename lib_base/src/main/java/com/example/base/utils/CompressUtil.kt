@@ -16,8 +16,8 @@ import java.util.*
 object CompressUtil {
 
     @JvmStatic
-    fun compressImg(bitmap: Bitmap, length: Int = 512): ByteArrayOutputStream {
-        compressImgBySize(bitmap)
+    fun compress(bitmap: Bitmap, length: Int = 512): ByteArrayOutputStream {
+        compressBySize(bitmap)
         val byteArrayOutputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
         var options = 100
@@ -31,19 +31,19 @@ object CompressUtil {
     }
 
     @JvmStatic
-    fun compressImgBySize(bitmap: Bitmap): Bitmap {
+    fun compressBySize(bitmap: Bitmap): Bitmap {
         var size = 1f
         val width = bitmap.width
         val height = bitmap.height
         val matrix = Matrix()
         if (width > 720) {
             size = 720f / width
-            e("w", bitmap.width.toString() + "")
-            e("h", bitmap.height.toString() + "")
+            e("w", bitmap.width.toString())
+            e("h", bitmap.height.toString())
         } else if (height > 1280) {
             size = 1280f / height
-            e("w", bitmap.width.toString() + "")
-            e("h", bitmap.height.toString() + "")
+            e("w", bitmap.width.toString())
+            e("h", bitmap.height.toString())
         }
         matrix.postScale(size, size)
         return Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true)
@@ -67,7 +67,7 @@ object CompressUtil {
                 options.inJustDecodeBounds = false
                 options.inSampleSize = (scaleSize + 0.5).toInt()
                 var bitmap = BitmapFactory.decodeFile(file.path, options)
-                bitmap = compressImgBySize(bitmap)
+                bitmap = compressBySize(bitmap)
                 val tempFile = File(context.applicationContext?.externalCacheDir, "${DateUtil.getDateTime("yyyyMMdd_HHmmss", Date())}.jpg")
                 val fileOutputStream = try {
                     FileOutputStream(tempFile)
@@ -103,7 +103,7 @@ object CompressUtil {
                 }
                 options.inJustDecodeBounds = false
                 options.inSampleSize = (scaleSize + 0.5).toInt()
-                compressImgBySize(bitmap)
+                compressBySize(bitmap)
                 val file = File(context.applicationContext?.externalCacheDir, "${DateUtil.getDateTime("yyyyMMdd_HHmmss", Date())}.jpg")
                 val fileOutputStream = try {
                     FileOutputStream(file)
@@ -121,9 +121,7 @@ object CompressUtil {
     }
 
     @JvmStatic
-    fun getBitmapSize(bitmap: Bitmap): Int {
-        return bitmap.allocationByteCount
-    }
+    fun getBitmapSize(bitmap: Bitmap) = bitmap.allocationByteCount
 
     @Throws(IOException::class)
     fun getBytes(inputStream: InputStream): ByteArray {
@@ -138,8 +136,8 @@ object CompressUtil {
     }
 
     @JvmStatic
-    fun degreeImage(context: Context, file: File): File {
-        val degree = readImageDegree(file.path)
+    fun degree(context: Context, file: File): File {
+        val degree = readDegree(file.path)
         var bitmap: Bitmap
         return if (degree != 0f) {
             //旋转图片
@@ -163,13 +161,13 @@ object CompressUtil {
     }
 
     //读取图片的方向
-    private fun readImageDegree(path: String): Float {
+    private fun readDegree(path: String): Float {
         var degree = 0f
         //读取图片文件信息的类ExifInterface
         var exifInterface: ExifInterface? = null
         try {
             exifInterface = ExifInterface(path)
-        } catch (e: IOException) {
+        } catch (ignored: IOException) {
         } finally {
             when (exifInterface?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
                 ExifInterface.ORIENTATION_ROTATE_90 -> degree = 90f

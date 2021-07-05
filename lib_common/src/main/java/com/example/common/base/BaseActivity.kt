@@ -43,7 +43,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     protected val statusBarBuilder by lazy { StatusBarBuilder(this) }//状态栏工具类
     private var baseViewModel: BaseViewModel? = null//数据模型
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
-    private val TAG = javaClass.simpleName.toLowerCase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
+    private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     protected fun <VM : BaseViewModel?> createViewModel(vmClass: Class<VM>): VM {

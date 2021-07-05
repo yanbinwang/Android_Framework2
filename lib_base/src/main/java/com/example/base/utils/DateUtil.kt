@@ -53,7 +53,7 @@ object DateUtil {
             val parseBeginTime = dateFormat.parse(beginTime)
             val parseEndTime = dateFormat.parse(endTime)
             if (inputDate.after(parseBeginTime) && inputDate.before(parseEndTime)) flag = true
-        } catch (e: ParseException) {
+        } catch (ignored: ParseException) {
         }
         return flag
     }
@@ -100,7 +100,7 @@ object DateUtil {
                 val date = SimpleDateFormat(fromFormat, Locale.getDefault()).parse(source)
                 //日期转换成想要的格式
                 result = SimpleDateFormat(toFormat, Locale.getDefault()).format(date)
-            } catch (e: ParseException) {
+            } catch (ignored: ParseException) {
             }
         }
         return result
@@ -169,7 +169,7 @@ object DateUtil {
             val calendar = Calendar.getInstance()
             calendar.time = SimpleDateFormat(EN_YMD, Locale.getDefault()).parse(source)
             return calendar.get(Calendar.WEEK_OF_MONTH)
-        } catch (e: ParseException) {
+        } catch (ignored: ParseException) {
         }
         return 0
     }
@@ -189,7 +189,7 @@ object DateUtil {
             var weekIndex = calendar.get(Calendar.DAY_OF_WEEK) - 1
             if (weekIndex < 0) weekIndex = 0
             return weekIndex
-        } catch (e: ParseException) {
+        } catch (ignored: ParseException) {
         }
         return 0
     }

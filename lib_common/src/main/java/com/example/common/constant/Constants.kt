@@ -13,6 +13,8 @@ object Constants {
     @JvmField
     var SCREEN_HEIGHT = 0//手机高度
     @JvmField
+    var SCREEN_DENSITY = 0//手机比值
+    @JvmField
     var STATUS_BAR_HEIGHT = 0//导航栏高度
     //------gradle4.1.0开始，库中不提供VERSION_CODE和VERSION_NAME，在主app中获取，赋值给全局静态变量------
     @JvmField
@@ -44,9 +46,9 @@ object Constants {
     const val KEY_USER_MODEL = "keyUserModel" //用户类json
 
     //系统广播
-    const val LIVE_DATA_KEY = "com.sqkj.oea.LIVE_DATA_KEY"//总消息订阅key
-    const val APP_USER_LOGIN = "com.sqkj.oea.APP_USER_LOGIN" //用户登录
-    const val APP_USER_LOGIN_OUT = "com.sqkj.oea.APP_USER_LOGIN_OUT" //用户注销
+    const val LIVE_DATA_KEY = "$APPLICATION_ID.LIVE_DATA_KEY"//总消息订阅key
+    const val APP_USER_LOGIN = "$APPLICATION_ID.APP_USER_LOGIN" //用户登录
+    const val APP_USER_LOGIN_OUT = "$APPLICATION_ID.APP_USER_LOGIN_OUT" //用户注销
     //    public static final String APP_USER_INFO_UPDATE = "com.bitnew.tech.APP_USER_INFO_UPDATE";//用户信息更新
     //    public static final String APP_SHARE_SUCCESS = "com.bitnew.tech.APP_SHARE_SUCCESS";//分享成功
     //    public static final String APP_SHARE_CANCEL = "com.bitnew.tech.APP_SHARE_CANCEL";//分享取消

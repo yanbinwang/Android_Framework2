@@ -14,8 +14,8 @@ import com.example.base.utils.LogUtil;
  * 可监听滑动范围的scrollview
  */
 public class XScrollView extends ScrollView {
-    private int mTouchSlop, downY;
     private boolean isTop;//是否滑动到顶端
+    private int mTouchSlop, downY;
     private OnScrollToBottomListener onScrollBottomListener;
 
     public XScrollView(Context context) {
@@ -52,17 +52,13 @@ public class XScrollView extends ScrollView {
             case MotionEvent.ACTION_DOWN:
                 setTop(false);
                 downY = (int) e.getRawY();
-                LogUtil.i("-----::----downY-----::", downY + "");
+                LogUtil.i("-----::----downY-----::" + downY);
                 break;
             case MotionEvent.ACTION_MOVE:
                 int moveY = (int) e.getRawY();
-                LogUtil.i("-----::----moveY-----::", moveY + "");
+                LogUtil.i("-----::----moveY-----::" + moveY);
                 //判断是向下滑动，才设置为true
-                if (downY - moveY > 0) {
-                    setTop(true);
-                } else {
-                    setTop(false);
-                }
+                setTop(downY - moveY > 0);
                 if (Math.abs(moveY - downY) > mTouchSlop) {
                     return true;
                 }
@@ -70,12 +66,12 @@ public class XScrollView extends ScrollView {
         return super.onInterceptTouchEvent(e);
     }
 
-    public boolean isTop() {
-        return isTop;
-    }
-
     public void setTop(boolean top) {
         isTop = top;
+    }
+
+    public boolean isTop() {
+        return isTop;
     }
 
     public void setOnScrollToBottomListener(OnScrollToBottomListener onScrollBottomListener) {
