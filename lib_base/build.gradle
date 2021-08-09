@@ -7,8 +7,8 @@ android {
     compileSdkVersion build_versions.compileSdkVersion
 
     defaultConfig {
-        minSdkVersion build_versions.minSdkVersion
-        targetSdkVersion build_versions.targetSdkVersion
+        minSdk build_versions.minSdkVersion
+        targetSdk build_versions.targetSdkVersion
         versionCode build_versions.versionCode
         versionName build_versions.versionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
