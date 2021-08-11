@@ -5,8 +5,8 @@ ext.deps = [:]
 def versions = [:]
 versions.appcompat = "1.2.0"
 versions.recyclerview = "1.2.0"
-versions.viewmodel = "2.2.0"
-versions.livedata = "2.2.0"
+versions.viewmodel = "2.3.1"
+versions.livedata = "2.3.1"
 //------------------------------------------------------------------------------------------
 versions.stdlib = "1.5.21"
 //versions.coroutines_android = "1.1.1"
