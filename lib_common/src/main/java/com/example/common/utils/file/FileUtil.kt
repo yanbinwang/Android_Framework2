@@ -181,13 +181,9 @@ object FileUtil {
      * 将bitmap存成文件至指定目录下-读写权限
      * BitmapFactory.decodeResource(resources, R.mipmap.img_qr_code)
      */
+    @JvmOverloads
     @JvmStatic
-    fun saveBitmap(context: Context, bitmap: Bitmap, quality: Int = 100): Boolean {
-        return saveBitmap(context, bitmap, Constants.APPLICATION_FILE_PATH + "/图片", true, quality)
-    }
-
-    @JvmStatic
-    fun saveBitmap(context: Context, bitmap: Bitmap, root: String = Constants.APPLICATION_FILE_PATH + "/图片", formatJpg: Boolean = false, quality: Int = 100): Boolean {
+    fun saveBitmap(context: Context, bitmap: Bitmap, root: String = Constants.APPLICATION_FILE_PATH + "/图片", formatJpg: Boolean = true, quality: Int = 100): Boolean {
         try {
             val storeDir = File(root)
             if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限

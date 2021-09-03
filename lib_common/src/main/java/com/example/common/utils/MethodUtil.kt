@@ -63,6 +63,7 @@ fun ImageView.setDisplayResource(display: Boolean, showId: Int, hideId: Int) = s
 /**
  * 设置textview内容当中某一段的颜色
  */
+@JvmOverloads
 fun TextView.setSpan(textStr: String, keyword: String, colorRes: Int = R.color.blue_0d86ff) {
     val spannable = SpannableString(textStr)
     val index = textStr.indexOf(keyword)
@@ -75,6 +76,7 @@ fun TextView.setSpan(textStr: String, keyword: String, colorRes: Int = R.color.b
 /**
  * 设置显示内容和对应文本颜色
  */
+@JvmOverloads
 fun TextView.setState(textStr: String, colorRes: Int = R.color.blue_0d86ff) {
     text = textStr
     setTextColor(ContextCompat.getColor(context, colorRes))
@@ -101,6 +103,7 @@ fun EditText.inputTransformation(): Boolean {
 /**
  * EditText输入金额小数限制
  */
+@JvmOverloads
 fun EditText.decimalFilter(decimalPoint: Int = 2) {
     val decimalInputFilter = DecimalInputFilter()
     decimalInputFilter.decimalPoint = decimalPoint

@@ -16,6 +16,7 @@ object FragmentHelper {
     private var weakActivity: WeakReference<AppCompatActivity>? = null
     var onTabClickListener: OnTabClickListener? = null
 
+    @JvmOverloads
     @JvmStatic
     fun initialize(activity: AppCompatActivity, containerViewId: Int, fragmentList: ArrayList<Fragment>, tabNum: Int = 0, isDark: Boolean = true) {
         this.weakActivity = WeakReference(activity)
@@ -26,6 +27,7 @@ object FragmentHelper {
         showFragment(tabNum, true)
     }
 
+    @JvmOverloads
     @JvmStatic
     fun showFragment(tabNum: Int, load: Boolean = false) {
         if (fragmentList.size > tabNum) {

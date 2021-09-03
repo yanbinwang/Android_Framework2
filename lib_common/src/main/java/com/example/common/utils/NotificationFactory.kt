@@ -34,6 +34,7 @@ class NotificationFactory private constructor() {
     /**
      * 构建常规通知栏
      */
+    @JvmOverloads
     fun normal(title: String, text: String, smallIcon: Int, largeIcon: Int, intent: Intent? = null, id: String = "") {
         builder.apply {
             color = ContextCompat.getColor(context!!, R.color.black)//6.0提示框白色小球的颜色
@@ -55,6 +56,7 @@ class NotificationFactory private constructor() {
     /**
      * 构建进度条通知栏
      */
+    @JvmOverloads
     fun progress(progress: Int, title: String, text: String, smallIcon: Int, largeIcon: Int, id: String = "") {
         builder.apply {
             color = ContextCompat.getColor(context!!, R.color.black)//6.0提示框白色小球的颜色

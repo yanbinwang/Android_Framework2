@@ -30,6 +30,7 @@ object PageHandler {
     /**
      * 详情页调取方法
      */
+    @JvmOverloads
     @JvmStatic
     fun setState(container: ViewGroup, msg: String?, imgRes: Int = -1, text: String? = null) {
         val emptyLayout = if (container is EmptyLayout) container else getEmptyView(container)
@@ -43,6 +44,7 @@ object PageHandler {
     /**
      * 列表页调取方法
      */
+    @JvmOverloads
     @JvmStatic
     fun setState(xRecyclerView: XRecyclerView, msg: String?, length: Int = 0, imgRes: Int = -1, text: String? = null) {
         xRecyclerView.finishRefreshing()

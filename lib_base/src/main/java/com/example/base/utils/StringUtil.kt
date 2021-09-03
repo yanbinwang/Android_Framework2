@@ -13,6 +13,7 @@ object StringUtil {
     /**
      * 如果值为空，展示默认值
      */
+    @JvmOverloads
     @JvmStatic
     fun processedString(source: String?, defaultStr: String = ""): String {
         return if (source == null) {

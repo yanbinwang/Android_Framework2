@@ -15,6 +15,7 @@ import java.util.*
  */
 object CompressUtil {
 
+    @JvmOverloads
     @JvmStatic
     fun compress(bitmap: Bitmap, length: Int = 512): ByteArrayOutputStream {
         compressBySize(bitmap)
@@ -49,6 +50,7 @@ object CompressUtil {
         return Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true)
     }
 
+    @JvmOverloads
     @JvmStatic
     fun scale(context: Context, file: File, fileMaxSize: Long = 100 * 1024): File {
         val fileSize = file.length()

@@ -17,6 +17,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
         statusBarBuilder.setStatusBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.white))
     }
 
+    @JvmOverloads
     fun setTitle(titleStr: String, shade: Boolean = false, dark: Boolean = true): TitleBuilder {
         statusBarBuilder.setStatusBarLightMode(dark)
         binding.tvMainTitle.apply {

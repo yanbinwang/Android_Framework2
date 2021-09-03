@@ -48,6 +48,7 @@ object CalculationUtil {
     /**
      * 除法运算-当发生除不尽的情况时，由scale参数指定精度，以后的数字四舍五入
      */
+    @JvmOverloads
     @JvmStatic
     fun div(v1: Double, v2: Double, scale: Int = 10): Double {
         require(scale >= 0) { "The scale must be a positive integer or zero" }
