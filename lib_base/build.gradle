@@ -50,6 +50,8 @@ dependencies {
     //kotlin
     api deps.kotlin.stdlib
 //    api deps.kotlin.coroutines_android
+//    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
+//    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
     //其余谷歌官方库
     api deps.material
 }

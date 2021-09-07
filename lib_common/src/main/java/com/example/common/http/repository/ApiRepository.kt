@@ -23,17 +23,17 @@ import kotlinx.coroutines.withContext
  * ViewModel的KTX库中具备扩展函数，但不能像继承CoroutineScope那样直接launch点出，这里再做一个扩展
  * CoroutineScope接受一个参数是线程的上下文，返回一个CoroutineScope对象
  */
-fun BaseViewModel.launch(block: suspend CoroutineScope.() -> Unit) = viewModelScope.launch { block() }
+fun BaseViewModel.launch(block: suspend CoroutineScope.() -> Unit) = viewModelScope.launch(block = block)
 
-fun BaseViewModel.async(block: suspend CoroutineScope.() -> Unit) = viewModelScope.async { block() }
+fun BaseViewModel.async(block: suspend CoroutineScope.() -> Unit) = viewModelScope.async(block = block)
 
-fun Fragment.launch(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.launch { block() }
+fun Fragment.launch(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.launch(block = block)
 
-fun Fragment.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async { block() }
+fun Fragment.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
 
-fun AppCompatActivity.launch(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.launch { block() }
+fun AppCompatActivity.launch(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.launch(block = block)
 
-fun AppCompatActivity.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async { block() }
+fun AppCompatActivity.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
 
 /**
  * 针对项目请求编号处理,需要处理的在请求文件里书写此扩展函数
