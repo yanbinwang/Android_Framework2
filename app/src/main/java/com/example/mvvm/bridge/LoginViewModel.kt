@@ -2,8 +2,10 @@ package com.example.mvvm.bridge
 
 import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
+import com.example.common.http.repository.HttpParams
 import com.example.common.http.repository.launch
 import com.example.common.subscribe.CommonSubscribe.getTestApi
+import com.example.common.subscribe.CommonSubscribe.getVerificationApi
 import com.example.mvvm.model.UserInfoModel
 
 /**
@@ -52,17 +54,17 @@ class LoginViewModel : BaseViewModel() {
 
     fun login(account: String?, password: String?) {
 
-//        launch {
+        launch {
 //            //串行执行
-//            val token = async { getTestApi() }
-//            val profile = async { getVerificationApi(HttpParams().append("12", token.await().toString()).map) }.await()
+//            val token = getTestApi()
+//            val profile = getVerificationApi(HttpParams().append("12", token.data.toString()).map)
 //            //并行执行
 //            val profile = async { getTestApi() }
 //            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }
 //            awaitAll(profile, articles)
 //            val profile = async { getTestApi() }.await()
 //            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }.await()
-//        }
+        }
 
 
         getView()?.showDialog()
