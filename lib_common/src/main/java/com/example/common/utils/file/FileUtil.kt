@@ -26,7 +26,6 @@ import java.util.zip.ZipOutputStream
  * 文件管理工具类
  */
 object FileUtil {
-
     private const val TAG = "FileUtil"
 
     /**

@@ -5,6 +5,7 @@ ext.deps = [:]
 def versions = [:]
 versions.appcompat = "1.2.0"
 versions.recyclerview = "1.2.0"
+//versions.runtime = "2.4.0-alpha01"
 versions.viewmodel = "2.3.1"
 versions.livedata = "2.3.1"
 //------------------------------------------------------------------------------------------
@@ -37,6 +38,7 @@ versions.guide = "v2.4.0"
 def androidx = [:]
 androidx.appcompat = "androidx.appcompat:appcompat:$versions.appcompat"
 androidx.recyclerview = "androidx.recyclerview:recyclerview:$versions.recyclerview"
+//androidx.runtime = "androidx.lifecycle:lifecycle-runtime-ktx:$versions.runtime"
 androidx.viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.viewmodel"
 androidx.livedata = "androidx.lifecycle:lifecycle-livedata-ktx:$versions.livedata"
 deps.androidx = androidx

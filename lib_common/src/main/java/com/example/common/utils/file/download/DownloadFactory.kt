@@ -39,7 +39,6 @@ class DownloadFactory private constructor(override val coroutineContext: Corouti
             return
         }
 //        launch(Dispatchers.Main) {
-//        launch {
 //            //清除目录下的所有文件
 //            FileUtil.deleteDir(filePath)
 //            //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
