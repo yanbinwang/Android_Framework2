@@ -10,7 +10,6 @@ import com.example.common.constant.ARouterPath
 import com.example.common.utils.helper.AccountHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -25,15 +24,15 @@ import kotlinx.coroutines.withContext
  */
 fun BaseViewModel.launch(block: suspend CoroutineScope.() -> Unit) = viewModelScope.launch(block = block)
 
-fun BaseViewModel.async(block: suspend CoroutineScope.() -> Unit) = viewModelScope.async(block = block)
+//fun BaseViewModel.async(block: suspend CoroutineScope.() -> Unit) = viewModelScope.async(block = block)
 
 fun Fragment.launch(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.launch(block = block)
 
-fun Fragment.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
+//fun Fragment.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
 
 fun AppCompatActivity.launch(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.launch(block = block)
 
-fun AppCompatActivity.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
+//fun AppCompatActivity.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
 
 /**
  * 针对项目请求编号处理,需要处理的在请求文件里书写此扩展函数
