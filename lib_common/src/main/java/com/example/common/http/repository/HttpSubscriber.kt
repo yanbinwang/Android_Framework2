@@ -37,6 +37,7 @@ abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
     /**
      * 请求失败，获取失败原因
      */
-    open fun onFailed(e: Throwable?, msg: String?) {}
+    @JvmOverloads
+    open fun onFailed(e: Throwable?, msg: String?, code: Int? = -1) {}
 
 }

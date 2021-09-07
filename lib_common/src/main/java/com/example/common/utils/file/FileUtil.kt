@@ -109,10 +109,7 @@ object FileUtil {
      * 删除本地路径下的所有文件
      */
     @JvmStatic
-    fun deleteDir(filePath: String) {
-        val dir = File(filePath)
-        deleteDirWithFile(dir)
-    }
+    fun deleteDir(filePath: String) = deleteDirWithFile(File(filePath))
 
     @JvmStatic
     fun deleteDirWithFile(dir: File?) {

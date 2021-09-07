@@ -23,7 +23,6 @@ fun <T> ApiResponse<T>.invoke(): ApiResponse<T> {
         //账号还没有登录，解密失败，重新获取
         100005, 100008 -> {
             AccountHelper.signOut()
-//                         instance.post(RxBusEvent(Constants.APP_USER_LOGIN_OUT))
             ARouter.getInstance().build(ARouterPath.LoginActivity).navigation()
         }
         //账号被锁定--进入账号锁定页（其余页面不关闭）
@@ -37,7 +36,7 @@ fun <T> ApiResponse<T>.invoke(): ApiResponse<T> {
 //项目请求监听扩展
 suspend fun <T> ApiResponse<T>.apiCall(subscriber: HttpSubscriber<T>?) = call(subscriber)
 
-suspend fun <T> ApiResponse<T>.apiCall2(subscriber: HttpSubscriber2<T>?) = call(subscriber)
+//suspend fun <T> ApiResponse<T>.apiCall2(subscriber: HttpSubscriber2<T>?) = call(subscriber)
 
 //请求监听扩展
 suspend fun <T> T.call(resourceSubscriber: ResourceSubscriber<T>?): T {
