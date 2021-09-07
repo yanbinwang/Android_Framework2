@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
-import com.example.common.base.page.PageHandler
+import com.example.common.base.page.getEmptyView
 import com.example.common.widget.empty.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import java.lang.ref.SoftReference
@@ -35,11 +35,11 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     }
 
     fun setEmptyView(container: ViewGroup) {
-        this.softEmpty = SoftReference(PageHandler.getEmptyView(container))
+        this.softEmpty = SoftReference(container.getEmptyView())
     }
 
     fun setEmptyView(xRecyclerView: XRecyclerView) {
-        this.softEmpty = SoftReference(PageHandler.getEmptyView(xRecyclerView))
+        this.softEmpty = SoftReference(xRecyclerView.emptyView)
         this.softRecycler = SoftReference(xRecyclerView)
     }
 

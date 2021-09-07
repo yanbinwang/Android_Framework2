@@ -39,13 +39,13 @@ object DataCleanManager {
      * 清除本应用所有数据库(/data/data/com.xxx.xxx/databases)
      */
     @JvmStatic
-    fun cleanDatabases(context: Context) = deleteFilesByDirectory(File("/data/data/" + context.packageName + "/databases"))
+    fun cleanDatabases(context: Context) = deleteFilesByDirectory(File("/data/data/${context.packageName}/databases"))
 
     /**
      * 清除本应用SharedPreference(/data/data/com.xxx.xxx/shared_prefs)
      */
     @JvmStatic
-    fun cleanSharedPreference(context: Context) = deleteFilesByDirectory(File("/data/data/" + context.packageName + "/shared_prefs"))
+    fun cleanSharedPreference(context: Context) = deleteFilesByDirectory(File("/data/data/${context.packageName}/shared_prefs"))
 
     /**
      * 按名字清除本应用数据库

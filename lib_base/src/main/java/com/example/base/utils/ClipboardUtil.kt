@@ -7,9 +7,7 @@ import android.content.Context
 /**
  * 粘贴板工具类
  */
-fun Context.setPrimaryClip(label: String, text: String) {
-    (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(label, text))
-}
+fun Context.setPrimaryClip(label: String, text: String) = (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(label, text))
 
 fun Context.getPrimaryClip(): String {
     val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

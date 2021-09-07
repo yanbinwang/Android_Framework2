@@ -18,14 +18,14 @@ object CompressUtil {
     @JvmOverloads
     @JvmStatic
     fun compress(bitmap: Bitmap, length: Int = 512): ByteArrayOutputStream {
-        compressBySize(bitmap)
+        val bitmapTmp = compressBySize(bitmap)
         val byteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        bitmapTmp.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
         var options = 100
         while (byteArrayOutputStream.toByteArray().size / 1024 > length) {
             byteArrayOutputStream.reset()
             options -= 10
-            bitmap.compress(Bitmap.CompressFormat.JPEG, options, byteArrayOutputStream)
+            bitmapTmp.compress(Bitmap.CompressFormat.JPEG, options, byteArrayOutputStream)
         }
         e("length", byteArrayOutputStream.toByteArray().size.toString())
         return byteArrayOutputStream
@@ -70,7 +70,8 @@ object CompressUtil {
                 options.inSampleSize = (scaleSize + 0.5).toInt()
                 var bitmap = BitmapFactory.decodeFile(file.path, options)
                 bitmap = compressBySize(bitmap)
-                val tempFile = File(context.applicationContext?.externalCacheDir, "${DateUtil.getDateTime("yyyyMMdd_HHmmss", Date())}.jpg")
+//                val tempFile = File(context.applicationContext?.externalCacheDir, "${DateUtil.getDateTime("yyyyMMdd_HHmmss", Date())}.jpg")
+                val tempFile = File(context.getExternalFilesDir(null)?.absolutePath, "${DateUtil.getDateTime("yyyyMMdd_HHmmss", Date())}.jpg")
                 val fileOutputStream = try {
                     FileOutputStream(tempFile)
                 } catch (e: FileNotFoundException) {
@@ -106,7 +107,8 @@ object CompressUtil {
                 options.inJustDecodeBounds = false
                 options.inSampleSize = (scaleSize + 0.5).toInt()
                 compressBySize(bitmap)
-                val file = File(context.applicationContext?.externalCacheDir, "${DateUtil.getDateTime("yyyyMMdd_HHmmss", Date())}.jpg")
+//                val file = File(context.applicationContext?.externalCacheDir, "${DateUtil.getDateTime("yyyyMMdd_HHmmss", Date())}.jpg")
+                val file = File(context.getExternalFilesDir(null)?.absolutePath, "${DateUtil.getDateTime("yyyyMMdd_HHmmss", Date())}.jpg")
                 val fileOutputStream = try {
                     FileOutputStream(file)
                 } catch (e: FileNotFoundException) {
@@ -147,7 +149,8 @@ object CompressUtil {
             matrix.postRotate(degree)
             bitmap = BitmapFactory.decodeFile(file.path)
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-            val tempFile = File(context.applicationContext?.externalCacheDir, DateUtil.getDateTime("yyyyMMdd_HHmmss", Date()) + ".jpg")
+//            val tempFile = File(context.applicationContext?.externalCacheDir, DateUtil.getDateTime("yyyyMMdd_HHmmss", Date()) + ".jpg")
+            val tempFile = File(context.getExternalFilesDir(null)?.absolutePath, DateUtil.getDateTime("yyyyMMdd_HHmmss", Date()) + ".jpg")
             val fileOutputStream: FileOutputStream
             try {
                 fileOutputStream = FileOutputStream(tempFile)

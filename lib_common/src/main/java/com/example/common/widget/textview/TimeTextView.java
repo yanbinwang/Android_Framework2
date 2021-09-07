@@ -45,7 +45,7 @@ public class TimeTextView extends TextView {
     }
 
     public void countDown(long second) {
-        TimerHelper.startDownTask(new TimerHelper.OnCountDownListener() {
+        TimerHelper.startDownTask(new TimerHelper.OnDownTaskListener() {
             @Override
             public void onFinish() {
                 setEnabled(true);
