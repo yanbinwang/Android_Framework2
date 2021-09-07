@@ -15,7 +15,7 @@ object CommonSubscribe : CommonApi {
 
     override suspend fun getSendVerificationApi(agent: String, map: Map<String, String>) = commonApi.getSendVerificationApi(agent, map).invoke()
 
-    override suspend fun getVerificationApi(agent: String, map: Map<String, String>) = commonApi.getVerificationApi(agent, map).invoke()
+    override suspend fun getVerificationApi(map: Map<String, String>) = commonApi.getVerificationApi(map).invoke()
 
     override suspend fun getTestApi() = commonApi.getTestApi().invoke()
 

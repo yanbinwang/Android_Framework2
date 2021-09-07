@@ -2,8 +2,6 @@ package com.example.mvvm.bridge
 
 import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
-import com.example.common.http.repository.HttpSubscriber
-import com.example.common.http.repository.call
 import com.example.common.http.repository.launch
 import com.example.common.subscribe.CommonSubscribe.getTestApi
 import com.example.mvvm.model.UserInfoModel
@@ -53,6 +51,20 @@ class LoginViewModel : BaseViewModel() {
     }
 
     fun login(account: String?, password: String?) {
+
+//        launch {
+//            //串行执行
+//            val token = async { getTestApi() }
+//            val profile = async { getVerificationApi(HttpParams().append("12", token.await().toString()).map) }.await()
+//            //并行执行
+//            val profile = async { getTestApi() }
+//            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }
+//            awaitAll(profile, articles)
+//            val profile = async { getTestApi() }.await()
+//            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }.await()
+//        }
+
+
         getView()?.showDialog()
         getView()?.showToast("当前执行了登录\n账号：$account\n密码：$password")
         getView()?.hideDialog()
