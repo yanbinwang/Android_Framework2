@@ -1,11 +1,14 @@
 package com.example.mvvm.activity
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseTitleActivity
 import com.example.common.bus.LiveDataBus
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
+import com.example.common.http.repository.launch
 import com.example.common.imageloader.ImageLoader
 import com.example.common.utils.file.download.DownloadFactory
 import com.example.common.utils.file.download.OnDownloadListener
@@ -14,6 +17,7 @@ import com.example.common.utils.helper.permission.PermissionHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.yanzhenjie.permission.runtime.Permission
+import kotlinx.coroutines.Job
 
 /**
  * Created by WangYanBin on 2020/8/14.
@@ -63,7 +67,20 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
 //                Constants.APP_USER_LOGIN_OUT -> binding.btnLogin.text = it.getStringExtra()
             }
         })
+//        var bit = BitmapFactory.decodeFile("")
+//        val b = test(bit, {
+//
+//        }, {
+//
+//        })
     }
+
+//    fun test(bit: Bitmap, onSuccess: (bitmap: Bitmap) -> Unit, onFailure: () -> Unit) : Job {
+//        return launch {
+//            onSuccess(bit)
+//            onFailure()
+//        }
+//    }
 
     override fun onClick(v: View?) {
         when (v?.id) {
@@ -76,8 +93,12 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
                             if (isGranted) {
                                 val filePath = Constants.APPLICATION_FILE_PATH + "/安装包"
                                 val fileName = Constants.APPLICATION_NAME + ".apk"
-                                DownloadFactory.instance.download("https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk", filePath, fileName, object :
-                                    OnDownloadListener {
+                                DownloadFactory.instance.download(
+                                    "https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk",
+                                    filePath,
+                                    fileName,
+                                    object :
+                                        OnDownloadListener {
 
                                         override fun onStart() {
                                             showDialog()
