@@ -1,7 +1,13 @@
 package com.example.common.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.net.NetworkInfo
 import android.net.wifi.WifiManager
+import android.os.Build
+import android.text.TextUtils
 import com.example.base.utils.LogUtil
 import com.example.common.BaseApplication
 import com.example.common.base.proxy.NetworkCallbackImpl
@@ -9,28 +15,81 @@ import com.example.common.base.proxy.NetworkCallbackImpl
 /**
  * author: wyb
  * date: 2018/8/13.
- * 网路监测类
+ * 网路监测类整体网络是异步监听的，如果想实时获取，需要主动调用
+ * isAvailable->是否可以进行网络连接。当持续或半持续状态阻止连接到该网络时，网络不可用
+ * isConnected->是否存在网络连接以及是否可以建立连接和传递数据
  */
+@SuppressLint("MissingPermission")
 object NetWorkUtil {
     private val context by lazy { BaseApplication.instance?.applicationContext!! }
+    private val manager by lazy { context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager }
 
     /**
-     * 验证是否联网
+     * 验证是否联网,保证连接正常建立
      */
     @JvmStatic
-    fun isNetworkAvailable() = NetworkCallbackImpl.available
+    fun isNetworkAvailable(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            val networkInfo = manager.activeNetworkInfo
+            if (networkInfo != null && networkInfo.isConnected) return networkInfo.state == NetworkInfo.State.CONNECTED
+        } else {
+            val network = manager.activeNetwork ?: return false
+            val capabilities = manager.getNetworkCapabilities(network) ?: return false
+            if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) return true
+        }
+        return false
+    }
 
     /**
-     * 判断当前网络环境是否为wifi
+     * 判断当前网络环境是否为wifi，只需校验是否是wifi
      */
     @JvmStatic
-    fun isWifi() = getNetWorkState() == 0
+    fun isWifiConnected(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return manager.activeNetworkInfo?.type == ConnectivityManager.TYPE_WIFI
+        } else {
+            val network = manager.activeNetwork ?: return false
+            val capabilities = manager.getNetworkCapabilities(network) ?: return false
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) return true
+        }
+        return false
+    }
 
     /**
-     * WIFI网络=0 蜂窝网络=1 其他网络（未知网络，包括蓝牙、VPN、LoWPAN）=-1
+     * 判断当前网络环境是否为手机流量，只需校验是否是流量
      */
     @JvmStatic
-    fun getNetWorkState() = NetworkCallbackImpl.netState
+    fun isMobileConnected(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return manager.activeNetworkInfo?.type == ConnectivityManager.TYPE_MOBILE
+        } else {
+            val network = manager.activeNetwork ?: return false
+            val capabilities = manager.getNetworkCapabilities(network) ?: return false
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) return true
+        }
+        return false
+    }
+
+    /**
+     * 是否挂载了网络代理（wifi模式下）
+     */
+    @JvmStatic
+    fun isMountAgent() = (!TextUtils.isEmpty(System.getProperty("http.proxyHost"))) && ((System.getProperty("http.proxyPort") ?: "-1").toInt() != -1)
+
+    /**
+     * 是否挂载了VPN，只需校验是否是Vpn
+     */
+    @JvmStatic
+    fun isMountVpn(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return manager.activeNetworkInfo?.type == ConnectivityManager.TYPE_VPN
+        } else {
+            val network = manager.activeNetwork ?: return false
+            val capabilities = manager.getNetworkCapabilities(network) ?: return false
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) return true
+        }
+        return false
+    }
 
     /**
      * 获取当前wifi密码的加密策略(需要定位权限)
@@ -43,7 +102,7 @@ object NetWorkUtil {
     @JvmStatic
     fun getWifiSecurity(): String {
         var result = "NONE"
-        if (isWifi()) {
+        if (isWifiConnected()) {
             val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
             val connectionInfo = wifiManager.connectionInfo
             for (scanResult in wifiManager.scanResults) {
