@@ -48,11 +48,13 @@ public abstract class SimpleViewGroup extends ViewGroup {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        if (onDetectionInflate()) draw();
+        if (onInflate()) draw();
     }
 
-    //检测布局绘制
-    protected boolean onDetectionInflate() {
+    /**
+     * 检测布局绘制
+     */
+    protected boolean onInflate() {
         return getChildCount() <= 0;
     }
 
