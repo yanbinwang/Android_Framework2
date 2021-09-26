@@ -2,15 +2,9 @@ package com.example.mvvm.bridge
 
 import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
-import com.example.common.http.repository.ApiResponse
-import com.example.common.http.repository.HttpParams
 import com.example.common.http.repository.launch
 import com.example.common.subscribe.CommonSubscribe.getTestApi
-import com.example.common.subscribe.CommonSubscribe.getVerificationApi
 import com.example.mvvm.model.UserInfoModel
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 
 /**
  * Created by WangYanBin on 2020/6/3.

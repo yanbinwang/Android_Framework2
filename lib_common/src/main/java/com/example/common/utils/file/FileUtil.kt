@@ -10,22 +10,30 @@ import android.os.Build
 import android.provider.MediaStore
 import android.provider.Settings
 import android.text.TextUtils
+import android.util.Base64
 import androidx.core.content.FileProvider
 import com.example.base.utils.DateUtil
 import com.example.base.utils.LogUtil
+import com.example.base.utils.ToastUtil
 import com.example.common.constant.Constants
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import java.io.*
 import java.lang.ref.SoftReference
 import java.text.DecimalFormat
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Created by WangYanBin on 2020/7/1.
  * 文件管理工具类
  */
-object FileUtil {
+object FileUtil : CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = (Main)
     private const val TAG = "FileUtil"
 
     /**
@@ -179,7 +187,7 @@ object FileUtil {
      */
     @JvmOverloads
     @JvmStatic
-    fun saveBitmap(context: Context, bitmap: Bitmap, root: String = Constants.APPLICATION_FILE_PATH + "/图片", formatJpg: Boolean = true, quality: Int = 100): Boolean {
+    fun saveBitmap(context: Context, bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH}/图片", formatJpg: Boolean = true, quality: Int = 100): Boolean {
         try {
             val storeDir = File(root)
             if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
@@ -200,6 +208,99 @@ object FileUtil {
             bitmap.recycle()
         }
         return false
+    }
+
+    /**
+     * 压缩文件协程
+     */
+    @JvmStatic
+    fun zipFolderJob(folderPath: String, zipFilePath: String, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
+        return launch {
+            onStart
+            val fileDir = File(folderPath)
+            val zipFile = File(zipFilePath)
+            try {
+                withContext(IO) { if (fileDir.exists()) zipFolder(fileDir.absolutePath, zipFile.absolutePath) }
+            } catch (e: Exception) {
+                LogUtil.e(TAG, "打包图片生成压缩文件异常: $e")
+            } finally {
+                onStop
+            }
+        }
+    }
+
+    /**
+     * 存储图片协程
+     */
+    @JvmStatic
+    fun saveBitmapJob(context: Context, bitmap: Bitmap, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
+        return launch {
+            onStart
+            var type: Boolean
+            withContext(IO) { type = saveBitmap(context, bitmap) }
+            ToastUtil.mackToastSHORT(if (type) "保存成功" else "保存失败", context)
+            onStop
+        }
+    }
+
+//    /**
+//     * 视频图片打包协程
+//     * 传入视频原路径，并通过秒数集合，批量生成图片，并打包成压缩包保存到指定路径下
+//     */
+//    @JvmStatic
+//    fun handleVideoJob(
+//        videoPath: String,
+//        secondList: MutableList<Int>,
+//        zipFilePath: String, ,
+//        onStart: () -> Unit? = {},
+//        onStop: () -> Unit? = {}
+//    ): Job {
+//        return launch {
+//            onStart
+//            withContext(IO) {
+//                //在‘视频抽帧’文件夹下建立一个以抽帧文件名命名的文件夹，方便后续对当前文件夹打压缩包
+//                val savePath = Constants.APPLICATION_FILE_PATH + "/文件/视频抽帧/${File(videoPath).name}"
+//                val thumbPaths = ArrayList<String>()
+//                for (i in secondList) {
+////                    val thumbPath = VideoHelper.getFrames(videoPath, savePath, i)
+////                    thumbPaths.add(thumbPath)
+//                }
+//                try {
+//                    zipFolder(savePath, zipFilePath)
+//                } catch (ignored: Exception) {
+//                } finally {
+//                    //清空当前文件夹和其下的所有图片
+//                    deleteDir(savePath)
+//                    withContext(Main) { onStop }
+//                }
+//            }
+//        }
+//    }
+
+    /**
+     * base64文件流的形式加载文件，需要先下载，之后在放置
+     */
+    fun handleBase64Job(base64: String, suffix: String, root: String = "${Constants.APPLICATION_FILE_PATH}/缓存", clear: Boolean = true, onStart: () -> Unit? = {}, onStop: (path: String) -> Unit? = {}): Job {
+        return launch {
+            onStart
+            if (clear) deleteDir(root)
+            val storeDir = File(root)
+            if (!storeDir.mkdirs()) storeDir.createNewFile()
+            val file = File(storeDir, "${System.currentTimeMillis()}_cache${suffix}")
+            val pdfAsBytes = Base64.decode(base64, 0)
+            val fileOutputStream: FileOutputStream?
+            try {
+                withContext(IO) {
+                    fileOutputStream = FileOutputStream(file, false)
+                    fileOutputStream.write(pdfAsBytes)
+                    fileOutputStream.flush()
+                    fileOutputStream.close()
+                }
+            } catch (e: Exception) {
+            } finally {
+                onStop(file.absolutePath)
+            }
+        }
     }
 
     /**
@@ -225,13 +326,13 @@ object FileUtil {
      * 转换文件大小格式
      */
     @JvmStatic
-    fun formatFileSize(fileS: Long): String {
-        val df = DecimalFormat("#.00")
+    fun formatFileSize(fileSize: Long): String {
+        val format = DecimalFormat("#.00")
         return when {
-            fileS < 1024 -> df.format(fileS.toDouble()) + "B"
-            fileS < 1048576 -> df.format(fileS.toDouble() / 1024) + "K"
-            fileS < 1073741824 -> df.format(fileS.toDouble() / 1048576) + "M"
-            else -> df.format(fileS.toDouble() / 1073741824) + "G"
+            fileSize < 1024 -> format.format(fileSize.toDouble()) + "B"
+            fileSize < 1048576 -> format.format(fileSize.toDouble() / 1024) + "K"
+            fileSize < 1073741824 -> format.format(fileSize.toDouble() / 1048576) + "M"
+            else -> format.format(fileSize.toDouble() / 1073741824) + "G"
         }
     }
 
@@ -260,7 +361,6 @@ object FileUtil {
             val drawable = context.packageManager.getApplicationIcon(Constants.APPLICATION_ID)
             val bitmap = SoftReference(Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, if (drawable.opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565))
             val canvas = Canvas(bitmap.get()!!)
-            //canvas.setBitmap(bitmap);
             drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
             drawable.draw(canvas)
             return bitmap.get()
@@ -294,9 +394,9 @@ object FileUtil {
     @JvmStatic
     fun getCpuInfo(): String {
         try {
-            val fr = FileReader("/proc/cpuinfo")
-            val br = BufferedReader(fr)
-            val text = br.readLine()
+            val fileReader = FileReader("/proc/cpuinfo")
+            val bufferedReader = BufferedReader(fileReader)
+            val text = bufferedReader.readLine()
             val array = text.split(":\\s+".toRegex(), 2).toTypedArray()
             return array[1]
         } catch (ignored: Exception) {
