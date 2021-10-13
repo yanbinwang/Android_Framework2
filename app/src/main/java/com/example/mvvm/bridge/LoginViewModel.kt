@@ -76,6 +76,10 @@ class LoginViewModel : BaseViewModel() {
 //            val profile = async { getTestApi() }
 //            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }
 //            awaitAll(profile, articles)
+//            val profile = async { getTestApi() }
+//            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }
+//            profile.await()
+//            articles.await()
 
 
         }
