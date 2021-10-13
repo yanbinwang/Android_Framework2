@@ -97,8 +97,8 @@ public class Advertising extends SimpleViewGroup implements AdvertisingImpl, Lif
     }
 
     @Override
-    public void draw() {
-        if (onInflate()) addView(banner);
+    public void drawView() {
+        if (onFinish()) addView(banner);
     }
 
     @Override

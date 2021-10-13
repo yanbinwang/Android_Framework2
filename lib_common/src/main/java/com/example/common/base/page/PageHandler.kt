@@ -58,7 +58,7 @@ fun ViewGroup.getEmptyView(): EmptyLayout {
     if (childCount <= 1) {
         emptyLayout = EmptyLayout(context)
         emptyLayout.apply {
-            draw()
+            drawView()
             showLoading()
         }
         addView(emptyLayout)

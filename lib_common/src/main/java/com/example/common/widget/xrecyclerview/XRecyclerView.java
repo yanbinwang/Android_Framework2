@@ -56,8 +56,8 @@ public class XRecyclerView extends SimpleViewGroup {
     }
 
     @Override
-    public void draw() {
-        if (onInflate()) initRefreshType(refreshType);
+    public void drawView() {
+        if (onFinish()) initRefreshType(refreshType);
     }
 
     private void initRefreshType(int refreshType) {

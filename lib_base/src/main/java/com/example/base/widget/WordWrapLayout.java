@@ -48,7 +48,7 @@ public class WordWrapLayout extends ViewGroup {
         int actualWidth = r - l;
         //设置横纵坐标0,0开始，总行数为1
         int x = 0;
-        int y = 0;
+        int y;
         int rows = 1;
         for (int i = 0; i < childCount; i++) {
             //得到容器内的一个view的实际宽高

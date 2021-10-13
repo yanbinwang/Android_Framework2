@@ -70,8 +70,8 @@ public class EmptyLayout extends SimpleViewGroup {
     }
 
     @Override
-    public void draw() {
-        if (onInflate()) addView(binding.getRoot());
+    public void drawView() {
+        if (onFinish()) addView(binding.getRoot());
     }
 
     /**

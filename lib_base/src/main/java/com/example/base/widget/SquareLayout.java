@@ -22,9 +22,14 @@ public class SquareLayout extends RelativeLayout {
         super(context, attrs, defStyleAttr);
     }
 
+    /**
+     * 重写此方法后默认调用父类的onMeasure方法,分别将宽度测量空间与高度测量空间传入
+     * @param widthMeasureSpec
+     * @param heightMeasureSpec
+     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        //重写此方法后默认调用父类的onMeasure方法,分别将宽度测量空间与高度测量空间传入
         super.onMeasure(widthMeasureSpec, widthMeasureSpec);
     }
+
 }
