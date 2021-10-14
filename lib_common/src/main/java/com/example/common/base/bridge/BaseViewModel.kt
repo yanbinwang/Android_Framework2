@@ -55,6 +55,12 @@ abstract class BaseViewModel : ViewModel() {
         softEmpty?.get()?.visibility = View.GONE
     }
 
+    @JvmOverloads
+    fun showEmpty(imgInt: Int = -1, text: String = "") {
+        softEmpty?.get()?.visibility = View.VISIBLE
+        softEmpty?.get()?.showEmpty(imgInt, text)
+    }
+
     protected fun getView() = softView?.get()
 
     protected fun getActivity() = weakActivity?.get()
