@@ -28,6 +28,7 @@ object DateUtil {
     const val CN_YMD = "yyyy年MM月dd日"
     const val CN_YMDHM = "yyyy年MM月dd日 HH时mm分"
     const val CN_YMDHMS = "yyyy年MM月dd日 HH时mm分ss秒"
+    private const val timeZone = "Asia/Shanghai"//时间校准
 
     /**
      * 传入日期是否为手机当日
@@ -47,6 +48,7 @@ object DateUtil {
             val endTime = "$subDate 23:59:59"
             //转换Date
             val dateFormat = SimpleDateFormat(EN_YMDHMS, Locale.getDefault())
+            dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
             val parseBeginTime = dateFormat.parse(beginTime)
             val parseEndTime = dateFormat.parse(endTime)
             if (inputDate.after(parseBeginTime) && inputDate.before(parseEndTime)) flag = true
@@ -66,6 +68,7 @@ object DateUtil {
     @JvmStatic
     fun compareDate(fromSource: String, toSource: String): Int {
         val dateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
+        dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
         try {
             val comparedDate = dateFormat.parse(fromSource) ?: Date()
             val comparedDate2 = dateFormat.parse(toSource) ?: Date()
@@ -92,10 +95,9 @@ object DateUtil {
     fun getDateFormat(fromFormat: String, toFormat: String, source: String): String {
         var result = ""
         try {
-            //传入格式转换成日期
-            val date = SimpleDateFormat(fromFormat, Locale.getDefault()).parse(source) ?: ""
-            //日期转换成想要的格式
-            result = SimpleDateFormat(toFormat, Locale.getDefault()).format(date)
+            val dateFormat = SimpleDateFormat(fromFormat, Locale.getDefault())
+            dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
+            result = getDateTime(toFormat, dateFormat.parse(source) ?: Date())
         } catch (ignored: ParseException) {
         }
         return result
@@ -110,7 +112,12 @@ object DateUtil {
      */
     @Synchronized
     @JvmStatic
-    fun getDateTime(format: String, source: String) = SimpleDateFormat(format, Locale.getDefault()).parse(source)?.time ?: 0
+    fun getDateTime(format: String, source: String): Long {
+        val dateFormat = SimpleDateFormat(format, Locale.getDefault())
+        dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
+        return dateFormat.parse(source)?.time ?: 0
+    }
+
 
     /**
      * 传入指定日期格式和毫秒转换成字符串
@@ -121,7 +128,11 @@ object DateUtil {
      */
     @Synchronized
     @JvmStatic
-    fun getDateTime(format: String, timestamp: Long) = SimpleDateFormat(format, Locale.getDefault()).format(Date(timestamp)) ?: ""
+    fun getDateTime(format: String, timestamp: Long): String {
+        val dateFormat = SimpleDateFormat(format, Locale.getDefault())
+        dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
+        return dateFormat.format(Date(timestamp)) ?: ""
+    }
 
     /**
      * 传入指定日期格式和日期類转换成字符串
@@ -132,7 +143,12 @@ object DateUtil {
      */
     @Synchronized
     @JvmStatic
-    fun getDateTime(format: String, date: Date) = SimpleDateFormat(format, Locale.getDefault()).format(date) ?: ""
+    fun getDateTime(format: String, date: Date): String {
+        val dateFormat = SimpleDateFormat(format, Locale.getDefault())
+        dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
+        return dateFormat.format(date) ?: ""
+    }
+
 
     /**
      * 传入毫秒转换成00:00的格式
@@ -159,9 +175,17 @@ object DateUtil {
     @JvmStatic
     fun getWeekOfMonth(source: String): Int {
         try {
-            val calendar = Calendar.getInstance()
-            calendar.time = SimpleDateFormat(EN_YMD, Locale.getDefault()).parse(source) ?: Date()
-            return calendar.get(Calendar.WEEK_OF_MONTH)
+//            val calendar = Calendar.getInstance()
+//            val dateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
+//            dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
+//            calendar.time = dateFormat.parse(source) ?: Date()
+//            return calendar.get(Calendar.WEEK_OF_MONTH)
+            Calendar.getInstance().apply {
+                val dateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
+                dateFormat.timeZone = TimeZone.getTimeZone(DateUtil.timeZone)
+                time = dateFormat.parse(source) ?: Date()
+                return get(Calendar.WEEK_OF_MONTH)
+            }
         } catch (ignored: ParseException) {
         }
         return 0
@@ -177,11 +201,21 @@ object DateUtil {
     @JvmStatic
     fun getWeekOfDate(source: String): Int {
         try {
-            val calendar = Calendar.getInstance()
-            calendar.time = SimpleDateFormat(EN_YMD, Locale.getDefault()).parse(source) ?: Date()
-            var weekIndex = calendar.get(Calendar.DAY_OF_WEEK) - 1
-            if (weekIndex < 0) weekIndex = 0
-            return weekIndex
+//            val calendar = Calendar.getInstance()
+//            val dateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
+//            dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
+//            calendar.time = dateFormat.parse(source) ?: Date()
+//            var weekIndex = calendar.get(Calendar.DAY_OF_WEEK) - 1
+//            if (weekIndex < 0) weekIndex = 0
+//            return weekIndex
+            Calendar.getInstance().apply {
+                val dateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
+                dateFormat.timeZone = TimeZone.getTimeZone(DateUtil.timeZone)
+                time = dateFormat.parse(source) ?: Date()
+                var weekIndex = get(Calendar.DAY_OF_WEEK) - 1
+                if (weekIndex < 0) weekIndex = 0
+                return weekIndex
+            }
         } catch (ignored: ParseException) {
         }
         return 0
@@ -224,13 +258,13 @@ object DateUtil {
             minute = timestamp / 60
             if (minute < 60) {
                 second = timestamp % 60
-                result = unitFormat(minute) + ":" + unitFormat(second)
+                result = "${unitFormat(minute)}:${unitFormat(second)}"
             } else {
                 hour = minute / 60
                 if (hour > 99) return "99:59:59"
                 minute %= 60
                 second = timestamp - hour * 3600 - minute * 60
-                result = unitFormat(hour) + ":" + unitFormat(minute) + ":" + unitFormat(second)
+                result = "${unitFormat(hour)}:${unitFormat(minute)}:${unitFormat(second)}"
             }
         }
         return result
