@@ -47,7 +47,7 @@ fun ViewGroup.setState(msg: String?, imgRes: Int = -1, text: String? = null){
 fun XRecyclerView.setState(msg: String?, length: Int = 0, imgRes: Int = -1, text: String? = null) {
     finishRefreshing()
     //判断集合长度，有长度不展示emptyview只做提示
-    if (length > 0) msg.doResponse() else setState(msg, imgRes, text)
+    if (length > 0) msg.doResponse() else emptyView.setState(msg, imgRes, text)
 }
 
 /**
@@ -65,11 +65,6 @@ fun ViewGroup.getEmptyView(): EmptyLayout {
     } else emptyLayout = getChildAt(1) as EmptyLayout
     return emptyLayout
 }
-
-/**
- * 列表页
- */
-fun XRecyclerView.getEmptyView() = emptyView
 
 //object PageHandler {
 //    /**
