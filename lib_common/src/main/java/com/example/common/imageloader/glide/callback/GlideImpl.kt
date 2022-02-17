@@ -1,8 +1,10 @@
 package com.example.common.imageloader.glide.callback
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
-import com.example.common.imageloader.glide.callback.progress.OnProgressLoaderListener
+import com.example.common.imageloader.glide.callback.progress.OnLoaderListener
 import java.io.File
 
 /**
@@ -11,19 +13,19 @@ import java.io.File
 interface GlideImpl {
 
     //---------------------------------------------图片加载开始---------------------------------------------
-    fun displayZoomImage(view: ImageView, string: String?)
+    fun displayZoomImage(view: ImageView, string: String?, listener: GlideRequestListener<Bitmap?>? = null)
 
     fun displayCoverImage(view: ImageView, string: String?)
 
-    fun displayProgressImage(view: ImageView, string: String, progressListener: OnProgressLoaderListener?)
+    fun displayProgressImage(view: ImageView, string: String, listener: OnLoaderListener? = null)
 
     fun displayImage(view: ImageView, string: String?)
 
     fun displayImage(view: ImageView, string: String?, errorId: Int)
 
-    fun displayImage(view: ImageView, string: String?, requestListener: GlideRequestListener<Drawable?>?)
+    fun displayImage(view: ImageView, string: String?, listener: GlideRequestListener<Drawable?>? = null)
 
-    fun displayImage(view: ImageView, string: String?, placeholderId: Int, errorId: Int, requestListener: GlideRequestListener<Drawable?>?)
+    fun displayImage(view: ImageView, string: String?, placeholderId: Int, errorId: Int, listener: GlideRequestListener<Drawable?>? = null)
 
     //---------------------------------------------图片加载结束---------------------------------------------
 
@@ -44,11 +46,11 @@ interface GlideImpl {
     //---------------------------------------------圆形图片加载开始---------------------------------------------
 
     //---------------------------------------------图片库方法开始---------------------------------------------
-    fun downloadImage(string: String?, width: Int, height: Int, requestListener: GlideRequestListener<File?>?)
+    fun downloadImage(context: Context, string: String?, listener: GlideRequestListener<File?>?)
 
-    fun clearMemoryCache()
+    fun clearMemoryCache(context: Context)
 
-    fun clearDiskCache()
+    fun clearDiskCache(context: Context)
 
     val cacheDir: File?
     //---------------------------------------------图片库方法结束---------------------------------------------

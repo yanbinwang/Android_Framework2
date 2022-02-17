@@ -20,8 +20,7 @@ import java.lang.ref.WeakReference
  * LifecycleObserver-->观察宿主的生命周期
  */
 @SuppressLint("StaticFieldLeak")
-//abstract class BaseViewModel : ViewModel(), LifecycleObserver {
-abstract class BaseViewModel : ViewModel() {
+abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     private var weakActivity: WeakReference<Activity>? = null//引用的activity
     private var weakContext: WeakReference<Context>? = null//引用的context
     private var softView: SoftReference<BaseView>? = null//基础UI操作

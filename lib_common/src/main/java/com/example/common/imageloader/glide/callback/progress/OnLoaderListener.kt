@@ -4,7 +4,7 @@ package com.example.common.imageloader.glide.callback.progress
  *  Created by wangyanbin
  *
  */
-interface OnProgressLoaderListener {
+interface OnLoaderListener {
 
     fun onStart()
 

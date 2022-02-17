@@ -2,6 +2,7 @@ package com.example.common.imageloader.glide.callback.progress
 
 import okhttp3.Interceptor
 import okhttp3.Response
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  *  Created by wangyanbin
@@ -10,20 +11,20 @@ import okhttp3.Response
 class ProgressInterceptor : Interceptor {
 
     companion object {
-        val LISTENER_MAP by lazy { HashMap<String, ProgressListener>() }
+        val listenerMap by lazy { ConcurrentHashMap<String, ProgressListener>() }
 
         /**
          * 注册下载监听
          */
         fun addListener(url: String, listener: ProgressListener) {
-            LISTENER_MAP[url] = listener
+            listenerMap[url] = listener
         }
 
         /**
          * 取消注册下载监听
          */
         fun removeListener(url: String) {
-            LISTENER_MAP.remove(url)
+            listenerMap.remove(url)
         }
 
     }

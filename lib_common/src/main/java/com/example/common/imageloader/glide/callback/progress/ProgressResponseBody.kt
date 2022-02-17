@@ -11,7 +11,7 @@ import okio.buffer
  */
 class ProgressResponseBody(var url: String, var responseBody: ResponseBody) : ResponseBody() {
     private var bufferedSource: BufferedSource? = null
-    private val listener = ProgressInterceptor.LISTENER_MAP[url]
+    private val listener = ProgressInterceptor.listenerMap[url]
 
     override fun contentLength(): Long {
         return responseBody.contentLength()

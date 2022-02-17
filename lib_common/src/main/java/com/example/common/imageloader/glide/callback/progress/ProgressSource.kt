@@ -16,7 +16,7 @@ class ProgressSource(source: Source, var responseBody: ResponseBody, var listene
 
     override fun read(sink: Buffer, byteCount: Long): Long {
         val bytesRead = super.read(sink, byteCount)
-        val fullLength: Long = responseBody.contentLength()
+        val fullLength = responseBody.contentLength()
         if (bytesRead == -1L) {
             totalBytesRead = fullLength
         } else {
