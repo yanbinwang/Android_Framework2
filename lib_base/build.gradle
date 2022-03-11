@@ -37,8 +37,8 @@ android {
 dependencies {
     api fileTree(dir: "libs", include: ["*.jar"])
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     //安卓x库
     api deps.androidx.appcompat
     api deps.androidx.recyclerview
@@ -46,10 +46,7 @@ dependencies {
     api deps.androidx.viewmodel
     api deps.androidx.livedata
     //kotlin
-    api deps.kotlin.stdlib
-//    api deps.kotlin.coroutines_android
-//    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
-//    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
+    api deps.kotlin
     //其余谷歌官方库
     api deps.material
 }

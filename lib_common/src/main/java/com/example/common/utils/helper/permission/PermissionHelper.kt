@@ -11,7 +11,7 @@ import com.example.common.R
 import com.example.common.widget.dialog.AndDialog
 import com.example.common.widget.dialog.callback.OnDialogListener
 import com.yanzhenjie.permission.AndPermission
-import com.yanzhenjie.permission.runtime.Permission
+import com.yanzhenjie.permission.Permission
 import java.lang.ref.WeakReference
 import java.text.MessageFormat
 
@@ -32,18 +32,17 @@ class PermissionHelper(context: Context) {
         Permission.Group.STORAGE)//访问照片。媒体。内容和文件
 
     //检测权限(默认拿全部，可单独拿某个权限组)
-    fun getPermissions(): PermissionHelper {
-        return getPermissions(*permissionGroup)
+    fun requestPermissions(): PermissionHelper {
+        return requestPermissions(*permissionGroup)
     }
 
-    fun getPermissions(vararg groups: Array<String>): PermissionHelper {
+    fun requestPermissions(vararg groups: Array<String>): PermissionHelper {
         //6.0+系统做特殊处理
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission()) {
                 onPermissionCallBack?.onPermission(true)
             } else {
-                AndPermission.with(weakContext.get())
-                    .runtime()
+                AndPermission.with(weakContext.get()!!)
                     .permission(*groups)
                     .onGranted {
                         //权限申请成功回调
@@ -53,6 +52,12 @@ class PermissionHelper(context: Context) {
                         //权限申请失败回调-安卓Q定位为使用期间允许，此处做一次检测
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                             if (checkSelfLocation() && it.size == 1 && listOf(*Permission.Group.LOCATION).contains(it[0])) {
+                                onPermissionCallBack?.onPermission(true)
+                                return@onDenied
+                            }
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            if (checkSelfStorage() && it.size == 1 && listOf(*Permission.Group.STORAGE).contains(it[0])) {
                                 onPermissionCallBack?.onPermission(true)
                                 return@onDenied
                             }
@@ -75,19 +80,14 @@ class PermissionHelper(context: Context) {
                                 else -> null
                             }
                             //如果用户拒绝了开启权限
-                            if (AndPermission.hasAlwaysDeniedPermission(weakContext.get(), it)) {
-                                AndDialog.with(weakContext.get())
-                                    .setParams(weakContext.get()?.getString(R.string.label_window_title), MessageFormat.format(weakContext.get()
-                                        ?.getString(R.string.label_window_permission), result), weakContext.get()?.getString(R.string.label_window_sure), weakContext.get()?.getString(R.string.label_window_cancel))
-                                    .setOnDialogListener(object : OnDialogListener {
-                                        override fun onConfirm() {
-                                            weakContext.get()?.startActivity(
-                                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + weakContext.get()?.packageName))
-                                            )
-                                        }
+                            if (AndPermission.hasAlwaysDeniedPermission(weakContext.get()!!, it)) {
+                                AndDialog.with(weakContext.get()).setOnDialogListener(object : OnDialogListener {
+                                    override fun onConfirm() {
+                                        weakContext.get()?.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + weakContext.get()?.packageName)))
+                                    }
 
-                                        override fun onCancel() {}
-                                    }).show()
+                                    override fun onCancel() {}
+                                }).setParams(weakContext.get()?.getString(R.string.label_window_title), MessageFormat.format(weakContext.get()?.getString(R.string.label_window_permission), result), weakContext.get()?.getString(R.string.label_window_sure), weakContext.get()?.getString(R.string.label_window_cancel)).show()
                             }
                         }
                     }.start()
@@ -124,14 +124,15 @@ class PermissionHelper(context: Context) {
      */
     fun checkSelfLocation(): Boolean {
         var granted = true
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(weakContext.get()!!, Permission.ACCESS_FINE_LOCATION)) granted = false
-            if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(weakContext.get()!!, Permission.ACCESS_COARSE_LOCATION)) granted = false
-        } else {
-            for (index in Permission.Group.LOCATION.indices) {
-                if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(weakContext.get()!!, Permission.Group.LOCATION[index])) granted = false
-            }
-        }
+        if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(weakContext.get()!!, Permission.ACCESS_FINE_LOCATION)) granted = false
+        if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(weakContext.get()!!, Permission.ACCESS_COARSE_LOCATION)) granted = false
+        return granted
+    }
+
+    fun checkSelfStorage(): Boolean {
+        var granted = true
+        if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(weakContext.get()!!, Permission.READ_EXTERNAL_STORAGE)) granted = false
+        if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(weakContext.get()!!, Permission.WRITE_EXTERNAL_STORAGE)) granted = false
         return granted
     }
 

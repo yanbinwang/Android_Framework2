@@ -46,8 +46,8 @@ android {
 dependencies {
     api fileTree(dir: "libs", include: ["*.jar"])
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     //xwebview的jar
     api files('libs/tbs_sdk_thirdapp_v4.3.0.67_43967_sharewithdownloadwithfile_withoutGame_obfs_20200923_120452.jar')
     //框架库

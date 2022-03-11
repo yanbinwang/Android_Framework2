@@ -1,5 +1,7 @@
 package com.example.common.widget.advertising;
 
+import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Looper;
@@ -9,10 +11,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.OnLifecycleEvent;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -32,23 +33,22 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
-
 /**
  * Created by wangyanbin
  * 广告控件
  */
 @SuppressLint("ClickableViewAccessibility")
-public class Advertising extends SimpleViewGroup implements AdvertisingImpl, LifecycleObserver {
-    private boolean allow = true, scroll = true;//是否允许滑动，是否自动滚动
+public class Advertising extends SimpleViewGroup implements AdvertisingImpl, DefaultLifecycleObserver {
+    private boolean allow = true, scroll = true, local;//是否允许滑动，是否自动滚动，是否是本地
     private int curIndex, oldIndex, margin, focusedId, normalId;//当前选中的数组索引,上次选中的数组索引,左右边距,圆点选中时的背景ID,圆点正常时的背景ID
     private Timer timer;//自动滚动的定时器
     private List<String> list;//图片网络路径数组
+    private ArrayList<Integer> localList;//图片本地路径数组
     private ViewPager2 banner;//广告容器
     private LinearLayout ovalLayout;//圆点容器
     private OnAdvertisingClickListener onAdvertisingClickListener;//监听
     private final int halfPosition = Integer.MAX_VALUE / 2;//计算中心值
-    private final AdvertisingAdapter adapter = new AdvertisingAdapter(new ArrayList<>());//图片适配器
+    private final AdvertisingAdapter adapter = new AdvertisingAdapter();//图片适配器
     private final WeakHandler weakHandler = new WeakHandler(Looper.getMainLooper());//切线程
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
@@ -102,6 +102,18 @@ public class Advertising extends SimpleViewGroup implements AdvertisingImpl, Lif
     }
 
     @Override
+    public void onResume(@NonNull LifecycleOwner owner) {
+        DefaultLifecycleObserver.super.onResume(owner);
+        if (scroll) startTimer();
+    }
+
+    @Override
+    public void onPause(@NonNull LifecycleOwner owner) {
+        DefaultLifecycleObserver.super.onPause(owner);
+        if (scroll) stopTimer();
+    }
+
+    @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         stopTimer();
@@ -109,16 +121,26 @@ public class Advertising extends SimpleViewGroup implements AdvertisingImpl, Lif
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="实现方法">
-    public void onStart(@NotNull List<String> uriList) {
-        onStart(uriList, null);
+    public void start(@NotNull ArrayList<Integer> resList, @Nullable LinearLayout ovalLayout) {
+        this.localList = resList;
+        this.list = new ArrayList<>();
+        for (Integer ignored : resList) {
+            list.add("");
+        }
+        start(list, ovalLayout, R.mipmap.ic_ad_select, R.mipmap.ic_ad_unselect, 10, true);
     }
 
-    public void onStart(@NotNull List<String> uriList, @Nullable LinearLayout ovalLayout) {
-        onStart(uriList, ovalLayout, R.mipmap.ic_ad_select, R.mipmap.ic_ad_unselect, 10);
+    public void start(@NotNull List<String> uriList) {
+        start(uriList, null);
+    }
+
+    public void start(@NotNull List<String> uriList, @Nullable LinearLayout ovalLayout) {
+        start(uriList, ovalLayout, R.mipmap.ic_ad_select, R.mipmap.ic_ad_unselect, 10, false);
     }
 
     @Override
-    public void onStart(@NotNull List<String> uriList, @Nullable LinearLayout ovalLayout, int focusedId, int normalId, int margin) {
+    public void start(@NotNull List<String> uriList, @Nullable LinearLayout ovalLayout, int focusedId, int normalId, int margin, boolean local) {
+        this.local = local;
         this.list = uriList;
         this.ovalLayout = ovalLayout;
         this.focusedId = focusedId;
@@ -126,8 +148,6 @@ public class Advertising extends SimpleViewGroup implements AdvertisingImpl, Lif
         this.margin = margin;
         //设置数据
         initData();
-//        //自动滚动
-//        startTimer();
     }
 
     /**
@@ -160,7 +180,7 @@ public class Advertising extends SimpleViewGroup implements AdvertisingImpl, Lif
             ovalLayout.getChildAt(0).setBackgroundResource(focusedId);
         }
         //设置图片数据
-        adapter.setData(list);
+        if (local) adapter.setLocalList(localList); else adapter.setList(list);
         adapter.setOnItemClickListener(position -> {
             if (null != onAdvertisingClickListener) {
                 onAdvertisingClickListener.onItemClick(position);
@@ -172,7 +192,9 @@ public class Advertising extends SimpleViewGroup implements AdvertisingImpl, Lif
         banner.setCurrentItem(position, false);
     }
 
-    //开始自动滚动任务 图片大于1张才滚动
+    /**
+     * 开始自动滚动任务 图片大于1张才滚动
+     */
     private void startTimer() {
         if (timer == null) {
             timer = new Timer();
@@ -182,8 +204,7 @@ public class Advertising extends SimpleViewGroup implements AdvertisingImpl, Lif
                         weakHandler.post(() -> {
                             int current = banner.getCurrentItem();
                             int position = current + 1;
-                            if (current == 0 || current == Integer.MAX_VALUE)
-                                position = halfPosition - (halfPosition % list.size());
+                            if (current == 0 || current == Integer.MAX_VALUE) position = halfPosition - (halfPosition % list.size());
                             banner.setCurrentItem(position);
                         });
                     }
@@ -192,7 +213,9 @@ public class Advertising extends SimpleViewGroup implements AdvertisingImpl, Lif
         }
     }
 
-    //停止自动滚动任务
+    /**
+     * 停止自动滚动任务
+     */
     private void stopTimer() {
         if (timer != null) {
             timer.cancel();
@@ -200,26 +223,18 @@ public class Advertising extends SimpleViewGroup implements AdvertisingImpl, Lif
         }
     }
 
-    //绑定对应页面的生命周期
+    /**
+     * 绑定对应页面的生命周期-》对应回调重写对应方法
+     * @param lifecycleOwner
+     */
     public void addLifecycleObserver(LifecycleOwner lifecycleOwner) {
         lifecycleOwner.getLifecycle().addObserver(this);
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    @Override
-    public void onResume() {
-        if (scroll) startTimer();
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    @Override
-    public void onPause() {
-        if (scroll) stopTimer();
     }
 
     @Override
     public void setAutoScroll(boolean scroll) {
         this.scroll = scroll;
+        if (!scroll) stopTimer();
     }
 
     @Override

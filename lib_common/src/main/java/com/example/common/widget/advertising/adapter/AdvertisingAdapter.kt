@@ -1,28 +1,47 @@
 package com.example.common.widget.advertising.adapter
 
+import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.common.imageloader.ImageLoader.Companion.instance
+import com.example.common.imageloader.ImageLoader
 
 /**
  *  Created by wangyanbin
  *  广告适配器
  */
-class AdvertisingAdapter(var list: MutableList<String>) : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>() {
+@SuppressLint("NotifyDataSetChanged")
+class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>() {
+    var list: MutableList<String> = ArrayList()
+        set(value) {
+            local = false
+            field = value
+            notifyDataSetChanged()
+        }
+    var localList = ArrayList<Int>()
+        set(value) {
+            local = true
+            field = value
+            notifyDataSetChanged()
+        }
     var onItemClickListener: OnItemClickListener? = null
+    private var local: Boolean = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(ImageView(parent.context))
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.itemView.setOnClickListener { onItemClickListener?.onItemClick(position % list.size) }
-        instance.displayImage((holder.itemView as ImageView), list[position % list.size])
+        holder.itemView.setOnClickListener { onItemClickListener?.onItemClick(position % (if(local) localList.size else list.size)) }
+        if (local) {
+            (holder.itemView as ImageView).setBackgroundResource(localList[position % localList.size])
+        } else {
+            ImageLoader.instance.displayImage((holder.itemView as ImageView), list[position % list.size])
+        }
     }
 
     override fun getItemCount(): Int {
-        return if (list.size < 2) list.size else Int.MAX_VALUE
+        return if(local) if (localList.size < 2) localList.size else Int.MAX_VALUE else if (list.size < 2) list.size else Int.MAX_VALUE
     }
 
     class ViewHolder(itemView: ImageView) : RecyclerView.ViewHolder(itemView) {
@@ -32,11 +51,6 @@ class AdvertisingAdapter(var list: MutableList<String>) : RecyclerView.Adapter<A
             itemView.scaleType = ImageView.ScaleType.FIT_XY
             itemView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.MATCH_PARENT)
         }
-    }
-
-    fun setData(list: MutableList<String>) {
-        this.list = list
-        notifyDataSetChanged()
     }
 
     interface OnItemClickListener {

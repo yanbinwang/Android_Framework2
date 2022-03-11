@@ -3,14 +3,10 @@ ext.deps = [:]
 
 //所有库的版本配置
 def versions = [:]
-versions.appcompat = "1.2.0"
-versions.recyclerview = "1.2.0"
-//versions.runtime = "2.4.0-alpha01"
+versions.appcompat = "1.4.1"
+versions.recyclerview = "1.2.1"
 versions.viewmodel = "2.3.1"
 versions.livedata = "2.3.1"
-//------------------------------------------------------------------------------------------
-versions.stdlib = "1.6.10"
-//versions.coroutines_android = "1.1.1"
 //------------------------------------------------------------------------------------------
 versions.glide = "4.12.0"
 versions.glide_compiler = "4.12.0"
@@ -24,11 +20,12 @@ versions.arouter_compiler = "1.5.2"
 //------------------------------------------------------------------------------------------
 versions.album = "2.1.3"
 versions.durban = "1.0.1"
-versions.permission = "2.0.3"
+versions.permission = "2.0.0-rc4"
 //------------------------------------------------------------------------------------------
-versions.material = "1.3.0"
+versions.kotlin = "1.6.10"
+versions.material = "1.4.0"
 versions.okhttp = "4.9.1"
-versions.autosize = "1.2.1"
+versions.autosize = "v1.2.1"
 versions.mmkv = "1.2.2"
 versions.adapterhelper = "3.0.4"
 versions.recovery = "1.0.0"
@@ -38,16 +35,9 @@ versions.guide = "v2.4.0"
 def androidx = [:]
 androidx.appcompat = "androidx.appcompat:appcompat:$versions.appcompat"
 androidx.recyclerview = "androidx.recyclerview:recyclerview:$versions.recyclerview"
-//androidx.runtime = "androidx.lifecycle:lifecycle-runtime-ktx:$versions.runtime"
 androidx.viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.viewmodel"
 androidx.livedata = "androidx.lifecycle:lifecycle-livedata-ktx:$versions.livedata"
 deps.androidx = androidx
-
-//kotlin
-def kotlin = [:]
-kotlin.stdlib = "org.jetbrains.kotlin:kotlin-stdlib:$versions.stdlib"
-//kotlin.coroutines_android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutines_android"
-deps.kotlin = kotlin
 
 //图片加载glide
 def bumptech = [:]
@@ -76,9 +66,10 @@ yanzhenjie.permission = "com.yanzhenjie:permission:$versions.permission"
 deps.yanzhenjie = yanzhenjie
 
 //非组的第三方控件
+deps.kotlin = "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"//kotlin
 deps.material = "com.google.android.material:material:$versions.material"//design库
 deps.okhttp3 = "com.squareup.okhttp3:okhttp:$versions.okhttp"//okhttp
-deps.autosize = "me.jessyan:autosize:$versions.autosize"//今日头条布局兼容
+deps.autosize = "com.github.JessYanCoding:AndroidAutoSize:$versions.autosize"//今日头条布局兼容
 deps.mmkv = "com.tencent:mmkv-static:$versions.mmkv"//腾讯读写库
 deps.adapterhelper = "com.github.CymChad:BaseRecyclerViewAdapterHelper:$versions.adapterhelper"//封装的适配器
 deps.recovery = "com.zxy.android:recovery:$versions.recovery"//闪退抓捕
@@ -88,7 +79,7 @@ ext.deps = deps
 
 //全局版本配置
 def build_versions = [:]
-build_versions.compileSdkVersion = 30//构建版本号
+build_versions.compileSdkVersion = 31//构建版本号
 build_versions.minSdkVersion = 21//最低安装版本
 build_versions.targetSdkVersion = 30//最高安装版本
 build_versions.versionCode = 1//版本号

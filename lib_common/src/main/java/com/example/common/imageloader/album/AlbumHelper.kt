@@ -6,13 +6,10 @@ import com.example.base.utils.ToastUtil
 import com.example.common.R
 import com.example.common.constant.Constants
 import com.example.common.constant.RequestCode
-import com.example.common.utils.helper.permission.OnPermissionCallBack
-import com.example.common.utils.helper.permission.PermissionHelper
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.api.widget.Widget
 import com.yanzhenjie.durban.Controller
 import com.yanzhenjie.durban.Durban
-import com.yanzhenjie.permission.runtime.Permission
 import java.lang.ref.WeakReference
 
 /**
@@ -74,6 +71,9 @@ class AlbumHelper(activity: Activity) {
             .camera(hasCamera)
             //页面列表的列数
             .columnCount(3)
+            //防止加载系统缓存图片
+            .filterSize { it == 0L }
+            .afterFilterVisibility(false)
             .onResult {
                 val resultSize = it[0].size
                 if (resultSize > 10 * 1024 * 1024) {

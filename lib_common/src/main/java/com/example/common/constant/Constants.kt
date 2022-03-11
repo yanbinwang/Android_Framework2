@@ -32,13 +32,12 @@ object Constants {
     var APPLICATION_FILE_PATH: String? = null//默认文件保存路径，sd卡下的应用名文件夹
     @JvmField
     var SDCARD_PATH = BaseApplication.instance?.getExternalFilesDir(null)?.absolutePath//sd卡的根路径mnt/sdcard-访问这个目录不需要动态申请STORAGE权限
-//    var SDCARD_PATH = Environment.getExternalStorageDirectory().absolutePath//sd卡的根路径mnt/sdcard
 
     //app内接口的一些默认配置字段
     const val APPLICATION_ID = "com.sqkj.oea"//当前包名
     const val APPLICATION_NAME = "简证"//当前应用名
     const val LOGIN_INTERCEPTOR_CODE = 1 //阿里路由登录全局拦截器编号
-//    const val PUSH_NOTIFY_ID = 0 //固定通知id
+    const val PUSH_NOTIFY_ID = 0 //固定通知id
     const val PUSH_CHANNEL_ID = "dataqin" //推送渠道id
     const val PUSH_CHANNEL_NAME = "数秦科技" //推送渠道名
 
