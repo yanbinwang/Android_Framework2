@@ -39,7 +39,7 @@ public class XWebView extends WebView {
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         //设置WebView 可以加载更多格式页面
         webSettings.setLoadWithOverviewMode(true);
-        // 设置webview页面自适应网页宽度
+        //设置webview页面自适应网页宽度
         webSettings.setUseWideViewPort(true);
         //启用或禁止WebView访问文件数据
         webSettings.setAllowFileAccess(true);
@@ -49,6 +49,9 @@ public class XWebView extends WebView {
         //告诉webview不启用应用程序缓存api---退出activity时全部清空
         webSettings.setAppCacheEnabled(false);
         webSettings.setDefaultTextEncodingName("utf-8");
+        //兼容h5样式->亦可由前端实现
+        webSettings.setTextZoom(100);
+        webSettings.setDefaultFontSize(16);
     }
 
 }

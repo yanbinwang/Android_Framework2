@@ -42,11 +42,8 @@ dependencies {
     //安卓x库
     api deps.androidx.appcompat
     api deps.androidx.recyclerview
-//    api deps.androidx.runtime
     api deps.androidx.viewmodel
     api deps.androidx.livedata
-    //kotlin
-    api deps.kotlin
     //其余谷歌官方库
     api deps.material
 }

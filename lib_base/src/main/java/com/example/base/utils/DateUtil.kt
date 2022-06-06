@@ -28,7 +28,6 @@ object DateUtil {
     const val CN_YMD = "yyyy年MM月dd日"
     const val CN_YMDHM = "yyyy年MM月dd日 HH时mm分"
     const val CN_YMDHMS = "yyyy年MM月dd日 HH时mm分ss秒"
-    private const val timeZone = "Asia/Shanghai"//时间校准
 
     /**
      * 传入日期是否为手机当日
@@ -47,8 +46,7 @@ object DateUtil {
             val beginTime = "$subDate 00:00:00"
             val endTime = "$subDate 23:59:59"
             //转换Date
-            val dateFormat = SimpleDateFormat(EN_YMDHMS, Locale.getDefault())
-            dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
+            val dateFormat = getDateFormat(EN_YMDHMS)
             val parseBeginTime = dateFormat.parse(beginTime)
             val parseEndTime = dateFormat.parse(endTime)
             if (inputDate.after(parseBeginTime) && inputDate.before(parseEndTime)) flag = true
@@ -66,9 +64,8 @@ object DateUtil {
      */
     @Synchronized
     @JvmStatic
-    fun compareDate(fromSource: String, toSource: String): Int {
-        val dateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
-        dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
+    fun compareDate(fromSource: String, toSource: String, format: String = EN_YMD): Int {
+        val dateFormat = getDateFormat(format)
         try {
             val comparedDate = dateFormat.parse(fromSource) ?: Date()
             val comparedDate2 = dateFormat.parse(toSource) ?: Date()
@@ -95,16 +92,14 @@ object DateUtil {
     fun getDateFormat(fromFormat: String, toFormat: String, source: String): String {
         var result = ""
         try {
-            val dateFormat = SimpleDateFormat(fromFormat, Locale.getDefault())
-            dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
-            result = getDateTime(toFormat, dateFormat.parse(source) ?: Date())
+            result = getDateTime(toFormat, getDateFormat(fromFormat).parse(source) ?: Date())
         } catch (ignored: ParseException) {
         }
         return result
     }
 
     /**
-     * 传入指定日期格式的字符串转成毫秒
+     * 传入指定格式的日期字符串转成毫秒
      *
      * @param format 日期格式
      * @param source 日期
@@ -112,15 +107,11 @@ object DateUtil {
      */
     @Synchronized
     @JvmStatic
-    fun getDateTime(format: String, source: String): Long {
-        val dateFormat = SimpleDateFormat(format, Locale.getDefault())
-        dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
-        return dateFormat.parse(source)?.time ?: 0
-    }
+    fun getDateTime(format: String, source: String) = getDateFormat(format).parse(source)?.time ?: 0
 
 
     /**
-     * 传入指定日期格式和毫秒转换成字符串
+     * 传入指定日期格式和毫秒转换成日期字符串
      *
      * @param format 日期格式
      * @param timestamp 时间戳
@@ -128,14 +119,11 @@ object DateUtil {
      */
     @Synchronized
     @JvmStatic
-    fun getDateTime(format: String, timestamp: Long): String {
-        val dateFormat = SimpleDateFormat(format, Locale.getDefault())
-        dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
-        return dateFormat.format(Date(timestamp)) ?: ""
-    }
+    fun getDateTime(format: String, timestamp: Long) =
+        getDateFormat(format).format(Date(timestamp)) ?: ""
 
     /**
-     * 传入指定日期格式和日期類转换成字符串
+     * 传入指定日期格式和日期類转换成日期字符串
      *
      * @param format 日期格式
      * @param date 日期类
@@ -143,10 +131,16 @@ object DateUtil {
      */
     @Synchronized
     @JvmStatic
-    fun getDateTime(format: String, date: Date): String {
+    fun getDateTime(format: String, date: Date) = getDateFormat(format).format(date) ?: ""
+
+    /**
+     * 获取日期格式，时区为校准的中国时区
+     * @param format 日期格式
+     */
+    private fun getDateFormat(format: String): SimpleDateFormat {
         val dateFormat = SimpleDateFormat(format, Locale.getDefault())
-        dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
-        return dateFormat.format(date) ?: ""
+        dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+        return dateFormat
     }
 
 
@@ -175,15 +169,8 @@ object DateUtil {
     @JvmStatic
     fun getWeekOfMonth(source: String): Int {
         try {
-//            val calendar = Calendar.getInstance()
-//            val dateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
-//            dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
-//            calendar.time = dateFormat.parse(source) ?: Date()
-//            return calendar.get(Calendar.WEEK_OF_MONTH)
             Calendar.getInstance().apply {
-                val dateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
-                dateFormat.timeZone = TimeZone.getTimeZone(DateUtil.timeZone)
-                time = dateFormat.parse(source) ?: Date()
+                time = getDateFormat(EN_YMD).parse(source) ?: Date()
                 return get(Calendar.WEEK_OF_MONTH)
             }
         } catch (ignored: ParseException) {
@@ -201,17 +188,8 @@ object DateUtil {
     @JvmStatic
     fun getWeekOfDate(source: String): Int {
         try {
-//            val calendar = Calendar.getInstance()
-//            val dateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
-//            dateFormat.timeZone = TimeZone.getTimeZone(timeZone)
-//            calendar.time = dateFormat.parse(source) ?: Date()
-//            var weekIndex = calendar.get(Calendar.DAY_OF_WEEK) - 1
-//            if (weekIndex < 0) weekIndex = 0
-//            return weekIndex
             Calendar.getInstance().apply {
-                val dateFormat = SimpleDateFormat(EN_YMD, Locale.getDefault())
-                dateFormat.timeZone = TimeZone.getTimeZone(DateUtil.timeZone)
-                time = dateFormat.parse(source) ?: Date()
+                time = getDateFormat(EN_YMD).parse(source) ?: Date()
                 var weekIndex = get(Calendar.DAY_OF_WEEK) - 1
                 if (weekIndex < 0) weekIndex = 0
                 return weekIndex

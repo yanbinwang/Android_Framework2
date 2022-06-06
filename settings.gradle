@@ -1,4 +1,12 @@
+pluginManagement {
+    apply from: 'config.gradle'
+    addRepos(repositories)
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    addRepos(repositories)
+}
+rootProject.name = "Android_Framework2"
 include ':app'
 include ':lib_common'
 include ':lib_base'
-rootProject.name = "Android_Framework2"

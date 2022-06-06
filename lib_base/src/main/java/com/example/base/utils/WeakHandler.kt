@@ -65,12 +65,12 @@ class WeakHandler {
     }
 
     fun removeCallbacks(r: Runnable) {
-        val runnable: WeakRunnable? = mRunnables.remove(r)
+        val runnable = mRunnables.remove(r)
         if (runnable != null) mExec?.removeCallbacks(runnable)
     }
 
     fun removeCallbacks(r: Runnable, token: Any) {
-        val runnable: WeakRunnable? = mRunnables.remove(r)
+        val runnable = mRunnables.remove(r)
         if (runnable != null) mExec?.removeCallbacks(runnable, token)
     }
 

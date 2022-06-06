@@ -13,9 +13,9 @@ import com.example.base.utils.DisplayUtilKt;
  * 自动换行的容器
  */
 public class WordWrapLayout extends ViewGroup {
-    private static int PADDING_HOR;//水平方向padding
+    private static int PADDING_HORIZONTAL;//水平方向padding
     private static int PADDING_VERTICAL;//垂直方向padding
-    private static int CHILD_MARGIN;//view左右间距
+    private static int MARGIN_CHILD;//view左右间距
 
     public WordWrapLayout(Context context) {
         super(context);
@@ -34,9 +34,9 @@ public class WordWrapLayout extends ViewGroup {
 
     //默认的一些属性设置
     private void initialize() {
-        PADDING_HOR = DisplayUtilKt.dip2px(getContext(), 10);
+        PADDING_HORIZONTAL = DisplayUtilKt.dip2px(getContext(), 10);
         PADDING_VERTICAL = DisplayUtilKt.dip2px(getContext(), 5);
-        CHILD_MARGIN = DisplayUtilKt.dip2px(getContext(), 10);
+        MARGIN_CHILD = DisplayUtilKt.dip2px(getContext(), 10);
     }
 
     //返回控件的位置
@@ -56,18 +56,18 @@ public class WordWrapLayout extends ViewGroup {
             int width = view.getMeasuredWidth();
             int height = view.getMeasuredHeight();
             //x坐标等于view本身的宽度加上设置的左右的margin
-            x += width + CHILD_MARGIN;
+            x += width + MARGIN_CHILD;
             //如果x累加的长度大于了实际容器的长度
             if (x > actualWidth) {
                 //x等于view本身的长度加上间距（清空之前累加的值，算作第二行的第一个）
-                x = width + CHILD_MARGIN;
+                x = width + MARGIN_CHILD;
                 //总行数+1
                 rows++;
             }
             //计算view纵坐标间距
-            y = (rows - 1) * (height + CHILD_MARGIN);
+            y = (rows - 1) * (height + MARGIN_CHILD);
             //重新对view的方向进行绘制
-            view.layout(x - width - CHILD_MARGIN, y, x - CHILD_MARGIN, y + height);
+            view.layout(x - width - MARGIN_CHILD, y, x - MARGIN_CHILD, y + height);
         }
     }
 
@@ -85,12 +85,12 @@ public class WordWrapLayout extends ViewGroup {
         for (int index = 0; index < childCount; index++) {
             //给子view设置内部的padding
             View child = getChildAt(index);
-            child.setPadding(PADDING_HOR, PADDING_VERTICAL, PADDING_HOR, PADDING_VERTICAL);
+            child.setPadding(PADDING_HORIZONTAL, PADDING_VERTICAL, PADDING_HORIZONTAL, PADDING_VERTICAL);
             child.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
             int width = child.getMeasuredWidth();
             int height = child.getMeasuredHeight();
             //x坐标等于view本身的宽度加上设置的左右的margin
-            x += width + CHILD_MARGIN;
+            x += width + MARGIN_CHILD;
             //如果x累加的长度大于了实际容器的长度
             if (x > actualWidth) {
                 //x等于view本身的长度加上间距（清空之前累加的值，算作第二行的第一个）
@@ -99,7 +99,7 @@ public class WordWrapLayout extends ViewGroup {
                 rows++;
             }
             //计算view纵坐标间距
-            y = rows * (height + CHILD_MARGIN);
+            y = rows * (height + MARGIN_CHILD);
         }
         //重新对view的显示长宽绘制，应等于计算出来的view的长宽的宽高加上margin和padding等操作的值
         setMeasuredDimension(actualWidth, y);

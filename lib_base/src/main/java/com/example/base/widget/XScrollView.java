@@ -42,7 +42,7 @@ public class XScrollView extends NestedScrollView {
     protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
         super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
         if (scrollY != 0 && null != onScrollBottomListener && isTop()) {
-            onScrollBottomListener.onScrollBottomListener(clampedY);
+            onScrollBottomListener.onBottom(clampedY);
         }
     }
 
@@ -79,7 +79,7 @@ public class XScrollView extends NestedScrollView {
 
     public interface OnScrollToBottomListener {
 
-        void onScrollBottomListener(boolean isBottom);
+        void onBottom(boolean isBottom);
 
     }
 
