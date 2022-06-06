@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference
 @SuppressLint("InflateParams")
 class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding) {
     private val weakActivity by lazy { WeakReference(activity) }
-    private val statusBarBuilder by lazy { StatusBarBuilder(weakActivity.get()!!) }
+    private val statusBarBuilder by lazy { StatusBarBuilder(activity.window) }
 
     init {
         statusBarBuilder.setStatusBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.white))
@@ -39,7 +39,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
         return this
     }
 
-    fun setLeftImageResource(resId: Int): TitleBuilder {
+    fun setLeftResource(resId: Int): TitleBuilder {
         binding.ivMainLeft.apply {
             visibility = View.VISIBLE
             setImageResource(resId)
@@ -70,7 +70,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
         return this
     }
 
-    fun setRightImageResource(resId: Int): TitleBuilder {
+    fun setRightResource(resId: Int): TitleBuilder {
         binding.ivMainRight.apply {
             visibility = View.VISIBLE
             setImageResource(resId)

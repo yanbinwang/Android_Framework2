@@ -26,9 +26,7 @@ class NotificationFactory private constructor() {
 
     companion object {
         @JvmStatic
-        val instance: NotificationFactory by lazy {
-            NotificationFactory()
-        }
+        val instance by lazy { NotificationFactory() }
     }
 
     /**
@@ -70,7 +68,7 @@ class NotificationFactory private constructor() {
             setWhen(System.currentTimeMillis())
         }
         val notification = builder.build()
-        notification?.flags = Notification.FLAG_AUTO_CANCEL or Notification.FLAG_ONLY_ALERT_ONCE
+        notification.flags = Notification.FLAG_AUTO_CANCEL or Notification.FLAG_ONLY_ALERT_ONCE
         notificationManager.apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createNotificationChannel(NotificationChannel(Constants.PUSH_CHANNEL_ID, Constants.PUSH_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH))
             notify(id.toInt(), notification)
@@ -83,14 +81,15 @@ class NotificationFactory private constructor() {
     fun setting(activity: Activity) {
         val weakActivity = WeakReference(activity)
         val intent = Intent()
+        val sdkVersion = Build.VERSION.SDK_INT
         when {
             //8.0+
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+            sdkVersion >= Build.VERSION_CODES.O -> {
                 intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
                 intent.putExtra("android.provider.extra.APP_PACKAGE", Constants.APPLICATION_ID)
             }
             //5.0-7.0
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP -> {
+            sdkVersion >= Build.VERSION_CODES.LOLLIPOP && sdkVersion < Build.VERSION_CODES.O -> {
                 intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
                 intent.putExtra("app_package", Constants.APPLICATION_ID)
                 intent.putExtra("app_uid", weakActivity.get()?.applicationInfo?.uid)

@@ -19,31 +19,19 @@ object CalculationUtil {
      * 加法运算
      */
     @JvmStatic
-    fun plus(v1: Double, v2: Double): Double {
-        val b1 = BigDecimal(v1.toString())
-        val b2 = BigDecimal(v2.toString())
-        return b1.add(b2).toDouble()
-    }
+    fun plus(v1: Double, v2: Double) = BigDecimal(v1.toString()).add(BigDecimal(v2.toString())).toDouble()
 
     /**
      * 减法运算
      */
     @JvmStatic
-    fun minus(v1: Double, v2: Double): Double {
-        val b1 = BigDecimal(v1.toString())
-        val b2 = BigDecimal(v2.toString())
-        return b1.subtract(b2).toDouble()
-    }
+    fun minus(v1: Double, v2: Double) = BigDecimal(v1.toString()).subtract(BigDecimal(v2.toString())).toDouble()
 
     /**
      * 乘法运算
      */
     @JvmStatic
-    fun times(v1: Double, v2: Double): Double {
-        val b1 = BigDecimal(v1.toString())
-        val b2 = BigDecimal(v2.toString())
-        return b1.multiply(b2).toDouble()
-    }
+    fun times(v1: Double, v2: Double) = BigDecimal(v1.toString()).multiply(BigDecimal(v2.toString())).toDouble()
 
     /**
      * 除法运算-当发生除不尽的情况时，由scale参数指定精度，以后的数字四舍五入
@@ -52,9 +40,7 @@ object CalculationUtil {
     @JvmStatic
     fun div(v1: Double, v2: Double, scale: Int = 10): Double {
         require(scale >= 0) { "The scale must be a positive integer or zero" }
-        val b1 = BigDecimal(v1.toString())
-        val b2 = BigDecimal(v2.toString())
-        return b1.divide(b2, scale, BigDecimal.ROUND_HALF_UP).toDouble()
+        return BigDecimal(v1.toString()).divide(BigDecimal(v2.toString()), scale, BigDecimal.ROUND_HALF_UP).toDouble()
     }
 
     /**

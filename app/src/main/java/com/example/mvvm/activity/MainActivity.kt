@@ -16,7 +16,7 @@ import com.example.common.utils.helper.permission.OnPermissionCallBack
 import com.example.common.utils.helper.permission.PermissionHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
-import com.yanzhenjie.permission.runtime.Permission
+import com.yanzhenjie.permission.Permission
 import kotlinx.coroutines.Job
 
 /**
@@ -123,7 +123,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
                                     })
                             }
                         }
-                    }).getPermissions(Permission.Group.STORAGE)
+                    }).requestPermissions(Permission.Group.STORAGE)
 //                PermissionHelper.with(context.get())
 //                    .getPermissions(Permission.Group.STORAGE)
 //                    .setPermissionCallBack(isGranted -> {

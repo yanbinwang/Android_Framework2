@@ -1,8 +1,10 @@
 package com.example.common.utils
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Context.VIBRATOR_SERVICE
 import android.content.Intent
+import android.graphics.Paint
 import android.net.Uri
 import android.os.Build
 import android.os.VibrationEffect
@@ -10,8 +12,11 @@ import android.os.Vibrator
 import android.text.InputFilter
 import android.text.SpannableString
 import android.text.Spanned
+import android.text.TextUtils
 import android.text.method.HideReturnsTransformationMethod
+import android.text.method.LinkMovementMethod
 import android.text.method.PasswordTransformationMethod
+import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.*
@@ -26,17 +31,25 @@ import java.lang.StringBuilder
 /**
  * 空出状态栏高度
  */
-fun RelativeLayout.topMargin() {
-    val params = layoutParams as RelativeLayout.LayoutParams
-    params.topMargin = Constants.STATUS_BAR_HEIGHT
-    layoutParams = params
+fun RelativeLayout.topStatusMargin(arrow: Boolean = true) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || arrow) {
+        val params = layoutParams as RelativeLayout.LayoutParams
+        params.topMargin = Constants.STATUS_BAR_HEIGHT
+        layoutParams = params
+    }
 }
 
-fun LinearLayout.topMargin() {
-    val params = layoutParams as LinearLayout.LayoutParams
-    params.topMargin = Constants.STATUS_BAR_HEIGHT
-    layoutParams = params
+fun LinearLayout.topStatusMargin(arrow: Boolean = true) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || arrow) {
+        val params = layoutParams as LinearLayout.LayoutParams
+        params.topMargin = Constants.STATUS_BAR_HEIGHT
+        layoutParams = params
+    }
 }
+
+fun View.topStatusPadding() = run { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0) }
+
+fun View.topStatus() = run { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT) }
 
 /**
  * 震动
@@ -62,16 +75,48 @@ fun View.openWebsite(url: String) = context.startActivity(Intent(Intent.ACTION_V
 fun ImageView.setDisplayResource(display: Boolean, showId: Int, hideId: Int) = setBackgroundResource(if (!display) showId else hideId)
 
 /**
+ * 图片宽屏
+ */
+fun ImageView.setRelativeScreenWidth() {
+    val rLayoutParams = layoutParams as RelativeLayout.LayoutParams
+    rLayoutParams.width = Constants.SCREEN_WIDTH
+    layoutParams = rLayoutParams
+}
+
+/**
+ * 图片宽屏
+ */
+fun ImageView.setLinearScreenWidth() {
+    val lLayoutParams = layoutParams as LinearLayout.LayoutParams
+    lLayoutParams.width = Constants.SCREEN_WIDTH
+    layoutParams = lLayoutParams
+}
+
+/**
  * 设置textview内容当中某一段的颜色
  */
 @JvmOverloads
 fun TextView.setSpan(textStr: String, keyword: String, colorRes: Int = R.color.blue_0d86ff) {
     val spannable = SpannableString(textStr)
     val index = textStr.indexOf(keyword)
-    if (index != -1) {
+    text = if (index != -1) {
         spannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(context, colorRes)), index, index + keyword.length, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-        text = spannable
-    }
+        spannable
+    } else textStr
+}
+
+/**
+ * 文案添加点击事件（单一）
+ */
+@JvmOverloads
+fun TextView.setClickableSpan(textStr: String, keyword: String, clickableSpan: ClickableSpan) {
+    val spannable = SpannableString(textStr)
+    val index = textStr.indexOf(keyword)
+    text = if (index != -1) {
+        spannable.setSpan(clickableSpan, index, index + keyword.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spannable
+    } else textStr
+    movementMethod = LinkMovementMethod.getInstance()
 }
 
 /**
@@ -81,6 +126,22 @@ fun TextView.setSpan(textStr: String, keyword: String, colorRes: Int = R.color.b
 fun TextView.setState(textStr: String, colorRes: Int = R.color.blue_0d86ff) {
     text = textStr
     setTextColor(ContextCompat.getColor(context, colorRes))
+}
+
+/**
+ * 设置下划线，并抗锯齿
+ */
+fun TextView.setUnderline() {
+    paint.flags = Paint.UNDERLINE_TEXT_FLAG
+    paint.isAntiAlias = true
+}
+
+/**
+ * 设置中等加粗
+ */
+fun TextView.setMediumBold() {
+    paint.strokeWidth = 1.0f
+    paint.style = Paint.Style.FILL_AND_STROKE
 }
 
 /**
@@ -126,26 +187,51 @@ fun TextView.setMatchText() {
  * EditText输入密码是否可见(显隐)
  */
 fun EditText.inputTransformation(): Boolean {
+    var display = false
     try {
-        transformationMethod = if(transformationMethod == HideReturnsTransformationMethod.getInstance()) {
-            PasswordTransformationMethod.getInstance()
+        if (transformationMethod == HideReturnsTransformationMethod.getInstance()) {
+            transformationMethod =  PasswordTransformationMethod.getInstance()
+            display = false
         } else {
-            HideReturnsTransformationMethod.getInstance()
+            transformationMethod =  HideReturnsTransformationMethod.getInstance()
+            display = true
         }
         setSelection(text.length)
         postInvalidate()
     } catch (ignored: Exception) {
-    } finally {
-        return transformationMethod == HideReturnsTransformationMethod.getInstance()
     }
+    return display
 }
 
 /**
  * EditText输入金额小数限制
  */
-@JvmOverloads
 fun EditText.decimalFilter(decimalPoint: Int = 2) {
     val decimalInputFilter = DecimalInputFilter()
     decimalInputFilter.decimalPoint = decimalPoint
     filters = arrayOf<InputFilter>(decimalInputFilter)
+}
+
+/**
+ * EditText不允许输入空格
+ */
+fun EditText.inhibitInputSpace() {
+    filters = arrayOf(object : InputFilter {
+        override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
+            val result = source ?: ""
+            return if (result == " ") "" else null
+        }
+    })
+}
+
+/**
+ * 检测
+ */
+fun Context.testingContent(vararg views: EditText?): Boolean {
+    for (view in views) {
+        if (view != null) {
+            if (TextUtils.isEmpty(view.text.toString().trim { it <= ' ' })) return false
+        }
+    }
+    return true
 }
