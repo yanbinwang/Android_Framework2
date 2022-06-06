@@ -18,39 +18,39 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     }
 
     @JvmOverloads
-    fun setTitle(titleStr: String, shade: Boolean = false, dark: Boolean = true): TitleBuilder {
+    fun setTitle(titleStr: String, dark: Boolean = true, shade: Boolean = false): TitleBuilder {
         statusBarBuilder.setStatusBarLightMode(dark)
-        binding.tvMainTitle.apply {
+        binding.tvTitle.apply {
             text = titleStr
             setTextColor(ContextCompat.getColor(weakActivity.get()!!, if(dark) R.color.black else R.color.white))
         }
-        binding.vMainLine.visibility = if (shade) View.VISIBLE else View.GONE
+        binding.vShade.visibility = if (shade) View.VISIBLE else View.GONE
         return this
     }
 
     fun setTitleTextColor(color: Int): TitleBuilder {
-        binding.tvMainTitle.setTextColor(color)
+        binding.tvTitle.setTextColor(color)
         return this
     }
 
     fun setTitleBackgroundColor(color: Int): TitleBuilder {
         statusBarBuilder.setStatusBarColor(color)
-        binding.rlMain.setBackgroundColor(color)
+        binding.rlContainer.setBackgroundColor(color)
         return this
     }
 
     fun setLeftResource(resId: Int): TitleBuilder {
-        binding.ivMainLeft.apply {
+        binding.ivLeft.apply {
             visibility = View.VISIBLE
             setImageResource(resId)
         }
-        binding.tvMainLeft.visibility = View.GONE
+        binding.tvLeft.visibility = View.GONE
         return this
     }
 
     fun setLeftText(textStr: String): TitleBuilder {
-        binding.ivMainLeft.visibility = View.GONE
-        binding.tvMainLeft.apply {
+        binding.ivLeft.visibility = View.GONE
+        binding.tvLeft.apply {
             visibility = View.VISIBLE
             text = textStr
         }
@@ -58,12 +58,12 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     }
 
     fun setLeftTextColor(color: Int): TitleBuilder {
-        binding.tvMainLeft.setTextColor(color)
+        binding.tvLeft.setTextColor(color)
         return this
     }
 
     fun setLeftOnClick(onClick: View.OnClickListener): TitleBuilder {
-        binding.llMainLeft.apply {
+        binding.llLeft.apply {
             visibility = View.VISIBLE
             setOnClickListener(onClick)
         }
@@ -71,17 +71,17 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     }
 
     fun setRightResource(resId: Int): TitleBuilder {
-        binding.ivMainRight.apply {
+        binding.ivRight.apply {
             visibility = View.VISIBLE
             setImageResource(resId)
         }
-        binding.tvMainRight.visibility = View.GONE
+        binding.tvRight.visibility = View.GONE
         return this
     }
 
     fun setRightText(textStr: String): TitleBuilder {
-        binding.ivMainRight.visibility = View.GONE
-        binding.tvMainRight.apply {
+        binding.ivRight.visibility = View.GONE
+        binding.tvRight.apply {
             visibility = View.VISIBLE
             text = textStr
         }
@@ -89,12 +89,12 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     }
 
     fun setRightTextColor(color: Int): TitleBuilder {
-        binding.tvMainRight.setTextColor(color)
+        binding.tvRight.setTextColor(color)
         return this
     }
 
     fun setRightOnClick(onClick: View.OnClickListener): TitleBuilder {
-        binding.llMainRight.apply {
+        binding.llRight.apply {
             visibility = View.VISIBLE
             setOnClickListener(onClick)
         }
@@ -116,22 +116,23 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     }
 
     fun hideBack(): TitleBuilder {
-        binding.llMainLeft.apply {
+        binding.llLeft.apply {
             visibility = View.GONE
             setOnClickListener(null)
         }
         return this
     }
 
+    @JvmOverloads
     fun hideTitle(dark: Boolean = true): TitleBuilder {
         statusBarBuilder.setStatusBarLightMode(dark)
-        binding.rlMain.visibility = View.GONE
-        binding.vMainLine.visibility = View.GONE
+        binding.rlContainer.visibility = View.GONE
+        binding.vShade.visibility = View.GONE
         return this
     }
 
     fun getDefault(): TitleBuilder {
-        binding.llMainLeft.apply {
+        binding.llLeft.apply {
             visibility = View.VISIBLE
             setOnClickListener { weakActivity.get()?.finish() }
         }
