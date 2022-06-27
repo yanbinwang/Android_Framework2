@@ -14,37 +14,37 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
  */
 object CommonBindingAdapter {
 
+//    @JvmStatic
+//    @BindingAdapter(value = ["app:adapter"])
+//    fun setAdapter(xRec: XRecyclerView, adapter: BaseQuickAdapter<*, *>) {
+//        xRec.apply {
+//            recyclerView.layoutManager = GridLayoutManager(context, 1)
+//            recyclerView.adapter = adapter
+//            addItemDecoration(1, 0, true, false)
+//        }
+//    }
+
     @JvmStatic
-    @BindingAdapter(value = ["app:adapter"])
-    fun setAdapter(xRec: XRecyclerView, adapter: BaseQuickAdapter<*, *>) {
-        xRec.apply {
+    @BindingAdapter(value = ["adapter2"])
+    fun <T : BaseQuickAdapter<*, *>> setAdapter(rec: XRecyclerView, adapter: T) {
+        rec.apply {
             recyclerView.layoutManager = GridLayoutManager(context, 1)
             recyclerView.adapter = adapter
             addItemDecoration(1, 0, true, false)
         }
     }
 
-//    @JvmStatic
-//    @BindingAdapter(value = ["app:adapter2"])
-//    fun setAdapter2(xRec: XRecyclerView, adapter: BaseQuickAdapter<*, *>) {
-//        xRec.apply {
-//            recyclerView.layoutManager = GridLayoutManager(context, 1)
-//            recyclerView.adapter = adapter
-//            addItemDecoration(0, 0, false, false)
-//        }
-//    }
-
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
-    @BindingAdapter(value = ["app:loadPageUrl"])
-    fun setLoadPage(webView: XWebView, loadPageUrl: String) {
+    @BindingAdapter(value = ["loadUrl"])
+    fun setLoadUrl(webView: XWebView, loadPageUrl: String) {
         webView.loadUrl(loadPageUrl)
     }
 
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
-    @BindingAdapter(value = ["app:loadAssetPath"])
-    fun setLoadAssetsPage(webView: XWebView, assetPath: String) {
+    @BindingAdapter(value = ["loadAssetUrl"])
+    fun setLoadAssetsUrl(webView: XWebView, assetPath: String) {
         webView.loadUrl("file:///android_asset/$assetPath")
     }
 

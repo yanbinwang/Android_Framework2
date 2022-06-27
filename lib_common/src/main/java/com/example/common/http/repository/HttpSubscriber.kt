@@ -13,9 +13,7 @@ abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
         if (null != t) {
             val msg = t.msg
             val code = t.code
-            if (0 == code) {
-                onSuccess(t.data)
-            } else onFailed(Exception(), msg, code)
+            if (0 == code) onSuccess(t.data) else onFailed(Exception(), msg, code)
         } else onFailed(Exception(), "", -1)
     }
 

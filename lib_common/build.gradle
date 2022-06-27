@@ -51,7 +51,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     //xwebview的jar
-    api files('libs/tbs_sdk_thirdapp_v4.3.0.265_44165_sharewithdownloadwithfile_withoutGame_obfs_20220303_184913.jar')
+    api files('libs/tbs_sdk_thirdapp_v4.3.0.299_44199_sharewithdownloadwithfile_withoutGame_obfs_20220615_101728.jar')
     //框架库
     api project(':lib_base')
     //网络请求

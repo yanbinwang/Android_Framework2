@@ -12,6 +12,10 @@
             name="adapter"
             type="com.example.mvvm.adapter.TestListAdapter" />
 
+        <variable
+            name="helper"
+            type="com.example.common.utils.helper.AccountHelper" />
+
     </data>
 
     <LinearLayout
@@ -27,12 +31,18 @@
             android:text="添加数据"
             android:textColor="@color/white" />
 
-        <androidx.recyclerview.widget.RecyclerView
+        <com.example.common.widget.xrecyclerview.XRecyclerView
             android:id="@+id/rec_test"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:adapter="@{adapter}"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            app:adapter="@{adapter}" />
+
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/rec_test"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            app:adapter="@{adapter}"-->
+<!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />-->
 
     </LinearLayout>
 

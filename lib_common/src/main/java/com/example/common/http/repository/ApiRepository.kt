@@ -63,8 +63,6 @@ suspend fun <T> ApiResponse<T>.apiCall(subscriber: HttpSubscriber<T>?) = call(su
 suspend fun <T> T.call(subscriber: ResourceSubscriber<T>?): T {
     subscriber?.onStart()
     try {
-//        val resource: T? = execute { this }
-//        resource?.let { subscriber?.onNext(it) }//表示resource不为null的条件下，才会去执行let函数体
         subscriber?.onNext(withContext(IO) { this@call })
     } catch (e: Exception) {
         subscriber?.onError(e)

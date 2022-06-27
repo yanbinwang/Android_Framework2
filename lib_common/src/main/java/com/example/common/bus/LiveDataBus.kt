@@ -9,7 +9,7 @@ import java.util.*
  *  项目消息分发
  */
 class LiveDataBus private constructor() {
-    private val bus by lazy { HashMap<String, BusMutableLiveData<Any>>() }
+    private val bus by lazy { HashMap<String, MutableLiveDataBus<Any>>() }
 
     companion object {
         @JvmStatic
@@ -21,7 +21,7 @@ class LiveDataBus private constructor() {
     //订阅方法，传入消息名称，类型，通过observe订阅
     fun <T> toFlowable(key: String, type: Class<T>): MutableLiveData<T> {
         if (!bus.containsKey(key)) {
-            bus[key] = BusMutableLiveData()
+            bus[key] = MutableLiveDataBus()
         }
         return bus[key] as MutableLiveData<T>
     }

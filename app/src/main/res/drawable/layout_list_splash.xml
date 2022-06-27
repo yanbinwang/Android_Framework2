@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@color/blue_3d81f2" />
+
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:scaleType="fitXY"
+            android:src="@mipmap/img_start"
+            android:tileMode="disabled" />
+    </item>
+
+</layer-list>

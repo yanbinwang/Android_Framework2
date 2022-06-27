@@ -29,9 +29,6 @@ class UserAgentInterceptor : Interceptor {
 //        }
         val params = ArrayMap<String, String>()
         params["system-name"] = "Android"
-        params["system-version"] = Build.VERSION.RELEASE
-        params["api-version"] = "v1"
-        params["app-version"] = Constants.VERSION_CODE.toString()
         params["phone-model"] = Build.MODEL
         val builder = Headers.Builder()
         for (key in params.keys) {

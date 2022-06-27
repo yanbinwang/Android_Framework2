@@ -2,7 +2,6 @@ package com.example.common.base
 
 import android.app.Activity
 import android.content.Context
-import android.content.res.Resources
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
@@ -25,7 +24,6 @@ import com.example.common.constant.Constants
 import com.example.common.constant.Extras
 import com.example.common.utils.builder.StatusBarBuilder
 import com.example.common.widget.dialog.LoadingDialog
-import me.jessyan.autosize.AutoSizeCompat
 import java.io.Serializable
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
@@ -40,7 +38,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     protected lateinit var binding: VDB
     protected val activity by lazy { WeakReference<Activity>(this) } //基类activity弱引用
     protected val context by lazy { WeakReference<Context>(this) }//基类context弱引用
-    protected val statusBarBuilder by lazy { StatusBarBuilder(this) }//状态栏工具类
+    protected val statusBarBuilder by lazy { StatusBarBuilder(window) }//状态栏工具类
     private var baseViewModel: BaseViewModel? = null//数据模型
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
@@ -78,14 +76,14 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun initEvent() {
-        LiveDataBus.instance.toFlowable().observe(this, {
+        LiveDataBus.instance.toFlowable().observe(this) {
             when (it.getAction()) {
                 Constants.APP_USER_LOGIN_OUT -> {
                     finish()
 //            navigation(ARouterPath.StartActivity)
                 }
             }
-        })
+        }
     }
 
     override fun initData() {
@@ -190,12 +188,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun onDestroy() {
         super.onDestroy()
         binding.unbind()
-    }
-
-    override fun getResources(): Resources {
-        AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
-        AutoSizeCompat.autoConvertDensity(super.getResources(), 750f, true)
-        return super.getResources()
     }
     // </editor-fold>
 

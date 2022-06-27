@@ -11,31 +11,31 @@ import com.example.common.imageloader.ImageLoader
 object ImageViewBindingAdapter {
 
     @JvmStatic
-    @BindingAdapter(value = ["app:imageUrl"])
+    @BindingAdapter(value = ["imageUrl"])
     fun setImageDisplay(view: ImageView, url: String) {
         ImageLoader.instance.displayImage(view, url)
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["app:imageZoomUrl"])
+    @BindingAdapter(value = ["imageZoomUrl"])
     fun setImageZoomDisplay(view: ImageView, url: String) {
         ImageLoader.instance.displayZoomImage(view, url)
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["app:imageRoundUrl"])
+    @BindingAdapter(value = ["imageRoundUrl"])
     fun setImageRoundDisplay(view: ImageView, url: String) {
         setImageRoundDisplay(view, url, 5)
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["app:imageRoundUrl", "app:imageRoundRadius"])
+    @BindingAdapter(value = ["imageRoundUrl", "imageRoundRadius"])
     fun setImageRoundDisplay(view: ImageView, url: String, roundingRadius: Int) {
         ImageLoader.instance.displayRoundImage(view, url, roundingRadius)
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["app:imageCircleUrl"])
+    @BindingAdapter(value = ["imageCircleUrl"])
     fun setImageCircleDisplay(view: ImageView, url: String) {
         ImageLoader.instance.displayCircleImage(view, url)
     }

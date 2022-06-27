@@ -5,7 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.ViewModel
 import com.example.common.base.page.getEmptyView
 import com.example.common.widget.empty.EmptyLayout
@@ -20,7 +20,7 @@ import java.lang.ref.WeakReference
  * LifecycleObserver-->观察宿主的生命周期
  */
 @SuppressLint("StaticFieldLeak")
-abstract class BaseViewModel : ViewModel(), LifecycleObserver {
+abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakActivity: WeakReference<Activity>? = null//引用的activity
     private var weakContext: WeakReference<Context>? = null//引用的context
     private var softView: SoftReference<BaseView>? = null//基础UI操作
@@ -77,32 +77,28 @@ abstract class BaseViewModel : ViewModel(), LifecycleObserver {
     // </editor-fold>
 
 //    // <editor-fold defaultstate="collapsed" desc="生命周期回调">
-//    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-//    fun onCreate() {
+//    override fun onCreate(owner: LifecycleOwner) {
+//        super.onCreate(owner)
 //    }
 //
-//    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-//    fun onStart() {
+//    override fun onStart(owner: LifecycleOwner) {
+//        super.onStart(owner)
 //    }
 //
-//    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-//    fun onResume() {
+//    override fun onResume(owner: LifecycleOwner) {
+//        super.onResume(owner)
 //    }
 //
-//    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-//    fun onPause() {
+//    override fun onPause(owner: LifecycleOwner) {
+//        super.onPause(owner)
 //    }
 //
-//    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-//    fun onStop() {
+//    override fun onStop(owner: LifecycleOwner) {
+//        super.onStop(owner)
 //    }
 //
-//    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-//    fun onDestroy() {
-//    }
-//
-//    @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
-//    fun onAny() {
+//    override fun onDestroy(owner: LifecycleOwner) {
+//        super.onDestroy(owner)
 //    }
 //    // </editor-fold>
 

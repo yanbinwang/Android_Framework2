@@ -3,7 +3,6 @@ package com.example.mvvm.activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.common.utils.builder.StatusBarBuilder
 
 /**
  *  Created by wangyanbin
@@ -14,7 +13,6 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        StatusBarBuilder(this).setHideStatus()
         if (!isTaskRoot
             && intent.hasCategory(Intent.CATEGORY_LAUNCHER)
             && intent.action != null
@@ -22,7 +20,7 @@ class SplashActivity : AppCompatActivity() {
             finish()
             return
         }
-        startActivity(Intent(this, MainActivity::class.java))
+        startActivity(Intent(this, StartActivity::class.java))
         finish()
     }
 

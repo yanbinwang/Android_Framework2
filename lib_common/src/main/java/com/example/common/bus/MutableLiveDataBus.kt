@@ -9,7 +9,7 @@ import java.util.*
 /**
  *  Created by wangyanbin
  */
-class BusMutableLiveData<T> : MutableLiveData<T>() {
+class MutableLiveDataBus<T> : MutableLiveData<T>() {
     private val observerMap by lazy { HashMap<Observer<*>, Observer<*>>() }
 
     override fun observe(owner: LifecycleOwner, observer: Observer<in T>) {
