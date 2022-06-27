@@ -34,9 +34,9 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
             }
         }
 
-        viewModel.dataListData.observe(this, {
+        viewModel.dataListData.observe(this) {
             binding.adapter?.setList(it)
-        })
+        }
     }
 
     override fun initData() {

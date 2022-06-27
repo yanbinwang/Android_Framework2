@@ -61,12 +61,12 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
         onClick(this, binding.btnLogin, binding.btnList, binding.btnDownload)
 
         //注册订阅
-        LiveDataBus.instance.toFlowable().observe(this, {
+        LiveDataBus.instance.toFlowable().observe(this) {
             when (it.getAction()) {
                 Constants.APP_USER_LOGIN -> titleBuilder.setTitle(it.getStringExtra()).getDefault()
 //                Constants.APP_USER_LOGIN_OUT -> binding.btnLogin.text = it.getStringExtra()
             }
-        })
+        }
 //        var bit = BitmapFactory.decodeFile("")
 //        val b = test(bit, {
 //

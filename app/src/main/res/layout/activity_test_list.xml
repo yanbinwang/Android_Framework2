@@ -12,10 +12,6 @@
             name="adapter"
             type="com.example.mvvm.adapter.TestListAdapter" />
 
-        <variable
-            name="helper"
-            type="com.example.common.utils.helper.AccountHelper" />
-
     </data>
 
     <LinearLayout
