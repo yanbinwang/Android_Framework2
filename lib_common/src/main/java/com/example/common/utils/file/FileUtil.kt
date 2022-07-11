@@ -2,23 +2,25 @@ package com.example.common.utils.file
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.PixelFormat
+import android.graphics.*
+import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.Build
+import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.provider.Settings
 import android.text.TextUtils
-import android.util.Base64
 import androidx.core.content.FileProvider
 import com.example.base.utils.DateUtil
 import com.example.base.utils.LogUtil
 import com.example.base.utils.ToastUtil
 import com.example.common.constant.Constants
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.*
 import java.lang.ref.SoftReference
 import java.text.DecimalFormat
@@ -41,11 +43,9 @@ object FileUtil : CoroutineScope {
      */
     @JvmStatic
     fun isAvailable(context: Context, packageName: String): Boolean {
-        val packageManager = context.packageManager
-        val packageInfos = packageManager.getInstalledPackages(0)
-        for (i in packageInfos.indices) {
-            val pn = packageInfos[i].packageName
-            if (pn == packageName) return true
+        val packages = context.packageManager.getInstalledPackages(0)
+        for (i in packages.indices) {
+            if (packages[i].packageName == packageName) return true
         }
         return false
     }
@@ -182,6 +182,26 @@ object FileUtil : CoroutineScope {
     }
 
     /**
+     * @param folderPath 要打成压缩包文件的路径
+     * @param zipPath 压缩完成的Zip路径（包含压缩文件名）-"${Constants.SDCARD_PATH}/10086.zip"
+     */
+    @JvmStatic
+    fun zipFolderJob(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
+        return launch {
+            onStart
+            val fileDir = File(folderPath)
+            val zipFile = File(zipPath)
+            try {
+                withContext(IO) { if (fileDir.exists()) zipFolder(fileDir.absolutePath, zipFile.absolutePath) }
+            } catch (e: Exception) {
+                log("打包图片生成压缩文件异常: $e")
+            } finally {
+                onStop
+            }
+        }
+    }
+
+    /**
      * 将bitmap存成文件至指定目录下-读写权限
      * BitmapFactory.decodeResource(resources, R.mipmap.img_qr_code)
      */
@@ -200,33 +220,12 @@ object FileUtil : CoroutineScope {
             //保存图片后发送广播通知更新数据库
             MediaStore.Images.Media.insertImage(context.contentResolver, file.absolutePath, file.name, null)
             context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + file.path)))
-//            MediaScannerConnection.scanFile(context, arrayOf(file.toString()), arrayOf(file.name), null)
-//            context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)))
             return result
         } catch (ignored: Exception) {
         } finally {
             bitmap.recycle()
         }
         return false
-    }
-
-    /**
-     * 压缩文件协程
-     */
-    @JvmStatic
-    fun zipFolderJob(folderPath: String, zipFilePath: String, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
-        return launch {
-            onStart
-            val fileDir = File(folderPath)
-            val zipFile = File(zipFilePath)
-            try {
-                withContext(IO) { if (fileDir.exists()) zipFolder(fileDir.absolutePath, zipFile.absolutePath) }
-            } catch (e: Exception) {
-                LogUtil.e(TAG, "打包图片生成压缩文件异常: $e")
-            } finally {
-                onStop
-            }
-        }
     }
 
     /**
@@ -243,64 +242,25 @@ object FileUtil : CoroutineScope {
         }
     }
 
-//    /**
-//     * 视频图片打包协程
-//     * 传入视频原路径，并通过秒数集合，批量生成图片，并打包成压缩包保存到指定路径下
-//     */
-//    @JvmStatic
-//    fun handleVideoJob(
-//        videoPath: String,
-//        secondList: MutableList<Int>,
-//        zipFilePath: String, ,
-//        onStart: () -> Unit? = {},
-//        onStop: () -> Unit? = {}
-//    ): Job {
-//        return launch {
-//            onStart
-//            withContext(IO) {
-//                //在‘视频抽帧’文件夹下建立一个以抽帧文件名命名的文件夹，方便后续对当前文件夹打压缩包
-//                val savePath = Constants.APPLICATION_FILE_PATH + "/文件/视频抽帧/${File(videoPath).name}"
-//                val thumbPaths = ArrayList<String>()
-//                for (i in secondList) {
-////                    val thumbPath = VideoHelper.getFrames(videoPath, savePath, i)
-////                    thumbPaths.add(thumbPath)
-//                }
-//                try {
-//                    zipFolder(savePath, zipFilePath)
-//                } catch (ignored: Exception) {
-//                } finally {
-//                    //清空当前文件夹和其下的所有图片
-//                    deleteDir(savePath)
-//                    withContext(Main) { onStop }
-//                }
-//            }
-//        }
-//    }
-
     /**
-     * base64文件流的形式加载文件，需要先下载，之后在放置
+     * 保存pdf文件存成图片形式
      */
-    fun handleBase64Job(base64: String, suffix: String, root: String = "${Constants.APPLICATION_FILE_PATH}/缓存", clear: Boolean = true, onStart: () -> Unit? = {}, onStop: (path: String) -> Unit? = {}): Job {
-        return launch {
-            onStart
-            if (clear) deleteDir(root)
-            val storeDir = File(root)
-            if (!storeDir.mkdirs()) storeDir.createNewFile()
-            val file = File(storeDir, "${System.currentTimeMillis()}_cache${suffix}")
-            val pdfAsBytes = Base64.decode(base64, 0)
-            val fileOutputStream: FileOutputStream?
-            try {
-                withContext(IO) {
-                    fileOutputStream = FileOutputStream(file, false)
-                    fileOutputStream.write(pdfAsBytes)
-                    fileOutputStream.flush()
-                    fileOutputStream.close()
-                }
-            } catch (e: Exception) {
-            } finally {
-                onStop(file.absolutePath)
-            }
-        }
+    @JvmOverloads
+    @JvmStatic
+    fun savePdfBitmapJob(context: Context, file: File, index: Int = 0, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}) {
+        val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
+        val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
+        val width = page.width
+        val height = page.height
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        canvas.drawColor(Color.WHITE)
+        canvas.drawBitmap(bitmap, 0f, 0f, null)
+        val rent = Rect(0, 0, width, height)
+        page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+        page.close()
+        renderer.close()
+        saveBitmapJob(context, bitmap, onStart, onStop)
     }
 
     /**
@@ -323,16 +283,76 @@ object FileUtil : CoroutineScope {
     }
 
     /**
+     * 发送文件
+     * image -> 图片
+     */
+    @JvmOverloads
+    @JvmStatic
+    fun sendFile(context: Context, filePath: String, type: String? = "*/*") {
+        val file = File(filePath)
+        if (!file.exists()) {
+            ToastUtil.mackToastSHORT("文件路径错误", context)
+            return
+        }
+        val intent = Intent(Intent.ACTION_SEND)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "${Constants.APPLICATION_ID}.fileProvider", file))
+        } else {
+            intent.putExtra(Intent.EXTRA_STREAM, file)
+        }
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        intent.type = type//此处可发送多种文件
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        context.startActivity(Intent.createChooser(intent, "分享文件"))
+    }
+
+    /**
+     * 打开压缩包
+     */
+    @JvmStatic
+    fun openZip(context: Context, filePath: String) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        //判断是否是AndroidN以及更高的版本
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            val file = File(filePath)
+            val contentUri = FileProvider.getUriForFile(context, "${Constants.APPLICATION_ID}.fileProvider", file)
+            intent.setDataAndType(contentUri, "application/x-zip-compressed")
+        } else {
+            intent.setDataAndType(Uri.parse("file://$filePath"), "application/x-zip-compressed")
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    }
+
+    /**
+     * 打开world
+     */
+    fun openWorld(context: Context, filePath: String) {
+        val file = File(filePath)
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val uri: Uri
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            uri = FileProvider.getUriForFile(context, "${Constants.APPLICATION_ID}.fileProvider", file)
+            intent.setDataAndType(uri, "application/vnd.android.package-archive")
+        } else uri = Uri.parse("file://$file")
+        intent.setDataAndType(uri, "application/msword")
+        context.startActivity(intent)
+    }
+
+    /**
      * 转换文件大小格式
      */
     @JvmStatic
     fun formatFileSize(fileSize: Long): String {
         val format = DecimalFormat("#.00")
         return when {
-            fileSize < 1024 -> format.format(fileSize.toDouble()) + "B"
-            fileSize < 1048576 -> format.format(fileSize.toDouble() / 1024) + "K"
-            fileSize < 1073741824 -> format.format(fileSize.toDouble() / 1048576) + "M"
-            else -> format.format(fileSize.toDouble() / 1073741824) + "G"
+            fileSize < 1024 -> "${format.format(fileSize.toDouble())}B"
+            fileSize < 1048576 -> "${format.format(fileSize.toDouble() / 1024)}K"
+            fileSize < 1073741824 -> "${format.format(fileSize.toDouble() / 1048576)}M"
+            else -> "${format.format(fileSize.toDouble() / 1073741824)}G"
         }
     }
 
@@ -394,14 +414,16 @@ object FileUtil : CoroutineScope {
     @JvmStatic
     fun getCpuInfo(): String {
         try {
-            val fileReader = FileReader("/proc/cpuinfo")
-            val bufferedReader = BufferedReader(fileReader)
-            val text = bufferedReader.readLine()
-            val array = text.split(":\\s+".toRegex(), 2).toTypedArray()
-            return array[1]
+            val result = BufferedReader(FileReader("/proc/cpuinfo")).readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
+            return if ("0" == result) "暂无" else result
         } catch (ignored: Exception) {
         }
         return "暂无"
     }
+
+    /**
+     * 日志
+     */
+    private fun log(msg: String) = LogUtil.e("FileUtil", msg)
 
 }
