@@ -1,6 +1,8 @@
 package com.example.common.bus
 
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.example.common.constant.Constants
 
 /**
@@ -28,7 +30,7 @@ class LiveDataBus private constructor() {
     /**
      * 项目订阅
      */
-    fun toFlowable() = toFlowable<LiveDataEvent>(Constants.LIVE_DATA_KEY)
+    fun observe(owner: LifecycleOwner, observer: Observer<LiveDataEvent>) = toFlowable<LiveDataEvent>(Constants.LIVE_DATA_KEY).observe(owner, observer)
 
     /**
      * 项目通知

@@ -49,12 +49,12 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
         }
 
         //类似mvp的接口回调,通过观察泛型内容随时刷新变化
-        viewModel.userInfoData.observe(this, {
+        viewModel.userInfoData.observe(this) {
             navigation(
                 ARouterPath.UserInfoActivity,
                 PageParams().append(Extras.BUNDLE_BEAN, it)
             )
-        })
+        }
     }
 
 }

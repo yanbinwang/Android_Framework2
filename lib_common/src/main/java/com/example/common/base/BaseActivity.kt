@@ -76,7 +76,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun initEvent() {
-        LiveDataBus.instance.toFlowable().observe(this) {
+        LiveDataBus.instance.observe(this) {
             when (it.getAction()) {
                 Constants.APP_USER_LOGIN_OUT -> {
                     finish()
