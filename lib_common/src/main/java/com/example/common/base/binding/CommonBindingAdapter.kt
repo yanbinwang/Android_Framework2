@@ -2,7 +2,6 @@ package com.example.common.base.binding
 
 import android.annotation.SuppressLint
 import androidx.databinding.BindingAdapter
-import androidx.recyclerview.widget.GridLayoutManager
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.XRecyclerView
@@ -14,24 +13,10 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
  */
 object CommonBindingAdapter {
 
-//    @JvmStatic
-//    @BindingAdapter(value = ["app:adapter"])
-//    fun setAdapter(xRec: XRecyclerView, adapter: BaseQuickAdapter<*, *>) {
-//        xRec.apply {
-//            recyclerView.layoutManager = GridLayoutManager(context, 1)
-//            recyclerView.adapter = adapter
-//            addItemDecoration(1, 0, true, false)
-//        }
-//    }
-
     @JvmStatic
-    @BindingAdapter(value = ["adapter2"])
+    @BindingAdapter(value = ["adapter"])
     fun <T : BaseQuickAdapter<*, *>> setAdapter(rec: XRecyclerView, adapter: T) {
-        rec.apply {
-            recyclerView.layoutManager = GridLayoutManager(context, 1)
-            recyclerView.adapter = adapter
-            addItemDecoration(1, 0, true, false)
-        }
+        rec.setAdapter(adapter)
     }
 
     @JvmStatic

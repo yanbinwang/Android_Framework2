@@ -10,6 +10,8 @@ import android.view.View;
 
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.example.base.utils.DisplayUtilKt;
@@ -122,18 +124,42 @@ public class XRecyclerView extends SimpleViewGroup {
         }
     }
 
-    public void setAdapter(BaseQuickAdapter adapter) {
-        setAdapter(adapter, 1);
-    }
-
     /**
      * 设置默认recycler的输出manager
      * 默认一行一个，线样式可自画可调整
      */
-    public void setAdapter(BaseQuickAdapter adapter, int spanCount) {
+    public <T extends BaseQuickAdapter> void setAdapter(T adapter) {
+        setAdapter(adapter, 1);
+    }
+
+    public <T extends BaseQuickAdapter> void setAdapter(T adapter, int spanCount) {
+        setAdapter(adapter, spanCount, 0, 0, false, false);
+    }
+
+    public <T extends BaseQuickAdapter> void setAdapter(T adapter, int spanCount, int horizontalSpace) {
+        setAdapter(adapter, spanCount, horizontalSpace, 0, true, false);
+    }
+
+    public <T extends BaseQuickAdapter> void setAdapter(T adapter, int spanCount, int horizontalSpace, int verticalSpace) {
+        setAdapter(adapter, spanCount, horizontalSpace, verticalSpace, true, true);
+    }
+
+    public <T extends BaseQuickAdapter> void setAdapter(T adapter, int spanCount, int horizontalSpace, int verticalSpace, boolean hasHorizontalEdge, boolean hasVerticalEdge) {
         recycler.setLayoutManager(new GridLayoutManager(getContext(), spanCount));
         recycler.setAdapter(adapter);
-        addItemDecoration(0, 0, false, false);
+        addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge);
+    }
+
+    public <T extends BaseQuickAdapter> T getAdapter() {
+        return (T) recycler.getAdapter();
+    }
+
+    /**
+     * 设置横向左右滑动的adapter
+     */
+    public <T extends BaseQuickAdapter> void setHorizontalAdapter(T adapter) {
+        recycler.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
+        recycler.setAdapter(adapter);
     }
 
     /**
