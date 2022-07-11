@@ -1,5 +1,6 @@
 package com.example.common.utils.file
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.*
@@ -33,6 +34,7 @@ import kotlin.coroutines.CoroutineContext
  * Created by WangYanBin on 2020/7/1.
  * 文件管理工具类
  */
+@SuppressLint("QueryPermissionsNeeded")
 object FileUtil : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = (Main)
