@@ -1,14 +1,11 @@
 package com.example.mvvm.activity
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseTitleActivity
 import com.example.common.bus.LiveDataBus
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
-import com.example.common.http.repository.launch
 import com.example.common.imageloader.ImageLoader
 import com.example.common.utils.file.download.DownloadFactory
 import com.example.common.utils.file.download.OnDownloadListener
@@ -17,7 +14,6 @@ import com.example.common.utils.helper.permission.PermissionHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.yanzhenjie.permission.Permission
-import kotlinx.coroutines.Job
 
 /**
  * Created by WangYanBin on 2020/8/14.
@@ -63,7 +59,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
         //注册订阅
         LiveDataBus.instance.toFlowable().observe(this) {
             when (it.getAction()) {
-                Constants.APP_USER_LOGIN -> titleBuilder.setTitle(it.getStringExtra()).getDefault()
+                Constants.APP_USER_LOGIN -> titleBuilder.setTitle(it.getString()).getDefault()
 //                Constants.APP_USER_LOGIN_OUT -> binding.btnLogin.text = it.getStringExtra()
             }
         }

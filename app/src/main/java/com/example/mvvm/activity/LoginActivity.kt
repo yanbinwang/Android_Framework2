@@ -52,7 +52,7 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
         viewModel.userInfoData.observe(this, {
             navigation(
                 ARouterPath.UserInfoActivity,
-                PageParams().append(Extras.BUNDLE_MODEL, it)
+                PageParams().append(Extras.BUNDLE_BEAN, it)
             )
         })
     }
