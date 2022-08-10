@@ -11,29 +11,29 @@
 
         <ImageView
             android:id="@+id/iv_empty"
-            android:layout_width="300mm"
-            android:layout_height="300mm"
+            android:layout_width="480mm"
+            android:layout_height="450mm"
             android:layout_marginBottom="30mm"
-            tools:src="@mipmap/img_data_empty" />
+            tools:src="@mipmap/img_data_error" />
 
         <TextView
             android:id="@+id/tv_empty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="@color/blue_2e60df"
+            android:textColor="@color/black"
             android:textSize="30mm"
             android:textStyle="bold"
-            tools:text="没有数据" />
+            tools:text="页面加载失败，请重试" />
 
         <TextView
             android:id="@+id/tv_refresh"
-            android:layout_width="100mm"
+            android:layout_width="120mm"
             android:layout_height="wrap_content"
             android:layout_marginTop="20mm"
             android:background="@drawable/shape_empty_btn"
             android:gravity="center"
-            android:paddingVertical="5mm"
+            android:paddingVertical="10mm"
             android:text="刷新"
             android:textColor="@color/black"
             android:textSize="18mm" />

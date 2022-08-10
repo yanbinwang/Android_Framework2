@@ -10,9 +10,7 @@ class PageParams {
     var map: MutableMap<String, Any> = HashMap()
 
     fun append(key: String, value: Any?): PageParams {
-        if (value != null) {
-            map[key] = value
-        }
+        if (value != null) map[key] = value
         return this
     }
 

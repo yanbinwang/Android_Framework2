@@ -16,6 +16,8 @@ import com.example.base.widget.SimpleViewGroup;
 import com.example.common.R;
 import com.example.common.databinding.ViewEmptyBinding;
 
+import static com.example.common.utils.NetWorkUtil.isNetworkAvailable;
+
 /**
  * Created by android on 2017/8/7.
  *
@@ -24,16 +26,14 @@ import com.example.common.databinding.ViewEmptyBinding;
  * 数据为空时候显示的页面（适用于列表，详情等）
  * 情况如下：
  * <p>
- * 1.加载中
- * 2.加载错误(只有断网情况下会显示点击刷新按钮)
- * 3.空布局(没有数据的时候显示)
+ * 1.加载中-无按钮
+ * 2.空数据-无按钮
+ * 3.加载错误(无网络，服务器错误)-有按钮
  */
 @SuppressLint("InflateParams")
 public class EmptyLayout extends SimpleViewGroup {
     private ViewEmptyBinding binding;
     private OnEmptyRefreshListener onEmptyRefreshListener;
-    private static final String EMPTY_TXT = "没有数据";//数据为空时的内容
-    private static final String ERROR_TXT = "没有网络";//数据加载失败的内容
 
     public EmptyLayout(Context context) {
         super(context);
@@ -54,75 +54,89 @@ public class EmptyLayout extends SimpleViewGroup {
         Context context = getContext();
         binding = DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_empty, null));
         binding.llContainer.setBackgroundColor(ContextCompat.getColor(context, R.color.gray_f6f8ff));
+        //设置样式
+        binding.getRoot().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));//设置LayoutParams
+        binding.getRoot().setBackgroundColor(ContextCompat.getColor(context, R.color.gray_f6f8ff));
+        //设置监听
         binding.tvRefresh.setOnClickListener(v -> {
             //进入加载中，并停止刷新动画
             showLoading();
             if (null != onEmptyRefreshListener) {
-                onEmptyRefreshListener.onRefreshListener();
+                onEmptyRefreshListener.onRefreshClick();
             }
         });
-        binding.getRoot().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));//设置LayoutParams
         binding.getRoot().setOnClickListener(null);
         showLoading();
     }
 
     @Override
-    public void draw() {
-        if (detectionInflate()) addView(binding.getRoot());
+    public void drawView() {
+        if (onFinish()) addView(binding.getRoot());
     }
 
-    //设置列表所需的emptyview
+    /**
+     * 设置列表所需的emptyview
+     */
     public View setListView(View listView) {
         removeView(binding.getRoot());
         ((ViewGroup) listView.getParent()).addView(binding.getRoot());//添加到当前的View hierarchy
         return binding.getRoot();
     }
 
-    //当数据正在加载的时候显示（接口返回快速时会造成闪屏）
+    /**
+     * 数据加载中
+     */
     public void showLoading() {
-        binding.ivEmpty.setVisibility(View.GONE);
-        binding.tvEmpty.setVisibility(View.GONE);
+        setVisibility(View.VISIBLE);
+        binding.ivEmpty.setImageResource(R.mipmap.img_data_loading);
+        binding.tvEmpty.setText(getContext().getString(R.string.label_data_loading));
         binding.tvRefresh.setVisibility(View.GONE);
     }
 
-    //当数据为空时(显示需要显示的图片，以及内容字)
     public void showEmpty() {
         showEmpty(-1, null);
     }
 
-    //当数据为空时(显示需要显示的图片，以及内容字)---传入图片-1：原图 0：不需要图片 default：传入的图片
-    public void showEmpty(int resId, String emptyText) {
-        binding.ivEmpty.setBackgroundResource(0);
-        if (-1 == resId) {
-            binding.ivEmpty.setVisibility(View.VISIBLE);
-            binding.ivEmpty.setImageResource(R.mipmap.img_data_empty);
-        } else if (0 == resId) {
-            binding.ivEmpty.setVisibility(View.GONE);
-        } else {
-            binding.ivEmpty.setVisibility(View.VISIBLE);
-            binding.ivEmpty.setImageResource(resId);
-        }
-        binding.tvEmpty.setVisibility(View.VISIBLE);
-        binding.tvEmpty.setText(TextUtils.isEmpty(emptyText) ? EMPTY_TXT : emptyText);
-        binding.tvRefresh.setVisibility(View.VISIBLE);
+    /**
+     * 数据为空--只会在200并且无数据的时候展示
+     */
+    public void showEmpty(int resId, String text) {
+        setVisibility(View.VISIBLE);
+        binding.ivEmpty.setImageResource(-1 == resId ? R.mipmap.img_data_empty : resId);
+        binding.tvEmpty.setText(TextUtils.isEmpty(text) ? getContext().getString(R.string.label_data_empty) : text);
+        binding.tvRefresh.setVisibility(View.GONE);
     }
 
-    //当数据错误时（没有网络）
     public void showError() {
-        binding.ivEmpty.setVisibility(View.VISIBLE);
-        binding.ivEmpty.setBackgroundResource(0);
-        binding.ivEmpty.setImageResource(R.mipmap.img_net_err);
-        binding.tvEmpty.setVisibility(View.VISIBLE);
-        binding.tvEmpty.setText(ERROR_TXT);
+        showError(-1, null);
+    }
+
+    /**
+     * 数据加载失败-无网络，服务器请求
+     * 无网络优先级最高
+     */
+    public void showError(int resId, String text) {
+        setVisibility(View.VISIBLE);
+        if(!isNetworkAvailable()){
+            binding.ivEmpty.setImageResource(R.mipmap.img_data_net_error);
+            binding.tvEmpty.setText(getContext().getString(R.string.label_data_net_error));
+        }else{
+            binding.ivEmpty.setImageResource(-1 == resId ? R.mipmap.img_data_error : resId);
+            binding.tvEmpty.setText(TextUtils.isEmpty(text) ? getContext().getString(R.string.label_data_error) : text);
+        }
         binding.tvRefresh.setVisibility(View.VISIBLE);
     }
 
-    //设置背景颜色
+    /**
+     * 设置背景颜色
+     */
     public void setBackgroundColor(int color) {
         binding.llContainer.setBackgroundColor(color);
     }
 
-    //设置点击
+    /**
+     * 设置点击
+     */
     public void setOnEmptyRefreshListener(OnEmptyRefreshListener onEmptyRefreshListener) {
         this.onEmptyRefreshListener = onEmptyRefreshListener;
     }

@@ -11,7 +11,7 @@ import com.example.common.R;
  * Created by WangYanBin on 2020/9/17.
  * 刷新控件二次封装，设置对应项目的默认值
  */
-public class XRefreshLayout extends SwipeRefreshLayout{
+public class XRefreshLayout extends SwipeRefreshLayout {
 
     public XRefreshLayout(Context context) {
         super(context);

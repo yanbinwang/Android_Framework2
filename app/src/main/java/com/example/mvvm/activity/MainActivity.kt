@@ -7,13 +7,13 @@ import com.example.common.bus.LiveDataBus
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
-import com.example.common.utils.file.factory.callback.OnDownloadListener
-import com.example.common.utils.file.factory.DownloadFactory
+import com.example.common.utils.file.download.DownloadFactory
+import com.example.common.utils.file.download.OnDownloadListener
 import com.example.common.utils.helper.permission.OnPermissionCallBack
 import com.example.common.utils.helper.permission.PermissionHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
-import com.yanzhenjie.permission.runtime.Permission
+import com.yanzhenjie.permission.Permission
 
 /**
  * Created by WangYanBin on 2020/8/14.
@@ -57,13 +57,31 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
         onClick(this, binding.btnLogin, binding.btnList, binding.btnDownload)
 
         //注册订阅
-        LiveDataBus.instance.toFlowable().observe(this, {
+//        LiveDataBus.instance.toFlowable().observe(this) {
+//            when (it.getAction()) {
+//                Constants.APP_USER_LOGIN -> titleBuilder.setTitle(it.getString()).getDefault()
+////                Constants.APP_USER_LOGIN_OUT -> binding.btnLogin.text = it.getStringExtra()
+//            }
+//        }
+        LiveDataBus.instance.observe(this) {
             when (it.getAction()) {
-                Constants.APP_USER_LOGIN -> titleBuilder.setTitle(it.getStringExtra()).getDefault()
-//                Constants.APP_USER_LOGIN_OUT -> binding.btnLogin.text = it.getStringExtra()
+                Constants.APP_USER_LOGIN -> titleBuilder.setTitle(it.getString()).getDefault()
             }
-        })
+        }
+//        var bit = BitmapFactory.decodeFile("")
+//        val b = test(bit, {
+//
+//        }, {
+//
+//        })
     }
+
+//    fun test(bit: Bitmap, onSuccess: (bitmap: Bitmap) -> Unit, onFailure: () -> Unit) : Job {
+//        return launch {
+//            onSuccess(bit)
+//            onFailure()
+//        }
+//    }
 
     override fun onClick(v: View?) {
         when (v?.id) {
@@ -72,11 +90,16 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
             R.id.btn_download -> {
                 PermissionHelper.with(context.get())
                     .setPermissionCallBack(object : OnPermissionCallBack {
-                        override fun onPermissionListener(isGranted: Boolean) {
+                        override fun onPermission(isGranted: Boolean) {
                             if (isGranted) {
                                 val filePath = Constants.APPLICATION_FILE_PATH + "/安装包"
                                 val fileName = Constants.APPLICATION_NAME + ".apk"
-                                DownloadFactory.instance.download("https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk", filePath, fileName, object : OnDownloadListener {
+                                DownloadFactory.instance.download(
+                                    "https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk",
+                                    filePath,
+                                    fileName,
+                                    object :
+                                        OnDownloadListener {
 
                                         override fun onStart() {
                                             showDialog()
@@ -101,7 +124,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
                                     })
                             }
                         }
-                    }).getPermissions(Permission.Group.STORAGE)
+                    }).requestPermissions(Permission.Group.STORAGE)
 //                PermissionHelper.with(context.get())
 //                    .getPermissions(Permission.Group.STORAGE)
 //                    .setPermissionCallBack(isGranted -> {

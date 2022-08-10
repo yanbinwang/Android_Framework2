@@ -1,9 +1,11 @@
 package com.example.common.widget.xrecyclerview.manager;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.util.SparseArray;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.OrientationHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,16 +16,16 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
  * 通过item type 设置边框属性
  * Created by bosong on 2017/3/10.
  */
-
+@SuppressLint("WrongConstant")
 public class SCommonItemDecoration extends RecyclerView.ItemDecoration {
-    private SparseArray<ItemDecorationProps> mPropMap; // itemType -> prop
+    private final SparseArray<ItemDecorationProps> mPropMap; // itemType -> prop
 
     public SCommonItemDecoration(SparseArray<ItemDecorationProps> propMap) {
         mPropMap = propMap;
     }
 
     @Override
-    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+    public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, RecyclerView parent, @NonNull RecyclerView.State state) {
         int position = parent.getChildAdapterPosition(view);
         RecyclerView.Adapter adapter = parent.getAdapter();
         int itemType = adapter.getItemViewType(position);
@@ -41,14 +43,14 @@ public class SCommonItemDecoration extends RecyclerView.ItemDecoration {
         int spanSize = 1;
         int spanCount = 1;
         int orientation = OrientationHelper.VERTICAL;
-        if(parent.getLayoutManager() instanceof GridLayoutManager){
+        if (parent.getLayoutManager() instanceof GridLayoutManager) {
             GridLayoutManager.LayoutParams lp = (GridLayoutManager.LayoutParams) view.getLayoutParams();
             spanIndex = lp.getSpanIndex();
             spanSize = lp.getSpanSize();
             GridLayoutManager layoutManager = (GridLayoutManager) parent.getLayoutManager();
             spanCount = layoutManager.getSpanCount(); // Assume that there're spanCount items in this row/column.
             orientation = layoutManager.getOrientation();
-        }else if(parent.getLayoutManager() instanceof StaggeredGridLayoutManager){
+        } else if (parent.getLayoutManager() instanceof StaggeredGridLayoutManager) {
             StaggeredGridLayoutManager.LayoutParams lp = (StaggeredGridLayoutManager.LayoutParams) view.getLayoutParams();
             spanIndex = lp.getSpanIndex();
             StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) parent.getLayoutManager();
@@ -68,7 +70,6 @@ public class SCommonItemDecoration extends RecyclerView.ItemDecoration {
         isLastRowOrColumn = position == adapter.getItemCount() - 1 || nextPos == -1 || itemType != adapter.getItemViewType(nextPos) || nextRowPos == -1 || itemType != adapter.getItemViewType(nextRowPos);
 
         int left = 0, top = 0, right = 0, bottom = 0;
-
         if (orientation == GridLayoutManager.VERTICAL) {
             if (props.getHasVerticalEdge()) {
                 left = props.getVerticalSpace() * (spanCount - spanIndex) / spanCount;
@@ -77,7 +78,6 @@ public class SCommonItemDecoration extends RecyclerView.ItemDecoration {
                 left = props.getVerticalSpace() * spanIndex / spanCount;
                 right = props.getVerticalSpace() * (spanCount - (spanIndex + spanSize - 1) - 1) / spanCount;
             }
-
             if (isFirstRowOrColumn) { // First row
                 if (props.getHasHorizontalEdge()) {
                     top = props.getHorizontalSpace();
@@ -98,7 +98,6 @@ public class SCommonItemDecoration extends RecyclerView.ItemDecoration {
                 top = props.getHorizontalSpace() * spanIndex / spanCount;
                 bottom = props.getHorizontalSpace() * (spanCount - (spanIndex + spanSize - 1) - 1) / spanCount;
             }
-
             if (isFirstRowOrColumn) { // First column
                 if (props.getHasVerticalEdge()) {
                     left = props.getVerticalSpace();
@@ -117,10 +116,10 @@ public class SCommonItemDecoration extends RecyclerView.ItemDecoration {
     }
 
     public static class ItemDecorationProps {
-        private int verticalSpace;
-        private int horizontalSpace;
-        private boolean hasVerticalEdge;
-        private boolean hasHorizontalEdge;
+        private final int verticalSpace;
+        private final int horizontalSpace;
+        private final boolean hasVerticalEdge;
+        private final boolean hasHorizontalEdge;
 
         public ItemDecorationProps(int horizontalSpace, int verticalSpace, boolean hasHorizontalEdge, boolean hasVerticalEdge) {
             this.verticalSpace = verticalSpace;
@@ -145,4 +144,5 @@ public class SCommonItemDecoration extends RecyclerView.ItemDecoration {
             return this.hasVerticalEdge;
         }
     }
+
 }

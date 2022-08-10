@@ -1,4 +1,21 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        maven { url 'https://jitpack.io' }
+//        maven { url "https://maven.aliyun.com/repository/public" }
+//        flatDir { dirs 'libs' }
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "Android_Framework2"
 include ':app'
 include ':lib_common'
 include ':lib_base'
-rootProject.name = "Android_Framework2"

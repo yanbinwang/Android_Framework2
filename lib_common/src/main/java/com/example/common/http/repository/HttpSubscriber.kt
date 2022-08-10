@@ -13,14 +13,8 @@ abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
         if (null != t) {
             val msg = t.msg
             val code = t.code
-            if (0 == code) {
-                onSuccess(t.data)
-            } else {
-                onFailed(Exception(), msg)
-            }
-        } else {
-            onFailed(Exception(), "")
-        }
+            if (0 == code) onSuccess(t.data) else onFailed(Exception(), msg, code)
+        } else onFailed(Exception(), "", -1)
     }
 
     final override fun onError(throwable: Throwable?) {
@@ -37,6 +31,10 @@ abstract class HttpSubscriber<T> : ResourceSubscriber<ApiResponse<T>>() {
     /**
      * 请求失败，获取失败原因
      */
+    open fun onFailed(e: Throwable?, msg: String?, code: Int) {
+        onFailed(e, msg)
+    }
+
     open fun onFailed(e: Throwable?, msg: String?) {}
 
 }

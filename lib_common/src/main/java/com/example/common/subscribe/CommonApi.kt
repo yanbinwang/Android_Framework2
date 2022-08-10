@@ -19,7 +19,7 @@ interface CommonApi {
 
     @FormUrlEncoded
     @POST("http://www.baidu.com")
-    suspend fun getVerificationApi(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): ApiResponse<Any>
+    suspend fun getVerificationApi(@FieldMap map: Map<String, String>): ApiResponse<Any>
 
     @GET("test")
     suspend fun getTestApi(): ApiResponse<Any>

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -11,8 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
  * author: wyb
  * date: 2017/9/5.
  */
-
 public class FullyGridLayoutManager extends GridLayoutManager {
+    private final int[] mMeasuredDimension = new int[2];
+
     public FullyGridLayoutManager(Context context, int spanCount) {
         super(context, spanCount);
     }
@@ -21,10 +23,8 @@ public class FullyGridLayoutManager extends GridLayoutManager {
         super(context, spanCount, orientation, reverseLayout);
     }
 
-    private int[] mMeasuredDimension = new int[2];
-
     @Override
-    public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state, int widthSpec, int heightSpec) {
+    public void onMeasure(@NonNull RecyclerView.Recycler recycler, @NonNull RecyclerView.State state, int widthSpec, int heightSpec) {
         final int widthMode = View.MeasureSpec.getMode(widthSpec);
         final int heightMode = View.MeasureSpec.getMode(heightSpec);
         final int widthSize = View.MeasureSpec.getSize(widthSpec);
@@ -35,11 +35,7 @@ public class FullyGridLayoutManager extends GridLayoutManager {
         int count = getItemCount();
         int span = getSpanCount();
         for (int i = 0; i < count; i++) {
-            measureScrapChild(recycler, i,
-                    View.MeasureSpec.makeMeasureSpec(i, View.MeasureSpec.UNSPECIFIED),
-                    View.MeasureSpec.makeMeasureSpec(i, View.MeasureSpec.UNSPECIFIED),
-                    mMeasuredDimension);
-
+            measureScrapChild(recycler, i, View.MeasureSpec.makeMeasureSpec(i, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(i, View.MeasureSpec.UNSPECIFIED), mMeasuredDimension);
             if (getOrientation() == HORIZONTAL) {
                 if (i % span == 0) {
                     width = width + mMeasuredDimension[0];
@@ -58,15 +54,12 @@ public class FullyGridLayoutManager extends GridLayoutManager {
         }
 
         switch (widthMode) {
-            case View.MeasureSpec.EXACTLY:
-                width = widthSize;
+            case View.MeasureSpec.EXACTLY: width = widthSize;
             case View.MeasureSpec.AT_MOST:
             case View.MeasureSpec.UNSPECIFIED:
         }
-
         switch (heightMode) {
-            case View.MeasureSpec.EXACTLY:
-                height = heightSize;
+            case View.MeasureSpec.EXACTLY: height = heightSize;
             case View.MeasureSpec.AT_MOST:
             case View.MeasureSpec.UNSPECIFIED:
         }
@@ -74,25 +67,20 @@ public class FullyGridLayoutManager extends GridLayoutManager {
         setMeasuredDimension(width, height);
     }
 
-    private void measureScrapChild(RecyclerView.Recycler recycler, int position, int widthSpec,
-                                   int heightSpec, int[] measuredDimension) {
+    private void measureScrapChild(RecyclerView.Recycler recycler, int position, int widthSpec, int heightSpec, int[] measuredDimension) {
         if (position < getItemCount()) {
             try {
                 View view = recycler.getViewForPosition(0);//fix 动态添加时报IndexOutOfBoundsException
-                if (view != null) {
-                    RecyclerView.LayoutParams p = (RecyclerView.LayoutParams) view.getLayoutParams();
-                    int childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec,
-                            getPaddingLeft() + getPaddingRight(), p.width);
-                    int childHeightSpec = ViewGroup.getChildMeasureSpec(heightSpec,
-                            getPaddingTop() + getPaddingBottom(), p.height);
-                    view.measure(childWidthSpec, childHeightSpec);
-                    measuredDimension[0] = view.getMeasuredWidth() + p.leftMargin + p.rightMargin;
-                    measuredDimension[1] = view.getMeasuredHeight() + p.bottomMargin + p.topMargin;
-                    recycler.recycleView(view);
-                }
-            } catch (Exception e) {
-//                e.printStackTrace();
+                RecyclerView.LayoutParams p = (RecyclerView.LayoutParams) view.getLayoutParams();
+                int childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec, getPaddingLeft() + getPaddingRight(), p.width);
+                int childHeightSpec = ViewGroup.getChildMeasureSpec(heightSpec, getPaddingTop() + getPaddingBottom(), p.height);
+                view.measure(childWidthSpec, childHeightSpec);
+                measuredDimension[0] = view.getMeasuredWidth() + p.leftMargin + p.rightMargin;
+                measuredDimension[1] = view.getMeasuredHeight() + p.bottomMargin + p.topMargin;
+                recycler.recycleView(view);
+            } catch (Exception ignored) {
             }
         }
     }
+
 }

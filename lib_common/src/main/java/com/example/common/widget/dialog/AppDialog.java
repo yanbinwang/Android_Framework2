@@ -1,9 +1,11 @@
 package com.example.common.widget.dialog;
 
 import android.content.Context;
+import android.os.Build;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
@@ -21,52 +23,57 @@ public class AppDialog extends BaseDialog<ViewDialogBinding> {
 
     public AppDialog(@NonNull Context context) {
         super(context);
-        initialize(true, false);
+        initialize(true, true);
     }
 
-    public AppDialog setParams(String tipText, String contentText, String sureText) {
-        return setParams(tipText, contentText, sureText, "");
+    public AppDialog setParams(String title, String message, String positiveText) {
+        return setParams(title, message, positiveText, "");
     }
 
-    public AppDialog setParams(String tipText, String contentText, String sureText, String cancelText) {
-        return setParams(tipText, contentText, sureText, cancelText, true);
+    public AppDialog setParams(String title, String message, String positiveText, String negativeText) {
+        return setParams(title, message, positiveText, negativeText, true);
     }
 
     //App统一提示框
-    public AppDialog setParams(String tipText, String contentText, String sureText, String cancelText, boolean center) {
+    public AppDialog setParams(String title, String message, String positiveText, String negativeText, boolean center) {
         //如果没有传入标题字段,则隐藏标题view
-        if (TextUtils.isEmpty(tipText)) {
-            binding.tvDialogTip.setVisibility(View.GONE);
+        if (TextUtils.isEmpty(title)) {
+            binding.tvTip.setVisibility(View.GONE);
         }
         //如果没有传入取消字段,则隐藏取消view
-        if (TextUtils.isEmpty(cancelText)) {
+        if (TextUtils.isEmpty(negativeText)) {
             binding.viewLine.setVisibility(View.GONE);
-            binding.tvDialogCancel.setVisibility(View.GONE);
+            binding.tvCancel.setVisibility(View.GONE);
         }
         //文案方向
-        binding.tvDialogContainer.setGravity(center ? Gravity.CENTER : Gravity.LEFT);
+        binding.tvContainer.setGravity(center ? Gravity.CENTER : Gravity.LEFT);
 
         //对控件赋值
-        binding.tvDialogTip.setText(TextUtils.isEmpty(tipText) ? "" : tipText);
-        binding.tvDialogContainer.setText(TextUtils.isEmpty(contentText) ? "" : contentText);
-        binding.tvDialogSure.setText(TextUtils.isEmpty(sureText) ? "" : sureText);
-        binding.tvDialogCancel.setText(TextUtils.isEmpty(cancelText) ? "" : cancelText);
+        binding.tvTip.setText(TextUtils.isEmpty(title) ? "" : title);
+        binding.tvContainer.setText(TextUtils.isEmpty(message) ? "" : message);
+        binding.tvSure.setText(TextUtils.isEmpty(positiveText) ? "" : positiveText);
+        binding.tvCancel.setText(TextUtils.isEmpty(negativeText) ? "" : negativeText);
 
         //点击了取消按钮的回调
-        binding.tvDialogCancel.setOnClickListener(v -> {
+        binding.tvCancel.setOnClickListener(v -> {
             dismiss();
             if (null != onDialogListener) {
-                onDialogListener.onDialogCancel();
+                onDialogListener.onCancel();
             }
         });
 
         //点击了确定按钮的回调
-        binding.tvDialogSure.setOnClickListener(v -> {
+        binding.tvSure.setOnClickListener(v -> {
             dismiss();
             if (null != onDialogListener) {
-                onDialogListener.onDialogConfirm();
+                onDialogListener.onConfirm();
             }
         });
+        return this;
+    }
+
+    public AppDialog setType() {
+        getWindow().setType(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         return this;
     }
 

@@ -7,6 +7,6 @@ package com.example.common.utils.helper.permission
  */
 interface OnPermissionCallBack {
 
-    fun onPermissionListener(isGranted: Boolean = false)
+    fun onPermission(isGranted: Boolean = false)
 
 }

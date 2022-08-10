@@ -7,6 +7,6 @@ package com.example.common.imageloader.album
  */
 interface OnAlbumListener {
 
-    fun onAlbumListener(albumPath: String?)
+    fun onAlbum(albumPath: String?)
 
 }

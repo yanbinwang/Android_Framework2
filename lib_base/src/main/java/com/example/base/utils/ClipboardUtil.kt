@@ -7,35 +7,12 @@ import android.content.Context
 /**
  * 粘贴板工具类
  */
-object ClipboardUtil {
+fun Context.setPrimaryClip(label: String, text: String) = (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(label, text))
 
-    @JvmStatic
-    fun putTextIntoClip(context: Context, label: String, text: String) {
-        val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        //添加ClipData对象到剪切板中
-        clipboardManager.setPrimaryClip(ClipData.newPlainText(label, text))
-        if (clipboardManager.hasPrimaryClip()) {
-            clipboardManager.primaryClip?.getItemAt(0)?.text
-        }
-//        //创建ClipData对象
-//        val clipData = ClipData.newPlainText(label, text)
-//        clipboardManager.primaryClip = clipData
-    }
-
-    @JvmStatic
-    fun getTextFromClip(context: Context): String {
-        val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        //判断剪切版时候有内容
-        if (!clipboardManager.hasPrimaryClip()) return ""
-        val clipData = clipboardManager.primaryClip
-        //        //获取 ClipDescription
-        //        ClipDescription clipDescription = clipboardManager.getPrimaryClipDescription();
-        //        //获取 lable
-        //        String lable = clipDescription.getLabel().toString();
-        //        //获取 text
-        //        String text = clipData.getItemAt(0).getText().toString();
-        //获取 text
-        return clipData?.getItemAt(0)?.text.toString()
-    }
-
+fun Context.getPrimaryClip(): String {
+    val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    //判断剪切版时候有内容
+    if (!clipboardManager.hasPrimaryClip()) return ""
+    //获取 text
+    return clipboardManager.primaryClip?.getItemAt(0)?.text.toString()
 }

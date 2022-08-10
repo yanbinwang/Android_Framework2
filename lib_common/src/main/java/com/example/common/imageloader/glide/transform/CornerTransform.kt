@@ -58,10 +58,7 @@ class CornerTransform(context: Context, private var radius: Float) : Transformat
         //修正圆角
         this.radius *= finalHeight.toFloat() / outHeight.toFloat()
         var outBitmap: Bitmap? = this.mBitmapPool.get(finalWidth, finalHeight, Bitmap.Config.ARGB_8888)
-        if (outBitmap == null) {
-            outBitmap = Bitmap.createBitmap(finalWidth, finalHeight, Bitmap.Config.ARGB_8888)
-        }
-
+        if (outBitmap == null) outBitmap = Bitmap.createBitmap(finalWidth, finalHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(outBitmap!!)
         val paint = Paint()
         //关联画笔绘制的原图bitmap
@@ -74,26 +71,14 @@ class CornerTransform(context: Context, private var radius: Float) : Transformat
             matrix.setTranslate((-width).toFloat(), (-height).toFloat())
             shader.setLocalMatrix(matrix)
         }
-
         paint.shader = shader
         paint.isAntiAlias = true
         val rectF = RectF(0.0f, 0.0f, canvas.width.toFloat(), canvas.height.toFloat())
         canvas.drawRoundRect(rectF, this.radius, this.radius, paint) //先绘制圆角矩形
-
-        if (exceptLeftTop) { //左上角不为圆角
-            canvas.drawRect(0f, 0f, radius, radius, paint)
-        }
-        if (exceptRightTop) { //右上角不为圆角
-            canvas.drawRect(canvas.width - radius, 0f, radius, radius, paint)
-        }
-
-        if (exceptLeftBottom) { //左下角不为圆角
-            canvas.drawRect(0f, canvas.height - radius, radius, canvas.height.toFloat(), paint)
-        }
-
-        if (exceptRightBottom) { //右下角不为圆角
-            canvas.drawRect(canvas.width - radius, canvas.height - radius, canvas.width.toFloat(), canvas.height.toFloat(), paint)
-        }
+        if (exceptLeftTop) canvas.drawRect(0f, 0f, radius, radius, paint)//左上角不为圆角
+        if (exceptRightTop) canvas.drawRect(canvas.width - radius, 0f, radius, radius, paint)//右上角不为圆角
+        if (exceptLeftBottom) canvas.drawRect(0f, canvas.height - radius, radius, canvas.height.toFloat(), paint)//左下角不为圆角
+        if (exceptRightBottom) canvas.drawRect(canvas.width - radius, canvas.height - radius, canvas.width.toFloat(), canvas.height.toFloat(), paint)//右下角不为圆角
 
         return BitmapResource.obtain(outBitmap, this.mBitmapPool)!!
     }

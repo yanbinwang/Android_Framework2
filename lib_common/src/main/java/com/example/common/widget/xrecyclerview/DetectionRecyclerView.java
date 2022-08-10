@@ -26,13 +26,18 @@ public class DetectionRecyclerView extends RecyclerView {
         super(context, attrs, defStyle);
     }
 
-    //设置数据为空时候显示的view
+    /**
+     * 设置数据为空时候显示的view
+     * @param emptyView
+     */
     public void setEmptyView(View emptyView) {
         this.mEmptyView = emptyView;
         checkIfEmpty();
     }
 
-    //检测内容是否为空
+    /**
+     * 检测内容是否为空
+     */
     private void checkIfEmpty() {
         if (mEmptyView != null && getAdapter() != null) {
             final boolean emptyViewVisible = getAdapter().getItemCount() == 0;
@@ -41,7 +46,10 @@ public class DetectionRecyclerView extends RecyclerView {
         }
     }
 
-    //当给与recyclerview内容时做检测
+    /**
+     * 当给与recyclerview内容时做检测
+     * @param adapter
+     */
     public void setAdapter(Adapter adapter) {
         final Adapter oldAdapter = getAdapter();
         if (oldAdapter != null) {
@@ -54,7 +62,7 @@ public class DetectionRecyclerView extends RecyclerView {
         checkIfEmpty();
     }
 
-    final private AdapterDataObserver observer = new AdapterDataObserver() {
+    private final AdapterDataObserver observer = new AdapterDataObserver() {
         @Override
         public void onChanged() {
             checkIfEmpty();

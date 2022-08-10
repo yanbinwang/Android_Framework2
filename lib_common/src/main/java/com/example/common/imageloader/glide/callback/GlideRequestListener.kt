@@ -5,14 +5,14 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.example.common.utils.handler.WeakHandler
+import com.example.base.utils.WeakHandler
 
 /**
  * Created by WangYanBin on 2020/7/31.
  * 图片下载监听
  */
 abstract class GlideRequestListener<R> : RequestListener<R> {
-    private val weakHandler = WeakHandler(Looper.getMainLooper())
+    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
 
     init {
         weakHandler.post { onStart() }

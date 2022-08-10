@@ -21,21 +21,21 @@ public class AndDialog extends AlertDialog.Builder {
         super(context, R.style.dialogStyle);
     }
 
-    public AndDialog setParams(String tipText, String contentText, String sureText, String cancelText) {
-        if (!TextUtils.isEmpty(tipText)) {
-            setTitle(tipText);
+    public AndDialog setParams(String title, String message, String positiveText, String negativeText) {
+        if (!TextUtils.isEmpty(title)) {
+            setTitle(title);
         }
-        setMessage(TextUtils.isEmpty(contentText) ? "" : contentText);
-        setPositiveButton(sureText, (dialog, which) -> {
+        setMessage(TextUtils.isEmpty(message) ? "" : message);
+        setPositiveButton(positiveText, (dialog, which) -> {
             if (null != onDialogListener) {
-                onDialogListener.onDialogConfirm();
+                onDialogListener.onConfirm();
             }
         });
         //如果没有传入取消字段,则隐藏取消
-        if (!TextUtils.isEmpty(cancelText)) {
-            setNegativeButton(cancelText, (dialog, which) -> {
+        if (!TextUtils.isEmpty(negativeText)) {
+            setNegativeButton(negativeText, (dialog, which) -> {
                 if (null != onDialogListener) {
-                    onDialogListener.onDialogCancel();
+                    onDialogListener.onCancel();
                 }
             });
         }

@@ -20,7 +20,7 @@ class SplashActivity : AppCompatActivity() {
             finish()
             return
         }
-        startActivity(Intent(this, MainActivity::class.java))
+        startActivity(Intent(this, StartActivity::class.java))
         finish()
     }
 

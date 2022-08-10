@@ -1,12 +1,15 @@
 package com.example.mvvm.bridge
 
+import android.app.ProgressDialog.show
 import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
-import com.example.common.http.repository.HttpSubscriber
-import com.example.common.http.repository.call
+import com.example.common.http.repository.HttpParams
 import com.example.common.http.repository.launch
 import com.example.common.subscribe.CommonSubscribe.getTestApi
+import com.example.common.subscribe.CommonSubscribe.getVerificationApi
 import com.example.mvvm.model.UserInfoModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 
 /**
  * Created by WangYanBin on 2020/6/3.
@@ -53,6 +56,34 @@ class LoginViewModel : BaseViewModel() {
     }
 
     fun login(account: String?, password: String?) {
+
+        launch {
+//            //串行执行
+//            val token = getTestApi()
+//            val profile = getVerificationApi(HttpParams().append("12", token.data.toString()).map)
+            //并行执行
+//            val profile = async { getTestApi() }
+//            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }
+//            awaitAll(profile, articles)
+//            val profile = async { getTestApi() }.await()
+//            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }.await()
+//            check(profile,articles)
+
+//            //串行执行
+//            val token = async { getTestApi() }
+//            val profile = async { getVerificationApi(HttpParams().append("12", token.await().toString()).map) }.await()
+//            //并行执行
+//            val profile = async { getTestApi() }
+//            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }
+//            awaitAll(profile, articles)
+//            val profile = async { getTestApi() }
+//            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }
+//            profile.await()
+//            articles.await()
+
+
+        }
+
         getView()?.showDialog()
         getView()?.showToast("当前执行了登录\n账号：$account\n密码：$password")
         getView()?.hideDialog()
@@ -61,5 +92,11 @@ class LoginViewModel : BaseViewModel() {
         val model = UserInfoModel("老王万寿无疆", 88, "bilibili")
         userInfoData.postValue(model)
     }
+
+//    private fun check(any: ApiResponse<Any>?, any2: ApiResponse<Any>?){
+//        if(0==any?.code){
+//
+//        }
+//    }
 
 }

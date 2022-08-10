@@ -6,6 +6,6 @@ package com.example.common.widget.xrecyclerview.callback
  */
 interface OnEmptyClickListener {
 
-    fun onClickListener()
+    fun onClick()
 
 }

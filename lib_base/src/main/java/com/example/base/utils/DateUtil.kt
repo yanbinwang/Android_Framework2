@@ -1,7 +1,5 @@
 package com.example.base.utils
 
-import android.text.TextUtils
-import org.json.JSONObject
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -14,248 +12,242 @@ import java.util.*
  */
 object DateUtil {
     //后台一般会返回的日期形式的字符串
-    const val EN_M_FORMAT = "MM"
-    const val EN_MD_FORMAT = "MM-dd"
-    const val EN_HM_FORMAT = "HH:mm"
-    const val EN_HMS_FORMAT = "HH:mm:ss"
-    const val EN_YM_FORMAT = "yyyy-MM"
-    const val EN_YMD_FORMAT = "yyyy-MM-dd"
-    const val EN_YMDHM_FORMAT = "yyyy-MM-dd HH:mm"
-    const val EN_YMDHMS_FORMAT = "yyyy-MM-dd HH:mm:ss"
-    const val CN_M_FORMAT = "M月"
-    const val CN_MD_FORMAT = "M月d日"
-    const val CN_HM_FORMAT = "HH时mm分"
-    const val CN_YM_FORMAT = "yyyy年M月"
-    const val CN_YMD_FORMAT = "yyyy年MM月dd日"
-    const val CN_YMDHM_FORMAT = "yyyy年MM月dd日 HH时mm分"
-    const val CN_YMDHMS_FORMAT = "yyyy年MM月dd日 HH时mm分ss秒"
+    const val EN_M = "MM"
+    const val EN_MD = "MM-dd"
+    const val EN_HM = "HH:mm"
+    const val EN_HMS = "HH:mm:ss"
+    const val EN_YM = "yyyy-MM"
+    const val EN_YMD = "yyyy-MM-dd"
+    const val EN_YMDHM = "yyyy-MM-dd HH:mm"
+    const val EN_YMDHMS = "yyyy-MM-dd HH:mm:ss"
+    const val CN_M = "M月"
+    const val CN_MD = "M月d日"
+    const val CN_HM = "HH时mm分"
+    const val CN_HMS = "HH时mm分ss秒"
+    const val CN_YM = "yyyy年M月"
+    const val CN_YMD = "yyyy年MM月dd日"
+    const val CN_YMDHM = "yyyy年MM月dd日 HH时mm分"
+    const val CN_YMDHMS = "yyyy年MM月dd日 HH时mm分ss秒"
+
+    /**
+     * 传入日期是否为手机当日
+     *
+     * @param inputDate 日期类
+     * @return
+     */
+    @Synchronized
+    @JvmStatic
+    fun isToday(inputDate: Date): Boolean {
+        var flag = false
+        try {
+            //获取当前系统时间
+            val subDate = getDateTime(EN_YMD, System.currentTimeMillis())
+            //定义每天的24h时间范围
+            val beginTime = "$subDate 00:00:00"
+            val endTime = "$subDate 23:59:59"
+            //转换Date
+            val dateFormat = getDateFormat(EN_YMDHMS)
+            val parseBeginTime = dateFormat.parse(beginTime)
+            val parseEndTime = dateFormat.parse(endTime)
+            if (inputDate.after(parseBeginTime) && inputDate.before(parseEndTime)) flag = true
+        } catch (ignored: ParseException) {
+        }
+        return flag
+    }
+
+    /**
+     * 日期对比（统一年月日形式）
+     *
+     * @param fromSource 比较日期a
+     * @param toSource   比较日期b
+     * @return
+     */
+    @Synchronized
+    @JvmStatic
+    fun compareDate(fromSource: String, toSource: String, format: String = EN_YMD): Int {
+        val dateFormat = getDateFormat(format)
+        try {
+            val comparedDate = dateFormat.parse(fromSource) ?: Date()
+            val comparedDate2 = dateFormat.parse(toSource) ?: Date()
+            return when {
+                comparedDate.time > comparedDate2.time -> 1//日程时间大于系统时间
+                comparedDate.time < comparedDate2.time -> -1//日程时间小于系统时间
+                else -> 0
+            }
+        } catch (ignored: Exception) {
+        }
+        return 0
+    }
 
     /**
      * 获取转换日期
      *
      * @param fromFormat 被转换的日期格式
      * @param toFormat   要转换的日期格式
-     * @param dateFormat 本转换的日期
+     * @param source 被转换的日期
      * @return
      */
+    @Synchronized
     @JvmStatic
-    fun getDateFormat(fromFormat: String, toFormat: String, dateFormat: String): String? {
-        var dateFormatStr: String? = null
-        if (!TextUtils.isEmpty(dateFormat)) {
-            try {
-                //传入格式转换成日期
-                val formSimpleDateFormat = SimpleDateFormat(fromFormat, Locale.getDefault())
-                val date = formSimpleDateFormat.parse(dateFormat)
-                //日期转换成想要的格式
-                val toSimpleDateFormat = SimpleDateFormat(toFormat, Locale.getDefault())
-                dateFormatStr = toSimpleDateFormat.format(date)
-            } catch (e: ParseException) {
-                e.printStackTrace()
-            }
-        }
-        return dateFormatStr
-    }
-
-    /**
-     * 传入指定日期格式的字符串转成毫秒
-     *
-     * @param format
-     * @param dateFormat
-     * @return
-     */
-    @JvmStatic
-    fun getDateTime(format: String, dateFormat: String): Long {
+    fun getDateFormat(fromFormat: String, toFormat: String, source: String): String {
+        var result = ""
         try {
-            val simpleDateFormat = SimpleDateFormat(format, Locale.getDefault())
-            val date = simpleDateFormat.parse(dateFormat)
-            return date.time
-        } catch (e: ParseException) {
-            e.printStackTrace()
+            result = getDateTime(toFormat, getDateFormat(fromFormat).parse(source) ?: Date())
+        } catch (ignored: ParseException) {
         }
-        return 0
+        return result
     }
 
     /**
-     * 传入指定日期格式和毫秒转换成字符串
-     * @param format
-     * @param timestamp
+     * 传入指定格式的日期字符串转成毫秒
+     *
+     * @param format 日期格式
+     * @param source 日期
      * @return
      */
+    @Synchronized
     @JvmStatic
-    fun getDateTimeStr(format: String, timestamp: Long): String {
-        //传入格式转换成日期
-        val simpleDateFormat = SimpleDateFormat(format, Locale.getDefault())
-        return simpleDateFormat.format(Date(timestamp))
+    fun getDateTime(format: String, source: String) = getDateFormat(format).parse(source)?.time ?: 0
+
+
+    /**
+     * 传入指定日期格式和毫秒转换成日期字符串
+     *
+     * @param format 日期格式
+     * @param timestamp 时间戳
+     * @return
+     */
+    @Synchronized
+    @JvmStatic
+    fun getDateTime(format: String, timestamp: Long) =
+        getDateFormat(format).format(Date(timestamp)) ?: ""
+
+    /**
+     * 传入指定日期格式和日期類转换成日期字符串
+     *
+     * @param format 日期格式
+     * @param date 日期类
+     * @return
+     */
+    @Synchronized
+    @JvmStatic
+    fun getDateTime(format: String, date: Date) = getDateFormat(format).format(date) ?: ""
+
+    /**
+     * 获取日期格式，时区为校准的中国时区
+     * @param format 日期格式
+     */
+    private fun getDateFormat(format: String): SimpleDateFormat {
+        val dateFormat = SimpleDateFormat(format, Locale.getDefault())
+        dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+        return dateFormat
     }
+
 
     /**
      * 传入毫秒转换成00:00的格式
-     * @param time
-     * @return
-     */
-    @JvmStatic
-    fun getTimeStr(time: Long): String {
-        if (time <= 0) {
-            return "00:00"
-        }
-        val second = (time / 1000 / 60).toInt()
-        val million = (time / 1000 % 60).toInt()
-        val f = if (second >= 10) second.toString() else "0$second"
-        val m = if (million >= 10) million.toString() else "0$million"
-        return "$f:$m"
-    }
-
-    /**
-     * 根据传入的json取得服务器所下发的时间
      *
-     * @param name 参数名
-     * @param json 整体json
+     * @param timestamp 时间戳
      * @return
      */
+    @Synchronized
     @JvmStatic
-    fun getJsonDateTime(name: String, json: String): Long {
-        var timestamp: Long = 0
-        try {
-            val jsonObject = JSONObject(json)
-            timestamp = jsonObject.optLong(name)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return timestamp
-    }
-
-    /**
-     * 日期对比（统一年月日形式）
-     *
-     * @param fromDate 被比较日期
-     * @param toDate   比较日期
-     * @return
-     */
-    @JvmStatic
-    fun compareDate(fromDate: String, toDate: String): Int {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        try {
-            val comparedDate = dateFormat.parse(fromDate)
-            val comparedDate2 = dateFormat.parse(toDate)
-            return when {
-                comparedDate.time > comparedDate2.time -> {
-                    LogUtil.e("日程时间大于系统时间")
-                    1
-                }
-                comparedDate.time < comparedDate2.time -> {
-                    LogUtil.e("日程时间小于系统时间")
-                    -1
-                }
-                else -> {
-                    0
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return 0
-    }
-
-    /**
-     * 传入日期是否为手机当日
-     *
-     * @param inputDate
-     * @return
-     */
-    @JvmStatic
-    fun isToday(inputDate: Date): Boolean {
-        var flag = false
-        // 获取当前系统时间
-        val longDate = System.currentTimeMillis()
-        val nowDate = Date(longDate)
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val format = dateFormat.format(nowDate)
-        val subDate = format.substring(0, 10)
-        // 定义每天的24h时间范围
-        val beginTime = "$subDate 00:00:00"
-        val endTime = "$subDate 23:59:59"
-        var parseBeginTime: Date? = null
-        var parseEndTime: Date? = null
-        try {
-            parseBeginTime = dateFormat.parse(beginTime)
-            parseEndTime = dateFormat.parse(endTime)
-        } catch (e: ParseException) {
-            e.printStackTrace()
-        }
-
-        if (inputDate.after(parseBeginTime) && inputDate.before(parseEndTime)) {
-            flag = true
-        }
-        return flag
+    fun getTime(timestamp: Long): String {
+        if (timestamp <= 0) return "00:00"
+        val second = (timestamp / 1000 / 60).toInt()
+        val million = (timestamp / 1000 % 60).toInt()
+        return "${if (second >= 10) second.toString() else "0$second"}:${if (million >= 10) million.toString() else "0$million"}"
     }
 
     /**
      * 获取日期的当月的第几周
      *
-     * @param inputDate
+     * @param source 日期（yyyy-MM-dd）
      * @return
      */
+    @Synchronized
     @JvmStatic
-    fun getWeekOfMonth(inputDate: String): Int {
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) //设置时间格式
+    fun getWeekOfMonth(source: String): Int {
         try {
-            val time = simpleDateFormat.parse(inputDate)
-            val calendar = Calendar.getInstance()
-            calendar.time = time
-            return calendar.get(Calendar.WEEK_OF_MONTH)
-        } catch (e: ParseException) {
-            e.printStackTrace()
+            Calendar.getInstance().apply {
+                time = getDateFormat(EN_YMD).parse(source) ?: Date()
+                return get(Calendar.WEEK_OF_MONTH)
+            }
+        } catch (ignored: ParseException) {
         }
-
         return 0
     }
 
     /**
      * 获取日期是第几周
      *
-     * @param inputDate
+     * @param source 日期（yyyy-MM-dd）
      * @return
      */
+    @Synchronized
     @JvmStatic
-    fun getWeekOfDate(inputDate: String): Int {
-        //周报时间
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) //设置时间格式
+    fun getWeekOfDate(source: String): Int {
         try {
-            val time = simpleDateFormat.parse(inputDate)
-            val calendar = Calendar.getInstance()
-            calendar.time = time
-            var weekIndex = calendar.get(Calendar.DAY_OF_WEEK) - 1
-            if (weekIndex < 0) {
-                weekIndex = 0
+            Calendar.getInstance().apply {
+                time = getDateFormat(EN_YMD).parse(source) ?: Date()
+                var weekIndex = get(Calendar.DAY_OF_WEEK) - 1
+                if (weekIndex < 0) weekIndex = 0
+                return weekIndex
             }
-            return weekIndex
-        } catch (e: ParseException) {
-            e.printStackTrace()
+        } catch (ignored: ParseException) {
         }
-
         return 0
     }
 
     /**
      * 返回中文形式的星期
      *
-     * @param inputDate
+     * @param source 日期（yyyy-MM-dd）
      * @return
      */
+    @Synchronized
     @JvmStatic
-    fun getDateWeekStr(inputDate: String): String {
-        val week = getWeekOfDate(inputDate)
-        var weekStr = ""
-        when (week) {
-            0 -> weekStr = "星期天"
-            1 -> weekStr = "星期一"
-            2 -> weekStr = "星期二"
-            3 -> weekStr = "星期三"
-            4 -> weekStr = "星期四"
-            5 -> weekStr = "星期五"
-            6 -> weekStr = "星期六"
+    fun getDateWeek(source: String): String {
+        return when (getWeekOfDate(source)) {
+            0 -> "星期天"
+            1 -> "星期一"
+            2 -> "星期二"
+            3 -> "星期三"
+            4 -> "星期四"
+            5 -> "星期五"
+            6 -> "星期六"
+            else -> ""
         }
-        return weekStr
     }
+
+    /**
+     * 处理时间
+     *
+     * @param timestamp 时间戳->秒
+     */
+    @Synchronized
+    @JvmStatic
+    fun getSecondFormat(timestamp: Long): String {
+        val result: String?
+        val hour: Long
+        val second: Long
+        var minute: Long
+        if (timestamp <= 0) return "00:00" else {
+            minute = timestamp / 60
+            if (minute < 60) {
+                second = timestamp % 60
+                result = "${unitFormat(minute)}:${unitFormat(second)}"
+            } else {
+                hour = minute / 60
+                if (hour > 99) return "99:59:59"
+                minute %= 60
+                second = timestamp - hour * 3600 - minute * 60
+                result = "${unitFormat(hour)}:${unitFormat(minute)}:${unitFormat(second)}"
+            }
+        }
+        return result
+    }
+
+    private fun unitFormat(time: Long) = if (time in 0..9) "0$time" else "" + time
 
 }

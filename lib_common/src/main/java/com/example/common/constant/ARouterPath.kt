@@ -7,6 +7,7 @@ package com.example.common.constant
  */
 object ARouterPath {
     const val MainActivity = "/app/main"
+    const val StartActivity = "/app/StartActivity"
     const val LoginActivity = "/app/login"
     const val TestListActivity = "/app/testList"
     const val UserInfoActivity = "/app/userInfo"

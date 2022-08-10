@@ -1,7 +1,6 @@
 package com.example.common.subscribe
 
 import com.example.common.http.factory.RetrofitFactory
-import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.invoke
 
 /**
@@ -12,21 +11,13 @@ object CommonSubscribe : CommonApi {
     private val commonApi by lazy { RetrofitFactory.instance.create(CommonApi::class.java) }
     private val downloadApi by lazy { RetrofitFactory.instance.create2(CommonApi::class.java) }
 
-    override suspend fun getDownloadApi(downloadUrl: String): okhttp3.ResponseBody {
-        return downloadApi.getDownloadApi(downloadUrl)
-    }
+    override suspend fun getDownloadApi(downloadUrl: String) = downloadApi.getDownloadApi(downloadUrl)
 
-    override suspend fun getSendVerificationApi(agent: String, map: Map<String, String>): ApiResponse<Any> {
-        return commonApi.getSendVerificationApi(agent, map).invoke()
-    }
+    override suspend fun getSendVerificationApi(agent: String, map: Map<String, String>) = commonApi.getSendVerificationApi(agent, map).invoke()
 
-    override suspend fun getVerificationApi(agent: String, map: Map<String, String>): ApiResponse<Any> {
-        return commonApi.getVerificationApi(agent, map).invoke()
-    }
+    override suspend fun getVerificationApi(map: Map<String, String>) = commonApi.getVerificationApi(map).invoke()
 
-    override suspend fun getTestApi(): ApiResponse<Any> {
-        return commonApi.getTestApi().invoke()
-    }
+    override suspend fun getTestApi() = commonApi.getTestApi().invoke()
 
 //    //上传图片接口
 //    fun getUploadFile(header: Int, partList: MutableList<MultipartBody.Part>, resourceSubscriber: ResourceSubscriber<BaseBean<UploadBean>>): Disposable {

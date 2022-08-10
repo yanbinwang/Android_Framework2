@@ -37,7 +37,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected val context by lazy { WeakReference<Context>(getContext()) }//基类context弱引用
     private var baseViewModel: BaseViewModel? = null//数据模型
     private val loadingDialog by lazy { LoadingDialog(getContext()) }//刷新球控件，相当于加载动画
-    private val TAG = javaClass.simpleName.toLowerCase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
+    private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     protected fun <VM : BaseViewModel?> createViewModel(vmClass: Class<VM>): VM {
@@ -56,8 +56,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         try {
             val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
             binding = method.invoke(null, layoutInflater, container, false) as VDB
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (ignored: Exception) {
         }
         return binding.root
     }

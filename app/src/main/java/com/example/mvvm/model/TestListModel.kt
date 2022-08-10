@@ -19,7 +19,7 @@ class TestListModel(
     companion object {
 
         @JvmStatic
-        @BindingAdapter(value = ["app:resource"])
+        @BindingAdapter(value = ["resource"])
         fun setResource(image: ImageView?, avatar: Int) {
             image?.setBackgroundResource(avatar)
         }
@@ -69,7 +69,7 @@ class TestListModel(
 //        notifyPropertyChanged(BR.describe);
 //    }
 //
-//    @BindingAdapter(value = "app:resource", requireAll = true)
+//    @BindingAdapter(value = "resource", requireAll = true)
 //    public static void setResource(ImageView image, String url) {
 //        Toast.makeText(image.getContext(), url, Toast.LENGTH_SHORT).show();
 //        image.setBackgroundResource(R.mipmap.ic_launcher_round);

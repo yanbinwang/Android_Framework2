@@ -33,7 +33,6 @@ open class GlideModule : AppGlideModule() {
     override fun applyOptions(context: Context, builder: GlideBuilder) {
         //        int memoryCacheSizeBytes = 1024 * 1024 * 20; // 20mb
         //        builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
-
         //        //使用ActivityManager获取当前设备的内存情况，如果是处于lowMemory的时候，将图片的DecodeFormat设置为 RGB_565 ，
         //        //RGB_565 和默认的 ARGB_8888 比，每个像素会少 2 个byte，这样，等于一张同样的图片，加载到内存中会少一半内存的占用
         //        //（ARGB_8888 每个像素占 4 byte）
@@ -43,7 +42,6 @@ open class GlideModule : AppGlideModule() {
         //            activityManager.getMemoryInfo(memoryInfo);
         //            builder.setDefaultRequestOptions((new RequestOptions()).format(memoryInfo.lowMemory? DecodeFormat.PREFER_RGB_565 : DecodeFormat.PREFER_ARGB_8888));
         //        }
-
         val calculator = MemorySizeCalculator.Builder(context).setMemoryCacheScreens(2f).build()
         builder.setMemoryCache(LruResourceCache(calculator.memoryCacheSize.toLong()))
     }

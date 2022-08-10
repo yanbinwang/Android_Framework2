@@ -1,44 +1,44 @@
 package com.example.common.bus
 
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.example.common.constant.Constants
-import java.util.*
 
 /**
  *  Created by wangyanbin
  *  项目消息分发
  */
 class LiveDataBus private constructor() {
-    private val bus by lazy { HashMap<String, BusMutableLiveData<Any>>() }
+    private val bus by lazy { HashMap<String, MutableLiveDataBus<Any>>() }
 
     companion object {
         @JvmStatic
-        val instance: LiveDataBus by lazy {
-            LiveDataBus()
-        }
+        val instance: LiveDataBus by lazy { LiveDataBus() }
     }
 
-    //订阅方法，传入消息名称，类型，通过observe订阅
-    fun <T> toFlowable(key: String, type: Class<T>): MutableLiveData<T> {
+    /**
+     * 订阅方法，传入消息名称，类型，通过observe订阅
+     */
+    fun <T> toFlowable(key: String): MutableLiveData<T> {
         if (!bus.containsKey(key)) {
-            bus[key] = BusMutableLiveData()
+            bus[key] = MutableLiveDataBus()
         }
         return bus[key] as MutableLiveData<T>
     }
 
-    //通知方法，传入消息名称，通过postValue发送数据
-    fun post(key: String): MutableLiveData<Any> {
-        return toFlowable(key, Any::class.java)
-    }
+    /**
+     * 项目订阅
+     */
+    fun observe(owner: LifecycleOwner, observer: Observer<LiveDataEvent>) = toFlowable<LiveDataEvent>(Constants.LIVE_DATA_KEY).observe(owner, observer)
 
-    //项目订阅
-    fun toFlowable(): MutableLiveData<LiveDataEvent> {
-        return toFlowable(Constants.LIVE_DATA_KEY, LiveDataEvent::class.java)
-    }
-
-    //项目通知
-    fun post(event: LiveDataEvent) {
-        toFlowable(Constants.LIVE_DATA_KEY, LiveDataEvent::class.java).postValue(event)
+    /**
+     * 项目通知
+     */
+    fun post(vararg objs: LiveDataEvent) {
+        for (obj in objs) {
+            toFlowable<LiveDataEvent>(Constants.LIVE_DATA_KEY).postValue(obj)
+        }
     }
 
 }

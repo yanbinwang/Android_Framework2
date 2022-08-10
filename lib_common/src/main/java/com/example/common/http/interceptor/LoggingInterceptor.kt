@@ -18,7 +18,7 @@ import java.nio.charset.Charset
 internal class LoggingInterceptor : Interceptor {
 
     companion object {
-        private val UTF8 = Charset.forName("UTF-8")
+        private val UTF8 by lazy { Charset.forName("UTF-8") }
     }
 
     @Throws(IOException::class)
@@ -33,26 +33,17 @@ internal class LoggingInterceptor : Interceptor {
             //不包含服务器地址的属于下载地址或图片加载地址，不做拦截
             !url.contains(BuildConfig.LOCALHOST) -> return chain.proceed(request)
             //上传文件接口文本量过大，请求参数不做拦截
-            url.contains("user/uploadImg") || url.contains("evidences/saveNew")
-                    || url.contains("evidences/partUpload") || url.contains("evidences/upload") -> {
-                queryParameter = "文件上传"
-            }
+            url.contains("user/uploadImg") -> queryParameter = "文件上传"
             else -> {
                 val requestBody = request.body
                 val hasRequestBody = requestBody != null
                 if (hasRequestBody && !bodyEncoded(request.headers)) {
                     val buffer = Buffer()
-                    requestBody!!.writeTo(buffer)
-
-                    var charset: Charset? = UTF8
-                    val contentType = requestBody.contentType()
-                    if (contentType != null) {
-                        charset = contentType.charset(UTF8)
-                    }
-
-                    if (isPlaintext(buffer)) {
-                        queryParameter = buffer.readString(charset!!)
-                    }
+                    requestBody?.writeTo(buffer)
+                    var charset = UTF8
+                    val contentType = requestBody?.contentType()
+                    if (contentType != null) charset = contentType.charset(UTF8)
+                    if (isPlaintext(buffer)) queryParameter = buffer.readString(charset)
                 }
             }
         }
@@ -64,98 +55,27 @@ internal class LoggingInterceptor : Interceptor {
             throw e
         }
         val responseBody = response.body
-        val contentLength = responseBody!!.contentLength()
+        val contentLength = responseBody?.contentLength()
         if (response.promisesBody() && !bodyEncoded(response.headers)) {
-            val source = responseBody.source()
-            source.request(java.lang.Long.MAX_VALUE)
-            val buffer = source.buffer
-
+            val source = responseBody?.source()
+            source?.request(Long.MAX_VALUE)
+            val buffer = source?.buffer
             var charset: Charset? = UTF8
-            val contentType = responseBody.contentType()
-            if (contentType != null) {
-                charset = contentType.charset(UTF8)
-            }
-
-            if (!isPlaintext(buffer)) {
+            val contentType = responseBody?.contentType()
+            if (contentType != null) charset = contentType.charset(UTF8)
+            if (!isPlaintext(buffer!!)) {
                 interceptLogging(headerValues, url, queryParameter, null)
                 return response
             }
-
-            if (contentLength != 0L) {
-                result = buffer.clone().readString(charset!!)
-            }
+            if (contentLength != 0L) result = buffer.clone().readString(charset!!)
         }
 
         interceptLogging(headerValues, url, queryParameter, result)
         return response
-//        var queryParameter: String? = null
-//        var result: String? = null
-//
-//        val request = chain.request()
-//        val headerValues = request.headers.toString()
-//        val url = request.url.toString()
-//        //上传文件接口文本量过大，不做拦截
-//        if (url.contains("user/uploadImg") ||
-//            url.contains("evidences/saveNew") ||
-//            url.contains("evidences/partUpload") ||
-//            url.contains("evidences/upload") ||
-//            !url.contains(BuildConfig.LOCALHOST)) {
-//            return chain.proceed(request)
-//        }
-//
-//        val requestBody = request.body
-//        val hasRequestBody = requestBody != null
-//        if (hasRequestBody && !bodyEncoded(request.headers)) {
-//            val buffer = Buffer()
-//            requestBody!!.writeTo(buffer)
-//
-//            var charset: Charset? = UTF8
-//            val contentType = requestBody.contentType()
-//            if (contentType != null) {
-//                charset = contentType.charset(UTF8)
-//            }
-//
-//            if (isPlaintext(buffer)) {
-//                queryParameter = buffer.readString(charset!!)
-//            }
-//        }
-//
-//        val response: Response
-//        try {
-//            response = chain.proceed(request)
-//        } catch (e: Exception) {
-//            throw e
-//        }
-//
-//        val responseBody = response.body
-//        val contentLength = responseBody!!.contentLength()
-//        if (response.promisesBody() && !bodyEncoded(response.headers)) {
-//            val source = responseBody.source()
-//            source.request(java.lang.Long.MAX_VALUE) // Buffer the entire body.
-//            val buffer = source.buffer
-//
-//            var charset: Charset? = UTF8
-//            val contentType = responseBody.contentType()
-//            if (contentType != null) {
-//                charset = contentType.charset(UTF8)
-//            }
-//
-//            if (!isPlaintext(buffer)) {
-//                interceptLogging(headerValues, url, queryParameter, null)
-//                return response
-//            }
-//
-//            if (contentLength != 0L) {
-//                result = buffer.clone().readString(charset!!)
-//            }
-//        }
-//
-//        interceptLogging(headerValues, url, queryParameter, result)
-//        return response
     }
 
     private fun bodyEncoded(headers: Headers): Boolean {
-        val contentEncoding = headers.get("Content-Encoding")
+        val contentEncoding = headers["Content-Encoding"]
         return contentEncoding != null && !contentEncoding.equals("identity", ignoreCase = true)
     }
 
@@ -190,23 +110,21 @@ internal class LoggingInterceptor : Interceptor {
     }
 
     private fun decode(unicodeStr: String?): String {
-        if (unicodeStr == null) {
-            return ""
-        }
+        if (unicodeStr == null) return ""
         val retBuf = StringBuffer()
         val maxLoop = unicodeStr.length
         var i = 0
         while (i < maxLoop) {
-            if (unicodeStr.get(i) === '\\') {
-                if (i < maxLoop - 5 && (unicodeStr.get(i + 1) === 'u' || unicodeStr.get(i + 1) === 'U')) try {
+            if (unicodeStr[i] === '\\') {
+                if (i < maxLoop - 5 && (unicodeStr[i + 1] === 'u' || unicodeStr[i + 1] === 'U')) try {
                     retBuf.append(Integer.parseInt(unicodeStr.substring(i + 2, i + 6), 16).toChar())
                     i += 5
                 } catch (localNumberFormatException: NumberFormatException) {
-                    retBuf.append(unicodeStr.get(i))
+                    retBuf.append(unicodeStr[i])
                 }
-                else retBuf.append(unicodeStr.get(i))
+                else retBuf.append(unicodeStr[i])
             } else {
-                retBuf.append(unicodeStr.get(i))
+                retBuf.append(unicodeStr[i])
             }
             i++
         }

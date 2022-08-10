@@ -7,8 +7,8 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import androidx.databinding.ViewDataBinding
-import com.example.base.utils.AnimationLoader.getInAnimation
-import com.example.base.utils.AnimationLoader.getOutAnimation
+import com.example.base.utils.getInAnimation
+import com.example.base.utils.getOutAnimation
 import com.example.common.R
 import java.lang.reflect.ParameterizedType
 
@@ -41,21 +41,16 @@ abstract class BaseDialog<VDB : ViewDataBinding> : Dialog {
                 val vbClass = type.actualTypeArguments[0] as? Class<VDB>
                 val method = vbClass?.getMethod("inflate", LayoutInflater::class.java)
                 binding = method?.invoke(null, layoutInflater) as VDB
-            } catch (e: Exception) {
-                e.printStackTrace()
+            } catch (ignored: Exception) {
             }
             setContentView(binding.root, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
             if (anim) {
-                val mAnimIn = getInAnimation(context)
-                val mAnimOut = getOutAnimation(context)
+                val mAnimIn = context.getInAnimation()
+                val mAnimOut = context.getOutAnimation()
                 //当布局show出来的时候执行开始动画
-                setOnShowListener {
-                    binding.root.startAnimation(mAnimIn)
-                }
+                setOnShowListener { binding.root.startAnimation(mAnimIn) }
                 //当布局销毁时执行结束动画
-                setOnDismissListener {
-                    binding.root.startAnimation(mAnimOut)
-                }
+                setOnDismissListener { binding.root.startAnimation(mAnimOut) }
             }
             if (close) {
                 setOnKeyListener { _: DialogInterface?, _: Int, _: KeyEvent? -> true }
