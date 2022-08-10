@@ -1,10 +1,19 @@
 pluginManagement {
-    apply from: 'config.gradle'
-    addRepos(repositories)
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-    addRepos(repositories)
+    repositories {
+        maven { url 'https://jitpack.io' }
+//        maven { url "https://maven.aliyun.com/repository/public" }
+//        flatDir { dirs 'libs' }
+        google()
+        mavenCentral()
+    }
 }
 rootProject.name = "Android_Framework2"
 include ':app'

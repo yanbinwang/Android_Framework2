@@ -81,7 +81,7 @@ build_versions.compileSdkVersion = 31//构建版本号
 build_versions.minSdkVersion = 21//最低安装版本
 build_versions.targetSdkVersion = 30//最高安装版本
 build_versions.versionCode = 1//版本号
-build_versions.versionName = "1.0"//版本名
+build_versions.versionName = "1.0.0"//版本名
 ext.build_versions = build_versions
 
 //基础参数配置
@@ -90,15 +90,3 @@ build_config.applicationId = "com.example.mvvm"//主appId（包名）
 build_config.LOCALHOST_DEBUG = "\"https://www.baidu.com/\""//测试环境
 build_config.LOCALHOST_RELEASE = "\"https://netcar.yoogate.cn/\""//生产环境
 ext.build_config = build_config
-
-//全局build配置
-def addRepos(repositories) {
-    repositories.gradlePluginPortal()
-    repositories.google()
-//    repositories.jcenter()
-    repositories.mavenCentral()
-    repositories.flatDir { dirs 'libs' }
-    repositories.maven { url 'https://jitpack.io' }
-}
-
-ext.addRepos = this.&addRepos

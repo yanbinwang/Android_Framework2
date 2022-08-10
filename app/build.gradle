@@ -1,7 +1,6 @@
 plugins {
     id 'com.android.application'
-    id 'kotlin-android'
-    id 'kotlin-parcelize'
+    id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
 }
 
@@ -83,10 +82,17 @@ android {
             shrinkResources true//去掉无用资源
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+
+            tasks.whenTaskAdded {task ->
+                if (task.name.contains("ReleaseApkListingFileRedirect")) { // 过滤release
+                    task.enabled = false
+                }
+            }
+
             applicationVariants.all { variant ->
                 variant.outputs.all {
                     //输出apk---包名_v版本名_日期.apk
-                    outputFileName = "example_v${variant.versionName}_" + new Date().format('yyyyMMdd') + ".apk"
+                    outputFileName = "example_v${variant.versionName}_${new Date().format('yyyyMMdd')}.apk"
                 }
             }
         }
