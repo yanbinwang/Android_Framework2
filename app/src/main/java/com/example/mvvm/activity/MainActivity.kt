@@ -94,24 +94,36 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
                             if (isGranted) {
                                 val filePath = Constants.APPLICATION_FILE_PATH + "/安装包"
                                 val fileName = Constants.APPLICATION_NAME + ".apk"
-                                DownloadFactory.instance.download("https://shangxin-gzc.oss-cn-hangzhou.aliyuncs.com/uploads/2021/01/13/sxevidence_v1.2.5_20210113.apk", filePath, fileName, object : OnDownloadListener {
-                                    override fun onStart() {
+//                                DownloadFactory.instance.download("https://shangxin-gzc.oss-cn-hangzhou.aliyuncs.com/uploads/2021/01/13/sxevidence_v1.2.5_20210113.apk", filePath, fileName, object : OnDownloadListener {
+//                                    override fun onStart() {
+//                                        showDialog()
+//                                    }
+//
+//                                    override fun onSuccess(path: String?) {}
+//
+//                                    override fun onLoading(progress: Int) {
+//                                        log(progress.toString())
+//                                        binding.tvDownload.text = progress.toString()
+//                                    }
+//
+//                                    override fun onFailed(e: Throwable?) {}
+//
+//                                    override fun onComplete() {
+//                                        hideDialog()
+//                                    }
+//                                })
+
+                                DownloadFactory.instance.download("https://shangxin-gzc.oss-cn-hangzhou.aliyuncs.com/uploads/2021/01/13/sxevidence_v1.2.5_20210113.apk", filePath, fileName,
+                                    {
                                         showDialog()
-                                    }
-
-                                    override fun onSuccess(path: String?) {}
-
-                                    override fun onLoading(progress: Int) {
-                                        log(progress.toString())
-                                        binding.tvDownload.text = progress.toString()
-                                    }
-
-                                    override fun onFailed(e: Throwable?) {}
-
-                                    override fun onComplete() {
+                                    },{},{
+                                        log(it.toString())
+                                        binding.tvDownload.text = it.toString()
+                                    },{},{
                                         hideDialog()
                                     }
-                                })
+                                )
+
                             }
                         }
                     }).requestPermissions(Permission.Group.STORAGE)

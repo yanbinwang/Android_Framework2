@@ -29,7 +29,16 @@ class DownloadFactory private constructor(override val coroutineContext: Corouti
         }
     }
 
-    fun download(downloadUrl: String, filePath: String, fileName: String, onDownloadListener: OnDownloadListener?) {
+    //    fun download(downloadUrl: String, filePath: String, fileName: String, onDownloadListener: OnDownloadListener?) {
+    fun download(
+        downloadUrl: String,
+        filePath: String,
+        fileName: String,
+        onStart: () -> Unit? = {},
+        onSuccess: (path: String?) -> Unit? = {},
+        onLoading: (progress: Int?) -> Unit = {},
+        onFailed: (e: Throwable?) -> Unit? = {},
+        onComplete: () -> Unit? = {}) {
         if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
             ToastUtil.mackToastSHORT("链接地址不合法", BaseApplication.instance?.applicationContext!!)
             return
@@ -41,7 +50,7 @@ class DownloadFactory private constructor(override val coroutineContext: Corouti
             val body = getDownloadApi(downloadUrl).call(object : ResourceSubscriber<ResponseBody>() {
                 override fun onStart() {
                     super.onStart()
-                    onDownloadListener?.onStart()
+                    onStart()
                 }
 
                 override fun onNext(t: ResponseBody?) {
@@ -51,10 +60,8 @@ class DownloadFactory private constructor(override val coroutineContext: Corouti
 
                 override fun onError(throwable: Throwable?) {
                     super.onError(throwable)
-                    onDownloadListener?.apply {
-                        onFailed(throwable)
-                        onComplete()
-                    }
+                    onFailed(throwable)
+                    onComplete()
                     cancel()
                 }
             })
@@ -74,16 +81,16 @@ class DownloadFactory private constructor(override val coroutineContext: Corouti
                         fileOutputStream.write(buf, 0, len)
                         sum += len.toLong()
                         val progress = (sum * 1.0f / total * 100).toInt()
-                        withContext(Dispatchers.Main) { onDownloadListener?.onLoading(progress) }
+                        withContext(Dispatchers.Main) { onLoading(progress) }
                     }
                     fileOutputStream.flush()
-                    withContext(Dispatchers.Main) { onDownloadListener?.onSuccess(file.path) }
+                    withContext(Dispatchers.Main) { onSuccess(file.path) }
                 } catch (e: Exception) {
-                    withContext(Dispatchers.Main) { onDownloadListener?.onFailed(e) }
+                    withContext(Dispatchers.Main) { onFailed(e) }
                 } finally {
                     inputStream?.close()
                     fileOutputStream?.close()
-                    withContext(Dispatchers.Main) { onDownloadListener?.onComplete() }
+                    withContext(Dispatchers.Main) { onComplete() }
                     cancel()
                 }
             }
