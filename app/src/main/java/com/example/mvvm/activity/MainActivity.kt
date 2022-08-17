@@ -94,34 +94,24 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
                             if (isGranted) {
                                 val filePath = Constants.APPLICATION_FILE_PATH + "/安装包"
                                 val fileName = Constants.APPLICATION_NAME + ".apk"
-                                DownloadFactory.instance.download(
-                                    "https://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk",
-                                    filePath,
-                                    fileName,
-                                    object :
-                                        OnDownloadListener {
+                                DownloadFactory.instance.download("https://shangxin-gzc.oss-cn-hangzhou.aliyuncs.com/uploads/2021/01/13/sxevidence_v1.2.5_20210113.apk", filePath, fileName, object : OnDownloadListener {
+                                    override fun onStart() {
+                                        showDialog()
+                                    }
 
-                                        override fun onStart() {
-                                            showDialog()
-                                        }
+                                    override fun onSuccess(path: String?) {}
 
-                                        override fun onSuccess(path: String?) {
+                                    override fun onLoading(progress: Int) {
+                                        log(progress.toString())
+                                        binding.tvDownload.text = progress.toString()
+                                    }
 
-                                        }
+                                    override fun onFailed(e: Throwable?) {}
 
-                                        override fun onLoading(progress: Int) {
-                                            binding.tvDownload.text = progress.toString()
-                                        }
-
-                                        override fun onFailed(e: Throwable?) {
-
-                                        }
-
-                                        override fun onComplete() {
-                                            hideDialog()
-                                        }
-
-                                    })
+                                    override fun onComplete() {
+                                        hideDialog()
+                                    }
+                                })
                             }
                         }
                     }).requestPermissions(Permission.Group.STORAGE)

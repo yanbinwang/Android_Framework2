@@ -19,7 +19,7 @@ class UserInfoActivity : BaseActivity<ActivityUserInfoBinding>() {
 
     override fun initView() {
         super.initView()
-        binding.setVariable(BR.model, intent.getParcelableExtra(Extras.BUNDLE_BEAN))
+        binding.setVariable(BR.model, intent.getSerializableExtra(Extras.BUNDLE_BEAN))
     }
 
     override fun initEvent() {

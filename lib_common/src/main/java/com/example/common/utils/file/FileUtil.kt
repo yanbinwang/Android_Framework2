@@ -79,7 +79,6 @@ object FileUtil : CoroutineScope {
      * 判断下载目录是否存在
      */
     @JvmStatic
-    @Throws(IOException::class)
     fun isExistDir(filePath: String): String {
         val downloadFile = File(filePath)
         if (!downloadFile.mkdirs()) downloadFile.createNewFile()
