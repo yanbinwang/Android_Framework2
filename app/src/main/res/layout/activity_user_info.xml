@@ -19,7 +19,7 @@
             android:id="@+id/btn_test"
             android:text="test"
             android:textSize="28mm"
-            android:background="@color/gray_6c6c6c"
+            android:background="@color/grey_6c6c6c"
             android:textColor="@color/white"
             android:layout_width="match_parent"
             android:layout_height="100mm"/>
@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="40mm"
             android:text="@{model.name}"
-            android:textColor="@color/gray_6c6c6c"
+            android:textColor="@color/grey_6c6c6c"
             android:textSize="40mm" />
 
         <TextView
@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20mm"
             android:text="@{String.valueOf(model.age)}"
-            android:textColor="@color/gray_6c6c6c"
+            android:textColor="@color/grey_6c6c6c"
             android:textSize="40mm" />
 
     </LinearLayout>

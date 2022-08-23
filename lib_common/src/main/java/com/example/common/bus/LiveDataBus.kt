@@ -41,4 +41,10 @@ class LiveDataBus private constructor() {
         }
     }
 
+    fun set(vararg objs: LiveDataEvent) {
+        for (obj in objs) {
+            toFlowable<LiveDataEvent>(Constants.LIVE_DATA_KEY).value = obj
+        }
+    }
+
 }

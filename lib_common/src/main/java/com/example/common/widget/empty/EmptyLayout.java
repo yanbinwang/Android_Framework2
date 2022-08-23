@@ -53,10 +53,10 @@ public class EmptyLayout extends SimpleViewGroup {
     private void initialize() {
         Context context = getContext();
         binding = DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_empty, null));
-        binding.llContainer.setBackgroundColor(ContextCompat.getColor(context, R.color.gray_f6f8ff));
+        binding.llContainer.setBackgroundColor(ContextCompat.getColor(context, R.color.grey_f6f8ff));
         //设置样式
         binding.getRoot().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));//设置LayoutParams
-        binding.getRoot().setBackgroundColor(ContextCompat.getColor(context, R.color.gray_f6f8ff));
+        binding.getRoot().setBackgroundColor(ContextCompat.getColor(context, R.color.grey_f6f8ff));
         //设置监听
         binding.tvRefresh.setOnClickListener(v -> {
             //进入加载中，并停止刷新动画

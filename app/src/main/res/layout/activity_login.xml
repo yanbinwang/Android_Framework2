@@ -38,7 +38,7 @@
             android:layout_height="60mm"
             android:layout_marginHorizontal="40mm"
             android:layout_marginTop="80mm"
-            android:background="@color/gray_9f9f9f"
+            android:background="@color/grey_9f9f9f"
             android:enabled="false"
             android:text="登录"
             android:textColor="@color/black" />

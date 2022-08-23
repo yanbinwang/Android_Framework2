@@ -56,7 +56,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{model.title}"
-                android:textColor="@color/gray_6c6c6c"
+                android:textColor="@color/grey_6c6c6c"
                 android:textSize="32mm" />
 
             <TextView
@@ -65,7 +65,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:text="@{model.describe}"
-                android:textColor="@color/gray_6c6c6c"
+                android:textColor="@color/grey_6c6c6c"
                 android:textSize="28mm" />
 
         </RelativeLayout>
