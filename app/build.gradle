@@ -55,11 +55,21 @@ android {
     }
 
     buildTypes {
+//        debug {
+//            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//
+//            tasks.whenTaskAdded { task ->
+//                if (task.name.contains("DebugApkListingFileRedirect")) { // 过滤debug
+//                    task.enabled = false
+//                }
+//            }
+//        }
+
         release {
             //架构支持
             ndk {
                 abiFilter "armeabi"
-//                abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a'
             }
 
             //移除无用资源
