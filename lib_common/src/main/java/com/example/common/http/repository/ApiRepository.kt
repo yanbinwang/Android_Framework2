@@ -50,13 +50,10 @@ fun AppCompatActivity.launch(block: suspend CoroutineScope.() -> Unit) = lifecyc
  * 请求监听扩展
  */
 suspend fun <T> T.call(subscriber: ResourceSubscriber<T>?): T {
-    subscriber?.onStart()
     try {
         subscriber?.onNext(withContext(IO) { this@call })
     } catch (e: Exception) {
         subscriber?.onError(e)
-    } finally {
-        subscriber?.onComplete()
     }
     return this
 }
