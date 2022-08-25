@@ -47,11 +47,6 @@ fun AppCompatActivity.launch(block: suspend CoroutineScope.() -> Unit) = lifecyc
 //}
 
 /**
- * 项目请求监听扩展
- */
-suspend fun <T> ApiResponse<T>.apiCall(subscriber: HttpSubscriber<T>?) = call(subscriber)
-
-/**
  * 请求监听扩展
  */
 suspend fun <T> T.call(subscriber: ResourceSubscriber<T>?): T {
@@ -65,6 +60,11 @@ suspend fun <T> T.call(subscriber: ResourceSubscriber<T>?): T {
     }
     return this
 }
+
+/**
+ * 项目请求监听扩展
+ */
+suspend fun <T> ApiResponse<T>.apiCall(subscriber: HttpSubscriber<T>?) = call(subscriber)
 
 /**
  *  部分请求需要监听开始和结束，采用此请求结构
