@@ -9,10 +9,10 @@
 
     <color name="grey_333333">#333333</color>
     <color name="grey_666666">#666666</color>
-    <color name="gray_6c6c6c">#6c6c6c</color>
+    <color name="grey_6c6c6c">#6c6c6c</color>
     <color name="grey_999999">#999999</color>
-    <color name="gray_9f9f9f">#9f9f9f</color>
-    <color name="gray_f6f8ff">#f6f8ff</color>
+    <color name="grey_9f9f9f">#9f9f9f</color>
+    <color name="grey_f6f8ff">#f6f8ff</color>
 
     <color name="blue_0d86ff">#0d86ff</color>
     <color name="blue_2e60df">#2e60df</color>

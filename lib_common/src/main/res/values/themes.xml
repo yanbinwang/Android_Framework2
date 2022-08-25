@@ -15,7 +15,7 @@
         <!-- 底部导航栏颜色 -->
         <item name="android:navigationBarColor">@color/black</item>
         <!-- 页面背景色 -->
-        <item name="android:windowBackground">@color/gray_f6f8ff</item>
+        <item name="android:windowBackground">@color/grey_f6f8ff</item>
         <!-- 控件被选中时的颜色 -->
         <item name="colorAccent">@color/blue_2e60df</item>
         <!-- 控制控件的默认颜色 -->
@@ -38,14 +38,14 @@
     <style name="lineHeight">
         <item name="android:layout_width">1dp</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@color/gray_f6f8ff</item>
+        <item name="android:background">@color/grey_f6f8ff</item>
     </style>
 
     <!-- 布局画横线样式 -->
     <style name="lineWidth">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
-        <item name="android:background">@color/gray_f6f8ff</item>
+        <item name="android:background">@color/grey_f6f8ff</item>
     </style>
 
     <!-- 底部弹窗动画 -->

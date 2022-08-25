@@ -9,8 +9,7 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         maven { url 'https://jitpack.io' }
-//        maven { url "https://maven.aliyun.com/repository/public" }
-//        flatDir { dirs 'libs' }
+        maven { url "https://maven.aliyun.com/repository/public" }
         google()
         mavenCentral()
     }

@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="60mm"
             android:layout_margin="20mm"
-            android:background="@color/gray_9f9f9f"
+            android:background="@color/grey_9f9f9f"
             android:text="模拟登陆"
             android:textColor="@color/black"
             android:textSize="24mm" />
@@ -37,7 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="60mm"
             android:layout_marginHorizontal="20mm"
-            android:background="@color/gray_9f9f9f"
+            android:background="@color/grey_9f9f9f"
             android:text="模拟加载列表"
             android:textColor="@color/black"
             android:textSize="24mm" />
@@ -48,7 +48,7 @@
             android:layout_height="60mm"
             android:layout_marginHorizontal="20mm"
             android:layout_marginTop="20mm"
-            android:background="@color/gray_9f9f9f"
+            android:background="@color/grey_9f9f9f"
             android:text="下载"
             android:textColor="@color/black"
             android:textSize="24mm" />

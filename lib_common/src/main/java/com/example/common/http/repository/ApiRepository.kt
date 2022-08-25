@@ -24,30 +24,36 @@ import kotlinx.coroutines.withContext
  */
 fun BaseViewModel.launch(block: suspend CoroutineScope.() -> Unit) = viewModelScope.launch(block = block)
 
-//fun BaseViewModel.async(block: suspend CoroutineScope.() -> Unit) = viewModelScope.async(block = block)
-
 fun Fragment.launch(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.launch(block = block)
-
-//fun Fragment.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
 
 fun AppCompatActivity.launch(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.launch(block = block)
 
-//fun AppCompatActivity.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
+///**
+// * 针对项目请求编号处理,需要处理的在请求文件里书写此扩展函数
+// */
+//fun <T> ApiResponse<T>.invoke(): ApiResponse<T> {
+//    when (code) {
+//        //账号还没有登录，解密失败，重新获取
+//        100005, 100008 -> {
+//            AccountHelper.signOut()
+//            ARouter.getInstance().build(ARouterPath.LoginActivity).navigation()
+//        }
+//        //账号被锁定--进入账号锁定页（其余页面不关闭）
+//        100002 -> {
+////                         ARouter.getInstance().build(ARouterPath.UnlockIPActivity).navigation()
+//        }
+//    }
+//    return this
+//}
 
 /**
- * 针对项目请求编号处理,需要处理的在请求文件里书写此扩展函数
+ * 请求监听扩展
  */
-fun <T> ApiResponse<T>.invoke(): ApiResponse<T> {
-    when (code) {
-        //账号还没有登录，解密失败，重新获取
-        100005, 100008 -> {
-            AccountHelper.signOut()
-            ARouter.getInstance().build(ARouterPath.LoginActivity).navigation()
-        }
-        //账号被锁定--进入账号锁定页（其余页面不关闭）
-        100002 -> {
-//                         ARouter.getInstance().build(ARouterPath.UnlockIPActivity).navigation()
-        }
+suspend fun <T> T.call(subscriber: ResourceSubscriber<T>?): T {
+    try {
+        subscriber?.onNext(withContext(IO) { this@call })
+    } catch (e: Exception) {
+        subscriber?.onError(e)
     }
     return this
 }
@@ -58,18 +64,12 @@ fun <T> ApiResponse<T>.invoke(): ApiResponse<T> {
 suspend fun <T> ApiResponse<T>.apiCall(subscriber: HttpSubscriber<T>?) = call(subscriber)
 
 /**
- * 请求监听扩展
+ *  部分请求需要监听开始和结束，采用此请求结构
  */
-suspend fun <T> T.call(subscriber: ResourceSubscriber<T>?): T {
+suspend fun <T> execute(block: T, subscriber: ResourceSubscriber<T>?) {
     subscriber?.onStart()
-    try {
-        subscriber?.onNext(withContext(IO) { this@call })
-    } catch (e: Exception) {
-        subscriber?.onError(e)
-    } finally {
-        subscriber?.onComplete()
-    }
-    return this
+    block.call(subscriber)
+    subscriber?.onComplete()
 }
 
 ///**
