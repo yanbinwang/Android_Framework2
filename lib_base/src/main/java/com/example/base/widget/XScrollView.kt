@@ -12,7 +12,7 @@ import kotlin.math.abs
  * @description
  * @author
  */
-class XScrollView(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : NestedScrollView(context, attrs, defStyleAttr) {
+class XScrollView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : NestedScrollView(context, attrs, defStyleAttr) {
     private var touchSlop = 0
     private var downY = 0
     var isTop = false //是否滑动到顶端
