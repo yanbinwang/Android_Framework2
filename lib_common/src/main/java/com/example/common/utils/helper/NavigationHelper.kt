@@ -2,7 +2,7 @@ package com.example.common.utils.helper
 
 import android.view.View
 import android.view.ViewGroup
-import com.example.base.function.inAnimation
+import com.example.base.utils.function.inAnimation
 import com.example.common.utils.vibrate
 import com.example.common.widget.PagerFlipper
 import com.google.android.material.bottomnavigation.BottomNavigationItemView

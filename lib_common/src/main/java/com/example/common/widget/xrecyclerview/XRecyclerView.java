@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.example.base.function.FunctionsContextKt;
+import com.example.base.utils.function.FunctionsContextKt;
 import com.example.base.widget.SimpleViewGroup;
 import com.example.common.R;
 import com.example.common.widget.empty.EmptyLayout;

@@ -17,7 +17,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.base.function.FunctionsContextKt;
+import com.example.base.utils.function.FunctionsContextKt;
 import com.example.base.utils.WeakHandler;
 import com.example.base.widget.SimpleViewGroup;
 import com.example.common.R;

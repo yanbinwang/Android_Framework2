@@ -1,4 +1,4 @@
-package com.example.base.function
+package com.example.base.utils.function
 
 import android.os.Bundle
 import android.os.Parcelable

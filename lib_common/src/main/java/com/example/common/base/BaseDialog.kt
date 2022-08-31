@@ -7,8 +7,8 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import androidx.databinding.ViewDataBinding
-import com.example.base.function.inAnimation
-import com.example.base.function.outAnimation
+import com.example.base.utils.function.inAnimation
+import com.example.base.utils.function.outAnimation
 import com.example.common.R
 import java.lang.reflect.ParameterizedType
 
