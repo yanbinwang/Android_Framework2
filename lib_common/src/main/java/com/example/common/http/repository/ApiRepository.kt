@@ -21,9 +21,13 @@ import kotlinx.coroutines.withContext
 /**
  * ViewModel的KTX库中具备扩展函数，但不能像继承CoroutineScope那样直接launch点出，这里再做一个扩展
  * CoroutineScope接受一个参数是线程的上下文，返回一个CoroutineScope对象
+ * 顺序执行请求
  */
 fun BaseViewModel.launch(block: suspend CoroutineScope.() -> Unit) = viewModelScope.launch(block = block)
 
+/**
+ * 并发执行多个请求时使用，通过await()可以拿取到最后得到的值
+ */
 fun BaseViewModel.async(block: suspend CoroutineScope.() -> Unit) = viewModelScope.async(block = block)
 
 fun Fragment.launch(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.launch(block = block)
