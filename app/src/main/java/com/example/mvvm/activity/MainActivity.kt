@@ -9,7 +9,7 @@ import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
 import com.example.common.utils.file.DownloadFactory
 import com.example.common.utils.helper.permission.OnPermissionCallBack
-import com.example.common.utils.helper.permission.PermissionHelper
+import com.example.common.utils.helper.PermissionHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.yanzhenjie.permission.Permission
@@ -88,9 +88,8 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
             R.id.btn_list -> navigation(ARouterPath.TestListActivity)
             R.id.btn_download -> {
                 PermissionHelper.with(context.get())
-                    .setPermissionCallBack(object : OnPermissionCallBack {
-                        override fun onPermission(isGranted: Boolean) {
-                            if (isGranted) {
+                    .setPermissionCallBack({
+                            if (it) {
                                 val filePath = Constants.APPLICATION_FILE_PATH + "/安装包"
                                 val fileName = Constants.APPLICATION_NAME + ".apk"
 //                                DownloadFactory.instance.download("https://shangxin-gzc.oss-cn-hangzhou.aliyuncs.com/uploads/2021/01/13/sxevidence_v1.2.5_20210113.apk", filePath, fileName, object : OnDownloadListener {
@@ -112,20 +111,19 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
 //                                    }
 //                                })
 
-                                DownloadFactory.instance.download("https://shangxin-gzc.oss-cn-hangzhou.aliyuncs.com/uploads/2021/01/13/sxevidence_v1.2.5_20210113.apk", filePath, fileName,
-                                    {
-                                        showDialog()
-                                    },{},{
-                                        log(it.toString())
-                                        binding.tvDownload.text = it.toString()
-                                    },{},{
-                                        hideDialog()
-                                    }
-                                )
+//                                DownloadFactory.instance.download("https://shangxin-gzc.oss-cn-hangzhou.aliyuncs.com/uploads/2021/01/13/sxevidence_v1.2.5_20210113.apk", filePath, fileName,
+//                                    {
+//                                        showDialog()
+//                                    },{},{
+//                                        log(it.toString())
+//                                        binding.tvDownload.text = it.toString()
+//                                    },{},{
+//                                        hideDialog()
+//                                    }
+//                                )
 
                             }
-                        }
-                    }).requestPermissions(Permission.Group.STORAGE)
+                        }).requestPermissions(Permission.Group.STORAGE)
 //                PermissionHelper.with(context.get())
 //                    .getPermissions(Permission.Group.STORAGE)
 //                    .setPermissionCallBack(isGranted -> {

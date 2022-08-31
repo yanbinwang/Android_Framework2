@@ -1,4 +1,4 @@
-package com.example.common.utils.helper.permission
+package com.example.common.utils.helper
 
 import android.content.Context
 import android.content.Intent
