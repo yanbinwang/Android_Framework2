@@ -3,34 +3,40 @@ package com.example.common.utils.helper
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.os.Looper
 import android.view.View
 import com.example.common.constant.Constants
-import com.example.base.utils.WeakHandler
-import java.util.concurrent.Executors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  *  Created by wangyanbin
  *  生成图片工具类
  */
 object GenerateHelper {
-    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
-    private val executors by lazy { Executors.newSingleThreadExecutor() }
+//    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+//    private val executors by lazy { Executors.newSingleThreadExecutor() }
 
     //构建图片
-    fun create(view: View, onGenerateListener: OnGenerateListener?) {
-        onGenerateListener?.onStart()
+    suspend fun create(view: View, onStart: () -> Unit? = {}, onResult: (bitmap: Bitmap?) -> Unit? = {}, onComplete: () -> Unit? = {}) {
+        onStart()
         loadLayout(view)
-        executors.execute {
-            try {
-                val bitmap = loadBitmap(view)
-                weakHandler.post { onGenerateListener?.onResult(bitmap!!) }
-            } catch (e: Exception) {
-            } finally {
-                weakHandler.post { onGenerateListener?.onComplete() }
-            }
+//        executors.execute {
+//            try {
+//                val bitmap = loadBitmap(view)
+//                weakHandler.post { onResult(bitmap) }
+//            } catch (e: Exception) {
+//            } finally {
+//                weakHandler.post { onComplete() }
+//            }
+//        }
+//        executors.isShutdown
+        try {
+            val bitmap = loadBitmap(view)
+            withContext(Dispatchers.Main) { onResult(bitmap) }
+        } catch (e: Exception) {
+        } finally {
+            withContext(Dispatchers.Main) { onComplete() }
         }
-        executors.isShutdown
     }
 
     /**
@@ -40,8 +46,10 @@ object GenerateHelper {
     private fun loadLayout(view: View) {
         //整个View的大小 参数是左上角 和右下角的坐标
         view.layout(0, 0, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT)
-        val measuredWidth: Int = View.MeasureSpec.makeMeasureSpec(Constants.SCREEN_WIDTH, View.MeasureSpec.EXACTLY)
-        val measuredHeight: Int = View.MeasureSpec.makeMeasureSpec(Constants.SCREEN_HEIGHT, View.MeasureSpec.EXACTLY)
+        val measuredWidth: Int =
+            View.MeasureSpec.makeMeasureSpec(Constants.SCREEN_WIDTH, View.MeasureSpec.EXACTLY)
+        val measuredHeight: Int =
+            View.MeasureSpec.makeMeasureSpec(Constants.SCREEN_HEIGHT, View.MeasureSpec.EXACTLY)
         view.measure(measuredWidth, measuredHeight)
         view.layout(0, 0, view.measuredWidth, view.measuredHeight)
     }
@@ -56,16 +64,6 @@ object GenerateHelper {
         view.layout(0, 0, width, height)
         view.draw(canvas)
         return bitmap
-    }
-
-    interface OnGenerateListener {
-
-        fun onStart()
-
-        fun onResult(bitmap: Bitmap)
-
-        fun onComplete()
-
     }
 
 }

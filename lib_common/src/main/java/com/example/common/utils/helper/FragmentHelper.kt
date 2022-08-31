@@ -15,8 +15,9 @@ object FragmentHelper {
     private var containerViewId = 0
     private var fragmentList = ArrayList<Fragment>()
     private var fragmentManager: FragmentManager? = null
-    var onTabCommitListener: OnTabCommitListener? = null
+    var onTabShow: ((tabNum: Int) -> Unit)? = null
 
+    @JvmOverloads
     @JvmStatic
     fun initialize(activity: AppCompatActivity, containerViewId: Int, fragmentList: ArrayList<Fragment>, tabNum: Int = 0, dark: Boolean = true) {
         StatusBarBuilder(activity.window).setTransparent(dark)
@@ -27,6 +28,7 @@ object FragmentHelper {
         showFragment(tabNum, true)
     }
 
+    @JvmOverloads
     @JvmStatic
     fun showFragment(tabNum: Int, load: Boolean = false) {
         if (fragmentList.size > tabNum) {
@@ -43,14 +45,8 @@ object FragmentHelper {
             }
             fragmentTransaction?.show(fragmentList[tabNum])
             fragmentTransaction?.commitAllowingStateLoss()
-            onTabCommitListener?.onTabShow(tabNum)
+            onTabShow?.invoke(tabNum)
         }
-    }
-
-    interface OnTabCommitListener {
-
-        fun onTabShow(tabNum: Int)
-
     }
 
 }
