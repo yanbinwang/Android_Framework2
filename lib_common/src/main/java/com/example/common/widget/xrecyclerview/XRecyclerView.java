@@ -22,7 +22,6 @@ import com.example.common.widget.xrecyclerview.callback.OnEmptyClickListener;
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration;
 import com.example.common.widget.xrecyclerview.refresh.SwipeRefreshLayout;
 import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout;
-import com.example.common.widget.xrecyclerview.refresh.callback.SwipeRefreshLayoutDirection;
 
 /**
  * author: wyb
