@@ -26,12 +26,7 @@ class WordWrapLayout @JvmOverloads constructor(context: Context, attrs: Attribut
         for (index in 0 until childCount) {
             //给子view设置内部的padding
             val child = getChildAt(index)
-            child.setPadding(
-                PADDING_HORIZONTAL,
-                PADDING_VERTICAL,
-                PADDING_HORIZONTAL,
-                PADDING_VERTICAL
-            )
+            child.setPadding(PADDING_HORIZONTAL, PADDING_VERTICAL, PADDING_HORIZONTAL, PADDING_VERTICAL)
             child.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED)
             val width = child.measuredWidth
             val height = child.measuredHeight
