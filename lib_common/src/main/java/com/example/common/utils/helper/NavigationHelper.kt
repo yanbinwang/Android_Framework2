@@ -3,7 +3,7 @@ package com.example.common.utils.helper
 import android.view.View
 import android.view.ViewGroup
 import com.example.base.utils.function.inAnimation
-import com.example.common.utils.vibrate
+import com.example.base.utils.function.vibrate
 import com.example.common.widget.PagerFlipper
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView

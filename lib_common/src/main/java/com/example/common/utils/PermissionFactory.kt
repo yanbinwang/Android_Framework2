@@ -9,7 +9,6 @@ import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import com.example.common.R
 import com.example.common.widget.dialog.AndDialog
-import com.example.common.widget.dialog.callback.OnDialogListener
 import com.yanzhenjie.permission.AndPermission
 import com.yanzhenjie.permission.Permission
 import java.lang.ref.WeakReference
@@ -84,14 +83,10 @@ class PermissionFactory(context: Context) {
                             }
                             //如果用户拒绝了开启权限
                             if (AndPermission.hasAlwaysDeniedPermission(weakContext.get()!!, it)) {
-                                AndDialog.with(weakContext.get()).setOnDialogListener(object : OnDialogListener {
-                                    override fun onConfirm() {
-                                        weakContext.get()?.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + weakContext.get()?.packageName)))
-                                    }
-
-                                    override fun onCancel() {}
-                                    }
-                                ).setParams(weakContext.get()?.getString(R.string.label_window_title), MessageFormat.format(weakContext.get()
+                                AndDialog.with(weakContext.get()).setOnDialogListener({
+                                    weakContext.get()?.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + weakContext.get()?.packageName)))
+                                })
+                                .setParams(weakContext.get()?.getString(R.string.label_window_title), MessageFormat.format(weakContext.get()
                                                 ?.getString(R.string.label_window_permission), result), weakContext.get()?.getString(R.string.label_window_sure), weakContext.get()?.getString(R.string.label_window_cancel)).show()
                             }
                         }
