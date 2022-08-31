@@ -19,7 +19,6 @@ class AndDialog(context: Context) : AlertDialog.Builder(context, R.style.dialogS
         if (!TextUtils.isEmpty(title)) setTitle(title)
         setMessage(if (TextUtils.isEmpty(message)) "" else message)
         setPositiveButton(positiveText) { _: DialogInterface?, _: Int -> onConfirm }
-        //如果没有传入取消字段,则隐藏取消
         if (!TextUtils.isEmpty(negativeText)) setNegativeButton(negativeText) { _: DialogInterface?, _: Int -> onCancel }
         return this
     }
