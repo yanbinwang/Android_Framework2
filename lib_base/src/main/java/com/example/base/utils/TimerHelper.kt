@@ -20,10 +20,10 @@ object TimerHelper {
      */
     @JvmOverloads
     @JvmStatic
-    fun schedule(onTaskListener: OnTaskListener? = null, millisecond: Long = 1000) {
+    fun schedule(run: (() -> Unit)?, millisecond: Long = 1000) {
         Timer().schedule(object : TimerTask() {
             override fun run() {
-                WeakHandler(Looper.getMainLooper()).post { onTaskListener?.run() }
+                WeakHandler(Looper.getMainLooper()).post { run?.invoke() }
             }
         }, millisecond)
     }
@@ -33,12 +33,12 @@ object TimerHelper {
      */
     @JvmOverloads
     @JvmStatic
-    fun startTask(onTaskListener: OnTaskListener? = null, millisecond: Long = 1000) {
+    fun startTask(run: (() -> Unit)?, millisecond: Long = 1000) {
         stopTask()
         timer = Timer()
         timerTask = object : TimerTask() {
             override fun run() {
-                WeakHandler(Looper.getMainLooper()).post { onTaskListener?.run() }
+                WeakHandler(Looper.getMainLooper()).post { run?.invoke() }
             }
         }
         timer?.schedule(timerTask, 0, millisecond)
@@ -61,15 +61,15 @@ object TimerHelper {
      */
     @JvmOverloads
     @JvmStatic
-    fun startDownTask(onDownTaskListener: OnDownTaskListener? = null, second: Long = 1) {
+    fun startDownTask(onTick: ((second: Long) -> Unit)?, onFinish: (() -> Unit)?, second: Long = 1) {
         stopDownTask()
         countDownTimer = object : CountDownTimer(second * 1000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                onDownTaskListener?.onTick((millisUntilFinished / 1000))
+                onTick?.invoke((millisUntilFinished / 1000))
             }
 
             override fun onFinish() {
-                onDownTaskListener?.onFinish()
+                onFinish
                 stopDownTask()
             }
         }.start()
@@ -91,20 +91,6 @@ object TimerHelper {
     fun destroy() {
         stopTask()
         stopDownTask()
-    }
-
-    interface OnTaskListener {
-
-        fun run()
-
-    }
-
-    interface OnDownTaskListener {
-
-        fun onTick(second: Long)//返回秒
-
-        fun onFinish()
-
     }
 
 }

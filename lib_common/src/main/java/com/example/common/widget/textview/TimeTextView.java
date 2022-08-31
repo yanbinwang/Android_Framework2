@@ -45,18 +45,14 @@ public class TimeTextView extends TextView {
     }
 
     public void countDown(long second) {
-        TimerHelper.startDownTask(new TimerHelper.OnDownTaskListener() {
-            @Override
-            public void onFinish() {
-                setEnabled(true);
-                setText("重发验证码");
-            }
-
-            @Override
-            public void onTick(long second) {
-                setEnabled(false);
-                setText(MessageFormat.format("已发送{0}S", second));
-            }
+        TimerHelper.startDownTask(aLong -> {
+            setEnabled(false);
+            setText(MessageFormat.format("已发送{0}S", aLong));
+            return null;
+        }, () -> {
+            setEnabled(true);
+            setText("重发验证码");
+            return null;
         }, second);
     }
 
