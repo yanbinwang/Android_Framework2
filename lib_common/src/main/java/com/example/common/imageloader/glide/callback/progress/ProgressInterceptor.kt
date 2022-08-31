@@ -11,13 +11,13 @@ import java.util.concurrent.ConcurrentHashMap
 class ProgressInterceptor : Interceptor {
 
     companion object {
-        val listenerMap by lazy { ConcurrentHashMap<String, ProgressListener>() }
+        val listenerMap by lazy { ConcurrentHashMap<String, ((progress: Int) -> Unit)>() }
 
         /**
          * 注册下载监听
          */
-        fun addListener(url: String, listener: ProgressListener) {
-            listenerMap[url] = listener
+        fun addListener(url: String, onProgress: ((progress: Int) -> Unit)) {
+            listenerMap[url] = onProgress
         }
 
         /**

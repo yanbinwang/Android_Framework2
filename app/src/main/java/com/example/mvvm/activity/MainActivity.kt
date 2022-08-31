@@ -7,9 +7,7 @@ import com.example.common.bus.LiveDataBus
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
-import com.example.common.utils.file.DownloadFactory
-import com.example.common.utils.helper.permission.OnPermissionCallBack
-import com.example.common.utils.helper.PermissionHelper
+import com.example.common.utils.helper.PermissionFactory
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.yanzhenjie.permission.Permission
@@ -87,7 +85,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
             R.id.btn_login -> navigation(ARouterPath.LoginActivity)
             R.id.btn_list -> navigation(ARouterPath.TestListActivity)
             R.id.btn_download -> {
-                PermissionHelper.with(context.get())
+                PermissionFactory.with(context.get())
                     .setPermissionCallBack({
                             if (it) {
                                 val filePath = Constants.APPLICATION_FILE_PATH + "/安装包"

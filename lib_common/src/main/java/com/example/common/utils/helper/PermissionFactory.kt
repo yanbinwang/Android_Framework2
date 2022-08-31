@@ -21,7 +21,7 @@ import java.text.MessageFormat
  * 获取选项工具类
  * 根据项目需求哪取需要的权限组
  */
-class PermissionHelper(context: Context) {
+class PermissionFactory(context: Context) {
     private var denied = true
     private val weakContext = WeakReference(context)
     private val permissionGroup = arrayOf(
@@ -32,11 +32,11 @@ class PermissionHelper(context: Context) {
     private var onPermission: ((isGranted: Boolean) -> Unit)? = null
 
     //检测权限(默认拿全部，可单独拿某个权限组)
-    fun requestPermissions(): PermissionHelper {
+    fun requestPermissions(): PermissionFactory {
         return requestPermissions(*permissionGroup)
     }
 
-    fun requestPermissions(vararg groups: Array<String>): PermissionHelper {
+    fun requestPermissions(vararg groups: Array<String>): PermissionFactory {
         //6.0+系统做特殊处理
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission()) {
@@ -101,7 +101,7 @@ class PermissionHelper(context: Context) {
         return this
     }
 
-    fun setPermissionCallBack(onPermission: ((isGranted: Boolean) -> Unit), denied: Boolean = true): PermissionHelper {
+    fun setPermissionCallBack(onPermission: ((isGranted: Boolean) -> Unit), denied: Boolean = true): PermissionFactory {
         this.onPermission = onPermission
         this.denied = denied
         return this
@@ -144,8 +144,8 @@ class PermissionHelper(context: Context) {
 
     companion object {
         @JvmStatic
-        fun with(context: Context?): PermissionHelper {
-            return PermissionHelper(context!!)
+        fun with(context: Context?): PermissionFactory {
+            return PermissionFactory(context!!)
         }
     }
 
