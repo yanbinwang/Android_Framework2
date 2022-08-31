@@ -16,7 +16,7 @@
 
     </com.example.common.widget.xrecyclerview.refresh.XRefreshLayout>
 
-    <com.example.common.widget.empty.EmptyLayout
+    <com.example.common.widget.EmptyLayout
         android:id="@+id/el"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

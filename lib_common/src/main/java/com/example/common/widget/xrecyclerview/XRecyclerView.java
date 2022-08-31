@@ -17,7 +17,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.example.base.utils.function.FunctionsContextKt;
 import com.example.base.widget.SimpleViewGroup;
 import com.example.common.R;
-import com.example.common.widget.empty.EmptyLayout;
+import com.example.common.widget.EmptyLayout;
 import com.example.common.widget.xrecyclerview.callback.OnEmptyClickListener;
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration;
 import com.example.common.widget.xrecyclerview.refresh.SwipeRefreshLayout;
@@ -74,10 +74,11 @@ public class XRecyclerView extends SimpleViewGroup {
                     recycler.setEmptyView(empty.setListView(recycler));
                     recycler.setHasFixedSize(true);
                     recycler.setItemAnimator(new DefaultItemAnimator());
-                    empty.setOnEmptyRefreshListener(() -> {
+                    empty.setOnRefreshClick(() -> {
                         if (null != onEmptyClickListener) {
                             onEmptyClickListener.onClick();
                         }
+                        return null;
                     });
                 }
                 break;
@@ -102,10 +103,11 @@ public class XRecyclerView extends SimpleViewGroup {
                 recycler.setHasFixedSize(true);
                 recycler.setItemAnimator(new DefaultItemAnimator());
                 if (0 != emptyType) {
-                    empty.setOnEmptyRefreshListener(() -> {
+                    empty.setOnRefreshClick(() -> {
                         if (null != onEmptyClickListener) {
                             onEmptyClickListener.onClick();
                         }
+                        return null;
                     });
                 } else {
                     empty.setVisibility(View.GONE);

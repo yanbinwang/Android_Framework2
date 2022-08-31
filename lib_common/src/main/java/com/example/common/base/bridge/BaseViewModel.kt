@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.ViewModel
 import com.example.common.base.page.getEmptyView
-import com.example.common.widget.empty.EmptyLayout
+import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference

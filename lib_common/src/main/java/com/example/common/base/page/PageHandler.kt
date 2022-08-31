@@ -7,7 +7,7 @@ import com.example.base.utils.ToastUtil.mackToastSHORT
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
-import com.example.common.widget.empty.EmptyLayout
+import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 
 /**

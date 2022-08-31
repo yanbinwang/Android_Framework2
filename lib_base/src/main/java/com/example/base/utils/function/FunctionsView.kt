@@ -19,6 +19,10 @@ import android.view.ViewTreeObserver
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.base.utils.DecimalInputFilter
@@ -381,3 +385,18 @@ abstract class OnMultiClickListener(private val time: Long = 500, var click: (v:
         }
     }
 }
+
+/**
+ * 获取resources中的color
+ */
+fun ViewGroup.color(@ColorRes res: Int) = ContextCompat.getColor(context, res)
+
+/**
+ * 获取resources中的drawable
+ */
+fun ViewGroup.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(context, res)
+
+/**
+ * 获取Resources中的String
+ * */
+fun ViewGroup.string(@StringRes res: Int) = context.string(res)
