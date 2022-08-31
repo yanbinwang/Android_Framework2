@@ -1,4 +1,4 @@
-package com.example.common.utils.helper
+package com.example.common.utils
 
 import android.content.Context
 import android.content.Intent

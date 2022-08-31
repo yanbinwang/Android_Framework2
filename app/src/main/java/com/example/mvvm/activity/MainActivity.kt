@@ -7,7 +7,7 @@ import com.example.common.bus.LiveDataBus
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
-import com.example.common.utils.helper.PermissionFactory
+import com.example.common.utils.PermissionFactory
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.yanzhenjie.permission.Permission
