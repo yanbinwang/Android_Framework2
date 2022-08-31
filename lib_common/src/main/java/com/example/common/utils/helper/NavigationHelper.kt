@@ -17,7 +17,7 @@ object NavigationHelper {
     private var flipper: PagerFlipper? = null
     private var navigationView: BottomNavigationView? = null
     private var ids = ArrayList<Int>()
-    var onNavigationItemSelectedListener: OnNavigationItemSelectedListener? = null
+    var onItemSelected: ((index: Int) -> Unit)? = null
 
     /**
      * 初始化
@@ -37,7 +37,7 @@ object NavigationHelper {
             //返回第一个符合条件的元素的下标，没有就返回-1
             val index = ids.indexOfFirst{ it == item.itemId }
             flipper.setCurrentItem(index)
-            onNavigationItemSelectedListener?.onItemSelected(index)
+            onItemSelected?.invoke(index)
             if (anim) getItemView(index).getChildAt(0).apply {
                 startAnimation(context.getInAnimation())
                 vibrate(50)
@@ -91,12 +91,6 @@ object NavigationHelper {
 //        val badge = LayoutInflater.from (navigationView?.context).inflate(R.layout.menu_badge, menuView, false)
 //        //添加到Tab上
 //        tab.addView(badge)
-    }
-
-    interface OnNavigationItemSelectedListener {
-
-        fun onItemSelected(index: Int = 0)
-
     }
 
 }

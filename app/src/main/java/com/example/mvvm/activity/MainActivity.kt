@@ -7,8 +7,7 @@ import com.example.common.bus.LiveDataBus
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
-import com.example.common.utils.file.download.DownloadFactory
-import com.example.common.utils.file.download.OnDownloadListener
+import com.example.common.utils.file.DownloadFactory
 import com.example.common.utils.helper.permission.OnPermissionCallBack
 import com.example.common.utils.helper.permission.PermissionHelper
 import com.example.mvvm.R

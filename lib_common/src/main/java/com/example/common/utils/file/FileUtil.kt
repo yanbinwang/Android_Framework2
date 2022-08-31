@@ -189,11 +189,10 @@ object FileUtil : CoroutineScope {
     @JvmStatic
     fun zipFolderJob(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
         return launch {
-            onStart
-            val fileDir = File(folderPath)
-            val zipFile = File(zipPath)
             try {
-                withContext(IO) { if (fileDir.exists()) zipFolder(fileDir.absolutePath, zipFile.absolutePath) }
+                onStart
+                val fileDir = File(folderPath)
+                withContext(IO) { if (fileDir.exists()) zipFolder(fileDir.absolutePath, File(zipPath).absolutePath) }
             } catch (e: Exception) {
                 log("打包图片生成压缩文件异常: $e")
             } finally {

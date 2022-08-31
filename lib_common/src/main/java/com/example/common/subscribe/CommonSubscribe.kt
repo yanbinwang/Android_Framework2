@@ -1,7 +1,6 @@
 package com.example.common.subscribe
 
 import com.example.common.http.factory.RetrofitFactory
-import com.example.common.http.repository.invoke
 
 /**
  * author:wyb
@@ -13,11 +12,11 @@ object CommonSubscribe : CommonApi {
 
     override suspend fun getDownloadApi(downloadUrl: String) = downloadApi.getDownloadApi(downloadUrl)
 
-    override suspend fun getSendVerificationApi(agent: String, map: Map<String, String>) = commonApi.getSendVerificationApi(agent, map).invoke()
+    override suspend fun getSendVerificationApi(agent: String, map: Map<String, String>) = commonApi.getSendVerificationApi(agent, map)
 
-    override suspend fun getVerificationApi(map: Map<String, String>) = commonApi.getVerificationApi(map).invoke()
+    override suspend fun getVerificationApi(map: Map<String, String>) = commonApi.getVerificationApi(map)
 
-    override suspend fun getTestApi() = commonApi.getTestApi().invoke()
+    override suspend fun getTestApi() = commonApi.getTestApi()
 
 //    //上传图片接口
 //    fun getUploadFile(header: Int, partList: MutableList<MultipartBody.Part>, resourceSubscriber: ResourceSubscriber<BaseBean<UploadBean>>): Disposable {
