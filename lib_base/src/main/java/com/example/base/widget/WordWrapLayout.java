@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.base.utils.DisplayUtilKt;
+import com.example.base.function.FunctionsContextKt;
 
 /**
  * author: wyb
@@ -34,9 +34,9 @@ public class WordWrapLayout extends ViewGroup {
 
     //默认的一些属性设置
     private void initialize() {
-        PADDING_HORIZONTAL = DisplayUtilKt.dip2px(getContext(), 10);
-        PADDING_VERTICAL = DisplayUtilKt.dip2px(getContext(), 5);
-        MARGIN_CHILD = DisplayUtilKt.dip2px(getContext(), 10);
+        PADDING_HORIZONTAL = FunctionsContextKt.dip2px(getContext(), 10);
+        PADDING_VERTICAL = FunctionsContextKt.dip2px(getContext(), 5);
+        MARGIN_CHILD = FunctionsContextKt.dip2px(getContext(), 10);
     }
 
     //返回控件的位置

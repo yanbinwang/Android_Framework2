@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.example.base.utils.DisplayUtilKt;
+import com.example.base.function.FunctionsContextKt;
 import com.example.base.widget.SimpleViewGroup;
 import com.example.common.R;
 import com.example.common.widget.empty.EmptyLayout;
@@ -261,7 +261,7 @@ public class XRecyclerView extends SimpleViewGroup {
      */
     public void addItemDecoration(int horizontalSpace, int verticalSpace, boolean hasHorizontalEdge, boolean hasVerticalEdge) {
         SparseArray<SCommonItemDecoration.ItemDecorationProps> propMap = new SparseArray<>();
-        SCommonItemDecoration.ItemDecorationProps prop1 = new SCommonItemDecoration.ItemDecorationProps(DisplayUtilKt.dip2px(getContext(), horizontalSpace), DisplayUtilKt.dip2px(getContext(), verticalSpace), hasHorizontalEdge, hasVerticalEdge);
+        SCommonItemDecoration.ItemDecorationProps prop1 = new SCommonItemDecoration.ItemDecorationProps(FunctionsContextKt.dip2px(getContext(), horizontalSpace), FunctionsContextKt.dip2px(getContext(), verticalSpace), hasHorizontalEdge, hasVerticalEdge);
         propMap.put(0, prop1);
         recycler.addItemDecoration(new SCommonItemDecoration(propMap));
     }

@@ -2,7 +2,7 @@ package com.example.common.utils.helper
 
 import android.view.View
 import android.view.ViewGroup
-import com.example.base.utils.getInAnimation
+import com.example.base.function.inAnimation
 import com.example.common.utils.vibrate
 import com.example.common.widget.PagerFlipper
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
@@ -39,7 +39,7 @@ object NavigationHelper {
             flipper.setCurrentItem(index)
             onItemSelected?.invoke(index)
             if (anim) getItemView(index).getChildAt(0).apply {
-                startAnimation(context.getInAnimation())
+                startAnimation(context.inAnimation())
                 vibrate(50)
             }
             true

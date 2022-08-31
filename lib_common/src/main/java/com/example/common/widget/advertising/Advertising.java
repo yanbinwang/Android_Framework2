@@ -17,7 +17,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.base.utils.DisplayUtilKt;
+import com.example.base.function.FunctionsContextKt;
 import com.example.base.utils.WeakHandler;
 import com.example.base.widget.SimpleViewGroup;
 import com.example.common.R;
@@ -162,7 +162,7 @@ public class Advertising extends SimpleViewGroup implements AdvertisingImpl, Def
             //如果true代表垂直，否则水平
             boolean direction = ovalLayout.getLayoutParams().height > ovalLayout.getLayoutParams().width;
             //左右边距
-            int ovalMargin = DisplayUtilKt.dip2px(getContext(), margin);
+            int ovalMargin = FunctionsContextKt.dip2px(getContext(), margin);
             //添加圆点
             for (int i = 0; i < list.size(); i++) {
                 ImageView imageView = new ImageView(getContext());
@@ -244,7 +244,7 @@ public class Advertising extends SimpleViewGroup implements AdvertisingImpl, Def
 
     @Override
     public void setPageTransformer(int marginPx) {
-        banner.setPageTransformer(new MarginPageTransformer(DisplayUtilKt.dip2px(getContext(), marginPx)));
+        banner.setPageTransformer(new MarginPageTransformer(FunctionsContextKt.dip2px(getContext(), marginPx)));
     }
 
     @Override

@@ -22,7 +22,7 @@ class DownloadFactory private constructor()  {
     companion object {
         @JvmStatic
         val instance: DownloadFactory by lazy {
-            DownloadFactory()//切主线程，发起协程请求
+            DownloadFactory()
         }
     }
 
