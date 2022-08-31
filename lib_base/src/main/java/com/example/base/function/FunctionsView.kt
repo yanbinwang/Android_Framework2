@@ -19,8 +19,11 @@ import android.view.ViewTreeObserver
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.example.base.utils.DecimalInputFilter
-import java.lang.StringBuilder
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 
 //------------------------------------view扩展函数类------------------------------------
 /**
@@ -135,6 +138,76 @@ fun EditText.inhibitInputSpace() {
             return if (result == " ") "" else null
         }
     })
+}
+
+/**
+ * ViewPager2隐藏fadingEdge
+ */
+fun ViewPager2?.hideFadingEdge() {
+    if (this == null) return
+    try {
+        getRecyclerView()?.overScrollMode =
+            RecyclerView.OVER_SCROLL_NEVER
+    } catch (ignore: Exception) {
+    }
+}
+
+/**
+ * ViewPager2获取内部RecyclerView
+ */
+fun ViewPager2?.getRecyclerView(): RecyclerView? {
+    if (this == null) return null
+    return try {
+        (getChildAt(0) as RecyclerView)
+    } catch (ignore: Exception) {
+        null
+    }
+}
+
+/**
+ * ViewPager2向后翻页
+ */
+fun ViewPager2?.nextPage(isSmooth: Boolean = true) {
+    if (this == null) return
+    adapter?.let { adapter ->
+        if (adapter.itemCount == 0) return
+        setCurrentItem(currentItem + 1, isSmooth)
+    }
+}
+
+/**
+ * ViewPager2向前翻页
+ */
+fun ViewPager2?.prevPage(isSmooth: Boolean = true) {
+    if (this == null) return
+    adapter?.let { adapter ->
+        if (adapter.itemCount == 0) return
+        setCurrentItem(currentItem - 1, isSmooth)
+    }
+}
+
+/**
+ * 绑定vp和tab
+ * */
+fun ViewPager2?.bind(tab: TabLayout?, listener: TabLayoutMediator.TabConfigurationStrategy = TabLayoutMediator.TabConfigurationStrategy { _, _ -> }): TabLayoutMediator? {
+    return TabLayoutMediator(tab ?: return null, this ?: return null) { _, _ -> }.apply { attach() }
+}
+
+/**
+ * 绑定vp和tab
+ * */
+fun TabLayout?.bind(vp: ViewPager2?, listener: TabLayoutMediator.TabConfigurationStrategy = TabLayoutMediator.TabConfigurationStrategy { _, _ -> }): TabLayoutMediator? {
+    return TabLayoutMediator(this ?: return null, vp ?: return null, listener).apply { attach() }
+}
+
+/**
+ * 设置TabLayout的边距
+ * */
+fun TabLayout?.paddingEdge(start: Int? = null, top: Int? = null, end: Int? = null, bottom: Int? = null) {
+    this ?: return
+    val view = (getChildAt(0) as? ViewGroup)?.getChildAt(0) as? ViewGroup
+    view?.padding(start, top, end, bottom)
+    view?.clipToPadding = false
 }
 
 /**
@@ -300,6 +373,7 @@ abstract class OnMultiClickListener(private val time: Long = 500, var click: (v:
 
     @Deprecated("请勿覆写此方法")
     override fun onClick(v: View) {
+        val currentTimeNano = System.nanoTime() / 1000000L
         // 超过点击间隔后再将lastClickTime重置为当前点击时间
         if (currentTimeNano - lastClickTime >= time) {
             lastClickTime = currentTimeNano
