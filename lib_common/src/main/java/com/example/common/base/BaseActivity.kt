@@ -210,11 +210,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun showDialog(flag: Boolean) {
-        loadingDialog.show(flag)
+        loadingDialog.shown(flag)
     }
 
     override fun hideDialog() {
-        loadingDialog.hide()
+        loadingDialog.hidden()
     }
 
     override fun navigation(path: String, params: PageParams?): Activity {

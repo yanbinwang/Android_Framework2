@@ -36,7 +36,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected val activity by lazy { WeakReference<Activity>(getActivity()) } //基类activity弱引用
     protected val context by lazy { WeakReference<Context>(getContext()) }//基类context弱引用
     private var baseViewModel: BaseViewModel? = null//数据模型
-    private val loadingDialog by lazy { LoadingDialog(getContext()) }//刷新球控件，相当于加载动画
+    private val loadingDialog by lazy { LoadingDialog(getContext()!!) }//刷新球控件，相当于加载动画
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
@@ -199,11 +199,11 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     }
 
     override fun showDialog(flag: Boolean) {
-        loadingDialog.show(flag)
+        loadingDialog.shown(flag)
     }
 
     override fun hideDialog() {
-        loadingDialog.hide()
+        loadingDialog.hidden()
     }
 
     override fun navigation(path: String, params: PageParams?): Activity {
