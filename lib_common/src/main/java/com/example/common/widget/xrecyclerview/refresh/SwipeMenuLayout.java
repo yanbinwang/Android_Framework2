@@ -1,4 +1,4 @@
-package com.example.common.widget.xrecyclerview;
+package com.example.common.widget.xrecyclerview.refresh;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

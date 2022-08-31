@@ -17,7 +17,7 @@ class DetectionRecyclerView @JvmOverloads constructor(context: Context, attrs: A
      * 设置数据为空时候显示的view
      * @param emptyView
      */
-    fun setEmptyView(emptyView: View) {
+    fun setEmptyView(emptyView: View?) {
         this.emptyView = emptyView
         checkIfEmpty()
     }
