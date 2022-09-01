@@ -1,10 +1,8 @@
 package com.example.base.utils.function
 
 import android.os.Bundle
-import android.os.Parcelable
-import android.util.SparseArray
-import java.io.Serializable
-import java.math.BigDecimal
+import org.json.JSONArray
+import org.json.JSONObject
 import kotlin.collections.set
 import kotlin.random.Random
 
@@ -123,64 +121,6 @@ fun Bundle?.toMap(): Map<String, String> {
 }
 
 /**
- * 将Collection转换为Bundle
- */
-@Suppress("UNCHECKED_CAST")
-fun <T> Collection<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
-    val bundle = Bundle()
-    forEach {
-        val pair = it.func()
-        val key = pair.first
-        val value = pair.second ?: return@forEach
-        when (value) {
-            is Char -> bundle.putChar(key, value)
-            is Byte -> bundle.putByte(key, value)
-            is Bundle -> bundle.putBundle(key, value)
-            is ByteArray -> bundle.putByteArray(key, value)
-            is CharArray -> bundle.putCharArray(key, value)
-            is CharSequence -> bundle.putCharSequence(key, value)
-            is Float -> bundle.putFloat(key, value)
-            is FloatArray -> bundle.putFloatArray(key, value)
-            is Int -> bundle.putInt(key, value)
-            is Parcelable -> bundle.putParcelable(key, value)
-            is Serializable -> bundle.putSerializable(key, value)
-            is Short -> bundle.putShort(key, value)
-            is ShortArray -> bundle.putShortArray(key, value)
-            is String -> bundle.putString(key, value)
-            is Boolean -> bundle.putBoolean(key, value)
-            is BooleanArray -> bundle.putBooleanArray(key, value)
-            is Double -> bundle.putDouble(key, value)
-            is DoubleArray -> bundle.putDoubleArray(key, value)
-            is IntArray -> bundle.putIntArray(key, value)
-            is Long -> bundle.putLong(key, value)
-            is LongArray -> bundle.putLongArray(key, value)
-            is SparseArray<*> -> if (value.size() != 0) when (value[0]) {
-                is Parcelable -> bundle.putSparseParcelableArray(key, value as SparseArray<out Parcelable>)
-            }
-            is Array<*> -> if (value.isNotEmpty()) when (value[0]) {
-                is CharSequence -> bundle.putCharSequenceArray(key, value as Array<out CharSequence>)
-                is Parcelable -> bundle.putParcelableArray(key, value as Array<out Parcelable>)
-                is String -> bundle.putStringArray(key, value as Array<out String>)
-            }
-            is List<*> -> if (value.isNotEmpty()) when (value[0]) {
-                is CharSequence -> bundle.putCharSequenceArrayList(key, value as ArrayList<CharSequence>)
-                is Int -> bundle.putIntegerArrayList(key, value as ArrayList<Int>)
-                is Parcelable -> bundle.putParcelableArrayList(key, value as ArrayList<out Parcelable>)
-                is String -> bundle.putStringArrayList(key, value as ArrayList<String>)
-            }
-        }
-    }
-    return bundle
-}
-
-/**
- * 将Array转换为Bundle
- */
-fun <T> Array<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
-    return this.toList().toBundle(func)
-}
-
-/**
  * 寻找符合条件的第一个item的index
  */
 fun <T> Collection<T>.findIndexOf(func: ((T) -> Boolean)): Int {
@@ -276,13 +216,23 @@ val CharArray?.randomItem: Char?
         else -> this[Random.nextInt(0, size)]
     }
 
-/**
- * 生成SparseArray
- */
-fun <T> sparseArrayOf(vararg pairs: Pair<Int, T>): SparseArray<T> {
-    val result = SparseArray<T>(pairs.size)
+fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
+    val json = JSONObject()
     pairs.forEach {
-        result.setValueAt(it.first, it.second)
+        if (it?.first != null && it.second != null) {
+            it.second.apply {
+                when (this) {
+                    is List<*> -> json.put(it.first, toJsonArray())
+                    is Array<*> -> json.put(it.first, toList().toJsonArray())
+                    else -> json.put(it.first, this)
+                }
+            }
+        }
     }
-    return result
+    return json
+}
+
+fun List<*>?.toJsonArray(): JSONArray? {
+    this ?: return null
+    return JSONArray(this)
 }
