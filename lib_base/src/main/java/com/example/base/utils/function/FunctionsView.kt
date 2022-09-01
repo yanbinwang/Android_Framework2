@@ -144,6 +144,15 @@ fun EditText.inhibitInputSpace() {
 }
 
 /**
+ * 简易Edittext监听
+ */
+fun TextWatcher.textWatcher(vararg views: EditText) {
+    for (view in views) {
+        view.addTextChangedListener(this)
+    }
+}
+
+/**
  * ViewPager2隐藏fadingEdge
  */
 fun ViewPager2?.hideFadingEdge() {
@@ -354,12 +363,12 @@ fun View?.parameters(): String? {
 }
 
 /**
- * 防止重复点击
- * 默认500ms
+ * 清空点击
  */
-fun View?.click(time: Long = 500L, click: (v: View) -> Unit) {
+fun View?.clearClick() {
     if (this == null) return
-    this.setOnClickListener(object : OnMultiClickListener(time, click) {})
+    this.setOnClickListener(null)
+    this.isClickable = false
 }
 
 /**
@@ -374,12 +383,12 @@ fun View?.click(click: ((v: View) -> Unit)?) {
 }
 
 /**
- * 清空点击
+ * 防止重复点击
+ * 默认500ms
  */
-fun View?.clearClick() {
+fun View?.click(time: Long = 500L, click: (v: View) -> Unit) {
     if (this == null) return
-    this.setOnClickListener(null)
-    this.isClickable = false
+    this.setOnClickListener(object : OnMultiClickListener(time, click) {})
 }
 
 /**
@@ -397,7 +406,22 @@ fun View.OnClickListener.clicks(vararg v: View, time: Long = 500L) {
 }
 
 /**
- * description 防止多次点击, 至少要500毫秒的间隔
+ * 获取resources中的color
+ */
+fun ViewGroup.color(@ColorRes res: Int) = ContextCompat.getColor(context, res)
+
+/**
+ * 获取resources中的drawable
+ */
+fun ViewGroup.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(context, res)
+
+/**
+ * 获取Resources中的String
+ * */
+fun ViewGroup.string(@StringRes res: Int) = context.string(res)
+
+/**
+ * 防止多次点击, 至少要500毫秒的间隔
  */
 abstract class OnMultiClickListener(private val time: Long = 500, var click: (v: View) -> Unit = {}) : View.OnClickListener {
     private var lastClickTime: Long = 0
@@ -418,13 +442,8 @@ abstract class OnMultiClickListener(private val time: Long = 500, var click: (v:
 }
 
 /**
- * object :SimpleTextWatcher(){
- * }.textWatcher()
+ * 简易的输入监听
  */
-fun TextWatcher.textWatcher(vararg v: EditText) {
-    v.forEach { it.addTextChangedListener(this) }
-}
-
 abstract class SimpleTextWatcher : TextWatcher {
     override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
     }
@@ -435,18 +454,3 @@ abstract class SimpleTextWatcher : TextWatcher {
     override fun afterTextChanged(s: Editable) {
     }
 }
-
-/**
- * 获取resources中的color
- */
-fun ViewGroup.color(@ColorRes res: Int) = ContextCompat.getColor(context, res)
-
-/**
- * 获取resources中的drawable
- */
-fun ViewGroup.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(context, res)
-
-/**
- * 获取Resources中的String
- * */
-fun ViewGroup.string(@StringRes res: Int) = context.string(res)

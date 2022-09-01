@@ -21,8 +21,6 @@ fun String.add(v: String) = BigDecimal(this).add(BigDecimal(v)).toDouble()
 
 fun String.add(v: Double) = BigDecimal(this).add(BigDecimal(v)).toDouble()
 
-fun Double.add(v: String) = BigDecimal(this).add(BigDecimal(v)).toDouble()
-
 fun Double.add(v: Double) = BigDecimal(this).add(BigDecimal(v)).toDouble()
 
 /**
@@ -42,8 +40,6 @@ fun Double.subtract(v: Double) = BigDecimal(this).subtract(BigDecimal(v)).toDoub
 fun String.multiply(v: String) = BigDecimal(this).multiply(BigDecimal(v)).toDouble()
 
 fun String.multiply(v: Double) = BigDecimal(this).multiply(BigDecimal(v)).toDouble()
-
-fun Double.multiply(v: String) = BigDecimal(this).multiply(BigDecimal(v)).toDouble()
 
 fun Double.multiply(v: Double) = BigDecimal(this).multiply(BigDecimal(v)).toDouble()
 
@@ -98,7 +94,6 @@ fun Number?.toSafeInt(default: Int = 0): Int {
     this ?: return default
     return this.toInt()
 }
-
 
 /**
  * 防空转换Long
