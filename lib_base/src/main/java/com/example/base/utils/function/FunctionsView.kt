@@ -398,10 +398,7 @@ fun View?.clearClick() {
  * description 防止多次点击, 至少要500毫秒的间隔
  * author Hyatt
  */
-abstract class OnMultiClickListener(
-    private val time: Long = 500,
-    var click: (v: View) -> Unit = {}
-) : View.OnClickListener {
+abstract class OnMultiClickListener(private val time: Long = 500, var click: (v: View) -> Unit = {}) : View.OnClickListener {
     private var lastClickTime: Long = 0
 
     open fun onMultiClick(v: View) {

@@ -110,6 +110,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun onClick(onClickListener: View.OnClickListener?, vararg views: View?) {
         for (view in views) {
             view?.setOnClickListener(onClickListener)
+//            view?.click {}
         }
     }
 

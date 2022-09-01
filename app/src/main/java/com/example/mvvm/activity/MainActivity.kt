@@ -2,6 +2,7 @@ package com.example.mvvm.activity
 
 import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.example.base.utils.function.clicks
 import com.example.common.base.BaseTitleActivity
 import com.example.common.bus.LiveDataBus
 import com.example.common.constant.ARouterPath
@@ -51,8 +52,8 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
 
     override fun initEvent() {
         super.initEvent()
-        onClick(this, binding.btnLogin, binding.btnList, binding.btnDownload)
-
+//        onClick(this, binding.btnLogin, binding.btnList, binding.btnDownload)
+        clicks(binding.btnLogin, binding.btnList, binding.btnDownload)
         //注册订阅
 //        LiveDataBus.instance.toFlowable().observe(this) {
 //            when (it.getAction()) {
