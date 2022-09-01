@@ -199,21 +199,21 @@ fun ViewPager2?.prevPage(isSmooth: Boolean = true) {
 
 /**
  * 绑定vp和tab
- * */
+ */
 fun ViewPager2?.bind(tab: TabLayout?, listener: TabLayoutMediator.TabConfigurationStrategy = TabLayoutMediator.TabConfigurationStrategy { _, _ -> }): TabLayoutMediator? {
     return TabLayoutMediator(tab ?: return null, this ?: return null) { _, _ -> }.apply { attach() }
 }
 
 /**
  * 绑定vp和tab
- * */
+ */
 fun TabLayout?.bind(vp: ViewPager2?, listener: TabLayoutMediator.TabConfigurationStrategy = TabLayoutMediator.TabConfigurationStrategy { _, _ -> }): TabLayoutMediator? {
     return TabLayoutMediator(this ?: return null, vp ?: return null, listener).apply { attach() }
 }
 
 /**
  * 设置TabLayout的边距
- * */
+ */
 fun TabLayout?.paddingEdge(start: Int? = null, top: Int? = null, end: Int? = null, bottom: Int? = null) {
     this ?: return
     val view = (getChildAt(0) as? ViewGroup)?.getChildAt(0) as? ViewGroup
@@ -289,7 +289,7 @@ fun View?.paddingAll(padding: Int) {
  * 调整view大小
  * @param width  可使用MATCH_PARENT和WRAP_CONTENT，传null或者不传为不变
  * @param height 可使用MATCH_PARENT和WRAP_CONTENT，传null或者不传为不变
- * */
+ */
 fun View?.size(width: Int? = null, height: Int? = null) {
     if (this == null) return
     val lp = layoutParams
@@ -304,7 +304,7 @@ fun View?.size(width: Int? = null, height: Int? = null) {
 
 /**
  * 在layout完毕之后进行计算处理
- * */
+ */
 fun <T : View> T?.doOnceAfterLayout(listener: (T) -> Unit) {
     if (this == null) return
     viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -417,7 +417,7 @@ fun ViewGroup.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(contex
 
 /**
  * 获取Resources中的String
- * */
+ */
 fun ViewGroup.string(@StringRes res: Int) = context.string(res)
 
 /**

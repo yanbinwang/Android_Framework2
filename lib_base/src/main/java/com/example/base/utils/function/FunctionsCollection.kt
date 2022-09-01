@@ -13,7 +13,7 @@ import kotlin.random.Random
  * 将旧list转换为新list
  * val newList = list.toNewList{ChartHelperBean(it.symbol,it.buyType)}
  * sortedBy排序
- * */
+ */
 fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
@@ -27,14 +27,14 @@ fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
 
 /**
  * 将旧list转换为新list
- * */
+ */
 fun <T, K> ArrayList<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     return (this as? List<T>).toNewList(func)
 }
 
 /**
  * 将旧list转换为新list
- * */
+ */
 fun <T, K> Array<T>?.toNewList(func: (T) -> K): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
@@ -46,7 +46,7 @@ fun <T, K> Array<T>?.toNewList(func: (T) -> K): ArrayList<K> {
 
 /**
  * 将旧list转换为新list
- * */
+ */
 fun <K> IntArray?.toNewList(func: (Int) -> K): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
@@ -58,7 +58,7 @@ fun <K> IntArray?.toNewList(func: (Int) -> K): ArrayList<K> {
 
 /**
  * 将Collection转换为Map
- * */
+ */
 fun <T, K> Collection<T>?.toMap(func: (T) -> Pair<String, K>?): HashMap<String, K> {
     if (this == null) return hashMapOf()
     val map = hashMapOf<String, K>()
@@ -72,7 +72,7 @@ fun <T, K> Collection<T>?.toMap(func: (T) -> Pair<String, K>?): HashMap<String, 
 
 /**
  * 将Map转换为ArrayList
- * */
+ */
 fun <T, K, P> Map<P, T>?.toList(func: (Map.Entry<P, T>) -> K?): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
@@ -86,7 +86,7 @@ fun <T, K, P> Map<P, T>?.toList(func: (Map.Entry<P, T>) -> K?): ArrayList<K> {
 
 /**
  * 将Map转换为Array
- * */
+ */
 inline fun <T, reified K, P> Map<P, T>?.toArray(func: (Map.Entry<P, T>) -> K?): Array<K> {
     if (this == null) return arrayOf()
     val list = arrayListOf<K>()
@@ -100,14 +100,14 @@ inline fun <T, reified K, P> Map<P, T>?.toArray(func: (Map.Entry<P, T>) -> K?): 
 
 /**
  * 将List转换为ArrayList
- * */
+ */
 fun <T> List<T>.toArrayList(): ArrayList<T> {
     return ArrayList(this)
 }
 
 /**
  * 将Bundle转换为Map
- * */
+ */
 fun Bundle?.toMap(): Map<String, String> {
     this ?: return mapOf()
     val map = HashMap<String, String>()
@@ -124,7 +124,7 @@ fun Bundle?.toMap(): Map<String, String> {
 
 /**
  * 将Collection转换为Bundle
- * */
+ */
 @Suppress("UNCHECKED_CAST")
 fun <T> Collection<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
     val bundle = Bundle()
@@ -175,14 +175,14 @@ fun <T> Collection<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
 
 /**
  * 将Array转换为Bundle
- * */
+ */
 fun <T> Array<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
     return this.toList().toBundle(func)
 }
 
 /**
  * 寻找符合条件的第一个item的index
- * */
+ */
 fun <T> Collection<T>.findIndexOf(func: ((T) -> Boolean)): Int {
     forEachIndexed { index, t ->
         if (func(t)) return index
@@ -192,7 +192,7 @@ fun <T> Collection<T>.findIndexOf(func: ((T) -> Boolean)): Int {
 
 /**
  * 移除符合条件的item
- * */
+ */
 fun <T> MutableList<T>.findAndRemove(func: ((T) -> Boolean)) {
     try {
         remove(find { func(it) })
@@ -202,7 +202,7 @@ fun <T> MutableList<T>.findAndRemove(func: ((T) -> Boolean)) {
 
 /**
  * 寻找符合条件的第一个item的index和item自身的pair
- * */
+ */
 fun <T> Collection<T>.findIndexed(func: ((T) -> Boolean)): Pair<Int, T>? {
     forEachIndexed { index, t ->
         if (func(t)) return index to t
@@ -212,7 +212,7 @@ fun <T> Collection<T>.findIndexed(func: ((T) -> Boolean)): Pair<Int, T>? {
 
 /**
  * 返回第一个item，无法返回则返回null
- * */
+ */
 fun <T> Collection<T>?.safeFirst(): T? {
     if (isNullOrEmpty()) return null
     return try {
@@ -224,7 +224,7 @@ fun <T> Collection<T>?.safeFirst(): T? {
 
 /**
  * 返回最后一个item，无法返回则返回null
- * */
+ */
 fun <T> List<T>?.safeLast(): T? {
     if (isNullOrEmpty()) return null
     return try {
@@ -236,7 +236,7 @@ fun <T> List<T>?.safeLast(): T? {
 
 /**
  * 返回最后一个item，无法返回则返回null
- * */
+ */
 fun <T> MutableList<T>?.setSafeLast(t: T) {
     if (isNullOrEmpty()) return
     try {
@@ -250,7 +250,7 @@ fun <T> MutableList<T>?.setSafeLast(t: T) {
  * 返回List中随机一个值
  * private val amount = listOf(5, 5, 10, 10, 10, 15, 25, 30, 50, 50, 100, 500)
  * amount.randomItem
- * */
+ */
 val <T> List<T>?.randomItem: T?
     get() = if (isNullOrEmpty())
         null
@@ -259,7 +259,7 @@ val <T> List<T>?.randomItem: T?
 
 /**
  * 返回Array中随机一个值
- * */
+ */
 val <T> Array<T>?.randomItem: T?
     get() = if (isNullOrEmpty())
         null
@@ -268,7 +268,7 @@ val <T> Array<T>?.randomItem: T?
 
 /**
  * 返回CharArray中随机一个值
- * */
+ */
 val CharArray?.randomItem: Char?
     get() = when {
         this == null -> null
@@ -278,7 +278,7 @@ val CharArray?.randomItem: Char?
 
 /**
  * 生成SparseArray
- * */
+ */
 fun <T> sparseArrayOf(vararg pairs: Pair<Int, T>): SparseArray<T> {
     val result = SparseArray<T>(pairs.size)
     pairs.forEach {

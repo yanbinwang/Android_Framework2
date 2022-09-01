@@ -49,7 +49,7 @@ fun Context.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(this, re
 
 /**
  * 获取Resources中的String
- * */
+ */
 fun Context.string(@StringRes res: Int): String {
     return try {
         resources.getString(res)
@@ -77,7 +77,7 @@ fun Context.getManifestString(name: String) = packageManager.getApplicationInfo(
 
 /**
  * 生成View
- * */
+ */
 fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null): View = LayoutInflater.from(this).inflate(res, root)
 
 fun Context.setPrimaryClip(label: String, text: String) = (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(label, text))
