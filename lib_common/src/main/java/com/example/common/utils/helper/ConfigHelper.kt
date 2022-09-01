@@ -7,13 +7,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Parcelable
-import android.view.LayoutInflater
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.model.GuidePage
 import com.example.common.constant.Constants
 import com.tencent.mmkv.MMKV
 import java.lang.ref.WeakReference
-import java.lang.reflect.ParameterizedType
 
 /**
  *  Created by wangyanbin
@@ -75,38 +73,28 @@ object ConfigHelper {
     }
 
     /**
-     * 获取当前标签的行为-是否第一次启动，是否进入引导页等，针对用户的行为在用户类中单独管理
-     */
-    @JvmStatic
-    fun decodeBool(label: String) = mmkv.decodeBool(label, false)
-
-    @JvmStatic
-    fun decodeString(label: String) = mmkv.decodeString(label, "")
-
-    @JvmStatic
-    fun <T : Parcelable> decodeParcelable(label: String): T? {
-        val type = javaClass.genericSuperclass
-        if (type is ParameterizedType) {
-            try {
-                val vbClass = type.actualTypeArguments[0] as? Class<T>
-                return mmkv.decodeParcelable(label, vbClass)
-            } catch (ignored: Exception) {
-            }
-        }
-        return null
-    }
-
-    /**
      * 存储当前标签行为
      */
     @JvmStatic
-    fun encode(label: String, value: Boolean) = mmkv.encode(label, value)
+    fun encode(key: String, value: Boolean) = mmkv.encode(key, value)
 
     @JvmStatic
-    fun encode(label: String, value: String) = mmkv.encode(label, value)
+    fun encode(key: String, value: String) = mmkv.encode(key, value)
 
     @JvmStatic
-    fun <T : Parcelable> encode(label: String, value: T) = mmkv.encode(label, value)
+    fun <T : Parcelable> encode(key: String, value: T) = mmkv.encode(key, value)
+
+    /**
+     * 获取当前标签的行为-是否第一次启动，是否进入引导页等，针对用户的行为在用户类中单独管理
+     */
+    @JvmStatic
+    fun decodeBool(key: String) = mmkv.decodeBool(key, false)
+
+    @JvmStatic
+    fun decodeString(key: String) = mmkv.decodeString(key, "")
+
+    @JvmStatic
+    fun <T : Parcelable> decodeParcelable(label: String, tClass: Class<T>) = mmkv.decodeParcelable(label, tClass)
 
 //    /**
 //     * 获取当前设备ip地址
@@ -205,8 +193,7 @@ object ConfigHelper {
     private fun getAppVersionCode(): Long {
         var appVersionCode: Long = 0
         try {
-            val packageInfo =
-                context.applicationContext.packageManager.getPackageInfo(context.packageName!!, 0)
+            val packageInfo = context.applicationContext.packageManager.getPackageInfo(context.packageName!!, 0)
             appVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 packageInfo.longVersionCode
             } else {
@@ -223,8 +210,7 @@ object ConfigHelper {
     private fun getAppVersionName(): String {
         var appVersionName = ""
         try {
-            val packageInfo =
-                context.applicationContext.packageManager.getPackageInfo(context.packageName!!, 0)
+            val packageInfo = context.applicationContext.packageManager.getPackageInfo(context.packageName!!, 0)
             appVersionName = packageInfo.versionName
         } catch (ignored: PackageManager.NameNotFoundException) {
         }
