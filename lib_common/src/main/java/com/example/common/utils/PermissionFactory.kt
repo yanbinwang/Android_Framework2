@@ -83,11 +83,11 @@ class PermissionFactory(context: Context) {
                             }
                             //如果用户拒绝了开启权限
                             if (AndPermission.hasAlwaysDeniedPermission(weakContext.get()!!, it)) {
-                                AndDialog.with(weakContext.get()).setOnDialogListener({
-                                    weakContext.get()?.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + weakContext.get()?.packageName)))
-                                })
-                                .setParams(weakContext.get()?.getString(R.string.label_window_title), MessageFormat.format(weakContext.get()
-                                                ?.getString(R.string.label_window_permission), result), weakContext.get()?.getString(R.string.label_window_sure), weakContext.get()?.getString(R.string.label_window_cancel)).show()
+                                AndDialog.with(weakContext.get())
+                                    .setOnDialogListener({ weakContext.get()?.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + weakContext.get()?.packageName))) })
+                                    .setParams(weakContext.get()?.getString(R.string.label_window_title), MessageFormat.format(weakContext.get()
+                                                ?.getString(R.string.label_window_permission), result), weakContext.get()?.getString(R.string.label_window_sure), weakContext.get()?.getString(R.string.label_window_cancel))
+                                    .show()
                             }
                         }
                     }.start()
@@ -124,8 +124,7 @@ class PermissionFactory(context: Context) {
      */
     fun checkSelfLocation(): Boolean {
         var granted = true
-        if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(weakContext.get()!!, Permission.ACCESS_FINE_LOCATION)
-        ) granted = false
+        if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(weakContext.get()!!, Permission.ACCESS_FINE_LOCATION)) granted = false
         if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(weakContext.get()!!, Permission.ACCESS_COARSE_LOCATION)) granted = false
         return granted
     }
