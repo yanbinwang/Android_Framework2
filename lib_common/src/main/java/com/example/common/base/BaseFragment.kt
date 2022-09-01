@@ -14,7 +14,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.base.utils.LogUtil
 import com.example.base.utils.ToastUtil
-import com.example.base.utils.function.OnMultiClickListener
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
@@ -96,7 +95,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         }
     }
 
-    override fun onClick(onClickListener: OnMultiClickListener?, vararg views: View?) {
+    override fun onClick(onClickListener: View.OnClickListener?, vararg views: View?) {
         for (view in views) {
             view?.setOnClickListener(onClickListener)
         }

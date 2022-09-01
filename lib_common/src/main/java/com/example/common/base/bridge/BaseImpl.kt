@@ -1,7 +1,6 @@
 package com.example.common.base.bridge
 
 import android.view.View
-import com.example.base.utils.function.OnMultiClickListener
 import com.example.common.base.proxy.SimpleTextWatcher
 
 /**
@@ -38,7 +37,7 @@ interface BaseImpl {
     /**
      * 批量注入点击事件
      */
-    fun onClick(onClickListener: OnMultiClickListener?, vararg views: View?)
+    fun onClick(onClickListener: View.OnClickListener?, vararg views: View?)
 
     /**
      * 控件不可操作
