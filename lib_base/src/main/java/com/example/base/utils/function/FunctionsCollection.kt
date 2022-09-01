@@ -9,54 +9,10 @@ import kotlin.collections.set
 import kotlin.random.Random
 
 //------------------------------------全局用自定义方法 List部分------------------------------------
-val <T : Number> T?.orZero: T
-    get() {
-        return this ?: (when (this) {
-            is Short? -> 0.toShort()
-            is Byte? -> 0.toByte()
-            is Int? -> 0
-            is Long? -> 0L
-            is Double? -> 0.0
-            is Float? -> 0f
-            is BigDecimal? -> BigDecimal.ZERO
-            else -> 0
-        } as T)
-    }
-
-/**
- * 安全的List.size
- * */
-val <T : Collection<*>> T?.safeSize: Int
-    get() {
-        return this?.size.orZero
-    }
-
-fun <T : List<K>, K> T?.safeGet(position: Int): K? {
-    return when {
-        isNullOrEmpty() -> null
-        position in indices -> get(position)
-        else -> null
-    }
-}
-
-fun <T : MutableList<K>, K> T?.safeSet(position: Int, value: K) {
-    this ?: return
-    if (position in indices) try {
-        set(position, value)
-    } catch (e: Exception) {
-    }
-}
-
-/**
- * 安全的Map.size
- * */
-val <T : Map<*, *>> T?.safeSize: Int
-    get() {
-        return this?.size.orZero
-    }
-
 /**
  * 将旧list转换为新list
+ * val newList = list.toNewList{ChartHelperBean(it.symbol,it.buyType)}
+ * sortedBy排序
  * */
 fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     if (this == null) return arrayListOf()
@@ -292,6 +248,8 @@ fun <T> MutableList<T>?.setSafeLast(t: T) {
 
 /**
  * 返回List中随机一个值
+ * private val amount = listOf(5, 5, 10, 10, 10, 15, 25, 30, 50, 50, 100, 500)
+ * amount.randomItem
  * */
 val <T> List<T>?.randomItem: T?
     get() = if (isNullOrEmpty())

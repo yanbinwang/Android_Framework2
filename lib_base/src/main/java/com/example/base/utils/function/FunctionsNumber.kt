@@ -74,3 +74,124 @@ fun Double.completion() = DecimalFormat("0.00").format(this) ?: ""
  * 当小数位超过两位时，只显示两位，但只有一位或没有，则不需要补0
  */
 fun Double.rounding() = DecimalFormat("0.##").format(this) ?: ""
+
+/**
+ * 防空转换Int
+ */
+fun CharSequence?.toSafeInt(default: Int = 0): Int {
+    if (this.isNullOrEmpty()) return default
+    return try {
+        if (this is String) {
+            this.toInt()
+        } else {
+            this.toString().toInt()
+        }
+    } catch (e: Exception) {
+        default
+    }
+}
+
+/**
+ * 防空转换Int
+ */
+fun Number?.toSafeInt(default: Int = 0): Int {
+    this ?: return default
+    return this.toInt()
+}
+
+
+/**
+ * 防空转换Long
+ */
+fun CharSequence?.toSafeLong(default: Long = 0L): Long {
+    if (this.isNullOrEmpty()) return default
+    return try {
+        if (this is String) {
+            this.toLong()
+        } else {
+            this.toString().toLong()
+        }
+    } catch (e: Exception) {
+        default
+    }
+}
+
+/**
+ * 防空转换Long
+ */
+fun Number?.toSafeLong(default: Long = 0L): Long {
+    this ?: return default
+    return this.toLong()
+}
+
+/**
+ * 防空转换Double
+ */
+fun CharSequence?.toSafeDouble(default: Double = 0.0): Double {
+    if (this.isNullOrEmpty() || this == ".") return default
+    return try {
+        if (this is String) {
+            this.toDouble()
+        } else {
+            this.toString().toDouble()
+        }
+    } catch (e: Exception) {
+        default
+    }
+}
+
+/**
+ * 防空转换Double
+ */
+fun Number?.toSafeDouble(default: Double = 0.0): Double {
+    this ?: return default
+    return this.toDouble()
+}
+
+/**
+ * 防空转换Float
+ */
+fun CharSequence?.toSafeFloat(default: Float = 0f): Float {
+    if (this.isNullOrEmpty() || this == ".") return default
+    return try {
+        if (this is String) {
+            this.toFloat()
+        } else {
+            this.toString().toFloat()
+        }
+    } catch (e: Exception) {
+        default
+    }
+}
+
+/**
+ * 防空转换Float
+ */
+fun Number?.toSafeFloat(default: Float = 0f): Float {
+    this ?: return default
+    return this.toFloat()
+}
+
+/**
+ * 防空转换BigDecimal
+ */
+fun CharSequence?.toSafeBigDecimal(default: Double = 0.0): BigDecimal {
+    if (this.isNullOrEmpty() || this == ".") return BigDecimal.valueOf(default)
+    return try {
+        if (this is String) {
+            this.toBigDecimal()
+        } else {
+            this.toString().toBigDecimal()
+        }
+    } catch (e: Exception) {
+        BigDecimal.valueOf(default)
+    }
+}
+
+/**
+ * 防空转换BigDecimal
+ */
+fun Number?.toSafeBigDecimal(default: BigDecimal = BigDecimal.ZERO): BigDecimal {
+    this ?: return default
+    return this.toDouble().toBigDecimal()
+}

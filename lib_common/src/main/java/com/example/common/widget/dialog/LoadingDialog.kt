@@ -22,7 +22,7 @@ class LoadingDialog(context: Context) : BaseDialog<ViewDialogLoadingBinding>(con
 
     override fun show() {
         super.show()
-        if (!binding.progress.isSpinning) binding.progress.spin()
+        if (!binding.progress.isSpinning()) binding.progress.spin()
     }
 
     fun shown(flag: Boolean) {

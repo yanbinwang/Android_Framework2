@@ -39,7 +39,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     fun setEmptyView(xRecyclerView: XRecyclerView) {
-        this.softEmpty = SoftReference(xRecyclerView.emptyView)
+        this.softEmpty = SoftReference(xRecyclerView.empty)
         this.softRecycler = SoftReference(xRecyclerView)
     }
 
