@@ -10,14 +10,10 @@ import com.example.base.widget.SimpleViewGroup
 /**
  * 自定义viewpage2,替换首页或一些底部切换页时使用
  */
-class PagerFlipper(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SimpleViewGroup(context, attrs, defStyleAttr) {
+class PagerFlipper @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SimpleViewGroup(context, attrs, defStyleAttr) {
     private var pager: ViewPager2? = null//广告容器
 
     init {
-        initialize()
-    }
-
-    private fun initialize() {
         pager = ViewPager2(context)
         pager?.getChildAt(0)?.overScrollMode = OVER_SCROLL_NEVER //去除水波纹
     }
