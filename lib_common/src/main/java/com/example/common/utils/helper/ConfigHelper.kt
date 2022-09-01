@@ -34,13 +34,7 @@ object ConfigHelper {
         //屏幕比值 (dp)
         Constants.SCREEN_DENSITY = metrics.densityDpi
         //获取手机的导航栏高度
-        Constants.STATUS_BAR_HEIGHT = context.resources.getDimensionPixelSize(
-            context.resources.getIdentifier(
-                "status_bar_height",
-                "dimen",
-                "android"
-            )
-        )
+        Constants.STATUS_BAR_HEIGHT = context.resources.getDimensionPixelSize(context.resources.getIdentifier("status_bar_height", "dimen", "android"))
 //        //获取手机的网络ip
 //        Constants.IP = getIp()
 //        //获取手机的Mac地址
