@@ -13,23 +13,11 @@ import kotlinx.coroutines.withContext
  *  生成图片工具类
  */
 object GenerateHelper {
-//    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
-//    private val executors by lazy { Executors.newSingleThreadExecutor() }
 
     //构建图片
     suspend fun create(view: View, onStart: () -> Unit? = {}, onResult: (bitmap: Bitmap?) -> Unit? = {}, onComplete: () -> Unit? = {}) {
         onStart()
         loadLayout(view)
-//        executors.execute {
-//            try {
-//                val bitmap = loadBitmap(view)
-//                weakHandler.post { onResult(bitmap) }
-//            } catch (e: Exception) {
-//            } finally {
-//                weakHandler.post { onComplete() }
-//            }
-//        }
-//        executors.isShutdown
         try {
             val bitmap = loadBitmap(view)
             withContext(Dispatchers.Main) { onResult(bitmap) }
@@ -46,10 +34,8 @@ object GenerateHelper {
     private fun loadLayout(view: View) {
         //整个View的大小 参数是左上角 和右下角的坐标
         view.layout(0, 0, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT)
-        val measuredWidth: Int =
-            View.MeasureSpec.makeMeasureSpec(Constants.SCREEN_WIDTH, View.MeasureSpec.EXACTLY)
-        val measuredHeight: Int =
-            View.MeasureSpec.makeMeasureSpec(Constants.SCREEN_HEIGHT, View.MeasureSpec.EXACTLY)
+        val measuredWidth = View.MeasureSpec.makeMeasureSpec(Constants.SCREEN_WIDTH, View.MeasureSpec.EXACTLY)
+        val measuredHeight = View.MeasureSpec.makeMeasureSpec(Constants.SCREEN_HEIGHT, View.MeasureSpec.EXACTLY)
         view.measure(measuredWidth, measuredHeight)
         view.layout(0, 0, view.measuredWidth, view.measuredHeight)
     }

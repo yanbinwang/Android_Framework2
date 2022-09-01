@@ -6,14 +6,14 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
-import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModelProvider
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.base.utils.LogUtil
 import com.example.base.utils.ToastUtil
+import com.example.base.utils.function.OnMultiClickListener
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
@@ -100,40 +100,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         return false
     }
 
-    override fun openDecor(view: View?) {
-        closeDecor(view)
-        Timer().schedule(object : TimerTask() {
-            override fun run() {
-                (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
-            }
-        }, 200)
-        val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.showSoftInput(view, 2)
-    }
-
-    override fun closeDecor(view: View?) {
-        val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
-    }
-
-    override fun getFocus(view: View?) {
-        view?.isFocusable = true //设置输入框可聚集
-        view?.isFocusableInTouchMode = true //设置触摸聚焦
-        view?.requestFocus() //请求焦点
-        view?.findFocus() //获取焦点
-    }
-
-    override fun getParameters(view: View?): String? {
-        return when (view) {
-            is EditText -> view.text.toString().trim { it <= ' ' }
-            is TextView -> view.text.toString().trim { it <= ' ' }
-            is CheckBox -> view.text.toString().trim { it <= ' ' }
-            is RadioButton -> view.text.toString().trim { it <= ' ' }
-            is Button -> view.text.toString().trim { it <= ' ' }
-            else -> null
-        }
-    }
-
     override fun onTextChanged(simpleTextWatcher: SimpleTextWatcher?, vararg views: View?) {
         for (view in views) {
             if (view is EditText) {
@@ -142,7 +108,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
     }
 
-    override fun onClick(onClickListener: View.OnClickListener?, vararg views: View?) {
+    override fun onClick(onClickListener: OnMultiClickListener?, vararg views: View?) {
         for (view in views) {
             view?.setOnClickListener(onClickListener)
         }

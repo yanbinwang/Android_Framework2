@@ -16,18 +16,19 @@ import android.text.style.ClickableSpan
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
+import android.view.inputmethod.InputMethodManager
+import android.widget.*
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.base.utils.DecimalInputFilter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import java.util.*
 
 //------------------------------------view扩展函数类------------------------------------
 /**
@@ -110,10 +111,10 @@ fun EditText.inputTransformation(): Boolean {
     var display = false
     try {
         if (transformationMethod == HideReturnsTransformationMethod.getInstance()) {
-            transformationMethod =  PasswordTransformationMethod.getInstance()
+            transformationMethod = PasswordTransformationMethod.getInstance()
             display = false
         } else {
-            transformationMethod =  HideReturnsTransformationMethod.getInstance()
+            transformationMethod = HideReturnsTransformationMethod.getInstance()
             display = true
         }
         setSelection(text.length)
@@ -150,8 +151,7 @@ fun EditText.inhibitInputSpace() {
 fun ViewPager2?.hideFadingEdge() {
     if (this == null) return
     try {
-        getRecyclerView()?.overScrollMode =
-            RecyclerView.OVER_SCROLL_NEVER
+        getRecyclerView()?.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
     } catch (ignore: Exception) {
     }
 }
@@ -267,11 +267,7 @@ fun View?.margin(start: Int? = null, top: Int? = null, end: Int? = null, bottom:
  */
 fun View?.padding(start: Int? = null, top: Int? = null, end: Int? = null, bottom: Int? = null) {
     if (this == null) return
-    setPaddingRelative(
-        start ?: paddingStart,
-        top ?: paddingTop,
-        end ?: paddingEnd,
-        bottom ?: paddingBottom)
+    setPaddingRelative(start ?: paddingStart, top ?: paddingTop, end ?: paddingEnd, bottom ?: paddingBottom)
 }
 
 /**
@@ -312,6 +308,41 @@ fun <T : View> T?.doOnceAfterLayout(listener: (T) -> Unit) {
     })
 }
 
+fun View?.openDecor() {
+    closeDecor()
+    val view = this
+    Timer().schedule(object : TimerTask() {
+        override fun run() {
+            (view?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
+        }
+    }, 200)
+    val inputMethodManager = this?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputMethodManager.showSoftInput(this, 2)
+}
+
+fun View?.closeDecor() {
+    val inputMethodManager = this?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+}
+
+fun View?.focus() {
+    this?.isFocusable = true //设置输入框可聚集
+    this?.isFocusableInTouchMode = true //设置触摸聚焦
+    this?.requestFocus() //请求焦点
+    this?.findFocus() //获取焦点
+}
+
+fun View?.parameters(): String? {
+    return when (this) {
+        is EditText -> text.toString().trim { it <= ' ' }
+        is TextView -> text.toString().trim { it <= ' ' }
+        is CheckBox -> text.toString().trim { it <= ' ' }
+        is RadioButton -> text.toString().trim { it <= ' ' }
+        is Button -> text.toString().trim { it <= ' ' }
+        else -> null
+    }
+}
+
 /**
  * 防止重复点击
  * 默认500ms
@@ -343,7 +374,6 @@ fun View.OnClickListener.clicks(vararg v: View, time: Long = 500L) {
     }
 }
 
-
 fun ((View) -> Unit).clicks(vararg v: View, time: Long = 500L) {
     val listener = object : OnMultiClickListener(time) {
         override fun onMultiClick(v: View) {
@@ -368,7 +398,10 @@ fun View?.clearClick() {
  * description 防止多次点击, 至少要500毫秒的间隔
  * author Hyatt
  */
-abstract class OnMultiClickListener(private val time: Long = 500, var click: (v: View) -> Unit = {}) : View.OnClickListener {
+abstract class OnMultiClickListener(
+    private val time: Long = 500,
+    var click: (v: View) -> Unit = {}
+) : View.OnClickListener {
     private var lastClickTime: Long = 0
 
     open fun onMultiClick(v: View) {

@@ -1,6 +1,7 @@
 package com.example.common.base.bridge
 
 import android.view.View
+import com.example.base.utils.function.OnMultiClickListener
 import com.example.common.base.proxy.SimpleTextWatcher
 
 /**
@@ -30,26 +31,6 @@ interface BaseImpl {
     fun isEmpty(vararg objs: Any?): Boolean
 
     /**
-     * 虚拟键盘开启
-     */
-    fun openDecor(view: View?)
-
-    /**
-     * 虚拟键盘关闭
-     */
-    fun closeDecor(view: View?)
-
-    /**
-     * 让一个view获得焦点
-     */
-    fun getFocus(view: View?)
-
-    /**
-     * 获取控件的基础值
-     */
-    fun getParameters(view: View?): String?
-
-    /**
      * 批量注入输入监听
      */
     fun onTextChanged(simpleTextWatcher: SimpleTextWatcher?, vararg views: View?)
@@ -57,7 +38,7 @@ interface BaseImpl {
     /**
      * 批量注入点击事件
      */
-    fun onClick(onClickListener: View.OnClickListener?, vararg views: View?)
+    fun onClick(onClickListener: OnMultiClickListener?, vararg views: View?)
 
     /**
      * 控件不可操作
