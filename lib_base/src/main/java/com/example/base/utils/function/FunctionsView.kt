@@ -6,9 +6,7 @@ import android.graphics.Paint
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.text.InputFilter
-import android.text.SpannableString
-import android.text.Spanned
+import android.text.*
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.LinkMovementMethod
 import android.text.method.PasswordTransformationMethod
@@ -308,6 +306,9 @@ fun <T : View> T?.doOnceAfterLayout(listener: (T) -> Unit) {
     })
 }
 
+/**
+ * 开启软键盘
+ */
 fun View?.openDecor() {
     closeDecor()
     val view = this
@@ -320,11 +321,17 @@ fun View?.openDecor() {
     inputMethodManager.showSoftInput(this, 2)
 }
 
+/**
+ * 关闭软键盘
+ */
 fun View?.closeDecor() {
     val inputMethodManager = this?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
     inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
 }
 
+/**
+ * 控件获取焦点
+ */
 fun View?.focus() {
     this?.isFocusable = true //设置输入框可聚集
     this?.isFocusableInTouchMode = true //设置触摸聚焦
@@ -332,6 +339,9 @@ fun View?.focus() {
     this?.findFocus() //获取焦点
 }
 
+/**
+ * 控件获取默认值
+ */
 fun View?.parameters(): String? {
     return when (this) {
         is EditText -> text.toString().trim { it <= ' ' }
@@ -363,6 +373,18 @@ fun View?.click(click: ((v: View) -> Unit)?) {
     }
 }
 
+/**
+ * 清空点击
+ */
+fun View?.clearClick() {
+    if (this == null) return
+    this.setOnClickListener(null)
+    this.isClickable = false
+}
+
+/**
+ * 半秒不可重复点击
+ */
 fun View.OnClickListener.clicks(vararg v: View, time: Long = 500L) {
     val listener = object : OnMultiClickListener(time) {
         override fun onMultiClick(v: View) {
@@ -374,29 +396,8 @@ fun View.OnClickListener.clicks(vararg v: View, time: Long = 500L) {
     }
 }
 
-fun ((View) -> Unit).clicks(vararg v: View, time: Long = 500L) {
-    val listener = object : OnMultiClickListener(time) {
-        override fun onMultiClick(v: View) {
-            this@clicks(v)
-        }
-    }
-    v.forEach {
-        it.setOnClickListener(listener)
-    }
-}
-
-/**
- * 清空点击
- */
-fun View?.clearClick() {
-    if (this == null) return
-    this.setOnClickListener(null)
-    this.isClickable = false
-}
-
 /**
  * description 防止多次点击, 至少要500毫秒的间隔
- * author Hyatt
  */
 abstract class OnMultiClickListener(private val time: Long = 500, var click: (v: View) -> Unit = {}) : View.OnClickListener {
     private var lastClickTime: Long = 0
@@ -413,6 +414,25 @@ abstract class OnMultiClickListener(private val time: Long = 500, var click: (v:
             lastClickTime = currentTimeNano
             onMultiClick(v)
         }
+    }
+}
+
+/**
+ * object :SimpleTextWatcher(){
+ * }.textWatcher()
+ */
+fun TextWatcher.textWatcher(vararg v: EditText) {
+    v.forEach { it.addTextChangedListener(this) }
+}
+
+abstract class SimpleTextWatcher : TextWatcher {
+    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+    }
+
+    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+    }
+
+    override fun afterTextChanged(s: Editable) {
     }
 }
 

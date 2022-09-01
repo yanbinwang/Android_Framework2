@@ -2,7 +2,9 @@ package com.example.mvvm.activity
 
 import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.example.base.utils.function.SimpleTextWatcher
 import com.example.base.utils.function.clicks
+import com.example.base.utils.function.textWatcher
 import com.example.common.base.BaseTitleActivity
 import com.example.common.bus.LiveDataBus
 import com.example.common.constant.ARouterPath
@@ -61,6 +63,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
 ////                Constants.APP_USER_LOGIN_OUT -> binding.btnLogin.text = it.getStringExtra()
 //            }
 //        }
+
         LiveDataBus.instance.observe(this) {
             when (it.getAction()) {
                 Constants.APP_USER_LOGIN -> titleBuilder.setTitle(it.getString()).getDefault()

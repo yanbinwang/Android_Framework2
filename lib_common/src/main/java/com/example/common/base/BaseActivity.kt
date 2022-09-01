@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModelProvider
@@ -17,7 +16,6 @@ import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.page.PageParams
-import com.example.common.base.proxy.SimpleTextWatcher
 import com.example.common.bus.LiveDataBus
 import com.example.common.constant.Constants
 import com.example.common.constant.Extras
@@ -97,21 +95,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             }
         }
         return false
-    }
-
-    override fun onTextChanged(simpleTextWatcher: SimpleTextWatcher?, vararg views: View?) {
-        for (view in views) {
-            if (view is EditText) {
-                view.addTextChangedListener(simpleTextWatcher)
-            }
-        }
-    }
-
-    override fun onClick(onClickListener: View.OnClickListener?, vararg views: View?) {
-        for (view in views) {
-            view?.setOnClickListener(onClickListener)
-//            view?.click {}
-        }
     }
 
     override fun ENABLED(second: Long, vararg views: View?) {

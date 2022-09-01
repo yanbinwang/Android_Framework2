@@ -7,7 +7,6 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -18,7 +17,6 @@ import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.page.PageParams
-import com.example.common.base.proxy.SimpleTextWatcher
 import com.example.common.constant.Extras
 import com.example.common.widget.dialog.LoadingDialog
 import java.io.Serializable
@@ -85,20 +83,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
             }
         }
         return false
-    }
-
-    override fun onTextChanged(simpleTextWatcher: SimpleTextWatcher?, vararg views: View?) {
-        for (view in views) {
-            if (view is EditText) {
-                view.addTextChangedListener(simpleTextWatcher)
-            }
-        }
-    }
-
-    override fun onClick(onClickListener: View.OnClickListener?, vararg views: View?) {
-        for (view in views) {
-            view?.setOnClickListener(onClickListener)
-        }
     }
 
     override fun ENABLED(second: Long, vararg views: View?) {
