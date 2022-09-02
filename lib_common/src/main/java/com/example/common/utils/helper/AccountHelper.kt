@@ -14,9 +14,9 @@ import com.tencent.mmkv.MMKV
  * 该工具类对key值和用户信息的一些字做了规整和管控，全局直接调用即可
  */
 object AccountHelper {
-    private val mmkv by lazy {
-        MMKV.defaultMMKV()
-    }
+//    private val mmkv by lazy {
+//        MMKV.defaultMMKV()
+//    }
 
     //修改是否登陆
     @JvmStatic
@@ -46,7 +46,8 @@ object AccountHelper {
     @JvmStatic
     fun setUserBean(bean: UserModel?) {
         if (null != bean) {
-            mmkv.encode(Constants.KEY_USER_MODEL, objToJson(bean))
+            ConfigHelper.decodeParcelable(Constants.KEY_USER_MODEL,bean)
+//            mmkv.encode(Constants.KEY_USER_MODEL, objToJson(bean))
         }
     }
 

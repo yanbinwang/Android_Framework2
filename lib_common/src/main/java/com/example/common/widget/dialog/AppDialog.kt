@@ -22,7 +22,7 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context) {
         initialize(true, true)
     }
 
-    fun setParams(title: String? = "", message: String, positiveText: String, negativeText: String? = "", center: Boolean? = true): AppDialog {
+    fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = "", center: Boolean? = true): AppDialog {
         binding.apply {
             //如果没有传入标题字段,则隐藏标题view
             if (TextUtils.isEmpty(title)) tvTip.visibility = View.GONE
