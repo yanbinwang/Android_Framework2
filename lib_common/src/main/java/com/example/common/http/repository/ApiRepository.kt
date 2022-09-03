@@ -72,7 +72,7 @@ fun <T> CoroutineScope.loadHttp(
     start: () -> Unit = {},
     request: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (T?) -> Unit = {},
-    err: (String) -> Unit = {},
+    err: (e: Pair<Int?, Exception?>?) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
@@ -81,10 +81,14 @@ fun <T> CoroutineScope.loadHttp(
             start()
             //请求+响应数据
             val data = request()
-            val body = data.apiCall(isShowToast)
-            if (null != body) resp(body) else err(data.msg ?: "")
+            val body = data.apiCall()
+            if (null != body) resp(body) else {
+                if (isShowToast) data.msg.doResponse()
+                err(Pair(data.code, Exception(data.msg)))
+            }
         } catch (e: Exception) {
-            err(e.message ?: "")  //可根据具体异常显示具体错误提示
+            if (isShowToast) "".doResponse()
+            err(Pair(-1, e))  //可根据具体异常显示具体错误提示
         } finally {
             end()
         }
