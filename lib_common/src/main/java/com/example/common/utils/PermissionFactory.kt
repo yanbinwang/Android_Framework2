@@ -61,33 +61,37 @@ class PermissionFactory(context: Context) {
                                 return@onDenied
                             }
                         }
-                        onPermission?.invoke(false)
-                        if (denied) {
-                            var permissionIndex = 0
-                            for (i in permissionGroup.indices) {
-                                if (listOf(*permissionGroup[i]).contains(it[0])) {
-                                    permissionIndex = i
-                                    break
+                        if(checkSelfPermission()) {
+                            onPermission?.invoke(true)
+                        } else {
+                            onPermission?.invoke(false)
+                            if (denied) {
+                                var permissionIndex = 0
+                                for (i in permissionGroup.indices) {
+                                    if (listOf(*permissionGroup[i]).contains(it[0])) {
+                                        permissionIndex = i
+                                        break
+                                    }
                                 }
-                            }
-                            //提示参数
-                            val result = when (permissionIndex) {
-                                0 -> weakContext.get()
-                                    ?.getString(R.string.label_permissions_location)
-                                1 -> weakContext.get()?.getString(R.string.label_permissions_camera)
-                                2 -> weakContext.get()
-                                    ?.getString(R.string.label_permissions_microphone)
-                                3 -> weakContext.get()
-                                    ?.getString(R.string.label_permissions_storage)
-                                else -> null
-                            }
-                            //如果用户拒绝了开启权限
-                            if (AndPermission.hasAlwaysDeniedPermission(weakContext.get()!!, it)) {
-                                AndDialog.with(weakContext.get())
-                                    .setOnDialogListener({ weakContext.get()?.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + weakContext.get()?.packageName))) })
-                                    .setParams(weakContext.get()?.getString(R.string.label_window_title), MessageFormat.format(weakContext.get()
-                                                ?.getString(R.string.label_window_permission), result), weakContext.get()?.getString(R.string.label_window_sure), weakContext.get()?.getString(R.string.label_window_cancel))
-                                    .show()
+                                //提示参数
+                                val result = when (permissionIndex) {
+                                    0 -> weakContext.get()
+                                        ?.getString(R.string.label_permissions_location)
+                                    1 -> weakContext.get()?.getString(R.string.label_permissions_camera)
+                                    2 -> weakContext.get()
+                                        ?.getString(R.string.label_permissions_microphone)
+                                    3 -> weakContext.get()
+                                        ?.getString(R.string.label_permissions_storage)
+                                    else -> null
+                                }
+                                //如果用户拒绝了开启权限
+                                if (AndPermission.hasAlwaysDeniedPermission(weakContext.get()!!, it)) {
+                                    AndDialog.with(weakContext.get())
+                                        .setOnDialogListener({ weakContext.get()?.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + weakContext.get()?.packageName))) })
+                                        .setParams(weakContext.get()?.getString(R.string.label_window_title), MessageFormat.format(weakContext.get()
+                                            ?.getString(R.string.label_window_permission), result), weakContext.get()?.getString(R.string.label_window_sure), weakContext.get()?.getString(R.string.label_window_cancel))
+                                        .show()
+                                }
                             }
                         }
                     }.start()
