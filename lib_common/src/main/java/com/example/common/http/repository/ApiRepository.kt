@@ -55,7 +55,9 @@ suspend fun <T> T?.call(): T? {
  */
 fun <T> ApiResponse<T>?.apiCall(toast: Boolean = true): T? {
     return if (null != this) {
-        if (200 == code) data else {
+        if (200 == code) {
+            if(null == data) Any() as T else data
+        } else {
             if (408 == code) AccountHelper.signOut()
             if (toast) msg.doResponse()
             null
