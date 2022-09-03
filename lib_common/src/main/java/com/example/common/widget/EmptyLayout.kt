@@ -29,15 +29,24 @@ import com.example.common.utils.NetWorkUtil.isNetworkAvailable
  * 3.加载错误(无网络，服务器错误)-有按钮
  */
 @SuppressLint("InflateParams")
-class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SimpleViewGroup(context, attrs, defStyleAttr) {
+class EmptyLayout @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : SimpleViewGroup(context, attrs, defStyleAttr) {
     private var binding: ViewEmptyBinding? = null
     var onRefreshClick: (() -> Unit)? = null
 
     init {
-        binding = DataBindingUtil.bind(LayoutInflater.from(getContext()).inflate(R.layout.view_empty, null))
+        binding = DataBindingUtil.bind(
+            LayoutInflater.from(getContext()).inflate(R.layout.view_empty, null)
+        )
         binding?.llContainer?.setBackgroundColor(color(R.color.grey_f6f8ff))
         //设置样式
-        binding?.root?.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT) //设置LayoutParams
+        binding?.root?.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ) //设置LayoutParams
         binding?.root?.setBackgroundColor(color(R.color.grey_f6f8ff))
         //设置监听
         binding?.tvRefresh?.setOnClickListener {
@@ -76,36 +85,29 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
 //        binding?.tvRefresh?.visibility = GONE
     }
 
-    fun showEmpty() {
-        showEmpty(-1, null)
-    }
-
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun showEmpty(resId: Int, text: String?) {
+    fun showEmpty(resId: Int = -1, text: String? = null) {
         visibility = VISIBLE
         binding?.ivEmpty?.setImageResource(if (-1 == resId) R.mipmap.img_data_empty else resId)
         binding?.tvEmpty?.text = if (TextUtils.isEmpty(text)) context.getString(R.string.label_data_empty) else text
         binding?.tvRefresh?.visibility = GONE
     }
 
-    fun showError() {
-        showError(-1, null)
-    }
-
     /**
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun showError(resId: Int, text: String?) {
+    fun showError(resId: Int = -1, text: String? = null) {
         visibility = VISIBLE
         if (!isNetworkAvailable()) {
             binding?.ivEmpty?.setImageResource(R.mipmap.img_data_net_error)
             binding?.tvEmpty?.text = context.getString(R.string.label_data_net_error)
         } else {
             binding?.ivEmpty?.setImageResource(if (-1 == resId) R.mipmap.img_data_error else resId)
-            binding?.tvEmpty?.text = if (TextUtils.isEmpty(text)) context.getString(R.string.label_data_error) else text
+            binding?.tvEmpty?.text =
+                if (TextUtils.isEmpty(text)) context.getString(R.string.label_data_error) else text
         }
         binding?.tvRefresh?.visibility = VISIBLE
     }
