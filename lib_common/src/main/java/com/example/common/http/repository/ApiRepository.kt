@@ -64,7 +64,7 @@ fun <T> ApiResponse<T>?.apiCall(): T? {
  * 串行网络请求
  * 如需并行，直接调用async
  */
-fun <T> CoroutineScope.launch(
+fun <T> CoroutineScope.loadHttp(
     start: () -> Unit = {},
     request: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (T?) -> Unit = {},
