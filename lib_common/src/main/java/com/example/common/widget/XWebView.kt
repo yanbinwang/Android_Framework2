@@ -9,7 +9,7 @@ import com.tencent.smtt.sdk.WebView
  * @description
  * @author
  */
-class XWebView(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : WebView(context, attrs, defStyleAttr) {
+class XWebView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : WebView(context, attrs, defStyleAttr) {
 
     init {
         initialize()
