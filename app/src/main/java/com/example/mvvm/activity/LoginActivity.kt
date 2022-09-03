@@ -1,9 +1,11 @@
 package com.example.mvvm.activity
 
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.example.base.utils.function.SimpleTextWatcher
+import com.example.base.utils.function.parameters
+import com.example.base.utils.function.textWatcher
 import com.example.common.base.BaseTitleActivity
 import com.example.common.base.page.PageParams
-import com.example.common.base.proxy.SimpleTextWatcher
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Extras
 import com.example.mvvm.bridge.LoginViewModel
@@ -27,15 +29,13 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
     override fun initEvent() {
         super.initEvent()
         //多个写成全局，单个写成匿名
-        onTextChanged(object : SimpleTextWatcher() {
-
+        object : SimpleTextWatcher() {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 super.onTextChanged(s, start, before, count)
-                log("account:" + getParameters(binding.etAccount) + "\npassword:" + getParameters(binding.etPassword) + "\n判断：" + !isEmpty(getParameters(binding.etAccount), getParameters(binding.etPassword)))
-                binding.btnLogin.isEnabled = !isEmpty(getParameters(binding.etAccount), getParameters(binding.etPassword))
+                log("account:" + binding.etAccount.parameters() + "\npassword:" + binding.etPassword.parameters() + "\n判断：" + !isEmpty(binding.etAccount.parameters(), binding.etPassword.parameters()))
+                binding.btnLogin.isEnabled = !isEmpty(binding.etAccount.parameters(), binding.etPassword.parameters())
             }
-
-        }, binding.etAccount, binding.etPassword)
+        }.textWatcher(binding.etAccount, binding.etPassword)
 
 //        PageHandler.getEmptyView(baseBinding.flBaseContainer).setOnEmptyRefreshListener(object : OnEmptyRefreshListener{
 //            override fun onRefresh() {
@@ -44,7 +44,7 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
 //        })
 
         binding.btnLogin.setOnClickListener {
-            viewModel.login(getParameters(binding.etAccount), getParameters(binding.etPassword))
+            viewModel.login(binding.etAccount.parameters(), binding.etPassword.parameters())
 //            viewModel.getData()
         }
 

@@ -8,8 +8,12 @@ import android.view.ViewGroup
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.ViewModel
 import com.example.common.base.page.getEmptyView
-import com.example.common.widget.empty.EmptyLayout
+import com.example.common.http.repository.ApiResponse
+import com.example.common.http.repository.launch
+import com.example.common.http.repository.loadHttp
+import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
+import kotlinx.coroutines.CoroutineScope
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 
@@ -34,20 +38,65 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.softView = SoftReference(view)
     }
 
+//    fun <T> loadHttp(
+//        request: suspend CoroutineScope.() -> ApiResponse<T>,  // 请求
+//        resp: (T?) -> Unit = {},                            // 相应
+//        err: (String?) -> Unit = {},                   // 错误处理
+//        end: () -> Unit = {},                          // 最后执行方法
+//        isShowToast: Boolean = true,                   // 是否toast
+//        isShowDialog: Boolean = true,                  // 是否显示加载框
+//    ) {
+//        launch {
+//            try {
+//                if (isShowDialog) getView()?.showDialog()
+//                //请求+响应数据
+//                val data = request()
+//                val body = data.apiCall(isShowToast)
+//                if (null != body) resp(body) else err(data.msg)
+//            } catch (e: Exception) {
+//                //可根据具体异常显示具体错误提示异常处理
+//                err(e.message ?: "")
+//            } finally {
+//                end()
+//                if (isShowDialog) getView()?.hideDialog()
+//            }
+//        }
+//    }
+
+    fun <T> loadHttp(
+        request: suspend CoroutineScope.() -> ApiResponse<T>,  // 请求
+        resp: (T?) -> Unit = {},                            // 相应
+        err: (e: Pair<Int?, Exception?>?) -> Unit = {},  // 错误处理
+        end: () -> Unit = {},                          // 最后执行方法
+        isShowToast: Boolean = true,                   // 是否toast
+        isShowDialog: Boolean = true,                  // 是否显示加载框
+        isClose: Boolean = true                       // 请求结束前是否关闭dialog
+    ) {
+        launch {
+            if (isShowDialog) getView()?.showDialog()
+            this.loadHttp(request = { request() }, resp = {
+                resp(it)
+            }, err = {
+                err(it)
+            }, end = {
+                end()
+                if (isShowDialog && isClose) getView()?.hideDialog()
+            }, isShowToast = isShowToast)
+        }
+    }
+
     fun setEmptyView(container: ViewGroup) {
         this.softEmpty = SoftReference(container.getEmptyView())
     }
 
     fun setEmptyView(xRecyclerView: XRecyclerView) {
-        this.softEmpty = SoftReference(xRecyclerView.emptyView)
+        this.softEmpty = SoftReference(xRecyclerView.empty)
         this.softRecycler = SoftReference(xRecyclerView)
     }
 
     fun getEmptyView() = softEmpty?.get()!!
 
     fun getRecycler() = softRecycler?.get()!!
-
-    fun getString(resId: Int) = weakContext?.get()?.getString(resId)!!
 
     fun disposeView() {
         softRecycler?.get()?.finishRefreshing()

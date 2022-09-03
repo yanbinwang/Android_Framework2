@@ -2,6 +2,7 @@ package com.example.common.widget.advertising.callback
 
 import android.widget.LinearLayout
 import androidx.viewpager2.widget.ViewPager2
+import java.util.ArrayList
 
 /**
  *  Created by wangyanbin
@@ -17,7 +18,7 @@ interface AdvertisingImpl {
      * @param margin 左右边距，可为空写0
      * @param local 是否是本地图片资源。默认否
      */
-    fun start(uriList: List<String>, ovalLayout: LinearLayout? = null, focusedId: Int, normalId: Int, margin: Int, local: Boolean)
+    fun start(uriList: ArrayList<String>, ovalLayout: LinearLayout? = null, focusedId: Int, normalId: Int, margin: Int, local: Boolean)
 
     /**
      * 设置自动滚动
@@ -33,10 +34,5 @@ interface AdvertisingImpl {
      * 设置边距
      */
     fun setPageTransformer(marginPx: Int)
-
-    /**
-     * 设置监听
-     */
-    fun setOnAdvertisingClickListener(onAdvertisingClickListener: OnAdvertisingClickListener)
 
 }

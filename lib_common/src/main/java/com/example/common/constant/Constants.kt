@@ -22,12 +22,12 @@ object Constants {
     @JvmField
     var VERSION_NAME: String? = null//版本名
     //------------
-    @JvmField
-    var IP: String? = null//当前手机ip
-    @JvmField
-    var MAC: String? = null//当前手机mac地址
-    @JvmField
-    var DEVICE_ID: String? = null//当前手机设备id
+//    @JvmField
+//    var IP: String? = null//当前手机ip
+//    @JvmField
+//    var MAC: String? = null//当前手机mac地址
+//    @JvmField
+//    var DEVICE_ID: String? = null//当前手机设备id
     @JvmField
     var APPLICATION_FILE_PATH: String? = null//默认文件保存路径，sd卡下的应用名文件夹
     @JvmField
@@ -42,6 +42,7 @@ object Constants {
     const val PUSH_CHANNEL_NAME = "数秦科技" //推送渠道名
 
     //MMKV存储字段
+    const val KEY_NIGHT_MODE = "keyNightMode"
     const val KEY_USER_MODEL = "keyUserModel" //用户类json
 
     //系统广播

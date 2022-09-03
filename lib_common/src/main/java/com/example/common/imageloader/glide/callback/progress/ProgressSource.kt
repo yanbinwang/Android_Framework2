@@ -10,7 +10,7 @@ import okio.Source
  *  Created by wangyanbin
  *  监听加载进度
  */
-class ProgressSource(source: Source, var responseBody: ResponseBody, var listener: ProgressListener?) : ForwardingSource(source) {
+class ProgressSource(source: Source, var responseBody: ResponseBody, var onProgress: ((progress: Int) -> Unit)?) : ForwardingSource(source) {
     private var currentProgress = 0
     private var totalBytesRead: Long = 0
 
@@ -24,8 +24,8 @@ class ProgressSource(source: Source, var responseBody: ResponseBody, var listene
         }
         val progress = (100f * totalBytesRead / fullLength).toInt()
         LogUtil.e("ProgressSource", "download progress is $progress")
-        if (progress != currentProgress) listener?.onProgress(progress)
-        if (totalBytesRead == fullLength) listener = null
+        if (progress != currentProgress) onProgress?.invoke(progress)
+        if (totalBytesRead == fullLength) onProgress = null
         currentProgress = progress
         return bytesRead
     }

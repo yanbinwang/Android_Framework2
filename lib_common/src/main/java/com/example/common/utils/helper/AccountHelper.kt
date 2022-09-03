@@ -46,7 +46,8 @@ object AccountHelper {
     @JvmStatic
     fun setUserBean(bean: UserModel?) {
         if (null != bean) {
-            mmkv.encode(Constants.KEY_USER_MODEL, objToJson(bean))
+            ConfigHelper.decodeParcelable(Constants.KEY_USER_MODEL,bean)
+//            mmkv.encode(Constants.KEY_USER_MODEL, objToJson(bean))
         }
     }
 

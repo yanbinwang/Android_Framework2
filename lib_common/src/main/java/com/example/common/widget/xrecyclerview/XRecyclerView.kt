@@ -1,0 +1,206 @@
+package com.example.common.widget.xrecyclerview
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.util.AttributeSet
+import android.util.SparseArray
+import android.view.LayoutInflater
+import android.view.View
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.chad.library.adapter.base.BaseQuickAdapter
+import com.example.base.utils.function.dip2px
+import com.example.base.widget.SimpleViewGroup
+import com.example.common.R
+import com.example.common.widget.EmptyLayout
+import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
+import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.ItemDecorationProps
+import com.example.common.widget.xrecyclerview.refresh.SwipeRefreshLayout
+import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
+import com.example.common.widget.xrecyclerview.refresh.callback.SwipeRefreshLayoutDirection
+
+/**
+ * author: wyb
+ * date: 2017/11/20.
+ * <p>
+ * 一般自定义view或viewGroup基本上都会去实现onMeasure、onLayout、onDraw方法，还有另外两个方法是onFinishInflate和onSizeChanged。
+ * onFinishInflate方法只有在布局文件中加载view实例会回调，如果直接new一个view的话是不会回调的。
+ */
+@SuppressLint("InflateParams")
+class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SimpleViewGroup(context, attrs, defStyleAttr) {
+    private var refresh: XRefreshLayout? = null//刷新控件 类型1才有
+    private var refreshType = 0//页面类型(0无刷新-1带刷新)
+    private var emptyType = 0//刷新类型（0顶部-1底部-2全部）
+    private var refreshDirection = 0//x是否具有空布局（0无-1有）
+    var empty: EmptyLayout? = null//自定义封装的空布局
+    var recycler: DetectionRecyclerView? = null//数据列表
+    var onClick: (() -> Unit)? = null//空布局点击
+
+    init {
+        val mTypedArray = getContext().obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
+        refreshType = mTypedArray.getInt(R.styleable.XRecyclerView_refresh, 0)
+        refreshDirection = mTypedArray.getInt(R.styleable.XRecyclerView_refreshDirection, 2)
+        emptyType = mTypedArray.getInt(R.styleable.XRecyclerView_empty, 0)
+        mTypedArray.recycle()
+    }
+
+    override fun drawView() {
+        if (onFinish()) initRefreshType(refreshType)
+    }
+
+    private fun initRefreshType(refreshType: Int) {
+        var view: View? = null
+        when (refreshType) {
+            0 -> {
+                view = LayoutInflater.from(context).inflate(R.layout.view_xrecyclerview, null)
+                recycler = view.findViewById(R.id.d_rv)
+                if (0 != emptyType) {
+                    empty = EmptyLayout(context)
+                    recycler?.setEmptyView(empty?.setListView(recycler!!))
+                    recycler?.setHasFixedSize(true)
+                    recycler?.itemAnimator = DefaultItemAnimator()
+                    empty?.onRefreshClick = { onClick?.invoke() }
+                }
+            }
+            1 -> {
+                view = LayoutInflater.from(context).inflate(R.layout.view_xrecyclerview_refresh, null)
+                empty = view.findViewById(R.id.el)
+                refresh = view.findViewById(R.id.x_refresh)
+                recycler = view.findViewById(R.id.d_rv)
+                when (refreshDirection) {
+                    0 -> refresh?.direction = SwipeRefreshLayoutDirection.TOP
+                    1 -> refresh?.direction = SwipeRefreshLayoutDirection.BOTTOM
+                    2 -> refresh?.direction = SwipeRefreshLayoutDirection.BOTH
+                }
+                recycler?.setHasFixedSize(true)
+                recycler?.itemAnimator = DefaultItemAnimator()
+                if (0 != emptyType) {
+                    empty?.onRefreshClick = { onClick?.invoke() }
+                } else {
+                    empty?.visibility = GONE
+                }
+            }
+        }
+        addView(view)
+    }
+
+    /**
+     * 类型1的时候才会显示
+     */
+    fun setEmptyVisibility(visibility: Int) {
+        if (refreshType == 1 && 0 != emptyType) {
+            empty?.visibility = visibility
+        }
+    }
+
+    /**
+     * 设置默认recycler的输出manager
+     * 默认一行一个，线样式可自画可调整
+     */
+    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T) {
+        setAdapter(adapter, 1)
+    }
+
+    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int) {
+        setAdapter(adapter, spanCount, 0, 0, false, false)
+    }
+
+    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int, horizontalSpace: Int) {
+        setAdapter(adapter, spanCount, horizontalSpace, 0, true, false)
+    }
+
+    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int, horizontalSpace: Int, verticalSpace: Int) {
+        setAdapter(adapter, spanCount, horizontalSpace, verticalSpace, true, true)
+    }
+
+    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int, horizontalSpace: Int, verticalSpace: Int, hasHorizontalEdge: Boolean, hasVerticalEdge: Boolean) {
+        recycler?.layoutManager = GridLayoutManager(context, spanCount)
+        recycler?.adapter = adapter
+        addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
+    }
+
+    fun <T : BaseQuickAdapter<*, *>> getAdapter() = recycler?.adapter as T?
+
+    /**
+     * 设置横向左右滑动的adapter
+     */
+    fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) {
+        recycler?.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+        recycler?.adapter = adapter
+    }
+
+    /**
+     * 修改空布局背景颜色
+     */
+    fun setEmptyBackgroundColor(color: Int) = empty?.setBackgroundColor(color)
+
+    /**
+     * 刷新页面刷新
+     */
+    fun setOnRefreshListener(onRefreshListener: SwipeRefreshLayout.OnRefreshListener?) {
+        if (refreshType == 1) refresh?.setOnRefreshListener(onRefreshListener)
+    }
+
+    /**
+     * 设置停止刷新
+     */
+    fun finishRefreshing() {
+        if (refreshType == 1) refresh?.finishRefreshing()
+    }
+
+    /**
+     * 当数据正在加载的时候显示
+     */
+    fun showLoading() {
+        if (0 != emptyType) {
+            setEmptyVisibility(VISIBLE)
+            empty?.showLoading()
+        }
+    }
+
+    /**
+     * 当数据为空时(显示需要显示的图片，以及内容字)
+     */
+    @JvmOverloads
+    fun showEmpty(imgInt: Int = -1, text: String? = null) {
+        if (0 != emptyType) {
+            setEmptyVisibility(VISIBLE)
+            empty?.showEmpty(imgInt, text)
+        }
+    }
+
+    fun showError() {
+        if (0 != emptyType) {
+            setEmptyVisibility(VISIBLE)
+            empty?.showError()
+        }
+    }
+
+    /**
+     * 当数据异常时(显示需要显示的图片，以及内容字)
+     */
+    fun showError(imgInt: Int, text: String?) {
+        if (0 != emptyType) {
+            setEmptyVisibility(VISIBLE)
+            empty?.showError(imgInt, text)
+        }
+    }
+
+    /**
+     * 滚动至指定下标
+     */
+    fun scrollToPosition(position: Int) = recycler?.scrollToPosition(position)
+
+    /**
+     * 添加分隔线
+     */
+    fun addItemDecoration(horizontalSpace: Int, verticalSpace: Int, hasHorizontalEdge: Boolean, hasVerticalEdge: Boolean) {
+        val propMap = SparseArray<ItemDecorationProps>()
+        val prop1 = ItemDecorationProps(context.dip2px(horizontalSpace.toFloat()), context.dip2px(verticalSpace.toFloat()), hasHorizontalEdge, hasVerticalEdge)
+        propMap.put(0, prop1)
+        recycler?.addItemDecoration(SCommonItemDecoration(propMap))
+    }
+
+}

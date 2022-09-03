@@ -21,7 +21,7 @@ import java.lang.ref.WeakReference
 class AlbumHelper(activity: Activity) {
     private val weakActivity = WeakReference(activity)
     private val color = ContextCompat.getColor(weakActivity.get()!!, R.color.grey_333333)
-    private var onAlbumListener: OnAlbumListener? = null //单选回调监听
+    private var onAlbum: ((albumPath: String?) -> Unit)? = null//单选回调监听
 
     /**
      * 跳转至相机-拍照
@@ -30,7 +30,7 @@ class AlbumHelper(activity: Activity) {
         Album.camera(weakActivity.get())
             .image()
             .filePath(filePath)
-            .onResult { if (hasTailor) toTailor(it) else onAlbumListener?.onAlbum(it) }
+            .onResult { if (hasTailor) toTailor(it) else onAlbum?.invoke(it) }
             .start()
         return this
     }
@@ -45,7 +45,7 @@ class AlbumHelper(activity: Activity) {
             .quality(1)//视频质量, [0, 1].
             .limitDuration(duration)//视频的最长持续时间以毫秒为单位
 //                           .limitBytes(Long.MAX_VALUE)//视频的最大大小，以字节为单位
-            .onResult { onAlbumListener?.onAlbum(it) }
+            .onResult { onAlbum?.invoke(it) }
             .start()
         return this
     }
@@ -59,14 +59,16 @@ class AlbumHelper(activity: Activity) {
             //多选模式为：multipleChoice,单选模式为：singleChoice()
             .singleChoice()
             //状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
-            .widget(Widget.newDarkBuilder(weakActivity.get())
-                //标题 ---标题颜色只有黑色白色
-                .title(" ")
-                //状态栏颜色
-                .statusBarColor(color)
-                //Toolbar颜色
-                .toolBarColor(color)
-                .build())
+            .widget(
+                Widget.newDarkBuilder(weakActivity.get())
+                    //标题 ---标题颜色只有黑色白色
+                    .title(" ")
+                    //状态栏颜色
+                    .statusBarColor(color)
+                    //Toolbar颜色
+                    .toolBarColor(color)
+                    .build()
+            )
             //是否具备相机
             .camera(hasCamera)
             //页面列表的列数
@@ -80,7 +82,7 @@ class AlbumHelper(activity: Activity) {
                     ToastUtil.mackToastSHORT(weakActivity.get()!!.getString(R.string.toast_album_choice), weakActivity.get()!!.applicationContext)
                     return@onResult
                 }
-                if (hasTailor) toTailor(it[0].path) else onAlbumListener?.onAlbum(it[0].path)
+                if (hasTailor) toTailor(it[0].path) else onAlbum?.invoke(it[0].path)
             }.start()
         return this
     }
@@ -121,13 +123,14 @@ class AlbumHelper(activity: Activity) {
                     .scale(true)
                     //缩放控制按钮上面的标题
                     .scaleTitle(true)
-                    .build())
+                    .build()
+            )
             //创建控制面板配置
             .requestCode(RequestCode.PHOTO_REQUEST).start()
     }
 
-    fun setAlbumListener(onAlbumListener: OnAlbumListener): AlbumHelper {
-        this.onAlbumListener = onAlbumListener
+    fun setAlbumListener(onAlbum: ((albumPath: String?) -> Unit)): AlbumHelper {
+        this.onAlbum = onAlbum
         return this
     }
 

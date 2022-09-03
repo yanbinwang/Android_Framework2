@@ -16,11 +16,7 @@ import com.example.base.utils.DateUtil
 import com.example.base.utils.LogUtil
 import com.example.base.utils.ToastUtil
 import com.example.common.constant.Constants
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.*
 import java.lang.ref.SoftReference
@@ -28,16 +24,15 @@ import java.text.DecimalFormat
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import kotlin.coroutines.CoroutineContext
 
 /**
  * Created by WangYanBin on 2020/7/1.
  * 文件管理工具类
  */
 @SuppressLint("QueryPermissionsNeeded")
-object FileUtil : CoroutineScope {
-    override val coroutineContext: CoroutineContext
-        get() = (Main)
+object FileUtil {
+//    override val coroutineContext: CoroutineContext
+//        get() = (Main)
     private const val TAG = "FileUtil"
 
     /**
@@ -187,18 +182,15 @@ object FileUtil : CoroutineScope {
      * @param zipPath 压缩完成的Zip路径（包含压缩文件名）-"${Constants.SDCARD_PATH}/10086.zip"
      */
     @JvmStatic
-    fun zipFolderJob(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
-        return launch {
-            onStart
+    suspend fun zipFolderJob(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}) {
+        try {
+            onStart.invoke()
             val fileDir = File(folderPath)
-            val zipFile = File(zipPath)
-            try {
-                withContext(IO) { if (fileDir.exists()) zipFolder(fileDir.absolutePath, zipFile.absolutePath) }
-            } catch (e: Exception) {
-                log("打包图片生成压缩文件异常: $e")
-            } finally {
-                onStop
-            }
+            withContext(IO) { if (fileDir.exists()) zipFolder(fileDir.absolutePath, File(zipPath).absolutePath) }
+        } catch (e: Exception) {
+            log("打包图片生成压缩文件异常: $e")
+        } finally {
+            onStop.invoke()
         }
     }
 
@@ -233,14 +225,12 @@ object FileUtil : CoroutineScope {
      * 存储图片协程
      */
     @JvmStatic
-    fun saveBitmapJob(context: Context, bitmap: Bitmap, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
-        return launch {
-            onStart
-            var type: Boolean
-            withContext(IO) { type = saveBitmap(context, bitmap) }
-            ToastUtil.mackToastSHORT(if (type) "保存成功" else "保存失败", context)
-            onStop
-        }
+    suspend fun saveBitmapJob(context: Context, bitmap: Bitmap, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}) {
+        onStart.invoke()
+        var type: Boolean
+        withContext(IO) { type = saveBitmap(context, bitmap) }
+        ToastUtil.mackToastSHORT(if (type) "保存成功" else "保存失败", context)
+        onStop.invoke()
     }
 
     /**
@@ -248,7 +238,7 @@ object FileUtil : CoroutineScope {
      */
     @JvmOverloads
     @JvmStatic
-    fun savePdfBitmapJob(context: Context, file: File, index: Int = 0, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}) {
+    suspend fun savePdfBitmapJob(context: Context, file: File, index: Int = 0, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}) {
         val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
         val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
         val width = page.width

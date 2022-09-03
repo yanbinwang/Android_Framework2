@@ -7,8 +7,8 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import androidx.databinding.ViewDataBinding
-import com.example.base.utils.getInAnimation
-import com.example.base.utils.getOutAnimation
+import com.example.base.utils.function.inAnimation
+import com.example.base.utils.function.outAnimation
 import com.example.common.R
 import java.lang.reflect.ParameterizedType
 
@@ -45,8 +45,8 @@ abstract class BaseDialog<VDB : ViewDataBinding> : Dialog {
             }
             setContentView(binding.root, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
             if (anim) {
-                val mAnimIn = context.getInAnimation()
-                val mAnimOut = context.getOutAnimation()
+                val mAnimIn = context.inAnimation()
+                val mAnimOut = context.outAnimation()
                 //当布局show出来的时候执行开始动画
                 setOnShowListener { binding.root.startAnimation(mAnimIn) }
                 //当布局销毁时执行结束动画

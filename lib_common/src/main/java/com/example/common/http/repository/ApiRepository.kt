@@ -4,12 +4,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
-import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.bridge.BaseViewModel
-import com.example.common.constant.ARouterPath
+import com.example.common.base.page.doResponse
 import com.example.common.utils.helper.AccountHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -21,55 +21,78 @@ import kotlinx.coroutines.withContext
 /**
  * ViewModel的KTX库中具备扩展函数，但不能像继承CoroutineScope那样直接launch点出，这里再做一个扩展
  * CoroutineScope接受一个参数是线程的上下文，返回一个CoroutineScope对象
+ * 顺序执行请求
  */
 fun BaseViewModel.launch(block: suspend CoroutineScope.() -> Unit) = viewModelScope.launch(block = block)
 
+/**
+ * 并发执行多个请求时使用，通过await()可以拿取到最后得到的值
+ */
+fun BaseViewModel.async(block: suspend CoroutineScope.() -> Unit) = viewModelScope.async(block = block)
+
 fun Fragment.launch(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.launch(block = block)
+
+fun Fragment.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
 
 fun AppCompatActivity.launch(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.launch(block = block)
 
-///**
-// * 针对项目请求编号处理,需要处理的在请求文件里书写此扩展函数
-// */
-//fun <T> ApiResponse<T>.invoke(): ApiResponse<T> {
-//    when (code) {
-//        //账号还没有登录，解密失败，重新获取
-//        100005, 100008 -> {
-//            AccountHelper.signOut()
-//            ARouter.getInstance().build(ARouterPath.LoginActivity).navigation()
-//        }
-//        //账号被锁定--进入账号锁定页（其余页面不关闭）
-//        100002 -> {
-////                         ARouter.getInstance().build(ARouterPath.UnlockIPActivity).navigation()
-//        }
-//    }
-//    return this
-//}
+fun AppCompatActivity.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
 
 /**
  * 请求监听扩展
  */
-suspend fun <T> T.call(subscriber: ResourceSubscriber<T>?): T {
+suspend fun <T> T?.call(): T? {
     try {
-        subscriber?.onNext(withContext(IO) { this@call })
+        withContext(IO) { this@call }
     } catch (e: Exception) {
-        subscriber?.onError(e)
+        return null
     }
-    return this
+    return null
 }
 
 /**
  * 项目请求监听扩展
  */
-suspend fun <T> ApiResponse<T>.apiCall(subscriber: HttpSubscriber<T>?) = call(subscriber)
+fun <T> ApiResponse<T>?.apiCall(isShowToast: Boolean = true): T? {
+    return if (null != this) {
+        if (200 == code) {
+            if(null == data) Any() as T else data
+        } else {
+            if (408 == code) AccountHelper.signOut()
+            if (isShowToast) msg.doResponse()
+            null
+        }
+    } else {
+        "".doResponse()
+        null
+    }
+}
 
-/**
- *  部分请求需要监听开始和结束，采用此请求结构
- */
-suspend fun <T> execute(block: T, subscriber: ResourceSubscriber<T>?) {
-    subscriber?.onStart()
-    block.call(subscriber)
-    subscriber?.onComplete()
+fun <T> CoroutineScope.loadHttp(
+    start: () -> Unit = {},
+    request: suspend CoroutineScope.() -> ApiResponse<T>,
+    resp: (T?) -> Unit = {},
+    err: (e: Pair<Int?, Exception?>?) -> Unit = {},
+    end: () -> Unit = {},
+    isShowToast: Boolean = false
+) {
+    launch {
+        try {
+            start()
+            //请求+响应数据
+            val data = request()
+            val body = data.apiCall()
+            if (null != body) resp(body) else {
+                if (isShowToast) data.msg.doResponse()
+                err(Pair(data.code, Exception(data.msg)))
+            }
+        } catch (e: Exception) {
+            if (isShowToast) "".doResponse()
+            err(Pair(-1, e))  //可根据具体异常显示具体错误提示
+        } finally {
+            end()
+        }
+    }
 }
 
 ///**

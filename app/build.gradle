@@ -116,6 +116,9 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     //基础库
     implementation project(':lib_common')
+    //黑白主题测试
+    implementation 'com.aliya:android-uimode:3.0.0'
+
     //页面路由
     implementation deps.alibaba.arouter
     kapt deps.alibaba.arouter_compiler

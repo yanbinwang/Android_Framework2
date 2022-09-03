@@ -7,9 +7,6 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -20,7 +17,6 @@ import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.page.PageParams
-import com.example.common.base.proxy.SimpleTextWatcher
 import com.example.common.constant.Extras
 import com.example.common.widget.dialog.LoadingDialog
 import java.io.Serializable
@@ -36,7 +32,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected val activity by lazy { WeakReference<Activity>(getActivity()) } //基类activity弱引用
     protected val context by lazy { WeakReference<Context>(getContext()) }//基类context弱引用
     private var baseViewModel: BaseViewModel? = null//数据模型
-    private val loadingDialog by lazy { LoadingDialog(getContext()) }//刷新球控件，相当于加载动画
+    private val loadingDialog by lazy { LoadingDialog(getContext()!!) }//刷新球控件，相当于加载动画
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
@@ -61,8 +57,8 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         initView()
         initEvent()
         initData()
@@ -87,54 +83,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
             }
         }
         return false
-    }
-
-    override fun openDecor(view: View?) {
-        closeDecor(view)
-        Timer().schedule(object : TimerTask() {
-            override fun run() {
-                (activity.get()?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
-            }
-        }, 200)
-        val inputMethodManager = activity.get()?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.showSoftInput(view, 2)
-    }
-
-    override fun closeDecor(view: View?) {
-        val inputMethodManager = activity.get()?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
-    }
-
-    override fun getFocus(view: View?) {
-        view?.isFocusable = true //设置输入框可聚集
-        view?.isFocusableInTouchMode = true //设置触摸聚焦
-        view?.requestFocus() //请求焦点
-        view?.findFocus() //获取焦点
-    }
-
-    override fun getParameters(view: View?): String? {
-        return when (view) {
-            is EditText -> view.text.toString().trim { it <= ' ' }
-            is TextView -> view.text.toString().trim { it <= ' ' }
-            is CheckBox -> view.text.toString().trim { it <= ' ' }
-            is RadioButton -> view.text.toString().trim { it <= ' ' }
-            is Button -> view.text.toString().trim { it <= ' ' }
-            else -> null
-        }
-    }
-
-    override fun onTextChanged(simpleTextWatcher: SimpleTextWatcher?, vararg views: View?) {
-        for (view in views) {
-            if (view is EditText) {
-                view.addTextChangedListener(simpleTextWatcher)
-            }
-        }
-    }
-
-    override fun onClick(onClickListener: View.OnClickListener?, vararg views: View?) {
-        for (view in views) {
-            view?.setOnClickListener(onClickListener)
-        }
     }
 
     override fun ENABLED(second: Long, vararg views: View?) {
@@ -199,11 +147,11 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     }
 
     override fun showDialog(flag: Boolean) {
-        loadingDialog.show(flag)
+        loadingDialog.shown(flag)
     }
 
     override fun hideDialog() {
-        loadingDialog.hide()
+        loadingDialog.hidden()
     }
 
     override fun navigation(path: String, params: PageParams?): Activity {

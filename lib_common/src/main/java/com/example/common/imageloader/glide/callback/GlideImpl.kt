@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
-import com.example.common.imageloader.glide.callback.progress.OnLoaderListener
 import java.io.File
 
 /**
@@ -17,7 +16,7 @@ interface GlideImpl {
 
     fun displayCoverImage(view: ImageView, string: String?)
 
-    fun displayProgressImage(view: ImageView, string: String, listener: OnLoaderListener? = null)
+    fun displayProgressImage(view: ImageView, string: String, onStart: () -> Unit? = {}, onProgress: (progress: Int?) -> Unit = {}, onComplete: () -> Unit? = {})
 
     fun displayImage(view: ImageView, string: String?)
 
