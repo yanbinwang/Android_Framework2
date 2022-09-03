@@ -26,7 +26,6 @@ versions.material = "1.4.0"
 versions.okhttp = "4.9.1"
 versions.autosize = "v1.2.1"
 versions.mmkv = "1.2.2"
-versions.adapterhelper = "3.0.7"
 versions.recovery = "1.0.0"
 versions.guide = "v2.4.0"
 
@@ -69,7 +68,6 @@ deps.material = "com.google.android.material:material:$versions.material"//desig
 deps.okhttp3 = "com.squareup.okhttp3:okhttp:$versions.okhttp"//okhttp
 deps.autosize = "com.github.JessYanCoding:AndroidAutoSize:$versions.autosize"//今日头条布局兼容
 deps.mmkv = "com.tencent:mmkv-static:$versions.mmkv"//腾讯读写库
-deps.adapterhelper = "com.github.CymChad:BaseRecyclerViewAdapterHelper:$versions.adapterhelper"//封装的适配器
 deps.recovery = "com.zxy.android:recovery:$versions.recovery"//闪退抓捕
 deps.guide = "com.github.huburt-Hu:NewbieGuide:$versions.guide"//遮罩引导
 ext.deps = deps

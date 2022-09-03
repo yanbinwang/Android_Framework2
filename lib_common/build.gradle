@@ -74,7 +74,6 @@ dependencies {
     api deps.okhttp3
     api deps.autosize
     api deps.mmkv
-    api deps.adapterhelper
     api deps.recovery
     api deps.guide
 }
