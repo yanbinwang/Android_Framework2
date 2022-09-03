@@ -12,7 +12,7 @@ import java.io.IOException
  * Created by WangYanBin on 2020/6/1.
  * 用户拦截器
  */
-class UserAgentInterceptor : Interceptor {
+internal class UserAgentInterceptor : Interceptor {
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
