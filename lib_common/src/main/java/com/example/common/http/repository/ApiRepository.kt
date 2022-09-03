@@ -53,11 +53,11 @@ suspend fun <T> T?.call(): T? {
 /**
  * 项目请求监听扩展
  */
-fun <T> ApiResponse<T>?.apiCall(show: Boolean = true): T? {
+fun <T> ApiResponse<T>?.apiCall(toast: Boolean = true): T? {
     return if (null != this) {
         if (200 == code) data else {
             if (408 == code) AccountHelper.signOut()
-            if (show) msg.doResponse()
+            if (toast) msg.doResponse()
             null
         }
     } else {
