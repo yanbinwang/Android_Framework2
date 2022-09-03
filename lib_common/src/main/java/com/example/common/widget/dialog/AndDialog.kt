@@ -18,8 +18,8 @@ class AndDialog(context: Context) : AlertDialog.Builder(context, R.style.dialogS
     fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = ""): AndDialog {
         if (!TextUtils.isEmpty(title)) setTitle(title)
         setMessage(if (TextUtils.isEmpty(message)) "" else message)
-        setPositiveButton(positiveText) { _: DialogInterface?, _: Int -> onConfirm }
-        if (!TextUtils.isEmpty(negativeText)) setNegativeButton(negativeText) { _: DialogInterface?, _: Int -> onCancel }
+        setPositiveButton(positiveText) { _: DialogInterface?, _: Int -> onConfirm?.invoke() }
+        if (!TextUtils.isEmpty(negativeText)) setNegativeButton(negativeText) { _: DialogInterface?, _: Int -> onCancel?.invoke() }
         return this
     }
 

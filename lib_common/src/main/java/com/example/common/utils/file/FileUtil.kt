@@ -184,13 +184,13 @@ object FileUtil {
     @JvmStatic
     suspend fun zipFolderJob(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}) {
         try {
-            onStart
+            onStart.invoke()
             val fileDir = File(folderPath)
             withContext(IO) { if (fileDir.exists()) zipFolder(fileDir.absolutePath, File(zipPath).absolutePath) }
         } catch (e: Exception) {
             log("打包图片生成压缩文件异常: $e")
         } finally {
-            onStop
+            onStop.invoke()
         }
     }
 
@@ -226,11 +226,11 @@ object FileUtil {
      */
     @JvmStatic
     suspend fun saveBitmapJob(context: Context, bitmap: Bitmap, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}) {
-        onStart
+        onStart.invoke()
         var type: Boolean
         withContext(IO) { type = saveBitmap(context, bitmap) }
         ToastUtil.mackToastSHORT(if (type) "保存成功" else "保存失败", context)
-        onStop
+        onStop.invoke()
     }
 
     /**

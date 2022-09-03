@@ -29,11 +29,7 @@ import com.example.common.utils.NetWorkUtil.isNetworkAvailable
  * 3.加载错误(无网络，服务器错误)-有按钮
  */
 @SuppressLint("InflateParams")
-class EmptyLayout @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : SimpleViewGroup(context, attrs, defStyleAttr) {
+class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SimpleViewGroup(context, attrs, defStyleAttr) {
     private var binding: ViewEmptyBinding? = null
     var onRefreshClick: (() -> Unit)? = null
 
@@ -52,7 +48,7 @@ class EmptyLayout @JvmOverloads constructor(
         binding?.tvRefresh?.setOnClickListener {
             //进入加载中，并停止刷新动画
             showLoading()
-            onRefreshClick
+            onRefreshClick?.invoke()
         }
         binding?.root?.setOnClickListener(null)
         showLoading()

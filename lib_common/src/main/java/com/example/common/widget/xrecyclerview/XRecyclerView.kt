@@ -61,7 +61,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                     recycler?.setEmptyView(empty?.setListView(recycler!!))
                     recycler?.setHasFixedSize(true)
                     recycler?.itemAnimator = DefaultItemAnimator()
-                    empty?.onRefreshClick = { onClick }
+                    empty?.onRefreshClick = { onClick?.invoke() }
                 }
             }
             1 -> {
@@ -77,7 +77,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 recycler?.setHasFixedSize(true)
                 recycler?.itemAnimator = DefaultItemAnimator()
                 if (0 != emptyType) {
-                    empty?.onRefreshClick = { onClick }
+                    empty?.onRefreshClick = { onClick?.invoke() }
                 } else {
                     empty?.visibility = GONE
                 }

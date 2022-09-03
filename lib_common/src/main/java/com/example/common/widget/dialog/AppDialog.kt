@@ -41,12 +41,12 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context) {
             //点击了取消按钮的回调
             tvCancel.setOnClickListener {
                 dismiss()
-                onCancel
+                onCancel?.invoke()
             }
             //点击了确定按钮的回调
             tvSure.setOnClickListener {
                 dismiss()
-                onConfirm
+                onConfirm?.invoke()
             }
         }
         return this
