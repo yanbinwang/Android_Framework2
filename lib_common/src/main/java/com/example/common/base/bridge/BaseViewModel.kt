@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import com.example.common.base.page.getEmptyView
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.launch
+import com.example.common.http.repository.loadHttp
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import kotlinx.coroutines.CoroutineScope
@@ -47,7 +48,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         isClose: Boolean = true                                // 请求结束前是否关闭dialog
     ) {
         launch {
-            this.launch(
+            this.loadHttp(
                 { if (isShowDialog) getView()?.showDialog() },
                 { request() },
                 { resp(it) },
