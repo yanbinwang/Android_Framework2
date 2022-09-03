@@ -53,18 +53,41 @@ suspend fun <T> T?.call(): T? {
 /**
  * 项目请求监听扩展
  */
-fun <T> ApiResponse<T>?.apiCall(toast: Boolean = true): T? {
+fun <T> ApiResponse<T>?.apiCall(isShowToast: Boolean = true): T? {
     return if (null != this) {
         if (200 == code) {
             if(null == data) Any() as T else data
         } else {
             if (408 == code) AccountHelper.signOut()
-            if (toast) msg.doResponse()
+            if (isShowToast) msg.doResponse()
             null
         }
     } else {
         "".doResponse()
         null
+    }
+}
+
+fun <T> CoroutineScope.loadHttp(
+    start: () -> Unit = {},
+    request: suspend CoroutineScope.() -> ApiResponse<T>,
+    resp: (T?) -> Unit = {},
+    err: (String) -> Unit = {},
+    end: () -> Unit = {},
+    isShowToast: Boolean = false
+) {
+    launch {
+        try {
+            start()
+            //请求+响应数据
+            val data = request()
+            val body = data.apiCall(isShowToast)
+            if (null != body) resp(body) else err(data.msg ?: "")
+        } catch (e: Exception) {
+            err(e.message ?: "")  //可根据具体异常显示具体错误提示
+        } finally {
+            end()
+        }
     }
 }
 
