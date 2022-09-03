@@ -14,7 +14,7 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
  * 复用性高的代码，统一放在common中
  * 比如列表页都需要设置适配器属性，富文本加载网页
  */
-object CommonBindingAdapter {
+object BaseBindingAdapter {
 
     /**
      * 适配器

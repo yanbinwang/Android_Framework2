@@ -13,11 +13,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * Created by WangYanBin on 2020/9/2.
- * 针对协程返回的参数(协程只有成功和失败)
- */
-
+//------------------------------------针对协程返回的参数(协程只有成功和失败)------------------------------------
 /**
  * ViewModel的KTX库中具备扩展函数，但不能像继承CoroutineScope那样直接launch点出，这里再做一个扩展
  * CoroutineScope接受一个参数是线程的上下文，返回一个CoroutineScope对象
@@ -39,7 +35,7 @@ fun AppCompatActivity.launch(block: suspend CoroutineScope.() -> Unit) = lifecyc
 fun AppCompatActivity.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
 
 /**
- * 请求监听扩展
+ * 请求的解析
  */
 suspend fun <T> T?.call(): T? {
     try {
@@ -51,24 +47,24 @@ suspend fun <T> T?.call(): T? {
 }
 
 /**
- * 项目请求监听扩展
+ * 项目接口的解析
  */
-fun <T> ApiResponse<T>?.apiCall(isShowToast: Boolean = true): T? {
+fun <T> ApiResponse<T>?.apiCall(): T? {
     return if (null != this) {
         if (200 == code) {
-            if(null == data) Any() as T else data
+            if (null == data) Any() as T else data
         } else {
             if (408 == code) AccountHelper.signOut()
-            if (isShowToast) msg.doResponse()
             null
         }
-    } else {
-        "".doResponse()
-        null
-    }
+    } else null
 }
 
-fun <T> CoroutineScope.loadHttp(
+/**
+ * 串行网络请求
+ * 如需并行，直接调用async
+ */
+fun <T> CoroutineScope.launch(
     start: () -> Unit = {},
     request: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (T?) -> Unit = {},
@@ -94,8 +90,3 @@ fun <T> CoroutineScope.loadHttp(
         }
     }
 }
-
-///**
-// * 切换io线程，获取请求的对象
-// */
-//private suspend fun <T> execute(block: () -> T): T? = withContext(IO) { block() }
