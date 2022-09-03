@@ -70,6 +70,10 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         binding?.ivEmpty?.setImageResource(R.mipmap.img_data_loading)
         binding?.tvEmpty?.text = string(R.string.label_data_loading)
         binding?.tvRefresh?.visibility = GONE
+//        visibility = VISIBLE
+//        binding?.ivEmpty?.visibility = GONE
+//        binding?.tvEmpty?.text = context.getString(R.string.label_data_loading)
+//        binding?.tvRefresh?.visibility = GONE
     }
 
     fun showEmpty() {
