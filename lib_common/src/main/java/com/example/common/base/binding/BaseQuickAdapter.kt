@@ -12,7 +12,7 @@ import java.lang.reflect.ParameterizedType
 abstract class BaseQuickAdapter<T, VB : ViewDataBinding> : BaseAdapter<T> {
     protected var context: Context? = null
 
-    constructor() : super()
+    constructor() : super(ArrayList())
 
     constructor(model: T?) : super(model)
 

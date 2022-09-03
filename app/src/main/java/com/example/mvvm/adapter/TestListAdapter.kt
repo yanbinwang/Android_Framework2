@@ -8,7 +8,7 @@ import com.example.mvvm.model.TestListModel
 /**
  * Created by WangYanBin on 2020/7/10.
  */
-class TestListAdapter : BaseQuickAdapter<TestListModel, ItemTestBinding>(ArrayList()) {
+class TestListAdapter : BaseQuickAdapter<TestListModel, ItemTestBinding>() {
 
     override fun convert(holder: BaseViewDataBindingHolder, item: TestListModel?) {
         holder.getBinding<ItemTestBinding>().apply {
