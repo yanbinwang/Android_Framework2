@@ -30,11 +30,11 @@ class DownloadFactory private constructor()  {
         downloadUrl: String,
         filePath: String,
         fileName: String,
-        onStart: () -> Unit? = {},
-        onSuccess: (path: String?) -> Unit? = {},
-        onLoading: (progress: Int?) -> Unit = {},
-        onFailed: (e: Exception?) -> Unit? = {},
-        onComplete: () -> Unit? = {}) {
+        onStart: () -> Unit = {},
+        onSuccess: (path: String) -> Unit = {},
+        onLoading: (progress: Int) -> Unit = {},
+        onFailed: (e: Exception?) -> Unit = {},
+        onComplete: () -> Unit = {}) {
         if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
             ToastUtil.mackToastSHORT("链接地址不合法", BaseApplication.instance?.applicationContext!!)
             return
