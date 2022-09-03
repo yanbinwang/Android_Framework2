@@ -70,6 +70,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         end: () -> Unit = {},                          // 最后执行方法
         isShowToast: Boolean = true,                   // 是否toast
         isShowDialog: Boolean = true,                  // 是否显示加载框
+        isClose: Boolean = true                       // 请求结束前是否关闭dialog
     ) {
         launch {
             if (isShowDialog) getView()?.showDialog()
@@ -79,7 +80,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 err(it)
             }, end = {
                 end()
-                if (isShowDialog) getView()?.hideDialog()
+                if (isShowDialog && isClose) getView()?.hideDialog()
             }, isShowToast = isShowToast)
         }
     }
