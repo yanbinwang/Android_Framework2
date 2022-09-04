@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+import com.example.base.utils.LogUtil
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.page.doResponse
 import com.example.common.utils.helper.AccountHelper
@@ -35,7 +36,7 @@ fun AppCompatActivity.launch(block: suspend CoroutineScope.() -> Unit) = lifecyc
 fun AppCompatActivity.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
 
 /**
- * 请求的解析
+ * 请求的协程切换
  */
 suspend fun <T> T?.call(): T? {
     try {
@@ -49,7 +50,7 @@ suspend fun <T> T?.call(): T? {
 /**
  * 项目接口的解析
  */
-fun <T> ApiResponse<T>?.apiCall(): T? {
+fun <T> ApiResponse<T>?.response(): T? {
     return if (null != this) {
         if (200 == code) {
             if (null == data) Any() as T else data
@@ -74,10 +75,14 @@ fun <T> CoroutineScope.loadHttp(
 ) {
     launch {
         try {
+            LogUtil.e("repository", "1:${Thread.currentThread().name}")
             start()
             //请求+响应数据
-            val data = request()
-            val body = data.apiCall()
+            val data = withContext(IO) {
+                LogUtil.e("repository", "2:${Thread.currentThread().name}")
+                request()
+            }
+            val body = data.response()
             if (null != body) resp(body) else {
                 if (isShowToast) data.msg.doResponse()
                 err(Pair(data.code, Exception(data.msg)))
@@ -86,6 +91,7 @@ fun <T> CoroutineScope.loadHttp(
             if (isShowToast) "".doResponse()
             err(Pair(-1, e))  //可根据具体异常显示具体错误提示
         } finally {
+            LogUtil.e("repository", "3:${Thread.currentThread().name}")
             end()
         }
     }
