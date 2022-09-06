@@ -11,11 +11,6 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 
 /**
- * 页面工具类
- * 1.接口提示
- * 2.遮罩层操作
- */
-/**
  * 提示方法，根据接口返回的msg提示
  */
 fun String?.doResponse(){
