@@ -10,10 +10,10 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.chad.library.adapter.base.BaseQuickAdapter
 import com.example.base.utils.function.dip2px
 import com.example.base.widget.SimpleViewGroup
 import com.example.common.R
+import com.example.common.base.binding.BaseQuickAdapter
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.ItemDecorationProps

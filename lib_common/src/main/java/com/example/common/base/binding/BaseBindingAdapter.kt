@@ -3,7 +3,6 @@ package com.example.common.base.binding
 import android.annotation.SuppressLint
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
-import com.chad.library.adapter.base.BaseQuickAdapter
 import com.example.common.imageloader.ImageLoader
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.XRecyclerView

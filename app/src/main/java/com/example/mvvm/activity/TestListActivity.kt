@@ -26,16 +26,19 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
         super.initEvent()
         binding.btnTest.setOnClickListener { viewModel.getListData() }
 
-        binding.adapter?.setOnItemClickListener { _, _, position -> showToast("整体点击：$position") }
-        binding.adapter?.setOnItemChildClickListener { _, view, position ->
-            when (view.id) {
-                R.id.iv_img -> showToast("图片点击：$position")
-                R.id.tv_title -> showToast("标题点击：$position")
-            }
+//        binding.adapter?.setOnItemClickListener { _, _, position -> showToast("整体点击：$position") }
+//        binding.adapter?.setOnItemChildClickListener { _, view, position ->
+//            when (view.id) {
+//                R.id.iv_img -> showToast("图片点击：$position")
+//                R.id.tv_title -> showToast("标题点击：$position")
+//            }
+//        }
+        binding.adapter!!.onItemClick = {
+            showToast("整体点击：$it")
         }
 
         viewModel.dataListData.observe(this) {
-            binding.adapter?.setList(it)
+            binding.adapter?.data = it
         }
     }
 

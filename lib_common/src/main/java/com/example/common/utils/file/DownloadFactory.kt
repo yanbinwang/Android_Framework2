@@ -18,7 +18,6 @@ import kotlin.coroutines.CoroutineContext
  * 故下载的完成回调需要在线程内外做判断
  */
 class DownloadFactory private constructor(override val coroutineContext: CoroutineContext) : CoroutineScope {
-    private var job: Job? = null
 
     companion object {
         @JvmStatic
@@ -35,12 +34,13 @@ class DownloadFactory private constructor(override val coroutineContext: Corouti
         onSuccess: (path: String) -> Unit = {},
         onLoading: (progress: Int) -> Unit = {},
         onFailed: (e: Exception?) -> Unit = {},
-        onComplete: () -> Unit = {}) {
-        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-            ToastUtil.mackToastSHORT("链接地址不合法", BaseApplication.instance?.applicationContext!!)
-            return
-        }
-        job = launch {
+        onComplete: () -> Unit = {}
+    ): Job {
+        return launch {
+            if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
+                ToastUtil.mackToastSHORT("链接地址不合法", BaseApplication.instance?.applicationContext!!)
+                return@launch
+            }
             //清除目录下的所有文件
             FileUtil.deleteDir(filePath)
             onStart()

@@ -39,13 +39,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     fun <T> launch(
-        request: suspend CoroutineScope.() -> ApiResponse<T>,  // 请求
-        resp: (T?) -> Unit = {},                               // 响应
-        err: (e: Pair<Int?, Exception?>?) -> Unit = {},        // 错误处理
-        end: () -> Unit = {},                                  // 最后执行方法
-        isShowToast: Boolean = true,                           // 是否toast
-        isShowDialog: Boolean = true,                          // 是否显示加载框
-        isClose: Boolean = true                                // 请求结束前是否关闭dialog
+        request: suspend CoroutineScope.() -> ApiResponse<T>,      // 请求
+        resp: (T?) -> Unit = {},                                   // 响应
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}, // 错误处理
+        end: () -> Unit = {},                                      // 最后执行方法
+        isShowToast: Boolean = true,                               // 是否toast
+        isShowDialog: Boolean = true,                              // 是否显示加载框
+        isClose: Boolean = true                                    // 请求结束前是否关闭dialog
     ) {
         launch {
             this.loadHttp(
