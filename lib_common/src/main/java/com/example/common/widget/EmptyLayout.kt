@@ -9,8 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.databinding.DataBindingUtil
-import com.example.base.utils.function.color
 import com.example.base.utils.function.string
+import com.example.base.utils.function.view.color
 import com.example.base.widget.SimpleViewGroup
 import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
@@ -73,7 +73,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     fun showLoading() {
         visibility = VISIBLE
         binding?.ivEmpty?.setImageResource(R.mipmap.img_data_loading)
-        binding?.tvEmpty?.text = string(R.string.label_data_loading)
+        binding?.tvEmpty?.text = context.string(R.string.label_data_loading)
         binding?.tvRefresh?.visibility = GONE
 //        visibility = VISIBLE
 //        binding?.ivEmpty?.visibility = GONE

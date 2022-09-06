@@ -9,7 +9,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.core.content.ContextCompat
+import com.example.base.utils.function.color
 import com.example.common.R
 import com.example.common.constant.Constants
 
@@ -38,6 +38,11 @@ fun LinearLayout.topStatusMargin(arrow: Boolean = true) {
 }
 
 /**
+ * 设置按钮显影图片
+ */
+fun ImageView.setSwitchResource(triple: Triple<Boolean, Int, Int>) = setImageResource(if (!triple.first) triple.second else triple.third)
+
+/**
  * 图片宽屏
  */
 fun ImageView.setRelativeScreenWidth() {
@@ -63,7 +68,7 @@ fun TextView.setSpan(textStr: String, keyword: String, colorRes: Int = R.color.b
     val spannable = SpannableString(textStr)
     val index = textStr.indexOf(keyword)
     text = if (index != -1) {
-        spannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(context, colorRes)), index, index + keyword.length, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+        spannable.setSpan(ForegroundColorSpan(context.color(colorRes)), index, index + keyword.length, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
         spannable
     } else textStr
 }
@@ -74,5 +79,5 @@ fun TextView.setSpan(textStr: String, keyword: String, colorRes: Int = R.color.b
 @JvmOverloads
 fun TextView.setState(textStr: String, colorRes: Int = R.color.blue_0d86ff) {
     text = textStr
-    setTextColor(ContextCompat.getColor(context, colorRes))
+    setTextColor(context.color(colorRes))
 }
