@@ -1,7 +1,6 @@
 package com.example.base.utils.function
 
 import java.math.BigDecimal
-import java.text.DecimalFormat
 
 /**
  * author:wyb
@@ -14,62 +13,65 @@ import java.text.DecimalFormat
  * （5）a % b -> a.mod(b)
  */
 //------------------------------------计算工具类------------------------------------
-/**
- * 加法运算
- */
-fun String.add(v: String) = BigDecimal(this).add(BigDecimal(v)).toDouble()
-
-fun String.add(v: Double) = BigDecimal(this).add(BigDecimal(v)).toDouble()
-
-fun Double.add(v: Double) = BigDecimal(this).add(BigDecimal(v)).toDouble()
-
-/**
- * 减法运算
- */
-fun String.subtract(v: String) = BigDecimal(this).subtract(BigDecimal(v)).toDouble()
-
-fun String.subtract(v: Double) = BigDecimal(this).subtract(BigDecimal(v)).toDouble()
-
-fun Double.subtract(v: String) = BigDecimal(this).subtract(BigDecimal(v)).toDouble()
-
-fun Double.subtract(v: Double) = BigDecimal(this).subtract(BigDecimal(v)).toDouble()
+val <T : Number> T?.orZero: T
+    get() {
+        return this ?: (when (this) {
+            is Short? -> 0.toShort()
+            is Byte? -> 0.toByte()
+            is Int? -> 0
+            is Long? -> 0L
+            is Double? -> 0.0
+            is Float? -> 0f
+            is BigDecimal? -> BigDecimal.ZERO
+            else -> 0
+        } as T)
+    }
 
 /**
- * 乘法运算
+ * 保留小数
  */
-fun String.multiply(v: String) = BigDecimal(this).multiply(BigDecimal(v)).toDouble()
-
-fun String.multiply(v: Double) = BigDecimal(this).multiply(BigDecimal(v)).toDouble()
-
-fun Double.multiply(v: Double) = BigDecimal(this).multiply(BigDecimal(v)).toDouble()
+fun Number?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
+    return BigDecimal((this ?: 0).toString()).toFixed(fixed, mode)
+}
 
 /**
- * 除法运算-当发生除不尽的情况时，由scale参数指定精度，以后的数字四舍五入
+ * 保留小数
  */
-fun String.divide(v: String, scale: Int = 10) = BigDecimal(this).divide(BigDecimal(v), scale, BigDecimal.ROUND_HALF_UP).toDouble()
-
-fun String.divide(v: Double, scale: Int = 10) = BigDecimal(this).divide(BigDecimal(v), scale, BigDecimal.ROUND_HALF_UP).toDouble()
-
-fun Double.divide(v: String, scale: Int = 10) = BigDecimal(this).divide(BigDecimal(v), scale, BigDecimal.ROUND_HALF_UP).toDouble()
-
-fun Double.divide(v: Double, scale: Int = 10) = BigDecimal(this).divide(BigDecimal(v), scale, BigDecimal.ROUND_HALF_UP).toDouble()
+fun String?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
+    return BigDecimal(this ?: "0").toFixed(fixed, mode)
+}
 
 /**
- * 小数位四舍五入处理
+ * 保留小数
  */
-fun String.divide(scale: Int) = BigDecimal(this).divide(BigDecimal("1"), scale, BigDecimal.ROUND_HALF_UP).toDouble()
-
-fun Double.divide(scale: Int) = BigDecimal(this).divide(BigDecimal("1"), scale, BigDecimal.ROUND_HALF_UP).toDouble()
-
-/**
- * 当小数位不超过两位时，补0
- */
-fun Double.completion() = DecimalFormat("0.00").format(this) ?: ""
+fun Number?.toFixedDouble(fixed: Int, mode: Int = BigDecimal.ROUND_UP): Double {
+    return BigDecimal((this ?: 0).toString()).setScale(fixed, mode).toDouble()
+}
 
 /**
- * 当小数位超过两位时，只显示两位，但只有一位或没有，则不需要补0
+ * 保留小数
  */
-fun Double.rounding() = DecimalFormat("0.##").format(this) ?: ""
+fun BigDecimal?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
+    return (this ?: BigDecimal.ZERO).setScale(fixed, mode).toPlainString()
+}
+
+/**
+ * 保留小数，末尾为零则不显示0
+ */
+fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
+    return BigDecimal((this.orZero).toString()).setScale(fixed, mode).stripTrailingZeros().toPlainString()
+}
+
+/**
+ * 去除所有0
+ */
+fun String.removeEndZero(): String {
+    return try {
+        BigDecimal(this).stripTrailingZeros().toPlainString()
+    } catch (e: Exception) {
+        this
+    }
+}
 
 /**
  * 防空转换Int
