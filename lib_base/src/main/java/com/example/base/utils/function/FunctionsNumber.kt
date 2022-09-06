@@ -13,6 +13,24 @@ import java.math.BigDecimal
  * （5）a % b -> a.mod(b)
  */
 //------------------------------------计算工具类------------------------------------
+/**
+ * Boolean防空
+ * */
+val Boolean?.orFalse get() = this ?: false
+
+/**
+ * Boolean防空
+ * */
+val Boolean?.orTrue get() = this ?: true
+
+/**
+ * 转Boolean
+ * */
+fun Any?.toBoolean(default: Boolean = false) = this as? Boolean ?: default
+
+/**
+ * 数值安全转换
+ */
 val <T : Number> T?.orZero: T
     get() {
         return this ?: (when (this) {
