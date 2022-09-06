@@ -23,16 +23,10 @@ fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     return list
 }
 
-/**
- * 将旧list转换为新list
- */
 fun <T, K> ArrayList<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     return (this as? List<T>).toNewList(func)
 }
 
-/**
- * 将旧list转换为新list
- */
 fun <T, K> Array<T>?.toNewList(func: (T) -> K): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
@@ -42,9 +36,6 @@ fun <T, K> Array<T>?.toNewList(func: (T) -> K): ArrayList<K> {
     return list
 }
 
-/**
- * 将旧list转换为新list
- */
 fun <K> IntArray?.toNewList(func: (Int) -> K): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
@@ -52,20 +43,6 @@ fun <K> IntArray?.toNewList(func: (Int) -> K): ArrayList<K> {
         list.add(func(it))
     }
     return list
-}
-
-/**
- * 将Collection转换为Map
- */
-fun <T, K> Collection<T>?.toMap(func: (T) -> Pair<String, K>?): HashMap<String, K> {
-    if (this == null) return hashMapOf()
-    val map = hashMapOf<String, K>()
-    forEach {
-        func(it)?.apply {
-            map[first] = second
-        }
-    }
-    return map
 }
 
 /**
@@ -121,6 +98,20 @@ fun Bundle?.toMap(): Map<String, String> {
 }
 
 /**
+ * 将Collection转换为Map
+ */
+fun <T, K> Collection<T>?.toMap(func: (T) -> Pair<String, K>?): HashMap<String, K> {
+    if (this == null) return hashMapOf()
+    val map = hashMapOf<String, K>()
+    forEach {
+        func(it)?.apply {
+            map[first] = second
+        }
+    }
+    return map
+}
+
+/**
  * 寻找符合条件的第一个item的index
  */
 fun <T> Collection<T>.findIndexOf(func: ((T) -> Boolean)): Int {
@@ -128,16 +119,6 @@ fun <T> Collection<T>.findIndexOf(func: ((T) -> Boolean)): Int {
         if (func(t)) return index
     }
     return -1
-}
-
-/**
- * 移除符合条件的item
- */
-fun <T> MutableList<T>.findAndRemove(func: ((T) -> Boolean)) {
-    try {
-        remove(find { func(it) })
-    } catch (e: Exception) {
-    }
 }
 
 /**
@@ -159,6 +140,16 @@ fun <T> Collection<T>?.safeFirst(): T? {
         first()
     } catch (e: Exception) {
         null
+    }
+}
+
+/**
+ * 移除符合条件的item
+ */
+fun <T> MutableList<T>.findAndRemove(func: ((T) -> Boolean)) {
+    try {
+        remove(find { func(it) })
+    } catch (e: Exception) {
     }
 }
 
@@ -216,6 +207,11 @@ val CharArray?.randomItem: Char?
         else -> this[Random.nextInt(0, size)]
     }
 
+fun List<*>?.toJsonArray(): JSONArray? {
+    this ?: return null
+    return JSONArray(this)
+}
+
 fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
     val json = JSONObject()
     pairs.forEach {
@@ -230,9 +226,4 @@ fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
         }
     }
     return json
-}
-
-fun List<*>?.toJsonArray(): JSONArray? {
-    this ?: return null
-    return JSONArray(this)
 }
