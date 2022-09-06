@@ -30,18 +30,18 @@ fun AppCompatActivity.launch(block: suspend CoroutineScope.() -> Unit) = lifecyc
 
 fun AppCompatActivity.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
 
-/**
- * 请求的协程线程切换
- * 切到子线程进行处理，请求失败会被catch，返回null
- */
-suspend fun <T> T?.call(): T? {
-    try {
-        withContext(IO) { this@call }
-    } catch (e: Exception) {
-        return null
-    }
-    return null
-}
+///**
+// * 请求的协程线程切换
+// * 切到子线程进行处理，请求失败会被catch，返回null
+// */
+//suspend fun <T> T?.call(): T? {
+//    try {
+//        withContext(IO) { this@call }
+//    } catch (e: Exception) {
+//        return null
+//    }
+//    return null
+//}
 
 /**
  * 串行网络请求

@@ -1,6 +1,5 @@
 package com.example.base.utils.function
 
-import android.app.Service
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -9,9 +8,6 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Point
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Parcelable
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -27,7 +23,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import java.io.Serializable
 
 //------------------------------------context扩展函数类------------------------------------
 /**
@@ -59,18 +54,6 @@ fun Context.string(@StringRes res: Int): String {
 }
 
 /**
- * 开启服务（reqBodyOf("goodsId" to id)）
- * 内部做了兼容判断
- */
-fun Context.startForegroundService(cls: Class<out Service>, vararg pairs: Pair<String, Any?>) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        startForegroundService(getIntent(cls, *pairs))
-    } else {
-        startService(getIntent(cls, *pairs))
-    }
-}
-
-/**
  * 获取Manifest中的参数
  */
 fun Context.getManifestString(name: String) = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
@@ -95,6 +78,9 @@ fun Context.getPrimaryClip(): String {
  */
 fun Context.openWebsite(url: String) = startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 
+/**
+ * 进入动画
+ */
 fun Context.inAnimation(): AnimationSet {
     val inAnimation = AnimationSet(this, null)
     val alpha = AlphaAnimation(0.0f, 1.0f)
@@ -114,6 +100,9 @@ fun Context.inAnimation(): AnimationSet {
     return inAnimation
 }
 
+/**
+ * 退出动画
+ */
 fun Context.outAnimation(): AnimationSet {
     val outAnimation = AnimationSet(this, null)
     val alpha = AlphaAnimation(1.0f, 0.0f)
@@ -170,12 +159,6 @@ fun Context.getXmlDef(id: Int): Int {
     return TypedValue.complexToFloat(value.data).toInt()
 }
 
-fun AppCompatActivity?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
-
-fun Fragment?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
-
-fun LifecycleOwner?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
-
 /**
  * 可在协程类里传入AppComActivity，然后init{}方法里调取，销毁内部的job
  */
@@ -194,33 +177,8 @@ fun Lifecycle?.doOnDestroy(func: () -> Unit) {
     })
 }
 
-fun Context.getIntent(cls: Class<out Context>, vararg pairs: Pair<String, Any?>): Intent {
-    val intent = Intent(this, cls)
-    pairs.forEach {
-        val key = it.first
-        when (val value = it.second) {
-            is Int -> intent.putExtra(key, value)
-            is Byte -> intent.putExtra(key, value)
-            is Char -> intent.putExtra(key, value)
-            is Long -> intent.putExtra(key, value)
-            is Float -> intent.putExtra(key, value)
-            is Short -> intent.putExtra(key, value)
-            is Double -> intent.putExtra(key, value)
-            is Boolean -> intent.putExtra(key, value)
-            is String? -> intent.putExtra(key, value)
-            is Bundle? -> intent.putExtra(key, value)
-            is IntArray? -> intent.putExtra(key, value)
-            is ByteArray? -> intent.putExtra(key, value)
-            is CharArray? -> intent.putExtra(key, value)
-            is LongArray? -> intent.putExtra(key, value)
-            is FloatArray? -> intent.putExtra(key, value)
-            is Parcelable? -> intent.putExtra(key, value)
-            is ShortArray? -> intent.putExtra(key, value)
-            is DoubleArray? -> intent.putExtra(key, value)
-            is BooleanArray? -> intent.putExtra(key, value)
-            is CharSequence? -> intent.putExtra(key, value)
-            is Serializable? -> intent.putExtra(key, value)
-        }
-    }
-    return intent
-}
+fun AppCompatActivity?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
+
+fun Fragment?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
+
+fun LifecycleOwner?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)

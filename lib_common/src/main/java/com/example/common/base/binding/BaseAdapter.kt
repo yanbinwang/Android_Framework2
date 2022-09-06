@@ -1,5 +1,6 @@
 package com.example.common.base.binding
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
  * Created by WangYanBin on 2020/7/17.
  * 基础适配器，适用于定制页面，加头加尾，需要重写onCreateViewHolder
  */
+@SuppressLint("NotifyDataSetChanged")
 abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?> {
     //适配器类型-后续可扩展
     private var itemType = BaseItemType.MODEL
