@@ -12,7 +12,6 @@ import java.lang.ref.WeakReference
  */
 @SuppressLint("ShowToast")
 object ToastUtil {
-//    private var toast: Toast? = null
     private var toast: WeakReference<Toast>? = null
 
     @Synchronized
@@ -22,12 +21,6 @@ object ToastUtil {
         toast?.get()?.cancel()
         toast = WeakReference(Toast.makeText(context, str, Toast.LENGTH_SHORT))
         toast?.get()?.show()
-//        if (toast == null) {
-//            toast = Toast.makeText(context, str, Toast.LENGTH_SHORT)
-//        } else {
-//            toast?.setText(str)
-//        }
-//        toast?.show()
     }
 
     @Synchronized
@@ -37,12 +30,6 @@ object ToastUtil {
         toast?.get()?.cancel()
         toast = WeakReference(Toast.makeText(context, str, Toast.LENGTH_LONG))
         toast?.get()?.show()
-//        if (toast == null) {
-//            toast = Toast.makeText(context, str, Toast.LENGTH_LONG)
-//        } else {
-//            toast?.setText(str)
-//        }
-//        toast?.show()
     }
 
 }
