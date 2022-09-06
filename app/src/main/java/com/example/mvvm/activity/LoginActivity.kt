@@ -5,7 +5,6 @@ import com.example.base.utils.function.SimpleTextWatcher
 import com.example.base.utils.function.parameters
 import com.example.base.utils.function.textWatcher
 import com.example.common.base.BaseTitleActivity
-import com.example.common.base.page.PageParams
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Extras
 import com.example.mvvm.bridge.LoginViewModel
@@ -50,9 +49,13 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
 
         //类似mvp的接口回调,通过观察泛型内容随时刷新变化
         viewModel.userInfoData.observe(this) {
+//            navigation(
+//                ARouterPath.UserInfoActivity,
+//                PageParams().append(Extras.BUNDLE_BEAN, it)
+//            )
             navigation(
                 ARouterPath.UserInfoActivity,
-                PageParams().append(Extras.BUNDLE_BEAN, it)
+                Extras.BUNDLE_BEAN to it
             )
         }
     }

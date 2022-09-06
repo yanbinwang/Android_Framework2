@@ -15,7 +15,6 @@ import com.example.base.utils.ToastUtil
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
-import com.example.common.base.page.PageParams
 import com.example.common.bus.LiveDataBus
 import com.example.common.constant.Constants
 import com.example.common.constant.Extras
@@ -166,14 +165,14 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         loadingDialog.hidden()
     }
 
-    override fun navigation(path: String, params: PageParams?): Activity {
+    override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity {
         val postcard = ARouter.getInstance().build(path)
         var code: Int? = null
-        if (params != null) {
-            val map: Map<String, Any> = params.map
-            for (key in map.keys) {
-                val value = map[key]
-                val cls: Class<*> = value?.javaClass!!
+        if (params.isNotEmpty()) {
+            for (param in params) {
+                val key = param?.first
+                val value = param?.second
+                val cls = value?.javaClass
                 if (key == Extras.REQUEST_CODE) {
                     code = value as Int?
                     continue
@@ -189,7 +188,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                     cls == Double::class.javaPrimitiveType -> postcard.withDouble(key, value as Double)
                     cls == CharArray::class.java -> postcard.withCharArray(key, value as CharArray?)
                     cls == Bundle::class.java -> postcard.withBundle(key, value as Bundle?)
-                    else -> throw RuntimeException("不支持参数类型" + ": " + cls.simpleName)
+                    else -> throw RuntimeException("不支持参数类型" + ": " + cls?.simpleName)
                 }
             }
         }
