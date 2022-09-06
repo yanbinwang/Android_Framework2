@@ -4,7 +4,7 @@ package com.example.common.base.page
  * Created by WangYanBin on 2020/7/1.
  * 应用于刷新页面页数操作
  */
-class PageList {
+class Page {
     var totalCount = 0//服务器数组总数
     var currentCount = 0//当前页面数组数
     var page = 1//当前页数
