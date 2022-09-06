@@ -2,49 +2,9 @@ package com.example.base.utils.function
 
 import android.os.Bundle
 import org.json.JSONArray
-import org.json.JSONObject
 import kotlin.collections.set
-import kotlin.random.Random
 
 //------------------------------------全局用自定义方法 List部分------------------------------------
-/**
- * 将旧list转换为新list
- * val newList = list.toNewList{ChartHelperBean(it.symbol,it.buyType)}
- * sortedBy排序
- */
-fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
-    if (this == null) return arrayListOf()
-    val list = arrayListOf<K>()
-    forEach {
-        func(it)?.let { result ->
-            list.add(result)
-        }
-    }
-    return list
-}
-
-fun <T, K> ArrayList<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
-    return (this as? List<T>).toNewList(func)
-}
-
-fun <T, K> Array<T>?.toNewList(func: (T) -> K): ArrayList<K> {
-    if (this == null) return arrayListOf()
-    val list = arrayListOf<K>()
-    forEach {
-        list.add(func(it))
-    }
-    return list
-}
-
-fun <K> IntArray?.toNewList(func: (Int) -> K): ArrayList<K> {
-    if (this == null) return arrayListOf()
-    val list = arrayListOf<K>()
-    forEach {
-        list.add(func(it))
-    }
-    return list
-}
-
 /**
  * 将Map转换为ArrayList
  */
@@ -177,53 +137,7 @@ fun <T> MutableList<T>?.setSafeLast(t: T) {
     }
 }
 
-/**
- * 返回List中随机一个值
- * private val amount = listOf(5, 5, 10, 10, 10, 15, 25, 30, 50, 50, 100, 500)
- * amount.randomItem
- */
-val <T> List<T>?.randomItem: T?
-    get() = if (isNullOrEmpty())
-        null
-    else
-        this[Random.nextInt(0, size)]
-
-/**
- * 返回Array中随机一个值
- */
-val <T> Array<T>?.randomItem: T?
-    get() = if (isNullOrEmpty())
-        null
-    else
-        this[Random.nextInt(0, size)]
-
-/**
- * 返回CharArray中随机一个值
- */
-val CharArray?.randomItem: Char?
-    get() = when {
-        this == null -> null
-        this.isEmpty() -> null
-        else -> this[Random.nextInt(0, size)]
-    }
-
 fun List<*>?.toJsonArray(): JSONArray? {
     this ?: return null
     return JSONArray(this)
-}
-
-fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
-    val json = JSONObject()
-    pairs.forEach {
-        if (it?.first != null && it.second != null) {
-            it.second.apply {
-                when (this) {
-                    is List<*> -> json.put(it.first, toJsonArray())
-                    is Array<*> -> json.put(it.first, toList().toJsonArray())
-                    else -> json.put(it.first, this)
-                }
-            }
-        }
-    }
-    return json
 }
