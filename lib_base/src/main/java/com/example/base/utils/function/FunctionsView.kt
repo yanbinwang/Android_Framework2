@@ -32,7 +32,7 @@ import java.util.*
 /**
  * 设置按钮显影图片
  */
-fun ImageView.setSwitchResource(display: Boolean, showId: Int, hideId: Int) = setImageResource(if (!display) showId else hideId)
+fun ImageView.setSwitchResource(triple: Triple<Boolean, Int, Int>) = setImageResource(if (!triple.first) triple.second else triple.third)
 
 /**
  * 文案添加点击事件（单一）
@@ -323,7 +323,10 @@ fun View?.openDecor() {
     val view = this
     Timer().schedule(object : TimerTask() {
         override fun run() {
-            (view?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
+            (view?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(
+                0,
+                InputMethodManager.HIDE_NOT_ALWAYS
+            )
         }
     }, 200)
     val inputMethodManager = this?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
