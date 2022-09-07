@@ -1,8 +1,10 @@
 package com.example.common.widget.xrecyclerview.refresh
 
 import android.content.Context
+import android.os.Looper
 import android.view.View
 import com.example.base.utils.LogUtil
+import com.example.base.utils.WeakHandler
 import com.example.common.R
 import com.example.common.widget.ProgressWheel
 import com.lcodecore.tkrefreshlayout.IHeaderView
@@ -15,6 +17,7 @@ import com.lcodecore.tkrefreshlayout.OnAnimEndListener
  */
 class HeaderView(var context: Context) : IHeaderView {
     private var progress: ProgressWheel? = null
+    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
 
     /**
      * 获取刷新的整体view
@@ -44,7 +47,7 @@ class HeaderView(var context: Context) : IHeaderView {
      */
     override fun startAnim(maxHeadHeight: Float, headHeight: Float) {
         log("startAnim")
-        progress?.spin()
+        weakHandler.post { progress?.spin() }
     }
 
     /**
@@ -52,7 +55,7 @@ class HeaderView(var context: Context) : IHeaderView {
      */
     override fun onFinish(animEndListener: OnAnimEndListener?) {
         log("onFinish")
-        progress?.stopSpinning()
+        weakHandler.post { progress?.stopSpinning() }
     }
 
     /**

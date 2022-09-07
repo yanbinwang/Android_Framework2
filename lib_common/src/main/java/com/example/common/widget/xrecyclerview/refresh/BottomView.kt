@@ -1,9 +1,11 @@
 package com.example.common.widget.xrecyclerview.refresh
 
 import android.content.Context
+import android.os.Looper
 import android.view.View
 import android.widget.TextView
 import com.example.base.utils.LogUtil
+import com.example.base.utils.WeakHandler
 import com.example.common.R
 import com.example.common.widget.ProgressWheel
 import com.lcodecore.tkrefreshlayout.IBottomView
@@ -15,6 +17,7 @@ import com.lcodecore.tkrefreshlayout.IBottomView
 class BottomView(var context: Context) : IBottomView {
     private var progress: ProgressWheel? = null
     private var tvMsg: TextView? = null
+    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
 
     /**
      * 获取刷新的整体view
@@ -31,7 +34,7 @@ class BottomView(var context: Context) : IBottomView {
      */
     override fun onPullingUp(fraction: Float, maxBottomHeight: Float, bottomHeight: Float) {
         log("onPullingUp")
-        tvMsg?.text = "上拉加载更多"
+        weakHandler.post { tvMsg?.text = "上拉加载更多" }
     }
 
     /**
@@ -39,7 +42,7 @@ class BottomView(var context: Context) : IBottomView {
      */
     override fun onPullReleasing(fraction: Float, maxBottomHeight: Float, bottomHeight: Float) {
         log("onPullReleasing")
-        tvMsg?.text = "释放加载更多"
+        weakHandler.post { tvMsg?.text = "释放加载更多" }
     }
 
     /**
@@ -47,8 +50,10 @@ class BottomView(var context: Context) : IBottomView {
      */
     override fun startAnim(maxBottomHeight: Float, bottomHeight: Float) {
         log("startAnim")
-        tvMsg?.text = "加载中"
-        progress?.spin()
+        weakHandler.post {
+            tvMsg?.text = "加载中"
+            progress?.spin()
+        }
     }
 
     /**
@@ -56,8 +61,10 @@ class BottomView(var context: Context) : IBottomView {
      */
     override fun onFinish() {
         log("onFinish")
-        tvMsg?.text = ""
-        progress?.stopSpinning()
+        weakHandler.post {
+            tvMsg?.text = ""
+            progress?.stopSpinning()
+        }
     }
 
     /**
