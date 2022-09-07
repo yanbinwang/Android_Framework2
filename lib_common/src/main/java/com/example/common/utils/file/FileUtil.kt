@@ -17,24 +17,27 @@ import com.example.base.utils.ToastUtil
 import com.example.base.utils.function.EN_YMDHMS
 import com.example.base.utils.function.getDateTime
 import com.example.common.constant.Constants
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.*
 import java.lang.ref.SoftReference
-import java.text.DecimalFormat
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Created by WangYanBin on 2020/7/1.
  * 文件管理工具类
  */
 @SuppressLint("QueryPermissionsNeeded")
-object FileUtil {
-//    override val coroutineContext: CoroutineContext
-//        get() = (Main)
-    private const val TAG = "FileUtil"
+object FileUtil : CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = (Main)
 
     /**
      * 是否安装了XXX应用
@@ -149,7 +152,7 @@ object FileUtil {
 
     @Throws(Exception::class)
     private fun zipFiles(folderPath: String, fileName: String, zipOutputSteam: ZipOutputStream?) {
-        LogUtil.e(TAG, " \n压缩路径:$folderPath\n压缩文件名:$fileName")
+        log(" \n压缩路径:$folderPath\n压缩文件名:$fileName")
         if (zipOutputSteam == null) return
         val file = File(folderPath + fileName)
         if (file.isFile) {
@@ -183,15 +186,17 @@ object FileUtil {
      * @param zipPath 压缩完成的Zip路径（包含压缩文件名）-"${Constants.SDCARD_PATH}/10086.zip"
      */
     @JvmStatic
-    suspend fun zipFolderJob(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}) {
-        try {
-            onStart.invoke()
-            val fileDir = File(folderPath)
-            withContext(IO) { if (fileDir.exists()) zipFolder(fileDir.absolutePath, File(zipPath).absolutePath) }
-        } catch (e: Exception) {
-            log("打包图片生成压缩文件异常: $e")
-        } finally {
-            onStop.invoke()
+    fun zipFolderJob(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
+        return launch {
+            try {
+                onStart.invoke()
+                val fileDir = File(folderPath)
+                withContext(IO) { if (fileDir.exists()) zipFolder(fileDir.absolutePath, File(zipPath).absolutePath) }
+            } catch (e: Exception) {
+                log("打包图片生成压缩文件异常: $e")
+            } finally {
+                onStop.invoke()
+            }
         }
     }
 
@@ -226,12 +231,14 @@ object FileUtil {
      * 存储图片协程
      */
     @JvmStatic
-    suspend fun saveBitmapJob(context: Context, bitmap: Bitmap, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}) {
-        onStart.invoke()
-        var type: Boolean
-        withContext(IO) { type = saveBitmap(context, bitmap) }
-        ToastUtil.mackToastSHORT(if (type) "保存成功" else "保存失败", context)
-        onStop.invoke()
+    fun saveBitmapJob(context: Context, bitmap: Bitmap, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
+        return launch {
+            onStart.invoke()
+            var type: Boolean
+            withContext(IO) { type = saveBitmap(context, bitmap) }
+            ToastUtil.mackToastSHORT(if (type) "保存成功" else "保存失败", context)
+            onStop.invoke()
+        }
     }
 
     /**
@@ -239,20 +246,22 @@ object FileUtil {
      */
     @JvmOverloads
     @JvmStatic
-    suspend fun savePdfBitmapJob(context: Context, file: File, index: Int = 0, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}) {
-        val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
-        val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
-        val width = page.width
-        val height = page.height
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        canvas.drawColor(Color.WHITE)
-        canvas.drawBitmap(bitmap, 0f, 0f, null)
-        val rent = Rect(0, 0, width, height)
-        page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-        page.close()
-        renderer.close()
-        saveBitmapJob(context, bitmap, onStart, onStop)
+    fun savePdfBitmapJob(context: Context, file: File, index: Int = 0, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
+        return launch {
+            val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
+            val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
+            val width = page.width
+            val height = page.height
+            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            canvas.drawColor(Color.WHITE)
+            canvas.drawBitmap(bitmap, 0f, 0f, null)
+            val rent = Rect(0, 0, width, height)
+            page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+            page.close()
+            renderer.close()
+            saveBitmapJob(context, bitmap, onStart, onStop)
+        }
     }
 
     /**
@@ -332,20 +341,6 @@ object FileUtil {
         } else uri = Uri.parse("file://$file")
         intent.setDataAndType(uri, "application/msword")
         context.startActivity(intent)
-    }
-
-    /**
-     * 转换文件大小格式
-     */
-    @JvmStatic
-    fun formatFileSize(fileSize: Long): String {
-        val format = DecimalFormat("#.00")
-        return when {
-            fileSize < 1024 -> "${format.format(fileSize.toDouble())}B"
-            fileSize < 1048576 -> "${format.format(fileSize.toDouble() / 1024)}K"
-            fileSize < 1073741824 -> "${format.format(fileSize.toDouble() / 1048576)}M"
-            else -> "${format.format(fileSize.toDouble() / 1073741824)}G"
-        }
     }
 
     /**
