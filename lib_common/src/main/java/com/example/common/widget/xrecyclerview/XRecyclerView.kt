@@ -93,11 +93,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
-     * 滚动至指定下标
-     */
-    fun scrollToPosition(position: Int) = recycler?.scrollToPosition(position)
-
-    /**
      * 设置默认recycler的输出manager
      * 默认一行一个，线样式可自画可调整
      */
@@ -128,11 +123,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) = recycler?.initLinearHorizontal(adapter)
 
     /**
-     * 修改空布局背景颜色
-     */
-    fun setEmptyBackgroundColor(color: Int) = empty?.setBackgroundColor(color)
-
-    /**
      * 刷新页面刷新
      */
     fun setOnRefreshListener(onRefreshListener: SwipeRefreshLayout.OnRefreshListener?) {
@@ -145,6 +135,11 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     fun finishRefreshing() {
         if (refreshType == 1) refresh?.finishRefreshing()
     }
+
+    /**
+     * 修改空布局背景颜色
+     */
+    fun setEmptyBackgroundColor(color: Int) = empty?.setBackgroundColor(color)
 
     /**
      * 当数据正在加载的时候显示
