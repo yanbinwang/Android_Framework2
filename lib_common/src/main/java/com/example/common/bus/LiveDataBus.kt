@@ -30,20 +30,20 @@ class LiveDataBus private constructor() {
     /**
      * 项目订阅
      */
-    fun observe(owner: LifecycleOwner, observer: Observer<LiveDataEvent>) = toFlowable<LiveDataEvent>(Constants.LIVE_DATA_KEY).observe(owner, observer)
+    fun observe(owner: LifecycleOwner, observer: Observer<LiveDataEvent>) = toFlowable<LiveDataEvent>(Constants.LIVE_DATA_BUS_KEY).observe(owner, observer)
 
     /**
      * 项目通知
      */
     fun post(vararg objs: LiveDataEvent) {
         for (obj in objs) {
-            toFlowable<LiveDataEvent>(Constants.LIVE_DATA_KEY).postValue(obj)
+            toFlowable<LiveDataEvent>(Constants.LIVE_DATA_BUS_KEY).postValue(obj)
         }
     }
 
     fun set(vararg objs: LiveDataEvent) {
         for (obj in objs) {
-            toFlowable<LiveDataEvent>(Constants.LIVE_DATA_KEY).value = obj
+            toFlowable<LiveDataEvent>(Constants.LIVE_DATA_BUS_KEY).value = obj
         }
     }
 

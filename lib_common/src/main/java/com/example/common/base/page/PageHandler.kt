@@ -13,7 +13,7 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
 /**
  * 提示方法，根据接口返回的msg提示
  */
-fun String?.doResponse(){
+fun String?.responseMsg(){
     var strTemp = this
     val context = BaseApplication.instance?.applicationContext!!
     if (TextUtils.isEmpty(strTemp)) strTemp = context.getString(R.string.label_response_error)

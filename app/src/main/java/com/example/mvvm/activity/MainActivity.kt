@@ -4,7 +4,7 @@ import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.base.utils.function.view.clicks
 import com.example.common.base.BaseTitleActivity
-import com.example.common.base.page.doResponse
+import com.example.common.base.page.responseMsg
 import com.example.common.bus.LiveDataBus
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
@@ -55,7 +55,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
 
         ConfigHelper.encode("user",UserModel("嗷呜"))
         val data = ConfigHelper.decodeParcelable("user",UserModel::class.java)
-        data.name.doResponse()
+        data.name.responseMsg()
     }
 
     override fun initEvent() {
