@@ -2,9 +2,7 @@ package com.example.mvvm.activity
 
 import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.example.base.utils.function.SimpleTextWatcher
-import com.example.base.utils.function.clicks
-import com.example.base.utils.function.textWatcher
+import com.example.base.utils.function.view.clicks
 import com.example.common.base.BaseTitleActivity
 import com.example.common.base.page.doResponse
 import com.example.common.bus.LiveDataBus

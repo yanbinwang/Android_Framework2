@@ -1,9 +1,9 @@
 package com.example.mvvm.activity
 
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.example.base.utils.function.SimpleTextWatcher
-import com.example.base.utils.function.parameters
-import com.example.base.utils.function.textWatcher
+import com.example.base.utils.function.view.SimpleTextWatcher
+import com.example.base.utils.function.view.parameters
+import com.example.base.utils.function.view.textWatcher
 import com.example.common.base.BaseTitleActivity
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Extras

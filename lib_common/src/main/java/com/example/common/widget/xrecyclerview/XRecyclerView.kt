@@ -8,9 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.base.utils.function.dip2px
+import com.example.base.utils.function.view.initLinearHorizontal
 import com.example.base.widget.SimpleViewGroup
 import com.example.common.R
 import com.example.common.base.binding.BaseQuickAdapter
@@ -90,51 +89,38 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 类型1的时候才会显示
      */
     fun setEmptyVisibility(visibility: Int) {
-        if (refreshType == 1 && 0 != emptyType) {
-            empty?.visibility = visibility
-        }
+        if (refreshType == 1 && 0 != emptyType) empty?.visibility = visibility
     }
 
     /**
      * 设置默认recycler的输出manager
      * 默认一行一个，线样式可自画可调整
      */
-    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T) {
-        setAdapter(adapter, 1)
-    }
-
-    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int) {
-        setAdapter(adapter, spanCount, 0, 0, false, false)
-    }
-
-    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int, horizontalSpace: Int) {
-        setAdapter(adapter, spanCount, horizontalSpace, 0, true, false)
-    }
-
-    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int, horizontalSpace: Int, verticalSpace: Int) {
-        setAdapter(adapter, spanCount, horizontalSpace, verticalSpace, true, true)
-    }
-
-    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int, horizontalSpace: Int, verticalSpace: Int, hasHorizontalEdge: Boolean, hasVerticalEdge: Boolean) {
+    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
         recycler?.layoutManager = GridLayoutManager(context, spanCount)
         recycler?.adapter = adapter
         addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
     }
 
+    /**
+     * 添加分隔线
+     */
+    fun addItemDecoration(horizontalSpace: Int, verticalSpace: Int, hasHorizontalEdge: Boolean, hasVerticalEdge: Boolean) {
+        val propMap = SparseArray<ItemDecorationProps>()
+        val prop1 = ItemDecorationProps(context.dip2px(horizontalSpace.toFloat()), context.dip2px(verticalSpace.toFloat()), hasHorizontalEdge, hasVerticalEdge)
+        propMap.put(0, prop1)
+        recycler?.addItemDecoration(SCommonItemDecoration(propMap))
+    }
+
+    /**
+     * 获取适配器
+     */
     fun <T : BaseQuickAdapter<*, *>> getAdapter() = recycler?.adapter as T?
 
     /**
      * 设置横向左右滑动的adapter
      */
-    fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) {
-        recycler?.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
-        recycler?.adapter = adapter
-    }
-
-    /**
-     * 修改空布局背景颜色
-     */
-    fun setEmptyBackgroundColor(color: Int) = empty?.setBackgroundColor(color)
+    fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) = recycler?.initLinearHorizontal(adapter)
 
     /**
      * 刷新页面刷新
@@ -149,6 +135,11 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     fun finishRefreshing() {
         if (refreshType == 1) refresh?.finishRefreshing()
     }
+
+    /**
+     * 修改空布局背景颜色
+     */
+    fun setEmptyBackgroundColor(color: Int) = empty?.setBackgroundColor(color)
 
     /**
      * 当数据正在加载的时候显示
@@ -171,36 +162,15 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         }
     }
 
-    fun showError() {
-        if (0 != emptyType) {
-            setEmptyVisibility(VISIBLE)
-            empty?.showError()
-        }
-    }
-
     /**
-     * 当数据异常时(显示需要显示的图片，以及内容字)
+     * 当数据异常时
      */
-    fun showError(imgInt: Int, text: String?) {
+    @JvmOverloads
+    fun showError(imgInt: Int = -1, text: String? = null) {
         if (0 != emptyType) {
             setEmptyVisibility(VISIBLE)
             empty?.showError(imgInt, text)
         }
-    }
-
-    /**
-     * 滚动至指定下标
-     */
-    fun scrollToPosition(position: Int) = recycler?.scrollToPosition(position)
-
-    /**
-     * 添加分隔线
-     */
-    fun addItemDecoration(horizontalSpace: Int, verticalSpace: Int, hasHorizontalEdge: Boolean, hasVerticalEdge: Boolean) {
-        val propMap = SparseArray<ItemDecorationProps>()
-        val prop1 = ItemDecorationProps(context.dip2px(horizontalSpace.toFloat()), context.dip2px(verticalSpace.toFloat()), hasHorizontalEdge, hasVerticalEdge)
-        propMap.put(0, prop1)
-        recycler?.addItemDecoration(SCommonItemDecoration(propMap))
     }
 
 }
