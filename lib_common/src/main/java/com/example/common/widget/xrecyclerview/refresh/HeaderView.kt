@@ -29,14 +29,14 @@ class HeaderView(var context: Context) : IHeaderView {
     }
 
     /**
-     * 当控件下拉时触发
+     * 正在下拉的过程
      */
     override fun onPullingDown(fraction: Float, maxHeadHeight: Float, headHeight: Float) {
         log("onPullingDown")
     }
 
     /**
-     * 刷新被复原时--复位
+     * 下拉释放过程
      */
     override fun onPullReleasing(fraction: Float, maxHeadHeight: Float, headHeight: Float) {
         log("onPullReleasing")

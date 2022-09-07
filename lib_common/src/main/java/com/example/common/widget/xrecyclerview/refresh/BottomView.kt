@@ -30,7 +30,7 @@ class BottomView(var context: Context) : IBottomView {
     }
 
     /**
-     * 当控件上拉时触发
+     * 正在上拉的过程
      */
     override fun onPullingUp(fraction: Float, maxBottomHeight: Float, bottomHeight: Float) {
         log("onPullingUp")
@@ -38,7 +38,7 @@ class BottomView(var context: Context) : IBottomView {
     }
 
     /**
-     * 刷新被复原时--复位
+     * 上拉释放过程
      */
     override fun onPullReleasing(fraction: Float, maxBottomHeight: Float, bottomHeight: Float) {
         log("onPullReleasing")
