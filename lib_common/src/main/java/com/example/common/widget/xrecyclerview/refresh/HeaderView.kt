@@ -29,21 +29,21 @@ class HeaderView(var context: Context) : IHeaderView {
      * 正在下拉的过程
      */
     override fun onPullingDown(fraction: Float, maxHeadHeight: Float, headHeight: Float) {
-        log("onPullingDown")
+        log("onPullingDown${Thread.currentThread().name}")
     }
 
     /**
      * 下拉释放过程
      */
     override fun onPullReleasing(fraction: Float, maxHeadHeight: Float, headHeight: Float) {
-        log("onPullReleasing")
+        log("onPullReleasing${Thread.currentThread().name}")
     }
 
     /**
      * 触发执行动画时，文字和图片的样式
      */
     override fun startAnim(maxHeadHeight: Float, headHeight: Float) {
-        log("startAnim")
+        log("startAnim${Thread.currentThread().name}")
         progress?.spin()
     }
 
@@ -51,7 +51,7 @@ class HeaderView(var context: Context) : IHeaderView {
      * 动画执行完毕时，结束
      */
     override fun onFinish(animEndListener: OnAnimEndListener?) {
-        log("onFinish")
+        log("onFinish${Thread.currentThread().name}")
         progress?.stopSpinning()
         animEndListener?.onAnimEnd()
     }
@@ -60,7 +60,7 @@ class HeaderView(var context: Context) : IHeaderView {
      * 重置复位
      */
     override fun reset() {
-        log("reset")
+        log("reset${Thread.currentThread().name}")
     }
 
     private fun log(msg: String) = LogUtil.e("HeaderView", msg)

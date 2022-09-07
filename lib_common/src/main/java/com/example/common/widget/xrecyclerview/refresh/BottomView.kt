@@ -30,7 +30,7 @@ class BottomView(var context: Context) : IBottomView {
      * 正在上拉的过程
      */
     override fun onPullingUp(fraction: Float, maxBottomHeight: Float, bottomHeight: Float) {
-        log("onPullingUp")
+        log("onPullingUp${Thread.currentThread().name}")
         tvMsg?.text = "上拉加载更多"
     }
 
@@ -38,7 +38,7 @@ class BottomView(var context: Context) : IBottomView {
      * 上拉释放过程
      */
     override fun onPullReleasing(fraction: Float, maxBottomHeight: Float, bottomHeight: Float) {
-        log("onPullReleasing")
+        log("onPullReleasing${Thread.currentThread().name}")
         tvMsg?.text = "释放加载更多"
     }
 
@@ -46,7 +46,7 @@ class BottomView(var context: Context) : IBottomView {
      * 触发执行动画时，文字和图片的样式
      */
     override fun startAnim(maxBottomHeight: Float, bottomHeight: Float) {
-        log("startAnim")
+        log("startAnim${Thread.currentThread().name}")
         tvMsg?.text = "加载中"
         progress?.spin()
     }
@@ -55,7 +55,7 @@ class BottomView(var context: Context) : IBottomView {
      * 动画执行完毕时，结束
      */
     override fun onFinish() {
-        log("onFinish")
+        log("onFinish${Thread.currentThread().name}")
         tvMsg?.text = ""
         progress?.stopSpinning()
     }
@@ -64,7 +64,7 @@ class BottomView(var context: Context) : IBottomView {
      * 重置复位
      */
     override fun reset() {
-        log("reset")
+        log("reset${Thread.currentThread().name}")
     }
 
     private fun log(msg: String) = LogUtil.e("BottomView", msg)
