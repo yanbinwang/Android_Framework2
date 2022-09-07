@@ -129,142 +129,6 @@ object FileUtil : CoroutineScope {
     }
 
     /**
-     * 将指定路径下的所有文件打成压缩包
-     * File fileDir = new File(rootDir + "/DCIM/Screenshots");
-     * File zipFile = new File(rootDir + "/" + taskId + ".zip");
-     *
-     * @param srcFilePath 要压缩的文件或文件夹路径
-     * @param zipFilePath 压缩完成的Zip路径
-     */
-    @JvmStatic
-    @Throws(Exception::class)
-    fun zipFolder(srcFilePath: String, zipFilePath: String) {
-        //创建ZIP
-        val outZip = ZipOutputStream(FileOutputStream(zipFilePath))
-        //创建文件
-        val file = File(srcFilePath)
-        //压缩
-        zipFiles(file.parent + File.separator, file.name, outZip)
-        //完成和关闭
-        outZip.finish()
-        outZip.close()
-    }
-
-    @Throws(Exception::class)
-    private fun zipFiles(folderPath: String, fileName: String, zipOutputSteam: ZipOutputStream?) {
-        log(" \n压缩路径:$folderPath\n压缩文件名:$fileName")
-        if (zipOutputSteam == null) return
-        val file = File(folderPath + fileName)
-        if (file.isFile) {
-            val zipEntry = ZipEntry(fileName)
-            val inputStream = FileInputStream(file)
-            zipOutputSteam.putNextEntry(zipEntry)
-            var len: Int
-            val buffer = ByteArray(4096)
-            while (inputStream.read(buffer).also { len = it } != -1) {
-                zipOutputSteam.write(buffer, 0, len)
-            }
-            zipOutputSteam.closeEntry()
-        } else {
-            //文件夹
-            val fileList = file.list()
-            //没有子文件和压缩
-            if (fileList.isEmpty()) {
-                val zipEntry = ZipEntry(fileName + File.separator)
-                zipOutputSteam.putNextEntry(zipEntry)
-                zipOutputSteam.closeEntry()
-            }
-            //子文件和递归
-            for (i in fileList.indices) {
-                zipFiles("$folderPath$fileName/", fileList[i], zipOutputSteam)
-            }
-        }
-    }
-
-    /**
-     * @param folderPath 要打成压缩包文件的路径
-     * @param zipPath 压缩完成的Zip路径（包含压缩文件名）-"${Constants.SDCARD_PATH}/10086.zip"
-     */
-    @JvmStatic
-    fun zipFolderJob(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
-        return launch {
-            try {
-                onStart.invoke()
-                val fileDir = File(folderPath)
-                withContext(IO) { if (fileDir.exists()) zipFolder(fileDir.absolutePath, File(zipPath).absolutePath) }
-            } catch (e: Exception) {
-                log("打包图片生成压缩文件异常: $e")
-            } finally {
-                onStop.invoke()
-            }
-        }
-    }
-
-    /**
-     * 将bitmap存成文件至指定目录下-读写权限
-     * BitmapFactory.decodeResource(resources, R.mipmap.img_qr_code)
-     */
-    @JvmOverloads
-    @JvmStatic
-    fun saveBitmap(context: Context, bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH}/图片", formatJpg: Boolean = true, quality: Int = 100): Boolean {
-        try {
-            val storeDir = File(root)
-            if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
-            val file = File(storeDir, EN_YMDHMS.getDateTime(Date()) + if (formatJpg) ".jpg" else ".png")
-            //通过io流的方式来压缩保存图片
-            val fileOutputStream = FileOutputStream(file)
-            val result = bitmap.compress(if (formatJpg) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG, quality, fileOutputStream)//png的话100不响应，但是可以维持图片透明度
-            fileOutputStream.flush()
-            fileOutputStream.close()
-            //保存图片后发送广播通知更新数据库
-            MediaStore.Images.Media.insertImage(context.contentResolver, file.absolutePath, file.name, null)
-            context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + file.path)))
-            return result
-        } catch (ignored: Exception) {
-        } finally {
-            bitmap.recycle()
-        }
-        return false
-    }
-
-    /**
-     * 存储图片协程
-     */
-    @JvmStatic
-    fun saveBitmapJob(context: Context, bitmap: Bitmap, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
-        return launch {
-            onStart.invoke()
-            var type: Boolean
-            withContext(IO) { type = saveBitmap(context, bitmap) }
-            ToastUtil.mackToastSHORT(if (type) "保存成功" else "保存失败", context)
-            onStop.invoke()
-        }
-    }
-
-    /**
-     * 保存pdf文件存成图片形式
-     */
-    @JvmOverloads
-    @JvmStatic
-    fun savePdfBitmapJob(context: Context, file: File, index: Int = 0, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
-        return launch {
-            val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
-            val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
-            val width = page.width
-            val height = page.height
-            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap)
-            canvas.drawColor(Color.WHITE)
-            canvas.drawBitmap(bitmap, 0f, 0f, null)
-            val rent = Rect(0, 0, width, height)
-            page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-            page.close()
-            renderer.close()
-            saveBitmapJob(context, bitmap, onStart, onStop)
-        }
-    }
-
-    /**
      * 读取文件到文本（文本，找不到文件或读取错返回null）
      */
     @JvmStatic
@@ -406,6 +270,142 @@ object FileUtil : CoroutineScope {
         } catch (ignored: Exception) {
         }
         return "暂无"
+    }
+
+    /**
+     * 将指定路径下的所有文件打成压缩包
+     * File fileDir = new File(rootDir + "/DCIM/Screenshots");
+     * File zipFile = new File(rootDir + "/" + taskId + ".zip");
+     *
+     * @param srcFilePath 要压缩的文件或文件夹路径
+     * @param zipFilePath 压缩完成的Zip路径
+     */
+    @JvmStatic
+    @Throws(Exception::class)
+    fun zipFolder(srcFilePath: String, zipFilePath: String) {
+        //创建ZIP
+        val outZip = ZipOutputStream(FileOutputStream(zipFilePath))
+        //创建文件
+        val file = File(srcFilePath)
+        //压缩
+        zipFiles(file.parent + File.separator, file.name, outZip)
+        //完成和关闭
+        outZip.finish()
+        outZip.close()
+    }
+
+    @Throws(Exception::class)
+    private fun zipFiles(folderPath: String, fileName: String, zipOutputSteam: ZipOutputStream?) {
+        log(" \n压缩路径:$folderPath\n压缩文件名:$fileName")
+        if (zipOutputSteam == null) return
+        val file = File(folderPath + fileName)
+        if (file.isFile) {
+            val zipEntry = ZipEntry(fileName)
+            val inputStream = FileInputStream(file)
+            zipOutputSteam.putNextEntry(zipEntry)
+            var len: Int
+            val buffer = ByteArray(4096)
+            while (inputStream.read(buffer).also { len = it } != -1) {
+                zipOutputSteam.write(buffer, 0, len)
+            }
+            zipOutputSteam.closeEntry()
+        } else {
+            //文件夹
+            val fileList = file.list()
+            //没有子文件和压缩
+            if (fileList.isEmpty()) {
+                val zipEntry = ZipEntry(fileName + File.separator)
+                zipOutputSteam.putNextEntry(zipEntry)
+                zipOutputSteam.closeEntry()
+            }
+            //子文件和递归
+            for (i in fileList.indices) {
+                zipFiles("$folderPath$fileName/", fileList[i], zipOutputSteam)
+            }
+        }
+    }
+
+    /**
+     * 将bitmap存成文件至指定目录下-读写权限
+     * BitmapFactory.decodeResource(resources, R.mipmap.img_qr_code)
+     */
+    @JvmOverloads
+    @JvmStatic
+    fun saveBitmap(context: Context, bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH}/图片", formatJpg: Boolean = true, quality: Int = 100): Boolean {
+        try {
+            val storeDir = File(root)
+            if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
+            val file = File(storeDir, EN_YMDHMS.getDateTime(Date()) + if (formatJpg) ".jpg" else ".png")
+            //通过io流的方式来压缩保存图片
+            val fileOutputStream = FileOutputStream(file)
+            val result = bitmap.compress(if (formatJpg) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG, quality, fileOutputStream)//png的话100不响应，但是可以维持图片透明度
+            fileOutputStream.flush()
+            fileOutputStream.close()
+            //保存图片后发送广播通知更新数据库
+            MediaStore.Images.Media.insertImage(context.contentResolver, file.absolutePath, file.name, null)
+            context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + file.path)))
+            return result
+        } catch (ignored: Exception) {
+        } finally {
+            bitmap.recycle()
+        }
+        return false
+    }
+
+    /**
+     * @param folderPath 要打成压缩包文件的路径
+     * @param zipPath 压缩完成的Zip路径（包含压缩文件名）-"${Constants.SDCARD_PATH}/10086.zip"
+     */
+    @JvmStatic
+    fun zipFolderJob(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
+        return launch {
+            try {
+                onStart.invoke()
+                val fileDir = File(folderPath)
+                withContext(IO) { if (fileDir.exists()) zipFolder(fileDir.absolutePath, File(zipPath).absolutePath) }
+            } catch (e: Exception) {
+                log("打包图片生成压缩文件异常: $e")
+            } finally {
+                onStop.invoke()
+            }
+        }
+    }
+
+    /**
+     * 存储图片协程
+     */
+    @JvmStatic
+    fun saveBitmapJob(context: Context, bitmap: Bitmap, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
+        return launch {
+            onStart.invoke()
+            var type: Boolean
+            withContext(IO) { type = saveBitmap(context, bitmap) }
+            ToastUtil.mackToastSHORT(if (type) "保存成功" else "保存失败", context)
+            onStop.invoke()
+        }
+    }
+
+    /**
+     * 保存pdf文件存成图片形式
+     */
+    @JvmOverloads
+    @JvmStatic
+    fun savePdfBitmapJob(context: Context, file: File, index: Int = 0, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
+        return launch {
+            val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
+            val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
+            val width = page.width
+            val height = page.height
+            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            canvas.drawColor(Color.WHITE)
+            canvas.drawBitmap(bitmap, 0f, 0f, null)
+            val rent = Rect(0, 0, width, height)
+            page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+            page.close()
+            renderer.close()
+            saveBitmapJob(context, bitmap, onStart, onStop)
+        }
     }
 
     /**
