@@ -63,6 +63,11 @@
             android:textColor="@color/black"
             android:textSize="28mm" />
 
+        <ImageView
+            android:id="@+id/iv_test2"
+            android:layout_width="100mm"
+            android:layout_height="100mm"/>
+
     </LinearLayout>
 
 </layout>

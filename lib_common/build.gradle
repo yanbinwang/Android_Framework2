@@ -76,4 +76,5 @@ dependencies {
     api deps.mmkv
     api deps.recovery
     api deps.guide
+    api deps.tkrefreshlayout
 }

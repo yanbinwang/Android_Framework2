@@ -16,9 +16,8 @@ import com.example.common.base.binding.BaseQuickAdapter
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.ItemDecorationProps
-import com.example.common.widget.xrecyclerview.refresh.SwipeRefreshLayout
 import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
-import com.example.common.widget.xrecyclerview.refresh.callback.SwipeRefreshLayoutDirection
+import com.lcodecore.tkrefreshlayout.RefreshListenerAdapter
 
 /**
  * author: wyb
@@ -34,7 +33,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var emptyType = 0//刷新类型（0顶部-1底部-2全部）
     private var refreshDirection = 0//x是否具有空布局（0无-1有）
     var empty: EmptyLayout? = null//自定义封装的空布局
-    var recycler: DetectionRecyclerView? = null//数据列表
+    var recycler: DataRecyclerView? = null//数据列表
     var onClick: (() -> Unit)? = null//空布局点击
 
     init {
@@ -68,11 +67,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 empty = view.findViewById(R.id.el)
                 refresh = view.findViewById(R.id.x_refresh)
                 recycler = view.findViewById(R.id.d_rv)
-                when (refreshDirection) {
-                    0 -> refresh?.direction = SwipeRefreshLayoutDirection.TOP
-                    1 -> refresh?.direction = SwipeRefreshLayoutDirection.BOTTOM
-                    2 -> refresh?.direction = SwipeRefreshLayoutDirection.BOTH
-                }
+                refresh?.setDirection(refreshDirection)
                 recycler?.setHasFixedSize(true)
                 recycler?.itemAnimator = DefaultItemAnimator()
                 if (0 != emptyType) {
@@ -125,7 +120,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 刷新页面刷新
      */
-    fun setOnRefreshListener(onRefreshListener: SwipeRefreshLayout.OnRefreshListener?) {
+    fun setOnRefreshListener(onRefreshListener: RefreshListenerAdapter?) {
         if (refreshType == 1) refresh?.setOnRefreshListener(onRefreshListener)
     }
 
