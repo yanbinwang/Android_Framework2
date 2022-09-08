@@ -51,14 +51,6 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
                     binding.recTest.finishRefresh()
                 },2000)
             }
-
-//            override fun onFinishRefresh() {
-//                super.onFinishRefresh()
-//            }
-//
-//            override fun onFinishLoadMore() {
-//                super.onFinishLoadMore()
-//            }
         })
     }
 

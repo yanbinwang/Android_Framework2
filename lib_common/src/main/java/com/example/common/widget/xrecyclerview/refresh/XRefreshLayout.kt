@@ -23,10 +23,10 @@ class XRefreshLayout @JvmOverloads constructor(context: Context, attrs: Attribut
         mTypedArray.recycle()
         //定义刷新控件的一些属性
         bottom.paging = paging
-        setHeaderHeight(context.dip2px(25f).toSafeFloat())
-        setMaxHeadHeight(context.dip2px(30f).toSafeFloat())
-        setBottomHeight(context.dip2px(25f).toSafeFloat())
-        setMaxBottomHeight(context.dip2px(30f).toSafeFloat())
+        setHeaderHeight(context.dip2px(30f).toSafeFloat())
+        setMaxHeadHeight(context.dip2px(35f).toSafeFloat())
+        setBottomHeight(context.dip2px(30f).toSafeFloat())
+        setMaxBottomHeight(context.dip2px(35f).toSafeFloat())
         setHeaderView(header)
         setBottomView(bottom)
         setDirection(direction)
@@ -46,11 +46,7 @@ class XRefreshLayout @JvmOverloads constructor(context: Context, attrs: Attribut
         }
     }
 
-    private fun setEnable(
-        refresh: Boolean = true,
-        loadMore: Boolean = true,
-        overScroll: Boolean = true
-    ) {
+    private fun setEnable(refresh: Boolean = true, loadMore: Boolean = true, overScroll: Boolean = true) {
         setEnableRefresh(refresh)
         setEnableLoadmore(loadMore)
         setEnableOverScroll(overScroll)
