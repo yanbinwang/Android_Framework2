@@ -12,6 +12,20 @@
             name="adapter"
             type="com.example.mvvm.adapter.TestListAdapter" />
 
+        <variable
+            name="testList"
+            type="com.example.mvvm.activity.TestListActivity" />
+
+        <!--        <import type="com.example.common.constant.Extras" />-->
+
+        <!--        <variable-->
+        <!--            name="age"-->
+        <!--            type="int"/>-->
+
+        <variable
+            name="mobile"
+            type="String" />
+
     </data>
 
     <LinearLayout
@@ -24,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="200mm"
             android:background="@color/black"
-            android:text="添加数据"
+            android:text="@{mobile}"
             android:textColor="@color/white" />
 
         <com.example.common.widget.xrecyclerview.XRecyclerView

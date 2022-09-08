@@ -1,5 +1,6 @@
 package com.example.mvvm.activity
 
+import android.app.Activity
 import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.base.utils.function.view.clicks
@@ -8,6 +9,7 @@ import com.example.common.base.page.responseMsg
 import com.example.common.bus.LiveDataBus
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
+import com.example.common.constant.Extras
 import com.example.common.imageloader.ImageLoader
 import com.example.common.model.UserModel
 import com.example.common.utils.PermissionFactory
@@ -29,7 +31,6 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
     override fun initView() {
         super.initView()
         titleBuilder.setTitle("10086").getDefault()
-
 //        it指代titleBuilder类,let函数返回最后一行方法的值，想返回对象用also，不想写it可以用run函数，返回最后引用的方法的那个值，apply函数可以返回对象本身
 //        titleBuilder.let {
 //            it.setTitle("10086")
@@ -93,7 +94,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.btn_login -> navigation(ARouterPath.LoginActivity)
-            R.id.btn_list -> navigation(ARouterPath.TestListActivity)
+            R.id.btn_list -> navigation(ARouterPath.TestListActivity,Extras.MOBILE to "test")
             R.id.btn_download -> {
                 PermissionFactory.with(context.get())
                     .setPermissionCallBack({
