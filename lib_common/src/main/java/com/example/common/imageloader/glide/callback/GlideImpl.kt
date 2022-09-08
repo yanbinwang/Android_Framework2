@@ -21,9 +21,7 @@ interface GlideImpl {
 
     fun displayImage(view: ImageView, string: String?, placeholderId: Int = R.drawable.shape_image_loading, errorId: Int = 0, listener: GlideRequestListener<Drawable?>? = null)
 
-    fun displayRoundImage(view: ImageView, string: String?, errorId: Int = 0, roundingRadius: Int = 5)
-
-    fun displayOverRideImage(view: ImageView, string: String?, errorId: Int = 0, roundingRadius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun displayRoundImage(view: ImageView, string: String?, errorId: Int = 0, roundingRadius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
     fun displayCircleImage(view: ImageView, string: String?, errorId: Int = R.drawable.shape_image_loading_round)
     //---------------------------------------------圆形图片加载开始---------------------------------------------
