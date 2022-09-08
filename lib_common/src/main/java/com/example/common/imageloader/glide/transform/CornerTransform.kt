@@ -13,7 +13,7 @@ import java.security.MessageDigest
  * author: wyb
  * date: 2019/5/6.
  */
-class CornerTransform(context: Context, private var radius: Float) : Transformation<Bitmap> {
+class CornerTransform(context: Context, var radius: Float) : Transformation<Bitmap> {
     private var exceptLeftTop: Boolean = false
     private var exceptRightTop: Boolean = false
     private var exceptLeftBottom: Boolean = false

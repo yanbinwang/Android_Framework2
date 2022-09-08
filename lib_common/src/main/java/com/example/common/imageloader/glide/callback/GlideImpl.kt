@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
+import com.example.common.R
 import java.io.File
 
 /**
@@ -12,36 +13,23 @@ import java.io.File
 interface GlideImpl {
 
     //---------------------------------------------图片加载开始---------------------------------------------
-    fun displayZoomImage(view: ImageView, string: String?, listener: GlideRequestListener<Bitmap?>? = null)
+    fun displayZoomImage(
+        view: ImageView,
+        string: String?,
+        listener: GlideRequestListener<Bitmap?>? = null
+    )
 
     fun displayCoverImage(view: ImageView, string: String?)
 
     fun displayProgressImage(view: ImageView, string: String, onStart: () -> Unit? = {}, onProgress: (progress: Int?) -> Unit = {}, onComplete: () -> Unit? = {})
 
-    fun displayImage(view: ImageView, string: String?)
+    fun displayImage(view: ImageView, string: String?, placeholderId: Int = R.drawable.shape_image_loading, errorId: Int = 0, listener: GlideRequestListener<Drawable?>? = null)
 
-    fun displayImage(view: ImageView, string: String?, errorId: Int)
+    fun displayRoundImage(view: ImageView, string: String?, errorId: Int = 0, roundingRadius: Int = 5)
 
-    fun displayImage(view: ImageView, string: String?, listener: GlideRequestListener<Drawable?>? = null)
+    fun displayOverRideImage(view: ImageView, string: String?, errorId: Int = 0, roundingRadius: Int = 5, overRide: BooleanArray = booleanArrayOf(true, true, true, true))
 
-    fun displayImage(view: ImageView, string: String?, placeholderId: Int, errorId: Int, listener: GlideRequestListener<Drawable?>? = null)
-
-    //---------------------------------------------图片加载结束---------------------------------------------
-
-    //---------------------------------------------圆角图片加载开始---------------------------------------------
-    fun displayRoundImage(view: ImageView, string: String?, roundingRadius: Int)
-
-    fun displayRoundImage(view: ImageView, string: String?, errorId: Int, roundingRadius: Int)
-
-    fun displayRoundImage(view: ImageView, string: String?, roundingRadius: Int, overRide: BooleanArray)
-
-    fun displayRoundImage(view: ImageView, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray)
-    //---------------------------------------------圆角图片加载开始---------------------------------------------
-
-    //---------------------------------------------圆形图片加载开始---------------------------------------------
-    fun displayCircleImage(view: ImageView, string: String?)
-
-    fun displayCircleImage(view: ImageView, string: String?, errorId: Int)
+    fun displayCircleImage(view: ImageView, string: String?, errorId: Int = R.drawable.shape_image_loading_round)
     //---------------------------------------------圆形图片加载开始---------------------------------------------
 
     //---------------------------------------------图片库方法开始---------------------------------------------
