@@ -8,12 +8,14 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
+import com.example.base.utils.function.toSafeFloat
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.imageloader.glide.callback.GlideImpl
 import com.example.common.imageloader.glide.callback.GlideModule
 import com.example.common.imageloader.glide.callback.GlideRequestListener
 import com.example.common.imageloader.glide.callback.progress.ProgressInterceptor
+import com.example.common.imageloader.glide.transform.CornerTransform
 import com.example.common.imageloader.glide.transform.ZoomTransform
 import java.io.File
 
@@ -85,17 +87,17 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-//    override fun displayOverRideImage(view: ImageView, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
-//        val transformation = CornerTransform(view.context, roundingRadius.toFloat())
-//        transformation.setExceptCorner(overRide[0], overRide[1], overRide[2], overRide[3])
-//        Glide.with(view.context)
-//            .load(string)
-//            .transform(transformation)
-//            .placeholder(R.drawable.shape_image_loading)
-//            .error(errorId)
-//            .dontAnimate()
-//            .into(view)
-//    }
+    override fun displayOverRideImage(view: ImageView, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
+        val transformation = CornerTransform(view.context, roundingRadius.toFloat())
+        transformation.setExceptCorner(overRide[0], overRide[1], overRide[2], overRide[3])
+        Glide.with(view.context)
+            .load(string)
+            .transform(transformation)
+            .placeholder(R.drawable.shape_image_loading)
+            .error(errorId)
+            .dontAnimate()
+            .into(view)
+    }
 
     override fun displayCircleImage(view: ImageView, string: String?, errorId: Int) {
         Glide.with(view.context)
