@@ -1,10 +1,13 @@
 package com.example.common.widget.xrecyclerview.refresh
 
 import android.content.Context
-import android.view.View
+import android.util.AttributeSet
+import android.view.LayoutInflater
+import androidx.databinding.DataBindingUtil
 import com.example.base.utils.LogUtil
+import com.example.base.widget.SimpleViewGroup
 import com.example.common.R
-import com.example.common.widget.ProgressWheel
+import com.example.common.databinding.ViewRefreshHeaderBinding
 import com.lcodecore.tkrefreshlayout.IHeaderView
 import com.lcodecore.tkrefreshlayout.OnAnimEndListener
 
@@ -13,17 +16,17 @@ import com.lcodecore.tkrefreshlayout.OnAnimEndListener
  * @description 自定义头部
  * @author yan
  */
-class HeaderView(var context: Context) : IHeaderView {
-    private var progress: ProgressWheel? = null
+class HeaderView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SimpleViewGroup(context, attrs, defStyleAttr), IHeaderView {
+    private val binding by lazy<ViewRefreshHeaderBinding> { DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_refresh_header, null))!! }
+
+    override fun onDrawView() {
+        if (onFinishView()) addView(binding.root)
+    }
 
     /**
      * 获取刷新的整体view
      */
-    override fun getView(): View {
-        val rootView = View.inflate(context, R.layout.view_refresh_header, null)
-        progress = rootView.findViewById(R.id.progress)
-        return rootView
-    }
+    override fun getView() = binding.root
 
     /**
      * 正在下拉的过程
@@ -44,7 +47,7 @@ class HeaderView(var context: Context) : IHeaderView {
      */
     override fun startAnim(maxHeadHeight: Float, headHeight: Float) {
         log("startAnim${Thread.currentThread().name}")
-        progress?.spin()
+        binding.progress.spin()
     }
 
     /**
@@ -52,7 +55,7 @@ class HeaderView(var context: Context) : IHeaderView {
      */
     override fun onFinish(animEndListener: OnAnimEndListener?) {
         log("onFinish${Thread.currentThread().name}")
-        progress?.stopSpinning()
+        binding.progress.stopSpinning()
         animEndListener?.onAnimEnd()
     }
 

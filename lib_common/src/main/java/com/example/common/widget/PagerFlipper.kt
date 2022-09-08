@@ -18,8 +18,8 @@ class PagerFlipper @JvmOverloads constructor(context: Context, attrs: AttributeS
         pager?.getChildAt(0)?.overScrollMode = OVER_SCROLL_NEVER //去除水波纹
     }
 
-    override fun drawView() {
-        if (onFinish()) addView(pager)
+    override fun onDrawView() {
+        if (onFinishView()) addView(pager)
     }
 
     fun setAdapter(adapter: RecyclerView.Adapter<*>) {

@@ -13,7 +13,7 @@ import com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout
  */
 class XRefreshLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : TwinklingRefreshLayout(context, attrs, defStyleAttr) {
     private val header by lazy { HeaderView(context) }
-    private val bottom by lazy { BottomView(context) }
+    private val bottom by lazy { FooterView(context) }
 
     init {
         val mTypedArray = context.obtainStyledAttributes(attrs, R.styleable.XRefreshLayout)
