@@ -40,7 +40,7 @@ fun LinearLayout.statusBarTopMargin(arrow: Boolean = true) {
 /**
  * 设置按钮显影图片
  */
-fun ImageView.setSwitchResource(triple: Triple<Boolean, Int, Int>) = setImageResource(if (!triple.first) triple.second else triple.third)
+fun ImageView.setResource(triple: Triple<Boolean, Int, Int>) = setImageResource(if (!triple.first) triple.second else triple.third)
 
 /**
  * 图片宽屏
