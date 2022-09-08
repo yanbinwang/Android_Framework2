@@ -17,9 +17,13 @@ import com.example.common.constant.Constants
 /**
  * 空出状态栏高度
  */
-fun View.statusBarHeight() = run { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT) }
+fun View.statusBarHeight() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
+}
 
-fun View.statusBarPadding() = run { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0) }
+fun View.statusBarPadding() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
+}
 
 fun RelativeLayout.statusBarTopMargin(arrow: Boolean = true) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || arrow) {
