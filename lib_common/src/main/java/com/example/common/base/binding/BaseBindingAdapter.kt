@@ -17,11 +17,12 @@ object BaseBindingAdapter {
 
     /**
      * 适配器
+     * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
      */
     @JvmStatic
-    @BindingAdapter(value = ["adapter"])
-    fun <T : BaseQuickAdapter<*, *>> bindingAdapter(rec: XRecyclerView, adapter: T) {
-        rec.setAdapter(adapter)
+    @BindingAdapter(value = ["adapter", "spanCount", "horizontalSpace", "verticalSpace", "hasHorizontalEdge", "hasVerticalEdge"], requireAll = false)
+    fun <T : BaseQuickAdapter<*, *>> bindingAdapter(rec: XRecyclerView, adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
+        rec.setAdapter(adapter, spanCount, horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
     }
 
     /**
@@ -62,23 +63,13 @@ object BaseBindingAdapter {
         ImageLoader.instance.displayZoomImage(view, url)
     }
 
-//    /**
-//     * 加载图片（带圆角）
-//     */
-//    @JvmStatic
-//    @BindingAdapter(value = ["displayRound"])
-//    fun setDisplayRound(view: ImageView, url: String) {
-//        ImageLoader.instance.displayRoundImage(view, url, 5)
-//    }
-
     /**
      * 加载图片（带圆角）
-     * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
      */
     @JvmStatic
-    @BindingAdapter(value = ["displayRound", "roundingRadius", "overRide"], requireAll = false)
-    fun bindingDisplayRound(view: ImageView, url: String, roundingRadius: Int = 5, overRide: BooleanArray = booleanArrayOf(true, true, true, true)) {
-        ImageLoader.instance.displayRoundImage(view, url, roundingRadius, overRide)
+    @BindingAdapter(value = ["displayRound", "roundingRadius"], requireAll = false)
+    fun setDisplayRound(view: ImageView, url: String, roundingRadius: Int = 5) {
+        ImageLoader.instance.displayRoundImage(view, url, roundingRadius)
     }
 
     /**
