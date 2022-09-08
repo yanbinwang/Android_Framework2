@@ -5,7 +5,6 @@ import android.graphics.*
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.load.engine.Resource
-import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
 import java.security.MessageDigest
 
@@ -18,7 +17,7 @@ class CornerTransform(context: Context, var radius: Float) : Transformation<Bitm
     private var exceptRightTop: Boolean = false
     private var exceptLeftBottom: Boolean = false
     private var exceptRightBottom: Boolean = false
-    private val mBitmapPool: BitmapPool = Glide.get(context).bitmapPool
+    private val mBitmapPool = Glide.get(context).bitmapPool
 
     fun setExceptCorner(leftTop: Boolean, rightTop: Boolean, leftBottom: Boolean, rightBottom: Boolean) {
         this.exceptLeftTop = leftTop

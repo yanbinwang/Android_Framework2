@@ -13,11 +13,7 @@ import java.io.File
 interface GlideImpl {
 
     //---------------------------------------------图片加载开始---------------------------------------------
-    fun displayZoomImage(
-        view: ImageView,
-        string: String?,
-        listener: GlideRequestListener<Bitmap?>? = null
-    )
+    fun displayZoomImage(view: ImageView, string: String?, listener: GlideRequestListener<Bitmap?>? = null)
 
     fun displayCoverImage(view: ImageView, string: String?)
 
@@ -27,7 +23,7 @@ interface GlideImpl {
 
     fun displayRoundImage(view: ImageView, string: String?, errorId: Int = 0, roundingRadius: Int = 5)
 
-    fun displayOverRideImage(view: ImageView, string: String?, errorId: Int = 0, roundingRadius: Int = 5, overRide: BooleanArray = booleanArrayOf(true, true, true, true))
+    fun displayOverRideImage(view: ImageView, string: String?, errorId: Int = 0, roundingRadius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
     fun displayCircleImage(view: ImageView, string: String?, errorId: Int = R.drawable.shape_image_loading_round)
     //---------------------------------------------圆形图片加载开始---------------------------------------------
