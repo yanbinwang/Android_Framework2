@@ -139,6 +139,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
+     * 同时关闭上下的刷新
+     */
+    fun finishRefresh() {
+        if (refreshType == 1) refresh?.finishRefresh()
+    }
+
+    /**
      * 主动刷新
      */
     fun startRefresh() {

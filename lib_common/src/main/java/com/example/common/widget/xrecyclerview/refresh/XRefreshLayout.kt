@@ -49,4 +49,12 @@ class XRefreshLayout @JvmOverloads constructor(context: Context, attrs: Attribut
         setEnableOverScroll(overScroll)
     }
 
+    /**
+     * 同时关闭头尾刷新
+     */
+    fun finishRefresh() {
+        finishRefreshing()
+        finishLoadmore()
+    }
+
 }
