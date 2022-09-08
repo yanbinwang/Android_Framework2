@@ -21,7 +21,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["adapter", "spanCount", "horizontalSpace", "verticalSpace", "hasHorizontalEdge", "hasVerticalEdge"], requireAll = false)
-    fun <T : BaseQuickAdapter<*, *>> bindingRecyclerViewSetAdapter(rec: XRecyclerView, adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
+    fun <T : BaseQuickAdapter<*, *>> bindingRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
         rec.setAdapter(adapter, spanCount, horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
     }
 
