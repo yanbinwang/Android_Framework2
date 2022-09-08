@@ -6,9 +6,7 @@ import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
-import com.example.base.utils.function.toSafeFloat
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.imageloader.glide.callback.GlideImpl
@@ -77,22 +75,19 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayRoundImage(view: ImageView, string: String?, errorId: Int, roundingRadius: Int) {
-        Glide.with(view.context)
-            .load(string)
-            .apply(RequestOptions.bitmapTransform(RoundedCorners(roundingRadius)))
-            .placeholder(R.drawable.shape_image_loading)
-            .error(errorId)
-            .dontAnimate()
-            .into(view)
-    }
-
-    override fun displayOverRideImage(view: ImageView, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
+    override fun displayRoundImage(view: ImageView, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
+//        Glide.with(view.context)
+//            .load(string)
+//            .apply(RequestOptions.bitmapTransform(RoundedCorners(roundingRadius)))
+//            .placeholder(R.drawable.shape_image_loading)
+//            .error(errorId)
+//            .dontAnimate()
+//            .into(view)
         val transformation = CornerTransform(view.context, roundingRadius.toFloat())
         transformation.setExceptCorner(overRide[0], overRide[1], overRide[2], overRide[3])
         Glide.with(view.context)
             .load(string)
-            .transform(transformation)
+            .apply(RequestOptions.bitmapTransform(transformation))
             .placeholder(R.drawable.shape_image_loading)
             .error(errorId)
             .dontAnimate()
