@@ -3,6 +3,8 @@ package com.example.common.base.binding
 import android.annotation.SuppressLint
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
+import com.example.base.utils.function.orFalse
+import com.example.base.utils.function.toSafeInt
 import com.example.common.imageloader.ImageLoader
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.XRecyclerView
@@ -12,6 +14,9 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
  * 全局通用工具类
  * 复用性高的代码，统一放在common中
  * 比如列表页都需要设置适配器属性，富文本加载网页
+ * bindingAdapters不遵循默认值,生成的类使用Java，
+ * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
+ * 如果requireAll设置为false，则未通过编程设置的所有内容都将为null，false（对于布尔值）或0（对于数字）
  */
 object BaseBindingAdapter {
 
@@ -21,8 +26,8 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["adapter", "spanCount", "horizontalSpace", "verticalSpace", "hasHorizontalEdge", "hasVerticalEdge"], requireAll = false)
-    fun <T : BaseQuickAdapter<*, *>> bindingRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
-        rec.setAdapter(adapter, spanCount, horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
+    fun <T : BaseQuickAdapter<*, *>> bindingRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
+        rec.setAdapter(adapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(0), verticalSpace.toSafeInt(0), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
     }
 
     /**
@@ -68,8 +73,8 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["displayRound", "roundingRadius"], requireAll = false)
-    fun bindingImageDisplayRound(view: ImageView, url: String, roundingRadius: Int = 5) {
-        ImageLoader.instance.displayRoundImage(view, url, roundingRadius)
+    fun bindingImageDisplayRound(view: ImageView, url: String, roundingRadius: Int?) {
+        ImageLoader.instance.displayRoundImage(view, url, roundingRadius.toSafeInt(5))
     }
 
     /**

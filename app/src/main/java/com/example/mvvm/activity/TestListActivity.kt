@@ -4,6 +4,7 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.base.utils.TimerHelper
 import com.example.common.base.BaseActivity
 import com.example.common.constant.ARouterPath
+import com.example.common.constant.Extras
 import com.example.mvvm.BR
 import com.example.mvvm.R
 import com.example.mvvm.adapter.TestListAdapter
@@ -23,6 +24,7 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
         super.initView()
         //绑定适配器,监听
         binding.setVariable(BR.adapter, TestListAdapter())
+        binding.setVariable(BR.mobile,intent.getStringExtra(Extras.MOBILE))
     }
 
     override fun initEvent() {
