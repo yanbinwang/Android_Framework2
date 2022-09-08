@@ -118,17 +118,38 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) = recycler?.initLinearHorizontal(adapter)
 
     /**
-     * 刷新页面刷新
+     * 刷新页面监听
      */
     fun setOnRefreshListener(onRefreshListener: RefreshListenerAdapter?) {
         if (refreshType == 1) refresh?.setOnRefreshListener(onRefreshListener)
     }
 
     /**
-     * 设置停止刷新
+     * 结束刷新
      */
     fun finishRefreshing() {
         if (refreshType == 1) refresh?.finishRefreshing()
+    }
+
+    /**
+     * 结束加载更多
+     */
+    fun finishLoadmore() {
+        if (refreshType == 1) refresh?.finishLoadmore()
+    }
+
+    /**
+     * 主动刷新
+     */
+    fun startRefresh() {
+        if (refreshType == 1) refresh?.startRefresh()
+    }
+
+    /**
+     * 主动加载跟多
+     */
+    fun startLoadMore() {
+        if (refreshType == 1) refresh?.startLoadMore()
     }
 
     /**
