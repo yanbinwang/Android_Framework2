@@ -18,7 +18,7 @@ class WeightLayout @JvmOverloads constructor(context: Context, attrs: AttributeS
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec / weight, widthMeasureSpec)
+        super.onMeasure(widthMeasureSpec / weight, heightMeasureSpec)
     }
 
 }
