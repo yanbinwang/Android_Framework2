@@ -21,7 +21,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["adapter", "spanCount", "horizontalSpace", "verticalSpace", "hasHorizontalEdge", "hasVerticalEdge"], requireAll = false)
-    fun <T : BaseQuickAdapter<*, *>> bindingAdapter(rec: XRecyclerView, adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
+    fun <T : BaseQuickAdapter<*, *>> bindingRecyclerViewSetAdapter(rec: XRecyclerView, adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
         rec.setAdapter(adapter, spanCount, horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
     }
 
@@ -31,7 +31,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["loadUrl"])
-    fun bindingLoadUrl(webView: XWebView, loadPageUrl: String) {
+    fun bindingWebViewLoadUrl(webView: XWebView, loadPageUrl: String) {
         webView.loadUrl(loadPageUrl)
     }
 
@@ -41,7 +41,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["loadAssetUrl"])
-    fun bindingLoadAssetsUrl(webView: XWebView, assetPath: String) {
+    fun bindingWebViewLoadAssetUrl(webView: XWebView, assetPath: String) {
         webView.loadUrl("file:///android_asset/$assetPath")
     }
 
@@ -50,7 +50,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["display"])
-    fun bindingDisplay(view: ImageView, url: String) {
+    fun bindingImageDisplay(view: ImageView, url: String) {
         ImageLoader.instance.displayImage(view, url)
     }
 
@@ -59,7 +59,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["displayZoom"])
-    fun bindingDisplayZoom(view: ImageView, url: String) {
+    fun bindingImageDisplayZoom(view: ImageView, url: String) {
         ImageLoader.instance.displayZoomImage(view, url)
     }
 
@@ -68,7 +68,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["displayRound", "roundingRadius"], requireAll = false)
-    fun setDisplayRound(view: ImageView, url: String, roundingRadius: Int = 5) {
+    fun bindingImageDisplayRound(view: ImageView, url: String, roundingRadius: Int = 5) {
         ImageLoader.instance.displayRoundImage(view, url, roundingRadius)
     }
 
@@ -77,7 +77,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["displayCircle"])
-    fun bindingDisplayCircle(view: ImageView, url: String) {
+    fun bindingImageDisplayCircle(view: ImageView, url: String) {
         ImageLoader.instance.displayCircleImage(view, url)
     }
 
