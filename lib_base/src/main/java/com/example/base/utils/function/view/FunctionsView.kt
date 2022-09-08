@@ -51,6 +51,59 @@ fun View?.stopHardwareAccelerate() {
 }
 
 /**
+ * 判断是否可见
+ */
+fun View?.isVisible(): Boolean {
+    if (this == null) return false
+    return this.visibility == View.VISIBLE
+}
+
+/**
+ * 显示view
+ */
+fun View?.visible() {
+    if (this == null) return
+    if (visibility == View.VISIBLE) return
+    this.visibility = View.VISIBLE
+}
+
+/**
+ * 不显示view
+ */
+fun View?.invisible() {
+    if (this == null) return
+    if (visibility == View.INVISIBLE) return
+    this.visibility = View.INVISIBLE
+}
+
+/**
+ * 隐藏view
+ */
+fun View?.gone() {
+    if (this == null) return
+    if (visibility == View.GONE) return
+    this.visibility = View.GONE
+}
+
+/**
+ * 有效化
+ */
+fun View?.enable() {
+    if (this == null) return
+    if (isEnabled) return
+    isEnabled = true
+}
+
+/**
+ * 无效化
+ */
+fun View?.disable() {
+    if (this == null) return
+    if (!isEnabled) return
+    isEnabled = false
+}
+
+/**
  * 设置margin，单位px
  */
 fun View?.margin(start: Int? = null, top: Int? = null, end: Int? = null, bottom: Int? = null) {
