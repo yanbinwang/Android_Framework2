@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import com.example.base.utils.function.dip2px
 import com.example.base.utils.function.toSafeFloat
 import com.example.common.R
+import com.example.common.base.page.Paging
 import com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout
 
 /**
@@ -14,12 +15,14 @@ import com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout
 class XRefreshLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : TwinklingRefreshLayout(context, attrs, defStyleAttr) {
     private val header by lazy { HeaderView(context) }
     private val bottom by lazy { FooterView(context) }
+    var paging: Paging? = null
 
     init {
         val mTypedArray = context.obtainStyledAttributes(attrs, R.styleable.XRefreshLayout)
         val direction = mTypedArray.getInt(R.styleable.XRefreshLayout_direction, 2)
         mTypedArray.recycle()
         //定义刷新控件的一些属性
+        bottom.paging = paging
         setHeaderHeight(context.dip2px(25f).toSafeFloat())
         setMaxHeadHeight(context.dip2px(30f).toSafeFloat())
         setBottomHeight(context.dip2px(25f).toSafeFloat())
@@ -43,7 +46,11 @@ class XRefreshLayout @JvmOverloads constructor(context: Context, attrs: Attribut
         }
     }
 
-    private fun setEnable(refresh: Boolean = true, loadMore: Boolean = true, overScroll: Boolean = true) {
+    private fun setEnable(
+        refresh: Boolean = true,
+        loadMore: Boolean = true,
+        overScroll: Boolean = true
+    ) {
         setEnableRefresh(refresh)
         setEnableLoadmore(loadMore)
         setEnableOverScroll(overScroll)

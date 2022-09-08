@@ -5,8 +5,10 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.databinding.DataBindingUtil
 import com.example.base.utils.LogUtil
+import com.example.base.utils.function.orFalse
 import com.example.base.widget.SimpleViewGroup
 import com.example.common.R
+import com.example.common.base.page.Paging
 import com.example.common.databinding.ViewRefreshFooterBinding
 import com.lcodecore.tkrefreshlayout.IBottomView
 
@@ -15,7 +17,10 @@ import com.lcodecore.tkrefreshlayout.IBottomView
  * 自定义刷新控件底部
  */
 class FooterView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SimpleViewGroup(context, attrs, defStyleAttr), IBottomView {
-    private val binding by lazy<ViewRefreshFooterBinding> { DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_refresh_footer, null))!! }
+    private val binding by lazy<ViewRefreshFooterBinding> {
+        DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_refresh_footer, null))!!
+    }
+    var paging: Paging? = null
 
     override fun onDrawView() {
         if (onFinishView()) addView(binding.root)
@@ -31,7 +36,11 @@ class FooterView @JvmOverloads constructor(context: Context, attrs: AttributeSet
      */
     override fun onPullingUp(fraction: Float, maxBottomHeight: Float, bottomHeight: Float) {
         log("onPullingUp")
-        binding.tvMsg.text = "上拉加载更多"
+        if (paging?.hasNextPage().orFalse) {
+            binding.tvMsg.text = "我也是有底线的~"
+        } else {
+            binding.tvMsg.text = "上拉加载更多"
+        }
     }
 
     /**
@@ -39,7 +48,11 @@ class FooterView @JvmOverloads constructor(context: Context, attrs: AttributeSet
      */
     override fun onPullReleasing(fraction: Float, maxBottomHeight: Float, bottomHeight: Float) {
         log("onPullReleasing")
-        binding.tvMsg.text = "释放加载更多"
+        if (paging?.hasNextPage().orFalse) {
+            binding.tvMsg.text = "我也是有底线的~"
+        } else {
+            binding.tvMsg.text = "释放加载更多"
+        }
     }
 
     /**
@@ -47,8 +60,13 @@ class FooterView @JvmOverloads constructor(context: Context, attrs: AttributeSet
      */
     override fun startAnim(maxBottomHeight: Float, bottomHeight: Float) {
         log("startAnim")
-        binding.tvMsg.text = "加载中"
-        binding.progress.spin()
+        if (paging?.hasNextPage().orFalse) {
+            binding.tvMsg.text = "我也是有底线的~"
+            binding.progress.stopSpinning()
+        } else {
+            binding.tvMsg.text = "加载中"
+            binding.progress.spin()
+        }
     }
 
     /**
@@ -66,6 +84,7 @@ class FooterView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     override fun reset() {
         log("reset")
         binding.tvMsg.text = "上拉加载更多"
+        binding.progress.stopSpinning()
     }
 
     private fun log(msg: String) = LogUtil.e("BottomView", msg)
