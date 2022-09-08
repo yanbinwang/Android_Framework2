@@ -39,26 +39,48 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
             binding.adapter?.data = it
         }
 
-        binding.recTest.setOnRefreshListener(object : RefreshListenerAdapter(){
-            override fun onRefresh(refreshLayout: TwinklingRefreshLayout?) {
-                super.onRefresh(refreshLayout)
-                TimerHelper.schedule({
-                    binding.recTest.finishRefresh()
-                },2000)
-            }
-
-            override fun onLoadMore(refreshLayout: TwinklingRefreshLayout?) {
-                super.onLoadMore(refreshLayout)
-                TimerHelper.schedule({
-                    binding.recTest.finishRefresh()
-                },2000)
-            }
-        })
+//        binding.recTest.setOnRefreshListener(object : RefreshListenerAdapter(){
+//            override fun onRefresh(refreshLayout: TwinklingRefreshLayout?) {
+//                super.onRefresh(refreshLayout)
+//                TimerHelper.schedule({
+//                    binding.recTest.finishRefresh()
+//                },2000)
+//            }
+//
+//            override fun onLoadMore(refreshLayout: TwinklingRefreshLayout?) {
+//                super.onLoadMore(refreshLayout)
+//                TimerHelper.schedule({
+//                    binding.recTest.finishRefresh()
+//                },2000)
+//            }
+//        })
+        binding.recTest.setOnRefreshListener(listener)
     }
 
     override fun initData() {
         super.initData()
         viewModel.getListData()
+        listener.onRefresh(null)
+    }
+
+    val  listener = object : RefreshListenerAdapter(){
+        override fun onRefresh(refreshLayout: TwinklingRefreshLayout?) {
+            super.onRefresh(refreshLayout)
+            if(null == refreshLayout) {
+                showToast("主动调用")
+            } else {
+                TimerHelper.schedule({
+                    binding.recTest.finishRefresh()
+                },2000)
+            }
+        }
+
+        override fun onLoadMore(refreshLayout: TwinklingRefreshLayout?) {
+            super.onLoadMore(refreshLayout)
+            TimerHelper.schedule({
+                binding.recTest.finishRefresh()
+            },2000)
+        }
     }
 
 }
