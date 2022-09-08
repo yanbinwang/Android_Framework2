@@ -24,17 +24,17 @@ abstract class SimpleViewGroup @JvmOverloads constructor(context: Context, attrs
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        if (onFinish()) drawView()
+        if (onFinishView()) onDrawView()
     }
 
     /**
      * 检测布局绘制
      */
-    protected fun onFinish() = childCount <= 0
+    protected fun onFinishView() = childCount <= 0
 
     /**
      * 容器在new的时候不会走onFinishInflate方法，需要手动调取
      */
-    abstract fun drawView()
+    abstract fun onDrawView()
 
 }

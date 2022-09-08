@@ -1,6 +1,7 @@
 package com.example.mvvm.activity
 
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.example.base.utils.TimerHelper
 import com.example.common.base.BaseActivity
 import com.example.common.constant.ARouterPath
 import com.example.mvvm.BR
@@ -8,6 +9,8 @@ import com.example.mvvm.R
 import com.example.mvvm.adapter.TestListAdapter
 import com.example.mvvm.bridge.TestListViewModel
 import com.example.mvvm.databinding.ActivityTestListBinding
+import com.lcodecore.tkrefreshlayout.RefreshListenerAdapter
+import com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout
 
 /**
  * Created by WangYanBin on 2020/6/4.
@@ -26,13 +29,6 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
         super.initEvent()
         binding.btnTest.setOnClickListener { viewModel.getListData() }
 
-//        binding.adapter?.setOnItemClickListener { _, _, position -> showToast("整体点击：$position") }
-//        binding.adapter?.setOnItemChildClickListener { _, view, position ->
-//            when (view.id) {
-//                R.id.iv_img -> showToast("图片点击：$position")
-//                R.id.tv_title -> showToast("标题点击：$position")
-//            }
-//        }
         binding.adapter!!.onItemClick = {
             showToast("整体点击：$it")
         }
@@ -40,6 +36,22 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
         viewModel.dataListData.observe(this) {
             binding.adapter?.data = it
         }
+
+        binding.recTest.setOnRefreshListener(object : RefreshListenerAdapter(){
+            override fun onRefresh(refreshLayout: TwinklingRefreshLayout?) {
+                super.onRefresh(refreshLayout)
+                TimerHelper.schedule({
+                    binding.recTest.finishRefresh()
+                },2000)
+            }
+
+            override fun onLoadMore(refreshLayout: TwinklingRefreshLayout?) {
+                super.onLoadMore(refreshLayout)
+                TimerHelper.schedule({
+                    binding.recTest.finishRefresh()
+                },2000)
+            }
+        })
     }
 
     override fun initData() {

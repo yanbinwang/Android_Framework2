@@ -36,6 +36,33 @@ fun RecyclerView?.initGridHorizontal(adapter: RecyclerView.Adapter<*>, columns: 
 }
 
 /**
+ * 获取holder
+ * */
+fun <K : RecyclerView.ViewHolder> RecyclerView?.getHolder(position: Int): K? {
+    if (this == null) return null
+    adapter?.let { adapter ->
+        if (position !in 0 until adapter.itemCount) {
+            return null
+        }
+    } ?: return null
+    return findViewHolderForAdapterPosition(position) as? K
+}
+
+/**
+ * 清空自带的动画
+ */
+fun RecyclerView?.cancelItemAnimator() {
+    this ?: return
+    (itemAnimator as? SimpleItemAnimator)?.apply {
+        addDuration = 0
+        changeDuration = 0
+        moveDuration = 0
+        removeDuration = 0
+        supportsChangeAnimations = false
+    }
+}
+
+/**
  * 判断是否滑到顶端
  */
 fun RecyclerView?.isTop(): Boolean {
@@ -62,19 +89,5 @@ fun RecyclerView?.isBottom(): Boolean {
         lastChild?.let { it.bottom <= height }.orTrue
     } else {
         false
-    }
-}
-
-/**
- * 清空自带的动画
- */
-fun RecyclerView?.cancelItemAnimator() {
-    this ?: return
-    (itemAnimator as? SimpleItemAnimator)?.apply {
-        addDuration = 0
-        changeDuration = 0
-        moveDuration = 0
-        removeDuration = 0
-        supportsChangeAnimations = false
     }
 }

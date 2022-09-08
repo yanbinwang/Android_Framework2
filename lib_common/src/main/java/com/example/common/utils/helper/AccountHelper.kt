@@ -4,7 +4,6 @@ import android.text.TextUtils
 import com.example.common.constant.Constants
 import com.example.common.model.UserModel
 import com.example.common.utils.analysis.GsonUtil.jsonToObj
-import com.example.common.utils.analysis.GsonUtil.objToJson
 import com.tencent.mmkv.MMKV
 
 /**

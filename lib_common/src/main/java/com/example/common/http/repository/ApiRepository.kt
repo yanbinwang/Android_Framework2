@@ -6,7 +6,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.example.base.utils.LogUtil
 import com.example.common.base.bridge.BaseViewModel
-import com.example.common.base.page.doResponse
+import com.example.common.base.page.responseMsg
 import com.example.common.utils.helper.AccountHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -29,19 +29,6 @@ fun Fragment.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.as
 fun AppCompatActivity.launch(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.launch(block = block)
 
 fun AppCompatActivity.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
-
-///**
-// * 请求的协程线程切换
-// * 切到子线程进行处理，请求失败会被catch，返回null
-// */
-//suspend fun <T> T?.call(): T? {
-//    try {
-//        withContext(IO) { this@call }
-//    } catch (e: Exception) {
-//        return null
-//    }
-//    return null
-//}
 
 /**
  * 串行网络请求
@@ -66,11 +53,11 @@ fun <T> CoroutineScope.loadHttp(
             }
             val body = data.response()
             if (null != body) resp(body) else {
-                if (isShowToast) data.msg.doResponse()
+                if (isShowToast) data.msg.responseMsg()
                 err(Triple(data.code, data.msg, null))
             }
         } catch (e: Exception) {
-            if (isShowToast) "".doResponse()
+            if (isShowToast) "".responseMsg()
             err(Triple(-1, "", e))  //可根据具体异常显示具体错误提示
         } finally {
             LogUtil.e("repository", "3:${Thread.currentThread().name}")

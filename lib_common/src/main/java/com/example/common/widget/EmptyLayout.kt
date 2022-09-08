@@ -34,15 +34,10 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     var onRefreshClick: (() -> Unit)? = null
 
     init {
-        binding = DataBindingUtil.bind(
-            LayoutInflater.from(getContext()).inflate(R.layout.view_empty, null)
-        )
+        binding = DataBindingUtil.bind(LayoutInflater.from(getContext()).inflate(R.layout.view_empty, null))
         binding?.llContainer?.setBackgroundColor(color(R.color.grey_f6f8ff))
         //设置样式
-        binding?.root?.layoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.MATCH_PARENT
-        ) //设置LayoutParams
+        binding?.root?.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT) //设置LayoutParams
         binding?.root?.setBackgroundColor(color(R.color.grey_f6f8ff))
         //设置监听
         binding?.tvRefresh?.setOnClickListener {
@@ -54,8 +49,8 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         showLoading()
     }
 
-    override fun drawView() {
-        if (onFinish()) addView(binding?.root)
+    override fun onDrawView() {
+        if (onFinishView()) addView(binding?.root)
     }
 
     /**

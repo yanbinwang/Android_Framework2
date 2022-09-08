@@ -31,14 +31,15 @@
             android:id="@+id/rec_test"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:adapter="@{adapter}" />
+            app:adapter="@{adapter}"
+            app:refresh="equipped" />
 
-<!--        <androidx.recyclerview.widget.RecyclerView-->
-<!--            android:id="@+id/rec_test"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            app:adapter="@{adapter}"-->
-<!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />-->
+        <!--        <androidx.recyclerview.widget.RecyclerView-->
+        <!--            android:id="@+id/rec_test"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="match_parent"-->
+        <!--            app:adapter="@{adapter}"-->
+        <!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />-->
 
     </LinearLayout>
 

@@ -1,5 +1,6 @@
 package com.example.common.base
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
@@ -26,6 +27,7 @@ import java.util.*
 /**
  * Created by WangYanBin on 2020/6/4.
  */
+@SuppressLint("UseRequireInsteadOfGet")
 abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseView {
     protected lateinit var binding: VDB
     protected val activity by lazy { WeakReference<Activity>(getActivity()) } //基类activity弱引用

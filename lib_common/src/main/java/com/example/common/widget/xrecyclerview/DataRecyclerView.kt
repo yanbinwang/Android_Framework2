@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
  * date: 2017/8/25.
  * 带检测数据是否为空的recyclerview
  */
-class DetectionRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RecyclerView(context, attrs, defStyleAttr) {
+class DataRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RecyclerView(context, attrs, defStyleAttr) {
     private var emptyView: View? = null//adapter没有数据的时候显示,类似于listView的emptyView
 
     /**
