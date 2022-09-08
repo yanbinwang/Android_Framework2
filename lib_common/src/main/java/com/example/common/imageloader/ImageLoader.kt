@@ -47,7 +47,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayProgressImage(view: ImageView, string: String,  onStart: () -> Unit?, onProgress: (progress: Int?) -> Unit , onComplete: () -> Unit?) {
+    override fun displayProgressImage(view: ImageView, string: String, onStart: () -> Unit?, onProgress: (progress: Int?) -> Unit, onComplete: () -> Unit?) {
         ProgressInterceptor.addListener(string) { onProgress(it) }
         Glide.with(view.context)
             .load(string)
@@ -65,18 +65,6 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayImage(view: ImageView, string: String?) {
-        displayImage(view, string, 0)
-    }
-
-    override fun displayImage(view: ImageView, string: String?, errorId: Int) {
-        displayImage(view, string, R.drawable.shape_image_loading, errorId, null)
-    }
-
-    override fun displayImage(view: ImageView, string: String?, listener: GlideRequestListener<Drawable?>?) {
-        displayImage(view, string, R.drawable.shape_image_loading, 0, listener)
-    }
-
     override fun displayImage(view: ImageView, string: String?, placeholderId: Int, errorId: Int, listener: GlideRequestListener<Drawable?>?) {
         Glide.with(view.context)
             .load(string)
@@ -85,10 +73,6 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .dontAnimate()
             .listener(listener)
             .into(view)
-    }
-
-    override fun displayRoundImage(view: ImageView, string: String?, roundingRadius: Int) {
-        displayRoundImage(view, string, 0, roundingRadius)
     }
 
     override fun displayRoundImage(view: ImageView, string: String?, errorId: Int, roundingRadius: Int) {
@@ -101,12 +85,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayRoundImage(view: ImageView, string: String?, roundingRadius: Int, overRide: BooleanArray) {
-        displayRoundImage(view, string, 0, roundingRadius, overRide)
-    }
-
-    //leftTop, rightTop, leftBottom, rightBottom
-    override fun displayRoundImage(view: ImageView, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
+    override fun displayOverRideImage(view: ImageView, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
         val transformation = CornerTransform(view.context, roundingRadius.toFloat())
         transformation.setExceptCorner(overRide[0], overRide[1], overRide[2], overRide[3])
         Glide.with(view.context)
@@ -116,10 +95,6 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .error(errorId)
             .dontAnimate()
             .into(view)
-    }
-
-    override fun displayCircleImage(view: ImageView, string: String?) {
-        displayCircleImage(view, string, R.drawable.shape_image_loading_round)
     }
 
     override fun displayCircleImage(view: ImageView, string: String?, errorId: Int) {
