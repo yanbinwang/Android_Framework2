@@ -13,21 +13,21 @@ import java.io.File
 interface GlideImpl {
 
     //---------------------------------------------图片加载开始---------------------------------------------
-    fun displayZoomImage(view: ImageView, string: String?, listener: GlideRequestListener<Bitmap?>? = null)
+    fun displayZoom(view: ImageView, string: String?, listener: GlideRequestListener<Bitmap?>? = null)
 
-    fun displayCoverImage(view: ImageView, string: String?)
+    fun displayCover(view: ImageView, string: String?)
 
-    fun displayProgressImage(view: ImageView, string: String, onStart: () -> Unit? = {}, onProgress: (progress: Int?) -> Unit = {}, onComplete: () -> Unit? = {})
+    fun displayProgress(view: ImageView, string: String, onStart: () -> Unit? = {}, onProgress: (progress: Int?) -> Unit = {}, onComplete: () -> Unit? = {})
 
-    fun displayImage(view: ImageView, string: String?, placeholderId: Int = R.drawable.shape_image_loading, errorId: Int = 0, listener: GlideRequestListener<Drawable?>? = null)
+    fun display(view: ImageView, string: String?, placeholderId: Int = R.drawable.shape_image_loading, errorId: Int = 0, listener: GlideRequestListener<Drawable?>? = null)
 
-    fun displayRoundImage(view: ImageView, string: String?, errorId: Int = 0, roundingRadius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun displayRound(view: ImageView, string: String?, errorId: Int = 0, roundingRadius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
-    fun displayCircleImage(view: ImageView, string: String?, errorId: Int = R.drawable.shape_image_loading_round)
+    fun displayCircle(view: ImageView, string: String?, errorId: Int = R.drawable.shape_image_loading_round)
     //---------------------------------------------圆形图片加载开始---------------------------------------------
 
     //---------------------------------------------图片库方法开始---------------------------------------------
-    fun downloadImage(context: Context, string: String?, listener: GlideRequestListener<File?>?)
+    fun download(context: Context, string: String?, listener: GlideRequestListener<File?>?)
 
     fun clearMemoryCache(context: Context)
 
