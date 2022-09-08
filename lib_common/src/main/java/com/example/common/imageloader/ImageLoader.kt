@@ -29,7 +29,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         val instance by lazy { ImageLoader() }
     }
 
-    override fun displayZoomImage(view: ImageView, string: String?, listener: GlideRequestListener<Bitmap?>?) {
+    override fun displayZoom(view: ImageView, string: String?, listener: GlideRequestListener<Bitmap?>?) {
         Glide.with(view.context)
             .asBitmap()
             .load(string)
@@ -39,7 +39,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(ZoomTransform(view))
     }
 
-    override fun displayCoverImage(view: ImageView, string: String?) {
+    override fun displayCover(view: ImageView, string: String?) {
         Glide.with(view.context)
             .setDefaultRequestOptions(RequestOptions().frame(1000000).centerCrop())
             .load(string)
@@ -47,7 +47,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayProgressImage(view: ImageView, string: String, onStart: () -> Unit?, onProgress: (progress: Int?) -> Unit, onComplete: () -> Unit?) {
+    override fun displayProgress(view: ImageView, string: String, onStart: () -> Unit?, onProgress: (progress: Int?) -> Unit, onComplete: () -> Unit?) {
         ProgressInterceptor.addListener(string) { onProgress(it) }
         Glide.with(view.context)
             .load(string)
@@ -65,7 +65,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayImage(view: ImageView, string: String?, placeholderId: Int, errorId: Int, listener: GlideRequestListener<Drawable?>?) {
+    override fun display(view: ImageView, string: String?, placeholderId: Int, errorId: Int, listener: GlideRequestListener<Drawable?>?) {
         Glide.with(view.context)
             .load(string)
             .placeholder(placeholderId)
@@ -75,7 +75,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayRoundImage(view: ImageView, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
+    override fun displayRound(view: ImageView, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
 //        Glide.with(view.context)
 //            .load(string)
 //            .apply(RequestOptions.bitmapTransform(RoundedCorners(roundingRadius)))
@@ -94,7 +94,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayCircleImage(view: ImageView, string: String?, errorId: Int) {
+    override fun displayCircle(view: ImageView, string: String?, errorId: Int) {
         Glide.with(view.context)
             .load(string)
             .apply(RequestOptions.circleCropTransform())
@@ -104,7 +104,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun downloadImage(context: Context, string: String?, listener: GlideRequestListener<File?>?) {
+    override fun download(context: Context, string: String?, listener: GlideRequestListener<File?>?) {
 //    override fun downloadImage(context: Context, string: String?, width: Int, height: Int, listener: GlideRequestListener<File?>?) {
 //        //创建保存的文件目录
 //        val destFile = File(FileUtil.isExistDir(Constants.APPLICATION_FILE_PATH + "/图片"))

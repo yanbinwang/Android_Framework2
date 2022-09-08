@@ -36,7 +36,7 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         if (local) {
             (holder.itemView as ImageView).setBackgroundResource(localList[position % localList.size])
         } else {
-            ImageLoader.instance.displayImage((holder.itemView as ImageView), list[position % list.size])
+            ImageLoader.instance.display((holder.itemView as ImageView), list[position % list.size])
         }
     }
 

@@ -55,8 +55,8 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["display"])
-    fun bindingImageDisplay(view: ImageView, url: String) {
-        ImageLoader.instance.displayImage(view, url)
+    fun bindingDisplay(view: ImageView, url: String) {
+        ImageLoader.instance.display(view, url)
     }
 
     /**
@@ -64,8 +64,8 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["displayZoom"])
-    fun bindingImageDisplayZoom(view: ImageView, url: String) {
-        ImageLoader.instance.displayZoomImage(view, url)
+    fun bindingDisplayZoom(view: ImageView, url: String) {
+        ImageLoader.instance.displayZoom(view, url)
     }
 
     /**
@@ -73,8 +73,8 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["displayRound", "roundingRadius"], requireAll = false)
-    fun bindingImageDisplayRound(view: ImageView, url: String, roundingRadius: Int?) {
-        ImageLoader.instance.displayRoundImage(view, url, roundingRadius.toSafeInt(5))
+    fun bindingDisplayRound(view: ImageView, url: String, roundingRadius: Int?) {
+        ImageLoader.instance.displayRound(view, url, roundingRadius.toSafeInt(5))
     }
 
     /**
@@ -82,8 +82,8 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["displayCircle"])
-    fun bindingImageDisplayCircle(view: ImageView, url: String) {
-        ImageLoader.instance.displayCircleImage(view, url)
+    fun bindingDisplayCircle(view: ImageView, url: String) {
+        ImageLoader.instance.displayCircle(view, url)
     }
 
 }
