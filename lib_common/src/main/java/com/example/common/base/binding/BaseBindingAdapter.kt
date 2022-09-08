@@ -17,11 +17,12 @@ object BaseBindingAdapter {
 
     /**
      * 适配器
+     * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
      */
     @JvmStatic
-    @BindingAdapter(value = ["adapter"])
-    fun <T : BaseQuickAdapter<*, *>> setAdapter(rec: XRecyclerView, adapter: T) {
-        rec.setAdapter(adapter)
+    @BindingAdapter(value = ["adapter", "spanCount", "horizontalSpace", "verticalSpace", "hasHorizontalEdge", "hasVerticalEdge"], requireAll = false)
+    fun <T : BaseQuickAdapter<*, *>> bindingAdapter(rec: XRecyclerView, adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
+        rec.setAdapter(adapter, spanCount, horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
     }
 
     /**
@@ -30,7 +31,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["loadUrl"])
-    fun setLoadUrl(webView: XWebView, loadPageUrl: String) {
+    fun bindingLoadUrl(webView: XWebView, loadPageUrl: String) {
         webView.loadUrl(loadPageUrl)
     }
 
@@ -40,7 +41,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["loadAssetUrl"])
-    fun setLoadAssetsUrl(webView: XWebView, assetPath: String) {
+    fun bindingLoadAssetsUrl(webView: XWebView, assetPath: String) {
         webView.loadUrl("file:///android_asset/$assetPath")
     }
 
@@ -49,7 +50,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["display"])
-    fun setDisplay(view: ImageView, url: String) {
+    fun bindingDisplay(view: ImageView, url: String) {
         ImageLoader.instance.displayImage(view, url)
     }
 
@@ -58,7 +59,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["displayZoom"])
-    fun setDisplayZoom(view: ImageView, url: String) {
+    fun bindingDisplayZoom(view: ImageView, url: String) {
         ImageLoader.instance.displayZoomImage(view, url)
     }
 
@@ -66,9 +67,9 @@ object BaseBindingAdapter {
      * 加载图片（带圆角）
      */
     @JvmStatic
-    @BindingAdapter(value = ["displayRound"])
-    fun setDisplayRound(view: ImageView, url: String) {
-        ImageLoader.instance.displayRoundImage(view, url, 5)
+    @BindingAdapter(value = ["displayRound", "roundingRadius"], requireAll = false)
+    fun setDisplayRound(view: ImageView, url: String, roundingRadius: Int = 5) {
+        ImageLoader.instance.displayRoundImage(view, url, roundingRadius)
     }
 
     /**
@@ -76,7 +77,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["displayCircle"])
-    fun setDisplayCircle(view: ImageView, url: String) {
+    fun bindingDisplayCircle(view: ImageView, url: String) {
         ImageLoader.instance.displayCircleImage(view, url)
     }
 

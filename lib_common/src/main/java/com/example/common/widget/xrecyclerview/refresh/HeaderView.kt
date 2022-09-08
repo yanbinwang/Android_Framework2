@@ -11,7 +11,6 @@ import com.example.common.databinding.ViewRefreshHeaderBinding
 import com.lcodecore.tkrefreshlayout.IHeaderView
 import com.lcodecore.tkrefreshlayout.OnAnimEndListener
 
-
 /**
  * @description 自定义头部
  * @author yan
