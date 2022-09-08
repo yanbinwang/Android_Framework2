@@ -14,9 +14,9 @@ import com.example.common.imageloader.glide.callback.GlideImpl
 import com.example.common.imageloader.glide.callback.GlideModule
 import com.example.common.imageloader.glide.callback.GlideRequestListener
 import com.example.common.imageloader.glide.callback.progress.ProgressInterceptor
-import com.example.common.imageloader.glide.transform.CornerTransform
 import com.example.common.imageloader.glide.transform.ZoomTransform
 import java.io.File
+
 
 /**
  * Created by WangYanBin on 2020/5/29.
@@ -85,17 +85,17 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayOverRideImage(view: ImageView, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
-        val transformation = CornerTransform(view.context, roundingRadius.toFloat())
-        transformation.setExceptCorner(overRide[0], overRide[1], overRide[2], overRide[3])
-        Glide.with(view.context)
-            .load(string)
-            .transform(transformation)
-            .placeholder(R.drawable.shape_image_loading)
-            .error(errorId)
-            .dontAnimate()
-            .into(view)
-    }
+//    override fun displayOverRideImage(view: ImageView, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
+//        val transformation = CornerTransform(view.context, roundingRadius.toFloat())
+//        transformation.setExceptCorner(overRide[0], overRide[1], overRide[2], overRide[3])
+//        Glide.with(view.context)
+//            .load(string)
+//            .transform(transformation)
+//            .placeholder(R.drawable.shape_image_loading)
+//            .error(errorId)
+//            .dontAnimate()
+//            .into(view)
+//    }
 
     override fun displayCircleImage(view: ImageView, string: String?, errorId: Int) {
         Glide.with(view.context)

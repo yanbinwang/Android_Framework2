@@ -20,7 +20,7 @@
             android:layout_height="200dp"
             android:layout_gravity="center"
             android:layout_margin="40mm"
-            android:scaleType="centerCrop" />
+            android:scaleType="fitXY" />
 
         <Button
             android:id="@+id/btn_login"
