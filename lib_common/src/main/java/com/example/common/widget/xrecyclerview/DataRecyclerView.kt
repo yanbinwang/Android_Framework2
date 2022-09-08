@@ -19,13 +19,13 @@ class DataRecyclerView @JvmOverloads constructor(context: Context, attrs: Attrib
      */
     fun setEmptyView(emptyView: View?) {
         this.emptyView = emptyView
-        checkIfEmpty()
+        isEmpty()
     }
 
     /**
      * 检测内容是否为空
      */
-    private fun checkIfEmpty() {
+    private fun isEmpty() {
         if (emptyView != null && adapter != null) {
             val emptyViewVisible = adapter?.itemCount == 0
             emptyView?.visibility = if (emptyViewVisible) VISIBLE else GONE
@@ -42,20 +42,20 @@ class DataRecyclerView @JvmOverloads constructor(context: Context, attrs: Attrib
         oldAdapter?.unregisterAdapterDataObserver(observer)
         super.setAdapter(adapter)
         adapter?.registerAdapterDataObserver(observer)
-        checkIfEmpty()
+        isEmpty()
     }
 
     private val observer: AdapterDataObserver = object : AdapterDataObserver() {
         override fun onChanged() {
-            checkIfEmpty()
+            isEmpty()
         }
 
         override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-            checkIfEmpty()
+            isEmpty()
         }
 
         override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
-            checkIfEmpty()
+            isEmpty()
         }
     }
 
