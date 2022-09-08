@@ -17,11 +17,11 @@ import com.example.common.constant.Constants
 /**
  * 空出状态栏高度
  */
-fun View.topStatus() = run { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT) }
+fun View.statusBarHeight() = run { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT) }
 
-fun View.topStatusPadding() = run { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0) }
+fun View.statusBarPadding() = run { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0) }
 
-fun RelativeLayout.topStatusMargin(arrow: Boolean = true) {
+fun RelativeLayout.statusBarTopMargin(arrow: Boolean = true) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || arrow) {
         val params = layoutParams as RelativeLayout.LayoutParams
         params.topMargin = Constants.STATUS_BAR_HEIGHT
@@ -29,7 +29,7 @@ fun RelativeLayout.topStatusMargin(arrow: Boolean = true) {
     }
 }
 
-fun LinearLayout.topStatusMargin(arrow: Boolean = true) {
+fun LinearLayout.statusBarTopMargin(arrow: Boolean = true) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || arrow) {
         val params = layoutParams as LinearLayout.LayoutParams
         params.topMargin = Constants.STATUS_BAR_HEIGHT
