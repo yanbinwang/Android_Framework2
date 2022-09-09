@@ -5,25 +5,28 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.view.View
 import com.example.common.constant.Constants
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
 /**
  *  Created by wangyanbin
  *  生成图片工具类
  */
-object GenerateHelper {
+object GenerateHelper : CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = (Dispatchers.Main)
 
     //构建图片
-    suspend fun create(view: View, onStart: () -> Unit? = {}, onResult: (bitmap: Bitmap?) -> Unit? = {}, onComplete: () -> Unit? = {}) {
-        onStart()
-        loadLayout(view)
-        try {
-            val bitmap = loadBitmap(view)
-            withContext(Dispatchers.Main) { onResult(bitmap) }
-        } catch (e: Exception) {
-        } finally {
-            withContext(Dispatchers.Main) { onComplete() }
+    fun create(view: View, onStart: () -> Unit? = {}, onResult: (bitmap: Bitmap?) -> Unit? = {}, onComplete: () -> Unit? = {}): Job {
+        return launch {
+            onStart()
+            loadLayout(view)
+            try {
+                onResult(withContext(Dispatchers.IO) { loadBitmap(view) })
+            } catch (e: Exception) {
+            } finally {
+                onComplete()
+            }
         }
     }
 
