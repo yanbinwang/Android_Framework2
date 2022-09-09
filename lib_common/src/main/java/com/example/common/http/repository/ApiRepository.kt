@@ -7,12 +7,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.base.utils.LogUtil
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.page.responseMsg
+import com.example.common.utils.analysis.GsonUtil
 import com.example.common.utils.helper.AccountHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 
 //------------------------------------针对协程返回的参数(协程只有成功和失败)------------------------------------
 /**
@@ -31,8 +34,14 @@ fun AppCompatActivity.launch(block: suspend CoroutineScope.() -> Unit) = lifecyc
 fun AppCompatActivity.async(block: suspend CoroutineScope.() -> Unit) = lifecycleScope.async(block = block)
 
 /**
- * 串行网络请求
- * 如需并行，直接调用async
+ * 请求转换
+ * map扩展，如果只需传入map则使用
+ * hashMapOf("" to "")不需要写此扩展
+ */
+fun <K, V> HashMap<K, V>?.params() = (if (null == this) "" else GsonUtil.objToJson(this).orEmpty()).toRequestBody("application/json; charset=utf-8".toMediaType())
+
+/**
+ * 网络请求协程扩展
  */
 fun <T> CoroutineScope.loadHttp(
     start: () -> Unit = {},
@@ -67,7 +76,7 @@ fun <T> CoroutineScope.loadHttp(
 }
 
 /**
- * 项目接口返回对象的解析
+ * 项目接口返回对象解析
  */
 fun <T> ApiResponse<T>?.response(): T? {
     return if (null != this) {
