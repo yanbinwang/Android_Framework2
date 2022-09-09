@@ -9,8 +9,8 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.ViewModel
 import com.example.common.base.page.getEmptyView
 import com.example.common.http.repository.ApiResponse
-import com.example.common.http.repository.launch
-import com.example.common.http.repository.loadHttp
+import com.example.common.http.launch
+import com.example.common.http.loadHttp
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import kotlinx.coroutines.CoroutineScope

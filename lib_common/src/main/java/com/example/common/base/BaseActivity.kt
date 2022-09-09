@@ -148,17 +148,15 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         ToastUtil.mackToastSHORT(msg, applicationContext)
     }
 
-    override fun showIntercept(second: Long) {
-        showDialog(true)
-        Timer().schedule(object : TimerTask() {
-            override fun run() {
-                hideDialog()
-            }
-        }, second)
-    }
-
-    override fun showDialog(flag: Boolean) {
+    override fun showDialog(flag: Boolean, second: Long) {
         loadingDialog.shown(flag)
+        if (second >= 0) {
+            Timer().schedule(object : TimerTask() {
+                override fun run() {
+                    hideDialog()
+                }
+            }, second)
+        }
     }
 
     override fun hideDialog() {
