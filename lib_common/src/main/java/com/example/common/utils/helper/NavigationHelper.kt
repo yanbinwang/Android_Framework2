@@ -2,9 +2,9 @@ package com.example.common.utils.helper
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.viewpager2.widget.ViewPager2
 import com.example.base.utils.function.inAnimation
 import com.example.base.utils.function.view.vibrate
-import com.example.common.widget.PagerFlipper
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -14,7 +14,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *  导航栏帮助类,和viewpage2绑定
  */
 object NavigationHelper {
-    private var flipper: PagerFlipper? = null
+    private var flipper: ViewPager2? = null
     private var navigationView: BottomNavigationView? = null
     private var ids = ArrayList<Int>()
     var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
@@ -24,7 +24,7 @@ object NavigationHelper {
      */
     @JvmOverloads
     @JvmStatic
-    fun initialize(flipper: PagerFlipper, navigationView: BottomNavigationView, ids: ArrayList<Int>, anim: Boolean = true) {
+    fun initialize(flipper: ViewPager2, navigationView: BottomNavigationView, ids: ArrayList<Int>, anim: Boolean = true) {
         this.flipper = flipper
         this.navigationView = navigationView
         this.ids = ids
@@ -36,8 +36,8 @@ object NavigationHelper {
         navigationView.setOnItemSelectedListener { item ->
             //返回第一个符合条件的元素的下标，没有就返回-1
             val index = ids.indexOfFirst { it == item.itemId }
-            val isCurrent = index == flipper.getCurrentItem()
-            if(!isCurrent) flipper.setCurrentItem(index)
+            val isCurrent = index == flipper.currentItem
+            if(!isCurrent) flipper.currentItem = index
             onItemSelected?.invoke(index, isCurrent)
             if (anim) getItemView(index).getChildAt(0).apply {
                 startAnimation(context.inAnimation())

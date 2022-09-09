@@ -19,6 +19,22 @@ fun ViewPager2?.hideFadingEdge() {
 }
 
 /**
+ * 设置适配器扩展
+ */
+fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, isUserInput: Boolean = false) {
+    if (this == null) return
+    try {
+        hideFadingEdge()
+        getRecyclerView()?.apply {
+            orientation = ViewPager2.ORIENTATION_HORIZONTAL
+            offscreenPageLimit = adapter.itemCount //预加载数量
+            isUserInputEnabled = isUserInput //禁止左右滑动
+        }
+    } catch (ignore: Exception) {
+    }
+}
+
+/**
  * ViewPager2获取内部RecyclerView
  */
 fun ViewPager2?.getRecyclerView(): RecyclerView? {
