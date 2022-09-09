@@ -27,8 +27,8 @@ class XScrollView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         if (scrollY != 0 && null != onBottom && isTop) onBottom?.invoke(clampedY)
     }
 
-    override fun onInterceptTouchEvent(e: MotionEvent?): Boolean {
-        when (e?.action) {
+    override fun onInterceptTouchEvent(e: MotionEvent): Boolean {
+        when (e.action) {
             MotionEvent.ACTION_DOWN -> {
                 isTop = false
                 downY = e.rawY.toInt()

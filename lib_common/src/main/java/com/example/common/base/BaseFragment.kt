@@ -37,7 +37,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
-    protected fun <VM : BaseViewModel?> createViewModel(vmClass: Class<VM>): VM {
+    protected fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
         if (null == baseViewModel) {
             baseViewModel = ViewModelProvider(this).get(vmClass)
             baseViewModel?.initialize(activity.get(), context.get(), this)
