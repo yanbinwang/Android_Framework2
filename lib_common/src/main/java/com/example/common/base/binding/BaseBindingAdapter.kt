@@ -3,7 +3,9 @@ package com.example.common.base.binding
 import android.annotation.SuppressLint
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
+import androidx.fragment.app.FragmentPagerAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager.widget.ViewPager
 import com.example.base.utils.function.orFalse
 import com.example.base.utils.function.toSafeInt
 import com.example.common.imageloader.ImageLoader
@@ -30,6 +32,13 @@ object BaseBindingAdapter {
     @BindingAdapter(value = ["adapter", "spanCount", "horizontalSpace", "verticalSpace", "hasHorizontalEdge", "hasVerticalEdge"], requireAll = false)
     fun <T : BaseQuickAdapter<*, *>> bindingRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
         rec.setAdapter(adapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(0), verticalSpace.toSafeInt(0), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["adapter"])
+    fun <T : FragmentPagerAdapter> bindingViewPageAdapter(pager: ViewPager, adapter: T) {
+        pager.adapter = adapter
+        pager.offscreenPageLimit = adapter.count - 1
     }
 
     @JvmStatic
