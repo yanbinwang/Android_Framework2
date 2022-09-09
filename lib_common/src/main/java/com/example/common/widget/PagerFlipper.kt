@@ -34,4 +34,6 @@ class PagerFlipper @JvmOverloads constructor(context: Context, attrs: AttributeS
     @JvmOverloads
     fun setCurrentItem(item: Int, smoothScroll: Boolean = false) = pager?.setCurrentItem(item, smoothScroll)
 
+    fun getCurrentItem() = pager?.currentItem
+
 }
