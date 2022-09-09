@@ -45,7 +45,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["adapter", "isUserInput"], requireAll = false)
     fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, adapter: T, isUserInput: Boolean?) {
-        flipper.adapter(adapter, isUserInput.orFalse)
+        flipper.adapter(adapter, isUserInput = isUserInput.orFalse)
     }
 
     /**

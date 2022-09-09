@@ -142,4 +142,14 @@
         <item name="android:backgroundDimEnabled">true</item>
     </style>
 
+    <!--
+        全局默认tablayout样式
+        app:tabIndicatorFullWidth = false 指示器宽度跟随文本宽度 -->
+    <style name="tableLayoutStyle" parent="Base.Widget.Design.TabLayout">
+        <item name="tabBackground">@android:color/transparent</item>
+        <item name="tabRippleColor">@android:color/transparent</item>
+        <item name="tabIndicator">@drawable/layer_list_tab_line</item>
+        <item name="tabIndicatorFullWidth">false</item>
+    </style>
+
 </resources>
