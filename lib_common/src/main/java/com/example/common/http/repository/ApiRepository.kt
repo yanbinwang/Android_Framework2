@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.base.utils.LogUtil
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.page.responseMsg
+import com.example.common.http.repository.ApiResponse
 import com.example.common.utils.analysis.GsonUtil
 import com.example.common.utils.helper.AccountHelper
 import kotlinx.coroutines.CoroutineScope
