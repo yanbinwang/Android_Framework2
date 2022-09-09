@@ -70,7 +70,7 @@ fun ViewPager2?.prevPage(isSmooth: Boolean = true) {
  * 绑定vp和tab
  */
 fun ViewPager2?.bind(tab: TabLayout?, listener: TabLayoutMediator.TabConfigurationStrategy = TabLayoutMediator.TabConfigurationStrategy { _, _ -> }): TabLayoutMediator? {
-    return TabLayoutMediator(tab ?: return null, this ?: return null) { _, _ -> }.apply { attach() }
+    return TabLayoutMediator(tab ?: return null, this ?: return null, true, listener).apply { attach() }
 }
 
 /**
