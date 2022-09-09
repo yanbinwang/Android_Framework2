@@ -11,13 +11,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**
  *  Created by wangyanbin
- *  导航栏帮助类
+ *  导航栏帮助类,和viewpage2绑定
  */
 object NavigationHelper {
     private var flipper: PagerFlipper? = null
     private var navigationView: BottomNavigationView? = null
     private var ids = ArrayList<Int>()
-    var onItemSelected: ((index: Int) -> Unit)? = null
+    var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
 
     /**
      * 初始化
@@ -35,9 +35,10 @@ object NavigationHelper {
         //最多配置5个
         navigationView.setOnItemSelectedListener { item ->
             //返回第一个符合条件的元素的下标，没有就返回-1
-            val index = ids.indexOfFirst{ it == item.itemId }
-            flipper.setCurrentItem(index)
-            onItemSelected?.invoke(index)
+            val index = ids.indexOfFirst { it == item.itemId }
+            val isCurrent = index == flipper.getCurrentItem()
+            if(!isCurrent) flipper.setCurrentItem(index)
+            onItemSelected?.invoke(index, isCurrent)
             if (anim) getItemView(index).getChildAt(0).apply {
                 startAnimation(context.inAnimation())
                 vibrate(50)

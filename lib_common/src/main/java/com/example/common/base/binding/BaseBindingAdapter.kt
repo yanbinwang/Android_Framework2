@@ -3,9 +3,11 @@ package com.example.common.base.binding
 import android.annotation.SuppressLint
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.example.base.utils.function.orFalse
 import com.example.base.utils.function.toSafeInt
 import com.example.common.imageloader.ImageLoader
+import com.example.common.widget.PagerFlipper
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.XRecyclerView
 
@@ -28,6 +30,12 @@ object BaseBindingAdapter {
     @BindingAdapter(value = ["adapter", "spanCount", "horizontalSpace", "verticalSpace", "hasHorizontalEdge", "hasVerticalEdge"], requireAll = false)
     fun <T : BaseQuickAdapter<*, *>> bindingRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
         rec.setAdapter(adapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(0), verticalSpace.toSafeInt(0), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["adapter"])
+    fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: PagerFlipper, adapter: T) {
+        flipper.setAdapter(adapter)
     }
 
     /**
