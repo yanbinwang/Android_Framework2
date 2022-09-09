@@ -21,15 +21,13 @@ fun ViewPager2?.hideFadingEdge() {
 /**
  * 设置适配器扩展
  */
-fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, isUserInput: Boolean = false) {
+fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, isUserInput: Boolean = false) {
     if (this == null) return
     try {
         hideFadingEdge()
-        getRecyclerView()?.apply {
-            orientation = ViewPager2.ORIENTATION_HORIZONTAL
-            offscreenPageLimit = adapter.itemCount //预加载数量
-            isUserInputEnabled = isUserInput //禁止左右滑动
-        }
+        setOrientation(orientation)
+        offscreenPageLimit = adapter.itemCount //预加载数量
+        isUserInputEnabled = isUserInput //禁止左右滑动
     } catch (ignore: Exception) {
     }
 }
