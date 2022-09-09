@@ -51,6 +51,9 @@ object ConfigHelper {
 
     /**
      * 遮罩引导
+     * .addGuidePage(GuidePage.newInstance()
+     *                  .addHighLight(btnSimple)
+     *                  .setLayoutRes(R.layout.view_guide_simple))
      */
     @JvmStatic
     fun showGuide(activity: Activity, label: String, vararg pages: GuidePage) {

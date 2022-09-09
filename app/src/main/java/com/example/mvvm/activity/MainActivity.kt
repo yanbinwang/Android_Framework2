@@ -1,8 +1,8 @@
 package com.example.mvvm.activity
 
-import android.app.Activity
 import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.app.hubert.guide.model.GuidePage
 import com.example.base.utils.function.view.clicks
 import com.example.common.base.BaseTitleActivity
 import com.example.common.base.page.responseMsg
@@ -57,6 +57,8 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
         ConfigHelper.encode("user",UserModel("嗷呜"))
         val data = ConfigHelper.decodeParcelable("user",UserModel::class.java)
         data.name.responseMsg()
+
+        ConfigHelper.showGuide(this,"test2", GuidePage.newInstance().addHighLight(binding.btnList).setLayoutRes(R.layout.view_guide_simple))
     }
 
     override fun initEvent() {
