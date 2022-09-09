@@ -4,6 +4,7 @@ ext.deps = [:]
 //所有库的版本配置
 def versions = [:]
 versions.appcompat = "1.5.1"
+versions.constraintlayout = "2.1.4"
 versions.recyclerview = "1.2.1"
 versions.viewmodel = "2.5.1"
 versions.livedata = "2.5.1"
@@ -33,6 +34,7 @@ versions.tkrefreshlayout = "1.0.7"
 //安卓x库
 def androidx = [:]
 androidx.appcompat = "androidx.appcompat:appcompat:$versions.appcompat"
+androidx.constraintlayout = "androidx.constraintlayout:constraintlayout:$versions.constraintlayout"
 androidx.recyclerview = "androidx.recyclerview:recyclerview:$versions.recyclerview"
 androidx.viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.viewmodel"
 androidx.livedata = "androidx.lifecycle:lifecycle-livedata-ktx:$versions.livedata"
