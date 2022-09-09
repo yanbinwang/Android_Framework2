@@ -9,6 +9,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Parcelable
 import com.app.hubert.guide.NewbieGuide
+import com.app.hubert.guide.core.Controller
+import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.model.GuidePage
 import com.example.common.constant.Constants
 import com.tencent.mmkv.MMKV
@@ -52,17 +54,31 @@ object ConfigHelper {
     /**
      * 遮罩引导
      * https://www.jianshu.com/p/f28603e59318
-     * .addGuidePage(GuidePage.newInstance()
-     *                  .addHighLight(btnSimple)
-     *                  .setLayoutRes(R.layout.view_guide_simple))
+     * ConfigHelper.showGuide(this,
+     * "test2",
+     * GuidePage
+     * .newInstance()
+     * .addHighLight(binding.btnList)
+     * .setBackgroundColor(color(R.color.black_4c000000))
+     * .setLayoutRes(R.layout.view_guide_simple),
+     * listener = object : OnGuideChangedListener {
+     * override fun onShowed(controller: Controller?) {
+     * statusBarBuilder.setStatusBarColor(color(R.color.black_4c000000))
+     * }
+     *
+     * override fun onRemoved(controller: Controller?) {
+     * statusBarBuilder.setStatusBarColor(color(R.color.white))
+     * }
+     * })
      */
     @JvmStatic
-    fun showGuide(activity: Activity, label: String, vararg pages: GuidePage) {
+    fun showGuide(activity: Activity, label: String, vararg pages: GuidePage, listener: OnGuideChangedListener? = null) {
         if (!decodeBool(label)) {
             encode(label, true)
             val weakActivity = WeakReference(activity)
             val builder = NewbieGuide.with(weakActivity.get())//传入activity
                 .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
+                .setOnGuideChangedListener(listener)
                 .alwaysShow(true)
             for (page in pages) {
                 builder.addGuidePage(page)

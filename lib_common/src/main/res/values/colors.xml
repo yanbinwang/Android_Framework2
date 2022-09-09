@@ -4,8 +4,11 @@
     <color name="white_ccc">#ccc</color>
     <color name="white_00ffffff">#00ffffff</color>
     <color name="white_efffffff">#efffffff</color>
+    <color name="white_ff000000">#ff000000</color>
 
     <color name="black">#000000</color>
+    <color name="black_4c000000">#4c000000</color>
+    <color name="black_ef111111">#ef111111</color>
 
     <color name="grey_333333">#333333</color>
     <color name="grey_666666">#666666</color>
