@@ -43,6 +43,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     //安卓x库
     api deps.androidx.appcompat
+    api deps.androidx.constraintlayout
     api deps.androidx.recyclerview
     api deps.androidx.viewmodel
     api deps.androidx.livedata
