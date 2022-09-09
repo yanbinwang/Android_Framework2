@@ -12,7 +12,10 @@ import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.core.Controller
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.model.GuidePage
+import com.example.base.utils.function.color
+import com.example.common.R
 import com.example.common.constant.Constants
+import com.example.common.utils.builder.StatusBarBuilder
 import com.tencent.mmkv.MMKV
 import java.lang.ref.WeakReference
 
@@ -54,33 +57,33 @@ object ConfigHelper {
     /**
      * 遮罩引导
      * https://www.jianshu.com/p/f28603e59318
-     * ConfigHelper.showGuide(this,
-     * "test2",
-     * GuidePage
-     * .newInstance()
-     * .addHighLight(binding.btnList)
-     * .setBackgroundColor(color(R.color.black_4c000000))
-     * .setLayoutRes(R.layout.view_guide_simple),
-     * listener = object : OnGuideChangedListener {
-     * override fun onShowed(controller: Controller?) {
-     * statusBarBuilder.setStatusBarColor(color(R.color.black_4c000000))
-     * }
-     *
-     * override fun onRemoved(controller: Controller?) {
-     * statusBarBuilder.setStatusBarColor(color(R.color.white))
-     * }
-     * })
+     * ConfigHelper.showGuide(this,"sdd",GuidePage
+     *  .newInstance()
+     *  .addHighLight(binding.btnList)
+     *  .setBackgroundColor(color(R.color.black_4c000000))
+     *  .setLayoutRes(R.layout.view_guide_simple))
      */
     @JvmStatic
-    fun showGuide(activity: Activity, label: String, vararg pages: GuidePage, listener: OnGuideChangedListener? = null) {
+    fun showGuide(activity: Activity, label: String, vararg pages: GuidePage, color: Int = R.color.white) {
         if (!decodeBool(label)) {
             encode(label, true)
             val weakActivity = WeakReference(activity)
+            val statusBarBuilder = StatusBarBuilder(weakActivity.get()!!.window)
             val builder = NewbieGuide.with(weakActivity.get())//传入activity
                 .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
-                .setOnGuideChangedListener(listener)
+                .setOnGuideChangedListener(object : OnGuideChangedListener {
+                    override fun onShowed(controller: Controller?) {
+                        statusBarBuilder.setStatusBarColor(activity.color(R.color.black_4c000000))
+                    }
+
+                    override fun onRemoved(controller: Controller?) {
+                        statusBarBuilder.setStatusBarColor(activity.color(color))
+                    }
+                })
                 .alwaysShow(true)
             for (page in pages) {
+                //此处处理一下阴影背景
+                page.backgroundColor = activity.color(R.color.black_4c000000)
                 builder.addGuidePage(page)
             }
             builder.show()
@@ -109,16 +112,22 @@ object ConfigHelper {
     fun decodeString(key: String) = mmkv.decodeString(key, "")
 
     @JvmStatic
-    fun <T : Parcelable> decodeParcelable(label: String, tClass: Class<T>) = mmkv.decodeParcelable(label, tClass)
+    fun <T : Parcelable> decodeParcelable(label: String, tClass: Class<T>) =
+        mmkv.decodeParcelable(label, tClass)
 
     /**
      * 在进程中去寻找当前APP的信息，判断是否在运行
      * 100表示取的最大的任务数，info.topActivity表示当前正在运行的Activity，info.baseActivity表系统后台有此进程在运行
      */
     fun isAppOnForeground(): Boolean {
-        val processes = (context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).runningAppProcesses ?: return false
+        val processes =
+            (context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).runningAppProcesses
+                ?: return false
         for (process in processes) {
-            if (process.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && process.processName.equals(context.packageName)) return true
+            if (process.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && process.processName.equals(
+                    context.packageName
+                )
+            ) return true
         }
         return false
     }
@@ -220,7 +229,8 @@ object ConfigHelper {
     private fun getAppVersionCode(): Long {
         var appVersionCode: Long = 0
         try {
-            val packageInfo = context.applicationContext.packageManager.getPackageInfo(context.packageName!!, 0)
+            val packageInfo =
+                context.applicationContext.packageManager.getPackageInfo(context.packageName!!, 0)
             appVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 packageInfo.longVersionCode
             } else {
@@ -237,7 +247,8 @@ object ConfigHelper {
     private fun getAppVersionName(): String {
         var appVersionName = ""
         try {
-            val packageInfo = context.applicationContext.packageManager.getPackageInfo(context.packageName!!, 0)
+            val packageInfo =
+                context.applicationContext.packageManager.getPackageInfo(context.packageName!!, 0)
             appVersionName = packageInfo.versionName
         } catch (ignored: PackageManager.NameNotFoundException) {
         }

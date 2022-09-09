@@ -64,6 +64,12 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
 
         binding.tvDownload.setData("sdfds")
 
+        ConfigHelper.showGuide(this,"sdd",GuidePage
+            .newInstance()
+            .addHighLight(binding.btnList)
+            .setBackgroundColor(color(R.color.black_4c000000))
+            .setLayoutRes(R.layout.view_guide_simple))
+
 //        ConfigHelper.showGuide(this,
 //            "test2",
 //            GuidePage
