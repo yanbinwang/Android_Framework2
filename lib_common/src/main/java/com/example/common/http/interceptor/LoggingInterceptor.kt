@@ -16,24 +16,23 @@ import java.nio.charset.Charset
  * date: 2019/7/9.
  */
 internal class LoggingInterceptor : Interceptor {
-
-    companion object {
-        private val UTF8 by lazy { Charset.forName("UTF-8") }
-    }
+    private val UTF8 by lazy { Charset.forName("UTF-8") }
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
-        var queryParameter: String? = null
-        var result: String? = null
-
+        //声明请求参数和返回参数
+        var queryParams: String? = null
+        var responseResult: String? = null
+        //获取此次请求头部参数和请求地址
         val request = chain.request()
         val headerValues = request.headers.toString()
-        val url = request.url.toString()
+        val requestUrl = request.url.toString()
+        //对此次请求做处理
         when {
             //不包含服务器地址的属于下载地址或图片加载地址，不做拦截
-            !url.contains(BuildConfig.LOCALHOST) -> return chain.proceed(request)
+            !requestUrl.contains(BuildConfig.LOCALHOST) -> return chain.proceed(request)
             //上传文件接口文本量过大，请求参数不做拦截
-            url.contains("user/uploadImg") -> queryParameter = "文件上传"
+            requestUrl.contains("user/uploadImg") -> queryParams = "文件上传"
             else -> {
                 val requestBody = request.body
                 val hasRequestBody = requestBody != null
@@ -43,11 +42,11 @@ internal class LoggingInterceptor : Interceptor {
                     var charset = UTF8
                     val contentType = requestBody?.contentType()
                     if (contentType != null) charset = contentType.charset(UTF8)
-                    if (isPlaintext(buffer)) queryParameter = buffer.readString(charset)
+                    if (isPlaintext(buffer)) queryParams = buffer.readString(charset)
                 }
             }
         }
-
+        //获取响应体
         val response: Response
         try {
             response = chain.proceed(request)
@@ -64,13 +63,14 @@ internal class LoggingInterceptor : Interceptor {
             val contentType = responseBody?.contentType()
             if (contentType != null) charset = contentType.charset(UTF8)
             if (!isPlaintext(buffer!!)) {
-                interceptLogging(headerValues, url, queryParameter, null)
+                //信息量过大会只打印部分
+                log(headerValues, requestUrl, queryParams, null)
                 return response
             }
-            if (contentLength != 0L) result = buffer.clone().readString(charset!!)
+            if (contentLength != 0L) responseResult = buffer.clone().readString(charset!!)
         }
-
-        interceptLogging(headerValues, url, queryParameter, result)
+        //打印获取到的全部信息
+        log(headerValues, requestUrl, queryParams, responseResult)
         return response
     }
 
@@ -95,17 +95,17 @@ internal class LoggingInterceptor : Interceptor {
             }
             return true
         } catch (e: EOFException) {
-            return false // Truncated UTF-8 sequence.
+            return false
         }
     }
 
-    private fun interceptLogging(headerValues: String, url: String, queryParameter: String?, result: String?) {
+    private fun log(headerValues: String, requestUrl: String, queryParams: String?, responseResult: String?) {
         LogUtil.e("LoggingInterceptor", " " +
                 "\n————————————————————————请求开始————————————————————————" +
                 "\n请求头:\n" + headerValues.trim { it <= ' ' } +
-                "\n请求地址:\n" + url +
-                "\n请求参数:\n" + queryParameter +
-                "\n返回参数:\n" + decode(result) +
+                "\n请求地址:\n" + requestUrl +
+                "\n请求参数:\n" + queryParams +
+                "\n返回参数:\n" + decode(responseResult) +
                 "\n————————————————————————请求结束————————————————————————")
     }
 
