@@ -51,6 +51,7 @@ object ConfigHelper {
 
     /**
      * 遮罩引导
+     * https://www.jianshu.com/p/f28603e59318
      * .addGuidePage(GuidePage.newInstance()
      *                  .addHighLight(btnSimple)
      *                  .setLayoutRes(R.layout.view_guide_simple))
