@@ -3,11 +3,14 @@ package com.example.common.base.binding
 import android.annotation.SuppressLint
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
+import androidx.fragment.app.FragmentPagerAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.widget.ViewPager2
 import com.example.base.utils.function.orFalse
 import com.example.base.utils.function.toSafeInt
+import com.example.base.utils.function.view.adapter
 import com.example.common.imageloader.ImageLoader
-import com.example.common.widget.PagerFlipper
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.XRecyclerView
 
@@ -34,8 +37,15 @@ object BaseBindingAdapter {
 
     @JvmStatic
     @BindingAdapter(value = ["adapter"])
-    fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: PagerFlipper, adapter: T) {
-        flipper.setAdapter(adapter)
+    fun <T : FragmentPagerAdapter> bindingViewPageAdapter(pager: ViewPager, adapter: T) {
+        pager.adapter = adapter
+        pager.offscreenPageLimit = adapter.count - 1
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["adapter", "isUserInput"], requireAll = false)
+    fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, adapter: T, isUserInput: Boolean?) {
+        flipper.adapter(adapter, isUserInput.orFalse)
     }
 
     /**
