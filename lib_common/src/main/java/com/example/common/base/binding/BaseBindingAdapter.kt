@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
@@ -25,13 +26,19 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
  */
 object BaseBindingAdapter {
 
+    @JvmStatic
+    @BindingAdapter(value = ["adapter"])
+    fun <T : RecyclerView.Adapter<*>> bindingRecyclerViewAdapter(rec: RecyclerView, vararg adapter: T) {
+        rec.adapter = ConcatAdapter(*adapter)
+    }
+
     /**
      * 适配器
      * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
      */
     @JvmStatic
     @BindingAdapter(value = ["adapter", "spanCount", "horizontalSpace", "verticalSpace", "hasHorizontalEdge", "hasVerticalEdge"], requireAll = false)
-    fun <T : BaseQuickAdapter<*, *>> bindingRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
+    fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
         rec.setAdapter(adapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(0), verticalSpace.toSafeInt(0), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
     }
 
