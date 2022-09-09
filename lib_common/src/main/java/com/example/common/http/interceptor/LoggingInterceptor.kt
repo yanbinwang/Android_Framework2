@@ -17,6 +17,7 @@ import java.nio.charset.Charset
  */
 internal class LoggingInterceptor : Interceptor {
     private val UTF8 by lazy { Charset.forName("UTF-8") }
+    private val dressingUrl = arrayOf("user/uploadImg")
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -27,25 +28,42 @@ internal class LoggingInterceptor : Interceptor {
         val request = chain.request()
         val headerValues = request.headers.toString()
         val requestUrl = request.url.toString()
-        //对此次请求做处理
-        when {
-            //不包含服务器地址的属于下载地址或图片加载地址，不做拦截
-            !requestUrl.contains(BuildConfig.LOCALHOST) -> return chain.proceed(request)
-            //上传文件接口文本量过大，请求参数不做拦截
-            requestUrl.contains("user/uploadImg") -> queryParams = "文件上传"
-            else -> {
-                val requestBody = request.body
-                val hasRequestBody = requestBody != null
-                if (hasRequestBody && !bodyEncoded(request.headers)) {
-                    val buffer = Buffer()
-                    requestBody?.writeTo(buffer)
-                    var charset = UTF8
-                    val contentType = requestBody?.contentType()
-                    if (contentType != null) charset = contentType.charset(UTF8)
-                    if (isPlaintext(buffer)) queryParams = buffer.readString(charset)
-                }
+        //------对此次请求做处理------
+        //不包含服务器地址的属于下载地址或图片加载地址，不做拦截
+        if (!requestUrl.contains(BuildConfig.LOCALHOST)) return chain.proceed(request)
+        //上传文件接口文本量过大，请求参数不做拦截
+        if (dressingUrl.any { requestUrl.contains(it) }) {
+            queryParams = "文件上传"
+        } else {
+            val requestBody = request.body
+            val hasRequestBody = requestBody != null
+            if (hasRequestBody && !bodyEncoded(request.headers)) {
+                val buffer = Buffer()
+                requestBody?.writeTo(buffer)
+                var charset = UTF8
+                val contentType = requestBody?.contentType()
+                if (contentType != null) charset = contentType.charset(UTF8)
+                if (isPlaintext(buffer)) queryParams = buffer.readString(charset)
             }
         }
+//        when {
+//            //不包含服务器地址的属于下载地址或图片加载地址，不做拦截
+//            !requestUrl.contains(BuildConfig.LOCALHOST) -> return chain.proceed(request)
+//            //上传文件接口文本量过大，请求参数不做拦截
+//            requestUrl.contains("user/uploadImg") -> queryParams = "文件上传"
+//            else -> {
+//                val requestBody = request.body
+//                val hasRequestBody = requestBody != null
+//                if (hasRequestBody && !bodyEncoded(request.headers)) {
+//                    val buffer = Buffer()
+//                    requestBody?.writeTo(buffer)
+//                    var charset = UTF8
+//                    val contentType = requestBody?.contentType()
+//                    if (contentType != null) charset = contentType.charset(UTF8)
+//                    if (isPlaintext(buffer)) queryParams = buffer.readString(charset)
+//                }
+//            }
+//        }
         //获取响应体
         val response: Response
         try {
