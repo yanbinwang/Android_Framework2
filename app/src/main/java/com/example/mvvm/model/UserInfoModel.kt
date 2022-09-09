@@ -1,12 +1,14 @@
 package com.example.mvvm.model
 
-import java.io.Serializable
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
 /**
  * Created by WangYanBin on 2020/6/3.
  */
+@Parcelize
 class UserInfoModel(
     var name: String? = null,
     var age: Int,
     var avatar: String? = null
-) : Serializable
+) : Parcelable

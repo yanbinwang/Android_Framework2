@@ -6,7 +6,6 @@ import com.example.common.base.BaseActivity
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Extras
 import com.example.mvvm.BR
-import com.example.mvvm.R
 import com.example.mvvm.adapter.TestListAdapter
 import com.example.mvvm.bridge.TestListViewModel
 import com.example.mvvm.databinding.ActivityTestListBinding
@@ -24,7 +23,7 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
         super.initView()
         //绑定适配器,监听
         binding.setVariable(BR.adapter, TestListAdapter())
-        binding.setVariable(BR.mobile,intent.getStringExtra(Extras.MOBILE))
+        binding.setVariable(BR.mobile,intent.getParcelableExtra(Extras.MOBILE))
     }
 
     override fun initEvent() {
