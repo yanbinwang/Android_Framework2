@@ -1,5 +1,6 @@
 package com.example.common.utils.helper
 
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.viewpager2.widget.ViewPager2
@@ -37,7 +38,7 @@ object NavigationHelper {
             //返回第一个符合条件的元素的下标，没有就返回-1
             val index = ids.indexOfFirst { it == item.itemId }
             val isCurrent = index == flipper.currentItem
-            if(!isCurrent) flipper.currentItem = index
+            if (!isCurrent) flipper.currentItem = index
             onItemSelected?.invoke(index, isCurrent)
             if (anim) getItemView(index).getChildAt(0).apply {
                 startAnimation(context.inAnimation())
@@ -83,15 +84,15 @@ object NavigationHelper {
      * </LinearLayout>
      */
     @JvmStatic
-    fun setCount(index: Int) {
-//        //获取整个的NavigationView
-//        val menuView = navigationView?.getChildAt (0) as BottomNavigationMenuView
-//        //这里就是获取所添加的每一个Tab(或者叫menu)
-//        val tab = menuView.getChildAt(index) as BottomNavigationItemView
-//        //加载我们的角标View，新创建的一个布局
-//        val badge = LayoutInflater.from (navigationView?.context).inflate(R.layout.menu_badge, menuView, false)
-//        //添加到Tab上
-//        tab.addView(badge)
+    fun setTips(resource: Int, index: Int = 0) {
+        //获取整个的NavigationView
+        val menuView = navigationView?.getChildAt(0) as BottomNavigationMenuView
+        //这里就是获取所添加的每一个Tab(或者叫menu)
+        val tab = menuView.getChildAt(index) as BottomNavigationItemView
+        //加载我们的角标View，新创建的一个布局
+        val badge = LayoutInflater.from(navigationView?.context).inflate(resource, menuView, false)
+        //添加到Tab上
+        tab.addView(badge)
     }
 
 }
