@@ -1,6 +1,9 @@
 package com.example.base.utils.function
 
+import android.text.Spannable
+import android.text.SpannableString
 import android.text.TextUtils
+import android.text.style.ClickableSpan
 import android.util.Base64
 import com.example.base.utils.LogUtil
 import java.math.BigDecimal
@@ -172,4 +175,16 @@ fun String.checkSecurity(): Int {
     //字母+数字+特殊字符
     if (Pattern.matches("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$", this)) return 3
     return 3
+}
+
+/**
+ * 批量添加可点击
+ */
+fun String?.setClickableSpan(vararg theme: Triple<ClickableSpan, Int, Int>): SpannableString {
+    this ?: orEmpty()
+    return SpannableString(this).apply {
+        for (triple in theme) {
+            setSpan(triple.first, triple.second, triple.third, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+    }
 }
