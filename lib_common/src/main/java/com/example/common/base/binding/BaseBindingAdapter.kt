@@ -51,7 +51,7 @@ object BaseBindingAdapter {
 
     @JvmStatic
     @BindingAdapter(value = ["adapter", "orientation", "isUserInput"], requireAll = false)
-    fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, orientation: Int?, adapter: T, isUserInput: Boolean?) {
+    fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, adapter: T, orientation: Int?, isUserInput: Boolean?) {
         flipper.adapter(adapter, orientation.toSafeInt(ViewPager2.ORIENTATION_HORIZONTAL), isUserInput.orFalse)
     }
 
