@@ -5,8 +5,15 @@ import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.ViewModel
+import com.example.base.utils.function.color
+import com.example.base.utils.function.drawable
+import com.example.base.utils.function.openWebsite
+import com.example.base.utils.function.string
 import com.example.common.base.page.getEmptyView
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.launch
@@ -85,6 +92,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         softEmpty?.get()?.visibility = View.VISIBLE
         softEmpty?.get()?.showEmpty(imgInt, text)
     }
+
+    fun color(@ColorRes res: Int) = getContext()?.color(res)
+
+    fun drawable(@DrawableRes res: Int) = getContext()?.drawable(res)
+
+    fun string(@StringRes res: Int) = getContext()?.string(res)
+
+    fun openWebsite(url: String) = getContext()?.openWebsite(url)
 
     protected fun getView() = softView?.get()
 

@@ -41,9 +41,21 @@
         <item name="android:background">@color/grey_f6f8ff</item>
     </style>
 
+    <style name="lineConstraintHeight">
+        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:background">@color/grey_f6f8ff</item>
+    </style>
+
     <!-- 布局画横线样式 -->
     <style name="lineWidth">
         <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/grey_f6f8ff</item>
+    </style>
+
+    <style name="lineConstraintWidth">
+        <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:background">@color/grey_f6f8ff</item>
     </style>

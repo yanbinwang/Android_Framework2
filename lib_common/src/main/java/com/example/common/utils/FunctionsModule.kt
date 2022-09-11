@@ -19,19 +19,11 @@ import com.example.common.constant.Constants
  * 空出状态栏高度
  */
 fun View.statusBarHeight() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) layoutParams = LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.MATCH_PARENT,
-        Constants.STATUS_BAR_HEIGHT
-    )
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
 }
 
 fun View.statusBarPadding() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(
-        0,
-        Constants.STATUS_BAR_HEIGHT,
-        0,
-        0
-    )
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
 }
 
 fun RelativeLayout.statusBarTopMargin(arrow: Boolean = true) {
@@ -53,8 +45,7 @@ fun LinearLayout.statusBarTopMargin(arrow: Boolean = true) {
 /**
  * 设置按钮显影图片
  */
-fun ImageView.setResource(triple: Triple<Boolean, Int, Int>) =
-    setImageResource(if (!triple.first) triple.second else triple.third)
+fun ImageView.setResource(triple: Triple<Boolean, Int, Int>) = setImageResource(if (!triple.first) triple.third else triple.second)
 
 /**
  * 图片宽屏
