@@ -38,7 +38,7 @@ object NavigationHelper {
             //返回第一个符合条件的元素的下标，没有就返回-1
             val index = ids.indexOfFirst { it == item.itemId }
             val isCurrent = index == flipper.currentItem
-            if (!isCurrent) flipper.currentItem = index
+            if (!isCurrent) flipper.setCurrentItem(index, false)
             onItemSelected?.invoke(index, isCurrent)
             if (anim) getItemView(index).getChildAt(0).apply {
                 startAnimation(context.inAnimation())
