@@ -114,6 +114,9 @@ object ConfigHelper {
     @JvmStatic
     fun <T : Parcelable> decodeParcelable(label: String, tClass: Class<T>) = mmkv.decodeParcelable(label, tClass)
 
+    @JvmStatic
+    fun removeValueForKey(label: String) = mmkv.removeValueForKey(label)
+
     /**
      * 在进程中去寻找当前APP的信息，判断是否在运行
      * 100表示取的最大的任务数，info.topActivity表示当前正在运行的Activity，info.baseActivity表系统后台有此进程在运行
