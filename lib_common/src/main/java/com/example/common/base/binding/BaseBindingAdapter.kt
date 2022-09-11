@@ -5,6 +5,7 @@ import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
@@ -27,9 +28,10 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
 object BaseBindingAdapter {
 
     @JvmStatic
-    @BindingAdapter(value = ["adapter"])
-    fun <T : RecyclerView.Adapter<*>> bindingRecyclerViewAdapter(rec: RecyclerView, vararg adapter: T) {
-        rec.adapter = ConcatAdapter(*adapter)
+    @BindingAdapter(value = ["concatAdapter"])
+    fun bindingRecyclerViewConcatAdapter(rec: RecyclerView, adapter: ConcatAdapter) {
+        rec.layoutManager = LinearLayoutManager(rec.context)
+        rec.adapter = adapter
     }
 
     /**
