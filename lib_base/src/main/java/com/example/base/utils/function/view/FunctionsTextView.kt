@@ -129,6 +129,12 @@ fun TextWatcher.textWatcher(vararg views: EditText) {
     }
 }
 
+fun textWatcher(listener:SimpleTextWatcher, vararg views: EditText) {
+    for (view in views) {
+        view.addTextChangedListener(listener)
+    }
+}
+
 /**
  * 简易的输入监听
  */
