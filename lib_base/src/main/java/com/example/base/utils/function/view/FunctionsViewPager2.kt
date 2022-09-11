@@ -25,6 +25,7 @@ fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = Vie
     if (this == null) return
     try {
         hideFadingEdge()
+        setAdapter(adapter)
         setOrientation(orientation)
         offscreenPageLimit = adapter.itemCount //预加载数量
         isUserInputEnabled = isUserInput //禁止左右滑动
