@@ -20,6 +20,20 @@ fun <T, K, P> Map<P, T>?.toList(func: (Map.Entry<P, T>) -> K?): ArrayList<K> {
 }
 
 /**
+ * 将旧list转换为新list
+ * */
+fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
+    if (this == null) return arrayListOf()
+    val list = arrayListOf<K>()
+    forEach {
+        func(it)?.let { result ->
+            list.add(result)
+        }
+    }
+    return list
+}
+
+/**
  * 将Map转换为Array
  */
 inline fun <T, reified K, P> Map<P, T>?.toArray(func: (Map.Entry<P, T>) -> K?): Array<K> {
