@@ -3,11 +3,13 @@ package com.example.common.utils.helper
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.base.utils.function.view.bind
 import com.example.common.R
 import com.example.common.utils.setData
 import com.google.android.material.tabs.TabLayout
+import com.example.base.utils.function.view.adapter
 
 /**
  * @description 菜单头工具类
@@ -19,11 +21,11 @@ object TabLayoutHelper {
     private var tabLayout: TabLayout? = null
 
     /**
-     * 初始化
+     * 初始化->定制样式的导航栏
      */
     @JvmStatic
-    fun initialize(pager: ViewPager2, tabLayout: TabLayout, tabTitle: MutableList<String>) {
-        this.tabLayout = tabLayout
+    fun <T : RecyclerView.Adapter<*>> initialize(pager: ViewPager2, adapter: T, tabLayout: TabLayout, tabTitle: MutableList<String>, isUserInput: Boolean = false) {
+        pager.adapter(adapter, ViewPager2.ORIENTATION_HORIZONTAL, isUserInput)
         pager.bind(tabLayout) { tab, position -> tab.text = tabTitle[position] }
         //这个方法需要放在setupWithViewPager()后面
         for (i in 0 until tabLayout.tabCount) {

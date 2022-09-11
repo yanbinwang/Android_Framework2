@@ -155,6 +155,9 @@
     </style>
 
     <!--
+            app:tabMode="scrollable"
+            app:tabPaddingEnd="0dp"
+            app:tabPaddingStart="0dp"
         全局默认tablayout样式
         app:tabIndicatorFullWidth = false 指示器宽度跟随文本宽度 -->
     <style name="tableLayoutStyle" parent="Base.Widget.Design.TabLayout">
@@ -164,6 +167,7 @@
         <item name="tabIndicatorFullWidth">false</item>
         <item name="tabSelectedTextColor">@color/blue_0d86ff</item>
         <item name="tabTextColor">@color/grey_333333</item>
+        <item name="android:overScrollMode">never</item>
     </style>
 
 </resources>
