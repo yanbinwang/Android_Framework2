@@ -1,6 +1,5 @@
 package com.example.base.utils.function.view
 
-import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
@@ -79,14 +78,4 @@ fun ViewPager2?.bind(tab: TabLayout?, listener: TabLayoutMediator.TabConfigurati
  */
 fun TabLayout?.bind(vp: ViewPager2?, listener: TabLayoutMediator.TabConfigurationStrategy = TabLayoutMediator.TabConfigurationStrategy { _, _ -> }): TabLayoutMediator? {
     return TabLayoutMediator(this ?: return null, vp ?: return null, listener).apply { attach() }
-}
-
-/**
- * 设置TabLayout的边距
- */
-fun TabLayout?.paddingEdge(start: Int? = null, top: Int? = null, end: Int? = null, bottom: Int? = null) {
-    this ?: return
-    val view = (getChildAt(0) as? ViewGroup)?.getChildAt(0) as? ViewGroup
-    view?.padding(start, top, end, bottom)
-    view?.clipToPadding = false
 }
