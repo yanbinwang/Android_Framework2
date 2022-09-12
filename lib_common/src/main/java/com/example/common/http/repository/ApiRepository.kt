@@ -18,9 +18,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 
 //------------------------------------针对协程返回的参数(协程只有成功和失败)------------------------------------
-/**
- * ViewModel的KTX库中具备扩展函数，但不能像继承CoroutineScope那样直接launch点出，这里再做一个扩展
- */
 fun BaseViewModel.launch(block: suspend CoroutineScope.() -> Unit) = viewModelScope.launch(block = block)
 
 fun BaseViewModel.async(block: suspend CoroutineScope.() -> Unit) = viewModelScope.async(block = block)
@@ -41,7 +38,8 @@ fun AppCompatActivity.async(block: suspend CoroutineScope.() -> Unit) = lifecycl
 fun <K, V> HashMap<K, V>?.params() = (if (null == this) "" else GsonUtil.objToJson(this).orEmpty()).toRequestBody("application/json; charset=utf-8".toMediaType())
 
 /**
- * 网络请求协程扩展
+ * 网络请求协程扩展-并行请求
+ * 每个挂起方法外层都会套一个launch
  */
 fun <T> CoroutineScope.loadHttp(
     start: () -> Unit = {},
@@ -76,13 +74,14 @@ fun <T> CoroutineScope.loadHttp(
 }
 
 /**
- * 串行执行网络请求
+ * 网络请求协程扩展-串行请求
+ * 几个以上的挂起方法套在一个launch或async内都会是串行请求
+ * 如项目中某个请求前必须先完成另一个请求，则可以使用当前的扩展，只有开始和完成
  */
 fun <T> CoroutineScope.loadHttp(
     start: () -> Unit = {},
     requests: MutableList<suspend CoroutineScope.() -> ApiResponse<T>>,
-    err: (e: Exception?) -> Unit = {},
-    end: (result: Pair<Boolean, MutableList<T?>>) -> Unit = {}
+    end: (result: MutableList<T?>?) -> Unit = {}
 ) {
     launch {
         val respList = ArrayList<T?>()
@@ -91,17 +90,23 @@ fun <T> CoroutineScope.loadHttp(
             withContext(IO) {
                 for (req in requests) {
                     LogUtil.e("repository", "串行执行时间：${System.nanoTime()}")
-                    val body = req().response()
-                    LogUtil.e("repository", "串行执行JSON：${GsonUtil.objToJson(body?:Any())}")
-                    respList.add(body)
+                    val data = req()
+                    if (200 == data.code) {
+                        val body = data.response()
+                        LogUtil.e("repository", "串行执行结果：${GsonUtil.objToJson(body ?: Any())}")
+                        respList.add(body)
+                    } else {
+                        LogUtil.e("repository", "串行执行结果：返回参数非200，中断执行")
+                        break
+                    }
                 }
             }
         } catch (e: Exception) {
-            err(e)
+            LogUtil.e("repository", "串行执行结果：串行接口执行中出现异常")
         } finally {
+            //如果返回的对象长度和发起的请求长度是一样的，说明此次串行都执行成功，直接拿取集合即可,其中一条失败就返回空
             LogUtil.e("repository", "串行执行结果:${respList.size == requests.size}")
-            //完成的时候判断一下请求是否都成功了
-            end(Pair(respList.size == requests.size, respList))
+            end(if (respList.size == requests.size) respList else null)
         }
     }
 }
