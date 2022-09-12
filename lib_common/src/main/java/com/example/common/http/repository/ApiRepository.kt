@@ -84,13 +84,13 @@ fun <T> CoroutineScope.loadHttp(
  * })
  * }
  */
-fun <T> CoroutineScope.loadHttp(
+fun CoroutineScope.loadHttp(
     start: () -> Unit = {},
-    requests: Array<suspend CoroutineScope.() -> ApiResponse<T>>,
-    end: (result: MutableList<T?>?) -> Unit = {}
+    requests: Array<suspend CoroutineScope.() -> ApiResponse<*>>,
+    end: (result: MutableList<Any?>?) -> Unit = {}
 ) {
     launch {
-        val respList = ArrayList<T?>()
+        val respList = ArrayList<Any?>()
         start()
         try {
             withContext(IO) {
