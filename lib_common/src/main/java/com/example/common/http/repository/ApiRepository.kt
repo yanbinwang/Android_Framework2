@@ -77,6 +77,37 @@ fun <T> CoroutineScope.loadHttp(
 }
 
 /**
+ * 串行执行网络请求
+ */
+fun <T> CoroutineScope.loadHttp(
+    start: () -> Unit = {},
+    requests: ArrayList<suspend CoroutineScope.() -> ApiResponse<T>>,
+    err: (e: Exception?) -> Unit = {},
+    end: (result: Pair<Boolean, ArrayList<T?>>) -> Unit = {}
+) {
+    launch {
+        val respList = ArrayList<T?>()
+        start()
+        try {
+            withContext(IO) {
+                for (req in requests) {
+                    LogUtil.e("repository", "串行执行时间：${System.nanoTime()}")
+                    val body = req().response()
+                    LogUtil.e("repository", "串行执行JSON：${GsonUtil.objToJson(body?:Any())}")
+                    respList.add(body)
+                }
+            }
+        } catch (e: Exception) {
+            err(e)
+        } finally {
+            LogUtil.e("repository", "串行执行结果:${respList.size == requests.size}")
+            //完成的时候判断一下请求是否都成功了
+            end(Pair(respList.size == requests.size, respList))
+        }
+    }
+}
+
+/**
  * 项目接口返回对象解析
  */
 fun <T> ApiResponse<T>?.response(): T? {
