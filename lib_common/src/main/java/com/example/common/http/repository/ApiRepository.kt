@@ -77,10 +77,16 @@ fun <T> CoroutineScope.loadHttp(
  * 网络请求协程扩展-串行请求
  * 几个以上的挂起方法套在一个launch或async内都会是串行请求
  * 如项目中某个请求前必须先完成另一个请求，则可以使用当前的扩展，只有开始和完成
+ * launch {
+ * loadHttp({},
+ * arrayOf({AccountSubscribe.getAuthInfoApi()},{AccountSubscribe.getAuthInfoApi()}),
+ * end = {
+ * })
+ * }
  */
 fun <T> CoroutineScope.loadHttp(
     start: () -> Unit = {},
-    requests: MutableList<suspend CoroutineScope.() -> ApiResponse<T>>,
+    requests: Array<suspend CoroutineScope.() -> ApiResponse<T>>,
     end: (result: MutableList<T?>?) -> Unit = {}
 ) {
     launch {
