@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.base.utils.LogUtil
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.page.responseMsg
-import com.example.common.http.repository.ApiResponse
 import com.example.common.utils.analysis.GsonUtil
 import com.example.common.utils.helper.AccountHelper
 import kotlinx.coroutines.CoroutineScope
@@ -81,9 +80,9 @@ fun <T> CoroutineScope.loadHttp(
  */
 fun <T> CoroutineScope.loadHttp(
     start: () -> Unit = {},
-    requests: ArrayList<suspend CoroutineScope.() -> ApiResponse<T>>,
+    requests: MutableList<suspend CoroutineScope.() -> ApiResponse<T>>,
     err: (e: Exception?) -> Unit = {},
-    end: (result: Pair<Boolean, ArrayList<T?>>) -> Unit = {}
+    end: (result: Pair<Boolean, MutableList<T?>>) -> Unit = {}
 ) {
     launch {
         val respList = ArrayList<T?>()
