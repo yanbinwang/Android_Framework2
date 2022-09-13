@@ -3,10 +3,10 @@ package com.example.common.base.bridge
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.ViewModel
+import com.example.base.utils.function.view.gone
 import com.example.common.base.page.getEmptyView
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.launch
@@ -29,20 +29,35 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakActivity: WeakReference<Activity>? = null//引用的activity
     private var weakContext: WeakReference<Context>? = null//引用的context
     private var softView: SoftReference<BaseView>? = null//基础UI操作
+
     //部分view的操作交予viewmodel去操作，不必返回activity再操作
     private var softEmpty: SoftReference<EmptyLayout>? = null//遮罩UI
     private var softRecycler: SoftReference<XRecyclerView>? = null//列表UI
     private var softRefresh: SoftReference<XRefreshLayout>? = null//刷新控件
 
+    //基础的注入参数
+    protected val activity: Activity?
+        get() { return weakActivity?.get() }
+    protected val context: Context?
+        get() { return weakContext?.get() }
+    protected val view: BaseView?
+        get() { return softView?.get() }
+
+    //获取对应的控件
+    val emptyView: EmptyLayout?
+        get() { return softEmpty?.get() }
+    val recyclerView: XRecyclerView?
+        get() { return softRecycler?.get() }
+    val xRefreshLayout: XRefreshLayout?
+        get() { return softRefresh?.get() }
+
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    //注入page需要的3个基础参数
     fun initialize(activity: Activity?, context: Context?, view: BaseView?) {
         this.weakActivity = WeakReference(activity)
         this.weakContext = WeakReference(context)
         this.softView = SoftReference(view)
     }
 
-    //部分页面包含empty，recyclerview，或刷新控件，此处额外注入
     fun addEmptyView(container: ViewGroup) {
         this.softEmpty = SoftReference(container.getEmptyView())
     }
@@ -56,22 +71,10 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.softRefresh = SoftReference(xRefreshLayout)
     }
 
-    var emptyView = softEmpty?.get()
-
-    var recyclerView = softRecycler?.get()
-
-    var xRefreshLayout = softRefresh?.get()
-
-    protected var activity = weakActivity?.get()
-
-    protected var context = weakContext?.get()
-
-    protected var view = softView?.get()
-
     protected fun reset() {
         xRefreshLayout?.finishRefresh()
         recyclerView?.finishRefresh()
-        emptyView?.visibility = View.GONE
+        emptyView?.gone()
     }
 
     protected fun <T> loadHttp(
