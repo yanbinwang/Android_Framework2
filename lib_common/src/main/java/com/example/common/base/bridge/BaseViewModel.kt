@@ -72,7 +72,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         emptyView?.visibility = View.GONE
     }
 
-    protected fun <T> launch(
+    protected fun <T> loadHttp(
         request: suspend CoroutineScope.() -> ApiResponse<T>,      // 请求
         resp: (T?) -> Unit = {},                                   // 响应
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}, // 错误处理
