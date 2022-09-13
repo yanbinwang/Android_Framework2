@@ -5,21 +5,15 @@ import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.ColorRes
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.ViewModel
-import com.example.base.utils.function.color
-import com.example.base.utils.function.drawable
-import com.example.base.utils.function.openWebsite
-import com.example.base.utils.function.string
 import com.example.common.base.page.getEmptyView
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.launch
 import com.example.common.http.repository.loadHttp
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
+import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
 import kotlinx.coroutines.CoroutineScope
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
@@ -35,8 +29,10 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakActivity: WeakReference<Activity>? = null//引用的activity
     private var weakContext: WeakReference<Context>? = null//引用的context
     private var softView: SoftReference<BaseView>? = null//基础UI操作
+    //部分view的操作交予viewmodel去操作，不必返回activity再操作
     private var softEmpty: SoftReference<EmptyLayout>? = null//遮罩UI
     private var softRecycler: SoftReference<XRecyclerView>? = null//列表UI
+    private var softRefresh: SoftReference<XRefreshLayout>? = null//刷新控件
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: Activity?, context: Context?, view: BaseView?) {
@@ -45,7 +41,38 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.softView = SoftReference(view)
     }
 
-    fun <T> launch(
+    fun addEmptyView(container: ViewGroup) {
+        this.softEmpty = SoftReference(container.getEmptyView())
+    }
+
+    fun addEmptyView(xRecyclerView: XRecyclerView) {
+        this.softEmpty = SoftReference(xRecyclerView.empty)
+        this.softRecycler = SoftReference(xRecyclerView)
+    }
+
+    fun addRefreshLayout(xRefreshLayout: XRefreshLayout) {
+        this.softRefresh = SoftReference(xRefreshLayout)
+    }
+
+    protected fun activity() = weakActivity?.get()
+
+    protected fun context() = weakContext?.get()
+
+    protected var view = softView?.get()
+
+    protected fun emptyView() = softEmpty?.get()
+
+    protected fun recyclerView() = softRecycler?.get()
+
+    protected fun xRefreshLayout() = softRefresh?.get()
+
+    protected fun reset() {
+        xRefreshLayout()?.finishRefresh()
+        recyclerView()?.finishRefresh()
+        emptyView()?.visibility = View.GONE
+    }
+
+    protected fun <T> launch(
         request: suspend CoroutineScope.() -> ApiResponse<T>,      // 请求
         resp: (T?) -> Unit = {},                                   // 响应
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}, // 错误处理
@@ -56,56 +83,18 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     ) {
         launch {
             this.loadHttp(
-                { if (isShowDialog) getView()?.showDialog() },
+                { if (isShowDialog) view?.showDialog() },
                 { request() },
                 { resp(it) },
                 { err(it) },
                 {
                     end()
-                    if (isShowDialog && isClose) getView()?.hideDialog()
+                    if (isShowDialog && isClose) view?.hideDialog()
                 },
                 isShowToast
             )
         }
     }
-
-    fun setEmptyView(container: ViewGroup) {
-        this.softEmpty = SoftReference(container.getEmptyView())
-    }
-
-    fun setEmptyView(xRecyclerView: XRecyclerView) {
-        this.softEmpty = SoftReference(xRecyclerView.empty)
-        this.softRecycler = SoftReference(xRecyclerView)
-    }
-
-    fun getEmptyView() = softEmpty?.get()!!
-
-    fun getRecycler() = softRecycler?.get()!!
-
-    fun disposeView() {
-        softRecycler?.get()?.finishRefreshing()
-        softEmpty?.get()?.visibility = View.GONE
-    }
-
-    @JvmOverloads
-    fun showEmpty(imgInt: Int = -1, text: String = "") {
-        softEmpty?.get()?.visibility = View.VISIBLE
-        softEmpty?.get()?.showEmpty(imgInt, text)
-    }
-
-    fun color(@ColorRes res: Int) = getContext()?.color(res)
-
-    fun drawable(@DrawableRes res: Int) = getContext()?.drawable(res)
-
-    fun string(@StringRes res: Int) = getContext()?.string(res)
-
-    fun openWebsite(url: String) = getContext()?.openWebsite(url)
-
-    protected fun getView() = softView?.get()
-
-    protected fun getActivity() = weakActivity?.get()
-
-    protected fun getContext() = weakContext?.get()
 
     override fun onCleared() {
         super.onCleared()
@@ -114,6 +103,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         softView?.clear()
         softEmpty?.clear()
         softRecycler?.clear()
+        softRefresh?.clear()
     }
     // </editor-fold>
 
