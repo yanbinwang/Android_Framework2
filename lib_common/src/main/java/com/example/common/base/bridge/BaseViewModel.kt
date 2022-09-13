@@ -29,12 +29,10 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakActivity: WeakReference<Activity>? = null//引用的activity
     private var weakContext: WeakReference<Context>? = null//引用的context
     private var softView: SoftReference<BaseView>? = null//基础UI操作
-
     //部分view的操作交予viewmodel去操作，不必返回activity再操作
     private var softEmpty: SoftReference<EmptyLayout>? = null//遮罩UI
     private var softRecycler: SoftReference<XRecyclerView>? = null//列表UI
     private var softRefresh: SoftReference<XRefreshLayout>? = null//刷新控件
-
     //基础的注入参数
     protected val activity: Activity?
         get() { return weakActivity?.get() }
@@ -42,7 +40,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         get() { return weakContext?.get() }
     protected val view: BaseView?
         get() { return softView?.get() }
-
     //获取对应的控件
     val emptyView: EmptyLayout?
         get() { return softEmpty?.get() }
