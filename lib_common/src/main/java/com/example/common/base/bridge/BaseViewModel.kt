@@ -54,17 +54,17 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.softRefresh = SoftReference(xRefreshLayout)
     }
 
+    var emptyView = softEmpty?.get()
+
+    var recyclerView = softRecycler?.get()
+
+    var xRefreshLayout = softRefresh?.get()
+
     protected var activity = weakActivity?.get()
 
     protected var context = weakContext?.get()
 
     protected var view = softView?.get()
-
-    protected var emptyView = softEmpty?.get()
-
-    protected var recyclerView = softRecycler?.get()
-
-    protected var xRefreshLayout = softRefresh?.get()
 
     protected fun reset() {
         xRefreshLayout?.finishRefresh()
