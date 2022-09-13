@@ -1,6 +1,7 @@
 package com.example.base.utils.function
 
 import java.math.BigDecimal
+import java.text.DecimalFormat
 
 /**
  * author:wyb
@@ -62,15 +63,31 @@ fun String?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
 /**
  * 保留小数
  */
-fun Number?.toFixedDouble(fixed: Int, mode: Int = BigDecimal.ROUND_UP): Double {
-    return BigDecimal((this ?: 0).toString()).setScale(fixed, mode).toDouble()
+fun BigDecimal?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
+    return (this ?: BigDecimal.ZERO).setScale(fixed, mode).toPlainString()
 }
 
 /**
  * 保留小数
  */
-fun BigDecimal?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
-    return (this ?: BigDecimal.ZERO).setScale(fixed, mode).toPlainString()
+fun Number?.toFixedDouble(fixed: Int, mode: Int = BigDecimal.ROUND_UP): Double {
+    return BigDecimal((this ?: 0).toString()).setScale(fixed, mode).toDouble()
+}
+
+/**
+ * 当小数位超过两位时，只显示两位，但只有一位或没有，则不需要补0
+ */
+fun Number?.toFixedRounding() = DecimalFormat("0.##").format(this) ?: ""
+
+/**
+ * 保证小数位6位的经纬度
+ */
+fun Number.toFixedCompletion(length: Int = 6): String {
+    var pattern = "0."
+    for (index in 0 until length) {
+        pattern = "${pattern}0"
+    }
+    return DecimalFormat(pattern).format(this)
 }
 
 /**
