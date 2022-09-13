@@ -90,8 +90,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 { resp(it) },
                 { err(it) },
                 {
-                    end()
                     if (isShowDialog && isClose) view?.hideDialog()
+                    end()
                 },
                 isShowToast
             )
