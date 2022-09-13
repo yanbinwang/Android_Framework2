@@ -35,12 +35,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var softRefresh: SoftReference<XRefreshLayout>? = null//刷新控件
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
+    //注入page需要的3个基础参数
     fun initialize(activity: Activity?, context: Context?, view: BaseView?) {
         this.weakActivity = WeakReference(activity)
         this.weakContext = WeakReference(context)
         this.softView = SoftReference(view)
     }
 
+    //部分页面包含empty，recyclerview，或刷新控件，此处额外注入
     fun addEmptyView(container: ViewGroup) {
         this.softEmpty = SoftReference(container.getEmptyView())
     }
