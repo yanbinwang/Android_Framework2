@@ -54,8 +54,8 @@ class StatusBarBuilder(var window: Window) {
     /**
      * 设置样式兼容（透明样式）
      */
-    fun setTransparent(dark: Boolean, arrow: Boolean = false) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || arrow) {
+    fun setTransparent(dark: Boolean, allow: Boolean = false) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || allow) {
             if (dark) setTransparentDarkStatus() else setTransparentStatus()
         } else {
             setStatusBarColor(ContextCompat.getColor(window.context, R.color.black))

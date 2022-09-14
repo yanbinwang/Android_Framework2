@@ -26,16 +26,16 @@ fun View.statusBarPadding() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
 }
 
-fun RelativeLayout.statusBarTopMargin(arrow: Boolean = true) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || arrow) {
+fun RelativeLayout.statusBarTopMargin(allow: Boolean = true) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || allow) {
         val params = layoutParams as RelativeLayout.LayoutParams
         params.topMargin = Constants.STATUS_BAR_HEIGHT
         layoutParams = params
     }
 }
 
-fun LinearLayout.statusBarTopMargin(arrow: Boolean = true) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || arrow) {
+fun LinearLayout.statusBarTopMargin(allow: Boolean = true) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || allow) {
         val params = layoutParams as LinearLayout.LayoutParams
         params.topMargin = Constants.STATUS_BAR_HEIGHT
         layoutParams = params
