@@ -60,6 +60,14 @@
         <item name="android:background">@color/grey_f6f8ff</item>
     </style>
 
+    <!-- 文本阴影样式 -->
+    <style name="textShadow">
+        <item name="android:shadowColor">@color/white_ff000000</item>
+        <item name="android:shadowRadius">1</item>
+        <item name="android:shadowDx">3</item>
+        <item name="android:shadowDy">3</item>
+    </style>
+
     <!-- 底部弹窗动画 -->
     <style name="pushBottomAnimStyle">
         <!-- 指定显示的动画xml -->
