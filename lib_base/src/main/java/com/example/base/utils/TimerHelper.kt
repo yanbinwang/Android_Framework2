@@ -69,7 +69,7 @@ object TimerHelper {
             }
 
             override fun onFinish() {
-                onFinish
+                onFinish?.invoke()
                 stopDownTask()
             }
         }.start()
