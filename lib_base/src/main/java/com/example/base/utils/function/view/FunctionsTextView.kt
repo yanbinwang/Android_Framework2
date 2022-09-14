@@ -123,7 +123,7 @@ fun EditText.inhibitInputSpace() {
 /**
  * 简易Edittext监听
  */
-fun SimpleTextWatcher.textWatcher(vararg views: EditText) {
+fun OnMultiTextWatcher.textWatcher(vararg views: EditText) {
     for (view in views) {
         view.addTextChangedListener(this)
     }
@@ -132,7 +132,7 @@ fun SimpleTextWatcher.textWatcher(vararg views: EditText) {
 /**
  * 简易的输入监听
  */
-interface SimpleTextWatcher : TextWatcher {
+interface OnMultiTextWatcher : TextWatcher {
     override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
     }
 
@@ -142,26 +142,3 @@ interface SimpleTextWatcher : TextWatcher {
     override fun afterTextChanged(s: Editable) {
     }
 }
-
-///**
-// * 简易Edittext监听
-// */
-//fun TextWatcher.textWatcher(vararg views: EditText) {
-//    for (view in views) {
-//        view.addTextChangedListener(this)
-//    }
-//}
-//
-///**
-// * 简易的输入监听
-// */
-//abstract class SimpleTextWatcher : TextWatcher {
-//    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-//    }
-//
-//    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-//    }
-//
-//    override fun afterTextChanged(s: Editable) {
-//    }
-//}

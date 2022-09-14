@@ -10,7 +10,7 @@ import com.tencent.smtt.sdk.WebView
 /**
  * 通用加载事件
  */
-class SimpleWebChromeClient(private var pbWeb: ProgressBar) : WebChromeClient() {
+class BaseWebChromeClient(private var pbWeb: ProgressBar) : WebChromeClient() {
 
     override fun onJsAlert(p0: WebView?, p1: String?, p2: String?, p3: JsResult?): Boolean {
         return super.onJsAlert(p0, p1, p2, p3)

@@ -1,7 +1,7 @@
 package com.example.mvvm.activity
 
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.example.base.utils.function.view.SimpleTextWatcher
+import com.example.base.utils.function.view.OnMultiTextWatcher
 import com.example.base.utils.function.view.parameters
 import com.example.base.utils.function.view.textWatcher
 import com.example.common.base.BaseTitleActivity
@@ -28,7 +28,7 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
     override fun initEvent() {
         super.initEvent()
         //多个写成全局，单个写成匿名
-        object : SimpleTextWatcher() {
+        object : OnMultiTextWatcher {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 super.onTextChanged(s, start, before, count)
                 log("account:" + binding.etAccount.parameters() + "\npassword:" + binding.etPassword.parameters() + "\n判断：" + !isEmpty(binding.etAccount.parameters(), binding.etPassword.parameters()))

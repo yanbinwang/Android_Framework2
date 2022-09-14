@@ -8,7 +8,7 @@ import com.tencent.smtt.sdk.WebViewClient
 /**
  * 通用页面事件
  */
-class SimpleWebViewClient : WebViewClient() {
+class BaseWebViewClient : WebViewClient() {
 
     override fun onLoadResource(p0: WebView?, p1: String?) {
         super.onLoadResource(p0, p1)
