@@ -11,7 +11,7 @@ import android.widget.LinearLayout
 import androidx.databinding.DataBindingUtil
 import com.example.base.utils.function.string
 import com.example.base.utils.function.view.color
-import com.example.base.widget.SimpleViewGroup
+import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
@@ -29,7 +29,7 @@ import com.example.common.utils.NetWorkUtil.isNetworkAvailable
  * 3.加载错误(无网络，服务器错误)-有按钮
  */
 @SuppressLint("InflateParams")
-class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SimpleViewGroup(context, attrs, defStyleAttr) {
+class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private var binding: ViewEmptyBinding? = null
     var onRefreshClick: (() -> Unit)? = null
 

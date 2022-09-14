@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.databinding.DataBindingUtil
 import com.example.base.utils.LogUtil
-import com.example.base.widget.SimpleViewGroup
+import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshHeaderBinding
 import com.lcodecore.tkrefreshlayout.IHeaderView
@@ -15,7 +15,7 @@ import com.lcodecore.tkrefreshlayout.OnAnimEndListener
  * @description 自定义头部
  * @author yan
  */
-class HeaderView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SimpleViewGroup(context, attrs, defStyleAttr), IHeaderView {
+class HeaderView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), IHeaderView {
     private val binding by lazy<ViewRefreshHeaderBinding> { DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_refresh_header, null))!! }
 
     override fun onDrawView() {

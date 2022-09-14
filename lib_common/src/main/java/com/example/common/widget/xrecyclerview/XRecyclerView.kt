@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.base.utils.function.dip2px
 import com.example.base.utils.function.view.initLinearHorizontal
-import com.example.base.widget.SimpleViewGroup
+import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.base.binding.BaseQuickAdapter
 import com.example.common.base.page.Paging
@@ -28,7 +28,7 @@ import com.lcodecore.tkrefreshlayout.RefreshListenerAdapter
  * onFinishInflate方法只有在布局文件中加载view实例会回调，如果直接new一个view的话是不会回调的。
  */
 @SuppressLint("InflateParams")
-class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SimpleViewGroup(context, attrs, defStyleAttr) {
+class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private var refresh: XRefreshLayout? = null//刷新控件 类型1才有
     private var refreshType = 0//页面类型(0无刷新-1带刷新)
     private var emptyType = 0//刷新类型（0顶部-1底部-2全部）

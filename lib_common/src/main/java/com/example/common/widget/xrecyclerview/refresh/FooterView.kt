@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import androidx.databinding.DataBindingUtil
 import com.example.base.utils.LogUtil
 import com.example.base.utils.function.orFalse
-import com.example.base.widget.SimpleViewGroup
+import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.base.page.Paging
 import com.example.common.databinding.ViewRefreshFooterBinding
@@ -16,7 +16,7 @@ import com.lcodecore.tkrefreshlayout.IBottomView
  * author:wyb
  * 自定义刷新控件底部
  */
-class FooterView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SimpleViewGroup(context, attrs, defStyleAttr), IBottomView {
+class FooterView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), IBottomView {
     private val binding by lazy<ViewRefreshFooterBinding> {
         DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_refresh_footer, null))!!
     }
