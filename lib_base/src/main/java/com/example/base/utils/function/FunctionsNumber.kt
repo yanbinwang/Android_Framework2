@@ -48,6 +48,21 @@ val <T : Number> T?.orZero: T
 
 /**
  * 保留小数
+ * double a = 1.66728D;
+ * double b = 1.33333D;
+ * double c = 1.00000D;
+ * aa.setScale(2, BigDecimal.ROUND_UP)
+ * aa.setScale(2, BigDecimal.ROUND_DOWN)
+ * bb.setScale(2, BigDecimal.ROUND_UP)
+ * bb.setScale(2, BigDecimal.ROUND_DOWN)
+ * cc.setScale(2, BigDecimal.ROUND_UP)
+ * cc.setScale(2, BigDecimal.ROUND_DOWN)
+ * 1.67
+ * 1.66
+ * 1.34
+ * 1.33
+ * 1.00
+ * 1.00
  */
 fun Number?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
     return BigDecimal((this ?: 0).toString()).toFixed(fixed, mode)
