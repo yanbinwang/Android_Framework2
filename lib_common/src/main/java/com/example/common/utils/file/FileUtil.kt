@@ -3,11 +3,11 @@ package com.example.common.utils.file
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.*
-import android.graphics.pdf.PdfRenderer
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.PixelFormat
 import android.net.Uri
 import android.os.Build
-import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.provider.Settings
 import android.text.TextUtils
@@ -17,27 +17,18 @@ import com.example.base.utils.ToastUtil
 import com.example.base.utils.function.EN_YMDHMS
 import com.example.base.utils.function.getDateTime
 import com.example.common.constant.Constants
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.*
 import java.lang.ref.SoftReference
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import kotlin.coroutines.CoroutineContext
 
 /**
  * Created by WangYanBin on 2020/7/1.
  * 文件管理工具类
  */
 @SuppressLint("QueryPermissionsNeeded")
-object FileUtil : CoroutineScope {
-    override val coroutineContext: CoroutineContext
-        get() = (IO)
+object FileUtil {
 
     /**
      * 是否安装了XXX应用
@@ -296,7 +287,7 @@ object FileUtil : CoroutineScope {
 
     @Throws(Exception::class)
     private fun zipFiles(folderPath: String, fileName: String, zipOutputSteam: ZipOutputStream?) {
-        log(" \n压缩路径:$folderPath\n压缩文件名:$fileName")
+        LogUtil.e("FileUtil", " \n压缩路径:$folderPath\n压缩文件名:$fileName")
         if (zipOutputSteam == null) return
         val file = File(folderPath + fileName)
         if (file.isFile) {
@@ -360,67 +351,5 @@ object FileUtil : CoroutineScope {
         }
         return false
     }
-
-
-    /**
-     * @param folderPath 要打成压缩包文件的路径
-     * @param zipPath 压缩完成的Zip路径（包含压缩文件名）-"${Constants.SDCARD_PATH}/10086.zip"
-     */
-    @JvmStatic
-    fun zipFolderJob(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
-        return launch {
-            try {
-                withContext(Main) { onStart.invoke() }
-                val fileDir = File(folderPath)
-                if (fileDir.exists()) zipFolder(fileDir.absolutePath, File(zipPath).absolutePath)
-            } catch (e: Exception) {
-                log("打包图片生成压缩文件异常: $e")
-            } finally {
-                withContext(Main) { onStop.invoke() }
-            }
-        }
-    }
-
-    /**
-     * 存储图片协程
-     */
-    @JvmStatic
-    fun saveBitmapJob(bitmap: Bitmap, root: String, fileName: String, formatJpg: Boolean = true, clear: Boolean = false, onComplete: (filePath: String?) -> Unit = {}): Job {
-        return launch {
-            val absolutePath = "${root}/${fileName}${if (formatJpg) ".jpg" else ".png"}"
-            val type = saveBitmap(bitmap = bitmap, root = root, fileName = fileName, formatJpg = formatJpg, clear = clear)
-            withContext(Main) { onComplete(if (type) absolutePath else null) }
-        }
-    }
-
-    /**
-     * 保存pdf文件存成图片形式
-     */
-    @JvmOverloads
-    @JvmStatic
-    fun savePdfBitmapJob(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}): Job {
-        return launch {
-            val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
-            val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
-            val width = page.width
-            val height = page.height
-            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap)
-            canvas.drawColor(Color.WHITE)
-            canvas.drawBitmap(bitmap, 0f, 0f, null)
-            val rent = Rect(0, 0, width, height)
-            page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-            page.close()
-            renderer.close()
-            val root = "${Constants.APPLICATION_FILE_PATH}/图片"
-            val fileName = EN_YMDHMS.getDateTime(Date())
-            saveBitmapJob(bitmap, root, fileName, onComplete = { onComplete(it) })
-        }
-    }
-
-    /**
-     * 日志
-     */
-    private fun log(msg: String) = LogUtil.e("FileUtil", msg)
 
 }
