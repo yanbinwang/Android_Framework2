@@ -37,7 +37,7 @@ import kotlin.coroutines.CoroutineContext
 @SuppressLint("QueryPermissionsNeeded")
 object FileUtil : CoroutineScope {
     override val coroutineContext: CoroutineContext
-        get() = (Main)
+        get() = (IO)
 
     /**
      * 是否安装了XXX应用
@@ -326,24 +326,33 @@ object FileUtil : CoroutineScope {
     }
 
     /**
-     * 将bitmap存成文件至指定目录下-读写权限
-     * BitmapFactory.decodeResource(resources, R.mipmap.img_qr_code)
+     * context->上下文，不需要通知相册可不传
+     * bitmap->存储的bitmap
+     * root->图片保存路径
+     * fileName->图片名称（扣除jpg和png的后缀）
+     * formatJpg->确定图片类型
+     * quality->压缩率
+     * clear->是否清除本地路径
+     * notice->是否通知相册
      */
     @JvmOverloads
     @JvmStatic
-    fun saveBitmap(context: Context, bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH}/图片", formatJpg: Boolean = true, quality: Int = 100): Boolean {
+    fun saveBitmap(context: Context? = null, bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH}/图片", fileName: String = EN_YMDHMS.getDateTime(Date()), formatJpg: Boolean = true, quality: Int = 100, clear: Boolean = false, notice: Boolean = true): Boolean {
         try {
             val storeDir = File(root)
             if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
-            val file = File(storeDir, EN_YMDHMS.getDateTime(Date()) + if (formatJpg) ".jpg" else ".png")
+            if (clear) deleteDir(storeDir.absolutePath)//删除路径下所有文件
+            val file = File(storeDir, "${fileName}${if (formatJpg) ".jpg" else ".png"}")
             //通过io流的方式来压缩保存图片
             val fileOutputStream = FileOutputStream(file)
             val result = bitmap.compress(if (formatJpg) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG, quality, fileOutputStream)//png的话100不响应，但是可以维持图片透明度
             fileOutputStream.flush()
             fileOutputStream.close()
-            //保存图片后发送广播通知更新数据库
-            MediaStore.Images.Media.insertImage(context.contentResolver, file.absolutePath, file.name, null)
-            context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + file.path)))
+            if (notice && null != context) {
+                //保存图片后发送广播通知更新数据库
+                MediaStore.Images.Media.insertImage(context.contentResolver, file.absolutePath, file.name, null)
+                context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + file.path)))
+            }
             return result
         } catch (ignored: Exception) {
         } finally {
@@ -351,6 +360,7 @@ object FileUtil : CoroutineScope {
         }
         return false
     }
+
 
     /**
      * @param folderPath 要打成压缩包文件的路径
@@ -360,13 +370,13 @@ object FileUtil : CoroutineScope {
     fun zipFolderJob(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
         return launch {
             try {
-                onStart.invoke()
+                withContext(Main) { onStart.invoke() }
                 val fileDir = File(folderPath)
-                withContext(IO) { if (fileDir.exists()) zipFolder(fileDir.absolutePath, File(zipPath).absolutePath) }
+                if (fileDir.exists()) zipFolder(fileDir.absolutePath, File(zipPath).absolutePath)
             } catch (e: Exception) {
                 log("打包图片生成压缩文件异常: $e")
             } finally {
-                onStop.invoke()
+                withContext(Main) { onStop.invoke() }
             }
         }
     }
@@ -375,13 +385,11 @@ object FileUtil : CoroutineScope {
      * 存储图片协程
      */
     @JvmStatic
-    fun saveBitmapJob(context: Context, bitmap: Bitmap, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
+    fun saveBitmapJob(bitmap: Bitmap, root: String, fileName: String, formatJpg: Boolean = true, clear: Boolean = false, onComplete: (filePath: String?) -> Unit = {}): Job {
         return launch {
-            onStart.invoke()
-            var type: Boolean
-            withContext(IO) { type = saveBitmap(context, bitmap) }
-            ToastUtil.mackToastSHORT(if (type) "保存成功" else "保存失败", context)
-            onStop.invoke()
+            val absolutePath = "${root}/${fileName}${if (formatJpg) ".jpg" else ".png"}"
+            val type = saveBitmap(bitmap = bitmap, root = root, fileName = fileName, formatJpg = formatJpg, clear = clear)
+            withContext(Main) { onComplete(if (type) absolutePath else null) }
         }
     }
 
@@ -390,7 +398,7 @@ object FileUtil : CoroutineScope {
      */
     @JvmOverloads
     @JvmStatic
-    fun savePdfBitmapJob(context: Context, file: File, index: Int = 0, onStart: () -> Unit? = {}, onStop: () -> Unit? = {}): Job {
+    fun savePdfBitmapJob(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}): Job {
         return launch {
             val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
             val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
@@ -404,7 +412,9 @@ object FileUtil : CoroutineScope {
             page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
             page.close()
             renderer.close()
-            saveBitmapJob(context, bitmap, onStart, onStop)
+            val root = "${Constants.APPLICATION_FILE_PATH}/图片"
+            val fileName = EN_YMDHMS.getDateTime(Date())
+            saveBitmapJob(bitmap, root, fileName, onComplete = { onComplete(it) })
         }
     }
 
