@@ -2,10 +2,6 @@ package com.example.mvvm.activity
 
 import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.app.hubert.guide.core.Controller
-import com.app.hubert.guide.listener.OnGuideChangedListener
-import com.app.hubert.guide.model.GuidePage
-import com.example.base.utils.function.color
 import com.example.base.utils.function.view.clicks
 import com.example.common.base.BaseTitleActivity
 import com.example.common.base.page.responseMsg

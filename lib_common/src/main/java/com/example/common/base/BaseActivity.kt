@@ -20,17 +20,21 @@ import com.example.common.constant.Constants
 import com.example.common.constant.Extras
 import com.example.common.utils.builder.StatusBarBuilder
 import com.example.common.widget.dialog.LoadingDialog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import java.io.Serializable
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Created by WangYanBin on 2020/6/3.
  * 对应页面传入继承自BaseViewModel的数据模型类，以及由系统生成的ViewDataBinding绑定类
  * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context
  */
-abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView {
+abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected lateinit var binding: VDB
     protected val activity by lazy { WeakReference<Activity>(this) } //基类activity弱引用
     protected val context by lazy { WeakReference<Context>(this) }//基类context弱引用
@@ -38,6 +42,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     private var baseViewModel: BaseViewModel? = null//数据模型
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
+    private val job = SupervisorJob()
+    override val coroutineContext: CoroutineContext get() = Dispatchers.Main + job
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     protected fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
