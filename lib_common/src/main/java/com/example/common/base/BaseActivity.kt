@@ -15,7 +15,8 @@ import com.example.base.utils.ToastUtil
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
-import com.example.common.bus.LiveDataBus
+import com.example.common.bus.Event
+import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
 import com.example.common.constant.Extras
 import com.example.common.utils.builder.StatusBarBuilder
@@ -23,6 +24,8 @@ import com.example.common.widget.dialog.LoadingDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 import java.io.Serializable
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
@@ -57,6 +60,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        EventBus.getDefault().register(this)
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
@@ -78,17 +82,23 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun initEvent() {
-        LiveDataBus.instance.observe(this) {
-            when (it.getAction()) {
-                Constants.APP_USER_LOGIN_OUT -> {
-                    finish()
-//            navigation(ARouterPath.StartActivity)
-                }
-            }
-        }
     }
 
     override fun initData() {
+    }
+
+    @Subscribe
+    override fun onReceive(event: Event) {
+        when (event.getAction()) {
+            Constants.APP_USER_LOGIN_OUT -> {
+                finish()
+//                navigation(ARouterPath.StartActivity)
+            }
+        }
+        event.onEvent()
+    }
+
+    open fun Event.onEvent() {
     }
 
     override fun isEmpty(vararg objs: Any?): Boolean {
@@ -141,6 +151,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     override fun onDestroy() {
         super.onDestroy()
+        EventBus.getDefault().unregister(this)
         binding.unbind()
     }
     // </editor-fold>

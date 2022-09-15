@@ -1,15 +1,16 @@
 package com.example.common.bus
 
 import android.os.Bundle
+import android.os.Parcelable
 import com.example.common.constant.Extras
 import java.io.Serializable
 
 /**
  * author: wyb
  * date: 2018/4/16.
- * livedata传递事件类
+ * 传递事件类
  */
-class LiveDataEvent {
+class Event {
     private var action: String? = null //广播名称
     private var args: Bundle? = null //额外参数
 
@@ -60,9 +61,15 @@ class LiveDataEvent {
      */
     constructor(action: String, any: Serializable) {
         this.action = action
-        val bundle = Bundle()
-        bundle.putSerializable(Extras.BUNDLE_BEAN, any)
-        this.args = bundle
+        this.args = Bundle().apply { putSerializable(Extras.BUNDLE_BEAN, any) }
+    }
+
+    /**
+     * 带对象的广播
+     */
+    constructor(action: String, any: Parcelable) {
+        this.action = action
+        this.args = Bundle().apply { putParcelable(Extras.BUNDLE_BEAN, any) }
     }
 
     /**
@@ -98,5 +105,10 @@ class LiveDataEvent {
      * 获取默认对象
      */
     fun getSerializable() = args?.getSerializable(Extras.BUNDLE_BEAN)
+
+//    /**
+//     * 获取默认对象
+//     */
+//    fun getParcelable() = args?.getParcelable(Extras.BUNDLE_BEAN)
 
 }

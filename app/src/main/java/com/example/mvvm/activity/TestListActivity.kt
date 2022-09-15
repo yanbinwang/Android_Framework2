@@ -1,8 +1,11 @@
 package com.example.mvvm.activity
 
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.constant.ARouterPath
+import com.example.common.widget.xrecyclerview.manager.card.CardLayoutManager
+import com.example.common.widget.xrecyclerview.manager.card.ItemTouchHelperCallback
 import com.example.mvvm.adapter.TestListAdapter
 import com.example.mvvm.bridge.TestListViewModel
 import com.example.mvvm.databinding.ActivityTestListBinding
@@ -32,12 +35,15 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
         for (i in 1..20) {
             mStrings.add(TestListModel("標題：${i}", "內容：${i}", i))
         }
-//        binding.recTest.setFlatFlow(false)
-//        binding.recTest.setIntervalRatio(0.8f)
+
+
+        binding.recTest.layoutManager = CardLayoutManager()
         val myAdapter = TestListAdapter()
         myAdapter.data = mStrings
         binding.recTest.adapter = myAdapter
-
+        val itemTouchHelperCallback = ItemTouchHelperCallback(myAdapter)
+        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+        itemTouchHelper.attachToRecyclerView(binding.recTest)
 
 //        binding.btnTest.setOnClickListener { viewModel.getListData() }
 //

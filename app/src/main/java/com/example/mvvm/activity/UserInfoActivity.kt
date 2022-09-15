@@ -2,8 +2,6 @@ package com.example.mvvm.activity
 
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
-import com.example.common.bus.LiveDataBus
-import com.example.common.bus.LiveDataEvent
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
 import com.example.common.constant.Extras

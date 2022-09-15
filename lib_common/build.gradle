@@ -77,4 +77,5 @@ dependencies {
     api deps.recovery
     api deps.guide
     api deps.tkrefreshlayout
+    api deps.eventbus
 }

@@ -12,13 +12,13 @@
     </data>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="200mm"
         android:layout_height="wrap_content"
         android:background="@drawable/shape_blue_btn">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="160mm"
+            android:layout_height="30mm"
             android:layout_margin="10mm"
             android:layout_marginVertical="40mm">
 

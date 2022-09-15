@@ -1,6 +1,7 @@
 package com.example.common.base.bridge
 
 import android.view.View
+import com.example.common.bus.Event
 
 /**
  * Created by WangYanBin on 2020/6/11.
@@ -22,6 +23,11 @@ interface BaseImpl {
      * 初始化数据
      */
     fun initData()
+
+    /**
+     * 接受广播
+     */
+    fun onReceive(event: Event)
 
     /**
      * 对象判空（批量）

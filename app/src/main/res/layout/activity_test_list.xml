@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
 
@@ -48,16 +47,16 @@
         <!--            app:adapter="@{adapter}"-->
         <!--            app:refresh="equipped" />-->
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/rec_test"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+        <!--        <androidx.viewpager2.widget.ViewPager2-->
+        <!--            android:id="@+id/rec_test"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"/>-->
 
-<!--        <androidx.recyclerview.widget.RecyclerView-->
-<!--            android:id="@+id/rec_test"-->
-<!--            android:layout_gravity="center_horizontal"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content" />-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rec_test"
+            android:layout_width="300mm"
+            android:layout_height="200mm"
+            android:layout_gravity="center_horizontal" />
 
     </LinearLayout>
 

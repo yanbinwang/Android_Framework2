@@ -5,7 +5,6 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.base.utils.function.view.clicks
 import com.example.common.base.BaseTitleActivity
 import com.example.common.base.page.responseMsg
-import com.example.common.bus.LiveDataBus
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
 import com.example.common.constant.Extras
@@ -96,11 +95,11 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>(), View.OnClickListe
 //            }
 //        }
 
-        LiveDataBus.instance.observe(this) {
-            when (it.getAction()) {
-                Constants.APP_USER_LOGIN -> titleBuilder.setTitle(it.getString()).getDefault()
-            }
-        }
+//        LiveDataBus.instance.observe(this) {
+//            when (it.getAction()) {
+//                Constants.APP_USER_LOGIN -> titleBuilder.setTitle(it.getString()).getDefault()
+//            }
+//        }
 //        var bit = BitmapFactory.decodeFile("")
 //        val b = test(bit, {
 //
