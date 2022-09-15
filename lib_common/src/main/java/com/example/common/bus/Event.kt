@@ -106,9 +106,9 @@ class Event {
      */
     fun getSerializable() = args?.getSerializable(Extras.BUNDLE_BEAN)
 
-//    /**
-//     * 获取默认对象
-//     */
-//    fun getParcelable() = args?.getParcelable(Extras.BUNDLE_BEAN)
+    /**
+     * 获取默认对象
+     */
+    fun <T : Parcelable> getParcelable() = args?.getParcelable<T>(Extras.BUNDLE_BEAN)
 
 }
