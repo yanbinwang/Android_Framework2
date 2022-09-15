@@ -33,8 +33,8 @@ class LiveDataBus private constructor() {
     fun observe(owner: LifecycleOwner, observer: Observer<LiveDataEvent>) = toFlowable<LiveDataEvent>(Constants.LIVE_DATA_BUS_KEY).observe(owner, observer)
 
     /**
-     * 项目通知
-     * liveData是粘性的，postValue虽然能在主子线程都调用，但是连续多个会丢失只保留最后一个
+     * 主子线程都能执行
+     * 如果在主线程执行一个已发布的任务之前多次调用此方法，则只会分派最后一个值。
      */
     fun post(vararg objs: LiveDataEvent) {
         for (obj in objs) {
@@ -43,7 +43,8 @@ class LiveDataBus private constructor() {
     }
 
     /**
-     * 必须在主线程调用，不会丢失
+     * 必须在主线程执行
+     * 连续发送数据，每次数据都能被接收到，不会丢失数据，但只能接收到最后一次发送的数据
      */
     fun set(vararg objs: LiveDataEvent) {
         for (obj in objs) {
