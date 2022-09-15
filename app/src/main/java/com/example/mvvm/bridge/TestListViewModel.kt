@@ -14,7 +14,7 @@ class TestListViewModel : BaseViewModel() {
     fun getListData() {
         //模拟请求网络
         if (null != dataListData.value && dataListData.value!!.isNotEmpty()) {
-            getView()?.showToast("有数据了，清空")
+//            getView()?.showToast("有数据了，清空")
             dataListData.value?.clear()
         } else {
             dataListData.value = ArrayList()

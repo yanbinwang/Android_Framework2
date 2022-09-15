@@ -33,27 +33,26 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btn_test"
-            android:layout_width="match_parent"
-            android:layout_height="200mm"
-            android:background="@color/black"
-            android:text="@{mobile}"
-            android:textColor="@color/white" />
+        <!--        <Button-->
+        <!--            android:id="@+id/btn_test"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="200mm"-->
+        <!--            android:background="@color/black"-->
+        <!--            android:text="@{mobile}"-->
+        <!--            android:textColor="@color/white" />-->
 
-        <com.example.common.widget.xrecyclerview.XRecyclerView
-            android:id="@+id/rec_test"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:adapter="@{adapter}"
-            app:refresh="equipped" />
-
-        <!--        <androidx.recyclerview.widget.RecyclerView-->
+        <!--        <com.example.common.widget.xrecyclerview.XRecyclerView-->
         <!--            android:id="@+id/rec_test"-->
         <!--            android:layout_width="match_parent"-->
         <!--            android:layout_height="match_parent"-->
         <!--            app:adapter="@{adapter}"-->
-        <!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />-->
+        <!--            app:refresh="equipped" />-->
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rec_test"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="340mm"
+            android:layout_height="200mm" />
 
     </LinearLayout>
 
