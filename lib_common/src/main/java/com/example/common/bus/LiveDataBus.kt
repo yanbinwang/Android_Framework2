@@ -34,6 +34,7 @@ class LiveDataBus private constructor() {
 
     /**
      * 项目通知
+     * liveData是粘性的，postValue虽然能在主子线程都调用，但是连续多个会丢失只保留最后一个
      */
     fun post(vararg objs: LiveDataEvent) {
         for (obj in objs) {
@@ -41,6 +42,9 @@ class LiveDataBus private constructor() {
         }
     }
 
+    /**
+     * 必须在主线程调用，不会丢失
+     */
     fun set(vararg objs: LiveDataEvent) {
         for (obj in objs) {
             toFlowable<LiveDataEvent>(Constants.LIVE_DATA_BUS_KEY).value = obj
