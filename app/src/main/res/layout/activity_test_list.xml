@@ -48,11 +48,16 @@
         <!--            app:adapter="@{adapter}"-->
         <!--            app:refresh="equipped" />-->
 
-        <androidx.recyclerview.widget.RecyclerView
+        <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/rec_test"
-            android:layout_gravity="center_horizontal"
-            android:layout_width="340mm"
-            android:layout_height="200mm" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/rec_test"-->
+<!--            android:layout_gravity="center_horizontal"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content" />-->
 
     </LinearLayout>
 
