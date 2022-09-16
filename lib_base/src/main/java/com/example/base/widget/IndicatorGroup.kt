@@ -24,8 +24,8 @@ abstract class IndicatorGroup {
      *
      */
     fun <T : RecyclerView.Adapter<*>> initialize(tab: TabLayout, pager: ViewPager2, adapter: T, tabTitle: MutableList<*>, isUserInput: Boolean = false, onSelected: (view: View, item: Any?, current: Boolean) -> Unit) {
-        pager.adapter(adapter, ViewPager2.ORIENTATION_HORIZONTAL, isUserInput)
         val tabList = tabTitle.toNewList { "" }
+        pager.adapter(adapter, ViewPager2.ORIENTATION_HORIZONTAL, isUserInput)
         pager.bind(tab) { item, position -> item.text = tabList[position]}
         //这个方法需要放在setupWithViewPager()后面
         for (i in 0 until tab.tabCount) {
