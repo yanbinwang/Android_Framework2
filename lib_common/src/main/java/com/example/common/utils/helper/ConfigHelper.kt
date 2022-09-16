@@ -54,6 +54,36 @@ object ConfigHelper {
         Constants.APPLICATION_FILE_PATH = "${Constants.SDCARD_PATH}/${Constants.APPLICATION_NAME}"
     }
 
+    // <editor-fold defaultstate="collapsed" desc="app存取值方法">
+    /**
+     * 存储当前标签行为
+     */
+    @JvmStatic
+    fun encode(key: String, value: Boolean) = mmkv.encode(key, value)
+
+    @JvmStatic
+    fun encode(key: String, value: String) = mmkv.encode(key, value)
+
+    @JvmStatic
+    fun <T : Parcelable> encode(key: String, value: T) = mmkv.encode(key, value)
+
+    /**
+     * 获取当前标签的行为-是否第一次启动，是否进入引导页等，针对用户的行为在用户类中单独管理
+     */
+    @JvmStatic
+    fun decodeBool(key: String) = mmkv.decodeBool(key, false)
+
+    @JvmStatic
+    fun decodeString(key: String) = mmkv.decodeString(key, "")
+
+    @JvmStatic
+    fun <T : Parcelable> decodeParcelable(label: String, tClass: Class<T>) = mmkv.decodeParcelable(label, tClass)
+
+    @JvmStatic
+    fun removeValueForKey(label: String) = mmkv.removeValueForKey(label)
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="公用方法">
     /**
      * 遮罩引导
      * https://www.jianshu.com/p/f28603e59318
@@ -91,33 +121,6 @@ object ConfigHelper {
     }
 
     /**
-     * 存储当前标签行为
-     */
-    @JvmStatic
-    fun encode(key: String, value: Boolean) = mmkv.encode(key, value)
-
-    @JvmStatic
-    fun encode(key: String, value: String) = mmkv.encode(key, value)
-
-    @JvmStatic
-    fun <T : Parcelable> encode(key: String, value: T) = mmkv.encode(key, value)
-
-    /**
-     * 获取当前标签的行为-是否第一次启动，是否进入引导页等，针对用户的行为在用户类中单独管理
-     */
-    @JvmStatic
-    fun decodeBool(key: String) = mmkv.decodeBool(key, false)
-
-    @JvmStatic
-    fun decodeString(key: String) = mmkv.decodeString(key, "")
-
-    @JvmStatic
-    fun <T : Parcelable> decodeParcelable(label: String, tClass: Class<T>) = mmkv.decodeParcelable(label, tClass)
-
-    @JvmStatic
-    fun removeValueForKey(label: String) = mmkv.removeValueForKey(label)
-
-    /**
      * 在进程中去寻找当前APP的信息，判断是否在运行
      * 100表示取的最大的任务数，info.topActivity表示当前正在运行的Activity，info.baseActivity表系统后台有此进程在运行
      */
@@ -128,7 +131,9 @@ object ConfigHelper {
         }
         return false
     }
+    // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="私有调取方法">
 //    /**
 //     * 获取当前设备ip地址
 //     */
@@ -249,5 +254,6 @@ object ConfigHelper {
         }
         return appVersionName
     }
+    // </editor-fold>
 
 }

@@ -8,7 +8,7 @@ import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import android.util.Patterns
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
 import com.example.base.utils.LogUtil
 import com.example.base.utils.ToastUtil
 import com.example.base.utils.function.EN_YMDHMS
@@ -22,7 +22,6 @@ import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.lang.ref.WeakReference
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
@@ -33,14 +32,10 @@ object FileHelper : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = (Dispatchers.IO)
     private var job: Job? = null
-    private var weakActivity: WeakReference<AppCompatActivity>? = null
 
     @JvmStatic
-    fun initialize(activity: AppCompatActivity) {
-        activity.doOnDestroy {
-            job?.cancel()
-        }
-        weakActivity = WeakReference(activity)
+    fun initialize(lifecycleOwner: LifecycleOwner?) {
+        lifecycleOwner?.doOnDestroy { job?.cancel() }
     }
 
     /**
