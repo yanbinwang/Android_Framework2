@@ -1,12 +1,11 @@
 package com.example.common.widget
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
-import com.example.base.widget.IndicatorGroup
 import com.example.base.utils.function.view.setMediumBold
+import com.example.base.widget.IndicatorGroup
 import com.example.common.R
 import com.example.common.utils.setData
 
@@ -16,7 +15,7 @@ import com.example.common.utils.setData
  * @author yan
  */
 @SuppressLint("StaticFieldLeak")
-class TabLayoutLayout private constructor(var context: Context) : IndicatorGroup() {
+class IndicatorLayout private constructor() : IndicatorGroup() {
 
     override fun onCreateCustomView(item: Any?, current: Boolean): View {
         val view = LayoutInflater.from(context).inflate(R.layout.item_tab, null)
@@ -30,9 +29,7 @@ class TabLayoutLayout private constructor(var context: Context) : IndicatorGroup
 
     companion object {
         @JvmStatic
-        fun with(context: Context?): TabLayoutLayout {
-            return TabLayoutLayout(context!!)
-        }
+        val instance by lazy { IndicatorLayout() }
     }
 
 }
