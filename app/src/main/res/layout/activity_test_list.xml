@@ -3,27 +3,27 @@
 
     <data>
 
-        <variable
-            name="viewModel"
-            type="com.example.mvvm.bridge.TestListViewModel" />
-
-        <variable
-            name="adapter"
-            type="com.example.mvvm.adapter.TestListAdapter" />
-
-        <variable
-            name="testList"
-            type="com.example.mvvm.activity.TestListActivity" />
-
-        <!--        <import type="com.example.common.constant.Extras" />-->
+        <!--        <variable-->
+        <!--            name="viewModel"-->
+        <!--            type="com.example.mvvm.bridge.TestListViewModel" />-->
 
         <!--        <variable-->
-        <!--            name="age"-->
-        <!--            type="int"/>-->
+        <!--            name="adapter"-->
+        <!--            type="com.example.mvvm.adapter.TestListAdapter" />-->
 
-        <variable
-            name="mobile"
-            type="String" />
+        <!--        <variable-->
+        <!--            name="testList"-->
+        <!--            type="com.example.mvvm.activity.TestListActivity" />-->
+
+        <!--        &lt;!&ndash;        <import type="com.example.common.constant.Extras" />&ndash;&gt;-->
+
+        <!--        &lt;!&ndash;        <variable&ndash;&gt;-->
+        <!--        &lt;!&ndash;            name="age"&ndash;&gt;-->
+        <!--        &lt;!&ndash;            type="int"/>&ndash;&gt;-->
+
+        <!--        <variable-->
+        <!--            name="mobile"-->
+        <!--            type="String" />-->
 
     </data>
 
@@ -32,31 +32,10 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!--        <Button-->
-        <!--            android:id="@+id/btn_test"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="200mm"-->
-        <!--            android:background="@color/black"-->
-        <!--            android:text="@{mobile}"-->
-        <!--            android:textColor="@color/white" />-->
-
-        <!--        <com.example.common.widget.xrecyclerview.XRecyclerView-->
-        <!--            android:id="@+id/rec_test"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="match_parent"-->
-        <!--            app:adapter="@{adapter}"-->
-        <!--            app:refresh="equipped" />-->
-
-        <!--        <androidx.viewpager2.widget.ViewPager2-->
-        <!--            android:id="@+id/rec_test"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"/>-->
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rec_test"
-            android:layout_width="300mm"
-            android:layout_height="200mm"
-            android:layout_gravity="center_horizontal" />
+        <com.bartoszlipinski.flippablestackview.FlippableStackView
+            android:id="@+id/stack"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 
