@@ -1,13 +1,14 @@
-package com.example.common.utils
+package com.example.common.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
-import com.example.base.utils.IndicatorGroup
+import com.example.base.widget.IndicatorGroup
 import com.example.base.utils.function.view.setMediumBold
 import com.example.common.R
+import com.example.common.utils.setData
 
 /**
  * @description 菜单头工具类
@@ -15,7 +16,7 @@ import com.example.common.R
  * @author yan
  */
 @SuppressLint("StaticFieldLeak")
-class TabLayoutFactory private constructor(var context: Context) : IndicatorGroup() {
+class TabLayoutLayout private constructor(var context: Context) : IndicatorGroup() {
 
     override fun onCreateCustomView(item: Any?, current: Boolean): View {
         val view = LayoutInflater.from(context).inflate(R.layout.item_tab, null)
@@ -29,8 +30,8 @@ class TabLayoutFactory private constructor(var context: Context) : IndicatorGrou
 
     companion object {
         @JvmStatic
-        fun with(context: Context?): TabLayoutFactory {
-            return TabLayoutFactory(context!!)
+        fun with(context: Context?): TabLayoutLayout {
+            return TabLayoutLayout(context!!)
         }
     }
 
