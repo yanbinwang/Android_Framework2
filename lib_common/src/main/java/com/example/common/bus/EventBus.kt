@@ -11,19 +11,24 @@ import kotlinx.coroutines.launch
  * 传递事件类
  */
 class EventBus {
+    private val busDefault get() = org.greenrobot.eventbus.EventBus.getDefault()
 
-    companion object {
-        @JvmStatic
-        val instance by lazy { EventBus() }
-    }
+    fun register(subscriber: Any) = run { if (!busDefault.isRegistered(subscriber)) busDefault.register(subscriber) }
+
+    fun unregister(subscriber: Any) = run { if (busDefault.isRegistered(subscriber)) busDefault.unregister(subscriber) }
 
     fun post(vararg objs: Event) {
         for (obj in objs) {
             when (Looper.getMainLooper()) {
-                Looper.myLooper() -> org.greenrobot.eventbus.EventBus.getDefault().post(obj)
-                else -> GlobalScope.launch(Dispatchers.Main) { org.greenrobot.eventbus.EventBus.getDefault().post(obj) }
+                Looper.myLooper() -> busDefault.post(obj)
+                else -> GlobalScope.launch(Dispatchers.Main) { busDefault.post(obj) }
             }
         }
+    }
+
+    companion object {
+        @JvmStatic
+        val instance by lazy { EventBus() }
     }
 
 }

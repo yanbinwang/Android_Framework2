@@ -1,32 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <data>
-
-        <!--        <variable-->
-        <!--            name="viewModel"-->
-        <!--            type="com.example.mvvm.bridge.TestListViewModel" />-->
-
-        <!--        <variable-->
-        <!--            name="adapter"-->
-        <!--            type="com.example.mvvm.adapter.TestListAdapter" />-->
-
-        <!--        <variable-->
-        <!--            name="testList"-->
-        <!--            type="com.example.mvvm.activity.TestListActivity" />-->
-
-        <!--        &lt;!&ndash;        <import type="com.example.common.constant.Extras" />&ndash;&gt;-->
-
-        <!--        &lt;!&ndash;        <variable&ndash;&gt;-->
-        <!--        &lt;!&ndash;            name="age"&ndash;&gt;-->
-        <!--        &lt;!&ndash;            type="int"/>&ndash;&gt;-->
-
-        <!--        <variable-->
-        <!--            name="mobile"-->
-        <!--            type="String" />-->
-
-    </data>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -35,7 +9,9 @@
         <com.bartoszlipinski.flippablestackview.FlippableStackView
             android:id="@+id/stack"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:overScrollMode="never"
+            android:scrollbars="none" />
 
     </LinearLayout>
 
