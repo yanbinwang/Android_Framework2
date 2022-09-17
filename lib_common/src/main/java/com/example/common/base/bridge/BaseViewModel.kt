@@ -55,16 +55,17 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.softView = SoftReference(view)
     }
 
-    fun addEmptyView(container: ViewGroup) {
+    fun setEmptyView(container: ViewGroup) {
         this.softEmpty = SoftReference(container.getEmptyView())
     }
 
-    fun addEmptyView(xRecyclerView: XRecyclerView) {
+    //viewModel.setRecyclerView(binding.xrvChain.apply { listPag = paging })
+    fun setRecyclerView(xRecyclerView: XRecyclerView) {
         this.softEmpty = SoftReference(xRecyclerView.empty)
         this.softRecycler = SoftReference(xRecyclerView)
     }
 
-    fun addRefreshLayout(xRefreshLayout: XRefreshLayout) {
+    fun setRefreshLayout(xRefreshLayout: XRefreshLayout) {
         this.softRefresh = SoftReference(xRefreshLayout)
     }
 

@@ -17,6 +17,7 @@ import com.example.common.base.page.Paging
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.ItemDecorationProps
+import com.example.common.widget.xrecyclerview.refresh.OnRefreshListener
 import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
 import com.lcodecore.tkrefreshlayout.RefreshListenerAdapter
 
@@ -33,7 +34,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var refreshType = 0//页面类型(0无刷新-1带刷新)
     private var emptyType = 0//刷新类型（0顶部-1底部-2全部）
     private var refreshDirection = 0//x是否具有空布局（0无-1有）
-    var paging: Paging? = null//将需要的页面工具类传入，用以控制刷新底部
+    var listPag: Paging? = null//将需要的页面工具类传入，用以控制刷新底部
     var empty: EmptyLayout? = null//自定义封装的空布局
     var recycler: DataRecyclerView? = null//数据列表
     var onClick: (() -> Unit)? = null//空布局点击
@@ -69,7 +70,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 empty = view.findViewById(R.id.el)
                 refresh = view.findViewById(R.id.x_refresh)
                 recycler = view.findViewById(R.id.d_rv)
-                refresh?.paging = paging
+                refresh?.refPag = listPag
                 refresh?.setDirection(refreshDirection)
                 recycler?.setHasFixedSize(true)
                 recycler?.itemAnimator = DefaultItemAnimator()
@@ -123,8 +124,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 刷新页面监听
      */
-    fun setOnRefreshListener(onRefreshListener: RefreshListenerAdapter?) {
-        if (refreshType == 1) refresh?.setOnRefreshListener(onRefreshListener)
+    fun setOnRefreshListener(onRefreshListener: OnRefreshListener) {
+        if (refreshType == 1) refresh?.onRefreshListener = onRefreshListener
     }
 
     /**
