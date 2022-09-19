@@ -68,6 +68,9 @@ dependencies {
     api deps.yanzhenjie.album
     api deps.yanzhenjie.durban
     api deps.yanzhenjie.permission
+    //权限库
+    api deps.permissions.dispatcher
+    kapt deps.permissions.processor
     //其余第三方库
     api deps.okhttp3
     api deps.autosize
@@ -76,5 +79,4 @@ dependencies {
     api deps.guide
     api deps.tkrefreshlayout
     api deps.eventbus
-    api deps.easypermissions
 }
