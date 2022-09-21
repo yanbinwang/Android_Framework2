@@ -1,5 +1,6 @@
 package com.example.base.utils.function
 
+import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -8,6 +9,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Point
 import android.net.Uri
+import android.os.Parcelable
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -54,18 +56,20 @@ fun Context.string(@StringRes res: Int): String {
 }
 
 /**
- * 获取Manifest中的参数
- */
-fun Context.getManifestString(name: String) = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
-
-/**
  * 生成View
  */
 fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null): View = LayoutInflater.from(this).inflate(res, root)
 
-fun Context.setPrimaryClip(label: String, text: String) = (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(label, text))
+fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean) = LayoutInflater.from(this).inflate(res, root, attachToRoot)
 
-fun Context.getPrimaryClip(): String {
+/**
+ * 获取Manifest中的参数
+ */
+fun Context.getManifestString(name: String) = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
+
+fun Context.setClipboard(label: String, text: String) = (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(label, text))
+
+fun Context.getClipboard(): String {
     val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     //判断剪切版时候有内容
     if (!clipboardManager.hasPrimaryClip()) return ""
@@ -117,18 +121,12 @@ fun Context.outAnimation(): AnimationSet {
 /**
  * dip转px
  */
-fun Context.dip2px(dipValue: Float): Int {
-    val scale = resources.displayMetrics.density
-    return (dipValue * scale + 0.5f).toInt()
-}
+fun Context.dip2px(dipValue: Float) = (dipValue * resources.displayMetrics.density + 0.5f).toInt()
 
 /**
  * px转dip
  */
-fun Context.px2dip(pxValue: Float): Int {
-    val scale = resources.displayMetrics.density
-    return (pxValue / scale + 0.5f).toInt()
-}
+fun Context.px2dip(pxValue: Float) = (pxValue / resources.displayMetrics.density + 0.5f).toInt()
 
 /**
  * 获取屏幕长宽比
@@ -157,6 +155,29 @@ fun Context.getXmlDef(id: Int): Int {
     val value = TypedValue()
     resources.getValue(id, value, true)
     return TypedValue.complexToFloat(value.data).toInt()
+}
+
+/**
+ * 页面间取值扩展
+ */
+fun Activity.intentString(key: String, default: String = "") = intent.getStringExtra(key) ?: default
+
+fun Activity.intentStringNullable(key: String) = intent.getStringExtra(key)
+
+fun Activity.intentInt(key: String, default: Int = 0) = intent.getIntExtra(key, default)
+
+fun Activity.intentDouble(key: String, default: Double = 0.0) = intent.getDoubleExtra(key, default)
+
+fun Activity.intentFloat(key: String, default: Float = 0f) = intent.getFloatExtra(key, default)
+
+fun <T> Activity.intentSerializable(key: String) = intent.getSerializableExtra(key) as? T
+
+fun <T> Activity.intentSerializable(key: String, default: T) = intent.getSerializableExtra(key) as? T ?: default
+
+fun Activity.intentBoolean(key: String, default: Boolean = false) = intent.getBooleanExtra(key, default)
+
+fun Activity.intentParcelable(key: String): Parcelable? {
+    return intent.getParcelableExtra(key)
 }
 
 /**
