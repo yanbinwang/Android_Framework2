@@ -19,12 +19,16 @@ class IndicatorLayout private constructor() : IndicatorGroup() {
 
     override fun onCreateCustomView(item: Any?, current: Boolean): View {
         val view = LayoutInflater.from(context).inflate(R.layout.item_tab, null)
+        onBindCustomView(view, item, current)
+        return view
+    }
+
+    override fun onBindCustomView(view: View, item: Any?, current: Boolean) {
         val tvTitle = view.findViewById<TextView>(R.id.tv_title)
         tvTitle.apply {
             setMediumBold()
             setData(item as String, if (current) R.color.blue_3d81f2 else R.color.grey_333333)
         }
-        return view
     }
 
     companion object {

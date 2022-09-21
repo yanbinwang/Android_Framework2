@@ -62,4 +62,9 @@ abstract class IndicatorGroup {
      */
     abstract fun onCreateCustomView(item: Any?, current: Boolean): View
 
+    /**
+     * 设置数据
+     */
+    abstract fun onBindCustomView(view: View, item: Any?, current: Boolean)
+
 }
