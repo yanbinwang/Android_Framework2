@@ -26,7 +26,7 @@ abstract class IndicatorGroup {
      * isUserInput->是否允许滑动
      * onSelected->回调方法
      */
-    fun <T : RecyclerView.Adapter<*>> initialize(tab: TabLayout, pager: ViewPager2, adapter: T, tabTitle: MutableList<*>, isUserInput: Boolean = false, onSelected: (view: View, item: Any?, current: Boolean) -> Unit) {
+    fun <T : RecyclerView.Adapter<*>> initialize(tab: TabLayout, pager: ViewPager2, adapter: T, tabTitle: MutableList<*>, isUserInput: Boolean = false) {
         context = tab.context
         val tabList = tabTitle.toNewList { "" }
         pager.adapter(adapter, ViewPager2.ORIENTATION_HORIZONTAL, isUserInput)
@@ -43,13 +43,13 @@ abstract class IndicatorGroup {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 //设置选中图标样式
                 val tabView = tab?.customView ?: return
-                onSelected(tabView, tabTitle[tab.position], true)
+                onBindCustomView(tabView, tabTitle[tab.position], true)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
                 //设置未选中图标样式
                 val tabView = tab?.customView ?: return
-                onSelected(tabView, tabTitle[tab.position], false)
+                onBindCustomView(tabView, tabTitle[tab.position], false)
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) {
