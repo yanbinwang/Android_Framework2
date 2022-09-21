@@ -60,11 +60,11 @@ abstract class IndicatorGroup {
     /**
      * 回调方法，返回对应控件
      */
-    abstract fun onCreateCustomView(item: Any?, current: Boolean): View
+    protected abstract fun onCreateCustomView(item: Any?, current: Boolean): View
 
     /**
      * 设置数据
      */
-    abstract fun onBindCustomView(view: View, item: Any?, current: Boolean)
+    protected abstract fun onBindCustomView(view: View, item: Any?, current: Boolean)
 
 }
