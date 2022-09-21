@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import com.example.base.utils.function.inflate
 import com.example.base.utils.function.view.setMediumBold
 import com.example.base.widget.IndicatorGroup
 import com.example.common.R
@@ -18,7 +19,8 @@ import com.example.common.utils.setData
 class IndicatorLayout private constructor() : IndicatorGroup() {
 
     override fun onCreateCustomView(item: Any?, current: Boolean): View {
-        val view = LayoutInflater.from(context).inflate(R.layout.item_tab, null)
+        val view = context?.inflate(R.layout.item_tab)!!
+//        val view = LayoutInflater.from(context).inflate(R.layout.item_tab, null)
         onBindCustomView(view, item, current)
         return view
     }

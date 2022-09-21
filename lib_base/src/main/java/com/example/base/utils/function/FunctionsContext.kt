@@ -58,7 +58,7 @@ fun Context.string(@StringRes res: Int): String {
 /**
  * 生成View
  */
-fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null): View = LayoutInflater.from(this).inflate(res, root)
+fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null) = LayoutInflater.from(this).inflate(res, root)
 
 fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean) = LayoutInflater.from(this).inflate(res, root, attachToRoot)
 
