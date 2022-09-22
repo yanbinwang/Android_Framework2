@@ -19,11 +19,11 @@ interface GlideImpl {
 
     fun displayProgress(view: ImageView, string: String, onStart: () -> Unit? = {}, onProgress: (progress: Int?) -> Unit = {}, onComplete: () -> Unit? = {})
 
-    fun display(view: ImageView, string: String?, placeholderId: Int = R.drawable.shape_white_image_loading, errorId: Int = 0, listener: GlideRequestListener<Drawable?>? = null)
+    fun display(view: ImageView, string: String?, placeholderId: Int = R.drawable.shape_album_loading, errorId: Int = 0, listener: GlideRequestListener<Drawable?>? = null)
 
     fun displayRound(view: ImageView, string: String?, errorId: Int = 0, roundingRadius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
-    fun displayCircle(view: ImageView, string: String?, errorId: Int = R.drawable.shape_white_oval_image_loading)
+    fun displayCircle(view: ImageView, string: String?, errorId: Int = R.drawable.shape_glide_loading_oval)
     //---------------------------------------------圆形图片加载开始---------------------------------------------
 
     //---------------------------------------------图片库方法开始---------------------------------------------

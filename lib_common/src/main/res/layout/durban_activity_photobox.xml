@@ -117,7 +117,7 @@
             android:layout_width="@dimen/durban_dp_200"
             android:layout_height="@dimen/durban_dp_200"
             android:layout_gravity="center"
-            app:srcCompat="@drawable/shape_white_tran"
+            app:srcCompat="@drawable/shape_album_bg"
             tools:ignore="MissingPrefix" />
 
         <com.yanzhenjie.durban.view.CropView
