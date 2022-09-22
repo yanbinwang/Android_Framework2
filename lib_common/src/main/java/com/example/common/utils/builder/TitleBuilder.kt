@@ -3,27 +3,25 @@ package com.example.common.utils.builder
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.view.View
-import androidx.core.content.ContextCompat
+import com.example.base.utils.function.color
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
+import com.example.common.utils.setData
 import java.lang.ref.WeakReference
 
 @SuppressLint("InflateParams")
 class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding) {
-    private val weakActivity by lazy { WeakReference(activity) }
+    private val weakActivity by lazy { WeakReference(activity).get() }
     private val statusBarBuilder by lazy { StatusBarBuilder(activity.window) }
 
     init {
-        statusBarBuilder.setStatusBarColor(ContextCompat.getColor(weakActivity.get()!!, R.color.white))
+        statusBarBuilder.setStatusBarColor(weakActivity!!.color(R.color.white))
     }
 
     @JvmOverloads
     fun setTitle(titleStr: String, dark: Boolean = true, shade: Boolean = false): TitleBuilder {
         statusBarBuilder.setStatusBarLightMode(dark)
-        binding.tvTitle.apply {
-            text = titleStr
-            setTextColor(ContextCompat.getColor(weakActivity.get()!!, if(dark) R.color.black else R.color.white))
-        }
+        binding.tvTitle.setData(titleStr, if (dark) R.color.black else R.color.white)
         binding.vShade.visibility = if (shade) View.VISIBLE else View.GONE
         return this
     }
@@ -134,7 +132,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     fun getDefault(): TitleBuilder {
         binding.llLeft.apply {
             visibility = View.VISIBLE
-            setOnClickListener { weakActivity.get()?.finish() }
+            setOnClickListener { weakActivity?.finish() }
         }
         return this
     }
