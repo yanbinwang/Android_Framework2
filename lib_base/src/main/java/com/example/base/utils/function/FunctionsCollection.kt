@@ -38,9 +38,9 @@ fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
  */
 private fun <T> List<T>.safeSubList(from: Int, to: Int): List<T> {
     if (from !in indices) return emptyList()
-    if (to < from || to > size) return emptyList()
+    if (to < from) return emptyList()
     return try {
-        subList(from, to)
+        if (to > size) subList(from, size) else subList(from, to)
     } catch (e: Exception) {
         emptyList()
     }
