@@ -34,9 +34,9 @@ fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
 }
 
 /**
- * 安全截取制定长度
+ * 安全获取制定长度的集合
  */
-private fun <T> List<T>.safeSubList(from: Int, to: Int): List<T> {
+fun <T> List<T>.safeSubList(from: Int, to: Int): List<T> {
     if (from !in indices) return emptyList()
     if (to < from) return emptyList()
     return try {
