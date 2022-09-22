@@ -56,16 +56,16 @@ fun Context.string(@StringRes res: Int): String {
 }
 
 /**
+ * 获取Manifest中的参数
+ */
+fun Context.manifestString(name: String) = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
+
+/**
  * 生成View
  */
 fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null) = LayoutInflater.from(this).inflate(res, root)
 
 fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean) = LayoutInflater.from(this).inflate(res, root, attachToRoot)
-
-/**
- * 获取Manifest中的参数
- */
-fun Context.getManifestString(name: String) = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
 
 fun Context.setPrimaryClip(label: String, text: String) = (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(label, text))
 
