@@ -42,10 +42,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
             setImageResource(resId)
         }
         binding.tvLeft.gone()
-        binding.llLeft.apply {
-            visible()
-            setOnClickListener { onClick.invoke() }
-        }
+        binding.llLeft.setOnClickListener { onClick.invoke() }
         return this
     }
 
@@ -55,10 +52,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
             visible()
             setParameter(textStr, color)
         }
-        binding.llLeft.apply {
-            visible()
-            setOnClickListener { onClick.invoke() }
-        }
+        binding.llLeft.setOnClickListener { onClick.invoke() }
         return this
     }
 
@@ -68,10 +62,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
             setImageResource(resId)
         }
         binding.tvRight.gone()
-        binding.llRight.apply {
-            visible()
-            setOnClickListener { onClick.invoke() }
-        }
+        binding.llRight.setOnClickListener { onClick.invoke() }
         return this
     }
 
@@ -81,10 +72,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
             visible()
             setParameter(textStr, color)
         }
-        binding.llRight.apply {
-            visible()
-            setOnClickListener { onClick.invoke() }
-        }
+        binding.llRight.setOnClickListener { onClick.invoke() }
         return this
     }
 
@@ -97,10 +85,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     }
 
     fun getDefault(): TitleBuilder {
-        binding.llLeft.apply {
-            visible()
-            setOnClickListener { weakActivity?.finish() }
-        }
+        binding.llLeft.setOnClickListener { weakActivity?.finish() }
         return this
     }
 
