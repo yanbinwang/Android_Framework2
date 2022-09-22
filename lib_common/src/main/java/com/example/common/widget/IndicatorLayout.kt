@@ -1,14 +1,13 @@
 package com.example.common.widget
 
 import android.annotation.SuppressLint
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import com.example.base.utils.function.inflate
 import com.example.base.utils.function.view.setMediumBold
 import com.example.base.widget.IndicatorGroup
 import com.example.common.R
-import com.example.common.utils.setData
+import com.example.common.utils.setParameter
 
 /**
  * @description 菜单头工具类
@@ -29,7 +28,7 @@ class IndicatorLayout private constructor() : IndicatorGroup() {
         val tvTitle = view.findViewById<TextView>(R.id.tv_title)
         tvTitle.apply {
             setMediumBold()
-            setData(item as String, if (current) R.color.blue_3d81f2 else R.color.grey_333333)
+            setParameter(item as String, if (current) R.color.blue_3d81f2 else R.color.grey_333333)
         }
     }
 

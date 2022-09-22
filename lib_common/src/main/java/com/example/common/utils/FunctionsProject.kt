@@ -82,7 +82,7 @@ fun TextView.setSpan(textStr: String, keyword: String, colorRes: Int = R.color.b
  * 设置显示内容和对应文本颜色
  */
 @JvmOverloads
-fun TextView.setData(textStr: String = "", colorRes: Int = R.color.blue_0d86ff, resid: Int = 0) {
+fun TextView.setParameter(textStr: String = "", colorRes: Int = R.color.blue_0d86ff, resid: Int = 0) {
     if(!TextUtils.isEmpty(textStr)) text = textStr
     setTextColor(context.color(colorRes))
     setBackgroundResource(resid)
