@@ -67,9 +67,9 @@ fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean
  */
 fun Context.getManifestString(name: String) = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
 
-fun Context.setClipboard(label: String, text: String) = (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(label, text))
+fun Context.setPrimaryClip(label: String, text: String) = (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(label, text))
 
-fun Context.getClipboard(): String {
+fun Context.getPrimaryClip(): String {
     val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     //判断剪切版时候有内容
     if (!clipboardManager.hasPrimaryClip()) return ""

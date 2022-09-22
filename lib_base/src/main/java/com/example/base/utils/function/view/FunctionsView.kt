@@ -6,7 +6,6 @@ import android.graphics.Paint
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.text.*
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -146,12 +145,8 @@ fun View?.paddingAll(padding: Int) {
 fun View?.size(width: Int? = null, height: Int? = null) {
     if (this == null) return
     val lp = layoutParams
-    height?.let {
-        layoutParams?.height = it
-    }
-    width?.let {
-        layoutParams?.width = it
-    }
+    height?.let { layoutParams?.height = it }
+    width?.let { layoutParams?.width = it }
     layoutParams = lp ?: ViewGroup.LayoutParams(width ?: ViewGroup.LayoutParams.WRAP_CONTENT, height ?: ViewGroup.LayoutParams.WRAP_CONTENT)
 }
 
@@ -176,10 +171,7 @@ fun View?.openDecor() {
     val view = this
     Timer().schedule(object : TimerTask() {
         override fun run() {
-            (view?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(
-                0,
-                InputMethodManager.HIDE_NOT_ALWAYS
-            )
+            (view?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
         }
     }, 200)
     val inputMethodManager = this?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -207,7 +199,7 @@ fun View?.focus() {
 /**
  * 控件获取默认值
  */
-fun View?.parameters(): String? {
+fun View?.text(): String? {
     return when (this) {
         is EditText -> text.toString().trim { it <= ' ' }
         is TextView -> text.toString().trim { it <= ' ' }

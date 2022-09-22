@@ -2,7 +2,7 @@ package com.example.mvvm.activity
 
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.base.utils.function.view.OnMultiTextWatcher
-import com.example.base.utils.function.view.parameters
+import com.example.base.utils.function.view.text
 import com.example.base.utils.function.view.textWatcher
 import com.example.common.base.BaseTitleActivity
 import com.example.common.constant.ARouterPath
@@ -31,8 +31,8 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
         object : OnMultiTextWatcher {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 super.onTextChanged(s, start, before, count)
-                log("account:" + binding.etAccount.parameters() + "\npassword:" + binding.etPassword.parameters() + "\n判断：" + !isEmpty(binding.etAccount.parameters(), binding.etPassword.parameters()))
-                binding.btnLogin.isEnabled = !isEmpty(binding.etAccount.parameters(), binding.etPassword.parameters())
+                log("account:" + binding.etAccount.text() + "\npassword:" + binding.etPassword.text() + "\n判断：" + !isEmpty(binding.etAccount.text(), binding.etPassword.text()))
+                binding.btnLogin.isEnabled = !isEmpty(binding.etAccount.text(), binding.etPassword.text())
             }
         }.textWatcher(binding.etAccount, binding.etPassword)
 
@@ -43,7 +43,7 @@ class LoginActivity : BaseTitleActivity<ActivityLoginBinding>() {
 //        })
 
         binding.btnLogin.setOnClickListener {
-            viewModel.login(binding.etAccount.parameters(), binding.etPassword.parameters())
+            viewModel.login(binding.etAccount.text(), binding.etPassword.text())
 //            viewModel.getData()
         }
 
