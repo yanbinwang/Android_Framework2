@@ -124,7 +124,7 @@
     <!-- 数据请求的动画样式 -->
     <style name="loadingStyle" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowFrame">@null</item>
-        <item name="android:windowBackground">@drawable/shape_dialog_loading</item>
+        <item name="android:windowBackground">@drawable/shape_r5_white_stroke_loading</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowContentOverlay">@null</item>
@@ -171,7 +171,7 @@
     <style name="tabLayoutStyle" parent="Base.Widget.Design.TabLayout">
         <item name="tabBackground">@android:color/transparent</item>
         <item name="tabRippleColor">@android:color/transparent</item>
-        <item name="tabIndicator">@drawable/layer_list_tab_line</item>
+        <item name="tabIndicator">@drawable/layer_list_r3_red_tab_line</item>
         <item name="tabIndicatorFullWidth">false</item>
         <item name="tabSelectedTextColor">@color/blue_0d86ff</item>
         <item name="tabTextColor">@color/grey_333333</item>

@@ -31,7 +31,7 @@
             android:layout_width="120mm"
             android:layout_height="wrap_content"
             android:layout_marginTop="20mm"
-            android:background="@drawable/shape_empty_btn"
+            android:background="@drawable/shape_r5_white_stroke_empty"
             android:gravity="center"
             android:paddingVertical="10mm"
             android:text="刷新"
