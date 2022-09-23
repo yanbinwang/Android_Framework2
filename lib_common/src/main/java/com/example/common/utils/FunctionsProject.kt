@@ -84,3 +84,10 @@ fun TextView.setParameter(textStr: String = "", colorRes: Int = R.color.blue_0d8
     setTextColor(context.color(colorRes))
     setBackgroundResource(resid)
 }
+
+/**
+ * 状态改变
+ */
+fun CheckBox.checked() {
+    isChecked = !isChecked
+}
