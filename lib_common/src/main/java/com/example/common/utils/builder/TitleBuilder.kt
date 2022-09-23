@@ -31,10 +31,12 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     /**
      * 继承baseactivity，用include把布局引入后调用
      */
-    fun setTransparentTitle(titleStr: String, txtColor: Int = R.color.grey_333333, dark: Boolean = true, allow: Boolean = false): TitleBuilder {
-        statusBarBuilder.setTransparent(dark, allow)
-        binding.rlContainer.setBackgroundColor(0)
-        binding.rlContainer.statusBarMargin(allow)
+    fun setTransparentTitle(titleStr: String = "", txtColor: Int = R.color.grey_333333, dark: Boolean = true, groupId: Int = 0, enable: Boolean = false): TitleBuilder {
+        statusBarBuilder.setTransparent(dark, enable)
+        binding.rlContainer.apply {
+            setBackgroundColor(0)
+            statusBarMargin(groupId)
+        }
         binding.tvTitle.setParameter(titleStr, txtColor)
         return this
     }
