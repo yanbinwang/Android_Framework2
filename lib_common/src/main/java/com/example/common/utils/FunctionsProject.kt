@@ -6,6 +6,7 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.ForegroundColorSpan
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
@@ -24,6 +25,14 @@ fun View.statusBarHeight() {
 
 fun View.statusBarPadding() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
+}
+
+fun ViewGroup.statusBarTopMargin(allow: Boolean = true) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || allow) {
+        val params = layoutParams as RelativeLayout.LayoutParams
+        params.topMargin = Constants.STATUS_BAR_HEIGHT
+        layoutParams = params
+    }
 }
 
 fun RelativeLayout.statusBarTopMargin(allow: Boolean = true) {

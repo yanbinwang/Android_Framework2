@@ -8,6 +8,8 @@ import com.example.base.utils.function.view.visible
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.setParameter
+import com.example.common.utils.statusBarHeight
+import com.example.common.utils.statusBarTopMargin
 import java.lang.ref.WeakReference
 
 @SuppressLint("InflateParams")
@@ -27,9 +29,21 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
         return this
     }
 
+    /**
+     * 继承baseactivity，用include把布局引入后调用
+     */
+    fun setTransparentTitle(titleStr: String, txtColor: Int = R.color.grey_333333, dark: Boolean = true, allow: Boolean = false): TitleBuilder {
+        statusBarBuilder.setTransparent(dark, allow)
+        binding.rlContainer.setBackgroundColor(0)
+        binding.rlContainer.statusBarTopMargin(allow)
+        binding.tvTitle.setParameter(titleStr, txtColor)
+        return this
+    }
+
     @JvmOverloads
     fun setLeftResource(resId: Int, onClick: () -> Unit = {}): TitleBuilder {
         binding.ivLeft.apply {
+            visible()
             setImageResource(resId)
             setOnClickListener { onClick.invoke() }
         }
@@ -39,6 +53,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     @JvmOverloads
     fun setLeftText(textStr: String, color: Int = R.color.grey_333333, onClick: () -> Unit = {}): TitleBuilder {
         binding.tvLeft.apply {
+            visible()
             setParameter(textStr, color)
             setOnClickListener { onClick.invoke() }
         }
@@ -48,6 +63,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     @JvmOverloads
     fun setRightResource(resId: Int, onClick: () -> Unit = {}): TitleBuilder {
         binding.ivRight.apply {
+            visible()
             setImageResource(resId)
             setOnClickListener { onClick.invoke() }
         }
@@ -57,6 +73,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     @JvmOverloads
     fun setRightText(textStr: String, color: Int = R.color.grey_333333, onClick: () -> Unit = {}): TitleBuilder {
         binding.tvRight.apply {
+            visible()
             setParameter(textStr, color)
             setOnClickListener { onClick.invoke() }
         }
@@ -64,12 +81,12 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     }
 
     fun hideBack(): TitleBuilder {
-        binding.llLeft.gone()
+        binding.ivLeft.gone()
         return this
     }
 
     fun getDefault(): TitleBuilder {
-        binding.llLeft.setOnClickListener { weakActivity?.finish() }
+        binding.ivLeft.setOnClickListener { weakActivity?.finish() }
         return this
     }
 
