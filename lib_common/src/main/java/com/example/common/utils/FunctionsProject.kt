@@ -44,7 +44,7 @@ fun View.statusBarHeight(groupId: Int = 0) {
 
 fun View.statusBarPadding() = run { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0) }
 
-fun ViewGroup.statusBarMargin(enable: Boolean = true) {
+fun View.statusBarMargin(enable: Boolean = true) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
         val params = when (this) {
             is LinearLayout -> layoutParams as LinearLayout.LayoutParams
