@@ -76,7 +76,6 @@
         <View
             android:id="@+id/v_shade"
             style="@style/lineConstraintWidth"
-            android:layout_alignParentBottom="true"
             android:visibility="gone"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
