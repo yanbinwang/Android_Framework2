@@ -34,8 +34,7 @@
                     android:gravity="center"
                     android:lines="1"
                     android:textColor="@color/grey_333333"
-                    android:textSize="28mm"
-                    android:visibility="gone" />
+                    android:textSize="28mm" />
 
             </LinearLayout>
 
@@ -68,8 +67,7 @@
                     android:gravity="center"
                     android:lines="1"
                     android:textColor="@color/grey_333333"
-                    android:textSize="28mm"
-                    android:visibility="gone" />
+                    android:textSize="28mm" />
 
             </LinearLayout>
 
