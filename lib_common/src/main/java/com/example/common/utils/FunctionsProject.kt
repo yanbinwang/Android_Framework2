@@ -19,7 +19,7 @@ import com.example.common.constant.Constants
  */
 fun View.statusBarHeight(viewGroup: ViewGroup) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        when (viewGroup) {
+        layoutParams = when (viewGroup) {
             is LinearLayout -> LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
             is RelativeLayout -> RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
             is FrameLayout -> FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
