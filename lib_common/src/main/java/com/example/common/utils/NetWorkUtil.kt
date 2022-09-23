@@ -10,7 +10,6 @@ import android.os.Build
 import android.text.TextUtils
 import com.example.base.utils.LogUtil
 import com.example.common.BaseApplication
-import com.example.common.base.proxy.NetworkCallbackImpl
 
 /**
  * author: wyb

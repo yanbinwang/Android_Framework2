@@ -7,10 +7,8 @@ import android.text.TextUtils
 import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.base.utils.function.color
 import com.example.common.R
 import com.example.common.constant.Constants
@@ -19,33 +17,27 @@ import com.example.common.constant.Constants
 /**
  * 空出状态栏高度
  */
-fun View.statusBarHeight() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
-}
-
-fun View.statusBarPadding() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
-}
-
-fun ViewGroup.statusBarTopMargin(allow: Boolean = true) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || allow) {
-        val params = layoutParams as RelativeLayout.LayoutParams
-        params.topMargin = Constants.STATUS_BAR_HEIGHT
-        layoutParams = params
+fun View.statusBarHeight(viewGroup: ViewGroup) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        when (viewGroup) {
+            is LinearLayout -> LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
+            is RelativeLayout -> RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
+            is FrameLayout -> FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
+            else -> ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
+        }
     }
 }
 
-fun RelativeLayout.statusBarTopMargin(allow: Boolean = true) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || allow) {
-        val params = layoutParams as RelativeLayout.LayoutParams
-        params.topMargin = Constants.STATUS_BAR_HEIGHT
-        layoutParams = params
-    }
-}
+fun View.statusBarPadding() = run { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0) }
 
-fun LinearLayout.statusBarTopMargin(allow: Boolean = true) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || allow) {
-        val params = layoutParams as LinearLayout.LayoutParams
+fun ViewGroup.statusBarMargin(enable: Boolean = true) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
+        val params = when (this) {
+            is LinearLayout -> layoutParams as LinearLayout.LayoutParams
+            is RelativeLayout -> layoutParams as RelativeLayout.LayoutParams
+            is FrameLayout -> layoutParams as FrameLayout.LayoutParams
+            else -> layoutParams as ConstraintLayout.LayoutParams
+        }
         params.topMargin = Constants.STATUS_BAR_HEIGHT
         layoutParams = params
     }
@@ -55,24 +47,6 @@ fun LinearLayout.statusBarTopMargin(allow: Boolean = true) {
  * 设置按钮显影图片
  */
 fun ImageView.setResource(triple: Triple<Boolean, Int, Int>) = setImageResource(if (!triple.first) triple.third else triple.second)
-
-/**
- * 图片宽屏
- */
-fun ImageView.setRelativeScreenWidth() {
-    val rLayoutParams = layoutParams as RelativeLayout.LayoutParams
-    rLayoutParams.width = Constants.SCREEN_WIDTH
-    layoutParams = rLayoutParams
-}
-
-/**
- * 图片宽屏
- */
-fun ImageView.setLinearScreenWidth() {
-    val lLayoutParams = layoutParams as LinearLayout.LayoutParams
-    lLayoutParams.width = Constants.SCREEN_WIDTH
-    layoutParams = lLayoutParams
-}
 
 /**
  * 设置textview内容当中某一段的颜色
@@ -92,7 +66,7 @@ fun TextView.setSpan(textStr: String, keyword: String, colorRes: Int = R.color.b
  */
 @JvmOverloads
 fun TextView.setParameter(textStr: String = "", colorRes: Int = R.color.blue_0d86ff, resid: Int = 0) {
-    if(!TextUtils.isEmpty(textStr)) text = textStr
+    if (!TextUtils.isEmpty(textStr)) text = textStr
     setTextColor(context.color(colorRes))
     setBackgroundResource(resid)
 }
