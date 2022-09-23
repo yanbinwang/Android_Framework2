@@ -19,6 +19,7 @@
             android:src="@mipmap/ic_btn_back"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/tv_left"
             app:layout_constraintTop_toTopOf="parent" />
 
