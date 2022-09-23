@@ -10,10 +10,24 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.base.utils.function.color
+import com.example.base.utils.function.dip2px
+import com.example.base.utils.function.px2dip
+import com.example.base.utils.function.toSafeFloat
+import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.constant.Constants
 
 //------------------------------------按钮，控件行为工具类------------------------------------
+val Number?.dp: Int
+    get() {
+        return BaseApplication.instance!!.dip2px(this.toSafeFloat())
+    }
+
+val Number?.px: Int
+    get() {
+        return BaseApplication.instance!!.px2dip(this.toSafeFloat())
+    }
+
 /**
  * 空出状态栏高度
  */
