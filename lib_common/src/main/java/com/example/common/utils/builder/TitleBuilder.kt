@@ -8,8 +8,7 @@ import com.example.base.utils.function.view.visible
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.setParameter
-import com.example.common.utils.statusBarHeight
-import com.example.common.utils.statusBarTopMargin
+import com.example.common.utils.statusBarMargin
 import java.lang.ref.WeakReference
 
 @SuppressLint("InflateParams")
@@ -35,7 +34,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     fun setTransparentTitle(titleStr: String, txtColor: Int = R.color.grey_333333, dark: Boolean = true, allow: Boolean = false): TitleBuilder {
         statusBarBuilder.setTransparent(dark, allow)
         binding.rlContainer.setBackgroundColor(0)
-        binding.rlContainer.statusBarTopMargin(allow)
+        binding.rlContainer.statusBarMargin(allow)
         binding.tvTitle.setParameter(titleStr, txtColor)
         return this
     }
