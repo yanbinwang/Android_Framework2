@@ -18,13 +18,16 @@ class XRefreshLayout @JvmOverloads constructor(context: Context, attrs: Attribut
     private val bottom by lazy { FooterView(context) }
     var onRefreshListener: OnRefreshListener? = null
     var refPag: Paging? = null
+        set(value) {
+            field = value
+            bottom.paging = refPag
+        }
 
     init {
         val mTypedArray = context.obtainStyledAttributes(attrs, R.styleable.XRefreshLayout)
         val direction = mTypedArray.getInt(R.styleable.XRefreshLayout_direction, 2)
         mTypedArray.recycle()
         //定义刷新控件的一些属性
-        bottom.paging = refPag
         setHeaderHeight(context.dip2px(30f).toSafeFloat())
         setMaxHeadHeight(context.dip2px(35f).toSafeFloat())
         setBottomHeight(context.dip2px(30f).toSafeFloat())

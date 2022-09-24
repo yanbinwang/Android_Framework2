@@ -36,7 +36,12 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var refreshType = 0//页面类型(0无刷新-1带刷新)
     private var emptyType = 0//刷新类型（0顶部-1底部-2全部）
     private var refreshDirection = 0//x是否具有空布局（0无-1有）
-    var listPag: Paging? = null//将需要的页面工具类传入，用以控制刷新底部
+    var listPag: Paging? = null
+        //将需要的页面工具类传入，用以控制刷新底部
+        set(value) {
+            field = value
+            refresh?.refPag = value
+        }
     var empty: EmptyLayout? = null//自定义封装的空布局
     var recycler: DataRecyclerView? = null//数据列表
     var onClick: (() -> Unit)? = null//空布局点击
@@ -73,7 +78,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 empty = view.findViewById(R.id.el)
                 refresh = view.findViewById(R.id.x_refresh)
                 recycler = view.findViewById(R.id.d_rv)
-                refresh?.refPag = listPag
                 refresh?.setDirection(refreshDirection)
                 recycler?.setHasFixedSize(true)
                 recycler?.cancelItemAnimator()
