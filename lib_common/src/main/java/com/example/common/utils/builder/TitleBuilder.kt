@@ -8,7 +8,6 @@ import com.example.base.utils.function.view.visible
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.setParameter
-import com.example.common.utils.statusBarMargin
 import java.lang.ref.WeakReference
 
 @SuppressLint("InflateParams")

@@ -6,8 +6,13 @@ import android.os.Build
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.example.common.R
+import com.example.common.constant.Constants
 
 /**
  * author: wyb
@@ -128,4 +133,35 @@ class StatusBarBuilder(var window: Window) {
         }
     }
 
+}
+
+/**
+ * 空出状态栏高度
+ */
+fun View.statusBarHeight() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        layoutParams = when (parent) {
+            is LinearLayout -> LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
+            is RelativeLayout -> RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
+            is FrameLayout -> FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
+            else -> ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
+        }
+    }
+}
+
+fun View.statusBarPadding() = run {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
+}
+
+fun View.statusBarMargin(enable: Boolean = true) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
+        val params = when (parent) {
+            is LinearLayout -> layoutParams as LinearLayout.LayoutParams
+            is RelativeLayout -> layoutParams as RelativeLayout.LayoutParams
+            is FrameLayout -> layoutParams as FrameLayout.LayoutParams
+            else -> layoutParams as ConstraintLayout.LayoutParams
+        }
+        params.topMargin = Constants.STATUS_BAR_HEIGHT
+        layoutParams = params
+    }
 }
