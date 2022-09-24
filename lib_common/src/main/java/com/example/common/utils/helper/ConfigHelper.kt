@@ -7,7 +7,6 @@ import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Parcelable
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.core.Controller
 import com.app.hubert.guide.listener.OnGuideChangedListener
@@ -54,35 +53,6 @@ object ConfigHelper {
         Constants.APPLICATION_FILE_PATH = "${Constants.SDCARD_PATH}/${Constants.APPLICATION_NAME}"
     }
 
-    // <editor-fold defaultstate="collapsed" desc="app存取值方法">
-    /**
-     * 存储当前标签行为
-     */
-    @JvmStatic
-    fun encode(key: String, value: Boolean) = mmkv.encode(key, value)
-
-    @JvmStatic
-    fun encode(key: String, value: String) = mmkv.encode(key, value)
-
-    @JvmStatic
-    fun <T : Parcelable> encode(key: String, value: T) = mmkv.encode(key, value)
-
-    /**
-     * 获取当前标签的行为-是否第一次启动，是否进入引导页等，针对用户的行为在用户类中单独管理
-     */
-    @JvmStatic
-    fun decodeBool(key: String) = mmkv.decodeBool(key, false)
-
-    @JvmStatic
-    fun decodeString(key: String) = mmkv.decodeString(key, "")
-
-    @JvmStatic
-    fun <T : Parcelable> decodeParcelable(label: String, tClass: Class<T>) = mmkv.decodeParcelable(label, tClass)
-
-    @JvmStatic
-    fun removeValueForKey(label: String) = mmkv.removeValueForKey(label)
-    // </editor-fold>
-
     // <editor-fold defaultstate="collapsed" desc="公用方法">
     /**
      * 遮罩引导
@@ -95,8 +65,8 @@ object ConfigHelper {
      */
     @JvmStatic
     fun showGuide(activity: Activity, label: String, vararg pages: GuidePage, color: Int = R.color.white) {
-        if (!decodeBool(label)) {
-            encode(label, true)
+        if (!MMKVHelper.decodeBool(label)) {
+            MMKVHelper.encode(label, true)
             val weakActivity = WeakReference(activity)
             val statusBarBuilder = StatusBarBuilder(weakActivity.get()!!.window)
             val builder = NewbieGuide.with(weakActivity.get())//传入activity
