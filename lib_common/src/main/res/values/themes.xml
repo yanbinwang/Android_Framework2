@@ -22,6 +22,7 @@
         <item name="colorControlNormal">@color/grey_333333</item>
         <!-- 剔除控件的点击效果 -->
         <item name="selectableItemBackground">@null</item>
+        <item name="selectableItemBackgroundBorderless">@null</item>
         <!-- 剔除控件的阴影效果 -->
         <item name="buttonStyle">@style/Widget.AppCompat.Button.Borderless</item>
     </style>
