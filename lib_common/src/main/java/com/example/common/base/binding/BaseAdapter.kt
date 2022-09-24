@@ -22,7 +22,6 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
      */
     var data: MutableList<T> = ArrayList()
         set(value) {
-            val size = data.size
             //设置集合类型不相同时替换
             if (value !== field) {
                 if (!value.isNullOrEmpty()) field.addAll(value)
