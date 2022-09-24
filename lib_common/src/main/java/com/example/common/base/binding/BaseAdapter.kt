@@ -23,13 +23,15 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     var data: MutableList<T> = ArrayList()
         set(value) {
             //设置集合类型不相同时替换
-            if (value !== field) {
-                if (!value.isNullOrEmpty()) field.addAll(value)
-            } else {
-                field.clear()
-                if (!value.isNullOrEmpty()) field.addAll(ArrayList(value))
+            if (value.isNotEmpty()) {
+                if (value !== field) {
+                    field.addAll(value)
+                } else {
+                    field.clear()
+                    field.addAll(ArrayList(value))
+                }
+                notifyDataSetChanged()
             }
-            notifyDataSetChanged()
         }
     /**
      * 数据类型为对象
@@ -132,6 +134,16 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     fun notifyItemRemoved(func: ((T) -> Boolean)) {
         val index = data.findIndexOf(func)
         if (index != -1) notifyItemRemoved(index)
+    }
+
+    /**
+     * 根据条件，抓出当前适配器中符合条件的对象，返回一个Pair对象
+     * a：下标 b：对象
+     * 更新好后，调取notifyItemChanged（index）更新局部item
+     */
+    fun findData(func: ((T) -> Boolean)): Pair<Int, T?> {
+        val index = data.findIndexOf(func)
+        return if (index != -1) index to data[index] else -1 to null
     }
 
 }
