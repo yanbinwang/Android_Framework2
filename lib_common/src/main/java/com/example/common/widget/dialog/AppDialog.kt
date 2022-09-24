@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Build
 import android.text.TextUtils
 import android.view.Gravity
-import android.view.View
 import android.view.WindowManager
 import com.example.base.utils.function.view.gone
 import com.example.common.base.BaseDialog
@@ -23,7 +22,7 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context) {
         initialize(true, true)
     }
 
-    fun setParams(title: String = "", message: String = "", positiveText: String = "", negativeText: String = "", center: Boolean = true): AppDialog {
+    fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = "", center: Boolean = true): AppDialog {
         binding.apply {
             //如果没有传入标题字段,则隐藏标题view
             if (TextUtils.isEmpty(title)) tvTip.gone()
