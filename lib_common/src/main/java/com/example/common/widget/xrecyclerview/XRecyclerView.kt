@@ -9,6 +9,8 @@ import android.view.View
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.base.utils.function.dip2px
+import com.example.base.utils.function.view.cancelItemAnimator
+import com.example.base.utils.function.view.gone
 import com.example.base.utils.function.view.initLinearHorizontal
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
@@ -61,6 +63,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                     empty = EmptyLayout(context)
                     recycler?.setEmptyView(empty?.setListView(recycler!!))
                     recycler?.setHasFixedSize(true)
+                    recycler?.cancelItemAnimator()
                     recycler?.itemAnimator = DefaultItemAnimator()
                     empty?.onRefreshClick = { onClick?.invoke() }
                 }
@@ -73,11 +76,12 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 refresh?.refPag = listPag
                 refresh?.setDirection(refreshDirection)
                 recycler?.setHasFixedSize(true)
+                recycler?.cancelItemAnimator()
                 recycler?.itemAnimator = DefaultItemAnimator()
                 if (0 != emptyType) {
                     empty?.onRefreshClick = { onClick?.invoke() }
                 } else {
-                    empty?.visibility = GONE
+                    empty?.gone()
                 }
             }
         }
