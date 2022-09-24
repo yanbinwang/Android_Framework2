@@ -15,20 +15,20 @@ import com.example.common.utils.setParameter
  * @author yan
  */
 @SuppressLint("StaticFieldLeak")
-class IndicatorLayout private constructor() : IndicatorGroup() {
+class IndicatorLayout private constructor() : IndicatorGroup<String>() {
 
-    override fun onCreateCustomView(item: Any?, current: Boolean): View {
+    override fun onCreateCustomView(item: String?, current: Boolean): View {
         val view = context?.inflate(R.layout.item_tab)!!
 //        val view = LayoutInflater.from(context).inflate(R.layout.item_tab, null)
         onBindCustomView(view, item, current)
         return view
     }
 
-    override fun onBindCustomView(view: View, item: Any?, current: Boolean) {
+    override fun onBindCustomView(view: View, item: String?, current: Boolean) {
         val tvTitle = view.findViewById<TextView>(R.id.tv_title)
         tvTitle.apply {
             setMediumBold()
-            setParameter(item as String, if (current) R.color.blue_3d81f2 else R.color.grey_333333)
+            setParameter(item.orEmpty(), if (current) R.color.blue_3d81f2 else R.color.grey_333333)
         }
     }
 

@@ -15,7 +15,7 @@ import com.google.android.material.tabs.TabLayout
  * 项目实际使用中，ui是肯定不会按照安卓原生的导航栏来实现对应的效果的
  * 故而提出一个接口类，需要实现对应效果的地方去实现
  */
-abstract class IndicatorGroup {
+abstract class IndicatorGroup<V> {
     protected var context: Context? = null
 
     /**
@@ -26,7 +26,7 @@ abstract class IndicatorGroup {
      * isUserInput->是否允许滑动
      * onSelected->回调方法
      */
-    fun <T : RecyclerView.Adapter<*>> initialize(tab: TabLayout, pager: ViewPager2, adapter: T, tabTitle: MutableList<*>, isUserInput: Boolean = false) {
+    fun <T : RecyclerView.Adapter<*>> initialize(tab: TabLayout, pager: ViewPager2, adapter: T, tabTitle: MutableList<V>, isUserInput: Boolean = false) {
         context = tab.context
         val tabList = tabTitle.toNewList { "" }
         pager.adapter(adapter, ViewPager2.ORIENTATION_HORIZONTAL, isUserInput)
@@ -60,11 +60,11 @@ abstract class IndicatorGroup {
     /**
      * 回调方法，返回对应控件
      */
-    protected abstract fun onCreateCustomView(item: Any?, current: Boolean): View
+    protected abstract fun onCreateCustomView(item: V?, current: Boolean): View
 
     /**
      * 设置数据
      */
-    protected abstract fun onBindCustomView(view: View, item: Any?, current: Boolean)
+    protected abstract fun onBindCustomView(view: View, item: V?, current: Boolean)
 
 }
