@@ -14,7 +14,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *  Created by wangyanbin
  *  导航栏帮助类,和viewpage2绑定
  */
-object NavigationHelper {
+object BottomNavigationHelper {
     private var flipper: ViewPager2? = null
     private var navigationView: BottomNavigationView? = null
     private var ids = ArrayList<Int>()
