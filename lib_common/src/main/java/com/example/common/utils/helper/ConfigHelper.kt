@@ -103,11 +103,11 @@ object ConfigHelper {
                 .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
                 .setOnGuideChangedListener(object : OnGuideChangedListener {
                     override fun onShowed(controller: Controller?) {
-                        statusBarBuilder.setStatusBarColor(activity.color(R.color.black_4c000000))
+                        statusBarBuilder.statusBarColor(activity.color(R.color.black_4c000000))
                     }
 
                     override fun onRemoved(controller: Controller?) {
-                        statusBarBuilder.setStatusBarColor(activity.color(color))
+                        statusBarBuilder.statusBarColor(activity.color(color))
                     }
                 })
                 .alwaysShow(true)

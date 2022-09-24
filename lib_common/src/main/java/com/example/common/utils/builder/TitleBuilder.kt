@@ -17,10 +17,10 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     private val statusBarBuilder by lazy { StatusBarBuilder(activity.window) }
 
     @JvmOverloads
-    fun setTitle(titleStr: String, txtColor: Int = R.color.grey_333333, bgColor: Int = R.color.white, dark: Boolean = true, shade: Boolean = false): TitleBuilder {
+    fun setTitle(titleStr: String, txtColor: Int = R.color.grey_333333, bgColor: Int = R.color.white, light: Boolean = true, shade: Boolean = false): TitleBuilder {
         statusBarBuilder.apply {
-            setStatusBarLightMode(dark)
-            setStatusBarColor(weakActivity!!.color(bgColor))
+            statusBarLightMode(light)
+            statusBarColor(weakActivity!!.color(bgColor))
         }
         binding.rlContainer.setBackgroundColor(weakActivity!!.color(bgColor))
         binding.tvTitle.setParameter(titleStr, txtColor)
@@ -31,8 +31,8 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     /**
      * 继承baseactivity，用include把布局引入后调用
      */
-    fun setTransparentTitle(titleStr: String = "", txtColor: Int = R.color.grey_333333, dark: Boolean = true, groupId: Int = 0, enable: Boolean = false): TitleBuilder {
-        statusBarBuilder.setTransparent(dark, enable)
+    fun setTransparentTitle(titleStr: String = "", txtColor: Int = R.color.grey_333333, light: Boolean = true, groupId: Int = 0, enable: Boolean = false): TitleBuilder {
+        statusBarBuilder.transparent(light, enable)
         binding.rlContainer.apply {
             setBackgroundColor(0)
             statusBarMargin(groupId)

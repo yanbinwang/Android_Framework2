@@ -20,7 +20,7 @@ object FragmentHelper {
     @JvmOverloads
     @JvmStatic
     fun initialize(activity: AppCompatActivity, containerViewId: Int, fragmentList: ArrayList<Fragment>, tabNum: Int = 0, dark: Boolean = true) {
-        StatusBarBuilder(activity.window).setTransparent(dark)
+        StatusBarBuilder(activity.window).transparent(dark)
         val weakActivity = WeakReference(activity)
         this.fragmentManager = weakActivity.get()?.supportFragmentManager
         this.containerViewId = containerViewId

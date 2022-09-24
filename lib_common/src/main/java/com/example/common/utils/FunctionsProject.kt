@@ -6,7 +6,6 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.ForegroundColorSpan
 import android.view.View
-import android.view.ViewGroup
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.base.utils.function.color
@@ -31,25 +30,27 @@ val Number?.px: Int
 /**
  * 空出状态栏高度
  */
-fun View.statusBarHeight(groupId: Int = 0) {
+fun View.statusBarHeight() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        layoutParams = when (groupId) {
-            0 -> LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
-            1 -> RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
-            2 -> FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
+        layoutParams = when (parent) {
+            is LinearLayout -> LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
+            is RelativeLayout -> RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
+            is FrameLayout -> FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
             else -> ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
         }
     }
 }
 
-fun View.statusBarPadding() = run { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0) }
+fun View.statusBarPadding() = run {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
+}
 
-fun View.statusBarMargin(groupId: Int = 0, enable: Boolean = true) {
+fun View.statusBarMargin(enable: Boolean = true) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
-        val params = when (groupId) {
-            0 -> layoutParams as LinearLayout.LayoutParams
-            1 -> layoutParams as RelativeLayout.LayoutParams
-            2 -> layoutParams as FrameLayout.LayoutParams
+        val params = when (parent) {
+            is LinearLayout -> layoutParams as LinearLayout.LayoutParams
+            is RelativeLayout -> layoutParams as RelativeLayout.LayoutParams
+            is FrameLayout -> layoutParams as FrameLayout.LayoutParams
             else -> layoutParams as ConstraintLayout.LayoutParams
         }
         params.topMargin = Constants.STATUS_BAR_HEIGHT
