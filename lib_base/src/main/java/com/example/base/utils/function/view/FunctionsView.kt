@@ -6,6 +6,7 @@ import android.graphics.Paint
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -13,6 +14,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -267,6 +269,13 @@ fun ViewGroup.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(contex
  * 获取Resources中的String
  */
 fun ViewGroup.string(@StringRes res: Int) = context.string(res)
+
+/**
+ * 传入上下文获取绘制的item
+ */
+fun ViewGroup.inflate(@LayoutRes res: Int, attachToRoot: Boolean): View {
+    return LayoutInflater.from(this.context).inflate(res, this, attachToRoot)
+}
 
 /**
  * 防止多次点击, 至少要500毫秒的间隔
