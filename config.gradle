@@ -31,7 +31,7 @@ versions.recovery = "1.0.0"
 versions.guide = "v2.4.0"
 versions.tkrefreshlayout = "1.0.7"
 versions.eventbus = "3.3.1"
-versions.easypermissions = "3.0.0"
+versions.xxpermissions = "16.2"
 
 //安卓x库
 def androidx = [:]
@@ -77,7 +77,7 @@ deps.recovery = "com.zxy.android:recovery:$versions.recovery"//闪退抓捕
 deps.guide = "com.github.huburt-Hu:NewbieGuide:$versions.guide"//遮罩引导
 deps.tkrefreshlayout = "com.lcodecorex:tkrefreshlayout:$versions.tkrefreshlayout"//刷新控件
 deps.eventbus = "org.greenrobot:eventbus:$versions.eventbus"//廣播
-deps.easypermissions = "pub.devrel:easypermissions:$versions.easypermissions"//廣播
+deps.xxpermissions = "com.github.getActivity:XXPermissions:$versions.xxpermissions"//廣播
 ext.deps = deps
 //---------------------------------------------全局引用配置结束---------------------------------------------
 

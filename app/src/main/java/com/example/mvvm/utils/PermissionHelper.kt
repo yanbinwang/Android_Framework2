@@ -1,67 +1,119 @@
 package com.example.mvvm.utils
 
-import android.app.Activity
-import android.content.Intent
-import android.net.Uri
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
-import android.provider.Settings
-import com.example.base.utils.ToastUtil
-import com.example.base.utils.function.string
+import androidx.core.app.ActivityCompat
 import com.example.common.R
-import com.example.common.constant.RequestCode
 import com.example.common.widget.dialog.AndDialog
-import pub.devrel.easypermissions.EasyPermissions
-import pub.devrel.easypermissions.PermissionRequest
+import com.hjq.permissions.OnPermissionCallback
+import com.hjq.permissions.Permission
+import com.hjq.permissions.XXPermissions
 import java.lang.ref.WeakReference
 import java.text.MessageFormat
 
 /**
  * 权限库帮助类
- * 需要用到权限的页面需要重写onRequestPermissionsResult
- * 将请求结果传递EasyPermission库处理
- * EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults)
- *
  */
-class PermissionHelper(activity: Activity)  {
-    private val weakActivity = WeakReference(activity).get()
+class PermissionHelper(context: Context) {
+    private var denied = true
+    private val context = WeakReference(context).get()!!
+    private val permsGroup = arrayOf(
+        arrayOf(Permission.ACCESS_FINE_LOCATION, Permission.ACCESS_COARSE_LOCATION),//定位
+        arrayOf(Permission.CAMERA),//拍摄照片，录制视频
+        arrayOf(Permission.RECORD_AUDIO),//录制音频(腾讯x5)
+        arrayOf(Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE)//访问照片。媒体。内容和文件
+    )
     private var onRequest: ((hasPermissions: Boolean) -> Unit)? = null
 
-    fun requestPermissions(
-        vararg perms: String,
-        onRequest: ((hasPermissions: Boolean) -> Unit)? = {}
-    ) {
-        this.onRequest = onRequest
-        //6.0+系统做特殊处理
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            with(weakActivity!!) {
-                /**
-                 * return true:已经获取权限
-                 * return false: 未获取权限，主动请求权限
-                 */
-                if (!EasyPermissions.hasPermissions(this, *perms)) {
-                    /**
-                     * 第一个参数：Context对象
-                     * 第二个参数：权限弹窗上的文字提示语。告诉用户，这个权限用途。
-                     * 第三个参数：这次请求权限的唯一标示，code。
-                     * 第四个参数 : 一些系列的权限。
-                     * 如果第一次弹出申请，而用户拒绝，后续弹的都会是参数2的弹框
-                     */
-//                    EasyPermissions.requestPermissions(
-//                        this,
-//                        "文案",
-//                        RequestCode.PERMISSION_REQUEST,
-//                        *perms
-//                    )
-                    EasyPermissions.requestPermissions(
-                        PermissionRequest.Builder(this, RequestCode.PERMISSION_REQUEST,  *perms)
-//                        .setRationale(rationale)
-                        .build())
-                } else onRequest?.invoke(true)
-            }
-        } else onRequest?.invoke(true)
+    //检测权限(默认拿全部，可单独拿某个权限组)
+    fun requestPermissions(): PermissionHelper {
+        return requestPermissions(*permsGroup)
     }
 
+    fun requestPermissions(vararg groups: Array<String>): PermissionHelper {
+        //6.0+系统做特殊处理
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            XXPermissions.with(context)
+                .permission(*groups)
+                .request(object :OnPermissionCallback{
+                    override fun onGranted(permissions: MutableList<String>?, all: Boolean) {
+                        //all->标记是否是获取部分权限成功，部分未正常授予，true全拿，false部分拿到
+                        onRequest?.invoke(all)
+                    }
 
+                    override fun onDenied(permissions: MutableList<String>?, never: Boolean) {
+                        super.onDenied(permissions, never)
+                        onRequest?.invoke(false)
+                        if (denied && !permissions.isNullOrEmpty()) {
+                            var index = 0
+                            for (i in permsGroup.indices) {
+                                if (listOf(*permsGroup[i]).contains(permissions[0])) {
+                                    index = i
+                                    break
+                                }
+                            }
+                            //提示参数
+                            val rationale = when (index) {
+                                0 -> context.getString(R.string.label_permissions_location)
+                                1 -> context.getString(R.string.label_permissions_camera)
+                                2 -> context.getString(R.string.label_permissions_microphone)
+                                3 -> context.getString(R.string.label_permissions_storage)
+                                else -> null
+                            }
+                            //如果用户拒绝了开启权限
+                            AndDialog.with(context)
+                                .setOnDialogListener({ XXPermissions.startPermissionActivity(context, permissions) })
+                                .setParams(context.getString(R.string.label_window_title), MessageFormat.format(context.getString(R.string.label_window_permission), rationale), context.getString(R.string.label_window_sure), context.getString(R.string.label_window_cancel))
+                                .show()
+//                            //被永久拒绝授权，请手动授予
+//                            if (never) {
+//                                // 如果是被永久拒绝就跳转到应用权限系统设置页面
+//                                XXPermissions.startPermissionActivity(context, permissions)
+//                            } else {
+//
+//                            }
+                        }
+                    }
+                })
+        } else onRequest?.invoke(true)
+        return this
+    }
 
+    /**
+     * 全局回调
+     */
+    fun onRequest(onRequest: ((hasPermissions: Boolean) -> Unit), denied: Boolean = true): PermissionHelper {
+        this.onRequest = onRequest
+        this.denied = denied
+        return this
+    }
+
+    /**
+     * 权限检测
+     */
+    private fun checkSelfPermission(vararg permission: String): Boolean {
+        for (perm in permission) {
+            if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(context, perm)) return false
+        }
+        return true
+    }
+
+    /**
+     * 定位权限组
+     */
+    fun checkSelfLocation() = checkSelfPermission(Permission.ACCESS_FINE_LOCATION, Permission.ACCESS_COARSE_LOCATION)
+
+    /**
+     * 存储权限组
+     */
+    fun checkSelfStorage() = checkSelfPermission(Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE)
+
+    companion object {
+        @JvmStatic
+        fun with(context: Context?): PermissionHelper {
+            return PermissionHelper(context!!)
+        }
+    }
 
 }
