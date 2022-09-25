@@ -21,7 +21,7 @@ import com.example.common.constant.Constants
  * 从5.0+开始兼容色值
  */
 @SuppressLint("PrivateApi", "InlinedApi")
-class StatusBarBuilder(var window: Window) {
+class StatusBarBuilder(private val window: Window) {
 
     /**
      * 隐藏导航栏
