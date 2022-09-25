@@ -2,7 +2,6 @@ package com.example.mvvm.activity
 
 import androidx.fragment.app.Fragment
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.bartoszlipinski.flippablestackview.StackPageTransformer
 import com.example.common.base.BaseActivity
 import com.example.common.constant.ARouterPath
 import com.example.mvvm.adapter.ColorFragmentAdapter
@@ -17,15 +16,12 @@ class TestListActivity : BaseActivity<ActivityTestListBinding>() {
     private var mPageAdapter: ColorFragmentAdapter? = null
     private val mViewPagerFragments = ArrayList<Fragment>()
 
-
     override fun initView() {
         super.initView()
         for (i in 0 until 10) {
             mViewPagerFragments.add(ColorFragment())
         }
         mPageAdapter = ColorFragmentAdapter(supportFragmentManager, mViewPagerFragments)
-        binding.stack.initStack(2, StackPageTransformer.Orientation.HORIZONTAL)
-        binding.stack.adapter = mPageAdapter //assuming mStackAdapter contains your initialized adapter
     }
 
     override fun initEvent() {

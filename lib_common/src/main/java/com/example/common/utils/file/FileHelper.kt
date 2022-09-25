@@ -1,4 +1,4 @@
-package com.example.common.utils.helper
+package com.example.common.utils.file
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -17,7 +17,6 @@ import com.example.base.utils.function.getDateTime
 import com.example.common.BaseApplication
 import com.example.common.constant.Constants
 import com.example.common.subscribe.CommonSubscribe
-import com.example.common.utils.file.FileUtil
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream

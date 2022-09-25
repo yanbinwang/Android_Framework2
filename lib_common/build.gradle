@@ -76,4 +76,5 @@ dependencies {
     api deps.guide
     api deps.tkrefreshlayout
     api deps.eventbus
+    api deps.xxpermissions
 }

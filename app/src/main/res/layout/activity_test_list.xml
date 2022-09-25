@@ -6,12 +6,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <com.bartoszlipinski.flippablestackview.FlippableStackView
-            android:id="@+id/stack"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:overScrollMode="never"
-            android:scrollbars="none" />
 
     </LinearLayout>
 
