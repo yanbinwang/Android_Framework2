@@ -10,7 +10,11 @@ import com.example.mvvm.model.TestListModel
  */
 class TestListAdapter : BaseQuickAdapter<TestListModel, ItemTestBinding>() {
 
-    override fun convert(holder: BaseViewDataBindingHolder, item: TestListModel?) {
+    override fun convert(
+        holder: BaseViewDataBindingHolder,
+        item: TestListModel?,
+        payloads: MutableList<Any>?
+    ) {
         holder.getBinding<ItemTestBinding>().apply {
             //赋值
             model = item
