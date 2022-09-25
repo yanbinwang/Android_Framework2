@@ -180,6 +180,26 @@ fun Activity.intentParcelable(key: String): Parcelable? {
     return intent.getParcelableExtra(key)
 }
 
+fun Fragment.intentString(key: String, default: String = "") = arguments?.getString(key) ?: default
+
+fun Fragment.intentStringNullable(key: String) = arguments?.getString(key)
+
+fun Fragment.intentInt(key: String, default: Int = 0) = arguments?.getInt(key, default)
+
+fun Fragment.intentDouble(key: String, default: Double = 0.0) = arguments?.getDouble(key, default)
+
+fun Fragment.intentFloat(key: String, default: Float = 0f) = arguments?.getFloat(key, default)
+
+fun <T> Fragment.intentSerializable(key: String) = arguments?.getSerializable(key) as? T
+
+fun <T> Fragment.intentSerializable(key: String, default: T) = arguments?.getSerializable(key) as? T ?: default
+
+fun Fragment.intentBoolean(key: String, default: Boolean = false) = arguments?.getBoolean(key, default)
+
+fun Fragment.intentParcelable(key: String): Parcelable? {
+    return arguments?.getParcelable(key)
+}
+
 /**
  * 可在协程类里传入AppComActivity，然后init{}方法里调取，销毁内部的job
  */
