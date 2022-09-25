@@ -71,7 +71,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     override fun getItemCount(): Int {
         return when (itemType) {
             BaseItemType.LIST -> data.size
-            BaseItemType.MODEL -> 0
+            BaseItemType.MODEL -> 1
         }
     }
 
