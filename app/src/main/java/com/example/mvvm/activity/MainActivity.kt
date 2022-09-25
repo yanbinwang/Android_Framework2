@@ -7,6 +7,9 @@ import com.example.common.constant.ARouterPath
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.PermissionHelper
 
+/**
+ * object是单例，适合做一些重复性的操作
+ */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
 

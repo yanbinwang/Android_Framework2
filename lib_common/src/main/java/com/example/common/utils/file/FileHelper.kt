@@ -27,13 +27,12 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 工具类中，实现了对应文件流下载保存的方法，此处采用协程的方式引用
  */
-object FileHelper : CoroutineScope {
+class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = (Dispatchers.IO)
     private var job: Job? = null
 
-    @JvmStatic
-    fun initialize(lifecycleOwner: LifecycleOwner?) {
+    init {
         lifecycleOwner?.doOnDestroy { job?.cancel() }
     }
 
@@ -45,7 +44,12 @@ object FileHelper : CoroutineScope {
         job?.cancel()
         job = launch {
             val absolutePath = "${root}/${fileName}${if (formatJpg) ".jpg" else ".png"}"
-            val result = FileUtil.saveBitmap(bitmap = bitmap, root = root, fileName = fileName, formatJpg = formatJpg, clear = clear)
+            val result = FileUtil.saveBitmap(
+                bitmap = bitmap,
+                root = root,
+                fileName = fileName,
+                formatJpg = formatJpg,
+                clear = clear)
             //切回主线程返回路径
             withContext(Dispatchers.Main) { onComplete(if (result) absolutePath else null) }
         }
@@ -152,7 +156,7 @@ object FileHelper : CoroutineScope {
             loadLayout(view, width, height)
             try {
                 onResult(withContext(Dispatchers.IO) { loadBitmap(view) })
-            } catch (e: Exception) {
+            } catch (_: Exception) {
             } finally {
                 onComplete()
             }

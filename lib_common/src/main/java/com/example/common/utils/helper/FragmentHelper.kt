@@ -11,25 +11,17 @@ import java.lang.ref.WeakReference
  *  页面切换管理工具类
  *  每个页面传入activity，切换的根视图id，内存区分的标题tag，对应的fragment
  */
-object FragmentHelper {
-    private var containerViewId = 0
-    private var fragmentList = ArrayList<Fragment>()
+class FragmentHelper(activity: AppCompatActivity, private val containerViewId: Int, private val fragmentList: ArrayList<Fragment>, tabNum: Int = 0, dark: Boolean = true) {
     private var fragmentManager: FragmentManager? = null
     var onTabShow: ((tabNum: Int) -> Unit)? = null
 
-    @JvmOverloads
-    @JvmStatic
-    fun initialize(activity: AppCompatActivity, containerViewId: Int, fragmentList: ArrayList<Fragment>, tabNum: Int = 0, dark: Boolean = true) {
+    init {
         StatusBarBuilder(activity.window).transparent(dark)
-        val weakActivity = WeakReference(activity)
-        this.fragmentManager = weakActivity.get()?.supportFragmentManager
-        this.containerViewId = containerViewId
-        this.fragmentList = fragmentList
+        fragmentManager = WeakReference(activity).get()?.supportFragmentManager
         showFragment(tabNum, true)
     }
 
     @JvmOverloads
-    @JvmStatic
     fun showFragment(tabNum: Int, load: Boolean = false) {
         if (fragmentList.size > tabNum) {
             //commit只能提交一次，所以每次都需要重新实例化

@@ -14,21 +14,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *  Created by wangyanbin
  *  导航栏帮助类,和viewpage2绑定
  */
-object BottomNavigationHelper {
-    private var flipper: ViewPager2? = null
-    private var navigationView: BottomNavigationView? = null
-    private var ids = ArrayList<Int>()
+class BottomNavigationHelper(private var flipper: ViewPager2, private var navigationView: BottomNavigationView, private var ids: ArrayList<Int>, anim: Boolean = true) {
     var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
 
     /**
      * 初始化
      */
-    @JvmOverloads
-    @JvmStatic
-    fun initialize(flipper: ViewPager2, navigationView: BottomNavigationView, ids: ArrayList<Int>, anim: Boolean = true) {
-        this.flipper = flipper
-        this.navigationView = navigationView
-        this.ids = ids
+    init {
         //去除长按的toast提示
         for (position in ids.indices) {
             (navigationView.getChildAt(0) as ViewGroup).getChildAt(position).findViewById<View>(ids[position]).setOnLongClickListener { true }
@@ -48,17 +40,16 @@ object BottomNavigationHelper {
         }
     }
 
+
     /**
      * 选中下标
      */
-    @JvmStatic
-    fun selectedItem(index: Int) = run { navigationView?.setSelectedItemId(navigationView?.menu?.getItem(index)?.itemId ?: 0) }
+    fun selectedItem(index: Int) = run { navigationView.selectedItemId = navigationView.menu.getItem(index)?.itemId ?: 0 }
 
     /**
      * 获取下标item
      */
-    @JvmStatic
-    fun getItemView(index: Int) = (navigationView?.getChildAt(0) as BottomNavigationMenuView).getChildAt(index) as BottomNavigationItemView
+    fun getItemView(index: Int) = (navigationView.getChildAt(0) as BottomNavigationMenuView).getChildAt(index) as BottomNavigationItemView
 
     /**
      * 添加角标
@@ -83,14 +74,13 @@ object BottomNavigationHelper {
      *
      * </LinearLayout>
      */
-    @JvmStatic
     fun setTips(resource: Int, index: Int = 0) {
         //获取整个的NavigationView
-        val menuView = navigationView?.getChildAt(0) as BottomNavigationMenuView
+        val menuView = navigationView.getChildAt(0) as BottomNavigationMenuView
         //这里就是获取所添加的每一个Tab(或者叫menu)
         val tab = menuView.getChildAt(index) as BottomNavigationItemView
         //加载我们的角标View，新创建的一个布局
-        val badge = LayoutInflater.from(navigationView?.context).inflate(resource, menuView, false)
+        val badge = LayoutInflater.from(navigationView.context).inflate(resource, menuView, false)
         //添加到Tab上
         tab.addView(badge)
     }
