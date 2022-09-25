@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.base.utils.function.view.click
 import com.example.common.imageloader.ImageLoader
 
 /**
@@ -32,7 +33,7 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.itemView.setOnClickListener { onItemClickListener?.onItemClick(position % (if(local) localList.size else list.size)) }
+        holder.itemView.click { onItemClickListener?.onItemClick(position % (if(local) localList.size else list.size)) }
         if (local) {
             (holder.itemView as ImageView).setBackgroundResource(localList[position % localList.size])
         } else {

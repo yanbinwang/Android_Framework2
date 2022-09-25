@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.example.base.utils.function.findIndexOf
+import com.example.base.utils.function.view.click
 
 /**
  * Created by WangYanBin on 2020/7/17.
@@ -88,7 +89,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
 
     private fun onConvert(holder: BaseViewDataBindingHolder, position: Int, payloads: MutableList<Any>? = null) {
         //注意判断当前适配器是否具有头部view
-        holder.itemView.setOnClickListener { onItemClick?.invoke(holder.absoluteAdapterPosition) }
+        holder.itemView.click { onItemClick?.invoke(holder.absoluteAdapterPosition) }
         convert(holder, when (itemType) {
                 BaseItemType.LIST -> data[position]
                 BaseItemType.MODEL -> t
