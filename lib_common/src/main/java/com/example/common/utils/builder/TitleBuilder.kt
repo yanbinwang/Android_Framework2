@@ -16,7 +16,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     private val statusBarBuilder by lazy { StatusBarBuilder(activity.window) }
 
     @JvmOverloads
-    fun setTitle(titleStr: String, txtColor: Int = R.color.grey_333333, bgColor: Int = R.color.white, light: Boolean = true, shade: Boolean = false): TitleBuilder {
+    fun setTitle(titleStr: String = "", txtColor: Int = R.color.grey_333333, bgColor: Int = R.color.white, light: Boolean = true, shade: Boolean = false): TitleBuilder {
         statusBarBuilder.apply {
             statusBarLightMode(light)
             statusBarColor(weakActivity!!.color(bgColor))
