@@ -16,7 +16,7 @@ import com.google.android.material.tabs.TabLayout
  * 故而提出一个接口类，需要实现对应效果的地方去实现
  */
 abstract class IndicatorGroup<V> {
-    protected var context: Context? = null
+    protected lateinit var context: Context
 
     /**
      * tab->导航栏

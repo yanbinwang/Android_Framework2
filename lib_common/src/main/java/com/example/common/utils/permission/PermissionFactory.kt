@@ -4,11 +4,12 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
+import com.example.base.utils.function.string
 import com.example.common.R
-import com.example.common.utils.permission.Permission.CAMERA
-import com.example.common.utils.permission.Permission.LOCATION
-import com.example.common.utils.permission.Permission.MICROPHONE
-import com.example.common.utils.permission.Permission.STORAGE
+import com.example.common.utils.permission.XXPermissionsGroup.CAMERA
+import com.example.common.utils.permission.XXPermissionsGroup.LOCATION
+import com.example.common.utils.permission.XXPermissionsGroup.MICROPHONE
+import com.example.common.utils.permission.XXPermissionsGroup.STORAGE
 import com.example.common.widget.dialog.AndDialog
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.Permission
@@ -50,40 +51,52 @@ class PermissionFactory(context: Context) {
 
                     override fun onDenied(permissions: MutableList<String>?, never: Boolean) {
                         super.onDenied(permissions, never)
+                        //never->被永久拒绝授权，请手动授予
                         onRequest?.invoke(false)
-                        if (denied && !permissions.isNullOrEmpty()) {
-                            var index = 0
-                            for (i in permsGroup.indices) {
-                                if (listOf(*permsGroup[i]).contains(permissions[0])) {
-                                    index = i
-                                    break
-                                }
-                            }
-                            //提示参数
-                            val rationale = when (index) {
-                                0 -> context.getString(R.string.label_permissions_location)
-                                1 -> context.getString(R.string.label_permissions_camera)
-                                2 -> context.getString(R.string.label_permissions_microphone)
-                                3 -> context.getString(R.string.label_permissions_storage)
-                                else -> null
-                            }
-                            //如果用户拒绝了开启权限
-                            AndDialog.with(context)
-                                .setOnDialogListener({ XXPermissions.startPermissionActivity(context, permissions) })
-                                .setParams(context.getString(R.string.label_window_title), MessageFormat.format(context.getString(R.string.label_window_permission), rationale), context.getString(R.string.label_window_sure), context.getString(R.string.label_window_cancel))
-                                .show()
-//                            //被永久拒绝授权，请手动授予
-//                            if (never) {
-//                                // 如果是被永久拒绝就跳转到应用权限系统设置页面
-//                                XXPermissions.startPermissionActivity(context, permissions)
-//                            } else {
-//
-//                            }
-                        }
+                        description(permissions)
                     }
                 })
         } else onRequest?.invoke(true)
         return this
+    }
+
+    /**
+     * 彈出授權彈框
+     */
+    private fun description(permissions: MutableList<String>?) {
+        with(context) {
+            if (!(denied && !permissions.isNullOrEmpty())) return
+            //拼接用戶拒絕後的提示参数
+            var rationale = ""
+            for (index in permsGroup.indices) {
+                if (listOf(*permsGroup[index]).contains(permissions[0])) {
+                    rationale += "*${rationale(index)};\n"
+                }
+            }
+            AndDialog.with(this)
+                .setOnDialogListener({ XXPermissions.startPermissionActivity(this, permissions) })
+                .setParams(
+                    string(R.string.label_window_title),
+                    MessageFormat.format(string(R.string.label_window_permission), rationale),
+                    string(R.string.label_window_sure),
+                    string(R.string.label_window_cancel))
+                .show()
+        }
+    }
+
+    /**
+     * 获取提示文案
+     */
+    private fun rationale(index: Int): String? {
+        with(context) {
+            return when (index) {
+                0 -> string(R.string.label_permissions_location)
+                1 -> string(R.string.label_permissions_camera)
+                2 -> string(R.string.label_permissions_microphone)
+                3 -> string(R.string.label_permissions_storage)
+                else -> null
+            }
+        }
     }
 
     /**

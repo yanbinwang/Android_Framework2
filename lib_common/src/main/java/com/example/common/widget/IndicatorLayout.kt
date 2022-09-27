@@ -18,8 +18,7 @@ import com.example.common.utils.setParameter
 class IndicatorLayout private constructor() : IndicatorGroup<String>() {
 
     override fun onCreateCustomView(item: String?, current: Boolean): View {
-        val view = context?.inflate(R.layout.item_tab)!!
-//        val view = LayoutInflater.from(context).inflate(R.layout.item_tab, null)
+        val view = context.inflate(R.layout.item_tab)
         onBindCustomView(view, item, current)
         return view
     }

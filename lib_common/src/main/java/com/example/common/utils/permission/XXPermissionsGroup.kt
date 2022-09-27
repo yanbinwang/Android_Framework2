@@ -3,10 +3,9 @@ package com.example.common.utils.permission
 import com.hjq.permissions.Permission
 
 /**
- * @description
- * @author
+ * 方便直接通过权限组提取权限
  */
-object Permission {
+object XXPermissionsGroup {
     val CALENDAR = arrayOf(Permission.READ_CALENDAR, Permission.WRITE_CALENDAR)
     val CAMERA = arrayOf(Permission.CAMERA)
     val CONTACTS = arrayOf(Permission.READ_CONTACTS, Permission.WRITE_CONTACTS, Permission.GET_ACCOUNTS)
