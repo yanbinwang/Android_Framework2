@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
  * date: 2018/4/16.
  * 传递事件类
  */
-class EventBus {
+class EventBus private constructor(){
     private val busDefault get() = org.greenrobot.eventbus.EventBus.getDefault()
 
     fun register(subscriber: Any) = run { if (!busDefault.isRegistered(subscriber)) busDefault.register(subscriber) }

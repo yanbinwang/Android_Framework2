@@ -33,7 +33,9 @@ class PermissionFactory(context: Context) {
         STORAGE)//访问照片。媒体。内容和文件
     private var onRequest: ((hasPermissions: Boolean) -> Unit)? = null
 
-    //检测权限(默认拿全部，可单独拿某个权限组)
+    /**
+     * 检测权限(默认拿全部，可单独拿某个权限组)
+     */
     fun requestPermissions(): PermissionFactory {
         return requestPermissions(*permsGroup)
     }
