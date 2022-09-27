@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.view.ViewGroup
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import com.example.base.utils.function.view.gone
 import com.example.common.base.page.getEmptyView
@@ -35,18 +36,30 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var softRefresh: SoftReference<XRefreshLayout>? = null//刷新控件
     //基础的注入参数
     protected val activity: Activity
-        get() { return weakActivity.get()!! }
+        get() {
+            return weakActivity.get()!!
+        }
     protected val context: Context
-        get() { return weakContext.get()!! }
+        get() {
+            return weakContext.get()!!
+        }
     protected val view: BaseView
-        get() { return softView.get()!! }
+        get() {
+            return softView.get()!!
+        }
     //获取对应的控件
     val emptyView: EmptyLayout?
-        get() { return softEmpty?.get() }
+        get() {
+            return softEmpty?.get()
+        }
     val recyclerView: XRecyclerView?
-        get() { return softRecycler?.get() }
+        get() {
+            return softRecycler?.get()
+        }
     val xRefreshLayout: XRefreshLayout?
-        get() { return softRefresh?.get() }
+        get() {
+            return softRefresh?.get()
+        }
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: Activity, context: Context, view: BaseView) {
@@ -110,30 +123,30 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
     // </editor-fold>
 
-//    // <editor-fold defaultstate="collapsed" desc="生命周期回调">
-//    override fun onCreate(owner: LifecycleOwner) {
-//        super.onCreate(owner)
-//    }
-//
-//    override fun onStart(owner: LifecycleOwner) {
-//        super.onStart(owner)
-//    }
-//
-//    override fun onResume(owner: LifecycleOwner) {
-//        super.onResume(owner)
-//    }
-//
-//    override fun onPause(owner: LifecycleOwner) {
-//        super.onPause(owner)
-//    }
-//
-//    override fun onStop(owner: LifecycleOwner) {
-//        super.onStop(owner)
-//    }
-//
-//    override fun onDestroy(owner: LifecycleOwner) {
-//        super.onDestroy(owner)
-//    }
-//    // </editor-fold>
+    // <editor-fold defaultstate="collapsed" desc="生命周期回调">
+    override fun onCreate(owner: LifecycleOwner) {
+        super.onCreate(owner)
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        super.onStart(owner)
+    }
+
+    override fun onResume(owner: LifecycleOwner) {
+        super.onResume(owner)
+    }
+
+    override fun onPause(owner: LifecycleOwner) {
+        super.onPause(owner)
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        super.onStop(owner)
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        super.onDestroy(owner)
+    }
+    // </editor-fold>
 
 }
