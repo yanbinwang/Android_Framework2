@@ -49,7 +49,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
         if (null == baseViewModel) {
             baseViewModel = ViewModelProvider(this)[vmClass]
-            baseViewModel?.initialize(activity.get(), context.get(), this)
+            baseViewModel?.initialize(activity.get()!!, context.get()!!, this)
             lifecycle.addObserver(baseViewModel!!)
         }
         return baseViewModel as VM
