@@ -39,6 +39,7 @@ import androidx.fragment.app.FragmentManager
  */
 class FragmentHelper(private val manager: FragmentManager, private val containerViewId: Int, private val fragmentList: ArrayList<Fragment>, tab: Int = 0) {
     var onTabShow: ((tabNum: Int) -> Unit)? = null
+    var currentIndex = tab
 
     init {
         val transaction = manager.beginTransaction()
@@ -47,6 +48,7 @@ class FragmentHelper(private val manager: FragmentManager, private val container
     }
 
     fun selectTab(tab: Int) {
+        currentIndex = tab
         manager.beginTransaction().apply {
             //全部隱藏后显示指定的页面
             fragmentList.forEach { hide(it) }

@@ -12,10 +12,27 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**
  *  Created by wangyanbin
- *  导航栏帮助类,和viewpage2绑定
+ *  导航栏帮助类,支持viewpage2绑定，fragment绑定
  */
-class BottomNavigationHelper(private var flipper: ViewPager2, private var navigationView: BottomNavigationView, private var ids: ArrayList<Int>, anim: Boolean = true) {
+class BottomNavigationHelper(private val navigationView: BottomNavigationView, private val ids: ArrayList<Int>, private val anim: Boolean = true) {
+    private var flipper: ViewPager2? = null
+    private var fragmentHelper: FragmentHelper? = null
+    private var pageType = PageType.FRAGMENT
     var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
+
+    enum class PageType {
+        FRAGMENT, VIEWPAGER2
+    }
+
+    fun initialize(flipper: ViewPager2) {
+        this.flipper = flipper
+        this.pageType = PageType.VIEWPAGER2
+    }
+
+    fun initialize(fragmentHelper: FragmentHelper) {
+        this.fragmentHelper = fragmentHelper
+        this.pageType = PageType.FRAGMENT
+    }
 
     /**
      * 初始化
@@ -29,8 +46,11 @@ class BottomNavigationHelper(private var flipper: ViewPager2, private var naviga
         navigationView.setOnItemSelectedListener { item ->
             //返回第一个符合条件的元素的下标，没有就返回-1
             val index = ids.indexOfFirst { it == item.itemId }
-            val isCurrent = index == flipper.currentItem
-            if (!isCurrent) flipper.setCurrentItem(index, false)
+            val isPager = pageType == PageType.VIEWPAGER2
+            val isCurrent = index == if (isPager) flipper?.currentItem else fragmentHelper?.currentIndex
+            if (!isCurrent) {
+                if (isPager) flipper?.setCurrentItem(index, false) else fragmentHelper?.selectTab(index)
+            }
             onItemSelected?.invoke(index, isCurrent)
             if (anim) getItemView(index).getChildAt(0).apply {
                 startAnimation(context.inAnimation())
