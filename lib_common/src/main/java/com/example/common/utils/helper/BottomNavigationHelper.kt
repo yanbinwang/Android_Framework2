@@ -40,7 +40,6 @@ class BottomNavigationHelper(private var flipper: ViewPager2, private var naviga
         }
     }
 
-
     /**
      * 选中下标
      */

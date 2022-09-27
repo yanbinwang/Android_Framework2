@@ -14,20 +14,17 @@ import com.google.android.material.tabs.TabLayout
  * @author yan
  * 项目实际使用中，ui是肯定不会按照安卓原生的导航栏来实现对应的效果的
  * 故而提出一个接口类，需要实现对应效果的地方去实现
+ * tab->导航栏
+ * pager->滑动布局
+ * adapter->适配器
+ * tabTitle->标题数据
+ * isUserInput->是否允许滑动
+ * onSelected->回调方法
  */
-abstract class IndicatorGroup<V> {
-    protected lateinit var context: Context
+abstract class IndicatorGroup<T>(tab: TabLayout, pager: ViewPager2, adapter: RecyclerView.Adapter<*>, tabTitle: MutableList<T>, isUserInput: Boolean = false) {
+    protected var context: Context = tab.context
 
-    /**
-     * tab->导航栏
-     * pager->滑动布局
-     * adapter->适配器
-     * tabTitle->标题数据
-     * isUserInput->是否允许滑动
-     * onSelected->回调方法
-     */
-    fun <T : RecyclerView.Adapter<*>> initialize(tab: TabLayout, pager: ViewPager2, adapter: T, tabTitle: MutableList<V>, isUserInput: Boolean = false) {
-        context = tab.context
+    init {
         val tabList = tabTitle.toNewList { "" }
         pager.adapter(adapter, ViewPager2.ORIENTATION_HORIZONTAL, isUserInput)
         pager.bind(tab) { item, position -> item.text = tabList[position] }
@@ -60,11 +57,11 @@ abstract class IndicatorGroup<V> {
     /**
      * 回调方法，返回对应控件
      */
-    protected abstract fun onCreateCustomView(item: V?, current: Boolean): View
+    protected abstract fun onCreateCustomView(item: T?, current: Boolean): View
 
     /**
      * 设置数据
      */
-    protected abstract fun onBindCustomView(view: View, item: V?, current: Boolean)
+    protected abstract fun onBindCustomView(view: View, item: T?, current: Boolean)
 
 }

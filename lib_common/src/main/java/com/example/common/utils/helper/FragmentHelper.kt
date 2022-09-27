@@ -1,43 +1,58 @@
 package com.example.common.utils.helper
 
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import com.example.common.utils.builder.StatusBarBuilder
-import java.lang.ref.WeakReference
 
 /**
  *  Created by wangyanbin
  *  页面切换管理工具类
- *  每个页面传入activity，切换的根视图id，内存区分的标题tag，对应的fragment
+ *  manager->當前頁面的FragmentManager
+ *  containerViewId->當前頁面FrameLayout佈局的id
+ *  fragmentList->fragment的集合
+ *  tab->没人选中的下标
+ *
+ *  使用的页面需要重写：
+ *  override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
+ *  }
+ *
+ *  @SuppressLint("MissingSuperCall")
+ *  override fun onSaveInstanceState(outState: Bundle) {
+ *  }
+ *
+ *  //记录下标
+ *  override fun recreate() {
+ *  intent = Intent().apply { putExtra("tab", tabBottom.selectedTabPosition) }
+ *  super.recreate()
+ *  }
+ *
+ *  //api是个key，没传或者获取失败都让页面切换到上次选中的地方
+ *  override fun onNewIntent(intent: Intent?) {
+ *  super.onNewIntent(intent)
+ *  if (intent == null) return
+ *  val api = intent.getStringExtra("api")
+ *  if (api.isNullOrEmpty()) {
+ *  //跳转页面
+ *  intent.getIntExtra("tab", -1).also {
+ *  selectTab(it)
+ *  }
+ *  }
  */
-class FragmentHelper(activity: AppCompatActivity, private val containerViewId: Int, private val fragmentList: ArrayList<Fragment>, tabNum: Int = 0, dark: Boolean = true) {
-    private var fragmentManager: FragmentManager? = null
+class FragmentHelper(private val manager: FragmentManager, private val containerViewId: Int, private val fragmentList: ArrayList<Fragment>, tab: Int = 0) {
     var onTabShow: ((tabNum: Int) -> Unit)? = null
 
     init {
-        StatusBarBuilder(activity.window).transparent(dark)
-        fragmentManager = WeakReference(activity).get()?.supportFragmentManager
-        showFragment(tabNum, true)
+        val transaction = manager.beginTransaction()
+        fragmentList.forEach { transaction.add(containerViewId, it) }
+        selectTab(tab)
     }
 
-    @JvmOverloads
-    fun showFragment(tabNum: Int, load: Boolean = false) {
-        if (fragmentList.size > tabNum) {
-            //commit只能提交一次，所以每次都需要重新实例化
-            val fragmentTransaction = fragmentManager?.beginTransaction()
-            if (load) {
-                for (i in fragmentList.indices) {
-                    fragmentTransaction?.add(containerViewId, fragmentList[i])
-                }
-            }
+    fun selectTab(tab: Int) {
+        manager.beginTransaction().apply {
             //全部隱藏后显示指定的页面
-            for (fragment in fragmentList) {
-                fragmentTransaction?.hide(fragment)
-            }
-            fragmentTransaction?.show(fragmentList[tabNum])
-            fragmentTransaction?.commitAllowingStateLoss()
-            onTabShow?.invoke(tabNum)
+            fragmentList.forEach { hide(it) }
+            show(fragmentList[tab])
+            commitAllowingStateLoss()
+            onTabShow?.invoke(tab)
         }
     }
 

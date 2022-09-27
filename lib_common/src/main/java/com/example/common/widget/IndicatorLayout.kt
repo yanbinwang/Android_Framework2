@@ -3,11 +3,14 @@ package com.example.common.widget
 import android.annotation.SuppressLint
 import android.view.View
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.example.base.utils.function.inflate
 import com.example.base.utils.function.view.setMediumBold
 import com.example.base.widget.IndicatorGroup
 import com.example.common.R
 import com.example.common.utils.setParameter
+import com.google.android.material.tabs.TabLayout
 
 /**
  * @description 菜单头工具类
@@ -15,10 +18,10 @@ import com.example.common.utils.setParameter
  * @author yan
  */
 @SuppressLint("StaticFieldLeak")
-class IndicatorLayout private constructor() : IndicatorGroup<String>() {
+class IndicatorLayout constructor(tab: TabLayout, pager: ViewPager2, adapter: RecyclerView.Adapter<*>, tabTitle: MutableList<String>, isUserInput: Boolean = false) : IndicatorGroup<String>(tab, pager, adapter, tabTitle, isUserInput) {
 
     override fun onCreateCustomView(item: String?, current: Boolean): View {
-        val view = context.inflate(R.layout.item_tab)
+        val view = context.inflate(R.layout.item_tab, null, false)
         onBindCustomView(view, item, current)
         return view
     }
@@ -29,11 +32,6 @@ class IndicatorLayout private constructor() : IndicatorGroup<String>() {
             setMediumBold()
             setParameter(item.orEmpty(), if (current) R.color.blue_3d81f2 else R.color.grey_333333)
         }
-    }
-
-    companion object {
-        @JvmStatic
-        val instance by lazy { IndicatorLayout() }
     }
 
 }
