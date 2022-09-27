@@ -31,8 +31,8 @@ class AndDialog(context: Context) : AlertDialog.Builder(context, R.style.dialogS
 
     companion object {
         @JvmStatic
-        fun with(context: Context?): AndDialog {
-            return AndDialog(context!!)
+        fun with(context: Context): AndDialog {
+            return AndDialog(context)
         }
     }
 

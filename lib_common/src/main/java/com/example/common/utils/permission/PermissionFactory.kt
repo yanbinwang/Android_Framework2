@@ -130,8 +130,8 @@ class PermissionFactory(context: Context) {
 
     companion object {
         @JvmStatic
-        fun with(context: Context?): PermissionFactory {
-            return PermissionFactory(context!!)
+        fun with(context: Context): PermissionFactory {
+            return PermissionFactory(context)
         }
     }
 
