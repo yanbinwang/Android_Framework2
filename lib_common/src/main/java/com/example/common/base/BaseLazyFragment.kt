@@ -10,7 +10,9 @@ import androidx.databinding.ViewDataBinding
  * 使用时需要用于判断生命周期是否展示用onHiddenChanged方法是否是false判断
  */
 abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
-    private var isLoaded = false//是否被加载
+    private var hasLoad = false//页面是否被加载
+    private var canLoad = true//数据是否允许加载
+    private var loaded = false//数据是否被加载
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -20,15 +22,25 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
 
     override fun onResume() {
         super.onResume()
-        if (!isLoaded && !isHidden) {
-            isLoaded = true
-            initData()
+        if (!hasLoad) {
+            if (canLoad) {
+                initData()
+                loaded = true
+            }
+            hasLoad = true
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        isLoaded = false
+    /**
+     * 禁止页面展示后懒加载数据
+     * 使用eventbus或者list管理fragment去刷新数据
+     */
+    open fun setCanLoadData(flag: Boolean) {
+        canLoad = flag
+        if (canLoad && hasLoad && !loaded) {
+            initData()
+            loaded = true
+        }
     }
     // </editor-fold>
 
