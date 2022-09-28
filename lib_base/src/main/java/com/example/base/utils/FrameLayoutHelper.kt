@@ -37,13 +37,13 @@ import androidx.fragment.app.FragmentManager
  *  }
  *  }
  */
-class FragmentHelper(private val manager: FragmentManager, private val containerViewId: Int, private val fragmentList: ArrayList<Fragment>, tab: Int = 0) {
+class FrameLayoutHelper(private val manager: FragmentManager, private val containerViewId: Int, private val list: ArrayList<Fragment>, tab: Int = 0) {
     var onTabShow: ((tabNum: Int) -> Unit)? = null
     var currentIndex = tab
 
     init {
         val transaction = manager.beginTransaction()
-        fragmentList.forEach { transaction.add(containerViewId, it) }
+        list.forEach { transaction.add(containerViewId, it) }
         selectTab(tab)
     }
 
@@ -51,8 +51,8 @@ class FragmentHelper(private val manager: FragmentManager, private val container
         currentIndex = tab
         manager.beginTransaction().apply {
             //全部隱藏后显示指定的页面
-            fragmentList.forEach { hide(it) }
-            show(fragmentList[tab])
+            list.forEach { hide(it) }
+            show(list[tab])
             commitAllowingStateLoss()
             onTabShow?.invoke(tab)
         }

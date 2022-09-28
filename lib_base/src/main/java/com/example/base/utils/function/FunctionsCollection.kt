@@ -47,6 +47,17 @@ fun <T> List<T>.safeSubList(from: Int, to: Int): List<T> {
 }
 
 /**
+ * 安全获取值
+ */
+fun <T : List<K>, K> T?.safeGet(position: Int): K? {
+    return when {
+        isNullOrEmpty() -> null
+        position in indices -> get(position)
+        else -> null
+    }
+}
+
+/**
  * 将Map转换为Array
  */
 inline fun <T, reified K, P> Map<P, T>?.toArray(func: (Map.Entry<P, T>) -> K?): Array<K> {

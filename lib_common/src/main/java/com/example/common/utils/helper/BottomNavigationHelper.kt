@@ -24,12 +24,12 @@ class BottomNavigationHelper(private val navigationView: BottomNavigationView, p
         FRAGMENT, VIEWPAGER2
     }
 
-    fun initialize(flipper: ViewPager2) {
+    fun bind(flipper: ViewPager2) {
         this.flipper = flipper
         this.pageType = PageType.VIEWPAGER2
     }
 
-    fun initialize(fragmentHelper: FragmentHelper) {
+    fun bind(fragmentHelper: FragmentHelper) {
         this.fragmentHelper = fragmentHelper
         this.pageType = PageType.FRAGMENT
     }
