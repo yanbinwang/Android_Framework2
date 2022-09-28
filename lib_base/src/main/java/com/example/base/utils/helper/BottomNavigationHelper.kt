@@ -14,24 +14,18 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *  Created by wangyanbin
  *  导航栏帮助类,支持viewpage2绑定，fragment绑定
  */
-class BottomNavigationHelper(private val navigationView: BottomNavigationView, private val ids: ArrayList<Int>, private val anim: Boolean = true) {
+class BottomNavigationHelper(private val navigationView: BottomNavigationView, private val ids: List<Int>, private val anim: Boolean = true) {
     private var flipper: ViewPager2? = null
     private var helper: FrameLayoutHelper? = null
-    private var pageType = PageType.FRAGMENT
+    var currentIndex = -1
     var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
-
-    enum class PageType {
-        FRAGMENT, VIEWPAGER2
-    }
 
     fun bind(flipper: ViewPager2) {
         this.flipper = flipper
-        this.pageType = PageType.VIEWPAGER2
     }
 
     fun bind(helper: FrameLayoutHelper) {
         this.helper = helper
-        this.pageType = PageType.FRAGMENT
     }
 
     /**
@@ -40,14 +34,16 @@ class BottomNavigationHelper(private val navigationView: BottomNavigationView, p
     init {
         //去除长按的toast提示
         for (position in ids.indices) {
-            (navigationView.getChildAt(0) as ViewGroup).getChildAt(position).findViewById<View>(ids[position]).setOnLongClickListener { true }
+            (navigationView.getChildAt(0) as ViewGroup).getChildAt(position)
+                .findViewById<View>(ids[position]).setOnLongClickListener { true }
         }
         //最多配置5个
         navigationView.setOnItemSelectedListener { item ->
             //返回第一个符合条件的元素的下标，没有就返回-1
             val index = ids.indexOfFirst { it == item.itemId }
-            val isPager = pageType == PageType.VIEWPAGER2
-            val isCurrent = index == if (isPager) flipper?.currentItem else helper?.currentIndex
+            currentIndex = index
+            val isPager = null != flipper
+            val isCurrent = index == if (isPager) flipper?.currentItem else false
             if (!isCurrent) {
                 if (isPager) flipper?.setCurrentItem(index, false) else helper?.selectTab(index)
             }
