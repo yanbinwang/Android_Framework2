@@ -16,7 +16,7 @@ import com.google.android.material.tabs.TabLayoutMediator
  * 项目实际使用中，ui是肯定不会按照安卓原生的导航栏来实现对应的效果的
  * 故而提出一个接口类，需要实现对应效果的地方去实现
  */
-abstract class TabLayoutHelper<T>(private val tab: TabLayout, private var tabList: MutableList<T>? = null) {
+abstract class TabLayoutHelper<T>(private val tab: TabLayout, private var tabList: List<T>? = null) {
     protected var context: Context = tab.context
     private var helper: FrameLayoutHelper? = null
     private var mediator: TabLayoutMediator? = null

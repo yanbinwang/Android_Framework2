@@ -38,20 +38,20 @@ import com.example.base.utils.function.safeGet
  *  }
  *  }
  */
-class FrameLayoutHelper(private val manager: FragmentManager, private val containerViewId: Int, private val clazzList: ArrayList<Class<*>>) {
-    private val list: ArrayList<Fragment>? = null
+class FrameLayoutHelper(private val manager: FragmentManager, private val containerViewId: Int, private val clazzList: List<Class<*>>) {
+    private val list = ArrayList<Fragment>()
     var currentIndex = -1
     var onTabShow: ((tab: Int) -> Unit)? = null
 
     init {
-        list?.clear()
+        list.clear()
         selectTab(0)
     }
 
     fun selectTab(tab: Int) {
         if (currentIndex == tab) return
         manager.beginTransaction().apply {
-            list?.forEach { hide(it) }
+            list.forEach { hide(it) }
             show(newInstance(clazzList.safeGet(tab)))
             commitAllowingStateLoss()
             onTabShow?.invoke(tab)
@@ -64,7 +64,7 @@ class FrameLayoutHelper(private val manager: FragmentManager, private val contai
         if (null == fragment) {
             fragment = clazz?.newInstance() as Fragment
             manager.beginTransaction().add(containerViewId, fragment, tag)
-            list?.add(fragment)
+            list.add(fragment)
         }
         return fragment
     }
