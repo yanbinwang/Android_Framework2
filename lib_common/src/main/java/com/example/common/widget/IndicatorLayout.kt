@@ -3,11 +3,9 @@ package com.example.common.widget
 import android.annotation.SuppressLint
 import android.view.View
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
+import com.example.base.utils.helper.TabLayoutHelper
 import com.example.base.utils.function.inflate
 import com.example.base.utils.function.view.setMediumBold
-import com.example.base.widget.IndicatorGroup
 import com.example.common.R
 import com.example.common.utils.setParameter
 import com.google.android.material.tabs.TabLayout
@@ -18,10 +16,10 @@ import com.google.android.material.tabs.TabLayout
  * @author yan
  */
 @SuppressLint("StaticFieldLeak")
-class IndicatorLayout constructor(tab: TabLayout, pager: ViewPager2, adapter: RecyclerView.Adapter<*>, tabTitle: MutableList<String>, isUserInput: Boolean = false) : IndicatorGroup<String>(tab, pager, adapter, tabTitle, isUserInput) {
+class IndicatorLayout constructor(tab: TabLayout, tabTitle: MutableList<String>) : TabLayoutHelper<String>(tab, tabTitle) {
 
     override fun onCreateCustomView(item: String?, current: Boolean): View {
-        val view = context.inflate(R.layout.item_tab, null, false)
+        val view = context.inflate(R.layout.item_tab)
         onBindCustomView(view, item, current)
         return view
     }
