@@ -174,7 +174,6 @@
         <item name="tabRippleColor">@android:color/transparent</item>
         <item name="tabIndicator">@drawable/layer_list_tab_line</item>
         <item name="tabIndicatorFullWidth">false</item>
-        <item name="tabMinWidth">0dp</item>
         <item name="tabSelectedTextColor">@color/blue_0d86ff</item>
         <item name="tabTextColor">@color/grey_333333</item>
         <item name="android:overScrollMode">never</item>
@@ -186,6 +185,7 @@
         <item name="tabPaddingTop">0dp</item>
         <item name="tabPaddingEnd">0dp</item>
         <item name="tabPaddingBottom">0dp</item>
+        <item name="tabMinWidth">0dp</item>
     </style>
 
 </resources>
