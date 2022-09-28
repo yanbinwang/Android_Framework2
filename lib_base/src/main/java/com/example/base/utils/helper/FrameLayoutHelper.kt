@@ -38,7 +38,7 @@ import com.example.base.utils.function.safeGet
  *  }
  *  }
  */
-class FrameLayoutHelper(private val manager: FragmentManager, private val containerViewId: Int, private val clazzList: List<Class<*>>) {
+class FrameLayoutHelper(private val manager: FragmentManager, private val containerViewId: Int, private val clazzPair: List<Pair<Class<*>, String>>) {
     private val list = ArrayList<Fragment>()
     var currentIndex = -1
     var onTabShow: ((tab: Int) -> Unit)? = null
@@ -50,20 +50,21 @@ class FrameLayoutHelper(private val manager: FragmentManager, private val contai
 
     fun selectTab(tab: Int) {
         if (currentIndex == tab) return
-        manager.beginTransaction().apply {
-            list.forEach { hide(it) }
-            show(newInstance(clazzList.safeGet(tab)))
-            commitAllowingStateLoss()
-            onTabShow?.invoke(tab)
-        }
+        currentIndex = tab
+        val transaction = manager.beginTransaction()
+        list.forEach { transaction.hide(it) }
+        transaction.show(newInstance(clazzPair.safeGet(tab)))
+        transaction.commitAllowingStateLoss()
+        onTabShow?.invoke(tab)
     }
 
-    private fun newInstance(clazz: Class<*>?): Fragment {
-        val tag = clazz?.javaClass?.simpleName
-        var fragment = manager.findFragmentByTag(tag)
+    private fun newInstance(pair: Pair<Class<*>, String>?): Fragment {
+        val transaction = manager.beginTransaction()
+        var fragment = manager.findFragmentByTag(pair?.second)
         if (null == fragment) {
-            fragment = clazz?.newInstance() as Fragment
-            manager.beginTransaction().add(containerViewId, fragment, tag)
+            fragment = pair?.first?.newInstance() as Fragment
+            transaction.add(containerViewId, fragment, pair.second)
+            transaction.commitAllowingStateLoss()
             list.add(fragment)
         }
         return fragment
