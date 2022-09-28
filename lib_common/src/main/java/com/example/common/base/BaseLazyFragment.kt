@@ -20,6 +20,11 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
         super.onViewCreated(view, savedInstanceState)
     }
 
+    override fun initView() {
+        super.initView()
+        onHiddenChanged(false)
+    }
+
     override fun onResume() {
         super.onResume()
         if (!hasLoad) {
@@ -31,9 +36,14 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
         }
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (hidden) onPause() else onResume()
+    }
+
     /**
-     * 禁止页面展示后懒加载数据
-     * 使用eventbus或者list管理fragment去刷新数据
+     * 禁止页面展示后加载数据，使用eventbug去刷新对应接口
+     * 适用于Manager管理fragment的情况
      */
     open fun setCanLoadData(flag: Boolean) {
         canLoad = flag
