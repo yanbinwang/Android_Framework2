@@ -37,6 +37,7 @@ import kotlin.coroutines.CoroutineContext
 @SuppressLint("UseRequireInsteadOfGet")
 abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseView, CoroutineScope {
     protected lateinit var binding: VDB
+    protected var lazyData = false
     protected val activity by lazy { WeakReference<Activity>(getActivity()) } //基类activity弱引用
     protected val context by lazy { WeakReference<Context>(getContext()) }//基类context弱引用
     private var baseViewModel: BaseViewModel? = null//数据模型
@@ -72,7 +73,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         super.onViewCreated(view, savedInstanceState)
         initView()
         initEvent()
-        initData()
+        if (!lazyData) initData()
     }
 
     override fun initView() {

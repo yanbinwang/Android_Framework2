@@ -1,5 +1,7 @@
 package com.example.common.base
 
+import android.os.Bundle
+import android.view.View
 import androidx.databinding.ViewDataBinding
 
 /**
@@ -8,29 +10,26 @@ import androidx.databinding.ViewDataBinding
  * 使用时需要用于判断生命周期是否展示用onHiddenChanged方法是否是false判断
  */
 abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
-    private var isFirstResume = true
     private var isLoaded = false//是否被加载
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        lazyData = true
+        super.onViewCreated(view, savedInstanceState)
+    }
+
     override fun onResume() {
         super.onResume()
-        if (isFirstResume) {
-            isFirstResume = false
-            onHiddenChanged(false)
-        }
         if (!isLoaded && !isHidden) {
             isLoaded = true
-            initLazyData()
+            initData()
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        isFirstResume = true
         isLoaded = false
     }
-
-    abstract fun initLazyData()
     // </editor-fold>
 
 }
