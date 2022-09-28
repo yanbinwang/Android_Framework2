@@ -1,4 +1,4 @@
-package com.example.common.utils.helper
+package com.example.base.utils.helper
 
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +16,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  */
 class BottomNavigationHelper(private val navigationView: BottomNavigationView, private val ids: ArrayList<Int>, private val anim: Boolean = true) {
     private var flipper: ViewPager2? = null
-    private var fragmentHelper: FragmentHelper? = null
+    private var helper: FrameLayoutHelper? = null
     private var pageType = PageType.FRAGMENT
     var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
 
@@ -29,8 +29,8 @@ class BottomNavigationHelper(private val navigationView: BottomNavigationView, p
         this.pageType = PageType.VIEWPAGER2
     }
 
-    fun bind(fragmentHelper: FragmentHelper) {
-        this.fragmentHelper = fragmentHelper
+    fun bind(helper: FrameLayoutHelper) {
+        this.helper = helper
         this.pageType = PageType.FRAGMENT
     }
 
@@ -47,9 +47,9 @@ class BottomNavigationHelper(private val navigationView: BottomNavigationView, p
             //返回第一个符合条件的元素的下标，没有就返回-1
             val index = ids.indexOfFirst { it == item.itemId }
             val isPager = pageType == PageType.VIEWPAGER2
-            val isCurrent = index == if (isPager) flipper?.currentItem else fragmentHelper?.currentIndex
+            val isCurrent = index == if (isPager) flipper?.currentItem else helper?.currentIndex
             if (!isCurrent) {
-                if (isPager) flipper?.setCurrentItem(index, false) else fragmentHelper?.selectTab(index)
+                if (isPager) flipper?.setCurrentItem(index, false) else helper?.selectTab(index)
             }
             onItemSelected?.invoke(index, isCurrent)
             if (anim) getItemView(index).getChildAt(0).apply {

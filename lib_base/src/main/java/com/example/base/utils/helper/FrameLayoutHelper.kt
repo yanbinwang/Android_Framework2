@@ -39,8 +39,8 @@ import com.example.base.utils.function.safeGet
  *  }
  */
 class FrameLayoutHelper(private val manager: FragmentManager, private val containerViewId: Int, private val clazzList: ArrayList<Class<*>>) {
-    private var currentIndex = -1
     private val list: ArrayList<Fragment>? = null
+    var currentIndex = -1
     var onTabShow: ((tab: Int) -> Unit)? = null
 
     init {
