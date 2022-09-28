@@ -2,6 +2,7 @@ package com.example.base.utils.helper
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.example.base.utils.function.safeGet
 
 /**
  *  Created by wangyanbin
@@ -37,25 +38,36 @@ import androidx.fragment.app.FragmentManager
  *  }
  *  }
  */
-class FrameLayoutHelper(private val manager: FragmentManager, private val containerViewId: Int, private val list: ArrayList<Fragment>, tab: Int = 0) {
-    var onTabShow: ((tabNum: Int) -> Unit)? = null
-    var currentIndex = tab
+class FrameLayoutHelper(private val manager: FragmentManager, private val containerViewId: Int, private val clazzList: ArrayList<Class<*>>) {
+    private var currentIndex = -1
+    private val list: ArrayList<Fragment>? = null
+    var onTabShow: ((tab: Int) -> Unit)? = null
 
     init {
-        val transaction = manager.beginTransaction()
-        list.forEach { transaction.add(containerViewId, it) }
-        selectTab(tab)
+        list?.clear()
+        selectTab(0)
     }
 
     fun selectTab(tab: Int) {
-        currentIndex = tab
-        manager.beginTransaction().apply {
-            //全部隱藏后显示指定的页面
-            list.forEach { hide(it) }
-            show(list[tab])
-            commitAllowingStateLoss()
-            onTabShow?.invoke(tab)
+        if (currentIndex == tab) return
+        val transaction = manager.beginTransaction()
+        list?.forEach {
+            transaction.hide(it)
         }
+        transaction.show(newInstance(clazzList.safeGet(tab)))
+        transaction.commitAllowingStateLoss()
+        onTabShow?.invoke(tab)
+    }
+
+    private fun newInstance(clazz: Class<*>?): Fragment {
+        val tag = clazz?.javaClass?.simpleName
+        var fragment = manager.findFragmentByTag(tag)
+        if (null == fragment) {
+            fragment = clazz?.newInstance() as Fragment
+            manager.beginTransaction().add(containerViewId, fragment, tag)
+            list?.add(fragment)
+        }
+        return fragment
     }
 
 }
