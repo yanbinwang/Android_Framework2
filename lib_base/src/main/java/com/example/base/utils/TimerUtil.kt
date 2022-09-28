@@ -10,7 +10,7 @@ import java.util.*
  *  默认1秒，分计数和倒计时
  *  一个页面计时和倒计时有且只有一个存在，多种可考虑使用rxjava自带
  */
-object TimerHelper {
+object TimerUtil {
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
     private var countDownTimer: CountDownTimer? = null

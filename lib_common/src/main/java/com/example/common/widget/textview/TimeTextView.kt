@@ -5,7 +5,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.TextView
-import com.example.base.utils.TimerHelper
+import com.example.base.utils.TimerUtil
 
 /**
  * Created by wangyanbin
@@ -20,7 +20,7 @@ class TimeTextView @JvmOverloads constructor(context: Context, attrs: AttributeS
     }
 
     fun countDown(time: Long = 60) {
-        TimerHelper.startDownTask({ second: Long? ->
+        TimerUtil.startDownTask({ second: Long? ->
             isEnabled = false
             text = "已发送${second}S"
         }, {
@@ -31,7 +31,7 @@ class TimeTextView @JvmOverloads constructor(context: Context, attrs: AttributeS
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        TimerHelper.stopDownTask()
+        TimerUtil.stopDownTask()
     }
 
 }
