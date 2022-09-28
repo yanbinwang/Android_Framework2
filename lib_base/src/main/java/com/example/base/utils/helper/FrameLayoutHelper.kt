@@ -51,9 +51,7 @@ class FrameLayoutHelper(private val manager: FragmentManager, private val contai
     fun selectTab(tab: Int) {
         if (currentIndex == tab) return
         val transaction = manager.beginTransaction()
-        list?.forEach {
-            transaction.hide(it)
-        }
+        list?.forEach { transaction.hide(it) }
         transaction.show(newInstance(clazzList.safeGet(tab)))
         transaction.commitAllowingStateLoss()
         onTabShow?.invoke(tab)
