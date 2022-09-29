@@ -7,7 +7,7 @@ import com.example.base.utils.helper.TabLayoutHelper
 import com.example.base.utils.function.inflate
 import com.example.base.utils.function.view.setMediumBold
 import com.example.common.R
-import com.example.common.utils.setParameter
+import com.example.common.utils.setParam
 import com.google.android.material.tabs.TabLayout
 
 /**
@@ -28,7 +28,7 @@ class IndicatorLayout constructor(tab: TabLayout, tabTitle: MutableList<String>)
         val tvTitle = view.findViewById<TextView>(R.id.tv_title)
         tvTitle.apply {
             setMediumBold()
-            setParameter(item.orEmpty(), if (current) R.color.blue_3d81f2 else R.color.grey_333333)
+            setParam(item.orEmpty(), if (current) R.color.blue_3d81f2 else R.color.grey_333333)
         }
     }
 
