@@ -18,21 +18,6 @@ fun ViewPager2?.hideFadingEdge() {
 }
 
 /**
- * 设置适配器扩展
- */
-fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, isUserInput: Boolean = false) {
-    if (this == null) return
-    try {
-        hideFadingEdge()
-        setAdapter(adapter)
-        setOrientation(orientation)
-        offscreenPageLimit = adapter.itemCount //预加载数量
-        isUserInputEnabled = isUserInput //禁止左右滑动
-    } catch (ignore: Exception) {
-    }
-}
-
-/**
  * ViewPager2获取内部RecyclerView
  */
 fun ViewPager2?.getRecyclerView(): RecyclerView? {
@@ -41,6 +26,21 @@ fun ViewPager2?.getRecyclerView(): RecyclerView? {
         (getChildAt(0) as RecyclerView)
     } catch (ignore: Exception) {
         null
+    }
+}
+
+/**
+ * 设置适配器扩展
+ */
+fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, isUserInput: Boolean = false, isPageLimit: Boolean = true) {
+    if (this == null) return
+    try {
+        hideFadingEdge()
+        setAdapter(adapter)
+        setOrientation(orientation)
+        if (isPageLimit) offscreenPageLimit = adapter.itemCount //预加载数量
+        isUserInputEnabled = isUserInput //禁止左右滑动
+    } catch (ignore: Exception) {
     }
 }
 

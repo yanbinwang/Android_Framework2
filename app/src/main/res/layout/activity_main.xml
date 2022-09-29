@@ -6,14 +6,35 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btn_login"
+        <com.example.mvvm.widget.CommunityEditText
+            android:id="@+id/et_connect"
             android:layout_width="match_parent"
-            android:layout_height="60mm"
+            android:layout_height="80mm"
             android:layout_margin="20mm"
-            android:background="@color/grey_9f9f9f"
-            android:text="模拟登陆"
+            android:background="@drawable/shape_empty_btn"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="20mm"
             android:textColor="@color/black"
+            android:textColorHint="@color/grey_333333" />
+
+        <Button
+            android:id="@+id/btn_copy"
+            android:layout_width="match_parent"
+            android:layout_height="80mm"
+            android:layout_margin="20mm"
+            android:background="@drawable/shape_blue_btn"
+            android:text="添加"
+            android:textColor="@color/white"
+            android:textSize="24mm" />
+
+        <Button
+            android:id="@+id/btn_copy2"
+            android:layout_width="match_parent"
+            android:layout_height="80mm"
+            android:layout_margin="20mm"
+            android:background="@drawable/shape_blue_btn"
+            android:text="添加"
+            android:textColor="@color/white"
             android:textSize="24mm" />
 
     </LinearLayout>

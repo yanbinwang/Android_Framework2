@@ -6,10 +6,10 @@ import android.graphics.Paint
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.*
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.annotation.ColorRes
@@ -17,38 +17,62 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import com.example.base.utils.function.orZero
 import com.example.base.utils.function.string
 import java.util.*
 
 //------------------------------------view扩展函数类------------------------------------
 /**
- * 震动
+ * 防止重复点击
+ * 默认500ms
  */
-@SuppressLint("MissingPermission")
-fun View.vibrate(milliseconds: Long) {
-    val vibrator = (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-        vibrator.vibrate(milliseconds)
+fun View?.click(time: Long = 500L, click: (v: View) -> Unit) {
+    if (this == null) return
+    this.setOnClickListener(object : OnMultiClickListener(time, click) {})
+}
+
+/**
+ * 防止重复点击
+ */
+fun View?.click(click: ((v: View) -> Unit)?) {
+    if (click == null) {
+        clearClick()
     } else {
-        vibrator.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE))
+        click(500L, click)
+    }
+}
+
+fun ((View) -> Unit).clicks(vararg v: View, time: Long = 500L) {
+    val listener = object : OnMultiClickListener(time) {
+        override fun onMultiClick(v: View) {
+            this@clicks(v)
+        }
+    }
+    v.forEach {
+        it.setOnClickListener(listener)
+    }
+}
+
+fun View.OnClickListener.clicks(vararg v: View, time: Long = 500L) {
+    val listener = object : OnMultiClickListener(time) {
+        override fun onMultiClick(v: View) {
+            this@clicks.onClick(v)
+        }
+    }
+    v.forEach {
+        it.setOnClickListener(listener)
     }
 }
 
 /**
- * 开启硬件加速
+ * 清空点击
  */
-fun View?.byHardwareAccelerate(paint: Paint? = Paint()) {
+fun View?.clearClick() {
     if (this == null) return
-    setLayerType(View.LAYER_TYPE_HARDWARE, paint)
-}
-
-/**
- * 关闭硬件加速
- */
-fun View?.stopHardwareAccelerate() {
-    if (this == null) return
-    setLayerType(View.LAYER_TYPE_SOFTWARE, Paint())
+    this.setOnClickListener(null)
+    this.isClickable = false
 }
 
 /**
@@ -105,6 +129,22 @@ fun View?.disable() {
 }
 
 /**
+ * 背景
+ * */
+fun View?.background(@DrawableRes bg: Int) {
+    if (this == null) return
+    this.setBackgroundResource(bg)
+}
+
+/**
+ * 清除背景
+ * */
+fun View?.clearBackground() {
+    if (this == null) return
+    this.background = null
+}
+
+/**
  * 设置margin，单位px
  */
 fun View?.margin(start: Int? = null, top: Int? = null, end: Int? = null, bottom: Int? = null) {
@@ -153,6 +193,76 @@ fun View?.size(width: Int? = null, height: Int? = null) {
 }
 
 /**
+ * view的weight（仅在LinearLayout下生效）
+ * */
+var View?.weight: Float
+    get() {
+        return (this?.layoutParams as? LinearLayout.LayoutParams)?.weight.orZero
+    }
+    set(value) {
+        this ?: return
+        (layoutParams as? LinearLayout.LayoutParams)?.weight = value
+    }
+
+/**
+ * view的horizontalWeight（仅在ConstraintLayout下生效）
+ * */
+var View?.horizontalWeight: Float
+    get() {
+        return (this?.layoutParams as? ConstraintLayout.LayoutParams)?.horizontalWeight.orZero
+    }
+    set(value) {
+        this ?: return
+        (layoutParams as? ConstraintLayout.LayoutParams)?.horizontalWeight = value
+    }
+
+/**
+ * view的verticalWeight（仅在ConstraintLayout下生效）
+ * */
+var View?.verticalWeight: Float
+    get() {
+        return (this?.layoutParams as? ConstraintLayout.LayoutParams)?.verticalWeight.orZero
+    }
+    set(value) {
+        this ?: return
+        (layoutParams as? ConstraintLayout.LayoutParams)?.verticalWeight = value
+    }
+
+/**
+ * 设置layoutGravity，只对LinearLayout和FrameLayout有效，有需要则自行添加其他view
+ * */
+var View?.layoutGravity: Int
+    get() {
+        return when (this?.parent) {
+            is LinearLayout -> {
+                (this.layoutParams as LinearLayout.LayoutParams).gravity
+            }
+            is FrameLayout -> {
+                (this.layoutParams as FrameLayout.LayoutParams).gravity
+            }
+            else -> {
+                Gravity.NO_GRAVITY
+            }
+        }
+    }
+    set(value) {
+        when (this?.parent) {
+            is LinearLayout -> {
+                val lp = this.layoutParams as LinearLayout.LayoutParams
+                lp.gravity = value
+                this.layoutParams = lp
+            }
+            is FrameLayout -> {
+                val lp = this.layoutParams as FrameLayout.LayoutParams
+                lp.gravity = value
+                this.layoutParams = lp
+            }
+            else -> {
+            }
+        }
+    }
+
+/**
  * 在layout完毕之后进行计算处理
  */
 fun <T : View> T?.doOnceAfterLayout(listener: (T) -> Unit) {
@@ -189,6 +299,114 @@ fun View?.closeDecor() {
 }
 
 /**
+ * 震动
+ */
+@SuppressLint("MissingPermission")
+fun View.vibrate(milliseconds: Long) {
+    val vibrator = (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+        vibrator.vibrate(milliseconds)
+    } else {
+        vibrator.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE))
+    }
+}
+
+/**
+ * 动画隐藏view
+ */
+fun View?.fade(time: Long = 500, cancelAnim: Boolean = true) {
+    if (this == null) return
+    if (!this.isVisible()) return
+    if (time <= 0) {
+        gone()
+        return
+    }
+    if (cancelAnim) {
+        cancelAnim()
+    } else if (animation != null) {
+        if (animation.hasStarted() && !animation.hasEnded()) {
+            return
+        }
+    }
+
+    val anim = AlphaAnimation(1f, 0f)
+    anim.fillAfter = false // 设置保持动画最后的状态
+    anim.duration = time // 设置动画时间
+    anim.interpolator = AccelerateInterpolator() // 设置插入器3
+    anim.setAnimationListener(object : Animation.AnimationListener {
+        override fun onAnimationEnd(animation: Animation?) {
+            gone()
+        }
+
+        override fun onAnimationStart(animation: Animation?) {}
+        override fun onAnimationRepeat(animation: Animation?) {}
+    })
+    startAnimation(anim)
+}
+
+/**
+ * 动画显示view
+ */
+fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
+    if (this == null) return
+    if (this.isVisible()) return
+    if (time <= 0) {
+        visible()
+        return
+    }
+    if (cancelAnim) {
+        cancelAnim()
+    } else if (animation != null) {
+        if (animation.hasStarted() && !animation.hasEnded()) {
+            return
+        }
+    }
+
+    visible()
+    val anim = AlphaAnimation(0f, 1f)
+    anim.fillAfter = false // 设置保持动画最后的状态
+    anim.duration = time // 设置动画时间
+    anim.interpolator = AccelerateInterpolator() // 设置插入器3
+    anim.setAnimationListener(object : Animation.AnimationListener {
+        override fun onAnimationEnd(animation: Animation?) {
+            visible()
+        }
+
+        override fun onAnimationStart(animation: Animation?) {}
+        override fun onAnimationRepeat(animation: Animation?) {}
+    })
+    startAnimation(anim)
+}
+
+/**
+ * 取消View的动画
+ * */
+fun View?.cancelAnim() {
+    this ?: return
+    animation?.setAnimationListener(null)
+    animation?.cancel()
+    animate()?.setUpdateListener(null)
+    animate()?.setListener(null)
+    animate()?.cancel()
+}
+
+/**
+ * 开启硬件加速
+ */
+fun View?.byHardwareAccelerate(paint: Paint? = Paint()) {
+    if (this == null) return
+    setLayerType(View.LAYER_TYPE_HARDWARE, paint)
+}
+
+/**
+ * 关闭硬件加速
+ */
+fun View?.stopHardwareAccelerate() {
+    if (this == null) return
+    setLayerType(View.LAYER_TYPE_SOFTWARE, Paint())
+}
+
+/**
  * 控件获取焦点
  */
 fun View?.focus() {
@@ -212,46 +430,27 @@ fun View?.text(): String? {
     }
 }
 
-/**
- * 清空点击
- */
-fun View?.clearClick() {
-    if (this == null) return
-    this.setOnClickListener(null)
-    this.isClickable = false
-}
-
-/**
- * 防止重复点击
- */
-fun View?.click(click: ((v: View) -> Unit)?) {
-    if (click == null) {
-        clearClick()
-    } else {
-        click(500L, click)
-    }
-}
-
-/**
- * 防止重复点击
- * 默认500ms
- */
-fun View?.click(time: Long = 500L, click: (v: View) -> Unit) {
-    if (this == null) return
-    this.setOnClickListener(object : OnMultiClickListener(time, click) {})
-}
-
-/**
- * 半秒不可重复点击
- */
-fun View.OnClickListener.clicks(vararg v: View, time: Long = 500L) {
-    val listener = object : OnMultiClickListener(time) {
-        override fun onMultiClick(v: View) {
-            this@clicks.onClick(v)
+private fun getFieldValue(obj: Any?, fieldName: String): Any? {
+    if (obj == null || fieldName.isEmpty()) return null
+    val clazz: Class<*> = obj.javaClass
+    if (clazz != Any::class.java) {
+        try {
+            val field = clazz.getDeclaredField(fieldName)
+            field.isAccessible = true
+            return field.get(obj)
+        } catch (_: Exception) {
         }
     }
-    v.forEach {
-        it.setOnClickListener(listener)
+    return null
+}
+
+/**
+ * 遍历父布局的child，批量隐藏或显示
+ */
+fun ViewGroup?.foreachChild(loop: (View) -> Unit) {
+    if (this == null) return
+    for (i in 0 until this.childCount) {
+        loop(this.getChildAt(i))
     }
 }
 
@@ -273,9 +472,7 @@ fun ViewGroup.string(@StringRes res: Int) = context.string(res)
 /**
  * 传入上下文获取绘制的item
  */
-fun ViewGroup.inflate(@LayoutRes res: Int, attachToRoot: Boolean): View {
-    return LayoutInflater.from(this.context).inflate(res, this, attachToRoot)
-}
+fun ViewGroup.inflate(@LayoutRes res: Int, attachToRoot: Boolean) = LayoutInflater.from(context).inflate(res, this, attachToRoot)
 
 /**
  * 防止多次点击, 至少要500毫秒的间隔

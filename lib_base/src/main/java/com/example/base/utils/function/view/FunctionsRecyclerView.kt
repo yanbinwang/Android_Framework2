@@ -1,51 +1,21 @@
 package com.example.base.utils.function.view
 
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SimpleItemAnimator
+import android.annotation.SuppressLint
+import android.os.SystemClock
+import android.view.MotionEvent
+import android.view.ViewGroup
+import androidx.recyclerview.widget.*
 import com.example.base.utils.function.orTrue
 import com.example.base.utils.function.orZero
 
 //------------------------------------recyclerview扩展函数类------------------------------------
 /**
- * 设置水平的LayoutManager和adapter
- * */
-fun RecyclerView?.initLinearHorizontal(adapter: RecyclerView.Adapter<*>?): LinearLayoutManager? {
-    this ?: return null
-    if (adapter != null) this.adapter = adapter
-    return LinearLayoutManager(context, RecyclerView.HORIZONTAL, false).apply { layoutManager = this }
-}
-
-/**
- * 设置垂直的LayoutManager和adapter
- * */
-fun RecyclerView?.initLinearVertical(adapter: RecyclerView.Adapter<*>? = null): LinearLayoutManager? {
-    this ?: return null
-    if (adapter != null) this.adapter = adapter
-    return LinearLayoutManager(context, RecyclerView.VERTICAL, false).apply { layoutManager = this }
-}
-
-/**
- * 设置水平的Grid的LayoutManager和adapter
- * */
-fun RecyclerView?.initGridHorizontal(adapter: RecyclerView.Adapter<*>, columns: Int): GridLayoutManager? {
-    this ?: return null
-    this.adapter = adapter
-    return GridLayoutManager(context, columns, RecyclerView.VERTICAL, false).apply { layoutManager = this }
-}
-
-/**
- * 获取holder
- * */
-fun <K : RecyclerView.ViewHolder> RecyclerView?.getHolder(position: Int): K? {
-    if (this == null) return null
-    adapter?.let { adapter ->
-        if (position !in 0 until adapter.itemCount) {
-            return null
-        }
-    } ?: return null
-    return findViewHolderForAdapterPosition(position) as? K
+ * 触发本身绑定适配器的刷新
+ */
+@SuppressLint("NotifyDataSetChanged")
+fun RecyclerView?.refresh() {
+    if (this == null) return
+    this.adapter?.notifyDataSetChanged()
 }
 
 /**
@@ -90,4 +60,108 @@ fun RecyclerView?.isBottom(): Boolean {
     } else {
         false
     }
+}
+
+/**
+ * 滚动RecyclerView，目标位置置顶
+ */
+fun RecyclerView?.toPositionSmooth(pos: Int, scale: Float = 1f) = smoothScroll(pos, LinearSmoothScroller.SNAP_TO_START, scale)
+
+/**
+ * 滚动RecyclerView，目标位置置底
+ */
+fun RecyclerView?.toBottomPositionSmooth(pos: Int, scale: Float = 1f) = smoothScroll(pos, LinearSmoothScroller.SNAP_TO_END, scale)
+
+fun RecyclerView?.smoothScroll(pos: Int, type: Int, scale: Float) {
+    if (this == null) return
+    val manager = layoutManager
+    if (manager !is LinearLayoutManager) return
+    try {
+        (parent as ViewGroup).dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
+    } catch (ignore: java.lang.Exception) {
+    }
+    val first = manager.findFirstVisibleItemPosition()
+    val last = manager.findLastVisibleItemPosition()
+    if (first > pos || last < pos) {
+        val smoothScroller = object : LinearSmoothScroller(this.context) {
+            override fun getVerticalSnapPreference(): Int = type
+            override fun getHorizontalSnapPreference(): Int = type
+        }
+        smoothScroller.targetPosition = pos
+        layoutManager?.startSmoothScroll(smoothScroller)
+    } else {
+        val top = manager.findViewByPosition(pos)?.top.orZero
+        val height = manager.findViewByPosition(pos)?.height.orZero
+        val listHeight = measuredHeight
+        when (type) {
+            LinearSmoothScroller.SNAP_TO_START -> smoothScrollBy(0, (top * scale).toInt())
+            LinearSmoothScroller.SNAP_TO_END -> smoothScrollBy(0, ((top + height - listHeight) * scale).toInt())
+        }
+    }
+}
+
+/**
+ * 滚动RecyclerView，可带有offset
+ */
+fun RecyclerView?.toPosition(pos: Int, offset: Int = 0) {
+    if (this == null) return
+    try {
+        (parent as ViewGroup).dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
+    } catch (ignore: Exception) {
+    }
+    scrollToPosition(pos)
+    when (val mLayoutManager = layoutManager) {
+        is LinearLayoutManager -> mLayoutManager.scrollToPositionWithOffset(pos, offset)
+        is GridLayoutManager -> mLayoutManager.scrollToPositionWithOffset(pos, offset)
+        is StaggeredGridLayoutManager -> mLayoutManager.scrollToPositionWithOffset(pos, offset)
+    }
+}
+
+/**
+ * RecyclerView添加不遮挡item的padding
+ */
+fun RecyclerView?.paddingClip(start: Int? = null, top: Int? = null, end: Int? = null, bottom: Int? = null, ) {
+    if (this == null) return
+    clipToPadding = false
+    padding(start, top, end, bottom)
+}
+
+/**
+ * 设置水平的LayoutManager和adapter
+ */
+fun RecyclerView?.initLinearHorizontal(adapter: RecyclerView.Adapter<*>?): LinearLayoutManager? {
+    this ?: return null
+    if (adapter != null) this.adapter = adapter
+    return LinearLayoutManager(context, RecyclerView.HORIZONTAL, false).apply { layoutManager = this }
+}
+
+/**
+ * 设置垂直的LayoutManager和adapter
+ */
+fun RecyclerView?.initLinearVertical(adapter: RecyclerView.Adapter<*>? = null): LinearLayoutManager? {
+    this ?: return null
+    if (adapter != null) this.adapter = adapter
+    return LinearLayoutManager(context, RecyclerView.VERTICAL, false).apply { layoutManager = this }
+}
+
+/**
+ * 设置水平的Grid的LayoutManager和adapter
+ */
+fun RecyclerView?.initGridHorizontal(adapter: RecyclerView.Adapter<*>, columns: Int): GridLayoutManager? {
+    this ?: return null
+    this.adapter = adapter
+    return GridLayoutManager(context, columns, RecyclerView.VERTICAL, false).apply { layoutManager = this }
+}
+
+/**
+ * 获取holder
+ */
+fun <K : RecyclerView.ViewHolder> RecyclerView?.getHolder(position: Int): K? {
+    if (this == null) return null
+    adapter?.let {
+        if (position !in 0 until it.itemCount) {
+            return null
+        }
+    } ?: return null
+    return findViewHolderForAdapterPosition(position) as? K
 }
