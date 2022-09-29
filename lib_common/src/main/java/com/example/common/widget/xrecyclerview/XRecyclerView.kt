@@ -6,7 +6,6 @@ import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.base.utils.function.dip2px
 import com.example.base.utils.function.view.cancelItemAnimator
@@ -68,7 +67,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                     recycler?.setEmptyView(empty?.setListView(recycler!!))
                     recycler?.setHasFixedSize(true)
                     recycler?.cancelItemAnimator()
-                    recycler?.itemAnimator = DefaultItemAnimator()
+//                    recycler?.itemAnimator = DefaultItemAnimator()
                     empty?.onRefreshClick = { onClick?.invoke() }
                 }
             }
@@ -80,7 +79,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 refresh?.setDirection(refreshDirection)
                 recycler?.setHasFixedSize(true)
                 recycler?.cancelItemAnimator()
-                recycler?.itemAnimator = DefaultItemAnimator()
+//                recycler?.itemAnimator = DefaultItemAnimator()
                 if (0 != emptyType) {
                     empty?.onRefreshClick = { onClick?.invoke() }
                 } else {
