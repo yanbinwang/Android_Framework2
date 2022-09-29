@@ -1,30 +1,167 @@
-package com.example.base.utils.function
+package com.example.base.utils.function.value
 
+import com.example.base.utils.function.value.DateFormat.EN_YMD
+import com.example.base.utils.function.value.DateFormat.EN_YMDHMS
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
+//------------------------------------日期时间工具类------------------------------------
 /**
- * @description
- * @author
+ * 日期形式字符串
  */
-//日期形式字符串
-const val EN_M = "MM"
-const val EN_MD = "MM-dd"
-const val EN_HM = "HH:mm"
-const val EN_HMS = "HH:mm:ss"
-const val EN_YM = "yyyy-MM"
-const val EN_YMD = "yyyy-MM-dd"
-const val EN_YMDHM = "yyyy-MM-dd HH:mm"
-const val EN_YMDHMS = "yyyy-MM-dd HH:mm:ss"
-const val CN_M = "M月"
-const val CN_MD = "M月d日"
-const val CN_HM = "HH时mm分"
-const val CN_HMS = "HH时mm分ss秒"
-const val CN_YM = "yyyy年M月"
-const val CN_YMD = "yyyy年MM月dd日"
-const val CN_YMDHM = "yyyy年MM月dd日 HH时mm分"
-const val CN_YMDHMS = "yyyy年MM月dd日 HH时mm分ss秒"
+object DateFormat {
+    const val EN_M = "MM"
+    const val EN_MD = "MM-dd"
+    const val EN_HM = "HH:mm"
+    const val EN_HMS = "HH:mm:ss"
+    const val EN_YM = "yyyy-MM"
+    const val EN_YMD = "yyyy-MM-dd"
+    const val EN_YMDHM = "yyyy-MM-dd HH:mm"
+    const val EN_YMDHMS = "yyyy-MM-dd HH:mm:ss"
+    const val CN_M = "M月"
+    const val CN_MD = "M月d日"
+    const val CN_HM = "HH时mm分"
+    const val CN_HMS = "HH时mm分ss秒"
+    const val CN_YM = "yyyy年M月"
+    const val CN_YMD = "yyyy年MM月dd日"
+    const val CN_YMDHM = "yyyy年MM月dd日 HH时mm分"
+    const val CN_YMDHMS = "yyyy年MM月dd日 HH时mm分ss秒"
+}
+
+/**
+ * 获取毫秒值
+ */
+val Int.hour get() = this * 1000L * 60L * 60L
+val Int.minute get() = this * 1000L * 60L
+val Int.second get() = this * 1000L
+val Int.day get() = this * 1000L * 60L * 60L * 24L
+val Int.week get() = this * 1000L * 60L * 60L * 24L * 7L
+
+/**
+ * 日期对比（统一年月日形式）
+ * @param this       比较日期a
+ * @param toSource   比较日期b
+ */
+@Synchronized
+fun String.compareDate(toSource: String, format: String = EN_YMD): Int {
+    val dateFormat = format.getDateFormat()
+    try {
+        val comparedDate = dateFormat.parse(this) ?: Date()
+        val comparedDate2 = dateFormat.parse(toSource) ?: Date()
+        return when {
+            comparedDate.time > comparedDate2.time -> 1//日程时间大于系统时间
+            comparedDate.time < comparedDate2.time -> -1//日程时间小于系统时间
+            else -> 0
+        }
+    } catch (ignored: Exception) {
+    }
+    return 0
+}
+
+/**
+ * 获取转换日期
+ * @param this       被转换的日期格式
+ * @param toFormat   要转换的日期格式
+ * @param source     被转换的日期
+ */
+@Synchronized
+fun String.getDateFormat(toFormat: String, source: String): String {
+    var result = ""
+    try {
+        result = toFormat.getDateTime(getDateFormat().parse(source) ?: Date())
+    } catch (ignored: ParseException) {
+    }
+    return result
+}
+
+/**
+ * 传入指定格式的日期字符串转成毫秒
+ * @param this   日期格式
+ * @param source 日期
+ */
+@Synchronized
+fun String.getDateTime(source: String) = getDateFormat().parse(source)?.time ?: 0
+
+/**
+ * 传入指定日期格式和毫秒转换成日期字符串
+ * @param this 日期格式
+ * @param timestamp 时间戳
+ */
+@Synchronized
+fun String.getDateTime(timestamp: Long) = getDateFormat().format(Date(timestamp)) ?: ""
+
+/**
+ * 传入指定日期格式和日期類转换成日期字符串
+ * @param this 日期格式
+ * @param date 日期类
+ */
+@Synchronized
+fun String.getDateTime(date: Date) = getDateFormat().format(date) ?: ""
+
+/**
+ * 获取日期的当月的第几周
+ * @param this 日期（yyyy-MM-dd）
+ */
+@Synchronized
+fun String.getWeekOfMonth(): Int {
+    try {
+        val source = this
+        Calendar.getInstance().apply {
+            time = EN_YMD.getDateFormat().parse(source) ?: Date()
+            return get(Calendar.WEEK_OF_MONTH)
+        }
+    } catch (ignored: ParseException) {
+    }
+    return 0
+}
+
+/**
+ * 获取日期是第几周
+ * @param source 日期（yyyy-MM-dd）
+ */
+@Synchronized
+fun String.getWeekOfDate(): Int {
+    try {
+        val source = this
+        Calendar.getInstance().apply {
+            time = EN_YMD.getDateFormat().parse(source) ?: Date()
+            var weekIndex = get(Calendar.DAY_OF_WEEK) - 1
+            if (weekIndex < 0) weekIndex = 0
+            return weekIndex
+        }
+    } catch (ignored: ParseException) {
+    }
+    return 0
+}
+
+/**
+ * 返回中文形式的星期
+ * @param source 日期（yyyy-MM-dd）
+ */
+@Synchronized
+fun String.getDateWeek(): String {
+    return when (getWeekOfDate()) {
+        0 -> "星期天"
+        1 -> "星期一"
+        2 -> "星期二"
+        3 -> "星期三"
+        4 -> "星期四"
+        5 -> "星期五"
+        6 -> "星期六"
+        else -> ""
+    }
+}
+
+/**
+ * 获取日期格式，时区为校准的中国时区
+ * @param format 日期格式
+ */
+private fun String.getDateFormat(): SimpleDateFormat {
+    val dateFormat = SimpleDateFormat(this, Locale.getDefault())
+    dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+    return dateFormat
+}
 
 /**
  * 是否为当日
@@ -49,81 +186,8 @@ fun Date.isToday(): Boolean {
 }
 
 /**
- * 日期对比（统一年月日形式）
- *
- * @param this       比较日期a
- * @param toSource   比较日期b
- * @return
- */
-@Synchronized
-fun String.compareDate(toSource: String, format: String = EN_YMD): Int {
-    val dateFormat = format.getDateFormat()
-    try {
-        val comparedDate = dateFormat.parse(this) ?: Date()
-        val comparedDate2 = dateFormat.parse(toSource) ?: Date()
-        return when {
-            comparedDate.time > comparedDate2.time -> 1//日程时间大于系统时间
-            comparedDate.time < comparedDate2.time -> -1//日程时间小于系统时间
-            else -> 0
-        }
-    } catch (ignored: Exception) {
-    }
-    return 0
-}
-
-/**
- * 获取转换日期
- *
- * @param this       被转换的日期格式
- * @param toFormat   要转换的日期格式
- * @param source     被转换的日期
- * @return
- */
-@Synchronized
-fun String.getDateFormat(toFormat: String, source: String): String {
-    var result = ""
-    try {
-        result = toFormat.getDateTime(getDateFormat().parse(source) ?: Date())
-    } catch (ignored: ParseException) {
-    }
-    return result
-}
-
-/**
- * 传入指定格式的日期字符串转成毫秒
- *
- * @param this   日期格式
- * @param source 日期
- * @return
- */
-@Synchronized
-fun String.getDateTime(source: String) = getDateFormat().parse(source)?.time ?: 0
-
-/**
- * 传入指定日期格式和毫秒转换成日期字符串
- *
- * @param this 日期格式
- * @param timestamp 时间戳
- * @return
- */
-@Synchronized
-fun String.getDateTime(timestamp: Long) = getDateFormat().format(Date(timestamp)) ?: ""
-
-/**
- * 传入指定日期格式和日期類转换成日期字符串
- *
- * @param this 日期格式
- * @param date 日期类
- * @return
- */
-@Synchronized
-fun String.getDateTime(date: Date) = getDateFormat().format(date) ?: ""
-
-/**
  * 传入毫秒转换成00:00的格式
- *
  * @param this 时间戳
- * @return
  */
 @Synchronized
 fun Long.getTime(): String {
@@ -134,68 +198,7 @@ fun Long.getTime(): String {
 }
 
 /**
- * 获取日期的当月的第几周
- *
- * @param this 日期（yyyy-MM-dd）
- * @return
- */
-@Synchronized
-fun String.getWeekOfMonth(): Int {
-    try {
-        val source = this
-        Calendar.getInstance().apply {
-            time = EN_YMD.getDateFormat().parse(source) ?: Date()
-            return get(Calendar.WEEK_OF_MONTH)
-        }
-    } catch (ignored: ParseException) {
-    }
-    return 0
-}
-
-/**
- * 获取日期是第几周
- *
- * @param source 日期（yyyy-MM-dd）
- * @return
- */
-@Synchronized
-fun String.getWeekOfDate(): Int {
-    try {
-        val source = this
-        Calendar.getInstance().apply {
-            time = EN_YMD.getDateFormat().parse(source) ?: Date()
-            var weekIndex = get(Calendar.DAY_OF_WEEK) - 1
-            if (weekIndex < 0) weekIndex = 0
-            return weekIndex
-        }
-    } catch (ignored: ParseException) {
-    }
-    return 0
-}
-
-/**
- * 返回中文形式的星期
- *
- * @param source 日期（yyyy-MM-dd）
- * @return
- */
-@Synchronized
-fun String.getDateWeek(): String {
-    return when (getWeekOfDate()) {
-        0 -> "星期天"
-        1 -> "星期一"
-        2 -> "星期二"
-        3 -> "星期三"
-        4 -> "星期四"
-        5 -> "星期五"
-        6 -> "星期六"
-        else -> ""
-    }
-}
-
-/**
  * 处理时间
- *
  * @param this 时间戳->秒
  */
 @Synchronized
@@ -221,13 +224,3 @@ fun Long.getSecondFormat(): String {
 }
 
 private fun Long.unitFormat() = if (this in 0..9) "0$this" else this.toString()
-
-/**
- * 获取日期格式，时区为校准的中国时区
- * @param format 日期格式
- */
-private fun String.getDateFormat(): SimpleDateFormat {
-    val dateFormat = SimpleDateFormat(this, Locale.getDefault())
-    dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
-    return dateFormat
-}

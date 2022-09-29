@@ -5,8 +5,8 @@ import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.recyclerview.widget.*
-import com.example.base.utils.function.orTrue
-import com.example.base.utils.function.orZero
+import com.example.base.utils.function.value.orTrue
+import com.example.base.utils.function.value.orZero
 
 //------------------------------------recyclerview扩展函数类------------------------------------
 /**

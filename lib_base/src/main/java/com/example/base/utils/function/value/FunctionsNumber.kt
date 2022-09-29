@@ -1,52 +1,17 @@
-package com.example.base.utils.function
+package com.example.base.utils.function.value
 
 import java.math.BigDecimal
 import java.text.DecimalFormat
 
+//------------------------------------计算工具类------------------------------------
 /**
- * author:wyb
- * 计算工具类
  * kotlin中使用其自带的方法:
  * （1）a + b -> a.plus(b)
  * （2）a - b -> a.minus(b)
  * （3）a * b -> a.times(b)
  * （4）a / b -> a.div(b)
  * （5）a % b -> a.mod(b)
- */
-//------------------------------------计算工具类------------------------------------
-/**
- * Boolean防空
- * */
-val Boolean?.orFalse get() = this ?: false
-
-/**
- * Boolean防空
- * */
-val Boolean?.orTrue get() = this ?: true
-
-/**
- * 转Boolean
- * */
-fun Any?.toBoolean(default: Boolean = false) = this as? Boolean ?: default
-
-/**
- * 数值安全转换
- */
-val <T : Number> T?.orZero: T
-    get() {
-        return this ?: (when (this) {
-            is Short? -> 0.toShort()
-            is Byte? -> 0.toByte()
-            is Int? -> 0
-            is Long? -> 0L
-            is Double? -> 0.0
-            is Float? -> 0f
-            is BigDecimal? -> BigDecimal.ZERO
-            else -> 0
-        } as T)
-    }
-
-/**
+ *
  * 保留小数
  * double a = 1.66728D;
  * double b = 1.33333D;
@@ -109,7 +74,8 @@ fun Number.toFixedCompletion(length: Int = 6): String {
  * 保留小数，末尾为零则不显示0
  */
 fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
-    return BigDecimal((this.orZero).toString()).setScale(fixed, mode).stripTrailingZeros().toPlainString()
+    return BigDecimal((this.orZero).toString()).setScale(fixed, mode).stripTrailingZeros()
+        .toPlainString()
 }
 
 /**
@@ -122,6 +88,23 @@ fun String.removeEndZero(): String {
         this
     }
 }
+
+/**
+ * 数值安全转换
+ */
+val <T : Number> T?.orZero: T
+    get() {
+        return this ?: (when (this) {
+            is Short? -> 0.toShort()
+            is Byte? -> 0.toByte()
+            is Int? -> 0
+            is Long? -> 0L
+            is Double? -> 0.0
+            is Float? -> 0f
+            is BigDecimal? -> BigDecimal.ZERO
+            else -> 0
+        } as T)
+    }
 
 /**
  * 防空转换Int
@@ -241,4 +224,141 @@ fun CharSequence?.toSafeBigDecimal(default: Double = 0.0): BigDecimal {
 fun Number?.toSafeBigDecimal(default: BigDecimal = BigDecimal.ZERO): BigDecimal {
     this ?: return default
     return this.toDouble().toBigDecimal()
+}
+
+/**
+ * 设定最小值
+ */
+fun Int?.min(min: Int): Int {
+    return when {
+        this == null -> min
+        this <= min -> min
+        else -> this
+    }
+}
+
+/**
+ * 设定最小值
+ */
+fun Float?.min(min: Float): Float {
+    return when {
+        this == null -> min
+        this <= min -> min
+        else -> this
+    }
+}
+
+/**
+ * 设定最小值
+ */
+fun Double?.min(min: Double): Double {
+    return when {
+        this == null -> min
+        this <= min -> min
+        else -> this
+    }
+}
+
+/**
+ * 设定最小值
+ */
+fun Long?.min(min: Long): Long {
+    return when {
+        this == null -> min
+        this <= min -> min
+        else -> this
+    }
+}
+
+/**
+ * 设定最大值
+ */
+fun Int?.max(max: Int): Int {
+    return when {
+        this == null -> max
+        this >= max -> max
+        else -> this
+    }
+}
+
+/**
+ * 设定最大值
+ */
+fun Long?.max(max: Long): Long {
+    return when {
+        this == null -> max
+        this >= max -> max
+        else -> this
+    }
+}
+
+/**
+ * 设定最大值
+ */
+fun Float?.max(max: Float): Float {
+    return when {
+        this == null -> max
+        this >= max -> max
+        else -> this
+    }
+}
+
+
+/**
+ * 设定最大值
+ */
+fun Double?.max(max: Double): Double {
+    return when {
+        this == null -> max
+        this >= max -> max
+        else -> this
+    }
+}
+
+/**
+ * 设定范围
+ */
+fun Int?.fitRange(range: IntRange): Int {
+    return when {
+        this == null -> range.first
+        this <= range.first -> range.first
+        this >= range.last -> range.last
+        else -> this
+    }
+}
+
+/**
+ * 设定范围
+ */
+fun Long?.fitRange(range: LongRange): Long {
+    return when {
+        this == null -> range.first
+        this <= range.first -> range.first
+        this >= range.last -> range.last
+        else -> this
+    }
+}
+
+/**
+ * 设定范围
+ */
+fun Double?.fitRange(range: IntRange): Double {
+    return when {
+        this == null -> range.first.toDouble()
+        this <= range.first -> range.first.toDouble()
+        this >= range.last -> range.last.toDouble()
+        else -> this
+    }
+}
+
+/**
+ * 设定范围
+ */
+fun Float?.fitRange(range: IntRange): Float {
+    return when {
+        this == null -> range.first.toFloat()
+        this <= range.first -> range.first.toFloat()
+        this >= range.last -> range.last.toFloat()
+        else -> this
+    }
 }

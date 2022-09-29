@@ -1,11 +1,10 @@
-package com.example.base.utils.function
+package com.example.base.utils.function.value
 
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.style.ClickableSpan
 import android.util.Base64
-import com.example.base.utils.LogUtil
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -14,10 +13,9 @@ import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
 /**
- * @description
- * @author
+ * 创建密码器
  */
-private val cipher by lazy { Cipher.getInstance("AES/ECB/PKCS5Padding") }//创建密码器
+private val cipher by lazy { Cipher.getInstance("AES/ECB/PKCS5Padding") }
 
 /**
  * 加密
@@ -34,8 +32,7 @@ fun String.encrypt(secretKey: String = ""): String {
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
         //将加密以后的数据进行 Base64 编码
         return cipher.doFinal(toByteArray()).base64Encode()
-    } catch (e: Exception) {
-        "encrypt".handleException(e)
+    } catch (_: Exception) {
     }
     return ""
 }
@@ -56,8 +53,7 @@ fun String.decrypt(secretKey: String = ""): String {
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
         //执行解密操作
         return String(cipher.doFinal(data), Charsets.UTF_8)
-    } catch (e: Exception) {
-        "decrypt".handleException(e)
+    } catch (_: Exception) {
     }
     return ""
 }
@@ -66,29 +62,12 @@ fun String.decrypt(secretKey: String = ""): String {
  * 将 字节数组 转换成 Base64 编码
  * 用Base64.DEFAULT模式会导致加密的text下面多一行（在应用中显示是这样）
  */
-private fun ByteArray.base64Encode() = Base64.encodeToString(this, Base64.NO_WRAP)
+fun ByteArray.base64Encode() = Base64.encodeToString(this, Base64.NO_WRAP)
 
 /**
  * 将 Base64 字符串 解码成 字节数组
  */
-private fun String.base64Decode() = Base64.decode(this, Base64.NO_WRAP)
-
-/**
- * 处理异常
- */
-private fun String.handleException(e: Exception) = LogUtil.e("CipherUtil", "${this}---->${e}")
-
-/**
- * 如果值为空，展示默认值
- */
-@JvmOverloads
-fun String?.processedString(defaultStr: String = ""): String {
-    return if (this == null) {
-        defaultStr
-    } else {
-        if (this.trim { it <= ' ' }.isEmpty()) defaultStr else this
-    }
-}
+fun String.base64Decode() = Base64.decode(this, Base64.NO_WRAP)
 
 /**
  * 提取链接中的参数
@@ -145,22 +124,6 @@ fun String.getFormat(decimalPlace: Int): String {
     val decimalFormat = DecimalFormat("0.$format")
     decimalFormat.roundingMode = RoundingMode.DOWN
     return decimalFormat.format(value)
-}
-
-/**
- * 获取对应大小的文字
- */
-fun Double.getFormatSize(): String {
-    val byteResult = this / 1024
-    if (byteResult < 1) return "<1K"
-    val kiloByteResult = byteResult / 1024
-    if (kiloByteResult < 1) return BigDecimal(byteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "K"
-    val mByteResult = kiloByteResult / 1024
-    if (mByteResult < 1) return BigDecimal(kiloByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "M"
-    val gigaByteResult = mByteResult / 1024
-    if (gigaByteResult < 1) return BigDecimal(mByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "GB"
-    val teraByteResult = BigDecimal(gigaByteResult)
-    return (teraByteResult.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "TB")
 }
 
 /**
