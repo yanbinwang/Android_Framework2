@@ -6,7 +6,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Point
 import android.net.Uri
@@ -15,7 +14,6 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.util.TypedValue
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -109,11 +107,6 @@ fun Context.string(@StringRes res: Int): String {
 }
 
 /**
- * 获取Manifest中的参数
- */
-fun Context.manifestString(name: String) = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
-
-/**
  * 生成View
  */
 fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null) = LayoutInflater.from(this).inflate(res, root)
@@ -194,7 +187,7 @@ fun Context.getScreenRate(): Float {
 /**
  * 获取屏幕宽度和高度，单位为px
  */
-private fun Context.getScreenMetrics(): Point {
+fun Context.getScreenMetrics(): Point {
     val dm = resources.displayMetrics
     val widthScreen = dm.widthPixels
     val heightScreen = dm.heightPixels
