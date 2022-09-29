@@ -14,13 +14,9 @@ import com.example.common.databinding.ViewDialogBinding
  * date: 2017/8/25.
  * 类似苹果的弹出窗口类
  */
-class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context) {
+class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context, anim = true, close = true) {
     private var onConfirm: (() -> Unit)? = null
     private var onCancel: (() -> Unit)? = null
-
-    init {
-        initialize(true, true)
-    }
 
     fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = "", center: Boolean = true): AppDialog {
         binding.apply {

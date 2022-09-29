@@ -16,25 +16,10 @@ import java.lang.reflect.ParameterizedType
  * Created by WangYanBin on 2020/7/13.
  * 所有弹框的基类
  */
-abstract class BaseDialog<VDB : ViewDataBinding> : Dialog {
+abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, themeResId: Int = R.style.appDialogStyle, anim: Boolean = false, close: Boolean = false) : Dialog(context, themeResId) {
     protected lateinit var binding: VDB
 
-    // <editor-fold defaultstate="collapsed" desc="基类方法">
-    constructor(context: Context) : super(context, R.style.appDialogStyle)
-
-    constructor(context: Context, themeResId: Int) : super(context, themeResId)
-
-    protected open fun initialize() {
-        initialize(anim = false, close = false)
-    }
-
-    /**
-     * 设置布局
-     *
-     * @param anim  是否有进入动画
-     * @param close 是否可以关闭
-     */
-    protected open fun initialize(anim: Boolean = false, close: Boolean = false) {
+    init {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
@@ -58,6 +43,5 @@ abstract class BaseDialog<VDB : ViewDataBinding> : Dialog {
             }
         }
     }
-    // </editor-fold>
 
 }

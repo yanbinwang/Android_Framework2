@@ -2,7 +2,6 @@ package com.example.common.base.bridge
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.view.ViewGroup
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -12,6 +11,7 @@ import com.example.common.base.page.getEmptyView
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.launch
 import com.example.common.http.repository.loadHttp
+import com.example.common.utils.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
@@ -27,25 +27,20 @@ import java.lang.ref.WeakReference
  */
 @SuppressLint("StaticFieldLeak")
 abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
-    private lateinit var weakActivity: WeakReference<Activity>//引用的activity
-    private lateinit var weakContext: WeakReference<Context>//引用的context
-    private lateinit var softView: SoftReference<BaseView>//基础UI操作
-    //部分view的操作交予viewmodel去操作，不必返回activity再操作
+    private var weakActivity: WeakReference<Activity>? = null//引用的activity
+    private var softView: SoftReference<BaseView>? = null//基础UI操作
+    //部分view的操作交予viewmodel去操作，不必让activity去操作
     private var softEmpty: SoftReference<EmptyLayout>? = null//遮罩UI
     private var softRecycler: SoftReference<XRecyclerView>? = null//列表UI
     private var softRefresh: SoftReference<XRefreshLayout>? = null//刷新控件
     //基础的注入参数
     protected val activity: Activity
         get() {
-            return weakActivity.get()!!
+            return weakActivity?.get() ?: AppManager.currentActivity() ?: Activity()
         }
-    protected val context: Context
+    protected val view: BaseView?
         get() {
-            return weakContext.get()!!
-        }
-    protected val view: BaseView
-        get() {
-            return softView.get()!!
+            return softView?.get()
         }
     //获取对应的控件
     val emptyView: EmptyLayout?
@@ -62,9 +57,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         }
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    fun initialize(activity: Activity, context: Context, view: BaseView) {
+    fun initialize(activity: Activity, view: BaseView) {
         this.weakActivity = WeakReference(activity)
-        this.weakContext = WeakReference(context)
         this.softView = SoftReference(view)
     }
 
@@ -99,12 +93,12 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     ) {
         launch {
             this.loadHttp(
-                { if (isShowDialog) view.showDialog() },
+                { if (isShowDialog) view?.showDialog() },
                 { request() },
                 { resp(it) },
                 { err(it) },
                 {
-                    if (isShowDialog && isClose) view.hideDialog()
+                    if (isShowDialog && isClose) view?.hideDialog()
                     end()
                 },
                 isShowToast
@@ -114,9 +108,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     override fun onCleared() {
         super.onCleared()
-        weakActivity.clear()
-        weakContext.clear()
-        softView.clear()
+        weakActivity?.clear()
+        softView?.clear()
         softEmpty?.clear()
         softRecycler?.clear()
         softRefresh?.clear()

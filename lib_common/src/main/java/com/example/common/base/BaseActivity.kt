@@ -1,7 +1,6 @@
 package com.example.common.base
 
 import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
@@ -12,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.base.utils.LogUtil
 import com.example.base.utils.ToastUtil
+import com.example.base.utils.function.view.*
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
@@ -19,6 +19,7 @@ import com.example.common.bus.Event
 import com.example.common.bus.EventBus
 import com.example.common.constant.Constants
 import com.example.common.constant.Extras
+import com.example.common.utils.AppManager
 import com.example.common.utils.builder.StatusBarBuilder
 import com.example.common.widget.dialog.LoadingDialog
 import kotlinx.coroutines.CoroutineScope
@@ -26,7 +27,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import org.greenrobot.eventbus.Subscribe
 import java.io.Serializable
-import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.*
 import kotlin.coroutines.CoroutineContext
@@ -38,8 +38,6 @@ import kotlin.coroutines.CoroutineContext
  */
 abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected lateinit var binding: VDB
-    protected val activity by lazy { WeakReference<Activity>(this) } //基类activity弱引用
-    protected val context by lazy { WeakReference<Context>(this) }//基类context弱引用
     protected val statusBarBuilder by lazy { StatusBarBuilder(window) }//状态栏工具类
     private var baseViewModel: BaseViewModel? = null//数据模型
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
@@ -51,7 +49,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     protected fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
         if (null == baseViewModel) {
             baseViewModel = ViewModelProvider(this).get(vmClass)
-            baseViewModel?.initialize(this, this, this)
+            baseViewModel?.initialize(this, this)
             lifecycle.addObserver(baseViewModel!!)
         }
         return baseViewModel as VM
@@ -59,6 +57,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AppManager.addActivity(this)
         EventBus.instance.register(this)
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
@@ -114,10 +113,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun ENABLED(second: Long, vararg views: View?) {
         for (view in views) {
             if (view != null) {
-                view.isEnabled = false
+                view.disable()
                 Timer().schedule(object : TimerTask() {
                     override fun run() {
-                        runOnUiThread { view.isEnabled = true }
+                        runOnUiThread { view.enable() }
                     }
                 }, second)
             }
@@ -126,30 +125,25 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     override fun VISIBLE(vararg views: View?) {
         for (view in views) {
-            if (view != null) {
-                view.visibility = View.VISIBLE
-            }
+            view?.visible()
         }
     }
 
     override fun INVISIBLE(vararg views: View?) {
         for (view in views) {
-            if (view != null) {
-                view.visibility = View.INVISIBLE
-            }
+            view?.invisible()
         }
     }
 
     override fun GONE(vararg views: View?) {
         for (view in views) {
-            if (view != null) {
-                view.visibility = View.GONE
-            }
+            view?.gone()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        AppManager.removeActivity(this)
         EventBus.instance.unregister(this)
         binding.unbind()
     }

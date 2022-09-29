@@ -13,6 +13,7 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
     private var hasLoad = false//页面是否被加载
     private var canLoad = true//数据是否允许加载
     private var loaded = false//数据是否被加载
+    protected var pagerOrManager = false//是否是管理器管理页面（ViewPager嵌套fragment或FragmentManager）
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -22,7 +23,7 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
 
     override fun initView() {
         super.initView()
-        onHiddenChanged(false)
+        if (pagerOrManager) onHiddenChanged(false)
     }
 
     override fun onResume() {
@@ -38,7 +39,9 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        if (hidden) onPause() else onResume()
+        if (pagerOrManager) {
+            if (hidden) onPause() else onResume()
+        }
     }
 
     /**

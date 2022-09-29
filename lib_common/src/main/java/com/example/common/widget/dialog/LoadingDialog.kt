@@ -12,11 +12,6 @@ import com.example.common.databinding.ViewDialogLoadingBinding
 class LoadingDialog(context: Context) : BaseDialog<ViewDialogLoadingBinding>(context, R.style.loadingStyle) {
 
     init {
-        initialize()
-    }
-
-    override fun initialize() {
-        super.initialize()
         setOnDismissListener { binding.progress.stopSpinning() }
     }
 

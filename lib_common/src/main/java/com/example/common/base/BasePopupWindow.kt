@@ -19,28 +19,23 @@ import java.lang.reflect.ParameterizedType
  * 所有弹框的基类
  */
 @SuppressLint("NewApi")
-abstract class BasePopupWindow<VDB : ViewDataBinding> : PopupWindow {
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Activity, private val dark: Boolean = false) : PopupWindow() {
     protected lateinit var binding: VDB
+    protected val mActivity: Activity
+        get() {
+            return weakActivity?.get() ?: activity
+        }
     private var weakActivity: WeakReference<Activity>? = null
     private var layoutParams: WindowManager.LayoutParams? = null
-    private var dark = false
+
+    init {
+        weakActivity = WeakReference(activity)
+        layoutParams = weakActivity?.get()?.window?.attributes
+        initialize()
+    }
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
-    constructor(activity: Activity) {
-        init(activity)
-    }
-
-    constructor(activity: Activity, dark: Boolean = false) {
-        init(activity, dark)
-    }
-
-    private fun init(activity: Activity, dark: Boolean = false) {
-        this.weakActivity = WeakReference(activity)
-        this.layoutParams = weakActivity?.get()?.window?.attributes
-        this.dark = dark
-    }
-
-    protected open fun initialize() {
+    protected fun initialize() {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
@@ -84,8 +79,6 @@ abstract class BasePopupWindow<VDB : ViewDataBinding> : PopupWindow {
             animationStyle = -1
         }
     }
-
-    protected fun getActivity() = weakActivity?.get()
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="重写方法">

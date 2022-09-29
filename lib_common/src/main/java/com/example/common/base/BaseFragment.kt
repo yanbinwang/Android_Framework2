@@ -10,23 +10,25 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.base.utils.LogUtil
 import com.example.base.utils.ToastUtil
+import com.example.base.utils.function.view.*
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.bus.Event
 import com.example.common.bus.EventBus
 import com.example.common.constant.Extras
+import com.example.common.utils.AppManager
 import com.example.common.widget.dialog.LoadingDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import org.greenrobot.eventbus.Subscribe
 import java.io.Serializable
-import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.*
 import kotlin.coroutines.CoroutineContext
@@ -38,10 +40,13 @@ import kotlin.coroutines.CoroutineContext
 abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseView, CoroutineScope {
     protected lateinit var binding: VDB
     protected var lazyData = false
-    protected val activity by lazy { WeakReference<Activity>(getActivity()) } //基类activity弱引用
-    protected val context by lazy { WeakReference<Context>(getContext()) }//基类context弱引用
+    protected var mContext: Context? = null
+    protected val mActivity: Activity
+        get() {
+            return activity ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity()
+        }
     private var baseViewModel: BaseViewModel? = null//数据模型
-    private val loadingDialog by lazy { LoadingDialog(getContext()!!) }//刷新球控件，相当于加载动画\
+    private val loadingDialog by lazy { LoadingDialog(mContext!!) }//刷新球控件，相当于加载动画\
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Dispatchers.Main + job
@@ -50,10 +55,15 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
         if (null == baseViewModel) {
             baseViewModel = ViewModelProvider(this)[vmClass]
-            baseViewModel?.initialize(activity.get()!!, context.get()!!, this)
+            baseViewModel?.initialize(mActivity, this)
             lifecycle.addObserver(baseViewModel!!)
         }
         return baseViewModel as VM
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mContext = context
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -108,10 +118,10 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     override fun ENABLED(second: Long, vararg views: View?) {
         for (view in views) {
             if (view != null) {
-                view.isEnabled = false
+                view.disable()
                 Timer().schedule(object : TimerTask() {
                     override fun run() {
-                        activity.get()?.runOnUiThread { view.isEnabled = true }
+                        mActivity.runOnUiThread { view.enable() }
                     }
                 }, second)
             }
@@ -120,25 +130,19 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun VISIBLE(vararg views: View?) {
         for (view in views) {
-            if (view != null) {
-                view.visibility = View.VISIBLE
-            }
+            view?.visible()
         }
     }
 
     override fun INVISIBLE(vararg views: View?) {
         for (view in views) {
-            if (view != null) {
-                view.visibility = View.INVISIBLE
-            }
+            view?.invisible()
         }
     }
 
     override fun GONE(vararg views: View?) {
         for (view in views) {
-            if (view != null) {
-                view.visibility = View.GONE
-            }
+            view?.gone()
         }
     }
 
@@ -203,9 +207,9 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         if (code == null) {
             postcard.navigation()
         } else {
-            postcard.navigation(activity.get(), code)
+            postcard.navigation(mActivity, code)
         }
-        return activity.get()!!
+        return mActivity
     }
     // </editor-fold>
 
