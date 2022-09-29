@@ -1,4 +1,4 @@
-package com.example.common.widget.advertising.adapter
+package com.example.common.widget.advertising
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup

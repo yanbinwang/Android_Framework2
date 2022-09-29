@@ -16,8 +16,6 @@ import com.example.base.utils.WeakHandler
 import com.example.base.utils.function.dip2px
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
-import com.example.common.widget.advertising.adapter.AdvertisingAdapter
-import com.example.common.widget.advertising.callback.AdvertisingImpl
 import java.util.*
 
 /**
@@ -25,7 +23,8 @@ import java.util.*
  * 广告控件
  */
 @SuppressLint("ClickableViewAccessibility")
-class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), AdvertisingImpl, DefaultLifecycleObserver {
+class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr),
+    AdvertisingImpl, DefaultLifecycleObserver {
     private var allow = true//是否允许滑动
     private var scroll = true//是否自动滚动
     private var local = false//是否是本地

@@ -1,4 +1,4 @@
-package com.example.common.widget.advertising.callback
+package com.example.common.widget.advertising
 
 import android.widget.LinearLayout
 import androidx.viewpager2.widget.ViewPager2
