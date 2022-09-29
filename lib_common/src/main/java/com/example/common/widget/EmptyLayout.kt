@@ -9,8 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.databinding.DataBindingUtil
+import com.example.base.utils.function.inflate
 import com.example.base.utils.function.string
 import com.example.base.utils.function.view.color
+import com.example.base.utils.function.view.gone
+import com.example.base.utils.function.view.visible
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
@@ -34,7 +37,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     var onRefreshClick: (() -> Unit)? = null
 
     init {
-        binding = DataBindingUtil.bind(LayoutInflater.from(getContext()).inflate(R.layout.view_empty, null))
+        binding = DataBindingUtil.bind(context.inflate(R.layout.view_empty))
         binding?.llContainer?.setBackgroundColor(color(R.color.grey_f6f8ff))
         //设置样式
         binding?.root?.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT) //设置LayoutParams
@@ -66,10 +69,10 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载中
      */
     fun showLoading() {
-        visibility = VISIBLE
+        visible()
         binding?.ivEmpty?.setImageResource(R.mipmap.img_data_loading)
         binding?.tvEmpty?.text = context.string(R.string.label_data_loading)
-        binding?.tvRefresh?.visibility = GONE
+        binding?.tvRefresh?.gone()
 //        visibility = VISIBLE
 //        binding?.ivEmpty?.visibility = GONE
 //        binding?.tvEmpty?.text = context.getString(R.string.label_data_loading)
@@ -80,10 +83,10 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据为空--只会在200并且无数据的时候展示
      */
     fun showEmpty(resId: Int = -1, text: String? = null) {
-        visibility = VISIBLE
+        visible()
         binding?.ivEmpty?.setImageResource(if (-1 == resId) R.mipmap.img_data_empty else resId)
         binding?.tvEmpty?.text = if (TextUtils.isEmpty(text)) context.getString(R.string.label_data_empty) else text
-        binding?.tvRefresh?.visibility = GONE
+        binding?.tvRefresh?.gone()
     }
 
     /**
@@ -91,16 +94,15 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 无网络优先级最高
      */
     fun showError(resId: Int = -1, text: String? = null) {
-        visibility = VISIBLE
+        visible()
         if (!isNetworkAvailable()) {
             binding?.ivEmpty?.setImageResource(R.mipmap.img_data_net_error)
             binding?.tvEmpty?.text = context.getString(R.string.label_data_net_error)
         } else {
             binding?.ivEmpty?.setImageResource(if (-1 == resId) R.mipmap.img_data_error else resId)
-            binding?.tvEmpty?.text =
-                if (TextUtils.isEmpty(text)) context.getString(R.string.label_data_error) else text
+            binding?.tvEmpty?.text = if (TextUtils.isEmpty(text)) context.getString(R.string.label_data_error) else text
         }
-        binding?.tvRefresh?.visibility = VISIBLE
+        binding?.tvRefresh?.visible()
     }
 
     /**
