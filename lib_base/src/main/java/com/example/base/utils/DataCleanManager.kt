@@ -48,12 +48,6 @@ object DataCleanManager {
     fun cleanSharedPreference(context: Context) = deleteFilesByDirectory(File("/data/data/${context.packageName}/shared_prefs"))
 
     /**
-     * 按名字清除本应用数据库
-     */
-    @JvmStatic
-    fun cleanDatabaseByName(context: Context, dbName: String) = context.deleteDatabase(dbName)
-
-    /**
      * 清除/data/data/com.xxx.xxx/files下的内容
      */
     @JvmStatic
@@ -74,21 +68,6 @@ object DataCleanManager {
     fun cleanCustomCache(filePath: String) = deleteFilesByDirectory(File(filePath))
 
     /**
-     * 清除本应用所有的数据
-     */
-    @JvmStatic
-    fun cleanApplicationData(context: Context, vararg filepath: String) {
-        cleanInternalCache(context)
-        cleanExternalCache(context)
-        cleanDatabases(context)
-        cleanSharedPreference(context)
-        cleanFiles(context)
-        for (filePath in filepath) {
-            cleanCustomCache(filePath)
-        }
-    }
-
-    /**
      * 删除方法 这里只会删除某个文件夹下的文件，如果传入的directory是个文件，将不做处理
      */
     @JvmStatic
@@ -103,6 +82,27 @@ object DataCleanManager {
                 }
                 item.delete()
             }
+        }
+    }
+
+    /**
+     * 按名字清除本应用数据库
+     */
+    @JvmStatic
+    fun cleanDatabaseByName(context: Context, dbName: String) = context.deleteDatabase(dbName)
+
+    /**
+     * 清除本应用所有的数据
+     */
+    @JvmStatic
+    fun cleanApplicationData(context: Context, vararg filepath: String) {
+        cleanInternalCache(context)
+        cleanExternalCache(context)
+        cleanDatabases(context)
+        cleanSharedPreference(context)
+        cleanFiles(context)
+        for (filePath in filepath) {
+            cleanCustomCache(filePath)
         }
     }
 

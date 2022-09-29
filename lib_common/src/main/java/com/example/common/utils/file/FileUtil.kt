@@ -14,8 +14,8 @@ import android.text.TextUtils
 import androidx.core.content.FileProvider
 import com.example.base.utils.LogUtil
 import com.example.base.utils.ToastUtil
-import com.example.base.utils.function.EN_YMDHMS
-import com.example.base.utils.function.getDateTime
+import com.example.base.utils.function.value.DateFormat.EN_YMDHMS
+import com.example.base.utils.function.value.getDateTime
 import com.example.common.constant.Constants
 import java.io.*
 import java.lang.ref.SoftReference

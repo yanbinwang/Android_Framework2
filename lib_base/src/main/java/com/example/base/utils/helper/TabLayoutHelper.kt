@@ -5,7 +5,7 @@ import android.os.Build
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.example.base.utils.function.safeGet
+import com.example.base.utils.function.value.safeGet
 import com.example.base.utils.function.view.adapter
 import com.example.base.utils.function.view.bind
 import com.google.android.material.tabs.TabLayout

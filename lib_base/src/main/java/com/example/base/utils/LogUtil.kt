@@ -61,13 +61,38 @@ object LogUtil {
     }
 
     @JvmStatic
-    fun m() {
-        if (debug) Log.v(TAG, Exception().stackTrace[1].methodName)
+    fun wtf(msg: String) {
+        if (debug) Log.println(Log.ASSERT, TAG, msg)
     }
 
     @JvmStatic
-    fun m(msg: String) {
-        if (debug) Log.v(TAG, "${Exception().stackTrace[1].methodName}:    $msg")
+    fun wtf(tag: String, msg: String) {
+        if (debug) Log.println(Log.ASSERT, tag, msg)
     }
 
 }
+
+val String?.logV: Unit
+    get() {
+        if (this != null) LogUtil.v(this)
+    }
+
+val String?.logD: Unit
+    get() {
+        if (this != null) LogUtil.d(this)
+    }
+
+val String?.logW: Unit
+    get() {
+        if (this != null) LogUtil.w(this)
+    }
+
+val String?.logE: Unit
+    get() {
+        if (this != null) LogUtil.e(this)
+    }
+
+val String?.logWTF: Unit
+    get() {
+        if (this != null) LogUtil.wtf(this)
+    }

@@ -2,7 +2,7 @@ package com.example.base.utils.helper
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import com.example.base.utils.function.safeGet
+import com.example.base.utils.function.value.safeGet
 
 /**
  *  Created by wangyanbin

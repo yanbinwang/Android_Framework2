@@ -3,6 +3,7 @@ package com.example.base.utils
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import com.example.base.utils.function.value.orFalse
 import java.lang.ref.WeakReference
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
@@ -38,30 +39,30 @@ class WeakHandler {
     }
 
     fun post(r: Runnable?): Boolean {
-        return mExec!!.post(wrapRunnable(r))
+        return mExec?.post(wrapRunnable(r)).orFalse
     }
 
     fun postAtTime(r: Runnable?, uptimeMillis: Long): Boolean {
-        return mExec!!.postAtTime(wrapRunnable(r), uptimeMillis)
+        return mExec?.postAtTime(wrapRunnable(r), uptimeMillis).orFalse
     }
 
     fun postAtTime(r: Runnable?, token: Any, uptimeMillis: Long): Boolean {
-        return mExec!!.postAtTime(wrapRunnable(r), token, uptimeMillis)
+        return mExec?.postAtTime(wrapRunnable(r), token, uptimeMillis).orFalse
     }
 
     fun postDelayed(r: Runnable?, delayMillis: Long): Boolean {
-        return mExec!!.postDelayed(wrapRunnable(r), delayMillis)
+        return mExec?.postDelayed(wrapRunnable(r), delayMillis).orFalse
     }
 
     fun postAtFrontOfQueue(r: Runnable?): Boolean {
-        return mExec!!.postAtFrontOfQueue(wrapRunnable(r))
+        return mExec?.postAtFrontOfQueue(wrapRunnable(r)).orFalse
     }
 
     private fun wrapRunnable(r: Runnable?): WeakRunnable {
         if (r == null) throw NullPointerException("Runnable can't be null")
         val hardRef = ChainedRef(mLock, r)
         mRunnables.insertAfter(hardRef)
-        return hardRef.wrapper!!
+        return hardRef.wrapper
     }
 
     fun removeCallbacks(r: Runnable) {
@@ -75,31 +76,31 @@ class WeakHandler {
     }
 
     fun sendMessage(msg: Message): Boolean {
-        return mExec!!.sendMessage(msg)
+        return mExec?.sendMessage(msg).orFalse
     }
 
     fun sendEmptyMessage(what: Int): Boolean {
-        return mExec!!.sendEmptyMessage(what)
+        return mExec?.sendEmptyMessage(what).orFalse
     }
 
     fun sendEmptyMessageDelayed(what: Int, delayMillis: Long): Boolean {
-        return mExec!!.sendEmptyMessageDelayed(what, delayMillis)
+        return mExec?.sendEmptyMessageDelayed(what, delayMillis).orFalse
     }
 
     fun sendEmptyMessageAtTime(what: Int, uptimeMillis: Long): Boolean {
-        return mExec!!.sendEmptyMessageAtTime(what, uptimeMillis)
+        return mExec?.sendEmptyMessageAtTime(what, uptimeMillis).orFalse
     }
 
     fun sendMessageDelayed(msg: Message, delayMillis: Long): Boolean {
-        return mExec!!.sendMessageDelayed(msg, delayMillis)
+        return mExec?.sendMessageDelayed(msg, delayMillis).orFalse
     }
 
     fun sendMessageAtTime(msg: Message, uptimeMillis: Long): Boolean {
-        return mExec!!.sendMessageAtTime(msg, uptimeMillis)
+        return mExec?.sendMessageAtTime(msg, uptimeMillis).orFalse
     }
 
     fun sendMessageAtFrontOfQueue(msg: Message): Boolean {
-        return mExec!!.sendMessageAtFrontOfQueue(msg)
+        return mExec?.sendMessageAtFrontOfQueue(msg).orFalse
     }
 
     fun removeMessages(what: Int) {
@@ -115,15 +116,15 @@ class WeakHandler {
     }
 
     fun hasMessages(what: Int): Boolean {
-        return mExec!!.hasMessages(what)
+        return mExec?.hasMessages(what).orFalse
     }
 
     fun hasMessages(what: Int, obj: Any?): Boolean {
-        return mExec!!.hasMessages(what, obj)
+        return mExec?.hasMessages(what, obj).orFalse
     }
 
-    fun getLooper(): Looper {
-        return mExec!!.looper
+    fun getLooper(): Looper? {
+        return mExec?.looper
     }
 
     private class ExecHandler : Handler {
@@ -150,7 +151,6 @@ class WeakHandler {
             val callback = mCallback?.get() ?: return
             callback.handleMessage(msg)
         }
-
     }
 
     private class WeakRunnable(delegate: WeakReference<Runnable>, reference: WeakReference<ChainedRef>) : Runnable {
@@ -166,56 +166,49 @@ class WeakHandler {
 
     }
 
-    private class ChainedRef(lock: Lock, r: Runnable?) {
-        var lock: Lock? = lock
-        var runnable: Runnable? = r
+    private class ChainedRef(private val lock: Lock, private val runnable: Runnable?) {
         var next: ChainedRef? = null
         var prev: ChainedRef? = null
-        var wrapper: WeakRunnable? = null
+        var wrapper = WeakRunnable(WeakReference(runnable), WeakReference(this))
 
-        init {
-            this.wrapper = WeakRunnable(WeakReference(r), WeakReference(this))
-        }
-
-        fun remove(): WeakRunnable? {
-            lock?.lock()
+        fun remove(): WeakRunnable {
+            lock.lock()
             try {
                 if (prev != null) prev?.next = next
                 if (next != null) next?.prev = prev
                 prev = null
                 next = null
             } finally {
-                lock?.unlock()
+                lock.unlock()
             }
             return wrapper
         }
 
         fun insertAfter(candidate: ChainedRef) {
-            lock?.lock()
+            lock.lock()
             try {
                 if (next != null) next?.prev = candidate
                 candidate.next = next
                 next = candidate
                 candidate.prev = this
             } finally {
-                lock?.unlock()
+                lock.unlock()
             }
         }
 
         fun remove(obj: Runnable): WeakRunnable? {
-            lock?.lock()
+            lock.lock()
             try {
-                var curr: ChainedRef? = next
+                var curr = next
                 while (curr != null) {
                     if (curr.runnable === obj) return curr.remove()
                     curr = curr.next
                 }
             } finally {
-                lock?.unlock()
+                lock.unlock()
             }
             return null
         }
-
     }
 
 }
