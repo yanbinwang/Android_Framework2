@@ -16,20 +16,13 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
  * Created by bosong on 2017/3/10.
  */
 @SuppressLint("WrongConstant")
-class SCommonItemDecoration(propMap: SparseArray<ItemDecorationProps>) : ItemDecoration() {
-    private var mPropMap: SparseArray<ItemDecorationProps>? = propMap// itemType -> prop
+class SCommonItemDecoration(private val mPropMap: SparseArray<ItemDecorationProps>) : ItemDecoration() {
 
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
         val position = parent.getChildAdapterPosition(view)
-        val adapter = parent.adapter
-        val itemType = adapter!!.getItemViewType(position)
-
-        val props = if (mPropMap != null) {
-            mPropMap!![itemType]
-        } else {
-            return
-        }
-        if (props == null) return
+        val adapter = parent.adapter ?: return
+        val itemType = adapter.getItemViewType(position)
+        val props = mPropMap[itemType] ?: return
         var spanIndex = 0
         var spanSize = 1
         var spanCount = 1
@@ -74,14 +67,10 @@ class SCommonItemDecoration(propMap: SparseArray<ItemDecorationProps>) : ItemDec
                 right = props.verticalSpace * (spanCount - (spanIndex + spanSize - 1) - 1) / spanCount
             }
             if (isFirstRowOrColumn) { // First row
-                if (props.hasHorizontalEdge) {
-                    top = props.horizontalSpace
-                }
+                if (props.hasHorizontalEdge) top = props.horizontalSpace
             }
             if (isLastRowOrColumn) { // Last row
-                if (props.hasHorizontalEdge) {
-                    bottom = props.horizontalSpace
-                }
+                if (props.hasHorizontalEdge) bottom = props.horizontalSpace
             } else {
                 bottom = props.horizontalSpace
             }
@@ -94,14 +83,10 @@ class SCommonItemDecoration(propMap: SparseArray<ItemDecorationProps>) : ItemDec
                 bottom = props.horizontalSpace * (spanCount - (spanIndex + spanSize - 1) - 1) / spanCount
             }
             if (isFirstRowOrColumn) { // First column
-                if (props.hasVerticalEdge) {
-                    left = props.verticalSpace
-                }
+                if (props.hasVerticalEdge) left = props.verticalSpace
             }
             if (isLastRowOrColumn) { // Last column
-                if (props.hasVerticalEdge) {
-                    right = props.verticalSpace
-                }
+                if (props.hasVerticalEdge) right = props.verticalSpace
             } else {
                 right = props.verticalSpace
             }

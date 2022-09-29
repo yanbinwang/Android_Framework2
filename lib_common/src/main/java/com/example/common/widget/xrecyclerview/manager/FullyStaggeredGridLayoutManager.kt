@@ -10,11 +10,9 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
  * author: wyb
  * date: 2017/9/5.
  */
-class FullyStaggeredGridLayoutManager : StaggeredGridLayoutManager {
+class FullyStaggeredGridLayoutManager(spanCount: Int = 0, orientation: Int = 0) : StaggeredGridLayoutManager(spanCount, orientation) {
     //尺寸的数组，[0]是宽，[1]是高
     private val measuredDimension = IntArray(2)
-
-    constructor(spanCount: Int = 0, orientation: Int = 0) : super(spanCount, orientation)
 
     override fun onMeasure(recycler: RecyclerView.Recycler, state: RecyclerView.State, widthSpec: Int, heightSpec: Int) {
         //宽的mode+size
@@ -83,9 +81,7 @@ class FullyStaggeredGridLayoutManager : StaggeredGridLayoutManager {
     private fun findMax(array: IntArray): Int {
         var max = array[0]
         for (value in array) {
-            if (value > max) {
-                max = value
-            }
+            if (value > max) max = value
         }
         return max
     }

@@ -21,7 +21,6 @@ import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.ItemDecorationProps
 import com.example.common.widget.xrecyclerview.refresh.OnRefreshListener
 import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
-import com.lcodecore.tkrefreshlayout.RefreshListenerAdapter
 
 /**
  * author: wyb
