@@ -14,6 +14,7 @@ import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.base.utils.WeakHandler
 import com.example.base.utils.function.dip2px
+import com.example.base.utils.function.value.toNewList
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import java.util.*
@@ -23,8 +24,7 @@ import java.util.*
  * 广告控件
  */
 @SuppressLint("ClickableViewAccessibility")
-class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr),
-    AdvertisingImpl, DefaultLifecycleObserver {
+class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), AdvertisingImpl, DefaultLifecycleObserver {
     private var allow = true//是否允许滑动
     private var scroll = true//是否自动滚动
     private var local = false//是否是本地
@@ -93,11 +93,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     // <editor-fold defaultstate="collapsed" desc="实现方法">
     fun startLocal(resList: ArrayList<Int>, ovalLayout: LinearLayout?) {
         localList = resList
-        list = ArrayList()
-        for (ignored in resList) {
-            list?.add("")
-        }
-        start(list!!, ovalLayout, R.mipmap.ic_ad_select, R.mipmap.ic_ad_unselect, 10, true)
+        start(localList.toNewList { "" }, ovalLayout, R.mipmap.ic_ad_select, R.mipmap.ic_ad_unselect, 10, true)
     }
 
     fun start(uriList: ArrayList<String>) {
