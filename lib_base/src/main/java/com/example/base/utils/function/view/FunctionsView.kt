@@ -418,15 +418,16 @@ fun View?.focus() {
 
 /**
  * 控件获取默认值
+ * trim { it <= ' ' }//避免某些特殊空格字符的被切除掉
  */
-fun View?.text(): String? {
+fun View?.text(): String {
     return when (this) {
         is EditText -> text.toString().trim { it <= ' ' }
         is TextView -> text.toString().trim { it <= ' ' }
         is CheckBox -> text.toString().trim { it <= ' ' }
         is RadioButton -> text.toString().trim { it <= ' ' }
         is Button -> text.toString().trim { it <= ' ' }
-        else -> null
+        else -> ""
     }
 }
 
