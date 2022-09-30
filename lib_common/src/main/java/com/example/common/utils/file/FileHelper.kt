@@ -11,9 +11,9 @@ import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import com.example.base.utils.LogUtil
 import com.example.base.utils.ToastUtil
-import com.example.base.utils.function.EN_YMDHMS
 import com.example.base.utils.function.doOnDestroy
-import com.example.base.utils.function.getDateTime
+import com.example.base.utils.function.value.DateFormat.EN_YMDHMS
+import com.example.base.utils.function.value.getDateTime
 import com.example.common.BaseApplication
 import com.example.common.constant.Constants
 import com.example.common.subscribe.CommonSubscribe

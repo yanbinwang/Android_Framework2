@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
-import com.example.base.utils.function.orFalse
-import com.example.base.utils.function.toSafeInt
+import com.example.base.utils.function.value.orFalse
+import com.example.base.utils.function.value.toSafeInt
 import com.example.base.utils.function.view.adapter
 import com.example.common.imageloader.ImageLoader
 import com.example.common.widget.XWebView

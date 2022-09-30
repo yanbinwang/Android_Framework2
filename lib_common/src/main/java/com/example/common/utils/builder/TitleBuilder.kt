@@ -7,7 +7,7 @@ import com.example.base.utils.function.view.gone
 import com.example.base.utils.function.view.visible
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
-import com.example.common.utils.function.setParameter
+import com.example.common.utils.setParam
 import java.lang.ref.WeakReference
 
 @SuppressLint("InflateParams")
@@ -22,7 +22,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
             statusBarColor(weakActivity!!.color(bgColor))
         }
         binding.rlContainer.setBackgroundColor(weakActivity!!.color(bgColor))
-        binding.tvTitle.setParameter(titleStr, txtColor)
+        binding.tvTitle.setParam(titleStr, txtColor)
         binding.vShade.apply { if (shade) visible() else gone() }
         return this
     }
@@ -36,7 +36,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
             setBackgroundColor(0)
             statusBarMargin()
         }
-        binding.tvTitle.setParameter(titleStr, txtColor)
+        binding.tvTitle.setParam(titleStr, txtColor)
         return this
     }
 
@@ -54,7 +54,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     fun setLeftText(textStr: String, color: Int = R.color.grey_333333, onClick: () -> Unit = {}): TitleBuilder {
         binding.tvLeft.apply {
             visible()
-            setParameter(textStr, color)
+            setParam(textStr, color)
             setOnClickListener { onClick.invoke() }
         }
         return this
@@ -74,7 +74,7 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     fun setRightText(textStr: String, color: Int = R.color.grey_333333, onClick: () -> Unit = {}): TitleBuilder {
         binding.tvRight.apply {
             visible()
-            setParameter(textStr, color)
+            setParam(textStr, color)
             setOnClickListener { onClick.invoke() }
         }
         return this

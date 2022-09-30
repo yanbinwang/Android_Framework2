@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.databinding.DataBindingUtil
 import com.example.base.utils.LogUtil
-import com.example.base.utils.function.orFalse
+import com.example.base.utils.function.value.orFalse
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.base.page.Paging

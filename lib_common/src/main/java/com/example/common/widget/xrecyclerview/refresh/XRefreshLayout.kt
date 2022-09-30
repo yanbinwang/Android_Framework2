@@ -3,7 +3,7 @@ package com.example.common.widget.xrecyclerview.refresh
 import android.content.Context
 import android.util.AttributeSet
 import com.example.base.utils.function.dip2px
-import com.example.base.utils.function.toSafeFloat
+import com.example.base.utils.function.value.toSafeFloat
 import com.example.common.R
 import com.example.common.base.page.Paging
 import com.lcodecore.tkrefreshlayout.RefreshListenerAdapter

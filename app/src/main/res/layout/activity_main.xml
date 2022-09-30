@@ -6,8 +6,8 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <com.example.mvvm.widget.CommunityEditText
-            android:id="@+id/et_connect"
+        <com.example.mvvm.widget.AtUserEditText
+            android:id="@+id/edt"
             android:layout_width="match_parent"
             android:layout_height="80mm"
             android:layout_margin="20mm"
@@ -19,16 +19,6 @@
 
         <Button
             android:id="@+id/btn_copy"
-            android:layout_width="match_parent"
-            android:layout_height="80mm"
-            android:layout_margin="20mm"
-            android:background="@drawable/shape_blue_btn"
-            android:text="添加"
-            android:textColor="@color/white"
-            android:textSize="24mm" />
-
-        <Button
-            android:id="@+id/btn_copy2"
             android:layout_width="match_parent"
             android:layout_height="80mm"
             android:layout_margin="20mm"
