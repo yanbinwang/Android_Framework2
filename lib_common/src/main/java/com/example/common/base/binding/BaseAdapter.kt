@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.example.base.utils.function.findIndexOf
 import com.example.base.utils.function.view.click
 
 /**
@@ -96,7 +95,6 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
             }, payloads)
     }
 
-
     /**
      * 构建ViewBinding
      */
@@ -116,35 +114,35 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
      */
     protected abstract fun convert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>? = null)
 
-    /**
-     * 如果类型是集合，可以调取该方法实现局部item刷新
-     */
-    fun notifyItemChanged(func: ((T) -> Boolean)) {
-        val index = data.findIndexOf(func)
-        if (index != -1) notifyItemChanged(index)
-    }
-
-    fun notifyItemChanged(func: ((T) -> Boolean), payloads: MutableList<Any>) {
-        val index = data.findIndexOf(func)
-        if (index != -1) notifyItemChanged(index, payloads)
-    }
-
-    /**
-     * 删除某个条目
-     */
-    fun notifyItemRemoved(func: ((T) -> Boolean)) {
-        val index = data.findIndexOf(func)
-        if (index != -1) notifyItemRemoved(index)
-    }
-
-    /**
-     * 根据条件，抓出当前适配器中符合条件的对象，返回一个Pair对象
-     * a：下标 b：对象
-     * 更新好后，调取notifyItemChanged（index）更新局部item
-     */
-    fun findData(func: ((T) -> Boolean)): Pair<Int, T?> {
-        val index = data.findIndexOf(func)
-        return if (index != -1) index to data[index] else -1 to null
-    }
+//    /**
+//     * 如果类型是集合，可以调取该方法实现局部item刷新
+//     */
+//    fun notifyItemChanged(func: ((T) -> Boolean)) {
+//        val index = data.findIndexOf(func)
+//        if (index != -1) notifyItemChanged(index)
+//    }
+//
+//    fun notifyItemChanged(func: ((T) -> Boolean), payloads: MutableList<Any>) {
+//        val index = data.findIndexOf(func)
+//        if (index != -1) notifyItemChanged(index, payloads)
+//    }
+//
+//    /**
+//     * 删除某个条目
+//     */
+//    fun notifyItemRemoved(func: ((T) -> Boolean)) {
+//        val index = data.findIndexOf(func)
+//        if (index != -1) notifyItemRemoved(index)
+//    }
+//
+//    /**
+//     * 根据条件，抓出当前适配器中符合条件的对象，返回一个Pair对象
+//     * a：下标 b：对象
+//     * 更新好后，调取notifyItemChanged（index）更新局部item
+//     */
+//    fun findData(func: ((T) -> Boolean)): Pair<Int, T?> {
+//        val index = data.findIndexOf(func)
+//        return if (index != -1) index to data[index] else -1 to null
+//    }
 
 }
