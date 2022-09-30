@@ -79,13 +79,6 @@ fun Context.startForegroundService(cls: Class<out Service>, vararg pairs: Pair<S
 }
 
 /**
- * 获取Color String中的color
- * eg: "#ffffff"
- */
-@ColorInt
-fun color(color: String?) = Color.parseColor(color ?: "#ffffff")
-
-/**
  * 获取resources中的color
  */
 fun Context.color(@ColorRes res: Int) = ContextCompat.getColor(this, res)

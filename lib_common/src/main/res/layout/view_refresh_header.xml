@@ -5,7 +5,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/grey_f6f8ff"
         android:gravity="center">
 
         <com.example.common.widget.ProgressWheel

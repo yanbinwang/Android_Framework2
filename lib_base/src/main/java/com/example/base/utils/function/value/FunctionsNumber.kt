@@ -74,8 +74,7 @@ fun Number.toFixedCompletion(length: Int = 6): String {
  * 保留小数，末尾为零则不显示0
  */
 fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
-    return BigDecimal((this.orZero).toString()).setScale(fixed, mode).stripTrailingZeros()
-        .toPlainString()
+    return BigDecimal((this.orZero).toString()).setScale(fixed, mode).stripTrailingZeros().toPlainString()
 }
 
 /**

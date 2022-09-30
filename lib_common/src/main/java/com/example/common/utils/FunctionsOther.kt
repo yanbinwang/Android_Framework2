@@ -1,6 +1,7 @@
 package com.example.common.utils
 
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
@@ -11,6 +12,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
 import com.example.base.utils.function.color
 import com.example.base.utils.function.dip2px
 import com.example.base.utils.function.px2dip
@@ -33,10 +35,17 @@ val Number?.px: Int
     }
 
 /**
+ * 获取Color String中的color
+ * eg: "#ffffff"
+ */
+@ColorInt
+fun color(color: String?) = Color.parseColor(color ?: "#ffffff")
+
+/**
  * 获取resources中的color
  */
 @ColorInt
-fun color(@ColorRes res: Int) = BaseApplication.instance?.resources?.getColor(res).toSafeInt()
+fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance!!.applicationContext, res)
 
 /**
  * 获取对应大小的文字
@@ -97,8 +106,7 @@ fun ImageView?.tint(@ColorRes res: Int) {
 /**
  * 设置按钮显影图片
  */
-fun ImageView.setResource(triple: Triple<Boolean, Int, Int>) =
-    setImageResource(if (!triple.first) triple.third else triple.second)
+fun ImageView.setResource(triple: Triple<Boolean, Int, Int>) = setImageResource(if (!triple.first) triple.third else triple.second)
 
 /**
  * 设置textview内容当中某一段的颜色
