@@ -8,8 +8,8 @@
         <item name="windowNoTitle">true</item>
         <!-- 设置页面切换动画 -->
         <item name="android:windowAnimationStyle">@style/activityAnimation</item>
-        <!--        &lt;!&ndash; Appbar背景色 &ndash;&gt;-->
-        <!--        <item name="colorPrimary">@color/black</item>-->
+        <!-- 字体颜色 -->
+        <item name="colorPrimary">@color/black</item>
         <!-- 导航栏颜色 -->
         <item name="colorPrimaryDark">@color/black</item>
         <!-- 底部导航栏颜色 -->
