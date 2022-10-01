@@ -158,6 +158,13 @@ fun EditText?.onDone(listener: () -> Unit) {
     }
 }
 
+fun EditText?.showInput() {
+    if (this == null) return
+    focus()
+    openDecor()
+    onDone { hideKeyboard() }
+}
+
 fun EditText?.doInput() {
     if (this == null) return
     requestFocus()
