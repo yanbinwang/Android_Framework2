@@ -2,7 +2,7 @@ package com.example.common.utils.helper
 
 import android.text.TextUtils
 import com.example.common.constant.Constants
-import com.example.common.model.UserModel
+import com.example.common.bean.UserBean
 import com.example.common.utils.analysis.GsonUtil.jsonToObj
 import com.tencent.mmkv.MMKV
 
@@ -43,20 +43,20 @@ object AccountHelper {
 
     //存储用户对象
     @JvmStatic
-    fun setUserBean(bean: UserModel?) {
+    fun setUserBean(bean: UserBean?) {
         if (null != bean) {
-            MMKVHelper.encode(Constants.KEY_USER_MODEL,bean)
+            MMKVHelper.encode(Constants.KEY_USER_BEAN,bean)
 //            mmkv.encode(Constants.KEY_USER_MODEL, objToJson(bean))
         }
     }
 
     //获取用户对象
     @JvmStatic
-    fun getUserBean(): UserModel? {
-        var userInfoBean: UserModel? = null
-        val userInfoJson = mmkv.decodeString(Constants.KEY_USER_MODEL)
+    fun getUserBean(): UserBean? {
+        var userInfoBean: UserBean? = null
+        val userInfoJson = mmkv.decodeString(Constants.KEY_USER_BEAN)
         if (!TextUtils.isEmpty(userInfoJson)) {
-            userInfoBean = jsonToObj(userInfoJson, UserModel::class.java)
+            userInfoBean = jsonToObj(userInfoJson, UserBean::class.java)
         }
         return userInfoBean
     }
@@ -107,7 +107,7 @@ object AccountHelper {
     //用户注销操作（清除信息,清除用户凭证）
     @JvmStatic
     fun signOut() {
-        mmkv.encode(Constants.KEY_USER_MODEL, "")
+        mmkv.encode(Constants.KEY_USER_BEAN, "")
     }
 
 }

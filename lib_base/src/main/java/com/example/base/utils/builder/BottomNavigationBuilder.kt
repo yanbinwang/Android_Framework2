@@ -1,4 +1,4 @@
-package com.example.base.utils.helper
+package com.example.base.utils.builder
 
 import android.view.LayoutInflater
 import android.view.View
@@ -14,9 +14,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *  Created by wangyanbin
  *  导航栏帮助类,支持viewpage2绑定，fragment绑定
  */
-class BottomNavigationHelper(private val navigationView: BottomNavigationView, private val ids: List<Int>, private val anim: Boolean = true) {
+class BottomNavigationBuilder(private val navigationView: BottomNavigationView, private val ids: List<Int>, private val anim: Boolean = true) {
     private var flipper: ViewPager2? = null
-    private var helper: FrameLayoutHelper? = null
+    private var helper: FrameLayoutBuilder? = null
     var currentIndex = -1
     var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
 
@@ -24,7 +24,7 @@ class BottomNavigationHelper(private val navigationView: BottomNavigationView, p
         this.flipper = flipper
     }
 
-    fun bind(helper: FrameLayoutHelper) {
+    fun bind(helper: FrameLayoutBuilder) {
         this.helper = helper
     }
 

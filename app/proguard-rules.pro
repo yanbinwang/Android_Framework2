@@ -672,7 +672,7 @@ public static java.lang.String TABLENAME;
 -keep class com.example.common.http.repository.** {*;}
 -keep class com.example.common.base.page.** {*;}
 
--keep class com.example.common.model.** {*;}
+-keep class com.example.common.bean.** {*;}
 
 #-keep class com.dataqin.home.model.** {*;}
 #-keep class com.dataqin.evidence.model.** {*;}

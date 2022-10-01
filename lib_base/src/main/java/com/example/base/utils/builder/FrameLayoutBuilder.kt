@@ -1,4 +1,4 @@
-package com.example.base.utils.helper
+package com.example.base.utils.builder
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -38,7 +38,7 @@ import com.example.base.utils.function.value.safeGet
  *  }
  *  }
  */
-class FrameLayoutHelper(private val manager: FragmentManager, private val containerViewId: Int, private val clazzPair: List<Pair<Class<*>, String>>) {
+class FrameLayoutBuilder(private val manager: FragmentManager, private val containerViewId: Int, private val clazzPair: List<Pair<Class<*>, String>>) {
     private val list = ArrayList<Fragment>()
     var currentIndex = -1
     var onTabShow: ((tab: Int) -> Unit)? = null

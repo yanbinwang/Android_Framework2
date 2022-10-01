@@ -3,7 +3,7 @@ package com.example.common.widget
 import android.annotation.SuppressLint
 import android.view.View
 import android.widget.TextView
-import com.example.base.utils.helper.TabLayoutHelper
+import com.example.base.utils.builder.TabLayoutBuilder
 import com.example.base.utils.function.inflate
 import com.example.base.utils.function.view.setMediumBold
 import com.example.common.R
@@ -16,7 +16,7 @@ import com.google.android.material.tabs.TabLayout
  * @author yan
  */
 @SuppressLint("StaticFieldLeak")
-class IndicatorLayout constructor(tab: TabLayout, tabTitle: MutableList<String>) : TabLayoutHelper<String>(tab, tabTitle) {
+class IndicatorLayout constructor(tab: TabLayout, tabTitle: MutableList<String>) : TabLayoutBuilder<String>(tab, tabTitle) {
 
     override fun onCreateCustomView(item: String?, current: Boolean): View {
         val view = context.inflate(R.layout.item_tab)

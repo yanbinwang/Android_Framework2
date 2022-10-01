@@ -1,4 +1,4 @@
-package com.example.common.model
+package com.example.common.bean
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
@@ -7,7 +7,7 @@ import kotlinx.parcelize.Parcelize
  * @SerializedName("last_sign_date")->服务器的字段名，改为我们定义的
  */
 @Parcelize
-data class UserModel(
+data class UserBean(
     var name: String? = null,// 姓名
     var email: String? = null, // 邮箱地址
     var sms_check: Boolean = false,// 短信验证是否开启(Y,N)

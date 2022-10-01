@@ -43,7 +43,7 @@ object Constants {
 
     //MMKV存储字段
     const val KEY_NIGHT_MODE = "keyNightMode"
-    const val KEY_USER_MODEL = "keyUserModel" //用户类json
+    const val KEY_USER_BEAN = "keyUserBean" //用户类json
 
     //系统广播
     const val LIVE_DATA_BUS_KEY = "$APPLICATION_ID.LIVE_DATA_BUS_KEY"//总消息订阅key
