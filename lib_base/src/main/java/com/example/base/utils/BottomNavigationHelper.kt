@@ -1,9 +1,10 @@
-package com.example.base.utils.builder
+package com.example.base.utils
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.viewpager2.widget.ViewPager2
+import com.example.base.utils.builder.FrameLayoutBuilder
 import com.example.base.utils.function.inAnimation
 import com.example.base.utils.function.view.vibrate
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
@@ -14,7 +15,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *  Created by wangyanbin
  *  导航栏帮助类,支持viewpage2绑定，fragment绑定
  */
-class BottomNavigationBuilder(private val navigationView: BottomNavigationView, private val ids: List<Int>, private val anim: Boolean = true) {
+class BottomNavigationHelper(private val navigationView: BottomNavigationView, private val ids: List<Int>, private val anim: Boolean = true) {
     private var flipper: ViewPager2? = null
     private var helper: FrameLayoutBuilder? = null
     var currentIndex = -1
