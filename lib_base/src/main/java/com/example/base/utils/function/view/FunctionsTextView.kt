@@ -1,14 +1,21 @@
 package com.example.base.utils.function.view
 
+import android.app.Activity
+import android.content.Context
 import android.graphics.Paint
 import android.text.*
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.LinkMovementMethod
 import android.text.method.PasswordTransformationMethod
 import android.text.style.ClickableSpan
+import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import com.example.base.utils.DecimalInputFilter
+import com.example.base.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
+import com.example.base.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
 
 //------------------------------------textview扩展函数类------------------------------------
 /**
@@ -121,11 +128,99 @@ fun EditText.inhibitInputSpace() {
 }
 
 /**
+ * 添加EditText的InputFilter
+ */
+fun EditText?.addFilter(vararg filterList: InputFilter) {
+    if (this == null) return
+    filters = filters.plus(filterList)
+}
+
+/**
+ * 去除EditText的InputFilter
+ */
+fun EditText?.removeFilter(vararg filterList: InputFilter) {
+    if (this == null) return
+    filters = arrayOf<InputFilter>().plus(filters.filter { !filterList.contains(it) })
+}
+
+/**
+ * 添加回车时的处理
+ * */
+fun EditText?.onDone(listener: () -> Unit) {
+    if (this == null) return
+    setOnEditorActionListener { _, id, _ ->
+        if (id == EditorInfo.IME_ACTION_SEARCH || id == EditorInfo.IME_ACTION_UNSPECIFIED || id == EditorInfo.IME_ACTION_DONE) {
+            listener()
+            hideKeyboard()
+            return@setOnEditorActionListener true
+        }
+        return@setOnEditorActionListener false
+    }
+}
+
+fun EditText?.doInput() {
+    if (this == null) return
+    requestFocus()
+    val inputManager = this.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputManager.showSoftInput(this, 0)
+}
+
+fun EditText?.hideKeyboard() {
+    if (this == null) return
+    hideSoftKeyboard(context, this)
+    clearFocus()
+}
+
+fun EditText?.insertAtFocus(string: String) {
+    this ?: return
+    insertAtFocusedPosition(this, string)
+}
+
+/**
  * 简易Edittext监听
  */
 fun OnMultiTextWatcher.textWatcher(vararg views: EditText) {
     for (view in views) {
         view.addTextChangedListener(this)
+    }
+}
+
+fun EditText?.setSafeSelection(start: Int, stop: Int? = null) {
+    this ?: return
+    if (start !in 0..text.length) return
+    try {
+        if (stop == null) {
+            setSelection(start)
+        } else {
+            setSelection(start, stop)
+        }
+    } catch (_: Exception) {
+    }
+}
+
+object ExtraTextViewFunctions {
+    /**
+     * 隐藏软键盘(可用于Activity，Fragment)
+     */
+    fun hideSoftKeyboard(context: Context, view: View) {
+        val inputMethodManager: InputMethodManager = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+    }
+
+    /**
+     * 实现将扫描结果插入在EditText光标处
+     * @param editText
+     * @param index 获取光标所在位置
+     * @param text 插入的文本
+     */
+    fun insertAtFocusedPosition(editText: EditText, text: String) {
+        val index = editText.selectionStart //获取光标所在位置
+        val edit = editText.editableText //获取EditText的文字
+        if (index in edit.indices) {
+            edit.insert(index, text) //光标所在位置插入文字
+        } else {
+            edit.append(text)
+        }
     }
 }
 
