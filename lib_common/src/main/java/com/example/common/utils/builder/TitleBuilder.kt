@@ -8,20 +8,18 @@ import com.example.base.utils.function.view.visible
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.setParam
-import java.lang.ref.WeakReference
 
 @SuppressLint("InflateParams")
-class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding) {
-    private val weakActivity by lazy { WeakReference(activity).get() }
+class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
     private val statusBarBuilder by lazy { StatusBarBuilder(activity.window) }
 
     @JvmOverloads
     fun setTitle(titleStr: String = "", txtColor: Int = R.color.grey_333333, bgColor: Int = R.color.white, light: Boolean = true, shade: Boolean = false): TitleBuilder {
         statusBarBuilder.apply {
             statusBarLightMode(light)
-            statusBarColor(weakActivity!!.color(bgColor))
+            statusBarColor(activity.color(bgColor))
         }
-        binding.rlContainer.setBackgroundColor(weakActivity!!.color(bgColor))
+        binding.rlContainer.setBackgroundColor(activity.color(bgColor))
         binding.tvTitle.setParam(titleStr, txtColor)
         binding.vShade.apply { if (shade) visible() else gone() }
         return this
@@ -86,7 +84,10 @@ class TitleBuilder(activity: Activity, private val binding: ViewTitleBarBinding)
     }
 
     fun getDefault(): TitleBuilder {
-        binding.ivLeft.setOnClickListener { weakActivity?.finish() }
+        binding.ivLeft.apply {
+            visible()
+            setOnClickListener { activity.finish() }
+        }
         return this
     }
 
