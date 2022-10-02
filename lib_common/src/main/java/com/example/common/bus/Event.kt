@@ -80,12 +80,12 @@ class Event {
     /**
      * 获取默认布尔值
      */
-    fun getBoolean(defaultValue: Boolean): Boolean {
+    fun getBoolean(defaultValue: Boolean = false): Boolean {
         return if (args == null) defaultValue else args?.getBoolean(action, defaultValue) ?: false
     }
 
     //获取默认int值
-    fun getInt(defaultValue: Int): Int {
+    fun getInt(defaultValue: Int = 0): Int {
         return if (args == null) defaultValue else args?.getInt(action, defaultValue) ?: 0
     }
 
