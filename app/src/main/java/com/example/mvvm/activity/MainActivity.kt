@@ -11,6 +11,7 @@ import com.example.base.utils.function.view.focus
 import com.example.base.utils.function.view.openDecor
 import com.example.common.base.BaseTitleActivity
 import com.example.common.constant.ARouterPath
+import com.example.common.imageloader.ImageLoader
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 
@@ -31,6 +32,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
     @SuppressLint("SetTextI18n")
     override fun initEvent() {
         super.initEvent()
+        ImageLoader.instance.display(binding.ivTest,"https://gimg2.baidu.com/image_search/src=http%3A%2…sec=1667281156&t=e58ae2416a52a53c59d079b19359abd3")
         binding.btnCopy.click {
             val drawable = AppCompatResources.getDrawable(this@MainActivity, R.mipmap.ic_launcher)
             drawable?.setBounds(0, 0, 40, 40)

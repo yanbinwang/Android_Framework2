@@ -15,6 +15,7 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.base.utils.WeakHandler
 import com.example.base.utils.function.dip2px
 import com.example.base.utils.function.value.toNewList
+import com.example.base.utils.function.value.toSafeInt
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import java.util.*
@@ -34,14 +35,15 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private var focusedId = 0 //圆点选中时的背景ID
     private var normalId = 0//圆点正常时的背景ID
     private var timer: Timer? = null//自动滚动的定时器
-    private var list: ArrayList<String>? = null//图片网络路径数组
-    private var localList: ArrayList<Int>? = null//图片本地路径数组
     private var banner: ViewPager2? = null//广告容器
     private var ovalLayout: LinearLayout? = null//圆点容器
+    private lateinit var list: ArrayList<String>//图片网络路径数组
+    private lateinit var localList: ArrayList<Int>//图片本地路径数组
     private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //计算中心值
     private val adapter by lazy { AdvertisingAdapter() } //图片适配器
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) } //切线程
     var onItemClick: ((index: Int) -> Unit)? = null
+    var onPageCurrent: ((index: Int) -> Unit)? = null
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     init {
@@ -53,14 +55,16 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 //切换圆点
-                curIndex = position % (list?.size ?: 0)
-                if (ovalLayout != null && (list?.size ?: 0) > 1) {
+                curIndex = position % list.size
+                if (ovalLayout != null && list.size > 1) {
                     //圆点取消
                     ovalLayout?.getChildAt(oldIndex)?.setBackgroundResource(normalId)
                     //圆点选中
                     ovalLayout?.getChildAt(curIndex)?.setBackgroundResource(focusedId)
                     oldIndex = curIndex
                 }
+                //切换
+                onPageCurrent?.invoke(curIndex)
             }
 
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
@@ -92,15 +96,17 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     // <editor-fold defaultstate="collapsed" desc="实现方法">
     fun startLocal(resList: ArrayList<Int>, ovalLayout: LinearLayout?) {
-        localList = resList
-        start(localList.toNewList { "" }, ovalLayout, R.mipmap.ic_ad_select, R.mipmap.ic_ad_unselect, 10, true)
+        this.localList = resList
+        start(resList.toNewList { "" }, ovalLayout, R.mipmap.ic_ad_select, R.mipmap.ic_ad_unselect, 10, true)
     }
 
     fun start(uriList: ArrayList<String>) {
+        this.localList = uriList.toNewList { 0 }
         start(uriList, null)
     }
 
     fun start(uriList: ArrayList<String>, ovalLayout: LinearLayout?) {
+        this.localList = uriList.toNewList { 0 }
         start(uriList, ovalLayout, R.mipmap.ic_ad_select, R.mipmap.ic_ad_unselect, 10, false)
     }
 
@@ -120,16 +126,16 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     private fun initData() {
         //如果只有一第图时不显示圆点容器
-        if (ovalLayout != null && list!!.size < 2) {
+        if (ovalLayout != null && list.size < 2) {
             ovalLayout?.layoutParams?.height = 0
         } else if (ovalLayout != null) {
             ovalLayout?.gravity = Gravity.CENTER
             //如果true代表垂直，否则水平
-            val direction = ovalLayout!!.layoutParams.height > ovalLayout!!.layoutParams.width
+            val direction = ovalLayout?.layoutParams?.height.toSafeInt() > ovalLayout?.layoutParams?.width.toSafeInt()
             //左右边距
             val ovalMargin = context.dip2px(margin.toFloat())
             //添加圆点
-            for (i in list!!.indices) {
+            for (i in list.indices) {
                 val imageView = ImageView(context)
                 ovalLayout?.addView(imageView)
                 val layoutParams = imageView.layoutParams as LinearLayout.LayoutParams
@@ -145,7 +151,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             ovalLayout?.getChildAt(0)?.setBackgroundResource(focusedId)
         }
         //设置图片数据
-        if (local) adapter.localList = localList!! else adapter.list = list!!
+        if (local) adapter.localList = localList else adapter.list = list
         adapter.onItemClickListener = object : AdvertisingAdapter.OnItemClickListener {
             override fun onItemClick(position: Int) {
                 onItemClick?.invoke(position)
@@ -153,7 +159,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
         //设置默认选中的起始位置
         var position = 0
-        if (list!!.size > 1) position = halfPosition - halfPosition % list!!.size
+        if (list.size > 1) position = halfPosition - halfPosition % list.size
         banner?.setCurrentItem(position, false)
     }
 
@@ -165,12 +171,12 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             timer = Timer()
             timer?.schedule(object : TimerTask() {
                 override fun run() {
-                    if (allow && list!!.size > 1) {
+                    if (allow && list.size > 1) {
                         weakHandler.post {
-                            val current = banner!!.currentItem
+                            val current = banner?.currentItem.toSafeInt()
                             var position = current + 1
-                            if (current == 0 || current == Int.MAX_VALUE) position = halfPosition - halfPosition % list!!.size
-                            banner!!.currentItem = position
+                            if (current == 0 || current == Int.MAX_VALUE) position = halfPosition - halfPosition % list.size
+                            banner?.currentItem = position
                         }
                     }
                 }

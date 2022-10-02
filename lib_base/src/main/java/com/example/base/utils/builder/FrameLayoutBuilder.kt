@@ -1,5 +1,6 @@
 package com.example.base.utils.builder
 
+import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.example.base.utils.function.value.safeGet
@@ -38,13 +39,27 @@ import com.example.base.utils.function.value.safeGet
  *  }
  *  }
  */
-class FrameLayoutBuilder(private val manager: FragmentManager, private val containerViewId: Int, private val clazzPair: List<Pair<Class<*>, String>>) {
+class FrameLayoutBuilder(private val manager: FragmentManager, private val containerViewId: Int) {
+    private var arguments = false
+    private var clazzPair: List<Pair<Class<*>, String>>? = null
+    private var clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>? = null
     private val list = ArrayList<Fragment>()
     var currentIndex = -1
     var onTabShow: ((tab: Int) -> Unit)? = null
 
     init {
         list.clear()
+    }
+
+    fun bind(clazzPair: List<Pair<Class<*>, String>>) {
+        this.arguments = false
+        this.clazzPair = clazzPair
+        selectTab(0)
+    }
+
+    fun bindArguments(clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>) {
+        this.arguments = true
+        this.clazzTriple = clazzTriple
         selectTab(0)
     }
 
@@ -53,7 +68,7 @@ class FrameLayoutBuilder(private val manager: FragmentManager, private val conta
         currentIndex = tab
         val transaction = manager.beginTransaction()
         list.forEach { transaction.hide(it) }
-        transaction.show(newInstance(clazzPair.safeGet(tab)))
+        transaction.show(if (arguments) newInstanceArguments(clazzTriple.safeGet(tab)) else newInstance(clazzPair.safeGet(tab)))
         transaction.commitAllowingStateLoss()
         onTabShow?.invoke(tab)
     }
@@ -64,6 +79,21 @@ class FrameLayoutBuilder(private val manager: FragmentManager, private val conta
         if (null == fragment) {
             fragment = pair?.first?.newInstance() as Fragment
             transaction.add(containerViewId, fragment, pair.second)
+            transaction.commitAllowingStateLoss()
+            list.add(fragment)
+        }
+        return fragment
+    }
+
+    private fun newInstanceArguments(triple: Triple<Class<*>, Pair<String, String>, String>?): Fragment {
+        val transaction = manager.beginTransaction()
+        var fragment = manager.findFragmentByTag(triple?.third)
+        if (null == fragment) {
+            fragment = triple?.first?.newInstance() as Fragment
+            val bundle = Bundle()
+            bundle.putString(triple.second.first, triple.second.second)
+            fragment.arguments = bundle
+            transaction.add(containerViewId, fragment, triple.third)
             transaction.commitAllowingStateLoss()
             list.add(fragment)
         }

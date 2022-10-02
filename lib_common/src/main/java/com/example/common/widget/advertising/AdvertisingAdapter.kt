@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.base.utils.function.value.safeGet
+import com.example.base.utils.function.value.toSafeInt
 import com.example.base.utils.function.view.click
 import com.example.common.imageloader.ImageLoader
 
@@ -35,9 +37,9 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.itemView.click { onItemClickListener?.onItemClick(position % (if(local) localList.size else list.size)) }
         if (local) {
-            (holder.itemView as ImageView).setBackgroundResource(localList[position % localList.size])
+            (holder.itemView as ImageView).setBackgroundResource(localList.safeGet(position % localList.size).toSafeInt())
         } else {
-            ImageLoader.instance.display((holder.itemView as ImageView), list[position % list.size])
+            ImageLoader.instance.display((holder.itemView as ImageView), list.safeGet(position % list.size))
         }
     }
 

@@ -27,6 +27,11 @@
             android:textColor="@color/white"
             android:textSize="24mm" />
 
+        <ImageView
+            android:id="@+id/iv_test"
+            android:layout_width="200mm"
+            android:layout_height="200mm"/>
+
     </LinearLayout>
 
 </layout>
