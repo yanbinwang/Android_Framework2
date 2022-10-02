@@ -13,6 +13,12 @@ import com.example.base.utils.function.value.safeGet
  *  fragmentList->fragment的集合
  *  tab->没人选中的下标
  *
+ *  //记录下标
+ *  override fun recreate() {
+ *  intent = Intent().apply { putExtra("tab", tabBottom.selectedTabPosition) }
+ *  super.recreate()
+ *  }
+ *
  *  使用的页面需要重写：
  *  override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
  *  }
@@ -21,23 +27,11 @@ import com.example.base.utils.function.value.safeGet
  *  override fun onSaveInstanceState(outState: Bundle) {
  *  }
  *
- *  //记录下标
- *  override fun recreate() {
- *  intent = Intent().apply { putExtra("tab", tabBottom.selectedTabPosition) }
- *  super.recreate()
+ *  override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+ *  super.onRestoreInstanceState(savedInstanceState)
+ *  intent.getIntExtra(Extras.TAB_INDEX, -1).also { navigationBuilder.selectedItem(it) }
  *  }
  *
- *  //api是个key，没传或者获取失败都让页面切换到上次选中的地方
- *  override fun onNewIntent(intent: Intent?) {
- *  super.onNewIntent(intent)
- *  if (intent == null) return
- *  val api = intent.getStringExtra("api")
- *  if (api.isNullOrEmpty()) {
- *  //跳转页面
- *  intent.getIntExtra("tab", -1).also {
- *  selectTab(it)
- *  }
- *  }
  */
 class FrameLayoutBuilder(private val manager: FragmentManager, private val containerViewId: Int) {
     private var arguments = false
