@@ -44,7 +44,6 @@ class FrameLayoutBuilder(private val manager: FragmentManager, private val conta
     private var clazzPair: List<Pair<Class<*>, String>>? = null
     private var clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>? = null
     private val list = ArrayList<Fragment>()
-    var currentIndex = -1
     var onTabShow: ((tab: Int) -> Unit)? = null
 
     init {
@@ -64,8 +63,6 @@ class FrameLayoutBuilder(private val manager: FragmentManager, private val conta
     }
 
     fun selectTab(tab: Int) {
-        if (currentIndex == tab) return
-        currentIndex = tab
         val transaction = manager.beginTransaction()
         list.forEach { transaction.hide(it) }
         transaction.show(if (arguments) newInstanceArguments(clazzTriple.safeGet(tab)) else newInstance(clazzPair.safeGet(tab)))

@@ -20,6 +20,7 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
     protected var context: Context = tab.context
     private var helper: FrameLayoutBuilder? = null
     private var mediator: TabLayoutMediator? = null
+    var currentIndex = tab.selectedTabPosition
 
     /**
      * 注入管理器

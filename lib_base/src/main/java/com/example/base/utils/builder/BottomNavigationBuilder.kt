@@ -17,7 +17,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 class BottomNavigationBuilder(private val navigationView: BottomNavigationView, private val ids: List<Int>, private val anim: Boolean = true) {
     private var flipper: ViewPager2? = null
     private var helper: FrameLayoutBuilder? = null
-    var currentIndex = -1
     var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
 
     fun bind(flipper: ViewPager2) {
@@ -34,14 +33,12 @@ class BottomNavigationBuilder(private val navigationView: BottomNavigationView, 
     init {
         //去除长按的toast提示
         for (position in ids.indices) {
-            (navigationView.getChildAt(0) as ViewGroup).getChildAt(position)
-                .findViewById<View>(ids[position]).setOnLongClickListener { true }
+            (navigationView.getChildAt(0) as ViewGroup).getChildAt(position).findViewById<View>(ids[position]).setOnLongClickListener { true }
         }
         //最多配置5个
         navigationView.setOnItemSelectedListener { item ->
             //返回第一个符合条件的元素的下标，没有就返回-1
             val index = ids.indexOfFirst { it == item.itemId }
-            currentIndex = index
             val isPager = null != flipper
             val isCurrent = index == if (isPager) flipper?.currentItem else false
             if (!isCurrent) {
@@ -65,6 +62,18 @@ class BottomNavigationBuilder(private val navigationView: BottomNavigationView, 
      * 获取下标item
      */
     fun getItemView(index: Int) = (navigationView.getChildAt(0) as BottomNavigationMenuView).getChildAt(index) as BottomNavigationItemView
+
+    /**
+     * 获取当前选中的下标
+     */
+    fun getCurrentIndex(): Int {
+        val menu = navigationView.menu
+        for (i in 0 until menu.size()) {
+            val menuItem = menu.getItem(i)
+            if (menuItem.isChecked) return ids.indexOfFirst { it == menuItem.itemId }
+        }
+        return 0
+    }
 
     /**
      * 添加角标
