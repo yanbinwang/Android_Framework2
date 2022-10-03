@@ -87,7 +87,7 @@ fun <T> CoroutineScope.loadHttp(
  */
 fun CoroutineScope.loadHttp(
     start: () -> Unit = {},
-    requests: Array<suspend CoroutineScope.() -> ApiResponse<*>>,
+    requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
     end: (result: MutableList<Any?>?) -> Unit = {}
 ) {
     launch(Main) {
