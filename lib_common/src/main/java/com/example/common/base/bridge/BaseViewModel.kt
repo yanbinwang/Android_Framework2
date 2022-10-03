@@ -106,9 +106,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         }
     }
 
-    protected fun <T> loadHttp(
+    protected fun loadHttp(
         start: () -> Unit = {},
-        requests: Array<suspend CoroutineScope.() -> ApiResponse<T>>,
+        requests: Array<suspend CoroutineScope.() -> ApiResponse<*>>,
         end: (result: MutableList<Any?>?) -> Unit = {}
     ) {
         launch {
