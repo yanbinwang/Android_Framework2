@@ -11,6 +11,7 @@ import com.example.common.utils.analysis.GsonUtil
 import com.example.common.utils.helper.AccountHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,7 +50,7 @@ fun <T> CoroutineScope.loadHttp(
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
-    launch {
+    launch(Main) {
         try {
             LogUtil.e("repository", "1:${Thread.currentThread().name}")
             start()
@@ -84,34 +85,35 @@ fun <T> CoroutineScope.loadHttp(
  * })
  * }
  */
-fun CoroutineScope.loadHttp(
+fun <T> CoroutineScope.loadHttp(
     start: () -> Unit = {},
-    requests: Array<suspend CoroutineScope.() -> ApiResponse<*>>,
+    requests: Array<suspend CoroutineScope.() -> ApiResponse<T>>,
     end: (result: MutableList<Any?>?) -> Unit = {}
 ) {
-    launch {
+    launch(Main) {
         val respList = ArrayList<Any?>()
         start()
         try {
             withContext(IO) {
+                LogUtil.e("repository", "串行请求开始时间：${System.nanoTime()}")
                 for (req in requests) {
-                    LogUtil.e("repository", "串行执行时间：${System.nanoTime()}")
+                    LogUtil.e("repository", "请求${req}执行时间：${System.nanoTime()}")
                     val data = req()
                     if (200 == data.code) {
                         val body = data.response()
-                        LogUtil.e("repository", "串行执行结果：${GsonUtil.objToJson(body ?: Any())}")
                         respList.add(body)
+                        LogUtil.e("repository", "请求${req}执行结果：${GsonUtil.objToJson(body ?: Any())}")
                     } else {
-                        LogUtil.e("repository", "串行执行结果：返回参数非200，中断执行")
+                        LogUtil.e("repository", "请求${req}执行结果：返回参数非200，中断执行")
                         break
                     }
                 }
             }
         } catch (e: Exception) {
-            LogUtil.e("repository", "串行执行结果：串行接口执行中出现异常")
+            LogUtil.e("repository", "串行请求返回结果：接口执行中出现异常")
         } finally {
             //如果返回的对象长度和发起的请求长度是一样的，说明此次串行都执行成功，直接拿取集合即可,其中一条失败就返回空
-            LogUtil.e("repository", "串行执行结果:${respList.size == requests.size}")
+            LogUtil.e("repository", "串行请求返回结果:${respList.size == requests.size}")
             end(if (respList.size == requests.size) respList else null)
         }
     }

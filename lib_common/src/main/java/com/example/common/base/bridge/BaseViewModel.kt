@@ -92,7 +92,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         isClose: Boolean = true                                    // 请求结束前是否关闭dialog
     ) {
         launch {
-            this.loadHttp(
+            loadHttp(
                 { if (isShowDialog) view?.showDialog() },
                 { request() },
                 { resp(it) },
@@ -103,6 +103,16 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 },
                 isShowToast
             )
+        }
+    }
+
+    protected fun <T> loadHttp(
+        start: () -> Unit = {},
+        requests: Array<suspend CoroutineScope.() -> ApiResponse<T>>,
+        end: (result: MutableList<Any?>?) -> Unit = {}
+    ) {
+        launch {
+            loadHttp(start, requests, end)
         }
     }
 
