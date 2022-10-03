@@ -146,12 +146,12 @@ fun CoroutineScope.loadHttp(
  * 项目接口返回对象解析
  */
 fun <T> ApiResponse<T>?.response(): T? {
-    return if (null != this) {
-        if (200 == code) {
-            if (null == data) Any() as T else data
-        } else {
-            if (408 == code) AccountHelper.signOut()
-            null
-        }
-    } else null
+    if (this == null) return null
+    return if (200 == code) {
+//        if (null == data) Any() as T else data
+        data
+    } else {
+        if (408 == code) AccountHelper.signOut()
+        null
+    }
 }
