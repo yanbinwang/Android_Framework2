@@ -7,11 +7,10 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.ForegroundColorSpan
-import android.widget.CheckBox
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.example.base.utils.function.color
 import com.example.base.utils.function.dip2px
@@ -20,6 +19,7 @@ import com.example.base.utils.function.value.toSafeFloat
 import com.example.base.utils.function.value.toSafeInt
 import com.example.common.BaseApplication
 import com.example.common.R
+import com.example.common.constant.Constants
 import com.google.gson.Gson
 import java.math.BigDecimal
 
@@ -107,6 +107,18 @@ fun ImageView?.tint(@ColorRes res: Int) {
  * 设置按钮显影图片
  */
 fun ImageView.setResource(triple: Triple<Boolean, Int, Int>) = setImageResource(if (!triple.first) triple.third else triple.second)
+
+/**
+ * 图片宽度动态变为手机宽度
+ */
+fun ImageView.setScreenWidth() {
+    layoutParams = when (parent) {
+        is LinearLayout -> LinearLayout.LayoutParams(Constants.SCREEN_WIDTH, LinearLayout.LayoutParams.WRAP_CONTENT)
+        is RelativeLayout -> RelativeLayout.LayoutParams(Constants.SCREEN_WIDTH, RelativeLayout.LayoutParams.WRAP_CONTENT)
+        is FrameLayout -> FrameLayout.LayoutParams(Constants.SCREEN_WIDTH, FrameLayout.LayoutParams.WRAP_CONTENT)
+        else -> ConstraintLayout.LayoutParams(Constants.SCREEN_WIDTH, ConstraintLayout.LayoutParams.WRAP_CONTENT)
+    }
+}
 
 /**
  * 设置textview内容当中某一段的颜色
