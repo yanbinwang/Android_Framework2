@@ -65,7 +65,7 @@ fun <K, V> HashMap<K, V>?.params() = (if (null == this) "" else GsonUtil.objToJs
  * 网络请求协程扩展-并行请求
  * 每个挂起方法外层都会套一个launch
  */
-fun <T> CoroutineScope.loadHttp(
+fun <T> CoroutineScope.request(
     start: () -> Unit = {},
     request: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (T?) -> Unit = {},
@@ -108,7 +108,7 @@ fun <T> CoroutineScope.loadHttp(
  * })
  * }
  */
-fun CoroutineScope.loadHttp(
+fun CoroutineScope.request(
     start: () -> Unit = {},
     requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
     end: (result: MutableList<Any?>?) -> Unit = {}

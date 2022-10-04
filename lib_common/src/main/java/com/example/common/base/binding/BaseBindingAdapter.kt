@@ -1,17 +1,23 @@
 package com.example.common.base.binding
 
 import android.annotation.SuppressLint
+import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
+import com.example.base.utils.function.inAnimation
 import com.example.base.utils.function.value.orFalse
 import com.example.base.utils.function.value.toSafeInt
 import com.example.base.utils.function.view.adapter
+import com.example.base.utils.function.view.setMatchText
+import com.example.base.utils.function.view.showInput
 import com.example.common.imageloader.ImageLoader
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.XRecyclerView
@@ -28,7 +34,7 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
 object BaseBindingAdapter {
 
     @JvmStatic
-    @BindingAdapter(value = ["concatAdapter"])
+    @BindingAdapter(value = ["concat_adapter"])
     fun bindingRecyclerViewConcatAdapter(rec: RecyclerView, adapter: ConcatAdapter) {
         rec.layoutManager = LinearLayoutManager(rec.context)
         rec.adapter = adapter
@@ -39,9 +45,18 @@ object BaseBindingAdapter {
      * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
      */
     @JvmStatic
-    @BindingAdapter(value = ["adapter", "spanCount", "horizontalSpace", "verticalSpace", "hasHorizontalEdge", "hasVerticalEdge"], requireAll = false)
+    @BindingAdapter(value = ["adapter", "span_count", "horizontal_space", "vertical_space", "has_horizontal_edge", "has_vertical_edge"], requireAll = false)
     fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
         rec.setAdapter(adapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(0), verticalSpace.toSafeInt(0), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["adapter"])
+    fun <T : PagerAdapter> bindingScaleViewPagerAdapter(pager: ViewPager, adapter: T) {
+        pager.adapter = adapter
+        pager.offscreenPageLimit = adapter.count - 1
+        pager.currentItem = 0
+        pager.startAnimation(pager.context.inAnimation())
     }
 
     @JvmStatic
@@ -52,7 +67,7 @@ object BaseBindingAdapter {
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["adapter", "orientation", "isUserInput"], requireAll = false)
+    @BindingAdapter(value = ["adapter", "orientation", "is_user_input"], requireAll = false)
     fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, adapter: T, orientation: Int?, isUserInput: Boolean?) {
         flipper.adapter(adapter, orientation.toSafeInt(ViewPager2.ORIENTATION_HORIZONTAL), isUserInput.orFalse)
     }
@@ -62,7 +77,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
-    @BindingAdapter(value = ["loadUrl"])
+    @BindingAdapter(value = ["load_url"])
     fun bindingWebViewLoadUrl(webView: XWebView, loadPageUrl: String) {
         webView.loadUrl(loadPageUrl)
     }
@@ -72,9 +87,25 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
-    @BindingAdapter(value = ["loadAssetUrl"])
+    @BindingAdapter(value = ["load_asset_url"])
     fun bindingWebViewLoadAssetUrl(webView: XWebView, assetPath: String) {
         webView.loadUrl("file:///android_asset/$assetPath")
+    }
+
+    /**
+     * 全屏撑满加载文本
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["match_text"])
+    fun bindingTextViewMatch(textview: TextView, text: String?) {
+        textview.text = text.orEmpty()
+        textview.setMatchText()
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["show_input"])
+    fun bindingEditTextShowInput(editText: EditText, showInput: Boolean?) {
+        if(showInput.orFalse) editText.showInput()
     }
 
     /**
@@ -90,7 +121,7 @@ object BaseBindingAdapter {
      * 加载图片（比例缩放）
      */
     @JvmStatic
-    @BindingAdapter(value = ["displayZoom"])
+    @BindingAdapter(value = ["display_zoom"])
     fun bindingDisplayZoom(view: ImageView, url: String) {
         ImageLoader.instance.displayZoom(view, url)
     }
@@ -99,7 +130,7 @@ object BaseBindingAdapter {
      * 加载图片（带圆角）
      */
     @JvmStatic
-    @BindingAdapter(value = ["displayRound", "roundingRadius"], requireAll = false)
+    @BindingAdapter(value = ["display_round", "rounding_radius"], requireAll = false)
     fun bindingDisplayRound(view: ImageView, url: String, roundingRadius: Int?) {
         ImageLoader.instance.displayRound(view, url, roundingRadius.toSafeInt(5))
     }
@@ -108,7 +139,7 @@ object BaseBindingAdapter {
      * 加载图片（圆形）
      */
     @JvmStatic
-    @BindingAdapter(value = ["displayCircle"])
+    @BindingAdapter(value = ["display_circle"])
     fun bindingDisplayCircle(view: ImageView, url: String) {
         ImageLoader.instance.displayCircle(view, url)
     }

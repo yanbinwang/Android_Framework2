@@ -10,7 +10,7 @@ import com.example.base.utils.function.view.gone
 import com.example.common.base.page.getEmptyView
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.launch
-import com.example.common.http.repository.loadHttp
+import com.example.common.http.repository.request
 import com.example.common.utils.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
@@ -82,7 +82,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         emptyView?.gone()
     }
 
-    protected fun <T> loadHttp(
+    protected fun <T> request(
         request: suspend CoroutineScope.() -> ApiResponse<T>,      // 请求
         resp: (T?) -> Unit = {},                                   // 响应
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}, // 错误处理
@@ -92,7 +92,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         isClose: Boolean = true                                    // 请求结束前是否关闭dialog
     ) {
         launch {
-            loadHttp(
+            request(
                 { if (isShowDialog) view?.showDialog() },
                 { request() },
                 { resp(it) },
@@ -106,13 +106,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         }
     }
 
-    protected fun loadHttp(
+    protected fun request(
         start: () -> Unit = {},
         requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
         end: (result: MutableList<Any?>?) -> Unit = {}
     ) {
         launch {
-            loadHttp(start, requests, end)
+            request(start, requests, end)
         }
     }
 
