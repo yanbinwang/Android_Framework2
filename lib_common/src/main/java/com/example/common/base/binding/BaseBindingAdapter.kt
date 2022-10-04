@@ -1,6 +1,8 @@
 package com.example.common.base.binding
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -15,10 +17,9 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.base.utils.function.inAnimation
 import com.example.base.utils.function.value.orFalse
 import com.example.base.utils.function.value.toSafeInt
-import com.example.base.utils.function.view.adapter
-import com.example.base.utils.function.view.setMatchText
-import com.example.base.utils.function.view.showInput
+import com.example.base.utils.function.view.*
 import com.example.common.imageloader.ImageLoader
+import com.example.common.imageloader.glide.callback.GlideRequestListener
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.XRecyclerView
 
@@ -114,7 +115,15 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["display"])
     fun bindingDisplay(view: ImageView, url: String) {
-        ImageLoader.instance.display(view, url)
+        ImageLoader.instance.display(view, url, listener = object : GlideRequestListener<Drawable?>() {
+            override fun onStart() {
+                view.disable()
+            }
+
+            override fun onComplete(resource: Drawable?) {
+                view.enable()
+            }
+        })
     }
 
     /**
@@ -123,7 +132,15 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["display_zoom"])
     fun bindingDisplayZoom(view: ImageView, url: String) {
-        ImageLoader.instance.displayZoom(view, url)
+        ImageLoader.instance.displayZoom(view, url, listener = object : GlideRequestListener<Bitmap?>() {
+            override fun onStart() {
+                view.disable()
+            }
+
+            override fun onComplete(resource: Bitmap?) {
+                view.enable()
+            }
+        })
     }
 
     /**
