@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import com.example.base.utils.function.view.gone
 import com.example.common.R
 import com.example.common.constant.Constants
 
@@ -160,12 +161,10 @@ fun View.statusBarHeight() {
             is FrameLayout -> FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
             else -> ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
         }
-    }
+    } else gone()
 }
 
-fun View.statusBarPadding() = run {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
-}
+fun View.statusBarPadding() = run { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0) else gone() }
 
 fun View.statusBarMargin(enable: Boolean = true) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
@@ -177,5 +176,5 @@ fun View.statusBarMargin(enable: Boolean = true) {
         }
         params.topMargin = Constants.STATUS_BAR_HEIGHT
         layoutParams = params
-    }
+    } else gone()
 }
