@@ -153,7 +153,7 @@ class StatusBarBuilder(private val window: Window) {
 /**
  * 空出状态栏高度
  */
-fun View.statusBarHeight(enable: Boolean = true) {
+fun View.statusBarHeight(enable: Boolean = false) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
         layoutParams = when (parent) {
             is LinearLayout -> LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
@@ -164,13 +164,13 @@ fun View.statusBarHeight(enable: Boolean = true) {
     } else gone()
 }
 
-fun View.statusBarPadding(enable: Boolean = true) {
+fun View.statusBarPadding(enable: Boolean = false) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
         setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
     } else gone()
 }
 
-fun View.statusBarMargin(enable: Boolean = true) {
+fun View.statusBarMargin(enable: Boolean = false) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
         val params = when (parent) {
             is LinearLayout -> layoutParams as LinearLayout.LayoutParams
