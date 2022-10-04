@@ -152,6 +152,7 @@ class StatusBarBuilder(private val window: Window) {
 
 /**
  * 空出状态栏高度
+ * 手动添加一个view，高度设为wrap
  */
 fun View.statusBarHeight(enable: Boolean = false) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
@@ -164,6 +165,9 @@ fun View.statusBarHeight(enable: Boolean = false) {
     } else gone()
 }
 
+/**
+ * 根布局root使用
+ */
 fun View.statusBarPadding(enable: Boolean = false) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
         setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
