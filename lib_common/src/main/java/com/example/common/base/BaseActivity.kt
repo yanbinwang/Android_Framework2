@@ -177,14 +177,14 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity {
         val postcard = ARouter.getInstance().build(path)
-        var code: Int? = null
+        var requestCode: Int? = null
         if (params.isNotEmpty()) {
             for (param in params) {
                 val key = param?.first
                 val value = param?.second
                 val cls = value?.javaClass
                 if (key == Extras.REQUEST_CODE) {
-                    code = value as? Int
+                    requestCode = value as? Int
                     continue
                 }
                 when {
@@ -202,10 +202,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                 }
             }
         }
-        if (code == null) {
+        if (requestCode == null) {
             postcard.navigation()
         } else {
-            postcard.navigation(this, code)
+            postcard.navigation(this, requestCode)
         }
         return this
     }
