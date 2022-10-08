@@ -49,7 +49,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["adapter", "span_count", "horizontal_space", "vertical_space", "has_horizontal_edge", "has_vertical_edge"], requireAll = false)
     fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
-        rec.setAdapter(adapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(0), verticalSpace.toSafeInt(0), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
+        rec.setAdapter(adapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
     }
 
     @JvmStatic
@@ -104,10 +104,13 @@ object BaseBindingAdapter {
         textview.setMatchText()
     }
 
+    /**
+     * 设置小数点
+     */
     @JvmStatic
-    @BindingAdapter(value = ["show_input"])
-    fun bindingEditTextShowInput(editText: EditText, showInput: Boolean?) {
-        if(showInput.orFalse) editText.showInput()
+    @BindingAdapter(value = ["decimal_point"])
+    fun bindingEditTextShowInput(editText: EditText, decimalPoint: Int?) {
+        editText.decimalFilter(decimalPoint.toSafeInt())
     }
 
     /**
