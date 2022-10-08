@@ -122,6 +122,11 @@ fun Context.getPrimaryClip(): String {
 fun Context.openWebsite(url: String) = startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 
 /**
+ * 拨打电话
+ */
+fun Context.telPhone(mobile: String) = startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${mobile}")))
+
+/**
  * 进入动画
  */
 fun Context.inAnimation(): AnimationSet {
