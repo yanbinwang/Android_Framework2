@@ -178,6 +178,15 @@ fun EditText?.hideKeyboard() {
     clearFocus()
 }
 
+/**
+ * 清除
+ */
+fun EditText?.clear() {
+    if (this == null) return
+    setText("")
+    clearFocus()
+}
+
 fun EditText?.insertAtFocus(string: String) {
     this ?: return
     insertAtFocusedPosition(this, string)
