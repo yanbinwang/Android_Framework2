@@ -184,7 +184,7 @@ fun EditText?.hideKeyboard() {
 fun EditText?.clear() {
     if (this == null) return
     setText("")
-    clearFocus()
+    hideKeyboard()
 }
 
 fun EditText?.insertAtFocus(string: String) {
