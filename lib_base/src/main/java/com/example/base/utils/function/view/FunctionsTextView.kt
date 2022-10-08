@@ -162,7 +162,7 @@ fun EditText?.showInput() {
     if (this == null) return
     focus()
     openDecor()
-    onDone { hideKeyboard() }
+//    onDone { hideKeyboard() }
 }
 
 fun EditText?.doInput() {
