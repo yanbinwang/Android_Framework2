@@ -109,7 +109,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["decimal_point"])
-    fun bindingEditTextShowInput(editText: EditText, decimalPoint: Int?) {
+    fun bindingEditTextDecimal(editText: EditText, decimalPoint: Int?) {
         editText.decimalFilter(decimalPoint.toSafeInt())
     }
 
