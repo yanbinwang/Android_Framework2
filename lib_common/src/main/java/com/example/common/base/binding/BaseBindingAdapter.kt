@@ -18,6 +18,7 @@ import com.example.base.utils.function.inAnimation
 import com.example.base.utils.function.value.orFalse
 import com.example.base.utils.function.value.toSafeInt
 import com.example.base.utils.function.view.*
+import com.example.common.R
 import com.example.common.imageloader.ImageLoader
 import com.example.common.imageloader.glide.callback.GlideRequestListener
 import com.example.common.widget.XWebView
@@ -113,9 +114,9 @@ object BaseBindingAdapter {
      * 加载图片
      */
     @JvmStatic
-    @BindingAdapter(value = ["display"])
-    fun bindingDisplay(view: ImageView, url: String) {
-        ImageLoader.instance.display(view, url, listener = object : GlideRequestListener<Drawable?>() {
+    @BindingAdapter(value = ["display", "placeholder_id"], requireAll = false)
+    fun bindingDisplay(view: ImageView, url: String, placeholderId: Int?) {
+        ImageLoader.instance.display(view, url, placeholderId.toSafeInt(R.drawable.shape_album_loading), listener = object : GlideRequestListener<Drawable?>() {
             override fun onStart() {
                 view.disable()
             }
