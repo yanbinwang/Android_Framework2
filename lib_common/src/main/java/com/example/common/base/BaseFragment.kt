@@ -15,6 +15,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.base.utils.LogUtil
 import com.example.base.utils.ToastUtil
+import com.example.base.utils.function.value.orFalse
+import com.example.base.utils.function.value.orZero
 import com.example.base.utils.function.view.*
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
@@ -186,21 +188,21 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
                 val value = param?.second
                 val cls = value?.javaClass
                 if (key == Extras.REQUEST_CODE) {
-                    code = value as Int?
+                    code = value as? Int
                     continue
                 }
                 when {
-                    value is Parcelable -> postcard.withParcelable(key, value as Parcelable?)
-                    value is Serializable -> postcard.withSerializable(key, value as Serializable?)
-                    cls == String::class.java -> postcard.withString(key, value as String?)
-                    cls == Int::class.javaPrimitiveType -> postcard.withInt(key, value as Int)
-                    cls == Long::class.javaPrimitiveType -> postcard.withLong(key, value as Long)
-                    cls == Boolean::class.javaPrimitiveType -> postcard.withBoolean(key, value as Boolean)
-                    cls == Float::class.javaPrimitiveType -> postcard.withFloat(key, value as Float)
-                    cls == Double::class.javaPrimitiveType -> postcard.withDouble(key, value as Double)
-                    cls == CharArray::class.java -> postcard.withCharArray(key, value as CharArray?)
-                    cls == Bundle::class.java -> postcard.withBundle(key, value as Bundle?)
-                    else -> throw RuntimeException("不支持参数类型" + ": " + cls?.simpleName)
+                    value is Parcelable -> postcard.withParcelable(key, value)
+                    value is Serializable -> postcard.withSerializable(key, value)
+                    cls == String::class.java -> postcard.withString(key, value as? String)
+                    cls == Int::class.javaPrimitiveType -> postcard.withInt(key, (value as? Int).orZero)
+                    cls == Long::class.javaPrimitiveType -> postcard.withLong(key, (value as? Long).orZero)
+                    cls == Boolean::class.javaPrimitiveType -> postcard.withBoolean(key, (value as? Boolean).orFalse)
+                    cls == Float::class.javaPrimitiveType -> postcard.withFloat(key, (value as? Float).orZero)
+                    cls == Double::class.javaPrimitiveType -> postcard.withDouble(key, (value as? Double).orZero)
+                    cls == CharArray::class.java -> postcard.withCharArray(key, value as? CharArray)
+                    cls == Bundle::class.java -> postcard.withBundle(key, value as? Bundle)
+                    else -> throw RuntimeException("不支持参数类型: ${cls?.simpleName}")
                 }
             }
         }
