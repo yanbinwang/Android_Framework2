@@ -4,13 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.text.TextUtils
 import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.databinding.DataBindingUtil
 import com.example.base.utils.function.inflate
 import com.example.base.utils.function.string
+import com.example.base.utils.function.view.click
 import com.example.base.utils.function.view.color
 import com.example.base.utils.function.view.gone
 import com.example.base.utils.function.view.visible
@@ -43,12 +43,12 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         binding?.root?.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT) //设置LayoutParams
         binding?.root?.setBackgroundColor(color(R.color.grey_f6f8ff))
         //设置监听
-        binding?.tvRefresh?.setOnClickListener {
+        binding?.tvRefresh?.click {
             //进入加载中，并停止刷新动画
             showLoading()
             onRefreshClick?.invoke()
         }
-        binding?.root?.setOnClickListener(null)
+        binding?.root?.click(null)
         showLoading()
     }
 

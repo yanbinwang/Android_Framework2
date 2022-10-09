@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.example.base.utils.function.value.findIndexOf
+import com.example.base.utils.function.value.safeGet
 import com.example.base.utils.function.view.click
 
 /**
@@ -118,17 +119,17 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 如果类型是集合，可以调取该方法实现局部item刷新
      */
+    fun notifyItemChanged(func: ((T) -> Boolean)) {
+        val index = data.findIndexOf(func)
+        if (index != -1) notifyItemChanged(index)
+    }
+
     fun notifyItemChanged(func: ((T) -> Boolean), bean: T) {
         val index = data.findIndexOf(func)
         if (index != -1) {
             data[index] = bean
             notifyItemChanged(index)
         }
-    }
-
-    fun notifyItemChanged(func: ((T) -> Boolean)) {
-        val index = data.findIndexOf(func)
-        if (index != -1) notifyItemChanged(index)
     }
 
     fun notifyItemChanged(func: ((T) -> Boolean), payloads: MutableList<Any>, bean: T) {
@@ -167,6 +168,10 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     fun findBean(func: ((T) -> Boolean)): T? {
         val index = data.findIndexOf(func)
         return if (index != -1) data[index] else null
+    }
+
+    fun findBean(index: Int): T? {
+        return data.safeGet(index)
     }
 
 }

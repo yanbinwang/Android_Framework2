@@ -5,6 +5,7 @@ import android.os.Build
 import android.text.TextUtils
 import android.view.Gravity
 import android.view.WindowManager
+import com.example.base.utils.function.view.click
 import com.example.base.utils.function.view.gone
 import com.example.common.base.BaseDialog
 import com.example.common.databinding.ViewDialogBinding
@@ -35,12 +36,12 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context, anim 
             tvSure.text = positiveText
             tvCancel.text = negativeText
             //点击了取消按钮的回调
-            tvCancel.setOnClickListener {
+            tvCancel.click {
                 dismiss()
                 onCancel?.invoke()
             }
             //点击了确定按钮的回调
-            tvSure.setOnClickListener {
+            tvSure.click {
                 dismiss()
                 onConfirm?.invoke()
             }

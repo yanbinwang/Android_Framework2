@@ -3,6 +3,7 @@ package com.example.common.utils.builder
 import android.annotation.SuppressLint
 import android.app.Activity
 import com.example.base.utils.function.color
+import com.example.base.utils.function.view.click
 import com.example.base.utils.function.view.gone
 import com.example.base.utils.function.view.visible
 import com.example.common.R
@@ -43,7 +44,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         binding.ivLeft.apply {
             visible()
             setImageResource(resId)
-            setOnClickListener { onClick.invoke() }
+            click { onClick.invoke() }
         }
         return this
     }
@@ -53,7 +54,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         binding.tvLeft.apply {
             visible()
             setParam(textStr, color)
-            setOnClickListener { onClick.invoke() }
+            click { onClick.invoke() }
         }
         return this
     }
@@ -63,7 +64,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         binding.ivRight.apply {
             visible()
             setImageResource(resId)
-            setOnClickListener { onClick.invoke() }
+            click { onClick.invoke() }
         }
         return this
     }
@@ -73,7 +74,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         binding.tvRight.apply {
             visible()
             setParam(textStr, color)
-            setOnClickListener { onClick.invoke() }
+            click { onClick.invoke() }
         }
         return this
     }
@@ -86,7 +87,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     fun getDefault(): TitleBuilder {
         binding.ivLeft.apply {
             visible()
-            setOnClickListener { activity.finish() }
+            click { activity.finish() }
         }
         return this
     }
