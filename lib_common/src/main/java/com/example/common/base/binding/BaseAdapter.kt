@@ -43,7 +43,10 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
             field = value
             notifyDataSetChanged()
         }
-    var onItemClick: ((position: Int) -> Unit)? = null
+    /**
+     * 点击回调，返回对象和下标
+     */
+    var onItemClick: ((t: T?, position: Int) -> Unit)? = null
 
     /**
      * 默认是返回对象
@@ -90,9 +93,10 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
 
     private fun onConvert(holder: BaseViewDataBindingHolder, position: Int, payloads: MutableList<Any>? = null) {
         //注意判断当前适配器是否具有头部view
-        holder.itemView.click { onItemClick?.invoke(holder.absoluteAdapterPosition) }
-        convert(holder, when (itemType) {
-                BaseItemType.LIST -> data[position]
+        holder.itemView.click { onItemClick?.invoke(data.safeGet(position), position) }
+        convert(
+            holder, when (itemType) {
+                BaseItemType.LIST -> data.safeGet(position)
                 BaseItemType.MODEL -> t
             }, payloads)
     }
@@ -124,6 +128,9 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
         if (index != -1) notifyItemChanged(index)
     }
 
+    /**
+     * 查找到符合条件的对象，改变为新的对象并刷新对应item
+     */
     fun notifyItemChanged(func: ((T) -> Boolean), bean: T) {
         val index = data.findIndexOf(func)
         if (index != -1) {
@@ -132,8 +139,25 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
         }
     }
 
+    /**
+     * 传入要改变的对象和对象下标，直接刷新对应item
+     */
+    fun notifyItemChanged(bean: T, index: Int) {
+        if (index != -1) {
+            data[index] = bean
+            notifyItemChanged(index)
+        }
+    }
+
     fun notifyItemChanged(func: ((T) -> Boolean), payloads: MutableList<Any>, bean: T) {
         val index = data.findIndexOf(func)
+        if (index != -1) {
+            data[index] = bean
+            notifyItemChanged(index, payloads)
+        }
+    }
+
+    fun notifyItemChanged(bean: T, index: Int, payloads: MutableList<Any>) {
         if (index != -1) {
             data[index] = bean
             notifyItemChanged(index, payloads)
@@ -168,10 +192,6 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     fun findBean(func: ((T) -> Boolean)): T? {
         val index = data.findIndexOf(func)
         return if (index != -1) data[index] else null
-    }
-
-    fun findBean(index: Int): T? {
-        return data.safeGet(index)
     }
 
 }
