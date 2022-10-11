@@ -3,9 +3,10 @@ package com.example.base.utils.function.value
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextUtils
+import android.text.style.BackgroundColorSpan
 import android.text.style.ClickableSpan
+import android.text.style.ForegroundColorSpan
 import android.util.Base64
-import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.util.regex.Pattern
@@ -144,6 +145,24 @@ fun String.checkSecurity(): Int {
  * 批量添加可点击
  */
 fun String?.setClickableSpan(vararg theme: Triple<ClickableSpan, Int, Int>): SpannableString {
+    this ?: orEmpty()
+    return SpannableString(this).apply {
+        for (triple in theme) {
+            setSpan(triple.first, triple.second, triple.third, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+    }
+}
+
+fun String?.setForegroundColorSpan(vararg theme: Triple<ForegroundColorSpan, Int, Int>): SpannableString {
+    this ?: orEmpty()
+    return SpannableString(this).apply {
+        for (triple in theme) {
+            setSpan(triple.first, triple.second, triple.third, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+    }
+}
+
+fun String?.setBackgroundColorSpan(vararg theme: Triple<BackgroundColorSpan, Int, Int>): SpannableString {
     this ?: orEmpty()
     return SpannableString(this).apply {
         for (triple in theme) {
