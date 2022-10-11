@@ -21,6 +21,8 @@ import com.example.base.utils.function.view.*
 import com.example.common.R
 import com.example.common.imageloader.ImageLoader
 import com.example.common.imageloader.glide.callback.GlideRequestListener
+import com.example.common.utils.setParam
+import com.example.common.utils.setSpan
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.XRecyclerView
 
@@ -102,6 +104,25 @@ object BaseBindingAdapter {
     fun bindingTextViewMatch(textview: TextView, text: String?) {
         textview.text = text.orEmpty()
         textview.setMatchText()
+    }
+
+    /**
+     * 搜索高亮文本
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["text", "key_text", "is_match_text"], requireAll = false)
+    fun bindingTextViewKey(textview: TextView, text: String?, keyText: String?, isMatchText: Boolean?) {
+        textview.setSpan(text.orEmpty(), keyText.orEmpty(), R.color.blue_3d81f2)
+        if(isMatchText.orFalse) textview.setMatchText()
+    }
+
+    /**
+     * 设置某个文本颜色
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["text", "text_color"], requireAll = false)
+    fun bindingTextViewParam(textview: TextView, text: String?, colorRes: Int?) {
+        textview.setParam(text.orEmpty(), colorRes.toSafeInt(R.color.grey_333333))
     }
 
     /**
