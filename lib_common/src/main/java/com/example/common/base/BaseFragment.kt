@@ -47,7 +47,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         get() {
             return activity ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity()
         }
-    private var baseViewModel: BaseViewModel? = null//数据模型
+    private lateinit var baseViewModel: BaseViewModel//数据模型
     private val loadingDialog by lazy { LoadingDialog(mContext!!) }//刷新球控件，相当于加载动画\
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
     private val job = SupervisorJob()
@@ -55,11 +55,9 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     protected fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-        if (null == baseViewModel) {
-            baseViewModel = ViewModelProvider(this)[vmClass]
-            baseViewModel?.initialize(mActivity, this)
-            lifecycle.addObserver(baseViewModel!!)
-        }
+        baseViewModel = ViewModelProvider(this)[vmClass]
+        baseViewModel.initialize(mActivity, this)
+        lifecycle.addObserver(baseViewModel)
         return baseViewModel as VM
     }
 
