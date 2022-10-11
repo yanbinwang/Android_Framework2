@@ -11,7 +11,6 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import com.example.base.utils.function.view.gone
 import com.example.common.R
 import com.example.common.constant.Constants
 
@@ -162,7 +161,7 @@ fun View.statusBarHeight(enable: Boolean = false) {
             is FrameLayout -> FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
             else -> ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
         }
-    } else gone()
+    }
 }
 
 /**
@@ -171,7 +170,7 @@ fun View.statusBarHeight(enable: Boolean = false) {
 fun View.statusBarPadding(enable: Boolean = false) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
         setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
-    } else gone()
+    }
 }
 
 fun View.statusBarMargin(enable: Boolean = false) {
@@ -184,5 +183,5 @@ fun View.statusBarMargin(enable: Boolean = false) {
         }
         params.topMargin = Constants.STATUS_BAR_HEIGHT
         layoutParams = params
-    } else gone()
+    }
 }
