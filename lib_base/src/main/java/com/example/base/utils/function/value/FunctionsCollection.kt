@@ -45,7 +45,8 @@ fun <T : MutableList<K>, K> T?.safeSet(position: Int, value: K) {
 /**
  * 安全获取制定长度的集合
  */
-fun <T> List<T>.safeSubList(from: Int, to: Int): List<T> {
+fun <T> List<T>?.safeSubList(from: Int, to: Int): List<T> {
+    if (this == null) return emptyList()
     if (from !in indices) return emptyList()
     if (to < from) return emptyList()
     return try {

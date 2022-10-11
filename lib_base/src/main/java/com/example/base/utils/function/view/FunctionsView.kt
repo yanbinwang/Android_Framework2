@@ -302,7 +302,8 @@ fun View?.closeDecor() {
  * 震动
  */
 @SuppressLint("MissingPermission")
-fun View.vibrate(milliseconds: Long) {
+fun View?.vibrate(milliseconds: Long) {
+    if (this == null) return
     val vibrator = (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
         vibrator.vibrate(milliseconds)

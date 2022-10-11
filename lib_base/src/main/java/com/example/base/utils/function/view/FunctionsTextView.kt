@@ -21,7 +21,8 @@ import com.example.base.utils.function.view.ExtraTextViewFunctions.insertAtFocus
 /**
  * 文案添加点击事件（单一）
  */
-fun TextView.setClickableSpan(textStr: String, keyword: String, clickableSpan: ClickableSpan) {
+fun TextView?.setClickableSpan(textStr: String, keyword: String, clickableSpan: ClickableSpan) {
+    if (this == null) return
     val spannable = SpannableString(textStr)
     val index = textStr.indexOf(keyword)
     text = if (index != -1) {
@@ -34,7 +35,8 @@ fun TextView.setClickableSpan(textStr: String, keyword: String, clickableSpan: C
 /**
  * 设置下划线，并抗锯齿
  */
-fun TextView.setUnderline() {
+fun TextView?.setUnderline() {
+    if (this == null) return
     paint.flags = Paint.UNDERLINE_TEXT_FLAG
     paint.isAntiAlias = true
 }
@@ -42,7 +44,8 @@ fun TextView.setUnderline() {
 /**
  * 设置中等加粗
  */
-fun TextView.setMediumBold() {
+fun TextView?.setMediumBold() {
+    if (this == null) return
     paint.strokeWidth = 1.0f
     paint.style = Paint.Style.FILL_AND_STROKE
 }
@@ -50,7 +53,8 @@ fun TextView.setMediumBold() {
 /**
  * 设置撑满的文本内容
  */
-fun TextView.setMatchText() {
+fun TextView?.setMatchText() {
+    if (this == null) return
     post {
         val rawText = text.toString()//原始文本
         val tvPaint = paint//paint包含字体等信息
@@ -89,7 +93,8 @@ fun TextView.setMatchText() {
 /**
  * EditText输入密码是否可见(显隐)
  */
-fun EditText.inputTransformation(): Boolean {
+fun EditText?.inputTransformation(): Boolean {
+    if (this == null) return false
     var display = false
     try {
         if (transformationMethod == HideReturnsTransformationMethod.getInstance()) {
@@ -109,7 +114,8 @@ fun EditText.inputTransformation(): Boolean {
 /**
  * EditText输入金额小数限制
  */
-fun EditText.decimalFilter(decimalPoint: Int = 2) {
+fun EditText?.decimalFilter(decimalPoint: Int = 2) {
+    if (this == null) return
     val decimalInputFilter = DecimalInputFilter()
     decimalInputFilter.decimalPoint = decimalPoint
     filters = arrayOf<InputFilter>(decimalInputFilter)
@@ -118,7 +124,8 @@ fun EditText.decimalFilter(decimalPoint: Int = 2) {
 /**
  * EditText不允许输入空格
  */
-fun EditText.inhibitInputSpace() {
+fun EditText?.inhibitInputSpace() {
+    if (this == null) return
     filters = arrayOf(object : InputFilter {
         override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
             val result = source ?: ""
@@ -158,13 +165,18 @@ fun EditText?.onDone(listener: () -> Unit) {
     }
 }
 
+/**
+ * 弹出软键盘并获取焦点
+ */
 fun EditText?.showInput() {
     if (this == null) return
     focus()
     openDecor()
-//    onDone { hideKeyboard() }
 }
 
+/**
+ * 弹出软键盘
+ */
 fun EditText?.doInput() {
     if (this == null) return
     requestFocus()
@@ -172,6 +184,9 @@ fun EditText?.doInput() {
     inputManager.showSoftInput(this, 0)
 }
 
+/**
+ * 隐藏软键盘
+ */
 fun EditText?.hideKeyboard() {
     if (this == null) return
     hideSoftKeyboard(context, this)
@@ -187,20 +202,17 @@ fun EditText?.clear() {
     hideKeyboard()
 }
 
+/**
+ * 指定光标插入字符串
+ */
 fun EditText?.insertAtFocus(string: String) {
     this ?: return
     insertAtFocusedPosition(this, string)
 }
 
 /**
- * 简易Edittext监听
+ * 安全选中某个光标
  */
-fun OnMultiTextWatcher.textWatcher(vararg views: EditText) {
-    for (view in views) {
-        view.addTextChangedListener(this)
-    }
-}
-
 fun EditText?.setSafeSelection(start: Int, stop: Int? = null) {
     this ?: return
     if (start !in 0..text.length) return
@@ -211,6 +223,15 @@ fun EditText?.setSafeSelection(start: Int, stop: Int? = null) {
             setSelection(start, stop)
         }
     } catch (_: Exception) {
+    }
+}
+
+/**
+ * 简易Edittext监听
+ */
+fun OnMultiTextWatcher.textWatcher(vararg views: EditText) {
+    for (view in views) {
+        view.addTextChangedListener(this)
     }
 }
 
