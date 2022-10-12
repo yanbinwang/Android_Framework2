@@ -11,6 +11,7 @@ import android.text.style.ForegroundColorSpan
 import android.widget.*
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.example.base.utils.function.color
@@ -37,6 +38,11 @@ fun color(color: String?) = Color.parseColor(color ?: "#ffffff")
  */
 @ColorInt
 fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance!!.applicationContext, res)
+
+/**
+ * 获取图片
+ */
+fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance!!.applicationContext, res)
 
 /**
  * 获取对应大小的文字
@@ -109,9 +115,9 @@ fun Any?.toJsonString(): String {
 /**
  *  backgroundColorSpan = new BackgroundImageSpan(R.drawable.bg_answer_wrong, getResources().getDrawable(R.drawable.bg_answer_wrong));
  */
-fun String?.setBackgroundImageSpan(theme: Triple<BackgroundImageSpan, Int, Int>): SpannableString {
+fun String?.setBackgroundImageSpan(theme: BackgroundImageSpan, start:Int, end:Int): SpannableString {
     this ?: orEmpty()
-    return SpannableString(this).apply { setSpan(theme.first, theme.second, theme.third, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) }
+    return SpannableString(this).apply { setSpan(theme, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) }
 }
 
 
