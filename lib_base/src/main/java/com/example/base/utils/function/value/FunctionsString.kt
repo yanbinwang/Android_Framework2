@@ -143,6 +143,9 @@ fun String.checkSecurity(): Int {
 
 /**
  * 批量添加可点击
+ * Spanned.SPAN_INCLUSIVE_EXCLUSIVE(前面包括，后面不包括)、
+ * Spanned.SPAN_EXCLUSIVE_INCLUSIVE(前面不包括，后面包括)、
+ * Spanned.SPAN_INCLUSIVE_INCLUSIVE(前后都包括)
  */
 fun String?.setClickableSpan(vararg theme: Triple<ClickableSpan, Int, Int>): SpannableString {
     this ?: orEmpty()
