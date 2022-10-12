@@ -21,7 +21,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.example.base.utils.function.string
 import com.example.base.utils.function.value.orZero
-import java.util.*
 
 //------------------------------------view扩展函数类------------------------------------
 /**
@@ -279,15 +278,9 @@ fun <T : View> T?.doOnceAfterLayout(listener: (T) -> Unit) {
  * 开启软键盘
  */
 fun View?.openDecor() {
-    closeDecor()
-    val view = this
-    Timer().schedule(object : TimerTask() {
-        override fun run() {
-            (view?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
-        }
-    }, 200)
+    focus()
     val inputMethodManager = this?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
-    inputMethodManager.showSoftInput(this, 2)
+    inputMethodManager.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
 }
 
 /**
