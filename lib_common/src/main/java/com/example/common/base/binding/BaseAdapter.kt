@@ -133,10 +133,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
      */
     fun notifyItemChanged(func: ((T) -> Boolean), bean: T) {
         val index = data.findIndexOf(func)
-        if (index != -1) {
-            data[index] = bean
-            notifyItemChanged(index)
-        }
+        if (index != -1) notifyItemChanged(bean, index)
     }
 
     /**
@@ -151,10 +148,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
 
     fun notifyItemChanged(func: ((T) -> Boolean), payloads: MutableList<Any>, bean: T) {
         val index = data.findIndexOf(func)
-        if (index != -1) {
-            data[index] = bean
-            notifyItemChanged(index, payloads)
-        }
+        if (index != -1) notifyItemChanged(bean, index, payloads)
     }
 
     fun notifyItemChanged(bean: T, index: Int, payloads: MutableList<Any>) {
