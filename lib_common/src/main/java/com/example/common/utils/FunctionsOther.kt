@@ -3,6 +3,7 @@ package com.example.common.utils
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextUtils
@@ -104,6 +105,15 @@ fun Any?.toJsonString(): String {
     if (this == null) return "null"
     return Gson().toJson(this)
 }
+
+/**
+ *  backgroundColorSpan = new BackgroundImageSpan(R.drawable.bg_answer_wrong, getResources().getDrawable(R.drawable.bg_answer_wrong));
+ */
+fun String?.setBackgroundImageSpan(theme: Triple<BackgroundImageSpan, Int, Int>): SpannableString {
+    this ?: orEmpty()
+    return SpannableString(this).apply { setSpan(theme.first, theme.second, theme.third, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) }
+}
+
 
 /**
  * 设置覆盖色
