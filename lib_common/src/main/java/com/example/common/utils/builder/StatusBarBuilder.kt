@@ -55,7 +55,7 @@ class StatusBarBuilder(private val window: Window) {
      * android5.0版本部分机型依旧不响应系统代码
      * 故而检测到这个版本的机型，直接全局赋予状态栏纯黑色，白电池样式
      */
-    fun transparent(light: Boolean) {
+    fun transparent(light: Boolean = false) {
         if (statusBarCheckVersion()) {
             if (light) transparentLightStatusBar() else transparentStatusBar()
         } else {
