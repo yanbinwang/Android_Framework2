@@ -9,81 +9,111 @@ import com.example.base.utils.function.view.visible
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.setParam
+import com.example.common.utils.tint
 
 @SuppressLint("InflateParams")
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
     private val statusBarBuilder by lazy { StatusBarBuilder(activity.window) }
 
+    /**
+     * 默认二级页面标题配置
+     * title->标题
+     * titleColor->标题颜色
+     * bgColor->背景色（状态栏同步变为该颜色）
+     * light->黑白电池
+     * shade->标题底部是否带阴影
+     */
     @JvmOverloads
-    fun setTitle(titleStr: String = "", txtColor: Int = R.color.grey_333333, bgColor: Int = R.color.white, light: Boolean = true, shade: Boolean = false): TitleBuilder {
+    fun setTitle(title: String = "", titleColor: Int = R.color.grey_333333, bgColor: Int = R.color.white, light: Boolean = true, shade: Boolean = false): TitleBuilder {
         statusBarBuilder.apply {
             statusBarLightMode(light)
             statusBarColor(activity.color(bgColor))
         }
-        binding.rlContainer.setBackgroundColor(activity.color(bgColor))
-        binding.tvTitle.setParam(titleStr, txtColor)
-        binding.vShade.apply { if (shade) visible() else gone() }
+        binding.clContainer.setBackgroundColor(activity.color(bgColor))
+        binding.tvTitle.setParam(title, titleColor)
+        binding.viewShade.apply { if (shade) visible() else gone() }
         return this
     }
 
     /**
      * 继承baseactivity，用include把布局引入后调用
      */
-    fun setTransparentTitle(titleStr: String = "", txtColor: Int = R.color.grey_333333, light: Boolean = true, enable: Boolean = false): TitleBuilder {
-        statusBarBuilder.transparent(light, enable)
-        binding.rlContainer.apply {
-            setBackgroundColor(0)
+    fun setTransparentTitle(title: String = "", titleColor: Int = R.color.grey_333333, light: Boolean = true): TitleBuilder {
+        statusBarBuilder.transparent(light)
+        binding.clContainer.apply {
             statusBarMargin()
+            setBackgroundColor(0)
         }
-        binding.tvTitle.setParam(titleStr, txtColor)
+        binding.tvTitle.setParam(title, titleColor)
         return this
     }
 
+    /**
+     * 设置左/右侧按钮图片资源
+     * resId->图片
+     * tintColor->图片覆盖色（存在相同图片颜色不同的情况，直接传覆盖色即可）
+     * onClick->点击事件
+     */
     @JvmOverloads
-    fun setLeftResource(resId: Int, onClick: () -> Unit = {}): TitleBuilder {
+    fun setLeftResource(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}): TitleBuilder {
         binding.ivLeft.apply {
             visible()
             setImageResource(resId)
+            tint(tintColor)
             click { onClick.invoke() }
         }
         return this
     }
 
     @JvmOverloads
-    fun setLeftText(textStr: String, color: Int = R.color.grey_333333, onClick: () -> Unit = {}): TitleBuilder {
-        binding.tvLeft.apply {
-            visible()
-            setParam(textStr, color)
-            click { onClick.invoke() }
-        }
-        return this
-    }
-
-    @JvmOverloads
-    fun setRightResource(resId: Int, onClick: () -> Unit = {}): TitleBuilder {
+    fun setRightResource(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}): TitleBuilder {
         binding.ivRight.apply {
             visible()
             setImageResource(resId)
+            tint(tintColor)
+            click { onClick.invoke() }
+        }
+        return this
+    }
+
+    /**
+     * 设置左/右侧文字
+     * label->文案
+     * labelColor->文案颜色
+     * onClick->点击事件
+     */
+    @JvmOverloads
+    fun setLeftText(label: String, labelColor: Int = R.color.grey_333333, onClick: () -> Unit = {}): TitleBuilder {
+        binding.tvLeft.apply {
+            visible()
+            setParam(label, labelColor)
             click { onClick.invoke() }
         }
         return this
     }
 
     @JvmOverloads
-    fun setRightText(textStr: String, color: Int = R.color.grey_333333, onClick: () -> Unit = {}): TitleBuilder {
+    fun setRightText(label: String, labelColor: Int = R.color.grey_333333, onClick: () -> Unit = {}): TitleBuilder {
         binding.tvRight.apply {
             visible()
-            setParam(textStr, color)
+            setParam(label, labelColor)
             click { onClick.invoke() }
         }
         return this
     }
 
+    /**
+     * 隐藏左侧返回
+     */
     fun hideBack(): TitleBuilder {
         binding.ivLeft.gone()
+        binding.tvLeft.gone()
         return this
     }
 
+    /**
+     * 默认配置返回样式
+     */
     fun getDefault(): TitleBuilder {
         binding.ivLeft.apply {
             visible()

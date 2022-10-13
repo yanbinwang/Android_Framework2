@@ -3,6 +3,7 @@ package com.example.base.utils.function.view
 import android.app.Activity
 import android.content.Context
 import android.graphics.Paint
+import android.graphics.Typeface
 import android.text.*
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.LinkMovementMethod
@@ -43,12 +44,36 @@ fun TextView?.setUnderline() {
 }
 
 /**
+ * 下划线
+ */
+fun TextView?.underLine(haveLine: Boolean) {
+    if (this == null) return
+    paintFlags = if (haveLine) {
+        paintFlags or Paint.UNDERLINE_TEXT_FLAG
+    } else {
+        paintFlags xor Paint.UNDERLINE_TEXT_FLAG
+    }
+}
+
+/**
  * 设置中等加粗
  */
 fun TextView?.setMediumBold() {
     if (this == null) return
     paint.strokeWidth = 1.0f
     paint.style = Paint.Style.FILL_AND_STROKE
+}
+
+/**
+ * 加粗
+ */
+fun TextView?.bold(isBold: Boolean) {
+    if (this == null) return
+    typeface = if (isBold) {
+        Typeface.defaultFromStyle(Typeface.BOLD)
+    } else {
+        Typeface.defaultFromStyle(Typeface.NORMAL)
+    }
 }
 
 /**

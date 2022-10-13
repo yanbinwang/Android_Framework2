@@ -10,18 +10,25 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
-import com.example.common.R
 import com.example.common.constant.Constants
 
 /**
  * author: wyb
  * date: 2017/9/9.
- * 导航栏工具类（）
- * 从5.0+开始兼容色值
+ * 导航栏工具类
+ * 从5.0+开始兼容色值，默认样式配置为纯黑色
  */
 @SuppressLint("PrivateApi", "InlinedApi")
 class StatusBarBuilder(private val window: Window) {
+
+    companion object {
+
+        /**
+         * 全局检测
+         */
+        fun statusBarCheckVersion() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+
+    }
 
     /**
      * 全屏
@@ -40,7 +47,21 @@ class StatusBarBuilder(private val window: Window) {
     /**
      * 隐藏导航栏
      */
-    fun hideStatusBar() = window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+    fun hideStatusBar() =  window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+
+    /**
+     * 设置样式兼容（透明样式）
+     * light->黑白电池
+     * android5.0版本部分机型依旧不响应系统代码
+     * 故而检测到这个版本的机型，直接全局赋予状态栏纯黑色，白电池样式
+     */
+    fun transparent(light: Boolean) {
+        if (statusBarCheckVersion()) {
+            if (light) transparentLightStatusBar() else transparentStatusBar()
+        } else {
+            statusBarColor(Color.BLACK)
+        }
+    }
 
     /**
      * 透明状态栏(白电池)
@@ -71,23 +92,14 @@ class StatusBarBuilder(private val window: Window) {
     }
 
     /**
-     * 设置样式兼容（透明样式）
-     */
-    fun transparent(light: Boolean, enable: Boolean = false) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
-            if (light) transparentLightStatusBar() else transparentStatusBar()
-        } else {
-            statusBarColor(ContextCompat.getColor(window.context, R.color.black))
-        }
-    }
-
-    /**
      * 设置状态栏颜色
+     * 检测到低版本直接黑色
      */
-    fun statusBarColor(colorId: Int) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) window.statusBarColor = colorId else window.statusBarColor = Color.BLACK
+    fun statusBarColor(colorId: Int) = if (statusBarCheckVersion()) window.statusBarColor = colorId else window.statusBarColor = Color.BLACK
 
     /**
-     * 状态栏黑色UI(只处理安卓6.0+的系统)
+     * 状态栏黑/白色UI(只处理安卓6.0+的系统)
+     * light->黑白电池
      */
     fun statusBarLightMode(light: Boolean) {
         //如果大于7.0的系统，国内已经兼容谷歌黑电池的架构
@@ -95,7 +107,7 @@ class StatusBarBuilder(private val window: Window) {
             normalStatusBarLightMode(light)
         } else {
             //如果是6.0的系统，小米魅族有不同的处理
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (statusBarCheckVersion()) {
                 normalStatusBarLightMode(light)
                 miuiStatusBarLightMode(light)
                 flymeStatusBarLightMode(light)
@@ -124,7 +136,7 @@ class StatusBarBuilder(private val window: Window) {
             val darkModeFlag = field.getInt(layoutParams)
             val extraFlagField = clazz.getMethod("setExtraFlags", Int::class.javaPrimitiveType, Int::class.javaPrimitiveType)
             extraFlagField.invoke(window, if (light) darkModeFlag else 0, darkModeFlag)  //状态栏透明且黑色字体/清除黑色字体
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         }
     }
 
@@ -143,18 +155,18 @@ class StatusBarBuilder(private val window: Window) {
             value = if (light) value or bit else value and bit.inv()
             meizuFlags.setInt(lp, value)
             window.attributes = lp
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         }
     }
 
 }
 
 /**
- * 空出状态栏高度
+ * 设置view高度为导航栏高度
  * 手动添加一个view，高度设为wrap
  */
-fun View.statusBarHeight(enable: Boolean = false) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
+fun View.statusBarHeight() {
+    if (StatusBarBuilder.statusBarCheckVersion()) {
         layoutParams = when (parent) {
             is LinearLayout -> LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
             is RelativeLayout -> RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
@@ -165,16 +177,17 @@ fun View.statusBarHeight(enable: Boolean = false) {
 }
 
 /**
- * 根布局root使用
+ * 设置view底部所有子控件居下导航栏高度
  */
-fun View.statusBarPadding(enable: Boolean = false) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
-        setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
-    }
+fun View.statusBarPadding() {
+    if (StatusBarBuilder.statusBarCheckVersion()) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
 }
 
-fun View.statusBarMargin(enable: Boolean = false) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || enable) {
+/**
+ * 设置view整体向上导航栏高度
+ */
+fun View.statusBarMargin() {
+    if (StatusBarBuilder.statusBarCheckVersion()) {
         val params = when (parent) {
             is LinearLayout -> layoutParams as LinearLayout.LayoutParams
             is RelativeLayout -> layoutParams as RelativeLayout.LayoutParams
