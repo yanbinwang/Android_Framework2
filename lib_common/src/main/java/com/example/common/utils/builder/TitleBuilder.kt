@@ -59,7 +59,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         binding.ivLeft.apply {
             visible()
             setImageResource(resId)
-            tint(tintColor)
+            if (0 != tintColor) tint(tintColor)
             click { onClick.invoke() }
         }
         return this
@@ -70,7 +70,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         binding.ivRight.apply {
             visible()
             setImageResource(resId)
-            tint(tintColor)
+            if (0 != tintColor) tint(tintColor)
             click { onClick.invoke() }
         }
         return this
