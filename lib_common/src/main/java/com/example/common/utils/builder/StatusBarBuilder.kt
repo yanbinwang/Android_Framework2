@@ -10,6 +10,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.Guideline
 import com.example.common.constant.Constants
 
 /**
@@ -200,4 +201,11 @@ fun View.statusBarMargin() {
         params.topMargin = Constants.STATUS_BAR_HEIGHT
         layoutParams = params
     }
+}
+
+/**
+ * 约束线距顶间距
+ */
+fun Guideline.statusBarMargin() {
+    setGuidelineBegin(Constants.STATUS_BAR_HEIGHT)
 }
