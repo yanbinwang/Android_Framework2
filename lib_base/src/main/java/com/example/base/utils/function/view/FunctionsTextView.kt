@@ -11,6 +11,7 @@ import android.text.style.ClickableSpan
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import com.example.base.utils.DecimalInputFilter
@@ -224,6 +225,14 @@ fun EditText?.setSafeSelection(start: Int, stop: Int? = null) {
         }
     } catch (_: Exception) {
     }
+}
+
+/**
+ * 单选框状态改变
+ */
+fun CheckBox?.checked() {
+    this ?: return
+    isChecked = !isChecked
 }
 
 /**

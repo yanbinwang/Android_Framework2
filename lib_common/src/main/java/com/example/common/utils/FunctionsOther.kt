@@ -176,14 +176,6 @@ fun TextView?.setParam(textStr: String = "", colorRes: Int = R.color.blue_3d81f2
 }
 
 /**
- * 单选框状态改变
- */
-fun CheckBox?.checked() {
-    this ?: return
-    isChecked = !isChecked
-}
-
-/**
  * 联动滑动时某个控件显影，传入对应控件的高度（dp）
  */
 fun NestedScrollView?.addAlphaListener(menuHeight: Int, onAlphaChange: (alpha: Float) -> Unit?) {
