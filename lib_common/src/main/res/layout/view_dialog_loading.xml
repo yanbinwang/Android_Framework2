@@ -2,31 +2,31 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:wheel="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
         <com.example.common.widget.ProgressWheel
             android:id="@+id/progress"
             android:layout_width="160mm"
             android:layout_height="160mm"
-            android:paddingTop="40mm"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="40mm"
             wheel:matProg_barColor="@color/blue_2e60df"
             wheel:matProg_progressIndeterminate="true" />
 
         <TextView
             android:id="@+id/tv_msg"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10mm"
+            android:layout_marginTop="210mm"
             android:layout_marginBottom="20mm"
+            android:gravity="center"
             android:paddingHorizontal="50mm"
             android:text="@string/label_loading"
             android:textColor="@color/blue_2e60df"
             android:textSize="26mm" />
 
-    </LinearLayout>
+    </FrameLayout>
 
 </layout>
