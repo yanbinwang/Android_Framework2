@@ -14,6 +14,7 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.widget.NestedScrollView
 import com.example.base.utils.function.color
 import com.example.base.utils.function.dip2px
 import com.example.base.utils.function.px2dip
@@ -115,11 +116,10 @@ fun Any?.toJsonString(): String {
 /**
  *  backgroundColorSpan = new BackgroundImageSpan(R.drawable.bg_answer_wrong, getResources().getDrawable(R.drawable.bg_answer_wrong));
  */
-fun String?.setBackgroundImageSpan(theme: BackgroundImageSpan, start:Int, end:Int): SpannableString {
+fun String?.setBackgroundImageSpan(theme: BackgroundImageSpan, start: Int, end: Int): SpannableString {
     this ?: orEmpty()
     return SpannableString(this).apply { setSpan(theme, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) }
 }
-
 
 /**
  * 设置覆盖色
@@ -154,7 +154,7 @@ fun ImageView?.setScreenWidth() {
  * 设置textview内容当中某一段的颜色
  */
 @JvmOverloads
-fun TextView?.setSpan(textStr: String, keyword: String, colorRes: Int = R.color.blue_0d86ff) {
+fun TextView?.setSpan(textStr: String, keyword: String, colorRes: Int = R.color.blue_3d81f2) {
     this ?: return
     val spannable = SpannableString(textStr)
     val index = textStr.indexOf(keyword)
@@ -168,7 +168,7 @@ fun TextView?.setSpan(textStr: String, keyword: String, colorRes: Int = R.color.
  * 设置显示内容和对应文本颜色
  */
 @JvmOverloads
-fun TextView?.setParam(textStr: String = "", colorRes: Int = R.color.blue_0d86ff, resId: Int = 0) {
+fun TextView?.setParam(textStr: String = "", colorRes: Int = R.color.blue_3d81f2, resId: Int = 0) {
     this ?: return
     if (!TextUtils.isEmpty(textStr)) text = textStr
     setTextColor(context.color(colorRes))
@@ -181,4 +181,14 @@ fun TextView?.setParam(textStr: String = "", colorRes: Int = R.color.blue_0d86ff
 fun CheckBox?.checked() {
     this ?: return
     isChecked = !isChecked
+}
+
+/**
+ * 联动滑动时某个控件显影，传入对应控件的高度（dp）
+ */
+fun NestedScrollView?.addAlphaListener(menuHeight: Int, onAlphaChange: (alpha: Float) -> Unit?) {
+    this ?: return
+    setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
+        onAlphaChange.invoke(if (scrollY <= menuHeight.dp / 2f) 0 + scrollY / (menuHeight.dp / 4f) else 1f)
+    })
 }
