@@ -166,8 +166,8 @@ class StatusBarBuilder(private val window: Window) {
  * 手动添加一个view，高度设为wrap
  * enable->忽略版本限制
  */
-fun View.statusBarHeight(enable: Boolean = false) {
-    if (StatusBarBuilder.statusBarCheckVersion() || enable) {
+fun View.statusBarHeight() {
+    if (StatusBarBuilder.statusBarCheckVersion()) {
         layoutParams = when (parent) {
             is LinearLayout -> LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
             is RelativeLayout -> RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
@@ -181,16 +181,16 @@ fun View.statusBarHeight(enable: Boolean = false) {
  * 设置view底部所有子控件居下导航栏高度
  * enable->忽略版本限制
  */
-fun View.statusBarPadding(enable: Boolean = false) {
-    if (StatusBarBuilder.statusBarCheckVersion() || enable) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
+fun View.statusBarPadding() {
+    if (StatusBarBuilder.statusBarCheckVersion()) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
 }
 
 /**
  * 设置view整体向上导航栏高度
  * enable->忽略版本限制
  */
-fun View.statusBarMargin(enable: Boolean = false) {
-    if (StatusBarBuilder.statusBarCheckVersion() || enable) {
+fun View.statusBarMargin() {
+    if (StatusBarBuilder.statusBarCheckVersion()) {
         val params = when (parent) {
             is LinearLayout -> layoutParams as LinearLayout.LayoutParams
             is RelativeLayout -> layoutParams as RelativeLayout.LayoutParams
