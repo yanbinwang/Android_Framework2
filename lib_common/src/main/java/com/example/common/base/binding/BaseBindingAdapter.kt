@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.widget.Guideline
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.recyclerview.widget.ConcatAdapter
@@ -19,6 +20,7 @@ import com.example.base.utils.function.value.orFalse
 import com.example.base.utils.function.value.toSafeInt
 import com.example.base.utils.function.view.*
 import com.example.common.R
+import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
 import com.example.common.imageloader.glide.callback.GlideRequestListener
 import com.example.common.utils.setParam
@@ -36,6 +38,15 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
  * 如果requireAll设置为false，则未通过编程设置的所有内容都将为null，false（对于布尔值）或0（对于数字）
  */
 object BaseBindingAdapter {
+
+    /**
+     * 约束布局等高线设置
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["statusBar_margin"])
+    fun bindingGuidelineStatusBar(guideline: Guideline, statusBarMargin: Boolean?) {
+        if(statusBarMargin.orFalse) guideline.setGuidelineBegin(Constants.STATUS_BAR_HEIGHT)
+    }
 
     @JvmStatic
     @BindingAdapter(value = ["concat_adapter"])
