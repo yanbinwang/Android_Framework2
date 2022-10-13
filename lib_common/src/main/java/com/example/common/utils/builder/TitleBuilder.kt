@@ -40,10 +40,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      */
     fun setTransparentTitle(title: String = "", titleColor: Int = R.color.grey_333333, light: Boolean = true): TitleBuilder {
         statusBarBuilder.transparent(light)
-        binding.clContainer.apply {
-            statusBarMargin()
-            setBackgroundColor(0)
-        }
+        binding.clContainer.setBackgroundColor(0)
         binding.tvTitle.setParam(title, titleColor)
         return this
     }
