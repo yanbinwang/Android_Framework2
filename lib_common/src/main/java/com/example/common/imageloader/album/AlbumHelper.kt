@@ -16,7 +16,7 @@ import com.example.common.constant.RequestCode
  */
 class AlbumHelper(private val activity: Activity) {
     private val color = activity.color(R.color.grey_333333)
-    private var onAlbum: ((albumPath: String?) -> Unit)? = null//单选回调监听
+    var onAlbum: ((albumPath: String?) -> Unit)? = null//单选回调监听
 
     /**
      * 跳转至相机-拍照
@@ -164,11 +164,6 @@ class AlbumHelper(private val activity: Activity) {
                 //创建控制面板配置
                 .requestCode(RequestCode.PHOTO_REQUEST).start()
         }
-    }
-
-    fun setAlbumListener(onAlbum: ((albumPath: String?) -> Unit)): AlbumHelper {
-        this.onAlbum = onAlbum
-        return this
     }
 
 }
