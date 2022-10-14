@@ -3,12 +3,15 @@ package com.example.common.base
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
+import android.os.Looper
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import androidx.databinding.ViewDataBinding
+import com.example.base.utils.LogUtil
 import com.example.base.utils.function.inAnimation
 import com.example.base.utils.function.outAnimation
+import com.example.base.utils.function.value.orFalse
 import com.example.common.R
 import java.lang.reflect.ParameterizedType
 
@@ -30,18 +33,36 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, themeResId: I
             }
             setContentView(binding.root, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
             if (anim) {
-                val mAnimIn = context.inAnimation()
-                val mAnimOut = context.outAnimation()
                 //当布局show出来的时候执行开始动画
-                setOnShowListener { binding.root.startAnimation(mAnimIn) }
+                setOnShowListener { binding.root.startAnimation(context.inAnimation()) }
                 //当布局销毁时执行结束动画
-                setOnDismissListener { binding.root.startAnimation(mAnimOut) }
+                setOnDismissListener { binding.root.startAnimation(context.outAnimation()) }
             }
             if (close) {
                 setOnKeyListener { _: DialogInterface?, _: Int, _: KeyEvent? -> true }
                 setCancelable(true)
             }
         }
+    }
+
+    override fun show() {
+        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
+        if (ownerActivity?.isFinishing.orFalse) return
+        if (ownerActivity?.isDestroyed.orFalse) return
+        if (isShowing) return
+        try {
+            super.show()
+        } catch (e: Exception) {
+            LogUtil.e(e.toString())
+        }
+    }
+
+    override fun dismiss() {
+        if (!isShowing) return
+        if (ownerActivity?.isFinishing.orFalse) return
+        if (ownerActivity?.isDestroyed.orFalse) return
+        if (window?.windowManager == null) return
+        super.dismiss()
     }
 
 }

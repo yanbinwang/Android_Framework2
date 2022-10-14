@@ -5,11 +5,14 @@ import android.app.Activity
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
+import android.os.Looper
 import android.transition.Slide
 import android.transition.Visibility
 import android.view.*
 import android.widget.PopupWindow
 import androidx.databinding.ViewDataBinding
+import com.example.base.utils.LogUtil
+import com.example.base.utils.function.value.orFalse
 import com.example.common.R
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
@@ -21,16 +24,13 @@ import java.lang.reflect.ParameterizedType
 @SuppressLint("NewApi")
 abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Activity, private val dark: Boolean = false) : PopupWindow() {
     protected lateinit var binding: VDB
+    private val layoutParams by lazy { activity.window?.attributes }
     protected val mActivity: Activity
         get() {
-            return weakActivity?.get() ?: activity
+            return WeakReference(activity).get() ?: activity
         }
-    private var weakActivity: WeakReference<Activity>? = null
-    private var layoutParams: WindowManager.LayoutParams? = null
 
     init {
-        weakActivity = WeakReference(activity)
-        layoutParams = weakActivity?.get()?.window?.attributes
         initialize()
     }
 
@@ -41,7 +41,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
             try {
                 val vbClass = type.actualTypeArguments[0] as? Class<VDB>
                 val method = vbClass?.getMethod("inflate", LayoutInflater::class.java)
-                binding = method?.invoke(null, weakActivity?.get()?.layoutInflater) as VDB
+                binding = method?.invoke(null, activity.layoutInflater) as VDB
             } catch (ignored: Exception) {
             }
             contentView = binding.root
@@ -83,29 +83,69 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
 
     // <editor-fold defaultstate="collapsed" desc="重写方法">
     override fun showAsDropDown(anchor: View?) {
-        setShowAttributes()
-        super.showAsDropDown(anchor)
+        if (show()) {
+            try {
+                setShowAttributes()
+                super.showAsDropDown(anchor)
+            } catch (e: Exception) {
+                LogUtil.e(e.toString())
+            }
+        }
     }
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int) {
-        setShowAttributes()
-        super.showAsDropDown(anchor, xoff, yoff)
+        if (show()) {
+            try {
+                setShowAttributes()
+                super.showAsDropDown(anchor, xoff, yoff)
+            } catch (e: Exception) {
+                LogUtil.e(e.toString())
+            }
+        }
     }
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
-        setShowAttributes()
-        super.showAsDropDown(anchor, xoff, yoff, gravity)
+        if (show()) {
+            try {
+                setShowAttributes()
+                super.showAsDropDown(anchor, xoff, yoff, gravity)
+            } catch (e: Exception) {
+                LogUtil.e(e.toString())
+            }
+        }
     }
 
     override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
-        setShowAttributes()
-        super.showAtLocation(parent, gravity, x, y)
+        if (show()) {
+            try {
+                setShowAttributes()
+                super.showAtLocation(parent, gravity, x, y)
+            } catch (e: Exception) {
+                LogUtil.e(e.toString())
+            }
+        }
+    }
+
+    private fun show(): Boolean {
+        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return false
+        if (activity.isFinishing.orFalse) return false
+        if (activity.isDestroyed.orFalse) return false
+        if (isShowing) return false
+        return true
+    }
+
+    override fun dismiss() {
+        if (!isShowing) return
+        if (activity.isFinishing.orFalse) return
+        if (activity.isDestroyed.orFalse) return
+        if (activity.window?.windowManager == null) return
+        super.dismiss()
     }
 
     private fun setShowAttributes() {
         if (dark) {
             layoutParams?.alpha = 0.7f
-            weakActivity?.get()?.window?.attributes = layoutParams
+            activity.window?.attributes = layoutParams
         }
     }
 
@@ -113,7 +153,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
         if (dark) {
             setOnDismissListener {
                 layoutParams?.alpha = 1f
-                weakActivity?.get()?.window?.attributes = layoutParams
+                activity.window?.attributes = layoutParams
             }
         }
     }
