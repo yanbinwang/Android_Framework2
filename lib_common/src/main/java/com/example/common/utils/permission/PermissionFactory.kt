@@ -14,7 +14,6 @@ import com.example.common.widget.dialog.AndDialog
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
-import java.lang.ref.WeakReference
 import java.text.MessageFormat
 
 /**
@@ -23,9 +22,9 @@ import java.text.MessageFormat
  * 获取选项工具类
  * 根据项目需求哪取需要的权限组
  */
-class PermissionFactory(context: Context) {
+class PermissionFactory(private val context: Context) {
     private var denied = true
-    private val context = WeakReference(context).get()!!
+    private val andDialog by lazy { AndDialog(context) }
     private val permsGroup = arrayOf(
         LOCATION,//定位
         CAMERA,//拍摄照片，录制视频
@@ -75,7 +74,7 @@ class PermissionFactory(context: Context) {
                     rationale += "*${rationale(index)};\n"
                 }
             }
-            AndDialog.with(this).apply {
+            andDialog.apply {
                     onConfirm = { XXPermissions.startPermissionActivity(context, permissions) }
                     setParams(
                         string(R.string.label_window_title),
@@ -130,12 +129,5 @@ class PermissionFactory(context: Context) {
      * 存储权限组
      */
     fun checkSelfStorage() = checkSelfPermission(Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE)
-
-    companion object {
-        @JvmStatic
-        fun with(context: Context): PermissionFactory {
-            return PermissionFactory(context)
-        }
-    }
 
 }

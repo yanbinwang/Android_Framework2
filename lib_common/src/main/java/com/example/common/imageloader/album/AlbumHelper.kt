@@ -171,11 +171,4 @@ class AlbumHelper(private val activity: Activity) {
         return this
     }
 
-    companion object {
-        @JvmStatic
-        fun with(activity: Activity): AlbumHelper {
-            return AlbumHelper(activity)
-        }
-    }
-
 }

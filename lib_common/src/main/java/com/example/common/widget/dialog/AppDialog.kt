@@ -54,11 +54,4 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context, anim 
         return this
     }
 
-    companion object {
-        @JvmStatic
-        fun with(context: Context): AppDialog {
-            return AppDialog(context)
-        }
-    }
-
 }
