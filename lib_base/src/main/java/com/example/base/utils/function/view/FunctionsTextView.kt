@@ -260,6 +260,11 @@ fun CheckBox?.checked() {
     isChecked = !isChecked
 }
 
+fun CheckBox?.checked(checked: Boolean) {
+    this ?: return
+    isChecked = checked
+}
+
 /**
  * 简易Edittext监听
  */
