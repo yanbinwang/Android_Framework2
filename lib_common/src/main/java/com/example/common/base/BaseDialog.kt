@@ -45,6 +45,15 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, themeResId: I
         }
     }
 
+    fun shown(flag: Boolean) {
+        setCancelable(flag)
+        if (!isShowing) show()
+    }
+
+    fun hidden() {
+        if (isShowing) dismiss()
+    }
+
     override fun show() {
         if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
         if (ownerActivity?.isFinishing.orFalse) return
