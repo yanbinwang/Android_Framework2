@@ -20,13 +20,4 @@ class LoadingDialog(context: Context) : BaseDialog<ViewDialogLoadingBinding>(con
         if (!binding.progress.isSpinning()) binding.progress.spin()
     }
 
-    fun shown(flag: Boolean) {
-        setCancelable(flag)
-        if (!isShowing) show()
-    }
-
-    fun hidden() {
-        if (isShowing) dismiss()
-    }
-
 }
