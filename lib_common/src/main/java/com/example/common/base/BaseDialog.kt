@@ -6,20 +6,21 @@ import android.content.DialogInterface
 import android.os.Looper
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.widget.LinearLayout
+import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import com.example.base.utils.LogUtil
 import com.example.base.utils.function.inAnimation
 import com.example.base.utils.function.outAnimation
 import com.example.base.utils.function.value.orFalse
 import com.example.common.R
+import com.example.common.utils.dp
 import java.lang.reflect.ParameterizedType
 
 /**
  * Created by WangYanBin on 2020/7/13.
  * 所有弹框的基类
  */
-abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, themeResId: Int = R.style.appDialogStyle, anim: Boolean = false, close: Boolean = false) : Dialog(context, themeResId) {
+abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: Int = 320, dialogHeight: Int = ViewGroup.LayoutParams.WRAP_CONTENT, themeResId: Int = R.style.appDialogStyle, anim: Boolean = false, close: Boolean = false) : Dialog(context, themeResId) {
     protected lateinit var binding: VDB
 
     init {
@@ -31,7 +32,13 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, themeResId: I
                 binding = method?.invoke(null, layoutInflater) as VDB
             } catch (ignored: Exception) {
             }
-            setContentView(binding.root, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            setContentView(binding.root)
+            window?.let { dialogWindow ->
+                val lp = dialogWindow.attributes
+                lp.width = dialogWidth.dp
+                lp.height = dialogHeight
+                dialogWindow.attributes = lp
+            }
             if (anim) {
                 //当布局show出来的时候执行开始动画
                 setOnShowListener { binding.root.startAnimation(context.inAnimation()) }

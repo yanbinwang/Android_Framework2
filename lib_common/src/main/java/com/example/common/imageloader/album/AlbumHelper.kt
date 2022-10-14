@@ -7,6 +7,10 @@ import com.example.base.utils.function.string
 import com.example.common.R
 import com.example.common.constant.Constants
 import com.example.common.constant.RequestCode
+import com.yanzhenjie.album.Album
+import com.yanzhenjie.album.api.widget.Widget
+import com.yanzhenjie.durban.Controller
+import com.yanzhenjie.durban.Durban
 
 /**
  * author: wyb
@@ -23,7 +27,7 @@ class AlbumHelper(private val activity: Activity) {
      */
     fun takePicture(filePath: String, hasTailor: Boolean = false): AlbumHelper {
         with(activity) {
-            com.yanzhenjie.album.Album.camera(this)
+            Album.camera(this)
                 .image()
                 .filePath(filePath)
                 .onResult { if (hasTailor) toTailor(it) else onAlbum?.invoke(it) }
@@ -37,7 +41,7 @@ class AlbumHelper(private val activity: Activity) {
      */
     fun recordVideo(filePath: String, duration: Long = 1000 * 60 * 60): AlbumHelper {
         with(activity) {
-            com.yanzhenjie.album.Album.camera(this)
+            Album.camera(this)
                 .video()
                 .filePath(filePath)
                 .quality(1)//视频质量, [0, 1].
@@ -55,12 +59,12 @@ class AlbumHelper(private val activity: Activity) {
     fun imageSelection(hasCamera: Boolean = true, hasTailor: Boolean = false): AlbumHelper {
         with(activity) {
             //选择图片
-            com.yanzhenjie.album.Album.image(this)
+            Album.image(this)
                 //多选模式为：multipleChoice,单选模式为：singleChoice()
                 .singleChoice()
                 //状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
                 .widget(
-                    com.yanzhenjie.album.api.widget.Widget.newDarkBuilder(this)
+                    Widget.newDarkBuilder(this)
                     //标题 ---标题颜色只有黑色白色
                     .title(" ")
                     //状态栏颜色
@@ -90,12 +94,12 @@ class AlbumHelper(private val activity: Activity) {
     fun videoSelection(): AlbumHelper {
         with(activity) {
             //选择视频
-            com.yanzhenjie.album.Album.video(this)
+            Album.video(this)
                 //多选模式为：multipleChoice,单选模式为：singleChoice()
                 .singleChoice()
                 //状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
                 .widget(
-                    com.yanzhenjie.album.api.widget.Widget.newDarkBuilder(this)
+                    Widget.newDarkBuilder(this)
                     //标题 ---标题颜色只有黑色白色
                     .title(" ")
                     //状态栏颜色
@@ -127,7 +131,7 @@ class AlbumHelper(private val activity: Activity) {
      */
     private fun toTailor(vararg imagePathArray: String) {
         with(activity) {
-            com.yanzhenjie.durban.Durban.with(this)
+            Durban.with(this)
                 //裁剪界面的标题
                 .title(" ")
                 //状态栏颜色
@@ -143,13 +147,13 @@ class AlbumHelper(private val activity: Activity) {
                 //裁剪时的宽高比
                 .aspectRatio(1f, 1f)
                 //图片压缩格式：JPEG、PNG
-                .compressFormat(com.yanzhenjie.durban.Durban.COMPRESS_JPEG)
+                .compressFormat(Durban.COMPRESS_JPEG)
                 //图片压缩质量，请参考：Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
                 .compressQuality(90)
                 //裁剪时的手势支持：ROTATE, SCALE, ALL, NONE.
-                .gesture(com.yanzhenjie.durban.Durban.GESTURE_SCALE)
+                .gesture(Durban.GESTURE_SCALE)
                 .controller(
-                    com.yanzhenjie.durban.Controller.newBuilder()
+                    Controller.newBuilder()
                     //是否开启控制面板
                     .enable(false)
                     //是否有旋转按钮
