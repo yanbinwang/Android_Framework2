@@ -34,11 +34,11 @@ class PermissionFactory(private val context: Context) {
     /**
      * 检测权限(默认拿全部，可单独拿某个权限组)
      */
-    fun requestPermissions(): PermissionFactory {
-        return requestPermissions(*permsGroup)
+    fun requestPermissions() {
+        requestPermissions(*permsGroup)
     }
 
-    fun requestPermissions(vararg groups: Array<String>): PermissionFactory {
+    fun requestPermissions(vararg groups: Array<String>) {
         //6.0+系统做特殊处理
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             XXPermissions.with(context)
@@ -57,7 +57,6 @@ class PermissionFactory(private val context: Context) {
                     }
                 })
         } else onRequest?.invoke(true)
-        return this
     }
 
     /**
