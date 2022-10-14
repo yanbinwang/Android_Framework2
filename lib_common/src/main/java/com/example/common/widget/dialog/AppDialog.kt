@@ -16,8 +16,8 @@ import com.example.common.databinding.ViewDialogBinding
  * 类似苹果的弹出窗口类
  */
 class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context, anim = true, close = true) {
-    private var onConfirm: (() -> Unit)? = null
-    private var onCancel: (() -> Unit)? = null
+    var onConfirm: (() -> Unit)? = null
+    var onCancel: (() -> Unit)? = null
 
     fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = "", center: Boolean = true): AppDialog {
         binding.apply {
@@ -51,12 +51,6 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context, anim 
 
     fun setType(): AppDialog {
         window?.setType(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
-        return this
-    }
-
-    fun setOnDialogListener(onConfirm: (() -> Unit), onCancel: (() -> Unit)? = {}): AppDialog {
-        this.onConfirm = onConfirm
-        this.onCancel = onCancel
         return this
     }
 

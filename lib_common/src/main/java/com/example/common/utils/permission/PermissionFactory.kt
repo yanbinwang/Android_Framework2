@@ -75,14 +75,15 @@ class PermissionFactory(context: Context) {
                     rationale += "*${rationale(index)};\n"
                 }
             }
-            AndDialog.with(this)
-                .setOnDialogListener({ XXPermissions.startPermissionActivity(this, permissions) })
-                .setParams(
-                    string(R.string.label_window_title),
-                    MessageFormat.format(string(R.string.label_window_permission), rationale),
-                    string(R.string.label_window_sure),
-                    string(R.string.label_window_cancel))
-                .show()
+            AndDialog.with(this).apply {
+                    onConfirm = { XXPermissions.startPermissionActivity(context, permissions) }
+                    setParams(
+                        string(R.string.label_window_title),
+                        MessageFormat.format(string(R.string.label_window_permission), rationale),
+                        string(R.string.label_window_sure),
+                        string(R.string.label_window_cancel))
+                    show()
+                }
         }
     }
 
