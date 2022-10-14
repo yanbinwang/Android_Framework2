@@ -7,21 +7,29 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_container"
         android:layout_width="match_parent"
-        android:layout_height="93mm"
+        android:layout_height="wrap_content"
         android:background="@color/white"
         android:paddingHorizontal="20mm">
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide_line"
+            statusBar_margin="@{true}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone" />
+
         <ImageView
             android:id="@+id/iv_left"
-            android:layout_width="80mm"
-            android:layout_height="80mm"
+            android:layout_width="88mm"
+            android:layout_height="88mm"
             android:padding="20mm"
             android:src="@mipmap/ic_btn_back"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/tv_left"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/guide_line" />
 
         <TextView
             android:id="@+id/tv_left"
@@ -35,7 +43,7 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/iv_left"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@id/guide_line" />
 
         <TextView
             android:id="@+id/tv_title"
@@ -48,7 +56,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@id/guide_line" />
 
         <TextView
             android:id="@+id/tv_right"
@@ -62,25 +70,25 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/iv_right"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@id/guide_line" />
 
         <ImageView
             android:id="@+id/iv_right"
-            android:layout_width="80mm"
-            android:layout_height="80mm"
+            android:layout_width="88mm"
+            android:layout_height="88mm"
             android:padding="20mm"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@id/guide_line" />
 
         <View
             android:id="@+id/view_shade"
             style="@style/lineConstraintWidth"
             android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="parent" />
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
