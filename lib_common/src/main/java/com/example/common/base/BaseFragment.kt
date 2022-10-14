@@ -31,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import org.greenrobot.eventbus.Subscribe
 import java.io.Serializable
+import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.*
 import kotlin.coroutines.CoroutineContext
@@ -45,7 +46,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected var mContext: Context? = null
     protected val mActivity: Activity
         get() {
-            return activity ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity()
+            return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity()
         }
     private lateinit var baseViewModel: BaseViewModel//数据模型
     private val loadingDialog by lazy { LoadingDialog(mContext!!) }//刷新球控件，相当于加载动画\
