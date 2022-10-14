@@ -23,14 +23,13 @@ import java.text.MessageFormat
  * 根据项目需求哪取需要的权限组
  */
 class PermissionFactory(private val context: Context) {
-    private var denied = true
     private val andDialog by lazy { AndDialog(context) }
     private val permsGroup = arrayOf(
         LOCATION,//定位
         CAMERA,//拍摄照片，录制视频
         MICROPHONE,//录制音频(腾讯x5)
         STORAGE)//访问照片。媒体。内容和文件
-    private var onRequest: ((hasPermissions: Boolean) -> Unit)? = null
+    var onRequest: ((hasPermissions: Boolean) -> Unit)? = null
 
     /**
      * 检测权限(默认拿全部，可单独拿某个权限组)
@@ -66,7 +65,7 @@ class PermissionFactory(private val context: Context) {
      */
     private fun description(permissions: MutableList<String>?) {
         with(context) {
-            if (!(denied && !permissions.isNullOrEmpty())) return
+            if (permissions.isNullOrEmpty()) return
             //拼接用戶拒絕後的提示参数
             var rationale = ""
             for (index in permsGroup.indices) {
@@ -99,15 +98,6 @@ class PermissionFactory(private val context: Context) {
                 else -> null
             }
         }
-    }
-
-    /**
-     * 全局回调
-     */
-    fun onRequest(onRequest: ((hasPermissions: Boolean) -> Unit), denied: Boolean = true): PermissionFactory {
-        this.onRequest = onRequest
-        this.denied = denied
-        return this
     }
 
     /**
