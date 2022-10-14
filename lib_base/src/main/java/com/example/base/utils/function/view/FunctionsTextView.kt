@@ -261,6 +261,17 @@ fun CheckBox?.checked() {
 }
 
 /**
+ * 传入目前checkbox的选中状态
+ * 点击后变为这个状态，回调的时候再改变
+ */
+fun CheckBox?.addCheckChange(checked: Boolean) {
+    this ?: return
+    setOnCheckedChangeListener { _, _ ->
+        isChecked = checked
+    }
+}
+
+/**
  * 简易Edittext监听
  */
 fun OnMultiTextWatcher.textWatcher(vararg views: EditText) {
