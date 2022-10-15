@@ -1,0 +1,32 @@
+<resources>
+
+    <!-- 全局app样式 -->
+    <style name="AppTheme" parent="AppTheme.Base" />
+
+    <style name="AppTheme.Base" parent="Theme.AppCompat">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <!-- 设置页面切换动画 -->
+        <item name="android:windowAnimationStyle">@style/activityAnimation</item>
+        <!-- 字体颜色 -->
+        <item name="colorPrimary">@color/black</item>
+        <!-- 状态栏栏颜色 -->
+        <item name="colorPrimaryDark">@color/white</item>
+        <!-- 状态栏深色UI -->
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- 导航栏颜色 -->
+        <item name="android:navigationBarColor">@color/black</item>
+        <!-- 页面背景色 -->
+        <item name="android:windowBackground">@color/grey_f6f8ff</item>
+        <!-- 控件被选中时的颜色 -->
+        <item name="colorAccent">@color/blue_2e60df</item>
+        <!-- 控制控件的默认颜色 -->
+        <item name="colorControlNormal">@color/grey_333333</item>
+        <!-- 剔除控件的点击效果 -->
+        <item name="selectableItemBackground">@null</item>
+        <item name="selectableItemBackgroundBorderless">@null</item>
+        <!-- 剔除控件的阴影效果 -->
+        <item name="buttonStyle">@style/Widget.AppCompat.Button.Borderless</item>
+    </style>
+
+</resources>
