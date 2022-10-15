@@ -38,6 +38,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     /**
      * 继承baseactivity，用include把布局引入后调用
      */
+    @JvmOverloads
     fun setTransparentTitle(title: String = "", titleColor: Int = R.color.grey_333333, light: Boolean = true): TitleBuilder {
         statusBarBuilder.transparent(light)
         binding.clContainer.apply {
@@ -51,6 +52,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     /**
      * 调取系统状态栏颜色样式修改是比较费资源的操作，默认样式配置了若不是特定页面不做修改，如果需要再调取当前代码
      */
+    @JvmOverloads
     fun setBackgroundColor(bgColor: Int = R.color.black, light: Boolean = false): TitleBuilder {
         statusBarBuilder.apply {
             statusBarLightMode(light)
