@@ -2,6 +2,7 @@ package com.example.common.utils.builder
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.graphics.Color
 import com.example.base.utils.function.color
 import com.example.base.utils.function.view.click
 import com.example.base.utils.function.view.gone
@@ -15,14 +16,11 @@ import com.example.common.utils.tint
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
     private val statusBarBuilder by lazy { StatusBarBuilder(activity.window) }
 
-    /**
-     * 由于5.0响应系统导航栏颜色样式，但是不响应电池样式，故而全局设定的颜色是黑色
-     * 初始化导航栏时，如果app是白色主题或者其余主题，在初始化时用代码修改导航栏颜色和黑白电池样式
-     */
     init {
-        statusBarBuilder.apply {
-            statusBarLightMode(true)
-            statusBarColor(activity.color(R.color.white))
+        if(StatusBarBuilder.statusBarCheckVersion()) {
+            statusBarBuilder.statusBarLightMode(true)
+        } else {
+            statusBarBuilder.statusBarColor(Color.BLACK)
         }
     }
 
@@ -37,9 +35,8 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     @JvmOverloads
     fun setTitle(title: String = "", titleColor: Int = R.color.grey_333333, bgColor: Int = R.color.white, light: Boolean = true, shade: Boolean = false): TitleBuilder {
         statusBarBuilder.apply {
-            //调取样式切换耗费资源，故而做一个检测
-            if(!light) statusBarLightMode(false)
-            if(bgColor!= R.color.white) statusBarColor(activity.color(bgColor))
+            statusBarLightMode(light)
+            statusBarColor(activity.color(bgColor))
         }
         binding.clContainer.setBackgroundColor(activity.color(bgColor))
         binding.tvTitle.setParam(title, titleColor)
