@@ -32,7 +32,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private var banner: ViewPager2? = null//广告容器
     private var ovalLayout: LinearLayout? = null//圆点容器
     private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
-    private val adapter by lazy { AdvertisingAdapter() } //图片适配器
+    private val advAdapter by lazy { AdvertisingAdapter() } //图片适配器
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) } //切线程
     var onPageClick: ((index: Int) -> Unit)? = null
     var onPageCurrent: ((index: Int) -> Unit)? = null
@@ -41,7 +41,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     init {
         banner = ViewPager2(context).apply {
             getChildAt(0)?.overScrollMode = OVER_SCROLL_NEVER
-            adapter = adapter
+            adapter = advAdapter
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             registerOnPageChangeCallback(object : OnPageChangeCallback() {
                 private var curIndex = 0//当前选中的数组索引
@@ -94,7 +94,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         this.list = uriList
         this.ovalLayout = ovalLayout
         this.triple = triple
-        adapter.localAsset = localAsset
+        advAdapter.localAsset = localAsset
         //设置数据
         initData()
     }
@@ -129,8 +129,8 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             ovalLayout?.getChildAt(0)?.setBackgroundResource(triple.first)
         }
         //设置图片数据
-        adapter.list = list
-        adapter.onItemClick = { onPageClick?.invoke(it) }
+        advAdapter.list = list
+        advAdapter.onItemClick = { onPageClick?.invoke(it) }
         //设置默认选中的起始位置
         var position = 0
         if (list.size > 1) position = halfPosition - halfPosition % list.size
