@@ -8,6 +8,31 @@ import java.util.*
 
 //------------------------------------日期时间工具类------------------------------------
 /**
+ * 服务器时间-推测的服务器接收时间
+ */
+private var timeDiff = -1L
+
+/**
+ * 现在的时间戳
+ */
+val currentTimeStamp: Long
+    get() {
+        return if (timeDiff < 0) {
+            System.currentTimeMillis()
+        } else {
+            currentTimeNano + timeDiff
+        }
+    }
+
+/**
+ * 现在的运行时间，用来作时间间隔判断
+ */
+val currentTimeNano: Long
+    get() {
+        return System.nanoTime() / 1000000L
+    }
+
+/**
  * 日期形式字符串
  */
 object DateFormat {
