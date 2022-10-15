@@ -15,10 +15,6 @@ import com.example.common.utils.tint
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
     private val statusBarBuilder by lazy { StatusBarBuilder(activity.window) }
 
-    init {
-        statusBarBuilder.initialize()
-    }
-
     /**
      * 默认二级页面标题配置
      * title->标题

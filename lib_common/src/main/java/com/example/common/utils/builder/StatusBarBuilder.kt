@@ -31,17 +31,6 @@ class StatusBarBuilder(private val window: Window) {
     }
 
     /**
-     * 初始化
-     */
-    fun initialize() {
-        if (statusBarCheckVersion()) {
-            statusBarLightMode(true)
-        } else {
-            statusBarColor(Color.BLACK)
-        }
-    }
-
-    /**
      * 全屏
      */
     fun fullScreen() {
