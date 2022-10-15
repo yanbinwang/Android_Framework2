@@ -15,6 +15,11 @@ import com.example.common.utils.tint
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
     private val statusBarBuilder by lazy { StatusBarBuilder(activity.window) }
 
+    init {
+        //防背刺，初始化时再检测一下特定编号的版本深浅主题
+        statusBarBuilder.statusBarCheckDomestic()
+    }
+
     /**
      * 默认二级页面标题配置
      * title->标题
@@ -24,12 +29,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * shade->标题底部是否带阴影
      */
     @JvmOverloads
-    fun setTitle(title: String = "", titleColor: Int = R.color.grey_333333, bgColor: Int = R.color.white, light: Boolean = true, shade: Boolean = false): TitleBuilder {
-        statusBarBuilder.apply {
-            statusBarLightMode(light)
-            statusBarColor(activity.color(bgColor))
-        }
-        binding.clContainer.setBackgroundColor(activity.color(bgColor))
+    fun setTitle(title: String = "", titleColor: Int = R.color.grey_333333, shade: Boolean = false): TitleBuilder {
         binding.tvTitle.setParam(title, titleColor)
         binding.viewShade.apply { if (shade) visible() else gone() }
         return this
@@ -45,6 +45,18 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
             setBackgroundColor(0)
         }
         binding.tvTitle.setParam(title, titleColor)
+        return this
+    }
+
+    /**
+     * 调取系统状态栏颜色样式修改是比较费资源的操作，默认样式配置了若不是特定页面不做修改，如果需要再调取当前代码
+     */
+    fun setBackgroundColor(bgColor: Int = R.color.black, light: Boolean = false): TitleBuilder {
+        statusBarBuilder.apply {
+            statusBarLightMode(light)
+            statusBarColor(activity.color(bgColor))
+        }
+        binding.clContainer.setBackgroundColor(activity.color(bgColor))
         return this
     }
 

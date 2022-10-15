@@ -31,6 +31,17 @@ class StatusBarBuilder(private val window: Window) {
     }
 
     /**
+     * 部分国产手机特定版本下不响应深浅主题系统代码
+     */
+    fun statusBarCheckDomestic() {
+        if (statusBarCheckVersion() && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            normalStatusBarLightMode(true)
+            miuiStatusBarLightMode(true)
+            flymeStatusBarLightMode(true)
+        }
+    }
+
+    /**
      * 全屏
      */
     fun fullScreen() {

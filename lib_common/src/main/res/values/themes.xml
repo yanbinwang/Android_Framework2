@@ -94,7 +94,6 @@
         <item name="android:navigationBarColor">@color/black</item><!-- 白色导航栏底部也得是黑色的 -->
         <item name="android:windowBackground">@color/white</item>
         <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <!-- 透明样式,透明页面使用 -->
