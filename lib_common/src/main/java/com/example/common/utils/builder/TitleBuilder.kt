@@ -2,7 +2,6 @@ package com.example.common.utils.builder
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.graphics.Color
 import com.example.base.utils.function.color
 import com.example.base.utils.function.view.click
 import com.example.base.utils.function.view.gone
@@ -17,11 +16,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     private val statusBarBuilder by lazy { StatusBarBuilder(activity.window) }
 
     init {
-        if(StatusBarBuilder.statusBarCheckVersion()) {
-            statusBarBuilder.statusBarLightMode(true)
-        } else {
-            statusBarBuilder.statusBarColor(Color.BLACK)
-        }
+        statusBarBuilder.initialize()
     }
 
     /**
