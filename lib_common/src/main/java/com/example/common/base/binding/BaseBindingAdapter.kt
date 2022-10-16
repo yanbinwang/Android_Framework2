@@ -23,6 +23,7 @@ import com.example.common.R
 import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
 import com.example.common.imageloader.glide.callback.GlideRequestListener
+import com.example.common.utils.builder.StatusBarBuilder
 import com.example.common.utils.setParam
 import com.example.common.utils.setSpan
 import com.example.common.widget.XWebView
@@ -45,7 +46,8 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["statusBar_margin"])
     fun bindingGuidelineStatusBar(guideline: Guideline, statusBarMargin: Boolean?) {
-        if(statusBarMargin.orFalse) guideline.setGuidelineBegin(Constants.STATUS_BAR_HEIGHT)
+        //        if(statusBarMargin.orFalse) guideline.setGuidelineBegin(Constants.STATUS_BAR_HEIGHT)
+        if (statusBarMargin.orFalse) guideline.setGuidelineBegin(if (StatusBarBuilder.statusBarCheckVersion()) Constants.STATUS_BAR_HEIGHT else 0)
     }
 
     @JvmStatic
