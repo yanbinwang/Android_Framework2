@@ -108,10 +108,10 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     }
 
     override fun isEmpty(vararg objs: Any?): Boolean {
-        for (obj in objs) {
-            if (obj == null) {
+        objs.forEach {
+            if (it == null) {
                 return true
-            } else if (obj is String && obj == "") {
+            } else if (it is String && it == "") {
                 return true
             }
         }
@@ -119,12 +119,12 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     }
 
     override fun ENABLED(vararg views: View?, second: Long) {
-        for (view in views) {
-            if (view != null) {
-                view.disable()
+        views.forEach {
+            if (it != null) {
+                it.disable()
                 Timer().schedule(object : TimerTask() {
                     override fun run() {
-                        mActivity.runOnUiThread { view.enable() }
+                        mActivity.runOnUiThread { it.enable() }
                     }
                 }, second)
             }
@@ -132,21 +132,15 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     }
 
     override fun VISIBLE(vararg views: View?) {
-        for (view in views) {
-            view?.visible()
-        }
+        views.forEach { it?.visible() }
     }
 
     override fun INVISIBLE(vararg views: View?) {
-        for (view in views) {
-            view?.invisible()
-        }
+        views.forEach { it?.invisible() }
     }
 
     override fun GONE(vararg views: View?) {
-        for (view in views) {
-            view?.gone()
-        }
+        views.forEach { it?.gone() }
     }
 
     override fun onDetach() {
