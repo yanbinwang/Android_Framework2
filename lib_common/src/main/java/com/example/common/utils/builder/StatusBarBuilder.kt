@@ -34,31 +34,22 @@ class StatusBarBuilder(private val window: Window) {
      * 部分国产手机特定版本下不响应深浅主题系统代码
      */
     fun statusBarCheckDomestic() {
-        if (statusBarCheckVersion() && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            normalStatusBarLightMode(true)
-            miuiStatusBarLightMode(true)
-            flymeStatusBarLightMode(true)
-        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) statusBarLightMode(true)
     }
 
     /**
-     * 全屏
+     * 全屏展示
      */
-    fun fullScreen() {
-        val decorView = window.decorView
-        val uiOptions = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-        decorView.systemUiVisibility = uiOptions
+    fun statusBarFullScreen() {
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
     }
 
     /**
-     * 隐藏导航栏
+     * 设置状态栏颜色
+     * 检测到低版本直接黑色
      */
-    fun hideStatusBar() =  window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+    fun statusBarColor(colorId: Int) = run { if (statusBarCheckVersion()) window.statusBarColor = colorId }
 
     /**
      * 设置样式兼容（透明样式）
@@ -69,15 +60,13 @@ class StatusBarBuilder(private val window: Window) {
     fun transparent(light: Boolean = false) {
         if (statusBarCheckVersion()) {
             if (light) transparentLightStatusBar() else transparentStatusBar()
-        } else {
-            statusBarColor(Color.BLACK)
         }
     }
 
     /**
      * 透明状态栏(白电池)
      */
-    fun transparentStatusBar() {
+    private fun transparentStatusBar() {
         window.apply {
             clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -91,7 +80,7 @@ class StatusBarBuilder(private val window: Window) {
     /**
      * 透明状态栏(黑电池)
      */
-    fun transparentLightStatusBar() {
+    private fun transparentLightStatusBar() {
         window.apply {
             addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
@@ -101,12 +90,6 @@ class StatusBarBuilder(private val window: Window) {
         miuiStatusBarLightMode(true)
         flymeStatusBarLightMode(true)
     }
-
-    /**
-     * 设置状态栏颜色
-     * 检测到低版本直接黑色
-     */
-    fun statusBarColor(colorId: Int) = if (statusBarCheckVersion()) window.statusBarColor = colorId else window.statusBarColor = Color.BLACK
 
     /**
      * 状态栏黑/白色UI(只处理安卓6.0+的系统)
