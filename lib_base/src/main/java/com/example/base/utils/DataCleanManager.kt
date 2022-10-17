@@ -73,7 +73,7 @@ object DataCleanManager {
     @JvmStatic
     private fun deleteFilesByDirectory(directory: File) {
         if (directory.exists() && directory.isDirectory) {
-            for (item in directory.listFiles()) {
+            for (item in directory.listFiles().orEmpty()) {
                 if (null == item) continue
                 if (item.isDirectory) {
                     //不删除mmkv文件
