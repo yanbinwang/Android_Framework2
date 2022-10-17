@@ -146,6 +146,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         AppManager.removeActivity(this)
         EventBus.instance.unregister(this)
         binding.unbind()
+        job.cancel()
     }
     // </editor-fold>
 

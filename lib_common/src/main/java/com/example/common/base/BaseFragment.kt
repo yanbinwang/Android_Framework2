@@ -153,6 +153,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         super.onDetach()
         EventBus.instance.unregister(this)
         binding.unbind()
+        job.cancel()
     }
     // </editor-fold>
 
