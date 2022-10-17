@@ -1,8 +1,8 @@
 package com.example.common.base.bridge
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
@@ -27,16 +27,17 @@ import java.lang.ref.WeakReference
  */
 @SuppressLint("StaticFieldLeak")
 abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
-    private var weakActivity: WeakReference<Activity>? = null//引用的activity
+    private var weakActivity: WeakReference<FragmentActivity>? = null//引用的activity
     private var softView: SoftReference<BaseView>? = null//基础UI操作
     //部分view的操作交予viewmodel去操作，不必让activity去操作
     private var softEmpty: SoftReference<EmptyLayout>? = null//遮罩UI
     private var softRecycler: SoftReference<XRecyclerView>? = null//列表UI
     private var softRefresh: SoftReference<XRefreshLayout>? = null//刷新控件
     //基础的注入参数
-    protected val activity: Activity
+    protected val activity: FragmentActivity
         get() {
-            return weakActivity?.get() ?: AppManager.currentActivity() ?: Activity()
+            return weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity)
+            ?: FragmentActivity()
         }
     protected val view: BaseView?
         get() {
@@ -57,7 +58,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         }
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    fun initialize(activity: Activity, view: BaseView) {
+    fun initialize(activity: FragmentActivity, view: BaseView) {
         this.weakActivity = WeakReference(activity)
         this.softView = SoftReference(view)
     }

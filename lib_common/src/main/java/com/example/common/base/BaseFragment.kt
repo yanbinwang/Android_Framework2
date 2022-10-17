@@ -44,12 +44,12 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected lateinit var binding: VDB
     protected var lazyData = false
     protected var mContext: Context? = null
-    protected val mActivity: Activity
+    protected val mActivity: FragmentActivity
         get() {
             return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity()
         }
     private lateinit var baseViewModel: BaseViewModel//数据模型
-    private val loadingDialog by lazy { LoadingDialog(mContext!!) }//刷新球控件，相当于加载动画\
+    private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画\
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Dispatchers.Main + job
@@ -116,7 +116,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         return false
     }
 
-    override fun ENABLED(second: Long, vararg views: View?) {
+    override fun ENABLED(vararg views: View?, second: Long) {
         for (view in views) {
             if (view != null) {
                 view.disable()

@@ -110,7 +110,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         return false
     }
 
-    override fun ENABLED(second: Long, vararg views: View?) {
+    override fun ENABLED(vararg views: View?, second: Long) {
         for (view in views) {
             if (view != null) {
                 view.disable()
