@@ -36,8 +36,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     //基础的注入参数
     protected val activity: FragmentActivity
         get() {
-            return weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity)
-            ?: FragmentActivity()
+            return weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity()
         }
     protected val view: BaseView?
         get() {
