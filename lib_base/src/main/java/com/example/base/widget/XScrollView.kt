@@ -13,13 +13,13 @@ import kotlin.math.abs
  * @author
  */
 class XScrollView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : NestedScrollView(context, attrs, defStyleAttr) {
-    private var touchSlop = 0
     private var downY = 0
-    var isTop = false //是否滑动到顶端
+    private var isTop = false
+    private val touchSlop by lazy { ViewConfiguration.get(context).scaledTouchSlop }
     var onBottom: ((isBottom: Boolean) -> Unit)? = null
 
     init {
-        initialize()
+        overScrollMode = OVER_SCROLL_NEVER
     }
 
     override fun onOverScrolled(scrollX: Int, scrollY: Int, clampedX: Boolean, clampedY: Boolean) {
@@ -43,11 +43,6 @@ class XScrollView @JvmOverloads constructor(context: Context, attrs: AttributeSe
             }
         }
         return super.onInterceptTouchEvent(e)
-    }
-
-    private fun initialize() {
-        overScrollMode = OVER_SCROLL_NEVER
-        touchSlop = ViewConfiguration.get(context).scaledTouchSlop
     }
 
 }
