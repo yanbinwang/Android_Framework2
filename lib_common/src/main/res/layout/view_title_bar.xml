@@ -29,7 +29,7 @@
         <TextView
             android:id="@+id/tv_left"
             android:layout_width="wrap_content"
-            android:layout_height="88mm"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:lines="1"
             android:paddingHorizontal="32mm"
@@ -60,7 +60,7 @@
         <TextView
             android:id="@+id/tv_right"
             android:layout_width="wrap_content"
-            android:layout_height="88mm"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:lines="1"
             android:paddingHorizontal="32mm"
