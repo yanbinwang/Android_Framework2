@@ -21,10 +21,10 @@ class EventBus private constructor() {
     fun unregister(subscriber: Any) = run { if (busDefault.isRegistered(subscriber)) busDefault.unregister(subscriber) }
 
     fun post(vararg objs: Event) {
-        for (obj in objs) {
+        objs.forEach {
             when (Looper.getMainLooper()) {
-                Looper.myLooper() -> busDefault.post(obj)
-                else -> GlobalScope.launch(Dispatchers.Main) { busDefault.post(obj) }
+                Looper.myLooper() -> busDefault.post(it)
+                else -> GlobalScope.launch(Dispatchers.Main) { busDefault.post(it) }
             }
         }
     }
