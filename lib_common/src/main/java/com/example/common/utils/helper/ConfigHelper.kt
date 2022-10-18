@@ -21,7 +21,7 @@ import java.lang.ref.WeakReference
  *  Created by wangyanbin
  *  应用配置工具类
  */
-@SuppressLint("MissingPermission", "HardwareIds", "StaticFieldLeak")
+@SuppressLint("MissingPermission", "HardwareIds", "StaticFieldLeak", "InternalInsetResource")
 object ConfigHelper {
     private lateinit var context: Context
 
