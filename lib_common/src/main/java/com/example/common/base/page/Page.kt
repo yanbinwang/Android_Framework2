@@ -7,7 +7,5 @@ package com.example.common.base.page
 data class Page<T>(
     var code: Int? = null,
     var count: Int? = null,
-    var data: MutableList<T>? = null,
-    var list: MutableList<T>? = null,
-    var obs: String? = null//图片域名
+    var list: MutableList<T>? = null
 )
