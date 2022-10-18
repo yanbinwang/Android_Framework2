@@ -111,4 +111,13 @@ class Event {
      */
     fun <T : Parcelable> getParcelable() = args?.getParcelable<T>(Extras.BUNDLE_BEAN)
 
+    /**
+     * 是否是当前对象
+     */
+    fun Event?.isEvent(action: String, block: () -> Unit): Event? {
+        this ?: return null
+        if (this.action == action) block()
+        return this
+    }
+
 }

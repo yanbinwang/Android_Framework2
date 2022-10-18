@@ -19,7 +19,6 @@ import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.bus.Event
 import com.example.common.bus.EventBus
-import com.example.common.constant.Constants
 import com.example.common.constant.Extras
 import com.example.common.utils.AppManager
 import com.example.common.utils.builder.StatusBarBuilder
@@ -85,24 +84,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun initData() {
     }
 
-    @Subscribe
-    override fun onReceive(event: Event) {
-//        when (event.getAction()) {
-//            Constants.APP_USER_LOGIN_OUT -> {
-//                finish()
-////                navigation(ARouterPath.StartActivity)
-//            }
-//        }
-        event.onEvent()
-    }
-
-    protected open fun Event.onEvent() {
-    }
-
-    protected open fun isEventBusEnabled(): Boolean {
-        return false
-    }
-
     override fun isEmpty(vararg objs: Any?): Boolean {
         objs.forEach {
             if (it == null) {
@@ -145,6 +126,20 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
         binding.unbind()
         job.cancel()
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="订阅相关">
+    @Subscribe
+    fun onReceive(event: Event) {
+        event.onEvent()
+    }
+
+    protected open fun Event.onEvent() {
+    }
+
+    protected open fun isEventBusEnabled(): Boolean {
+        return false
     }
     // </editor-fold>
 
