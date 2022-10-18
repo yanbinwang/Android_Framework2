@@ -33,9 +33,9 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
-                val vbClass = type.actualTypeArguments[0] as? Class<VDB>
-                val method = vbClass?.getMethod("inflate", LayoutInflater::class.java)
-                binding = method?.invoke(null, activity.layoutInflater) as VDB
+                val vbClass = type.actualTypeArguments[0] as Class<VDB>
+                val method = vbClass.getMethod("inflate", LayoutInflater::class.java)
+                binding = method.invoke(null, activity.layoutInflater) as VDB
                 contentView = binding.root
             } catch (_: Exception) {
             }
