@@ -8,6 +8,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import com.example.base.utils.function.view.gone
 import com.example.common.base.page.getEmptyView
+import com.example.common.bus.EventBus
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.launch
 import com.example.common.http.repository.request
@@ -116,6 +117,10 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         }
     }
 
+    protected open fun isEventBusEnabled(): Boolean {
+        return false
+    }
+
     override fun onCleared() {
         super.onCleared()
         weakActivity?.clear()
@@ -129,6 +134,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     // <editor-fold defaultstate="collapsed" desc="生命周期回调">
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
+        if (isEventBusEnabled()) EventBus.instance.register(this)
     }
 
     override fun onStart(owner: LifecycleOwner) {
@@ -149,6 +155,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
+        if (isEventBusEnabled()) EventBus.instance.unregister(this)
     }
     // </editor-fold>
 

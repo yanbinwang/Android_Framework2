@@ -58,7 +58,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppManager.addActivity(this)
-        EventBus.instance.register(this)
+        if (isEventBusEnabled()) EventBus.instance.register(this)
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
@@ -87,16 +87,20 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     @Subscribe
     override fun onReceive(event: Event) {
-        when (event.getAction()) {
-            Constants.APP_USER_LOGIN_OUT -> {
-                finish()
-//                navigation(ARouterPath.StartActivity)
-            }
-        }
+//        when (event.getAction()) {
+//            Constants.APP_USER_LOGIN_OUT -> {
+//                finish()
+////                navigation(ARouterPath.StartActivity)
+//            }
+//        }
         event.onEvent()
     }
 
-    open fun Event.onEvent() {
+    protected open fun Event.onEvent() {
+    }
+
+    protected open fun isEventBusEnabled(): Boolean {
+        return false
     }
 
     override fun isEmpty(vararg objs: Any?): Boolean {
@@ -138,7 +142,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun onDestroy() {
         super.onDestroy()
         AppManager.removeActivity(this)
-        EventBus.instance.unregister(this)
+        if (isEventBusEnabled()) EventBus.instance.unregister(this)
         binding.unbind()
         job.cancel()
     }

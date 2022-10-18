@@ -22,7 +22,6 @@ import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.bus.Event
-import com.example.common.bus.EventBus
 import com.example.common.constant.Extras
 import com.example.common.utils.AppManager
 import com.example.common.utils.builder.StatusBarBuilder
@@ -70,7 +69,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        EventBus.instance.register(this)
         log(TAG)
         try {
             val superclass = javaClass.genericSuperclass
@@ -145,7 +143,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun onDetach() {
         super.onDetach()
-        EventBus.instance.unregister(this)
         binding.unbind()
         job.cancel()
     }
