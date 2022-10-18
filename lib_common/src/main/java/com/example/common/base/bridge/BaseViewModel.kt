@@ -8,6 +8,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import com.example.base.utils.function.view.gone
 import com.example.common.base.page.getEmptyView
+import com.example.common.bus.Event
 import com.example.common.bus.EventBus
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.launch
@@ -17,6 +18,7 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
 import kotlinx.coroutines.CoroutineScope
+import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 
@@ -117,10 +119,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         }
     }
 
-    protected open fun isEventBusEnabled(): Boolean {
-        return false
-    }
-
     override fun onCleared() {
         super.onCleared()
         weakActivity?.clear()
@@ -128,6 +126,20 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         softEmpty?.clear()
         softRecycler?.clear()
         softRefresh?.clear()
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="订阅相关">
+    @Subscribe
+    fun onReceive(event: Event) {
+        event.onEvent()
+    }
+
+    protected open fun Event.onEvent() {
+    }
+
+    protected open fun isEventBusEnabled(): Boolean {
+        return false
     }
     // </editor-fold>
 
