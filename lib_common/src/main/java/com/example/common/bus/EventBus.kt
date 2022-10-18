@@ -39,8 +39,6 @@ class EventBus private constructor() {
 /**
  * 单独某一个对象发送
  */
-//fun Event.post() = EventBus.instance.post(this)
-
 fun String.post() = EventBus.instance.post(Event(this))
 
 fun String.post(value: Boolean) = EventBus.instance.post(Event(this, value))
@@ -54,3 +52,17 @@ fun String.post(args: Bundle) = EventBus.instance.post(Event(this, args))
 fun String.post(any: Serializable) = EventBus.instance.post(Event(this, any))
 
 fun String.post(any: Parcelable) = EventBus.instance.post(Event(this, any))
+
+fun String.event() = Event(this)
+
+fun String.event(value: Boolean) = Event(this, value)
+
+fun String.event(value: Int) = Event(this, value)
+
+fun String.event(value: String) = Event(this, value)
+
+fun String.event(args: Bundle) = Event(this, args)
+
+fun String.event(any: Serializable) = Event(this, any)
+
+fun String.event(any: Parcelable) = Event(this, any)
