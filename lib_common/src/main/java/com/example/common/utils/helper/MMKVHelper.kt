@@ -1,6 +1,7 @@
 package com.example.common.utils.helper
 
 import android.os.Parcelable
+import com.example.common.constant.Constants.APPLICATION_ID
 import com.tencent.mmkv.MMKV
 
 /**
@@ -9,6 +10,10 @@ import com.tencent.mmkv.MMKV
  */
 object MMKVHelper {
     private val mmkv by lazy { MMKV.defaultMMKV() }
+
+    //MMKV存储字段
+    const val MMKV_NIGHT_MODE = "${APPLICATION_ID}.NightMode"
+    const val MMKV_USER_BEAN = "${APPLICATION_ID}.UserBean" //用户类
 
     @JvmStatic
     fun encode(key: String, value: Boolean) = mmkv.encode(key, value)

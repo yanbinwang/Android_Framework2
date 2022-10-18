@@ -1,10 +1,9 @@
 package com.example.common.utils.helper
 
 import android.text.TextUtils
-import com.example.common.constant.Constants
 import com.example.common.bean.UserBean
 import com.example.common.utils.analysis.GsonUtil.jsonToObj
-import com.tencent.mmkv.MMKV
+import com.example.common.utils.helper.MMKVHelper.MMKV_USER_BEAN
 
 /**
  * Created by WangYanBin on 2020/8/11.
@@ -13,9 +12,6 @@ import com.tencent.mmkv.MMKV
  * 该工具类对key值和用户信息的一些字做了规整和管控，全局直接调用即可
  */
 object AccountHelper {
-    private val mmkv by lazy {
-        MMKV.defaultMMKV()
-    }
 
     //修改是否登陆
     @JvmStatic
@@ -45,7 +41,7 @@ object AccountHelper {
     @JvmStatic
     fun setUserBean(bean: UserBean?) {
         if (null != bean) {
-            MMKVHelper.encode(Constants.KEY_USER_BEAN,bean)
+            MMKVHelper.encode(MMKV_USER_BEAN,bean)
 //            mmkv.encode(Constants.KEY_USER_MODEL, objToJson(bean))
         }
     }
@@ -54,7 +50,7 @@ object AccountHelper {
     @JvmStatic
     fun getUserBean(): UserBean? {
         var userInfoBean: UserBean? = null
-        val userInfoJson = mmkv.decodeString(Constants.KEY_USER_BEAN)
+        val userInfoJson = MMKVHelper.decodeString(MMKV_USER_BEAN)
         if (!TextUtils.isEmpty(userInfoJson)) {
             userInfoBean = jsonToObj(userInfoJson, UserBean::class.java)
         }
@@ -107,7 +103,7 @@ object AccountHelper {
     //用户注销操作（清除信息,清除用户凭证）
     @JvmStatic
     fun signOut() {
-        mmkv.encode(Constants.KEY_USER_BEAN, "")
+        MMKVHelper.encode(MMKV_USER_BEAN, "")
     }
 
 }
