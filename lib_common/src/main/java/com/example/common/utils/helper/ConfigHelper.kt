@@ -15,7 +15,6 @@ import com.example.base.utils.function.color
 import com.example.common.R
 import com.example.common.constant.Constants
 import com.example.common.utils.builder.StatusBarBuilder
-import com.tencent.mmkv.MMKV
 import java.lang.ref.WeakReference
 
 /**
@@ -24,33 +23,34 @@ import java.lang.ref.WeakReference
  */
 @SuppressLint("MissingPermission", "HardwareIds", "StaticFieldLeak")
 object ConfigHelper {
-    private val mmkv by lazy { MMKV.defaultMMKV() }
     private lateinit var context: Context
 
     @JvmStatic
     fun initialize(application: Application) {
         context = application
-        //在程序运行时取值，保证长宽静态变量不丢失
-        val metrics = context.resources.displayMetrics
-        //屏幕宽度（像素）
-        Constants.SCREEN_WIDTH = metrics.widthPixels
-        //屏幕高度（像素）
-        Constants.SCREEN_HEIGHT = metrics.heightPixels
-        //屏幕比值 (dp)
-        Constants.SCREEN_DENSITY = metrics.densityDpi
-        //获取手机的导航栏高度
-        Constants.STATUS_BAR_HEIGHT = context.resources.getDimensionPixelSize(context.resources.getIdentifier("status_bar_height", "dimen", "android"))
-//        //获取手机的网络ip
-//        Constants.IP = getIp()
-//        //获取手机的Mac地址
-//        Constants.MAC = getMac()
-//        //获取手机的DeviceId
-//        Constants.DEVICE_ID = getDeviceId()
-        //版本名，版本号
-        Constants.VERSION_CODE = getAppVersionCode()
-        Constants.VERSION_NAME = getAppVersionName()
-        //获取应用名。包名。默认保存文件路径
-        Constants.APPLICATION_FILE_PATH = "${Constants.SDCARD_PATH}/${Constants.APPLICATION_NAME}"
+        Constants.apply {
+            //在程序运行时取值，保证长宽静态变量不丢失
+            val metrics = context.resources.displayMetrics
+            //屏幕宽度（像素）
+            SCREEN_WIDTH = metrics.widthPixels
+            //屏幕高度（像素）
+            SCREEN_HEIGHT = metrics.heightPixels
+            //屏幕比值 (dp)
+            SCREEN_DENSITY = metrics.densityDpi
+            //获取手机的导航栏高度
+            STATUS_BAR_HEIGHT = context.resources.getDimensionPixelSize(context.resources.getIdentifier("status_bar_height", "dimen", "android"))
+//            //获取手机的网络ip
+//            IP = getIp()
+//            //获取手机的Mac地址
+//            MAC = getMac()
+//            //获取手机的DeviceId
+//            DEVICE_ID = getDeviceId()
+            //版本名，版本号
+            VERSION_CODE = getAppVersionCode()
+            VERSION_NAME = getAppVersionName()
+            //获取应用名。包名。默认保存文件路径
+            APPLICATION_FILE_PATH = "${SDCARD_PATH}/${APPLICATION_NAME}"
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="公用方法">
