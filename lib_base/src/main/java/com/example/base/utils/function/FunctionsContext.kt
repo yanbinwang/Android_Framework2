@@ -89,6 +89,17 @@ fun Context.color(@ColorRes res: Int) = ContextCompat.getColor(this, res)
 fun Context.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(this, res)
 
 /**
+ * 通过字符串获取drawable下的xml文件
+ */
+fun Context.drawableId(name: String): Int {
+    return try {
+        resources.getIdentifier(name, "drawable", packageName)
+    } catch (_: Exception) {
+        0
+    }
+}
+
+/**
  * 获取Resources中的String
  */
 fun Context.string(@StringRes res: Int): String {
