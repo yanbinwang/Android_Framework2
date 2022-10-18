@@ -109,7 +109,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
         try {
             val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
             binding = method.invoke(null, LayoutInflater.from(parent.context), parent, false) as VB
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         } finally {
             return BaseViewDataBindingHolder(binding!!)
         }

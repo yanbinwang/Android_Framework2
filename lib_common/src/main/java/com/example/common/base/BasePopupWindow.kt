@@ -11,7 +11,6 @@ import android.transition.Visibility
 import android.view.*
 import android.widget.PopupWindow
 import androidx.databinding.ViewDataBinding
-import com.example.base.utils.LogUtil
 import com.example.base.utils.function.value.orFalse
 import com.example.common.R
 import java.lang.ref.WeakReference
@@ -22,7 +21,7 @@ import java.lang.reflect.ParameterizedType
  * 所有弹框的基类
  */
 @SuppressLint("NewApi")
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Activity, private val dark: Boolean = false) : PopupWindow() {
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Activity, private val light: Boolean = false) : PopupWindow() {
     protected lateinit var binding: VDB
     private val layoutParams by lazy { activity.window?.attributes }
     protected val mActivity: Activity
@@ -31,20 +30,15 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
         }
 
     init {
-        initialize()
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="基类方法">
-    protected fun initialize() {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
                 val vbClass = type.actualTypeArguments[0] as? Class<VDB>
                 val method = vbClass?.getMethod("inflate", LayoutInflater::class.java)
                 binding = method?.invoke(null, activity.layoutInflater) as VDB
-            } catch (ignored: Exception) {
+                contentView = binding.root
+            } catch (_: Exception) {
             }
-            contentView = binding.root
             isFocusable = true
             isOutsideTouchable = true
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -56,8 +50,9 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
         }
     }
 
+    // <editor-fold defaultstate="collapsed" desc="基类方法">
     //默认底部弹出，可重写
-    protected fun setTransition(setting: Boolean = true) {
+    protected open fun setTransition(setting: Boolean = true) {
         if (setting) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 enterTransition = Slide().apply {
@@ -87,8 +82,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
             try {
                 setShowAttributes()
                 super.showAsDropDown(anchor)
-            } catch (e: Exception) {
-                LogUtil.e(e.toString())
+            } catch (_: Exception) {
             }
         }
     }
@@ -98,8 +92,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
             try {
                 setShowAttributes()
                 super.showAsDropDown(anchor, xoff, yoff)
-            } catch (e: Exception) {
-                LogUtil.e(e.toString())
+            } catch (_: Exception) {
             }
         }
     }
@@ -109,8 +102,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
             try {
                 setShowAttributes()
                 super.showAsDropDown(anchor, xoff, yoff, gravity)
-            } catch (e: Exception) {
-                LogUtil.e(e.toString())
+            } catch (_: Exception) {
             }
         }
     }
@@ -120,8 +112,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
             try {
                 setShowAttributes()
                 super.showAtLocation(parent, gravity, x, y)
-            } catch (e: Exception) {
-                LogUtil.e(e.toString())
+            } catch (_: Exception) {
             }
         }
     }
@@ -143,14 +134,14 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
     }
 
     private fun setShowAttributes() {
-        if (dark) {
+        if (light) {
             layoutParams?.alpha = 0.7f
             activity.window?.attributes = layoutParams
         }
     }
 
     private fun setDismissAttributes() {
-        if (dark) {
+        if (light) {
             setOnDismissListener {
                 layoutParams?.alpha = 1f
                 activity.window?.attributes = layoutParams

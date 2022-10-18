@@ -72,12 +72,12 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         EventBus.instance.register(this)
         log(TAG)
-        val superclass = javaClass.genericSuperclass
-        val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>
         try {
+            val superclass = javaClass.genericSuperclass
+            val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>
             val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
             binding = method.invoke(null, layoutInflater, container, false) as VDB
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         }
         return binding.root
     }

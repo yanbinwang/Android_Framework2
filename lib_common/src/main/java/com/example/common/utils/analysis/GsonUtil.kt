@@ -18,7 +18,7 @@ object GsonUtil {
         var ret: T? = null
         try {
             ret = gson.fromJson(json, className)
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         }
         return ret
     }
@@ -28,7 +28,7 @@ object GsonUtil {
         var ret: String? = null
         try {
             ret = gson.toJson(obj)
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         }
         return ret
     }

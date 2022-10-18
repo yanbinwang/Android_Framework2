@@ -59,7 +59,7 @@ class FullyGridLayoutManager : GridLayoutManager {
                 measuredDimension[0] = view.measuredWidth + p.leftMargin + p.rightMargin
                 measuredDimension[1] = view.measuredHeight + p.bottomMargin + p.topMargin
                 recycler.recycleView(view)
-            } catch (ignored: Exception) {
+            } catch (_: Exception) {
             }
         }
     }

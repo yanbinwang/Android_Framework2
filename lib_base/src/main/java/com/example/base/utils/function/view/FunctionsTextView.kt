@@ -132,7 +132,7 @@ fun EditText?.inputTransformation(): Boolean {
         }
         setSelection(text.length)
         postInvalidate()
-    } catch (ignored: Exception) {
+    } catch (_: Exception) {
     }
     return display
 }

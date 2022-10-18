@@ -79,7 +79,7 @@ fun String.compareDate(toSource: String, format: String = EN_YMD): Int {
             comparedDate.time < comparedDate2.time -> -1//日程时间小于系统时间
             else -> 0
         }
-    } catch (ignored: Exception) {
+    } catch (_: Exception) {
     }
     return 0
 }
@@ -95,7 +95,7 @@ fun String.getDateFormat(toFormat: String, source: String): String {
     var result = ""
     try {
         result = toFormat.getDateTime(getDateFormat().parse(source) ?: Date())
-    } catch (ignored: ParseException) {
+    } catch (_: ParseException) {
     }
     return result
 }
@@ -136,7 +136,7 @@ fun String.getWeekOfMonth(): Int {
             time = EN_YMD.getDateFormat().parse(source) ?: Date()
             return get(Calendar.WEEK_OF_MONTH)
         }
-    } catch (ignored: ParseException) {
+    } catch (_: ParseException) {
     }
     return 0
 }
@@ -155,7 +155,7 @@ fun String.getWeekOfDate(): Int {
             if (weekIndex < 0) weekIndex = 0
             return weekIndex
         }
-    } catch (ignored: ParseException) {
+    } catch (_: ParseException) {
     }
     return 0
 }
@@ -205,7 +205,7 @@ fun Date.isToday(): Boolean {
         val parseBeginTime = dateFormat.parse(beginTime)
         val parseEndTime = dateFormat.parse(endTime)
         if (after(parseBeginTime) && before(parseEndTime)) flag = true
-    } catch (ignored: ParseException) {
+    } catch (_: ParseException) {
     }
     return flag
 }

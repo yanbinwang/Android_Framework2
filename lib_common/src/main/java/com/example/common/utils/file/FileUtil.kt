@@ -54,7 +54,7 @@ object FileUtil {
                 file = File(element + "su")
                 if (file.exists()) return true
             }
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         }
         return false
     }
@@ -132,7 +132,7 @@ object FileUtil {
                 val bufferedReader = BufferedReader(InputStreamReader(FileInputStream(file)))
                 while (bufferedReader.readLine().also { str = it } != null) stringBuilder.append(str)
                 return stringBuilder.toString()
-            } catch (ignored: Exception) {
+            } catch (_: Exception) {
             }
         }
         return null
@@ -226,7 +226,7 @@ object FileUtil {
             drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
             drawable.draw(canvas)
             return bitmap.get()
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         }
         return null
     }
@@ -258,7 +258,7 @@ object FileUtil {
         try {
             val result = BufferedReader(FileReader("/proc/cpuinfo")).readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
             return if ("0" == result) "暂无" else result
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         }
         return "暂无"
     }
@@ -345,7 +345,7 @@ object FileUtil {
                 context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + file.path)))
             }
             return result
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         } finally {
             bitmap.recycle()
         }
