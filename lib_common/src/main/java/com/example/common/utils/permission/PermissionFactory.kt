@@ -23,6 +23,31 @@ import java.text.MessageFormat
  * 根据项目需求哪取需要的权限组
  */
 class PermissionFactory(private val context: Context) {
+
+    companion object {
+
+        /**
+         * 权限检测
+         */
+        fun checkSelfPermission(context: Context, vararg permission: String): Boolean {
+            for (perm in permission) {
+                if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(context, perm)) return false
+            }
+            return true
+        }
+
+        /**
+         * 定位权限组
+         */
+        fun checkSelfLocation(context: Context) = checkSelfPermission(context, Permission.ACCESS_FINE_LOCATION, Permission.ACCESS_COARSE_LOCATION)
+
+        /**
+         * 存储权限组
+         */
+        fun checkSelfStorage(context: Context) = checkSelfPermission(context, Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE)
+
+    }
+
     private val andDialog by lazy { AndDialog(context) }
     private val permsGroup = arrayOf(
         LOCATION,//定位
@@ -98,25 +123,5 @@ class PermissionFactory(private val context: Context) {
             }
         }
     }
-
-    /**
-     * 权限检测
-     */
-    private fun checkSelfPermission(vararg permission: String): Boolean {
-        for (perm in permission) {
-            if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(context, perm)) return false
-        }
-        return true
-    }
-
-    /**
-     * 定位权限组
-     */
-    fun checkSelfLocation() = checkSelfPermission(Permission.ACCESS_FINE_LOCATION, Permission.ACCESS_COARSE_LOCATION)
-
-    /**
-     * 存储权限组
-     */
-    fun checkSelfStorage() = checkSelfPermission(Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE)
 
 }
