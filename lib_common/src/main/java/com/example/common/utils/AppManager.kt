@@ -14,16 +14,14 @@ import kotlin.system.exitProcess
  */
 object AppManager {
     private val activityStack = Stack<Activity>()//存储activity栈
-    val stackCount get() = activityStack.size//当前栈内所有的activity
+    val stackCount get() = activityStack.size//当前栈内所有的activity总数
 
     /**
      * 循环所有栈内Activity
      */
     fun forEach(func: Activity.() -> Unit) {
         try {
-            synchronized(activityStack) {
-                activityStack.forEach(func)
-            }
+            synchronized(activityStack) { activityStack.forEach(func) }
         } catch (_: Exception) {
         }
     }
@@ -33,9 +31,7 @@ object AppManager {
      */
     fun addActivity(activity: Activity) {
         if (activityStack.size > 0) {
-            if (!activityStack.contains(activity)) {
-                activityStack.push(activity)
-            }
+            if (!activityStack.contains(activity)) activityStack.push(activity)
         } else {
             activityStack.push(activity)
         }
@@ -47,18 +43,18 @@ object AppManager {
      */
     fun currentActivity(): Activity? {
         return try {
-            synchronized(activityStack) {
-                activityStack.lastElement()
-            }
+            synchronized(activityStack) { activityStack.lastElement() }
         } catch (e: Exception) {
             null
         }
     }
 
+    /**
+     * 获取当前activity名称
+     */
     val currentActivityName: String?
         get() {
-            val am =
-                BaseApplication.instance?.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val am = BaseApplication.instance?.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             val cn = am.getRunningTasks(1)[0].topActivity
             return cn?.shortClassName
         }
@@ -192,6 +188,7 @@ object AppManager {
 
     /**
      * 判断Activity是否存在
+     * p层调用
      */
     fun isExistOtherActivity(thisActivity: Any, vararg cls: Class<*>): Boolean {
         return try {
