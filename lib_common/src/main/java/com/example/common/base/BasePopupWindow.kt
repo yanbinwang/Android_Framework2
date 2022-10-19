@@ -22,11 +22,11 @@ import java.lang.reflect.ParameterizedType
  * 外层手动绘制一个framelayout，不然宽高会有问题
  */
 @SuppressLint("NewApi")
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Activity, private val view: View, private val light: Boolean = false, private val anim: Boolean = true, private val edge: Int = Gravity.BOTTOM, ) : PopupWindow() {
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Activity, private val light: Boolean = false, private val anim: Boolean = true, private val edge: Int = Gravity.BOTTOM, ) : PopupWindow() {
     protected lateinit var binding: VDB
     protected val context: Context
         get() {
-            return view.context
+            return activity.baseContext
         }
     private val layoutParams by lazy { activity.window?.attributes }
 
@@ -130,7 +130,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
     }
 
     fun shown() {
-        if (checkShow()) showAtLocation(view, edge, 0, 0)
+        if (checkShow()) showAtLocation(binding.root, edge, 0, 0)
     }
 
     private fun setShowAttributes() {

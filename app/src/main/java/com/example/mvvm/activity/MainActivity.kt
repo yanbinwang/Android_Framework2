@@ -37,7 +37,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
         super.initEvent()
         ImageLoader.instance.display(binding.ivTest,"https://gimg2.baidu.com/image_search/src=http%3A%2…sec=1667281156&t=e58ae2416a52a53c59d079b19359abd3")
         binding.btnCopy.click {
-            testPopup.showAtLocation(binding.root, Gravity.BOTTOM, 0, 0)
+            testPopup.shown()
 //            val drawable = AppCompatResources.getDrawable(this@MainActivity, R.mipmap.ic_launcher)
 //            drawable?.setBounds(0, 0, 40, 40)
 //            val builder = SpannableStringBuilder("Hello World!")
