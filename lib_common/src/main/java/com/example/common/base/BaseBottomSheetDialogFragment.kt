@@ -22,7 +22,7 @@ import java.lang.reflect.ParameterizedType
  * @description
  * @author
  */
-abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding>(private val fullScreen: Boolean = true) : BottomSheetDialogFragment() {
+abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment() {
     protected lateinit var binding: VDB
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity
