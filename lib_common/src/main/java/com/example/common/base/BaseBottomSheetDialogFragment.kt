@@ -16,17 +16,16 @@ import com.example.base.utils.logE
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.utils.AppManager
 import com.example.common.utils.builder.StatusBarBuilder
-import com.example.topsheet.TopSheetDialogFragment
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.*
 
 /**
  * @description
- * @author 顶部弹出的dialog
- * 可实现顶部弹出后，导航栏于弹框一致
+ * @author
  */
-abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialogFragment(), BaseImpl {
+abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding>(private val fullScreen: Boolean = true) : BottomSheetDialogFragment(), BaseImpl {
     protected lateinit var binding: VDB
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity
@@ -44,11 +43,20 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         mContext = context
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         try {
             val superclass = javaClass.genericSuperclass
             val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>
-            val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
+            val method = aClass.getDeclaredMethod(
+                "inflate",
+                LayoutInflater::class.java,
+                ViewGroup::class.java,
+                Boolean::class.javaPrimitiveType
+            )
             binding = method.invoke(null, layoutInflater, container, false) as VDB
         } catch (_: Exception) {
         }

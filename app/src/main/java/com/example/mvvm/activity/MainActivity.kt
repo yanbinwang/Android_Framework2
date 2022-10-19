@@ -9,6 +9,7 @@ import com.example.common.base.BaseTitleActivity
 import com.example.common.constant.ARouterPath
 import com.example.common.imageloader.ImageLoader
 import com.example.mvvm.databinding.ActivityMainBinding
+import com.example.mvvm.widget.TestPPP
 import com.example.mvvm.widget.TestPopup
 
 
@@ -18,6 +19,7 @@ import com.example.mvvm.widget.TestPopup
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
     private val testPopup by lazy { TestPopup(this) }
+    private val testPPP by lazy { TestPPP() }
 
     override fun initView() {
         super.initView()
@@ -31,51 +33,9 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
         super.initEvent()
         ImageLoader.instance.display(binding.ivTest,"https://gimg2.baidu.com/image_search/src=http%3A%2…sec=1667281156&t=e58ae2416a52a53c59d079b19359abd3")
         binding.btnCopy.click {
-            testPopup.show()
-//            val drawable = AppCompatResources.getDrawable(this@MainActivity, R.mipmap.ic_launcher)
-//            drawable?.setBounds(0, 0, 40, 40)
-//            val builder = SpannableStringBuilder("Hello World!")
-////            builder.setSpan(AtUserSpan(drawable!!), 3, 9, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
-//
-//
-//            val d = AppCompatResources.getDrawable(this@MainActivity, R.mipmap.ic_launcher)
-//            d?.setBounds(0, 0, d.intrinsicWidth, d.intrinsicHeight)
-//            val span = ImageSpan(d!!, ImageSpan.ALIGN_BASELINE)
-//            builder.setSpan(span, 2, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-//
-//
-//
-//
-//
-//
-//            binding.edt.setText(builder)
+//            testPopup.show()
+            testPPP.show(supportFragmentManager,"testPPP")
         }
     }
-
-//    fun getTextDraw(text: String, height: Int, width: Int): Drawable {
-//        val newBitmap = createBitmap(width, height, Bitmap.Config.ARGB_8888);
-//        val canvas = Canvas(newBitmap);
-//        canvas.drawColor(Color.BLACK)
-//        canvas.drawBitmap(newBitmap, 0f, 0f, null)
-//        val textPaint = TextPaint()
-//        textPaint.isAntiAlias = true
-//        textPaint.textSize = (height * 2 / 3).toSafeFloat()
-//        textPaint.color = Color.BLACK;
-//        //在Android开发中，Canvas.drawText不会换行，即使一个很长的字符串也只会显示一行，超出部分会隐藏在屏幕之外.StaticLayout是android中处理文字的一个工具类，StaticLayout 处理了文字换行的问题";
-//        val sl = StaticLayout(
-//            text,
-//            textPaint,
-//            newBitmap.width,
-//            Layout.Alignment.ALIGN_NORMAL,
-//            1.0f,
-//            0.0f,
-//            false
-//        )
-//        textPaint.style = Paint.Style.FILL;
-//        canvas.translate(0f, (height / 10).toSafeFloat())
-//        sl.draw(canvas)
-//        return BitmapDrawable(newBitmap)
-//    }
-
 
 }
