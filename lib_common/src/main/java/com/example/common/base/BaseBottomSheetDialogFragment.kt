@@ -11,21 +11,18 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.example.base.utils.function.value.currentTimeNano
 import com.example.base.utils.function.value.orFalse
-import com.example.base.utils.function.view.*
 import com.example.base.utils.logE
-import com.example.common.base.bridge.BaseImpl
 import com.example.common.utils.AppManager
 import com.example.common.utils.builder.StatusBarBuilder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
-import java.util.*
 
 /**
  * @description
  * @author
  */
-abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding>(private val fullScreen: Boolean = true) : BottomSheetDialogFragment(), BaseImpl {
+abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding>(private val fullScreen: Boolean = true) : BottomSheetDialogFragment() {
     protected lateinit var binding: VDB
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity
@@ -43,20 +40,11 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding>(private val 
         mContext = context
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         try {
             val superclass = javaClass.genericSuperclass
             val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>
-            val method = aClass.getDeclaredMethod(
-                "inflate",
-                LayoutInflater::class.java,
-                ViewGroup::class.java,
-                Boolean::class.javaPrimitiveType
-            )
+            val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
             binding = method.invoke(null, layoutInflater, container, false) as VDB
         } catch (_: Exception) {
         }
@@ -82,51 +70,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding>(private val 
 
     override fun dismiss() {
         super.dismissAllowingStateLoss()
-    }
-
-    override fun initView() {
-    }
-
-    override fun initEvent() {
-    }
-
-    override fun initData() {
-    }
-
-    override fun isEmpty(vararg objs: Any?): Boolean {
-        objs.forEach {
-            if (it == null) {
-                return true
-            } else if (it is String && it == "") {
-                return true
-            }
-        }
-        return false
-    }
-
-    override fun ENABLED(vararg views: View?, second: Long) {
-        views.forEach {
-            if (it != null) {
-                it.disable()
-                Timer().schedule(object : TimerTask() {
-                    override fun run() {
-                        mActivity.runOnUiThread { it.enable() }
-                    }
-                }, second)
-            }
-        }
-    }
-
-    override fun VISIBLE(vararg views: View?) {
-        views.forEach { it?.visible() }
-    }
-
-    override fun INVISIBLE(vararg views: View?) {
-        views.forEach { it?.invisible() }
-    }
-
-    override fun GONE(vararg views: View?) {
-        views.forEach { it?.gone() }
     }
 
     override fun onDetach() {
