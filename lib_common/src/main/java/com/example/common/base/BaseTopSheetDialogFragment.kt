@@ -11,19 +11,22 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.example.base.utils.function.value.currentTimeNano
 import com.example.base.utils.function.value.orFalse
+import com.example.base.utils.function.view.*
 import com.example.base.utils.logE
+import com.example.common.base.bridge.BaseImpl
 import com.example.common.utils.AppManager
 import com.example.common.utils.builder.StatusBarBuilder
 import com.example.topsheet.TopSheetDialogFragment
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
+import java.util.*
 
 /**
  * @description
  * @author 顶部弹出的dialog
  * 可实现顶部弹出后，导航栏于弹框一致
  */
-abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialogFragment() {
+abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialogFragment() , BaseImpl {
     protected lateinit var binding: VDB
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity
@@ -52,6 +55,13 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initView()
+        initEvent()
+        initData()
+    }
+
     override fun show(manager: FragmentManager, tag: String?) {
         if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
         if (isAdded) return
@@ -71,6 +81,51 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
 
     override fun dismiss() {
         super.dismissAllowingStateLoss()
+    }
+
+    override fun initView() {
+    }
+
+    override fun initEvent() {
+    }
+
+    override fun initData() {
+    }
+
+    override fun isEmpty(vararg objs: Any?): Boolean {
+        objs.forEach {
+            if (it == null) {
+                return true
+            } else if (it is String && it == "") {
+                return true
+            }
+        }
+        return false
+    }
+
+    override fun ENABLED(vararg views: View?, second: Long) {
+        views.forEach {
+            if (it != null) {
+                it.disable()
+                Timer().schedule(object : TimerTask() {
+                    override fun run() {
+                        mActivity.runOnUiThread { it.enable() }
+                    }
+                }, second)
+            }
+        }
+    }
+
+    override fun VISIBLE(vararg views: View?) {
+        views.forEach { it?.visible() }
+    }
+
+    override fun INVISIBLE(vararg views: View?) {
+        views.forEach { it?.invisible() }
+    }
+
+    override fun GONE(vararg views: View?) {
+        views.forEach { it?.gone() }
     }
 
     override fun onDetach() {
