@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ImageSpan
+import android.view.Gravity
 import androidx.appcompat.content.res.AppCompatResources
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.base.utils.function.view.click
@@ -14,6 +15,7 @@ import com.example.common.constant.ARouterPath
 import com.example.common.imageloader.ImageLoader
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
+import com.example.mvvm.widget.TestPopup
 
 
 /**
@@ -21,6 +23,7 @@ import com.example.mvvm.databinding.ActivityMainBinding
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
+    private val testPopup by lazy { TestPopup(this,binding.root) }
 
     override fun initView() {
         super.initView()
@@ -34,28 +37,24 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
         super.initEvent()
         ImageLoader.instance.display(binding.ivTest,"https://gimg2.baidu.com/image_search/src=http%3A%2…sec=1667281156&t=e58ae2416a52a53c59d079b19359abd3")
         binding.btnCopy.click {
-            val drawable = AppCompatResources.getDrawable(this@MainActivity, R.mipmap.ic_launcher)
-            drawable?.setBounds(0, 0, 40, 40)
-            val builder = SpannableStringBuilder("Hello World!")
-//            builder.setSpan(AtUserSpan(drawable!!), 3, 9, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
-
-
-            val d = AppCompatResources.getDrawable(this@MainActivity, R.mipmap.ic_launcher)
-            d?.setBounds(0, 0, d.intrinsicWidth, d.intrinsicHeight)
-            val span = ImageSpan(d!!, ImageSpan.ALIGN_BASELINE)
-            builder.setSpan(span, 2, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-
-
-
-
-
-            binding.edt.setText(builder)
-
-
-//            val span = AtUserSpan(ContextCompat.getColor(this, R.color.blue_2e60df))
-//            span.name = "老王"
-//            binding.edt.parseAtUser(span)
+            testPopup.showAtLocation(binding.root, Gravity.BOTTOM, 0, 0)
+//            val drawable = AppCompatResources.getDrawable(this@MainActivity, R.mipmap.ic_launcher)
+//            drawable?.setBounds(0, 0, 40, 40)
+//            val builder = SpannableStringBuilder("Hello World!")
+////            builder.setSpan(AtUserSpan(drawable!!), 3, 9, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+//
+//
+//            val d = AppCompatResources.getDrawable(this@MainActivity, R.mipmap.ic_launcher)
+//            d?.setBounds(0, 0, d.intrinsicWidth, d.intrinsicHeight)
+//            val span = ImageSpan(d!!, ImageSpan.ALIGN_BASELINE)
+//            builder.setSpan(span, 2, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+//
+//
+//
+//
+//
+//
+//            binding.edt.setText(builder)
         }
     }
 

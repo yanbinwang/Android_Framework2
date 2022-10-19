@@ -2,6 +2,7 @@ package com.example.common.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -13,21 +14,21 @@ import android.widget.PopupWindow
 import androidx.databinding.ViewDataBinding
 import com.example.base.utils.function.value.orFalse
 import com.example.common.R
-import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 
 /**
  * Created by WangYanBin on 2020/7/13.
  * 所有弹框的基类
+ * 外层手动绘制一个framelayout，不然宽高会有问题
  */
 @SuppressLint("NewApi")
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Activity, private val light: Boolean = false) : PopupWindow() {
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Activity, private val view: View, private val light: Boolean = false, private val anim: Boolean = true, private val edge: Int = Gravity.BOTTOM, ) : PopupWindow() {
     protected lateinit var binding: VDB
-    private val layoutParams by lazy { activity.window?.attributes }
-    protected val mActivity: Activity
+    protected val context: Context
         get() {
-            return WeakReference(activity).get() ?: activity
+            return view.context
         }
+    private val layoutParams by lazy { activity.window?.attributes }
 
     init {
         val type = javaClass.genericSuperclass
@@ -39,38 +40,41 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
                 contentView = binding.root
             } catch (_: Exception) {
             }
+            height = ViewGroup.LayoutParams.MATCH_PARENT
+            width = ViewGroup.LayoutParams.MATCH_PARENT
             isFocusable = true
             isOutsideTouchable = true
+            softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setTransition()
-            height = ViewGroup.LayoutParams.WRAP_CONTENT
-            width = ViewGroup.LayoutParams.MATCH_PARENT
-            softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
             setDismissAttributes()
         }
     }
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     //默认底部弹出，可重写
-    protected open fun setTransition(setting: Boolean = true) {
-        if (setting) {
+    protected open fun setTransition() {
+        if (anim) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 enterTransition = Slide().apply {
                     duration = 500
                     mode = Visibility.MODE_IN
-                    slideEdge = Gravity.BOTTOM
+                    slideEdge = edge
                 }
                 setExitTransition(Slide().apply {
                     duration = 500
                     mode = Visibility.MODE_OUT
-                    slideEdge = Gravity.BOTTOM
+                    slideEdge = edge
                 })
             } else {
-                animationStyle = R.style.pushBottomAnimStyle
+                animationStyle = when (edge) {
+                    Gravity.TOP -> R.style.pushTopAnimStyle
+                    Gravity.BOTTOM -> R.style.pushBottomAnimStyle
+                    Gravity.START, Gravity.LEFT -> R.style.pushLeftAnimStyle
+                    else -> R.style.pushRightAnimStyle
+                }
             }
         } else {
-//            enterTransition = null
-//            exitTransition = null
             animationStyle = -1
         }
     }
@@ -78,7 +82,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
 
     // <editor-fold defaultstate="collapsed" desc="重写方法">
     override fun showAsDropDown(anchor: View?) {
-        if (show()) {
+        if (checkShow()) {
             try {
                 setShowAttributes()
                 super.showAsDropDown(anchor)
@@ -88,7 +92,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
     }
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int) {
-        if (show()) {
+        if (checkShow()) {
             try {
                 setShowAttributes()
                 super.showAsDropDown(anchor, xoff, yoff)
@@ -98,7 +102,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
     }
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
-        if (show()) {
+        if (checkShow()) {
             try {
                 setShowAttributes()
                 super.showAsDropDown(anchor, xoff, yoff, gravity)
@@ -108,21 +112,13 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
     }
 
     override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
-        if (show()) {
+        if (checkShow()) {
             try {
                 setShowAttributes()
                 super.showAtLocation(parent, gravity, x, y)
             } catch (_: Exception) {
             }
         }
-    }
-
-    private fun show(): Boolean {
-        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return false
-        if (activity.isFinishing.orFalse) return false
-        if (activity.isDestroyed.orFalse) return false
-        if (isShowing) return false
-        return true
     }
 
     override fun dismiss() {
@@ -133,11 +129,23 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
         super.dismiss()
     }
 
+    fun shown() {
+        if (checkShow()) showAtLocation(view, edge, 0, 0)
+    }
+
     private fun setShowAttributes() {
         if (light) {
             layoutParams?.alpha = 0.7f
             activity.window?.attributes = layoutParams
         }
+    }
+
+    private fun checkShow(): Boolean {
+        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return false
+        if (activity.isFinishing.orFalse) return false
+        if (activity.isDestroyed.orFalse) return false
+        if (isShowing) return false
+        return true
     }
 
     private fun setDismissAttributes() {

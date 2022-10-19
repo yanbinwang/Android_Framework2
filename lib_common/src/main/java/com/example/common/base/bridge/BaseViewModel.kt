@@ -1,6 +1,7 @@
 package com.example.common.base.bridge
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -40,6 +41,10 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val activity: FragmentActivity
         get() {
             return weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity()
+        }
+    protected val context: Context
+        get() {
+            return activity.baseContext
         }
     protected val view: BaseView?
         get() {

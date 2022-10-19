@@ -71,12 +71,36 @@
         <item name="android:shadowDy">3</item>
     </style>
 
+    <!-- 顶部弹窗动画 -->
+    <style name="pushTopAnimStyle">
+        <!-- 指定显示的动画xml -->
+        <item name="android:windowEnterAnimation">@anim/set_translate_top_in</item>
+        <!-- 指定消失的动画xml -->
+        <item name="android:windowExitAnimation">@anim/set_translate_top_out</item>
+    </style>
+
     <!-- 底部弹窗动画 -->
     <style name="pushBottomAnimStyle">
         <!-- 指定显示的动画xml -->
         <item name="android:windowEnterAnimation">@anim/set_translate_bottom_in</item>
         <!-- 指定消失的动画xml -->
         <item name="android:windowExitAnimation">@anim/set_translate_bottom_out</item>
+    </style>
+
+    <!-- 左侧弹窗动画 -->
+    <style name="pushLeftAnimStyle">
+        <!-- 指定显示的动画xml -->
+        <item name="android:windowEnterAnimation">@anim/set_translate_left_in</item>
+        <!-- 指定消失的动画xml -->
+        <item name="android:windowExitAnimation">@anim/set_translate_left_out</item>
+    </style>
+
+    <!-- 右侧弹窗动画 -->
+    <style name="pushRightAnimStyle">
+        <!-- 指定显示的动画xml -->
+        <item name="android:windowEnterAnimation">@anim/set_translate_right_in</item>
+        <!-- 指定消失的动画xml -->
+        <item name="android:windowExitAnimation">@anim/set_translate_right_out</item>
     </style>
 
     <!-- 黑样式-用于白电池界面 -->

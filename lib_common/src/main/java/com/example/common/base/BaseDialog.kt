@@ -19,6 +19,7 @@ import java.lang.reflect.ParameterizedType
 /**
  * Created by WangYanBin on 2020/7/13.
  * 所有弹框的基类
+ * 外层无需绘制额外布局，但需要指定宽高
  */
 abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: Int = 320, dialogHeight: Int = ViewGroup.LayoutParams.WRAP_CONTENT, themeResId: Int = R.style.appDialogStyle, anim: Boolean = false, close: Boolean = false) : Dialog(context, themeResId) {
     protected lateinit var binding: VDB
@@ -36,7 +37,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
             window?.let { dialogWindow ->
                 val lp = dialogWindow.attributes
                 lp.width = dialogWidth.dp
-                lp.height = if (dialogHeight != ViewGroup.LayoutParams.WRAP_CONTENT) dialogHeight.dp else ViewGroup.LayoutParams.WRAP_CONTENT
+                lp.height = if (dialogHeight != ViewGroup.LayoutParams.WRAP_CONTENT) dialogHeight.dp else dialogHeight
                 dialogWindow.attributes = lp
             }
             if (anim) {

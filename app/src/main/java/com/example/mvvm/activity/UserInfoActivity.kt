@@ -25,10 +25,10 @@ class UserInfoActivity : BaseActivity<ActivityUserInfoBinding>() {
     override fun initEvent() {
         super.initEvent()
         binding.btnTest.setOnClickListener {
-            //发送消息
-            EventBus.instance.post(
-                Event(Constants.APP_USER_LOGIN, "50998"),
-                Event(Constants.APP_USER_LOGIN_OUT))
+//            //发送消息
+//            EventBus.instance.post(
+//                Event(Constants.APP_USER_LOGIN, "50998"),
+//                Event(Constants.APP_USER_LOGIN_OUT))
             finish()
         }
     }
