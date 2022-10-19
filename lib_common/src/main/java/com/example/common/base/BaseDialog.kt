@@ -4,15 +4,16 @@ import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Looper
-import android.view.Gravity
+import android.view.Gravity.CENTER
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.databinding.ViewDataBinding
-import com.example.base.utils.LogUtil
 import com.example.base.utils.function.inAnimation
 import com.example.base.utils.function.outAnimation
 import com.example.base.utils.function.value.orFalse
+import com.example.base.utils.logE
 import com.example.common.R
 import com.example.common.utils.dp
 import java.lang.reflect.ParameterizedType
@@ -25,7 +26,7 @@ import java.lang.reflect.ParameterizedType
  * window?.setWindowAnimations(R.style.pushRightAnimStyle)
  * window?.setGravity(Gravity.TOP xor Gravity.END)
  */
-abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: Int = 320, dialogHeight: Int = ViewGroup.LayoutParams.WRAP_CONTENT, gravity: Int = Gravity.CENTER, themeResId: Int = R.style.appDialogStyle, anim: Boolean = false, close: Boolean = false) : Dialog(context, themeResId) {
+abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: Int = 320, dialogHeight: Int = WRAP_CONTENT, gravity: Int = CENTER, themeResId: Int = R.style.appDialogStyle, anim: Boolean = false, close: Boolean = false) : Dialog(context, themeResId) {
     protected lateinit var binding: VDB
 
     init {
@@ -75,7 +76,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
         try {
             super.show()
         } catch (e: Exception) {
-            LogUtil.e(e.toString())
+            e.toString().logE
         }
     }
 
