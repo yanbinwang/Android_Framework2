@@ -16,7 +16,6 @@ import com.example.base.utils.logE
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.utils.AppManager
 import com.example.common.utils.builder.StatusBarBuilder
-import com.example.topsheet.TopSheetDialogFragment
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.*
