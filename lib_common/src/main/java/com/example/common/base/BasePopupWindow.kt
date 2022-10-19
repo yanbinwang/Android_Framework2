@@ -20,6 +20,7 @@ import java.lang.reflect.ParameterizedType
  * Created by WangYanBin on 2020/7/13.
  * 所有弹框的基类
  * 外层手动绘制一个framelayout，不然宽高会有问题
+ * 原则上不鼓励使用，因为要传activity
  */
 @SuppressLint("NewApi")
 abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Activity, private val light: Boolean = false, private val anim: Boolean = true, private val edge: Int = Gravity.BOTTOM, ) : PopupWindow() {

@@ -54,6 +54,7 @@ dependencies {
     api files('libs/tbs_sdk_thirdapp_v4.3.0.299_44199_sharewithdownloadwithfile_withoutGame_obfs_20220615_101728.jar')
     //框架库
     api project(':lib_base')
+    api project(':lib_top_sheet')
     //网络请求
     api deps.retrofit2.retrofit
     api deps.retrofit2.converter_gson
