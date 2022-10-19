@@ -1,11 +1,6 @@
 package com.example.mvvm.activity
 
 import android.annotation.SuppressLint
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.style.ImageSpan
-import android.view.Gravity
-import androidx.appcompat.content.res.AppCompatResources
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.base.utils.function.view.click
 import com.example.base.utils.function.view.focus
@@ -13,7 +8,6 @@ import com.example.base.utils.function.view.openDecor
 import com.example.common.base.BaseTitleActivity
 import com.example.common.constant.ARouterPath
 import com.example.common.imageloader.ImageLoader
-import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.TestPopup
 
@@ -23,7 +17,7 @@ import com.example.mvvm.widget.TestPopup
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
-    private val testPopup by lazy { TestPopup(this,binding.root) }
+    private val testPopup by lazy { TestPopup(this) }
 
     override fun initView() {
         super.initView()
@@ -37,7 +31,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
         super.initEvent()
         ImageLoader.instance.display(binding.ivTest,"https://gimg2.baidu.com/image_search/src=http%3A%2…sec=1667281156&t=e58ae2416a52a53c59d079b19359abd3")
         binding.btnCopy.click {
-            testPopup.shown()
+            testPopup.show()
 //            val drawable = AppCompatResources.getDrawable(this@MainActivity, R.mipmap.ic_launcher)
 //            drawable?.setBounds(0, 0, 40, 40)
 //            val builder = SpannableStringBuilder("Hello World!")
