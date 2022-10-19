@@ -42,7 +42,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
             window?.let { it ->
                 val lp = it.attributes
                 lp.width = dialogWidth.dp
-                lp.height = if (dialogHeight != ViewGroup.LayoutParams.WRAP_CONTENT) dialogHeight.dp else dialogHeight
+                lp.height = if (dialogHeight != WRAP_CONTENT) dialogHeight.dp else dialogHeight
                 it.attributes = lp
                 it.setGravity(gravity)
             }
