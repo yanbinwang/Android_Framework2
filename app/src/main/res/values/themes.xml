@@ -2,8 +2,6 @@
 
     <!-- 启动页，直接背景是一张启动页图，点开app就是引导页的展示 -->
     <style name="splashTheme" parent="AppTheme">
-        <item name="colorPrimaryDark">@color/blue_3d81f2</item>
-        <item name="android:navigationBarColor">@color/blue_3d81f2</item>
         <item name="android:windowBackground">@drawable/layout_list_splash</item>
         <item name="android:windowAnimationStyle">@null</item>
     </style>

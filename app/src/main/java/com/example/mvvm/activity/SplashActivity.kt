@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         if (!isTaskRoot
             && intent.hasCategory(Intent.CATEGORY_LAUNCHER)
             && intent.action != null
@@ -20,6 +19,8 @@ class SplashActivity : AppCompatActivity() {
             finish()
             return
         }
+//        statusBarBuilder.statusBarFullScreen()
+        super.onCreate(savedInstanceState)
         startActivity(Intent(this, StartActivity::class.java))
         finish()
     }
