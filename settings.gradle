@@ -18,4 +18,3 @@ rootProject.name = "Android_Framework2"
 include ':app'
 include ':lib_common'
 include ':lib_base'
-include ':lib_top_sheet'
