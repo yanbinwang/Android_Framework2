@@ -1,6 +1,5 @@
 package com.example.common.base
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color
@@ -10,26 +9,28 @@ import android.os.Looper
 import android.transition.Slide
 import android.transition.Visibility
 import android.view.*
+import android.view.Gravity.*
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.PopupWindow
 import androidx.databinding.ViewDataBinding
 import com.example.base.utils.function.value.orFalse
 import com.example.common.R
+import com.example.common.utils.dp
 import java.lang.reflect.ParameterizedType
 
 /**
  * Created by WangYanBin on 2020/7/13.
  * 所有弹框的基类
- * 外层手动绘制一个framelayout，不然宽高会有问题
- * 原则上不鼓励使用，因为要传activity
+ * 用于实现上下左右弹出的效果，如有特殊需求，重写animation
+ * 默认底部显示弹出
  */
-@SuppressLint("NewApi")
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Activity, private val light: Boolean = false, private val anim: Boolean = true, private val edge: Int = Gravity.BOTTOM, ) : PopupWindow() {
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window, popupWidth: Int = MATCH_PARENT, popupHeight: Int = MATCH_PARENT, private val gravity: Int = BOTTOM, private val edge: Int = BOTTOM, private val animation: Boolean = true, private val light: Boolean = false) : PopupWindow() {
     protected lateinit var binding: VDB
     protected val context: Context
         get() {
-            return activity.baseContext
+            return window.context
         }
-    private val layoutParams by lazy { activity.window?.attributes }
+    private val layoutParams by lazy { window.attributes }
 
     init {
         val type = javaClass.genericSuperclass
@@ -37,12 +38,12 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
             try {
                 val vbClass = type.actualTypeArguments[0] as Class<VDB>
                 val method = vbClass.getMethod("inflate", LayoutInflater::class.java)
-                binding = method.invoke(null, activity.layoutInflater) as VDB
+                binding = method.invoke(null, window.layoutInflater) as VDB
                 contentView = binding.root
             } catch (_: Exception) {
             }
-            height = ViewGroup.LayoutParams.MATCH_PARENT
-            width = ViewGroup.LayoutParams.MATCH_PARENT
+            width = if (popupWidth < 0) popupWidth else popupWidth.dp
+            height = if (popupHeight < 0) popupHeight else popupHeight.dp
             isFocusable = true
             isOutsideTouchable = true
             softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
@@ -55,7 +56,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     //默认底部弹出，可重写
     protected open fun setTransition() {
-        if (anim) {
+        if (animation) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 enterTransition = Slide().apply {
                     duration = 500
@@ -68,10 +69,10 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
                     slideEdge = edge
                 })
             } else {
-                animationStyle = when (edge) {
-                    Gravity.TOP -> R.style.pushTopAnimStyle
-                    Gravity.BOTTOM -> R.style.pushBottomAnimStyle
-                    Gravity.START, Gravity.LEFT -> R.style.pushLeftAnimStyle
+                animationStyle = when (gravity) {
+                    TOP -> R.style.pushTopAnimStyle
+                    BOTTOM -> R.style.pushBottomAnimStyle
+                    START, LEFT -> R.style.pushLeftAnimStyle
                     else -> R.style.pushRightAnimStyle
                 }
             }
@@ -83,78 +84,71 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
 
     // <editor-fold defaultstate="collapsed" desc="重写方法">
     override fun showAsDropDown(anchor: View?) {
-        if (checkShow()) {
-            try {
-                setShowAttributes()
-                super.showAsDropDown(anchor)
-            } catch (_: Exception) {
-            }
+        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
+        if ((context as? Activity)?.isFinishing.orFalse) return
+        try {
+            setShowAttributes()
+            super.showAsDropDown(anchor)
+        } catch (_: Exception) {
         }
     }
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int) {
-        if (checkShow()) {
-            try {
-                setShowAttributes()
-                super.showAsDropDown(anchor, xoff, yoff)
-            } catch (_: Exception) {
-            }
+        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
+        if ((context as? Activity)?.isFinishing.orFalse) return
+        try {
+            setShowAttributes()
+            super.showAsDropDown(anchor, xoff, yoff)
+        } catch (_: Exception) {
         }
     }
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
-        if (checkShow()) {
-            try {
-                setShowAttributes()
-                super.showAsDropDown(anchor, xoff, yoff, gravity)
-            } catch (_: Exception) {
-            }
+        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
+        if ((context as? Activity)?.isFinishing.orFalse) return
+        try {
+            setShowAttributes()
+            super.showAsDropDown(anchor, xoff, yoff, gravity)
+        } catch (_: Exception) {
         }
     }
 
     override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
-        if (checkShow()) {
-            try {
-                setShowAttributes()
-                super.showAtLocation(parent, gravity, x, y)
-            } catch (_: Exception) {
-            }
+        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
+        if ((context as? Activity)?.isFinishing.orFalse) return
+        if ((context as? Activity)?.isDestroyed.orFalse) return
+        try {
+            setShowAttributes()
+            super.showAtLocation(parent, gravity, x, y)
+        } catch (_: Exception) {
         }
     }
 
     override fun dismiss() {
         if (!isShowing) return
-        if (activity.isFinishing.orFalse) return
-        if (activity.isDestroyed.orFalse) return
-        if (activity.window?.windowManager == null) return
+        if ((context as? Activity)?.isFinishing.orFalse) return
+        if ((context as? Activity)?.isDestroyed.orFalse) return
+        if ((context as? Activity)?.window?.windowManager == null) return
         super.dismiss()
         binding.unbind()
     }
 
     fun shown() {
-        if (checkShow()) showAtLocation(binding.root, edge, 0, 0)
+        showAtLocation(binding.root, gravity, 0, 0)
     }
 
     private fun setShowAttributes() {
         if (light) {
             layoutParams?.alpha = 0.7f
-            activity.window?.attributes = layoutParams
+            window.attributes = layoutParams
         }
-    }
-
-    private fun checkShow(): Boolean {
-        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return false
-        if (activity.isFinishing.orFalse) return false
-        if (activity.isDestroyed.orFalse) return false
-        if (isShowing) return false
-        return true
     }
 
     private fun setDismissAttributes() {
         if (light) {
             setOnDismissListener {
                 layoutParams?.alpha = 1f
-                activity.window?.attributes = layoutParams
+                window.attributes = layoutParams
             }
         }
     }
