@@ -8,6 +8,7 @@ import com.example.base.utils.function.view.openDecor
 import com.example.common.base.BaseTitleActivity
 import com.example.common.constant.ARouterPath
 import com.example.common.imageloader.ImageLoader
+import com.example.common.widget.dialog.AppDialog
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.TestPPP
 import com.example.mvvm.widget.TestPopup
@@ -18,8 +19,8 @@ import com.example.mvvm.widget.TestPopup
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
-    private val testPopup by lazy { TestPopup(this) }
-    private val testPPP by lazy { TestPPP() }
+    private val appDialog by lazy { AppDialog(this) }
+    private val testPPP by lazy { TestPopup(window) }
 
     override fun initView() {
         super.initView()
@@ -33,9 +34,13 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
         super.initEvent()
         ImageLoader.instance.display(binding.ivTest,"https://gimg2.baidu.com/image_search/src=http%3A%2…sec=1667281156&t=e58ae2416a52a53c59d079b19359abd3")
         binding.btnCopy.click {
-//            testPopup.show()
+            appDialog.apply {
+                setParams("dsfsdfds","dsfdsfds","dsfdsfdsfsd")
+                shown()
+            }
+//            testPPP.shown()
 //            testPPP.show(supportFragmentManager,"testPPP")
-            navigation(ARouterPath.TestActivity)
+//            navigation(ARouterPath.TestActivity)
         }
     }
 

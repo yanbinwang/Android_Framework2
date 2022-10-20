@@ -7,7 +7,6 @@ import android.os.Looper
 import android.view.Gravity.CENTER
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.databinding.ViewDataBinding
 import com.example.base.utils.function.inAnimation
@@ -59,7 +58,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
         }
     }
 
-    fun shown(flag: Boolean) {
+    fun shown(flag: Boolean = false) {
         setCancelable(flag)
         if (!isShowing) show()
     }

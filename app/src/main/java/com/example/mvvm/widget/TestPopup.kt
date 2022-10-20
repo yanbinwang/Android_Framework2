@@ -2,17 +2,17 @@ package com.example.mvvm.widget
 
 import android.content.Context
 import android.view.Gravity
+import android.view.Window
 import com.example.common.R
 import com.example.common.base.BaseDialog
+import com.example.common.base.BasePopupWindow
 import com.example.mvvm.databinding.ViewPopupTopBinding
 
 /**
  * @description
  * @author
  */
-class TestPopup(context: Context) : BaseDialog<ViewPopupTopBinding>(context,180,180, gravity = Gravity.TOP xor Gravity.END) {
+class TestPopup(window: Window) : BasePopupWindow<ViewPopupTopBinding>(window, popupHeight = 180) {
     init {
-        window?.setWindowAnimations(R.style.pushRightAnimStyle)
-//        window?.setGravity(Gravity.TOP xor Gravity.END)
     }
 }

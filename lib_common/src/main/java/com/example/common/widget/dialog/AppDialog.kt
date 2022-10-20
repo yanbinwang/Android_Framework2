@@ -19,7 +19,7 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context, anim 
     var onConfirm: (() -> Unit)? = null
     var onCancel: (() -> Unit)? = null
 
-    fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = "", center: Boolean = true): AppDialog {
+    fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = "", center: Boolean = true) {
         binding.apply {
             //如果没有传入标题字段,则隐藏标题view
             if (TextUtils.isEmpty(title)) tvTip.gone()
@@ -46,12 +46,10 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context, anim 
                 onConfirm?.invoke()
             }
         }
-        return this
     }
 
-    fun setType(): AppDialog {
+    fun setType() {
         window?.setType(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
-        return this
     }
 
 }
