@@ -6,11 +6,12 @@ package com.example.common.constant
  * 阿里模块跳转配置
  */
 object ARouterPath {
-    const val MainActivity = "/app/main"
+    const val MainActivity = "/app/MainActivity"
     const val StartActivity = "/app/StartActivity"
-    const val LoginActivity = "/app/login"
-    const val TestListActivity = "/app/testList"
-    const val UserInfoActivity = "/app/userInfo"
+    const val LoginActivity = "/app/LoginActivity"
+    const val TestListActivity = "/app/TestListActivity"
+    const val UserInfoActivity = "/app/UserInfoActivity"
+    const val TestActivity = "/app/TestActivity"
     //    String StartActivity = "/main/start";//启动页
     //    String MainActivity = "/main/main";//首页
     //    //homepage模块

@@ -34,7 +34,8 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
         ImageLoader.instance.display(binding.ivTest,"https://gimg2.baidu.com/image_search/src=http%3A%2…sec=1667281156&t=e58ae2416a52a53c59d079b19359abd3")
         binding.btnCopy.click {
 //            testPopup.show()
-            testPPP.show(supportFragmentManager,"testPPP")
+//            testPPP.show(supportFragmentManager,"testPPP")
+            navigation(ARouterPath.TestActivity)
         }
     }
 

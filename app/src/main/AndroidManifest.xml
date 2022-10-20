@@ -80,7 +80,7 @@
         <activity
             android:name=".activity.MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/whiteTheme" />
+            android:theme="@style/mainTheme" />
 
         <activity
             android:name=".activity.LoginActivity"
@@ -93,6 +93,11 @@
         <activity
             android:name=".activity.TestListActivity"
             android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.TestActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/fullScreenAlphaTheme" />
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"

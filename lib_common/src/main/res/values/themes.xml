@@ -114,25 +114,28 @@
 
     <!-- 白样式-用于黑电池界面 -->
     <style name="whiteTheme" parent="AppTheme">
-        <item name="colorPrimaryDark">@color/white</item>
+        <item name="colorPrimaryDark">@color/black</item>
         <item name="android:navigationBarColor">@color/black</item><!-- 白色导航栏底部也得是黑色的 -->
         <item name="android:windowBackground">@color/white</item>
         <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
-    <!-- 透明样式,透明页面使用 -->
+    <!-- 透明样式,透明页面使用（排除导航栏）,导航栏颜色高版本可指定，目前导航栏黑色， -->
     <style name="fullScreenTransTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimaryDark">@color/black</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowBackground">@color/white_00ffffff</item>
-        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowBackground">@color/black_4c000000</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 
     <!-- 透明样式,微信支付使用 -->
     <style name="fullScreenAlphaTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowBackground">@color/white_00ffffff</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
         <item name="android:background">@color/white_00ffffff</item>
         <item name="android:windowAnimationStyle">@null</item><!-- 留意 -->
         <item name="android:windowNoTitle">true</item>
