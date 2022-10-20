@@ -44,7 +44,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         }
     protected val context: Context
         get() {
-            return activity.baseContext
+            return activity
         }
     protected val view: BaseView?
         get() {
