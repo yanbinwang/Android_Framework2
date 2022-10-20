@@ -355,7 +355,6 @@ fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
             return
         }
     }
-
     visible()
     val anim = AlphaAnimation(0f, 1f)
     anim.fillAfter = false // 设置保持动画最后的状态
@@ -423,20 +422,6 @@ fun View?.text(): String {
         is Button -> text.toString().trim { it <= ' ' }
         else -> ""
     }
-}
-
-private fun getFieldValue(obj: Any?, fieldName: String): Any? {
-    if (obj == null || fieldName.isEmpty()) return null
-    val clazz: Class<*> = obj.javaClass
-    if (clazz != Any::class.java) {
-        try {
-            val field = clazz.getDeclaredField(fieldName)
-            field.isAccessible = true
-            return field.get(obj)
-        } catch (_: Exception) {
-        }
-    }
-    return null
 }
 
 /**
