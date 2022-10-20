@@ -128,6 +128,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Acti
         if (activity.isDestroyed.orFalse) return
         if (activity.window?.windowManager == null) return
         super.dismiss()
+        binding.unbind()
     }
 
     fun shown() {

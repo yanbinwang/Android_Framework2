@@ -86,6 +86,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
         if (ownerActivity?.isDestroyed.orFalse) return
         if (window?.windowManager == null) return
         super.dismiss()
+        binding.unbind()
     }
 
 }
