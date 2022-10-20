@@ -208,7 +208,7 @@
     </style>
 
     <!-- 实际项目中往往会有自定义的导航栏，此处在原有的基础上在扩展一些属性 -->
-    <style name="indicatorStyle" parent="tabLayoutStyle">
+    <style name="tabLayoutFunctionsStyle" parent="tabLayoutStyle">
         <item name="tabPaddingStart">0dp</item>
         <item name="tabPaddingTop">0dp</item>
         <item name="tabPaddingEnd">0dp</item>
