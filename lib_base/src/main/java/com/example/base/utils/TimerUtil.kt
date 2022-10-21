@@ -14,6 +14,7 @@ object TimerUtil {
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
     private var countDownTimer: CountDownTimer? = null
+    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
 
     /**
      * 延时任务-容易造成内存泄漏
@@ -23,7 +24,7 @@ object TimerUtil {
     fun schedule(run: (() -> Unit)?, millisecond: Long = 1000) {
         Timer().schedule(object : TimerTask() {
             override fun run() {
-                WeakHandler(Looper.getMainLooper()).post { run?.invoke() }
+                weakHandler.post { run?.invoke() }
             }
         }, millisecond)
     }
@@ -38,7 +39,7 @@ object TimerUtil {
         timer = Timer()
         timerTask = object : TimerTask() {
             override fun run() {
-                WeakHandler(Looper.getMainLooper()).post { run?.invoke() }
+                weakHandler.post { run?.invoke() }
             }
         }
         timer?.schedule(timerTask, 0, millisecond)
