@@ -46,13 +46,13 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["statusBar_margin"])
     fun bindingGuidelineStatusBar(guideline: Guideline, statusBarMargin: Boolean?) {
-        //        if(statusBarMargin.orFalse) guideline.setGuidelineBegin(Constants.STATUS_BAR_HEIGHT)
         if (statusBarMargin.orFalse) guideline.setGuidelineBegin(if (StatusBarBuilder.statusBarCheckVersion()) Constants.STATUS_BAR_HEIGHT else 0)
     }
 
     @JvmStatic
     @BindingAdapter(value = ["concat_adapter"])
     fun bindingRecyclerViewConcatAdapter(rec: RecyclerView, adapter: ConcatAdapter) {
+        rec.cancelItemAnimator()
         rec.layoutManager = LinearLayoutManager(rec.context)
         rec.adapter = adapter
     }
