@@ -172,12 +172,15 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         ToastUtil.mackToastSHORT(msg, requireContext().applicationContext)
     }
 
-    override fun showDialog(flag: Boolean, second: Long) {
+    override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
         if (second >= 0) {
             Timer().schedule(object : TimerTask() {
                 override fun run() {
-                    hideDialog()
+                    launch {
+                        hideDialog()
+                        block.invoke()
+                    }
                 }
             }, second)
         }

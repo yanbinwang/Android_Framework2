@@ -22,7 +22,7 @@ interface BaseView {
      * 刷新动画dialog
      * 如果设置了second，flag可改为true
      */
-    fun showDialog(flag: Boolean = false, second: Long = -1L)
+    fun showDialog(flag: Boolean = false, second: Long = -1L, block: () -> Unit = {})
 
     /**
      * 隐藏刷新球控件
