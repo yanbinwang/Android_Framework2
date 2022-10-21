@@ -2,6 +2,7 @@ package com.example.common.http.repository
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.example.base.utils.LogUtil
@@ -49,6 +50,19 @@ fun AppCompatActivity.launch(
 ) = lifecycleScope.launch(context, start, block)
 
 fun <T> AppCompatActivity.async(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> T
+) = lifecycleScope.async(context, start, block)
+
+fun FragmentActivity.launch(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+) = lifecycleScope.launch(context, start, block)
+
+
+fun <T> FragmentActivity.async(
     context: CoroutineContext = EmptyCoroutineContext,
     start: CoroutineStart = CoroutineStart.DEFAULT,
     block: suspend CoroutineScope.() -> T
