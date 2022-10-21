@@ -2,8 +2,8 @@ package com.example.common.utils.helper
 
 import android.text.TextUtils
 import com.example.common.bean.UserBean
+import com.example.common.constant.MMKVKey.MMKV_USER_BEAN
 import com.example.common.utils.analysis.GsonUtil.jsonToObj
-import com.example.common.utils.helper.MMKVHelper.MMKV_USER_BEAN
 
 /**
  * Created by WangYanBin on 2020/8/11.
