@@ -21,7 +21,7 @@ abstract class BaseQuickAdapter<T, VB : ViewDataBinding> : BaseAdapter<T> {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewDataBindingHolder {
         context = parent.context
         val superclass = javaClass.genericSuperclass
-        val aClass = (superclass as ParameterizedType).actualTypeArguments[1] as? Class<*>
+        val aClass = (superclass as ParameterizedType).actualTypeArguments[1] as Class<*>
         return onCreateViewBindingHolder(parent, aClass as Class<VB>)
     }
 
