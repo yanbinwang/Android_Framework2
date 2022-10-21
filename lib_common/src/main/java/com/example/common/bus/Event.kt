@@ -19,6 +19,7 @@ class Event(var action: String, var value: Any? = null) {
 
     /**
      * 是否是当前对象
+     * 不做任何返回
      */
     fun Event?.isEvent(action: String, block: () -> Unit): Event? {
         this ?: return null
@@ -26,6 +27,10 @@ class Event(var action: String, var value: Any? = null) {
         return this
     }
 
+    /**
+     * 是否是当前对象
+     * 返回泛型类型
+     */
     fun <T> Event?.isEvent(action: String, block: T?.() -> Unit): Event? {
         this ?: return null
         if (this.action == action) block(value as? T)

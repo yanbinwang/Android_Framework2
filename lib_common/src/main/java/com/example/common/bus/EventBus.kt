@@ -35,8 +35,11 @@ class EventBus private constructor() {
 }
 
 /**
- * 单独某一个对象发送
+ * 发送广播
  */
 fun String.post(any: Any? = null) = EventBus.instance.post(this.event(any))
 
+/**
+ * 构建广播对象
+ */
 fun String.event(any: Any? = null) = Event(this, any)
