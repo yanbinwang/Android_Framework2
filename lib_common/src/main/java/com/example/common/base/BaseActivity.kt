@@ -26,6 +26,7 @@ import com.example.common.widget.dialog.LoadingDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.Subscribe
 import java.io.Serializable
 import java.lang.reflect.ParameterizedType
@@ -101,7 +102,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                 it.disable()
                 Timer().schedule(object : TimerTask() {
                     override fun run() {
-                        runOnUiThread { it.enable() }
+                        launch { it.enable() }
                     }
                 }, second)
             }
