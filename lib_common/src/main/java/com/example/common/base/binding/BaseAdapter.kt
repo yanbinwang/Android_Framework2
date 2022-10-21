@@ -124,7 +124,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 如果类型是集合，可以调取该方法实现局部item刷新
      */
-    fun notifyItemChanged(func: ((T) -> Boolean)) {
+    fun itemChanged(func: ((T) -> Boolean)) {
         val index = data.findIndexOf(func)
         if (index != -1) notifyItemChanged(index)
     }
@@ -132,27 +132,25 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 查找到符合条件的对象，改变为新的对象并刷新对应item
      */
-    fun notifyItemChanged(func: ((T) -> Boolean), bean: T) {
-        val index = data.findIndexOf(func)
-        if (index != -1) notifyItemChanged(bean, index)
+    fun itemChanged(func: ((T) -> Boolean), bean: T) {
+        itemChanged(bean, data.findIndexOf(func))
     }
 
     /**
      * 传入要改变的对象和对象下标，直接刷新对应item
      */
-    fun notifyItemChanged(bean: T, index: Int) {
+    fun itemChanged(bean: T, index: Int) {
         if (index != -1) {
             data[index] = bean
             notifyItemChanged(index)
         }
     }
 
-    fun notifyItemChanged(func: ((T) -> Boolean), payloads: MutableList<Any>, bean: T) {
-        val index = data.findIndexOf(func)
-        if (index != -1) notifyItemChanged(bean, index, payloads)
+    fun itemChanged(func: ((T) -> Boolean), payloads: MutableList<Any>, bean: T) {
+        itemChanged(bean, data.findIndexOf(func), payloads)
     }
 
-    fun notifyItemChanged(bean: T, index: Int, payloads: MutableList<Any>) {
+    fun itemChanged(bean: T, index: Int, payloads: MutableList<Any>) {
         if (index != -1) {
             data[index] = bean
             notifyItemChanged(index, payloads)
@@ -162,9 +160,15 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 删除某个条目
      */
-    fun notifyItemRemoved(func: ((T) -> Boolean)) {
-        val index = data.findIndexOf(func)
-        if (index != -1) notifyItemRemoved(index)
+    fun itemRemoved(func: ((T) -> Boolean)) {
+        itemRemoved(data.findIndexOf(func))
+    }
+
+    fun itemRemoved(index: Int) {
+        if (index != -1) {
+            data.removeAt(index)
+            notifyItemRemoved(index)
+        }
     }
 
     /**
