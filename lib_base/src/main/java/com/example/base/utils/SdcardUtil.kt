@@ -24,7 +24,7 @@ object SdcardUtil {
     @JvmStatic
     fun getSdcardAbsolutePath(context: Context): String {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            context.getExternalFilesDir(null)?.absolutePath ?: ""
+            context.getExternalFilesDir(null)?.absolutePath.orEmpty()
         } else {
             Environment.getExternalStorageDirectory().absolutePath
         }
@@ -36,7 +36,7 @@ object SdcardUtil {
     @JvmStatic
     fun getSdcardPath(context: Context): String {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            context.getExternalFilesDir(null)?.path ?: ""
+            context.getExternalFilesDir(null)?.path.orEmpty()
         } else {
             Environment.getExternalStorageDirectory().path
         }
