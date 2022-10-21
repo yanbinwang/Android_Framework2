@@ -7,13 +7,12 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  *  Created by wangyanbin
- *  时间工具类
- *  默认1秒，分计数和倒计时
+ *  定时器工具类
  */
 object TimerUtil {
+    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
     private val timerMap by lazy { ConcurrentHashMap<String, Pair<Timer?, TimerTask?>>() }
     private val countDownMap by lazy { ConcurrentHashMap<String, CountDownTimer?>() }
-    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
 
     /**
      * 延时任务-容易造成内存泄漏
@@ -56,12 +55,17 @@ object TimerUtil {
         timerMap.remove(tag)
     }
 
+    @JvmStatic
+    fun stopTask(vararg tags: String) {
+        tags.forEach { stopTask(it) }
+    }
+
     /**
      * 倒计时-开始
      * second-秒
      */
     @JvmStatic
-    fun startDownTask(tag: String = "COUNT_DOWN_DEFULT", onTick: ((second: Long) -> Unit)?, onFinish: (() -> Unit)?, second: Long = 1) {
+    fun startCountDown(tag: String = "COUNT_DOWN_DEFULT", onTick: ((second: Long) -> Unit)?, onFinish: (() -> Unit)?, second: Long = 1) {
         if (countDownMap[tag] == null) {
             val countDownTimer = object : CountDownTimer(second * 1000, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
@@ -70,7 +74,7 @@ object TimerUtil {
 
                 override fun onFinish() {
                     onFinish?.invoke()
-                    stopDownTask(tag)
+                    stopCountDown(tag)
                 }
             }
             countDownMap[tag] = countDownTimer
@@ -82,9 +86,14 @@ object TimerUtil {
      * 倒计时-结束
      */
     @JvmStatic
-    fun stopDownTask(tag: String = "COUNT_DOWN_DEFULT") {
+    fun stopCountDown(tag: String = "COUNT_DOWN_DEFULT") {
         countDownMap[tag]?.cancel()
         countDownMap.remove(tag)
+    }
+
+    @JvmStatic
+    fun stopCountDown(vararg tags: String) {
+        tags.forEach { stopCountDown(it) }
     }
 
     /**
