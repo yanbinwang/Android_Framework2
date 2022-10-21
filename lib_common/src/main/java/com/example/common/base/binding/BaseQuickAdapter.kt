@@ -14,7 +14,7 @@ abstract class BaseQuickAdapter<T, VB : ViewDataBinding> : BaseAdapter<T> {
 
     constructor() : super(ArrayList())
 
-    constructor(model: T?) : super(model)
+    constructor(bean: T?) : super(bean)
 
     constructor(list: MutableList<T>?) : super(list)
 

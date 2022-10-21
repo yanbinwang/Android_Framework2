@@ -18,7 +18,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 适配器类型-后续可扩展
      */
-    private var itemType = BaseItemType.MODEL
+    private var itemType = BaseItemType.BEAN
     /**
      * 数据类型为集合
      */
@@ -56,10 +56,10 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 传入对象的方法
      */
-    constructor(model: T?) {
+    constructor(bean: T?) {
         if (t != null) {
-            t = model
-            itemType = BaseItemType.MODEL
+            t = bean
+            itemType = BaseItemType.BEAN
         }
     }
 
@@ -76,7 +76,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     override fun getItemCount(): Int {
         return when (itemType) {
             BaseItemType.LIST -> data.size
-            BaseItemType.MODEL -> 1
+            BaseItemType.BEAN -> 1
         }
     }
 
@@ -98,7 +98,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
         convert(
             holder, when (itemType) {
                 BaseItemType.LIST -> data.safeGet(position)
-                BaseItemType.MODEL -> t
+                BaseItemType.BEAN -> t
             }, payloads)
     }
 
