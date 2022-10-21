@@ -5,8 +5,9 @@ package com.example.common.constant
  * app内跳转回调编码
  */
 object RequestCode {
-    //app内页面跳转回调编号
-    const val PERMISSION_REQUEST = 100 //权限回调编码
-    const val FINISH_REQUEST = 10000 //批量关闭回调编码
-    const val PHOTO_REQUEST = 10001 //图片回调编码
+    //批量关闭回调编码
+    const val REQUEST_FINISH = 10000
+
+    //图片回调编码
+    const val REQUEST_PHOTO = 10001
 }

@@ -166,7 +166,7 @@ class AlbumHelper(private val activity: Activity) {
                     .scaleTitle(true)
                     .build())
                 //创建控制面板配置
-                .requestCode(RequestCode.PHOTO_REQUEST).start()
+                .requestCode(RequestCode.REQUEST_PHOTO).start()
         }
     }
 
