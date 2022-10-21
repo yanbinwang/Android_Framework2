@@ -1,6 +1,8 @@
 package com.example.common.bus
 
 import android.os.Looper
+import androidx.lifecycle.Lifecycle
+import com.example.base.utils.function.doOnDestroy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -19,7 +21,12 @@ class EventBus private constructor() {
 
     private val busDefault get() = org.greenrobot.eventbus.EventBus.getDefault()
 
-    fun register(subscriber: Any) = run { if (!busDefault.isRegistered(subscriber)) busDefault.register(subscriber) }
+    fun register(subscriber: Any, lifecycle: Lifecycle) {
+        if (!busDefault.isRegistered(subscriber)) {
+            busDefault.register(subscriber)
+            lifecycle.doOnDestroy { busDefault.unregister(subscriber) }
+        }
+    }
 
     fun unregister(subscriber: Any) = run { if (busDefault.isRegistered(subscriber)) busDefault.unregister(subscriber) }
 

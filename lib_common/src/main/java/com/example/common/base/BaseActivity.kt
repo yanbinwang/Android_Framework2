@@ -58,7 +58,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppManager.addActivity(this)
-        if (isEventBusEnabled()) EventBus.instance.register(this)
+        if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {

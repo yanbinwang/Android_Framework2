@@ -151,7 +151,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     // <editor-fold defaultstate="collapsed" desc="生命周期回调">
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
-        if (isEventBusEnabled()) EventBus.instance.register(this)
+        if (isEventBusEnabled()) EventBus.instance.register(this, owner.lifecycle)
     }
 
     override fun onStart(owner: LifecycleOwner) {
