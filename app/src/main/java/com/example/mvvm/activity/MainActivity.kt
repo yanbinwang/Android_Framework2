@@ -42,6 +42,7 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
 //            testPPP.show(supportFragmentManager,"testPPP")
 //            navigation(ARouterPath.TestActivity)
         }
+        showDialog()
     }
 
 }

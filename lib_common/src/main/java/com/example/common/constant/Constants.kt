@@ -31,7 +31,7 @@ object Constants {
     @JvmField
     var APPLICATION_FILE_PATH: String? = null//默认文件保存路径，sd卡下的应用名文件夹
     @JvmField
-    var SDCARD_PATH = BaseApplication.instance?.getExternalFilesDir(null)?.absolutePath//sd卡的根路径mnt/sdcard-访问这个目录不需要动态申请STORAGE权限
+    var SDCARD_PATH = BaseApplication.instance.getExternalFilesDir(null)?.absolutePath//sd卡的根路径mnt/sdcard-访问这个目录不需要动态申请STORAGE权限
 
     //app内接口的一些默认配置字段
     const val APPLICATION_ID = "com.sqkj.oea"//当前包名

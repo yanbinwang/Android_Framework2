@@ -38,12 +38,12 @@ fun color(color: String?) = Color.parseColor(color ?: "#ffffff")
  * 获取resources中的color
  */
 @ColorInt
-fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance!!.applicationContext, res)
+fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.applicationContext, res)
 
 /**
  * 获取图片
  */
-fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance!!.applicationContext, res)
+fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
 
 /**
  * 获取对应大小的文字
@@ -66,7 +66,7 @@ fun Long.getFormatSize(): String {
  * 获取Manifest中的参数
  */
 fun getManifestString(name: String): String? {
-    return BaseApplication.instance!!.packageManager.getApplicationInfo(BaseApplication.instance!!.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
+    return BaseApplication.instance.packageManager.getApplicationInfo(BaseApplication.instance.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
 }
 
 /**
@@ -88,12 +88,12 @@ fun Class<*>.getTriple(pair: Pair<String, String>, name: String? = null): Triple
  */
 val Number?.dp: Int
     get() {
-        return BaseApplication.instance!!.dip2px(this.toSafeFloat())
+        return BaseApplication.instance.dip2px(this.toSafeFloat())
     }
 
 val Number?.px: Int
     get() {
-        return BaseApplication.instance!!.px2dip(this.toSafeFloat())
+        return BaseApplication.instance.px2dip(this.toSafeFloat())
     }
 
 /**

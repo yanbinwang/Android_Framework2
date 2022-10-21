@@ -9,7 +9,7 @@ import com.example.common.databinding.ViewDialogLoadingBinding
  * Created by wyb on 2017/6/28.
  * 加载动画view
  */
-class LoadingDialog(context: Context) : BaseDialog<ViewDialogLoadingBinding>(context, R.style.loadingStyle) {
+class LoadingDialog(context: Context) : BaseDialog<ViewDialogLoadingBinding>(context, dialogWidth = 160, themeResId = R.style.loadingStyle) {
 
     init {
         setOnDismissListener { binding.progress.stopSpinning() }

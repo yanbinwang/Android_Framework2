@@ -15,9 +15,9 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
  */
 fun String?.responseMsg(){
     var strTemp = this
-    val context = BaseApplication.instance?.applicationContext!!
+    val context = BaseApplication.instance.applicationContext
     if (TextUtils.isEmpty(strTemp)) strTemp = context.getString(R.string.label_response_error)
-    mackToastSHORT(if (!isNetworkAvailable()) context.getString(R.string.label_response_net_error) else strTemp!!, context)
+    mackToastSHORT(if (!isNetworkAvailable()) context.getString(R.string.label_response_net_error) else strTemp.orEmpty(), context)
 }
 
 /**

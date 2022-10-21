@@ -109,7 +109,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
         job?.cancel()
         job = launch {
             if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-                ToastUtil.mackToastSHORT("链接地址不合法", BaseApplication.instance?.applicationContext!!)
+                ToastUtil.mackToastSHORT("链接地址不合法", BaseApplication.instance.applicationContext)
                 return@launch
             }
             withContext(Dispatchers.Main) { onStart() }

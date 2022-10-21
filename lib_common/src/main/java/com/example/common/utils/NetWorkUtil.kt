@@ -20,7 +20,7 @@ import com.example.common.BaseApplication
  */
 @SuppressLint("MissingPermission")
 object NetWorkUtil {
-    private val context by lazy { BaseApplication.instance?.applicationContext!! }
+    private val context by lazy { BaseApplication.instance.applicationContext }
     private val manager by lazy { context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager }
 
     /**

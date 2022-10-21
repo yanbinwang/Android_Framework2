@@ -14,13 +14,15 @@ import com.example.base.utils.TimerUtil
  */
 @SuppressLint("AppCompatCustomView", "SetTextI18n")
 class TimeTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : TextView(context, attrs, defStyleAttr) {
+    private var tag = ""
 
     init {
         gravity = Gravity.CENTER
     }
 
-    fun countDown(time: Long = 60) {
-        TimerUtil.startDownTask({ second: Long? ->
+    fun start(tag: String = javaClass.simpleName, time: Long = 60) {
+        this.tag = tag
+        TimerUtil.startCountDown(tag, { second: Long? ->
             isEnabled = false
             text = "已发送${second}S"
         }, {
@@ -31,7 +33,7 @@ class TimeTextView @JvmOverloads constructor(context: Context, attrs: AttributeS
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        TimerUtil.stopDownTask()
+        TimerUtil.stopCountDown(tag)
     }
 
 }

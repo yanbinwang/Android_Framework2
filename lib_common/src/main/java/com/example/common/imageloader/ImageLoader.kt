@@ -135,6 +135,6 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override val cacheDir: File?
-        get() = Glide.getPhotoCacheDir(BaseApplication.instance?.applicationContext!!)
+        get() = Glide.getPhotoCacheDir(BaseApplication.instance.applicationContext)
 
 }

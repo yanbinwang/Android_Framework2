@@ -25,8 +25,7 @@ import java.util.*
 open class BaseApplication : Application() {
 
     companion object {
-        @JvmField
-        var instance: BaseApplication? = null
+        lateinit var instance: BaseApplication
     }
 
     override fun onCreate() {
@@ -38,12 +37,13 @@ open class BaseApplication : Application() {
     //初始化一些第三方控件和单例工具类等
     private fun initialize() {
         //布局初始化
-        AutoSizeConfig.getInstance().unitsManager
+        AutoSizeConfig.getInstance()
+            .unitsManager
             .setSupportDP(false)
-            .setSupportSP(false).supportSubunits = Subunits.MM
+            .setSupportSP(false)
+            .supportSubunits = Subunits.MM
         //初始化图片库类
-        Album.initialize(
-            AlbumConfig.newBuilder(this)
+        Album.initialize(AlbumConfig.newBuilder(this)
                 .setAlbumLoader(AlbumGlideLoader()) //设置Album加载器。
                 .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
                 .build())

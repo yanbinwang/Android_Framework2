@@ -54,7 +54,7 @@ object AppManager {
      */
     val currentActivityName: String?
         get() {
-            val am = BaseApplication.instance?.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val am = BaseApplication.instance.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             val cn = am.getRunningTasks(1)[0].topActivity
             return cn?.shortClassName
         }
