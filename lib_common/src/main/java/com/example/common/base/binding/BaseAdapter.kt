@@ -81,17 +81,18 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     }
 
     override fun onBindViewHolder(holder: BaseViewDataBindingHolder, position: Int) {
-        onConvert(holder, position)
+        onConvert(holder)
     }
 
     /**
      * 局部刷新notifyItemChanged可传入一个集合，用来判断是否刷新item里的某一个view，此时可以使用payloads集合
      */
     override fun onBindViewHolder(holder: BaseViewDataBindingHolder, position: Int, payloads: MutableList<Any>) {
-        onConvert(holder, position, payloads)
+        onConvert(holder, payloads)
     }
 
-    private fun onConvert(holder: BaseViewDataBindingHolder, position: Int, payloads: MutableList<Any>? = null) {
+    private fun onConvert(holder: BaseViewDataBindingHolder, payloads: MutableList<Any>? = null) {
+        val position = holder.absoluteAdapterPosition
         //注意判断当前适配器是否具有头部view
         holder.itemView.click { onItemClick?.invoke(data.safeGet(position), position) }
         convert(
