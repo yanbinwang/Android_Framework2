@@ -5,9 +5,9 @@ package com.example.common.bus
  * date: 2018/4/16.
  * 传递事件类
  */
-class Event(var action: String, var value: Any? = null) {
+class Event(var action: Int, var value: Any? = null) {
 
-    fun setAction(action: String): Event {
+    fun setAction(action: Int): Event {
         this.action = action
         return this
     }
@@ -17,24 +17,30 @@ class Event(var action: String, var value: Any? = null) {
         return this
     }
 
-    /**
-     * 是否是当前对象
-     * 不做任何返回
-     */
-    fun Event?.isEvent(action: String, block: () -> Unit): Event? {
+    fun <K> Event?.isEvent(code: Code<K>, block: K?.() -> Unit): Event? {
         this ?: return null
-        if (this.action == action) block()
+        if (this.action == code.action) {
+            block(this.value as? K)
+            return null
+        }
         return this
     }
 
-    /**
-     * 是否是当前对象
-     * 返回泛型类型
-     */
-    fun <T> Event?.isEvent(action: String, block: T?.() -> Unit): Event? {
-        this ?: return null
-        if (this.action == action) block(value as? T)
-        return this
+}
+
+class Code<T> {
+
+    companion object {
+        /**
+         * 方便设置不重复的action用
+         */
+        private var actionTime = 0
     }
+
+    var action = actionTime++
+
+    fun post(obj: T? = null) = EventBus.instance.post(event(obj))
+
+    fun event(obj: T? = null) = Event(action, obj)
 
 }

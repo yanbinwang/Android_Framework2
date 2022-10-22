@@ -24,7 +24,9 @@ class EventBus private constructor() {
     fun register(subscriber: Any, lifecycle: Lifecycle) {
         if (!busDefault.isRegistered(subscriber)) {
             busDefault.register(subscriber)
-            lifecycle.doOnDestroy { busDefault.unregister(subscriber) }
+            lifecycle.doOnDestroy {
+                busDefault.unregister(subscriber)
+            }
         }
     }
 
@@ -40,13 +42,3 @@ class EventBus private constructor() {
     }
 
 }
-
-/**
- * 发送广播
- */
-fun String.post(any: Any? = null) = EventBus.instance.post(this.event(any))
-
-/**
- * 构建广播对象
- */
-fun String.event(any: Any? = null) = Event(this, any)
