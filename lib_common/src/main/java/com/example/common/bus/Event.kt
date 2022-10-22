@@ -26,6 +26,24 @@ class Event(var action: Int, var value: Any? = null) {
         return this
     }
 
+    fun <K> Event?.isEvent(codes: List<Code<K>>, block: K?.() -> Unit): Event? {
+        this ?: return null
+        if (codes.find { this.action == it.action } != null) {
+            block(this.value as? K)
+            return null
+        }
+        return this
+    }
+
+    fun Event?.isEventAny(codes: List<Code<*>>, block: Any?.() -> Unit): Event? {
+        this ?: return null
+        if (codes.find { this.action == it.action } != null) {
+            block(this.value)
+            return null
+        }
+        return this
+    }
+
 }
 
 class Code<T> {
