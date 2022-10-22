@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import androidx.core.widget.NestedScrollView
-import com.example.base.utils.LogUtil.i
+import com.example.base.utils.logI
 import kotlin.math.abs
 
 /**
@@ -32,11 +32,11 @@ class XScrollView @JvmOverloads constructor(context: Context, attrs: AttributeSe
             MotionEvent.ACTION_DOWN -> {
                 isTop = false
                 downY = e.rawY.toInt()
-                i("-----::----downY-----::$downY")
+                "-----::----downY-----::$downY".logI
             }
             MotionEvent.ACTION_MOVE -> {
                 val moveY: Int = e.rawY.toInt()
-                i("-----::----moveY-----::$moveY")
+                "-----::----moveY-----::$moveY".logI
                 //判断是向下滑动，才设置为true
                 isTop = downY - moveY > 0
                 if (abs(moveY - downY) > touchSlop) return true

@@ -13,10 +13,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import com.alibaba.android.arouter.launcher.ARouter
-import com.example.base.utils.LogUtil
 import com.example.base.utils.function.value.orFalse
 import com.example.base.utils.function.value.orZero
 import com.example.base.utils.function.view.*
+import com.example.base.utils.logE
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
@@ -140,7 +140,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     override fun log(msg: String) {
-        LogUtil.e(TAG, msg)
+        msg.logE(TAG)
     }
 
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {

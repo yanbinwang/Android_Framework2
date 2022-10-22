@@ -42,6 +42,10 @@ val String?.logD: Unit get() { if (this != null) LogUtil.d(msg = this) }
 
 fun String?.logD(tag: String = TAG) = run { if (this != null) LogUtil.d(tag, this) }
 
+val String?.logI: Unit get() { if (this != null) LogUtil.i(msg = this) }
+
+fun String?.logI(tag: String = TAG) = run { if (this != null) LogUtil.i(tag, this) }
+
 val String?.logW: Unit get() { if (this != null) LogUtil.w(msg = this) }
 
 fun String?.logW(tag: String = TAG) = run { if (this != null) LogUtil.w(tag, this) }

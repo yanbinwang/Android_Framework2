@@ -12,10 +12,10 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.text.TextUtils
 import androidx.core.content.FileProvider
-import com.example.base.utils.LogUtil
-import com.example.base.utils.ToastUtil
+import com.example.base.utils.function.toast
 import com.example.base.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.base.utils.function.value.getDateTime
+import com.example.base.utils.logE
 import com.example.common.constant.Constants
 import java.io.*
 import java.lang.ref.SoftReference
@@ -147,7 +147,7 @@ object FileUtil {
     fun sendFile(context: Context, filePath: String, type: String? = "*/*") {
         val file = File(filePath)
         if (!file.exists()) {
-            ToastUtil.mackToastSHORT("文件路径错误", context)
+            context.toast("文件路径错误")
             return
         }
         val intent = Intent(Intent.ACTION_SEND)
@@ -287,7 +287,7 @@ object FileUtil {
 
     @Throws(Exception::class)
     private fun zipFiles(folderPath: String, fileName: String, zipOutputSteam: ZipOutputStream?) {
-        LogUtil.e("FileUtil", " \n压缩路径:$folderPath\n压缩文件名:$fileName")
+        " \n压缩路径:$folderPath\n压缩文件名:$fileName".logE("FileUtil")
         if (zipOutputSteam == null) return
         val file = File(folderPath + fileName)
         if (file.isFile) {

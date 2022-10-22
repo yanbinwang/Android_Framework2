@@ -1,6 +1,6 @@
 package com.example.common.imageloader.glide.callback.progress
 
-import com.example.base.utils.LogUtil
+import com.example.base.utils.logE
 import okhttp3.ResponseBody
 import okio.Buffer
 import okio.ForwardingSource
@@ -23,7 +23,7 @@ class ProgressSource(source: Source, var responseBody: ResponseBody, var onProgr
             totalBytesRead += bytesRead
         }
         val progress = (100f * totalBytesRead / fullLength).toInt()
-        LogUtil.e("ProgressSource", "download progress is $progress")
+        "download progress is $progress".logE("ProgressSource")
         if (progress != currentProgress) onProgress?.invoke(progress)
         if (totalBytesRead == fullLength) onProgress = null
         currentProgress = progress
