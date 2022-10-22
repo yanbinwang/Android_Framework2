@@ -25,6 +25,7 @@ import com.example.common.utils.builder.StatusBarBuilder
 import com.example.common.widget.dialog.LoadingDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.Subscribe
@@ -45,7 +46,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
     private val job = SupervisorJob()//https://blog.csdn.net/chuyouyinghe/article/details/123057776
-    override val coroutineContext: CoroutineContext get() = Dispatchers.Main + job//加上SupervisorJob，提升协程作用域
+    override val coroutineContext: CoroutineContext get() = Main + job//加上SupervisorJob，提升协程作用域
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     protected fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
@@ -158,7 +159,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         if (second >= 0) {
             Timer().schedule(object : TimerTask() {
                 override fun run() {
-                    launch(Dispatchers.Main) {
+                    launch(Main) {
                         hideDialog()
                         block.invoke()
                     }

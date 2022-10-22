@@ -3,7 +3,7 @@ package com.example.common.bus
 import android.os.Looper
 import androidx.lifecycle.Lifecycle
 import com.example.base.utils.function.doOnDestroy
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -34,7 +34,7 @@ class EventBus private constructor() {
         objs.forEach {
             when (Looper.getMainLooper()) {
                 Looper.myLooper() -> busDefault.post(it)
-                else -> GlobalScope.launch(Dispatchers.Main) { busDefault.post(it) }
+                else -> GlobalScope.launch(Main) { busDefault.post(it) }
             }
         }
     }

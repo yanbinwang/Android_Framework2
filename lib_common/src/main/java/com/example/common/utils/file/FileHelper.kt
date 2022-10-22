@@ -18,6 +18,8 @@ import com.example.common.BaseApplication
 import com.example.common.constant.Constants
 import com.example.common.subscribe.CommonSubscribe
 import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -29,7 +31,7 @@ import kotlin.coroutines.CoroutineContext
  */
 class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
     override val coroutineContext: CoroutineContext
-        get() = (Dispatchers.IO)
+        get() = (IO)
     private var job: Job? = null
 
     init {
@@ -51,7 +53,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
                 formatJpg = formatJpg,
                 clear = clear)
             //切回主线程返回路径
-            withContext(Dispatchers.Main) { onComplete(if (result) absolutePath else null) }
+            withContext(Main) { onComplete(if (result) absolutePath else null) }
         }
     }
 
@@ -79,7 +81,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
             val absolutePath = "${root}/${fileName}.jpg"
             val result = FileUtil.saveBitmap(bitmap = bitmap, root = root, fileName = fileName)
             //切回主线程返回路径
-            withContext(Dispatchers.Main) { onComplete(if (result) absolutePath else null) }
+            withContext(Main) { onComplete(if (result) absolutePath else null) }
         }
     }
 
@@ -93,14 +95,14 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
         job = launch {
             var result = true
             try {
-                withContext(Dispatchers.Main) { onStart.invoke() }
+                withContext(Main) { onStart.invoke() }
                 val fileDir = File(folderPath)
                 if (fileDir.exists()) FileUtil.zipFolder(fileDir.absolutePath, File(zipPath).absolutePath)
             } catch (e: Exception) {
                 result = false
                 LogUtil.e("FileHelper", "打包图片生成压缩文件异常: $e")
             } finally {
-                withContext(Dispatchers.Main) { onComplete(if (result) zipPath else null) }
+                withContext(Main) { onComplete(if (result) zipPath else null) }
             }
         }
     }
@@ -112,7 +114,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
                 ToastUtil.mackToastSHORT("链接地址不合法", BaseApplication.instance.applicationContext)
                 return@launch
             }
-            withContext(Dispatchers.Main) { onStart() }
+            withContext(Main) { onStart() }
             //清除目录下的所有文件
             FileUtil.deleteDir(filePath)
             var inputStream: InputStream? = null
@@ -132,16 +134,16 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
                     fileOutputStream.write(buf, 0, len)
                     sum += len.toLong()
                     val progress = (sum * 1.0f / total * 100).toInt()
-                    withContext(Dispatchers.Main) { onLoading(progress) }
+                    withContext(Main) { onLoading(progress) }
                 }
                 fileOutputStream.flush()
-                withContext(Dispatchers.Main) { onSuccess(file.path) }
+                withContext(Main) { onSuccess(file.path) }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) { onFailed(e) }
+                withContext(Main) { onFailed(e) }
             } finally {
                 inputStream?.close()
                 fileOutputStream?.close()
-                withContext(Dispatchers.Main) { onComplete() }
+                withContext(Main) { onComplete() }
             }
         }
     }
@@ -155,7 +157,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
             onStart()
             loadLayout(view, width, height)
             try {
-                onResult(withContext(Dispatchers.IO) { loadBitmap(view) })
+                onResult(withContext(IO) { loadBitmap(view) })
             } catch (_: Exception) {
             } finally {
                 onComplete()
