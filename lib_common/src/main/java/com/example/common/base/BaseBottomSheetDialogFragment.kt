@@ -168,7 +168,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     }
 
     override fun showToast(msg: String) {
-        ToastUtil.mackToastSHORT(msg, requireContext().applicationContext)
+        ToastUtil.mackToastSHORT(msg, mActivity)
     }
 
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {

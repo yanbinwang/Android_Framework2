@@ -151,7 +151,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun showToast(msg: String) {
-        ToastUtil.mackToastSHORT(msg, applicationContext)
+        ToastUtil.mackToastSHORT(msg, this)
     }
 
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {

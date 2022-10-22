@@ -145,7 +145,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     }
 
     override fun showToast(msg: String) {
-        ToastUtil.mackToastSHORT(msg, requireContext().applicationContext)
+        ToastUtil.mackToastSHORT(msg, mActivity)
     }
 
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {

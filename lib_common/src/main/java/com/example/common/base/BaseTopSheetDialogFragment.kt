@@ -169,7 +169,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     }
 
     override fun showToast(msg: String) {
-        ToastUtil.mackToastSHORT(msg, requireContext().applicationContext)
+        ToastUtil.mackToastSHORT(msg, mActivity)
     }
 
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
