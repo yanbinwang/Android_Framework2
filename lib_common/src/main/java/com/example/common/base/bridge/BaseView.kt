@@ -14,11 +14,6 @@ interface BaseView {
     fun log(msg: String)
 
     /**
-     * Toast显示
-     */
-    fun showToast(msg: String)
-
-    /**
      * 刷新动画dialog
      * 如果设置了second，flag可改为true
      */

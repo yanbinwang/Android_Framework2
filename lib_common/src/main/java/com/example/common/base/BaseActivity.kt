@@ -10,7 +10,6 @@ import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModelProvider
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.base.utils.LogUtil
-import com.example.base.utils.ToastUtil
 import com.example.base.utils.function.value.orFalse
 import com.example.base.utils.function.value.orZero
 import com.example.base.utils.function.view.*
@@ -24,7 +23,6 @@ import com.example.common.utils.AppManager
 import com.example.common.utils.builder.StatusBarBuilder
 import com.example.common.widget.dialog.LoadingDialog
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -148,10 +146,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     override fun log(msg: String) {
         LogUtil.e(TAG, msg)
-    }
-
-    override fun showToast(msg: String) {
-        ToastUtil.mackToastSHORT(msg, this)
     }
 
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {

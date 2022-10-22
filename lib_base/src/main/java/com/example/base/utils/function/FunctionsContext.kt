@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.base.utils.ToastUtil
 import java.io.Serializable
 
 //------------------------------------context扩展函数类------------------------------------
@@ -111,12 +112,20 @@ fun Context.string(@StringRes res: Int): String {
 }
 
 /**
+ * 弹框提示
+ */
+fun Context.toast(text: String) = ToastUtil.mackToastSHORT(text, this)
+
+/**
  * 生成View
  */
 fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null) = LayoutInflater.from(this).inflate(res, root)
 
 fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean) = LayoutInflater.from(this).inflate(res, root, attachToRoot)
 
+/**
+ * 粘贴板操作
+ */
 fun Context.setPrimaryClip(label: String, text: String) = (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(label, text))
 
 fun Context.getPrimaryClip(): String {

@@ -14,7 +14,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.base.utils.LogUtil
-import com.example.base.utils.ToastUtil
 import com.example.base.utils.function.value.currentTimeNano
 import com.example.base.utils.function.value.orFalse
 import com.example.base.utils.function.value.orZero
@@ -166,10 +165,6 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     override fun log(msg: String) {
         LogUtil.e(TAG, msg)
-    }
-
-    override fun showToast(msg: String) {
-        ToastUtil.mackToastSHORT(msg, mActivity)
     }
 
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
