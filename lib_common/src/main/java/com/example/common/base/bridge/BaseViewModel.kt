@@ -7,21 +7,26 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.base.utils.function.view.gone
 import com.example.common.base.page.getEmptyView
 import com.example.common.bus.Event
 import com.example.common.bus.EventBus
 import com.example.common.http.repository.ApiResponse
-import com.example.common.http.repository.launch
 import com.example.common.http.repository.request
 import com.example.common.utils.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * Created by WangYanBin on 2020/6/3.
@@ -33,36 +38,21 @@ import java.lang.ref.WeakReference
 abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakActivity: WeakReference<FragmentActivity>? = null//引用的activity
     private var softView: SoftReference<BaseView>? = null//基础UI操作
+
     //部分view的操作交予viewmodel去操作，不必让activity去操作
     private var softEmpty: SoftReference<EmptyLayout>? = null//遮罩UI
     private var softRecycler: SoftReference<XRecyclerView>? = null//列表UI
     private var softRefresh: SoftReference<XRefreshLayout>? = null//刷新控件
+
     //基础的注入参数
-    protected val activity: FragmentActivity
-        get() {
-            return weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity()
-        }
-    protected val context: Context
-        get() {
-            return activity
-        }
-    protected val view: BaseView?
-        get() {
-            return softView?.get()
-        }
+    protected val activity: FragmentActivity get() { return weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity() }
+    protected val context: Context get() { return activity }
+    protected val view: BaseView? get() { return softView?.get() }
+
     //获取对应的控件
-    val emptyView: EmptyLayout?
-        get() {
-            return softEmpty?.get()
-        }
-    val recyclerView: XRecyclerView?
-        get() {
-            return softRecycler?.get()
-        }
-    val xRefreshLayout: XRefreshLayout?
-        get() {
-            return softRefresh?.get()
-        }
+    val emptyView: EmptyLayout? get() { return softEmpty?.get() }
+    val recyclerView: XRecyclerView? get() { return softRecycler?.get() }
+    val xRefreshLayout: XRefreshLayout? get() { return softRefresh?.get() }
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
@@ -177,3 +167,15 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     // </editor-fold>
 
 }
+
+fun ViewModel.launch(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+) = viewModelScope.launch(context, start, block)
+
+fun <T> ViewModel.async(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> T
+) = viewModelScope.async(context, start, block)

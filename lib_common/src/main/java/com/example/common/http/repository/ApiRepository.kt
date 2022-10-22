@@ -1,73 +1,18 @@
 package com.example.common.http.repository
 
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import com.example.base.utils.LogUtil
-import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.page.responseMsg
 import com.example.common.utils.analysis.GsonUtil
 import com.example.common.utils.helper.AccountHelper
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 //------------------------------------针对协程返回的参数(协程只有成功和失败)------------------------------------
-fun BaseViewModel.launch(
-    context: CoroutineContext = EmptyCoroutineContext,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
-    block: suspend CoroutineScope.() -> Unit
-) = viewModelScope.launch(context, start, block)
-
-fun <T> BaseViewModel.async(
-    context: CoroutineContext = EmptyCoroutineContext,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
-    block: suspend CoroutineScope.() -> T
-) = viewModelScope.async(context, start, block)
-
-fun Fragment.launch(
-    context: CoroutineContext = EmptyCoroutineContext,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
-    block: suspend CoroutineScope.() -> Unit
-) = lifecycleScope.launch(context, start, block)
-
-fun <T> Fragment.async(
-    context: CoroutineContext = EmptyCoroutineContext,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
-    block: suspend CoroutineScope.() -> T
-) = lifecycleScope.async(context, start, block)
-
-fun AppCompatActivity.launch(
-    context: CoroutineContext = EmptyCoroutineContext,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
-    block: suspend CoroutineScope.() -> Unit
-) = lifecycleScope.launch(context, start, block)
-
-fun <T> AppCompatActivity.async(
-    context: CoroutineContext = EmptyCoroutineContext,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
-    block: suspend CoroutineScope.() -> T
-) = lifecycleScope.async(context, start, block)
-
-fun FragmentActivity.launch(
-    context: CoroutineContext = EmptyCoroutineContext,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
-    block: suspend CoroutineScope.() -> Unit
-) = lifecycleScope.launch(context, start, block)
-
-
-fun <T> FragmentActivity.async(
-    context: CoroutineContext = EmptyCoroutineContext,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
-    block: suspend CoroutineScope.() -> T
-) = lifecycleScope.async(context, start, block)
-
 /**
  * 请求转换
  * map扩展，如果只需传入map则使用

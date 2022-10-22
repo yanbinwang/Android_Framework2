@@ -24,7 +24,6 @@ import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.constant.Extras
-import com.example.common.http.repository.launch
 import com.example.common.utils.AppManager
 import com.example.common.utils.builder.StatusBarBuilder
 import com.example.common.widget.dialog.LoadingDialog
@@ -32,6 +31,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.io.Serializable
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
