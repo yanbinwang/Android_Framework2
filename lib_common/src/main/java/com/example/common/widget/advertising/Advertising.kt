@@ -141,11 +141,11 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 开始自动滚动任务 图片大于1张才滚动
      */
     fun startRoll() {
-        if (timer == null) {
-            timer = Timer()
-            timer?.schedule(object : TimerTask() {
-                override fun run() {
-                    if (allowScroll && list.size > 1) {
+        if (allowScroll && list.size > 1) {
+            if (timer == null) {
+                timer = Timer()
+                timer?.schedule(object : TimerTask() {
+                    override fun run() {
                         weakHandler.post {
                             val current = banner?.currentItem.toSafeInt()
                             var position = current + 1
@@ -153,8 +153,8 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                             banner?.currentItem = position
                         }
                     }
-                }
-            }, 3000)
+                }, 3000)
+            }
         }
     }
 
