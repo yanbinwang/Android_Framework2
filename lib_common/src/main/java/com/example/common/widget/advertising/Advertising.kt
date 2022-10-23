@@ -75,17 +75,17 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     override fun onResume(owner: LifecycleOwner) {
         super.onResume(owner)
-        if (autoScroll) startTimer()
+        if (autoScroll) startRoll()
     }
 
     override fun onPause(owner: LifecycleOwner) {
         super.onPause(owner)
-        if (autoScroll) stopTimer()
+        if (autoScroll) stopRoll()
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        stopTimer()
+        stopRoll()
     }
     // </editor-fold>
 
@@ -140,7 +140,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 开始自动滚动任务 图片大于1张才滚动
      */
-    private fun startTimer() {
+    fun startRoll() {
         if (timer == null) {
             timer = Timer()
             timer?.schedule(object : TimerTask() {
@@ -149,8 +149,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                         weakHandler.post {
                             val current = banner?.currentItem.toSafeInt()
                             var position = current + 1
-                            if (current == 0 || current == Int.MAX_VALUE) position =
-                                halfPosition - halfPosition % list.size
+                            if (current == 0 || current == Int.MAX_VALUE) position = halfPosition - halfPosition % list.size
                             banner?.currentItem = position
                         }
                     }
@@ -162,7 +161,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 停止自动滚动任务
      */
-    private fun stopTimer() {
+    fun stopRoll() {
         if (timer != null) {
             timer?.cancel()
             timer = null
@@ -179,7 +178,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     override fun setAutoScroll(scroll: Boolean) {
         this.autoScroll = scroll
-        if (!scroll) stopTimer()
+        if (!scroll) stopRoll()
     }
 
     override fun setOrientation(orientation: Int) {
