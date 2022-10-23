@@ -1,9 +1,9 @@
 package com.example.common.imageloader.album
 
 import android.app.Activity
-import com.example.base.utils.ToastUtil
 import com.example.base.utils.function.color
 import com.example.base.utils.function.string
+import com.example.base.utils.function.toast
 import com.example.common.R
 import com.example.common.constant.Constants
 import com.example.common.constant.RequestCode
@@ -82,7 +82,7 @@ class AlbumHelper(private val activity: Activity) {
                 .onResult {
                     val resultSize = it[0].size
                     if (resultSize > 10 * 1024 * 1024) {
-                        ToastUtil.mackToastSHORT(string(R.string.toast_album_pic_choice), this)
+                        toast(string(R.string.toast_album_pic_choice))
                         return@onResult
                     }
                     if (hasTailor) toTailor(it[0].path) else onAlbum?.invoke(it[0].path)
@@ -117,7 +117,7 @@ class AlbumHelper(private val activity: Activity) {
                 .onResult {
                     val resultSize = it[0].size
                     if (resultSize > 100 * 1024 * 1024) {
-                        ToastUtil.mackToastSHORT(string(R.string.toast_album_video_choice), this)
+                        toast(string(R.string.toast_album_video_choice))
                         return@onResult
                     }
                     onAlbum?.invoke(it[0].path)

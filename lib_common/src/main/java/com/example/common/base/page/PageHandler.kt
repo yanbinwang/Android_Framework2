@@ -3,7 +3,8 @@ package com.example.common.base.page
 import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup
-import com.example.base.utils.ToastUtil.mackToastSHORT
+import com.example.base.utils.function.string
+import com.example.base.utils.function.toast
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
@@ -14,10 +15,8 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
  * 提示方法，根据接口返回的msg提示
  */
 fun String?.responseMsg(){
-    var strTemp = this
-    val context = BaseApplication.instance.applicationContext
-    if (TextUtils.isEmpty(strTemp)) strTemp = context.getString(R.string.label_response_error)
-    mackToastSHORT(if (!isNetworkAvailable()) context.getString(R.string.label_response_net_error) else strTemp.orEmpty(), context)
+    val strTemp = this
+    with(BaseApplication.instance.applicationContext) { toast(if (!isNetworkAvailable()) string(R.string.label_response_net_error) else { if(TextUtils.isEmpty(strTemp)) string(R.string.label_response_error) else strTemp.orEmpty()}) }
 }
 
 /**
