@@ -2,6 +2,7 @@ package com.example.common.widget.textview
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.TextView
@@ -13,16 +14,16 @@ import com.example.base.utils.TimerUtil
  * 配置enable的xml和默認text文案即可
  */
 @SuppressLint("AppCompatCustomView", "SetTextI18n")
-class TimeTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : TextView(context, attrs, defStyleAttr) {
-    private var tag = ""
+class TimerTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : TextView(context, attrs, defStyleAttr) {
+    private var timerTag = javaClass.simpleName
 
     init {
         gravity = Gravity.CENTER
     }
 
-    fun start(tag: String = javaClass.simpleName, time: Long = 60) {
-        this.tag = tag
-        TimerUtil.startCountDown(tag, { second: Long? ->
+    fun start(tag: String? = "", time: Long = 60) {
+        if (!TextUtils.isEmpty(tag)) timerTag = tag.orEmpty()
+        TimerUtil.startCountDown(timerTag, { second: Long? ->
             isEnabled = false
             text = "已发送${second}S"
         }, {
@@ -33,7 +34,7 @@ class TimeTextView @JvmOverloads constructor(context: Context, attrs: AttributeS
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        TimerUtil.stopCountDown(tag)
+        TimerUtil.stopCountDown(timerTag)
     }
 
 }
