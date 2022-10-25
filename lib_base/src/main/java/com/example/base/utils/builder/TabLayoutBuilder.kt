@@ -55,7 +55,7 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
     private fun addOnTabSelectedListener() {
         for (i in 0 until tab.tabCount) {
             tab.getTabAt(i)?.apply {
-                onCreateView(tabList.safeGet(i), i == 0).apply {
+                onCreateView().apply {
                     customView = this
                     view.isLongClickable = false
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) view.tooltipText = null
@@ -86,7 +86,7 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
     /**
      * 回调方法，返回对应控件
      */
-    protected abstract fun onCreateView(item: T?, selected: Boolean): View
+    protected abstract fun onCreateView(): View
 
     /**
      * 设置数据

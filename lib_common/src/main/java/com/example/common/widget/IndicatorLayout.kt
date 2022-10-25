@@ -16,7 +16,7 @@ import com.google.android.material.tabs.TabLayout
  */
 class IndicatorLayout constructor(tab: TabLayout, tabTitle: MutableList<String>) : TabLayoutBuilder<String>(tab, tabTitle) {
 
-    override fun onCreateView(item: String?, current: Boolean): View {
+    override fun onCreateView(): View {
         return context.inflate(R.layout.item_tab)
     }
 
