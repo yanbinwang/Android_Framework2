@@ -15,7 +15,7 @@ import com.example.common.databinding.ViewDialogBinding
  * date: 2017/8/25.
  * 类似苹果的弹出窗口类
  */
-class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context, anim = true, close = true) {
+class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context, close = true) {
     var onConfirm: (() -> Unit)? = null
     var onCancel: (() -> Unit)? = null
 

@@ -15,17 +15,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *  导航栏帮助类,支持viewpage2绑定，fragment绑定
  */
 class BottomNavigationBuilder(private val navigationView: BottomNavigationView, private val ids: List<Int>, private val anim: Boolean = true) {
-    private var flipper: ViewPager2? = null
-    private var helper: FrameLayoutBuilder? = null
+    var flipper: ViewPager2? = null
+    var helper: FrameLayoutBuilder? = null
     var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
-
-    fun bind(flipper: ViewPager2) {
-        this.flipper = flipper
-    }
-
-    fun bind(helper: FrameLayoutBuilder) {
-        this.helper = helper
-    }
 
     /**
      * 初始化
@@ -56,12 +48,14 @@ class BottomNavigationBuilder(private val navigationView: BottomNavigationView, 
     /**
      * 选中下标
      */
-    fun selectedItem(index: Int) = run { navigationView.selectedItemId = navigationView.menu.getItem(index)?.itemId ?: 0 }
+    fun selectedItem(index: Int) =
+        run { navigationView.selectedItemId = navigationView.menu.getItem(index)?.itemId ?: 0 }
 
     /**
      * 获取下标item
      */
-    fun getItemView(index: Int) = (navigationView.getChildAt(0) as BottomNavigationMenuView).getChildAt(index) as BottomNavigationItemView
+    fun getItemView(index: Int) =
+        (navigationView.getChildAt(0) as BottomNavigationMenuView).getChildAt(index) as BottomNavigationItemView
 
     /**
      * 获取当前选中的下标

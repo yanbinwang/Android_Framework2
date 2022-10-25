@@ -25,7 +25,7 @@ import java.lang.reflect.ParameterizedType
  * window?.setWindowAnimations(R.style.pushRightAnimStyle)
  * window?.setGravity(Gravity.TOP xor Gravity.END)
  */
-abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: Int = 320, dialogHeight: Int = WRAP_CONTENT, gravity: Int = CENTER, themeResId: Int = R.style.appDialogStyle, anim: Boolean = false, close: Boolean = false) : Dialog(context, themeResId) {
+abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: Int = 320, dialogHeight: Int = WRAP_CONTENT, gravity: Int = CENTER, themeResId: Int = R.style.appDialogStyle, animation: Boolean = true, close: Boolean = false) : Dialog(context, themeResId) {
     protected lateinit var binding: VDB
 
     init {
@@ -45,7 +45,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
                 it.attributes = lp
                 it.setGravity(gravity)
             }
-            if (anim) {
+            if (animation) {
                 //当布局show出来的时候执行开始动画
                 setOnShowListener { binding.root.startAnimation(context.inAnimation()) }
                 //当布局销毁时执行结束动画
