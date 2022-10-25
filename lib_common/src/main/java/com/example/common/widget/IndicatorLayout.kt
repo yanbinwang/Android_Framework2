@@ -3,7 +3,6 @@ package com.example.common.widget
 import android.view.View
 import android.widget.TextView
 import com.example.base.utils.builder.TabLayoutBuilder
-import com.example.base.utils.function.inflate
 import com.example.base.utils.function.view.setMediumBold
 import com.example.common.R
 import com.example.common.utils.setParam
@@ -16,9 +15,7 @@ import com.google.android.material.tabs.TabLayout
  */
 class IndicatorLayout constructor(tab: TabLayout, tabTitle: MutableList<String>) : TabLayoutBuilder<String>(tab, tabTitle) {
 
-    override fun onCreateView(): View {
-        return context.inflate(R.layout.item_tab)
-    }
+    override fun getLayoutRes() = R.layout.item_tab
 
     override fun onBindView(view: View, item: String?, current: Boolean) {
         val tvTitle = view.findViewById<TextView>(R.id.tv_title)
