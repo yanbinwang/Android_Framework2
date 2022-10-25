@@ -5,6 +5,7 @@ import android.os.Build
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.example.base.utils.function.inflate
 import com.example.base.utils.function.value.safeGet
 import com.example.base.utils.function.view.adapter
 import com.example.base.utils.function.view.bind
@@ -55,7 +56,7 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
     private fun addOnTabSelectedListener() {
         for (i in 0 until tab.tabCount) {
             tab.getTabAt(i)?.apply {
-                onCreateView().apply {
+                context.inflate(getLayoutRes()).apply {
                     customView = this
                     view.isLongClickable = false
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) view.tooltipText = null
@@ -86,7 +87,7 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
     /**
      * 回调方法，返回对应控件
      */
-    protected abstract fun onCreateView(): View
+    protected abstract fun getLayoutRes(): Int
 
     /**
      * 设置数据
