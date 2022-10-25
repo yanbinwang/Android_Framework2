@@ -1,6 +1,5 @@
 package com.example.common.widget
 
-import android.annotation.SuppressLint
 import android.view.View
 import android.widget.TextView
 import com.example.base.utils.builder.TabLayoutBuilder
@@ -15,19 +14,16 @@ import com.google.android.material.tabs.TabLayout
  * 掏空系统tablayout，全部自定义
  * @author yan
  */
-@SuppressLint("StaticFieldLeak")
 class IndicatorLayout constructor(tab: TabLayout, tabTitle: MutableList<String>) : TabLayoutBuilder<String>(tab, tabTitle) {
 
-    override fun onCreateCustomView(item: String?, current: Boolean): View {
-        val view = context.inflate(R.layout.item_tab)
-        onBindCustomView(view, item, current)
-        return view
+    override fun onCreateView(item: String?, current: Boolean): View {
+        return context.inflate(R.layout.item_tab)
     }
 
-    override fun onBindCustomView(view: View, item: String?, current: Boolean) {
+    override fun onBindView(view: View, item: String?, current: Boolean) {
         val tvTitle = view.findViewById<TextView>(R.id.tv_title)
         tvTitle.apply {
-            setMediumBold()
+            setMediumBold(current)
             setParam(item.orEmpty(), if (current) R.color.blue_3d81f2 else R.color.grey_333333)
         }
     }

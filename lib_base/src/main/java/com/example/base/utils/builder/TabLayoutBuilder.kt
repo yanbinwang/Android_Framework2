@@ -17,36 +17,36 @@ import com.google.android.material.tabs.TabLayoutMediator
  * 故而提出一个接口类，需要实现对应效果的地方去实现
  */
 abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabList: List<T>? = null) {
-    protected var context: Context = tab.context
-    private var helper: FrameLayoutBuilder? = null
+    private var builder: FrameLayoutBuilder? = null
     private var mediator: TabLayoutMediator? = null
-    var currentIndex = tab.selectedTabPosition
+    protected val context: Context get() = tab.context
+    val currentIndex get() = tab.selectedTabPosition
 
     /**
      * 注入管理器
      */
-    fun bind(helper: FrameLayoutBuilder, tabList: MutableList<T>? = null) {
-        this.helper = helper
-        initialize(tabList)
+    fun bind(builder: FrameLayoutBuilder, list: List<T>? = null) {
+        this.builder = builder
+        init(list)
         addOnTabSelectedListener()
     }
 
     /**
      * 注入viewpager2
      */
-    fun bind(pager: ViewPager2, adapter: RecyclerView.Adapter<*>, isUserInput: Boolean = false, tabList: MutableList<T>? = null) {
-        mediator?.detach()
-        initialize(tabList)
+    fun bind(pager: ViewPager2, adapter: RecyclerView.Adapter<*>, isUserInput: Boolean = false, list: List<T>? = null) {
         pager.adapter = null
+        mediator?.detach()
+        init(list)
         pager.adapter(adapter, ViewPager2.ORIENTATION_HORIZONTAL, isUserInput)
         mediator = pager.bind(tab)
         addOnTabSelectedListener()
     }
 
-    private fun initialize(list: MutableList<T>? = null) {
-        if (null != list) tabList = list
+    private fun init(list: List<T>? = null) {
         tab.removeAllTabs()
-        tabList?.forEach { _ -> tab.addTab(TabLayout.Tab()) }
+        if (null != list) tabList = list
+        tabList?.forEach { _ -> tab.addTab(tab.newTab()) }
     }
 
     /**
@@ -55,24 +55,27 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
     private fun addOnTabSelectedListener() {
         for (i in 0 until tab.tabCount) {
             tab.getTabAt(i)?.apply {
-                customView = onCreateCustomView(tabList.safeGet(i), i == 0)
-                view.isLongClickable = false
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) view.tooltipText = null
+                onCreateView(tabList.safeGet(i), i == 0).apply {
+                    customView = this
+                    view.isLongClickable = false
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) view.tooltipText = null
+                    onBindView(this, tabList.safeGet(i), i == 0)
+                }
             }
         }
         tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 //设置选中图标样式
                 val tabView = tab?.customView ?: return
-                onBindCustomView(tabView, tabList.safeGet(tab.position), true)
-                helper?.selectTab(tab.position)
+                onBindView(tabView, tabList.safeGet(tab.position), true)
+                builder?.selectTab(tab.position)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
                 //设置未选中图标样式
                 val tabView = tab?.customView ?: return
-                onBindCustomView(tabView, tabList.safeGet(tab.position), false)
-                helper?.selectTab(tab.position)
+                onBindView(tabView, tabList.safeGet(tab.position), false)
+                builder?.selectTab(tab.position)
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) {
@@ -83,11 +86,11 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
     /**
      * 回调方法，返回对应控件
      */
-    protected abstract fun onCreateCustomView(item: T?, current: Boolean): View
+    protected abstract fun onCreateView(item: T?, current: Boolean): View
 
     /**
      * 设置数据
      */
-    protected abstract fun onBindCustomView(view: View, item: T?, current: Boolean)
+    protected abstract fun onBindView(view: View, item: T?, current: Boolean)
 
 }
