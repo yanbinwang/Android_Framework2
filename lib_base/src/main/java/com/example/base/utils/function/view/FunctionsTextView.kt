@@ -58,9 +58,9 @@ fun TextView?.underLine(haveLine: Boolean) {
 /**
  * 设置中等加粗
  */
-fun TextView?.setMediumBold() {
+fun TextView?.setMediumBold(isBold: Boolean) {
     if (this == null) return
-    paint.strokeWidth = 1.0f
+    paint.strokeWidth = if(isBold) 1.0f else 0f
     paint.style = Paint.Style.FILL_AND_STROKE
 }
 
