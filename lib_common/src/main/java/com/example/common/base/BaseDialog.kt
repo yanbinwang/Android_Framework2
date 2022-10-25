@@ -3,11 +3,13 @@ package com.example.common.base
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
+import android.os.Build
 import android.os.Looper
 import android.view.Gravity.CENTER
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.view.WindowManager
 import androidx.databinding.ViewDataBinding
 import com.example.base.utils.function.inAnimation
 import com.example.base.utils.function.outAnimation
@@ -65,6 +67,10 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
 
     fun hidden() {
         if (isShowing) dismiss()
+    }
+
+    fun setType() {
+        window?.setType(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
     }
 
     override fun show() {

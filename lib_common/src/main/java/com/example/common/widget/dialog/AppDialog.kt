@@ -1,10 +1,8 @@
 package com.example.common.widget.dialog
 
 import android.content.Context
-import android.os.Build
 import android.text.TextUtils
 import android.view.Gravity
-import android.view.WindowManager
 import com.example.base.utils.function.view.click
 import com.example.base.utils.function.view.gone
 import com.example.common.base.BaseDialog
@@ -46,10 +44,6 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context, close
                 onConfirm?.invoke()
             }
         }
-    }
-
-    fun setType() {
-        window?.setType(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
     }
 
 }
