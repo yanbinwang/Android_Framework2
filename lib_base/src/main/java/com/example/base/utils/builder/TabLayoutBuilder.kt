@@ -65,20 +65,20 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
         }
         tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                //设置选中图标样式
-                val tabView = tab?.customView ?: return
-                onBindView(tabView, tabList.safeGet(tab.position), true)
-                builder?.selectTab(tab.position)
+                onTabBind(tab, true)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
-                //设置未选中图标样式
-                val tabView = tab?.customView ?: return
-                onBindView(tabView, tabList.safeGet(tab.position), false)
-                builder?.selectTab(tab.position)
+                onTabBind(tab, false)
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) {
+            }
+
+            private fun onTabBind(tab: TabLayout.Tab?, selected: Boolean) {
+                val tabView = tab?.customView ?: return
+                onBindView(tabView, tabList.safeGet(tab.position), selected)
+                builder?.selectTab(tab.position)
             }
         })
     }
@@ -86,11 +86,11 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
     /**
      * 回调方法，返回对应控件
      */
-    protected abstract fun onCreateView(item: T?, current: Boolean): View
+    protected abstract fun onCreateView(item: T?, selected: Boolean): View
 
     /**
      * 设置数据
      */
-    protected abstract fun onBindView(view: View, item: T?, current: Boolean)
+    protected abstract fun onBindView(view: View, item: T?, selected: Boolean)
 
 }
