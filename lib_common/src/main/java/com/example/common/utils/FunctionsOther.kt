@@ -114,6 +114,18 @@ fun Any?.toJsonString(): String {
 }
 
 /**
+ * 判断某个对象上方是否具备某个注解
+ * if (activity.hasAnnotation(SocketRequest::class.java)) {
+ * SocketEventHelper.checkConnection(forceConnect = true)
+ * }
+ * @SocketRequest为注解，通过在application中做registerActivityLifecycleCallbacks监听回调，可以找到全局打了这个注解的activity，从而做一定的操作
+ */
+fun Any?.hasAnnotation(cls: Class<out Annotation>): Boolean {
+    this ?: return false
+    return this::class.java.isAnnotationPresent(cls)
+}
+
+/**
  *  backgroundColorSpan = new BackgroundImageSpan(R.drawable.bg_answer_wrong, getResources().getDrawable(R.drawable.bg_answer_wrong));
  */
 fun String?.setBackgroundImageSpan(theme: BackgroundImageSpan, start: Int, end: Int): SpannableString {
