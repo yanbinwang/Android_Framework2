@@ -17,11 +17,11 @@ class IndicatorLayout constructor(tab: TabLayout, tabTitle: MutableList<String>)
 
     override fun getLayoutRes() = R.layout.item_tab
 
-    override fun onBindView(view: View, item: String?, current: Boolean) {
+    override fun onBindView(view: View, item: String?, selected: Boolean) {
         val tvTitle = view.findViewById<TextView>(R.id.tv_title)
         tvTitle.apply {
-            setMediumBold(current)
-            setParam(item.orEmpty(), if (current) R.color.blue_3d81f2 else R.color.grey_333333)
+            setMediumBold(selected)
+            setParam(item.orEmpty(), if (selected) R.color.blue_3d81f2 else R.color.grey_333333)
         }
     }
 
