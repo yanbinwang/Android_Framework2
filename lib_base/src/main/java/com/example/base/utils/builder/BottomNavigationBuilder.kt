@@ -14,9 +14,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *  Created by wangyanbin
  *  导航栏帮助类,支持viewpage2绑定，fragment绑定
  */
-class BottomNavigationBuilder(private val navigationView: BottomNavigationView, private val ids: List<Int>, private val anim: Boolean = true) {
+class BottomNavigationBuilder(private val navigationView: BottomNavigationView, private val ids: List<Int>, private val animation: Boolean = true) {
     var flipper: ViewPager2? = null
-    var helper: FrameLayoutBuilder? = null
+    var builder: FrameLayoutBuilder? = null
     var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
 
     /**
@@ -27,20 +27,21 @@ class BottomNavigationBuilder(private val navigationView: BottomNavigationView, 
         for (position in ids.indices) {
             (navigationView.getChildAt(0) as ViewGroup).getChildAt(position).findViewById<View>(ids[position]).setOnLongClickListener { true }
         }
-        //最多配置5个
+        //最多配置5个tab，需要注意
         navigationView.setOnItemSelectedListener { item ->
             //返回第一个符合条件的元素的下标，没有就返回-1
             val index = ids.indexOfFirst { it == item.itemId }
+            //如果频繁点击相同的页面tab，不执行切换代码，只做结果返回
             val isPager = null != flipper
-            val isCurrent = index == if (isPager) flipper?.currentItem else false
+            val isCurrent = index == if (isPager) flipper?.currentItem else builder?.currentItem
             if (!isCurrent) {
-                if (isPager) flipper?.setCurrentItem(index, false) else helper?.selectTab(index)
+                if (isPager) flipper?.setCurrentItem(index, false) else builder?.selectTab(index)
+                if (animation) getItemView(index).getChildAt(0).apply {
+                    startAnimation(context.inAnimation())
+                    vibrate(50)
+                }
             }
             onItemSelected?.invoke(index, isCurrent)
-            if (anim) getItemView(index).getChildAt(0).apply {
-                startAnimation(context.inAnimation())
-                vibrate(50)
-            }
             true
         }
     }
@@ -48,14 +49,12 @@ class BottomNavigationBuilder(private val navigationView: BottomNavigationView, 
     /**
      * 选中下标
      */
-    fun selectedItem(index: Int) =
-        run { navigationView.selectedItemId = navigationView.menu.getItem(index)?.itemId ?: 0 }
+    fun selectedItem(index: Int) = run { navigationView.selectedItemId = navigationView.menu.getItem(index)?.itemId ?: 0 }
 
     /**
      * 获取下标item
      */
-    fun getItemView(index: Int) =
-        (navigationView.getChildAt(0) as BottomNavigationMenuView).getChildAt(index) as BottomNavigationItemView
+    fun getItemView(index: Int) = (navigationView.getChildAt(0) as BottomNavigationMenuView).getChildAt(index) as BottomNavigationItemView
 
     /**
      * 获取当前选中的下标

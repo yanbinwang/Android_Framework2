@@ -8,7 +8,7 @@ import android.net.NetworkInfo
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.text.TextUtils
-import com.example.base.utils.LogUtil
+import com.example.base.utils.logE
 import com.example.common.BaseApplication
 
 /**
@@ -106,7 +106,7 @@ object NetWorkUtil {
             val connectionInfo = wifiManager.connectionInfo
             for (scanResult in wifiManager.scanResults) {
                 val capabilities = scanResult.capabilities
-                LogUtil.e(" \nconnectionInfo的ssid:${connectionInfo.bssid}\nscanResult的ssid:${scanResult.BSSID}\ncapabilities:$capabilities")
+                " \nconnectionInfo的ssid:${connectionInfo.bssid}\nscanResult的ssid:${scanResult.BSSID}\ncapabilities:$capabilities".logE
                 if (scanResult.BSSID.contains(connectionInfo.bssid)) {
                     result = when {
                         capabilities.contains("WPA2-PSK") -> "WPA2-PSK"
