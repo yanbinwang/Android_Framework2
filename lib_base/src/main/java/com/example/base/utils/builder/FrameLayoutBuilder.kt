@@ -45,12 +45,23 @@ class FrameLayoutBuilder(private val manager: FragmentManager, private val conta
         list.clear()
     }
 
+    /**
+     *  HomeFragment::class.java.getPair()
+     *  first：class名
+     *  second：tag值，不传默认为class名
+     */
     fun bind(clazzPair: List<Pair<Class<*>, String>>) {
         this.arguments = false
         this.clazzPair = clazzPair
         selectTab(0)
     }
 
+    /**
+     * EvidencePageFragment::class.java.getTriple(Extras.REQUEST_ID to id, "EviPager${id}")
+     * first：class名
+     * second：pair对象 （first，fragment透传的key second，透传的值）
+     * third：内存中存储的tag
+     */
     fun bindArguments(clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>) {
         this.arguments = true
         this.clazzTriple = clazzTriple
@@ -62,9 +73,7 @@ class FrameLayoutBuilder(private val manager: FragmentManager, private val conta
         val transaction = manager.beginTransaction()
         list.forEach { transaction.hide(it) }
         transaction.show(
-            if (arguments) newInstanceArguments(clazzTriple.safeGet(tab)) else newInstance(
-                clazzPair.safeGet(tab)
-            )
+            if (arguments) newInstanceArguments(clazzTriple.safeGet(tab)) else newInstance(clazzPair.safeGet(tab))
         )
         transaction.commitAllowingStateLoss()
         onTabShow?.invoke(tab)
