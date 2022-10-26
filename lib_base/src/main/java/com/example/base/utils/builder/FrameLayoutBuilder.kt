@@ -72,9 +72,7 @@ class FrameLayoutBuilder(private val manager: FragmentManager, private val conta
         currentItem = tab
         val transaction = manager.beginTransaction()
         list.forEach { transaction.hide(it) }
-        transaction.show(
-            if (arguments) newInstanceArguments(clazzTriple.safeGet(tab)) else newInstance(clazzPair.safeGet(tab))
-        )
+        transaction.show(if (arguments) newInstanceArguments(clazzTriple.safeGet(tab)) else newInstance(clazzPair.safeGet(tab)))
         transaction.commitAllowingStateLoss()
         onTabShow?.invoke(tab)
     }
