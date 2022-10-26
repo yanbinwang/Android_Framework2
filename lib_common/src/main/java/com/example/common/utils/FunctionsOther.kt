@@ -118,6 +118,8 @@ fun Any?.toJsonString(): String {
  * if (activity.hasAnnotation(SocketRequest::class.java)) {
  * SocketEventHelper.checkConnection(forceConnect = true)
  * }
+ * //自定义一个注解
+ * annotation class SocketRequest
  * @SocketRequest为注解，通过在application中做registerActivityLifecycleCallbacks监听回调，可以找到全局打了这个注解的activity，从而做一定的操作
  */
 fun Any?.hasAnnotation(cls: Class<out Annotation>): Boolean {
