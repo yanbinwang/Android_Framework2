@@ -24,7 +24,7 @@ import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
 import com.example.common.imageloader.glide.callback.GlideRequestListener
 import com.example.common.utils.builder.StatusBarBuilder
-import com.example.common.utils.setParam
+import com.example.common.utils.setArguments
 import com.example.common.utils.setSpan
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.XRecyclerView
@@ -135,7 +135,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["text", "text_color"], requireAll = false)
     fun bindingTextViewParam(textview: TextView, text: String?, colorRes: Int?) {
-        textview.setParam(text.orEmpty(), colorRes.toSafeInt(R.color.grey_333333))
+        textview.setArguments(text.orEmpty(), colorRes.toSafeInt(R.color.grey_333333))
     }
 
     /**

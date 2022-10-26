@@ -8,7 +8,7 @@ import com.example.base.utils.function.view.gone
 import com.example.base.utils.function.view.visible
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
-import com.example.common.utils.setParam
+import com.example.common.utils.setArguments
 import com.example.common.utils.tint
 
 @SuppressLint("InflateParams")
@@ -30,7 +30,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      */
     @JvmOverloads
     fun setTitle(title: String = "", titleColor: Int = R.color.grey_333333, shade: Boolean = false): TitleBuilder {
-        binding.tvTitle.setParam(title, titleColor)
+        binding.tvTitle.setArguments(title, titleColor)
         binding.viewShade.apply { if (shade) visible() else gone() }
         return this
     }
@@ -45,7 +45,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
             statusBarPadding()
             setBackgroundColor(0)
         }
-        binding.tvTitle.setParam(title, titleColor)
+        binding.tvTitle.setArguments(title, titleColor)
         return this
     }
 
@@ -100,7 +100,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     fun setLeftText(label: String, labelColor: Int = R.color.grey_333333, onClick: () -> Unit = {}): TitleBuilder {
         binding.tvLeft.apply {
             visible()
-            setParam(label, labelColor)
+            setArguments(label, labelColor)
             click { onClick.invoke() }
         }
         return this
@@ -110,7 +110,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     fun setRightText(label: String, labelColor: Int = R.color.grey_333333, onClick: () -> Unit = {}): TitleBuilder {
         binding.tvRight.apply {
             visible()
-            setParam(label, labelColor)
+            setArguments(label, labelColor)
             click { onClick.invoke() }
         }
         return this

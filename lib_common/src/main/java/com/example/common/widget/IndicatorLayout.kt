@@ -5,7 +5,7 @@ import android.widget.TextView
 import com.example.base.utils.builder.TabLayoutBuilder
 import com.example.base.utils.function.view.setMediumBold
 import com.example.common.R
-import com.example.common.utils.setParam
+import com.example.common.utils.setArguments
 import com.google.android.material.tabs.TabLayout
 
 /**
@@ -20,7 +20,7 @@ class IndicatorLayout constructor(tab: TabLayout, tabTitle: MutableList<String>)
     override fun onBindView(view: View, item: String?, selected: Boolean) {
         view.findViewById<TextView>(R.id.tv_title).apply {
             setMediumBold(selected)
-            setParam(item.orEmpty(), if (selected) R.color.blue_3d81f2 else R.color.grey_333333)
+            setArguments(item.orEmpty(), if (selected) R.color.blue_3d81f2 else R.color.grey_333333)
         }
     }
 

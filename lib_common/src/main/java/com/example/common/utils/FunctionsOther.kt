@@ -3,6 +3,7 @@ package com.example.common.utils
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Looper
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
@@ -27,6 +28,11 @@ import java.math.BigDecimal
 import java.util.*
 
 //------------------------------------按钮，控件行为工具类------------------------------------
+/**
+ * 当前是否是主线程
+ */
+val isMainThread get() = Looper.getMainLooper() == Looper.myLooper()
+
 /**
  * 获取Color String中的color
  * eg: "#ffffff"
@@ -168,23 +174,23 @@ fun ImageView?.setScreenWidth() {
  * 设置textview内容当中某一段的颜色
  */
 @JvmOverloads
-fun TextView?.setSpan(textStr: String, keyword: String, colorRes: Int = R.color.blue_3d81f2) {
+fun TextView?.setSpan(txt: String, keyword: String, colorRes: Int = R.color.blue_3d81f2) {
     this ?: return
-    val spannable = SpannableString(textStr)
-    val index = textStr.indexOf(keyword)
+    val spannable = SpannableString(txt)
+    val index = txt.indexOf(keyword)
     text = if (index != -1) {
         spannable.setSpan(ForegroundColorSpan(context.color(colorRes)), index, index + keyword.length, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
         spannable
-    } else textStr
+    } else txt
 }
 
 /**
  * 设置显示内容和对应文本颜色
  */
 @JvmOverloads
-fun TextView?.setParam(textStr: String ?= "", colorRes: Int = R.color.blue_3d81f2, resId: Int = 0) {
+fun TextView?.setArguments(txt: String ?= "", colorRes: Int = R.color.blue_3d81f2, resId: Int = 0) {
     this ?: return
-    if (!TextUtils.isEmpty(textStr)) text = textStr
+    if (!TextUtils.isEmpty(txt)) text = txt
     setTextColor(context.color(colorRes))
     setBackgroundResource(resId)
 }
