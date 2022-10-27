@@ -13,10 +13,10 @@ import java.security.MessageDigest
  * date: 2019/5/6.
  */
 class CornerTransform(context: Context, var radius: Float) : Transformation<Bitmap> {
-    private var exceptLeftTop: Boolean = false
-    private var exceptRightTop: Boolean = false
-    private var exceptLeftBottom: Boolean = false
-    private var exceptRightBottom: Boolean = false
+    private var exceptLeftTop = false
+    private var exceptRightTop = false
+    private var exceptLeftBottom = false
+    private var exceptRightBottom = false
     private val mBitmapPool = Glide.get(context).bitmapPool
 
     fun setExceptCorner(leftTop: Boolean, rightTop: Boolean, leftBottom: Boolean, rightBottom: Boolean) {
@@ -56,9 +56,8 @@ class CornerTransform(context: Context, var radius: Float) : Transformation<Bitm
 
         //修正圆角
         this.radius *= finalHeight.toFloat() / outHeight.toFloat()
-        var outBitmap: Bitmap? = this.mBitmapPool.get(finalWidth, finalHeight, Bitmap.Config.ARGB_8888)
-        if (outBitmap == null) outBitmap = Bitmap.createBitmap(finalWidth, finalHeight, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(outBitmap!!)
+        val outBitmap = this.mBitmapPool.get(finalWidth, finalHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(outBitmap)
         val paint = Paint()
         //关联画笔绘制的原图bitmap
         val shader = BitmapShader(source, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)

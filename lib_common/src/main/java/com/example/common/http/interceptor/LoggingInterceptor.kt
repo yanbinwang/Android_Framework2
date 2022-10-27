@@ -46,24 +46,6 @@ internal class LoggingInterceptor : Interceptor {
                 if (isPlaintext(buffer)) queryParams = buffer.readString(charset)
             }
         }
-//        when {
-//            //不包含服务器地址的属于下载地址或图片加载地址，不做拦截
-//            !requestUrl.contains(BuildConfig.LOCALHOST) -> return chain.proceed(request)
-//            //上传文件接口文本量过大，请求参数不做拦截
-//            requestUrl.contains("user/uploadImg") -> queryParams = "文件上传"
-//            else -> {
-//                val requestBody = request.body
-//                val hasRequestBody = requestBody != null
-//                if (hasRequestBody && !bodyEncoded(request.headers)) {
-//                    val buffer = Buffer()
-//                    requestBody?.writeTo(buffer)
-//                    var charset = UTF8
-//                    val contentType = requestBody?.contentType()
-//                    if (contentType != null) charset = contentType.charset(UTF8)
-//                    if (isPlaintext(buffer)) queryParams = buffer.readString(charset)
-//                }
-//            }
-//        }
         //获取响应体
         val response: Response
         try {
@@ -77,15 +59,15 @@ internal class LoggingInterceptor : Interceptor {
             val source = responseBody?.source()
             source?.request(Long.MAX_VALUE)
             val buffer = source?.buffer
-            var charset: Charset? = UTF8
+            var charset = UTF8
             val contentType = responseBody?.contentType()
             if (contentType != null) charset = contentType.charset(UTF8)
-            if (!isPlaintext(buffer!!)) {
+            if (!isPlaintext(buffer)) {
                 //信息量过大会只打印部分
                 log(headerValues, requestUrl, queryParams, null)
                 return response
             }
-            if (contentLength != 0L) responseResult = buffer.clone().readString(charset!!)
+            if (contentLength != 0L) responseResult = buffer?.clone()?.readString(charset)
         }
         //打印获取到的全部信息
         log(headerValues, requestUrl, queryParams, responseResult)
@@ -97,7 +79,8 @@ internal class LoggingInterceptor : Interceptor {
         return contentEncoding != null && !contentEncoding.equals("identity", ignoreCase = true)
     }
 
-    private fun isPlaintext(buffer: Buffer): Boolean {
+    private fun isPlaintext(buffer: Buffer?): Boolean {
+        if(buffer == null) return false
         try {
             val prefix = Buffer()
             val byteCount = if (buffer.size < 64) buffer.size else 64
@@ -107,9 +90,7 @@ internal class LoggingInterceptor : Interceptor {
                     break
                 }
                 val codePoint = prefix.readUtf8CodePoint()
-                if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) {
-                    return false
-                }
+                if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) return false
             }
             return true
         } catch (e: EOFException) {
