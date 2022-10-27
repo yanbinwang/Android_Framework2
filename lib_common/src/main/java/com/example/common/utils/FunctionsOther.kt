@@ -1,5 +1,6 @@
 package com.example.common.utils
 
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
@@ -49,6 +50,25 @@ fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.
  * 获取图片
  */
 fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
+
+/**
+ * 通过字符串获取drawable下的xml文件
+ */
+fun Context.drawableId(name: String): Int {
+    return try {
+        resources.getIdentifier(name, "drawable", packageName)
+    } catch (_: Exception) {
+        0
+    }
+}
+
+fun Context.mipmapId(name: String): Int {
+    return try {
+        resources.getIdentifier(name, "mipmap", packageName)
+    } catch (_: Exception) {
+        0
+    }
+}
 
 /**
  * 获取对应大小的文字

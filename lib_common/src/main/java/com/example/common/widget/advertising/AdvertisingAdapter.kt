@@ -9,6 +9,7 @@ import com.example.base.utils.function.value.safeSize
 import com.example.base.utils.function.value.toSafeInt
 import com.example.base.utils.function.view.click
 import com.example.common.imageloader.ImageLoader
+import com.example.common.utils.mipmapId
 
 /**
  *  Created by wangyanbin
@@ -31,7 +32,8 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.itemView.click { onItemClick?.invoke(position.mod(list.safeSize)) }
         if (localAsset) {
-            (holder.itemView as ImageView).setBackgroundResource(list.safeGet(position.mod(list.safeSize)).toSafeInt())
+            (holder.itemView as ImageView).setBackgroundResource(holder.itemView.context.mipmapId(list.safeGet(position.mod(list.safeSize)).orEmpty()))
+//            (holder.itemView as ImageView).setBackgroundResource(list.safeGet(position.mod(list.safeSize)).toSafeInt())
         } else {
             ImageLoader.instance.display((holder.itemView as ImageView), list.safeGet(position.mod(list.safeSize)))
         }

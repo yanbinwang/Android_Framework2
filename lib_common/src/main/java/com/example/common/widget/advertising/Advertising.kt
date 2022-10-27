@@ -132,9 +132,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         advAdapter.list = list
         advAdapter.onItemClick = { onPageClick?.invoke(it) }
         //设置默认选中的起始位置
-        var position = 0
-        if (list.size > 1) position = halfPosition - halfPosition % list.size
-        banner?.setCurrentItem(position, false)
+        banner?.setCurrentItem(if (list.size > 1) halfPosition - halfPosition % list.size else 0, false)
     }
 
     /**
