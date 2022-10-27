@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.base.utils.function.value.safeGet
+import com.example.base.utils.function.value.safeSize
 import com.example.base.utils.function.value.toSafeInt
 import com.example.base.utils.function.view.click
 import com.example.common.imageloader.ImageLoader
@@ -20,7 +21,7 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
             field = value
             notifyDataSetChanged()
         }
-    var localAsset: Boolean = false
+    var localAsset = false
     var onItemClick: ((position: Int) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -28,16 +29,16 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.itemView.click { onItemClick?.invoke(position % list.size) }
+        holder.itemView.click { onItemClick?.invoke(position.mod(list.safeSize)) }
         if (localAsset) {
-            (holder.itemView as ImageView).setBackgroundResource(list.safeGet(position % list.size).toSafeInt())
+            (holder.itemView as ImageView).setBackgroundResource(list.safeGet(position.mod(list.safeSize)).toSafeInt())
         } else {
-            ImageLoader.instance.display((holder.itemView as ImageView), list.safeGet(position % list.size))
+            ImageLoader.instance.display((holder.itemView as ImageView), list.safeGet(position.mod(list.safeSize)))
         }
     }
 
     override fun getItemCount(): Int {
-        return if (list.size < 2) list.size else Int.MAX_VALUE
+        return if (list.size < 2) list.safeSize else Int.MAX_VALUE
     }
 
     class ViewHolder(itemView: ImageView) : RecyclerView.ViewHolder(itemView) {
