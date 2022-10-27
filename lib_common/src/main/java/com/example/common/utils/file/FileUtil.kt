@@ -10,7 +10,6 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.provider.Settings
-import android.text.TextUtils
 import androidx.core.content.FileProvider
 import com.example.base.utils.function.toast
 import com.example.base.utils.function.value.DateFormat.EN_YMDHMS
@@ -98,7 +97,7 @@ object FileUtil {
      */
     @JvmStatic
     fun deleteFile(filePath: String?) {
-        if (TextUtils.isEmpty(filePath)) return
+        if (filePath.isNullOrEmpty()) return
         val file = File(filePath)
         if (file.isFile && file.exists()) file.delete()
     }

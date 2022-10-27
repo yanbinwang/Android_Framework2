@@ -2,7 +2,6 @@ package com.example.base.utils.function.value
 
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.TextUtils
 import android.text.style.BackgroundColorSpan
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
@@ -115,8 +114,8 @@ fun String.isMobile() = Pattern.matches("^1[0-9]{10}$", this)
 /**
  * 截取小数点后X位
  */
-fun String.getFormat(decimalPlace: Int): String {
-    if (TextUtils.isEmpty(this)) return ""
+fun String?.getFormat(decimalPlace: Int): String {
+    if (this.isNullOrEmpty()) return ""
     val value = toDouble()
     val format = StringBuilder()
     for (i in 0 until decimalPlace) {
@@ -130,8 +129,8 @@ fun String.getFormat(decimalPlace: Int): String {
 /**
  * 返回密码强度
  */
-fun String.checkSecurity(): Int {
-    if (TextUtils.isEmpty(this)) return 0
+fun String?.checkSecurity(): Int {
+    if (this.isNullOrEmpty()) return 0
     //纯数字、纯字母、纯特殊字符
     if (this.length < 8 || Pattern.matches("^\\d+$", this) || Pattern.matches("^[a-z]+$", this) || Pattern.matches("^[A-Z]+$", this) || Pattern.matches("^[@#$%^&]+$", this)) return 1
     //字母+数字、字母+特殊字符、数字+特殊字符

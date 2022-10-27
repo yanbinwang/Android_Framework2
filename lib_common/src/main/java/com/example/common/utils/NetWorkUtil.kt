@@ -7,7 +7,6 @@ import android.net.NetworkCapabilities
 import android.net.NetworkInfo
 import android.net.wifi.WifiManager
 import android.os.Build
-import android.text.TextUtils
 import com.example.base.utils.logE
 import com.example.common.BaseApplication
 
@@ -73,7 +72,7 @@ object NetWorkUtil {
      * 是否挂载了网络代理（wifi模式下）
      */
     @JvmStatic
-    fun isMountAgent() = (!TextUtils.isEmpty(System.getProperty("http.proxyHost"))) && ((System.getProperty("http.proxyPort") ?: "-1").toInt() != -1)
+    fun isMountAgent() = (!System.getProperty("http.proxyHost").isNullOrEmpty()) && ((System.getProperty("http.proxyPort") ?: "-1").toInt() != -1)
 
     /**
      * 是否挂载了VPN，只需校验是否是Vpn

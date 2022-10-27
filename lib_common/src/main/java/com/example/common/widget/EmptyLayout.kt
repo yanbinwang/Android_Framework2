@@ -2,7 +2,6 @@ package com.example.common.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -85,7 +84,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     fun showEmpty(resId: Int = -1, text: String? = null) {
         visible()
         binding?.ivEmpty?.setImageResource(if (-1 == resId) R.mipmap.img_data_empty else resId)
-        binding?.tvEmpty?.text = if (TextUtils.isEmpty(text)) context.getString(R.string.label_data_empty) else text
+        binding?.tvEmpty?.text = if (text.isNullOrEmpty()) context.getString(R.string.label_data_empty) else text
         binding?.tvRefresh?.gone()
     }
 
@@ -100,7 +99,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
             binding?.tvEmpty?.text = context.getString(R.string.label_data_net_error)
         } else {
             binding?.ivEmpty?.setImageResource(if (-1 == resId) R.mipmap.img_data_error else resId)
-            binding?.tvEmpty?.text = if (TextUtils.isEmpty(text)) context.getString(R.string.label_data_error) else text
+            binding?.tvEmpty?.text = if (text.isNullOrEmpty()) context.getString(R.string.label_data_error) else text
         }
         binding?.tvRefresh?.visible()
     }

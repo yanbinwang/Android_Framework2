@@ -2,7 +2,6 @@ package com.example.common.widget.textview
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.TextView
@@ -22,7 +21,7 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun start(tag: String? = "", time: Long = 60) {
-        if (!TextUtils.isEmpty(tag)) timerTag = tag.orEmpty()
+        if (!tag.isNullOrEmpty()) timerTag = tag
         TimerUtil.startCountDown(timerTag, { second: Long? ->
             isEnabled = false
             text = "已发送${second}S"

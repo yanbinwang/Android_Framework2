@@ -1,6 +1,5 @@
 package com.example.common.base.page
 
-import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup
 import com.example.base.utils.function.string
@@ -16,7 +15,7 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
  */
 fun String?.responseMsg(){
     val strTemp = this
-    with(BaseApplication.instance.applicationContext) { toast(if (!isNetworkAvailable()) string(R.string.label_response_net_error) else { if(TextUtils.isEmpty(strTemp)) string(R.string.label_response_error) else strTemp.orEmpty()}) }
+    with(BaseApplication.instance.applicationContext) { toast(if (!isNetworkAvailable()) string(R.string.label_response_net_error) else { if(strTemp.isNullOrEmpty()) string(R.string.label_response_error) else strTemp.orEmpty()}) }
 }
 
 /**

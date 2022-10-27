@@ -1,7 +1,6 @@
 package com.example.common.widget.dialog
 
 import android.content.Context
-import android.text.TextUtils
 import android.view.Gravity
 import com.example.base.utils.function.view.click
 import com.example.base.utils.function.view.gone
@@ -20,9 +19,9 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context, close
     fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = "", center: Boolean = true) {
         binding.apply {
             //如果没有传入标题字段,则隐藏标题view
-            if (TextUtils.isEmpty(title)) tvTip.gone()
+            if (title.isNullOrEmpty()) tvTip.gone()
             //如果没有传入取消字段,则隐藏取消view
-            if (TextUtils.isEmpty(negativeText)) {
+            if (negativeText.isNullOrEmpty()) {
                 viewLine.gone()
                 tvCancel.gone()
             }

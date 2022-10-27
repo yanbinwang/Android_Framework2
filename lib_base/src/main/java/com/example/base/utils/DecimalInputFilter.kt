@@ -2,7 +2,6 @@ package com.example.base.utils
 
 import android.text.InputFilter
 import android.text.Spanned
-import android.text.TextUtils
 import java.util.regex.Pattern
 
 /**
@@ -48,7 +47,7 @@ class DecimalInputFilter : InputFilter {
         val sourceText = source.toString()
         val destText = dest.toString()
         //验证删除等按键
-        if (TextUtils.isEmpty(sourceText)) return ""
+        if (sourceText.isEmpty()) return ""
         val matcher = mPattern.matcher(source)
         //已经输入小数点的情况下，只能输入数字
         if (destText.contains(point)) {
@@ -72,7 +71,7 @@ class DecimalInputFilter : InputFilter {
                 return ""
             } else {
                 //首位不能输入小数点
-                if (point == source.toString() && TextUtils.isEmpty(destText)) {
+                if (point == source.toString() && destText.isEmpty()) {
                     return ""
                     //如果首位输入0，接下来只能输入小数点
                 } else if (point != source.toString() && zero == destText) {

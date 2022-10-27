@@ -7,7 +7,6 @@ import android.os.Looper
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
-import android.text.TextUtils
 import android.text.style.ForegroundColorSpan
 import android.widget.*
 import androidx.annotation.ColorInt
@@ -190,7 +189,7 @@ fun TextView?.setSpan(txt: String, keyword: String, colorRes: Int = R.color.blue
 @JvmOverloads
 fun TextView?.setArguments(txt: String ?= "", colorRes: Int = R.color.blue_3d81f2, resId: Int = 0) {
     this ?: return
-    if (!TextUtils.isEmpty(txt)) text = txt
+    if (!txt.isNullOrEmpty()) text = txt
     setTextColor(context.color(colorRes))
     setBackgroundResource(resId)
 }

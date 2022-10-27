@@ -2,7 +2,6 @@ package com.example.common.widget.dialog
 
 import android.content.Context
 import android.content.DialogInterface
-import android.text.TextUtils
 import androidx.appcompat.app.AlertDialog
 import com.example.common.R
 
@@ -16,10 +15,10 @@ class AndDialog(context: Context) : AlertDialog.Builder(context, R.style.dialogS
     var onCancel: (() -> Unit)? = null
 
     fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = ""): AndDialog {
-        if (!TextUtils.isEmpty(title)) setTitle(title)
-        setMessage(if (TextUtils.isEmpty(message)) "" else message)
+        if (!title.isNullOrEmpty()) setTitle(title)
+        setMessage(if (message.isNullOrEmpty()) "" else message)
         setPositiveButton(positiveText) { _: DialogInterface?, _: Int -> onConfirm?.invoke() }
-        if (!TextUtils.isEmpty(negativeText)) setNegativeButton(negativeText) { _: DialogInterface?, _: Int -> onCancel?.invoke() }
+        if (!negativeText.isNullOrEmpty()) setNegativeButton(negativeText) { _: DialogInterface?, _: Int -> onCancel?.invoke() }
         return this
     }
 
