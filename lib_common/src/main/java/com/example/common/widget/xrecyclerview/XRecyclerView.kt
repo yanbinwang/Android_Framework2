@@ -1,13 +1,12 @@
 package com.example.common.widget.xrecyclerview
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.util.SparseArray
-import android.view.LayoutInflater
 import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.base.utils.function.dip2px
+import com.example.base.utils.function.inflate
 import com.example.base.utils.function.view.cancelItemAnimator
 import com.example.base.utils.function.view.gone
 import com.example.base.utils.function.view.initLinearHorizontal
@@ -28,7 +27,6 @@ import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
  * 一般自定义view或viewGroup基本上都会去实现onMeasure、onLayout、onDraw方法，还有另外两个方法是onFinishInflate和onSizeChanged。
  * onFinishInflate方法只有在布局文件中加载view实例会回调，如果直接new一个view的话是不会回调的。
  */
-@SuppressLint("InflateParams")
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private var refresh: XRefreshLayout? = null//刷新控件 类型1才有
     private var refreshType = 0//页面类型(0无刷新-1带刷新)
@@ -60,11 +58,11 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         var view: View? = null
         when (refreshType) {
             0 -> {
-                view = LayoutInflater.from(context).inflate(R.layout.view_xrecyclerview, null)
+                view = context.inflate(R.layout.view_xrecyclerview)
                 recycler = view.findViewById(R.id.d_rv)
                 if (0 != emptyType) {
                     empty = EmptyLayout(context)
-                    recycler?.setEmptyView(empty?.setListView(recycler!!))
+                    recycler?.setEmptyView(empty?.setListView(recycler))
                     recycler?.setHasFixedSize(true)
                     recycler?.cancelItemAnimator()
 //                    recycler?.itemAnimator = DefaultItemAnimator()
@@ -72,7 +70,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 }
             }
             1 -> {
-                view = LayoutInflater.from(context).inflate(R.layout.view_xrecyclerview_refresh, null)
+                view = context.inflate(R.layout.view_xrecyclerview_refresh)
                 empty = view.findViewById(R.id.el)
                 refresh = view.findViewById(R.id.x_refresh)
                 recycler = view.findViewById(R.id.d_rv)

@@ -2,9 +2,8 @@ package com.example.common.widget.xrecyclerview.refresh
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.LayoutInflater
-import androidx.databinding.DataBindingUtil
 import com.example.base.utils.LogUtil
+import com.example.base.utils.function.inflate
 import com.example.base.utils.function.value.orFalse
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
@@ -17,9 +16,7 @@ import com.lcodecore.tkrefreshlayout.IBottomView
  * 自定义刷新控件底部
  */
 class FooterView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), IBottomView {
-    private val binding by lazy<ViewRefreshFooterBinding> {
-        DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_refresh_footer, null))!!
-    }
+    private val binding by lazy { ViewRefreshFooterBinding.bind(context.inflate(R.layout.view_refresh_footer)) }
     var paging: Paging? = null
 
     override fun onDrawView() {

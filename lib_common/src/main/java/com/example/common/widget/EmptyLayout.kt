@@ -6,7 +6,6 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.databinding.DataBindingUtil
 import com.example.base.utils.function.inflate
 import com.example.base.utils.function.string
 import com.example.base.utils.function.view.click
@@ -32,36 +31,35 @@ import com.example.common.utils.NetWorkUtil.isNetworkAvailable
  */
 @SuppressLint("InflateParams")
 class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-    private var binding: ViewEmptyBinding? = null
+    private val binding by lazy { ViewEmptyBinding.bind(context.inflate(R.layout.view_empty)) }
     var onRefreshClick: (() -> Unit)? = null
 
     init {
-        binding = DataBindingUtil.bind(context.inflate(R.layout.view_empty))
-        binding?.llContainer?.setBackgroundColor(color(R.color.grey_f6f8ff))
+        binding.llContainer.setBackgroundColor(color(R.color.grey_f6f8ff))
         //设置样式
-        binding?.root?.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT) //设置LayoutParams
-        binding?.root?.setBackgroundColor(color(R.color.grey_f6f8ff))
+        binding.root.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT) //设置LayoutParams
+        binding.root.setBackgroundColor(color(R.color.grey_f6f8ff))
         //设置监听
-        binding?.tvRefresh?.click {
+        binding.tvRefresh.click {
             //进入加载中，并停止刷新动画
             showLoading()
             onRefreshClick?.invoke()
         }
-        binding?.root?.click(null)
+        binding.root.click(null)
         showLoading()
     }
 
     override fun onDrawView() {
-        if (onFinishView()) addView(binding?.root)
+        if (onFinishView()) addView(binding.root)
     }
 
     /**
      * 设置列表所需的emptyview
      */
-    fun setListView(listView: View): View? {
-        removeView(binding?.root)
-        (listView.parent as ViewGroup).addView(binding?.root) //添加到当前的View hierarchy
-        return binding?.root
+    fun setListView(listView: View?): View {
+        removeView(binding.root)
+        (listView?.parent as ViewGroup).addView(binding.root) //添加到当前的View hierarchy
+        return binding.root
     }
 
     /**
@@ -69,13 +67,9 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun showLoading() {
         visible()
-        binding?.ivEmpty?.setImageResource(R.mipmap.img_data_loading)
-        binding?.tvEmpty?.text = context.string(R.string.label_data_loading)
-        binding?.tvRefresh?.gone()
-//        visibility = VISIBLE
-//        binding?.ivEmpty?.visibility = GONE
-//        binding?.tvEmpty?.text = context.getString(R.string.label_data_loading)
-//        binding?.tvRefresh?.visibility = GONE
+        binding.ivEmpty.setImageResource(R.mipmap.img_data_loading)
+        binding.tvEmpty.text = context.string(R.string.label_data_loading)
+        binding.tvRefresh.gone()
     }
 
     /**
@@ -83,9 +77,9 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun showEmpty(resId: Int = -1, text: String? = null) {
         visible()
-        binding?.ivEmpty?.setImageResource(if (-1 == resId) R.mipmap.img_data_empty else resId)
-        binding?.tvEmpty?.text = if (text.isNullOrEmpty()) context.getString(R.string.label_data_empty) else text
-        binding?.tvRefresh?.gone()
+        binding.ivEmpty.setImageResource(if (-1 == resId) R.mipmap.img_data_empty else resId)
+        binding.tvEmpty.text = if (text.isNullOrEmpty()) context.string(R.string.label_data_empty) else text
+        binding.tvRefresh.gone()
     }
 
     /**
@@ -95,20 +89,20 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     fun showError(resId: Int = -1, text: String? = null) {
         visible()
         if (!isNetworkAvailable()) {
-            binding?.ivEmpty?.setImageResource(R.mipmap.img_data_net_error)
-            binding?.tvEmpty?.text = context.getString(R.string.label_data_net_error)
+            binding.ivEmpty.setImageResource(R.mipmap.img_data_net_error)
+            binding.tvEmpty.text = context.string(R.string.label_data_net_error)
         } else {
-            binding?.ivEmpty?.setImageResource(if (-1 == resId) R.mipmap.img_data_error else resId)
-            binding?.tvEmpty?.text = if (text.isNullOrEmpty()) context.getString(R.string.label_data_error) else text
+            binding.ivEmpty.setImageResource(if (-1 == resId) R.mipmap.img_data_error else resId)
+            binding.tvEmpty.text = if (text.isNullOrEmpty()) context.string(R.string.label_data_error) else text
         }
-        binding?.tvRefresh?.visible()
+        binding.tvRefresh.visible()
     }
 
     /**
      * 设置背景颜色
      */
     override fun setBackgroundColor(color: Int) {
-        binding?.llContainer?.setBackgroundColor(color)
+        binding.llContainer.setBackgroundColor(color)
     }
 
 }

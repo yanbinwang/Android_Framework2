@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.databinding.DataBindingUtil
 import com.example.base.utils.LogUtil
+import com.example.base.utils.function.inflate
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshHeaderBinding
@@ -16,7 +17,7 @@ import com.lcodecore.tkrefreshlayout.OnAnimEndListener
  * @author yan
  */
 class HeaderView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), IHeaderView {
-    private val binding by lazy<ViewRefreshHeaderBinding> { DataBindingUtil.bind(LayoutInflater.from(context).inflate(R.layout.view_refresh_header, null))!! }
+    private val binding by lazy { ViewRefreshHeaderBinding.bind(context.inflate(R.layout.view_refresh_header)) }
 
     override fun onDrawView() {
         if (onFinishView()) addView(binding.root)
