@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -119,9 +120,9 @@ fun Context.toast(text: String) = ToastUtil.mackToastSHORT(text, this)
 /**
  * 生成View
  */
-fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null) = LayoutInflater.from(this).inflate(res, root)
+fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null): View = LayoutInflater.from(this).inflate(res, root)
 
-fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean) = LayoutInflater.from(this).inflate(res, root, attachToRoot)
+fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean): View = LayoutInflater.from(this).inflate(res, root, attachToRoot)
 
 /**
  * 粘贴板操作
