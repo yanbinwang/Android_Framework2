@@ -129,6 +129,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window
         if ((context as? Activity)?.isFinishing.orFalse) return
         if ((context as? Activity)?.isDestroyed.orFalse) return
         if ((context as? Activity)?.window?.windowManager == null) return
+        if (window.windowManager == null) return
+        if (window.decorView.parent == null) return
         super.dismiss()
         binding.unbind()
     }

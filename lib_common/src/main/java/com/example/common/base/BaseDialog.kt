@@ -90,6 +90,8 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
         if (ownerActivity?.isFinishing.orFalse) return
         if (ownerActivity?.isDestroyed.orFalse) return
         if (window?.windowManager == null) return
+        if (window?.decorView == null) return
+        if (window?.decorView?.parent == null) return
         super.dismiss()
         binding.unbind()
     }
