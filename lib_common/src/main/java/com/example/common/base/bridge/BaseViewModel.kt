@@ -10,18 +10,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.base.utils.function.view.gone
 import com.example.common.base.page.getEmptyView
+import com.example.common.base.page.responseMsg
 import com.example.common.bus.Event
 import com.example.common.bus.EventBus
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.request
+import com.example.common.http.repository.response
 import com.example.common.utils.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
@@ -80,6 +79,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         emptyView?.gone()
     }
 
+    /**
+     * 常规发起一个网络请求
+     */
     protected fun <T> request(
         request: suspend CoroutineScope.() -> ApiResponse<T>,      // 请求
         resp: (T?) -> Unit = {},                                   // 响应
@@ -96,7 +98,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 { resp(it) },
                 { err(it) },
                 {
-                    if (isShowDialog && isClose) view?.hideDialog()
+                    if (isShowDialog || isClose) view?.hideDialog()
                     end()
                 },
                 isShowToast
@@ -104,6 +106,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         }
     }
 
+    /**
+     * 串行发起多个网络请求
+     */
     protected fun request(
         start: () -> Unit = {},
         requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
@@ -112,6 +117,34 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         launch {
             request(start, requests, end)
         }
+    }
+
+    /**
+     * 不做回调，直接得到结果
+     */
+    protected suspend fun <T> asyncRequest(
+        request: suspend CoroutineScope.() -> ApiResponse<T>,
+        isShowToast: Boolean = true,
+        isShowDialog: Boolean = false,
+        isClose: Boolean = true
+    ): T? {
+        return async(Dispatchers.Main) {
+            if (isShowDialog) view?.showDialog()
+            var t: T? = null
+            try {
+                val req = withContext(Dispatchers.IO) { request() }
+                val body = req.response()
+                if (null != body) {
+                    t = body
+                } else {
+                    if (isShowToast) req.msg.responseMsg()
+                }
+            } catch (e: Exception) {
+                if (isShowToast) "".responseMsg()
+            }
+            if (isShowDialog || isClose) view?.hideDialog()
+            t
+        }.await()
     }
 
     override fun onCleared() {
