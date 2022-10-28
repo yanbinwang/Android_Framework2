@@ -1,6 +1,6 @@
 package com.example.common.http.repository
 
-import com.example.base.utils.LogUtil
+import com.example.base.utils.logE
 import com.example.common.base.page.responseMsg
 import com.example.common.utils.analysis.GsonUtil
 import com.example.common.utils.helper.AccountHelper
@@ -34,11 +34,11 @@ fun <T> CoroutineScope.request(
 ) {
     launch(Main) {
         try {
-            LogUtil.e("repository", "1:${Thread.currentThread().name}")
+            "1:${Thread.currentThread().name}".logE("repository")
             start()
             //请求+响应数据
             val data = withContext(IO) {
-                LogUtil.e("repository", "2:${Thread.currentThread().name}")
+                "2:${Thread.currentThread().name}".logE("repository")
                 request()
             }
             val body = data.response()
@@ -50,7 +50,7 @@ fun <T> CoroutineScope.request(
             if (isShowToast) "".responseMsg()
             err(Triple(-1, "", e))  //可根据具体异常显示具体错误提示
         } finally {
-            LogUtil.e("repository", "3:${Thread.currentThread().name}")
+            "3:${Thread.currentThread().name}".logE("repository")
             end()
         }
     }
@@ -77,25 +77,25 @@ fun CoroutineScope.request(
         start()
         try {
             withContext(IO) {
-                LogUtil.e("repository", "串行请求开始时间：${System.nanoTime()}")
+                "串行请求开始时间：${System.nanoTime()}".logE("repository")
                 for (req in requests) {
-                    LogUtil.e("repository", "请求${req}执行时间：${System.nanoTime()}")
+                    "请求${req}执行时间：${System.nanoTime()}".logE("repository")
                     val data = req()
                     if (200 == data.code) {
                         val body = data.response()
                         respList.add(body)
-                        LogUtil.e("repository", "请求${req}执行结果：${GsonUtil.objToJson(body ?: Any())}")
+                        "请求${req}执行结果：${GsonUtil.objToJson(body ?: Any())}".logE("repository")
                     } else {
-                        LogUtil.e("repository", "请求${req}执行结果：返回参数非200，中断执行")
+                        "请求${req}执行结果：返回参数非200，中断执行".logE("repository")
                         break
                     }
                 }
             }
         } catch (e: Exception) {
-            LogUtil.e("repository", "串行请求返回结果：接口执行中出现异常")
+            "串行请求返回结果：接口执行中出现异常".logE("repository")
         } finally {
             //如果返回的对象长度和发起的请求长度是一样的，说明此次串行都执行成功，直接拿取集合即可,其中一条失败就返回空
-            LogUtil.e("repository", "串行请求返回结果:${respList.size == requests.size}")
+            "串行请求返回结果:${respList.size == requests.size}".logE("repository")
             end(if (respList.size == requests.size) respList else null)
         }
     }
@@ -107,8 +107,8 @@ fun CoroutineScope.request(
 fun <T> ApiResponse<T>?.response(): T? {
     if (this == null) return null
     return if (200 == code) {
-//        if (null == data) Any() as T else data
-        data
+        if (null == data) Any() as? T else data
+//        data
     } else {
         if (408 == code) AccountHelper.signOut()
         null

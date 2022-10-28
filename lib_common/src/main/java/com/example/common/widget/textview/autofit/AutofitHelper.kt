@@ -10,7 +10,7 @@ import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
-import com.example.base.utils.LogUtil
+import com.example.base.utils.logE
 import com.example.common.R
 
 /**
@@ -192,7 +192,7 @@ object AutofitHelper {
             layout = StaticLayout(text, paint, targetWidth.toInt(), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, true)
             lineCount = layout.lineCount
         }
-        if (SPEW) LogUtil.d(TAG, "low=$low high=$high mid=$mid target=$targetWidth maxLines=$maxLines lineCount=$lineCount")
+        if (SPEW) "low=$low high=$high mid=$mid target=$targetWidth maxLines=$maxLines lineCount=$lineCount".logE(TAG)
         return if (lineCount > maxLines) {
             if (high - low < precision) low else getAutofitTextSize(text, paint, targetWidth, maxLines, low, mid, precision, displayMetrics)
         } else if (lineCount < maxLines) {

@@ -2,9 +2,9 @@ package com.example.common.widget.xrecyclerview.refresh
 
 import android.content.Context
 import android.util.AttributeSet
-import com.example.base.utils.LogUtil
 import com.example.base.utils.function.inflate
 import com.example.base.utils.function.value.orFalse
+import com.example.base.utils.logE
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.base.page.Paging
@@ -16,6 +16,7 @@ import com.lcodecore.tkrefreshlayout.IBottomView
  * 自定义刷新控件底部
  */
 class FooterView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), IBottomView {
+    private val TAG = "BottomView"
     private val binding by lazy { ViewRefreshFooterBinding.bind(context.inflate(R.layout.view_refresh_footer)) }
     var paging: Paging? = null
 
@@ -32,7 +33,7 @@ class FooterView @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 正在上拉的过程
      */
     override fun onPullingUp(fraction: Float, maxBottomHeight: Float, bottomHeight: Float) {
-        log("onPullingUp")
+        "onPullingUp".logE(TAG)
         if (paging?.hasNextPage().orFalse) {
             binding.tvMsg.text = "我也是有底线的~"
         } else {
@@ -44,7 +45,7 @@ class FooterView @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 上拉释放过程
      */
     override fun onPullReleasing(fraction: Float, maxBottomHeight: Float, bottomHeight: Float) {
-        log("onPullReleasing")
+        "onPullReleasing".logE(TAG)
         if (paging?.hasNextPage().orFalse) {
             binding.tvMsg.text = "我也是有底线的~"
         } else {
@@ -56,7 +57,7 @@ class FooterView @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 触发执行动画时，文字和图片的样式
      */
     override fun startAnim(maxBottomHeight: Float, bottomHeight: Float) {
-        log("startAnim")
+        "startAnim".logE(TAG)
         if (paging?.hasNextPage().orFalse) {
             binding.tvMsg.text = "我也是有底线的~"
             binding.progress.stopSpinning()
@@ -70,7 +71,7 @@ class FooterView @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 动画执行完毕时，结束
      */
     override fun onFinish() {
-        log("onFinish")
+        "onFinish".logE(TAG)
         binding.tvMsg.text = ""
         binding.progress.stopSpinning()
     }
@@ -79,11 +80,9 @@ class FooterView @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 重置复位
      */
     override fun reset() {
-        log("reset")
+        "reset".logE(TAG)
         binding.tvMsg.text = "上拉加载更多"
         binding.progress.stopSpinning()
     }
-
-    private fun log(msg: String) = LogUtil.e("BottomView", msg)
 
 }

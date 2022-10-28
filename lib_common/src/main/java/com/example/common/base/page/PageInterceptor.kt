@@ -6,9 +6,9 @@ import com.alibaba.android.arouter.facade.annotation.Interceptor
 import com.alibaba.android.arouter.facade.callback.InterceptorCallback
 import com.alibaba.android.arouter.facade.template.IInterceptor
 import com.alibaba.android.arouter.launcher.ARouter
+import com.example.base.utils.logE
 import com.example.common.constant.ARouterPath
 import com.example.common.constant.Constants
-import com.example.base.utils.LogUtil
 import com.example.common.utils.helper.AccountHelper
 
 /**
@@ -24,7 +24,7 @@ class PageInterceptor : IInterceptor {
     private val TAG = "PageInterceptor"
 
     override fun process(postcard: Postcard, callback: InterceptorCallback) {
-        LogUtil.e(TAG, "PageInterceptor 开始执行")
+        "PageInterceptor 开始执行".logE(TAG)
         //给需要跳转的页面添加值为Constants.LOGIN_INTERCEPTOR_CODE的extra参数，用来标记是否需要用户先登录才可以访问该页面
         //先判断需不需要
         if (postcard.extra == Constants.LOGIN_INTERCEPTOR_CODE) {
@@ -40,7 +40,7 @@ class PageInterceptor : IInterceptor {
     }
 
     override fun init(context: Context) {
-        LogUtil.e(TAG, "PageInterceptor 初始化")
+        "PageInterceptor 初始化".logE(TAG)
     }
 
 }

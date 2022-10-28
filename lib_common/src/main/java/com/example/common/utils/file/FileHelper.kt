@@ -9,11 +9,11 @@ import android.os.ParcelFileDescriptor
 import android.util.Patterns
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
-import com.example.base.utils.LogUtil
 import com.example.base.utils.function.doOnDestroy
 import com.example.base.utils.function.toast
 import com.example.base.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.base.utils.function.value.getDateTime
+import com.example.base.utils.logE
 import com.example.common.BaseApplication
 import com.example.common.constant.Constants
 import com.example.common.subscribe.CommonSubscribe
@@ -103,7 +103,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
                 if (fileDir.exists()) FileUtil.zipFolder(fileDir.absolutePath, File(zipPath).absolutePath)
             } catch (e: Exception) {
                 result = false
-                LogUtil.e("FileHelper", "打包图片生成压缩文件异常: $e")
+                "打包图片生成压缩文件异常: $e".logE("FileHelper")
             } finally {
                 withContext(Main) { onComplete(if (result) zipPath else null) }
             }
