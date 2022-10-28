@@ -92,8 +92,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         isShowToast: Boolean = true,                               // 是否toast
         isShowDialog: Boolean = true,                              // 是否显示加载框
         isClose: Boolean = true                                    // 请求结束前是否关闭dialog
-    ) {
-        launch {
+    ): Job {
+        return launch {
             request(
                 { if (isShowDialog) view?.showDialog() },
                 { request() },
