@@ -21,6 +21,8 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
 import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
@@ -82,7 +84,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     /**
      * 常规发起一个网络请求
      */
-    protected fun <T> request(
+    protected fun <T> launchRequest(
         request: suspend CoroutineScope.() -> ApiResponse<T>,      // 请求
         resp: (T?) -> Unit = {},                                   // 响应
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}, // 错误处理
@@ -109,7 +111,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     /**
      * 串行发起多个网络请求
      */
-    protected fun request(
+    protected fun launchRequest(
         start: () -> Unit = {},
         requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
         end: (result: MutableList<Any?>?) -> Unit = {}
@@ -121,6 +123,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     /**
      * 不做回调，直接得到结果
+     * 套launch（不需要关心主子线程）
      */
     protected suspend fun <T> asyncRequest(
         request: suspend CoroutineScope.() -> ApiResponse<T>,
@@ -128,11 +131,11 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         isShowDialog: Boolean = false,
         isClose: Boolean = true
     ): T? {
-        return async(Dispatchers.Main) {
+        return async(Main) {
             if (isShowDialog) view?.showDialog()
             var t: T? = null
             try {
-                val req = withContext(Dispatchers.IO) { request() }
+                val req = withContext(IO) { request() }
                 val body = req.response()
                 if (null != body) {
                     t = body
