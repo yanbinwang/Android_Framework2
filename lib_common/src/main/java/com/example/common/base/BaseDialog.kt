@@ -55,7 +55,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
             }
             if (close) {
                 setOnKeyListener { _: DialogInterface?, _: Int, _: KeyEvent? -> true }
-                setCancelable(true)
+                setCancelable(false)
             }
         }
     }
