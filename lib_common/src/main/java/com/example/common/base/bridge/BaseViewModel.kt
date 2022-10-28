@@ -84,7 +84,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     /**
      * 常规发起一个网络请求
      */
-    protected fun <T> launchRequest(
+    protected fun <T> launch(
         request: suspend CoroutineScope.() -> ApiResponse<T>,      // 请求
         resp: (T?) -> Unit = {},                                   // 响应
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}, // 错误处理
@@ -111,7 +111,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     /**
      * 串行发起多个网络请求
      */
-    protected fun launchRequest(
+    protected fun launch(
         start: () -> Unit = {},
         requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
         end: (result: MutableList<Any?>?) -> Unit = {}
@@ -125,7 +125,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 不做回调，直接得到结果
      * 套launch（不需要关心主子线程）
      */
-    protected suspend fun <T> asyncRequest(
+    protected suspend fun <T> async(
         request: suspend CoroutineScope.() -> ApiResponse<T>,
         isShowToast: Boolean = true,
         isShowDialog: Boolean = false,
