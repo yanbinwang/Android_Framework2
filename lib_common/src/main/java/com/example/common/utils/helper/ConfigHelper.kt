@@ -67,26 +67,27 @@ object ConfigHelper {
     fun showGuide(activity: Activity, label: String, vararg pages: GuidePage, color: Int = R.color.white) {
         if (!MMKVHelper.decodeBool(label)) {
             MMKVHelper.encode(label, true)
-            val weakActivity = WeakReference(activity)
-            val statusBarBuilder = StatusBarBuilder(weakActivity.get()!!.window)
-            val builder = NewbieGuide.with(weakActivity.get())//传入activity
-                .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
-                .setOnGuideChangedListener(object : OnGuideChangedListener {
-                    override fun onShowed(controller: Controller?) {
-                        statusBarBuilder.statusBarColor(activity.color(R.color.black_4c000000))
-                    }
+            WeakReference(activity).get()?.apply {
+                val statusBarBuilder = StatusBarBuilder(window)
+                val builder = NewbieGuide.with(this)//传入activity
+                    .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
+                    .setOnGuideChangedListener(object : OnGuideChangedListener {
+                        override fun onShowed(controller: Controller?) {
+                            statusBarBuilder.statusBarColor(activity.color(R.color.black_4c000000))
+                        }
 
-                    override fun onRemoved(controller: Controller?) {
-                        statusBarBuilder.statusBarColor(activity.color(color))
-                    }
-                })
-                .alwaysShow(true)
-            for (page in pages) {
-                //此处处理一下阴影背景
-                page.backgroundColor = activity.color(R.color.black_4c000000)
-                builder.addGuidePage(page)
+                        override fun onRemoved(controller: Controller?) {
+                            statusBarBuilder.statusBarColor(activity.color(color))
+                        }
+                    })
+                    .alwaysShow(true)
+                for (page in pages) {
+                    //此处处理一下阴影背景
+                    page.backgroundColor = activity.color(R.color.black_4c000000)
+                    builder.addGuidePage(page)
+                }
+                builder.show()
             }
-            builder.show()
         }
     }
 
