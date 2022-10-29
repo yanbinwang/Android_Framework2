@@ -115,8 +115,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         start: () -> Unit = {},
         requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
         end: (result: MutableList<Any?>?) -> Unit = {}
-    ) {
-        launch {
+    ): Job {
+        return launch {
             request(start, requests, end)
         }
     }

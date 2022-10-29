@@ -7,6 +7,7 @@ import com.example.common.utils.helper.AccountHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -31,8 +32,8 @@ fun <T> CoroutineScope.request(
     err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false
-) {
-    launch(Main) {
+): Job {
+    return launch(Main) {
         try {
             "1:${Thread.currentThread().name}".logE("repository")
             start()
@@ -71,8 +72,8 @@ fun CoroutineScope.request(
     start: () -> Unit = {},
     requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
     end: (result: MutableList<Any?>?) -> Unit = {}
-) {
-    launch(Main) {
+): Job {
+    return launch(Main) {
         val respList = ArrayList<Any?>()
         start()
         try {
