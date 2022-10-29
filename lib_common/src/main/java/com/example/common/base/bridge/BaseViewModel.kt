@@ -123,29 +123,25 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     /**
      * 不做回调，直接得到结果
-     * 套launch（不需要关心主子线程）
+     * 套launch（主线程）
      */
     protected suspend fun <T> async(
         request: suspend CoroutineScope.() -> ApiResponse<T>,
-        isShowToast: Boolean = true,
-        isShowDialog: Boolean = false,
-        isClose: Boolean = true
+        isShowToast: Boolean = true
     ): T? {
-        return async(Main) {
-            if (isShowDialog) view?.showDialog()
+        return async(IO) {
             var t: T? = null
             try {
-                val req = withContext(IO) { request() }
+                val req = request()
                 val body = req.response()
                 if (null != body) {
                     t = body
                 } else {
-                    if (isShowToast) req.msg.responseMsg()
+                    if (isShowToast) withContext(Main) { req.msg.responseMsg() }
                 }
             } catch (e: Exception) {
-                if (isShowToast) "".responseMsg()
+                if (isShowToast) withContext(Main) { "".responseMsg() }
             }
-            if (isShowDialog || isClose) view?.hideDialog()
             t
         }.await()
     }
