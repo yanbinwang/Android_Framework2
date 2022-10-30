@@ -113,16 +113,21 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      */
     protected fun launch(
         requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
-        end: (result: MutableList<Any?>?) -> Unit = {}
+        end: (result: MutableList<Any?>?) -> Unit = {},
+        isShowDialog: Boolean = false,
+        isClose: Boolean = true
     ): Job {
-        return launch { request(requests, end) }
+        if (isShowDialog) view?.showDialog()
+        return launch(Main) { request(requests) {
+            if (isShowDialog || isClose) view?.hideDialog()
+            end(it)
+        }}
     }
 
     /**
      * 不做回调，直接得到结果
-     * 套launch（主线程）
      */
-    protected suspend fun <T> async(
+    protected fun <T> async(
         request: suspend CoroutineScope.() -> ApiResponse<T>,
         isShowToast: Boolean = true
     ): Deferred<T?> {
