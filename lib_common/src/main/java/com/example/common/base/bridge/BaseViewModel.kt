@@ -93,9 +93,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         isShowDialog: Boolean = true,                              // 是否显示加载框
         isClose: Boolean = true                                    // 请求结束前是否关闭dialog
     ): Job {
+        if (isShowDialog) view?.showDialog()
         return launch {
             request(
-                { if (isShowDialog) view?.showDialog() },
                 { request() },
                 { resp(it) },
                 { err(it) },
@@ -112,12 +112,11 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 串行发起多个网络请求
      */
     protected fun launch(
-        start: () -> Unit = {},
         requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
         end: (result: MutableList<Any?>?) -> Unit = {}
     ): Job {
         return launch {
-            request(start, requests, end)
+            request(requests, end)
         }
     }
 
@@ -128,7 +127,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected suspend fun <T> async(
         request: suspend CoroutineScope.() -> ApiResponse<T>,
         isShowToast: Boolean = true
-    ): T? {
+    ): Deferred<T?> {
         return async(IO) {
             var t: T? = null
             try {
@@ -143,7 +142,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 if (isShowToast) withContext(Main) { "".responseMsg() }
             }
             t
-        }.await()
+        }
     }
 
     override fun onCleared() {
