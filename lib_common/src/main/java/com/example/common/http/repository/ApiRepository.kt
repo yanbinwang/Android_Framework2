@@ -22,7 +22,7 @@ fun <K, V> HashMap<K, V>?.params() = (if (null == this) "" else GsonUtil.objToJs
  * 网络请求协程扩展-并行请求
  * 每个挂起方法外层都会套一个launch
  */
-suspend fun <T> CoroutineScope.request(
+suspend fun <T> request(
     request: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (T?) -> Unit = {},
     err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
@@ -61,7 +61,7 @@ suspend fun <T> CoroutineScope.request(
  * })
  * }
  */
-suspend fun CoroutineScope.request(
+suspend fun request(
     requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
     end: (result: MutableList<Any?>?) -> Unit = {}
 ) {
@@ -89,6 +89,17 @@ suspend fun CoroutineScope.request(
         "串行请求返回结果:${respList.size == requests.size}".logE("repository")
         end(if (respList.size == requests.size) respList else null)
     }
+}
+
+suspend fun <T> request(
+    request: suspend CoroutineScope.() -> ApiResponse<T>,
+    isShowToast: Boolean = true
+): T? {
+    var t: T? = null
+    request(request, {
+        t = it
+    }, isShowToast = isShowToast)
+    return t
 }
 
 /**

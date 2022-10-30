@@ -129,12 +129,17 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      */
     protected fun <T> async(
         request: suspend CoroutineScope.() -> ApiResponse<T>,
-        isShowToast: Boolean = true
+        isShowToast: Boolean = true,
+        isShowDialog: Boolean = false,
+        isClose: Boolean = true
     ): Deferred<T?> {
+        if (isShowDialog) view?.showDialog()
         return async(Main) {
             var t: T? = null
             request({ request() }, {
                 t = it
+            }, end = {
+                if (isShowDialog || isClose) view?.hideDialog()
             }, isShowToast = isShowToast)
             t
         }
