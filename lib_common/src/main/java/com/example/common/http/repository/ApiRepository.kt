@@ -96,7 +96,7 @@ suspend fun <T> request(
     isShowToast: Boolean = true
 ): T? {
     var t: T? = null
-    request(request, {
+    request({ request() }, {
         t = it
     }, isShowToast = isShowToast)
     return t
