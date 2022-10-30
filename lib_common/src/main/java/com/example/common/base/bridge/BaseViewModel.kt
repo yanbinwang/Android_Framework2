@@ -115,9 +115,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
         end: (result: MutableList<Any?>?) -> Unit = {}
     ): Job {
-        return launch {
-            request(requests, end)
-        }
+        return launch { request(requests, end) }
     }
 
     /**
@@ -128,19 +126,11 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         request: suspend CoroutineScope.() -> ApiResponse<T>,
         isShowToast: Boolean = true
     ): Deferred<T?> {
-        return async(IO) {
+        return async(Main) {
             var t: T? = null
-            try {
-                val req = request()
-                val body = req.response()
-                if (null != body) {
-                    t = body
-                } else {
-                    if (isShowToast) withContext(Main) { req.msg.responseMsg() }
-                }
-            } catch (e: Exception) {
-                if (isShowToast) withContext(Main) { "".responseMsg() }
-            }
+            request({ request() }, {
+                t = it
+            }, isShowToast = isShowToast)
             t
         }
     }
