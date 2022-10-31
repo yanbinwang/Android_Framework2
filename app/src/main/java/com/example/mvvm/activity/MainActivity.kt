@@ -18,7 +18,6 @@ import com.example.mvvm.databinding.ActivityMainBinding
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
     private val appDialog by lazy { AppDialog(this) }
-    private val testPPP by lazy { TestPopup(window) }
 
     override fun initView() {
         super.initView()
