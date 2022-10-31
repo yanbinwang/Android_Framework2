@@ -10,13 +10,12 @@ import android.util.Patterns
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import com.example.base.utils.function.doOnDestroy
-import com.example.base.utils.function.toast
 import com.example.base.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.base.utils.function.value.getDateTime
 import com.example.base.utils.logE
-import com.example.common.BaseApplication
 import com.example.common.constant.Constants
 import com.example.common.subscribe.CommonSubscribe
+import com.example.common.utils.builder.shortToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -114,7 +113,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
         job?.cancel()
         job = launch {
             if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-                BaseApplication.instance.applicationContext.toast("链接地址不合法")
+                "链接地址不合法".shortToast()
                 return@launch
             }
             withContext(Main) { onStart() }
