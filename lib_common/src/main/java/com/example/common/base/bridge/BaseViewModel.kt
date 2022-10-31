@@ -10,18 +10,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.base.utils.function.view.gone
 import com.example.common.base.page.getEmptyView
-import com.example.common.base.page.responseMsg
 import com.example.common.bus.Event
 import com.example.common.bus.EventBus
 import com.example.common.http.repository.ApiResponse
 import com.example.common.http.repository.request
-import com.example.common.http.repository.response
 import com.example.common.utils.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
 import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.CoroutineStart.LAZY
 import kotlinx.coroutines.Dispatchers.Main
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.SoftReference
@@ -83,6 +81,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     /**
      * 常规发起一个网络请求
+     * job.cancel().apply{ view?.hideDialog() }
      */
     protected fun <T> launch(
         request: suspend CoroutineScope.() -> ApiResponse<T>,      // 请求
@@ -103,8 +102,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                     if (isShowDialog || isClose) view?.hideDialog()
                     end()
                 },
-                isShowToast
-            )
+                isShowToast)
         }
     }
 
@@ -118,10 +116,12 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         isClose: Boolean = true
     ): Job {
         if (isShowDialog) view?.showDialog()
-        return launch(Main) { request(requests) {
-            if (isShowDialog || isClose) view?.hideDialog()
-            end(it)
-        }}
+        return launch(Main) {
+            request(requests) {
+                if (isShowDialog || isClose) view?.hideDialog()
+                end(it)
+            }
+        }
     }
 
     /**
@@ -129,17 +129,12 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      */
     protected fun <T> async(
         request: suspend CoroutineScope.() -> ApiResponse<T>,
-        isShowToast: Boolean = true,
-        isShowDialog: Boolean = false,
-        isClose: Boolean = true
+        isShowToast: Boolean = true
     ): Deferred<T?> {
-        if (isShowDialog) view?.showDialog()
-        return async(Main) {
+        return async(Main, LAZY) {
             var t: T? = null
             request({ request() }, {
                 t = it
-            }, end = {
-                if (isShowDialog || isClose) view?.hideDialog()
             }, isShowToast = isShowToast)
             t
         }
