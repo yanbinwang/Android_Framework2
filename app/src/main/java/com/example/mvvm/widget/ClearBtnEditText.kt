@@ -1,12 +1,13 @@
 package com.example.mvvm.widget
 
 import android.content.Context
-import android.text.*
+import android.text.Editable
+import android.text.InputFilter
 import android.text.InputFilter.LengthFilter
+import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
-import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.TextView.OnEditorActionListener
 import androidx.annotation.ColorInt
@@ -73,42 +74,6 @@ class ClearBtnEditText @JvmOverloads constructor(context: Context, attrs: Attrib
             val disabled = ta.getBoolean(R.styleable.ClearBtnEditText_disabled, false)
             if (disabled) setDisabled()
 
-            when (ta.getInt(R.styleable.ClearBtnEditText_inputType, 0)) {
-                0 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL)
-                1 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD)
-                2 -> setInputType(InputType.TYPE_CLASS_PHONE)
-                3 -> setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_NORMAL)
-                9, 4 -> setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
-                5 -> setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
-                8, 6 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
-                7 -> {
-                    setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
-                    addFilter { source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int, dend: Int ->
-                        if (source == "." && dest.toString().isEmpty()) {
-                            return@addFilter "0."
-                        }
-                        if (dest.toString().contains(".")) {
-                            val index = dest.toString().indexOf(".")
-                            val length1 = dest.toString().substring(0, index).length
-                            val length2 = dest.toString().substring(index).length
-                            if (length1 >= 8 && dstart < index) {
-                                return@addFilter ""
-                            }
-                            if (length2 >= 3 && dstart > index) {
-                                return@addFilter ""
-                            }
-                        } else {
-                            val length1 = dest.toString().length
-                            if (length1 >= 8 && source != ".") {
-                                return@addFilter ""
-                            }
-                        }
-                        null
-                    }
-                }
-                else -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL)
-            }
-
             val gravity = ta.getInt(R.styleable.ClearBtnEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
             setGravity(gravity)
 
@@ -129,16 +94,9 @@ class ClearBtnEditText @JvmOverloads constructor(context: Context, attrs: Attrib
             val minHeight = ta.getDimension(R.styleable.ClearBtnEditText_android_minHeight, -1f)
             if (minHeight > 0) binding.etClear.minHeight = minHeight.toInt()
 
-            when (ta.getInt(R.styleable.ClearBtnEditText_imeOptions, 0)) {
-                0 -> setImeOptions(EditorInfo.IME_ACTION_DONE)
-                1 -> setImeOptions(EditorInfo.IME_ACTION_GO)
-                2 -> setImeOptions(EditorInfo.IME_ACTION_NEXT)
-                3 -> setImeOptions(EditorInfo.IME_ACTION_NONE)
-                4 -> setImeOptions(EditorInfo.IME_ACTION_PREVIOUS)
-                5 -> setImeOptions(EditorInfo.IME_ACTION_SEARCH)
-                6 -> setImeOptions(EditorInfo.IME_ACTION_SEND)
-                7 -> setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED)
-                else -> setImeOptions(EditorInfo.IME_ACTION_DONE)
+            EditTextUtil.apply {
+                setInputType(binding.etClear, ta.getInt(R.styleable.ClearBtnEditText_inputType, 0))
+                setImeOptions(binding.etClear, ta.getInt(R.styleable.ClearBtnEditText_imeOptions, 0))
             }
 
             ta.recycle()
