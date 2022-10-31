@@ -103,6 +103,17 @@ fun Context.drawableId(name: String): Int {
 }
 
 /**
+ * 通过字符串获取mipmap下的图片文件
+ */
+fun Context.mipmapId(name: String): Int {
+    return try {
+        resources.getIdentifier(name, "mipmap", packageName)
+    } catch (_: Exception) {
+        0
+    }
+}
+
+/**
  * 获取Resources中的String
  */
 fun Context.string(@StringRes res: Int): String {

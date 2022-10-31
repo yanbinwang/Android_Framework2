@@ -52,28 +52,6 @@ fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.
 fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
 
 /**
- * 通过字符串获取drawable下的xml文件
- */
-fun Context.drawableId(name: String): Int {
-    return try {
-        resources.getIdentifier(name, "drawable", packageName)
-    } catch (_: Exception) {
-        0
-    }
-}
-
-/**
- * 通过字符串获取mipmap下的图片文件
- */
-fun Context.mipmapId(name: String): Int {
-    return try {
-        resources.getIdentifier(name, "mipmap", packageName)
-    } catch (_: Exception) {
-        0
-    }
-}
-
-/**
  * 获取对应大小的文字
  * File类直接取length
  */
