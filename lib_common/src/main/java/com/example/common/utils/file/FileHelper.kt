@@ -118,14 +118,14 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
             }
             withContext(Main) { onStart() }
             //清除目录下的所有文件
-            FileUtil.deleteDir(filePath)
+            filePath.deleteDir()
             var inputStream: InputStream? = null
             var fileOutputStream: FileOutputStream? = null
             try {
                 //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
                 val body = CommonSubscribe.getDownloadApi(downloadUrl)
                 //在上一步协程成功并拿到对象后开始执行，创建一个安装的文件，开启io协程，写入
-                val file = File(FileUtil.isExistDir(filePath), fileName)
+                val file = File(filePath.isExistDir(), fileName)
                 val buf = ByteArray(2048)
                 val total = body.contentLength()
                 inputStream = body.byteStream()
@@ -156,13 +156,14 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
     fun create(view: View, width: Int = Constants.SCREEN_WIDTH, height: Int = Constants.SCREEN_HEIGHT, onStart: () -> Unit = {}, onResult: (bitmap: Bitmap?) -> Unit = {}, onComplete: () -> Unit = {}) {
         job?.cancel()
         job = launch {
-            onStart()
+            withContext(Main) { onStart() }
             loadLayout(view, width, height)
             try {
-                onResult(withContext(IO) { loadBitmap(view) })
+                val bitmap = loadBitmap(view)
+                withContext(Main) { onResult(bitmap) }
             } catch (_: Exception) {
             } finally {
-                onComplete()
+                withContext(Main) { onComplete() }
             }
         }
     }

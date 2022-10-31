@@ -31,18 +31,6 @@ import java.util.zip.ZipOutputStream
 object FileUtil {
 
     /**
-     * 是否安装了XXX应用
-     */
-    @JvmStatic
-    fun isAvailable(context: Context, packageName: String): Boolean {
-        val packages = context.packageManager.getInstalledPackages(0)
-        for (i in packages.indices) {
-            if (packages[i].packageName == packageName) return true
-        }
-        return false
-    }
-
-    /**
      * 是否Root-报错或获取失败都为未Root
      */
     @JvmStatic
@@ -60,55 +48,8 @@ object FileUtil {
     }
 
     /**
-     * 判断手机是否开启开发者模式
+     * 递归完全删除对应文件夹下的所有文件
      */
-    @JvmStatic
-    fun isAdbEnabled(context: Context) = (Settings.Secure.getInt(context.contentResolver, Settings.Global.ADB_ENABLED, 0) > 0)
-
-    /**
-     * 判断下载目录是否存在
-     */
-    @JvmStatic
-    fun isExistDir(filePath: String): String {
-        val downloadFile = File(filePath)
-        if (!downloadFile.mkdirs()) downloadFile.createNewFile()
-        return downloadFile.absolutePath
-    }
-
-    /**
-     * 复制文件
-     */
-    @JvmStatic
-    @Throws(IOException::class)
-    fun copyFile(srcFile: String, destFile: String) = copyFile(File(srcFile), File(destFile))
-
-    @JvmStatic
-    @Throws(IOException::class)
-    fun copyFile(srcFile: File, destFile: File) {
-        if (!destFile.exists()) destFile.createNewFile()
-        FileInputStream(srcFile).channel.use { source ->
-            FileOutputStream(destFile).channel.use { destination ->
-                destination.transferFrom(source, 0, source.size())
-            }
-        }
-    }
-
-    /**
-     * 删除文件
-     */
-    @JvmStatic
-    fun deleteFile(filePath: String?) {
-        if (filePath.isNullOrEmpty()) return
-        val file = File(filePath)
-        if (file.isFile && file.exists()) file.delete()
-    }
-
-    /**
-     * 删除本地路径下的所有文件
-     */
-    @JvmStatic
-    fun deleteDir(filePath: String) = deleteDirWithFile(File(filePath))
-
     @JvmStatic
     fun deleteDirWithFile(dir: File?) {
         if (dir == null || !dir.exists() || !dir.isDirectory) return
@@ -120,86 +61,7 @@ object FileUtil {
     }
 
     /**
-     * 读取文件到文本（文本，找不到文件或读取错返回null）
-     */
-    @JvmStatic
-    fun readText(filePath: String): String? {
-        val file = File(filePath)
-        if (file.exists()) {
-            try {
-                val stringBuilder = StringBuilder()
-                var str: String?
-                val bufferedReader = BufferedReader(InputStreamReader(FileInputStream(file)))
-                while (bufferedReader.readLine().also { str = it } != null) stringBuilder.append(str)
-                return stringBuilder.toString()
-            } catch (_: Exception) {
-            }
-        }
-        return null
-    }
-
-    /**
-     * 发送文件
-     * image -> 图片
-     */
-    @JvmOverloads
-    @JvmStatic
-    fun sendFile(context: Context, filePath: String, type: String? = "*/*") {
-        val file = File(filePath)
-        if (!file.exists()) {
-            "文件路径错误".shortToast()
-            return
-        }
-        val intent = Intent(Intent.ACTION_SEND)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "${Constants.APPLICATION_ID}.fileProvider", file))
-        } else {
-            intent.putExtra(Intent.EXTRA_STREAM, file)
-        }
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        intent.type = type//此处可发送多种文件
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        context.startActivity(Intent.createChooser(intent, "分享文件"))
-    }
-
-    /**
-     * 打开压缩包
-     */
-    @JvmStatic
-    fun openZip(context: Context, filePath: String) {
-        val intent = Intent(Intent.ACTION_VIEW)
-        //判断是否是AndroidN以及更高的版本
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            val file = File(filePath)
-            val contentUri = FileProvider.getUriForFile(context, "${Constants.APPLICATION_ID}.fileProvider", file)
-            intent.setDataAndType(contentUri, "application/x-zip-compressed")
-        } else {
-            intent.setDataAndType(Uri.parse("file://$filePath"), "application/x-zip-compressed")
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(intent)
-    }
-
-    /**
-     * 打开world
-     */
-    fun openWorld(context: Context, filePath: String) {
-        val file = File(filePath)
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        val uri: Uri
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            uri = FileProvider.getUriForFile(context, "${Constants.APPLICATION_ID}.fileProvider", file)
-            intent.setDataAndType(uri, "application/vnd.android.package-archive")
-        } else uri = Uri.parse("file://$file")
-        intent.setDataAndType(uri, "application/msword")
-        context.startActivity(intent)
-    }
-
-    /**
-     * 获取文件大小
+     * 获取整个目录的文件大小
      */
     @JvmStatic
     fun getFileSize(file: File): Long {
@@ -212,42 +74,6 @@ object FileUtil {
             }
         }
         return size
-    }
-
-    /**
-     * 获取app的图标
-     */
-    @JvmStatic
-    fun getApplicationIcon(context: Context): Bitmap? {
-        try {
-            val drawable = context.packageManager.getApplicationIcon(Constants.APPLICATION_ID)
-            val bitmap = SoftReference(Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, if (drawable.opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565))
-            val canvas = Canvas(bitmap.get()!!)
-            drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
-            drawable.draw(canvas)
-            return bitmap.get()
-        } catch (_: Exception) {
-        }
-        return null
-    }
-
-    /**
-     * 获取安装跳转的行为
-     */
-    @JvmStatic
-    fun getSetupApk(context: Context, apkFilePath: String): Intent {
-        val intent = Intent(Intent.ACTION_VIEW)
-        //判断是否是AndroidN以及更高的版本
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            val file = File(apkFilePath)
-            val contentUri = FileProvider.getUriForFile(context, Constants.APPLICATION_ID + ".fileProvider", file)
-            intent.setDataAndType(contentUri, "application/vnd.android.package-archive")
-        } else {
-            intent.setDataAndType(Uri.parse("file://$apkFilePath"), "application/vnd.android.package-archive")
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        return intent
     }
 
     /**
@@ -332,7 +158,7 @@ object FileUtil {
         try {
             val storeDir = File(root)
             if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
-            if (clear) deleteDir(storeDir.absolutePath)//删除路径下所有文件
+            if (clear) storeDir.absolutePath.deleteDir()//删除路径下所有文件
             val file = File(storeDir, "${fileName}${if (formatJpg) ".jpg" else ".png"}")
             //通过io流的方式来压缩保存图片
             val fileOutputStream = FileOutputStream(file)
@@ -355,28 +181,200 @@ object FileUtil {
 }
 
 /**
- * 获取对应大小的文字
- * File类直接取length
+ * 是否安装了XXX应用
  */
-fun Long.getFormatSize(): String {
-    val byteResult = this / 1024
-    if (byteResult < 1) return "<1K"
-    val kiloByteResult = byteResult / 1024
-    if (kiloByteResult < 1) return "${BigDecimal(byteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}K"
-    val mByteResult = kiloByteResult / 1024
-    if (mByteResult < 1) return "${BigDecimal(kiloByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}M"
-    val gigaByteResult = mByteResult / 1024
-    if (gigaByteResult < 1) return "${BigDecimal(mByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}GB"
-    val teraByteResult = BigDecimal(gigaByteResult)
-    return "${teraByteResult.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}TB"
+@SuppressLint("QueryPermissionsNeeded")
+fun Context.isAvailable(packageName: String): Boolean {
+    val packages = packageManager.getInstalledPackages(0)
+    for (i in packages.indices) {
+        if (packages[i].packageName == packageName) return true
+    }
+    return false
 }
 
+/**
+ * 判断手机是否开启开发者模式
+ */
+fun Context.isAdbEnabled() = (Settings.Secure.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) > 0)
+
+
+/**
+ * 打开压缩包
+ */
+fun Context.openZip(filePath: String) {
+    val intent = Intent(Intent.ACTION_VIEW)
+    //判断是否是AndroidN以及更高的版本
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        val file = File(filePath)
+        val contentUri = FileProvider.getUriForFile(this, "${Constants.APPLICATION_ID}.fileProvider", file)
+        intent.setDataAndType(contentUri, "application/x-zip-compressed")
+    } else {
+        intent.setDataAndType(Uri.parse("file://$filePath"), "application/x-zip-compressed")
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    startActivity(intent)
+}
+
+/**
+ * 打开world
+ */
+fun Context.openWorld(filePath: String) {
+    val file = File(filePath)
+    val intent = Intent(Intent.ACTION_VIEW)
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    val uri: Uri
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        uri = FileProvider.getUriForFile(this, "${Constants.APPLICATION_ID}.fileProvider", file)
+        intent.setDataAndType(uri, "application/vnd.android.package-archive")
+    } else uri = Uri.parse("file://$file")
+    intent.setDataAndType(uri, "application/msword")
+    startActivity(intent)
+}
+
+/**
+ * 发送文件
+ * image -> 图片
+ */
+@JvmOverloads
+fun Context.sendFile(filePath: String, type: String? = "*/*") {
+    val file = File(filePath)
+    if (!file.exists()) {
+        "文件路径错误".shortToast()
+        return
+    }
+    val intent = Intent(Intent.ACTION_SEND)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this, "${Constants.APPLICATION_ID}.fileProvider", file))
+    } else {
+        intent.putExtra(Intent.EXTRA_STREAM, file)
+    }
+    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    intent.type = type//此处可发送多种文件
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    startActivity(Intent.createChooser(intent, "分享文件"))
+}
+
+/**
+ * 获取安装跳转的行为
+ */
+fun Context.getSetupApk(apkFilePath: String): Intent {
+    val intent = Intent(Intent.ACTION_VIEW)
+    //判断是否是AndroidN以及更高的版本
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        val file = File(apkFilePath)
+        val contentUri = FileProvider.getUriForFile(this, Constants.APPLICATION_ID + ".fileProvider", file)
+        intent.setDataAndType(contentUri, "application/vnd.android.package-archive")
+    } else {
+        intent.setDataAndType(Uri.parse("file://$apkFilePath"), "application/vnd.android.package-archive")
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    return intent
+}
+
+/**
+ * 获取app的图标
+ */
+fun Context.getApplicationIcon(): Bitmap? {
+    try {
+        val drawable = packageManager.getApplicationIcon(Constants.APPLICATION_ID)
+        val bitmap = SoftReference(Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, if (drawable.opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565))
+        val canvas = Canvas(bitmap.get()!!)
+        drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+        drawable.draw(canvas)
+        return bitmap.get()
+    } catch (_: Exception) {
+    }
+    return null
+}
+
+/**
+ * 判断目录是否存在,不存则创建
+ * 返回对应路径
+ */
+fun String?.isExistDir(createNewFile: Boolean = true): String {
+    this ?: return ""
+    val file = File(this)
+    if (!file.mkdirs() && createNewFile) file.createNewFile()
+    return file.absolutePath
+}
+
+/**
+ * 删除文件
+ */
+fun String?.deleteFile() {
+    this ?: return
+    val file = File(this)
+    if (file.isFile && file.exists()) file.delete()
+}
+
+/**
+ * 删除路径下的所有文件
+ */
+fun String?.deleteDir() {
+    this ?: return
+    FileUtil.deleteDirWithFile(File(this))
+}
+
+/**
+ * 读取文件到文本（文本，找不到文件或读取错返回null）
+ */
+fun String?.readText(): String {
+    this ?: return ""
+    val file = File(this)
+    if (file.exists()) {
+        try {
+            val stringBuilder = StringBuilder()
+            var str: String?
+            val bufferedReader = BufferedReader(InputStreamReader(FileInputStream(file)))
+            while (bufferedReader.readLine().also { str = it } != null) stringBuilder.append(str)
+            return stringBuilder.toString()
+        } catch (_: Exception) {
+        }
+    }
+    return ""
+}
+
+/**
+ * 将当前文件拷贝一份到目标路径
+ */
+@Throws(IOException::class)
+fun File.copyFile(destFile: File) {
+    if (!destFile.exists()) destFile.createNewFile()
+    FileInputStream(this).channel.use { source ->
+        FileOutputStream(destFile).channel.use { destination ->
+            destination.transferFrom(source, 0, source.size())
+        }
+    }
+}
+
+@Throws(IOException::class)
+fun String.copyFile(destSouth: String) {
+    File(this).copyFile(File(destSouth))
+}
+
+/**
+ * 获取对应大小的文字
+ */
 fun File?.getFormatSize(): String {
     this ?: return ""
-    return length().getFormatSize()
+    with(length()) {
+        val byteResult = this / 1024
+        if (byteResult < 1) return "<1K"
+        val kiloByteResult = byteResult / 1024
+        if (kiloByteResult < 1) return "${BigDecimal(byteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}K"
+        val mByteResult = kiloByteResult / 1024
+        if (mByteResult < 1) return "${BigDecimal(kiloByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}M"
+        val gigaByteResult = mByteResult / 1024
+        if (gigaByteResult < 1) return "${BigDecimal(mByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}GB"
+        val teraByteResult = BigDecimal(gigaByteResult)
+        return "${teraByteResult.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}TB"
+    }
 }
 
 fun String?.getFormatSize(): String {
     this ?: return ""
-    return File(this).length().getFormatSize()
+    return File(this).getFormatSize()
 }
