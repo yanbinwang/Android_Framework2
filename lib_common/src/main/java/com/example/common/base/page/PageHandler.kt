@@ -2,11 +2,10 @@ package com.example.common.base.page
 
 import android.view.View
 import android.view.ViewGroup
-import com.example.base.utils.function.string
-import com.example.base.utils.function.toast
-import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
+import com.example.common.utils.builder.shortToast
+import com.example.common.utils.resString
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 
@@ -15,7 +14,7 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
  */
 fun String?.responseMsg(){
     val strTemp = this
-    with(BaseApplication.instance.applicationContext) { toast(if (!isNetworkAvailable()) string(R.string.label_response_net_error) else { if(strTemp.isNullOrEmpty()) string(R.string.label_response_error) else strTemp.orEmpty()}) }
+    (if (!isNetworkAvailable()) resString(R.string.label_response_net_error) else { if(strTemp.isNullOrEmpty()) resString(R.string.label_response_error) else strTemp }).shortToast()
 }
 
 /**

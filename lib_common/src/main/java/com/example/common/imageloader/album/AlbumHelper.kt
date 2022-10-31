@@ -3,10 +3,10 @@ package com.example.common.imageloader.album
 import android.app.Activity
 import com.example.base.utils.function.color
 import com.example.base.utils.function.string
-import com.example.base.utils.function.toast
 import com.example.common.R
 import com.example.common.constant.Constants
 import com.example.common.constant.RequestCode.REQUEST_PHOTO
+import com.example.common.utils.builder.shortToast
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.api.widget.Widget
 import com.yanzhenjie.durban.Controller
@@ -82,7 +82,7 @@ class AlbumHelper(private val activity: Activity) {
                 .onResult {
                     it[0].apply {
                         if (size > 10 * 1024 * 1024) {
-                            toast(string(R.string.toast_album_pic_choice))
+                            string(R.string.toast_album_pic_choice).shortToast()
                             return@onResult
                         }
                         if (hasTailor) toTailor(path) else onAlbum?.invoke(path)
@@ -109,7 +109,7 @@ class AlbumHelper(private val activity: Activity) {
                 .onResult {
                     it[0].apply {
                         if (size > 100 * 1024 * 1024) {
-                            toast(string(R.string.toast_album_video_choice))
+                            string(R.string.toast_album_video_choice).shortToast()
                             return@onResult
                         }
                         onAlbum?.invoke(path)

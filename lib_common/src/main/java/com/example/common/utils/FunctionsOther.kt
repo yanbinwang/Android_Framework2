@@ -12,6 +12,7 @@ import android.widget.*
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
@@ -48,6 +49,17 @@ fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.
  * 获取图片
  */
 fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
+
+/**
+ * 获取资源文字
+ */
+fun resString(@StringRes res: Int): String {
+    return try {
+        BaseApplication.instance.getString(res)
+    } catch (ignore: Exception) {
+        ""
+    }
+}
 
 /**
  * 获取Manifest中的参数

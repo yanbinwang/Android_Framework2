@@ -2,8 +2,6 @@ package com.example.mvvm.bridge
 
 import androidx.lifecycle.MutableLiveData
 import com.example.common.base.bridge.BaseViewModel
-import com.example.common.http.repository.launch
-import com.example.common.subscribe.CommonSubscribe.getTestApi
 import com.example.mvvm.model.UserInfoModel
 
 /**
@@ -15,69 +13,69 @@ class LoginViewModel : BaseViewModel() {
     val errorData by lazy { MutableLiveData<String>() }
 
     fun getData() {
-        for (i in 0..999) {
-            launch {
-                val any = getTestApi().data
-//                CommonSubscribe.apply {
+//        for (i in 0..999) {
+//            launch {
+//                val any = getTestApi().data
+////                CommonSubscribe.apply {
+////
+////                    apiCall(getTestApi(), object : HttpSubscriber<Any> {
+////
+////                        override fun onSuccess(data: Any?) {
+////                            TODO("Not yet implemented")
+////                        }
+////
+////                        override fun onFailed(e: Throwable?, msg: String?) {
+////                            TODO("Not yet implemented")
+////                        }
+////
+////                    })
+////
+////                }
 //
-//                    apiCall(getTestApi(), object : HttpSubscriber<Any> {
-//
-//                        override fun onSuccess(data: Any?) {
-//                            TODO("Not yet implemented")
-//                        }
-//
-//                        override fun onFailed(e: Throwable?, msg: String?) {
-//                            TODO("Not yet implemented")
-//                        }
-//
-//                    })
-//
-//                }
-
-//                apiCall(getTestApi(), object : HttpSubscriber<Any> {
-//
-//                    override fun onSuccess(data: Any?) {
-//                        TODO("Not yet implemented")
-//                    }
-//
-//                    override fun onFailed(e: Throwable?, msg: String?) {
-//                        TODO("Not yet implemented")
-//                    }
-//
-//                })
-//                getView()?.log("onComplete：当前第" + i + "个请求结束！")
-            }
-        }
+////                apiCall(getTestApi(), object : HttpSubscriber<Any> {
+////
+////                    override fun onSuccess(data: Any?) {
+////                        TODO("Not yet implemented")
+////                    }
+////
+////                    override fun onFailed(e: Throwable?, msg: String?) {
+////                        TODO("Not yet implemented")
+////                    }
+////
+////                })
+////                getView()?.log("onComplete：当前第" + i + "个请求结束！")
+//            }
+//        }
     }
 
     fun login(account: String?, password: String?) {
 
-        launch {
-//            //串行执行
-//            val token = getTestApi()
-//            val profile = getVerificationApi(HttpParams().append("12", token.data.toString()).map)
-            //并行执行
-//            val profile = async { getTestApi() }
-//            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }
-//            awaitAll(profile, articles)
-//            val profile = async { getTestApi() }.await()
-//            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }.await()
-//            check(profile,articles)
-
-//            //串行执行
-//            val token = async { getTestApi() }
-//            val profile = async { getVerificationApi(HttpParams().append("12", token.await().toString()).map) }.await()
+//        launch {
+////            //串行执行
+////            val token = getTestApi()
+////            val profile = getVerificationApi(HttpParams().append("12", token.data.toString()).map)
 //            //并行执行
-//            val profile = async { getTestApi() }
-//            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }
-//            awaitAll(profile, articles)
-//            val profile = async { getTestApi() }
-//            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }
-//            profile.await()
-//            articles.await()
-
-
-        }
+////            val profile = async { getTestApi() }
+////            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }
+////            awaitAll(profile, articles)
+////            val profile = async { getTestApi() }.await()
+////            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }.await()
+////            check(profile,articles)
+//
+////            //串行执行
+////            val token = async { getTestApi() }
+////            val profile = async { getVerificationApi(HttpParams().append("12", token.await().toString()).map) }.await()
+////            //并行执行
+////            val profile = async { getTestApi() }
+////            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }
+////            awaitAll(profile, articles)
+////            val profile = async { getTestApi() }
+////            val articles = async { getVerificationApi(HttpParams().append("12", "11").map) }
+////            profile.await()
+////            articles.await()
+//
+//
+//        }
 
 //        getView()?.showDialog()
 //        getView()?.showToast("当前执行了登录\n账号：$account\n密码：$password")
