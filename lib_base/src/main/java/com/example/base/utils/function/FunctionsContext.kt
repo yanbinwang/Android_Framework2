@@ -6,7 +6,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.Point
 import android.net.Uri
 import android.os.Build
@@ -20,14 +19,16 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.AnimationSet
 import android.view.animation.ScaleAnimation
-import androidx.annotation.*
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.base.utils.ToastUtil
 import java.io.Serializable
 
 //------------------------------------context扩展函数类------------------------------------
@@ -111,11 +112,6 @@ fun Context.string(@StringRes res: Int): String {
         ""
     }
 }
-
-/**
- * 弹框提示
- */
-fun Context.toast(text: String) = ToastUtil.mackToastSHORT(text, this)
 
 /**
  * 生成View
