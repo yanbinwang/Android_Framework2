@@ -371,12 +371,12 @@ fun Long.getFormatSize(): String {
     return "${teraByteResult.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}TB"
 }
 
-fun File?.getFormatSize() {
-    this ?: return
-    length().getFormatSize()
+fun File?.getFormatSize(): String {
+    this ?: return ""
+    return length().getFormatSize()
 }
 
-fun String?.getFormatSize() {
-    this ?: return
-    File(this).length().getFormatSize()
+fun String?.getFormatSize(): String {
+    this ?: return ""
+    return File(this).length().getFormatSize()
 }
