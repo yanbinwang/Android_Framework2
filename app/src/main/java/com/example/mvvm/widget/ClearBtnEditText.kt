@@ -166,7 +166,7 @@ class ClearBtnEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun setInputType(type: Int) {
-        binding.etClear.setInputType(type)
+        binding.etClear.inputType = type
     }
 
     fun setTextColor(@ColorInt color: Int) {
@@ -188,11 +188,11 @@ class ClearBtnEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun setGravity(gravity: Int) {
-        binding.etClear.setGravity(gravity)
+        binding.etClear.gravity = gravity
     }
 
     fun setImeOptions(imeOptions: Int) {
-        binding.etClear.setImeOptions(imeOptions)
+        binding.etClear.imeOptions = imeOptions
     }
 
     fun setImageResource(@DrawableRes res: Int) {
@@ -204,7 +204,7 @@ class ClearBtnEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun setFilter(filter: InputFilter) {
-        binding.etClear.setFilters(arrayOf(filter))
+        binding.etClear.filters = arrayOf(filter)
     }
 
     fun addFilter(filter: InputFilter) {

@@ -1,16 +1,12 @@
-package com.example.mvvm.utils
+package com.example.base.utils
 
 import android.text.*
 import android.text.method.DigitsKeyListener
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import com.example.base.utils.function.value.fitRange
 import com.example.base.utils.function.view.addFilter
-import com.example.base.utils.logE
 
-/**
- * @description
- * @author
- */
 object EditTextUtil {
 
     /**
@@ -80,7 +76,7 @@ object EditTextUtil {
      * 限制输入内容为目标值
      */
     fun getCharBlackListFilter(characterBlackList: CharArray): InputFilter {
-        return InputFilter { source, start, end, dest, dstart, dend ->
+        return InputFilter { source, start, end, _, _, _ ->
             var flag = true
             val sb = StringBuilder()
             for (i in start until end) {
@@ -188,6 +184,70 @@ object EditTextUtil {
         return NumInputFilter(maxInteger, maxDecimal)
     }
 
+    /**
+     * 设置输出格式
+     */
+    fun setInputType(target: EditText, inputType: Int) {
+        with(target) {
+            when (inputType) {
+                0 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL)
+                1 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD)
+                2 -> setInputType(InputType.TYPE_CLASS_PHONE)
+                3 -> setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_NORMAL)
+                9, 4 -> setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
+                5 -> setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
+                8, 6 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
+                7 -> {
+                    setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
+                    addFilter(object : InputFilter {
+                        override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence {
+                            if (source == "." && dest.toString().isEmpty()) {
+                                return "0."
+                            }
+                            if (dest.toString().contains(".")) {
+                                val index = dest.toString().indexOf(".")
+                                val length1 = dest.toString().substring(0, index).length
+                                val length2 = dest.toString().substring(index).length
+                                if (length1 >= 8 && dstart < index) {
+                                    return ""
+                                }
+                                if (length2 >= 3 && dstart > index) {
+                                    return ""
+                                }
+                            } else {
+                                val length1 = dest.toString().length
+                                if (length1 >= 8 && source != ".") {
+                                    return ""
+                                }
+                            }
+                            return ""
+                        }
+                    })
+                }
+                else -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL)
+            }
+        }
+    }
+
+    /**
+     * 设置按键格式
+     */
+    fun setImeOptions(target: EditText, imeOptions: Int) {
+        with(target) {
+            when (imeOptions) {
+                0 -> setImeOptions(EditorInfo.IME_ACTION_DONE)
+                1 -> setImeOptions(EditorInfo.IME_ACTION_GO)
+                2 -> setImeOptions(EditorInfo.IME_ACTION_NEXT)
+                3 -> setImeOptions(EditorInfo.IME_ACTION_NONE)
+                4 -> setImeOptions(EditorInfo.IME_ACTION_PREVIOUS)
+                5 -> setImeOptions(EditorInfo.IME_ACTION_SEARCH)
+                6 -> setImeOptions(EditorInfo.IME_ACTION_SEND)
+                7 -> setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED)
+                else -> setImeOptions(EditorInfo.IME_ACTION_DONE)
+            }
+        }
+    }
+
 }
 
 private class NumInputFilter(private val maxInteger: Int, private val maxDecimal: Int) : InputFilter {
@@ -223,15 +283,14 @@ private class NumInputFilter(private val maxInteger: Int, private val maxDecimal
 
 /**
  * 类银行卡4位插入一空格监听
+ * mDesTxt:目标输入框
+ * mOffset:偏移量(几位插入一空格)
  */
-private class NumSpaceTextWatcher @JvmOverloads constructor(
-    // 目标输入框
-    private val mDesTxt: EditText,
-    // 偏移量(几位插入一空格)
-    private val mOffset: Int = DEFAULT_OFFSET, ) : TextWatcher {
+private class NumSpaceTextWatcher @JvmOverloads constructor(private val mDesTxt: EditText, private val mOffset: Int = DEFAULT_OFFSET, ) : TextWatcher {
     companion object {
         private const val DEFAULT_OFFSET = 4
     }
+
     // 记录目标字符串
     private val mBuffer = StringBuffer()
     // 改变之前的文本长度
@@ -389,10 +448,9 @@ private class NumSpaceTextWatcher @JvmOverloads constructor(
 /**
  * EditText添加文字限制的时候使用此TextWatcher,
  * 提供回调，有部分界面使用到判断
+ * maxLength:最大长度，ASCII码算一个，其它算两个
  */
-private class TextLengthFilter(
-    //最大长度，ASCII码算一个，其它算两个
-    private val maxLength: Int, ) : InputFilter {
+private class TextLengthFilter(private val maxLength: Int, ) : InputFilter {
     companion object {
         fun getCurLength(s: CharSequence?): Int {
             var length = 0
