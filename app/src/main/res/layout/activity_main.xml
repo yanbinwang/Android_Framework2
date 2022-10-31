@@ -6,7 +6,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <com.example.mvvm.widget.AtUserEditText
+        <EditText
             android:id="@+id/edt"
             android:layout_width="match_parent"
             android:layout_height="80mm"
@@ -30,7 +30,7 @@
         <ImageView
             android:id="@+id/iv_test"
             android:layout_width="200mm"
-            android:layout_height="200mm"/>
+            android:layout_height="200mm" />
 
     </LinearLayout>
 

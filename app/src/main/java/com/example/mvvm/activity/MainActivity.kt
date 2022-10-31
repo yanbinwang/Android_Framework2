@@ -10,8 +10,6 @@ import com.example.common.constant.ARouterPath
 import com.example.common.imageloader.ImageLoader
 import com.example.common.widget.dialog.AppDialog
 import com.example.mvvm.databinding.ActivityMainBinding
-import com.example.mvvm.widget.TestPPP
-import com.example.mvvm.widget.TestPopup
 
 
 /**
@@ -42,7 +40,6 @@ class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
 //            testPPP.show(supportFragmentManager,"testPPP")
 //            navigation(ARouterPath.TestActivity)
         }
-        showDialog()
     }
 
 }
