@@ -26,9 +26,9 @@
 
     <!-- 侧滑控件 -->
     <declare-styleable name="SwipeMenuLayout">
-        <attr name="swipeEnable" format="boolean"/>
-        <attr name="ios" format="boolean"/>
-        <attr name="leftSwipe" format="boolean"/>
+        <attr name="swipeEnable" format="boolean" />
+        <attr name="ios" format="boolean" />
+        <attr name="leftSwipe" format="boolean" />
     </declare-styleable>
 
     <!-- 自定义XRecyclerView -->
@@ -54,6 +54,54 @@
         <attr name="minTextSize" format="dimension" />
         <attr name="precision" format="float" />
         <attr name="sizeToFit" format="boolean" />
+    </declare-styleable>
+
+    <!-- 全局edittext属性 -->
+    <declare-styleable name="EditText">
+        <attr name="android:minHeight" format="dimension" />
+        <attr name="text" format="reference" />
+        <attr name="hint" format="reference" />
+        <attr name="textSize" format="dimension" />
+        <attr name="textColor" format="color" />
+        <attr name="textColorHint" format="color" />
+        <attr name="maxLength" format="integer" />
+        <attr name="minLine" format="integer" />
+        <attr name="maxLine" format="integer" />
+        <attr name="disabled" format="boolean" />
+        <attr name="gravity" format="flags">
+            <flag name="left" value="3" />
+            <flag name="right" value="5" />
+            <flag name="start" value="0x00800003" />
+            <flag name="end" value="0x00800005" />
+            <flag name="top" value="48" />
+            <flag name="bottom" value="80" />
+            <flag name="center_vertical" value="16" />
+            <flag name="center_horizontal" value="1" />
+            <flag name="center" value="17" />
+        </attr>
+        <attr name="inputType" format="enum">
+            <enum name="text" value="0" />
+            <enum name="textPassword" value="1" />
+            <enum name="phone" value="2" />
+            <enum name="number" value="3" />
+            <enum name="numberDecimal" value="4" />
+            <enum name="email" value="5" />
+            <enum name="textVisiblePassword" value="6" />
+            <enum name="money" value="7" />
+            <enum name="idcard" value="8" />
+            <enum name="rate" value="9" />
+        </attr>
+        <attr name="clearBtnImage" format="reference" />
+        <attr name="imeOptions" format="enum">
+            <enum name="actionDone" value="0" />
+            <enum name="actionGo" value="1" />
+            <enum name="actionNext" value="2" />
+            <enum name="actionNone" value="3" />
+            <enum name="actionPrevious" value="4" />
+            <enum name="actionSearch" value="5" />
+            <enum name="actionSend" value="6" />
+            <enum name="actionUnspecified" value="7" />
+        </attr>
     </declare-styleable>
 
 </resources>
