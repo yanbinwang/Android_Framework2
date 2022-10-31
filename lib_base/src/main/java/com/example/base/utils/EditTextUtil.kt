@@ -286,7 +286,7 @@ private class NumInputFilter(private val maxInteger: Int, private val maxDecimal
  * mDesTxt:目标输入框
  * mOffset:偏移量(几位插入一空格)
  */
-private class NumSpaceTextWatcher @JvmOverloads constructor(private val mDesTxt: EditText, private val mOffset: Int = DEFAULT_OFFSET, ) : TextWatcher {
+private class NumSpaceTextWatcher @JvmOverloads constructor(private val mDesTxt: EditText, private val mOffset: Int = DEFAULT_OFFSET) : TextWatcher {
     companion object {
         private const val DEFAULT_OFFSET = 4
     }
@@ -450,7 +450,7 @@ private class NumSpaceTextWatcher @JvmOverloads constructor(private val mDesTxt:
  * 提供回调，有部分界面使用到判断
  * maxLength:最大长度，ASCII码算一个，其它算两个
  */
-private class TextLengthFilter(private val maxLength: Int, ) : InputFilter {
+private class TextLengthFilter(private val maxLength: Int) : InputFilter {
     companion object {
         fun getCurLength(s: CharSequence?): Int {
             var length = 0
@@ -463,13 +463,12 @@ private class TextLengthFilter(private val maxLength: Int, ) : InputFilter {
         }
     }
 
-    override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int, dend: Int, ): CharSequence? {
+    override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int, dend: Int): CharSequence? {
         if (TextUtils.isEmpty(source)) {
             return null
         }
-        var inputCount = 0
         var destCount = 0
-        inputCount = getCurLength(source)
+        val inputCount = getCurLength(source)
         if (dest.isNotEmpty()) destCount = getCurLength(dest)
         if (destCount >= maxLength) return "" else {
             val count = inputCount + destCount
