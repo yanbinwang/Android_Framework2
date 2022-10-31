@@ -102,7 +102,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         try {
             super.show(manager, tag)
         } catch (e: Exception) {
-            e.toString().logE
+            e.logE
         }
     }
 

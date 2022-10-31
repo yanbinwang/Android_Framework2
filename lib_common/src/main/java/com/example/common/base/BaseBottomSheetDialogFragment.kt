@@ -101,7 +101,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         try {
             super.show(manager, tag)
         } catch (e: Exception) {
-            e.toString().logE
+            e.logE
         }
     }
 

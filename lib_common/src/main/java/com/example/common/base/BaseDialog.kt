@@ -81,7 +81,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
         try {
             super.show()
         } catch (e: Exception) {
-            e.toString().logE
+            e.logE
         }
     }
 

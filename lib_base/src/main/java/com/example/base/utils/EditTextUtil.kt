@@ -430,7 +430,7 @@ private class NumSpaceTextWatcher @JvmOverloads constructor(private val mDesTxt:
             try {
                 Selection.setSelection(editable, mLocation)
             } catch (e: Exception) {
-                e.toString().logE
+                e.logE
             }
         }
     }
