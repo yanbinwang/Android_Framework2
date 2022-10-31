@@ -27,7 +27,6 @@ import java.util.zip.ZipOutputStream
  * Created by WangYanBin on 2020/7/1.
  * 文件管理工具类
  */
-@SuppressLint("QueryPermissionsNeeded")
 object FileUtil {
 
     /**
