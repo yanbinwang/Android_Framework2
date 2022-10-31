@@ -12,6 +12,7 @@ import android.widget.TextView.OnEditorActionListener
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import com.example.base.utils.EditTextUtil
 import com.example.base.utils.function.inflate
 import com.example.base.utils.function.view.color
 import com.example.base.utils.function.view.gone
@@ -20,7 +21,6 @@ import com.example.base.widget.BaseViewGroup
 import com.example.common.utils.dp
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ViewClearEditBinding
-import com.example.mvvm.utils.EditTextUtil
 import java.util.*
 
 class ClearBtnEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {

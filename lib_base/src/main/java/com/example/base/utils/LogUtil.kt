@@ -36,24 +36,28 @@ object LogUtil {
 
 val String?.logV: Unit get() { if (this != null) LogUtil.v(msg = this) }
 
-fun String?.logV(tag: String = TAG) = run { if (this != null) LogUtil.v(tag, this) }
-
 val String?.logD: Unit get() { if (this != null) LogUtil.d(msg = this) }
-
-fun String?.logD(tag: String = TAG) = run { if (this != null) LogUtil.d(tag, this) }
 
 val String?.logI: Unit get() { if (this != null) LogUtil.i(msg = this) }
 
-fun String?.logI(tag: String = TAG) = run { if (this != null) LogUtil.i(tag, this) }
-
 val String?.logW: Unit get() { if (this != null) LogUtil.w(msg = this) }
-
-fun String?.logW(tag: String = TAG) = run { if (this != null) LogUtil.w(tag, this) }
 
 val String?.logE: Unit get() { if (this != null) LogUtil.e(msg = this) }
 
-fun String?.logE(tag: String = TAG) = run { if (this != null) LogUtil.e(tag, this) }
+val Throwable?.logE: Unit get() { this?.toString()?.logE }
 
 val String?.logWTF: Unit get() { if (this != null) LogUtil.wtf(msg = this) }
+
+val Throwable?.logWTF: Unit get() { this?.toString()?.logWTF }
+
+fun String?.logV(tag: String = TAG) = run { if (this != null) LogUtil.v(tag, this) }
+
+fun String?.logD(tag: String = TAG) = run { if (this != null) LogUtil.d(tag, this) }
+
+fun String?.logI(tag: String = TAG) = run { if (this != null) LogUtil.i(tag, this) }
+
+fun String?.logW(tag: String = TAG) = run { if (this != null) LogUtil.w(tag, this) }
+
+fun String?.logE(tag: String = TAG) = run { if (this != null) LogUtil.e(tag, this) }
 
 fun String?.logWTF(tag: String = TAG) = run { if (this != null) LogUtil.wtf(tag, this) }

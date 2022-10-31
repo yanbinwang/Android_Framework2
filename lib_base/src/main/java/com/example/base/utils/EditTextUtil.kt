@@ -54,7 +54,7 @@ object EditTextUtil {
      * 限制输入内容为目标值
      */
     fun getCharLimitFilter(characterAllowed: CharArray): InputFilter {
-        return InputFilter { source, start, end, dest, dstart, dend ->
+        return InputFilter { source, start, end, _, _, _ ->
             var flag = true
             val sb = StringBuilder()
             for (i in start until end) {
