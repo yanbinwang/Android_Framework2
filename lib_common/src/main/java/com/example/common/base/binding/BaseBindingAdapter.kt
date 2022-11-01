@@ -8,7 +8,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.Guideline
 import androidx.databinding.BindingAdapter
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,7 +24,6 @@ import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
 import com.example.common.imageloader.glide.callback.GlideRequestListener
 import com.example.common.utils.builder.StatusBarBuilder
-import com.example.common.utils.setArguments
 import com.example.common.utils.setSpan
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.XRecyclerView
@@ -65,7 +63,10 @@ object BaseBindingAdapter {
      * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
      */
     @JvmStatic
-    @BindingAdapter(value = ["adapter", "span_count", "horizontal_space", "vertical_space", "has_horizontal_edge", "has_vertical_edge"], requireAll = false)
+    @BindingAdapter(
+        value = ["adapter", "span_count", "horizontal_space", "vertical_space", "has_horizontal_edge", "has_vertical_edge"],
+        requireAll = false
+    )
     fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
         rec.setAdapter(adapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
     }
@@ -122,32 +123,13 @@ object BaseBindingAdapter {
     }
 
     /**
-     * 全屏撑满加载文本
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["match_text"])
-    fun bindingTextViewMatch(textview: TextView, text: String?) {
-        textview.text = text.orEmpty()
-        textview.setMatchText()
-    }
-
-    /**
      * 搜索高亮文本
      */
     @JvmStatic
-    @BindingAdapter(value = ["text", "key_text", "is_match_text"], requireAll = false)
-    fun bindingTextViewKey(textview: TextView, text: String?, keyText: String?, isMatchText: Boolean?) {
-        textview.setSpan(text.orEmpty(), keyText.orEmpty(), R.color.blue_3d81f2)
-        if(isMatchText.orFalse) textview.setMatchText()
-    }
-
-    /**
-     * 设置某个文本颜色
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["text", "text_color"], requireAll = false)
-    fun bindingTextViewParam(textview: TextView, text: String?, colorRes: Int?) {
-        textview.setArguments(text.orEmpty(), colorRes.toSafeInt(R.color.grey_333333))
+    @BindingAdapter(value = ["text", "key_text", "key_color", "is_match_text"], requireAll = false)
+    fun bindingTextViewKey(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isMatchText: Boolean?) {
+        if (!keyText.isNullOrEmpty()) textview.setSpan(text.orEmpty(), keyText, keyColor.toSafeInt(R.color.blue_3d81f2))
+        if (isMatchText.orFalse) textview.setMatchText()
     }
 
     /**
