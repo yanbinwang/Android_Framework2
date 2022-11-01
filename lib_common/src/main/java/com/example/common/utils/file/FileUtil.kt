@@ -142,18 +142,16 @@ object FileUtil {
     }
 
     /**
-     * context->上下文，不需要通知相册可不传
      * bitmap->存储的bitmap
      * root->图片保存路径
      * fileName->图片名称（扣除jpg和png的后缀）
      * formatJpg->确定图片类型
      * quality->压缩率
      * clear->是否清除本地路径
-     * notice->是否通知相册
      */
     @JvmOverloads
     @JvmStatic
-    fun saveBitmap(context: Context? = null, bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH}/图片", fileName: String = EN_YMDHMS.getDateTime(Date()), formatJpg: Boolean = true, quality: Int = 100, clear: Boolean = false, notice: Boolean = true): Boolean {
+    fun saveBitmap(bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH}/图片", fileName: String = EN_YMDHMS.getDateTime(Date()), clear: Boolean = false, formatJpg: Boolean = true, quality: Int = 100): Boolean {
         try {
             val storeDir = File(root)
             if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
@@ -164,11 +162,6 @@ object FileUtil {
             val result = bitmap.compress(if (formatJpg) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG, quality, fileOutputStream)//png的话100不响应，但是可以维持图片透明度
             fileOutputStream.flush()
             fileOutputStream.close()
-            if (notice && null != context) {
-                //保存图片后发送广播通知更新数据库
-                MediaStore.Images.Media.insertImage(context.contentResolver, file.absolutePath, file.name, null)
-                context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + file.path)))
-            }
             return result
         } catch (_: Exception) {
         } finally {
@@ -196,6 +189,13 @@ fun Context.isAvailable(packageName: String): Boolean {
  */
 fun Context.isAdbEnabled() = (Settings.Secure.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) > 0)
 
+/**
+ * 发送广播通知更新数据库
+ */
+fun Context.noticeAlbum(file:File){
+    MediaStore.Images.Media.insertImage(contentResolver, file.absolutePath, file.name, null)
+    sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + file.path)))
+}
 
 /**
  * 打开压缩包

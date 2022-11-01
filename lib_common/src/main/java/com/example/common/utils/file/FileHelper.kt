@@ -48,12 +48,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
         job?.cancel()
         job = launch {
             val absolutePath = "${root}/${fileName}${if (formatJpg) ".jpg" else ".png"}"
-            val result = FileUtil.saveBitmap(
-                bitmap = bitmap,
-                root = root,
-                fileName = fileName,
-                formatJpg = formatJpg,
-                clear = clear)
+            val result = FileUtil.saveBitmap(bitmap, root, fileName, clear, formatJpg)
             //切回主线程返回路径
             withContext(Main) { onComplete(if (result) absolutePath else null) }
         }
@@ -81,7 +76,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
             val root = "${Constants.APPLICATION_FILE_PATH}/图片"
             val fileName = EN_YMDHMS.getDateTime(Date())
             val absolutePath = "${root}/${fileName}.jpg"
-            val result = FileUtil.saveBitmap(bitmap = bitmap, root = root, fileName = fileName)
+            val result = FileUtil.saveBitmap(bitmap, root, fileName)
             //切回主线程返回路径
             withContext(Main) { onComplete(if (result) absolutePath else null) }
         }
