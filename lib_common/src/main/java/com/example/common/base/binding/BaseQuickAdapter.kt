@@ -10,7 +10,8 @@ import java.lang.reflect.ParameterizedType
  * 快捷适配器，传入对应的ViewBinding即可
  */
 abstract class BaseQuickAdapter<T, VB : ViewDataBinding> : BaseAdapter<T> {
-    protected var context: Context? = null
+    protected lateinit var context: Context
+    protected lateinit var binding: VB
 
     constructor() : super(ArrayList())
 
@@ -23,6 +24,10 @@ abstract class BaseQuickAdapter<T, VB : ViewDataBinding> : BaseAdapter<T> {
         val superclass = javaClass.genericSuperclass
         val aClass = (superclass as ParameterizedType).actualTypeArguments[1] as Class<*>
         return onCreateViewBindingHolder(parent, aClass as Class<VB>)
+    }
+
+    override fun convert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>?) {
+        binding = holder.getBinding()
     }
 
 }
