@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.example.base.utils.function.inAnimation
 import com.example.base.utils.function.value.orFalse
@@ -49,10 +50,12 @@ object BaseBindingAdapter {
         if (statusBarMargin.orFalse) guideline.setGuidelineBegin(if (StatusBarBuilder.statusBarCheckVersion()) Constants.STATUS_BAR_HEIGHT else 0)
     }
 
+    /**
+     * ConcatAdapter为recyclerview支持的多适配器拼接的适配器，可用于绘制复杂界面拼接
+     */
     @JvmStatic
     @BindingAdapter(value = ["concat_adapter"])
     fun bindingRecyclerViewConcatAdapter(rec: RecyclerView, adapter: ConcatAdapter) {
-        rec.cancelItemAnimator()
         rec.layoutManager = LinearLayoutManager(rec.context)
         rec.adapter = adapter
     }
@@ -67,6 +70,9 @@ object BaseBindingAdapter {
         rec.setAdapter(adapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
     }
 
+    /**
+     * 尽量替换为viewpager2，viewpager也支持绑定
+     */
     @JvmStatic
     @BindingAdapter(value = ["adapter"])
     fun <T : PagerAdapter> bindingScaleViewPagerAdapter(pager: ViewPager, adapter: T) {
@@ -76,13 +82,19 @@ object BaseBindingAdapter {
         pager.startAnimation(pager.context.inAnimation())
     }
 
+    /**
+     * 绑定一个viewpager2的适配器
+     */
     @JvmStatic
     @BindingAdapter(value = ["adapter"])
-    fun <T : FragmentPagerAdapter> bindingViewPageAdapter(pager: ViewPager, adapter: T) {
+    fun <T : FragmentStateAdapter> bindingViewPageAdapter(pager: ViewPager2, adapter: T) {
         pager.adapter = adapter
-        pager.offscreenPageLimit = adapter.count - 1
+        pager.offscreenPageLimit = adapter.itemCount - 1
     }
 
+    /**
+     * 不和tablayout或者其他view关联的数据加载可以直接在xml中绑定
+     */
     @JvmStatic
     @BindingAdapter(value = ["adapter", "orientation", "is_user_input"], requireAll = false)
     fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, adapter: T, orientation: Int?, isUserInput: Boolean?) {
