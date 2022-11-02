@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Looper
 import android.util.AttributeSet
 import android.view.Gravity
+import android.view.MotionEvent
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -66,6 +67,13 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                     allowScroll = positionOffsetPixels == 0
                 }
             })
+            setOnTouchListener { _, event ->
+                when (event?.action) {
+                    MotionEvent.ACTION_UP -> if (autoScroll) startRoll()
+                    else -> if (autoScroll) stopRoll()
+                }
+                false
+            }
         }
     }
 
