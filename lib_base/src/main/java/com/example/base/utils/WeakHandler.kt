@@ -15,8 +15,8 @@ import java.util.concurrent.locks.ReentrantLock
 class WeakHandler {
     private var mCallback: Handler.Callback? = null
     private var mExec: ExecHandler? = null
-    private val mLock: Lock = ReentrantLock()
-    private val mRunnables = ChainedRef(mLock, null)
+    private val mLock: Lock by lazy { ReentrantLock() }
+    private val mRunnables by lazy { ChainedRef(mLock, null) }
 
     constructor() {
         mCallback = null
@@ -38,23 +38,23 @@ class WeakHandler {
         mExec = ExecHandler(looper, WeakReference(callback))
     }
 
-    fun post(r: Runnable?): Boolean {
+    fun post(r: Runnable): Boolean {
         return mExec?.post(wrapRunnable(r)).orFalse
     }
 
-    fun postAtTime(r: Runnable?, uptimeMillis: Long): Boolean {
+    fun postAtTime(r: Runnable, uptimeMillis: Long): Boolean {
         return mExec?.postAtTime(wrapRunnable(r), uptimeMillis).orFalse
     }
 
-    fun postAtTime(r: Runnable?, token: Any, uptimeMillis: Long): Boolean {
+    fun postAtTime(r: Runnable, token: Any, uptimeMillis: Long): Boolean {
         return mExec?.postAtTime(wrapRunnable(r), token, uptimeMillis).orFalse
     }
 
-    fun postDelayed(r: Runnable?, delayMillis: Long): Boolean {
+    fun postDelayed(r: Runnable, delayMillis: Long): Boolean {
         return mExec?.postDelayed(wrapRunnable(r), delayMillis).orFalse
     }
 
-    fun postAtFrontOfQueue(r: Runnable?): Boolean {
+    fun postAtFrontOfQueue(r: Runnable): Boolean {
         return mExec?.postAtFrontOfQueue(wrapRunnable(r)).orFalse
     }
 
@@ -153,17 +153,11 @@ class WeakHandler {
         }
     }
 
-    private class WeakRunnable(delegate: WeakReference<Runnable>, reference: WeakReference<ChainedRef>) : Runnable {
-        private var mDelegate: WeakReference<Runnable>? = delegate
-        private var mReference: WeakReference<ChainedRef>? = reference
-
+    private class WeakRunnable(private val delegate: WeakReference<Runnable>, private val reference: WeakReference<ChainedRef>) : Runnable {
         override fun run() {
-            val delegate = mDelegate?.get()
-            val reference: ChainedRef? = mReference?.get()
-            reference?.remove()
-            delegate?.run()
+            reference.get()?.remove()
+            delegate.get()?.run()
         }
-
     }
 
     private class ChainedRef(private val lock: Lock, private val runnable: Runnable?) {
