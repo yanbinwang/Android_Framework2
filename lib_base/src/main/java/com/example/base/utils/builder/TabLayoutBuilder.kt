@@ -2,6 +2,7 @@ package com.example.base.utils.builder
 
 import android.content.Context
 import android.os.Build
+import android.util.SparseArray
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -60,7 +61,7 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
                     customView = this
                     view.isLongClickable = false
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) view.tooltipText = null
-                    onBindView(this, tabList.safeGet(i), i == 0)
+                    onBindView(ViewHolder(this), tabList.safeGet(i), i == 0)
                 }
             }
         }
@@ -78,7 +79,7 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
 
             private fun onTabBind(tab: TabLayout.Tab?, selected: Boolean) {
                 val tabView = tab?.customView ?: return
-                onBindView(tabView, tabList.safeGet(tab.position), selected)
+                onBindView(ViewHolder(tabView), tabList.safeGet(tab.position), selected)
                 builder?.selectTab(tab.position)
             }
         })
@@ -92,6 +93,20 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
     /**
      * 设置数据
      */
-    protected abstract fun onBindView(view: View, item: T?, selected: Boolean)
+    protected abstract fun onBindView(holder: ViewHolder, item: T?, selected: Boolean)
+
+}
+
+class ViewHolder(private val itemView: View) {
+    private val mViews by lazy { SparseArray<View>() }
+
+    fun <V : View> getView(viewId: Int): V? {
+        var view = mViews[viewId]
+        if (view == null) {
+            view = itemView.findViewById(viewId)
+            mViews.put(viewId, view)
+        }
+        return view as? V
+    }
 
 }

@@ -1,8 +1,8 @@
 package com.example.common.widget
 
-import android.view.View
 import android.widget.TextView
 import com.example.base.utils.builder.TabLayoutBuilder
+import com.example.base.utils.builder.ViewHolder
 import com.example.base.utils.function.view.setMediumBold
 import com.example.common.R
 import com.example.common.utils.setArguments
@@ -17,8 +17,8 @@ class IndicatorLayout constructor(tab: TabLayout, tabTitle: MutableList<String>)
 
     override fun getLayoutRes() = R.layout.item_tab
 
-    override fun onBindView(view: View, item: String?, selected: Boolean) {
-        view.findViewById<TextView>(R.id.tv_title).apply {
+    override fun onBindView(holder: ViewHolder, item: String?, selected: Boolean) {
+        holder.getView<TextView>(R.id.tv_title).apply {
             setMediumBold(selected)
             setArguments(item.orEmpty(), if (selected) R.color.blue_3d81f2 else R.color.grey_333333)
         }
