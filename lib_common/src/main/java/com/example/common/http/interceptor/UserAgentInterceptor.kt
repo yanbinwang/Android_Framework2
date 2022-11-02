@@ -32,7 +32,7 @@ internal class UserAgentInterceptor : Interceptor {
         params["phone-model"] = Build.MODEL
         val builder = Headers.Builder()
         for (key in params.keys) {
-            builder.add(key, params[key]!!)
+            builder.add(key, params[key].orEmpty())
         }
         return builder.build()
     }

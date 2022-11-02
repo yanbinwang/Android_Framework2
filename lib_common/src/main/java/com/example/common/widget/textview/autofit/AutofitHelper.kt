@@ -81,7 +81,7 @@ object AutofitHelper {
     fun getMinTextSize() = mMinTextSize
 
     fun setMinTextSize(unit: Int = TypedValue.COMPLEX_UNIT_SP, size: Float): AutofitHelper {
-        val context = mTextView!!.context
+        val context = mTextView?.context
         var r = Resources.getSystem()
         if (context != null) r = context.resources
         setRawMinTextSize(TypedValue.applyDimension(unit, size, r.displayMetrics))

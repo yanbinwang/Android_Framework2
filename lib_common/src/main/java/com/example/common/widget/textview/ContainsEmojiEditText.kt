@@ -8,7 +8,8 @@ import android.text.Spannable
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.widget.EditText
-import android.widget.Toast
+import com.example.base.utils.EditTextUtil
+import com.example.common.utils.builder.shortToast
 
 /**
  * @description 禁用Emoji的edittext，只能避免部分
@@ -37,11 +38,10 @@ class ContainsEmojiEditText @JvmOverloads constructor(context: Context, attrs: A
                 if (!resetText) {
                     if (before != 0) return
                     if (count >= 2) { //表情符号的字符长度最小为2
-                        val input = s!!.subSequence(cursorPos, cursorPos + count)
+                        val input = s?.subSequence(cursorPos, cursorPos + count)
                         if (containsEmoji(input.toString())) {
                             resetText = true
-                            Toast.makeText(getContext(), "不支持输入Emoji表情符号", Toast.LENGTH_SHORT)
-                                .show()
+                            "不支持输入Emoji表情符号".shortToast()
                             //是表情符号就将文本还原为输入表情符号之前的内容
                             setText(inputAfterText)
                             if (text is Spannable) Selection.setSelection(text, text.length)
@@ -65,22 +65,11 @@ class ContainsEmojiEditText @JvmOverloads constructor(context: Context, attrs: A
         for (i in 0 until len) {
             val codePoint = source[i]
             //如果不能匹配,则该字符是Emoji表情
-            if (!isEmojiCharacter(codePoint)) {
+            if (!EditTextUtil.isEmojiCharacter(codePoint)) {
                 return true
             }
         }
         return false
-    }
-
-    /**
-     * 判断是否是Emoji
-     * @param codePoint 比较的单个字符
-     * @return
-     */
-    private fun isEmojiCharacter(codePoint: Char): Boolean {
-        return codePoint.code == 0x0 || codePoint.code == 0x9 || codePoint.code == 0xA ||
-                codePoint.code == 0xD || codePoint.code in 0x20..0xD7FF ||
-                codePoint.code in 0xE000..0xFFFD || codePoint.code in 0x10000..0x10FFFF
     }
 
 }

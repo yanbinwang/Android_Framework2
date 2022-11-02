@@ -43,7 +43,7 @@ class DecimalInputFilter : InputFilter {
      * @param dend      原内容终点坐标，一般为dest长度-1
      * @return          输入内容
      */
-    override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence {
+    override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
         val sourceText = source.toString()
         val destText = dest.toString()
         //验证删除等按键
@@ -60,7 +60,7 @@ class DecimalInputFilter : InputFilter {
             //验证小数点精度，保证小数点后只能输入两位
             val index = destText.indexOf(point)
             val length = dend - index
-            if (length > decimalPoint) return dest?.subSequence(dstart, dend)!!
+            if (length > decimalPoint) return dest?.subSequence(dstart, dend)
         } else {
             /**
              * 没有输入小数点的情况下，只能输入小数点和数字
@@ -80,7 +80,7 @@ class DecimalInputFilter : InputFilter {
             }
         }
         //验证输入金额的大小
-        if ((destText + sourceText).toDouble() > maxValue) return dest?.subSequence(dstart, dend)!!
+        if ((destText + sourceText).toDouble() > maxValue) return dest?.subSequence(dstart, dend)
         return dest?.subSequence(dstart, dend).toString() + sourceText
     }
 

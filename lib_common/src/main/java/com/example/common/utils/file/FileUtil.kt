@@ -279,11 +279,11 @@ fun Context.getSetupApk(apkFilePath: String): Intent {
 fun Context.getApplicationIcon(): Bitmap? {
     try {
         val drawable = packageManager.getApplicationIcon(Constants.APPLICATION_ID)
-        val bitmap = SoftReference(Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, if (drawable.opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565))
-        val canvas = Canvas(bitmap.get()!!)
+        val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, if (drawable.opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565)
+        val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
         drawable.draw(canvas)
-        return bitmap.get()
+        return bitmap
     } catch (_: Exception) {
     }
     return null

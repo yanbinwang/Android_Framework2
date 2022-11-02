@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.base.utils.function.value.orZero
 
 /**
  * Set dividers' properties(horizontal and vertical space...) of item with type.
@@ -32,15 +33,15 @@ class SCommonItemDecoration(private val mPropMap: SparseArray<ItemDecorationProp
             spanIndex = lp.spanIndex
             spanSize = lp.spanSize
             val layoutManager = parent.layoutManager as GridLayoutManager?
-            spanCount = layoutManager!!.spanCount // Assume that there're spanCount items in this row/column.
-            orientation = layoutManager.orientation
+            spanCount = layoutManager?.spanCount.orZero // Assume that there're spanCount items in this row/column.
+            orientation = layoutManager?.orientation.orZero
         } else if (parent.layoutManager is StaggeredGridLayoutManager) {
             val lp = view.layoutParams as StaggeredGridLayoutManager.LayoutParams
             spanIndex = lp.spanIndex
             val layoutManager = parent.layoutManager as StaggeredGridLayoutManager?
-            spanCount = layoutManager!!.spanCount // Assume that there're spanCount items in this row/column.
+            spanCount = layoutManager?.spanCount.orZero // Assume that there're spanCount items in this row/column.
             spanSize = if (lp.isFullSpan) spanCount else 1
-            orientation = layoutManager.orientation
+            orientation = layoutManager?.orientation.orZero
         }
 
         val isFirstRowOrColumn: Boolean

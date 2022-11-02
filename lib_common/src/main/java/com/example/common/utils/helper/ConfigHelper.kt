@@ -202,7 +202,7 @@ object ConfigHelper {
     private fun getAppVersionCode(): Long {
         var appVersionCode: Long = 0
         try {
-            val packageInfo = context.applicationContext.packageManager.getPackageInfo(context.packageName!!, 0)
+            val packageInfo = context.applicationContext.packageManager.getPackageInfo(context.packageName, 0)
             appVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 packageInfo.longVersionCode
             } else {
@@ -219,7 +219,7 @@ object ConfigHelper {
     private fun getAppVersionName(): String {
         var appVersionName = ""
         try {
-            val packageInfo = context.applicationContext.packageManager.getPackageInfo(context.packageName!!, 0)
+            val packageInfo = context.applicationContext.packageManager.getPackageInfo(context.packageName, 0)
             appVersionName = packageInfo.versionName
         } catch (_: PackageManager.NameNotFoundException) {
         }

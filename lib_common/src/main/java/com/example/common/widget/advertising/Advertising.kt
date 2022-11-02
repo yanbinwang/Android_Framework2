@@ -13,7 +13,7 @@ import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.base.utils.WeakHandler
-import com.example.base.utils.function.value.toSafeInt
+import com.example.base.utils.function.value.orZero
 import com.example.base.widget.BaseViewGroup
 import com.example.common.utils.dp
 import java.util.*
@@ -109,7 +109,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         } else if (ovalLayout != null) {
             ovalLayout?.gravity = Gravity.CENTER
             //如果true代表垂直，否则水平
-            val direction = ovalLayout?.layoutParams?.height.toSafeInt() > ovalLayout?.layoutParams?.width.toSafeInt()
+            val direction = ovalLayout?.layoutParams?.height.orZero > ovalLayout?.layoutParams?.width.orZero
             //左右边距
             val ovalMargin = triple.third.dp
             //添加圆点
@@ -145,7 +145,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 timer?.schedule(object : TimerTask() {
                     override fun run() {
                         weakHandler.post {
-                            val current = banner?.currentItem.toSafeInt()
+                            val current = banner?.currentItem.orZero
                             var position = current + 1
                             if (current == 0 || current == Int.MAX_VALUE) position = halfPosition - halfPosition % list.size
                             banner?.currentItem = position
