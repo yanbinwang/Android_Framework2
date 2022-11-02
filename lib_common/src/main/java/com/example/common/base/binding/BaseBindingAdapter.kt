@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.example.base.utils.function.inAnimation
 import com.example.base.utils.function.value.orFalse
@@ -59,14 +58,21 @@ object BaseBindingAdapter {
     }
 
     /**
+     * 给recyclerview绑定一个适配器
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["adapter"])
+    fun <T : BaseQuickAdapter<*, *>> bindingRecyclerViewAdapter(rec: RecyclerView, adapter: T) {
+        rec.layoutManager = LinearLayoutManager(rec.context)
+        rec.adapter = adapter
+    }
+
+    /**
      * 适配器
      * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
      */
     @JvmStatic
-    @BindingAdapter(
-        value = ["adapter", "span_count", "horizontal_space", "vertical_space", "has_horizontal_edge", "has_vertical_edge"],
-        requireAll = false
-    )
+    @BindingAdapter(value = ["adapter", "span_count", "horizontal_space", "vertical_space", "has_horizontal_edge", "has_vertical_edge"], requireAll = false)
     fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
         rec.setAdapter(adapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
     }
@@ -81,16 +87,6 @@ object BaseBindingAdapter {
         pager.offscreenPageLimit = adapter.count - 1
         pager.currentItem = 0
         pager.startAnimation(pager.context.inAnimation())
-    }
-
-    /**
-     * 绑定一个viewpager2的适配器
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["adapter"])
-    fun <T : FragmentStateAdapter> bindingViewPageAdapter(pager: ViewPager2, adapter: T) {
-        pager.adapter = adapter
-        pager.offscreenPageLimit = adapter.itemCount - 1
     }
 
     /**
