@@ -1,12 +1,13 @@
-package com.example.base.utils.builder
+package com.example.common.utils.builder
 
 import android.content.Context
 import android.os.Build
 import android.util.SparseArray
-import android.view.View
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.example.base.utils.function.inflate
+import com.example.base.utils.builder.FrameLayoutBuilder
+import com.example.base.utils.function.value.orZero
 import com.example.base.utils.function.value.safeGet
 import com.example.base.utils.function.view.adapter
 import com.example.base.utils.function.view.bind
@@ -18,9 +19,10 @@ import com.google.android.material.tabs.TabLayoutMediator
  * 项目实际使用中，ui是肯定不会按照安卓原生的导航栏来实现对应的效果的
  * 故而提出一个接口类，需要实现对应效果的地方去实现
  */
-abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabList: List<T>? = null) {
+abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout, private var tabList: List<T>? = null) {
     private var builder: FrameLayoutBuilder? = null
     private var mediator: TabLayoutMediator? = null
+    private val tabViews by lazy { SparseArray<VDB>() }
     protected val context: Context get() = tab.context
     val currentIndex get() = tab.selectedTabPosition
 
@@ -47,6 +49,7 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
 
     private fun init(list: List<T>? = null) {
         tab.removeAllTabs()
+        tabViews.clear()
         if (null != list) tabList = list
         tabList?.forEach { _ -> tab.addTab(tab.newTab()) }
     }
@@ -57,12 +60,12 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
     private fun addOnTabSelectedListener() {
         for (i in 0 until tab.tabCount) {
             tab.getTabAt(i)?.apply {
-                context.inflate(getLayoutRes()).apply {
-                    customView = this
-                    view.isLongClickable = false
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) view.tooltipText = null
-                    onBindView(ViewHolder(this), tabList.safeGet(i), i == 0)
-                }
+                val binding = getBindView()
+                if (tabViews[i] == null) tabViews.put(i, binding)
+                customView = binding.root
+                view.isLongClickable = false
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) view.tooltipText = null
+                onBindView(binding, tabList.safeGet(i), i == 0)
             }
         }
         tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -78,9 +81,11 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
             }
 
             private fun onTabBind(tab: TabLayout.Tab?, selected: Boolean) {
-                val tabView = tab?.customView ?: return
-                onBindView(ViewHolder(tabView), tabList.safeGet(tab.position), selected)
-                builder?.selectTab(tab.position)
+                tab?.customView ?: return
+                tab.position.orZero.apply {
+                    onBindView(tabViews[this], tabList.safeGet(this), selected)
+                    builder?.selectTab(this)
+                }
             }
         })
     }
@@ -88,25 +93,11 @@ abstract class TabLayoutBuilder<T>(private val tab: TabLayout, private var tabLi
     /**
      * 回调方法，返回对应控件
      */
-    protected abstract fun getLayoutRes(): Int
+    protected abstract fun getBindView(): VDB
 
     /**
      * 设置数据
      */
-    protected abstract fun onBindView(holder: ViewHolder, item: T?, selected: Boolean)
-
-}
-
-class ViewHolder(private val itemView: View) {
-    private val mViews by lazy { SparseArray<View>() }
-
-    fun <V : View> getView(viewId: Int): V? {
-        var view = mViews[viewId]
-        if (view == null) {
-            view = itemView.findViewById(viewId)
-            mViews.put(viewId, view)
-        }
-        return view as? V
-    }
+    protected abstract fun onBindView(binding: VDB?, item: T?, selected: Boolean)
 
 }

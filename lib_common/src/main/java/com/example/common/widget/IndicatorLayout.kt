@@ -1,10 +1,9 @@
 package com.example.common.widget
 
-import android.widget.TextView
-import com.example.base.utils.builder.TabLayoutBuilder
-import com.example.base.utils.builder.ViewHolder
-import com.example.base.utils.function.view.setMediumBold
+import com.example.base.utils.function.inflate
 import com.example.common.R
+import com.example.common.databinding.ItemTabBinding
+import com.example.common.utils.builder.TabLayoutBuilder
 import com.example.common.utils.setArguments
 import com.google.android.material.tabs.TabLayout
 
@@ -13,15 +12,12 @@ import com.google.android.material.tabs.TabLayout
  * 掏空系统tablayout，全部自定义
  * @author yan
  */
-class IndicatorLayout constructor(tab: TabLayout, tabTitle: MutableList<String>) : TabLayoutBuilder<String>(tab, tabTitle) {
+class IndicatorLayout constructor(tab: TabLayout, tabTitle: MutableList<String>) : TabLayoutBuilder<String,ItemTabBinding>(tab, tabTitle) {
 
-    override fun getLayoutRes() = R.layout.item_tab
+    override fun getBindView() = ItemTabBinding.bind(context.inflate(R.layout.item_tab))
 
-    override fun onBindView(holder: ViewHolder, item: String?, selected: Boolean) {
-        holder.getView<TextView>(R.id.tv_title).apply {
-            setMediumBold(selected)
-            setArguments(item.orEmpty(), if (selected) R.color.blue_3d81f2 else R.color.grey_333333)
-        }
+    override fun onBindView(binding: ItemTabBinding?, item: String?, selected: Boolean) {
+        binding?.tvTitle.setArguments(item.orEmpty(), if (selected) R.color.blue_3d81f2 else R.color.grey_333333)
     }
 
 }

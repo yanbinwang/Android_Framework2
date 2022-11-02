@@ -56,15 +56,6 @@ fun TextView?.underLine(haveLine: Boolean) {
 }
 
 /**
- * 设置中等加粗
- */
-fun TextView?.setMediumBold(isBold: Boolean) {
-    if (this == null) return
-    paint.strokeWidth = if(isBold) 1.0f else 0f
-    paint.style = Paint.Style.FILL_AND_STROKE
-}
-
-/**
  * 加粗
  */
 fun TextView?.bold(isBold: Boolean) {
