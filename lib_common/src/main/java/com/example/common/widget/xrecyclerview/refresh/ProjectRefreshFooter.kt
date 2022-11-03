@@ -25,7 +25,7 @@ import com.scwang.smart.refresh.layout.constant.SpinnerStyle
 class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), RefreshFooter {
     private var noMoreData = false
     private var animation: AnimationDrawable? = null
-    private val binding by lazy { ViewRefreshFooterBinding.bind(context.inflate(R.layout.view_refresh_footer)) }
+    private val binding by lazy { ViewRefreshFooterBinding.bind(context.inflate(R.layout.view_refresh_footer, this, false)) }
 
     init {
         binding.ivProgress.let {
@@ -102,66 +102,5 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
         super.onDetachedFromWindow()
         animation?.stop()
     }
-
-//    /**
-//     * 获取刷新的整体view
-//     */
-//    override fun getView() = binding.root
-//
-//    /**
-//     * 正在上拉的过程
-//     */
-//    override fun onPullingUp(fraction: Float, maxBottomHeight: Float, bottomHeight: Float) {
-//        "onPullingUp".logE(TAG)
-//        if (paging?.hasNextPage().orFalse) {
-//            binding.tvMsg.text = "我也是有底线的~"
-//        } else {
-//            binding.tvMsg.text = "上拉加载更多"
-//        }
-//    }
-//
-//    /**
-//     * 上拉释放过程
-//     */
-//    override fun onPullReleasing(fraction: Float, maxBottomHeight: Float, bottomHeight: Float) {
-//        "onPullReleasing".logE(TAG)
-//        if (paging?.hasNextPage().orFalse) {
-//            binding.tvMsg.text = "我也是有底线的~"
-//        } else {
-//            binding.tvMsg.text = "释放加载更多"
-//        }
-//    }
-//
-//    /**
-//     * 触发执行动画时，文字和图片的样式
-//     */
-//    override fun startAnim(maxBottomHeight: Float, bottomHeight: Float) {
-//        "startAnim".logE(TAG)
-//        if (paging?.hasNextPage().orFalse) {
-//            binding.tvMsg.text = "我也是有底线的~"
-//            binding.progress.stopSpinning()
-//        } else {
-//            binding.tvMsg.text = "加载中"
-//            binding.progress.spin()
-//        }
-//    }
-//
-//    /**
-//     * 动画执行完毕时，结束
-//     */
-//    override fun onFinish() {
-//        "onFinish".logE(TAG)
-//        binding.tvMsg.text = ""
-//        binding.progress.stopSpinning()
-//    }
-//
-//    /**
-//     * 重置复位
-//     */
-//    override fun reset() {
-//        "reset".logE(TAG)
-//        binding.tvMsg.text = "上拉加载更多"
-//        binding.progress.stopSpinning()
-//    }
 
 }

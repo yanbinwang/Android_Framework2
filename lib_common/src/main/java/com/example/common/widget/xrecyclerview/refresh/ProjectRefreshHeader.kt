@@ -22,7 +22,7 @@ import com.scwang.smart.refresh.layout.constant.SpinnerStyle
 @SuppressLint("RestrictedApi")
 class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), RefreshHeader {
     private var animation: AnimationDrawable? = null
-    private val binding by lazy { ViewRefreshHeaderBinding.bind(context.inflate(R.layout.view_refresh_header)) }
+    private val binding by lazy { ViewRefreshHeaderBinding.bind(context.inflate(R.layout.view_refresh_header, this, false)) }
 
     init {
         binding.ivProgress.let {
@@ -63,7 +63,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     override fun onMoving(isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) {
         if (isDragging) {
             animation?.start()
-            binding.tvMsg.text = if (percent > 0.5f) "释放加载更多" else "下拉加载更多"
+            binding.tvMsg.text = if (percent > 1.5f) "释放加载更多" else "下拉加载更多"
         }
     }
 
