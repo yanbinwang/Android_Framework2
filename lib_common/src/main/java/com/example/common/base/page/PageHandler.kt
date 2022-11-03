@@ -36,7 +36,7 @@ fun ViewGroup.setState(imgRes: Int = -1, text: String? = null){
  */
 @JvmOverloads
 fun XRecyclerView.setState(length: Int = 0, imgRes: Int = -1, text: String? = null) {
-    finishRefresh()
+    finishRefreshing()
     //判断集合长度，有长度不展示emptyview只做提示
     if (length <= 0) empty?.setState(imgRes, text)
 }

@@ -75,7 +75,7 @@ dependencies {
     api deps.mmkv
     api deps.recovery
     api deps.guide
-    api deps.tkrefreshlayout
+    api deps.smartrefresh
     api deps.eventbus
     api deps.xxpermissions
 }

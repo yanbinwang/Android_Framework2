@@ -17,8 +17,12 @@ import com.example.common.base.page.Paging
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.ItemDecorationProps
-import com.example.common.widget.xrecyclerview.refresh.OnRefreshListener
-import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
+import com.example.common.widget.xrecyclerview.refresh.finish
+import com.example.common.widget.xrecyclerview.refresh.init
+import com.scwang.smart.refresh.layout.SmartRefreshLayout
+import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
+import com.scwang.smart.refresh.layout.listener.OnRefreshListener
+import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
 
 /**
  * author: wyb
@@ -28,16 +32,10 @@ import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
  * onFinishInflate方法只有在布局文件中加载view实例会回调，如果直接new一个view的话是不会回调的。
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-    private var refresh: XRefreshLayout? = null//刷新控件 类型1才有
+    private var refresh: SmartRefreshLayout? = null//刷新控件 类型1才有
     private var refreshType = 0//页面类型(0无刷新-1带刷新)
-    private var emptyType = 0//刷新类型（0顶部-1底部-2全部）
-    private var refreshDirection = 0//x是否具有空布局（0无-1有）
+    private var emptyType = 0//是否具有空布局（0无-1有）
     var listPag: Paging? = null
-        //将需要的页面工具类传入，用以控制刷新底部
-        set(value) {
-            field = value
-            refresh?.refPag = value
-        }
     var empty: EmptyLayout? = null//自定义封装的空布局
     var recycler: DataRecyclerView? = null//数据列表
     var onClick: (() -> Unit)? = null//空布局点击
@@ -45,7 +43,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     init {
         val mTypedArray = getContext().obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
         refreshType = mTypedArray.getInt(R.styleable.XRecyclerView_refresh, 0)
-        refreshDirection = mTypedArray.getInt(R.styleable.XRecyclerView_refreshDirection, 2)
         emptyType = mTypedArray.getInt(R.styleable.XRecyclerView_empty, 0)
         mTypedArray.recycle()
     }
@@ -74,7 +71,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 empty = view.findViewById(R.id.el)
                 refresh = view.findViewById(R.id.x_refresh)
                 recycler = view.findViewById(R.id.d_rv)
-                refresh?.setDirection(refreshDirection)
                 recycler?.setHasFixedSize(true)
                 recycler?.cancelItemAnimator()
 //                recycler?.itemAnimator = DefaultItemAnimator()
@@ -118,7 +114,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 获取适配器
      */
-    fun <T : BaseQuickAdapter<*, *>> getAdapter() = recycler?.adapter as T?
+    fun <T : BaseQuickAdapter<*, *>> getAdapter() = recycler?.adapter as? T
 
     /**
      * 设置横向左右滑动的adapter
@@ -127,44 +123,21 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     /**
      * 刷新页面监听
+     * 根据传入不同的监听，确定是否具备头和尾，无需在xml中指定
      */
-    fun setOnRefreshListener(onRefreshListener: OnRefreshListener) {
-        if (refreshType == 1) refresh?.onRefreshListener = onRefreshListener
+    fun setOnRefreshListener(listener: OnRefreshLoadMoreListener) {
+        refresh?.init(listener)
+    }
+
+    fun setOnRefreshListener(onRefresh: OnRefreshListener? = null, onLoadMore: OnLoadMoreListener? = null) {
+        refresh?.init(onRefresh, onLoadMore)
     }
 
     /**
      * 结束刷新
      */
     fun finishRefreshing() {
-        if (refreshType == 1) refresh?.finishRefreshing()
-    }
-
-    /**
-     * 结束加载更多
-     */
-    fun finishLoadmore() {
-        if (refreshType == 1) refresh?.finishLoadmore()
-    }
-
-    /**
-     * 同时关闭上下的刷新
-     */
-    fun finishRefresh() {
-        if (refreshType == 1) refresh?.finishRefresh()
-    }
-
-    /**
-     * 主动刷新
-     */
-    fun startRefresh() {
-        if (refreshType == 1) refresh?.startRefresh()
-    }
-
-    /**
-     * 主动加载跟多
-     */
-    fun startLoadMore() {
-        if (refreshType == 1) refresh?.startLoadMore()
+        if (refreshType == 1) refresh?.finish(listPag?.hasNextPage())
     }
 
     /**

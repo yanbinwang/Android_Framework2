@@ -10,6 +10,9 @@ import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
 import com.example.common.base.proxy.NetworkCallbackImpl
 import com.example.common.imageloader.album.AlbumGlideLoader
 import com.example.common.utils.helper.ConfigHelper
+import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
+import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
+import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
 import com.tencent.smtt.sdk.QbSdk
 import com.yanzhenjie.album.Album
@@ -64,6 +67,13 @@ open class BaseApplication : Application() {
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
         //注册网络监听
         (getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager).registerNetworkCallback(NetworkRequest.Builder().build(), NetworkCallbackImpl())
+        //全局刷新控件的样式
+        SmartRefreshLayout.setDefaultRefreshHeaderCreator { context, layout ->
+            //全局设置主题颜色
+            layout.setPrimaryColorsId(R.color.grey_f6f8ff, R.color.white_00ffffff)
+            ProjectRefreshHeader(context)
+        }
+        SmartRefreshLayout.setDefaultRefreshFooterCreator { context, _ -> ProjectRefreshFooter(context) }
     }
 
 }

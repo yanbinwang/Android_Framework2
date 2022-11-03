@@ -38,11 +38,6 @@
             <enum name="ordinary" value="0" />
             <enum name="equipped" value="1" />
         </attr>
-        <attr name="refreshDirection">
-            <enum name="top" value="0" />
-            <enum name="bottom" value="1" />
-            <enum name="both" value="2" />
-        </attr>
         <attr name="empty">
             <enum name="ordinary" value="0" />
             <enum name="equipped" value="1" />

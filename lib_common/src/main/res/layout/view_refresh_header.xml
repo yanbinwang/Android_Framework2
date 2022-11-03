@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:wheel="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40mm"
         android:gravity="center">
 
-        <com.example.common.widget.ProgressWheel
-            android:id="@+id/progress"
-            android:layout_width="60mm"
-            android:layout_height="60mm"
-            android:layout_margin="10mm"
-            wheel:matProg_barColor="@color/blue_2e60df"
-            wheel:matProg_progressIndeterminate="true" />
+        <ImageView
+            android:id="@+id/iv_progress"
+            android:layout_width="30mm"
+            android:layout_height="30mm" />
+
+        <TextView
+            android:id="@+id/tv_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16mm"
+            android:text="下拉加载更多"
+            android:textColor="@color/black_111b34"
+            android:textSize="14mm" />
 
     </LinearLayout>
 

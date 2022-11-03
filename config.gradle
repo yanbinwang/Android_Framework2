@@ -29,7 +29,7 @@ versions.autosize = "v1.2.1"
 versions.mmkv = "1.2.2"
 versions.recovery = "1.0.0"
 versions.guide = "v2.4.0"
-versions.tkrefreshlayout = "1.0.7"
+versions.smartrefresh = "2.0.5"
 versions.eventbus = "3.3.1"
 versions.xxpermissions = "16.2"
 
@@ -75,7 +75,7 @@ deps.autosize = "com.github.JessYanCoding:AndroidAutoSize:$versions.autosize"//�
 deps.mmkv = "com.tencent:mmkv-static:$versions.mmkv"//腾讯读写库
 deps.recovery = "com.zxy.android:recovery:$versions.recovery"//闪退抓捕
 deps.guide = "com.github.huburt-Hu:NewbieGuide:$versions.guide"//遮罩引导
-deps.tkrefreshlayout = "com.lcodecorex:tkrefreshlayout:$versions.tkrefreshlayout"//刷新控件
+deps.smartrefresh = "io.github.scwang90:refresh-layout-kernel:$versions.smartrefresh"//刷新控件
 deps.eventbus = "org.greenrobot:eventbus:$versions.eventbus"//廣播
 deps.xxpermissions = "com.github.getActivity:XXPermissions:$versions.xxpermissions"//廣播
 ext.deps = deps
