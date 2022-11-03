@@ -85,13 +85,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
-     * 类型1的时候才会显示
-     */
-    fun setEmptyVisibility(visibility: Int) {
-        if (refreshType == 1 && 0 != emptyType) empty?.visibility = visibility
-    }
-
-    /**
      * 设置默认recycler的输出manager
      * 默认一行一个，线样式可自画可调整
      */
@@ -138,6 +131,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     fun finishRefreshing() {
         if (refreshType == 1) refresh?.finish(listPag?.hasNextPage())
+    }
+
+    /**
+     * 类型1的时候才会显示
+     */
+    fun setEmptyVisibility(visibility: Int) {
+        if (refreshType == 1 && 0 != emptyType) empty?.visibility = visibility
     }
 
     /**
