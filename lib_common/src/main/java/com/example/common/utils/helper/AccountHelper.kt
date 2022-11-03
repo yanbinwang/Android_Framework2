@@ -68,17 +68,6 @@ object AccountHelper {
         return mobile
     }
 
-    //是否实名认证
-    @JvmStatic
-    fun isRealVerified(): Boolean {
-        var real_verified = false
-        val userModel = getUserBean()
-        if (null != userModel) {
-            real_verified = userModel.real_verified!!
-        }
-        return real_verified
-    }
-
     //设置实名认证状态(init:初始化,inreview:提交认证中,verified:已认证,refused:认证失败)
     @JvmStatic
     fun setCustomerStatus(customer_status: String?) {

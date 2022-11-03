@@ -14,6 +14,9 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
 import com.example.common.R
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.roundToInt
 
 /**
  * @description
@@ -94,7 +97,7 @@ class ProgressWheel : View {
             //Must be this size
             MeasureSpec.EXACTLY -> widthSize
             //Can't be bigger than...
-            MeasureSpec.AT_MOST -> Math.min(viewWidth, widthSize)
+            MeasureSpec.AT_MOST -> viewWidth.coerceAtMost(widthSize)
             //Be whatever you want
             else -> viewWidth
         }
@@ -104,7 +107,7 @@ class ProgressWheel : View {
             heightSize
         } else if (heightMode == MeasureSpec.AT_MOST) {
             //Can't be bigger than...
-            Math.min(viewHeight, heightSize)
+            viewHeight.coerceAtMost(heightSize)
         } else {
             //Be whatever you want
             viewHeight
@@ -117,7 +120,6 @@ class ProgressWheel : View {
         canvas?.drawArc(circleBounds, 360f, 360f, false, rimPaint)
         var mustInvalidate = false
         if (!shouldAnimate) return
-
         if (isSpinning) {
             //Draw the spinning bar
             mustInvalidate = true
@@ -147,7 +149,7 @@ class ProgressWheel : View {
                 mustInvalidate = true
                 val deltaTime = (SystemClock.uptimeMillis() - lastTimeAnimated).toFloat() / 1000
                 val deltaNormalized = deltaTime * spinSpeed
-                mProgress = Math.min(mProgress + deltaNormalized, mTargetProgress)
+                mProgress = (mProgress + deltaNormalized).coerceAtMost(mTargetProgress)
                 lastTimeAnimated = SystemClock.uptimeMillis()
             }
             if (oldProgress != mProgress) {
@@ -157,8 +159,8 @@ class ProgressWheel : View {
             var progress = mProgress
             if (!linearProgress) {
                 val factor = 2.0f
-                offset = (1.0f - Math.pow((1.0f - mProgress / 360.0f).toDouble(), (2.0f * factor).toDouble())).toFloat() * 360.0f
-                progress = (1.0f - Math.pow((1.0f - mProgress / 360.0f).toDouble(), factor.toDouble())).toFloat() * 360.0f
+                offset = (1.0f - (1.0f - mProgress / 360.0f).toDouble().pow((2.0f * factor).toDouble())).toFloat() * 360.0f
+                progress = (1.0f - (1.0f - mProgress / 360.0f).toDouble().pow(factor.toDouble())).toFloat() * 360.0f
             }
             if (isInEditMode) progress = 360f
             canvas?.drawArc(circleBounds, offset - 90, progress, false, barPaint)
@@ -180,7 +182,7 @@ class ProgressWheel : View {
                 //}
                 barGrowingFromFront = !barGrowingFromFront
             }
-            val distance = Math.cos((timeStartGrowing / barSpinCycleTime + 1) * Math.PI).toFloat() / 2 + 0.5f
+            val distance = cos((timeStartGrowing / barSpinCycleTime + 1) * Math.PI).toFloat() / 2 + 0.5f
             val destLength = (barMaxLength - barLength).toFloat()
             if (barGrowingFromFront) {
                 barExtraLength = distance * destLength
@@ -195,7 +197,7 @@ class ProgressWheel : View {
     }
 
     private fun runCallback() {
-        val normalizedProgress = Math.round(mProgress * 100 / 360.0f).toFloat() / 100
+        val normalizedProgress = (mProgress * 100 / 360.0f).roundToInt().toFloat() / 100
         onProgressUpdate?.invoke(normalizedProgress)
     }
 
@@ -217,22 +219,14 @@ class ProgressWheel : View {
         val paddingRight = paddingRight
         circleBounds = if (!fillRadius) {
             // Width should equal to Height, find the min value to setup the circle
-            val minValue = Math.min(layout_width - paddingLeft - paddingRight, layout_height - paddingBottom - paddingTop)
-            val circleDiameter = Math.min(minValue, circleRadius * 2 - barWidth * 2)
+            val minValue = (layout_width - paddingLeft - paddingRight).coerceAtMost(layout_height - paddingBottom - paddingTop)
+            val circleDiameter = minValue.coerceAtMost(circleRadius * 2 - barWidth * 2)
             // Calc the Offset if needed for centering the wheel in the available space
             val xOffset = (layout_width - paddingLeft - paddingRight - circleDiameter) / 2 + paddingLeft
             val yOffset = (layout_height - paddingTop - paddingBottom - circleDiameter) / 2 + paddingTop
-            RectF(
-                (xOffset + barWidth).toFloat(),
-                (yOffset + barWidth).toFloat(),
-                (xOffset + circleDiameter - barWidth).toFloat(),
-                (yOffset + circleDiameter - barWidth).toFloat())
+            RectF((xOffset + barWidth).toFloat(), (yOffset + barWidth).toFloat(), (xOffset + circleDiameter - barWidth).toFloat(), (yOffset + circleDiameter - barWidth).toFloat())
         } else {
-            RectF(
-                (paddingLeft + barWidth).toFloat(),
-                (paddingTop + barWidth).toFloat(),
-                (layout_width - paddingRight - barWidth).toFloat(),
-                (layout_height - paddingBottom - barWidth).toFloat())
+            RectF((paddingLeft + barWidth).toFloat(), (paddingTop + barWidth).toFloat(), (layout_width - paddingRight - barWidth).toFloat(), (layout_height - paddingBottom - barWidth).toFloat())
         }
     }
 
@@ -252,9 +246,9 @@ class ProgressWheel : View {
         if (visibility == VISIBLE) lastTimeAnimated = SystemClock.uptimeMillis()
     }
 
-    override fun onSaveInstanceState(): Parcelable {
-        val superState = super.onSaveInstanceState()
-        val ss = WheelSavedState(superState!!)
+    override fun onSaveInstanceState(): Parcelable? {
+        val superState = super.onSaveInstanceState() ?: return null
+        val ss = WheelSavedState(superState)
         // We save everything that can be changed at runtime
         ss.mProgress = mProgress
         ss.mTargetProgress = mTargetProgress
@@ -275,19 +269,18 @@ class ProgressWheel : View {
             super.onRestoreInstanceState(state)
             return
         }
-        val ss = state
-        super.onRestoreInstanceState(ss.superState)
-        mProgress = ss.mProgress
-        mTargetProgress = ss.mTargetProgress
-        isSpinning = ss.isSpinning
-        spinSpeed = ss.spinSpeed
-        barWidth = ss.barWidth
-        barColor = ss.barColor
-        rimWidth = ss.rimWidth
-        rimColor = ss.rimColor
-        circleRadius = ss.circleRadius
-        linearProgress = ss.linearProgress
-        fillRadius = ss.fillRadius
+        super.onRestoreInstanceState(state.superState)
+        mProgress = state.mProgress
+        mTargetProgress = state.mTargetProgress
+        isSpinning = state.isSpinning
+        spinSpeed = state.spinSpeed
+        barWidth = state.barWidth
+        barColor = state.barColor
+        rimWidth = state.rimWidth
+        rimColor = state.rimColor
+        circleRadius = state.circleRadius
+        linearProgress = state.linearProgress
+        fillRadius = state.fillRadius
         lastTimeAnimated = SystemClock.uptimeMillis()
     }
 
@@ -319,20 +312,20 @@ class ProgressWheel : View {
     }
 
     fun setInstantProgress(progress: Float) {
-        var progress = progress
+        var pro = progress
         if (isSpinning) {
             mProgress = 0.0f
             isSpinning = false
         }
-        if (progress > 1.0f) {
-            progress -= 1.0f
-        } else if (progress < 0) {
-            progress = 0f
+        if (pro > 1.0f) {
+            pro -= 1.0f
+        } else if (pro < 0) {
+            pro = 0f
         }
-        if (progress == mTargetProgress) {
+        if (pro == mTargetProgress) {
             return
         }
-        mTargetProgress = Math.min(progress * 360.0f, 360.0f)
+        mTargetProgress = (pro * 360.0f).coerceAtMost(360.0f)
         mProgress = mTargetProgress
         lastTimeAnimated = SystemClock.uptimeMillis()
         invalidate()
@@ -359,7 +352,7 @@ class ProgressWheel : View {
         // we set again the last time animated so the
         // animation starts smooth from here
         if (mProgress == mTargetProgress) lastTimeAnimated = SystemClock.uptimeMillis()
-        mTargetProgress = Math.min(pro * 360.0f, 360.0f)
+        mTargetProgress = (pro * 360.0f).coerceAtMost(360.0f)
         invalidate()
     }
 
