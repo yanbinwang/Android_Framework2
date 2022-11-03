@@ -127,6 +127,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
+     * 自动触发刷新
+     */
+    fun autoRefresh(){
+        refresh?.autoRefresh()
+    }
+
+    /**
      * 结束刷新
      */
     fun finishRefreshing() {
