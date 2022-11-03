@@ -20,6 +20,7 @@ import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.Ite
 import com.example.common.widget.xrecyclerview.refresh.finish
 import com.example.common.widget.xrecyclerview.refresh.init
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
+import com.scwang.smart.refresh.layout.api.RefreshLayout
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
@@ -32,9 +33,10 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
  * onFinishInflate方法只有在布局文件中加载view实例会回调，如果直接new一个view的话是不会回调的。
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-    private var refresh: SmartRefreshLayout? = null//刷新控件 类型1才有
-    private var refreshType = 0//页面类型(0无刷新-1带刷新)
     private var emptyType = 0//是否具有空布局（0无-1有）
+    private var refreshType = 0//页面类型(0无刷新-1带刷新)
+    private var refresh: SmartRefreshLayout? = null//刷新控件 类型1才有
+    val layout: RefreshLayout get() { return refresh as RefreshLayout }
     var listPag: Paging? = null
     var empty: EmptyLayout? = null//自定义封装的空布局
     var recycler: DataRecyclerView? = null//数据列表
@@ -129,7 +131,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 自动触发刷新
      */
-    fun autoRefresh(){
+    fun autoRefresh() {
         refresh?.autoRefresh()
     }
 
