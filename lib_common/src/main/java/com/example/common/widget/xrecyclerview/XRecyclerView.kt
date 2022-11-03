@@ -41,10 +41,10 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     var onClick: (() -> Unit)? = null//空布局点击
 
     init {
-        val mTypedArray = getContext().obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
-        refreshType = mTypedArray.getInt(R.styleable.XRecyclerView_refresh, 0)
-        emptyType = mTypedArray.getInt(R.styleable.XRecyclerView_empty, 0)
-        mTypedArray.recycle()
+        val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
+        refreshType = typedArray.getInt(R.styleable.XRecyclerView_refresh, 0)
+        emptyType = typedArray.getInt(R.styleable.XRecyclerView_empty, 0)
+        typedArray.recycle()
     }
 
     override fun onDrawView() {

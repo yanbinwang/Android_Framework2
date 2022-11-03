@@ -51,37 +51,37 @@ class ClearBtnEditText @JvmOverloads constructor(context: Context, attrs: Attrib
             }
         })
         if (attrs != null) {
-            val ta = context.obtainStyledAttributes(attrs, R.styleable.ClearBtnEditText)
+            val typedArray = context.obtainStyledAttributes(attrs, R.styleable.ClearBtnEditText)
 
-            val text = ta.getResourceId(R.styleable.ClearBtnEditText_text, -1)
+            val text = typedArray.getResourceId(R.styleable.ClearBtnEditText_text, -1)
             if (text != -1) setText(text)
 
-            val hint = ta.getResourceId(R.styleable.ClearBtnEditText_hint, -1)
+            val hint = typedArray.getResourceId(R.styleable.ClearBtnEditText_hint, -1)
             if (hint != -1) setHint(hint)
 
-            val textSize = ta.getDimension(R.styleable.ClearBtnEditText_textSize, 14f)
+            val textSize = typedArray.getDimension(R.styleable.ClearBtnEditText_textSize, 14f)
             setTextSize(textSize)
 
-            val maxLength = ta.getInt(R.styleable.ClearBtnEditText_maxLength, -1)
+            val maxLength = typedArray.getInt(R.styleable.ClearBtnEditText_maxLength, -1)
             if (maxLength != -1) setMaxLength(maxLength)
 
-            val textColor = ta.getColor(R.styleable.ClearBtnEditText_textColor, color(R.color.black_111b34))
+            val textColor = typedArray.getColor(R.styleable.ClearBtnEditText_textColor, color(R.color.black_111b34))
             setTextColor(textColor)
 
-            val hintColor = ta.getColor(R.styleable.ClearBtnEditText_textColorHint, color(R.color.grey_c5cad5))
+            val hintColor = typedArray.getColor(R.styleable.ClearBtnEditText_textColorHint, color(R.color.grey_c5cad5))
             setHintTextColor(hintColor)
 
-            val disabled = ta.getBoolean(R.styleable.ClearBtnEditText_disabled, false)
+            val disabled = typedArray.getBoolean(R.styleable.ClearBtnEditText_disabled, false)
             if (disabled) setDisabled()
 
-            val gravity = ta.getInt(R.styleable.ClearBtnEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
+            val gravity = typedArray.getInt(R.styleable.ClearBtnEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
             setGravity(gravity)
 
-            val clearBtnImage = ta.getResourceId(R.styleable.ClearBtnEditText_clearBtnImage, R.mipmap.ic_text_clear)
+            val clearBtnImage = typedArray.getResourceId(R.styleable.ClearBtnEditText_clearBtnImage, R.mipmap.ic_text_clear)
             setImageResource(clearBtnImage)
 
-            val minLine = ta.getInt(R.styleable.ClearBtnEditText_minLine, -1)
-            val maxLine = ta.getInt(R.styleable.ClearBtnEditText_maxLine, -1)
+            val minLine = typedArray.getInt(R.styleable.ClearBtnEditText_minLine, -1)
+            val maxLine = typedArray.getInt(R.styleable.ClearBtnEditText_maxLine, -1)
             if (minLine > 0 || maxLine > 0) {
                 binding.etClear.isSingleLine = false
                 binding.etClear.setPaddingRelative(0, 12.dp, 0, 12.dp)
@@ -91,15 +91,15 @@ class ClearBtnEditText @JvmOverloads constructor(context: Context, attrs: Attrib
             }
             if (minLine > 0) binding.etClear.minLines = minLine
             if (maxLine > 0) binding.etClear.maxLines = maxLine
-            val minHeight = ta.getDimension(R.styleable.ClearBtnEditText_android_minHeight, -1f)
+            val minHeight = typedArray.getDimension(R.styleable.ClearBtnEditText_android_minHeight, -1f)
             if (minHeight > 0) binding.etClear.minHeight = minHeight.toInt()
 
             EditTextUtil.apply {
-                setInputType(binding.etClear, ta.getInt(R.styleable.ClearBtnEditText_inputType, 0))
-                setImeOptions(binding.etClear, ta.getInt(R.styleable.ClearBtnEditText_imeOptions, 0))
+                setInputType(binding.etClear, typedArray.getInt(R.styleable.ClearBtnEditText_inputType, 0))
+                setImeOptions(binding.etClear, typedArray.getInt(R.styleable.ClearBtnEditText_imeOptions, 0))
             }
 
-            ta.recycle()
+            typedArray.recycle()
         }
     }
 
