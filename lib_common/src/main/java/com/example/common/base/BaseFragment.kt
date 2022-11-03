@@ -42,10 +42,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected lateinit var binding: VDB
     protected var lazyData = false
     protected var mContext: Context? = null
-    protected val mActivity: FragmentActivity
-        get() {
-            return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity()
-        }
+    protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
     protected val statusBarBuilder by lazy { StatusBarBuilder(mActivity.window) }//状态栏工具类
     private lateinit var baseViewModel: BaseViewModel//数据模型
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画\

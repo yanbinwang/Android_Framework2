@@ -26,10 +26,7 @@ import java.lang.reflect.ParameterizedType
  */
 abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window, popupWidth: Int = MATCH_PARENT, popupHeight: Int = MATCH_PARENT, private val gravity: Int = BOTTOM, private val edge: Int = BOTTOM, private val animation: Boolean = true, private val light: Boolean = false) : PopupWindow() {
     protected lateinit var binding: VDB
-    protected val context: Context
-        get() {
-            return window.context
-        }
+    protected val context: Context get() { return window.context }
     private val layoutParams by lazy { window.attributes }
 
     init {
