@@ -17,7 +17,8 @@ import com.example.common.http.repository.request
 import com.example.common.utils.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
-import com.example.common.widget.xrecyclerview.refresh.XRefreshLayout
+import com.example.common.widget.xrecyclerview.refresh.finish
+import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.*
 import kotlinx.coroutines.CoroutineStart.LAZY
 import kotlinx.coroutines.Dispatchers.Main
@@ -41,7 +42,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     //部分view的操作交予viewmodel去操作，不必让activity去操作
     private var softEmpty: SoftReference<EmptyLayout>? = null//遮罩UI
     private var softRecycler: SoftReference<XRecyclerView>? = null//列表UI
-    private var softRefresh: SoftReference<XRefreshLayout>? = null//刷新控件
+    private var softRefresh: SoftReference<SmartRefreshLayout>? = null//刷新控件
 
     //基础的注入参数
     protected val activity: FragmentActivity get() { return weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity() }
@@ -51,7 +52,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     //获取对应的控件
     val emptyView: EmptyLayout? get() { return softEmpty?.get() }
     val recyclerView: XRecyclerView? get() { return softRecycler?.get() }
-    val xRefreshLayout: XRefreshLayout? get() { return softRefresh?.get() }
+    val xRefreshLayout: SmartRefreshLayout? get() { return softRefresh?.get() }
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
@@ -69,13 +70,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.softRecycler = SoftReference(xRecyclerView)
     }
 
-    fun setRefreshLayout(xRefreshLayout: XRefreshLayout) {
+    fun setRefreshLayout(xRefreshLayout: SmartRefreshLayout) {
         this.softRefresh = SoftReference(xRefreshLayout)
     }
 
     protected fun reset() {
-        xRefreshLayout?.finishRefresh()
-        recyclerView?.finishRefresh()
+        xRefreshLayout?.finish(true)
+        recyclerView?.finishRefreshing()
         emptyView?.gone()
     }
 
