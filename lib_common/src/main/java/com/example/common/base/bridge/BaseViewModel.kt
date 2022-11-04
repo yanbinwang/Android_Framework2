@@ -75,7 +75,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     protected fun reset() {
-        if(null == recyclerView) xRefreshLayout?.finish(true)
+        if(null == recyclerView) xRefreshLayout?.finish()
         recyclerView?.finishRefreshing()
         emptyView?.gone()
     }

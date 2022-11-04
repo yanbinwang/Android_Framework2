@@ -6,6 +6,7 @@ import android.graphics.drawable.AnimationDrawable
 import android.util.AttributeSet
 import android.view.View
 import com.example.base.utils.function.inflate
+import com.example.base.utils.function.view.padding
 import com.example.base.utils.function.view.size
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
@@ -33,6 +34,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     init {
         binding.root.size(LayoutParams.MATCH_PARENT, 40.pt)
         binding.ivProgress.let {
+            it.padding(top = 2.5.pt, bottom = 2.5.pt)
             it.setImageResource(R.drawable.animation_list_loading)
             it.tint(R.color.blue_3d81f2)
             animation = it.drawable as? AnimationDrawable

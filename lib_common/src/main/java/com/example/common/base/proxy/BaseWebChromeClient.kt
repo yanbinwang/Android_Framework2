@@ -1,7 +1,5 @@
 package com.example.common.base.proxy
 
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.widget.ProgressBar
 import com.example.base.utils.function.view.gone
 import com.example.base.utils.function.view.visible
@@ -27,7 +25,7 @@ class BaseWebChromeClient(private var pbWeb: ProgressBar, private var refresh: S
     override fun onProgressChanged(p0: WebView?, p1: Int) {
         super.onProgressChanged(p0, p1)
         if (p1 == 100) {
-            refresh.finish(true)
+            refresh.finish()
             pbWeb.gone()//加载完网页进度条消失
         } else {
             pbWeb.visible()//开始加载网页时显示进度条

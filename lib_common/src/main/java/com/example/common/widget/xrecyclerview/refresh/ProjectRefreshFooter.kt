@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.view.View
 import com.example.base.utils.function.inflate
 import com.example.base.utils.function.view.gone
+import com.example.base.utils.function.view.padding
 import com.example.base.utils.function.view.size
 import com.example.base.utils.function.view.visible
 import com.example.base.widget.BaseViewGroup
@@ -33,6 +34,7 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
     init {
         binding.root.size(LayoutParams.MATCH_PARENT, 40.pt)
         binding.ivProgress.let {
+            it.padding(top = 2.5.pt, bottom = 2.5.pt)
             it.setImageResource(R.drawable.animation_list_loadmore)
             it.tint(R.color.blue_3d81f2)
             animation = it.drawable as? AnimationDrawable
