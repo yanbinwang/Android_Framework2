@@ -10,7 +10,7 @@ import com.example.base.utils.function.view.size
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshHeaderBinding
-import com.example.common.utils.dp
+import com.example.common.utils.pt
 import com.example.common.utils.tint
 import com.scwang.smart.refresh.layout.api.RefreshHeader
 import com.scwang.smart.refresh.layout.api.RefreshKernel
@@ -31,7 +31,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     private val binding by lazy { ViewRefreshHeaderBinding.bind(context.inflate(R.layout.view_refresh_header, this, false)) }
 
     init {
-        binding.root.size(LayoutParams.MATCH_PARENT, 40.dp)
+        binding.root.size(LayoutParams.MATCH_PARENT, 40.pt)
         binding.ivProgress.let {
             it.setImageResource(R.drawable.animation_list_loading)
             it.tint(R.color.blue_3d81f2)

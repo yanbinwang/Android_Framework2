@@ -16,7 +16,7 @@ import com.example.base.utils.function.outAnimation
 import com.example.base.utils.function.value.orFalse
 import com.example.base.utils.logE
 import com.example.common.R
-import com.example.common.utils.dp
+import com.example.common.utils.pt
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -42,8 +42,8 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
             }
             window?.let { it ->
                 val lp = it.attributes
-                lp.width = dialogWidth.dp
-                lp.height = if (dialogHeight != WRAP_CONTENT) dialogHeight.dp else dialogHeight
+                lp.width = dialogWidth.pt
+                lp.height = if (dialogHeight != WRAP_CONTENT) dialogHeight.pt else dialogHeight
                 it.attributes = lp
                 it.setGravity(gravity)
             }

@@ -8,14 +8,17 @@ import android.os.Build
 import android.os.Looper
 import android.transition.Slide
 import android.transition.Visibility
-import android.view.*
 import android.view.Gravity.*
+import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.Window
+import android.view.WindowManager
 import android.widget.PopupWindow
 import androidx.databinding.ViewDataBinding
 import com.example.base.utils.function.value.orFalse
 import com.example.common.R
-import com.example.common.utils.dp
+import com.example.common.utils.pt
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -39,8 +42,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window
                 contentView = binding.root
             } catch (_: Exception) {
             }
-            width = if (popupWidth < 0) popupWidth else popupWidth.dp
-            height = if (popupHeight < 0) popupHeight else popupHeight.dp
+            width = if (popupWidth < 0) popupWidth else popupWidth.pt
+            height = if (popupHeight < 0) popupHeight else popupHeight.pt
             isFocusable = true
             isOutsideTouchable = true
             softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE

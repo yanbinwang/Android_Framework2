@@ -204,7 +204,7 @@ fun TextView?.setArguments(txt: String ?= "", colorRes: Int = R.color.blue_3d81f
 fun NestedScrollView?.addAlphaListener(menuHeight: Int, onAlphaChange: (alpha: Float) -> Unit?) {
     this ?: return
     setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
-        onAlphaChange.invoke(if (scrollY <= menuHeight.dp / 2f) 0 + scrollY / (menuHeight.dp / 4f) else 1f)
+        onAlphaChange.invoke(if (scrollY <= menuHeight.pt / 2f) 0 + scrollY / (menuHeight.pt / 4f) else 1f)
     })
 }
 

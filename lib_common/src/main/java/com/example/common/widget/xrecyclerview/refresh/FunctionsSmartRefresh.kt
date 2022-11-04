@@ -1,11 +1,7 @@
 package com.example.common.widget.xrecyclerview.refresh
 
-import android.view.View
 import com.example.base.utils.function.value.orFalse
 import com.example.base.utils.function.view.doOnceAfterLayout
-import com.example.base.utils.function.view.padding
-import com.example.common.constant.Constants
-import com.example.common.utils.dp
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.api.RefreshFooter
 import com.scwang.smart.refresh.layout.api.RefreshHeader
@@ -88,14 +84,14 @@ fun SmartRefreshLayout?.noMoreOnInit() {
     }
 }
 
-fun SmartRefreshLayout?.statusBarPadding() {
-    this ?: return
-    (refreshFooter as View?)?.padding(bottom = (10f * 40.dp - 40f.dp).toInt())
-    setFooterMaxDragRate(1f)
-    (refreshHeader as ProjectRefreshHeader?)?.apply {
-        padding(top = Constants.STATUS_BAR_HEIGHT)
-        val height = 60.dp
-        setHeaderMaxDragRate(height * 2.5f / (Constants.STATUS_BAR_HEIGHT.toFloat() + height))
-        background = null
-    }
-}
+//fun SmartRefreshLayout?.statusBarPadding() {
+//    this ?: return
+//    (refreshFooter as View?)?.padding(bottom = (10f * 40.dp - 40f.dp).toInt())
+//    setFooterMaxDragRate(1f)
+//    (refreshHeader as ProjectRefreshHeader?)?.apply {
+//        padding(top = Constants.STATUS_BAR_HEIGHT)
+//        val height = 60.dp
+//        setHeaderMaxDragRate(height * 2.5f / (Constants.STATUS_BAR_HEIGHT.toFloat() + height))
+//        background = null
+//    }
+//}

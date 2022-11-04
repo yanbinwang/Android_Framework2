@@ -16,7 +16,7 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.base.utils.WeakHandler
 import com.example.base.utils.function.value.orZero
 import com.example.base.widget.BaseViewGroup
-import com.example.common.utils.dp
+import com.example.common.utils.pt
 import java.util.*
 
 /**
@@ -119,7 +119,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             //如果true代表垂直，否则水平
             val direction = ovalLayout?.layoutParams?.height.orZero > ovalLayout?.layoutParams?.width.orZero
             //左右边距
-            val ovalMargin = triple.third.dp
+            val ovalMargin = triple.third.pt
             //添加圆点
             for (i in list.indices) {
                 val imageView = ImageView(context)
@@ -192,7 +192,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     override fun setPageTransformer(marginPx: Int) {
-        banner?.setPageTransformer(MarginPageTransformer(marginPx.dp))
+        banner?.setPageTransformer(MarginPageTransformer(marginPx.pt))
     }
     // </editor-fold>
 

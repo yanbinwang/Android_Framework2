@@ -19,7 +19,7 @@ import com.example.base.utils.function.view.color
 import com.example.base.utils.function.view.gone
 import com.example.base.utils.function.view.visible
 import com.example.base.widget.BaseViewGroup
-import com.example.common.utils.dp
+import com.example.common.utils.pt
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ViewClearEditBinding
 import java.util.*
@@ -84,7 +84,7 @@ class ClearBtnEditText @JvmOverloads constructor(context: Context, attrs: Attrib
             val maxLine = typedArray.getInt(R.styleable.ClearBtnEditText_maxLine, -1)
             if (minLine > 0 || maxLine > 0) {
                 binding.etClear.isSingleLine = false
-                binding.etClear.setPaddingRelative(0, 12.dp, 0, 12.dp)
+                binding.etClear.setPaddingRelative(0, 12.pt, 0, 12.pt)
             } else {
                 binding.etClear.isSingleLine = true
                 binding.etClear.maxLines = 1
@@ -215,7 +215,7 @@ class ClearBtnEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun setBtnWidth(width: Int) {
-        binding.ivClear.layoutParams.width = width.dp
+        binding.ivClear.layoutParams.width = width.pt
     }
 
     fun addTextChangedListener(textWatcher: TextWatcher?) {

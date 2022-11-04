@@ -22,7 +22,7 @@ class BackgroundImageSpan(private val triple: Triple<Int, Int, Int>) : Replaceme
     }
 
     private fun draw(canvas: Canvas, width: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
-        paint.textSize = triple.second.dp.toSafeFloat()
+        paint.textSize = triple.second.pt.toSafeFloat()
         paint.color = triple.third
         val mDrawable = drawable(triple.first)
         canvas.save()
