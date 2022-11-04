@@ -11,13 +11,14 @@ import com.example.common.databinding.ViewDialogLoadingBinding
  */
 class LoadingDialog(context: Context) : BaseDialog<ViewDialogLoadingBinding>(context, dialogWidth = 160, animation = false, themeResId = R.style.loadingStyle) {
 
-    init {
-        setOnDismissListener { binding.progress.stopSpinning() }
+    override fun shown(flag: Boolean) {
+        super.shown(flag)
+        binding.pbProcess.isIndeterminate = true
     }
 
-    override fun show() {
-        super.show()
-        if (!binding.progress.isSpinning()) binding.progress.spin()
+    override fun hidden() {
+        super.hidden()
+        binding.pbProcess.isIndeterminate = false
     }
 
 }

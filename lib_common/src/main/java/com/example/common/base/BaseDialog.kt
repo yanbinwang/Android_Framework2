@@ -60,12 +60,12 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
         }
     }
 
-    fun shown(flag: Boolean = false) {
+    open fun shown(flag: Boolean = false) {
         setCancelable(flag)
         if (!isShowing) show()
     }
 
-    fun hidden() {
+    open fun hidden() {
         if (isShowing) dismiss()
     }
 
