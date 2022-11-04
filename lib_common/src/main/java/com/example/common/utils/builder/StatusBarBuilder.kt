@@ -10,6 +10,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.example.base.utils.function.view.padding
 import com.example.common.constant.Constants
 
 /**
@@ -180,7 +181,7 @@ fun View.statusBarHeight() {
  * enable->忽略版本限制
  */
 fun View.statusBarPadding() {
-    if (StatusBarBuilder.statusBarCheckVersion()) setPadding(0, Constants.STATUS_BAR_HEIGHT, 0, 0)
+    if (StatusBarBuilder.statusBarCheckVersion()) padding(top = Constants.STATUS_BAR_HEIGHT)
 }
 
 /**
