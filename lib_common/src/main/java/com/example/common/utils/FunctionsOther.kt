@@ -1,6 +1,8 @@
 package com.example.common.utils
 
+import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Looper
@@ -8,6 +10,7 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
+import android.util.TypedValue
 import android.widget.*
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -17,12 +20,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import com.example.base.utils.function.color
-import com.example.base.utils.function.dip2px
-import com.example.base.utils.function.px2dip
-import com.example.base.utils.function.value.toSafeFloat
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.constant.Constants
+import com.example.common.utils.ExtraNumber.pt
+import com.example.common.utils.ExtraNumber.ptFloat
 import com.google.gson.Gson
 import java.util.*
 
@@ -83,17 +85,25 @@ fun Class<*>.getTriple(pair: Pair<String, String>, name: String? = null): Triple
 }
 
 /**
- * 全局获取dp和px换算
+ * 设计图尺寸转换为实际尺寸
+ */
+val Number?.pt: Int
+    get() = pt()
+
+/**
+ * dp尺寸转换为实际尺寸
  */
 val Number?.dp: Int
     get() {
-        return BaseApplication.instance.dip2px(this.toSafeFloat())
+        this ?: return 0
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), BaseApplication.instance.resources.displayMetrics).toInt()
     }
 
-val Number?.px: Int
-    get() {
-        return BaseApplication.instance.px2dip(this.toSafeFloat())
-    }
+/**
+ * 设计图尺寸转换为实际尺寸
+ */
+val Number?.ptFloat: Float
+    get() = ptFloat()
 
 /**
  * 清空fragment缓存
@@ -196,4 +206,48 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, onAlphaChange: (alpha: F
     setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
         onAlphaChange.invoke(if (scrollY <= menuHeight.dp / 2f) 0 + scrollY / (menuHeight.dp / 4f) else 1f)
     })
+}
+
+object ExtraNumber {
+    /**
+     * 设计图尺寸转换为实际尺寸
+     */
+    fun Number?.pt(): Int {
+        if (this == null) return 0
+        return ScreenUtil.getRealSize(this.toDouble())
+    }
+
+    /**
+     * 设计图尺寸转换为实际尺寸
+     */
+    fun Number?.ptFloat(context: Context = BaseApplication.instance): Float {
+        if (this == null) return 0f
+        return ScreenUtil.getRealSizeFloat(context, this.toFloat())
+    }
+
+    /**
+     * 获取顶栏高度
+     * */
+    fun getInternalDimensionSize(context: Context, key: String): Int {
+        val result = 0
+        try {
+            val resourceId = Resources.getSystem().getIdentifier(key, "dimen", "android")
+            if (resourceId > 0) {
+                val size = context.resources.getDimensionPixelSize(resourceId)
+                val size2 = Resources.getSystem().getDimensionPixelSize(resourceId)
+                return if (size2 >= size) {
+                    size2
+                } else {
+                    val densityOne = context.resources.displayMetrics.density
+                    val densityTwo = Resources.getSystem().displayMetrics.density
+                    val f = size * densityTwo / densityOne
+                    (if (f >= 0) f + 0.5f else f - 0.5f).toInt()
+                }
+            }
+        } catch (ignored: Resources.NotFoundException) {
+            return 0
+        }
+        return result
+    }
+
 }

@@ -3,16 +3,19 @@ package com.example.base.widget
 import android.content.Context
 import android.util.AttributeSet
 import android.view.ViewGroup
-import com.example.base.utils.function.dip2px
 
 /**
  * @description
  * @author
  */
 class WordWrapLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ViewGroup(context, attrs, defStyleAttr) {
-    private val PADDING_HORIZONTAL by lazy { context.dip2px(10f) } //水平方向padding
-    private val PADDING_VERTICAL by lazy { context.dip2px(5f) }//垂直方向padding
-    private val MARGIN_CHILD by lazy { context.dip2px(10f) }//view左右间距
+    private val PADDING_HORIZONTAL by lazy { dip2px(10f) } //水平方向padding
+    private val PADDING_VERTICAL by lazy { dip2px(5f) }//垂直方向padding
+    private val MARGIN_CHILD by lazy { dip2px(10f) }//view左右间距
+
+    private fun dip2px(dipValue: Float): Int {
+        return (dipValue * resources.displayMetrics.density + 0.5f).toInt()
+    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         //设置横纵坐标0,0开始，总行数为1

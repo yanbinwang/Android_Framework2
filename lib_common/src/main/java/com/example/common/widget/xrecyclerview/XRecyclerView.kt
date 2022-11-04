@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.base.utils.function.dip2px
 import com.example.base.utils.function.inflate
 import com.example.base.utils.function.view.cancelItemAnimator
 import com.example.base.utils.function.view.gone
@@ -14,6 +13,7 @@ import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.base.binding.BaseQuickAdapter
 import com.example.common.base.page.Paging
+import com.example.common.utils.dp
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.ItemDecorationProps
@@ -101,7 +101,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     fun addItemDecoration(horizontalSpace: Int, verticalSpace: Int, hasHorizontalEdge: Boolean, hasVerticalEdge: Boolean) {
         val propMap = SparseArray<ItemDecorationProps>()
-        val prop1 = ItemDecorationProps(context.dip2px(horizontalSpace.toFloat()), context.dip2px(verticalSpace.toFloat()), hasHorizontalEdge, hasVerticalEdge)
+        val prop1 = ItemDecorationProps(horizontalSpace.dp, verticalSpace.dp, hasHorizontalEdge, hasVerticalEdge)
         propMap.put(0, prop1)
         recycler?.addItemDecoration(SCommonItemDecoration(propMap))
     }

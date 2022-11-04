@@ -6,12 +6,10 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Point
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +30,21 @@ import androidx.lifecycle.LifecycleOwner
 import java.io.Serializable
 
 //------------------------------------context扩展函数类------------------------------------
+/**
+ * 开启服务
+ */
+fun Context.startService(cls: Class<out Service>, vararg pairs: Pair<String, Any?>) {
+    startService(getIntent(cls, *pairs))
+}
+
+fun Context.startForegroundService(cls: Class<out Service>, vararg pairs: Pair<String, Any?>) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        startForegroundService(getIntent(cls, *pairs))
+    } else {
+        startService(getIntent(cls, *pairs))
+    }
+}
+
 /**
  *  获取对应class类页面中intent的消息
  */
@@ -64,21 +77,6 @@ fun Context.getIntent(cls: Class<out Context>, vararg pairs: Pair<String, Any?>)
         }
     }
     return intent
-}
-
-/**
- * 开启服务
- */
-fun Context.startService(cls: Class<out Service>, vararg pairs: Pair<String, Any?>) {
-    startService(getIntent(cls, *pairs))
-}
-
-fun Context.startForegroundService(cls: Class<out Service>, vararg pairs: Pair<String, Any?>) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        startForegroundService(getIntent(cls, *pairs))
-    } else {
-        startService(getIntent(cls, *pairs))
-    }
 }
 
 /**
@@ -119,7 +117,7 @@ fun Context.mipmapId(name: String): Int {
 fun Context.string(@StringRes res: Int): String {
     return try {
         resources.getString(res)
-    } catch (ignore: Exception) {
+    } catch (_: Exception) {
         ""
     }
 }
@@ -134,7 +132,8 @@ fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean
 /**
  * 粘贴板操作
  */
-fun Context.setPrimaryClip(label: String, text: String) = (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(label, text))
+fun Context.setPrimaryClip(label: String, text: String) =
+    (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(label, text))
 
 fun Context.getPrimaryClip(): String {
     val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -158,75 +157,36 @@ fun Context.telPhone(mobile: String) = startActivity(Intent(Intent.ACTION_DIAL, 
  * 进入动画
  */
 fun Context.inAnimation(): AnimationSet {
-    val inAnimation = AnimationSet(this, null)
-    val alpha = AlphaAnimation(0.0f, 1.0f)
-    alpha.duration = 90
-    val scale1 = ScaleAnimation(0.8f, 1.05f, 0.8f, 1.05f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-    scale1.duration = 135
-    val scale2 = ScaleAnimation(1.05f, 0.95f, 1.05f, 0.95f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-    scale2.duration = 105
-    scale2.startOffset = 135
-    val scale3 = ScaleAnimation(0.95f, 1f, 0.95f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-    scale3.duration = 60
-    scale3.startOffset = 240
-    inAnimation.addAnimation(alpha)
-    inAnimation.addAnimation(scale1)
-    inAnimation.addAnimation(scale2)
-    inAnimation.addAnimation(scale3)
-    return inAnimation
+    return AnimationSet(this, null).apply {
+        val alpha = AlphaAnimation(0.0f, 1.0f)
+        alpha.duration = 90
+        val scale1 = ScaleAnimation(0.8f, 1.05f, 0.8f, 1.05f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+        scale1.duration = 135
+        val scale2 = ScaleAnimation(1.05f, 0.95f, 1.05f, 0.95f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+        scale2.duration = 105
+        scale2.startOffset = 135
+        val scale3 = ScaleAnimation(0.95f, 1f, 0.95f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+        scale3.duration = 60
+        scale3.startOffset = 240
+        addAnimation(alpha)
+        addAnimation(scale1)
+        addAnimation(scale2)
+        addAnimation(scale3)
+    }
 }
 
 /**
  * 退出动画
  */
 fun Context.outAnimation(): AnimationSet {
-    val outAnimation = AnimationSet(this, null)
-    val alpha = AlphaAnimation(1.0f, 0.0f)
-    alpha.duration = 150
-    val scale = ScaleAnimation(1.0f, 0.6f, 1.0f, 0.6f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-    scale.duration = 150
-    outAnimation.addAnimation(alpha)
-    outAnimation.addAnimation(scale)
-    return outAnimation
-}
-
-/**
- * dip转px
- */
-fun Context.dip2px(dipValue: Float) = (dipValue * resources.displayMetrics.density + 0.5f).toInt()
-
-/**
- * px转dip
- */
-fun Context.px2dip(pxValue: Float) = (pxValue / resources.displayMetrics.density + 0.5f).toInt()
-
-/**
- * 获取屏幕长宽比
- */
-fun Context.getScreenRate(): Float {
-    val pixel = getScreenMetrics()
-    val height = pixel.y.toFloat()
-    val width = pixel.x.toFloat()
-    return height / width
-}
-
-/**
- * 获取屏幕宽度和高度，单位为px
- */
-fun Context.getScreenMetrics(): Point {
-    val dm = resources.displayMetrics
-    val widthScreen = dm.widthPixels
-    val heightScreen = dm.heightPixels
-    return Point(widthScreen, heightScreen)
-}
-
-/**
- * 获取本地的dp值
- */
-fun Context.getXmlDef(id: Int): Int {
-    val value = TypedValue()
-    resources.getValue(id, value, true)
-    return TypedValue.complexToFloat(value.data).toInt()
+    return AnimationSet(this, null).apply {
+        val alpha = AlphaAnimation(1.0f, 0.0f)
+        alpha.duration = 150
+        val scale = ScaleAnimation(1.0f, 0.6f, 1.0f, 0.6f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+        scale.duration = 150
+        addAnimation(alpha)
+        addAnimation(scale)
+    }
 }
 
 /**
