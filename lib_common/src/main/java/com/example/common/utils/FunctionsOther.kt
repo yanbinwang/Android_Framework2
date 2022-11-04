@@ -90,6 +90,9 @@ fun Class<*>.getTriple(pair: Pair<String, String>, name: String? = null): Triple
 val Number?.pt: Int
     get() = pt()
 
+val Number?.ptFloat: Float
+    get() = ptFloat()
+
 /**
  * dp尺寸转换为实际尺寸
  */
@@ -98,12 +101,6 @@ val Number?.dp: Int
         this ?: return 0
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), BaseApplication.instance.resources.displayMetrics).toInt()
     }
-
-/**
- * 设计图尺寸转换为实际尺寸
- */
-val Number?.ptFloat: Float
-    get() = ptFloat()
 
 /**
  * 清空fragment缓存
