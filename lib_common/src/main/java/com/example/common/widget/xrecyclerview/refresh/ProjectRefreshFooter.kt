@@ -7,10 +7,13 @@ import android.util.AttributeSet
 import android.view.View
 import com.example.base.utils.function.inflate
 import com.example.base.utils.function.view.gone
+import com.example.base.utils.function.view.size
 import com.example.base.utils.function.view.visible
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshFooterBinding
+import com.example.common.utils.dp
+import com.example.common.utils.tint
 import com.scwang.smart.refresh.layout.api.RefreshFooter
 import com.scwang.smart.refresh.layout.api.RefreshKernel
 import com.scwang.smart.refresh.layout.api.RefreshLayout
@@ -28,8 +31,10 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
     private val binding by lazy { ViewRefreshFooterBinding.bind(context.inflate(R.layout.view_refresh_footer, this, false)) }
 
     init {
+        binding.root.size(LayoutParams.MATCH_PARENT, 40.dp)
         binding.ivProgress.let {
-            it.setImageResource(R.drawable.layer_list_refresh)
+            it.setImageResource(R.drawable.animation_list_loadmore)
+            it.tint(R.color.blue_3d81f2)
             animation = it.drawable as? AnimationDrawable
         }
         setNoMoreData(noMoreData)

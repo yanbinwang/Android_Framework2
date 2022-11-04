@@ -6,9 +6,12 @@ import android.graphics.drawable.AnimationDrawable
 import android.util.AttributeSet
 import android.view.View
 import com.example.base.utils.function.inflate
+import com.example.base.utils.function.view.size
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshHeaderBinding
+import com.example.common.utils.dp
+import com.example.common.utils.tint
 import com.scwang.smart.refresh.layout.api.RefreshHeader
 import com.scwang.smart.refresh.layout.api.RefreshKernel
 import com.scwang.smart.refresh.layout.api.RefreshLayout
@@ -18,6 +21,9 @@ import com.scwang.smart.refresh.layout.constant.SpinnerStyle
 /**
  * @description 自定义头部
  * @author yan
+ * https://www.gaitubao.com/xuanzhuan/
+ * 默认情况下采用逐帧可以控制动画的开始和停止展现上更好，
+ * 如果ui不提供对应图片，手机端去对应网站45°生成8张旋转逐帧图
  */
 @SuppressLint("RestrictedApi")
 class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), RefreshHeader {
@@ -25,8 +31,10 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     private val binding by lazy { ViewRefreshHeaderBinding.bind(context.inflate(R.layout.view_refresh_header, this, false)) }
 
     init {
+        binding.root.size(LayoutParams.MATCH_PARENT, 40.dp)
         binding.ivProgress.let {
-            it.setImageResource(R.drawable.layer_list_refresh)
+            it.setImageResource(R.drawable.animation_list_loading)
+            it.tint(R.color.blue_3d81f2)
             animation = it.drawable as? AnimationDrawable
         }
     }
@@ -61,10 +69,9 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
      * @param maxDragHeight 最大拖动高度 offset 可以超过 height 参数 但是不会超过 maxDragHeight
      */
     override fun onMoving(isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) {
-        if (isDragging) {
-            animation?.start()
-            binding.tvMsg.text = if (percent > 1.5f) "释放加载更多" else "下拉加载更多"
-        }
+//        if (isDragging) {
+//            animation?.start()
+//        }
     }
 
     /**
@@ -74,10 +81,10 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
      * @param maxDragHeight 最大拖动高度
      */
     override fun onReleased(refreshLayout: RefreshLayout, height: Int, maxDragHeight: Int) {
+        animation?.start()//松开时才开始做动画
     }
 
     override fun onStartAnimator(refreshLayout: RefreshLayout, height: Int, maxDragHeight: Int) {
-        binding.tvMsg.text = "加载中..."
     }
 
     /**

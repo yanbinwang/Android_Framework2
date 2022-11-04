@@ -1,25 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="40mm"
-        android:gravity="center">
+        android:layout_height="40mm">
 
         <ImageView
             android:id="@+id/iv_progress"
-            android:layout_width="30mm"
-            android:layout_height="30mm" />
+            android:layout_width="20mm"
+            android:layout_height="20mm"
+            android:layout_gravity="center" />
 
-        <TextView
-            android:id="@+id/tv_msg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16mm"
-            android:text="下拉加载更多"
-            android:textColor="@color/black_111b34"
-            android:textSize="14mm" />
-
-    </LinearLayout>
+    </FrameLayout>
 
 </layout>
