@@ -5,10 +5,11 @@ package com.example.common.base.page
  * 应用于刷新页面页数操作
  */
 class Paging {
+    var hasRefresh = false//是否刷新
     var totalCount = 0//服务器数组总数
     var currentCount = 0//当前页面数组数
     var page = 1//当前页数
-    var hasRefresh = false//是否刷新
+    val pageLimit = "10"
 
     //是否需要加载更多
     fun hasNextPage(): Boolean {

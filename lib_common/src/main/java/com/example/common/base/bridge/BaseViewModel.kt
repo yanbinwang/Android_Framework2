@@ -8,6 +8,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.base.utils.function.value.orTrue
 import com.example.base.utils.function.view.gone
 import com.example.common.base.page.getEmptyView
 import com.example.common.bus.Event
@@ -17,7 +18,7 @@ import com.example.common.http.repository.request
 import com.example.common.utils.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
-import com.example.common.widget.xrecyclerview.refresh.finish
+import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.*
 import kotlinx.coroutines.CoroutineStart.LAZY
@@ -64,7 +65,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.softEmpty = SoftReference(container.getEmptyView())
     }
 
-    //viewModel.setRecyclerView(binding.xrvChain.apply { listPag = paging })
     fun setRecyclerView(xRecyclerView: XRecyclerView) {
         this.softEmpty = SoftReference(xRecyclerView.empty)
         this.softRecycler = SoftReference(xRecyclerView)
@@ -74,9 +74,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.softRefresh = SoftReference(xRefreshLayout)
     }
 
-    protected fun reset() {
-        if(null == recyclerView) xRefreshLayout?.finish()
-        recyclerView?.finishRefreshing()
+    protected fun reset(hasNextPage: Boolean? = true) {
+        if(null == recyclerView) xRefreshLayout?.finishRefreshing()
+        recyclerView?.finishRefreshing(!hasNextPage.orTrue)
         emptyView?.gone()
     }
 

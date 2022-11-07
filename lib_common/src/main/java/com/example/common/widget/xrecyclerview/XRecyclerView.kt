@@ -12,12 +12,11 @@ import com.example.base.utils.function.view.initLinearHorizontal
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.base.binding.BaseQuickAdapter
-import com.example.common.base.page.Paging
 import com.example.common.utils.pt
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.ItemDecorationProps
-import com.example.common.widget.xrecyclerview.refresh.finish
+import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.common.widget.xrecyclerview.refresh.init
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.api.RefreshLayout
@@ -36,9 +35,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var emptyType = 0//是否具有空布局（0无-1有）
     private var refreshType = 0//页面类型(0无刷新-1带刷新)
     private var refresh: SmartRefreshLayout? = null//刷新控件 类型1才有
-    val layout: RefreshLayout get() { return refresh as RefreshLayout }
-    var listPag: Paging? = null
     var empty: EmptyLayout? = null//自定义封装的空布局
+    val layout: RefreshLayout get() { return refresh as RefreshLayout }//刷新控件
     var recycler: DataRecyclerView? = null//数据列表
     var onClick: (() -> Unit)? = null//空布局点击
 
@@ -138,8 +136,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 结束刷新
      */
-    fun finishRefreshing() {
-        if (refreshType == 1) refresh?.finish(listPag?.hasNextPage())
+    fun finishRefreshing(noMoreData: Boolean? = true) {
+        if (refreshType == 1) refresh?.finishRefreshing(noMoreData)
     }
 
     /**

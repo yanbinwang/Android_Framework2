@@ -41,7 +41,7 @@ fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: O
     }
 }
 
-fun SmartRefreshLayout?.finish(noMore: Boolean? = false) {
+fun SmartRefreshLayout?.finishRefreshing(noMore: Boolean? = true) {
     this ?: return
     when (this.state) {
         RefreshState.Loading, RefreshState.LoadFinish, RefreshState.LoadReleased -> {
