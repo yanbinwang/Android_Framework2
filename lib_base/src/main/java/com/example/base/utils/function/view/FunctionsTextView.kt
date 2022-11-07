@@ -9,40 +9,21 @@ import android.text.method.HideReturnsTransformationMethod
 import android.text.method.LinkMovementMethod
 import android.text.method.PasswordTransformationMethod
 import android.text.style.ClickableSpan
+import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
+import androidx.annotation.ColorRes
+import androidx.annotation.DimenRes
+import androidx.core.content.ContextCompat
 import com.example.base.utils.DecimalInputFilter
 import com.example.base.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.base.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
 
 //------------------------------------textview扩展函数类------------------------------------
-/**
- * 文案添加点击事件（单一）
- */
-fun TextView?.setClickableSpan(textStr: String, keyword: String, clickableSpan: ClickableSpan) {
-    if (this == null) return
-    val spannable = SpannableString(textStr)
-    val index = textStr.indexOf(keyword)
-    text = if (index != -1) {
-        spannable.setSpan(clickableSpan, index, index + keyword.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        spannable
-    } else textStr
-    movementMethod = LinkMovementMethod.getInstance()
-}
-
-/**
- * 设置下划线，并抗锯齿
- */
-fun TextView?.setUnderline() {
-    if (this == null) return
-    paint.flags = Paint.UNDERLINE_TEXT_FLAG
-    paint.isAntiAlias = true
-}
-
 /**
  * 下划线
  */
@@ -65,6 +46,30 @@ fun TextView?.bold(isBold: Boolean) {
     } else {
         Typeface.defaultFromStyle(Typeface.NORMAL)
     }
+}
+
+/**
+ * 字体颜色
+ */
+fun TextView?.textColor(@ColorRes color: Int) {
+    if (this == null) return
+    this.setTextColor(ContextCompat.getColor(context, color))
+}
+
+/**
+ * 以res设置textSize
+ */
+fun TextView?.textSize(@DimenRes size: Int) {
+    if (this == null) return
+    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(size))
+}
+
+/**
+ * 以px做单位设置textSize
+ */
+fun TextView?.setPxTextSize(size: Float) {
+    if (this == null) return
+    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
 }
 
 /**
@@ -105,6 +110,20 @@ fun TextView?.setMatchText() {
         if (!rawText.endsWith("\n")) sbNewText.deleteCharAt(sbNewText.length - 1)
         text = sbNewText.toString()
     }
+}
+
+/**
+ * 文案添加点击事件（单一）
+ */
+fun TextView?.setClickableSpan(textStr: String, keyword: String, clickableSpan: ClickableSpan) {
+    if (this == null) return
+    val spannable = SpannableString(textStr)
+    val index = textStr.indexOf(keyword)
+    text = if (index != -1) {
+        spannable.setSpan(clickableSpan, index, index + keyword.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spannable
+    } else textStr
+    movementMethod = LinkMovementMethod.getInstance()
 }
 
 /**
