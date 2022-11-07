@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.example.base.utils.function.value.findIndexOf
+import com.example.base.utils.function.value.orTrue
 import com.example.base.utils.function.value.orZero
 import com.example.base.utils.function.value.safeGet
 import com.example.base.utils.function.view.click
@@ -176,11 +177,12 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 刷新数据
      */
-    fun itemNotify(it: Page<T>?, paging: Paging, onConvert: (list: MutableList<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
+    fun itemNotify(it: Page<T>?, paging: Paging, onConvert: (list: MutableList<T>) -> Unit = {}, onEmpty: () -> Unit = {}, notify: Boolean? = true) {
         paging.totalCount = it?.total.orZero
         if (paging.hasRefresh) data.clear()
         val newList = it?.list
         if (!newList.isNullOrEmpty()) {
+            if (notify.orTrue) data = newList
             onConvert.invoke(newList)
         } else {
             if (data.size == 0) onEmpty.invoke()
@@ -188,10 +190,11 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
         paging.currentCount = data.size
     }
 
-    fun itemNotify(it: Page<T>?, onConvert: (list: MutableList<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
+    fun itemNotify(it: Page<T>?, onConvert: (list: MutableList<T>) -> Unit = {}, onEmpty: () -> Unit = {}, notify: Boolean? = true) {
         data.clear()
         val newList = it?.list
         if (!newList.isNullOrEmpty()) {
+            if (notify.orTrue) data = newList
             onConvert.invoke(newList)
         } else {
             if (data.size == 0) onEmpty.invoke()

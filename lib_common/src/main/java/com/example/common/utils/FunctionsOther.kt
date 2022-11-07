@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.os.Looper
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.util.TypedValue
 import android.widget.*
@@ -20,6 +19,9 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import com.example.base.utils.function.color
+import com.example.base.utils.function.value.setForegroundColorSpan
+import com.example.base.utils.function.view.background
+import com.example.base.utils.function.view.textColor
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.constant.Constants
@@ -176,12 +178,8 @@ fun ImageView?.setScreenWidth() {
 @JvmOverloads
 fun TextView?.setSpan(txt: String, keyword: String, colorRes: Int = R.color.blue_3d81f2) {
     this ?: return
-    val spannable = SpannableString(txt)
     val index = txt.indexOf(keyword)
-    text = if (index != -1) {
-        spannable.setSpan(ForegroundColorSpan(context.color(colorRes)), index, index + keyword.length, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-        spannable
-    } else txt
+    text = if (index != -1) txt.setForegroundColorSpan(Triple(ForegroundColorSpan(color(colorRes)), index, index + keyword.length)) else txt
 }
 
 /**
@@ -191,8 +189,8 @@ fun TextView?.setSpan(txt: String, keyword: String, colorRes: Int = R.color.blue
 fun TextView?.setArguments(txt: String ?= "", colorRes: Int = R.color.blue_3d81f2, resId: Int = 0) {
     this ?: return
     if (!txt.isNullOrEmpty()) text = txt
-    setTextColor(context.color(colorRes))
-    setBackgroundResource(resId)
+    textColor(colorRes)
+    background(resId)
 }
 
 /**
