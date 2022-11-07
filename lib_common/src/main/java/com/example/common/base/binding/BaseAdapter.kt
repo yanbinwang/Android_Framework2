@@ -6,8 +6,11 @@ import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.example.base.utils.function.value.findIndexOf
+import com.example.base.utils.function.value.orZero
 import com.example.base.utils.function.value.safeGet
 import com.example.base.utils.function.view.click
+import com.example.common.base.page.Page
+import com.example.common.base.page.Paging
 
 /**
  * Created by WangYanBin on 2020/7/17.
@@ -167,6 +170,31 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
         if (index != -1) {
             data.removeAt(index)
             notifyItemRemoved(index)
+        }
+    }
+
+    /**
+     * 刷新数据
+     */
+    fun itemNotify(it: Page<T>?, paging: Paging, onConvert: (list: MutableList<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
+        paging.totalCount = it?.total.orZero
+        if (paging.hasRefresh) data.clear()
+        val addList = it?.list
+        if (!addList.isNullOrEmpty()) {
+            onConvert.invoke(addList)
+        } else {
+            if (data.size == 0) onEmpty.invoke()
+        }
+        paging.currentCount = data.size
+    }
+
+    fun itemNotify(it: Page<T>?, onConvert: (list: MutableList<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
+        data.clear()
+        val addList = it?.list
+        if (!addList.isNullOrEmpty()) {
+            onConvert.invoke(addList)
+        } else {
+            if (data.size == 0) onEmpty.invoke()
         }
     }
 
