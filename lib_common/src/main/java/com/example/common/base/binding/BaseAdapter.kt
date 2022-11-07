@@ -199,16 +199,6 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     }
 
     /**
-     * 根据条件，抓出当前适配器中符合条件的对象，返回一个Pair对象
-     * a：下标 b：对象
-     * 更新好后，调取notifyItemChanged（index）更新局部item
-     */
-    fun findData(func: ((T) -> Boolean)): Pair<Int, T?> {
-        val index = data.findIndexOf(func)
-        return if (index != -1) index to data[index] else -1 to null
-    }
-
-    /**
      * val bundle = getParcelable() as? AccessDetailBean
      * binding.adapter!!.apply {
      * val bean = findData { it.attestationId == bundle?.no }.apply { second?.fileLabel = bundle?.fileLabel }
@@ -218,6 +208,16 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     fun findBean(func: ((T) -> Boolean)): T? {
         val index = data.findIndexOf(func)
         return if (index != -1) data[index] else null
+    }
+
+    /**
+     * 根据条件，抓出当前适配器中符合条件的对象，返回一个Pair对象
+     * a：下标 b：对象
+     * 更新好后，调取notifyItemChanged（index）更新局部item
+     */
+    fun findBeanPair(func: ((T) -> Boolean)): Pair<Int, T?> {
+        val index = data.findIndexOf(func)
+        return if (index != -1) index to data[index] else -1 to null
     }
 
     /**
