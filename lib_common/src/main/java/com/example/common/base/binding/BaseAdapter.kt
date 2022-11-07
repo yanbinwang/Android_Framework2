@@ -124,7 +124,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     protected abstract fun convert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>? = null)
 
     /**
-     * 如果类型是集合，可以调取该方法实现局部item刷新
+     * 刷新符合条件的item（数据在item内部更改）
      */
     fun itemChanged(func: ((T) -> Boolean)) {
         val index = data.findIndexOf(func)
@@ -135,13 +135,13 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
      * 查找到符合条件的对象，改变为新的对象并刷新对应item
      */
     fun itemChanged(func: ((T) -> Boolean), bean: T) {
-        itemChanged(bean, data.findIndexOf(func))
+        itemChanged(data.findIndexOf(func), bean)
     }
 
     /**
      * 传入要改变的对象和对象下标，直接刷新对应item
      */
-    fun itemChanged(bean: T, index: Int) {
+    fun itemChanged(index: Int, bean: T) {
         if (index != -1) {
             data[index] = bean
             notifyItemChanged(index)
@@ -149,10 +149,10 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     }
 
     fun itemChanged(func: ((T) -> Boolean), payloads: MutableList<Any>, bean: T) {
-        itemChanged(bean, data.findIndexOf(func), payloads)
+        itemChanged(data.findIndexOf(func), payloads, bean)
     }
 
-    fun itemChanged(bean: T, index: Int, payloads: MutableList<Any>) {
+    fun itemChanged(index: Int, payloads: MutableList<Any>, bean: T) {
         if (index != -1) {
             data[index] = bean
             notifyItemChanged(index, payloads)
@@ -199,31 +199,25 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     }
 
     /**
-     * val bundle = getParcelable() as? AccessDetailBean
-     * binding.adapter!!.apply {
-     * val bean = findData { it.attestationId == bundle?.no }.apply { second?.fileLabel = bundle?.fileLabel }
-     * notifyItemChanged(bean.first, bean.second)
-     * }
+     * 查找并返回符合条件的对象
      */
-    fun findBean(func: ((T) -> Boolean)): T? {
+    fun itemFind(func: ((T) -> Boolean)): T? {
         val index = data.findIndexOf(func)
         return if (index != -1) data[index] else null
     }
 
     /**
-     * 根据条件，抓出当前适配器中符合条件的对象，返回一个Pair对象
-     * a：下标 b：对象
-     * 更新好后，调取notifyItemChanged（index）更新局部item
+     * 查找到符合条件的对象，返回下标和对象本身，调用notifyItemChanged（position）修改改变的值
      */
-    fun findBeanPair(func: ((T) -> Boolean)): Pair<Int, T?> {
+    fun itemFind(func: ((T) -> Boolean), onConvert: (position: Int, bean: T?) -> Unit) {
         val index = data.findIndexOf(func)
-        return if (index != -1) index to data[index] else -1 to null
+        onConvert.invoke(index, data.safeGet(index))
     }
 
     /**
-     * 获取对象
+     * 根据下标获取对象
      */
-    fun getBean(position: Int): T? {
+    fun item(position: Int): T? {
         return data.safeGet(position)
     }
 
