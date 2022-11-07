@@ -8,19 +8,18 @@ import java.lang.ref.WeakReference
 object ToastBuilder {
     /**
      * 传入引用string格式的toast
-     * ToastBuilder.short(R.string.homeRecommendedQuestsReceiveSuccess) { message, length ->
+     * ToastBuilder.short(R.string.homeRecommendedQuestsReceiveSuccess) { resId, length ->
      * val toast = Toast.makeText(MyApplication.instance, null, length)
-     * toast?.setText(message)
      * toast?.setGravity(Gravity.CENTER, 0, 0)
      * toast?.duration = length
      *
      * val view = BaseApplication.instance.inflate(R.layout.toast_home_quest_success)
      * view.imgIcon.setImageResource(R.mipmap.icon_home_quest_dialog_coupon)
-     * view.txtTitle.setI18nRes(message)
+     * view.txtTitle.setI18nRes(resId)
      * view.txtAmount.text = "$" + bean.rewardNum
      * toast?.view = view
      * toast
-    }
+     * }
      */
     private var resToastBuilder: (resId: Int, length: Int) -> Toast = { resId, length ->
         val toast = Toast.makeText(BaseApplication.instance, null, length)
