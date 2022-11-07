@@ -10,6 +10,7 @@ import com.example.base.utils.function.view.padding
 import com.example.base.utils.function.view.size
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
+import com.example.common.constant.Constants
 import com.example.common.databinding.ViewRefreshHeaderBinding
 import com.example.common.utils.pt
 import com.example.common.utils.tint
@@ -38,6 +39,13 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
             it.setImageResource(R.drawable.animation_list_loading)
             it.tint(R.color.blue_3d81f2)
             animation = it.drawable as? AnimationDrawable
+        }
+    }
+
+    fun setStatusBarPadding() {
+        binding.root.apply {
+            size(LayoutParams.MATCH_PARENT, 40.pt + Constants.STATUS_BAR_HEIGHT)
+            padding(top = Constants.STATUS_BAR_HEIGHT)
         }
     }
 
