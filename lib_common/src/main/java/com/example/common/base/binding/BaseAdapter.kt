@@ -179,9 +179,9 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     fun itemNotify(it: Page<T>?, paging: Paging, onConvert: (list: MutableList<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
         paging.totalCount = it?.total.orZero
         if (paging.hasRefresh) data.clear()
-        val addList = it?.list
-        if (!addList.isNullOrEmpty()) {
-            onConvert.invoke(addList)
+        val newList = it?.list
+        if (!newList.isNullOrEmpty()) {
+            onConvert.invoke(newList)
         } else {
             if (data.size == 0) onEmpty.invoke()
         }
@@ -190,9 +190,9 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
 
     fun itemNotify(it: Page<T>?, onConvert: (list: MutableList<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
         data.clear()
-        val addList = it?.list
-        if (!addList.isNullOrEmpty()) {
-            onConvert.invoke(addList)
+        val newList = it?.list
+        if (!newList.isNullOrEmpty()) {
+            onConvert.invoke(newList)
         } else {
             if (data.size == 0) onEmpty.invoke()
         }
