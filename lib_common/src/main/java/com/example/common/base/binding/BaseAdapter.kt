@@ -192,4 +192,11 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
         return if (index != -1) data[index] else null
     }
 
+    /**
+     * 获取对象
+     */
+    fun getBean(position: Int): T? {
+        return data.safeGet(position)
+    }
+
 }
