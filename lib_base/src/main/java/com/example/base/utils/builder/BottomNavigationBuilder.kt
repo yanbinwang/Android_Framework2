@@ -4,8 +4,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.viewpager2.widget.ViewPager2
-import com.example.base.utils.function.inAnimation
 import com.example.base.utils.function.view.vibrate
+import com.example.base.utils.shownAnim
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -37,7 +37,7 @@ class BottomNavigationBuilder(private val navigationView: BottomNavigationView, 
             if (!isCurrent) {
                 if (isPager) flipper?.setCurrentItem(index, false) else builder?.selectTab(index)
                 if (animation) getItemView(index).getChildAt(0).apply {
-                    startAnimation(context.inAnimation())
+                    startAnimation(context.shownAnim())
                     vibrate(50)
                 }
             }

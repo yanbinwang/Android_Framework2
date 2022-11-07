@@ -11,10 +11,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
 import androidx.databinding.ViewDataBinding
-import com.example.base.utils.function.inAnimation
-import com.example.base.utils.function.outAnimation
 import com.example.base.utils.function.value.orFalse
+import com.example.base.utils.hiddenAnim
 import com.example.base.utils.logE
+import com.example.base.utils.shownAnim
 import com.example.common.R
 import com.example.common.utils.pt
 import java.lang.reflect.ParameterizedType
@@ -49,9 +49,9 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
             }
             if (animation) {
                 //当布局show出来的时候执行开始动画
-                setOnShowListener { binding.root.startAnimation(context.inAnimation()) }
+                setOnShowListener { binding.root.startAnimation(context.shownAnim()) }
                 //当布局销毁时执行结束动画
-                setOnDismissListener { binding.root.startAnimation(context.outAnimation()) }
+                setOnDismissListener { binding.root.startAnimation(context.hiddenAnim()) }
             }
             if (close) {
                 setOnKeyListener { _: DialogInterface?, _: Int, _: KeyEvent? -> true }

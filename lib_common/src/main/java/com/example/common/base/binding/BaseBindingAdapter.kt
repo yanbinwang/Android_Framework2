@@ -14,10 +14,10 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
-import com.example.base.utils.function.inAnimation
 import com.example.base.utils.function.value.orFalse
 import com.example.base.utils.function.value.toSafeInt
 import com.example.base.utils.function.view.*
+import com.example.base.utils.shownAnim
 import com.example.common.R
 import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
@@ -86,7 +86,7 @@ object BaseBindingAdapter {
         pager.adapter = adapter
         pager.offscreenPageLimit = adapter.count - 1
         pager.currentItem = 0
-        pager.startAnimation(pager.context.inAnimation())
+        pager.startAnimation(pager.context.shownAnim())
     }
 
     /**
