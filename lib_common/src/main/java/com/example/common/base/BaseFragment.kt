@@ -44,7 +44,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
     protected val statusBarBuilder by lazy { StatusBarBuilder(mActivity.window) }//状态栏工具类
-    private lateinit var baseViewModel: BaseViewModel//数据模型
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画\
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
     private val job = SupervisorJob()
@@ -52,10 +51,10 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     protected fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-        baseViewModel = ViewModelProvider(this)[vmClass]
-        baseViewModel.initialize(mActivity, this)
-        lifecycle.addObserver(baseViewModel)
-        return baseViewModel as VM
+        val viewModel = ViewModelProvider(this)[vmClass]
+        viewModel.initialize(mActivity, this)
+        lifecycle.addObserver(viewModel)
+        return viewModel
     }
 
     override fun onAttach(context: Context) {
