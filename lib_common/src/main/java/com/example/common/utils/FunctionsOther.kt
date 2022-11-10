@@ -6,8 +6,6 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Looper
-import android.text.Spannable
-import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.util.TypedValue
 import android.widget.*
@@ -153,14 +151,6 @@ fun Any?.toJsonString(): String {
 fun Any?.hasAnnotation(cls: Class<out Annotation>): Boolean {
     this ?: return false
     return this::class.java.isAnnotationPresent(cls)
-}
-
-/**
- *  backgroundColorSpan = new BackgroundImageSpan(R.drawable.bg_answer_wrong, getResources().getDrawable(R.drawable.bg_answer_wrong));
- */
-fun String?.setBackgroundImageSpan(theme: BackgroundImageSpan, start: Int, end: Int): SpannableString {
-    this ?: orEmpty()
-    return SpannableString(this).apply { setSpan(theme, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) }
 }
 
 /**

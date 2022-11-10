@@ -6,6 +6,7 @@ import android.text.style.BackgroundColorSpan
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.util.Base64
+import com.example.base.utils.BackgroundImageSpan
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.util.regex.Pattern
@@ -171,4 +172,12 @@ fun String?.setBackgroundColorSpan(vararg theme: Triple<BackgroundColorSpan, Int
             setSpan(triple.first, triple.second, triple.third, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
+}
+
+/**
+ *  backgroundColorSpan = new BackgroundImageSpan(R.drawable.bg_answer_wrong, getResources().getDrawable(R.drawable.bg_answer_wrong));
+ */
+fun String?.setBackgroundImageSpan(theme: BackgroundImageSpan, start: Int, end: Int): SpannableString {
+    this ?: orEmpty()
+    return SpannableString(this).apply { setSpan(theme, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) }
 }

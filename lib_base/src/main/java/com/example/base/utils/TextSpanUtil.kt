@@ -1,13 +1,18 @@
 package com.example.base.utils
 
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.Typeface
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.Spanned
+import android.os.Parcel
+import android.text.*
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
+import android.text.style.ReplacementSpan
 import android.text.style.StyleSpan
 import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
+import com.example.base.utils.function.value.toSafeFloat
 
 //------------------------------------字符串扩展函数类------------------------------------
 /**
@@ -137,4 +142,49 @@ class StyleSpan(val isBold: Boolean, val isItalic: Boolean) : SpanType {
         }
         spannable.setSpan(StyleSpan(type), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
     }
+}
+
+/**
+ * first->资源id
+ * second->文字大小（pt转换）
+ * third->文字颜色
+ */
+class BackgroundImageSpan(private val context: Context, private val triple: Triple<Int, Int, Int>) : ReplacementSpan(),
+    ParcelableSpan {
+    private var mWidth = -1
+
+    override fun draw(canvas: Canvas, text: CharSequence?, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
+        paint.textSize = triple.second.toSafeFloat()
+        paint.color = triple.third
+        draw(canvas, mWidth, x, top, bottom)
+        canvas.drawText(text.toString(), start, end, x, y.toSafeFloat(), paint)
+    }
+
+    private fun draw(canvas: Canvas, width: Int, x: Float, top: Int, bottom: Int) {
+        val mDrawable = ContextCompat.getDrawable(context, triple.first)
+        canvas.save()
+        canvas.translate(x, top.toFloat())
+        mDrawable?.setBounds(0, 0, width, bottom - top)
+        mDrawable?.draw(canvas)
+        canvas.restore()
+    }
+
+    override fun getSize(paint: Paint, text: CharSequence?, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {
+        val size = paint.measureText(text, start, end)
+        if (fm != null) paint.getFontMetricsInt(fm)
+        mWidth = size.toInt()
+        return mWidth
+    }
+
+    override fun updateDrawState(ds: TextPaint?) {
+    }
+
+    override fun getSpanTypeId() = 0
+
+    override fun writeToParcel(dest: Parcel?, flags: Int) {
+        dest?.writeInt(triple.first)
+    }
+
+    override fun describeContents() = 0
+
 }
