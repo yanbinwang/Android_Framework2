@@ -50,7 +50,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     //获取对应的控件
     val emptyView: EmptyLayout? get() { return softEmpty?.get() }
     val recyclerView: XRecyclerView? get() { return softRecycler?.get() }
-    val xRefreshLayout: SmartRefreshLayout? get() { return softRefresh?.get() }
+    val refreshLayout: SmartRefreshLayout? get() { return softRefresh?.get() }
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
@@ -58,21 +58,21 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.softView = SoftReference(view)
     }
 
-    fun setEmptyView(container: ViewGroup) {
-        this.softEmpty = SoftReference(container.getEmptyView())
+    fun setEmptyView(empty: ViewGroup) {
+        this.softEmpty = SoftReference(empty.getEmptyView())
     }
 
-    fun setRecyclerView(xRecyclerView: XRecyclerView) {
-        this.softEmpty = SoftReference(xRecyclerView.empty)
-        this.softRecycler = SoftReference(xRecyclerView)
+    fun setRecyclerView(recycler: XRecyclerView) {
+        this.softEmpty = SoftReference(recycler.empty)
+        this.softRecycler = SoftReference(recycler)
     }
 
-    fun setRefreshLayout(xRefreshLayout: SmartRefreshLayout) {
-        this.softRefresh = SoftReference(xRefreshLayout)
+    fun setRefreshLayout(refresh: SmartRefreshLayout) {
+        this.softRefresh = SoftReference(refresh)
     }
 
     protected fun reset(hasNextPage: Boolean? = true) {
-        if(null == recyclerView) xRefreshLayout?.finishRefreshing()
+        if(null == recyclerView) refreshLayout?.finishRefreshing()
         recyclerView?.finishRefreshing(!hasNextPage.orTrue)
         emptyView?.gone()
     }

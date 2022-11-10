@@ -1,4 +1,4 @@
-package com.example.common.base.binding
+package com.example.common.base.binding.adapter
 
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView

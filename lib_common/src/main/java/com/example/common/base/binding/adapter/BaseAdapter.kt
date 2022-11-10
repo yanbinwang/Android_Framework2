@@ -1,4 +1,4 @@
-package com.example.common.base.binding
+package com.example.common.base.binding.adapter
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater

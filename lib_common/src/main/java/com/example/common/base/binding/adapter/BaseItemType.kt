@@ -1,4 +1,4 @@
-package com.example.common.base.binding
+package com.example.common.base.binding.adapter
 
 /**
  * 适配器枚举类型

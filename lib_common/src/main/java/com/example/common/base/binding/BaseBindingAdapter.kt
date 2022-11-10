@@ -19,6 +19,7 @@ import com.example.base.utils.function.value.toSafeInt
 import com.example.base.utils.function.view.*
 import com.example.base.utils.shownAnim
 import com.example.common.R
+import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
 import com.example.common.imageloader.glide.callback.GlideRequestListener

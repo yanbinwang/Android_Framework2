@@ -1,7 +1,7 @@
 package com.example.mvvm.adapter
 
-import com.example.common.base.binding.BaseQuickAdapter
-import com.example.common.base.binding.BaseViewDataBindingHolder
+import com.example.common.base.binding.adapter.BaseQuickAdapter
+import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
 import com.example.mvvm.databinding.ItemTestBinding
 import com.example.mvvm.model.TestListModel
 
