@@ -186,7 +186,7 @@ fun ImageView?.setScreenWidth() {
  * 设置textview内容当中某一段的颜色
  */
 @JvmOverloads
-fun TextView?.setSpan(txt: String, keyword: String, colorRes: Int = R.color.blue_3d81f2) {
+fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color.blue_3d81f2) {
     this ?: return
     text = txt.setSpanFirst(keyword, ColorSpan(context.color(colorRes)))
 }

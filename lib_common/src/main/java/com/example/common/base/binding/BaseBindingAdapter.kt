@@ -23,7 +23,7 @@ import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
 import com.example.common.imageloader.glide.callback.GlideRequestListener
 import com.example.common.utils.builder.StatusBarBuilder
-import com.example.common.utils.setSpan
+import com.example.common.utils.setSpanFirst
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.XRecyclerView
 
@@ -124,7 +124,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["text", "key_text", "key_color", "is_match_text"], requireAll = false)
     fun bindingTextViewKey(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isMatchText: Boolean?) {
-        if (!keyText.isNullOrEmpty()) textview.setSpan(text.orEmpty(), keyText, keyColor.toSafeInt(R.color.blue_3d81f2)) else { if (!text.isNullOrEmpty()) textview.text = text }
+        if (!keyText.isNullOrEmpty()) textview.setSpanFirst(text.orEmpty(), keyText, keyColor.toSafeInt(R.color.blue_3d81f2)) else { if (!text.isNullOrEmpty()) textview.text = text }
         if (isMatchText.orFalse) textview.setMatchText()
     }
 
