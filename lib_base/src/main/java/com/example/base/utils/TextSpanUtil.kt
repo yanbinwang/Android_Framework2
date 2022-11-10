@@ -6,9 +6,7 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.os.Parcel
 import android.text.*
-import android.text.style.AbsoluteSizeSpan
-import android.text.style.ForegroundColorSpan
-import android.text.style.ReplacementSpan
+import android.text.style.*
 import android.text.style.StyleSpan
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
@@ -141,6 +139,24 @@ class StyleSpan(val isBold: Boolean, val isItalic: Boolean) : SpanType {
             else -> Typeface.NORMAL
         }
         spannable.setSpan(StyleSpan(type), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+    }
+}
+
+/**
+ * 加入一段链接样式的字符串
+ */
+class ClickSpan(private val clickable: ClickableSpan) : SpanType {
+    override fun setSpan(spannable: Spannable, start: Int, end: Int) {
+        spannable.setSpan(clickable, start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+    }
+}
+
+/**
+ * 加入一段图片样式的字符串
+ */
+class ImageSpan(private val context: Context, private val triple: Triple<Int, Int, Int>) : SpanType {
+    override fun setSpan(spannable: Spannable, start: Int, end: Int) {
+        spannable.setSpan(BackgroundImageSpan(context, triple), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
     }
 }
 
