@@ -4,10 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.base.utils.function.value.orTrue
 import com.example.base.utils.function.view.gone
 import com.example.common.base.page.getEmptyView
@@ -206,3 +203,9 @@ fun <T> ViewModel.async(
     start: CoroutineStart = CoroutineStart.DEFAULT,
     block: suspend CoroutineScope.() -> T
 ) = viewModelScope.async(context, start, block)
+
+fun <VM : BaseViewModel> Class<VM>.create(activity: FragmentActivity): VM {
+    val viewModel = ViewModelProvider(activity)[this]
+    activity.lifecycle.addObserver(viewModel)
+    return viewModel
+}

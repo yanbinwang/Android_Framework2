@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.ViewModelProvider
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.base.utils.function.value.currentTimeNano
 import com.example.base.utils.function.value.orFalse
@@ -21,6 +20,7 @@ import com.example.base.utils.logE
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
+import com.example.common.base.bridge.create
 import com.example.common.constant.Extras
 import com.example.common.utils.AppManager
 import com.example.common.utils.builder.StatusBarBuilder
@@ -55,10 +55,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     protected fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-        val viewModel = ViewModelProvider(this)[vmClass]
-        viewModel.initialize(mActivity, this)
-        lifecycle.addObserver(viewModel)
-        return viewModel
+        return vmClass.create(mActivity).also { it.initialize(mActivity, this) }
     }
 
     override fun onAttach(context: Context) {
