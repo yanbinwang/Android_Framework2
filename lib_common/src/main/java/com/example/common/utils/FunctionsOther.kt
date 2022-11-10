@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import com.example.base.utils.function.color
 import com.example.base.utils.function.value.setForegroundColorSpan
+import com.example.base.utils.function.value.toNewList
 import com.example.base.utils.function.view.background
 import com.example.base.utils.function.view.textColor
 import com.example.common.BaseApplication
@@ -53,6 +54,25 @@ fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.
  * 获取图片
  */
 fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
+
+/**
+ *  <string name="placeholderLevel">\V%1$s</string>
+ *  字符串表达式的处理
+ */
+fun string(@StringRes res: Int, vararg param: Int): String {
+    val paramString = param.toNewList { resString(it) }.toTypedArray()
+    val result = resString(res)
+    return String.format(result, paramString)
+}
+
+fun string(@StringRes res: Int, vararg param: String): String {
+    val result = resString(res)
+    return String.format(result, *param)
+}
+
+fun string(@StringRes res: Int): String {
+    return resString(res)
+}
 
 /**
  * 获取资源文字
