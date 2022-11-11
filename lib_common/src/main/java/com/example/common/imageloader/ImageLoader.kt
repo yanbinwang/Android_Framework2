@@ -29,13 +29,21 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         val instance by lazy { ImageLoader() }
     }
 
-    override fun displayZoom(view: ImageView, string: String?, listener: GlideRequestListener<Bitmap?>?) {
+    override fun displayZoom(view: ImageView, string: String?, onStart: () -> Unit?, onComplete: (bitmap: Bitmap?) -> Unit?) {
         Glide.with(view.context)
             .asBitmap()
             .load(string)
             .placeholder(R.drawable.shape_glide_loading_zoom)
             .dontAnimate()
-            .listener(listener)
+            .listener(object : GlideRequestListener<Bitmap?>() {
+                override fun onStart() {
+                    onStart()
+                }
+
+                override fun onComplete(resource: Bitmap?) {
+                    onComplete.invoke(resource)
+                }
+            })
             .into(ZoomTransform(view))
     }
 
@@ -65,13 +73,21 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun display(view: ImageView, string: String?, placeholderId: Int, errorId: Int, listener: GlideRequestListener<Drawable?>?) {
+    override fun display(view: ImageView, string: String?, placeholderId: Int, errorId: Int, onStart: () -> Unit?, onComplete: (drawable: Drawable?) -> Unit?) {
         Glide.with(view.context)
             .load(string)
             .placeholder(placeholderId)
             .error(errorId)
             .dontAnimate()
-            .listener(listener)
+            .listener(object : GlideRequestListener<Drawable?>() {
+                override fun onStart() {
+                    onStart()
+                }
+
+                override fun onComplete(resource: Drawable?) {
+                    onComplete.invoke(resource)
+                }
+            })
             .into(view)
     }
 
@@ -104,8 +120,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun download(context: Context, string: String?, listener: GlideRequestListener<File?>?) {
-//    override fun downloadImage(context: Context, string: String?, width: Int, height: Int, listener: GlideRequestListener<File?>?) {
+    override fun download(context: Context, string: String?, onStart: () -> Unit?, onComplete: (file: File?) -> Unit?) {
 //        //创建保存的文件目录
 //        val destFile = File(FileUtil.isExistDir(Constants.APPLICATION_FILE_PATH + "/图片"))
 //        //下载对应的图片文件
@@ -120,7 +135,15 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         Glide.with(context)
             .downloadOnly()
             .load(string)
-            .listener(listener)
+            .listener(object : GlideRequestListener<File>() {
+                override fun onStart() {
+                    onStart()
+                }
+
+                override fun onComplete(resource: File?) {
+                    onComplete.invoke(resource)
+                }
+            })
             .preload()
     }
 
@@ -129,12 +152,11 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         Glide.get(context).clearMemory()
     }
 
-    //清除磁盘缓存是在子线程中进行
+    //清除磁盘缓存是在子线程中进行!
     override fun clearDiskCache(context: Context) {
-        Thread { Glide.get(context).clearDiskCache() }.start()
+        Glide.get(context).clearDiskCache()
     }
 
-    override val cacheDir: File?
-        get() = Glide.getPhotoCacheDir(BaseApplication.instance.applicationContext)
+    override val cacheDir: File? get() = Glide.getPhotoCacheDir(BaseApplication.instance.applicationContext)
 
 }

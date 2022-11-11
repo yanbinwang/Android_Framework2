@@ -13,13 +13,13 @@ import java.io.File
 interface GlideImpl {
 
     //---------------------------------------------图片加载开始---------------------------------------------
-    fun displayZoom(view: ImageView, string: String?, listener: GlideRequestListener<Bitmap?>? = null)
+    fun displayZoom(view: ImageView, string: String?, onStart: () -> Unit? = {}, onComplete: (bitmap: Bitmap?) -> Unit? = {})
 
     fun displayCover(view: ImageView, string: String?)
 
     fun displayProgress(view: ImageView, string: String, onStart: () -> Unit? = {}, onProgress: (progress: Int?) -> Unit = {}, onComplete: () -> Unit? = {})
 
-    fun display(view: ImageView, string: String?, placeholderId: Int = R.drawable.shape_album_loading, errorId: Int = 0, listener: GlideRequestListener<Drawable?>? = null)
+    fun display(view: ImageView, string: String?, placeholderId: Int = R.drawable.shape_album_loading, errorId: Int = 0, onStart: () -> Unit? = {}, onComplete: (drawable: Drawable?) -> Unit? = {})
 
     fun displayRound(view: ImageView, string: String?, errorId: Int = 0, roundingRadius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
@@ -27,7 +27,7 @@ interface GlideImpl {
     //---------------------------------------------圆形图片加载开始---------------------------------------------
 
     //---------------------------------------------图片库方法开始---------------------------------------------
-    fun download(context: Context, string: String?, listener: GlideRequestListener<File?>?)
+    fun download(context: Context, string: String?, onStart: () -> Unit? = {}, onComplete: (file: File?) -> Unit? = {})
 
     fun clearMemoryCache(context: Context)
 

@@ -46,13 +46,13 @@ android {
 }
 
 dependencies {
-    api fileTree(dir: "libs", include: ["*.jar"])
+    implementation fileTree(dir: "libs", include: ["*.jar"])
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     //xwebview的jar
     api files('libs/tbs_sdk_thirdapp_v4.3.0.299_44199_sharewithdownloadwithfile_withoutGame_obfs_20220615_101728.jar')
-    api files('libs/top_sheet.jar')
+    implementation files('libs/top_sheet.jar')
     //框架库
     api project(':lib_base')
     //网络请求
@@ -63,19 +63,18 @@ dependencies {
     api deps.bumptech.glide_okhttp3
     kapt deps.bumptech.glide_compiler
     //页面路由
-    api deps.alibaba.arouter
+    implementation deps.alibaba.arouter
     kapt deps.alibaba.arouter_compiler
-    //严正杰相册，裁剪，权限库
-    api deps.yanzhenjie.album
-    api deps.yanzhenjie.durban
-    api deps.yanzhenjie.permission
+    //严正杰相册，裁剪
+    implementation deps.yanzhenjie.album
+    implementation deps.yanzhenjie.durban
     //其余第三方库
-    api deps.okhttp3
     api deps.autosize
-    api deps.mmkv
     api deps.recovery
-    api deps.guide
     api deps.smartrefresh
-    api deps.eventbus
-    api deps.xxpermissions
+    implementation deps.okhttp3
+    implementation deps.eventbus
+    implementation deps.mmkv
+    implementation deps.guide
+    implementation deps.xxpermissions
 }

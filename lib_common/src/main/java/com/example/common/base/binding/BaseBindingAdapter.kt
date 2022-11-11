@@ -1,8 +1,6 @@
 package com.example.common.base.binding
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -22,7 +20,6 @@ import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
-import com.example.common.imageloader.glide.callback.GlideRequestListener
 import com.example.common.utils.builder.StatusBarBuilder
 import com.example.common.utils.setSpanFirst
 import com.example.common.widget.XWebView
@@ -73,7 +70,10 @@ object BaseBindingAdapter {
      * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
      */
     @JvmStatic
-    @BindingAdapter(value = ["adapter", "span_count", "horizontal_space", "vertical_space", "has_horizontal_edge", "has_vertical_edge"], requireAll = false)
+    @BindingAdapter(
+        value = ["adapter", "span_count", "horizontal_space", "vertical_space", "has_horizontal_edge", "has_vertical_edge"],
+        requireAll = false
+    )
     fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
         rec.setAdapter(adapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
     }
@@ -144,15 +144,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["display", "placeholder_id"], requireAll = false)
     fun bindingDisplay(view: ImageView, url: String, placeholderId: Int?) {
-        ImageLoader.instance.display(view, url, placeholderId.toSafeInt(R.drawable.shape_album_loading), listener = object : GlideRequestListener<Drawable?>() {
-            override fun onStart() {
-                view.disable()
-            }
-
-            override fun onComplete(resource: Drawable?) {
-                view.enable()
-            }
-        })
+        ImageLoader.instance.display(view, url, placeholderId.toSafeInt(R.drawable.shape_album_loading), onStart = { view.disable() }, onComplete = { view.enable() })
     }
 
     /**
@@ -161,15 +153,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["display_zoom"])
     fun bindingDisplayZoom(view: ImageView, url: String) {
-        ImageLoader.instance.displayZoom(view, url, listener = object : GlideRequestListener<Bitmap?>() {
-            override fun onStart() {
-                view.disable()
-            }
-
-            override fun onComplete(resource: Bitmap?) {
-                view.enable()
-            }
-        })
+        ImageLoader.instance.displayZoom(view, url, onStart = { view.disable() }, onComplete = { view.enable() })
     }
 
     /**

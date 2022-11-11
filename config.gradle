@@ -21,7 +21,6 @@ versions.arouter_compiler = "1.5.2"
 //------------------------------------------------------------------------------------------
 versions.album = "2.1.3"
 versions.durban = "1.0.1"
-versions.permission = "2.0.0-rc4"
 //------------------------------------------------------------------------------------------
 versions.material = "1.6.1"
 versions.okhttp = "4.9.1"
@@ -65,7 +64,6 @@ deps.alibaba = alibaba
 def yanzhenjie = [:]
 yanzhenjie.album = "com.yanzhenjie:album:$versions.album"
 yanzhenjie.durban = "com.yanzhenjie:durban:$versions.durban"
-yanzhenjie.permission = "com.yanzhenjie:permission:$versions.permission"
 deps.yanzhenjie = yanzhenjie
 
 //非组的第三方控件
