@@ -53,10 +53,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     override val coroutineContext: CoroutineContext get() = Main + job
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
-    protected fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-        return vmClass.create(mActivity).also { it.initialize(mActivity, this) }
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
@@ -153,6 +149,10 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
+    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
+        return vmClass.create(mActivity).also { it.initialize(mActivity, this) }
+    }
+
     override fun log(msg: String) {
         msg.logE(TAG)
     }

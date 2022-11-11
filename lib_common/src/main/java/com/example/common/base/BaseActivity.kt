@@ -46,10 +46,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override val coroutineContext: CoroutineContext get() = Main + job//加上SupervisorJob，提升协程作用域
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
-    protected fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-        return vmClass.create(this).also { it.initialize(this, this) }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppManager.addActivity(this)
@@ -140,6 +136,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
+    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
+        return vmClass.create(this).also { it.initialize(this, this) }
+    }
+
     override fun log(msg: String) {
         msg.logE(TAG)
     }
