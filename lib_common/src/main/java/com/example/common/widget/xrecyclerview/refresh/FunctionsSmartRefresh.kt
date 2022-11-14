@@ -87,6 +87,11 @@ fun SmartRefreshLayout?.noMoreOnInit() {
     }
 }
 
+/**
+ * 设置后需要手动在xml中禁用是否加载更多
+ * app:srlEnableLoadMore="false"
+ * app:srlEnableRefresh="true"
+ */
 fun SmartRefreshLayout?.statusBarPadding() {
     this ?: return
     doOnceAfterLayout {

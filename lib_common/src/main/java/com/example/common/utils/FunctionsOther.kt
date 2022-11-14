@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import com.example.base.utils.ColorSpan
 import com.example.base.utils.function.color
+import com.example.base.utils.function.value.orZero
 import com.example.base.utils.function.value.toNewList
 import com.example.base.utils.function.view.background
 import com.example.base.utils.function.view.textColor
@@ -26,8 +27,10 @@ import com.example.common.R
 import com.example.common.constant.Constants
 import com.example.common.utils.ExtraNumber.pt
 import com.example.common.utils.ExtraNumber.ptFloat
+import com.google.android.material.appbar.AppBarLayout
 import com.google.gson.Gson
 import java.util.*
+import kotlin.math.abs
 
 //------------------------------------按钮，控件行为工具类------------------------------------
 /**
@@ -210,6 +213,34 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, onAlphaChange: (alpha: F
     setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
         onAlphaChange.invoke(if (scrollY <= menuHeight.pt / 2f) 0 + scrollY / (menuHeight.pt / 4f) else 1f)
     })
+}
+
+/**
+ * appbar是否显示折叠的监听，用于解决刷新套广告套控件卡顿的问题，需要注意绘制时，底部如果不使用
+ * NestedScrollView或者viewpager2等带有滑动事件传递的控件，会造成只有顶部套的部分可以滑动
+ */
+abstract class AppBarStateChangeListener : AppBarLayout.OnOffsetChangedListener {
+    enum class State {
+        EXPANDED, COLLAPSED, IDLE//展开，折叠，中间
+    }
+
+    private var mCurrentState = State.IDLE
+
+    override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
+        mCurrentState = if (verticalOffset == 0) {
+            if (mCurrentState != State.EXPANDED) onStateChanged(appBarLayout, State.EXPANDED)
+            State.EXPANDED
+        } else if (abs(verticalOffset) >= appBarLayout?.totalScrollRange.orZero) {
+            if (mCurrentState != State.COLLAPSED) onStateChanged(appBarLayout, State.COLLAPSED)
+            State.COLLAPSED
+        } else {
+            if (mCurrentState != State.IDLE) onStateChanged(appBarLayout, State.IDLE)
+            State.IDLE
+        }
+    }
+
+    abstract fun onStateChanged(appBarLayout: AppBarLayout?, state: State?)
+
 }
 
 object ExtraNumber {
