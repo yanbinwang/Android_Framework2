@@ -6,9 +6,9 @@ import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.example.base.utils.function.value.findIndexOf
-import com.example.base.utils.function.value.orTrue
 import com.example.base.utils.function.value.orZero
 import com.example.base.utils.function.value.safeGet
+import com.example.base.utils.function.value.safeSize
 import com.example.base.utils.function.view.click
 import com.example.common.base.page.Page
 import com.example.common.base.page.Paging
@@ -26,27 +26,11 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 数据类型为集合
      */
-    var data: MutableList<T> = ArrayList()
-        set(value) {
-            //设置集合类型不相同时替换
-            if (value.isNotEmpty()) {
-                if (value !== field) {
-                    field.addAll(value)
-                } else {
-                    field.clear()
-                    field.addAll(ArrayList(value))
-                }
-                notifyDataSetChanged()
-            }
-        }
+    protected var data: MutableList<T> = ArrayList()
     /**
      * 数据类型为对象
      */
-    var t: T? = null
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
+    protected var t: T? = null
     /**
      * 点击回调，返回对象和下标
      */
@@ -99,11 +83,10 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
         val position = holder.absoluteAdapterPosition
         //注意判断当前适配器是否具有头部view
         holder.itemView.click { onItemClick?.invoke(data.safeGet(position), position) }
-        convert(
-            holder, when (itemType) {
-                BaseItemType.LIST -> data.safeGet(position)
-                BaseItemType.BEAN -> t
-            }, payloads)
+        convert(holder, when (itemType) {
+            BaseItemType.LIST -> data.safeGet(position)
+            BaseItemType.BEAN -> t
+        }, payloads)
     }
 
     /**
@@ -128,8 +111,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
      * 刷新符合条件的item（数据在item内部更改）
      */
     fun itemChanged(func: ((T) -> Boolean)) {
-        val index = data.findIndexOf(func)
-        if (index != -1) notifyItemChanged(index)
+        data.findIndexOf(func).apply { if (this != -1) notifyItemChanged(this) }
     }
 
     /**
@@ -177,28 +159,20 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 刷新数据
      */
-    fun itemNotify(it: Page<T>?, paging: Paging, onConvert: (list: MutableList<T>) -> Unit = {}, onEmpty: () -> Unit = {}, notify: Boolean? = true) {
+    fun itemNotify(it: Page<T>?, paging: Paging, onConvert: (newList: MutableList<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
         paging.totalCount = it?.total.orZero
-        if (paging.hasRefresh) data.clear()
-        val newList = it?.list
-        if (!newList.isNullOrEmpty()) {
-            if (notify.orTrue) data = newList
-            onConvert.invoke(newList)
-        } else {
-            if (data.size == 0) onEmpty.invoke()
-        }
+        val newList = it?.list ?: ArrayList()
+        if (paging.hasRefresh) refresh(newList) else insert(newList)
+        onConvert.invoke(newList)
+        if (data.safeSize == 0) onEmpty.invoke()
         paging.currentCount = data.size
     }
 
-    fun itemNotify(it: Page<T>?, onConvert: (list: MutableList<T>) -> Unit = {}, onEmpty: () -> Unit = {}, notify: Boolean? = true) {
-        data.clear()
-        val newList = it?.list
-        if (!newList.isNullOrEmpty()) {
-            if (notify.orTrue) data = newList
-            onConvert.invoke(newList)
-        } else {
-            if (data.size == 0) onEmpty.invoke()
-        }
+    fun itemNotify(it: Page<T>?, onConvert: (list: MutableList<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
+        val newList = it?.list ?: ArrayList()
+        refresh(newList)
+        onConvert.invoke(newList)
+        if (data.safeSize == 0) onEmpty.invoke()
     }
 
     /**
@@ -206,15 +180,21 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
      */
     fun itemFind(func: ((T) -> Boolean)): T? {
         val index = data.findIndexOf(func)
-        return if (index != -1) data[index] else null
+        return if (index != -1) data.safeGet(index) else null
     }
 
     /**
      * 查找到符合条件的对象，返回下标和对象本身，调用notifyItemChanged（position）修改改变的值
      */
     fun itemFind(func: ((T) -> Boolean), onConvert: (position: Int, bean: T?) -> Unit) {
-        val index = data.findIndexOf(func)
-        onConvert.invoke(index, data.safeGet(index))
+        data.findIndexOf(func).apply { onConvert.invoke(this, data.safeGet(this)) }
+    }
+
+    /**
+     * 查找符合条件的data数据总数
+     */
+    fun itemFindCount(func: ((T) -> Boolean)): Int {
+        return data.filter(func).size
     }
 
     /**
@@ -222,6 +202,49 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
      */
     fun item(position: Int): T? {
         return data.safeGet(position)
+    }
+
+    /**
+     * 刷新集合
+     */
+    fun refresh(list: List<T>) {
+        data.clear()
+        data.addAll(list)
+        notifyDataSetChanged()
+    }
+
+    /**
+     * 刷新对象
+     */
+    fun refresh(bean: T) {
+        t = bean
+        notifyDataSetChanged()
+    }
+
+    /**
+     * 插入集合
+     */
+    fun insert(list: List<T>) {
+        val size = data.size
+        data.addAll(list)
+        notifyItemRangeInserted(size, list.size)
+    }
+
+    /**
+     * 对应下标插入对象
+     */
+    fun insert(position: Int, item: T) {
+        if (position !in data.indices) return
+        data.add(position, item)
+        notifyItemInserted(position)
+    }
+
+    /**
+     * 集合末尾揣入对象
+     */
+    fun insert(item: T) {
+        data.add(item)
+        notifyItemInserted(data.size - 1)
     }
 
 }

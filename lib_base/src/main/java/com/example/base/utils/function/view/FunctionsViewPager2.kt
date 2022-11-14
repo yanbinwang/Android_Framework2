@@ -67,6 +67,22 @@ fun ViewPager2?.prevPage(isSmooth: Boolean = true) {
 }
 
 /**
+ * 降低ViewPager2灵敏度
+ */
+fun ViewPager2?.desensitization() {
+    try {
+        val recyclerViewField = ViewPager2::class.java.getDeclaredField("mRecyclerView")
+        recyclerViewField.isAccessible = true
+        val recyclerView = recyclerViewField.get(this) as RecyclerView
+        val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
+        touchSlopField.isAccessible = true
+        val touchSlop = touchSlopField.get(recyclerView) as Int
+        touchSlopField.set(recyclerView, touchSlop * 3)
+    } catch (ignore: java.lang.Exception) {
+    }
+}
+
+/**
  * 绑定vp和tab
  */
 fun ViewPager2?.bind(tab: TabLayout?, listener: TabLayoutMediator.TabConfigurationStrategy = TabLayoutMediator.TabConfigurationStrategy { _, _ -> }): TabLayoutMediator? {
