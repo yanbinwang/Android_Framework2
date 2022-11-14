@@ -215,6 +215,15 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, onAlphaChange: (alpha: F
     })
 }
 
+fun AppBarLayout?.stateChanged(onStateChanged: (state: AppBarStateChangeListener.State?) -> Unit?) {
+    this ?: return
+    addOnOffsetChangedListener(object : AppBarStateChangeListener() {
+        override fun onStateChanged(appBarLayout: AppBarLayout?, state: State?) {
+            onStateChanged.invoke(state)
+        }
+    })
+}
+
 /**
  * appbar是否显示折叠的监听，用于解决刷新套广告套控件卡顿的问题，需要注意绘制时，底部如果不使用
  * NestedScrollView或者viewpager2等带有滑动事件传递的控件，会造成只有顶部套的部分可以滑动
