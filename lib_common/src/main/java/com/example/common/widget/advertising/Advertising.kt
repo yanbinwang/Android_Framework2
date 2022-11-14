@@ -15,6 +15,7 @@ import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.base.utils.WeakHandler
 import com.example.base.utils.function.value.orZero
+import com.example.base.utils.function.view.*
 import com.example.base.widget.BaseViewGroup
 import com.example.common.utils.pt
 import java.util.*
@@ -112,29 +113,33 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     private fun initData() {
         //如果只有一第图时不显示圆点容器
-        if (ovalLayout != null && list.size < 2) {
-            ovalLayout?.layoutParams?.height = 0
-        } else if (ovalLayout != null) {
-            ovalLayout?.gravity = Gravity.CENTER
-            //如果true代表垂直，否则水平
-            val direction = ovalLayout?.layoutParams?.height.orZero > ovalLayout?.layoutParams?.width.orZero
-            //左右边距
-            val ovalMargin = triple.third.pt
-            //添加圆点
-            for (i in list.indices) {
-                val imageView = ImageView(context)
-                ovalLayout?.addView(imageView)
-                val layoutParams = imageView.layoutParams as LinearLayout.LayoutParams
-                if (direction) {
-                    layoutParams.setMargins(ovalMargin, 0, ovalMargin, 0)
-                } else {
-                    layoutParams.setMargins(0, ovalMargin, 0, ovalMargin)
+        if (ovalLayout != null) {
+            if(list.size < 2) {
+                ovalLayout?.gone()
+            } else {
+                ovalLayout?.gravity = Gravity.CENTER
+                ovalLayout?.visible()
+                ovalLayout?.doOnceAfterLayout {
+                    //如果true代表垂直，否则水平
+                    val direction = it.layoutParams?.height.orZero > it.layoutParams?.width.orZero
+                    //左右边距
+                    val ovalMargin = triple.third.pt
+                    //添加圆点
+                    for (i in list.indices) {
+                        ImageView(context).apply {
+                            if (direction) {
+                                margin(start = ovalMargin, end = ovalMargin)
+                            } else {
+                                margin(top = ovalMargin, bottom = ovalMargin)
+                            }
+                            background(triple.second)
+                            it.addView(this)
+                        }
+                    }
+                    //选中第一个
+                    it.getChildAt(0)?.setBackgroundResource(triple.first)
                 }
-                imageView.layoutParams = layoutParams
-                imageView.setBackgroundResource(triple.second)
             }
-            //选中第一个
-            ovalLayout?.getChildAt(0)?.setBackgroundResource(triple.first)
         }
         //设置图片数据
         advAdapter.list = list
