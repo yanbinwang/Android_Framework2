@@ -205,6 +205,27 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     }
 
     /**
+     * 获取当前集合
+     */
+    fun list(): MutableList<T> {
+        return data
+    }
+
+    /**
+     * 获取当前集合长度
+     */
+    fun size(): Int {
+        return data.safeSize
+    }
+
+    /**
+     * 获取当前对象
+     */
+    fun bean(): T? {
+        return t
+    }
+
+    /**
      * 刷新集合
      */
     fun refresh(list: List<T>) {
