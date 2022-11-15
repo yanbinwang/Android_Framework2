@@ -150,7 +150,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-        return vmClass.create(mActivity).also { it.initialize(mActivity, this) }
+        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
     }
 
     override fun log(msg: String) {

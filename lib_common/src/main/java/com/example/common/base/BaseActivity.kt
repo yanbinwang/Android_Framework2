@@ -137,7 +137,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-        return vmClass.create(this).also { it.initialize(this, this) }
+        return vmClass.create(lifecycle, this).also { it.initialize(this, this) }
     }
 
     override fun log(msg: String) {
