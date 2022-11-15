@@ -13,6 +13,7 @@ import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import com.example.base.utils.function.value.orFalse
+import com.example.base.utils.function.value.orTrue
 import com.example.base.utils.function.value.toSafeInt
 import com.example.base.utils.function.view.*
 import com.example.base.utils.shownAnim
@@ -94,9 +95,9 @@ object BaseBindingAdapter {
      * 不和tablayout或者其他view关联的数据加载可以直接在xml中绑定
      */
     @JvmStatic
-    @BindingAdapter(value = ["adapter", "orientation", "is_user_input"], requireAll = false)
-    fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, adapter: T, orientation: Int?, isUserInput: Boolean?) {
-        flipper.adapter(adapter, orientation.toSafeInt(ViewPager2.ORIENTATION_HORIZONTAL), isUserInput.orFalse)
+    @BindingAdapter(value = ["adapter", "orientation", "is_user_input", "offscreen_page"], requireAll = false)
+    fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, adapter: T, orientation: Int?, isUserInput: Boolean?, offscreenPage: Boolean?) {
+        flipper.adapter(adapter, orientation.toSafeInt(ViewPager2.ORIENTATION_HORIZONTAL), isUserInput.orTrue, offscreenPage.orFalse)
     }
 
     /**

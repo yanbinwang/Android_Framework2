@@ -32,12 +32,12 @@ fun ViewPager2?.getRecyclerView(): RecyclerView? {
 /**
  * 设置适配器扩展
  */
-fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, isUserInput: Boolean = false) {
+fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, isUserInput: Boolean = false, offscreenPage: Boolean = false) {
     if (this == null) return
     hideFadingEdge()
     setAdapter(adapter)
     setOrientation(orientation)
-    offscreenPageLimit = adapter.itemCount  - 1//预加载数量
+    if(offscreenPage) offscreenPageLimit = adapter.itemCount  - 1//预加载数量
     isUserInputEnabled = isUserInput //禁止左右滑动
 }
 
