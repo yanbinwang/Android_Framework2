@@ -44,7 +44,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
      * 存储图片协程
      */
     @JvmOverloads
-    fun saveBitmap(bitmap: Bitmap, root: String, fileName: String, delete: Boolean = false, formatJpg: Boolean = true, onComplete: (filePath: String?) -> Unit = {}) {
+    fun compressBit(bitmap: Bitmap, root: String, fileName: String, delete: Boolean = false, formatJpg: Boolean = true, onComplete: (filePath: String?) -> Unit = {}) {
         job?.cancel()
         job = launch {
             val absolutePath = "${root}/${fileName}${if (formatJpg) ".jpg" else ".png"}"
@@ -57,7 +57,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
      * 保存pdf文件存成图片形式
      */
     @JvmOverloads
-    fun savePdfBitmap(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}) {
+    fun compressPDFBit(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}) {
         job?.cancel()
         job = launch {
             val root = "${Constants.APPLICATION_FILE_PATH}/图片"

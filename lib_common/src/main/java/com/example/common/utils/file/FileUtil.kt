@@ -17,7 +17,6 @@ import com.example.base.utils.logE
 import com.example.common.constant.Constants
 import com.example.common.utils.builder.shortToast
 import java.io.*
-import java.lang.ref.SoftReference
 import java.math.BigDecimal
 import java.util.*
 import java.util.zip.ZipEntry
@@ -191,7 +190,7 @@ fun Context.isAdbEnabled() = (Settings.Secure.getInt(contentResolver, Settings.G
 /**
  * 发送广播通知更新数据库
  */
-fun Context.noticeAlbum(file:File){
+fun Context.noticeAlbum(file: File) {
     MediaStore.Images.Media.insertImage(contentResolver, file.absolutePath, file.name, null)
     sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + file.path)))
 }
@@ -266,7 +265,10 @@ fun Context.getSetupApk(apkFilePath: String): Intent {
         val contentUri = FileProvider.getUriForFile(this, Constants.APPLICATION_ID + ".fileProvider", file)
         intent.setDataAndType(contentUri, "application/vnd.android.package-archive")
     } else {
-        intent.setDataAndType(Uri.parse("file://$apkFilePath"), "application/vnd.android.package-archive")
+        intent.setDataAndType(
+            Uri.parse("file://$apkFilePath"),
+            "application/vnd.android.package-archive"
+        )
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
     return intent
