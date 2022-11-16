@@ -48,7 +48,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
         job?.cancel()
         job = launch {
             val absolutePath = "${root}/${fileName}${if (formatJpg) ".jpg" else ".png"}"
-            val result = withContext(IO) { FileUtil.saveBitmap(bitmap, root, fileName, delete, formatJpg) }
+            val result = withContext(IO) { FileUtil.compressBit(bitmap, root, fileName, delete, formatJpg) }
             onComplete(if (result) absolutePath else null)
         }
     }
@@ -76,7 +76,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
                 page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                 page.close()
                 renderer.close()
-                FileUtil.saveBitmap(bitmap, root, fileName)
+                FileUtil.compressBit(bitmap, root, fileName)
             }
             onComplete(if (result) absolutePath else null)
         }
