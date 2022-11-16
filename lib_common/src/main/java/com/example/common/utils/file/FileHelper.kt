@@ -33,7 +33,7 @@ import kotlin.coroutines.CoroutineContext
  */
 class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
     override val coroutineContext: CoroutineContext
-        get() = (IO)
+        get() = (Main)
     private var job: Job? = null
 
     init {
@@ -44,13 +44,12 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
      * 存储图片协程
      */
     @JvmOverloads
-    fun saveBitmap(bitmap: Bitmap, root: String, fileName: String, formatJpg: Boolean = true, clear: Boolean = false, onComplete: (filePath: String?) -> Unit = {}) {
+    fun saveBitmap(bitmap: Bitmap, root: String, fileName: String, clear: Boolean = false, formatJpg: Boolean = true, onComplete: (filePath: String?) -> Unit = {}) {
         job?.cancel()
         job = launch {
             val absolutePath = "${root}/${fileName}${if (formatJpg) ".jpg" else ".png"}"
-            val result = FileUtil.saveBitmap(bitmap, root, fileName, clear, formatJpg)
-            //切回主线程返回路径
-            withContext(Main) { onComplete(if (result) absolutePath else null) }
+            val result = withContext(IO) { FileUtil.saveBitmap(bitmap, root, fileName, clear, formatJpg) }
+            onComplete(if (result) absolutePath else null)
         }
     }
 
@@ -61,24 +60,25 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
     fun savePdfBitmap(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}) {
         job?.cancel()
         job = launch {
-            val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
-            val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
-            val width = page.width
-            val height = page.height
-            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap)
-            canvas.drawColor(Color.WHITE)
-            canvas.drawBitmap(bitmap, 0f, 0f, null)
-            val rent = Rect(0, 0, width, height)
-            page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-            page.close()
-            renderer.close()
             val root = "${Constants.APPLICATION_FILE_PATH}/图片"
             val fileName = EN_YMDHMS.getDateTime(Date())
             val absolutePath = "${root}/${fileName}.jpg"
-            val result = FileUtil.saveBitmap(bitmap, root, fileName)
-            //切回主线程返回路径
-            withContext(Main) { onComplete(if (result) absolutePath else null) }
+            val result = withContext(IO) {
+                val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
+                val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
+                val width = page.width
+                val height = page.height
+                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(bitmap)
+                canvas.drawColor(Color.WHITE)
+                canvas.drawBitmap(bitmap, 0f, 0f, null)
+                val rent = Rect(0, 0, width, height)
+                page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                page.close()
+                renderer.close()
+                FileUtil.saveBitmap(bitmap, root, fileName)
+            }
+            onComplete(if (result) absolutePath else null)
         }
     }
 
@@ -92,14 +92,16 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
         job = launch {
             var result = true
             try {
-                withContext(Main) { onStart.invoke() }
-                val fileDir = File(folderPath)
-                if (fileDir.exists()) FileUtil.zipFolder(fileDir.absolutePath, File(zipPath).absolutePath)
+                onStart()
+                withContext(IO) {
+                    val fileDir = File(folderPath)
+                    if (fileDir.exists()) FileUtil.zipFolder(fileDir.absolutePath, File(zipPath).absolutePath)
+                }
             } catch (e: Exception) {
                 result = false
                 "打包图片生成压缩文件异常: $e".logE("FileHelper")
             } finally {
-                withContext(Main) { onComplete(if (result) zipPath else null) }
+                onComplete(if (result) zipPath else null)
             }
         }
     }
@@ -111,36 +113,38 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
                 "链接地址不合法".shortToast()
                 return@launch
             }
-            withContext(Main) { onStart() }
+            onStart()
             //清除目录下的所有文件
             filePath.deleteDir()
-            var inputStream: InputStream? = null
-            var fileOutputStream: FileOutputStream? = null
-            try {
-                //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
-                val body = CommonSubscribe.getDownloadApi(downloadUrl)
-                //在上一步协程成功并拿到对象后开始执行，创建一个安装的文件，开启io协程，写入
-                val file = File(filePath.isExistDir(), fileName)
-                val buf = ByteArray(2048)
-                val total = body.contentLength()
-                inputStream = body.byteStream()
-                fileOutputStream = FileOutputStream(file)
-                var len: Int
-                var sum: Long = 0
-                while (((inputStream.read(buf)).also { len = it }) != -1) {
-                    fileOutputStream.write(buf, 0, len)
-                    sum += len.toLong()
-                    val progress = (sum * 1.0f / total * 100).toInt()
-                    withContext(Main) { onLoading(progress) }
+            //创建一个安装的文件，开启io协程写入
+            val file = File(filePath.isExistDir(), fileName)
+            withContext(IO) {
+                var inputStream: InputStream? = null
+                var fileOutputStream: FileOutputStream? = null
+                try {
+                    //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
+                    val body = CommonSubscribe.getDownloadApi(downloadUrl)
+                    val buf = ByteArray(2048)
+                    val total = body.contentLength()
+                    inputStream = body.byteStream()
+                    fileOutputStream = FileOutputStream(file)
+                    var len: Int
+                    var sum: Long = 0
+                    while (((inputStream.read(buf)).also { len = it }) != -1) {
+                        fileOutputStream.write(buf, 0, len)
+                        sum += len.toLong()
+                        val progress = (sum * 1.0f / total * 100).toInt()
+                        withContext(Main) { onLoading(progress) }
+                    }
+                    fileOutputStream.flush()
+                    withContext(Main) { onSuccess(file.path) }
+                } catch (e: Exception) {
+                    withContext(Main) { onFailed(e) }
+                } finally {
+                    inputStream?.close()
+                    fileOutputStream?.close()
+                    withContext(Main) { onComplete() }
                 }
-                fileOutputStream.flush()
-                withContext(Main) { onSuccess(file.path) }
-            } catch (e: Exception) {
-                withContext(Main) { onFailed(e) }
-            } finally {
-                inputStream?.close()
-                fileOutputStream?.close()
-                withContext(Main) { onComplete() }
             }
         }
     }
@@ -151,15 +155,13 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
     fun create(view: View, width: Int = Constants.SCREEN_WIDTH, height: Int = Constants.SCREEN_HEIGHT, onStart: () -> Unit = {}, onResult: (bitmap: Bitmap?) -> Unit = {}, onComplete: () -> Unit = {}) {
         job?.cancel()
         job = launch {
-            withContext(Main) { onStart() }
+            onStart()
             loadLayout(view, width, height)
             try {
-                val bitmap = loadBitmap(view)
-                withContext(Main) { onResult(bitmap) }
+                onResult(withContext(IO) { loadBitmap(view) })
             } catch (_: Exception) {
-            } finally {
-                withContext(Main) { onComplete() }
             }
+            onComplete()
         }
     }
 
