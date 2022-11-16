@@ -156,9 +156,9 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
         job?.cancel()
         job = launch {
             onStart()
-            loadLayout(view, width, height)
+            view.loadLayout(width, height)
             try {
-                onResult(withContext(IO) { loadBitmap(view) })
+                onResult(withContext(IO) { view.loadBitmap() })
             } catch (_: Exception) {
             }
             onComplete()
@@ -169,24 +169,22 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
      * 当measure完后，并不会实际改变View的尺寸，需要调用View.layout方法去进行布局
      * 按示例调用layout函数后，View的大小将会变成你想要设置成的大小
      */
-    private fun loadLayout(view: View, width: Int, height: Int) {
+    private fun View.loadLayout(width: Int, height: Int) {
         //整个View的大小 参数是左上角 和右下角的坐标
-        view.layout(0, 0, width, height)
+        layout(0, 0, width, height)
         val measuredWidth = View.MeasureSpec.makeMeasureSpec(Constants.SCREEN_WIDTH, View.MeasureSpec.EXACTLY)
         val measuredHeight = View.MeasureSpec.makeMeasureSpec(Constants.SCREEN_HEIGHT, View.MeasureSpec.EXACTLY)
-        view.measure(measuredWidth, measuredHeight)
-        view.layout(0, 0, view.measuredWidth, view.measuredHeight)
+        measure(measuredWidth, measuredHeight)
+        layout(0, 0, measuredWidth, measuredHeight)
     }
 
     //如果不设置canvas画布为白色，则生成透明
-    private fun loadBitmap(view: View): Bitmap? {
-        val width = view.width
-        val height = view.height
+    private fun View.loadBitmap(): Bitmap? {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         canvas.drawColor(Color.WHITE)
-        view.layout(0, 0, width, height)
-        view.draw(canvas)
+        layout(0, 0, width, height)
+        draw(canvas)
         return bitmap
     }
 
