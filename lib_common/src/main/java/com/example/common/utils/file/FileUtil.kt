@@ -151,12 +151,12 @@ object FileUtil {
      */
     @JvmOverloads
     @JvmStatic
-    fun saveBitmap(bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH}/图片", fileName: String = EN_YMDHMS.getDateTime(Date()), clear: Boolean = false, formatJpg: Boolean = true, quality: Int = 100): Boolean {
+    fun compressBit(bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH}/图片", fileName: String = EN_YMDHMS.getDateTime(Date()), delete: Boolean = false, formatJpg: Boolean = true, quality: Int = 100): Boolean {
+        val storeDir = File(root)
+        if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
+        if (delete) storeDir.absolutePath.deleteDir()//删除路径下所有文件
+        val file = File(storeDir, "${fileName}${if (formatJpg) ".jpg" else ".png"}")
         try {
-            val storeDir = File(root)
-            if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
-            if (clear) storeDir.absolutePath.deleteDir()//删除路径下所有文件
-            val file = File(storeDir, "${fileName}${if (formatJpg) ".jpg" else ".png"}")
             //通过io流的方式来压缩保存图片
             val fileOutputStream = FileOutputStream(file)
             val result = bitmap.compress(if (formatJpg) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG, quality, fileOutputStream)//png的话100不响应，但是可以维持图片透明度
@@ -164,9 +164,8 @@ object FileUtil {
             fileOutputStream.close()
             return result
         } catch (_: Exception) {
-        } finally {
-            bitmap.recycle()
         }
+        bitmap.recycle()
         return false
     }
 

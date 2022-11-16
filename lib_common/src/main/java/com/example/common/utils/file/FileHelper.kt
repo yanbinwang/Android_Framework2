@@ -44,11 +44,11 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
      * 存储图片协程
      */
     @JvmOverloads
-    fun saveBitmap(bitmap: Bitmap, root: String, fileName: String, clear: Boolean = false, formatJpg: Boolean = true, onComplete: (filePath: String?) -> Unit = {}) {
+    fun saveBitmap(bitmap: Bitmap, root: String, fileName: String, delete: Boolean = false, formatJpg: Boolean = true, onComplete: (filePath: String?) -> Unit = {}) {
         job?.cancel()
         job = launch {
             val absolutePath = "${root}/${fileName}${if (formatJpg) ".jpg" else ".png"}"
-            val result = withContext(IO) { FileUtil.saveBitmap(bitmap, root, fileName, clear, formatJpg) }
+            val result = withContext(IO) { FileUtil.saveBitmap(bitmap, root, fileName, delete, formatJpg) }
             onComplete(if (result) absolutePath else null)
         }
     }
