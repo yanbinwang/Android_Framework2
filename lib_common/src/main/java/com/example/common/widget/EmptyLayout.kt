@@ -86,7 +86,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun showError(resId: Int = -1, text: String? = null) {
+    fun showError(resId: Int = -1, text: String? = null, refreshText: String? = null) {
         visible()
         if (!isNetworkAvailable()) {
             binding.ivEmpty.setImageResource(R.mipmap.img_data_net_error)
@@ -95,6 +95,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
             binding.ivEmpty.setImageResource(if (-1 == resId) R.mipmap.img_data_error else resId)
             binding.tvEmpty.text = if (text.isNullOrEmpty()) context.string(R.string.label_data_error) else text
         }
+        if(!refreshText.isNullOrEmpty()) binding.tvRefresh.text = refreshText
         binding.tvRefresh.visible()
     }
 
