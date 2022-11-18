@@ -23,6 +23,7 @@ import com.example.base.utils.function.view.background
 import com.example.base.utils.function.view.textColor
 import com.example.base.utils.setSpanFirst
 import com.example.common.BaseApplication
+import com.example.common.BuildConfig
 import com.example.common.R
 import com.example.common.constant.Constants
 import com.example.common.utils.ExtraNumber.pt
@@ -37,6 +38,11 @@ import kotlin.math.abs
  * 当前是否是主线程
  */
 val isMainThread get() = Looper.getMainLooper() == Looper.myLooper()
+
+/**
+ * 是否是debug包
+ */
+val isDebug get() = BuildConfig.DEBUG
 
 /**
  * 获取Color String中的color
@@ -84,6 +90,17 @@ fun resString(@StringRes res: Int): String {
     } catch (ignore: Exception) {
         ""
     }
+}
+
+/**
+ * 对应的拼接区分本地和测试
+ */
+fun Int.host(): String {
+    return "${BuildConfig.LOCALHOST}${string(this)}"
+}
+
+fun String.host(): String {
+    return "${BuildConfig.LOCALHOST}${this}"
 }
 
 /**
