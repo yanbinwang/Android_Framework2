@@ -98,6 +98,11 @@
             android:name=".activity.TestActivity"
             android:screenOrientation="portrait"
             android:theme="@style/fullScreenAlphaTheme" />
+
+        <activity
+            android:name=".activity.PullActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"

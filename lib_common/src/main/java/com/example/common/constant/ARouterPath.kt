@@ -12,6 +12,10 @@ object ARouterPath {
     const val TestListActivity = "/app/TestListActivity"
     const val UserInfoActivity = "/app/UserInfoActivity"
     const val TestActivity = "/app/TestActivity"
+
+    const val PullActivity = "/app/PullActivity"
+
+
     //    String StartActivity = "/main/start";//启动页
     //    String MainActivity = "/main/main";//首页
     //    //homepage模块

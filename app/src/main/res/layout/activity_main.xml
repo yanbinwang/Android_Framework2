@@ -1,37 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
+    <com.scwang.smart.refresh.layout.SmartRefreshLayout
+        android:id="@+id/x_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        app:srlEnableLoadMore="false"
+        app:srlEnableRefresh="true">
 
-        <EditText
-            android:id="@+id/edt"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="80mm"
-            android:layout_margin="20mm"
-            android:background="@drawable/shape_empty_btn"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="20mm"
-            android:textColor="@color/black"
-            android:textColorHint="@color/grey_333333" />
+            android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/btn_copy"
-            android:layout_width="match_parent"
-            android:layout_height="80mm"
-            android:layout_margin="20mm"
-            android:background="@drawable/shape_blue_btn"
-            android:text="添加"
-            android:textColor="@color/white"
-            android:textSize="24mm" />
+            <Button
+                android:id="@+id/btn_copy"
+                android:layout_width="match_parent"
+                android:layout_height="80mm"
+                android:layout_margin="20mm"
+                android:background="@drawable/shape_blue_btn"
+                android:text="添加"
+                android:textColor="@color/white"
+                android:textSize="24mm" />
 
-        <ImageView
-            android:id="@+id/iv_test"
-            android:layout_width="200mm"
-            android:layout_height="200mm" />
+        </FrameLayout>
 
-    </LinearLayout>
+    </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
 </layout>

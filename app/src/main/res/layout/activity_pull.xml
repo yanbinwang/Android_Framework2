@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="328mm"
+            android:scaleType="fitXY"
+            android:src="@mipmap/bg_go_position_demo" />
+
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_width="match_parent"
+            android:layout_height="60mm"
+            android:layout_marginHorizontal="40mm"
+            android:layout_marginTop="80mm"
+            android:background="@color/grey_9f9f9f"
+            android:enabled="false"
+            android:text="拽出的玩意儿"
+            android:textColor="@color/black" />
+
+    </FrameLayout>
+
+</layout>
+
+
