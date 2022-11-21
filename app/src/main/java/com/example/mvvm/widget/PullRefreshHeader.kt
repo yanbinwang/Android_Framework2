@@ -42,8 +42,8 @@ class PullRefreshHeader @JvmOverloads constructor(context: Context, attrs: Attri
         }
     }
 
-    override fun onDrawView() {
-        if (onFinishView()) addView(binding.root)
+    override fun onInflateView() {
+        if (isInflate()) addView(binding.root)
     }
 
     override fun onStateChanged(refreshLayout: RefreshLayout, oldState: RefreshState, newState: RefreshState) {

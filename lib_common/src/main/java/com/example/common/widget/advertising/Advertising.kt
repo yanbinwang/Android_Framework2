@@ -78,8 +78,8 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
     }
 
-    override fun onDrawView() {
-        if (onFinishView()) addView(banner)
+    override fun onInflateView() {
+        if (isInflate()) addView(banner)
     }
 
     override fun onResume(owner: LifecycleOwner) {

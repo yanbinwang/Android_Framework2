@@ -24,17 +24,17 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        if (onFinishView()) onDrawView()
+        if (isInflate()) onInflateView()
     }
 
     /**
      * 检测布局绘制
      */
-    protected fun onFinishView() = childCount <= 0
+    protected fun isInflate() = childCount <= 0
 
     /**
      * 容器在new的时候不会走onFinishInflate方法，需要手动调取
      */
-    abstract fun onDrawView()
+    abstract fun onInflateView()
 
 }

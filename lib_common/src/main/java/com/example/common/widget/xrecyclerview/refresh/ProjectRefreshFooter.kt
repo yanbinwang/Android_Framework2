@@ -42,8 +42,8 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
         setNoMoreData(noMoreData)
     }
 
-    override fun onDrawView() {
-        if (onFinishView()) addView(binding.root)
+    override fun onInflateView() {
+        if (isInflate()) addView(binding.root)
     }
 
     override fun onStateChanged(refreshLayout: RefreshLayout, oldState: RefreshState, newState: RefreshState) {

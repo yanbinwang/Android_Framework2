@@ -47,8 +47,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         typedArray.recycle()
     }
 
-    override fun onDrawView() {
-        if (onFinishView()) initRefreshType(refreshType)
+    override fun onInflateView() {
+        if (isInflate()) initRefreshType(refreshType)
     }
 
     private fun initRefreshType(refreshType: Int) {
