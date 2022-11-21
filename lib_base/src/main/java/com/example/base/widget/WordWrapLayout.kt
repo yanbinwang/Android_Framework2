@@ -25,7 +25,6 @@ class WordWrapLayout @JvmOverloads constructor(context: Context, attrs: Attribut
         //控件的实际宽度
         val actualWidth = MeasureSpec.getSize(widthMeasureSpec)
         //得到控件子view的总数
-        val childCount = childCount
         for (index in 0 until childCount) {
             //给子view设置内部的padding
             val child = getChildAt(index)
@@ -51,10 +50,8 @@ class WordWrapLayout @JvmOverloads constructor(context: Context, attrs: Attribut
 
     //返回控件的位置
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        //得到容器内所有的子view的数量
-        val childCount = childCount
         //得到控件的实际宽度（排除margin后）
-        val actualWidth: Int = r - l
+        val actualWidth = r - l
         //设置横纵坐标0,0开始，总行数为1
         var x = 0
         var y: Int
