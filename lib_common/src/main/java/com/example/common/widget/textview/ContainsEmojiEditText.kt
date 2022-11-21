@@ -60,7 +60,7 @@ class ContainsEmojiEditText @JvmOverloads constructor(context: Context, attrs: A
     /**
      * 检测是否有emoji表情
      */
-    fun containsEmoji(source: String): Boolean {
+    private fun containsEmoji(source: String): Boolean {
         val len = source.length
         for (i in 0 until len) {
             val codePoint = source[i]
