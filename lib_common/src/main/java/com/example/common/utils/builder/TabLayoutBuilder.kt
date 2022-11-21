@@ -67,7 +67,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
                 customView = binding.root
                 view.isLongClickable = false
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) view.tooltipText = null
-                onBindView(binding, tabList.safeGet(i), i == 0)
+                onBindView(binding, tabList.safeGet(i), i == 0, i)
             }
         }
         tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -85,7 +85,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             private fun onTabBind(tab: TabLayout.Tab?, selected: Boolean) {
                 tab?.customView ?: return
                 tab.position.orZero.apply {
-                    onBindView(tabViews[this], tabList.safeGet(this), selected)
+                    onBindView(tabViews[this], tabList.safeGet(this), selected, this)
                     builder?.selectTab(this)
                 }
             }
@@ -100,6 +100,6 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     /**
      * 设置数据
      */
-    protected abstract fun onBindView(binding: VDB?, item: T?, selected: Boolean)
+    protected abstract fun onBindView(binding: VDB?, item: T?, selected: Boolean, index: Int)
 
 }

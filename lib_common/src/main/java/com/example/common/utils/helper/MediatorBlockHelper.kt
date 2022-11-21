@@ -16,7 +16,7 @@ class MediatorBlockHelper constructor(tab: TabLayout, tabTitle: MutableList<Stri
 
     override fun getBindView() = ItemTabBinding.bind(context.inflate(R.layout.item_tab))
 
-    override fun onBindView(binding: ItemTabBinding?, item: String?, selected: Boolean) {
+    override fun onBindView(binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) {
         binding?.tvTitle.setArguments(item.orEmpty(), if (selected) R.color.blue_3d81f2 else R.color.grey_333333)
     }
 
