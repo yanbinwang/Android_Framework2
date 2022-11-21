@@ -13,15 +13,16 @@
             android:src="@mipmap/bg_go_position_demo" />
 
         <Button
-            android:id="@+id/btn_login"
+            android:id="@+id/btn_finish"
             android:layout_width="match_parent"
-            android:layout_height="60mm"
+            android:layout_height="80mm"
+            android:layout_gravity="bottom"
             android:layout_marginHorizontal="40mm"
             android:layout_marginTop="80mm"
             android:background="@color/grey_9f9f9f"
-            android:enabled="false"
-            android:text="拽出的玩意儿"
-            android:textColor="@color/black" />
+            android:text="回到首页"
+            android:textColor="@color/black"
+            android:textSize="32mm" />
 
     </FrameLayout>
 

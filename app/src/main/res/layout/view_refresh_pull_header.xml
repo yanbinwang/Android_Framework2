@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingConstraints">
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/blue_3d81f2">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:layout_width="match_parent"
@@ -14,10 +16,27 @@
 
         <ImageView
             android:id="@+id/iv_progress"
-            android:layout_width="20mm"
-            android:layout_height="20mm"
-            android:layout_gravity="center" />
+            android:layout_width="80mm"
+            android:layout_height="80mm"
+            android:layout_marginBottom="10mm"
+            app:layout_constraintBottom_toTopOf="@id/tv_type"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    </FrameLayout>
+        <TextView
+            android:id="@+id/tv_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20mm"
+            android:gravity="center"
+            android:text="下拉刷新"
+            android:textColor="@color/black"
+            android:textSize="32mm"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="松开加载更多" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

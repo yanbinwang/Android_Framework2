@@ -5,13 +5,10 @@ import android.content.Context
 import android.graphics.drawable.AnimationDrawable
 import android.util.AttributeSet
 import android.view.View
-import com.alibaba.android.arouter.launcher.ARouter
+import com.example.base.utils.TimerUtil
 import com.example.base.utils.function.inflate
-import com.example.base.utils.function.view.padding
 import com.example.base.utils.function.view.size
 import com.example.base.widget.BaseViewGroup
-import com.example.common.constant.ARouterPath
-import com.example.common.constant.Constants
 import com.example.common.utils.pt
 import com.example.common.utils.tint
 import com.example.mvvm.R
@@ -33,22 +30,15 @@ import com.scwang.smart.refresh.layout.constant.SpinnerStyle
 class PullRefreshHeader @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), RefreshHeader {
     private var animation: AnimationDrawable? = null
     private val binding by lazy { ViewRefreshPullHeaderBinding.bind(context.inflate(R.layout.view_refresh_pull_header, this, false)) }
-    var onMoving: ((percent: Float) -> Unit)? = null
+    private var percent = 0f
+    var onReleased: (() -> Unit)? = null
 
     init {
-        binding.root.size(LayoutParams.MATCH_PARENT, 40.pt)
+        binding.root.size(LayoutParams.MATCH_PARENT, 328.pt)
         binding.ivProgress.let {
-            it.padding(top = 2.5.pt, bottom = 2.5.pt)
             it.setImageResource(R.drawable.animation_list_loading)
             it.tint(R.color.blue_3d81f2)
             animation = it.drawable as? AnimationDrawable
-        }
-    }
-
-    fun setStatusBarPadding() {
-        binding.root.apply {
-            size(LayoutParams.MATCH_PARENT, 40.pt + Constants.STATUS_BAR_HEIGHT)
-            padding(top = Constants.STATUS_BAR_HEIGHT)
         }
     }
 
@@ -82,12 +72,17 @@ class PullRefreshHeader @JvmOverloads constructor(context: Context, attrs: Attri
      * @param maxDragHeight 最大拖动高度 offset 可以超过 height 参数 但是不会超过 maxDragHeight
      */
     override fun onMoving(isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) {
-        if (isDragging) {
-            onMoving?.invoke(percent)
+        this.percent = percent
+        if (offset < height) {
+            binding.tvType.text = "下拉刷新"
+        } else {
+            //此时已经满足了刷新的条件,滑动率比实际高度大的话，再滑停止的时候触发本来的刷新还是跳转
+            if (percent >= 1.3) {
+                binding.tvType.text = "展开更多"
+            } else {
+                binding.tvType.text = "松开刷新"
+            }
         }
-//        if (isDragging) {
-//            animation?.start()
-//        }
     }
 
     /**
@@ -97,7 +92,12 @@ class PullRefreshHeader @JvmOverloads constructor(context: Context, attrs: Attri
      * @param maxDragHeight 最大拖动高度
      */
     override fun onReleased(refreshLayout: RefreshLayout, height: Int, maxDragHeight: Int) {
-        animation?.start()//松开时才开始做动画
+        if (percent < 1.3) {
+            animation?.start()//松开时才开始做动画
+        } else {
+            onReleased?.invoke()
+            TimerUtil.schedule({ refreshLayout.finishRefresh(false) },1000)
+        }
     }
 
     override fun onStartAnimator(refreshLayout: RefreshLayout, height: Int, maxDragHeight: Int) {

@@ -11,17 +11,16 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@color/blue_3d81f2">
 
-            <Button
-                android:id="@+id/btn_copy"
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="80mm"
-                android:layout_margin="20mm"
-                android:background="@drawable/shape_blue_btn"
-                android:text="添加"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="首页"
                 android:textColor="@color/white"
-                android:textSize="24mm" />
+                android:textSize="38mm" />
 
         </FrameLayout>
 
