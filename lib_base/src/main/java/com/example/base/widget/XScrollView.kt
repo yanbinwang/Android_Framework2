@@ -24,7 +24,7 @@ class XScrollView @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     override fun onOverScrolled(scrollX: Int, scrollY: Int, clampedX: Boolean, clampedY: Boolean) {
         super.onOverScrolled(scrollX, scrollY, clampedX, clampedY)
-        if (scrollY != 0 && null != onBottom && isTop) onBottom?.invoke(clampedY)
+        if (scrollY != 0 && isTop) onBottom?.invoke(clampedY)
     }
 
     override fun onInterceptTouchEvent(e: MotionEvent): Boolean {
