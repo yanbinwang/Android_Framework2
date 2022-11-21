@@ -78,7 +78,8 @@ class PullRefreshHeader @JvmOverloads constructor(context: Context, attrs: Attri
         } else {
             //此时已经满足了刷新的条件,滑动率比实际高度大的话，再滑停止的时候触发本来的刷新还是跳转
             if (percent >= 1.3) {
-                binding.tvType.text = "展开更多"
+//                binding.tvType.text = "展开更多"
+                if(isDragging) onReleased?.invoke()
             } else {
                 binding.tvType.text = "松开刷新"
             }
@@ -92,11 +93,17 @@ class PullRefreshHeader @JvmOverloads constructor(context: Context, attrs: Attri
      * @param maxDragHeight 最大拖动高度
      */
     override fun onReleased(refreshLayout: RefreshLayout, height: Int, maxDragHeight: Int) {
+//        if (percent < 1.3) {
+//            animation?.start()//松开时才开始做动画
+//        } else {
+//            onReleased?.invoke()
+//            TimerUtil.schedule({ refreshLayout.finishRefresh(false) },1000)
+//        }
+
         if (percent < 1.3) {
             animation?.start()//松开时才开始做动画
         } else {
-            onReleased?.invoke()
-            TimerUtil.schedule({ refreshLayout.finishRefresh(false) },1000)
+            refreshLayout.finishRefresh(false)
         }
     }
 

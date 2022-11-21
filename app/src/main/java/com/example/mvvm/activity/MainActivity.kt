@@ -16,6 +16,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnRefreshListener {
     override fun initView() {
         super.initView()
         binding.xRefresh.setRefreshHeader(header)
+        binding.xRefresh.setHeaderTriggerRate(0.8f)
         binding.xRefresh.setOnRefreshListener(this)
         header.onReleased = { navigation(ARouterPath.PullActivity) }
     }

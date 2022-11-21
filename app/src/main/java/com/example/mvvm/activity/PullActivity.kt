@@ -26,12 +26,13 @@ class PullActivity : BaseActivity<ActivityPullBinding>() {
 
     override fun initEvent() {
         super.initEvent()
-        binding.btnFinish.click { finish() }
+//        binding.btnFinish.click { finish() }
+        binding.root.click { finish() }
     }
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(0, R.anim.slide_out)
-//        overridePendingTransition(0, 0)
+//        overridePendingTransition(0, R.anim.slide_out)
+        overridePendingTransition(0, 0)
     }
 }

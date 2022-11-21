@@ -9,6 +9,7 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="328mm"
+            android:layout_gravity="bottom"
             android:scaleType="fitXY"
             android:src="@mipmap/bg_go_position_demo" />
 
@@ -22,7 +23,8 @@
             android:background="@color/grey_9f9f9f"
             android:text="回到首页"
             android:textColor="@color/black"
-            android:textSize="32mm" />
+            android:textSize="32mm"
+            android:visibility="gone" />
 
     </FrameLayout>
 
