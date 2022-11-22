@@ -103,7 +103,7 @@ class PullRefreshHeader @JvmOverloads constructor(context: Context, attrs: Attri
         if (percent < 1.3) {
             animation?.start()//松开时才开始做动画
         } else {
-            refreshLayout.finishRefresh(false)
+            refreshLayout.finishRefresh(2000,false,false)
         }
     }
 
