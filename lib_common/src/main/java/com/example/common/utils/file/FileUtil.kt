@@ -201,22 +201,22 @@ fun Context.insertImageResolver(file: File) {
  * image -> 图片
  */
 @JvmOverloads
-fun Context.sendFile(filePath: String, type: String? = "*/*", title: String? = "分享文件") {
+fun Context.sendFile(filePath: String, fileType: String? = "*/*", title: String? = "分享文件") {
     val file = File(filePath)
     if (!file.exists()) {
         "文件路径错误".shortToast()
         return
     }
-    val intent = Intent(Intent.ACTION_SEND)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this, "${Constants.APPLICATION_ID}.fileProvider", file))
-    } else {
-        intent.putExtra(Intent.EXTRA_STREAM, file)
-    }
-    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    intent.type = type//此处可发送多种文件
-    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    startActivity(Intent.createChooser(intent, title))
+    startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this@sendFile, "${Constants.APPLICATION_ID}.fileProvider", file))
+        } else {
+            putExtra(Intent.EXTRA_STREAM, file)
+        }
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        type = fileType//此处可发送多种文件
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    }, title))
 }
 
 /**
@@ -238,10 +238,15 @@ fun Context.openSetupApk(filePath: String) = openFile(filePath, "application/vnd
  * 統一開啟文件
  */
 fun Context.openFile(filePath: String, type: String) {
+    val file = File(filePath)
+    if (!file.exists()) {
+        "文件路径错误".shortToast()
+        return
+    }
     startActivity(Intent(Intent.ACTION_VIEW).apply {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            setDataAndType(FileProvider.getUriForFile(this@openFile, "${Constants.APPLICATION_ID}.fileProvider", File(filePath)), type)
+            setDataAndType(FileProvider.getUriForFile(this@openFile, "${Constants.APPLICATION_ID}.fileProvider", file), type)
         } else {
             setDataAndType(Uri.parse("file://$filePath"), type)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -297,7 +302,7 @@ fun String?.deleteDir() {
 /**
  * 读取文件到文本（文本，找不到文件或读取错返回null）
  */
-fun String?.readText(): String {
+fun String?.readTxt(): String {
     this ?: return ""
     val file = File(this)
     if (file.exists()) {
@@ -334,17 +339,17 @@ fun String.copyFile(destSouth: String) {
 /**
  * 获取对应大小的文字
  */
-fun File?.getFormatSize(): String {
+fun File?.getSizeFormat(): String {
     this ?: return ""
-    return length().getFormatSize()
+    return length().getSizeFormat()
 }
 
-fun String?.getFormatSize(): String {
+fun String?.getSizeFormat(): String {
     this ?: return ""
-    return File(this).getFormatSize()
+    return File(this).getSizeFormat()
 }
 
-fun Number?.getFormatSize(): String {
+fun Number?.getSizeFormat(): String {
     this ?: return ""
     val byteResult = this.toSafeLong() / 1024
     if (byteResult < 1) return "<1K"
