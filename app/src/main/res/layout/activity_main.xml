@@ -9,6 +9,20 @@
         app:srlEnableLoadMore="false"
         app:srlEnableRefresh="true">
 
+        <com.example.mvvm.widget.TwoLevelHeader
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/second_floor"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/img_second_floor" />
+
+        </com.example.mvvm.widget.TwoLevelHeader>
+
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

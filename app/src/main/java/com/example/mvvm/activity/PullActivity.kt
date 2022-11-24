@@ -18,9 +18,10 @@ import com.example.mvvm.databinding.ActivityPullBinding
 class PullActivity : BaseActivity<ActivityPullBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.navigationBarColor = color(R.color.white)
+//        window.navigationBarColor = color(R.color.white)
 //        window.decorView.apply { systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION }
         super.onCreate(savedInstanceState)
+//        overridePendingTransition(R.anim.slide_in, R.anim.alpha_out)
         overridePendingTransition(R.anim.slide_in, R.anim.alpha_out)
     }
 

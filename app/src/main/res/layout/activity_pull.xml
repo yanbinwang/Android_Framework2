@@ -3,15 +3,13 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white">
+        android:layout_height="match_parent">
 
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="328mm"
-            android:layout_gravity="bottom"
-            android:scaleType="fitXY"
-            android:src="@mipmap/bg_go_position_demo" />
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/img_second_floor" />
 
         <Button
             android:id="@+id/btn_finish"
@@ -23,8 +21,7 @@
             android:background="@color/grey_9f9f9f"
             android:text="回到首页"
             android:textColor="@color/black"
-            android:textSize="32mm"
-            android:visibility="gone" />
+            android:textSize="32mm" />
 
     </FrameLayout>
 

@@ -13,6 +13,7 @@ import android.provider.Settings
 import androidx.core.content.FileProvider
 import com.example.base.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.base.utils.function.value.getDateTime
+import com.example.base.utils.function.value.toSafeLong
 import com.example.base.utils.logE
 import com.example.common.constant.Constants
 import com.example.common.utils.builder.shortToast
@@ -190,44 +191,9 @@ fun Context.isAdbEnabled() = (Settings.Secure.getInt(contentResolver, Settings.G
 /**
  * 发送广播通知更新数据库
  */
-fun Context.noticeAlbum(file: File) {
+fun Context.insertImageResolver(file: File) {
     MediaStore.Images.Media.insertImage(contentResolver, file.absolutePath, file.name, null)
-    sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + file.path)))
-}
-
-/**
- * 打开压缩包
- */
-fun Context.openZip(filePath: String) {
-    val intent = Intent(Intent.ACTION_VIEW)
-    //判断是否是AndroidN以及更高的版本
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-        val file = File(filePath)
-        val contentUri = FileProvider.getUriForFile(this, "${Constants.APPLICATION_ID}.fileProvider", file)
-        intent.setDataAndType(contentUri, "application/x-zip-compressed")
-    } else {
-        intent.setDataAndType(Uri.parse("file://$filePath"), "application/x-zip-compressed")
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    }
-    startActivity(intent)
-}
-
-/**
- * 打开world
- */
-fun Context.openWorld(filePath: String) {
-    val file = File(filePath)
-    val intent = Intent(Intent.ACTION_VIEW)
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    val uri: Uri
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-        uri = FileProvider.getUriForFile(this, "${Constants.APPLICATION_ID}.fileProvider", file)
-        intent.setDataAndType(uri, "application/vnd.android.package-archive")
-    } else uri = Uri.parse("file://$file")
-    intent.setDataAndType(uri, "application/msword")
-    startActivity(intent)
+    sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://${file.path}")))
 }
 
 /**
@@ -235,7 +201,7 @@ fun Context.openWorld(filePath: String) {
  * image -> 图片
  */
 @JvmOverloads
-fun Context.sendFile(filePath: String, type: String? = "*/*") {
+fun Context.sendFile(filePath: String, type: String? = "*/*", title: String? = "分享文件") {
     val file = File(filePath)
     if (!file.exists()) {
         "文件路径错误".shortToast()
@@ -250,28 +216,37 @@ fun Context.sendFile(filePath: String, type: String? = "*/*") {
     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     intent.type = type//此处可发送多种文件
     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    startActivity(Intent.createChooser(intent, "分享文件"))
+    startActivity(Intent.createChooser(intent, title))
 }
 
 /**
- * 获取安装跳转的行为
+ * 打开压缩包
  */
-fun Context.getSetupApk(apkFilePath: String): Intent {
-    val intent = Intent(Intent.ACTION_VIEW)
-    //判断是否是AndroidN以及更高的版本
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-        val file = File(apkFilePath)
-        val contentUri = FileProvider.getUriForFile(this, Constants.APPLICATION_ID + ".fileProvider", file)
-        intent.setDataAndType(contentUri, "application/vnd.android.package-archive")
-    } else {
-        intent.setDataAndType(
-            Uri.parse("file://$apkFilePath"),
-            "application/vnd.android.package-archive"
-        )
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    }
-    return intent
+fun Context.openZip(filePath: String) = openFile(filePath, "application/x-zip-compressed")
+
+/**
+ * 打开world
+ */
+fun Context.openWorld(filePath: String) = openFile(filePath, "application/msword")
+
+/**
+ * 打開安装包
+ */
+fun Context.openSetupApk(filePath: String) = openFile(filePath, "application/vnd.android.package-archive")
+
+/**
+ * 統一開啟文件
+ */
+fun Context.openFile(filePath: String, type: String) {
+    startActivity(Intent(Intent.ACTION_VIEW).apply {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            setDataAndType(FileProvider.getUriForFile(this@openFile, "${Constants.APPLICATION_ID}.fileProvider", File(filePath)), type)
+        } else {
+            setDataAndType(Uri.parse("file://$filePath"), type)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+    })
 }
 
 /**
@@ -279,12 +254,13 @@ fun Context.getSetupApk(apkFilePath: String): Intent {
  */
 fun Context.getApplicationIcon(): Bitmap? {
     try {
-        val drawable = packageManager.getApplicationIcon(Constants.APPLICATION_ID)
-        val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, if (drawable.opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565)
-        val canvas = Canvas(bitmap)
-        drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
-        drawable.draw(canvas)
-        return bitmap
+        packageManager.getApplicationIcon(Constants.APPLICATION_ID).apply {
+            val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565)
+            val canvas = Canvas(bitmap)
+            setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+            draw(canvas)
+            return bitmap
+        }
     } catch (_: Exception) {
     }
     return null
@@ -368,9 +344,9 @@ fun String?.getFormatSize(): String {
     return File(this).getFormatSize()
 }
 
-fun Long?.getFormatSize(): String {
+fun Number?.getFormatSize(): String {
     this ?: return ""
-    val byteResult = this / 1024
+    val byteResult = this.toSafeLong() / 1024
     if (byteResult < 1) return "<1K"
     val kiloByteResult = byteResult / 1024
     if (kiloByteResult < 1) return "${BigDecimal(byteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}K"
