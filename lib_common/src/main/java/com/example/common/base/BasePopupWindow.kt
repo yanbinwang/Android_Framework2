@@ -27,9 +27,11 @@ import java.lang.reflect.ParameterizedType
  * 用于实现上下左右弹出的效果，如有特殊需求，重写animation
  * 默认底部显示弹出
  */
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window, popupWidth: Int = MATCH_PARENT, popupHeight: Int = MATCH_PARENT, private val gravity: Int = BOTTOM, private val edge: Int = BOTTOM, private val animation: Boolean = true, private val light: Boolean = false) : PopupWindow() {
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window, popupWidth: Int = MATCH_PARENT, popupHeight: Int = MATCH_PARENT, private val slideEdge: Int = BOTTOM,
+    private val animation: Boolean = true, private val light: Boolean = false) : PopupWindow() {
     protected lateinit var binding: VDB
-    protected val context: Context get() { return window.context }
+    protected val context: Context
+    get() { return window.context }
     private val layoutParams by lazy { window.attributes }
 
     init {
@@ -47,9 +49,14 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window
             isFocusable = true
             isOutsideTouchable = true
             softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setTransition()
-            setDismissAttributes()
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setOnDismissListener {
+                if (light) {
+                    layoutParams?.alpha = 1f
+                    window.attributes = layoutParams
+                }
+            }
         }
     }
 
@@ -61,15 +68,15 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window
                 enterTransition = Slide().apply {
                     duration = 500
                     mode = Visibility.MODE_IN
-                    slideEdge = edge
+                    slideEdge = slideEdge
                 }
                 setExitTransition(Slide().apply {
                     duration = 500
                     mode = Visibility.MODE_OUT
-                    slideEdge = edge
+                    slideEdge = slideEdge
                 })
             } else {
-                animationStyle = when (gravity) {
+                animationStyle = when (slideEdge) {
                     TOP -> R.style.pushTopAnimStyle
                     BOTTOM -> R.style.pushBottomAnimStyle
                     START, LEFT -> R.style.pushLeftAnimStyle
@@ -87,7 +94,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window
         if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
         if ((context as? Activity)?.isFinishing.orFalse) return
         try {
-            setShowAttributes()
+            setAttributes()
             super.showAsDropDown(anchor)
         } catch (_: Exception) {
         }
@@ -97,7 +104,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window
         if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
         if ((context as? Activity)?.isFinishing.orFalse) return
         try {
-            setShowAttributes()
+            setAttributes()
             super.showAsDropDown(anchor, xoff, yoff)
         } catch (_: Exception) {
         }
@@ -107,7 +114,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window
         if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
         if ((context as? Activity)?.isFinishing.orFalse) return
         try {
-            setShowAttributes()
+            setAttributes()
             super.showAsDropDown(anchor, xoff, yoff, gravity)
         } catch (_: Exception) {
         }
@@ -118,9 +125,16 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window
         if ((context as? Activity)?.isFinishing.orFalse) return
         if ((context as? Activity)?.isDestroyed.orFalse) return
         try {
-            setShowAttributes()
+            setAttributes()
             super.showAtLocation(parent, gravity, x, y)
         } catch (_: Exception) {
+        }
+    }
+
+    private fun setAttributes() {
+        if (light) {
+            layoutParams?.alpha = 0.7f
+            window.attributes = layoutParams
         }
     }
 
@@ -135,24 +149,12 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window
         binding.unbind()
     }
 
-    fun shown() {
-        showAtLocation(binding.root, gravity, 0, 0)
+    open fun shown() {
+        if (!isShowing) showAtLocation(binding.root, slideEdge, 0, 0)
     }
 
-    private fun setShowAttributes() {
-        if (light) {
-            layoutParams?.alpha = 0.7f
-            window.attributes = layoutParams
-        }
-    }
-
-    private fun setDismissAttributes() {
-        if (light) {
-            setOnDismissListener {
-                layoutParams?.alpha = 1f
-                window.attributes = layoutParams
-            }
-        }
+    open fun hidden() {
+        if (isShowing) dismiss()
     }
     // </editor-fold>
 
