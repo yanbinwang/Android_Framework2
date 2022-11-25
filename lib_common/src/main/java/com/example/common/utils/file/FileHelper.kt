@@ -23,9 +23,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.util.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -43,30 +46,27 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
     /**
      * 存储图片协程
      */
-    fun compressBitJob(bitmap: Bitmap, root: String, fileName: String, delete: Boolean = false, formatJpg: Boolean = true, onComplete: (filePath: String?) -> Unit = {}) {
+    fun saveFileByBitmapJob(bitmap: Bitmap, root: String, fileName: String, delete: Boolean = false, formatJpg: Boolean = true, onComplete: (filePath: String?) -> Unit = {}) {
         job?.cancel()
-        job = launch { compressBit(bitmap, root, fileName, delete, formatJpg, onComplete) }
+        job = launch { saveFileByBitmap(bitmap, root, fileName, delete, formatJpg, onComplete) }
     }
 
-    suspend fun compressBit(bitmap: Bitmap, root: String, fileName: String, delete: Boolean = false, formatJpg: Boolean = true, onComplete: (filePath: String?) -> Unit = {}) {
-        val absolutePath = "${root}/${fileName}${if (formatJpg) ".jpg" else ".png"}"
-        val result = withContext(IO) { FileUtil.compressBit(bitmap, root, fileName, delete, formatJpg) }
-        onComplete(if (result) absolutePath else null)
+    suspend fun saveFileByBitmap(bitmap: Bitmap, root: String, fileName: String, delete: Boolean = false, formatJpg: Boolean = true, onComplete: (filePath: String?) -> Unit = {}) {
+        onComplete(withContext(IO) { saveBitmap(bitmap, root, fileName, delete, formatJpg) })
     }
 
     /**
      * 保存pdf文件存成图片形式
      */
-    fun compressPDFBitJob(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}) {
+    fun saveFileByPDFJob(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}) {
         job?.cancel()
-        job = launch { compressPDFBit(file, index, onComplete) }
+        job = launch { saveFileByPDF(file, index, onComplete) }
     }
 
-    suspend fun compressPDFBit(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}) {
+    suspend fun saveFileByPDF(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}) {
         val root = "${Constants.APPLICATION_FILE_PATH}/图片"
         val fileName = EN_YMDHMS.getDateTime(Date())
-        val absolutePath = "${root}/${fileName}.jpg"
-        val result = withContext(IO) {
+        onComplete(withContext(IO) {
             val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
             val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
             val width = page.width
@@ -79,9 +79,37 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
             page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
             page.close()
             renderer.close()
-            FileUtil.compressBit(bitmap, root, fileName)
+            saveBitmap(bitmap, root, fileName)
+        })
+    }
+
+    /**
+     * bitmap->存储的bitmap
+     * root->图片保存路径
+     * fileName->图片名称（扣除jpg和png的后缀）
+     * formatJpg->确定图片类型
+     * quality->压缩率
+     * clear->是否清除本地路径
+     */
+    private fun saveBitmap(bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH}/图片", fileName: String = EN_YMDHMS.getDateTime(Date()), delete: Boolean = false, formatJpg: Boolean = true, quality: Int = 100): String? {
+        val storeDir = File(root)
+        if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
+        if (delete) storeDir.absolutePath.deleteDir()//删除路径下所有文件
+        val file = File(storeDir, "${fileName}${if (formatJpg) ".jpg" else ".png"}")
+        try {
+            //通过io流的方式来压缩保存图片
+            val fileOutputStream = FileOutputStream(file)
+            bitmap.compress(
+                if (formatJpg) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG,
+                quality,
+                fileOutputStream
+            )//png的话100不响应，但是可以维持图片透明度
+            fileOutputStream.flush()
+            fileOutputStream.close()
+        } catch (_: Exception) {
         }
-        onComplete(if (result) absolutePath else null)
+        bitmap.recycle()
+        return file.absolutePath
     }
 
     /**
@@ -97,15 +125,63 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
         var result = true
         try {
             onStart()
-            withContext(IO) {
-                val fileDir = File(folderPath)
-                if (fileDir.exists()) FileUtil.zipFolder(fileDir.absolutePath, File(zipPath).absolutePath)
-            }
+            withContext(IO) { File(folderPath).apply { if (exists()) zipFolder(absolutePath, File(zipPath).absolutePath) } }
         } catch (e: Exception) {
             result = false
             "打包图片生成压缩文件异常: $e".logE("FileHelper")
-        } finally {
-            onComplete(if (result) zipPath else null)
+        }
+        onComplete(if (result) zipPath else null)
+    }
+
+    /**
+     * 将指定路径下的所有文件打成压缩包
+     * File fileDir = new File(rootDir + "/DCIM/Screenshots");
+     * File zipFile = new File(rootDir + "/" + taskId + ".zip");
+     *
+     * @param srcFilePath 要压缩的文件或文件夹路径
+     * @param zipFilePath 压缩完成的Zip路径
+     */
+    @Throws(Exception::class)
+    private fun zipFolder(srcFilePath: String, zipFilePath: String) {
+        //创建ZIP
+        val outZip = ZipOutputStream(FileOutputStream(zipFilePath))
+        //创建文件
+        val file = File(srcFilePath)
+        //压缩
+        zipFiles(file.parent + File.separator, file.name, outZip)
+        //完成和关闭
+        outZip.finish()
+        outZip.close()
+    }
+
+    @Throws(Exception::class)
+    private fun zipFiles(folderPath: String, fileName: String, zipOutputSteam: ZipOutputStream?) {
+        " \n压缩路径:$folderPath\n压缩文件名:$fileName".logE("FileUtil")
+        if (zipOutputSteam == null) return
+        val file = File(folderPath + fileName)
+        if (file.isFile) {
+            val zipEntry = ZipEntry(fileName)
+            val inputStream = FileInputStream(file)
+            zipOutputSteam.putNextEntry(zipEntry)
+            var len: Int
+            val buffer = ByteArray(4096)
+            while (inputStream.read(buffer).also { len = it } != -1) {
+                zipOutputSteam.write(buffer, 0, len)
+            }
+            zipOutputSteam.closeEntry()
+        } else {
+            //文件夹
+            val fileList = file.list()
+            //没有子文件和压缩
+            if (fileList.isEmpty()) {
+                val zipEntry = ZipEntry(fileName + File.separator)
+                zipOutputSteam.putNextEntry(zipEntry)
+                zipOutputSteam.closeEntry()
+            }
+            //子文件和递归
+            for (i in fileList.indices) {
+                zipFiles("$folderPath$fileName/", fileList[i], zipOutputSteam)
+            }
         }
     }
 

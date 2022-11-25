@@ -11,17 +11,12 @@ import android.os.Build
 import android.provider.MediaStore
 import android.provider.Settings
 import androidx.core.content.FileProvider
-import com.example.base.utils.function.value.DateFormat.EN_YMDHMS
-import com.example.base.utils.function.value.getDateTime
 import com.example.base.utils.function.value.toSafeLong
-import com.example.base.utils.logE
 import com.example.common.constant.Constants
 import com.example.common.utils.builder.shortToast
 import java.io.*
 import java.math.BigDecimal
 import java.util.*
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 
 /**
  * Created by WangYanBin on 2020/7/1.
@@ -86,87 +81,6 @@ object FileUtil {
         } catch (_: Exception) {
         }
         return "暂无"
-    }
-
-    /**
-     * 将指定路径下的所有文件打成压缩包
-     * File fileDir = new File(rootDir + "/DCIM/Screenshots");
-     * File zipFile = new File(rootDir + "/" + taskId + ".zip");
-     *
-     * @param srcFilePath 要压缩的文件或文件夹路径
-     * @param zipFilePath 压缩完成的Zip路径
-     */
-    @JvmStatic
-    @Throws(Exception::class)
-    fun zipFolder(srcFilePath: String, zipFilePath: String) {
-        //创建ZIP
-        val outZip = ZipOutputStream(FileOutputStream(zipFilePath))
-        //创建文件
-        val file = File(srcFilePath)
-        //压缩
-        zipFiles(file.parent + File.separator, file.name, outZip)
-        //完成和关闭
-        outZip.finish()
-        outZip.close()
-    }
-
-    @Throws(Exception::class)
-    private fun zipFiles(folderPath: String, fileName: String, zipOutputSteam: ZipOutputStream?) {
-        " \n压缩路径:$folderPath\n压缩文件名:$fileName".logE("FileUtil")
-        if (zipOutputSteam == null) return
-        val file = File(folderPath + fileName)
-        if (file.isFile) {
-            val zipEntry = ZipEntry(fileName)
-            val inputStream = FileInputStream(file)
-            zipOutputSteam.putNextEntry(zipEntry)
-            var len: Int
-            val buffer = ByteArray(4096)
-            while (inputStream.read(buffer).also { len = it } != -1) {
-                zipOutputSteam.write(buffer, 0, len)
-            }
-            zipOutputSteam.closeEntry()
-        } else {
-            //文件夹
-            val fileList = file.list()
-            //没有子文件和压缩
-            if (fileList.isEmpty()) {
-                val zipEntry = ZipEntry(fileName + File.separator)
-                zipOutputSteam.putNextEntry(zipEntry)
-                zipOutputSteam.closeEntry()
-            }
-            //子文件和递归
-            for (i in fileList.indices) {
-                zipFiles("$folderPath$fileName/", fileList[i], zipOutputSteam)
-            }
-        }
-    }
-
-    /**
-     * bitmap->存储的bitmap
-     * root->图片保存路径
-     * fileName->图片名称（扣除jpg和png的后缀）
-     * formatJpg->确定图片类型
-     * quality->压缩率
-     * clear->是否清除本地路径
-     */
-    @JvmOverloads
-    @JvmStatic
-    fun compressBit(bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH}/图片", fileName: String = EN_YMDHMS.getDateTime(Date()), delete: Boolean = false, formatJpg: Boolean = true, quality: Int = 100): Boolean {
-        val storeDir = File(root)
-        if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
-        if (delete) storeDir.absolutePath.deleteDir()//删除路径下所有文件
-        val file = File(storeDir, "${fileName}${if (formatJpg) ".jpg" else ".png"}")
-        try {
-            //通过io流的方式来压缩保存图片
-            val fileOutputStream = FileOutputStream(file)
-            val result = bitmap.compress(if (formatJpg) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG, quality, fileOutputStream)//png的话100不响应，但是可以维持图片透明度
-            fileOutputStream.flush()
-            fileOutputStream.close()
-            return result
-        } catch (_: Exception) {
-        }
-        bitmap.recycle()
-        return false
     }
 
 }
