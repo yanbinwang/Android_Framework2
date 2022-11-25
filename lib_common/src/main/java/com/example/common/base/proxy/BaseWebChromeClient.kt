@@ -14,22 +14,22 @@ import com.tencent.smtt.sdk.WebView
  */
 class BaseWebChromeClient(private var pbWeb: ProgressBar, private var refresh: SmartRefreshLayout) : WebChromeClient() {
 
-    override fun onJsAlert(p0: WebView?, p1: String?, p2: String?, p3: JsResult?): Boolean {
-        return super.onJsAlert(p0, p1, p2, p3)
+    override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
+        return super.onJsAlert(view, url, message, result)
     }
 
-    override fun onReceivedTitle(p0: WebView?, p1: String?) {
-        super.onReceivedTitle(p0, p1)
+    override fun onReceivedTitle(view: WebView?, title: String?) {
+        super.onReceivedTitle(view, title)
     }
 
-    override fun onProgressChanged(p0: WebView?, p1: Int) {
-        super.onProgressChanged(p0, p1)
-        if (p1 == 100) {
+    override fun onProgressChanged(view: WebView?, newProgress: Int) {
+        super.onProgressChanged(view, newProgress)
+        if (newProgress == 100) {
             refresh.finishRefreshing()
             pbWeb.gone()//加载完网页进度条消失
         } else {
             pbWeb.visible()//开始加载网页时显示进度条
-            pbWeb.progress = p1 //设置进度值
+            pbWeb.progress = newProgress //设置进度值
         }
     }
 

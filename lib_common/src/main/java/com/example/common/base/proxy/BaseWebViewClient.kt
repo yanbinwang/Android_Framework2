@@ -10,20 +10,20 @@ import com.tencent.smtt.sdk.WebViewClient
  */
 class BaseWebViewClient : WebViewClient() {
 
-    override fun onLoadResource(p0: WebView?, p1: String?) {
-        super.onLoadResource(p0, p1)
+    override fun onLoadResource(view: WebView?, url: String?) {
+        super.onLoadResource(view, url)
     }
 
-    override fun shouldOverrideUrlLoading(p0: WebView?, p1: WebResourceRequest?): Boolean {
-        return super.shouldOverrideUrlLoading(p0, p1)
+    override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+        return super.shouldOverrideUrlLoading(view, request)
     }
 
-    override fun onPageStarted(p0: WebView?, p1: String?, p2: Bitmap?) {
-        super.onPageStarted(p0, p1, p2)
+    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+        super.onPageStarted(view, url, favicon)
     }
 
-    override fun onPageFinished(p0: WebView?, p1: String?) {
-        super.onPageFinished(p0, p1)
+    override fun onPageFinished(view: WebView?, url: String?) {
+        super.onPageFinished(view, url)
     }
 
 }
