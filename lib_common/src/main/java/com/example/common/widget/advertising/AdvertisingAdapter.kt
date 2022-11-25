@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.base.utils.function.mipmapId
 import com.example.base.utils.function.value.safeGet
 import com.example.base.utils.function.value.safeSize
+import com.example.base.utils.function.view.background
 import com.example.base.utils.function.view.click
 import com.example.common.imageloader.ImageLoader
 
@@ -30,11 +31,11 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.itemView.click { onItemClick?.invoke(position.mod(list.safeSize)) }
+        val bean = list.safeGet(position.mod(list.safeSize)).orEmpty()
         if (localAsset) {
-            (holder.itemView as ImageView).setBackgroundResource(holder.itemView.context.mipmapId(list.safeGet(position.mod(list.safeSize)).orEmpty()))
-//            (holder.itemView as ImageView).setBackgroundResource(list.safeGet(position.mod(list.safeSize)).toSafeInt())
+            (holder.itemView as ImageView).background(holder.itemView.context.mipmapId(bean))
         } else {
-            ImageLoader.instance.display((holder.itemView as ImageView), list.safeGet(position.mod(list.safeSize)))
+            ImageLoader.instance.display((holder.itemView as ImageView), bean)
         }
     }
 

@@ -6,6 +6,7 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.MotionEvent
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -95,6 +96,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         stopRoll()
+        (banner?.parent as? ViewGroup)?.removeAllViews()
     }
     // </editor-fold>
 
