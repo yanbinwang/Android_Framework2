@@ -13,6 +13,7 @@ import com.tencent.smtt.sdk.WebView
  * 通用加载事件
  */
 class BaseWebChromeClient(private var pbWeb: ProgressBar, private var refresh: SmartRefreshLayout) : WebChromeClient() {
+    var onReceivedTitle: ((title: String?) -> Unit)? = null
 
     override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
         return super.onJsAlert(view, url, message, result)
@@ -20,6 +21,7 @@ class BaseWebChromeClient(private var pbWeb: ProgressBar, private var refresh: S
 
     override fun onReceivedTitle(view: WebView?, title: String?) {
         super.onReceivedTitle(view, title)
+        onReceivedTitle?.invoke(title)
     }
 
     override fun onProgressChanged(view: WebView?, newProgress: Int) {
