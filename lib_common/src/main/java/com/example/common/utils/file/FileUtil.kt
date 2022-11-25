@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.PixelFormat
 import android.net.Uri
@@ -12,6 +13,7 @@ import android.provider.MediaStore
 import android.provider.Settings
 import androidx.core.content.FileProvider
 import com.example.base.utils.function.value.toSafeLong
+import com.example.common.BaseApplication
 import com.example.common.constant.Constants
 import com.example.common.utils.builder.shortToast
 import java.io.*
@@ -230,6 +232,23 @@ fun String?.readTxt(): String {
         }
     }
     return ""
+}
+
+/**
+ * 获取asset下的图片
+ */
+fun String?.getBitmapFromAsset(): Bitmap? {
+    this ?: return null
+    val assets = BaseApplication.instance.assets
+    var stream: InputStream? = null
+    return try {
+        stream = assets.open(this)
+        BitmapFactory.decodeStream(stream)
+    } catch (e: Exception) {
+        null
+    } finally {
+        stream?.close()
+    }
 }
 
 /**
