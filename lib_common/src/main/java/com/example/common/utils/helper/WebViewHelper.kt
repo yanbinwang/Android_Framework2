@@ -5,7 +5,6 @@ import android.widget.ProgressBar
 import com.example.base.utils.function.value.toBoolean
 import com.example.base.utils.function.view.gone
 import com.example.base.utils.function.view.visible
-import com.example.common.utils.helper.WebViewHelper.loadFinished
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
@@ -16,55 +15,48 @@ import com.tencent.smtt.sdk.WebView
 import com.tencent.smtt.sdk.WebViewClient
 import java.lang.ref.WeakReference
 
-/**
- * @description
- * @author
- */
-object WebViewHelper {
-
-    var XWebView?.loadFinished: Boolean
-        set(value) {
-            this?.tag = value
-        }
-        get() {
-            return this?.tag.toBoolean(false)
-        }
-
-    fun XWebView?.load(url: String, needHeader: Boolean) {
-        if (this == null) return
-        loadFinished = false
-        if (needHeader) {
-            loadUrl(url, getHeader())
-        } else {
-            loadUrl(url)
-        }
+var XWebView?.loadFinished: Boolean
+    set(value) {
+        this?.tag = value
+    }
+    get() {
+        return this?.tag.toBoolean(false)
     }
 
-    /**
-     * 添加请求头
-     */
-    private fun getHeader(): Map<String, String> {
-        val map = HashMap<String, String>()
+fun XWebView?.load(url: String, needHeader: Boolean) {
+    if (this == null) return
+    loadFinished = false
+    if (needHeader) {
+        loadUrl(url, getHeader())
+    } else {
+        loadUrl(url)
+    }
+}
+
+/**
+ * 添加请求头
+ */
+private fun getHeader(): Map<String, String> {
+    val map = HashMap<String, String>()
 //        if (UserDataUtil.isLogin()) {
 //            UserDataUtil.getUserData()?.token?.let { map["token"] = it }
 //        }
-        map["Content-Type"] = "application/json"
-        return map
-    }
-
-    fun XWebView?.refresh() {
-        if (this == null) return
-        loadFinished = false
-        reload()
-    }
-
-    fun XWebView?.setClient(progress: ProgressBar?, refresh: SmartRefreshLayout) {
-        if (this == null) return
-        webViewClient = XWebViewClient()
-        webChromeClient = XWebChromeClient(WeakReference(progress), WeakReference(refresh))
-    }
-
+    map["Content-Type"] = "application/json"
+    return map
 }
+
+fun XWebView?.refresh() {
+    if (this == null) return
+    loadFinished = false
+    reload()
+}
+
+fun XWebView?.setClient(progress: ProgressBar?, refresh: SmartRefreshLayout) {
+    if (this == null) return
+    webViewClient = XWebViewClient()
+    webChromeClient = XWebChromeClient(WeakReference(progress), WeakReference(refresh))
+}
+
 
 class XWebViewClient : WebViewClient() {
 

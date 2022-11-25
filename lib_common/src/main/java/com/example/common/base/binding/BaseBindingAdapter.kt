@@ -22,7 +22,7 @@ import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
 import com.example.common.utils.builder.StatusBarBuilder
-import com.example.common.utils.helper.WebViewHelper.load
+import com.example.common.utils.helper.load
 import com.example.common.utils.setSpanFirst
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.XRecyclerView
