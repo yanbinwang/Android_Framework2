@@ -22,6 +22,7 @@ import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
 import com.example.common.utils.builder.StatusBarBuilder
+import com.example.common.utils.helper.WebViewHelper.load
 import com.example.common.utils.setSpanFirst
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.XRecyclerView
@@ -105,9 +106,9 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
-    @BindingAdapter(value = ["load_url"])
-    fun bindingWebViewLoadUrl(webView: XWebView, loadPageUrl: String) {
-        webView.loadUrl(loadPageUrl)
+    @BindingAdapter(value = ["load_url","need_header"], requireAll = false)
+    fun bindingWebViewLoadUrl(webView: XWebView, loadPageUrl: String, needHeader: Boolean?) {
+        webView.load(loadPageUrl, needHeader.orFalse)
     }
 
     /**
@@ -115,9 +116,9 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
-    @BindingAdapter(value = ["load_asset_url"])
-    fun bindingWebViewLoadAssetUrl(webView: XWebView, assetPath: String) {
-        webView.loadUrl("file:///android_asset/$assetPath")
+    @BindingAdapter(value = ["load_asset_url","need_header"], requireAll = false)
+    fun bindingWebViewLoadAssetUrl(webView: XWebView, assetPath: String, needHeader: Boolean?) {
+        webView.load("file:///android_asset/$assetPath", needHeader.orFalse)
     }
 
     /**
