@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.fragment.app.FragmentActivity
 import com.example.base.utils.function.value.orZero
+import com.example.base.utils.function.view.string
 import com.example.mvvm.R
 import com.scwang.smart.drawable.ProgressDrawable
 import com.scwang.smart.refresh.classics.ArrowDrawable
@@ -101,42 +102,42 @@ class TwoLevelRefreshHeader @JvmOverloads constructor(context: Context, attrs: A
         mTextPulling = if (ta.hasValue(R.styleable.ClassicsHeader_srlTextPulling)) {
             ta.getString(R.styleable.ClassicsHeader_srlTextPulling)
         } else {
-            context.getString(R.string.srl_header_pulling)
+            string(R.string.srl_header_pulling)
         }
         mTextLoading = if (ta.hasValue(R.styleable.ClassicsHeader_srlTextLoading)) {
             ta.getString(R.styleable.ClassicsHeader_srlTextLoading)
         } else {
-            context.getString(R.string.srl_header_loading)
+            string(R.string.srl_header_loading)
         }
         mTextRelease = if (ta.hasValue(R.styleable.ClassicsHeader_srlTextRelease)) {
             ta.getString(R.styleable.ClassicsHeader_srlTextRelease)
         } else {
-            context.getString(R.string.srl_header_release)
+            string(R.string.srl_header_release)
         }
         mTextFinish = if (ta.hasValue(R.styleable.ClassicsHeader_srlTextFinish)) {
             ta.getString(R.styleable.ClassicsHeader_srlTextFinish)
         } else {
-            context.getString(R.string.srl_header_finish)
+            string(R.string.srl_header_finish)
         }
         mTextFailed = if (ta.hasValue(R.styleable.ClassicsHeader_srlTextFailed)) {
             ta.getString(R.styleable.ClassicsHeader_srlTextFailed)
         } else {
-            context.getString(R.string.srl_header_failed)
+            string(R.string.srl_header_failed)
         }
         mTextSecondary = if (ta.hasValue(R.styleable.ClassicsHeader_srlTextSecondary)) {
             ta.getString(R.styleable.ClassicsHeader_srlTextSecondary)
         } else {
-            context.getString(R.string.srl_header_secondary)
+            string(R.string.srl_header_secondary)
         }
         mTextRefreshing = if (ta.hasValue(R.styleable.ClassicsHeader_srlTextRefreshing)) {
             ta.getString(R.styleable.ClassicsHeader_srlTextRefreshing)
         } else {
-            context.getString(R.string.srl_header_refreshing)
+            string(R.string.srl_header_refreshing)
         }
         mTextUpdate = if (ta.hasValue(R.styleable.ClassicsHeader_srlTextUpdate)) {
             ta.getString(R.styleable.ClassicsHeader_srlTextUpdate)
         } else {
-            context.getString(R.string.srl_header_update)
+            string(R.string.srl_header_update)
         }
         mLastUpdateFormat = SimpleDateFormat(mTextUpdate, Locale.getDefault())
         ta.recycle()
