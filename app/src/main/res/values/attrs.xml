@@ -1,17 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="TwoLevelHeader">
-        <attr format="float" name="srlMaxRate"/>
-        <attr format="float" name="srlFloorRate"/>
-        <attr format="float" name="srlRefreshRate"/>
-        <attr format="integer" name="srlFloorDuration"/>
-        <attr format="boolean" name="srlEnableRefresh"/>
-        <attr format="boolean" name="srlEnableTwoLevel"/>
-        <attr format="float" name="srlBottomPullUpToCloseRate"/>
-        <attr format="boolean" name="srlEnablePullToCloseTwoLevel"/>
-    </declare-styleable>
-
     <declare-styleable name="ClearBtnEditText">
         <attr name="android:minHeight" format="dimension" />
         <attr name="text" format="reference" />
