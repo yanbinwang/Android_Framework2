@@ -83,23 +83,6 @@
             android:theme="@style/mainTheme" />
 
         <activity
-            android:name=".activity.LoginActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".activity.UserInfoActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".activity.TestListActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".activity.TestActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/fullScreenAlphaTheme" />
-
-        <activity
             android:name=".activity.PullActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />

@@ -18,7 +18,7 @@ class PullActivity : BaseActivity<ActivityPullBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        overridePendingTransition(R.anim.slide_in, R.anim.alpha_out)
-        overridePendingTransition(R.anim.slide_in, R.anim.alpha_out)
+        overridePendingTransition(R.anim.two_level_slide_in, R.anim.two_level_alpha_out)
     }
 
     override fun initEvent() {
@@ -29,7 +29,7 @@ class PullActivity : BaseActivity<ActivityPullBinding>() {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(0, R.anim.slide_out)
+        overridePendingTransition(0, R.anim.two_level_slide_out)
 //        overridePendingTransition(0, 0)
     }
 }
