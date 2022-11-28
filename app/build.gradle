@@ -118,7 +118,7 @@ dependencies {
     //基础库
     implementation project(':lib_common')
 
-    implementation  'io.github.scwang90:refresh-layout-kernel:2.0.5'
+//    implementation  'io.github.scwang90:refresh-layout-kernel:2.0.5'
     implementation  'io.github.scwang90:refresh-header-two-level:2.0.5'
     //页面路由
     implementation deps.alibaba.arouter

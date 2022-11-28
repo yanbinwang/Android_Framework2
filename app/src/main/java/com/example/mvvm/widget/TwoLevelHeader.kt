@@ -8,6 +8,8 @@ import com.scwang.smart.refresh.layout.api.RefreshHeader
 
 /**
  * @description 二级刷新
+ * 库中使用的二级下拉刷新控件继承的SimpleComponent中的部分
+ * 如onInitialized等方法不允许框架外调用
  * @author yan
  */
 @SuppressLint("RestrictedApi")
