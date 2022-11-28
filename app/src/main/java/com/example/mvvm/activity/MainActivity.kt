@@ -42,10 +42,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun onStop() {
         super.onStop()
-        if (binding.xRefresh.state == RefreshState.TwoLevel ||
-            binding.xRefresh.state == RefreshState.TwoLevelReleased ||
-            binding.xRefresh.state == RefreshState.TwoLevelFinish) {
-            binding.xRefresh.closeHeaderOrFooter()
+        binding.xRefresh.apply {
+            if (state == RefreshState.TwoLevel ||
+                state == RefreshState.TwoLevelReleased ||
+                state == RefreshState.TwoLevelFinish) {
+                closeHeaderOrFooter()
+            }
         }
     }
 
