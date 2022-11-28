@@ -7,11 +7,8 @@ import com.scwang.smart.refresh.header.listener.OnTwoLevelListener
 import com.scwang.smart.refresh.layout.api.RefreshHeader
 
 /**
- * @description 自定义头部
+ * @description 二级刷新
  * @author yan
- * https://www.gaitubao.com/xuanzhuan/
- * 默认情况下采用逐帧可以控制动画的开始和停止展现上更好，
- * 如果ui不提供对应图片，手机端去对应网站45°生成8张旋转逐帧图
  */
 @SuppressLint("RestrictedApi")
 class TwoLevelHeader @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : com.scwang.smart.refresh.header.TwoLevelHeader(context, attrs), RefreshHeader {

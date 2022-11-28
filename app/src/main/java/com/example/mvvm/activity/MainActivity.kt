@@ -5,7 +5,9 @@ import com.example.base.utils.function.value.toSafeFloat
 import com.example.common.base.BaseActivity
 import com.example.common.constant.ARouterPath
 import com.example.common.utils.builder.shortToast
+import com.example.common.widget.xrecyclerview.refresh.init
 import com.example.mvvm.databinding.ActivityMainBinding
+import com.example.mvvm.widget.TwoLevelRefreshHeader
 import com.scwang.smart.refresh.layout.api.RefreshHeader
 import com.scwang.smart.refresh.layout.api.RefreshLayout
 import com.scwang.smart.refresh.layout.constant.RefreshState
@@ -17,6 +19,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnRefreshListener {
 
     override fun initView() {
         super.initView()
+//        binding.xRefresh.init(this)
+        binding.header.setRefreshHeader(TwoLevelRefreshHeader(this))
         binding.xRefresh.setOnRefreshListener(this)
         binding.xRefresh.setOnMultiListener(object : SimpleMultiListener() {
             override fun onRefresh(refreshLayout: RefreshLayout) {
