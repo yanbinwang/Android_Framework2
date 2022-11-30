@@ -1,4 +1,4 @@
-package com.example.common.utils
+package com.example.common.utils.function
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -26,8 +26,9 @@ import com.example.common.BaseApplication
 import com.example.common.BuildConfig
 import com.example.common.R
 import com.example.common.constant.Constants
-import com.example.common.utils.ExtraNumber.pt
-import com.example.common.utils.ExtraNumber.ptFloat
+import com.example.common.utils.ScreenUtil
+import com.example.common.utils.function.ExtraNumber.pt
+import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.google.android.material.appbar.AppBarLayout
 import com.google.gson.Gson
 import java.util.*
