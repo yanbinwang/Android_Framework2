@@ -93,8 +93,8 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
      */
     private fun saveBitmap(bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH}/图片", fileName: String = EN_YMDHMS.getDateTime(Date()), delete: Boolean = false, formatJpg: Boolean = true, quality: Int = 100): String? {
         val storeDir = File(root)
-        if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
         if (delete) storeDir.absolutePath.deleteDir()//删除路径下所有文件
+        if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
         val file = File(storeDir, "${fileName}${if (formatJpg) ".jpg" else ".png"}")
         try {
             //通过io流的方式来压缩保存图片
