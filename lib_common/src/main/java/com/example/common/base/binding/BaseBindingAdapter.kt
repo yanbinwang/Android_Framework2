@@ -22,8 +22,8 @@ import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
 import com.example.common.utils.builder.StatusBarBuilder
-import com.example.common.utils.helper.load
-import com.example.common.utils.setSpanFirst
+import com.example.common.utils.function.load
+import com.example.common.utils.function.setSpanFirst
 import com.example.common.widget.XWebView
 import com.example.common.widget.xrecyclerview.XRecyclerView
 
@@ -72,10 +72,7 @@ object BaseBindingAdapter {
      * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
      */
     @JvmStatic
-    @BindingAdapter(
-        value = ["adapter", "span_count", "horizontal_space", "vertical_space", "has_horizontal_edge", "has_vertical_edge"],
-        requireAll = false
-    )
+    @BindingAdapter(value = ["adapter", "span_count", "horizontal_space", "vertical_space", "has_horizontal_edge", "has_vertical_edge"], requireAll = false)
     fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
         rec.setAdapter(adapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
     }
