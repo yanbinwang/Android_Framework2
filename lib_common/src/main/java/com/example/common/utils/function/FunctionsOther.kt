@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import com.example.base.utils.ColorSpan
 import com.example.base.utils.function.color
+import com.example.base.utils.function.value.orZero
 import com.example.base.utils.function.value.toNewList
 import com.example.base.utils.function.view.background
 import com.example.base.utils.function.view.textColor
@@ -38,9 +39,9 @@ val isDebug get() = BuildConfig.DEBUG
 /**
  * 对应的拼接区分本地和测试
  */
-val Int?.byHostUrl: Unit get() { if (this != null) "${BuildConfig.LOCALHOST}${string(this)}" }
+val Int?.byHostUrl: String get() { return "${BuildConfig.LOCALHOST}${string(this.orZero)}" }
 
-val String?.byHostUrl: Unit get() { if (this != null) "${BuildConfig.LOCALHOST}${this}" }
+val String?.byHostUrl: String get() { return "${BuildConfig.LOCALHOST}${this}" }
 
 /**
  * 设计图尺寸转换为实际尺寸
