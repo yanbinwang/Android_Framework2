@@ -7,7 +7,7 @@ import retrofit2.http.*
  * author:wyb
  * 通用接口类
  */
-interface CommonApi {
+interface Api {
 
     @Streaming
     @GET
