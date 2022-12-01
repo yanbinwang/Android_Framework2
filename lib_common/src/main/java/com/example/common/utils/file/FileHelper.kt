@@ -14,6 +14,7 @@ import com.example.base.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.base.utils.function.value.getDateTime
 import com.example.base.utils.function.value.safeGet
 import com.example.base.utils.logE
+import com.example.base.utils.logWTF
 import com.example.common.constant.Constants
 import com.example.common.subscribe.Subscribe
 import com.example.common.utils.builder.shortToast
@@ -153,7 +154,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
 
     @Throws(Exception::class)
     private fun zipFiles(folderPath: String, fileName: String, zipOutputSteam: ZipOutputStream?) {
-        " \n压缩路径:$folderPath\n压缩文件名:$fileName".logE("FileUtil")
+        " \n压缩路径:$folderPath\n压缩文件名:$fileName".logWTF
         if (zipOutputSteam == null) return
         val file = File(folderPath + fileName)
         if (file.isFile) {
@@ -170,14 +171,16 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
             //文件夹
             val fileList = file.list()
             //没有子文件和压缩
-            if (fileList.isEmpty()) {
+            if (fileList.isNullOrEmpty()) {
                 val zipEntry = ZipEntry(fileName + File.separator)
                 zipOutputSteam.putNextEntry(zipEntry)
                 zipOutputSteam.closeEntry()
             }
-            //子文件和递归
-            for (i in fileList.indices) {
-                zipFiles("$folderPath$fileName/", fileList[i], zipOutputSteam)
+            if (!fileList.isNullOrEmpty()) {
+                //子文件和递归
+                for (i in fileList.indices) {
+                    zipFiles("$folderPath$fileName/", fileList[i], zipOutputSteam)
+                }
             }
         }
     }
