@@ -80,19 +80,18 @@ fun Drawable.drawableToBitmap(): Bitmap {
  * bitmap->存储的bitmap
  * root->图片保存路径
  * fileName->图片名称（扣除jpg和png的后缀）
+ * delete->是否清除目录
  * formatJpg->确定图片类型
  * quality->压缩率
- * clear->是否清除本地路径
  */
 fun saveBitmap(bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH}/图片", fileName: String = DateFormat.EN_YMDHMS.getDateTime(Date()), delete: Boolean = false, formatJpg: Boolean = true, quality: Int = 100): String? {
     val storeDir = File(root)
-    if (delete) storeDir.absolutePath.deleteDir()//删除路径下所有文件
-    if (!storeDir.mkdirs()) storeDir.createNewFile()//需要权限
+    if (delete) storeDir.absolutePath.deleteDir()
+    if (!storeDir.mkdirs()) storeDir.createNewFile()
     val file = File(storeDir, "${fileName}${if (formatJpg) ".jpg" else ".png"}")
     try {
-        //通过io流的方式来压缩保存图片
         val fileOutputStream = FileOutputStream(file)
-        bitmap.compress(if (formatJpg) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG, quality, fileOutputStream)//png的话100不响应，但是可以维持图片透明度
+        bitmap.compress(if (formatJpg) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG, quality, fileOutputStream)
         fileOutputStream.flush()
         fileOutputStream.close()
     } catch (_: Exception) {
