@@ -3,10 +3,7 @@ package com.example.common.utils.file
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.PixelFormat
+import android.graphics.*
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -249,6 +246,26 @@ fun String?.getBitmapFromAsset(): Bitmap? {
     } finally {
         stream?.close()
     }
+}
+
+/**
+ * 读取mipmap下的图片
+ */
+fun Context?.decodeResource(id: Int): Bitmap? {
+    this ?: return null
+    return BitmapFactory.decodeResource(this.resources, id)
+}
+
+/**
+ * 绘制bit时对原图进行缩放
+ */
+fun Bitmap?.scaleBitmap(scale: Float): Bitmap? {
+    this ?: return null
+    val matrix = Matrix()
+    matrix.postScale(scale, scale)//使用后乘
+    val bit = Bitmap.createBitmap(this, 0, 0, width, height, matrix, false);
+    if (!isRecycled) recycle()
+    return bit
 }
 
 /**
