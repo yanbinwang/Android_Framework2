@@ -128,15 +128,14 @@ fun saveBitmap(bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH
 fun Context.degreeImage(file: File, delete: Boolean = false): File {
     val degree = readDegree(file.absolutePath)
     var bitmap: Bitmap
-    return if (degree != 0) {
+    return if (degree != 0f) {
         val matrix = Matrix()
-        matrix.postRotate(degree.toFloat())
+        matrix.postRotate(degree)
         BitmapFactory.decodeFile(file.absolutePath).let {
             bitmap = Bitmap.createBitmap(it, 0, 0, it.width, it.height, matrix, true)
             it.recycle()
         }
-        val tempFile =
-            File(applicationContext.externalCacheDir, file.name.replace(".jpg", "_degree.jpg"))
+        val tempFile = File(applicationContext.externalCacheDir, file.name.replace(".jpg", "_degree.jpg"))
         val fileOutputStream: FileOutputStream
         try {
             fileOutputStream = FileOutputStream(tempFile)
@@ -157,17 +156,17 @@ fun Context.degreeImage(file: File, delete: Boolean = false): File {
  * 部分手机拍摄需要设置手机屏幕screenOrientation
  * 不然会读取为0
  */
-fun readDegree(path: String): Int {
-    var degree = 0
+fun readDegree(path: String): Float {
+    var degree = 0f
     var exifInterface: ExifInterface? = null
     try {
         exifInterface = ExifInterface(path)
     } catch (_: IOException) {
     }
     when (exifInterface?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
-        ExifInterface.ORIENTATION_ROTATE_90 -> degree = 90
-        ExifInterface.ORIENTATION_ROTATE_180 -> degree = 180
-        ExifInterface.ORIENTATION_ROTATE_270 -> degree = 270
+        ExifInterface.ORIENTATION_ROTATE_90 -> degree = 90f
+        ExifInterface.ORIENTATION_ROTATE_180 -> degree = 180f
+        ExifInterface.ORIENTATION_ROTATE_270 -> degree = 270f
     }
     return degree
 }
