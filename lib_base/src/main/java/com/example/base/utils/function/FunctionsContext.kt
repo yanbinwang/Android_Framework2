@@ -6,7 +6,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
@@ -137,16 +136,6 @@ fun Context.getPrimaryClip(): String {
     //获取 text
     return clipboardManager.primaryClip?.getItemAt(0)?.text.toString()
 }
-
-/**
- * 开启一个网页
- */
-fun Context.openWebsite(url: String) = startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-
-/**
- * 拨打电话
- */
-fun Context.telPhone(mobile: String) = startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${mobile}")))
 
 /**
  * 页面间取值扩展
