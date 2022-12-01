@@ -19,8 +19,12 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.widget.NestedScrollView
+import com.example.base.utils.function.color
 import com.example.base.utils.function.string
 import com.example.base.utils.function.value.orZero
+import com.google.android.material.appbar.AppBarLayout
+import kotlin.math.abs
 
 //------------------------------------view扩展函数类------------------------------------
 /**
@@ -473,4 +477,60 @@ abstract class OnMultiClickListener(private val time: Long = 500, var click: (v:
             onMultiClick(v)
         }
     }
+}
+
+/**
+ * 设置覆盖色
+ */
+fun ImageView?.tint(@ColorRes res: Int) {
+    this ?: return
+    setColorFilter(context.color(res))
+}
+
+/**
+ * 设置按钮显影图片
+ */
+fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
+    this ?: return
+    setImageResource(if (!triple.first) triple.third else triple.second)
+}
+
+/**
+ * appbar监听
+ */
+fun AppBarLayout?.stateChanged(onStateChanged: (state: AppBarStateChangeListener.State?) -> Unit?) {
+    this ?: return
+    addOnOffsetChangedListener(object : AppBarStateChangeListener() {
+        override fun onStateChanged(appBarLayout: AppBarLayout?, state: State?) {
+            onStateChanged.invoke(state)
+        }
+    })
+}
+
+/**
+ * appbar是否显示折叠的监听，用于解决刷新套广告套控件卡顿的问题，需要注意绘制时，底部如果不使用
+ * NestedScrollView或者viewpager2等带有滑动事件传递的控件，会造成只有顶部套的部分可以滑动
+ */
+abstract class AppBarStateChangeListener : AppBarLayout.OnOffsetChangedListener {
+    enum class State {
+        EXPANDED, COLLAPSED, IDLE//展开，折叠，中间
+    }
+
+    private var mCurrentState = State.IDLE
+
+    override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
+        mCurrentState = if (verticalOffset == 0) {
+            if (mCurrentState != State.EXPANDED) onStateChanged(appBarLayout, State.EXPANDED)
+            State.EXPANDED
+        } else if (abs(verticalOffset) >= appBarLayout?.totalScrollRange.orZero) {
+            if (mCurrentState != State.COLLAPSED) onStateChanged(appBarLayout, State.COLLAPSED)
+            State.COLLAPSED
+        } else {
+            if (mCurrentState != State.IDLE) onStateChanged(appBarLayout, State.IDLE)
+            State.IDLE
+        }
+    }
+
+    abstract fun onStateChanged(appBarLayout: AppBarLayout?, state: State?)
+
 }

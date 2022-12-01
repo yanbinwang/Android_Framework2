@@ -3,9 +3,7 @@ package com.example.common.utils.function
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.graphics.Color
 import android.os.Bundle
-import android.os.Looper
 import android.util.TypedValue
 import android.widget.*
 import androidx.annotation.ColorInt
@@ -17,7 +15,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import com.example.base.utils.ColorSpan
 import com.example.base.utils.function.color
-import com.example.base.utils.function.value.orZero
 import com.example.base.utils.function.value.toNewList
 import com.example.base.utils.function.view.background
 import com.example.base.utils.function.view.textColor
@@ -29,28 +26,39 @@ import com.example.common.constant.Constants
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
-import com.google.android.material.appbar.AppBarLayout
 import com.google.gson.Gson
 import java.util.*
-import kotlin.math.abs
 
 //------------------------------------按钮，控件行为工具类------------------------------------
-/**
- * 当前是否是主线程
- */
-val isMainThread get() = Looper.getMainLooper() == Looper.myLooper()
-
 /**
  * 是否是debug包
  */
 val isDebug get() = BuildConfig.DEBUG
 
 /**
- * 获取Color String中的color
- * eg: "#ffffff"
+ * 对应的拼接区分本地和测试
  */
-@ColorInt
-fun color(color: String?) = Color.parseColor(color ?: "#ffffff")
+val Int?.byHostUrl: Unit get() { if (this != null) "${BuildConfig.LOCALHOST}${string(this)}" }
+
+val String?.byHostUrl: Unit get() { if (this != null) "${BuildConfig.LOCALHOST}${this}" }
+
+/**
+ * 设计图尺寸转换为实际尺寸
+ */
+val Number?.pt: Int
+    get() = pt()
+
+val Number?.ptFloat: Float
+    get() = ptFloat()
+
+/**
+ * dp尺寸转换为实际尺寸
+ */
+val Number?.dp: Int
+    get() {
+        this ?: return 0
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), BaseApplication.instance.resources.displayMetrics).toInt()
+    }
 
 /**
  * 获取resources中的color
@@ -94,54 +102,11 @@ fun resString(@StringRes res: Int): String {
 }
 
 /**
- * 对应的拼接区分本地和测试
- */
-fun Int.host(): String {
-    return "${BuildConfig.LOCALHOST}${string(this)}"
-}
-
-fun String.host(): String {
-    return "${BuildConfig.LOCALHOST}${this}"
-}
-
-/**
  * 获取Manifest中的参数
  */
 fun getManifestString(name: String): String? {
     return BaseApplication.instance.packageManager.getApplicationInfo(BaseApplication.instance.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
 }
-
-/**
- * 默认返回自身和自身class名小写，也可指定
- */
-fun Class<*>.getPair(name: String? = null): Pair<Class<*>, String> {
-    return this to (name ?: this.simpleName.lowercase(Locale.getDefault()))
-}
-
-/**
- * 默认返回自身和自身class名小写以及请求的id
- */
-fun Class<*>.getTriple(pair: Pair<String, String>, name: String? = null): Triple<Class<*>, Pair<String, String>, String> {
-    return Triple(this, pair, (name ?: this.simpleName.lowercase(Locale.getDefault())))
-}
-
-/**
- * 设计图尺寸转换为实际尺寸
- */
-val Number?.pt: Int
-    get() = pt()
-
-val Number?.ptFloat: Float
-    get() = ptFloat()
-
-/**
- * dp尺寸转换为实际尺寸
- */
-val Number?.dp: Int
-    get() {
-        this ?: return 0
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), BaseApplication.instance.resources.displayMetrics).toInt()
-    }
 
 /**
  * 清空fragment缓存
@@ -161,33 +126,17 @@ fun Any?.toJsonString(): String {
 }
 
 /**
- * 判断某个对象上方是否具备某个注解
- * if (activity.hasAnnotation(SocketRequest::class.java)) {
- * SocketEventHelper.checkConnection(forceConnect = true)
- * }
- * //自定义一个注解
- * annotation class SocketRequest
- * @SocketRequest为注解，通过在application中做registerActivityLifecycleCallbacks监听回调，可以找到全局打了这个注解的activity，从而做一定的操作
+ * 默认返回自身和自身class名小写，也可指定
  */
-fun Any?.hasAnnotation(cls: Class<out Annotation>): Boolean {
-    this ?: return false
-    return this::class.java.isAnnotationPresent(cls)
+fun Class<*>.getPair(name: String? = null): Pair<Class<*>, String> {
+    return this to (name ?: this.simpleName.lowercase(Locale.getDefault()))
 }
 
 /**
- * 设置覆盖色
+ * 默认返回自身和自身class名小写以及请求的id
  */
-fun ImageView?.tint(@ColorRes res: Int) {
-    this ?: return
-    setColorFilter(context.color(res))
-}
-
-/**
- * 设置按钮显影图片
- */
-fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
-    this ?: return
-    setImageResource(if (!triple.first) triple.third else triple.second)
+fun Class<*>.getTriple(pair: Pair<String, String>, name: String? = null): Triple<Class<*>, Pair<String, String>, String> {
+    return Triple(this, pair, (name ?: this.simpleName.lowercase(Locale.getDefault())))
 }
 
 /**
@@ -231,43 +180,6 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, onAlphaChange: (alpha: F
     setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
         onAlphaChange.invoke(if (scrollY <= menuHeight.pt / 2f) 0 + scrollY / (menuHeight.pt / 4f) else 1f)
     })
-}
-
-fun AppBarLayout?.stateChanged(onStateChanged: (state: AppBarStateChangeListener.State?) -> Unit?) {
-    this ?: return
-    addOnOffsetChangedListener(object : AppBarStateChangeListener() {
-        override fun onStateChanged(appBarLayout: AppBarLayout?, state: State?) {
-            onStateChanged.invoke(state)
-        }
-    })
-}
-
-/**
- * appbar是否显示折叠的监听，用于解决刷新套广告套控件卡顿的问题，需要注意绘制时，底部如果不使用
- * NestedScrollView或者viewpager2等带有滑动事件传递的控件，会造成只有顶部套的部分可以滑动
- */
-abstract class AppBarStateChangeListener : AppBarLayout.OnOffsetChangedListener {
-    enum class State {
-        EXPANDED, COLLAPSED, IDLE//展开，折叠，中间
-    }
-
-    private var mCurrentState = State.IDLE
-
-    override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
-        mCurrentState = if (verticalOffset == 0) {
-            if (mCurrentState != State.EXPANDED) onStateChanged(appBarLayout, State.EXPANDED)
-            State.EXPANDED
-        } else if (abs(verticalOffset) >= appBarLayout?.totalScrollRange.orZero) {
-            if (mCurrentState != State.COLLAPSED) onStateChanged(appBarLayout, State.COLLAPSED)
-            State.COLLAPSED
-        } else {
-            if (mCurrentState != State.IDLE) onStateChanged(appBarLayout, State.IDLE)
-            State.IDLE
-        }
-    }
-
-    abstract fun onStateChanged(appBarLayout: AppBarLayout?, state: State?)
-
 }
 
 object ExtraNumber {

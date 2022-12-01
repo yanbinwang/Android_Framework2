@@ -1,11 +1,8 @@
 package com.example.base.utils.function.value
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Matrix
-import android.graphics.PixelFormat
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
+import android.graphics.Color
+import android.os.Looper
+import androidx.annotation.ColorInt
 
 //------------------------------------方法工具类------------------------------------
 /**
@@ -36,28 +33,27 @@ fun CharSequence?.toSafeBoolean(default: Boolean = false): Boolean {
 }
 
 /**
- * 根据宽高缩放图片
+ * 当前是否是主线程
  */
-fun Drawable.zoomDrawable(w: Int, h: Int = w): Drawable {
-    val width = intrinsicWidth
-    val height = intrinsicHeight
-    val oldbmp = drawableToBitmap()
-    val matrix = Matrix()
-    val scaleWidth = w.toFloat() / width
-    val scaleHeight = h.toFloat() / height
-    matrix.postScale(scaleWidth, scaleHeight)
-    val newbmp = Bitmap.createBitmap(oldbmp, 0, 0, width, height, matrix, true)
-    return BitmapDrawable(null, newbmp)
+val isMainThread get() = Looper.getMainLooper() == Looper.myLooper()
+
+/**
+ * 判断某个对象上方是否具备某个注解
+ * if (activity.hasAnnotation(SocketRequest::class.java)) {
+ * SocketEventHelper.checkConnection(forceConnect = true)
+ * }
+ * //自定义一个注解
+ * annotation class SocketRequest
+ * @SocketRequest为注解，通过在application中做registerActivityLifecycleCallbacks监听回调，可以找到全局打了这个注解的activity，从而做一定的操作
+ */
+fun Any?.hasAnnotation(cls: Class<out Annotation>): Boolean {
+    this ?: return false
+    return this::class.java.isAnnotationPresent(cls)
 }
 
-fun Drawable.drawableToBitmap(): Bitmap {
-    val width = intrinsicWidth
-    val height = intrinsicHeight
-    val config =
-        if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
-    val bitmap = Bitmap.createBitmap(width, height, config)
-    val canvas = Canvas(bitmap)
-    setBounds(0, 0, width, height)
-    draw(canvas)
-    return bitmap
-}
+/**
+ * 获取Color String中的color
+ * eg: "#ffffff"
+ */
+@ColorInt
+fun color(color: String?) = Color.parseColor(color ?: "#ffffff")

@@ -232,43 +232,6 @@ fun String?.readTxt(): String {
 }
 
 /**
- * 获取asset下的图片
- */
-fun String?.getBitmapFromAsset(): Bitmap? {
-    this ?: return null
-    val assets = BaseApplication.instance.assets
-    var stream: InputStream? = null
-    return try {
-        stream = assets.open(this)
-        BitmapFactory.decodeStream(stream)
-    } catch (e: Exception) {
-        null
-    } finally {
-        stream?.close()
-    }
-}
-
-/**
- * 读取mipmap下的图片
- */
-fun Context?.decodeResource(id: Int): Bitmap? {
-    this ?: return null
-    return BitmapFactory.decodeResource(this.resources, id)
-}
-
-/**
- * 绘制bit时对原图进行缩放
- */
-fun Bitmap?.scaleBitmap(scale: Float): Bitmap? {
-    this ?: return null
-    val matrix = Matrix()
-    matrix.postScale(scale, scale)//使用后乘
-    val bit = Bitmap.createBitmap(this, 0, 0, width, height, matrix, false);
-    if (!isRecycled) recycle()
-    return bit
-}
-
-/**
  * 将当前文件拷贝一份到目标路径
  */
 @Throws(IOException::class)

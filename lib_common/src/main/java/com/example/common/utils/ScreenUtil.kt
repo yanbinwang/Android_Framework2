@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import com.example.base.utils.function.value.min
 import com.example.base.utils.function.value.toSafeInt
 import com.example.common.BaseApplication
+import com.example.common.utils.function.getManifestString
 
 /**
  * @description 屏幕数值相关类
