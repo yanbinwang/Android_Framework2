@@ -4,12 +4,14 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.media.ExifInterface
 import com.example.base.utils.function.value.DateFormat
 import com.example.base.utils.function.value.getDateTime
 import com.example.common.BaseApplication
 import com.example.common.constant.Constants
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.util.*
 
@@ -44,10 +46,28 @@ fun Context?.decodeResource(id: Int): Bitmap? {
 fun Bitmap?.scaleBitmap(scale: Float): Bitmap? {
     this ?: return null
     val matrix = Matrix()
-    matrix.postScale(scale, scale)//使用后乘
-    val bit = Bitmap.createBitmap(this, 0, 0, width, height, matrix, false);
+    matrix.postScale(scale, scale)
+    val bit = Bitmap.createBitmap(this, 0, 0, width, height, matrix, false)
     if (!isRecycled) recycle()
     return bit
+}
+
+/**
+ * 尺寸压缩
+ */
+fun Bitmap?.scaleBitmap(): Bitmap? {
+    this ?: return null
+    var size = 1f
+    val matrix = Matrix()
+    if (width > 720) {
+        size = 720f / width
+    } else if (height > 1280) {
+        size = 1280f / height
+    }
+    matrix.postScale(size, size)
+    val bitmap = Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
+    recycle()
+    return bitmap
 }
 
 /**
@@ -98,4 +118,56 @@ fun saveBitmap(bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH
     }
     bitmap.recycle()
     return file.absolutePath
+}
+
+/**
+ * 旋转图片
+ * 修整部分图片方向不正常
+ * 取得一个新的图片文件
+ */
+fun Context.degreeImage(file: File, delete: Boolean = false): File {
+    val degree = readDegree(file.absolutePath)
+    var bitmap: Bitmap
+    return if (degree != 0) {
+        val matrix = Matrix()
+        matrix.postRotate(degree.toFloat())
+        BitmapFactory.decodeFile(file.absolutePath).let {
+            bitmap = Bitmap.createBitmap(it, 0, 0, it.width, it.height, matrix, true)
+            it.recycle()
+        }
+        val tempFile =
+            File(applicationContext.externalCacheDir, file.name.replace(".jpg", "_degree.jpg"))
+        val fileOutputStream: FileOutputStream
+        try {
+            fileOutputStream = FileOutputStream(tempFile)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+            fileOutputStream.flush()
+            fileOutputStream.close()
+            bitmap.recycle()
+            if (delete) file.delete()
+            tempFile
+        } catch (e: IOException) {
+            file
+        }
+    } else file
+}
+
+/**
+ * 读取图片的方向
+ * 部分手机拍摄需要设置手机屏幕screenOrientation
+ * 不然会读取为0
+ */
+fun readDegree(path: String): Int {
+    var degree = 0
+    var exifInterface: ExifInterface? = null
+    try {
+        exifInterface = ExifInterface(path)
+    } catch (_: IOException) {
+    }
+    when (exifInterface?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
+        ExifInterface.ORIENTATION_ROTATE_90 -> degree = 90
+        ExifInterface.ORIENTATION_ROTATE_180 -> degree = 180
+        ExifInterface.ORIENTATION_ROTATE_270 -> degree = 270
+    }
+    return degree
 }

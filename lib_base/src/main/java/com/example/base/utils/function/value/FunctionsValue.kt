@@ -57,3 +57,12 @@ fun Any?.hasAnnotation(cls: Class<out Annotation>): Boolean {
  */
 @ColorInt
 fun color(color: String?) = Color.parseColor(color ?: "#ffffff")
+
+/**
+ *  fun init() = frag.execute {
+ *      //...
+ *  }
+ */
+inline fun <T> T.execute(block: T.() -> Unit) {
+    apply(block)
+}
