@@ -4,7 +4,11 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.text.Layout
+import android.text.StaticLayout
+import android.text.TextPaint
 import com.example.base.utils.function.value.toSafeFloat
+import com.example.base.utils.function.value.toSafeInt
 
 /**
  * @description 画笔默认取中心点坐标，所以要除2
@@ -18,7 +22,8 @@ interface PaintImpl {
      * 以左侧为基准点绘制对应文字
      */
     fun Paint.drawTextLeft(x: Number?, y: Number?, text: String, canvas: Canvas) {
-        canvas.drawText(text, x.toSafeFloat(), (y.toSafeFloat() + measureSize(text).second / 2), this)
+        val measureHeight = fontMetrics.bottom - fontMetrics.top
+        canvas.drawText(text, x.toSafeFloat(), (y.toSafeFloat() + measureHeight / 2), this)
     }
 
     /**
@@ -27,7 +32,9 @@ interface PaintImpl {
      * 以中心为基准点绘制对应文字
      */
     fun Paint.drawTextCenter(x: Number?, y: Number?, text: String, canvas: Canvas) {
-        canvas.drawText(text, (x.toSafeFloat() - measureSize(text).first / 2), (y.toSafeFloat() + measureSize(text).second / 2), this)
+        val measureWidth = measureText(text)
+        val measureHeight = fontMetrics.bottom - fontMetrics.top
+        canvas.drawText(text, (x.toSafeFloat() - measureWidth / 2), (y.toSafeFloat() + measureHeight / 2), this)
     }
 
     /**
@@ -42,10 +49,23 @@ interface PaintImpl {
     }
 
     /**
+     * text本身默认绘制是一行的，不会自动换行，使用此方法传入指定宽度换行
+     */
+    fun TextPaint.drawTextStatic(maxTextWidth: Number?, text: String, canvas: Canvas, dx: Number? = 0, dy: Number? = 0, spacingmult: Number? = 1f) {
+        //spacingmult 是行间距的倍数，通常情况下填 1 就好；
+        //spacingadd 是行间距的额外增加值，通常情况下填 0 就好
+        val layout = StaticLayout(text, this, maxTextWidth.toSafeInt(), Layout.Alignment.ALIGN_NORMAL, spacingmult.toSafeFloat(), 0f, false)
+        canvas.save()
+        //StaticLayout默认画在Canvas的(0,0)点，如果需要调整位置只能在draw之前移Canvas的起始坐标
+        canvas.translate(dx.toSafeFloat(), dy.toSafeFloat())
+        layout.draw(canvas)
+    }
+
+    /**
      * 获取一个预设的文字画笔
      */
-    fun getTextPaint(textSize: Float, color: Int = Color.WHITE, typeface: Typeface = Typeface.DEFAULT): Paint {
-        val paint = Paint()
+    fun getTextPaint(textSize: Float, color: Int = Color.WHITE, typeface: Typeface = Typeface.DEFAULT): TextPaint {
+        val paint = TextPaint()
         paint.isAntiAlias = true
         paint.textSize = textSize
         paint.color = color
