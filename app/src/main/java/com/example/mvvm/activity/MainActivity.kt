@@ -1,52 +1,62 @@
 package com.example.mvvm.activity
 
+import android.content.Intent
+import android.provider.MediaStore
+import android.view.View
+import android.view.View.OnClickListener
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.example.base.utils.function.value.toSafeFloat
+import com.example.base.utils.function.view.clicks
 import com.example.common.base.BaseActivity
 import com.example.common.constant.ARouterPath
-import com.example.common.utils.builder.shortToast
+import com.example.common.constant.RequestCode.REQUEST_MANAGER
+import com.example.common.constant.RequestCode.REQUEST_PHOTO
+import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
-import com.example.mvvm.widget.TwoLevelRefreshHeader
-import com.scwang.smart.refresh.layout.api.RefreshHeader
-import com.scwang.smart.refresh.layout.api.RefreshLayout
-import com.scwang.smart.refresh.layout.constant.RefreshState
-import com.scwang.smart.refresh.layout.simple.SimpleMultiListener
+
 
 @Route(path = ARouterPath.MainActivity)
-class MainActivity : BaseActivity<ActivityMainBinding>() {
+class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
 
-    override fun initView() {
-        super.initView()
-        binding.header.setRefreshHeader(TwoLevelRefreshHeader(this))
-        binding.xRefresh.setOnMultiListener(object : SimpleMultiListener() {
-            override fun onRefresh(refreshLayout: RefreshLayout) {
-                super.onRefresh(refreshLayout)
-                "触发刷新事件".shortToast()
-                binding.xRefresh.finishRefresh()
-//                refreshLayout.finishRefresh(2000)
-            }
-
-//            override fun onLoadMore(refreshLayout: RefreshLayout) {
-//                super.onLoadMore(refreshLayout)
-////                refreshLayout.finishLoadMore(2000)
-//            }
-
-            override fun onHeaderMoving(header: RefreshHeader?, isDragging: Boolean, percent: Float, offset: Int, headerHeight: Int, maxDragHeight: Int) {
-                super.onHeaderMoving(header, isDragging, percent, offset, headerHeight, maxDragHeight)
-                binding.secondFloor.translationY = (offset - binding.secondFloor.height).coerceAtMost(binding.xRefresh.layout.height - binding.secondFloor.height).toSafeFloat()
-                if (offset >= binding.secondFloor.height) navigation(ARouterPath.PullActivity)
-            }
-        })
-
+    override fun initEvent() {
+        super.initEvent()
+        clicks(binding.btnFileManager, binding.btnAlbum)
     }
 
-    override fun onStop() {
-        super.onStop()
-        binding.xRefresh.apply {
-            if (state == RefreshState.TwoLevel ||
-                state == RefreshState.TwoLevelReleased ||
-                state == RefreshState.TwoLevelFinish) {
-                closeHeaderOrFooter()
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            //-------常用类型
+            //图片
+            //intent.setType(“image/*”);
+            //音频
+            //intent.setType(“audio/*”);
+            //视频
+            //intent.setType(“video/*”);
+            //intent.setType(“video/*;image/*”);
+            R.id.btn_file_manager -> {
+                val intent = Intent(Intent.ACTION_GET_CONTENT)
+                //任意类型文件
+                intent.type = "*/*"
+                intent.addCategory(Intent.CATEGORY_OPENABLE)
+                startActivityForResult(intent, REQUEST_MANAGER)
+            }
+            R.id.btn_album -> {
+                val intent = Intent(Intent.ACTION_PICK, null)
+                intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+                startActivityForResult(intent, REQUEST_PHOTO)
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK && data != null) {
+            when (requestCode) {
+                REQUEST_MANAGER -> {
+                    //...
+                }
+                REQUEST_PHOTO -> {
+                    //...
+                }
             }
         }
     }

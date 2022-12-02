@@ -12,7 +12,7 @@ object ARouterPath {
     const val TestListActivity = "/app/TestListActivity"
     const val UserInfoActivity = "/app/UserInfoActivity"
     const val TestActivity = "/app/TestActivity"
-
+    const val WebActivity = "/app/WebActivity"
     const val PullActivity = "/app/PullActivity"
 
 

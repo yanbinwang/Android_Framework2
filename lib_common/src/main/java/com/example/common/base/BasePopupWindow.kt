@@ -18,7 +18,7 @@ import android.widget.PopupWindow
 import androidx.databinding.ViewDataBinding
 import com.example.base.utils.function.value.orFalse
 import com.example.common.R
-import com.example.common.utils.pt
+import com.example.common.utils.function.pt
 import java.lang.reflect.ParameterizedType
 
 /**

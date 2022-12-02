@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?><!-- 加载网页的activity -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingConstraints">
+
+    <data>
+
+        <variable
+            name="url"
+            type="String" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include
+            android:id="@+id/title_container"
+            layout="@layout/view_title_bar" />
+
+        <FrameLayout
+            android:id="@+id/fl_webRoot"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ProgressBar
+            android:id="@+id/pb_web"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3mm"
+            android:progressDrawable="@drawable/layer_list_web_progress"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@+id/fl_webRoot" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -10,4 +10,10 @@ object RequestCode {
 
     //图片回调编码
     const val REQUEST_PHOTO = 10001
+
+    //文件管理器回调编码
+    const val REQUEST_MANAGER = 10002
+
+    //指定文件回调编码
+    const val REQUEST_FILE = 10003
 }

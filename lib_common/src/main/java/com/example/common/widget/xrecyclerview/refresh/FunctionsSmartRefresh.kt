@@ -4,7 +4,7 @@ import com.example.base.utils.function.value.orFalse
 import com.example.base.utils.function.view.doOnceAfterLayout
 import com.example.common.constant.Constants
 import com.example.common.utils.builder.StatusBarBuilder
-import com.example.common.utils.pt
+import com.example.common.utils.function.pt
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.api.RefreshFooter
 import com.scwang.smart.refresh.layout.api.RefreshHeader

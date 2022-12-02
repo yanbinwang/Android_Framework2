@@ -5,11 +5,11 @@ import android.app.Activity
 import com.example.base.utils.function.color
 import com.example.base.utils.function.view.click
 import com.example.base.utils.function.view.gone
+import com.example.base.utils.function.view.tint
 import com.example.base.utils.function.view.visible
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
-import com.example.common.utils.setArguments
-import com.example.common.utils.tint
+import com.example.common.utils.function.setArguments
 
 @SuppressLint("InflateParams")
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
@@ -39,11 +39,11 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * 继承baseactivity，用include把布局引入后调用
      */
     @JvmOverloads
-    fun setTransparentTitle(title: String = "", titleColor: Int = R.color.grey_333333, light: Boolean = true): TitleBuilder {
+    fun setTransparentTitle(title: String = "", titleColor: Int = R.color.grey_333333, light: Boolean = true, transparent: Boolean = true): TitleBuilder {
         statusBarBuilder.transparent(light)
         binding.clContainer.apply {
             statusBarPadding()
-            setBackgroundColor(0)
+            if(transparent) setBackgroundColor(0)
         }
         binding.tvTitle.setArguments(title, titleColor)
         return this

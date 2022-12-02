@@ -1,43 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <com.scwang.smart.refresh.layout.SmartRefreshLayout
-        android:id="@+id/x_refresh"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:srlEnableLoadMore="false"
-        app:srlEnableRefresh="true">
+        android:orientation="vertical"
+        android:padding="20mm">
 
-        <com.example.mvvm.widget.TwoLevelHeader
-            android:id="@+id/header"
+        <Button
+            android:id="@+id/btn_file_manager"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="80mm"
+            android:background="@drawable/shape_blue_btn"
+            android:text="文件管理器"
+            android:textColor="@color/white"
+            android:textSize="32mm" />
 
-            <ImageView
-                android:id="@+id/second_floor"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@mipmap/img_second_floor" />
-
-        </com.example.mvvm.widget.TwoLevelHeader>
-
-        <FrameLayout
+        <Button
+            android:id="@+id/btn_album"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/blue_3d81f2">
+            android:layout_height="80mm"
+            android:layout_marginTop="10mm"
+            android:background="@drawable/shape_blue_btn"
+            android:text="系统相册"
+            android:textColor="@color/white"
+            android:textSize="32mm" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="首页"
-                android:textColor="@color/white"
-                android:textSize="38mm" />
-
-        </FrameLayout>
-
-    </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+    </LinearLayout>
 
 </layout>

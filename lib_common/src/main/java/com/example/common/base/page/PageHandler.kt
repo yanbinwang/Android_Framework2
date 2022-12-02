@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import com.example.common.R
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.resString
+import com.example.common.utils.function.resString
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 

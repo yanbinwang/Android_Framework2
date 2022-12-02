@@ -6,15 +6,11 @@ import android.graphics.drawable.AnimationDrawable
 import android.util.AttributeSet
 import android.view.View
 import com.example.base.utils.function.inflate
-import com.example.base.utils.function.view.gone
-import com.example.base.utils.function.view.padding
-import com.example.base.utils.function.view.size
-import com.example.base.utils.function.view.visible
+import com.example.base.utils.function.view.*
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshFooterBinding
-import com.example.common.utils.pt
-import com.example.common.utils.tint
+import com.example.common.utils.function.pt
 import com.scwang.smart.refresh.layout.api.RefreshFooter
 import com.scwang.smart.refresh.layout.api.RefreshKernel
 import com.scwang.smart.refresh.layout.api.RefreshLayout

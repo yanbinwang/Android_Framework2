@@ -16,7 +16,7 @@ import com.example.base.utils.hiddenAnim
 import com.example.base.utils.logE
 import com.example.base.utils.shownAnim
 import com.example.common.R
-import com.example.common.utils.pt
+import com.example.common.utils.function.pt
 import java.lang.reflect.ParameterizedType
 
 /**
