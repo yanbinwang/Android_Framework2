@@ -24,8 +24,8 @@ import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
 import com.example.common.utils.builder.StatusBarBuilder
+import com.example.common.utils.function.load
 import com.example.common.utils.function.setSpanFirst
-import com.example.common.utils.web.load
 import com.example.common.widget.xrecyclerview.XRecyclerView
 
 /**

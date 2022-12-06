@@ -33,9 +33,15 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * 继承baseactivity，用include把布局引入后调用
      */
     @JvmOverloads
-    fun setTransparentTitle(title: String = "", titleColor: Int = R.color.grey_333333, light: Boolean = true): TitleBuilder {
+    fun setTransparentTitle(title: String = "", titleColor: Int = R.color.grey_333333, light: Boolean = true, transparent: Boolean = true): TitleBuilder {
         statusBarBuilder.transparent(light)
-        binding.clContainer.statusBarPadding()
+        binding.clContainer.apply {
+            statusBarPadding()
+            if(!transparent) {
+                statusBarBuilder.statusBarColor(R.color.white)
+                setBackgroundColor(activity.color(R.color.white))
+            }
+        }
         binding.tvTitle.setArguments(title, titleColor)
         return this
     }

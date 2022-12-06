@@ -1,4 +1,4 @@
-package com.example.common.utils.web
+package com.example.common.utils
 
 import android.annotation.SuppressLint
 import android.app.Activity

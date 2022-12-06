@@ -1,4 +1,4 @@
-package com.example.common.utils.web
+package com.example.common.utils.function
 
 import android.content.Context
 import android.content.Intent
@@ -34,7 +34,7 @@ fun WebView?.load(url: String, needHeader: Boolean) {
     if (this == null) return
     loadFinished = false
     if (needHeader) {
-        loadUrl(url, getHeader(url))
+        loadUrl(url, getHeader())
     } else {
         loadUrl(url)
     }
@@ -75,25 +75,10 @@ fun WebView?.evaluateJs(script: String, listener: (String?) -> Unit) {
     }
 }
 
-///**
-// * 是否内部网页
-// */
-//private val String?.isUrlAppInternal: Boolean
-//    get() {
-//        if (this.isNullOrEmpty()) return false
-//        if (isDebug) return true
-//        return ServerConfig.getBackUpServerList().find {
-//            toUri().host.regCheck("^(.+\\.)?${it.server}\$")
-//        } != null
-//    }
-
 /**
  * 添加请求头
  */
-private fun getHeader(url: String): Map<String, String> {
-//    if (!url.isUrlAppInternal) {
-//        return mapOf()
-//    }
+private fun getHeader(): Map<String, String> {
     val map = HashMap<String, String>()
 //    if (UserDataUtil.isLogin()) {
 //        UserDataUtil.getUserData()?.token?.let { map["token"] = it }
