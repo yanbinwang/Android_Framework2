@@ -6,6 +6,7 @@ import android.graphics.drawable.AnimationDrawable
 import android.util.AttributeSet
 import android.view.View
 import com.example.base.utils.function.inflate
+import com.example.base.utils.function.view.imageResource
 import com.example.base.utils.function.view.padding
 import com.example.base.utils.function.view.size
 import com.example.base.utils.function.view.tint
@@ -13,7 +14,6 @@ import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.constant.Constants
 import com.example.common.databinding.ViewRefreshHeaderBinding
-import com.example.common.utils.function.imageResource
 import com.example.common.utils.function.pt
 import com.scwang.smart.refresh.layout.api.RefreshHeader
 import com.scwang.smart.refresh.layout.api.RefreshKernel

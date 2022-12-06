@@ -5,8 +5,6 @@ import com.example.base.utils.function.color
 import com.example.base.utils.function.view.*
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
-import com.example.common.utils.function.imageResource
-import com.example.common.utils.function.pt
 import com.example.common.utils.function.setArguments
 
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {

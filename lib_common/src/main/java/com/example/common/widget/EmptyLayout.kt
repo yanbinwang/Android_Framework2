@@ -8,15 +8,11 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.example.base.utils.function.inflate
 import com.example.base.utils.function.string
-import com.example.base.utils.function.view.click
-import com.example.base.utils.function.view.color
-import com.example.base.utils.function.view.gone
-import com.example.base.utils.function.view.visible
+import com.example.base.utils.function.view.*
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
-import com.example.common.utils.function.imageResource
 
 /**
  * Created by android on 2017/8/7.

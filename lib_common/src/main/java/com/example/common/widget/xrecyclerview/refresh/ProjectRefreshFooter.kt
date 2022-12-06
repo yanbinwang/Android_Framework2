@@ -10,7 +10,6 @@ import com.example.base.utils.function.view.*
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshFooterBinding
-import com.example.common.utils.function.imageResource
 import com.example.common.utils.function.pt
 import com.scwang.smart.refresh.layout.api.RefreshFooter
 import com.scwang.smart.refresh.layout.api.RefreshKernel

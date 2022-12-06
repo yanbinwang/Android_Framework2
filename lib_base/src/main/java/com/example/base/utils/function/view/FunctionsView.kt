@@ -488,6 +488,14 @@ fun ImageView?.tint(@ColorRes res: Int) {
 }
 
 /**
+ * 图片src资源
+ */
+fun ImageView?.imageResource(@DrawableRes resId: Int) {
+    this ?: return
+    setImageResource(resId)
+}
+
+/**
  * 设置按钮显影图片
  */
 fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
