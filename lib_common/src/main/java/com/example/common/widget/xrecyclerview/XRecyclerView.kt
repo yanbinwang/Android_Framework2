@@ -10,6 +10,7 @@ import com.example.base.utils.function.view.cancelItemAnimator
 import com.example.base.utils.function.view.gone
 import com.example.base.utils.function.view.initLinearHorizontal
 import com.example.base.widget.BaseViewGroup
+import com.example.base.widget.DataRecyclerView
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.utils.function.pt

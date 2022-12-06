@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!-- 不带刷新的recyclerview -->
-<com.example.common.widget.xrecyclerview.DataRecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.base.widget.DataRecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/d_rv"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
