@@ -150,6 +150,14 @@ fun Class<*>.getTriple(pair: Pair<String, String>, name: String? = null): Triple
 }
 
 /**
+ * 图片src资源
+ */
+fun ImageView?.imageResource(@DrawableRes resId: Int) {
+    this ?: return
+    setImageResource(resId)
+}
+
+/**
  * 图片宽度动态变为手机宽度
  */
 fun ImageView?.setScreenWidth() {

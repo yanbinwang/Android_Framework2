@@ -5,6 +5,7 @@ import com.example.base.utils.function.color
 import com.example.base.utils.function.view.*
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
+import com.example.common.utils.function.imageResource
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.setArguments
 
@@ -66,7 +67,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
             visible()
 //            size(88.pt, 88.pt)
 //            paddingAll(20.pt)
-            setImageResource(resId)
+            imageResource(resId)
             if (0 != tintColor) tint(tintColor)
             click { onClick.invoke() }
         }
@@ -77,7 +78,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     fun setRightResource(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}): TitleBuilder {
         binding.ivRight.apply {
             visible()
-            setImageResource(resId)
+            imageResource(resId)
             if (0 != tintColor) tint(tintColor)
             click { onClick.invoke() }
         }
@@ -115,7 +116,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      */
     fun getDefault(): TitleBuilder {
         binding.ivLeft.apply {
-            setImageResource(R.mipmap.ic_btn_back)
+            imageResource(R.mipmap.ic_btn_back)
             visible()
             click { activity.finish() }
         }

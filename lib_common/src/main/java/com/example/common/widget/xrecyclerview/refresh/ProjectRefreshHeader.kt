@@ -13,6 +13,7 @@ import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.constant.Constants
 import com.example.common.databinding.ViewRefreshHeaderBinding
+import com.example.common.utils.function.imageResource
 import com.example.common.utils.function.pt
 import com.scwang.smart.refresh.layout.api.RefreshHeader
 import com.scwang.smart.refresh.layout.api.RefreshKernel
@@ -36,7 +37,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
         binding.root.size(LayoutParams.MATCH_PARENT, 40.pt)
         binding.ivProgress.let {
             it.padding(top = 2.5.pt, bottom = 2.5.pt)
-            it.setImageResource(R.drawable.animation_list_loading)
+            it.imageResource(R.drawable.animation_list_loading)
             it.tint(R.color.blue_3d81f2)
             animation = it.drawable as? AnimationDrawable
         }

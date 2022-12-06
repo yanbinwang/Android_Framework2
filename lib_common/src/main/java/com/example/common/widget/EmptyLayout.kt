@@ -16,6 +16,7 @@ import com.example.base.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
+import com.example.common.utils.function.imageResource
 
 /**
  * Created by android on 2017/8/7.
@@ -67,7 +68,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun showLoading() {
         visible()
-        binding.ivEmpty.setImageResource(R.mipmap.img_data_loading)
+        binding.ivEmpty.imageResource(R.mipmap.img_data_loading)
         binding.tvEmpty.text = context.string(R.string.label_data_loading)
         binding.tvRefresh.gone()
     }
@@ -77,7 +78,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun showEmpty(resId: Int = -1, text: String? = null) {
         visible()
-        binding.ivEmpty.setImageResource(if (-1 == resId) R.mipmap.img_data_empty else resId)
+        binding.ivEmpty.imageResource(if (-1 == resId) R.mipmap.img_data_empty else resId)
         binding.tvEmpty.text = if (text.isNullOrEmpty()) context.string(R.string.label_data_empty) else text
         binding.tvRefresh.gone()
     }
@@ -89,10 +90,10 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     fun showError(resId: Int = -1, text: String? = null, refreshText: String? = null) {
         visible()
         if (!isNetworkAvailable()) {
-            binding.ivEmpty.setImageResource(R.mipmap.img_data_net_error)
+            binding.ivEmpty.imageResource(R.mipmap.img_data_net_error)
             binding.tvEmpty.text = context.string(R.string.label_data_net_error)
         } else {
-            binding.ivEmpty.setImageResource(if (-1 == resId) R.mipmap.img_data_error else resId)
+            binding.ivEmpty.imageResource(if (-1 == resId) R.mipmap.img_data_error else resId)
             binding.tvEmpty.text = if (text.isNullOrEmpty()) context.string(R.string.label_data_error) else text
         }
         if(!refreshText.isNullOrEmpty()) binding.tvRefresh.text = refreshText
