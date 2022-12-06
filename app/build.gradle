@@ -27,10 +27,6 @@ android {
         }
     }
 
-    lintOptions {
-        disable 'GoogleAppIndexingWarning'
-    }
-
     compileSdk build_versions.compileSdkVersion
 
     defaultConfig {
@@ -60,6 +56,10 @@ android {
 
     buildFeatures {
         dataBinding true
+    }
+
+    lintOptions {
+        disable 'GoogleAppIndexingWarning'
     }
 
     compileOptions {
