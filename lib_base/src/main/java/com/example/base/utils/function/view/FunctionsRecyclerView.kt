@@ -145,9 +145,18 @@ fun RecyclerView?.initLinearVertical(adapter: RecyclerView.Adapter<*>? = null): 
 }
 
 /**
- * 设置水平的Grid的LayoutManager和adapter
+ * 设置水平的Grid的GridLayoutManager和adapter
  */
 fun RecyclerView?.initGridHorizontal(adapter: RecyclerView.Adapter<*>, columns: Int): GridLayoutManager? {
+    this ?: return null
+    this.adapter = adapter
+    return GridLayoutManager(context, columns, RecyclerView.HORIZONTAL, false).apply { layoutManager = this }
+}
+
+/**
+ * 设置垂直的Grid的GridLayoutManager和adapter
+ */
+fun RecyclerView?.initGridVertical(adapter: RecyclerView.Adapter<*>, columns: Int): GridLayoutManager? {
     this ?: return null
     this.adapter = adapter
     return GridLayoutManager(context, columns, RecyclerView.VERTICAL, false).apply { layoutManager = this }
