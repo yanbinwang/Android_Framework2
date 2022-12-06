@@ -202,7 +202,7 @@ object ExtraNumber {
 
     /**
      * 获取顶栏高度
-     * */
+     */
     fun getInternalDimensionSize(context: Context, key: String): Int {
         val result = 0
         try {

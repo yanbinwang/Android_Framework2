@@ -133,7 +133,7 @@ fun View?.disable() {
 
 /**
  * 背景
- * */
+ */
 fun View?.background(@DrawableRes bg: Int) {
     if (this == null) return
     this.setBackgroundResource(bg)
@@ -141,7 +141,7 @@ fun View?.background(@DrawableRes bg: Int) {
 
 /**
  * 清除背景
- * */
+ */
 fun View?.clearBackground() {
     if (this == null) return
     this.background = null
@@ -197,7 +197,7 @@ fun View?.size(width: Int? = null, height: Int? = null) {
 
 /**
  * view的weight（仅在LinearLayout下生效）
- * */
+ */
 var View?.weight: Float
     get() {
         return (this?.layoutParams as? LinearLayout.LayoutParams)?.weight.orZero
@@ -209,7 +209,7 @@ var View?.weight: Float
 
 /**
  * view的horizontalWeight（仅在ConstraintLayout下生效）
- * */
+ */
 var View?.horizontalWeight: Float
     get() {
         return (this?.layoutParams as? ConstraintLayout.LayoutParams)?.horizontalWeight.orZero
@@ -221,7 +221,7 @@ var View?.horizontalWeight: Float
 
 /**
  * view的verticalWeight（仅在ConstraintLayout下生效）
- * */
+ */
 var View?.verticalWeight: Float
     get() {
         return (this?.layoutParams as? ConstraintLayout.LayoutParams)?.verticalWeight.orZero
@@ -233,7 +233,7 @@ var View?.verticalWeight: Float
 
 /**
  * 设置layoutGravity，只对LinearLayout和FrameLayout有效，有需要则自行添加其他view
- * */
+ */
 var View?.layoutGravity: Int
     get() {
         return when (this?.parent) {
@@ -377,7 +377,7 @@ fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
 
 /**
  * 取消View的动画
- * */
+ */
 fun View?.cancelAnim() {
     this ?: return
     animation?.setAnimationListener(null)

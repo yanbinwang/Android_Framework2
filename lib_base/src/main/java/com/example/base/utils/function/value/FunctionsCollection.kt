@@ -94,7 +94,7 @@ fun <T> MutableList<T>?.setSafeLast(t: T) {
 
 /**
  * 将旧list转换为新list
- * */
+ */
 fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
@@ -108,7 +108,7 @@ fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
 
 /**
  * 将旧list转换为新list
- * */
+ */
 fun <T, K> ArrayList<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     return (this as? List<T>).toNewList(func)
 }

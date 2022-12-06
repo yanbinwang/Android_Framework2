@@ -188,7 +188,7 @@ fun EditText?.removeFilter(vararg filterList: InputFilter) {
 
 /**
  * 添加回车时的处理
- * */
+ */
 fun EditText?.onDone(listener: () -> Unit) {
     if (this == null) return
     setOnEditorActionListener { _, id, _ ->

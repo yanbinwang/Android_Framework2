@@ -7,17 +7,17 @@ import androidx.annotation.ColorInt
 //------------------------------------方法工具类------------------------------------
 /**
  * Boolean防空
- * */
+ */
 val Boolean?.orFalse get() = this ?: false
 
 /**
  * Boolean防空
- * */
+ */
 val Boolean?.orTrue get() = this ?: true
 
 /**
  * 转Boolean
- * */
+ */
 fun Any?.toBoolean(default: Boolean = false) = this as? Boolean ?: default
 
 /**

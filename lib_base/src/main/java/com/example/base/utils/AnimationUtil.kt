@@ -236,7 +236,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
 
     /**
      *  右侧margin动画
-     * */
+     */
     fun marginRight(startPX: Int, endPX: Int): AnimationUtil {
         if (view == null) return this
         if (millisecond == 0L) {
@@ -368,7 +368,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
          * 透明度
          * @param from 0f-1f
          * @param to 0f-1f
-         * */
+         */
         fun alpha(view: View, from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)? = null) {
             view.animation?.setAnimationListener(null)
             view.animation?.cancel()
