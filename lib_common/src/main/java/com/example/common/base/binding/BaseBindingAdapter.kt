@@ -1,4 +1,4 @@
-package com.example.common.base.binding.view
+package com.example.common.base.binding
 
 import android.annotation.SuppressLint
 import android.webkit.WebView
