@@ -107,6 +107,7 @@ class WebHelper(private val act: WebActivity, private val binding: ActivityWebBi
             Lifecycle.Event.ON_DESTROY -> {
                 //        webView?.removeJavascriptInterface("JSCallAndroid")
                 webView = null
+                act.lifecycle.removeObserver(this)
             }
             else -> {}
         }
