@@ -17,7 +17,7 @@ import java.io.Serializable
 @Route(path = ARouterPath.WebActivity)
 class WebActivity : BaseActivity<ActivityWebBinding>() {
     private val bean by lazy { intentSerializable(Extras.BUNDLE_BEAN) as? WebBundle }
-    private val webHelper by lazy { WebHelper(this,binding,bean) }
+    private val webHelper by lazy { WebHelper(this, binding, bean) }
 
     override fun initData() {
         super.initData()
