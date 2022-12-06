@@ -23,17 +23,6 @@ class DataRecyclerView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     /**
-     * 检测内容是否为空
-     */
-    private fun isEmpty() {
-        if (emptyView != null && adapter != null) {
-            val emptyViewVisible = adapter?.itemCount == 0
-            emptyView?.visibility = if (emptyViewVisible) VISIBLE else GONE
-            visibility = if (emptyViewVisible) GONE else VISIBLE
-        }
-    }
-
-    /**
      * 当给与recyclerview内容时做检测
      * @param adapter
      */
@@ -56,6 +45,17 @@ class DataRecyclerView @JvmOverloads constructor(context: Context, attrs: Attrib
 
         override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
             isEmpty()
+        }
+    }
+
+    /**
+     * 检测内容是否为空
+     */
+    private fun isEmpty() {
+        if (emptyView != null && adapter != null) {
+            val emptyViewVisible = adapter?.itemCount == 0
+            emptyView?.visibility = if (emptyViewVisible) VISIBLE else GONE
+            visibility = if (emptyViewVisible) GONE else VISIBLE
         }
     }
 
