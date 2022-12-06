@@ -66,16 +66,16 @@ android {
     }
 
     buildTypes {
-//        debug {
-//            minifyEnabled false
-//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-//
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
 //            tasks.whenTaskAdded { task ->
 //                if (task.name.contains("DebugApkListingFileRedirect")) { // 过滤debug
 //                    task.enabled = false
 //                }
 //            }
-//        }
+        }
 
         release {
             //架构支持
