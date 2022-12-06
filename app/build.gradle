@@ -44,15 +44,17 @@ android {
         resConfigs "zh"
         //dex突破65535的限制
         multiDexEnabled true
+        //arouter编译
         kapt {
             arguments {
                 arg("AROUTER_MODULE_NAME", project.getName())
             }
         }
+        //Manifest配置引用
         manifestPlaceholders = [
-                DESIGN_WIDTH : "750",
-                DESIGN_HEIGHT: "1334",
-                PACKAGE_NAME : "com.example.mvvm",
+            PACKAGE_NAME : build_config.applicationId,
+            DESIGN_WIDTH : build_config.DESIGN_WIDTH,
+            DESIGN_HEIGHT: build_config.DESIGN_HEIGHT
         ]
     }
 
@@ -69,12 +71,6 @@ android {
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-
-//            tasks.whenTaskAdded { task ->
-//                if (task.name.contains("DebugApkListingFileRedirect")) { // 过滤debug
-//                    task.enabled = false
-//                }
-//            }
         }
 
         release {
@@ -103,12 +99,6 @@ android {
             shrinkResources true//去掉无用资源
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
-
-//            tasks.whenTaskAdded {task ->
-//                if (task.name.contains("ReleaseApkListingFileRedirect")) { // 过滤release
-//                    task.enabled = false
-//                }
-//            }
 
             applicationVariants.all { variant ->
                 variant.outputs.all {
