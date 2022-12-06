@@ -1,6 +1,7 @@
 package com.example.common.base.binding
 
 import android.annotation.SuppressLint
+import android.webkit.WebView
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -22,9 +23,8 @@ import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
 import com.example.common.utils.builder.StatusBarBuilder
-import com.example.common.utils.function.load
 import com.example.common.utils.function.setSpanFirst
-import com.example.common.widget.XWebView
+import com.example.common.utils.web.load
 import com.example.common.widget.xrecyclerview.XRecyclerView
 
 /**
@@ -57,15 +57,15 @@ object BaseBindingAdapter {
         rec.adapter = adapter
     }
 
-    /**
-     * 给recyclerview绑定一个适配器
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["adapter"])
-    fun <T : BaseQuickAdapter<*, *>> bindingRecyclerViewAdapter(rec: RecyclerView, adapter: T) {
-        rec.layoutManager = LinearLayoutManager(rec.context)
-        rec.adapter = adapter
-    }
+//    /**
+//     * 给recyclerview绑定一个适配器
+//     */
+//    @JvmStatic
+//    @BindingAdapter(value = ["adapter"])
+//    fun <T : BaseQuickAdapter<*, *>> bindingRecyclerViewAdapter(rec: RecyclerView, adapter: T) {
+//        rec.layoutManager = LinearLayoutManager(rec.context)
+//        rec.adapter = adapter
+//    }
 
     /**
      * 适配器
@@ -104,7 +104,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["load_url","need_header"], requireAll = false)
-    fun bindingWebViewLoadUrl(webView: XWebView, loadPageUrl: String, needHeader: Boolean?) {
+    fun bindingWebViewLoadUrl(webView: WebView, loadPageUrl: String, needHeader: Boolean?) {
         webView.load(loadPageUrl, needHeader.orFalse)
     }
 
@@ -114,7 +114,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["load_asset_url","need_header"], requireAll = false)
-    fun bindingWebViewLoadAssetUrl(webView: XWebView, assetPath: String, needHeader: Boolean?) {
+    fun bindingWebViewLoadAssetUrl(webView: WebView, assetPath: String, needHeader: Boolean?) {
         webView.load("file:///android_asset/$assetPath", needHeader.orFalse)
     }
 

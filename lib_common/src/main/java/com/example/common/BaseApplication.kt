@@ -14,7 +14,6 @@ import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
-import com.tencent.smtt.sdk.QbSdk
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import me.jessyan.autosize.AutoSizeConfig
@@ -50,8 +49,6 @@ open class BaseApplication : Application() {
                 .setAlbumLoader(AlbumGlideLoader()) //设置Album加载器。
                 .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
                 .build())
-        //x5内核初始化接口
-        QbSdk.initX5Environment(applicationContext, null)
         //阿里路由跳转初始化
         if (BuildConfig.DEBUG) {
             ARouter.openLog()//打印日志
