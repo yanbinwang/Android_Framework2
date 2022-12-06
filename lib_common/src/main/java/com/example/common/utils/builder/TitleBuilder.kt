@@ -115,7 +115,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      */
     fun getDefault(): TitleBuilder {
         binding.ivLeft.apply {
-            setBackgroundResource(R.mipmap.ic_btn_back)
+            setImageResource(R.mipmap.ic_btn_back)
             visible()
             click { activity.finish() }
         }
