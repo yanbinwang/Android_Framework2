@@ -264,12 +264,12 @@ fun EditText?.setSafeSelection(start: Int, stop: Int? = null) {
     }
 }
 
+/**
+ * EditText禁止输入Emoji
+ */
 private var cursorPos = 0//输入表情前的光标位置
 private var resetText = false //是否重置了EditText的内容
 private var inputAfterText: String? = null//输入表情前EditText中的文本
-/**
- * EditText输入金额小数限制
- */
 fun EditText?.rejectEmoji() {
     if (this == null) return
     cursorPos = selectionEnd
