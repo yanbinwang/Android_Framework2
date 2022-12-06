@@ -2,12 +2,10 @@ package com.example.common.utils.builder
 
 import android.app.Activity
 import com.example.base.utils.function.color
-import com.example.base.utils.function.view.click
-import com.example.base.utils.function.view.gone
-import com.example.base.utils.function.view.tint
-import com.example.base.utils.function.view.visible
+import com.example.base.utils.function.view.*
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
+import com.example.common.utils.function.pt
 import com.example.common.utils.function.setArguments
 
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
@@ -66,6 +64,8 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     fun setLeftResource(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}): TitleBuilder {
         binding.ivLeft.apply {
             visible()
+//            size(88.pt, 88.pt)
+//            paddingAll(20.pt)
             setImageResource(resId)
             if (0 != tintColor) tint(tintColor)
             click { onClick.invoke() }
