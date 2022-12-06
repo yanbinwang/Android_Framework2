@@ -138,6 +138,15 @@ object BaseBindingAdapter {
     }
 
     /**
+     * 是否禁止edittext输入emoji
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["is_reject"])
+    fun bindingEditTextRejectEmoji(editText: EditText, isReject: Boolean?) {
+        if(isReject.orFalse) editText.rejectEmoji()
+    }
+
+    /**
      * 加载图片
      */
     @JvmStatic
