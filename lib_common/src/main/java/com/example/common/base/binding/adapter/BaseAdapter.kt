@@ -26,11 +26,11 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 数据类型为集合
      */
-    protected var data: MutableList<T> = ArrayList()
+    private var data: MutableList<T> = ArrayList()
     /**
      * 数据类型为对象
      */
-    protected var t: T? = null
+    private var t: T? = null
     /**
      * 点击回调，返回对象和下标
      */
