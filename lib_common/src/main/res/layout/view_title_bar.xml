@@ -8,8 +8,8 @@
         android:id="@+id/cl_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:paddingHorizontal="20mm">
+        android:paddingHorizontal="20mm"
+        tools:background="@color/white">
 
         <ImageView
             android:id="@+id/iv_left"
@@ -17,7 +17,6 @@
             android:layout_height="88mm"
             android:layout_marginStart="12mm"
             android:padding="20mm"
-            android:src="@mipmap/ic_btn_back"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/view_shade"
             app:layout_constraintEnd_toStartOf="@+id/tv_left"
@@ -33,13 +32,13 @@
             android:gravity="center"
             android:lines="1"
             android:paddingHorizontal="32mm"
-            android:textColor="@color/grey_333333"
             android:textSize="32mm"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/iv_left"
             app:layout_constraintStart_toEndOf="@+id/iv_left"
             app:layout_constraintTop_toTopOf="@+id/iv_left"
             tools:text="左侧文字"
+            tools:textColor="@color/grey_333333"
             tools:visibility="visible" />
 
         <TextView
@@ -48,14 +47,14 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLength="10"
-            android:textColor="@color/grey_333333"
             android:textSize="32mm"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@+id/iv_left"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/iv_left"
-            tools:text="标题" />
+            tools:text="标题"
+            tools:textColor="@color/grey_333333" />
 
         <TextView
             android:id="@+id/tv_right"
@@ -64,13 +63,13 @@
             android:gravity="center"
             android:lines="1"
             android:paddingHorizontal="32mm"
-            android:textColor="@color/grey_333333"
             android:textSize="32mm"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/iv_left"
             app:layout_constraintEnd_toStartOf="@+id/iv_right"
             app:layout_constraintTop_toTopOf="@+id/iv_left"
             tools:text="右侧文字"
+            tools:textColor="@color/grey_333333"
             tools:visibility="visible" />
 
         <ImageView

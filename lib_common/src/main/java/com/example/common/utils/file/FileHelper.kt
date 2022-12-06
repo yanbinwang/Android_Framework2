@@ -35,9 +35,6 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 工具类中，实现了对应文件流下载保存的方法，此处采用协程的方式引用
  */
-/**
- * 工具类中，实现了对应文件流下载保存的方法，此处采用协程的方式引用
- */
 class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = (Main)

@@ -1,6 +1,5 @@
 package com.example.common.utils.builder
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import com.example.base.utils.function.color
 import com.example.base.utils.function.view.click
@@ -11,7 +10,6 @@ import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.function.setArguments
 
-@SuppressLint("InflateParams")
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
     private val statusBarBuilder by lazy { StatusBarBuilder(activity.window) }
 
@@ -24,12 +22,11 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * 默认二级页面标题配置
      * title->标题
      * titleColor->标题颜色
-     * bgColor->背景色（状态栏同步变为该颜色）
-     * light->黑白电池
      * shade->标题底部是否带阴影
      */
     @JvmOverloads
     fun setTitle(title: String = "", titleColor: Int = R.color.grey_333333, shade: Boolean = false): TitleBuilder {
+        binding.clContainer.setBackgroundColor(activity.color(R.color.white))
         binding.tvTitle.setArguments(title, titleColor)
         binding.viewShade.apply { if (shade) visible() else gone() }
         return this
@@ -39,12 +36,9 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * 继承baseactivity，用include把布局引入后调用
      */
     @JvmOverloads
-    fun setTransparentTitle(title: String = "", titleColor: Int = R.color.grey_333333, light: Boolean = true, transparent: Boolean = true): TitleBuilder {
+    fun setTransparentTitle(title: String = "", titleColor: Int = R.color.grey_333333, light: Boolean = true): TitleBuilder {
         statusBarBuilder.transparent(light)
-        binding.clContainer.apply {
-            statusBarPadding()
-            if(transparent) setBackgroundColor(0)
-        }
+        binding.clContainer.statusBarPadding()
         binding.tvTitle.setArguments(title, titleColor)
         return this
     }
@@ -117,19 +111,11 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     }
 
     /**
-     * 隐藏左侧返回
-     */
-    fun hideBack(): TitleBuilder {
-        binding.ivLeft.gone()
-        binding.tvLeft.gone()
-        return this
-    }
-
-    /**
      * 默认配置返回样式
      */
     fun getDefault(): TitleBuilder {
         binding.ivLeft.apply {
+            setBackgroundResource(R.mipmap.ic_btn_back)
             visible()
             click { activity.finish() }
         }
