@@ -73,8 +73,17 @@ fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.
 fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
 
 /**
- *  <string name="placeholderLevel">\V%1$s</string>
+ *  <string name="dollar">\$%1$s</string>
+ *  string(R.string.dollar, "10086")
+ *  $10086
  *  字符串表达式的处理
+ *  %n$ms：代表输出的是字符串，n代表是第几个参数，设置m的值可以在输出之前放置空格
+ *  %n$md：代表输出的是整数，n代表是第几个参数，设置m的值可以在输出之前放置空格，也可以设为0m,在输出之前放置m个0
+ *  %n$mf：代表输出的是浮点数，n代表是第几个参数，设置m的值可以控制小数位数，如m=2.2时，输出格式为00.00
+ *  也可简单写成：
+ *  %d   （表示整数）
+ *  %f   （表示浮点数）
+ *  %s   （表示字符串）
  */
 fun string(@StringRes res: Int, vararg param: Int): String {
     val paramString = param.toNewList { resString(it) }.toTypedArray()
