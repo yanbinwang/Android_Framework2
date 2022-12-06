@@ -4,38 +4,42 @@
     package="com.example.mvvm"
     tools:ignore="LockedOrientationActivity">
 
-    <!--    &lt;!&ndash;网络权限&ndash;&gt;-->
-    <!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
-    <!--    <uses-permission android:name="android.permission.INTERNET" />-->
-    <!--    &lt;!&ndash;读写外部存储&ndash;&gt;-->
-    <!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
-    <!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
-    <!--    &lt;!&ndash;拍照&ndash;&gt;-->
-    <!--    <uses-permission android:name="android.permission.CAMERA" />-->
-    <!--    <uses-permission android:name="android.permission.FLASHLIGHT" />-->
-    <!--    &lt;!&ndash;震动提示&ndash;&gt;-->
-    <!--    <uses-permission android:name="android.permission.VIBRATE" />-->
+<!--    &lt;!&ndash;网络权限&ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
+<!--    <uses-permission android:name="android.permission.INTERNET" />-->
+<!--    &lt;!&ndash;读写外部存储&ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
+<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
+<!--    &lt;!&ndash;拍照&ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.CAMERA" />-->
+<!--    <uses-permission android:name="android.permission.FLASHLIGHT" />-->
+<!--    &lt;!&ndash;震动提示&ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.VIBRATE" />-->
 
     <!-- 系统 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!--安装权限-->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!--震动提示-->
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
-    <!-- 定位 -->
+    <!--后台服务及窗口-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- 定位（组） -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-    <!-- 相机 -->
+    <!-- 定位（额外） -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
+    <!-- 相机（组） -->
     <uses-permission android:name="android.permission.CAMERA" />
-    <!-- 麦克风 -->
+    <!-- 麦克风（组） -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <!-- 存储空间 -->
+    <!-- 存储空间（组） -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
