@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.mvvm">
+    package="com.example.mvvm"
+    tools:ignore="LockedOrientationActivity">
 
-<!--    &lt;!&ndash;网络权限&ndash;&gt;-->
-<!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
-<!--    <uses-permission android:name="android.permission.INTERNET" />-->
-<!--    &lt;!&ndash;读写外部存储&ndash;&gt;-->
-<!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
-<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
-<!--    &lt;!&ndash;拍照&ndash;&gt;-->
-<!--    <uses-permission android:name="android.permission.CAMERA" />-->
-<!--    <uses-permission android:name="android.permission.FLASHLIGHT" />-->
-<!--    &lt;!&ndash;震动提示&ndash;&gt;-->
-<!--    <uses-permission android:name="android.permission.VIBRATE" />-->
+    <!--    &lt;!&ndash;网络权限&ndash;&gt;-->
+    <!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
+    <!--    <uses-permission android:name="android.permission.INTERNET" />-->
+    <!--    &lt;!&ndash;读写外部存储&ndash;&gt;-->
+    <!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
+    <!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
+    <!--    &lt;!&ndash;拍照&ndash;&gt;-->
+    <!--    <uses-permission android:name="android.permission.CAMERA" />-->
+    <!--    <uses-permission android:name="android.permission.FLASHLIGHT" />-->
+    <!--    &lt;!&ndash;震动提示&ndash;&gt;-->
+    <!--    <uses-permission android:name="android.permission.VIBRATE" />-->
 
     <!-- 系统 -->
     <uses-permission android:name="android.permission.INTERNET" />
