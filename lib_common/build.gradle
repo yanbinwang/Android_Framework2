@@ -6,6 +6,22 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        debug {
+            keyAlias 'bitnew'
+            keyPassword 'Numbull.bitnew.2019'
+            storeFile file('../key.jks')
+            storePassword 'Numbull.bitnew.2019'
+        }
+
+        release {
+            keyAlias 'bitnew'
+            keyPassword 'Numbull.bitnew.2019'
+            storeFile file('../key.jks')
+            storePassword 'Numbull.bitnew.2019'
+        }
+    }
+
     compileSdkVersion build_versions.compileSdkVersion
 
     defaultConfig {

@@ -3,6 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.mvvm">
 
+<!--    &lt;!&ndash;网络权限&ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
+<!--    <uses-permission android:name="android.permission.INTERNET" />-->
+<!--    &lt;!&ndash;读写外部存储&ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
+<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
+<!--    &lt;!&ndash;拍照&ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.CAMERA" />-->
+<!--    <uses-permission android:name="android.permission.FLASHLIGHT" />-->
+<!--    &lt;!&ndash;震动提示&ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.VIBRATE" />-->
+
     <!-- 系统 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -42,6 +54,7 @@
         tools:replace="android:allowBackup,android:icon,android:theme,android:label"
         tools:targetApi="m">
 
+        <!-- ******************************************************基础全局配置****************************************************** -->
         <!-- 表示当前项目已经适配了分区存储特性 -->
         <meta-data
             android:name="ScopedStorage"
@@ -49,16 +62,28 @@
 
         <!--全屏设置-->
         <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
+
+        <!--适配华为（huawei）刘海屏-->
+        <meta-data
             android:name="android.notch_support"
             android:value="true" />
 
+        <!--适配小米（xiaomi）刘海屏-->
+        <meta-data
+            android:name="notch.config"
+            android:value="portrait|landscape" />
+
+        <!--AutoSize-->
         <meta-data
             android:name="design_width_in_dp"
-            android:value="750" />
+            android:value="${DESIGN_WIDTH}" />
 
         <meta-data
             android:name="design_height_in_dp"
-            android:value="1334" />
+            android:value="${DESIGN_HEIGHT}" />
+        <!-- ******************************************************基础全局配置****************************************************** -->
 
         <activity
             android:name=".activity.SplashActivity"
@@ -82,10 +107,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/mainTheme" />
 
-        <activity
-            android:name=".activity.PullActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -5,20 +5,25 @@ plugins {
     id 'kotlin-parcelize'
 }
 
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
     signingConfigs {
-        debug {
-            keyAlias 'bitnew'
-            keyPassword 'Numbull.bitnew.2019'
-            storeFile file('./key.jks')
-            storePassword 'Numbull.bitnew.2019'
-        }
-
         release {
-            keyAlias 'bitnew'
-            keyPassword 'Numbull.bitnew.2019'
-            storeFile file('./key.jks')
-            storePassword 'Numbull.bitnew.2019'
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+        debug {
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
         }
     }
 
@@ -44,6 +49,11 @@ android {
                 arg("AROUTER_MODULE_NAME", project.getName())
             }
         }
+        manifestPlaceholders = [
+                DESIGN_WIDTH : "750",
+                DESIGN_HEIGHT: "1334",
+                PACKAGE_NAME : "com.example.mvvm",
+        ]
     }
 
     buildFeatures {
@@ -94,11 +104,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
 
-            tasks.whenTaskAdded {task ->
-                if (task.name.contains("ReleaseApkListingFileRedirect")) { // 过滤release
-                    task.enabled = false
-                }
-            }
+//            tasks.whenTaskAdded {task ->
+//                if (task.name.contains("ReleaseApkListingFileRedirect")) { // 过滤release
+//                    task.enabled = false
+//                }
+//            }
 
             applicationVariants.all { variant ->
                 variant.outputs.all {
@@ -119,7 +129,7 @@ dependencies {
     implementation project(':lib_common')
 
 //    implementation  'io.github.scwang90:refresh-layout-kernel:2.0.5'
-    implementation  'io.github.scwang90:refresh-header-two-level:2.0.5'
+    implementation 'io.github.scwang90:refresh-header-two-level:2.0.5'
     //页面路由
     implementation deps.alibaba.arouter
     kapt deps.alibaba.arouter_compiler
