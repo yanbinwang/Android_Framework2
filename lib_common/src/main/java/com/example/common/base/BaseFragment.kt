@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.os.Looper
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
@@ -22,12 +23,15 @@ import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.create
 import com.example.common.constant.Extras
 import com.example.common.utils.AppManager
+import com.example.common.utils.ScreenUtil
 import com.example.common.utils.builder.StatusBarBuilder
 import com.example.common.widget.dialog.LoadingDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import me.jessyan.autosize.AutoSizeCompat
+import me.jessyan.autosize.AutoSizeConfig
 import java.io.Serializable
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
@@ -57,6 +61,12 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         log(TAG)
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            AutoSizeConfig.getInstance()
+                .setScreenWidth(ScreenUtil.screenWidth)
+                .setScreenHeight(ScreenUtil.screenHeight)
+            AutoSizeCompat.autoConvertDensityOfGlobal(resources)
+        }
         try {
             val superclass = javaClass.genericSuperclass
             val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>

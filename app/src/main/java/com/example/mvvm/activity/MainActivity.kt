@@ -1,6 +1,7 @@
 package com.example.mvvm.activity
 
 import android.content.Intent
+import android.preference.PreferenceManager.OnActivityResultListener
 import android.provider.MediaStore
 import android.view.View
 import android.view.View.OnClickListener
@@ -22,10 +23,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
     override fun initEvent() {
         super.initEvent()
         clicks(binding.btnFileManager, binding.btnAlbum)
-
-        onActivityResult = {
-            if(it.resultCode == REQUEST_PHOTO){
-                "dfdsfds".shortToast()
+        onActivityResultListener = object :OnActivityResultListener{
+            override fun onActivityResult(
+                requestCode: Int,
+                resultCode: Int,
+                data: Intent?
+            ): Boolean {
+                TODO("Not yet implemented")
             }
         }
     }

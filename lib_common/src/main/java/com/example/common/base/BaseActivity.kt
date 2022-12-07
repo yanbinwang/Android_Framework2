@@ -1,19 +1,20 @@
 package com.example.common.base
 
 import android.app.Activity
+import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
 import android.os.Looper
 import android.os.Parcelable
+import android.preference.PreferenceManager.OnActivityResultListener
 import android.view.LayoutInflater
 import android.view.View
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.ViewDataBinding
 import com.alibaba.android.arouter.launcher.ARouter
-import com.alibaba.android.arouter.utils.TextUtils
+import com.example.base.utils.function.getIntent
 import com.example.base.utils.function.value.orFalse
 import com.example.base.utils.function.value.orZero
 import com.example.base.utils.function.view.*
@@ -55,6 +56,23 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override val coroutineContext: CoroutineContext get() = Main + job//加上SupervisorJob，提升协程作用域
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
+    companion object {
+        var onFinishListener: OnFinishListener? = null
+        var onActivityResultListener: OnActivityResultListener? = null
+
+        fun Context.startActivity(cls: Class<out Activity>, vararg pairs: Pair<String, Any?>) {
+            startActivity(getIntent(cls, *pairs).apply {
+                if (this@startActivity is Application) {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            })
+        }
+
+        fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, vararg pairs: Pair<String, Any?>) {
+            startActivityForResult(getIntent(cls, *pairs), requestCode)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppManager.addActivity(this)
@@ -130,6 +148,26 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
         }
         return super.getResources()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        AutoSizeConfig.getInstance().stop(this)
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        AutoSizeConfig.getInstance().restart()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        onActivityResultListener?.onActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun finish() {
+        onFinishListener?.onFinish(this)
+        super.finish()
     }
 
     override fun onDestroy() {
@@ -212,22 +250,14 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         if (requestCode == null) {
             postcard.navigation()
         } else {
-            val intent = Intent(baseContext, postcard.destination)
-            intent.putExtras(postcard.extras)
-            val flags = postcard.flags
-            if (0 != flags) intent.flags = flags
-            if (this !is Activity) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            val action = postcard.action
-            if (!TextUtils.isEmpty(action)) intent.action = action
-            startActivityForResult.launch(intent)
-//            postcard.navigation(this, requestCode)
+            postcard.navigation(this, requestCode)
         }
         return this
     }
-
-    protected val startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result -> onActivityResult?.invoke(result) }
-
-    protected var onActivityResult: ((t: ActivityResult) -> Unit)? = null
     // </editor-fold>
 
+}
+
+interface OnFinishListener {
+    fun onFinish(act: BaseActivity<*>)
 }
