@@ -14,7 +14,7 @@ import com.example.base.utils.function.value.toSafeInt
  * @description 画笔默认取中心点坐标，所以要除2
  * @author yan
  */
-interface PaintDraw {
+interface PaintImpl {
 
     /**
      * x:距左距离
