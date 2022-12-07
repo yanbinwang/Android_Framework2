@@ -30,14 +30,23 @@ class EventBus private constructor() {
         }
     }
 
-    fun unregister(subscriber: Any) = run { if (busDefault.isRegistered(subscriber)) busDefault.unregister(subscriber) }
+    fun unregister(subscriber: Any) {
+        if (busDefault.isRegistered(subscriber)) busDefault.unregister(subscriber)
+    }
 
-    fun post(vararg objs: Event) {
-        objs.forEach {
-            when (Looper.getMainLooper()) {
-                Looper.myLooper() -> busDefault.post(it)
-                else -> GlobalScope.launch(Main) { busDefault.post(it) }
-            }
+//    fun post(vararg objs: Event) {
+//        objs.forEach {
+//            when (Looper.getMainLooper()) {
+//                Looper.myLooper() -> busDefault.post(it)
+//                else -> GlobalScope.launch(Main) { busDefault.post(it) }
+//            }
+//        }
+//    }
+
+    fun post(event: Event) {
+        when (Looper.getMainLooper()) {
+            Looper.myLooper() -> busDefault.post(event)
+            else -> GlobalScope.launch(Main) { busDefault.post(event) }
         }
     }
 
