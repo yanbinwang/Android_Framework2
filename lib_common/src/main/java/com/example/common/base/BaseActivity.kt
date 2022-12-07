@@ -8,6 +8,7 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.os.Looper
 import android.os.Parcelable
+import android.preference.PreferenceManager
 import android.preference.PreferenceManager.OnActivityResultListener
 import android.view.LayoutInflater
 import android.view.View
@@ -57,8 +58,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     companion object {
+        private var onActivityResultListener: OnActivityResultListener? = null
         var onFinishListener: OnFinishListener? = null
-        var onActivityResultListener: OnActivityResultListener? = null
 
         fun Context.startActivity(cls: Class<out Activity>, vararg pairs: Pair<String, Any?>) {
             startActivity(getIntent(cls, *pairs).apply {
@@ -70,6 +71,14 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
         fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, vararg pairs: Pair<String, Any?>) {
             startActivityForResult(getIntent(cls, *pairs), requestCode)
+        }
+
+        fun setOnActivityResultListener(onActivityResultListener: OnActivityResultListener) {
+            this.onActivityResultListener = onActivityResultListener
+        }
+
+        fun clearOnActivityResultListener() {
+            onActivityResultListener = null
         }
     }
 
