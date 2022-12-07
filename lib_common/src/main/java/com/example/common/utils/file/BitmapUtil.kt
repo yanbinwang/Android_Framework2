@@ -5,6 +5,7 @@ import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.media.ExifInterface
+import android.view.View
 import com.example.base.utils.function.value.DateFormat
 import com.example.base.utils.function.value.getDateTime
 import com.example.common.BaseApplication
@@ -169,4 +170,42 @@ fun readDegree(path: String): Float {
         ExifInterface.ORIENTATION_ROTATE_270 -> degree = 270f
     }
     return degree
+}
+
+/**
+ * 获取一个 View 的缓存视图
+ *
+ * @param view
+ * @return
+ */
+fun View?.getBitmapFromView(w: Int? = null, h: Int? = null, needBg: Boolean = true): Bitmap? {
+    this ?: return null
+    //请求转换
+    return try {
+        val screenshot = Bitmap.createBitmap(width, height, if (needBg) Bitmap.Config.RGB_565 else Bitmap.Config.ARGB_8888)
+        val c = Canvas(screenshot)
+        if (needBg) c.drawColor(Color.WHITE)
+        draw(c)
+        if (w != null && h != null) {
+            screenshot.resizeBitmap(w, h)
+        } else {
+            screenshot
+        }
+    } catch (e: Exception) {
+        null
+    }
+}
+
+/**
+ * 重设bitmap大小
+ */
+fun Bitmap?.resizeBitmap(width: Int, height: Int): Bitmap? {
+    this ?: return null
+    val oriWidth = this.width
+    val oriHeight = this.height
+    val matrix = Matrix()
+    matrix.postScale(width / oriWidth.toFloat(), height / oriHeight.toFloat()) //长和宽放大缩小的比例
+    val resultBitmap = Bitmap.createBitmap(this, 0, 0, this.width, this.height, matrix, true)
+    this.recycle()
+    return resultBitmap
 }
