@@ -28,10 +28,11 @@ import java.util.*
 /**
  * 网页帮助类
  */
-class WebHelper(private val act: WebActivity, private val binding: ActivityWebBinding, private val bean: WebBundle?) : LifecycleEventObserver {
-    private val titleBuilder by lazy { TitleBuilder(act, binding.titleContainer) } //标题栏
+class WebHelper(private val act: WebActivity, private val bean: WebBundle?) : LifecycleEventObserver {
+    private val binding by lazy { ActivityWebBinding.inflate(act.layoutInflater) }
+    private val titleBuilder by lazy { TitleBuilder(act, binding.titleContainer) }
     private val webUtil by lazy { WebUtil(act, binding.flWebRoot) }
-    private var webView: WebView? = null//继承的子类可以拿
+    private var webView: WebView? = null
 
     init {
         act.lifecycle.addObserver(this)
@@ -42,7 +43,6 @@ class WebHelper(private val act: WebActivity, private val binding: ActivityWebBi
     }
 
     private fun addWebView() {
-        //不传string会去获取加载时候的图
         if (bean?.isWebTitleRequired().orTrue) {
             bean?.let { if (it.getWebTitle().isNotEmpty()) setTitle(it.getWebTitle()) }
         } else {
