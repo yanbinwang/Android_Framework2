@@ -8,8 +8,10 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.base.utils.function.view.clicks
 import com.example.common.base.BaseActivity
 import com.example.common.constant.ARouterPath
+import com.example.common.constant.Extras
 import com.example.common.constant.RequestCode.REQUEST_MANAGER
 import com.example.common.constant.RequestCode.REQUEST_PHOTO
+import com.example.common.utils.builder.shortToast
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 
@@ -20,6 +22,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
     override fun initEvent() {
         super.initEvent()
         clicks(binding.btnFileManager, binding.btnAlbum)
+
+        onActivityResult = {
+            if(it.resultCode == REQUEST_PHOTO){
+                "dfdsfds".shortToast()
+            }
+        }
     }
 
     override fun onClick(v: View?) {
@@ -33,11 +41,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
             //intent.setType(“video/*”);
             //intent.setType(“video/*;image/*”);
             R.id.btn_file_manager -> {
-                val intent = Intent(Intent.ACTION_GET_CONTENT)
-                //任意类型文件
-                intent.type = "*/*"
-                intent.addCategory(Intent.CATEGORY_OPENABLE)
-                startActivityForResult(intent, REQUEST_MANAGER)
+//                val intent = Intent(Intent.ACTION_GET_CONTENT)
+//                //任意类型文件
+//                intent.type = "*/*"
+//                intent.addCategory(Intent.CATEGORY_OPENABLE)
+//                startActivityForResult(intent, REQUEST_MANAGER)
+                navigation(ARouterPath.TestActivity,Extras.REQUEST_CODE to REQUEST_PHOTO)
             }
             R.id.btn_album -> {
                 val intent = Intent(Intent.ACTION_PICK, null)

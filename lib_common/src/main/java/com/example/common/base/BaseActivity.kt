@@ -1,15 +1,19 @@
 package com.example.common.base
 
 import android.app.Activity
+import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
 import android.os.Looper
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.ViewDataBinding
 import com.alibaba.android.arouter.launcher.ARouter
+import com.alibaba.android.arouter.utils.TextUtils
 import com.example.base.utils.function.value.orFalse
 import com.example.base.utils.function.value.orZero
 import com.example.base.utils.function.view.*
@@ -208,10 +212,22 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         if (requestCode == null) {
             postcard.navigation()
         } else {
-            postcard.navigation(this, requestCode)
+            val intent = Intent(baseContext, postcard.destination)
+            intent.putExtras(postcard.extras)
+            val flags = postcard.flags
+            if (0 != flags) intent.flags = flags
+            if (this !is Activity) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            val action = postcard.action
+            if (!TextUtils.isEmpty(action)) intent.action = action
+            startActivityForResult.launch(intent)
+//            postcard.navigation(this, requestCode)
         }
         return this
     }
+
+    protected val startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result -> onActivityResult?.invoke(result) }
+
+    protected var onActivityResult: ((t: ActivityResult) -> Unit)? = null
     // </editor-fold>
 
 }

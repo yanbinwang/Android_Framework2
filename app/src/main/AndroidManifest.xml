@@ -112,6 +112,10 @@
             android:screenOrientation="portrait"
             android:theme="@style/mainTheme" />
 
+        <activity
+            android:name=".activity.TestActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/mainTheme" />
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"
