@@ -40,6 +40,10 @@ fun Context.startForegroundService(cls: Class<out Service>, vararg pairs: Pair<S
     }
 }
 
+fun Context.stopService(cls: Class<out Service>) {
+    stopService(getIntent(cls))
+}
+
 /**
  *  获取对应class类页面中intent的消息
  */
