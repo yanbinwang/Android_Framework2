@@ -1,7 +1,9 @@
 package com.example.common.base
 
 import android.app.Activity
+import android.content.res.Resources
 import android.os.Bundle
+import android.os.Looper
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
@@ -20,12 +22,15 @@ import com.example.common.bus.Event
 import com.example.common.bus.EventBus
 import com.example.common.constant.Extras
 import com.example.common.utils.AppManager
+import com.example.common.utils.ScreenUtil
 import com.example.common.utils.builder.StatusBarBuilder
 import com.example.common.widget.dialog.LoadingDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import me.jessyan.autosize.AutoSizeCompat
+import me.jessyan.autosize.AutoSizeConfig
 import org.greenrobot.eventbus.Subscribe
 import java.io.Serializable
 import java.lang.reflect.ParameterizedType
@@ -110,6 +115,17 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     override fun GONE(vararg views: View?) {
         views.forEach { it?.gone() }
+    }
+
+    override fun getResources(): Resources {
+        //AutoSize的防止界面错乱的措施,同时确认其在主线程运行
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            AutoSizeConfig.getInstance()
+                .setScreenWidth(ScreenUtil.screenWidth)
+                .setScreenHeight(ScreenUtil.screenHeight)
+            AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
+        }
+        return super.getResources()
     }
 
     override fun onDestroy() {
