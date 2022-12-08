@@ -21,11 +21,11 @@ import com.example.base.utils.function.view.*
 import com.example.base.utils.shownAnim
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
-import com.example.common.constant.Constants
 import com.example.common.imageloader.ImageLoader
-import com.example.common.utils.builder.StatusBarBuilder
+import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
 import com.example.common.utils.function.setSpanFirst
+import com.example.common.utils.screen.StatusBarUtil
 import com.example.common.widget.xrecyclerview.XRecyclerView
 
 /**
@@ -46,7 +46,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["statusBar_margin"])
     fun bindingGuidelineStatusBar(guideline: Guideline, statusBarMargin: Boolean?) {
-        if (statusBarMargin.orFalse) guideline.setGuidelineBegin(if (StatusBarBuilder.statusBarCheckVersion()) Constants.STATUS_BAR_HEIGHT else 0)
+        if (statusBarMargin.orFalse) guideline.setGuidelineBegin(if (StatusBarUtil.statusBarCheckVersion()) getStatusBarHeight() else 0)
     }
     // </editor-fold>
 

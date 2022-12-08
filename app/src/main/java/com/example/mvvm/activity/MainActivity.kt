@@ -1,7 +1,6 @@
 package com.example.mvvm.activity
 
 import android.content.Intent
-import android.preference.PreferenceManager.OnActivityResultListener
 import android.provider.MediaStore
 import android.view.View
 import android.view.View.OnClickListener
@@ -12,7 +11,6 @@ import com.example.common.constant.ARouterPath
 import com.example.common.constant.Extras
 import com.example.common.constant.RequestCode.REQUEST_MANAGER
 import com.example.common.constant.RequestCode.REQUEST_PHOTO
-import com.example.common.utils.builder.shortToast
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 
@@ -23,15 +21,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
     override fun initEvent() {
         super.initEvent()
         clicks(binding.btnFileManager, binding.btnAlbum)
-        onActivityResultListener = object :OnActivityResultListener{
-            override fun onActivityResult(
-                requestCode: Int,
-                resultCode: Int,
-                data: Intent?
-            ): Boolean {
-                TODO("Not yet implemented")
-            }
-        }
     }
 
     override fun onClick(v: View?) {

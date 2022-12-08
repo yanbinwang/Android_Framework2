@@ -1,4 +1,4 @@
-package com.example.common.utils.builder
+package com.example.common.utils.screen
 
 import android.annotation.SuppressLint
 import android.graphics.Color
@@ -11,7 +11,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.base.utils.function.view.padding
-import com.example.common.constant.Constants
+import com.example.common.utils.function.getStatusBarHeight
 
 /**
  * author: wyb
@@ -20,7 +20,7 @@ import com.example.common.constant.Constants
  * 从5.0+开始兼容色值，默认样式配置为纯黑色
  */
 @SuppressLint("PrivateApi", "InlinedApi")
-class StatusBarBuilder(private val window: Window) {
+class StatusBarUtil(private val window: Window) {
 
     companion object {
 
@@ -166,12 +166,14 @@ class StatusBarBuilder(private val window: Window) {
  * enable->忽略版本限制
  */
 fun View.statusBarHeight() {
-    if (StatusBarBuilder.statusBarCheckVersion()) {
-        layoutParams = when (parent) {
-            is LinearLayout -> LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
-            is RelativeLayout -> RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
-            is FrameLayout -> FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
-            else -> ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, Constants.STATUS_BAR_HEIGHT)
+    if (StatusBarUtil.statusBarCheckVersion()) {
+        getStatusBarHeight().also {
+            layoutParams = when (parent) {
+                is LinearLayout -> LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, it)
+                is RelativeLayout -> RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, it)
+                is FrameLayout -> FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, it)
+                else -> ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, it)
+            }
         }
     }
 }
@@ -180,23 +182,21 @@ fun View.statusBarHeight() {
  * 设置view底部所有子控件居下导航栏高度
  * enable->忽略版本限制
  */
-fun View.statusBarPadding() {
-    if (StatusBarBuilder.statusBarCheckVersion()) padding(top = Constants.STATUS_BAR_HEIGHT)
-}
+fun View.statusBarPadding() { if (StatusBarUtil.statusBarCheckVersion()) padding(top = getStatusBarHeight()) }
 
 /**
  * 设置view整体向上导航栏高度
  * enable->忽略版本限制
  */
 fun View.statusBarMargin() {
-    if (StatusBarBuilder.statusBarCheckVersion()) {
+    if (StatusBarUtil.statusBarCheckVersion()) {
         val params = when (parent) {
             is LinearLayout -> layoutParams as LinearLayout.LayoutParams
             is RelativeLayout -> layoutParams as RelativeLayout.LayoutParams
             is FrameLayout -> layoutParams as FrameLayout.LayoutParams
             else -> layoutParams as ConstraintLayout.LayoutParams
         }
-        params.topMargin = Constants.STATUS_BAR_HEIGHT
+        params.topMargin = getStatusBarHeight()
         layoutParams = params
     }
 }

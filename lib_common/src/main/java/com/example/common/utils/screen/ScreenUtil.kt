@@ -1,4 +1,4 @@
-package com.example.common.utils
+package com.example.common.utils.screen
 
 import android.content.Context
 import android.content.res.Configuration
@@ -31,6 +31,12 @@ object ScreenUtil {
     val screenWidth by lazy(LazyThreadSafetyMode.NONE) { screenWidth() }
 
     /**
+     * 获取屏幕比值（px）
+     * 不会随着各种情况的变化而更新
+     */
+    val screenDensity by lazy(LazyThreadSafetyMode.NONE) { screenDensity() }
+
+    /**
      * 获取屏幕宽度（px）
      */
     private fun screenWidth(context: Context = BaseApplication.instance): Int {
@@ -50,6 +56,13 @@ object ScreenUtil {
         } else {
             context.resources.displayMetrics.widthPixels
         }
+    }
+
+    /**
+     * 屏幕比值
+     */
+    private fun screenDensity(context: Context = BaseApplication.instance): Int {
+        return context.resources.displayMetrics.densityDpi
     }
 
     /**

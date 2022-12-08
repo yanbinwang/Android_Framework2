@@ -8,7 +8,6 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.os.Looper
 import android.os.Parcelable
-import android.preference.PreferenceManager
 import android.preference.PreferenceManager.OnActivityResultListener
 import android.view.LayoutInflater
 import android.view.View
@@ -28,8 +27,8 @@ import com.example.common.bus.Event
 import com.example.common.bus.EventBus
 import com.example.common.constant.Extras
 import com.example.common.utils.AppManager
-import com.example.common.utils.ScreenUtil
-import com.example.common.utils.builder.StatusBarBuilder
+import com.example.common.utils.screen.ScreenUtil
+import com.example.common.utils.screen.StatusBarUtil
 import com.example.common.widget.dialog.LoadingDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -50,7 +49,7 @@ import kotlin.coroutines.CoroutineContext
  */
 abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected lateinit var binding: VDB
-    protected val statusBarBuilder by lazy { StatusBarBuilder(window) }//状态栏工具类
+    protected val statusBarUtil by lazy { StatusBarUtil(window) }//状态栏工具类
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
     private val job = SupervisorJob()//https://blog.csdn.net/chuyouyinghe/article/details/123057776

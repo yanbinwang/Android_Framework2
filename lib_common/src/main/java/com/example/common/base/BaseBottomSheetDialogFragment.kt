@@ -23,7 +23,7 @@ import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.create
 import com.example.common.constant.Extras
 import com.example.common.utils.AppManager
-import com.example.common.utils.builder.StatusBarBuilder
+import com.example.common.utils.screen.StatusBarUtil
 import com.example.common.widget.dialog.LoadingDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.CoroutineScope
@@ -44,7 +44,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     protected lateinit var binding: VDB
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
-    protected val statusBarBuilder by lazy { StatusBarBuilder(mActivity.window) }//状态栏工具类
+    protected val statusBarUtil by lazy { StatusBarUtil(mActivity.window) }//状态栏工具类
     private var showTime = 0L
     private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画\

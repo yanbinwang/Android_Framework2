@@ -12,8 +12,8 @@ import com.example.base.utils.function.view.size
 import com.example.base.utils.function.view.tint
 import com.example.base.widget.BaseViewGroup
 import com.example.common.R
-import com.example.common.constant.Constants
 import com.example.common.databinding.ViewRefreshHeaderBinding
+import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.scwang.smart.refresh.layout.api.RefreshHeader
 import com.scwang.smart.refresh.layout.api.RefreshKernel
@@ -45,8 +45,9 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
 
     fun setStatusBarPadding() {
         binding.root.apply {
-            size(LayoutParams.MATCH_PARENT, 40.pt + Constants.STATUS_BAR_HEIGHT)
-            padding(top = Constants.STATUS_BAR_HEIGHT)
+            val statusBarHeight = getStatusBarHeight()
+            size(LayoutParams.MATCH_PARENT, 40.pt + statusBarHeight)
+            padding(top = statusBarHeight)
         }
     }
 

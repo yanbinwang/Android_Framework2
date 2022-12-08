@@ -18,6 +18,8 @@ import com.example.base.utils.logWTF
 import com.example.common.constant.Constants
 import com.example.common.subscribe.Subscribe
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.screen.ScreenUtil.screenHeight
+import com.example.common.utils.screen.ScreenUtil.screenWidth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -63,7 +65,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
     /**
      * 构建图片
      */
-    fun saveJob(view: View, width: Int = Constants.SCREEN_WIDTH, height: Int = Constants.SCREEN_HEIGHT, onStart: () -> Unit = {}, onResult: (bitmap: Bitmap?) -> Unit = {}, onComplete: () -> Unit = {}) {
+    fun saveJob(view: View, width: Int = screenWidth, height: Int = screenHeight, onStart: () -> Unit = {}, onResult: (bitmap: Bitmap?) -> Unit = {}, onComplete: () -> Unit = {}) {
         job?.cancel()
         job = launch { save(view, width, height, onStart, onResult, onComplete) }
     }
@@ -106,7 +108,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
         })
     }
 
-    suspend fun save(view: View, width: Int = Constants.SCREEN_WIDTH, height: Int = Constants.SCREEN_HEIGHT, onStart: () -> Unit = {}, onResult: (bitmap: Bitmap?) -> Unit = {}, onComplete: () -> Unit = {}) {
+    suspend fun save(view: View, width: Int = screenWidth, height: Int = screenHeight, onStart: () -> Unit = {}, onResult: (bitmap: Bitmap?) -> Unit = {}, onComplete: () -> Unit = {}) {
         onStart()
         view.loadLayout(width, height)
         try {
@@ -231,8 +233,8 @@ class FileHelper(lifecycleOwner: LifecycleOwner?) : CoroutineScope {
 private fun View.loadLayout(width: Int, height: Int) {
     //整个View的大小 参数是左上角 和右下角的坐标
     layout(0, 0, width, height)
-    val measuredWidth = View.MeasureSpec.makeMeasureSpec(Constants.SCREEN_WIDTH, View.MeasureSpec.EXACTLY)
-    val measuredHeight = View.MeasureSpec.makeMeasureSpec(Constants.SCREEN_HEIGHT, View.MeasureSpec.EXACTLY)
+    val measuredWidth = View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.EXACTLY)
+    val measuredHeight = View.MeasureSpec.makeMeasureSpec(screenHeight, View.MeasureSpec.EXACTLY)
     measure(measuredWidth, measuredHeight)
     layout(0, 0, measuredWidth, measuredHeight)
 }

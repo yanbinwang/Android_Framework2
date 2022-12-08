@@ -8,14 +8,6 @@ import com.example.common.BaseApplication
  */
 object Constants {
     //app内的一些默认值
-    @JvmField
-    var SCREEN_WIDTH = 0//手机宽度
-    @JvmField
-    var SCREEN_HEIGHT = 0//手机高度
-    @JvmField
-    var SCREEN_DENSITY = 0//手机比值
-    @JvmField
-    var STATUS_BAR_HEIGHT = 0//导航栏高度
     //------gradle4.1.0开始，库中不提供VERSION_CODE和VERSION_NAME，在主app中获取，赋值给全局静态变量------
     @JvmField
     var VERSION_CODE: Long = 0//版本号

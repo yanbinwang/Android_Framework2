@@ -40,6 +40,9 @@ fun Context.startForegroundService(cls: Class<out Service>, vararg pairs: Pair<S
     }
 }
 
+/**
+ * 停止服务
+ */
 fun Context.stopService(cls: Class<out Service>) {
     stopService(getIntent(cls))
 }

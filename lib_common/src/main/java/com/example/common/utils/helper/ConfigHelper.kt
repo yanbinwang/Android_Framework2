@@ -14,7 +14,7 @@ import com.app.hubert.guide.model.GuidePage
 import com.example.base.utils.function.color
 import com.example.common.R
 import com.example.common.constant.Constants
-import com.example.common.utils.builder.StatusBarBuilder
+import com.example.common.utils.screen.StatusBarUtil
 import java.lang.ref.WeakReference
 
 /**
@@ -29,16 +29,6 @@ object ConfigHelper {
     fun initialize(application: Application) {
         context = application
         Constants.apply {
-            //在程序运行时取值，保证长宽静态变量不丢失
-            val metrics = context.resources.displayMetrics
-            //屏幕宽度（像素）
-            SCREEN_WIDTH = metrics.widthPixels
-            //屏幕高度（像素）
-            SCREEN_HEIGHT = metrics.heightPixels
-            //屏幕比值 (dp)
-            SCREEN_DENSITY = metrics.densityDpi
-            //获取手机的导航栏高度
-            STATUS_BAR_HEIGHT = context.resources.getDimensionPixelSize(context.resources.getIdentifier("status_bar_height", "dimen", "android"))
 //            //获取手机的网络ip
 //            IP = getIp()
 //            //获取手机的Mac地址
@@ -68,16 +58,16 @@ object ConfigHelper {
         if (!MMKVHelper.decodeBool(label)) {
             MMKVHelper.encode(label, true)
             WeakReference(activity).get()?.apply {
-                val statusBarBuilder = StatusBarBuilder(window)
+                val statusBarUtil = StatusBarUtil(window)
                 val builder = NewbieGuide.with(this)//传入activity
                     .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
                     .setOnGuideChangedListener(object : OnGuideChangedListener {
                         override fun onShowed(controller: Controller?) {
-                            statusBarBuilder.statusBarColor(activity.color(R.color.black_4c000000))
+                            statusBarUtil.statusBarColor(activity.color(R.color.black_4c000000))
                         }
 
                         override fun onRemoved(controller: Controller?) {
-                            statusBarBuilder.statusBarColor(activity.color(color))
+                            statusBarUtil.statusBarColor(activity.color(color))
                         }
                     })
                     .alwaysShow(true)

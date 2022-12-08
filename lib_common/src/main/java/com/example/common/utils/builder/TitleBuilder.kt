@@ -6,13 +6,15 @@ import com.example.base.utils.function.view.*
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.function.setArguments
+import com.example.common.utils.screen.StatusBarUtil
+import com.example.common.utils.screen.statusBarPadding
 
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
-    private val statusBarBuilder by lazy { StatusBarBuilder(activity.window) }
+    private val statusBarUtil by lazy { StatusBarUtil(activity.window) }
 
     init {
         //防背刺，初始化时再检测一下特定编号的版本深浅主题
-        statusBarBuilder.statusBarCheckDomestic()
+        statusBarUtil.statusBarCheckDomestic()
     }
 
     /**
@@ -34,11 +36,11 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      */
     @JvmOverloads
     fun setTransparentTitle(title: String = "", titleColor: Int = R.color.grey_333333, light: Boolean = true, transparent: Boolean = true): TitleBuilder {
-        statusBarBuilder.transparent(light)
+        statusBarUtil.transparent(light)
         binding.clContainer.apply {
             statusBarPadding()
             if(!transparent) {
-                statusBarBuilder.statusBarColor(R.color.white)
+                statusBarUtil.statusBarColor(R.color.white)
                 setBackgroundColor(activity.color(R.color.white))
             }
         }
@@ -51,7 +53,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      */
     @JvmOverloads
     fun setBackgroundColor(bgColor: Int = R.color.black, light: Boolean = false): TitleBuilder {
-        statusBarBuilder.apply {
+        statusBarUtil.apply {
             statusBarLightMode(light)
             statusBarColor(activity.color(bgColor))
         }

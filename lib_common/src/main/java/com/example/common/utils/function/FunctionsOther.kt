@@ -23,10 +23,11 @@ import com.example.base.utils.setSpanFirst
 import com.example.common.BaseApplication
 import com.example.common.BuildConfig
 import com.example.common.R
-import com.example.common.constant.Constants
-import com.example.common.utils.ScreenUtil
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
+import com.example.common.utils.screen.NavigationBarUtil
+import com.example.common.utils.screen.ScreenUtil
+import com.example.common.utils.screen.ScreenUtil.screenWidth
 import com.google.gson.Gson
 import java.util.*
 
@@ -112,13 +113,6 @@ fun resString(@StringRes res: Int): String {
 }
 
 /**
- * 获取Manifest中的参数
- */
-fun getManifestString(name: String): String? {
-    return BaseApplication.instance.packageManager.getApplicationInfo(BaseApplication.instance.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
-}
-
-/**
  * 清空fragment缓存
  */
 fun Bundle?.clearFragmentSavedState() {
@@ -133,6 +127,28 @@ fun Bundle?.clearFragmentSavedState() {
 fun Any?.toJsonString(): String {
     if (this == null) return "null"
     return Gson().toJson(this)
+}
+
+/**
+ * 获取Manifest中的参数
+ */
+fun getManifestString(name: String): String? {
+    return BaseApplication.instance.packageManager.getApplicationInfo(BaseApplication.instance.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
+}
+
+/**
+ * 获取顶栏高度
+ * */
+fun getStatusBarHeight(): Int {
+    return ExtraNumber.getInternalDimensionSize(BaseApplication.instance, "status_bar_height")
+}
+
+/**
+ * 获取顶栏高度
+ * */
+fun getNavigationBarHeight(ctx: Context): Int {
+    if (!NavigationBarUtil.hasNavigationBar(ctx)) return 0
+    return ExtraNumber.getInternalDimensionSize(ctx, "navigation_bar_height")
 }
 
 /**
@@ -155,10 +171,10 @@ fun Class<*>.getTriple(pair: Pair<String, String>, name: String? = null): Triple
 fun ImageView?.setScreenWidth() {
     this ?: return
     layoutParams = when (parent) {
-        is LinearLayout -> LinearLayout.LayoutParams(Constants.SCREEN_WIDTH, LinearLayout.LayoutParams.WRAP_CONTENT)
-        is RelativeLayout -> RelativeLayout.LayoutParams(Constants.SCREEN_WIDTH, RelativeLayout.LayoutParams.WRAP_CONTENT)
-        is FrameLayout -> FrameLayout.LayoutParams(Constants.SCREEN_WIDTH, FrameLayout.LayoutParams.WRAP_CONTENT)
-        else -> ConstraintLayout.LayoutParams(Constants.SCREEN_WIDTH, ConstraintLayout.LayoutParams.WRAP_CONTENT)
+        is LinearLayout -> LinearLayout.LayoutParams(screenWidth, LinearLayout.LayoutParams.WRAP_CONTENT)
+        is RelativeLayout -> RelativeLayout.LayoutParams(screenWidth, RelativeLayout.LayoutParams.WRAP_CONTENT)
+        is FrameLayout -> FrameLayout.LayoutParams(screenWidth, FrameLayout.LayoutParams.WRAP_CONTENT)
+        else -> ConstraintLayout.LayoutParams(screenWidth, ConstraintLayout.LayoutParams.WRAP_CONTENT)
     }
 }
 
