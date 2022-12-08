@@ -40,6 +40,7 @@ open class BaseApplication : Application() {
     private fun initialize() {
         //布局初始化
         AutoSizeConfig.getInstance()
+            .setBaseOnWidth(true)
             .unitsManager
             .setSupportDP(false)
             .setSupportSP(false)
