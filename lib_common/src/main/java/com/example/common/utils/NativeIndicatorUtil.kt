@@ -1,4 +1,4 @@
-package com.example.common.utils.helper
+package com.example.common.utils
 
 import com.example.base.utils.function.inflate
 import com.example.common.R
@@ -12,7 +12,7 @@ import com.google.android.material.tabs.TabLayout
  * 掏空系统tablayout，全部自定义
  * @author yan
  */
-class MediatorBlockHelper constructor(tab: TabLayout, tabTitle: MutableList<String>) : TabLayoutBuilder<String,ItemTabBinding>(tab, tabTitle) {
+class NativeIndicatorUtil constructor(tab: TabLayout, tabTitle: MutableList<String>) : TabLayoutBuilder<String,ItemTabBinding>(tab, tabTitle) {
 
     override fun getBindView() = ItemTabBinding.bind(context.inflate(R.layout.item_tab))
 
