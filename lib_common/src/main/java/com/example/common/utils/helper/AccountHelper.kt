@@ -2,7 +2,7 @@ package com.example.common.utils.helper
 
 import android.text.TextUtils
 import com.example.common.bean.UserBean
-import com.example.common.constant.MMKVKey.MMKV_USER_BEAN
+import com.example.common.constant.Constants
 import com.example.common.utils.analysis.GsonUtil.jsonToObj
 
 /**
@@ -12,6 +12,7 @@ import com.example.common.utils.analysis.GsonUtil.jsonToObj
  * 该工具类对key值和用户信息的一些字做了规整和管控，全局直接调用即可
  */
 object AccountHelper {
+    private const val MMKV_USER_BEAN = "${Constants.APPLICATION_ID}.UserBean" //用户类
 
     //修改是否登陆
     @JvmStatic
