@@ -14,6 +14,7 @@ import com.app.hubert.guide.model.GuidePage
 import com.example.base.utils.function.color
 import com.example.common.R
 import com.example.common.constant.Constants
+import com.example.common.utils.MmkvUtil
 import com.example.common.utils.screen.StatusBarUtil
 import java.lang.ref.WeakReference
 
@@ -55,8 +56,8 @@ object ConfigHelper {
      */
     @JvmStatic
     fun showGuide(activity: Activity, label: String, vararg pages: GuidePage, color: Int = R.color.white) {
-        if (!MMKVHelper.decodeBool(label)) {
-            MMKVHelper.encode(label, true)
+        if (!MmkvUtil.decodeBool(label)) {
+            MmkvUtil.encode(label, true)
             WeakReference(activity).get()?.apply {
                 val statusBarUtil = StatusBarUtil(window)
                 val builder = NewbieGuide.with(this)//传入activity

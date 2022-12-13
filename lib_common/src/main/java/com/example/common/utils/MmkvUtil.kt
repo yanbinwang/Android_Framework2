@@ -1,4 +1,4 @@
-package com.example.common.utils.helper
+package com.example.common.utils
 
 import android.os.Parcelable
 import com.tencent.mmkv.MMKV
@@ -7,7 +7,7 @@ import com.tencent.mmkv.MMKV
  *  Created by wangyanbin
  *  应用存储工具类
  */
-object MMKVHelper {
+object MmkvUtil {
     private val mmkv by lazy { MMKV.defaultMMKV() }
 
     @JvmStatic

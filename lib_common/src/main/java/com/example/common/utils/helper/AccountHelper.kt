@@ -3,6 +3,7 @@ package com.example.common.utils.helper
 import android.text.TextUtils
 import com.example.common.bean.UserBean
 import com.example.common.constant.Constants
+import com.example.common.utils.MmkvUtil
 import com.example.common.utils.analysis.GsonUtil.jsonToObj
 
 /**
@@ -42,7 +43,7 @@ object AccountHelper {
     @JvmStatic
     fun setUserBean(bean: UserBean?) {
         if (null != bean) {
-            MMKVHelper.encode(MMKV_USER_BEAN,bean)
+            MmkvUtil.encode(MMKV_USER_BEAN,bean)
 //            mmkv.encode(Constants.KEY_USER_MODEL, objToJson(bean))
         }
     }
@@ -51,7 +52,7 @@ object AccountHelper {
     @JvmStatic
     fun getUserBean(): UserBean? {
         var userInfoBean: UserBean? = null
-        val userInfoJson = MMKVHelper.decodeString(MMKV_USER_BEAN)
+        val userInfoJson = MmkvUtil.decodeString(MMKV_USER_BEAN)
         if (!TextUtils.isEmpty(userInfoJson)) {
             userInfoBean = jsonToObj(userInfoJson, UserBean::class.java)
         }
@@ -93,7 +94,7 @@ object AccountHelper {
     //用户注销操作（清除信息,清除用户凭证）
     @JvmStatic
     fun signOut() {
-        MMKVHelper.encode(MMKV_USER_BEAN, "")
+        MmkvUtil.encode(MMKV_USER_BEAN, "")
     }
 
 }
