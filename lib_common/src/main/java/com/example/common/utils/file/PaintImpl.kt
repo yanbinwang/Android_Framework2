@@ -11,7 +11,9 @@ import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 
 /**
- * @description 画笔默认取中心点坐标，所以要除2
+ * @description
+ * 画笔默认取中心点坐标，所以要除2
+ * 只有继承了当前画笔接口的类才能使用以下方法
  * @author yan
  */
 interface PaintImpl {
