@@ -57,16 +57,10 @@ class WebHelper(private val act: WebActivity, private val bean: WebBundle?) : Li
 //            toolBarUtil.hideRightBtn()
         }, {
             val webTitle = webView?.title?.trim()
-            if (bean?.isWebTitleRequired().orFalse && !webTitle.isNullOrEmpty()) setTitle(webTitle)
+            if (bean?.isWebTitleRequired().orFalse && bean?.getWebTitle().isNullOrEmpty()) {
+                if(!webTitle.isNullOrEmpty()) setTitle(webTitle) else titleBuilder.getDefault()
+            }
 //            val url = webView?.url.orEmpty()
-//            if (url.contains("zendesk.com")) {
-//                toolbar?.imgRight?.tint(R.color.textPrimary)
-//                toolBarUtil.setRightImgBtn(R.mipmap.share_toolbar, 18.pt) {
-//                    showShareDialog(shareTitle, webView?.url)
-//                }
-//            } else {
-//                toolBarUtil.hideRightBtn()
-//            }
         }, object : OnWebChangedListener {
             override fun onShowCustomView(view: View?, callback: WebChromeClient.CustomViewCallback?) {
                 webUtil.onShowCustomView(view, callback)
