@@ -24,7 +24,7 @@ interface PaintImpl {
      * 以左侧为基准点绘制对应文字
      */
     fun Paint.drawTextLeft(x: Number?, y: Number?, text: String, canvas: Canvas) {
-        val measureHeight = fontMetrics.bottom - fontMetrics.top
+        val measureHeight = measureSize(text).second
         canvas.drawText(text, x.toSafeFloat(), (y.toSafeFloat() + measureHeight / 2), this)
     }
 
@@ -34,9 +34,8 @@ interface PaintImpl {
      * 以中心为基准点绘制对应文字
      */
     fun Paint.drawTextCenter(x: Number?, y: Number?, text: String, canvas: Canvas) {
-        val measureWidth = measureText(text)
-        val measureHeight = fontMetrics.bottom - fontMetrics.top
-        canvas.drawText(text, (x.toSafeFloat() - measureWidth / 2), (y.toSafeFloat() + measureHeight / 2), this)
+        val size = measureSize(text)
+        canvas.drawText(text, (x.toSafeFloat() - size.first / 2), (y.toSafeFloat() + size.second / 2), this)
     }
 
     /**
