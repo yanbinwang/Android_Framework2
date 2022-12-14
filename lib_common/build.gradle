@@ -63,9 +63,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+    testImplementation "junit:junit:$build_versions.junit"
+    androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //xwebview的jar
     implementation files('libs/top_sheet.jar')
     //框架库

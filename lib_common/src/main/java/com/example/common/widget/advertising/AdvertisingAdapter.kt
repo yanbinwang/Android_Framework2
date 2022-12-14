@@ -9,7 +9,7 @@ import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.imageResource
-import com.example.common.imageloader.ImageLoader
+import com.example.glide.ImageLoader
 
 /**
  *  Created by wangyanbin

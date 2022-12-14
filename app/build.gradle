@@ -112,14 +112,13 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+    testImplementation "junit:junit:$build_versions.junit"
+    androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //基础库
-    implementation project(':lib_common')
     implementation project(':lib_album')
 
-//    implementation  'io.github.scwang90:refresh-layout-kernel:2.0.5'
+    implementation project(':lib_common')
     implementation 'io.github.scwang90:refresh-header-two-level:2.0.5'
     //页面路由
     implementation deps.alibaba.arouter
