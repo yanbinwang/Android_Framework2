@@ -74,14 +74,14 @@ dependencies {
     //网络请求
     api deps.retrofit2.retrofit
     api deps.retrofit2.converter_gson
+    implementation deps.okhttp3
     //其余第三方库
     api deps.autosize
     api deps.recovery
     api deps.smartrefresh
-    implementation deps.okhttp3
-    implementation deps.eventbus
     implementation deps.mmkv
     implementation deps.guide
+    implementation deps.eventbus
     implementation deps.xxpermissions
     //页面路由
     implementation deps.alibaba.arouter
