@@ -7,11 +7,11 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.base.utils.function.value.orFalse
-import com.example.base.utils.function.value.orTrue
-import com.example.base.utils.function.view.background
-import com.example.base.utils.function.view.byHardwareAccelerate
-import com.example.base.utils.function.view.gone
+import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orTrue
+import com.example.framework.utils.function.view.background
+import com.example.framework.utils.function.view.byHardwareAccelerate
+import com.example.framework.utils.function.view.gone
 import com.example.common.utils.FormActivityUtil
 import com.example.common.utils.WebUtil
 import com.example.common.utils.builder.TitleBuilder

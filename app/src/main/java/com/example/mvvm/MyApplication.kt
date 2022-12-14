@@ -2,7 +2,7 @@ package com.example.mvvm
 
 import android.os.Looper
 import android.util.Log
-import com.example.base.BuildConfig
+import com.example.framework.BuildConfig
 import com.example.common.BaseApplication
 import com.example.mvvm.activity.MainActivity
 import com.zxy.recovery.core.Recovery

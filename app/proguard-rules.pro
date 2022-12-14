@@ -668,8 +668,8 @@ public static java.lang.String TABLENAME;
 #------------------------gifimage混淆结束------------------------
 -keep class com.example.common.databinding.** {*;}
 #-keep class com.dataqin.home.databinding.** {*;}
--keep class com.example.common.bus.LiveDataEvent{*;}
--keep class com.example.common.http.repository.** {*;}
+-keep class com.example.common.event.LiveDataEvent{*;}
+-keep class com.example.common.network.repository.** {*;}
 -keep class com.example.common.base.page.** {*;}
 
 -keep class com.example.common.bean.** {*;}

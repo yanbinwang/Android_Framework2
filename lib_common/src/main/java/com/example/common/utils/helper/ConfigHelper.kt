@@ -11,9 +11,9 @@ import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.core.Controller
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.model.GuidePage
-import com.example.base.utils.function.color
+import com.example.framework.utils.function.color
 import com.example.common.R
-import com.example.common.constant.Constants
+import com.example.common.config.Constants
 import com.example.common.utils.MmkvUtil
 import com.example.common.utils.screen.StatusBarUtil
 import java.lang.ref.WeakReference

@@ -1,8 +1,8 @@
 package com.example.common.utils.builder
 
 import android.app.Activity
-import com.example.base.utils.function.color
-import com.example.base.utils.function.view.*
+import com.example.framework.utils.function.color
+import com.example.framework.utils.function.view.*
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.function.setArguments

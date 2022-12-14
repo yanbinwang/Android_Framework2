@@ -6,7 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import androidx.core.content.FileProvider
-import com.example.common.constant.Constants
+import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
 import java.io.File
 

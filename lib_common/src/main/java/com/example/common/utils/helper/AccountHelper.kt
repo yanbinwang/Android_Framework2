@@ -2,7 +2,7 @@ package com.example.common.utils.helper
 
 import android.text.TextUtils
 import com.example.common.bean.UserBean
-import com.example.common.constant.Constants
+import com.example.common.config.Constants
 import com.example.common.utils.MmkvUtil
 import com.example.common.utils.analysis.GsonUtil.jsonToObj
 

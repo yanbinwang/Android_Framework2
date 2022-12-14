@@ -1,6 +1,6 @@
 package com.example.common.utils
 
-import com.example.base.utils.function.inflate
+import com.example.framework.utils.function.inflate
 import com.example.common.R
 import com.example.common.databinding.ItemTabBinding
 import com.example.common.utils.builder.TabLayoutBuilder

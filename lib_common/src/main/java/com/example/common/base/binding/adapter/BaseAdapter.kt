@@ -5,11 +5,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.example.base.utils.function.value.findIndexOf
-import com.example.base.utils.function.value.orZero
-import com.example.base.utils.function.value.safeGet
-import com.example.base.utils.function.value.safeSize
-import com.example.base.utils.function.view.click
+import com.example.framework.utils.function.value.findIndexOf
+import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.safeGet
+import com.example.framework.utils.function.value.safeSize
+import com.example.framework.utils.function.view.click
 import com.example.common.base.page.Page
 import com.example.common.base.page.Paging
 

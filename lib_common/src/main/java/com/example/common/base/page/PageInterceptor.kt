@@ -6,9 +6,9 @@ import com.alibaba.android.arouter.facade.annotation.Interceptor
 import com.alibaba.android.arouter.facade.callback.InterceptorCallback
 import com.alibaba.android.arouter.facade.template.IInterceptor
 import com.alibaba.android.arouter.launcher.ARouter
-import com.example.base.utils.logE
-import com.example.common.constant.ARouterPath
-import com.example.common.constant.Constants
+import com.example.framework.utils.logE
+import com.example.common.config.ARouterPath
+import com.example.common.config.Constants
 import com.example.common.utils.helper.AccountHelper
 
 /**

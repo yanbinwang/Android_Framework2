@@ -6,10 +6,10 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import com.example.base.utils.function.inflate
-import com.example.base.utils.function.string
-import com.example.base.utils.function.view.*
-import com.example.base.widget.BaseViewGroup
+import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.string
+import com.example.framework.utils.function.view.*
+import com.example.framework.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable

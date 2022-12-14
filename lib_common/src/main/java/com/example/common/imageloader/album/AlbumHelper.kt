@@ -1,11 +1,11 @@
 package com.example.common.imageloader.album
 
 import android.app.Activity
-import com.example.base.utils.function.color
-import com.example.base.utils.function.string
+import com.example.framework.utils.function.color
+import com.example.framework.utils.function.string
 import com.example.common.R
-import com.example.common.constant.Constants
-import com.example.common.constant.RequestCode.REQUEST_PHOTO
+import com.example.common.config.Constants
+import com.example.common.config.RequestCode.REQUEST_PHOTO
 import com.example.common.utils.builder.shortToast
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.api.widget.Widget

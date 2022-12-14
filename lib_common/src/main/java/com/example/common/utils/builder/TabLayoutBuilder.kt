@@ -6,11 +6,11 @@ import android.util.SparseArray
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.example.base.utils.builder.FrameLayoutBuilder
-import com.example.base.utils.function.value.orZero
-import com.example.base.utils.function.value.safeGet
-import com.example.base.utils.function.view.adapter
-import com.example.base.utils.function.view.bind
+import com.example.framework.utils.builder.FrameLayoutBuilder
+import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.safeGet
+import com.example.framework.utils.function.view.adapter
+import com.example.framework.utils.function.view.bind
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 

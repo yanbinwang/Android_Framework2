@@ -1,6 +1,6 @@
 package com.example.common.subscribe
 
-import com.example.common.http.factory.RetrofitFactory
+import com.example.common.network.factory.RetrofitFactory
 
 /**
  * author:wyb

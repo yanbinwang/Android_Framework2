@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.example.base.utils.function.value.orZero
+import com.example.framework.utils.function.value.orZero
 
 /**
  * Set dividers' properties(horizontal and vertical space...) of item with type.

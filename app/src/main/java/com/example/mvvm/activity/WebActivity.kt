@@ -2,10 +2,10 @@ package com.example.mvvm.activity
 
 import android.view.KeyEvent
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.example.base.utils.function.intentSerializable
+import com.example.framework.utils.function.intentSerializable
 import com.example.common.base.BaseActivity
-import com.example.common.constant.ARouterPath
-import com.example.common.constant.Extras
+import com.example.common.config.ARouterPath
+import com.example.common.config.Extras
 import com.example.mvvm.databinding.ActivityWebBinding
 import com.example.mvvm.utils.WebHelper
 import java.io.Serializable

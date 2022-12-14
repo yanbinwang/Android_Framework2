@@ -5,9 +5,9 @@ import android.content.Context
 import android.graphics.drawable.AnimationDrawable
 import android.util.AttributeSet
 import android.view.View
-import com.example.base.utils.function.inflate
-import com.example.base.utils.function.view.*
-import com.example.base.widget.BaseViewGroup
+import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.view.*
+import com.example.framework.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshFooterBinding
 import com.example.common.utils.function.pt

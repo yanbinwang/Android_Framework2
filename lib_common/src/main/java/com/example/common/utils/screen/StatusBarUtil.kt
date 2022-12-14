@@ -10,7 +10,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.example.base.utils.function.view.padding
+import com.example.framework.utils.function.view.padding
 import com.example.common.utils.function.getStatusBarHeight
 
 /**

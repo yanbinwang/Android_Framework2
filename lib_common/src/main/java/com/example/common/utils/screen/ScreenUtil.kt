@@ -2,8 +2,8 @@ package com.example.common.utils.screen
 
 import android.content.Context
 import android.content.res.Configuration
-import com.example.base.utils.function.value.min
-import com.example.base.utils.function.value.toSafeInt
+import com.example.framework.utils.function.value.min
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.common.BaseApplication
 import com.example.common.utils.function.getManifestString
 

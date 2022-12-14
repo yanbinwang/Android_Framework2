@@ -6,10 +6,10 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.media.ExifInterface
 import android.view.View
-import com.example.base.utils.function.value.DateFormat
-import com.example.base.utils.function.value.getDateTime
+import com.example.framework.utils.function.value.DateFormat
+import com.example.framework.utils.function.value.getDateTime
 import com.example.common.BaseApplication
-import com.example.common.constant.Constants
+import com.example.common.config.Constants
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException

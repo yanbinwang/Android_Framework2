@@ -9,10 +9,10 @@ import android.view.View
 import android.webkit.*
 import android.widget.ProgressBar
 import androidx.core.net.toUri
-import com.example.base.utils.function.value.toBoolean
-import com.example.base.utils.function.view.fade
-import com.example.base.utils.function.view.visible
-import com.example.base.utils.logE
+import com.example.framework.utils.function.value.toBoolean
+import com.example.framework.utils.function.view.fade
+import com.example.framework.utils.function.view.visible
+import com.example.framework.utils.logE
 import com.example.common.utils.builder.shortToast
 import java.lang.ref.WeakReference
 

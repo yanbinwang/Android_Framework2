@@ -14,10 +14,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.example.base.utils.WeakHandler
-import com.example.base.utils.function.value.orZero
-import com.example.base.utils.function.view.*
-import com.example.base.widget.BaseViewGroup
+import com.example.framework.utils.WeakHandler
+import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.view.*
+import com.example.framework.widget.BaseViewGroup
 import com.example.common.R
 import com.example.common.utils.function.pt
 import java.util.*

@@ -69,7 +69,7 @@ dependencies {
     //xwebview的jar
     implementation files('libs/top_sheet.jar')
     //框架库
-    api project(':lib_base')
+    api project(':lib_framework')
     //网络请求
     api deps.retrofit2.retrofit
     api deps.retrofit2.converter_gson

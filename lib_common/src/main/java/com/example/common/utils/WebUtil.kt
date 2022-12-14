@@ -14,10 +14,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.base.utils.function.view.gone
-import com.example.base.utils.function.view.invisible
-import com.example.base.utils.function.view.visible
-import com.example.base.utils.logE
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.invisible
+import com.example.framework.utils.function.view.visible
+import com.example.framework.utils.logE
 import com.example.common.BaseApplication
 
 /**

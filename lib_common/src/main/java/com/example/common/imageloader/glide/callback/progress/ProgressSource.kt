@@ -1,7 +1,7 @@
 package com.example.common.imageloader.glide.callback.progress
 
-import com.example.base.utils.function.value.orZero
-import com.example.base.utils.logE
+import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.logE
 import okhttp3.ResponseBody
 import okio.Buffer
 import okio.ForwardingSource

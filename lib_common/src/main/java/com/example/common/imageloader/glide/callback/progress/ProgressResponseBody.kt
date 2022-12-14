@@ -1,6 +1,6 @@
 package com.example.common.imageloader.glide.callback.progress
 
-import com.example.base.utils.function.value.orZero
+import com.example.framework.utils.function.value.orZero
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import okio.BufferedSource

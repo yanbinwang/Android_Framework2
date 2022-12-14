@@ -1,6 +1,6 @@
 package com.example.common.subscribe
 
-import com.example.common.http.repository.ApiResponse
+import com.example.common.network.repository.ApiResponse
 import retrofit2.http.*
 
 /**

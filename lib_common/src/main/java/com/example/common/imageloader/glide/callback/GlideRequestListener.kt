@@ -5,7 +5,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.example.base.utils.WeakHandler
+import com.example.framework.utils.WeakHandler
 
 /**
  * Created by WangYanBin on 2020/7/31.

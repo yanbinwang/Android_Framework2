@@ -5,14 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.*
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
 import android.provider.Settings
-import androidx.core.content.FileProvider
-import com.example.base.utils.function.value.toSafeLong
-import com.example.common.BaseApplication
-import com.example.common.constant.Constants
-import com.example.common.utils.builder.shortToast
+import com.example.framework.utils.function.value.toSafeLong
+import com.example.common.config.Constants
 import java.io.*
 import java.math.BigDecimal
 import java.util.*

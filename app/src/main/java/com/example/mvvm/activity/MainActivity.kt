@@ -5,12 +5,12 @@ import android.provider.MediaStore
 import android.view.View
 import android.view.View.OnClickListener
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.example.base.utils.function.view.clicks
+import com.example.framework.utils.function.view.clicks
 import com.example.common.base.BaseActivity
-import com.example.common.constant.ARouterPath
-import com.example.common.constant.Extras
-import com.example.common.constant.RequestCode.REQUEST_MANAGER
-import com.example.common.constant.RequestCode.REQUEST_PHOTO
+import com.example.common.config.ARouterPath
+import com.example.common.config.Extras
+import com.example.common.config.RequestCode.REQUEST_MANAGER
+import com.example.common.config.RequestCode.REQUEST_PHOTO
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 

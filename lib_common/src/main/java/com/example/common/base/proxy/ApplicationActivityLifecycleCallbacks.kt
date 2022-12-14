@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AbsListView
-import com.example.base.utils.LogUtil.e
+import com.example.framework.utils.LogUtil.e
 
 /**
  * Created by WangYanBin on 2020/8/10.

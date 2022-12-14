@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
-import com.example.base.utils.function.string
+import com.example.framework.utils.function.string
 import com.example.common.R
 import com.example.common.utils.permission.XXPermissionsGroup.CAMERA
 import com.example.common.utils.permission.XXPermissionsGroup.LOCATION

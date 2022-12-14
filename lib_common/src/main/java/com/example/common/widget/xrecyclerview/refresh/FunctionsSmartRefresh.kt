@@ -1,7 +1,7 @@
 package com.example.common.widget.xrecyclerview.refresh
 
-import com.example.base.utils.function.value.orFalse
-import com.example.base.utils.function.view.doOnceAfterLayout
+import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.utils.screen.StatusBarUtil

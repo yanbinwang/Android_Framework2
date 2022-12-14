@@ -7,7 +7,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkInfo
 import android.net.wifi.WifiManager
 import android.os.Build
-import com.example.base.utils.logE
+import com.example.framework.utils.logE
 import com.example.common.BaseApplication
 
 /**
