@@ -115,6 +115,13 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     }
 
     /**
+     * 整体隐藏
+     */
+    fun hideTitle() {
+        binding.clContainer.gone()
+    }
+
+    /**
      * 默认配置返回样式
      */
     fun getDefault(): TitleBuilder {

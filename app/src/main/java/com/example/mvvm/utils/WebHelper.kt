@@ -36,8 +36,6 @@ class WebHelper(private val act: WebActivity, private val bean: WebBundle?) : Li
 
     init {
         act.lifecycle.addObserver(this)
-        titleBuilder.getDefault()
-        binding.titleContainer.ivLeft.gone()
         addWebView()
         FormActivityUtil.setAct(act)
     }
@@ -46,7 +44,7 @@ class WebHelper(private val act: WebActivity, private val bean: WebBundle?) : Li
         if (bean?.isWebTitleRequired().orTrue) {
             bean?.let { if (it.getWebTitle().isNotEmpty()) setTitle(it.getWebTitle()) }
         } else {
-            binding.titleContainer.clContainer.gone()
+            titleBuilder.hideTitle()
         }
         webView = webUtil.webView
         webView?.byHardwareAccelerate()
