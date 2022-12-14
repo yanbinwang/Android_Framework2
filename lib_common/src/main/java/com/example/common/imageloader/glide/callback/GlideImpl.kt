@@ -33,7 +33,7 @@ interface GlideImpl {
 
     fun clearDiskCache(context: Context)
 
-    val cacheDir: File?
+    fun cacheDir(context: Context): File?
     //---------------------------------------------图片库方法结束---------------------------------------------
 
 }

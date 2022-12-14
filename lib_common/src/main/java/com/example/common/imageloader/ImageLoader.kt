@@ -7,7 +7,6 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.imageloader.glide.callback.GlideImpl
 import com.example.common.imageloader.glide.callback.GlideModule
@@ -16,7 +15,6 @@ import com.example.common.imageloader.glide.callback.progress.ProgressIntercepto
 import com.example.common.imageloader.glide.transform.CornerTransform
 import com.example.common.imageloader.glide.transform.ZoomTransform
 import java.io.File
-
 
 /**
  * Created by WangYanBin on 2020/5/29.
@@ -152,11 +150,14 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         Glide.get(context).clearMemory()
     }
 
-    //清除磁盘缓存是在子线程中进行!
+    //清除磁盘缓存是在子线程中进行
     override fun clearDiskCache(context: Context) {
         Glide.get(context).clearDiskCache()
     }
 
-    override val cacheDir: File? get() = Glide.getPhotoCacheDir(BaseApplication.instance.applicationContext)
+    //获取用于缓存图片的路劲
+    override fun cacheDir(context: Context): File? {
+        return Glide.getPhotoCacheDir(context)
+    }
 
 }
