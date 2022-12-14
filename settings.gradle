@@ -18,3 +18,5 @@ rootProject.name = "Android_Framework2"
 include ':app'
 include ':lib_common'
 include ':lib_framework'
+include ':lib_glide'
+include ':lib_album'

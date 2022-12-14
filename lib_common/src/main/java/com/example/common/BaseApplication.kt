@@ -8,14 +8,11 @@ import android.net.NetworkRequest
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
 import com.example.common.base.proxy.NetworkCallbackImpl
-import com.example.common.imageloader.album.AlbumGlideLoader
 import com.example.common.utils.helper.ConfigHelper
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
-import com.yanzhenjie.album.Album
-import com.yanzhenjie.album.AlbumConfig
 import me.jessyan.autosize.AutoSizeConfig
 import me.jessyan.autosize.unit.Subunits
 import java.util.*
@@ -45,11 +42,6 @@ open class BaseApplication : Application() {
             .setSupportDP(false)
             .setSupportSP(false)
             .supportSubunits = Subunits.MM
-        //初始化图片库类
-        Album.initialize(AlbumConfig.newBuilder(this)
-                .setAlbumLoader(AlbumGlideLoader()) //设置Album加载器。
-                .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
-                .build())
         //阿里路由跳转初始化
         if (BuildConfig.DEBUG) {
             ARouter.openLog()//打印日志

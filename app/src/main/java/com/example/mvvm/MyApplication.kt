@@ -2,10 +2,14 @@ package com.example.mvvm
 
 import android.os.Looper
 import android.util.Log
+import com.example.album.AlbumGlideLoader
 import com.example.framework.BuildConfig
 import com.example.common.BaseApplication
 import com.example.mvvm.activity.MainActivity
+import com.yanzhenjie.album.Album
+import com.yanzhenjie.album.AlbumConfig
 import com.zxy.recovery.core.Recovery
+import java.util.*
 
 /**
  * Created by WangYanBin on 2020/8/14.
@@ -51,6 +55,11 @@ class MyApplication : BaseApplication() {
                 }
             }
         }
+        //初始化图片库类
+        Album.initialize(AlbumConfig.newBuilder(this)
+            .setAlbumLoader(AlbumGlideLoader()) //设置Album加载器。
+            .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
+            .build())
     }
 
 }

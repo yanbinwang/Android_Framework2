@@ -70,19 +70,10 @@ dependencies {
     implementation files('libs/top_sheet.jar')
     //框架库
     api project(':lib_framework')
+    api project(':lib_glide')
     //网络请求
     api deps.retrofit2.retrofit
     api deps.retrofit2.converter_gson
-    //图片加载
-    api deps.bumptech.glide
-    api deps.bumptech.glide_okhttp3
-    kapt deps.bumptech.glide_compiler
-    //页面路由
-    implementation deps.alibaba.arouter
-    kapt deps.alibaba.arouter_compiler
-    //严正杰相册，裁剪
-    implementation deps.yanzhenjie.album
-    implementation deps.yanzhenjie.durban
     //其余第三方库
     api deps.autosize
     api deps.recovery
@@ -92,4 +83,7 @@ dependencies {
     implementation deps.mmkv
     implementation deps.guide
     implementation deps.xxpermissions
+    //页面路由
+    implementation deps.alibaba.arouter
+    kapt deps.alibaba.arouter_compiler
 }
