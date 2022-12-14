@@ -163,7 +163,6 @@ class StatusBarUtil(private val window: Window) {
 /**
  * 设置view高度为导航栏高度
  * 手动添加一个view，高度设为wrap
- * enable->忽略版本限制
  */
 fun View.statusBarHeight() {
     if (StatusBarUtil.statusBarCheckVersion()) {
@@ -180,13 +179,11 @@ fun View.statusBarHeight() {
 
 /**
  * 设置view底部所有子控件居下导航栏高度
- * enable->忽略版本限制
  */
 fun View.statusBarPadding() { if (StatusBarUtil.statusBarCheckVersion()) padding(top = getStatusBarHeight()) }
 
 /**
  * 设置view整体向上导航栏高度
- * enable->忽略版本限制
  */
 fun View.statusBarMargin() {
     if (StatusBarUtil.statusBarCheckVersion()) {

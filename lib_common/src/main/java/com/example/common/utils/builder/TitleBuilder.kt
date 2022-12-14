@@ -39,10 +39,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         statusBarUtil.transparent(light)
         binding.clContainer.apply {
             statusBarPadding()
-            if(!transparent) {
-                statusBarUtil.statusBarColor(R.color.white)
-                setBackgroundColor(activity.color(R.color.white))
-            }
+            if(!transparent) setBackgroundColor(activity.color(R.color.white))
         }
         binding.tvTitle.setArguments(title, titleColor)
         return this
