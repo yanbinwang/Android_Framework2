@@ -86,7 +86,7 @@
 
         <View
             android:id="@+id/view_shade"
-            style="@style/lineConstraintWidth"
+            style="@style/LineConstraintWidth"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

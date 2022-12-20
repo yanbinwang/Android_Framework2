@@ -10,7 +10,7 @@ import com.example.common.R
  * date: 2017/8/25.
  * 安卓原生提示框
  */
-class AndDialog(context: Context) : AlertDialog.Builder(context, R.style.dialogStyle) {
+class AndDialog(context: Context) : AlertDialog.Builder(context, R.style.DialogStyle) {
     var onConfirm: (() -> Unit)? = null
     var onCancel: (() -> Unit)? = null
 

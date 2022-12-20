@@ -7,7 +7,7 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <!-- 设置页面切换动画 -->
-        <item name="android:windowAnimationStyle">@style/activityAnimation</item>
+        <item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
         <!-- 字体颜色 -->
         <item name="colorPrimary">@color/black</item>
         <!-- 状态栏栏颜色 -->
@@ -30,7 +30,7 @@
     </style>
 
     <!-- animation 样式（切换activity时调用） -->
-    <style name="activityAnimation" parent="@android:style/Animation">
+    <style name="ActivityAnimation" parent="@android:style/Animation">
         <item name="android:activityOpenEnterAnimation">@anim/set_translate_right_in</item>
         <item name="android:activityOpenExitAnimation">@anim/set_translate_left_out</item>
         <item name="android:activityCloseEnterAnimation">@anim/set_translate_left_in</item>
@@ -38,13 +38,13 @@
     </style>
 
     <!-- 布局画高线样式 -->
-    <style name="lineHeight">
+    <style name="LineHeight">
         <item name="android:layout_width">1dp</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:background">@color/grey_f6f8ff</item>
     </style>
 
-    <style name="lineConstraintHeight">
+    <style name="LineConstraintHeight">
         <item name="android:layout_width">1dp</item>
         <item name="android:layout_height">0dp</item>
         <item name="android:background">@color/grey_f6f8ff</item>
@@ -53,13 +53,13 @@
     </style>
 
     <!-- 布局画横线样式 -->
-    <style name="lineWidth">
+    <style name="LineWidth">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:background">@color/grey_f6f8ff</item>
     </style>
 
-    <style name="lineConstraintWidth">
+    <style name="LineConstraintWidth">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:background">@color/grey_f6f8ff</item>
@@ -68,7 +68,7 @@
     </style>
 
     <!-- 文本阴影样式 -->
-    <style name="textShadow">
+    <style name="TextShadow">
         <item name="android:shadowColor">@color/white_ff000000</item>
         <item name="android:shadowRadius">1</item>
         <item name="android:shadowDx">3</item>
@@ -76,7 +76,7 @@
     </style>
 
     <!-- 顶部弹窗动画 -->
-    <style name="pushTopAnimStyle">
+    <style name="PushTopAnimStyle">
         <!-- 指定显示的动画xml -->
         <item name="android:windowEnterAnimation">@anim/set_translate_top_in</item>
         <!-- 指定消失的动画xml -->
@@ -84,7 +84,7 @@
     </style>
 
     <!-- 底部弹窗动画 -->
-    <style name="pushBottomAnimStyle">
+    <style name="PushBottomAnimStyle">
         <!-- 指定显示的动画xml -->
         <item name="android:windowEnterAnimation">@anim/set_translate_bottom_in</item>
         <!-- 指定消失的动画xml -->
@@ -92,7 +92,7 @@
     </style>
 
     <!-- 左侧弹窗动画 -->
-    <style name="pushLeftAnimStyle">
+    <style name="PushLeftAnimStyle">
         <!-- 指定显示的动画xml -->
         <item name="android:windowEnterAnimation">@anim/set_translate_left_in</item>
         <!-- 指定消失的动画xml -->
@@ -100,7 +100,7 @@
     </style>
 
     <!-- 右侧弹窗动画 -->
-    <style name="pushRightAnimStyle">
+    <style name="PushRightAnimStyle">
         <!-- 指定显示的动画xml -->
         <item name="android:windowEnterAnimation">@anim/set_translate_right_in</item>
         <!-- 指定消失的动画xml -->
@@ -108,7 +108,7 @@
     </style>
 
     <!-- 黑样式-用于白电池界面 -->
-    <style name="blackTheme" parent="AppTheme">
+    <style name="BlackTheme" parent="AppTheme">
         <item name="colorPrimaryDark">@color/black</item>
         <item name="android:navigationBarColor">@color/black</item>
         <item name="android:windowBackground">@color/black</item>
@@ -117,7 +117,7 @@
     </style>
 
     <!-- 白样式-用于黑电池界面 -->
-    <style name="whiteTheme" parent="AppTheme">
+    <style name="WhiteTheme" parent="AppTheme">
         <item name="colorPrimaryDark">@color/white</item>
         <item name="android:navigationBarColor">@color/white</item>
         <item name="android:windowBackground">@color/white</item>
@@ -126,7 +126,7 @@
     </style>
 
     <!-- 透明样式,透明页面使用（排除导航栏）,导航栏颜色高版本可指定，目前导航栏黑色， -->
-    <style name="fullScreenTransTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="FullScreenTransTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimaryDark">@color/black</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@color/black_4c000000</item>
@@ -135,7 +135,7 @@
     </style>
 
     <!-- 透明样式,微信支付使用 -->
-    <style name="fullScreenAlphaTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="FullScreenAlphaTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowBackground">@color/white_00ffffff</item>
         <item name="android:windowIsFloating">true</item>
@@ -158,7 +158,7 @@
     </style>
 
     <!-- 数据请求的动画样式 -->
-    <style name="loadingStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="LoadingStyle" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowBackground">@drawable/shape_loading_bg</item>
         <item name="android:windowNoTitle">true</item>
@@ -169,7 +169,7 @@
     </style>
 
     <!-- 提示框样式 -->
-    <style name="dialogStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="DialogStyle" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:width">600mm</item>
         <!-- 去除标题头等多余的部分 -->
         <item name="android:windowFrame">@null</item>
@@ -188,7 +188,7 @@
     </style>
 
     <!-- App提示框样式 -->
-    <style name="appDialogStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppDialogStyle" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@color/white_00ffffff</item>
@@ -204,7 +204,7 @@
                app:tabPaddingStart="0dp"
            全局默认tablayout样式
            app:tabIndicatorFullWidth = false 指示器宽度跟随文本宽度 -->
-    <style name="tabLayoutStyle" parent="Base.Widget.Design.TabLayout">
+    <style name="TabLayoutStyle" parent="Base.Widget.Design.TabLayout">
         <item name="tabBackground">@android:color/transparent</item>
         <item name="tabRippleColor">@android:color/transparent</item>
         <item name="tabIndicator">@drawable/layer_list_tab_line</item>
@@ -215,7 +215,7 @@
     </style>
 
     <!-- 实际项目中往往会有自定义的导航栏，此处在原有的基础上在扩展一些属性 -->
-    <style name="tabLayoutFunctionsStyle" parent="tabLayoutStyle">
+    <style name="TabLayoutFunctionsStyle" parent="TabLayoutStyle">
         <item name="tabPaddingStart">0dp</item>
         <item name="tabPaddingTop">0dp</item>
         <item name="tabPaddingEnd">0dp</item>

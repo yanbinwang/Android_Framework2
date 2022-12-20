@@ -77,10 +77,10 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window
                 })
             } else {
                 animationStyle = when (slideEdge) {
-                    TOP -> R.style.pushTopAnimStyle
-                    BOTTOM -> R.style.pushBottomAnimStyle
-                    START, LEFT -> R.style.pushLeftAnimStyle
-                    else -> R.style.pushRightAnimStyle
+                    TOP -> R.style.PushTopAnimStyle
+                    BOTTOM -> R.style.PushBottomAnimStyle
+                    START, LEFT -> R.style.PushLeftAnimStyle
+                    else -> R.style.PushRightAnimStyle
                 }
             }
         } else {

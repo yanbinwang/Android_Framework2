@@ -41,7 +41,7 @@
 
         <View
             android:id="@+id/view_split_line"
-            style="@style/lineConstraintWidth"
+            style="@style/LineConstraintWidth"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_container" />
@@ -74,7 +74,7 @@
 
         <View
             android:id="@+id/view_line"
-            style="@style/lineConstraintHeight"
+            style="@style/LineConstraintHeight"
             app:layout_constraintBottom_toBottomOf="@id/tv_sure"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
