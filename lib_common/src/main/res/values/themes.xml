@@ -107,54 +107,28 @@
         <item name="android:windowExitAnimation">@anim/set_translate_right_out</item>
     </style>
 
-    <!-- 黑样式-用于白电池界面 -->
-    <style name="BlackTheme" parent="AppTheme">
-        <item name="colorPrimaryDark">@color/black</item>
-        <item name="android:navigationBarColor">@color/black</item>
-        <item name="android:windowBackground">@color/black</item>
-        <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:windowLightStatusBar">false</item>
-    </style>
+    <!-- 透明主题
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        overridePendingTransition(R.anim.set_alpha_trans_in, R.anim.set_alpha_no)
+    }
 
-    <!-- 白样式-用于黑电池界面 -->
-    <style name="WhiteTheme" parent="AppTheme">
-        <item name="colorPrimaryDark">@color/white</item>
-        <item name="android:navigationBarColor">@color/white</item>
-        <item name="android:windowBackground">@color/white</item>
-        <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:windowLightStatusBar">true</item>
-    </style>
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.set_alpha_no, R.anim.set_alpha_trans_out)
+    }
 
-    <!-- 透明样式,透明页面使用（排除导航栏）,导航栏颜色高版本可指定，目前导航栏黑色， -->
-    <style name="FullScreenTransTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimaryDark">@color/black</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@color/black_4c000000</item>
+    override fun initView() {
+        requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+    }
+    -->
+    <style name="TransTheme" parent="AppTheme">
         <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowAnimationStyle">@null</item>
-    </style>
-
-    <!-- 透明样式,微信支付使用 -->
-    <style name="FullScreenAlphaTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowBackground">@color/white_00ffffff</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:background">@color/white_00ffffff</item>
-        <item name="android:windowAnimationStyle">@null</item><!-- 留意 -->
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:activityOpenEnterAnimation">@null</item>
-        <item name="android:activityOpenExitAnimation">@null</item>
-        <item name="android:activityCloseEnterAnimation">@null</item>
-        <item name="android:activityCloseExitAnimation">@null</item>
-        <item name="android:taskOpenEnterAnimation">@null</item>
-        <item name="android:taskOpenExitAnimation">@null</item>
-        <item name="android:taskCloseEnterAnimation">@null</item>
-        <item name="android:taskCloseExitAnimation">@null</item>
-        <item name="android:taskToFrontEnterAnimation">@null</item>
-        <item name="android:taskToFrontExitAnimation">@null</item>
-        <item name="android:taskToBackEnterAnimation">@null</item>
-        <item name="android:taskToBackExitAnimation">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
     <!-- 数据请求的动画样式 -->
