@@ -10,6 +10,10 @@ import com.example.framework.utils.function.view.*
 
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
 
+    init {
+        binding.clContainer.statusBarPadding()
+    }
+
     /**
      * 默认二级页面标题配置
      * title->标题
@@ -18,10 +22,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      */
     @JvmOverloads
     fun setTitle(title: String = "", titleColor: Int = R.color.grey_333333, shade: Boolean = false): TitleBuilder {
-        binding.clContainer.apply {
-            statusBarPadding()
-            setBackgroundColor(activity.color(R.color.white))
-        }
+        binding.clContainer.setBackgroundColor(activity.color(R.color.white))
         binding.tvTitle.setArguments(title, titleColor)
         binding.viewShade.apply { if (shade) visible() else gone() }
         return this
@@ -32,10 +33,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      */
     @JvmOverloads
     fun setTransparentTitle(title: String = "", titleColor: Int = R.color.grey_333333, transparent: Boolean = true): TitleBuilder {
-        binding.clContainer.apply {
-            statusBarPadding()
-            if(!transparent) setBackgroundColor(activity.color(R.color.white))
-        }
+        binding.clContainer.let { if(!transparent) setBackgroundColor(activity.color(R.color.white)) }
         binding.tvTitle.setArguments(title, titleColor)
         return this
     }
