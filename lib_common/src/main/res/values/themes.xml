@@ -15,7 +15,7 @@
         <!-- 状态栏深色UI -->
         <item name="android:windowLightStatusBar">true</item>
         <!-- 导航栏颜色 -->
-        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/white</item>
         <!-- 页面背景色 -->
         <item name="android:windowBackground">@color/grey_f6f8ff</item>
         <!-- 控件被选中时的颜色 -->
@@ -44,10 +44,9 @@
         <item name="android:background">@color/grey_f6f8ff</item>
     </style>
 
-    <style name="LineConstraintHeight">
+    <style name="LineConstraintHeight" parent="LineHeight">
         <item name="android:layout_width">1dp</item>
         <item name="android:layout_height">0dp</item>
-        <item name="android:background">@color/grey_f6f8ff</item>
         <item name="layout_constraintTop_toTopOf">parent</item>
         <item name="layout_constraintBottom_toBottomOf">parent</item>
     </style>
@@ -59,10 +58,9 @@
         <item name="android:background">@color/grey_f6f8ff</item>
     </style>
 
-    <style name="LineConstraintWidth">
+    <style name="LineConstraintWidth" parent="LineWidth">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">1dp</item>
-        <item name="android:background">@color/grey_f6f8ff</item>
         <item name="layout_constraintEnd_toEndOf">parent</item>
         <item name="layout_constraintStart_toStartOf">parent</item>
     </style>
