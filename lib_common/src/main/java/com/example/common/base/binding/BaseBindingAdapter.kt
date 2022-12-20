@@ -20,6 +20,7 @@ import com.example.common.utils.function.setSpanFirst
 import com.example.common.utils.screen.StatusBarUtil
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.EditTextUtil
+import com.example.framework.utils.emojiLimit
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.toSafeInt
@@ -165,9 +166,9 @@ object BaseBindingAdapter {
      * 是否禁止edittext输入emoji
      */
     @JvmStatic
-    @BindingAdapter(value = ["is_reject"])
+    @BindingAdapter(value = ["is_emoji_limit"])
     fun bindingEditTextRejectEmoji(editText: EditText, isReject: Boolean?) {
-        if (isReject.orFalse) editText.rejectEmoji()
+        if (isReject.orFalse) editText.emojiLimit()
     }
 
     /**

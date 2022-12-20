@@ -54,8 +54,8 @@ deps.mmkv = "com.tencent:mmkv-static:$versions.mmkv"//腾讯读写库
 deps.recovery = "com.zxy.android:recovery:$versions.recovery"//闪退抓捕
 deps.guide = "com.github.huburt-Hu:NewbieGuide:$versions.guide"//遮罩引导
 deps.smartrefresh = "io.github.scwang90:refresh-layout-kernel:$versions.smartrefresh"//刷新控件
-deps.eventbus = "org.greenrobot:eventbus:$versions.eventbus"//廣播
-deps.xxpermissions = "com.github.getActivity:XXPermissions:$versions.xxpermissions"//廣播
+deps.eventbus = "org.greenrobot:eventbus:$versions.eventbus"//广播
+deps.xxpermissions = "com.github.getActivity:XXPermissions:$versions.xxpermissions"//权限
 ext.deps = deps
 //---------------------------------------------全局引用配置结束---------------------------------------------
 

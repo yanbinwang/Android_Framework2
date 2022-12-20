@@ -41,7 +41,7 @@ open class BaseApplication : Application() {
             .unitsManager
             .setSupportDP(false)
             .setSupportSP(false)
-            .supportSubunits = Subunits.MM
+            .supportSubunits = Subunits.PT
         //阿里路由跳转初始化
         if (BuildConfig.DEBUG) {
             ARouter.openLog()//打印日志

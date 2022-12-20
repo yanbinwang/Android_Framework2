@@ -11,9 +11,9 @@
 
         <ImageView
             android:id="@+id/iv_empty"
-            android:layout_width="480mm"
-            android:layout_height="450mm"
-            android:layout_marginBottom="30mm"
+            android:layout_width="480pt"
+            android:layout_height="450pt"
+            android:layout_marginBottom="30pt"
             tools:src="@mipmap/img_data_error" />
 
         <TextView
@@ -22,21 +22,21 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textColor="@color/black"
-            android:textSize="30mm"
+            android:textSize="30pt"
             android:textStyle="bold"
             tools:text="页面加载失败，请重试" />
 
         <TextView
             android:id="@+id/tv_refresh"
-            android:layout_width="120mm"
+            android:layout_width="120pt"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20mm"
+            android:layout_marginTop="20pt"
             android:background="@drawable/shape_empty_btn"
             android:gravity="center"
-            android:paddingVertical="10mm"
+            android:paddingVertical="10pt"
             android:text="刷新"
             android:textColor="@color/black"
-            android:textSize="18mm" />
+            android:textSize="18pt" />
 
     </LinearLayout>
 

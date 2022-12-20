@@ -3,12 +3,12 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="40mm">
+        android:layout_height="40pt">
 
         <ImageView
             android:id="@+id/iv_progress"
-            android:layout_width="20mm"
-            android:layout_height="20mm"
+            android:layout_width="20pt"
+            android:layout_height="20pt"
             android:layout_gravity="center" />
 
     </FrameLayout>

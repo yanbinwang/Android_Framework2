@@ -16,7 +16,7 @@ object ScreenUtil {
     /**
      * 根据autosize设置来获取设定的宽度
      */
-    private val designWidth by lazy { getManifestString("design_width_in_dp").toSafeInt(375) }
+    private val designWidth by lazy { getManifestString("design_width_in_dp").toSafeInt(750) }
 
     /**
      * 获取屏幕高度（px）

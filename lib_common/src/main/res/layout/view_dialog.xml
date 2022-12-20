@@ -5,20 +5,20 @@
     tools:ignore="MissingConstraints">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="600mm"
+        android:layout_width="600pt"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:background="@drawable/shape_dialog_bg"
-        android:padding="10mm">
+        android:padding="10pt">
 
         <TextView
             android:id="@+id/tv_tip"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:paddingTop="20mm"
+            android:paddingTop="20pt"
             android:textColor="@color/grey_333333"
-            android:textSize="32mm"
+            android:textSize="32pt"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -30,10 +30,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:lineSpacingExtra="20mm"
-            android:padding="20mm"
+            android:lineSpacingExtra="20pt"
+            android:padding="20pt"
             android:textColor="@color/grey_333333"
-            android:textSize="28mm"
+            android:textSize="28pt"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_tip"
@@ -49,10 +49,10 @@
         <TextView
             android:id="@+id/tv_cancel"
             android:layout_width="0dp"
-            android:layout_height="80mm"
+            android:layout_height="80pt"
             android:gravity="center"
             android:textColor="@color/grey_666666"
-            android:textSize="32mm"
+            android:textSize="32pt"
             app:layout_constraintEnd_toStartOf="@+id/tv_sure"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toStartOf="parent"
@@ -62,10 +62,10 @@
         <TextView
             android:id="@+id/tv_sure"
             android:layout_width="0dp"
-            android:layout_height="80mm"
+            android:layout_height="80pt"
             android:gravity="center"
             android:textColor="@color/blue_2e60df"
-            android:textSize="32mm"
+            android:textSize="32pt"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toEndOf="@+id/tv_cancel"

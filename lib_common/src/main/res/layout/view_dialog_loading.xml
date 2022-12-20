@@ -7,10 +7,10 @@
 
         <ProgressBar
             android:id="@+id/pb_process"
-            android:layout_width="26mm"
-            android:layout_height="26mm"
+            android:layout_width="26pt"
+            android:layout_height="26pt"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="30mm"
+            android:layout_marginTop="30pt"
             android:indeterminate="false"
             android:indeterminateDrawable="@drawable/layer_list_loading"
             android:indeterminateOnly="false" />
@@ -19,13 +19,13 @@
             android:id="@+id/tv_msg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="210mm"
-            android:layout_marginBottom="20mm"
+            android:layout_marginTop="210pt"
+            android:layout_marginBottom="20pt"
             android:gravity="center"
-            android:paddingHorizontal="50mm"
+            android:paddingHorizontal="50pt"
             android:text="@string/label_loading"
             android:textColor="@color/blue_2e60df"
-            android:textSize="26mm" />
+            android:textSize="26pt" />
 
     </FrameLayout>
 

@@ -8,7 +8,13 @@ import com.example.framework.utils.function.value.fitRange
 import com.example.framework.utils.function.view.addFilter
 import java.util.regex.Pattern
 
+// <editor-fold defaultstate="collapsed" desc="工具类方法">
 object EditTextUtil {
+    private var chineseParam: CharArray = charArrayOf(
+        '」', '，', '。', '？', '…', '：', '～', '【', '＃', '、', '％',
+        '＊', '＆', '＄', '（', '‘', '’', '“', '”', '『', '〔', '｛',
+        '【', '￥', '￡', '‖', '〖', '《', '「', '》', '〗', '】', '｝',
+        '〕', '』', '”', '）', '！', '；', '—')
 
     /**
      * 设置文本框自动四位加一个空格
@@ -134,7 +140,6 @@ object EditTextUtil {
         })
     }
 
-
     /**
      * 判定输入汉字是否是中文
      */
@@ -152,12 +157,6 @@ object EditTextUtil {
                 || ub === Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
                 || ub === Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
     }
-
-    private var chineseParam: CharArray = charArrayOf(
-        '」', '，', '。', '？', '…', '：', '～', '【', '＃', '、', '％',
-        '＊', '＆', '＄', '（', '‘', '’', '“', '”', '『', '〔', '｛',
-        '【', '￥', '￡', '‖', '〖', '《', '「', '》', '〗', '】', '｝',
-        '〕', '』', '”', '）', '！', '；', '—')
 
     /**
      * 设置EditText输入的最大长度
@@ -248,9 +247,52 @@ object EditTextUtil {
             }
         }
     }
+}
+// </editor-fold>
 
+// <editor-fold defaultstate="collapsed" desc="扩展函数">
+fun EditText?.charLimit(characterAllowed: CharArray) {
+    this ?: return
+    EditTextUtil.setCharLimit(this, characterAllowed)
 }
 
+fun EditText?.emojiLimit() {
+    this ?: return
+    EditTextUtil.setEmojiLimit(this)
+}
+
+fun EditText?.chineseLimit() {
+    this ?: return
+    EditTextUtil.setChineseLimit(this)
+}
+
+fun EditText?.maxLength(maxLength: Int) {
+    this ?: return
+    EditTextUtil.setMaxLength(this, maxLength)
+}
+
+fun EditText?.maxValue(maxLength: Int, maxDecimal: Int) {
+    this ?: return
+    EditTextUtil.setMaxValue(this, maxLength, maxDecimal)
+}
+
+fun EditText?.inputType(inputType: Int) {
+    this ?: return
+    EditTextUtil.setInputType(this, inputType)
+}
+
+fun EditText?.imeOptions(imeOptions: Int) {
+    this ?: return
+    EditTextUtil.setImeOptions(this, imeOptions)
+}
+
+fun EditText?.charBlackList(characterAllowed: CharArray) {
+    this ?: return
+    EditTextUtil.setCharBlackList(this, characterAllowed)
+}
+// </editor-fold>
+
+// <editor-fold defaultstate="collapsed" desc="输入监听">
 private class NumInputFilter(private val maxInteger: Int, private val maxDecimal: Int) : InputFilter {
     override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence {
         if (source == "." && dest.toString().isEmpty()) {
@@ -576,5 +618,5 @@ class DecimalInputFilter : InputFilter {
         if ((destText + sourceText).toDouble() > maxValue) return dest?.subSequence(dstart, dend)
         return dest?.subSequence(dstart, dend).toString() + sourceText
     }
-
 }
+// </editor-fold>

@@ -11,9 +11,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:paddingHorizontal="12mm"
+            android:paddingHorizontal="12pt"
             android:textColor="@color/blue_3d81f2"
-            android:textSize="15mm"
+            android:textSize="15pt"
             tools:text="文案文案文案" />
 
     </FrameLayout>

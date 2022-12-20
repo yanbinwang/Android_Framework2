@@ -12,7 +12,7 @@
             android:gravity="center"
             android:text="我是启动页"
             android:textColor="@color/white"
-            android:textSize="36mm" />
+            android:textSize="36pt" />
 
     </RelativeLayout>
 

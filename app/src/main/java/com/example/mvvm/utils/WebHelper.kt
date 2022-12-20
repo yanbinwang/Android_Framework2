@@ -78,8 +78,14 @@ class WebHelper(private val act: WebActivity, private val bean: WebBundle?) : Li
 
     private fun setTitle(title: String) = titleBuilder.setTransparentTitle(title, light = bean?.isLight().orTrue, transparent = false)
 
+    /**
+     * 加载页面
+     */
     fun load() = webView.load(bean?.getWebUrl().orEmpty(), true)
 
+    /**
+     * 返回点击
+     */
     fun onKeyDown() {
         webView?.copyBackForwardList()
         webView.evaluateJs("javascript:onBackPressed()") {
