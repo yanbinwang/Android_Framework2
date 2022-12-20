@@ -86,21 +86,14 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         super.onCreate(savedInstanceState)
         AppManager.addActivity(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
-        val type = javaClass.genericSuperclass
-        if (type is ParameterizedType) {
-            try {
-                val vbClass = type.actualTypeArguments[0] as Class<VDB>
-                val method = vbClass.getDeclaredMethod("inflate", LayoutInflater::class.java)
-                binding = method.invoke(null, layoutInflater) as VDB
-                binding.lifecycleOwner = this
-                setContentView(binding.root)
-            } catch (_: Exception) {
-            }
-        }
-        initImmersionBar()
+        if (isImmersionBarEnabled()) initImmersionBar()
         initView()
         initEvent()
         initData()
+    }
+
+    protected open fun isImmersionBarEnabled(): Boolean {
+        return true
     }
 
     override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
@@ -127,6 +120,17 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun initView() {
+        val type = javaClass.genericSuperclass
+        if (type is ParameterizedType) {
+            try {
+                val vbClass = type.actualTypeArguments[0] as Class<VDB>
+                val method = vbClass.getDeclaredMethod("inflate", LayoutInflater::class.java)
+                binding = method.invoke(null, layoutInflater) as VDB
+                binding.lifecycleOwner = this
+                setContentView(binding.root)
+            } catch (_: Exception) {
+            }
+        }
         ARouter.getInstance().inject(this)
     }
 
