@@ -1,6 +1,7 @@
 package com.example.common.base.bridge
 
 import android.view.View
+import com.example.common.R
 
 /**
  * Created by WangYanBin on 2020/6/11.
@@ -16,7 +17,7 @@ interface BaseImpl {
     /**
      * 初始化状态栏
      */
-    fun initImmersionBar(titleDark: Boolean = true, naviTrans: Boolean = false)
+    fun initImmersionBar(titleDark: Boolean = true, naviTrans: Boolean = true, navigationBarColor: Int = R.color.white)
 
     /**
      * 初始化控件

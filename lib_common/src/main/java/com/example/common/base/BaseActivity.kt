@@ -100,21 +100,13 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         return vmClass.create(lifecycle, this).also { it.initialize(this, this) }
     }
 
-    override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean) {
+    override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
         immersionBar?.apply {
             reset()
-            if (titleDark) {
-                //如果当前设备支持状态栏字体变色，会设置状态栏字体为黑色
-                //如果当前设备不支持状态栏字体变色，会使当前状态栏加上透明度，否则不执行透明度
-                statusBarDarkFont(true, 0.2f)
-            } else {
-                statusBarAlpha(0f)
-            }
-            if (naviTrans) {
-                transparentNavigationBar()?.navigationBarDarkIcon(true, 0.2f)
-            } else {
-                navigationBarColor(R.color.white)?.navigationBarDarkIcon(true, 0.2f)
-            }
+            //如果当前设备支持状态栏字体变色，会设置状态栏字体为黑色
+            //如果当前设备不支持状态栏字体变色，会使当前状态栏加上透明度，否则不执行透明度
+            statusBarDarkFont(titleDark, 0.2f)
+            navigationBarColor(navigationBarColor)?.navigationBarDarkIcon(naviTrans, 0.2f)
             init()
         }
     }
