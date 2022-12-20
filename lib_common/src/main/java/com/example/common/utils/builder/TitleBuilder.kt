@@ -3,8 +3,8 @@ package com.example.common.utils.builder
 import android.app.Activity
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
+import com.example.common.utils.ScreenUtil.statusBarPadding
 import com.example.common.utils.function.setArguments
-import com.example.common.utils.screen.statusBarPadding
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.view.*
 
@@ -28,7 +28,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * 继承baseactivity，用include把布局引入后调用
      */
     @JvmOverloads
-    fun setTransparentTitle(title: String = "", titleColor: Int = R.color.grey_333333, light: Boolean = true, transparent: Boolean = true): TitleBuilder {
+    fun setTransparentTitle(title: String = "", titleColor: Int = R.color.grey_333333, transparent: Boolean = true): TitleBuilder {
         binding.clContainer.apply {
             statusBarPadding()
             if(!transparent) setBackgroundColor(activity.color(R.color.white))
