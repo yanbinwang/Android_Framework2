@@ -83,6 +83,7 @@ dependencies {
     implementation deps.guide
     implementation deps.eventbus
     implementation deps.xxpermissions
+    implementation deps.immersionbar
     //页面路由
     implementation deps.alibaba.arouter
     kapt deps.alibaba.arouter_compiler

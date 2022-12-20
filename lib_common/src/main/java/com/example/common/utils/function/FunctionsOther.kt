@@ -13,6 +13,13 @@ import androidx.annotation.StringRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
+import com.example.common.BaseApplication
+import com.example.common.BuildConfig
+import com.example.common.R
+import com.example.common.utils.function.ExtraNumber.pt
+import com.example.common.utils.function.ExtraNumber.ptFloat
+import com.example.common.utils.ScreenUtil
+import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.value.orZero
@@ -20,14 +27,6 @@ import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanFirst
-import com.example.common.BaseApplication
-import com.example.common.BuildConfig
-import com.example.common.R
-import com.example.common.utils.function.ExtraNumber.pt
-import com.example.common.utils.function.ExtraNumber.ptFloat
-import com.example.common.utils.screen.NavigationBarUtil
-import com.example.common.utils.screen.ScreenUtil
-import com.example.common.utils.screen.ScreenUtil.screenWidth
 import com.google.gson.Gson
 import java.util.*
 
@@ -147,7 +146,7 @@ fun getStatusBarHeight(): Int {
  * 获取顶栏高度
  * */
 fun getNavigationBarHeight(ctx: Context): Int {
-    if (!NavigationBarUtil.hasNavigationBar(ctx)) return 0
+    if (!ScreenUtil.hasNavigationBar(ctx)) return 0
     return ExtraNumber.getInternalDimensionSize(ctx, "navigation_bar_height")
 }
 

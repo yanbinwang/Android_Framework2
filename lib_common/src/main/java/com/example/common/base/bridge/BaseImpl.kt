@@ -9,6 +9,16 @@ import android.view.View
 interface BaseImpl {
 
     /**
+     * 构建viewmodel用作数据交互/网络请求
+     */
+    fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM
+
+    /**
+     * 初始化状态栏
+     */
+    fun initImmersionBar(titleDark: Boolean = true, naviTrans: Boolean = false)
+
+    /**
      * 初始化控件
      */
     fun initView()

@@ -12,20 +12,21 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.alibaba.android.arouter.launcher.ARouter
-import com.example.framework.utils.function.value.currentTimeNano
-import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.view.*
-import com.example.framework.utils.logE
+import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.create
 import com.example.common.config.Extras
 import com.example.common.utils.AppManager
-import com.example.common.utils.screen.StatusBarUtil
 import com.example.common.widget.dialog.LoadingDialog
+import com.example.framework.utils.function.value.currentTimeNano
+import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.view.*
+import com.example.framework.utils.logE
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
@@ -44,7 +45,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     protected lateinit var binding: VDB
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
-    protected val statusBarUtil by lazy { StatusBarUtil(mActivity.window) }//状态栏工具类
+    private val immersionBar by lazy { ImmersionBar.with(this) }
     private var showTime = 0L
     private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画\
@@ -95,6 +96,29 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     override fun dismiss() {
         super.dismissAllowingStateLoss()
+    }
+
+    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
+        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
+    }
+
+    override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean) {
+        immersionBar?.apply {
+            reset()
+            if (titleDark) {
+                //如果当前设备支持状态栏字体变色，会设置状态栏字体为黑色
+                //如果当前设备不支持状态栏字体变色，会使当前状态栏加上透明度，否则不执行透明度
+                statusBarDarkFont(true, 0.2f)
+            } else {
+                statusBarAlpha(0f)
+            }
+            if (naviTrans) {
+                transparentNavigationBar()?.navigationBarDarkIcon(true, 0.2f)
+            } else {
+                navigationBarColor(R.color.white)?.navigationBarDarkIcon(true, 0.2f)
+            }
+            init()
+        }
     }
 
     override fun initView() {
@@ -149,10 +173,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
-    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
-    }
-
     override fun log(msg: String) {
         msg.logE(TAG)
     }

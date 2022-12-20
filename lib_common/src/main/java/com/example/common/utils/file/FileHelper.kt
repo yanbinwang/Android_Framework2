@@ -18,8 +18,8 @@ import com.example.framework.utils.logWTF
 import com.example.common.config.Constants
 import com.example.common.subscribe.Subscribe
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.screen.ScreenUtil.screenHeight
-import com.example.common.utils.screen.ScreenUtil.screenWidth
+import com.example.common.utils.ScreenUtil.screenHeight
+import com.example.common.utils.ScreenUtil.screenWidth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main

@@ -9,11 +9,6 @@ import android.app.Activity
 interface BaseView {
 
     /**
-     * 构建viewmodel用作数据交互/网络请求
-     */
-    fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM
-
-    /**
      * 显示log
      */
     fun log(msg: String)

@@ -17,7 +17,6 @@ import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
 import com.example.common.utils.function.setSpanFirst
-import com.example.common.utils.screen.StatusBarUtil
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.EditTextUtil
 import com.example.framework.utils.emojiLimit
@@ -45,7 +44,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["statusBar_margin"])
     fun bindingGuidelineStatusBar(guideline: Guideline, statusBarMargin: Boolean?) {
-        if (statusBarMargin.orFalse) guideline.setGuidelineBegin(if (StatusBarUtil.statusBarCheckVersion()) getStatusBarHeight() else 0)
+        if (statusBarMargin.orFalse) guideline.setGuidelineBegin(getStatusBarHeight())
     }
     // </editor-fold>
 

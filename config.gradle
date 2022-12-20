@@ -24,6 +24,7 @@ versions.guide = "v2.4.0"
 versions.smartrefresh = "2.0.5"
 versions.eventbus = "3.3.1"
 versions.xxpermissions = "16.2"
+versions.immersionbar = "3.2.2"
 
 //安卓x库
 def androidx = [:]
@@ -56,6 +57,7 @@ deps.guide = "com.github.huburt-Hu:NewbieGuide:$versions.guide"//遮罩引导
 deps.smartrefresh = "io.github.scwang90:refresh-layout-kernel:$versions.smartrefresh"//刷新控件
 deps.eventbus = "org.greenrobot:eventbus:$versions.eventbus"//广播
 deps.xxpermissions = "com.github.getActivity:XXPermissions:$versions.xxpermissions"//权限
+deps.immersionbar = "com.geyifeng.immersionbar:immersionbar:$versions.immersionbar"//状态栏
 ext.deps = deps
 //---------------------------------------------全局引用配置结束---------------------------------------------
 

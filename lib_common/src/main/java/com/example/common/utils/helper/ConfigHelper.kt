@@ -11,11 +11,10 @@ import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.core.Controller
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.model.GuidePage
-import com.example.framework.utils.function.color
 import com.example.common.R
 import com.example.common.config.Constants
 import com.example.common.utils.MmkvUtil
-import com.example.common.utils.screen.StatusBarUtil
+import com.example.framework.utils.function.color
 import java.lang.ref.WeakReference
 
 /**
@@ -59,16 +58,16 @@ object ConfigHelper {
         if (!MmkvUtil.decodeBool(label)) {
             MmkvUtil.encode(label, true)
             WeakReference(activity).get()?.apply {
-                val statusBarUtil = StatusBarUtil(window)
+//                val statusBarUtil = StatusBarUtil(window)
                 val builder = NewbieGuide.with(this)//传入activity
                     .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
                     .setOnGuideChangedListener(object : OnGuideChangedListener {
                         override fun onShowed(controller: Controller?) {
-                            statusBarUtil.statusBarColor(activity.color(R.color.black_4c000000))
+//                            statusBarUtil.statusBarColor(activity.color(R.color.black_4c000000))
                         }
 
                         override fun onRemoved(controller: Controller?) {
-                            statusBarUtil.statusBarColor(activity.color(color))
+//                            statusBarUtil.statusBarColor(activity.color(color))
                         }
                     })
                     .alwaysShow(true)

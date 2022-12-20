@@ -1,10 +1,9 @@
 package com.example.common.widget.xrecyclerview.refresh
 
-import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
-import com.example.common.utils.screen.StatusBarUtil
+import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.api.RefreshFooter
 import com.scwang.smart.refresh.layout.api.RefreshHeader
@@ -95,13 +94,11 @@ fun SmartRefreshLayout?.noMoreOnInit() {
 fun SmartRefreshLayout?.statusBarPadding() {
     this ?: return
     doOnceAfterLayout {
-        if (StatusBarUtil.statusBarCheckVersion()) {
-            (it.refreshHeader as ProjectRefreshHeader?)?.apply {
-                setStatusBarPadding()
-                val statusBarHeight = getStatusBarHeight()
-                val height = 40.pt + statusBarHeight
-                setHeaderMaxDragRate(height * 2.5f / (statusBarHeight + height))
-            }
+        (it.refreshHeader as ProjectRefreshHeader?)?.apply {
+            setStatusBarPadding()
+            val statusBarHeight = getStatusBarHeight()
+            val height = 40.pt + statusBarHeight
+            setHeaderMaxDragRate(height * 2.5f / (statusBarHeight + height))
         }
     }
 }
