@@ -18,7 +18,10 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      */
     @JvmOverloads
     fun setTitle(title: String = "", titleColor: Int = R.color.grey_333333, shade: Boolean = false): TitleBuilder {
-        binding.clContainer.setBackgroundColor(activity.color(R.color.white))
+        binding.clContainer.apply {
+            statusBarPadding()
+            setBackgroundColor(activity.color(R.color.white))
+        }
         binding.tvTitle.setArguments(title, titleColor)
         binding.viewShade.apply { if (shade) visible() else gone() }
         return this
