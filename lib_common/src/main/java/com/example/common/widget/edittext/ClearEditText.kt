@@ -50,33 +50,33 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         })
         binding.ivClear.click { binding.etClear.setText("") }
         if (attrs != null) {
-            val ta = getContext().obtainStyledAttributes(attrs, R.styleable.ClearBtnEditText)
+            val ta = getContext().obtainStyledAttributes(attrs, R.styleable.ClearEditText)
 
-            val text = ta.getResourceId(R.styleable.ClearBtnEditText_text, -1)
+            val text = ta.getResourceId(R.styleable.ClearEditText_text, -1)
             if (text != -1) setText(text)
 
-            val textSize = ta.getDimension(R.styleable.ClearBtnEditText_textSize, 32.ptFloat)
+            val textSize = ta.getDimension(R.styleable.ClearEditText_textSize, 32.ptFloat)
             setTextSize(textSize)
 
-            val textColor = ta.getColor(R.styleable.ClearBtnEditText_textColor, color(R.color.textPrimary))
+            val textColor = ta.getColor(R.styleable.ClearEditText_textColor, color(R.color.textPrimary))
             setTextColor(textColor)
 
-            val hint = ta.getResourceId(R.styleable.ClearBtnEditText_hint, -1)
+            val hint = ta.getResourceId(R.styleable.ClearEditText_hint, -1)
             if (hint != -1) setHint(hint)
 
-            val hintColor = ta.getColor(R.styleable.ClearBtnEditText_textColorHint, color(R.color.textHint))
+            val hintColor = ta.getColor(R.styleable.ClearEditText_textColorHint, color(R.color.textHint))
             setHintTextColor(hintColor)
 
-            val gravity = ta.getInt(R.styleable.ClearBtnEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
+            val gravity = ta.getInt(R.styleable.ClearEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
             setGravity(gravity)
 
-            val clearBtnImage = ta.getResourceId(R.styleable.ClearBtnEditText_clearBtnImage, R.mipmap.ic_text_clear)
+            val clearBtnImage = ta.getResourceId(R.styleable.ClearEditText_clearBtnImage, R.mipmap.ic_text_clear)
             setImageResource(clearBtnImage)
 
-            val maxLength = ta.getInt(R.styleable.ClearBtnEditText_maxLength, -1)
+            val maxLength = ta.getInt(R.styleable.ClearEditText_maxLength, -1)
             if (maxLength != -1) setMaxLength(maxLength)
-            val minLine = ta.getInt(R.styleable.ClearBtnEditText_minLine, -1)
-            val maxLine = ta.getInt(R.styleable.ClearBtnEditText_maxLine, -1)
+            val minLine = ta.getInt(R.styleable.ClearEditText_minLine, -1)
+            val maxLine = ta.getInt(R.styleable.ClearEditText_maxLine, -1)
             if (minLine > 0 || maxLine > 0) {
                 binding.etClear.isSingleLine = false
                 binding.etClear.setPaddingRelative(0, 12.pt, 0, 12.pt)
@@ -86,16 +86,16 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             }
             if (minLine > 0) binding.etClear.minLines = minLine
             if (maxLine > 0) binding.etClear.maxLines = maxLine
-            val minHeight = ta.getDimension(R.styleable.ClearBtnEditText_android_minHeight, -1f)
+            val minHeight = ta.getDimension(R.styleable.ClearEditText_android_minHeight, -1f)
             if (minHeight > 0) binding.etClear.minHeight = minHeight.toInt()
 
-            val disabled = ta.getBoolean(R.styleable.ClearBtnEditText_disabled, false)
+            val disabled = ta.getBoolean(R.styleable.ClearEditText_disabled, false)
             if (disabled) setDisabled()
 
-            val inputType = ta.getInt(R.styleable.ClearBtnEditText_inputType, 0)
+            val inputType = ta.getInt(R.styleable.ClearEditText_inputType, 0)
             binding.etClear.inputType(inputType)
 
-            val imeOptions = ta.getInt(R.styleable.ClearBtnEditText_imeOptions, 0)
+            val imeOptions = ta.getInt(R.styleable.ClearEditText_imeOptions, 0)
             binding.etClear.imeOptions(imeOptions)
 
             ta.recycle()
@@ -160,6 +160,15 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         addFilter(LengthFilter(maxLength))
     }
 
+    override fun setEnabled(enabled: Boolean) {
+        super.setEnabled(enabled)
+        if (enabled) {
+            setEnabled()
+        } else {
+            setDisabled()
+        }
+    }
+
     private fun setDisabled() {
         isDisabled = true
         isShowBtn = false
@@ -184,15 +193,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             textColor(R.color.textPrimary)
         }
         binding.ivClear.visible()
-    }
-
-    override fun setEnabled(enabled: Boolean) {
-        super.setEnabled(enabled)
-        if (enabled) {
-            setEnabled()
-        } else {
-            setDisabled()
-        }
     }
 
     fun hideBtn() {

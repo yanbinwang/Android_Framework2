@@ -15,7 +15,7 @@
     </declare-styleable>
 
     <!-- 删除按钮edittext -->
-    <declare-styleable name="ClearBtnEditText">
+    <declare-styleable name="ClearEditText">
         <attr name="android:minHeight" />
         <attr name="text" />
         <attr name="hint" />
@@ -30,6 +30,20 @@
         <attr name="imeOptions" />
         <attr name="disabled" format="boolean" />
         <attr name="clearBtnImage" format="reference" />
+    </declare-styleable>
+
+    <!-- 显影按钮edittext -->
+    <declare-styleable name="PassEditText">
+        <attr name="text" />
+        <attr name="hint" />
+        <attr name="textSize" />
+        <attr name="maxLength" />
+        <attr name="textColor" />
+        <attr name="textColorHint" />
+        <attr name="gravity" />
+        <attr name="imeOptions" />
+        <attr name="btnImageHide" format="reference" />
+        <attr name="btnImageShow" format="reference" />
     </declare-styleable>
 
     <!-- 全局edittext属性 -->
