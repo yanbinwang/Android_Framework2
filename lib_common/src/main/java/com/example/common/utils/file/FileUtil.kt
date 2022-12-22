@@ -7,8 +7,9 @@ import android.graphics.*
 import android.net.Uri
 import android.provider.MediaStore
 import android.provider.Settings
-import com.example.framework.utils.function.value.toSafeLong
+import android.util.Base64
 import com.example.common.config.Constants
+import com.example.framework.utils.function.value.toSafeLong
 import java.io.*
 import java.math.BigDecimal
 import java.util.*
@@ -76,6 +77,30 @@ object FileUtil {
         } catch (_: Exception) {
         }
         return "暂无"
+    }
+
+    /**
+     * 获取文件base64位地址
+     */
+    @JvmStatic
+    fun fileToBase64(file: File): String {
+        var base64: String? = null
+        var inputStream: InputStream? = null
+        try {
+            inputStream = FileInputStream(file)
+            val bytes = ByteArray(inputStream.available())
+            val length = inputStream.read(bytes)
+            base64 = Base64.encodeToString(bytes, 0, length, Base64.DEFAULT)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            try {
+                inputStream?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+        return base64.orEmpty()
     }
 
 }
@@ -185,6 +210,19 @@ fun File.copyFile(destFile: File) {
 @Throws(IOException::class)
 fun String.copyFile(destSouth: String) {
     File(this).copyFile(File(destSouth))
+}
+
+/**
+ * 获取文件采用base64形式
+ */
+fun File?.fileToBase64(): String {
+    this ?: return ""
+    return FileUtil.fileToBase64(this)
+}
+
+fun String?.fileToBase64(): String {
+    this ?: return ""
+    return File(this).fileToBase64()
 }
 
 /**
