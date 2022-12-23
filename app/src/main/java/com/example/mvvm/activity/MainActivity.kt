@@ -13,23 +13,23 @@ import com.example.common.config.RequestCode.REQUEST_MANAGER
 import com.example.common.config.RequestCode.REQUEST_PHOTO
 import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.view.clicks
+import com.example.framework.utils.logWTF
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 
 
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
-    private val backValue =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == RESULT_OK) {
-                "dfdsfsdfds".shortToast()
-            }
-        }
 
     override fun initEvent() {
         super.initEvent()
         clicks(binding.btnFileManager, binding.btnAlbum)
-        backValue.launch(navigation(ARouterPath.TestActivity).intent)
+        setOnActivityResultListener {
+            if (it.resultCode == REQUEST_PHOTO) {
+                "dfdsfsdfds".logWTF
+            }
+        }
+        navigation(ARouterPath.TestActivity,Extras.REQUEST_CODE to REQUEST_PHOTO)
     }
 
     override fun onClick(v: View?) {

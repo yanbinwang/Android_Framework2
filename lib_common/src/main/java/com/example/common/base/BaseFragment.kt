@@ -3,15 +3,20 @@ package com.example.common.base
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Looper
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import com.alibaba.android.arouter.core.LogisticsCenter
+import com.alibaba.android.arouter.exception.NoRouteFoundException
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
@@ -53,10 +58,23 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
+    private val activityResultValue by lazy { registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }}
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main + job
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
+    companion object {
+        private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
+
+        fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
+            this.onActivityResultListener = onActivityResultListener
+        }
+
+        fun clearOnActivityResultListener() {
+            onActivityResultListener = null
+        }
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
@@ -208,7 +226,12 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         if (requestCode == null) {
             postcard.navigation()
         } else {
-            postcard.navigation(mActivity, requestCode)
+            postcard.context = mActivity
+            try {
+                LogisticsCenter.completion(postcard)
+                activityResultValue.launch(Intent(mActivity, postcard.destination))
+            } catch (_: NoRouteFoundException) {
+            }
         }
         return mActivity
     }

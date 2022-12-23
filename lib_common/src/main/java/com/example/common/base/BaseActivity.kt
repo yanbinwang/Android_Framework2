@@ -6,11 +6,14 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.os.Looper
 import android.os.Parcelable
-import android.preference.PreferenceManager.OnActivityResultListener
 import android.view.LayoutInflater
 import android.view.View
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.ViewDataBinding
+import com.alibaba.android.arouter.core.LogisticsCenter
+import com.alibaba.android.arouter.exception.NoRouteFoundException
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
@@ -50,20 +53,29 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
+    private val activityResultValue by lazy { registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }}
     private val job = SupervisorJob()//https://blog.csdn.net/chuyouyinghe/article/details/123057776
     override val coroutineContext: CoroutineContext get() = Main + job//加上SupervisorJob，提升协程作用域
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     companion object {
-        private var onActivityResultListener: OnActivityResultListener? = null
-        var onFinishListener: OnFinishListener? = null
+        private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
+        private var onFinishListener: OnFinishListener? = null
 
-        fun setOnActivityResultListener(onActivityResultListener: OnActivityResultListener) {
+        fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
             this.onActivityResultListener = onActivityResultListener
+        }
+
+        fun setOnFinishListener(onFinishListener: OnFinishListener) {
+            this.onFinishListener = onFinishListener
         }
 
         fun clearOnActivityResultListener() {
             onActivityResultListener = null
+        }
+
+        fun clearOnFinishListener() {
+            onFinishListener = null
         }
     }
 
@@ -174,11 +186,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         AutoSizeConfig.getInstance().restart()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        onActivityResultListener?.onActivityResult(requestCode, resultCode, data)
-    }
-
     override fun finish() {
         onFinishListener?.onFinish(this)
         super.finish()
@@ -260,7 +267,12 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         if (requestCode == null) {
             postcard.navigation()
         } else {
-            postcard.navigation(this, requestCode)
+            postcard.context = this
+            try {
+                LogisticsCenter.completion(postcard)
+                activityResultValue.launch(Intent(this, postcard.destination))
+            } catch (_: NoRouteFoundException) {
+            }
         }
         return this
     }
