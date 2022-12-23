@@ -23,6 +23,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import java.io.Serializable
+import java.text.MessageFormat
 
 //------------------------------------context扩展函数类------------------------------------
 /**
@@ -122,6 +123,15 @@ fun Context.string(@StringRes res: Int): String {
     } catch (_: Exception) {
         ""
     }
+}
+
+/**
+ * 缺少{0},请前往设置页面开启
+ * 后面写缺省的文案
+ */
+fun Context.string(@StringRes res: Int, vararg param: String): String {
+    val result = resources.getString(res)
+    return MessageFormat.format(result, param)
 }
 
 /**
