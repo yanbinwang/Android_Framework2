@@ -11,8 +11,8 @@ import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import com.example.common.R
 import com.example.common.databinding.ViewPassEditBinding
-import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.emojiLimit
+import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.*
 import com.example.framework.utils.imeOptions
@@ -42,7 +42,7 @@ class PassEditText @JvmOverloads constructor(context: Context, attrs: AttributeS
             val text = ta.getResourceId(R.styleable.PassEditText_text, -1)
             if (text != -1) setText(text)
 
-            val textSize = ta.getDimension(R.styleable.PassEditText_textSize, 14.ptFloat)
+            val textSize = ta.getDimension(R.styleable.PassEditText_textSize, context.dimen(R.dimen.textSize14))
             setTextSize(textSize)
 
             val textColor = ta.getColor(R.styleable.PassEditText_textColor, color(R.color.textPrimary))

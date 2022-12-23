@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="textSize8">8pt</dimen>
+    <dimen name="textSize9">9pt</dimen>
+    <dimen name="textSize10">10pt</dimen>
+    <dimen name="textSize11">11pt</dimen>
+    <dimen name="textSize12">12pt</dimen>
+    <dimen name="textSize13">13pt</dimen>
+    <dimen name="textSize14">14pt</dimen>
+    <dimen name="textSize15">15pt</dimen>
+    <dimen name="textSize16">16pt</dimen>
+    <dimen name="textSize17">17pt</dimen>
+    <dimen name="textSize18">18pt</dimen>
+    <dimen name="textSize19">19pt</dimen>
+    <dimen name="textSize20">20pt</dimen>
+    <dimen name="textSize21">21pt</dimen>
+    <dimen name="textSize22">22pt</dimen>
+    <dimen name="textSize23">23pt</dimen>
+    <dimen name="textSize24">24pt</dimen>
+    <dimen name="textSize25">25pt</dimen>
+    <dimen name="textSize26">26pt</dimen>
+    <dimen name="textSize27">27pt</dimen>
+    <dimen name="textSize28">28pt</dimen>
+    <dimen name="textSize29">29pt</dimen>
+    <dimen name="textSize30">30pt</dimen>
+    <dimen name="textSize31">31pt</dimen>
+    <dimen name="textSize32">32pt</dimen>
+    <dimen name="textSize33">33pt</dimen>
+    <dimen name="textSize34">34pt</dimen>
+    <dimen name="textSize40">40pt</dimen>
+</resources>

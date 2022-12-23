@@ -12,10 +12,7 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.ColorRes
-import androidx.annotation.DrawableRes
-import androidx.annotation.LayoutRes
-import androidx.annotation.StringRes
+import androidx.annotation.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -132,6 +129,10 @@ fun Context.string(@StringRes res: Int): String {
 fun Context.string(@StringRes res: Int, vararg param: String): String {
     val result = resources.getString(res)
     return MessageFormat.format(result, param)
+}
+
+fun Context.dimen(@DimenRes res: Int): Float {
+    return resources.getDimension(res)
 }
 
 /**
