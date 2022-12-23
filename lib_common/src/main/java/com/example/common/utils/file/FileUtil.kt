@@ -5,11 +5,16 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.*
 import android.net.Uri
+import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Base64
+import androidx.core.net.toUri
+import com.example.common.BaseApplication
 import com.example.common.config.Constants
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.toSafeLong
+import com.example.framework.utils.logE
 import java.io.*
 import java.math.BigDecimal
 import java.util.*
@@ -250,4 +255,56 @@ fun Number?.getSizeFormat(): String {
     if (gigaByteResult < 1) return "${BigDecimal(mByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}GB"
     val teraByteResult = BigDecimal(gigaByteResult)
     return "${teraByteResult.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}TB"
+}
+
+/**
+ * 通过uri获取到一个文件
+ */
+fun Uri?.getFileFromUri(): File? {
+    this ?: return null
+    return this.toString().getFileFromUri()
+}
+
+fun String?.getFileFromUri(): File? {
+    this ?: return null
+    val uri = toUri()
+    if (uri.path == null) return null
+    if (uri.scheme == "file") return File(this)
+    if (uri.scheme.isNullOrEmpty()) return File(this)
+
+    var realPath = String()
+    val databaseUri: Uri
+    val selection: String?
+    val selectionArgs: Array<String>?
+    if (uri.path?.contains("/document/image:").orFalse) {
+        databaseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        selection = "_id=?"
+        selectionArgs = arrayOf(DocumentsContract.getDocumentId(uri).split(":")[1])
+    } else {
+        databaseUri = uri
+        selection = null
+        selectionArgs = null
+    }
+    try {
+        val column = "_data"
+        val projection = arrayOf(column)
+        val cursor = BaseApplication.instance.contentResolver.query(databaseUri, projection, selection, selectionArgs, null)
+        cursor?.let {
+            if (it.moveToFirst()) {
+                val columnIndex = cursor.getColumnIndexOrThrow(column)
+                realPath = cursor.getString(columnIndex)
+            }
+            cursor.close()
+        }
+    } catch (e: Exception) {
+        e.logE
+    }
+    val path = if (realPath.isNotEmpty()) realPath else {
+        when {
+            uri.path?.contains("/document/raw:").orFalse -> uri.path?.replace("/document/raw:", "")
+            uri.path?.contains("/document/primary:").orFalse -> uri.path?.replace("/document/primary:", "/storage/emulated/0/")
+            else -> return null
+        }
+    } ?: return null
+    return File(path)
 }
