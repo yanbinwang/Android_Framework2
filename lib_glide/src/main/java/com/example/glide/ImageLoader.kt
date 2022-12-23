@@ -88,6 +88,24 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
+    override fun display(view: ImageView, resourceId: Int?, placeholderId: Int, errorId: Int, onStart: () -> Unit?, onComplete: (drawable: Drawable?) -> Unit?) {
+        Glide.with(view.context)
+            .load(resourceId)
+            .placeholder(placeholderId)
+            .error(errorId)
+            .dontAnimate()
+            .listener(object : GlideRequestListener<Drawable?>() {
+                override fun onStart() {
+                    onStart()
+                }
+
+                override fun onComplete(resource: Drawable?) {
+                    onComplete.invoke(resource)
+                }
+            })
+            .into(view)
+    }
+
     override fun displayRound(view: ImageView, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
 //        Glide.with(view.context)
 //            .load(string)
@@ -107,9 +125,31 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
+    override fun displayRound(view: ImageView, resourceId: Int?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
+        val transformation = CornerTransform(view.context, roundingRadius.toFloat())
+        transformation.setExceptCorner(overRide[0], overRide[1], overRide[2], overRide[3])
+        Glide.with(view.context)
+            .load(resourceId)
+            .apply(RequestOptions.bitmapTransform(transformation))
+            .placeholder(R.drawable.shape_glide_loading)
+            .error(errorId)
+            .dontAnimate()
+            .into(view)
+    }
+
     override fun displayCircle(view: ImageView, string: String?, errorId: Int) {
         Glide.with(view.context)
             .load(string)
+            .apply(RequestOptions.circleCropTransform())
+            .placeholder(R.drawable.shape_glide_loading_oval)
+            .error(errorId)
+            .dontAnimate()
+            .into(view)
+    }
+
+    override fun displayCircle(view: ImageView, resourceId: Int?, errorId: Int) {
+        Glide.with(view.context)
+            .load(resourceId)
             .apply(RequestOptions.circleCropTransform())
             .placeholder(R.drawable.shape_glide_loading_oval)
             .error(errorId)

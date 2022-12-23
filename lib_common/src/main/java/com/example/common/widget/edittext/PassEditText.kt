@@ -42,7 +42,7 @@ class PassEditText @JvmOverloads constructor(context: Context, attrs: AttributeS
             val text = ta.getResourceId(R.styleable.PassEditText_text, -1)
             if (text != -1) setText(text)
 
-            val textSize = ta.getDimension(R.styleable.PassEditText_textSize, 32.ptFloat)
+            val textSize = ta.getDimension(R.styleable.PassEditText_textSize, 14.ptFloat)
             setTextSize(textSize)
 
             val textColor = ta.getColor(R.styleable.PassEditText_textColor, color(R.color.textPrimary))

@@ -55,7 +55,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             val text = ta.getResourceId(R.styleable.ClearEditText_text, -1)
             if (text != -1) setText(text)
 
-            val textSize = ta.getDimension(R.styleable.ClearEditText_textSize, 32.ptFloat)
+            val textSize = ta.getDimension(R.styleable.ClearEditText_textSize, 14.ptFloat)
             setTextSize(textSize)
 
             val textColor = ta.getColor(R.styleable.ClearEditText_textColor, color(R.color.textPrimary))
@@ -79,7 +79,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             val maxLine = ta.getInt(R.styleable.ClearEditText_maxLine, -1)
             if (minLine > 0 || maxLine > 0) {
                 binding.etClear.isSingleLine = false
-                binding.etClear.setPaddingRelative(0, 12.pt, 0, 12.pt)
+//                binding.etClear.setPaddingRelative(0, 12.pt, 0, 12.pt)
             } else {
                 binding.etClear.isSingleLine = true
                 binding.etClear.maxLines = 1

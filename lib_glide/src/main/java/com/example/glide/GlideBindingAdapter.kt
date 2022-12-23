@@ -14,6 +14,15 @@ object GlideBindingAdapter {
 
     // <editor-fold defaultstate="collapsed" desc="imageview绑定方法">
     /**
+     * 加载图片（比例缩放）
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["display_zoom"])
+    fun bindingDisplayZoom(view: ImageView, url: String) {
+        ImageLoader.instance.displayZoom(view, url, onStart = { view.disable() }, onComplete = { view.enable() })
+    }
+
+    /**
      * 加载图片
      */
     @JvmStatic
@@ -22,13 +31,10 @@ object GlideBindingAdapter {
         ImageLoader.instance.display(view, url, placeholderId.toSafeInt(R.drawable.shape_glide_loading), onStart = { view.disable() }, onComplete = { view.enable() })
     }
 
-    /**
-     * 加载图片（比例缩放）
-     */
     @JvmStatic
-    @BindingAdapter(value = ["display_zoom"])
-    fun bindingDisplayZoom(view: ImageView, url: String) {
-        ImageLoader.instance.displayZoom(view, url, onStart = { view.disable() }, onComplete = { view.enable() })
+    @BindingAdapter(value = ["display_resource", "placeholder_id"], requireAll = false)
+    fun bindingDisplayResource(view: ImageView, resource: Int, placeholderId: Int?) {
+        ImageLoader.instance.display(view, resource, placeholderId.toSafeInt(R.drawable.shape_glide_loading), onStart = { view.disable() }, onComplete = { view.enable() })
     }
 
     /**
@@ -40,6 +46,12 @@ object GlideBindingAdapter {
         ImageLoader.instance.displayRound(view, url, roundingRadius.toSafeInt(5))
     }
 
+    @JvmStatic
+    @BindingAdapter(value = ["display_round_resource", "rounding_radius"], requireAll = false)
+    fun bindingDisplayRoundResource(view: ImageView, resource: Int, roundingRadius: Int?) {
+        ImageLoader.instance.displayRound(view, resource, roundingRadius.toSafeInt(5))
+    }
+
     /**
      * 加载图片（圆形）
      */
@@ -47,6 +59,12 @@ object GlideBindingAdapter {
     @BindingAdapter(value = ["display_circle"])
     fun bindingDisplayCircle(view: ImageView, url: String) {
         ImageLoader.instance.displayCircle(view, url)
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["display_circle_resource"])
+    fun bindingDisplayCircleResource(view: ImageView, resource: Int) {
+        ImageLoader.instance.displayCircle(view, resource)
     }
     // </editor-fold>
 
