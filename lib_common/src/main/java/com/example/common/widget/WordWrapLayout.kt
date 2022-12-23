@@ -5,10 +5,6 @@ import android.util.AttributeSet
 import android.view.ViewGroup
 import com.example.common.utils.function.pt
 
-/**
- * @description
- * @author
- */
 class WordWrapLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ViewGroup(context, attrs, defStyleAttr) {
     private val PADDING_HORIZONTAL by lazy { 10.pt } //水平方向padding
     private val PADDING_VERTICAL by lazy { 5.pt }//垂直方向padding

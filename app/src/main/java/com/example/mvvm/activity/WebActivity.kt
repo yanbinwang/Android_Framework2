@@ -10,10 +10,6 @@ import com.example.mvvm.databinding.ActivityWebBinding
 import com.example.mvvm.utils.WebHelper
 import java.io.Serializable
 
-/**
- * @description
- * @author
- */
 @Route(path = ARouterPath.WebActivity)
 class WebActivity : BaseActivity<ActivityWebBinding>() {
     private val bean by lazy { intentSerializable(Extras.BUNDLE_BEAN) as? WebBundle }

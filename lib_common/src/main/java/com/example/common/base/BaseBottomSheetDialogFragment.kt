@@ -37,10 +37,6 @@ import java.lang.reflect.ParameterizedType
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
-/**
- * @description
- * @author
- */
 abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
     protected lateinit var binding: VDB
     protected var mContext: Context? = null

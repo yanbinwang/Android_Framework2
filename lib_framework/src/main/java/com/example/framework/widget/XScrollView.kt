@@ -8,10 +8,6 @@ import androidx.core.widget.NestedScrollView
 import com.example.framework.utils.logI
 import kotlin.math.abs
 
-/**
- * @description
- * @author
- */
 class XScrollView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : NestedScrollView(context, attrs, defStyleAttr) {
     private var downY = 0
     private var isTop = false
