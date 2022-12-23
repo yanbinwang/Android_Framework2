@@ -3,7 +3,9 @@ package com.example.common.utils
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Point
+import android.os.Build
 import android.view.View
+import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -142,6 +144,18 @@ object ScreenUtil {
         val size = Point()
         display.getRealSize(size)
         return size
+    }
+
+    /**
+     * 全屏展示
+     */
+    fun Window.fullScreen() {
+        decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val lp = attributes
+            lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            attributes = lp
+        }
     }
 
     /**

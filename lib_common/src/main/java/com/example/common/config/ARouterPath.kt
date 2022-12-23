@@ -6,8 +6,9 @@ package com.example.common.config
  * 阿里模块跳转配置
  */
 object ARouterPath {
-    const val MainActivity = "/app/MainActivity"
+    const val SplashActivity = "/app/SplashActivity"
     const val StartActivity = "/app/StartActivity"
+    const val MainActivity = "/app/MainActivity"
     const val LoginActivity = "/app/LoginActivity"
     const val TestListActivity = "/app/TestListActivity"
     const val UserInfoActivity = "/app/UserInfoActivity"

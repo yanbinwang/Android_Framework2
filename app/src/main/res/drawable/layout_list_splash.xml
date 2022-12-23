@@ -3,11 +3,29 @@
 
     <item android:drawable="@color/blue_3d81f2" />
 
-    <item>
+    <item
+        android:layout_width="280dp"
+        android:layout_height="60dp"
+        android:top="215dp">
         <bitmap
-            android:gravity="center"
+            android:antialias="true"
+            android:gravity="top|center_horizontal"
             android:scaleType="fitXY"
-            android:src="@mipmap/img_start"
+            android:src="@mipmap/img_splash_header"
+            android:tileMode="disabled" />
+    </item>
+
+
+    <!-- 底部空出一定的距离，进app后会隐藏导航栏和状态栏 -->
+    <item
+        android:layout_width="184dp"
+        android:layout_height="78dp"
+        android:bottom="60dp">
+        <bitmap
+            android:antialias="true"
+            android:gravity="bottom|center_horizontal"
+            android:scaleType="fitXY"
+            android:src="@mipmap/img_splash_footer"
             android:tileMode="disabled" />
     </item>
 

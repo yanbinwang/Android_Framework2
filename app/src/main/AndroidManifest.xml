@@ -93,7 +93,7 @@
         <activity
             android:name=".activity.SplashActivity"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -105,17 +105,16 @@
         <activity
             android:name=".activity.StartActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/blueTheme" />
+            android:theme="@style/NoAnimTheme" />
 
         <activity
             android:name=".activity.MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/mainTheme" />
+            android:theme="@style/MainTheme" />
 
         <activity
             android:name=".activity.TestActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/mainTheme" />
+            android:screenOrientation="portrait" />
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"

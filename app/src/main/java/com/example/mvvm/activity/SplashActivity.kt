@@ -2,14 +2,23 @@ package com.example.mvvm.activity
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import com.alibaba.android.arouter.facade.annotation.Route
+import com.example.common.base.BaseActivity
+import com.example.common.config.ARouterPath
+import com.example.common.utils.ScreenUtil.fullScreen
+import com.example.mvvm.databinding.ActivitySplashBinding
+import me.jessyan.autosize.internal.CancelAdapt
 
 /**
  *  Created by wangyanbin
- *  app整体启动页
- *  安卓本身bug会在初次安装应用后点击图标再次拉起启动页，造成界面显示不不正常
+ *  app启动页
+ *  1.安卓本身bug会在初次安装应用后点击图标再次拉起启动页，造成界面显示不不正常
+ *  2.启动页去除autosize的兼容布局，改用dp绘制，因为启动app使用了自定义的dp背景，启动app时布局兼容并未启动会大小不一
  */
-class SplashActivity : AppCompatActivity() {
+@Route(path = ARouterPath.SplashActivity)
+class SplashActivity : BaseActivity<ActivitySplashBinding>(), CancelAdapt {
+
+    override fun isImmersionBarEnabled() = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (!isTaskRoot
@@ -19,10 +28,9 @@ class SplashActivity : AppCompatActivity() {
             finish()
             return
         }
-//        statusBarBuilder.statusBarFullScreen()
+        window.fullScreen()
         super.onCreate(savedInstanceState)
-        startActivity(Intent(this, StartActivity::class.java))
-        finish()
+        navigation(ARouterPath.StartActivity).finish()
     }
 
 }
