@@ -1,4 +1,4 @@
-package com.example.common.widget.edittext
+package com.example.common.widget.textview
 
 import android.content.Context
 import android.text.InputFilter

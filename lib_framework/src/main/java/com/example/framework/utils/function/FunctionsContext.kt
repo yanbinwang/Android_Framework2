@@ -131,6 +131,10 @@ fun Context.string(@StringRes res: Int, vararg param: String): String {
     return MessageFormat.format(result, param)
 }
 
+fun Context.string(result: String, vararg param: String): String {
+    return MessageFormat.format(result, param)
+}
+
 fun Context.dimen(@DimenRes res: Int): Float {
     return resources.getDimension(res)
 }
