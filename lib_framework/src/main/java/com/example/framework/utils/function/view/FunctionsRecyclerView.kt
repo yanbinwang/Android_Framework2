@@ -120,7 +120,7 @@ fun RecyclerView?.toPosition(pos: Int, offset: Int = 0) {
 /**
  * RecyclerView添加不遮挡item的padding
  */
-fun RecyclerView?.paddingClip(start: Int? = null, top: Int? = null, end: Int? = null, bottom: Int? = null, ) {
+fun RecyclerView?.paddingClip(start: Int? = null, top: Int? = null, end: Int? = null, bottom: Int? = null) {
     if (this == null) return
     clipToPadding = false
     padding(start, top, end, bottom)
