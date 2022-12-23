@@ -137,14 +137,14 @@ fun getManifestString(name: String): String? {
 
 /**
  * 获取顶栏高度
- * */
+ */
 fun getStatusBarHeight(): Int {
     return ExtraNumber.getInternalDimensionSize(BaseApplication.instance, "status_bar_height")
 }
 
 /**
  * 获取顶栏高度
- * */
+ */
 fun getNavigationBarHeight(ctx: Context): Int {
     if (!ScreenUtil.hasNavigationBar(ctx)) return 0
     return ExtraNumber.getInternalDimensionSize(ctx, "navigation_bar_height")
