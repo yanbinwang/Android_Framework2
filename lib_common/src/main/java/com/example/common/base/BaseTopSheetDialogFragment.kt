@@ -52,7 +52,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private var showTime = 0L
     private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving
-    private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画\
+    private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main + job

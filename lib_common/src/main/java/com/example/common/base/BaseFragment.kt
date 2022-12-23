@@ -51,7 +51,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
     private val immersionBar by lazy { ImmersionBar.with(this) }
-    private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画\
+    private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
     private val TAG = javaClass.simpleName.lowercase(Locale.getDefault()) //额外数据，查看log，观察当前activity是否被销毁
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main + job
