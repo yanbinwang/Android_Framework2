@@ -20,7 +20,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import java.io.Serializable
-import java.text.MessageFormat
 
 //------------------------------------context扩展函数类------------------------------------
 /**
@@ -123,18 +122,8 @@ fun Context.string(@StringRes res: Int): String {
 }
 
 /**
- * 缺少{0},请前往设置页面开启
- * 后面写缺省的文案
+ * 获取Resources中的Dimes
  */
-fun Context.string(@StringRes res: Int, vararg param: String): String {
-    val result = resources.getString(res)
-    return MessageFormat.format(result, param)
-}
-
-fun Context.string(result: String, vararg param: String): String {
-    return MessageFormat.format(result, param)
-}
-
 fun Context.dimen(@DimenRes res: Int): Float {
     return resources.getDimension(res)
 }

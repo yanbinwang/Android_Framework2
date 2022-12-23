@@ -16,10 +16,10 @@ import androidx.core.widget.NestedScrollView
 import com.example.common.BaseApplication
 import com.example.common.BuildConfig
 import com.example.common.R
-import com.example.common.utils.function.ExtraNumber.pt
-import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.function.ExtraNumber.pt
+import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.value.orZero
@@ -28,6 +28,7 @@ import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanFirst
 import com.google.gson.Gson
+import java.text.MessageFormat
 import java.util.*
 
 //------------------------------------按钮，控件行为工具类------------------------------------
@@ -98,6 +99,21 @@ fun string(@StringRes res: Int, vararg param: String): String {
 
 fun string(@StringRes res: Int): String {
     return resString(res)
+}
+
+/**
+ * 案例-><string name="label_window_permission">缺少{0},请前往设置页面开启</string>
+ * 后面写缺省的文案
+ */
+fun stringMessage(@StringRes res: Int, vararg param: Int): String {
+    val paramString = param.toNewList { resString(it) }.toTypedArray()
+    val result = resString(res)
+    return MessageFormat.format(result, paramString)
+}
+
+fun stringMessage(@StringRes res: Int, vararg param: String): String {
+    val result = resString(res)
+    return MessageFormat.format(result, param)
 }
 
 /**
