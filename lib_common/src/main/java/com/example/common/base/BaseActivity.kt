@@ -1,8 +1,6 @@
 package com.example.common.base
 
 import android.app.Activity
-import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
@@ -25,7 +23,6 @@ import com.example.common.utils.AppManager
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.widget.dialog.LoadingDialog
-import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.*
@@ -60,18 +57,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     companion object {
         private var onActivityResultListener: OnActivityResultListener? = null
         var onFinishListener: OnFinishListener? = null
-
-        fun Context.startActivity(cls: Class<out Activity>, vararg pairs: Pair<String, Any?>) {
-            startActivity(getIntent(cls, *pairs).apply {
-                if (this@startActivity is Application) {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-            })
-        }
-
-        fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, vararg pairs: Pair<String, Any?>) {
-            startActivityForResult(getIntent(cls, *pairs), requestCode)
-        }
 
         fun setOnActivityResultListener(onActivityResultListener: OnActivityResultListener) {
             this.onActivityResultListener = onActivityResultListener
