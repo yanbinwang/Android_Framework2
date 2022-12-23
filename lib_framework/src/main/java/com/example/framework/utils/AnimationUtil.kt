@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.util.TypedValue
@@ -24,6 +25,7 @@ import java.util.*
  * @description 动画工具类
  * @author yan
  */
+@SuppressLint("SetTextI18n")
 class AnimationUtil(private val view: View?, private val millisecond: Long) {
     private val animationList by lazy { ArrayList<Animator>() }
     private var interpolator: Interpolator = AccelerateDecelerateInterpolator()
@@ -379,9 +381,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
             anim.interpolator = AccelerateInterpolator() // 设置插入器3
             anim.setAnimationListener(object : Animation.AnimationListener {
                 override fun onAnimationEnd(animation: Animation?) {
-                    endListener?.invoke() ?: if (to == 0f) {
-                        view.gone()
-                    }
+                    endListener?.invoke() ?: if (to == 0f) view.gone()
                 }
 
                 override fun onAnimationStart(animation: Animation?) {

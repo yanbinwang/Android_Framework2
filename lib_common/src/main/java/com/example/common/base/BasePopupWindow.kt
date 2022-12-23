@@ -27,11 +27,9 @@ import java.lang.reflect.ParameterizedType
  * 用于实现上下左右弹出的效果，如有特殊需求，重写animation
  * 默认底部显示弹出
  */
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window, popupWidth: Int = MATCH_PARENT, popupHeight: Int = MATCH_PARENT, private val slideEdge: Int = BOTTOM,
-    private val animation: Boolean = true, private val light: Boolean = false) : PopupWindow() {
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window, popupWidth: Int = MATCH_PARENT, popupHeight: Int = MATCH_PARENT, private val slideEdge: Int = BOTTOM, private val animation: Boolean = true, private val light: Boolean = false) : PopupWindow() {
     protected lateinit var binding: VDB
-    protected val context: Context
-    get() { return window.context }
+    protected val context: Context get() { return window.context }
     private val layoutParams by lazy { window.attributes }
 
     init {

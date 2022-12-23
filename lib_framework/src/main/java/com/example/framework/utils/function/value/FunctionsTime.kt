@@ -8,29 +8,21 @@ import java.util.*
 
 //------------------------------------日期时间工具类------------------------------------
 /**
- * 服务器时间-推测的服务器接收时间
- */
-private var timeDiff = -1L
-
-/**
- * 现在的时间戳
- */
-val currentTimeStamp: Long
-    get() {
-        return if (timeDiff < 0) {
-            System.currentTimeMillis()
-        } else {
-            currentTimeNano + timeDiff
-        }
-    }
-
-/**
  * 现在的运行时间，用来作时间间隔判断
  */
 val currentTimeNano: Long
     get() {
         return System.nanoTime() / 1000000L
     }
+
+/**
+ * 获取毫秒值
+ */
+val Int.hour get() = this * 1000L * 60L * 60L
+val Int.minute get() = this * 1000L * 60L
+val Int.second get() = this * 1000L
+val Int.day get() = this * 1000L * 60L * 60L * 24L
+val Int.week get() = this * 1000L * 60L * 60L * 24L * 7L
 
 /**
  * 日期形式字符串
@@ -53,15 +45,6 @@ object DateFormat {
     const val CN_YMDHM = "yyyy年MM月dd日 HH时mm分"
     const val CN_YMDHMS = "yyyy年MM月dd日 HH时mm分ss秒"
 }
-
-/**
- * 获取毫秒值
- */
-val Int.hour get() = this * 1000L * 60L * 60L
-val Int.minute get() = this * 1000L * 60L
-val Int.second get() = this * 1000L
-val Int.day get() = this * 1000L * 60L * 60L * 24L
-val Int.week get() = this * 1000L * 60L * 60L * 24L * 7L
 
 /**
  * 日期对比（统一年月日形式）
