@@ -21,6 +21,8 @@ import com.example.common.base.bridge.create
 import com.example.common.config.Extras
 import com.example.common.utils.AppManager
 import com.example.common.utils.ScreenUtil
+import com.example.common.utils.ScreenUtil.screenHeight
+import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
@@ -64,8 +66,8 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         log(TAG)
         if (Looper.getMainLooper() == Looper.myLooper()) {
             AutoSizeConfig.getInstance()
-                .setScreenWidth(ScreenUtil.screenWidth)
-                .setScreenHeight(ScreenUtil.screenHeight)
+                .setScreenWidth(screenWidth)
+                .setScreenHeight(screenHeight)
             AutoSizeCompat.autoConvertDensityOfGlobal(resources)
         }
         try {

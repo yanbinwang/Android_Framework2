@@ -14,7 +14,6 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.ViewDataBinding
 import com.alibaba.android.arouter.launcher.ARouter
-import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
@@ -23,7 +22,8 @@ import com.example.common.config.Extras
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.utils.AppManager
-import com.example.common.utils.ScreenUtil
+import com.example.common.utils.ScreenUtil.screenHeight
+import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.value.orFalse
@@ -172,8 +172,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         //AutoSize的防止界面错乱的措施,同时确认其在主线程运行
         if (Looper.getMainLooper() == Looper.myLooper()) {
             AutoSizeConfig.getInstance()
-                .setScreenWidth(ScreenUtil.screenWidth)
-                .setScreenHeight(ScreenUtil.screenHeight)
+                .setScreenWidth(screenWidth)
+                .setScreenHeight(screenHeight)
             AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
         }
         return super.getResources()

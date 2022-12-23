@@ -12,13 +12,14 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.alibaba.android.arouter.launcher.ARouter
-import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.create
 import com.example.common.config.Extras
 import com.example.common.utils.AppManager
+import com.example.common.utils.ScreenUtil.screenHeight
+import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.orFalse
@@ -31,6 +32,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import me.jessyan.autosize.AutoSizeCompat
+import me.jessyan.autosize.AutoSizeConfig
 import java.io.Serializable
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
@@ -56,6 +59,12 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            AutoSizeConfig.getInstance()
+                .setScreenWidth(screenWidth)
+                .setScreenHeight(screenHeight)
+            AutoSizeCompat.autoConvertDensityOfGlobal(resources)
+        }
         try {
             val superclass = javaClass.genericSuperclass
             val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>
