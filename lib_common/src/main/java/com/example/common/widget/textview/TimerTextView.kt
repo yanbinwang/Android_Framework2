@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.view.Gravity
 import androidx.appcompat.widget.AppCompatTextView
 import com.example.framework.utils.TimerUtil
-import com.example.framework.utils.function.string
+import java.text.MessageFormat
 
 /**
  * Created by wangyanbin
@@ -26,7 +26,7 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
         if (!tag.isNullOrEmpty()) timerTag = tag
         TimerUtil.startCountDown(timerTag, { second: Long? ->
             isEnabled = false
-            text = context.string(tickTxt, second.toString())
+            text = MessageFormat.format(tickTxt, second.toString())
         }, {
             isEnabled = true
             text = "重发验证码"

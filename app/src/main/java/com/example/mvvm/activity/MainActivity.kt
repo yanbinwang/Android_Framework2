@@ -4,12 +4,14 @@ import android.content.Intent
 import android.provider.MediaStore
 import android.view.View
 import android.view.View.OnClickListener
+import androidx.activity.result.contract.ActivityResultContracts
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.config.Extras
 import com.example.common.config.RequestCode.REQUEST_MANAGER
 import com.example.common.config.RequestCode.REQUEST_PHOTO
+import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.view.clicks
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
@@ -17,10 +19,17 @@ import com.example.mvvm.databinding.ActivityMainBinding
 
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
+    private val backValue =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK) {
+                "dfdsfsdfds".shortToast()
+            }
+        }
 
     override fun initEvent() {
         super.initEvent()
         clicks(binding.btnFileManager, binding.btnAlbum)
+        backValue.launch(navigation(ARouterPath.TestActivity).intent)
     }
 
     override fun onClick(v: View?) {
@@ -39,7 +48,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
 //                intent.type = "*/*"
 //                intent.addCategory(Intent.CATEGORY_OPENABLE)
 //                startActivityForResult(intent, REQUEST_MANAGER)
-                navigation(ARouterPath.TestActivity,Extras.REQUEST_CODE to REQUEST_PHOTO)
+                navigation(ARouterPath.TestActivity, Extras.REQUEST_CODE to REQUEST_PHOTO)
             }
             R.id.btn_album -> {
                 val intent = Intent(Intent.ACTION_PICK, null)

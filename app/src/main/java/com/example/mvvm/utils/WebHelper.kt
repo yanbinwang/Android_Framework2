@@ -7,11 +7,6 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orTrue
-import com.example.framework.utils.function.view.background
-import com.example.framework.utils.function.view.byHardwareAccelerate
-import com.example.framework.utils.function.view.gone
 import com.example.common.utils.FormActivityUtil
 import com.example.common.utils.WebUtil
 import com.example.common.utils.builder.TitleBuilder
@@ -19,6 +14,10 @@ import com.example.common.utils.function.OnWebChangedListener
 import com.example.common.utils.function.evaluateJs
 import com.example.common.utils.function.load
 import com.example.common.utils.function.setClient
+import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orTrue
+import com.example.framework.utils.function.view.background
+import com.example.framework.utils.function.view.byHardwareAccelerate
 import com.example.mvvm.R
 import com.example.mvvm.activity.WebActivity
 import com.example.mvvm.activity.WebBundle
@@ -38,6 +37,7 @@ class WebHelper(private val act: WebActivity, private val bean: WebBundle?) : Li
         act.lifecycle.addObserver(this)
         addWebView()
         FormActivityUtil.setAct(act)
+        if(!bean?.isLight().orTrue) act.initImmersionBar(false)
     }
 
     private fun addWebView() {
@@ -76,7 +76,7 @@ class WebHelper(private val act: WebActivity, private val bean: WebBundle?) : Li
         })
     }
 
-    private fun setTitle(title: String) = titleBuilder.setTransparentTitle(title, light = bean?.isLight().orTrue, transparent = false)
+    private fun setTitle(title: String) = titleBuilder.setTransparentTitle(title, transparent = false).getDefault()
 
     /**
      * 加载页面

@@ -5,7 +5,7 @@
     <color name="primaryDark">#ffffff</color>
     <color name="navigationBar">#ffffff</color>
     <color name="background">#f6f8ff</color>
-    <color name="accent">#blue_2e60df</color>
+    <color name="accent">#2e60df</color>
     <color name="controlNormal">#333333</color>
     <color name="text">#000000</color>
     <color name="textPrimary">#3d81f2</color>
