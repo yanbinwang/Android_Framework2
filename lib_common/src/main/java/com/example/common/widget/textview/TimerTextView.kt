@@ -15,8 +15,8 @@ import com.example.framework.utils.function.string
  */
 @SuppressLint("SetTextI18n")
 class TimerTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatTextView(context, attrs, defStyleAttr) {
-    private var timerTag = javaClass.simpleName
     private val tickTxt = "已发送{0}S"
+    private var timerTag = javaClass.simpleName
 
     init {
         gravity = Gravity.CENTER
