@@ -38,5 +38,4 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
         TimerUtil.stopCountDown(timerTag)
     }
 
-
 }
