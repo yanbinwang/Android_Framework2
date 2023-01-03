@@ -11,6 +11,20 @@ import com.example.common.utils.builder.shortToast
 import java.io.File
 
 /**
+ * 拉起app
+ * AndroidMainFest中写入包名配置清单
+ * <queries>
+ * <package android:name="com.google.android.apps.walletnfcrel" />
+ * <package android:name="com.phonepe.app" />
+ * </queries>
+ */
+fun Context.pullUpPackage(packageName: String) {
+    val intent = packageManager.getLaunchIntentForPackage(packageName)
+    intent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    startActivity(intent)
+}
+
+/**
  * 从google搜索内容
  */
 fun Context.toGoogleSearch(searchText: String) {
@@ -74,12 +88,12 @@ fun Context.openZip(filePath: String) = openFile(filePath, "application/x-zip-co
 fun Context.openWorld(filePath: String) = openFile(filePath, "application/msword")
 
 /**
- * 打開安装包
+ * 打开安装包
  */
 fun Context.openSetupApk(filePath: String) = openFile(filePath, "application/vnd.android.package-archive")
 
 /**
- * 統一開啟文件
+ * 统一开启文件
  */
 fun Context.openFile(filePath: String, type: String) {
     val file = File(filePath)
