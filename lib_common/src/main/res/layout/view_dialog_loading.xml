@@ -25,7 +25,7 @@
             android:paddingHorizontal="50pt"
             android:text="@string/label_loading"
             android:textColor="@color/blue_2e60df"
-            android:textSize="26pt" />
+            android:textSize="@dimen/textSize26" />
 
     </FrameLayout>
 

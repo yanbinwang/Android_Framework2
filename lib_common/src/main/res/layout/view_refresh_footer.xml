@@ -18,7 +18,7 @@
             android:layout_gravity="center"
             android:text="暂无更多数据"
             android:textColor="@color/black_111b34"
-            android:textSize="14pt"
+            android:textSize="@dimen/textSize14"
             android:visibility="gone" />
 
     </FrameLayout>
