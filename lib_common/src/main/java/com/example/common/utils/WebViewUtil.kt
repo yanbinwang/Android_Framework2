@@ -26,7 +26,7 @@ import com.example.common.BaseApplication
  * @author yan
  */
 @SuppressLint("SetJavaScriptEnabled", "SourceLockedOrientationActivity")
-class WebUtil : DefaultLifecycleObserver {
+class WebViewUtil : DefaultLifecycleObserver {
     private var lifecycleOwner: LifecycleOwner?
     private var container: ViewGroup?
     private var act: Activity? = null

@@ -8,7 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.FormActivityUtil
-import com.example.common.utils.WebUtil
+import com.example.common.utils.WebViewUtil
 import com.example.common.utils.builder.TitleBuilder
 import com.example.common.utils.function.OnWebChangedListener
 import com.example.common.utils.function.evaluateJs
@@ -30,7 +30,7 @@ import java.util.*
 class WebHelper(private val act: WebActivity, private val bean: WebBundle?) : LifecycleEventObserver {
     private val binding by lazy { ActivityWebBinding.inflate(act.layoutInflater) }
     private val titleBuilder by lazy { TitleBuilder(act, binding.titleContainer) }
-    private val webUtil by lazy { WebUtil(act, binding.flWebRoot) }
+    private val webUtil by lazy { WebViewUtil(act, binding.flWebRoot) }
     private var webView: WebView? = null
 
     init {
