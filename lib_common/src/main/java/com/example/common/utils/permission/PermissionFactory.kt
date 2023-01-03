@@ -5,13 +5,12 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import com.example.common.R
-import com.example.common.utils.function.stringMessage
+import com.example.common.utils.function.string
 import com.example.common.utils.permission.XXPermissionsGroup.CAMERA
 import com.example.common.utils.permission.XXPermissionsGroup.LOCATION
 import com.example.common.utils.permission.XXPermissionsGroup.MICROPHONE
 import com.example.common.utils.permission.XXPermissionsGroup.STORAGE
 import com.example.common.widget.dialog.AndDialog
-import com.example.framework.utils.function.string
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
@@ -101,7 +100,7 @@ class PermissionFactory(private val context: Context) {
                 onConfirm = { XXPermissions.startPermissionActivity(context, permissions) }
                 setParams(
                     string(R.string.label_window_title),
-                    stringMessage(R.string.label_window_permission, rationale),
+                    string(R.string.label_window_permission, rationale),
                     string(R.string.label_window_sure),
                     string(R.string.label_window_cancel))
                 show()
