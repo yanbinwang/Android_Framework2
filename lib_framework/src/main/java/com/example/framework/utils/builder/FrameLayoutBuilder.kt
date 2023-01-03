@@ -37,7 +37,7 @@ class FrameLayoutBuilder(private val manager: FragmentManager, private val conta
     private var arguments = false
     private var clazzPair: List<Pair<Class<*>, String>>? = null
     private var clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>? = null
-    private val list = ArrayList<Fragment>()
+    private val list by lazy { ArrayList<Fragment>() }
     var currentItem = 0
     var onTabShow: ((tab: Int) -> Unit)? = null
 
