@@ -19,6 +19,7 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var timerTag = javaClass.simpleName
 
     init {
+        text = "发送验证码"
         gravity = Gravity.CENTER
     }
 
