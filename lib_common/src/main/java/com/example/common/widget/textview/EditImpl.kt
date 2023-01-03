@@ -4,17 +4,27 @@ import android.widget.EditText
 import androidx.annotation.StringRes
 import com.example.common.utils.builder.shortToast
 
-interface EditTextCheckImpl {
+/**
+ * kt中的接口是可以实现的，实现后的方法只有继承的类才能使用
+ */
+interface EditImpl {
+
+    /**
+     * el表达式
+     */
     companion object {
         val regMail = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+\$")
         val regPass = Regex("^(?![0-9]+\$)(?![a-zA-Z]+\$)[0-9A-Za-z]{6,20}\$")
     }
 
+    /**
+     * 检测内容文本是否在输入范围内
+     */
     fun EditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
         return if (text.length in min..max) {
             true
         } else {
-            res.shortToast()
+            if (-1 != res) res.shortToast()
             false
         }
     }
@@ -27,11 +37,14 @@ interface EditTextCheckImpl {
         return getEditText().lengthLimit(min, max, res)
     }
 
+    /**
+     * 检测内容文本是否为空
+     */
     fun EditText.notEmpty(@StringRes res: Int = -1): Boolean {
         return if (!text.isNullOrEmpty()) {
             true
         } else {
-            res.shortToast()
+            if (-1 != res) res.shortToast()
             false
         }
     }
@@ -44,42 +57,48 @@ interface EditTextCheckImpl {
         return getEditText().notEmpty(res)
     }
 
-    fun EditText.checkEmailReg(needToast: Boolean = true): Boolean {
+    /**
+     * 检测内容文本是否符合邮箱要求
+     */
+    fun EditText.checkEmailReg(toast: Boolean = true): Boolean {
         if (!notEmpty()) {
-            if (needToast) "郵箱不能為空".shortToast()
+            if (toast) "邮箱不能为空".shortToast()
             return false
         }
         if (regMail.matches(text)) return true
-        if (needToast) "郵箱格式錯誤".shortToast()
+        if (toast) "邮箱格式错误".shortToast()
         return false
     }
 
-    fun ClearEditText.checkEmailReg(needToast: Boolean = true): Boolean {
-        return getEditText().checkEmailReg(needToast)
+    fun ClearEditText.checkEmailReg(toast: Boolean = true): Boolean {
+        return getEditText().checkEmailReg(toast)
     }
 
-    fun PassEditText.checkEmailReg(needToast: Boolean = true): Boolean {
-        return getEditText().checkEmailReg(needToast)
+    fun PassEditText.checkEmailReg(toast: Boolean = true): Boolean {
+        return getEditText().checkEmailReg(toast)
     }
 
-    fun EditText.checkPassReg(needToast: Boolean = true): Boolean {
+    /**
+     * 检测内容文本是否符合密码要求
+     */
+    fun EditText.checkPassReg(toast: Boolean = true): Boolean {
         if (!notEmpty()) {
-            if (needToast) "密碼不能為空".shortToast()
+            if (toast) "密码不能为空".shortToast()
             return false
         }
         if (!regPass.matches(text)) {
-            if (needToast) "密碼由6~20位的字母和數字組成".shortToast()
+            if (toast) "密码由6~20位的字母和數字組成".shortToast()
             return false
         }
         return true
     }
 
-    fun ClearEditText.checkPassReg(needToast: Boolean = true): Boolean {
-        return getEditText().checkPassReg(needToast)
+    fun ClearEditText.checkPassReg(toast: Boolean = true): Boolean {
+        return getEditText().checkPassReg(toast)
     }
 
-    fun PassEditText.checkPassReg(needToast: Boolean = true): Boolean {
-        return getEditText().checkPassReg(needToast)
+    fun PassEditText.checkPassReg(toast: Boolean = true): Boolean {
+        return getEditText().checkPassReg(toast)
     }
 
 }
