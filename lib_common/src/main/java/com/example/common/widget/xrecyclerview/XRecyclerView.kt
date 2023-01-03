@@ -36,9 +36,9 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var emptyType = 0//是否具有空布局（0无-1有）
     private var refreshType = 0//页面类型(0无刷新-1带刷新)
     private var refresh: SmartRefreshLayout? = null//刷新控件 类型1才有
-    var empty: EmptyLayout? = null//自定义封装的空布局
     val layout: RefreshLayout get() { return refresh as RefreshLayout }//刷新控件
     var recycler: DataRecyclerView? = null//数据列表
+    var empty: EmptyLayout? = null//自定义封装的空布局
     var onClick: (() -> Unit)? = null//空布局点击
 
     init {
@@ -63,7 +63,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                     recycler?.setEmptyView(empty?.setListView(recycler))
                     recycler?.setHasFixedSize(true)
                     recycler?.cancelItemAnimator()
-//                    recycler?.itemAnimator = DefaultItemAnimator()
                     empty?.onRefreshClick = { onClick?.invoke() }
                 }
             }
@@ -74,7 +73,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 recycler = view.findViewById(R.id.d_rv)
                 recycler?.setHasFixedSize(true)
                 recycler?.cancelItemAnimator()
-//                recycler?.itemAnimator = DefaultItemAnimator()
                 if (0 != emptyType) {
                     empty?.onRefreshClick = { onClick?.invoke() }
                 } else {
@@ -106,14 +104,14 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
-     * 获取适配器
-     */
-    fun <T : BaseQuickAdapter<*, *>> getAdapter() = recycler?.adapter as? T
-
-    /**
      * 设置横向左右滑动的adapter
      */
     fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) = recycler?.initLinearHorizontal(adapter)
+
+    /**
+     * 获取适配器
+     */
+    fun <T : BaseQuickAdapter<*, *>> getAdapter() = recycler?.adapter as? T
 
     /**
      * 刷新页面监听
@@ -142,11 +140,9 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
-     * 类型1的时候才会显示
+     * 获取空展示页面
      */
-    fun setEmptyVisibility(visibility: Int) {
-        if (refreshType == 1 && 0 != emptyType) empty?.visibility = visibility
-    }
+    fun getEmptyLayout() = empty
 
     /**
      * 修改空布局背景颜色
@@ -157,10 +153,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 当数据正在加载的时候显示
      */
     fun showLoading() {
-        if (0 != emptyType) {
-            setEmptyVisibility(VISIBLE)
-            empty?.showLoading()
-        }
+        if (0 != emptyType) empty?.showLoading()
     }
 
     /**
@@ -168,10 +161,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     @JvmOverloads
     fun showEmpty(imgInt: Int = -1, text: String? = null) {
-        if (0 != emptyType) {
-            setEmptyVisibility(VISIBLE)
-            empty?.showEmpty(imgInt, text)
-        }
+        if (0 != emptyType) empty?.showEmpty(imgInt, text)
     }
 
     /**
@@ -179,10 +169,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     @JvmOverloads
     fun showError(imgInt: Int = -1, text: String? = null) {
-        if (0 != emptyType) {
-            setEmptyVisibility(VISIBLE)
-            empty?.showError(imgInt, text)
-        }
+        if (0 != emptyType) empty?.showError(imgInt, text)
     }
 
 }
