@@ -7,7 +7,7 @@ import com.example.common.utils.builder.shortToast
 /**
  * kt中的接口是可以实现的，实现后的方法只有继承的类才能使用
  */
-interface EditImpl {
+interface EditTextImpl {
 
     /**
      * el表达式
