@@ -5,19 +5,18 @@ import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.TypedValue
-import android.widget.*
+import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import com.example.common.BaseApplication
 import com.example.common.BuildConfig
 import com.example.common.R
 import com.example.common.utils.ScreenUtil
-import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.analysis.GsonUtil
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.framework.utils.ColorSpan
@@ -27,7 +26,6 @@ import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanFirst
-import com.google.gson.Gson
 import java.util.*
 
 //------------------------------------按钮，控件行为工具类------------------------------------
@@ -100,21 +98,6 @@ fun string(@StringRes res: Int): String {
     return resString(res)
 }
 
-///**
-// * 案例-><string name="label_window_permission">缺少{0},请前往设置页面开启</string>
-// * 后面写缺省的文案
-// */
-//fun stringMessage(@StringRes res: Int, vararg param: Int): String {
-//    val paramString = param.toNewList { resString(it) }.toTypedArray()
-//    val result = resString(res)
-//    return MessageFormat.format(result, paramString)
-//}
-//
-//fun stringMessage(@StringRes res: Int, vararg param: String): String {
-//    val result = resString(res)
-//    return MessageFormat.format(result, param)
-//}
-
 /**
  * 获取资源文字
  */
@@ -139,8 +122,8 @@ fun Bundle?.clearFragmentSavedState() {
  * 对象转json
  */
 fun Any?.toJsonString(): String {
-    if (this == null) return "null"
-    return Gson().toJson(this)
+    if (this == null) return ""
+    return GsonUtil.objToJson(this).orEmpty()
 }
 
 /**
@@ -177,19 +160,6 @@ fun Class<*>.getPair(name: String? = null): Pair<Class<*>, String> {
  */
 fun Class<*>.getTriple(pair: Pair<String, String>, name: String? = null): Triple<Class<*>, Pair<String, String>, String> {
     return Triple(this, pair, (name ?: this.simpleName.lowercase(Locale.getDefault())))
-}
-
-/**
- * 图片宽度动态变为手机宽度
- */
-fun ImageView?.setScreenWidth() {
-    this ?: return
-    layoutParams = when (parent) {
-        is LinearLayout -> LinearLayout.LayoutParams(screenWidth, LinearLayout.LayoutParams.WRAP_CONTENT)
-        is RelativeLayout -> RelativeLayout.LayoutParams(screenWidth, RelativeLayout.LayoutParams.WRAP_CONTENT)
-        is FrameLayout -> FrameLayout.LayoutParams(screenWidth, FrameLayout.LayoutParams.WRAP_CONTENT)
-        else -> ConstraintLayout.LayoutParams(screenWidth, ConstraintLayout.LayoutParams.WRAP_CONTENT)
-    }
 }
 
 /**

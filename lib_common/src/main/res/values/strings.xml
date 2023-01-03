@@ -3,7 +3,6 @@
     <string name="label_window_title">系统提示</string>
     <string name="label_window_sure">确定</string>
     <string name="label_window_cancel">取消</string>
-<!--    <string name="label_window_permission">缺少{0},请前往设置页面开启</string>-->
     <string name="label_window_permission">缺少%1$s,请前往设置页面开启</string>
 
     <!-- 权限库的的提示语句 -->
