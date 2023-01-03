@@ -148,7 +148,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["text", "key_text", "key_color", "is_match_text"], requireAll = false)
     fun bindingTextViewArguments(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isMatchText: Boolean?) {
-        if (!keyText.isNullOrEmpty()) textview.setSpanFirst(text.orEmpty(), keyText, keyColor.toSafeInt(R.color.blue_3d81f2)) else textview.text = text.orEmpty()
+        if (!keyText.isNullOrEmpty()) textview.setSpanFirst(text.orEmpty(), keyText, keyColor.toSafeInt(R.color.defaultTheme)) else textview.text = text.orEmpty()
         if (isMatchText.orFalse) textview.setMatchText()
     }
 

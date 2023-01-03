@@ -32,7 +32,7 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
         binding.ivProgress.let {
             it.padding(top = 2.5.pt, bottom = 2.5.pt)
             it.imageResource(R.drawable.animation_list_loadmore)
-            it.tint(R.color.blue_3d81f2)
+            it.tint(R.color.defaultTheme)
             animation = it.drawable as? AnimationDrawable
         }
         setNoMoreData(noMoreData)

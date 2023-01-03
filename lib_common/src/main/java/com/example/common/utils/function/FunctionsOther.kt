@@ -166,7 +166,7 @@ fun Class<*>.getTriple(pair: Pair<String, String>, name: String? = null): Triple
  * 设置textview内容当中某一段的颜色
  */
 @JvmOverloads
-fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color.blue_3d81f2) {
+fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color.defaultTheme) {
     this ?: return
     text = txt.setSpanFirst(keyword, ColorSpan(context.color(colorRes)))
 }
@@ -175,7 +175,7 @@ fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color
  * 设置显示内容和对应文本颜色
  */
 @JvmOverloads
-fun TextView?.setArguments(txt: String ?= "", colorRes: Int = R.color.blue_3d81f2, resId: Int = 0) {
+fun TextView?.setArguments(txt: String ?= "", colorRes: Int = R.color.defaultTheme, resId: Int = 0) {
     this ?: return
     if (!txt.isNullOrEmpty()) text = txt
     textColor(colorRes)
