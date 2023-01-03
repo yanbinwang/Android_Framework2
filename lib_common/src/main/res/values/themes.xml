@@ -9,19 +9,19 @@
         <!-- 设置页面切换动画 -->
         <item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
         <!-- 字体颜色 -->
-        <item name="colorPrimary">@color/text</item>
+        <item name="colorPrimary">@color/defaultPrimary</item>
         <!-- 状态栏栏颜色 -->
-        <item name="colorPrimaryDark">@color/primaryDark</item>
+        <item name="colorPrimaryDark">@color/defaultPrimaryDark</item>
         <!-- 状态栏深色UI -->
         <item name="android:windowLightStatusBar">true</item>
         <!-- 导航栏颜色 -->
-        <item name="android:navigationBarColor">@color/navigationBar</item>
+        <item name="android:navigationBarColor">@color/defaultNavigationBar</item>
         <!-- 页面背景色 -->
-        <item name="android:windowBackground">@color/background</item>
+        <item name="android:windowBackground">@color/defaultWindowBackground</item>
         <!-- 控件被选中时的颜色 -->
-        <item name="colorAccent">@color/accent</item>
+        <item name="colorAccent">@color/defaultAccent</item>
         <!-- 控制控件的默认颜色 -->
-        <item name="colorControlNormal">@color/controlNormal</item>
+        <item name="colorControlNormal">@color/defaultControlNormal</item>
         <!-- 剔除控件的点击效果 -->
         <item name="selectableItemBackground">@null</item>
         <item name="selectableItemBackgroundBorderless">@null</item>
@@ -41,7 +41,7 @@
     <style name="LineHeight">
         <item name="android:layout_width">1dp</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@color/grey_f6f8ff</item>
+        <item name="android:background">@color/bgLine</item>
     </style>
 
     <style name="LineConstraintHeight" parent="LineHeight">
@@ -55,7 +55,7 @@
     <style name="LineWidth">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
-        <item name="android:background">@color/grey_f6f8ff</item>
+        <item name="android:background">@color/bgLine</item>
     </style>
 
     <style name="LineConstraintWidth" parent="LineWidth">
@@ -67,7 +67,7 @@
 
     <!-- 文本阴影样式 -->
     <style name="TextShadow">
-        <item name="android:shadowColor">@color/white_ff000000</item>
+        <item name="android:shadowColor">@color/bgShadow</item>
         <item name="android:shadowRadius">1</item>
         <item name="android:shadowDx">3</item>
         <item name="android:shadowDy">3</item>
@@ -159,7 +159,7 @@
         <item name="android:background">@null</item>
         <item name="android:backgroundDimEnabled">true</item>
         <!-- 标题，确认取消按钮的颜色 -->
-        <item name="android:textColor">@color/blue_0d86ff</item>
+        <item name="android:textColor">@color/blue_3d81f2</item>
         <!-- 内容颜色 -->
         <item name="android:textColorPrimary">@color/grey_333333</item>
     </style>
