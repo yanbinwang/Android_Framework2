@@ -1,42 +1,30 @@
 package com.example.common.utils.function
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.os.Bundle
-import android.os.Parcelable
 import android.util.TypedValue
 import android.widget.TextView
-import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
-import com.alibaba.android.arouter.core.LogisticsCenter
-import com.alibaba.android.arouter.exception.NoRouteFoundException
-import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.BaseApplication
 import com.example.common.BuildConfig
 import com.example.common.R
-import com.example.common.config.Extras
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.analysis.GsonUtil
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
-import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanFirst
-import java.io.Serializable
-import java.util.*
 
 //------------------------------------按钮，控件行为工具类------------------------------------
 /**
@@ -120,15 +108,6 @@ fun resString(@StringRes res: Int): String {
 }
 
 /**
- * 清空fragment缓存
- */
-fun Bundle?.clearFragmentSavedState() {
-    this ?: return
-    remove("android:support:fragments")
-    remove("android:fragments")
-}
-
-/**
  * 对象转json
  */
 fun Any?.toJsonString(): String {
@@ -156,20 +135,6 @@ fun getStatusBarHeight(): Int {
 fun getNavigationBarHeight(ctx: Context): Int {
     if (!ScreenUtil.hasNavigationBar(ctx)) return 0
     return ExtraNumber.getInternalDimensionSize(ctx, "navigation_bar_height")
-}
-
-/**
- * 默认返回自身和自身class名小写，也可指定
- */
-fun Class<*>.getPair(name: String? = null): Pair<Class<*>, String> {
-    return this to (name ?: this.simpleName.lowercase(Locale.getDefault()))
-}
-
-/**
- * 默认返回自身和自身class名小写以及请求的id
- */
-fun Class<*>.getTriple(pair: Pair<String, String>, name: String? = null): Triple<Class<*>, Pair<String, String>, String> {
-    return Triple(this, pair, (name ?: this.simpleName.lowercase(Locale.getDefault())))
 }
 
 /**

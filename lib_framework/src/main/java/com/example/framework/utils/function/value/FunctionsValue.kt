@@ -1,10 +1,17 @@
 package com.example.framework.utils.function.value
 
 import android.graphics.Color
+import android.os.Bundle
 import android.os.Looper
 import androidx.annotation.ColorInt
+import java.util.*
 
 //------------------------------------方法工具类------------------------------------
+/**
+ * 当前是否是主线程
+ */
+val isMainThread get() = Looper.getMainLooper() == Looper.myLooper()
+
 /**
  * Boolean防空
  */
@@ -33,9 +40,18 @@ fun CharSequence?.toSafeBoolean(default: Boolean = false): Boolean {
 }
 
 /**
- * 当前是否是主线程
+ * 默认返回自身和自身class名小写，也可指定
  */
-val isMainThread get() = Looper.getMainLooper() == Looper.myLooper()
+fun Class<*>.getPair(name: String? = null): Pair<Class<*>, String> {
+    return this to (name ?: this.simpleName.lowercase(Locale.getDefault()))
+}
+
+/**
+ * 默认返回自身和自身class名小写以及请求的id
+ */
+fun Class<*>.getTriple(pair: Pair<String, String>, name: String? = null): Triple<Class<*>, Pair<String, String>, String> {
+    return Triple(this, pair, (name ?: this.simpleName.lowercase(Locale.getDefault())))
+}
 
 /**
  * 判断某个对象上方是否具备某个注解
@@ -49,6 +65,15 @@ val isMainThread get() = Looper.getMainLooper() == Looper.myLooper()
 fun Any?.hasAnnotation(cls: Class<out Annotation>): Boolean {
     this ?: return false
     return this::class.java.isAnnotationPresent(cls)
+}
+
+/**
+ * 清空fragment缓存
+ */
+fun Bundle?.clearFragmentSavedState() {
+    this ?: return
+    remove("android:support:fragments")
+    remove("android:fragments")
 }
 
 /**
