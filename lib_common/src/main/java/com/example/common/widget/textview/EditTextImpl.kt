@@ -60,45 +60,45 @@ interface EditTextImpl {
     /**
      * 检测内容文本是否符合邮箱要求
      */
-    fun EditText.checkEmailReg(toast: Boolean = true): Boolean {
+    fun EditText.checkEmailReg(hasToast: Boolean = true): Boolean {
         if (!notEmpty()) {
-            if (toast) "邮箱不能为空".shortToast()
+            if (hasToast) "邮箱不能为空".shortToast()
             return false
         }
         if (regMail.matches(text)) return true
-        if (toast) "邮箱格式错误".shortToast()
+        if (hasToast) "邮箱格式错误".shortToast()
         return false
     }
 
-    fun ClearEditText.checkEmailReg(toast: Boolean = true): Boolean {
-        return getEditText().checkEmailReg(toast)
+    fun ClearEditText.checkEmailReg(hasToast: Boolean = true): Boolean {
+        return getEditText().checkEmailReg(hasToast)
     }
 
-    fun PassEditText.checkEmailReg(toast: Boolean = true): Boolean {
-        return getEditText().checkEmailReg(toast)
+    fun PassEditText.checkEmailReg(hasToast: Boolean = true): Boolean {
+        return getEditText().checkEmailReg(hasToast)
     }
 
     /**
      * 检测内容文本是否符合密码要求
      */
-    fun EditText.checkPassReg(toast: Boolean = true): Boolean {
+    fun EditText.checkPassReg(hasToast: Boolean = true): Boolean {
         if (!notEmpty()) {
-            if (toast) "密码不能为空".shortToast()
+            if (hasToast) "密码不能为空".shortToast()
             return false
         }
         if (!regPass.matches(text)) {
-            if (toast) "密码由6~20位的字母和數字組成".shortToast()
+            if (hasToast) "密码由6~20位的字母和數字組成".shortToast()
             return false
         }
         return true
     }
 
-    fun ClearEditText.checkPassReg(toast: Boolean = true): Boolean {
-        return getEditText().checkPassReg(toast)
+    fun ClearEditText.checkPassReg(hasToast: Boolean = true): Boolean {
+        return getEditText().checkPassReg(hasToast)
     }
 
-    fun PassEditText.checkPassReg(toast: Boolean = true): Boolean {
-        return getEditText().checkPassReg(toast)
+    fun PassEditText.checkPassReg(hasToast: Boolean = true): Boolean {
+        return getEditText().checkPassReg(hasToast)
     }
 
 }
