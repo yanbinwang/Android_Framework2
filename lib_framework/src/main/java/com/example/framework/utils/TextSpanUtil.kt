@@ -165,8 +165,7 @@ class ImageSpan(private val context: Context, private val triple: Triple<Int, In
  * second->文字大小（pt转换）
  * third->文字颜色
  */
-class BackgroundImageSpan(private val context: Context, private val triple: Triple<Int, Int, Int>) : ReplacementSpan(),
-    ParcelableSpan {
+class BackgroundImageSpan(private val context: Context, private val triple: Triple<Int, Int, Int>) : ReplacementSpan(), ParcelableSpan {
     private var mWidth = -1
 
     override fun draw(canvas: Canvas, text: CharSequence?, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
