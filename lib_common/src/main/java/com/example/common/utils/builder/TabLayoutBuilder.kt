@@ -6,7 +6,7 @@ import android.util.SparseArray
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.example.framework.utils.builder.FrameLayoutBuilder
+import com.example.framework.utils.builder.FragmentBuilder
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.view.adapter
@@ -20,16 +20,16 @@ import com.google.android.material.tabs.TabLayoutMediator
  * 故而提出一个接口类，需要实现对应效果的地方去实现
  */
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout, private var tabList: List<T>? = null) {
-    private var builder: FrameLayoutBuilder? = null
+    private var builder: FragmentBuilder? = null
     private var mediator: TabLayoutMediator? = null
     private val tabViews by lazy { SparseArray<VDB>() }
     protected val context: Context get() = tab.context
-    val currentIndex get() = tab.selectedTabPosition
+    protected val currentIndex get() = tab.selectedTabPosition
 
     /**
      * 注入管理器
      */
-    fun bind(builder: FrameLayoutBuilder, list: List<T>? = null) {
+    fun bind(builder: FragmentBuilder, list: List<T>? = null) {
         this.builder = builder
         init(list)
         addOnTabSelectedListener()

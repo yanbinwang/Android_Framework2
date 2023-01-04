@@ -14,9 +14,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *  Created by wangyanbin
  *  导航栏帮助类,支持viewpage2绑定，fragment绑定
  */
-class BottomNavigationBuilder(private val navigationView: BottomNavigationView, private val ids: List<Int>, private val animation: Boolean = true) {
+class NavigationBuilder(private val navigationView: BottomNavigationView, private val ids: List<Int>, private val animation: Boolean = true) {
     var flipper: ViewPager2? = null
-    var builder: FrameLayoutBuilder? = null
+    var builder: FragmentBuilder? = null
     var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
 
     /**

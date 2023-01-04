@@ -1,10 +1,10 @@
 package com.example.common.utils
 
-import com.example.framework.utils.function.inflate
 import com.example.common.R
 import com.example.common.databinding.ItemTabBinding
 import com.example.common.utils.builder.TabLayoutBuilder
 import com.example.common.utils.function.setArguments
+import com.example.framework.utils.function.inflate
 import com.google.android.material.tabs.TabLayout
 
 /**
@@ -12,7 +12,7 @@ import com.google.android.material.tabs.TabLayout
  * 掏空系统tablayout，全部自定义
  * @author yan
  */
-class NativeIndicatorUtil constructor(tab: TabLayout, tabTitle: MutableList<String>) : TabLayoutBuilder<String,ItemTabBinding>(tab, tabTitle) {
+class NativeIndicator constructor(tab: TabLayout, tabTitle: MutableList<String>) : TabLayoutBuilder<String, ItemTabBinding>(tab, tabTitle) {
 
     override fun getBindView() = ItemTabBinding.bind(context.inflate(R.layout.item_tab))
 

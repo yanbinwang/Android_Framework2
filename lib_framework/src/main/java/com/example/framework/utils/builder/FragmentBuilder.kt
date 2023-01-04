@@ -33,7 +33,7 @@ import com.example.framework.utils.function.value.safeGet
  *  }
  *
  */
-class FrameLayoutBuilder(private val manager: FragmentManager, private val containerViewId: Int) {
+class FragmentBuilder(private val manager: FragmentManager, private val containerViewId: Int) {
     private var arguments = false
     private var clazzPair: List<Pair<Class<*>, String>>? = null
     private var clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>? = null
