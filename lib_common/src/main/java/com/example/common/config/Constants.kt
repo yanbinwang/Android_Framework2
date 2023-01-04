@@ -1,7 +1,10 @@
 package com.example.common.config
 
 import com.example.common.BaseApplication
-import com.example.common.utils.helper.ConfigHelper
+import com.example.common.utils.helper.ConfigHelper.getAppName
+import com.example.common.utils.helper.ConfigHelper.getAppVersionCode
+import com.example.common.utils.helper.ConfigHelper.getAppVersionName
+import com.example.common.utils.helper.ConfigHelper.getPackageName
 
 /**
  * Created by wyb on 2017/3/7.
@@ -10,13 +13,13 @@ import com.example.common.utils.helper.ConfigHelper
 object Constants {
     //------app内的一些默认值------
     //版本号
-    val VERSION_CODE: Long get() { return ConfigHelper.getAppVersionCode() }
+    val VERSION_CODE: Long get() { return getAppVersionCode() }
     //版本名
-    val VERSION_NAME: String get() { return ConfigHelper.getAppVersionName() }
+    val VERSION_NAME: String get() { return getAppVersionName() }
     //包名
-    val APPLICATION_ID: String get() { return ConfigHelper.getPackageName() }
+    val APPLICATION_ID: String get() { return getPackageName() }
     //应用名
-    val APPLICATION_NAME: String get() { return ConfigHelper.getAppName() }
+    val APPLICATION_NAME: String get() { return getAppName() }
     //默认文件保存路径，sd卡下的应用名文件夹
     val APPLICATION_FILE_PATH: String get() { return "${SDCARD_PATH}/${APPLICATION_NAME}" }
     //sd卡的根路径mnt/sdcard-访问这个目录不需要动态申请STORAGE权限
