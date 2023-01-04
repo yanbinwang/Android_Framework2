@@ -5,13 +5,15 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.Gravity
 import androidx.appcompat.widget.AppCompatTextView
+import com.example.common.R
 import com.example.framework.utils.TimerUtil
+import com.example.framework.utils.function.view.textColor
+import com.example.framework.utils.function.view.textSize
 import java.text.MessageFormat
 
 /**
  * Created by wangyanbin
  * 倒计时textview
- * 配置enable的xml和默認text文案即可
  */
 @SuppressLint("SetTextI18n")
 class TimerTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatTextView(context, attrs, defStyleAttr) {
@@ -21,6 +23,8 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
     init {
         text = "发送验证码"
         gravity = Gravity.CENTER
+        textColor(R.color.defaultTheme)
+        textSize(R.dimen.textSize14)
     }
 
     fun start(tag: String? = "", time: Long = 60) {
