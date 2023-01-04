@@ -22,14 +22,6 @@ import com.example.framework.utils.function.value.orZero
 import java.io.Serializable
 
 /**
- * 提示方法，根据接口返回的msg提示
- */
-fun String?.responseMsg(){
-    val strTemp = this
-    (if (!isNetworkAvailable()) resString(R.string.label_response_net_error) else { if(strTemp.isNullOrEmpty()) resString(R.string.label_response_error) else strTemp }).shortToast()
-}
-
-/**
  * 页面工具类
  * 1.接口提示
  * 2.遮罩层操作

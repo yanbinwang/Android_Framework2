@@ -1,9 +1,12 @@
 package com.example.common.network.repository
 
-import com.example.framework.utils.logE
-import com.example.common.base.page.responseMsg
+import com.example.common.R
+import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.analysis.GsonUtil
+import com.example.common.utils.builder.shortToast
+import com.example.common.utils.function.resString
 import com.example.common.utils.helper.AccountHelper
+import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
@@ -17,6 +20,14 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * hashMapOf("" to "")不需要写此扩展
  */
 fun <K, V> HashMap<K, V>?.params() = (if (null == this) "" else GsonUtil.objToJson(this).orEmpty()).toRequestBody("application/json; charset=utf-8".toMediaType())
+
+/**
+ * 提示方法，根据接口返回的msg提示
+ */
+fun String?.responseMsg(){
+    val strTemp = this
+    (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.label_response_net_error) else { if(strTemp.isNullOrEmpty()) resString(R.string.label_response_error) else strTemp }).shortToast()
+}
 
 /**
  * 网络请求协程扩展-并行请求
@@ -48,6 +59,20 @@ suspend fun <T> request(
         "3:${Thread.currentThread().name}".logE("repository")
         end()
     }
+}
+
+/**
+ * 直接获取到对象
+ */
+suspend fun <T> request(
+    request: suspend CoroutineScope.() -> ApiResponse<T>,
+    isShowToast: Boolean = true
+): T? {
+    var t: T? = null
+    request({ request() }, {
+        t = it
+    }, isShowToast = isShowToast)
+    return t
 }
 
 /**
@@ -89,17 +114,6 @@ suspend fun request(
         "串行请求返回结果:${respList.size == requests.size}".logE("repository")
         end(if (respList.size == requests.size) respList else null)
     }
-}
-
-suspend fun <T> request(
-    request: suspend CoroutineScope.() -> ApiResponse<T>,
-    isShowToast: Boolean = true
-): T? {
-    var t: T? = null
-    request({ request() }, {
-        t = it
-    }, isShowToast = isShowToast)
-    return t
 }
 
 /**
