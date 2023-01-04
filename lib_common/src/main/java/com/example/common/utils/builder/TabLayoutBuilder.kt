@@ -37,14 +37,14 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
 
     /**
      * 注入viewpager2
-     * isUserInput:是否左右滑动
-     * isPageLimit：是否预加载数据（懒加载为false）
+     * userInputEnabled:是否左右滑动
+     * pageLimit：是否预加载数据（懒加载为false）
      */
-    fun bind(pager: ViewPager2, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, isUserInput: Boolean = true, offscreenPage: Boolean = false) {
+    fun bind(pager: ViewPager2, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false) {
         pager.adapter = null
         mediator?.detach()
         init(list)
-        pager.adapter(adapter, ViewPager2.ORIENTATION_HORIZONTAL, isUserInput, offscreenPage)
+        pager.adapter(adapter, orientation, userInputEnabled, pageLimit)
         mediator = pager.bind(tab)
         addOnTabSelectedListener()
     }

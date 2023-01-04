@@ -65,9 +65,9 @@ object BaseBindingAdapter {
      * 不和tablayout或者其他view关联的数据加载可以直接在xml中绑定
      */
     @JvmStatic
-    @BindingAdapter(value = ["adapter", "orientation", "is_user_input", "offscreen_page"], requireAll = false)
-    fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, adapter: T, orientation: Int?, isUserInput: Boolean?, offscreenPage: Boolean?) {
-        flipper.adapter(adapter, orientation.toSafeInt(ViewPager2.ORIENTATION_HORIZONTAL), isUserInput.orTrue, offscreenPage.orFalse)
+    @BindingAdapter(value = ["adapter", "orientation", "user_input_enabled", "page_limit"], requireAll = false)
+    fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, adapter: T, orientation: Int?, userInputEnabled: Boolean?, pageLimit: Boolean?) {
+        flipper.adapter(adapter, orientation.toSafeInt(ViewPager2.ORIENTATION_HORIZONTAL), userInputEnabled.orTrue, pageLimit.orFalse)
     }
 
     /**

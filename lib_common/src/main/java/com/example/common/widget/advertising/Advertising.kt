@@ -14,12 +14,12 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.example.common.R
+import com.example.common.utils.function.pt
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.*
 import com.example.framework.widget.BaseViewGroup
-import com.example.common.R
-import com.example.common.utils.function.pt
 import java.util.*
 
 /**
@@ -44,7 +44,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     init {
         banner = ViewPager2(context).apply {
-            adapter(advAdapter, isUserInput = true, offscreenPage = true)
+            adapter(advAdapter, userInputEnabled = true)
             registerOnPageChangeCallback(object : OnPageChangeCallback() {
                 private var curIndex = 0//当前选中的数组索引
                 private var oldIndex = 0//上次选中的数组索引
