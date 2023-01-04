@@ -8,6 +8,7 @@ import kotlinx.parcelize.Parcelize
  */
 @Parcelize
 data class UserBean(
+    var token: String? = null,
     var name: String? = null,// 姓名
     var email: String? = null, // 邮箱地址
     var sms_check: Boolean? = null,// 短信验证是否开启(Y,N)

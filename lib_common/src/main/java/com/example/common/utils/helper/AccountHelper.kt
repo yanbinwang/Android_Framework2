@@ -1,100 +1,64 @@
 package com.example.common.utils.helper
 
-import android.text.TextUtils
+import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.bean.UserBean
+import com.example.common.config.ARouterPath
 import com.example.common.config.Constants
+import com.example.common.utils.AppManager
 import com.example.common.utils.MmkvUtil
-import com.example.common.utils.analysis.GsonUtil.jsonToObj
 
 /**
  * Created by WangYanBin on 2020/8/11.
- * 公司使用的持久登陆采取每次请求时校验一次key
- * 如果key不存在或者达不到一定要求，就去重新请求key接口
- * 该工具类对key值和用户信息的一些字做了规整和管控，全局直接调用即可
+ * 用户信息做了规整和管控，全局直接调用
  */
 object AccountHelper {
     private const val MMKV_USER_BEAN = "${Constants.APPLICATION_ID}.UserBean" //用户类
 
-    //修改是否登陆
-    @JvmStatic
-    fun setLogin(isLogin: Boolean) {
-//        KeyBean keyBean = getKeyBean();
-//        if (null != keyBean) {
-//            if (isLogin) {
-//                keyBean.setUid("1");
-//            } else {
-//                keyBean.setUid("0");
-//            }
-//            setKeyBean(keyBean);
-//        }
-    }
-
-    //用户是否登陆
-    @JvmStatic
-    fun isLogin(): Boolean {
-//        KeyBean keyBean = getKeyBean();
-//        if (null != keyBean) {
-//            isLogin = "1".equals(keyBean.getUid());
-//        }
-        return false
-    }
-
     //存储用户对象
     @JvmStatic
     fun setUserBean(bean: UserBean?) {
-        if (null != bean) {
-            MmkvUtil.encode(MMKV_USER_BEAN,bean)
-//            mmkv.encode(Constants.KEY_USER_MODEL, objToJson(bean))
-        }
+        bean ?: return
+        MmkvUtil.encode(MMKV_USER_BEAN, bean)
     }
 
     //获取用户对象
     @JvmStatic
     fun getUserBean(): UserBean? {
-        var userInfoBean: UserBean? = null
-        val userInfoJson = MmkvUtil.decodeString(MMKV_USER_BEAN)
-        if (!TextUtils.isEmpty(userInfoJson)) {
-            userInfoBean = jsonToObj(userInfoJson, UserBean::class.java)
-        }
-        return userInfoBean
+        return MmkvUtil.decodeParcelable(MMKV_USER_BEAN, UserBean::class.java)
+    }
+
+    //用户是否登陆
+    @JvmStatic
+    fun isLogin(): Boolean {
+        val bean = getUserBean()
+        bean ?: return false
+        return !bean.token.isNullOrEmpty()
     }
 
     //获取手机号
     @JvmStatic
     fun getMobile(): String? {
-        var mobile: String? = null
-        val userModel = getUserBean()
-        if (null != userModel) {
-            mobile = userModel.mobile
-        }
-        return mobile
+        val bean = getUserBean()
+        bean ?: return null
+        return bean.mobile
     }
 
-    //设置实名认证状态(init:初始化,inreview:提交认证中,verified:已认证,refused:认证失败)
     @JvmStatic
-    fun setCustomerStatus(customer_status: String?) {
-        val userModel = getUserBean()
-        if (null != userModel) {
-            userModel.customer_status = customer_status
-        }
-        setUserBean(userModel)
-    }
-
-    //实名认证状态
-    @JvmStatic
-    fun getCustomerStatus(): String? {
-        var customer_status: String? = null
-        val userModel = getUserBean()
-        if (null != userModel) {
-            customer_status = userModel.customer_status
-        }
-        return customer_status
+    fun setMobile(mobile: String?) {
+        val bean = getUserBean()
+        bean?.mobile = mobile
+        setUserBean(bean)
     }
 
     //用户注销操作（清除信息,清除用户凭证）
     @JvmStatic
     fun signOut() {
-        MmkvUtil.encode(MMKV_USER_BEAN, "")
+        MmkvUtil.apply {
+            removeValueForKey(MMKV_USER_BEAN)
+//            removeValueForKey(MMKV_USER_INFO_BEAN)
+        }
+        AppManager.finishAll()
+        ARouter.getInstance().build(ARouterPath.StartActivity).navigation()
     }
 
 }
