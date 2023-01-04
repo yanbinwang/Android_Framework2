@@ -2,10 +2,8 @@ package com.example.common.base
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.os.Looper
-import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,21 +12,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import com.alibaba.android.arouter.core.LogisticsCenter
-import com.alibaba.android.arouter.exception.NoRouteFoundException
-import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.create
-import com.example.common.config.Extras
+import com.example.common.base.page.navigation
 import com.example.common.utils.AppManager
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.*
 import com.example.framework.utils.logE
 import com.example.topsheet.TopSheetDialogFragment
@@ -39,7 +33,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
-import java.io.Serializable
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.*
@@ -216,42 +209,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     }
 
     override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity {
-        val postcard = ARouter.getInstance().build(path)
-        var requestCode: Int? = null
-        if (params.isNotEmpty()) {
-            for (param in params) {
-                val key = param?.first
-                val value = param?.second
-                val cls = value?.javaClass
-                if (key == Extras.REQUEST_CODE) {
-                    requestCode = value as? Int
-                    continue
-                }
-                when {
-                    value is Parcelable -> postcard.withParcelable(key, value)
-                    value is Serializable -> postcard.withSerializable(key, value)
-                    cls == String::class.java -> postcard.withString(key, value as? String)
-                    cls == Int::class.javaPrimitiveType -> postcard.withInt(key, (value as? Int).orZero)
-                    cls == Long::class.javaPrimitiveType -> postcard.withLong(key, (value as? Long).orZero)
-                    cls == Boolean::class.javaPrimitiveType -> postcard.withBoolean(key, (value as? Boolean).orFalse)
-                    cls == Float::class.javaPrimitiveType -> postcard.withFloat(key, (value as? Float).orZero)
-                    cls == Double::class.javaPrimitiveType -> postcard.withDouble(key, (value as? Double).orZero)
-                    cls == CharArray::class.java -> postcard.withCharArray(key, value as? CharArray)
-                    cls == Bundle::class.java -> postcard.withBundle(key, value as? Bundle)
-                    else -> throw RuntimeException("不支持参数类型: ${cls?.simpleName}")
-                }
-            }
-        }
-        if (requestCode == null) {
-            postcard.navigation()
-        } else {
-            postcard.context = mActivity
-            try {
-                LogisticsCenter.completion(postcard)
-                activityResultValue.launch(Intent(mActivity, postcard.destination))
-            } catch (_: NoRouteFoundException) {
-            }
-        }
+        mActivity.navigation(path, params = params, activityResultValue = activityResultValue)
         return mActivity
     }
     // </editor-fold>

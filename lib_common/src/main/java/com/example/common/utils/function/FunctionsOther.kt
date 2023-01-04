@@ -1,31 +1,41 @@
 package com.example.common.utils.function
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.TypedValue
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
+import com.alibaba.android.arouter.core.LogisticsCenter
+import com.alibaba.android.arouter.exception.NoRouteFoundException
+import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.BaseApplication
 import com.example.common.BuildConfig
 import com.example.common.R
+import com.example.common.config.Extras
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.analysis.GsonUtil
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanFirst
+import java.io.Serializable
 import java.util.*
 
 //------------------------------------按钮，控件行为工具类------------------------------------

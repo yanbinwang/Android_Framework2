@@ -12,7 +12,7 @@ import com.example.common.utils.MmkvUtil
  * 用户信息做了规整和管控，全局直接调用
  */
 object AccountHelper {
-    private const val MMKV_USER_BEAN = "${Constants.APPLICATION_ID}.UserBean" //用户类
+    private val MMKV_USER_BEAN = "${Constants.APPLICATION_ID}.UserBean" //用户类
 
     //存储用户对象
     @JvmStatic
