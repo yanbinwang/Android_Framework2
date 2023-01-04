@@ -18,6 +18,9 @@ import android.widget.PopupWindow
 import androidx.databinding.ViewDataBinding
 import com.example.framework.utils.function.value.orFalse
 import com.example.common.R
+import com.example.common.utils.ScreenUtil
+import com.example.common.utils.ScreenUtil.screenHeight
+import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.pt
 import java.lang.reflect.ParameterizedType
 
@@ -42,8 +45,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window
                 contentView = binding.root
             } catch (_: Exception) {
             }
-            width = if (popupWidth < 0) popupWidth else popupWidth.pt
-            height = if (popupHeight < 0) popupHeight else popupHeight.pt
+            width = if (popupWidth < 0) screenWidth else popupWidth.pt
+            height = if (popupHeight < 0) screenHeight else popupHeight.pt
             isFocusable = true
             isOutsideTouchable = true
             softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE

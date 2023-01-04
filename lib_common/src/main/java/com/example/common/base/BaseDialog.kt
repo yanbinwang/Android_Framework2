@@ -16,6 +16,8 @@ import com.example.framework.utils.hiddenAnim
 import com.example.framework.utils.logE
 import com.example.framework.utils.shownAnim
 import com.example.common.R
+import com.example.common.utils.ScreenUtil
+import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.pt
 import java.lang.reflect.ParameterizedType
 
@@ -42,7 +44,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
             }
             window?.let { it ->
                 val lp = it.attributes
-                lp.width = dialogWidth.pt
+                lp.width = if (dialogWidth < 0) screenWidth else dialogWidth.pt
                 lp.height = if (dialogHeight != WRAP_CONTENT) dialogHeight.pt else dialogHeight
                 it.attributes = lp
                 it.setGravity(gravity)

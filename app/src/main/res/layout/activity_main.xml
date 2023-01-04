@@ -13,14 +13,14 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
-        <!--        <Button-->
-        <!--            android:id="@+id/btn_file_manager"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="80pt"-->
-        <!--            android:background="@drawable/shape_blue_btn"-->
-        <!--            android:text="文件管理器"-->
-        <!--            android:textColor="@color/white"-->
-        <!--            android:textSize="32pt" />-->
+                <Button
+                    android:id="@+id/btn_file_manager"
+                    android:layout_width="match_parent"
+                    android:layout_height="80pt"
+                    android:background="@drawable/shape_blue_btn"
+                    android:text="文件管理器"
+                    android:textColor="@color/white"
+                    android:textSize="32pt" />
 
         <!--        <Button-->
         <!--            android:id="@+id/btn_album"-->
