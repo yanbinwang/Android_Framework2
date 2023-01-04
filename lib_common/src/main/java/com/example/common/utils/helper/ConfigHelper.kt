@@ -107,6 +107,28 @@ object ConfigHelper {
         }
         return appVersionName
     }
+
+    /**
+     * 获取当前app 包名
+     */
+    fun getPackageName(): String {
+        return context.packageName
+    }
+
+    /**
+     * 获取当前app 名称
+     */
+    @Synchronized
+    fun getAppName(): String {
+        try {
+            val packageManager = context.packageManager;
+            val packageInfo = packageManager.getPackageInfo(context.packageName, 0)
+            val labelRes = packageInfo.applicationInfo.labelRes
+            return context.resources.getString(labelRes)
+        } catch (_: Exception) {
+        }
+        return ""
+    }
     // </editor-fold>
 
 }
