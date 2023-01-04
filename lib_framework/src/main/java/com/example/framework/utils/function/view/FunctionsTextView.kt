@@ -2,7 +2,9 @@ package com.example.framework.utils.function.view
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Shader
 import android.graphics.Typeface
 import android.text.*
 import android.text.method.HideReturnsTransformationMethod
@@ -20,10 +22,20 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.core.content.ContextCompat
 import com.example.framework.utils.DecimalInputFilter
+import com.example.framework.utils.function.value.color
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
 
 //------------------------------------textview扩展函数类------------------------------------
+/**
+ * 直线渐变
+ */
+fun TextView?.linearGradient(startColor: String?, endColor: String?) {
+    if (this == null) return
+    paint.shader = LinearGradient(0f, 0f, paint.textSize * text.length, 0f, color(startColor), color(endColor), Shader.TileMode.CLAMP)
+    invalidate()
+}
+
 /**
  * 下划线
  */

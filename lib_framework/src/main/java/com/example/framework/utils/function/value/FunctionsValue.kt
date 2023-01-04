@@ -63,6 +63,4 @@ fun color(color: String?) = Color.parseColor(color ?: "#ffffff")
  *      //...
  *  }
  */
-inline fun <T> T.execute(block: T.() -> Unit) {
-    apply(block)
-}
+inline fun <T> T.execute(block: T.() -> Unit) = apply(block)
