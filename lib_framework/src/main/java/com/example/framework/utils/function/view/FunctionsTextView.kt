@@ -22,6 +22,7 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.core.content.ContextCompat
 import com.example.framework.utils.DecimalInputFilter
+import com.example.framework.utils.EditTextUtil
 import com.example.framework.utils.function.value.color
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
@@ -272,6 +273,71 @@ fun EditText?.setSafeSelection(start: Int, stop: Int? = null) {
         }
     } catch (_: Exception) {
     }
+}
+
+/**
+ * 限制输入内容为目标值
+ * "0123456789."
+ */
+fun EditText?.charLimit(characterAllowed: CharArray) {
+    this ?: return
+    EditTextUtil.setCharLimit(this, characterAllowed)
+}
+
+/**
+ * 限制输入框输入emoji
+ */
+fun EditText?.emojiLimit() {
+    this ?: return
+    EditTextUtil.setEmojiLimit(this)
+}
+
+/**
+ * 限制只能输入中文和英文数字和符号
+ */
+fun EditText?.chineseLimit() {
+    this ?: return
+    EditTextUtil.setChineseLimit(this)
+}
+
+/**
+ * 设置EditText输入的最大长度
+ */
+fun EditText?.maxLength(maxLength: Int) {
+    this ?: return
+    EditTextUtil.setMaxLength(this, maxLength)
+}
+
+/**
+ * 设置EditText输入数值的最大值
+ */
+fun EditText?.maxValue(maxLength: Int, maxDecimal: Int) {
+    this ?: return
+    EditTextUtil.setMaxValue(this, maxLength, maxDecimal)
+}
+
+/**
+ * 设置输出格式
+ */
+fun EditText?.inputType(inputType: Int) {
+    this ?: return
+    EditTextUtil.setInputType(this, inputType)
+}
+
+/**
+ * 设置按键格式
+ */
+fun EditText?.imeOptions(imeOptions: Int) {
+    this ?: return
+    EditTextUtil.setImeOptions(this, imeOptions)
+}
+
+/**
+ * 限制输入内容为非目标值
+ */
+fun EditText?.charBlackList(characterAllowed: CharArray) {
+    this ?: return
+    EditTextUtil.setCharBlackList(this, characterAllowed)
 }
 
 /**

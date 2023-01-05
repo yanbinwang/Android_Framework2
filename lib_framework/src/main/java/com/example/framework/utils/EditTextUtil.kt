@@ -4,6 +4,7 @@ import android.text.*
 import android.text.method.DigitsKeyListener
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.fitRange
 import com.example.framework.utils.function.view.addFilter
 import java.util.regex.Pattern
@@ -187,108 +188,54 @@ object EditTextUtil {
     /**
      * 设置输出格式
      */
-    fun setInputType(target: EditText, inputType: Int) {
-        with(target) {
-            when (inputType) {
-                0 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL)
-                1 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD)
-                2 -> setInputType(InputType.TYPE_CLASS_PHONE)
-                3 -> setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_NORMAL)
-                9, 4 -> setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
-                5 -> setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
-                8, 6 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
-                7 -> {
-                    setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
-                    addFilter(object : InputFilter {
-                        override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence {
-                            if (source == "." && dest.toString().isEmpty()) {
-                                return "0."
-                            }
-                            if (dest.toString().contains(".")) {
-                                val index = dest.toString().indexOf(".")
-                                val length1 = dest.toString().substring(0, index).length
-                                val length2 = dest.toString().substring(index).length
-                                if (length1 >= 8 && dstart < index) {
-                                    return ""
-                                }
-                                if (length2 >= 3 && dstart > index) {
-                                    return ""
-                                }
-                            } else {
-                                val length1 = dest.toString().length
-                                if (length1 >= 8 && source != ".") {
-                                    return ""
-                                }
-                            }
-                            return ""
+    fun setInputType(target: EditText, inputType: Int) = target.execute {
+        when (inputType) {
+            0 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL)
+            1 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD)
+            2 -> setInputType(InputType.TYPE_CLASS_PHONE)
+            3 -> setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_NORMAL)
+            9, 4 -> setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
+            5 -> setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
+            8, 6 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
+            7 -> {
+                setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
+                addFilter(object : InputFilter {
+                    override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence {
+                        if (source == "." && dest.toString().isEmpty()) return "0."
+                        if (dest.toString().contains(".")) {
+                            val index = dest.toString().indexOf(".")
+                            val length1 = dest.toString().substring(0, index).length
+                            val length2 = dest.toString().substring(index).length
+                            if (length1 >= 8 && dstart < index) return ""
+                            if (length2 >= 3 && dstart > index) return ""
+                        } else {
+                            val length1 = dest.toString().length
+                            if (length1 >= 8 && source != ".") return ""
                         }
-                    })
-                }
-                else -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL)
+                        return ""
+                    }
+                })
             }
+            else -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL)
         }
     }
 
     /**
      * 设置按键格式
      */
-    fun setImeOptions(target: EditText, imeOptions: Int) {
-        with(target) {
-            when (imeOptions) {
-                0 -> setImeOptions(EditorInfo.IME_ACTION_DONE)
-                1 -> setImeOptions(EditorInfo.IME_ACTION_GO)
-                2 -> setImeOptions(EditorInfo.IME_ACTION_NEXT)
-                3 -> setImeOptions(EditorInfo.IME_ACTION_NONE)
-                4 -> setImeOptions(EditorInfo.IME_ACTION_PREVIOUS)
-                5 -> setImeOptions(EditorInfo.IME_ACTION_SEARCH)
-                6 -> setImeOptions(EditorInfo.IME_ACTION_SEND)
-                7 -> setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED)
-                else -> setImeOptions(EditorInfo.IME_ACTION_DONE)
-            }
+    fun setImeOptions(target: EditText, imeOptions: Int) = target.execute {
+        when (imeOptions) {
+            0 -> setImeOptions(EditorInfo.IME_ACTION_DONE)
+            1 -> setImeOptions(EditorInfo.IME_ACTION_GO)
+            2 -> setImeOptions(EditorInfo.IME_ACTION_NEXT)
+            3 -> setImeOptions(EditorInfo.IME_ACTION_NONE)
+            4 -> setImeOptions(EditorInfo.IME_ACTION_PREVIOUS)
+            5 -> setImeOptions(EditorInfo.IME_ACTION_SEARCH)
+            6 -> setImeOptions(EditorInfo.IME_ACTION_SEND)
+            7 -> setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED)
+            else -> setImeOptions(EditorInfo.IME_ACTION_DONE)
         }
     }
-}
-// </editor-fold>
-
-// <editor-fold defaultstate="collapsed" desc="扩展函数">
-fun EditText?.charLimit(characterAllowed: CharArray) {
-    this ?: return
-    EditTextUtil.setCharLimit(this, characterAllowed)
-}
-
-fun EditText?.emojiLimit() {
-    this ?: return
-    EditTextUtil.setEmojiLimit(this)
-}
-
-fun EditText?.chineseLimit() {
-    this ?: return
-    EditTextUtil.setChineseLimit(this)
-}
-
-fun EditText?.maxLength(maxLength: Int) {
-    this ?: return
-    EditTextUtil.setMaxLength(this, maxLength)
-}
-
-fun EditText?.maxValue(maxLength: Int, maxDecimal: Int) {
-    this ?: return
-    EditTextUtil.setMaxValue(this, maxLength, maxDecimal)
-}
-
-fun EditText?.inputType(inputType: Int) {
-    this ?: return
-    EditTextUtil.setInputType(this, inputType)
-}
-
-fun EditText?.imeOptions(imeOptions: Int) {
-    this ?: return
-    EditTextUtil.setImeOptions(this, imeOptions)
-}
-
-fun EditText?.charBlackList(characterAllowed: CharArray) {
-    this ?: return
-    EditTextUtil.setCharBlackList(this, characterAllowed)
 }
 // </editor-fold>
 

@@ -18,8 +18,6 @@ import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
 import com.example.common.utils.function.setSpanFirst
 import com.example.common.widget.xrecyclerview.XRecyclerView
-import com.example.framework.utils.EditTextUtil
-import com.example.framework.utils.emojiLimit
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.toSafeInt
@@ -186,7 +184,7 @@ object BaseBindingAdapter {
     @BindingAdapter(value = ["char_black_limit"])
     fun bindingEditTextCharBlackList(editText: EditText, charBlackList: CharArray?) {
         if (charBlackList == null) return
-        EditTextUtil.setCharBlackList(editText, charBlackList)
+        editText.charBlackList(charBlackList)
     }
 
     /**
@@ -196,7 +194,7 @@ object BaseBindingAdapter {
     @BindingAdapter(value = ["char_limit"])
     fun bindingEditTextCharLimit(editText: EditText, charLimit: CharArray?) {
         if (charLimit == null) return
-        EditTextUtil.setCharLimit(editText, charLimit)
+        editText.charLimit(charLimit)
     }
     // </editor-fold>
 
