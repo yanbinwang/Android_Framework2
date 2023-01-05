@@ -183,12 +183,12 @@ fun RecyclerView?.addOnScrollFirstVisibleItemPositionListener(onCurrent: ((index
     addOnScrollListener(object : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
-            onCurrent?.invoke((recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition())
+            onCurrent?.invoke((recyclerView.layoutManager as? LinearLayoutManager)?.findFirstVisibleItemPosition().orZero)
         }
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
-            onCurrent?.invoke((recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition())
+            onCurrent?.invoke((recyclerView.layoutManager as? LinearLayoutManager)?.findFirstVisibleItemPosition().orZero)
         }
     })
 }
