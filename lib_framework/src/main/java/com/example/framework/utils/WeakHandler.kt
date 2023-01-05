@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock
 class WeakHandler {
     private var mCallback: Handler.Callback? = null
     private var mExec: ExecHandler? = null
-    private val mLock: Lock by lazy { ReentrantLock() }
+    private val mLock by lazy { ReentrantLock() }
     private val mRunnables by lazy { ChainedRef(mLock, null) }
 
     constructor() {
@@ -66,13 +66,13 @@ class WeakHandler {
     }
 
     fun removeCallbacks(r: Runnable) {
-        val runnable = mRunnables.remove(r)
-        if (runnable != null) mExec?.removeCallbacks(runnable)
+        val runnable = mRunnables.remove(r) ?: return
+        mExec?.removeCallbacks(runnable)
     }
 
     fun removeCallbacks(r: Runnable, token: Any) {
-        val runnable = mRunnables.remove(r)
-        if (runnable != null) mExec?.removeCallbacks(runnable, token)
+        val runnable = mRunnables.remove(r) ?: return
+        mExec?.removeCallbacks(runnable, token)
     }
 
     fun sendMessage(msg: Message): Boolean {
@@ -181,7 +181,7 @@ class WeakHandler {
         fun insertAfter(candidate: ChainedRef) {
             lock.lock()
             try {
-                if (next != null) next?.prev = candidate
+                next?.prev = candidate
                 candidate.next = next
                 next = candidate
                 candidate.prev = this
