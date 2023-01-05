@@ -1,6 +1,7 @@
 package com.example.glide.callback.progress
 
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logE
 import okhttp3.ResponseBody
 import okio.Buffer
@@ -22,7 +23,7 @@ class ProgressSource(private var responseBody: ResponseBody, private var onProgr
         } else {
             totalBytesRead += bytesRead
         }
-        val progress = (100f.times(totalBytesRead).div(fullLength.orZero)).toInt()
+        val progress = (100f.times(totalBytesRead).div(fullLength.orZero)).toSafeInt()
         "download progress is $progress".logE("ProgressSource")
         if (progress != currentProgress) onProgress?.invoke(progress)
         if (totalBytesRead == fullLength) onProgress = null
