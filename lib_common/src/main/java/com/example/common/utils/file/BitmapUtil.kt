@@ -142,9 +142,8 @@ fun Context.degreeImage(file: File, delete: Boolean = false): File {
             it.recycle()
         }
         val tempFile = File(applicationContext.externalCacheDir, file.name.replace(".jpg", "_degree.jpg"))
-        val fileOutputStream: FileOutputStream
         try {
-            fileOutputStream = FileOutputStream(tempFile)
+            val fileOutputStream = FileOutputStream(tempFile)
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
             fileOutputStream.flush()
             fileOutputStream.close()
