@@ -17,6 +17,7 @@ import com.example.common.utils.function.getStatusBarHeight
 import com.example.framework.utils.function.value.min
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.padding
+import kotlin.LazyThreadSafetyMode.NONE
 
 /**
  * @description 屏幕数值相关类
@@ -28,19 +29,19 @@ object ScreenUtil {
      * 获取屏幕高度（px）
      * 不会随着各种情况的变化而更新
      */
-    val screenHeight by lazy(LazyThreadSafetyMode.NONE) { screenHeight() }
+    val screenHeight by lazy(NONE) { screenHeight() }
 
     /**
      * 获取屏幕高度（px）
      * 不会随着各种情况的变化而更新
      */
-    val screenWidth by lazy(LazyThreadSafetyMode.NONE) { screenWidth() }
+    val screenWidth by lazy(NONE) { screenWidth() }
 
     /**
      * 获取屏幕比值（px）
      * 不会随着各种情况的变化而更新
      */
-    val screenDensity by lazy(LazyThreadSafetyMode.NONE) { screenDensity() }
+    val screenDensity by lazy(NONE) { screenDensity() }
 
     /**
      * 根据autosize设置来获取设定的宽度
