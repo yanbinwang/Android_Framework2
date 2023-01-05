@@ -5,12 +5,6 @@ import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.view.cancelItemAnimator
-import com.example.framework.utils.function.view.gone
-import com.example.framework.utils.function.view.initLinearHorizontal
-import com.example.framework.widget.BaseViewGroup
-import com.example.framework.widget.DataRecyclerView
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.utils.function.pt
@@ -19,6 +13,12 @@ import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.ItemDecorationProps
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.common.widget.xrecyclerview.refresh.init
+import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.view.cancelItemAnimator
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.initLinearHorizontal
+import com.example.framework.widget.BaseViewGroup
+import com.example.framework.widget.DataRecyclerView
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.api.RefreshLayout
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
@@ -138,11 +138,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     fun finishRefreshing(noMoreData: Boolean? = true) {
         if (refreshType == 1) refresh?.finishRefreshing(noMoreData)
     }
-
-    /**
-     * 获取空展示页面
-     */
-    fun getEmptyLayout() = empty
 
     /**
      * 修改空布局背景颜色

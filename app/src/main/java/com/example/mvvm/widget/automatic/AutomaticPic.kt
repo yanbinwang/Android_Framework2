@@ -8,6 +8,9 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.getFileFromUri
 import com.example.framework.utils.function.inflate
@@ -19,7 +22,7 @@ import kotlin.LazyThreadSafetyMode.NONE
  * @description
  * @author
  */
-class AutomaticPic(activity: AppCompatActivity, private val bean: AutomaticBean) : AutomaticInterface {
+class AutomaticPic(private val activity: AppCompatActivity, private val bean: AutomaticBean) : AutomaticInterface, LifecycleEventObserver {
     private val rootView by lazy(NONE) { activity.inflate(R.layout.view_automatic_pic) }
     private var activityResultValue = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -31,6 +34,8 @@ class AutomaticPic(activity: AppCompatActivity, private val bean: AutomaticBean)
     private var filePath = ""
 
     init {
+        activity.lifecycle.addObserver(this)
+
         val textLabel = rootView.findViewById<TextView>(R.id.tv_label)
         textLabel.text = bean.label
 
@@ -52,6 +57,15 @@ class AutomaticPic(activity: AppCompatActivity, private val bean: AutomaticBean)
 
     override fun getView(): View {
         return rootView
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_DESTROY -> {
+                activity.lifecycle.removeObserver(this)
+            }
+            else -> {}
+        }
     }
 
 }

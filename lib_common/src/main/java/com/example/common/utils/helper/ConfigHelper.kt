@@ -20,7 +20,7 @@ import java.lang.ref.WeakReference
  *  Created by wangyanbin
  *  应用配置工具类
  */
-@SuppressLint("MissingPermission", "HardwareIds", "StaticFieldLeak", "InternalInsetResource")
+@SuppressLint("StaticFieldLeak")
 object ConfigHelper {
     private lateinit var context: Context
 
@@ -121,8 +121,7 @@ object ConfigHelper {
     @Synchronized
     fun getAppName(): String {
         try {
-            val packageManager = context.packageManager;
-            val packageInfo = packageManager.getPackageInfo(context.packageName, 0)
+            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
             val labelRes = packageInfo.applicationInfo.labelRes
             return context.resources.getString(labelRes)
         } catch (_: Exception) {
