@@ -2,18 +2,15 @@ package com.example.mvvm.activity
 
 import android.view.KeyEvent
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.example.framework.utils.function.intentSerializable
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
-import com.example.common.config.Extras
 import com.example.mvvm.databinding.ActivityWebBinding
 import com.example.mvvm.utils.WebHelper
 import java.io.Serializable
 
 @Route(path = ARouterPath.WebActivity)
 class WebActivity : BaseActivity<ActivityWebBinding>() {
-    private val bean by lazy { intentSerializable(Extras.BUNDLE_BEAN) as? WebBundle }
-    private val webHelper by lazy { WebHelper(this, bean) }
+    private val webHelper by lazy { WebHelper(this) }
 
     override fun initData() {
         super.initData()
