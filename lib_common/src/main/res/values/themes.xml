@@ -147,7 +147,7 @@
 
     <!-- 系统默认提示框样式 -->
     <style name="AndDialogStyle" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:width">600mm</item>
+        <item name="android:width">600pt</item>
         <!-- 去除标题头等多余的部分 -->
         <item name="android:windowFrame">@null</item>
         <item name="android:windowNoTitle">true</item>
