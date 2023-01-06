@@ -6,13 +6,13 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import com.example.common.R
+import com.example.common.databinding.ViewEmptyBinding
+import com.example.common.utils.NetWorkUtil.isNetworkAvailable
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.view.*
 import com.example.framework.widget.BaseViewGroup
-import com.example.common.R
-import com.example.common.databinding.ViewEmptyBinding
-import com.example.common.utils.NetWorkUtil.isNetworkAvailable
 
 /**
  * Created by android on 2017/8/7.
@@ -32,7 +32,6 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     var onRefreshClick: (() -> Unit)? = null
 
     init {
-        binding.llContainer.setBackgroundColor(color(R.color.grey_f6f8ff))
         //设置样式
         binding.root.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT) //设置LayoutParams
         binding.root.setBackgroundColor(color(R.color.grey_f6f8ff))
@@ -100,7 +99,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 设置背景颜色
      */
     override fun setBackgroundColor(color: Int) {
-        binding.llContainer.setBackgroundColor(color)
+        binding.root.setBackgroundColor(color)
     }
 
 }
