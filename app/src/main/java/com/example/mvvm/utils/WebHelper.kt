@@ -37,12 +37,12 @@ class WebHelper(private val act: WebActivity, private val bean: WebBundle?) : Li
         act.lifecycle.addObserver(this)
         addWebView()
         FormActivityUtil.setAct(act)
-        if(!bean?.isLight().orTrue) act.initImmersionBar(false)
+        if (!bean?.isLight().orTrue) act.initImmersionBar(false)
     }
 
     private fun addWebView() {
         if (bean?.isWebTitleRequired().orTrue) {
-            bean?.let { if (it.getWebTitle().isNotEmpty()) setTitle(it.getWebTitle()) }
+            bean?.getWebTitle()?.apply { if (isNotEmpty()) setTitle(this) }
         } else {
             titleBuilder.hideTitle()
         }
@@ -56,9 +56,8 @@ class WebHelper(private val act: WebActivity, private val bean: WebBundle?) : Li
         webView?.setClient(binding.pbWeb, {
 //            toolBarUtil.hideRightBtn()
         }, {
-            val webTitle = webView?.title?.trim()
             if (bean?.isWebTitleRequired().orFalse && bean?.getWebTitle().isNullOrEmpty()) {
-                if(!webTitle.isNullOrEmpty()) setTitle(webTitle) else titleBuilder.getDefault()
+                webView?.title?.trim().apply { if (!isNullOrEmpty()) setTitle(this) else titleBuilder.getDefault() }
             }
 //            val url = webView?.url.orEmpty()
         }, object : OnWebChangedListener {
