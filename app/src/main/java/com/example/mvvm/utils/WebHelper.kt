@@ -42,7 +42,7 @@ class WebHelper(private val act: WebActivity, private val bean: WebBundle?) : Li
 
     private fun addWebView() {
         if (bean?.isWebTitleRequired().orTrue) {
-            bean?.getWebTitle()?.apply { if (isNotEmpty()) setTitle(this) }
+            bean?.getWebTitle()?.apply { if (!isNullOrEmpty()) setTitle(this) }
         } else {
             titleBuilder.hideTitle()
         }
