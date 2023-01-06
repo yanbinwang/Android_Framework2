@@ -21,20 +21,10 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * shade->标题底部是否带阴影
      */
     @JvmOverloads
-    fun setTitle(title: String = "", titleColor: Int = R.color.grey_333333, shade: Boolean = false): TitleBuilder {
-        binding.clContainer.setBackgroundColor(activity.color(R.color.white))
-        binding.tvTitle.setArguments(title, titleColor)
-        binding.viewShade.apply { if (shade) visible() else gone() }
-        return this
-    }
-
-    /**
-     * 继承baseactivity，用include把布局引入后调用
-     */
-    @JvmOverloads
-    fun setTransparentTitle(title: String = "", titleColor: Int = R.color.grey_333333, transparent: Boolean = true): TitleBuilder {
+    fun setTitle(title: String = "", titleColor: Int = R.color.grey_333333, shade: Boolean = false, transparent: Boolean = false): TitleBuilder {
         binding.clContainer.let { if(!transparent) setBackgroundColor(activity.color(R.color.white)) }
         binding.tvTitle.setArguments(title, titleColor)
+        binding.viewShade.apply { if (shade) visible() else gone() }
         return this
     }
 

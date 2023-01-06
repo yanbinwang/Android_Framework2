@@ -75,7 +75,7 @@ class WebHelper(private val act: WebActivity, private val bean: WebBundle?) : Li
         })
     }
 
-    private fun setTitle(title: String) = titleBuilder.setTransparentTitle(title, transparent = false).getDefault()
+    private fun setTitle(title: String) = titleBuilder.setTitle(title).getDefault()
 
     /**
      * 加载页面
