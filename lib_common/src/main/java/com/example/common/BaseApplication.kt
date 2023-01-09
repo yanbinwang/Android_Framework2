@@ -72,4 +72,9 @@ open class BaseApplication : Application() {
         }
     }
 
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        System.gc()
+    }
+
 }
