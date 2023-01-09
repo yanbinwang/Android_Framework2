@@ -65,7 +65,7 @@ class FileHelper(activity: FragmentActivity) : CoroutineScope {
     }
 
     suspend fun savePDF(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}) {
-        val root = "${Constants.APPLICATION_FILE_PATH}/保存图片"
+        val root = "${Constants.APPLICATION_PATH}/保存图片"
         val fileName = EN_YMDHMS.getDateTime(Date())
         onComplete(withContext(IO) {
             val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))

@@ -3,8 +3,10 @@ package com.example.mvvm.activity
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
+import com.example.common.config.Constants
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.click
+import com.example.framework.utils.logWTF
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.TestDialog
 import com.example.mvvm.widget.automatic.AutomaticBean
@@ -24,6 +26,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             binding.llContainer.addView(it.getView())
         }
        binding.btnFileManager.click { testDialog.shown() }
+        "${Constants.APPLICATION_PATH}".logWTF
     }
 
 }

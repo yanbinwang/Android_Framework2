@@ -110,7 +110,7 @@ fun Drawable.drawableToBitmap(): Bitmap {
  * formatJpg->确定图片类型
  * quality->压缩率
  */
-fun saveBitmap(bitmap: Bitmap, root: String = "${Constants.APPLICATION_FILE_PATH}/保存图片", fileName: String = DateFormat.EN_YMDHMS.getDateTime(Date()), delete: Boolean = false, formatJpg: Boolean = true, quality: Int = 100): String? {
+fun saveBitmap(bitmap: Bitmap, root: String = "${Constants.APPLICATION_PATH}/保存图片", fileName: String = DateFormat.EN_YMDHMS.getDateTime(Date()), delete: Boolean = false, formatJpg: Boolean = true, quality: Int = 100): String? {
     val storeDir = File(root)
     if (delete) storeDir.absolutePath.deleteDir()
     if (!storeDir.mkdirs()) storeDir.createNewFile()

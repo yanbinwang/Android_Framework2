@@ -125,7 +125,7 @@ class AlbumHelper(private val activity: Activity) {
             //图片路径list或者数组
             .inputImagePaths(*imagePathArray)
             //图片输出文件夹路径
-            .outputDirectory("${Constants.APPLICATION_FILE_PATH}/裁剪图片")
+            .outputDirectory("${Constants.APPLICATION_PATH}/裁剪图片")
             //裁剪图片输出的最大宽高
             .maxWidthHeight(500, 500)
             //裁剪时的宽高比
