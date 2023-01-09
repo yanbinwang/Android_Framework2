@@ -31,8 +31,8 @@ import java.lang.reflect.ParameterizedType
 abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = MATCH_PARENT, private val slideEdge: Int = BOTTOM, private val animation: Boolean = true, private val light: Boolean = false) : PopupWindow() {
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
-    protected lateinit var binding: VDB
     protected val context get() = window.context
+    protected lateinit var binding: VDB
 
     init {
         val type = javaClass.genericSuperclass
