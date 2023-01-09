@@ -60,19 +60,13 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
         }
     }
 
-    open fun shown(flag: Boolean = false) {
-        setCancelable(flag)
-        if (!isShowing) show()
-    }
-
-    open fun hidden() {
-        if (isShowing) dismiss()
-    }
-
-    fun setType() {
+    // <editor-fold defaultstate="collapsed" desc="基类方法">
+    protected fun setType() {
         window?.setType(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
     }
+    // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="重写方法">
     override fun show() {
         if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
         if (ownerActivity?.isFinishing.orFalse) return
@@ -95,5 +89,15 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
         super.dismiss()
         binding.unbind()
     }
+
+    open fun shown(flag: Boolean = false) {
+        setCancelable(flag)
+        if (!isShowing) show()
+    }
+
+    open fun hidden() {
+        if (isShowing) dismiss()
+    }
+    // </editor-fold>
 
 }

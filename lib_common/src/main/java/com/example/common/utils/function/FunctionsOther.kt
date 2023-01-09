@@ -130,7 +130,7 @@ fun getStatusBarHeight(): Int {
 }
 
 /**
- * 获取顶栏高度
+ * 获取底栏高度
  */
 fun getNavigationBarHeight(ctx: Context): Int {
     if (!ScreenUtil.hasNavigationBar(ctx)) return 0

@@ -24,8 +24,9 @@ import java.lang.reflect.ParameterizedType
 /**
  * Created by WangYanBin on 2020/7/13.
  * 所有弹框的基类
- * 用于实现上下左右弹出的效果，如有特殊需求，重写animation
- * 默认底部显示弹出,带有顶栏间距
+ * 用于实现上下左右弹出的效果，如有特殊动画需求，重写animation
+ * 默认底部弹出,不需要传view，并带有顶栏间距
+ * 传view则默认view下方弹出
  */
 abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val gravity: Int = BOTTOM, private val animation: Boolean = true, private val light: Boolean = false) : PopupWindow() {
     private val window get() = activity.window
@@ -150,6 +151,10 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     open fun shown() {
         if (!isShowing) showAtLocation(binding.root, gravity, 0, 0)
+    }
+
+    open fun shown(anchor: View?){
+        if (!isShowing) showAsDropDown(anchor)
     }
 
     open fun hidden() {
