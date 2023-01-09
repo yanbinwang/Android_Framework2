@@ -8,14 +8,15 @@ import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.logWTF
 import com.example.mvvm.databinding.ActivityMainBinding
-import com.example.mvvm.widget.TestDialog
 import com.example.mvvm.widget.automatic.AutomaticBean
 import com.example.mvvm.widget.automatic.AutomaticBuilder
+import com.example.mvvm.widget.popup.TestPopup
 
 
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>() {
-    private val testDialog by lazy { TestDialog(window) }
+//    private val testDialog by lazy { TestDialog(this) }
+    private val testPopup by lazy { TestPopup(this) }
 
     override fun initEvent() {
         super.initEvent()
@@ -25,7 +26,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         viewList.forEach {
             binding.llContainer.addView(it.getView())
         }
-       binding.btnFileManager.click { testDialog.shown() }
+       binding.btnFileManager.click { testPopup.shown() }
         "${Constants.APPLICATION_PATH}".logWTF
     }
 

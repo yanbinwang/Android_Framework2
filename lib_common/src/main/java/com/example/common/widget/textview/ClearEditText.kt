@@ -14,12 +14,9 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.example.common.R
 import com.example.common.databinding.ViewClearEditBinding
-import com.example.framework.utils.emojiLimit
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.*
-import com.example.framework.utils.imeOptions
-import com.example.framework.utils.inputType
 import com.example.framework.widget.BaseViewGroup
 import java.util.*
 

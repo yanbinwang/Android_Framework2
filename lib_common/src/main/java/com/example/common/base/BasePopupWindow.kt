@@ -11,13 +11,12 @@ import android.view.Gravity.*
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
 import android.widget.PopupWindow
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
-import com.example.common.utils.ScreenUtil.screenHeight
-import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.orFalse
 import java.lang.reflect.ParameterizedType
@@ -28,7 +27,7 @@ import java.lang.reflect.ParameterizedType
  * 用于实现上下左右弹出的效果，如有特殊需求，重写animation
  * 默认底部显示弹出
  */
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = MATCH_PARENT, private val slideEdge: Int = BOTTOM, private val animation: Boolean = true, private val light: Boolean = false) : PopupWindow() {
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val gravity: Int = BOTTOM, private val animation: Boolean = true, private val light: Boolean = false) : PopupWindow() {
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
     protected val context get() = window.context
@@ -44,8 +43,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 contentView = binding.root
             } catch (_: Exception) {
             }
-            width = if (popupWidth < 0) screenWidth else popupWidth.pt
-            height = if (popupHeight < 0) screenHeight else popupHeight.pt
+            width = if (popupWidth < 0) popupWidth else popupWidth.pt
+            height = if (popupHeight < 0) popupHeight else popupHeight.pt
             isFocusable = true
             isOutsideTouchable = true
             softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
@@ -68,15 +67,15 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 enterTransition = Slide().apply {
                     duration = 500
                     mode = Visibility.MODE_IN
-                    slideEdge = slideEdge
+                    slideEdge = gravity
                 }
                 setExitTransition(Slide().apply {
                     duration = 500
                     mode = Visibility.MODE_OUT
-                    slideEdge = slideEdge
+                    slideEdge = gravity
                 })
             } else {
-                animationStyle = when (slideEdge) {
+                animationStyle = when (gravity) {
                     TOP -> R.style.PushTopAnimStyle
                     BOTTOM -> R.style.PushBottomAnimStyle
                     START, LEFT -> R.style.PushLeftAnimStyle
@@ -150,7 +149,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     }
 
     open fun shown() {
-        if (!isShowing) showAtLocation(binding.root, slideEdge, 0, 0)
+        if (!isShowing) showAtLocation(binding.root, gravity, 0, 0)
     }
 
     open fun hidden() {
