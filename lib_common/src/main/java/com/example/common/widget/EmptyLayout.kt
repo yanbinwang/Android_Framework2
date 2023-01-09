@@ -11,6 +11,7 @@ import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.string
+import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.view.*
 import com.example.framework.widget.BaseViewGroup
 
@@ -61,20 +62,20 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据加载中
      */
-    fun showLoading() {
+    fun showLoading() = context.execute {
         visible()
         binding.ivEmpty.imageResource(R.mipmap.img_data_loading)
-        binding.tvEmpty.text = context.string(R.string.label_data_loading)
+        binding.tvEmpty.text = string(R.string.label_data_loading)
         binding.tvRefresh.gone()
     }
 
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun showEmpty(resId: Int = -1, text: String? = null) {
+    fun showEmpty(resId: Int = -1, text: String? = null) = context.execute {
         visible()
         binding.ivEmpty.imageResource(if (-1 == resId) R.mipmap.img_data_empty else resId)
-        binding.tvEmpty.text = if (text.isNullOrEmpty()) context.string(R.string.label_data_empty) else text
+        binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.label_data_empty) else text
         binding.tvRefresh.gone()
     }
 
@@ -82,16 +83,16 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun showError(resId: Int = -1, text: String? = null, refreshText: String? = null) {
+    fun showError(resId: Int = -1, text: String? = null, refreshText: String? = null) = context.execute {
         visible()
         if (!isNetworkAvailable()) {
             binding.ivEmpty.imageResource(R.mipmap.img_data_net_error)
-            binding.tvEmpty.text = context.string(R.string.label_data_net_error)
+            binding.tvEmpty.text = string(R.string.label_data_net_error)
         } else {
             binding.ivEmpty.imageResource(if (-1 == resId) R.mipmap.img_data_error else resId)
-            binding.tvEmpty.text = if (text.isNullOrEmpty()) context.string(R.string.label_data_error) else text
+            binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.label_data_error) else text
         }
-        if(!refreshText.isNullOrEmpty()) binding.tvRefresh.text = refreshText
+        if (!refreshText.isNullOrEmpty()) binding.tvRefresh.text = refreshText
         binding.tvRefresh.visible()
     }
 

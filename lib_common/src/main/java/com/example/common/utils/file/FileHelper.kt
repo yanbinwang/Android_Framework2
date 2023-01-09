@@ -9,6 +9,7 @@ import android.os.ParcelFileDescriptor
 import android.util.Patterns
 import android.view.View
 import androidx.fragment.app.FragmentActivity
+import com.example.common.R
 import com.example.common.config.Constants
 import com.example.common.subscribe.Subscribe
 import com.example.common.utils.ScreenUtil.screenHeight
@@ -183,7 +184,7 @@ class FileHelper(activity: FragmentActivity) : CoroutineScope {
 
     suspend fun download(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
         if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-            "链接地址不合法".shortToast()
+            R.string.toast_download_url_error.shortToast()
             return
         }
         onStart()
