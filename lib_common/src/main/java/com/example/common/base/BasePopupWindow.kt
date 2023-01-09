@@ -1,7 +1,6 @@
 package com.example.common.base
 
 import android.app.Activity
-import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -12,16 +11,15 @@ import android.view.Gravity.*
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.Window
 import android.view.WindowManager
 import android.widget.PopupWindow
 import androidx.databinding.ViewDataBinding
-import com.example.framework.utils.function.value.orFalse
+import androidx.fragment.app.FragmentActivity
 import com.example.common.R
-import com.example.common.utils.ScreenUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.pt
+import com.example.framework.utils.function.value.orFalse
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -30,10 +28,11 @@ import java.lang.reflect.ParameterizedType
  * 用于实现上下左右弹出的效果，如有特殊需求，重写animation
  * 默认底部显示弹出
  */
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val window: Window, popupWidth: Int = MATCH_PARENT, popupHeight: Int = MATCH_PARENT, private val slideEdge: Int = BOTTOM, private val animation: Boolean = true, private val light: Boolean = false) : PopupWindow() {
-    protected lateinit var binding: VDB
-    protected val context: Context get() { return window.context }
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = MATCH_PARENT, private val slideEdge: Int = BOTTOM, private val animation: Boolean = true, private val light: Boolean = false) : PopupWindow() {
+    private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
+    protected lateinit var binding: VDB
+    protected val context get() = window.context
 
     init {
         val type = javaClass.genericSuperclass
