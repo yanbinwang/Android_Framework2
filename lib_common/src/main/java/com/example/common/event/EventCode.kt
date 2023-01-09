@@ -7,4 +7,10 @@ object EventCode {
     //用户注销
     val EVENT_USER_LOGIN_OUT = Code<Any>()
 
+    //联网
+    val EVENT_ONLINE = Code<Any>()
+
+    //断网
+    val EVENT_OFFLINE = Code<Any>()
+
 }

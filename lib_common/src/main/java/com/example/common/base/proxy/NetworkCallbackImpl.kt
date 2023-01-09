@@ -50,8 +50,7 @@ class NetworkCallbackImpl : ConnectivityManager.NetworkCallback() {
      */
     override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
         super.onCapabilitiesChanged(network, networkCapabilities)
-        netState = if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) &&
-            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+        netState = if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
             when {
                 networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> 0
                 networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> 1

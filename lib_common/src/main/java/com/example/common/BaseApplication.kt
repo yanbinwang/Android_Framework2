@@ -8,6 +8,9 @@ import android.net.NetworkRequest
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
 import com.example.common.base.proxy.NetworkCallbackImpl
+import com.example.common.base.proxy.NetworkReceiver
+import com.example.common.event.EventCode.EVENT_OFFLINE
+import com.example.common.event.EventCode.EVENT_ONLINE
 import com.example.common.utils.helper.ConfigHelper
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
@@ -57,13 +60,16 @@ open class BaseApplication : Application() {
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
         //注册网络监听
         (getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager).registerNetworkCallback(NetworkRequest.Builder().build(), NetworkCallbackImpl())
+        registerReceiver(NetworkReceiver().apply { listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() } }, NetworkReceiver.filter)
         //全局刷新控件的样式
         SmartRefreshLayout.setDefaultRefreshHeaderCreator { context, _ ->
 //            //全局设置主题颜色
 //            layout.setPrimaryColorsId(R.color.grey_f6f8ff, R.color.white_00ffffff)
             ProjectRefreshHeader(context)
         }
-        SmartRefreshLayout.setDefaultRefreshFooterCreator { context, _ -> ProjectRefreshFooter(context) }
+        SmartRefreshLayout.setDefaultRefreshFooterCreator { context, _ ->
+            ProjectRefreshFooter(context)
+        }
     }
 
 }
