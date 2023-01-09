@@ -159,7 +159,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
 
     override fun download(context: Context, string: String?, onStart: () -> Unit?, onComplete: (file: File?) -> Unit?) {
 //        //创建保存的文件目录
-//        val destFile = File(FileUtil.isExistDir(Constants.APPLICATION_FILE_PATH + "/图片"))
+//        val destFile = File(FileUtil.isMkdirs(Constants.APPLICATION_FILE_PATH + "/图片"))
 //        //下载对应的图片文件
 //        val srcFile = Glide.with(context)
 //            .asFile()
