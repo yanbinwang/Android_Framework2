@@ -119,7 +119,6 @@ dependencies {
     implementation project(':lib_album')
 
     implementation project(':lib_common')
-    implementation 'io.github.scwang90:refresh-header-two-level:2.0.5'
     //页面路由
     implementation deps.alibaba.arouter
     kapt deps.alibaba.arouter_compiler

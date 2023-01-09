@@ -165,10 +165,10 @@ fun Context.getApplicationIcon(): Bitmap? {
  * 判断目录是否存在,不存则创建
  * 返回对应路径
  */
-fun String?.isExistDir(createNewFile: Boolean = true): String {
+fun String?.isExistDir(): String {
     this ?: return ""
     val file = File(this)
-    if (!file.mkdirs() && createNewFile) file.createNewFile()
+    if (!file.mkdirs()) file.createNewFile()
     return file.absolutePath
 }
 
@@ -194,18 +194,22 @@ fun String?.deleteDir() {
  */
 fun String?.readTxt(): String {
     this ?: return ""
+//    val file = File(this)
+//    if (file.exists()) {
+//        try {
+//            val stringBuilder = StringBuilder()
+//            var str: String?
+//            val bufferedReader = BufferedReader(InputStreamReader(FileInputStream(file)))
+//            while (bufferedReader.readLine().also { str = it } != null) stringBuilder.append(str)
+//            return stringBuilder.toString()
+//        } catch (_: Exception) {
+//        }
+//    }
+//    return ""
     val file = File(this)
-    if (file.exists()) {
-        try {
-            val stringBuilder = StringBuilder()
-            var str: String?
-            val bufferedReader = BufferedReader(InputStreamReader(FileInputStream(file)))
-            while (bufferedReader.readLine().also { str = it } != null) stringBuilder.append(str)
-            return stringBuilder.toString()
-        } catch (_: Exception) {
-        }
-    }
-    return ""
+    return if (file.exists() && file.length() < 2 * 1024 * 1024 * 1024) {
+        file.readText()
+    } else ""
 }
 
 /**
