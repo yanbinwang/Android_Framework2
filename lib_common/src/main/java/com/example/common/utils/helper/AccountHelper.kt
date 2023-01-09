@@ -5,7 +5,7 @@ import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
 import com.example.common.config.Constants
 import com.example.common.utils.AppManager
-import com.example.common.utils.MmkvUtil
+import com.example.common.utils.DataCacheUtil
 
 /**
  * Created by WangYanBin on 2020/8/11.
@@ -13,18 +13,19 @@ import com.example.common.utils.MmkvUtil
  */
 object AccountHelper {
     private val MMKV_USER_BEAN = "${Constants.APPLICATION_ID}.UserBean" //用户类
+    private val userBean = DataCacheUtil(MMKV_USER_BEAN, UserBean::class.java)
 
     //存储用户对象
     @JvmStatic
     fun setUserBean(bean: UserBean?) {
         bean ?: return
-        MmkvUtil.encode(MMKV_USER_BEAN, bean)
+        userBean.set(bean)
     }
 
     //获取用户对象
     @JvmStatic
     fun getUserBean(): UserBean? {
-        return MmkvUtil.decodeParcelable(MMKV_USER_BEAN, UserBean::class.java)
+        return userBean.get()
     }
 
     //用户是否登陆
@@ -53,10 +54,11 @@ object AccountHelper {
     //用户注销操作（清除信息,清除用户凭证）
     @JvmStatic
     fun signOut() {
-        MmkvUtil.apply {
-            removeValueForKey(MMKV_USER_BEAN)
-//            removeValueForKey(MMKV_USER_INFO_BEAN)
-        }
+        userBean.del()
+//        MmkvUtil.apply {
+//            removeValueForKey(MMKV_USER_BEAN)
+////            removeValueForKey(MMKV_USER_INFO_BEAN)
+//        }
         AppManager.finishAll()
         ARouter.getInstance().build(ARouterPath.StartActivity).navigation()
     }
