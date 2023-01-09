@@ -35,7 +35,7 @@ val isDebug get() = BuildConfig.DEBUG
 /**
  * 对应的拼接区分本地和测试
  */
-val Int?.byHostUrl: String get() { return "${BuildConfig.LOCALHOST}${string(this.orZero)}" }
+val Int?.byHostUrl: String get() { return string(this.orZero).byHostUrl }
 
 val String?.byHostUrl: String get() { return "${BuildConfig.LOCALHOST}${this}" }
 
