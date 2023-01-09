@@ -10,13 +10,14 @@ import com.example.framework.utils.logWTF
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.automatic.AutomaticBean
 import com.example.mvvm.widget.automatic.AutomaticBuilder
+import com.example.mvvm.widget.dialog.TestDialog
 import com.example.mvvm.widget.popup.TestPopup
 
 
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>() {
-//    private val testDialog by lazy { TestDialog(this) }
-    private val testPopup by lazy { TestPopup(this) }
+    private val testDialog by lazy { TestDialog(this) }
+//    private val testPopup by lazy { TestPopup(this) }
 
     override fun initEvent() {
         super.initEvent()
@@ -26,7 +27,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         viewList.forEach {
             binding.llContainer.addView(it.getView())
         }
-       binding.btnFileManager.click { testPopup.shown() }
+       binding.btnFileManager.click { testDialog.shown() }
         "${Constants.APPLICATION_PATH}".logWTF
     }
 
