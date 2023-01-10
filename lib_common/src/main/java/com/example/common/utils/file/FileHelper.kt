@@ -1,6 +1,7 @@
 package com.example.common.utils.file
 
 import android.graphics.Bitmap
+import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
@@ -8,18 +9,13 @@ import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import android.util.Patterns
 import android.view.View
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
-import com.example.common.config.Constants
 import com.example.common.subscribe.Subscribe
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.doOnDestroy
-import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
-import com.example.framework.utils.function.value.getDateTime
-import com.example.framework.utils.logE
 import com.example.framework.utils.logWTF
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -48,13 +44,13 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
     /**
      * 存储图片协程
      */
-    fun savePicJob(bitmap: Bitmap, root: String, fileName: String, delete: Boolean = false, formatJpg: Boolean = true, onComplete: (filePath: String?) -> Unit = {}) {
+    fun savePicJob(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, onComplete: (filePath: String?) -> Unit = {}) {
         job?.cancel()
-        job = launch { savePic(bitmap, root, fileName, delete, formatJpg, onComplete) }
+        job = launch { savePic(bitmap, root, fileName, deleteDir, format, onComplete) }
     }
 
-    private suspend fun savePic(bitmap: Bitmap, root: String, fileName: String, delete: Boolean = false, formatJpg: Boolean = true, onComplete: (filePath: String?) -> Unit = {}) {
-        onComplete(withContext(IO) { saveBitmap(bitmap, root, fileName, delete, formatJpg) })
+    private suspend fun savePic(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, onComplete: (filePath: String?) -> Unit = {}) {
+        onComplete(withContext(IO) { saveBit(bitmap, root, fileName, deleteDir, format) })
     }
 
     /**
@@ -66,8 +62,6 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
     }
 
     private suspend fun savePDF(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}) {
-        val root = "${Constants.APPLICATION_PATH}/保存图片"
-        val fileName = EN_YMDHMS.getDateTime(Date())
         onComplete(withContext(IO) {
             val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
             val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
@@ -81,7 +75,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
             page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
             page.close()
             renderer.close()
-            saveBitmap(bitmap, root, fileName)
+            saveBit(bitmap)
         })
     }
 
@@ -113,15 +107,13 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
     }
 
     private suspend fun zip(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onComplete: (filePath: String?) -> Unit? = {}) {
-        var result = true
+        onStart()
         try {
-            onStart()
-            withContext(IO) { File(folderPath).apply { if (exists()) zipFolder(absolutePath, File(zipPath).absolutePath) } }
+            withContext(IO) { File(folderPath).let { if (it.exists()) zipFolder(it.absolutePath, File(zipPath).absolutePath) } }
         } catch (e: Exception) {
-            result = false
-            "打包图片生成压缩文件异常: $e".logE("FileHelper")
+            "打包图片生成压缩文件异常: $e".logWTF
         }
-        onComplete(if (result) zipPath else null)
+        onComplete(if (File(zipPath).exists()) zipPath else null)
     }
 
     /**
@@ -223,27 +215,4 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
         }
     }
 
-}
-
-/**
- * 当measure完后，并不会实际改变View的尺寸，需要调用View.layout方法去进行布局
- * 按示例调用layout函数后，View的大小将会变成你想要设置成的大小
- */
-private fun View.loadLayout(width: Int, height: Int) {
-    //整个View的大小 参数是左上角 和右下角的坐标
-    layout(0, 0, width, height)
-    val measuredWidth = View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.EXACTLY)
-    val measuredHeight = View.MeasureSpec.makeMeasureSpec(screenHeight, View.MeasureSpec.EXACTLY)
-    measure(measuredWidth, measuredHeight)
-    layout(0, 0, measuredWidth, measuredHeight)
-}
-
-//如果不设置canvas画布为白色，则生成透明
-private fun View.loadBitmap(): Bitmap? {
-    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(bitmap)
-    canvas.drawColor(Color.WHITE)
-    layout(0, 0, width, height)
-    draw(canvas)
-    return bitmap
 }

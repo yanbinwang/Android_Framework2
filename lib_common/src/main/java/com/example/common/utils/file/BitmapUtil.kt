@@ -2,16 +2,20 @@ package com.example.common.utils.file
 
 import android.content.Context
 import android.graphics.*
+import android.graphics.Bitmap.CompressFormat.JPEG
+import android.graphics.Bitmap.CompressFormat.PNG
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.media.ExifInterface
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.view.View
+import androidx.exifinterface.media.ExifInterface
+import androidx.exifinterface.media.ExifInterface.*
 import com.example.common.BaseApplication
 import com.example.common.config.Constants
-import com.example.framework.utils.function.value.DateFormat
+import com.example.common.utils.ScreenUtil
+import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.getDateTime
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
@@ -88,12 +92,10 @@ fun Drawable.zoomDrawable(w: Int, h: Int = w): Drawable {
 }
 
 fun Drawable.drawableToBitmap(): Bitmap {
-    val width = intrinsicWidth
-    val height = intrinsicHeight
     val config = if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
-    val bitmap = Bitmap.createBitmap(width, height, config)
+    val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, config)
     val canvas = Canvas(bitmap)
-    setBounds(0, 0, width, height)
+    setBounds(0, 0, intrinsicWidth, intrinsicHeight)
     draw(canvas)
     return bitmap
 }
@@ -102,24 +104,43 @@ fun Drawable.drawableToBitmap(): Bitmap {
  * bitmap->存储的bitmap
  * root->图片保存路径
  * fileName->图片名称（扣除jpg和png的后缀）
- * delete->是否清除目录
- * formatJpg->确定图片类型
+ * deleteDir->是否清除目录
+ * format->图片类型
  * quality->压缩率
  */
-fun saveBitmap(bitmap: Bitmap, root: String = "${Constants.APPLICATION_PATH}/保存图片", fileName: String = DateFormat.EN_YMDHMS.getDateTime(Date()), delete: Boolean = false, formatJpg: Boolean = true, quality: Int = 100): String? {
+fun saveBit(bitmap: Bitmap, root: String = "${Constants.APPLICATION_PATH}/保存图片", fileName: String = EN_YMDHMS.getDateTime(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
+    //存储目录文件
     val storeDir = File(root)
-    if (delete) storeDir.absolutePath.deleteDir()
-    if (!storeDir.mkdirs()) storeDir.createNewFile()
-    val file = File(storeDir, "${fileName}${if (formatJpg) ".jpg" else ".png"}")
+    //存储目录完整的手机路径
+    val storeDirRoot = storeDir.absolutePath
+    //先判断是否需要清空目录，再判断是否存在（不存在则创建）
+    if (deleteDir) storeDirRoot.deleteDir()
+    storeDirRoot.isMkdirs()
+    //在目录文件夹下生成一个新的图片
+    val file = File(storeDir, "${fileName}${format.getSuffix()}")
+    //开流开始写入
     try {
         val fileOutputStream = FileOutputStream(file)
-        bitmap.compress(if (formatJpg) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG, quality, fileOutputStream)
+        //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
+        bitmap.compress(format, if (format != PNG) quality else 100, fileOutputStream)
         fileOutputStream.flush()
         fileOutputStream.close()
     } catch (_: Exception) {
     }
     bitmap.recycle()
     return file.absolutePath
+}
+
+/**
+ * 根据要保存的格式，返回对应后缀名
+ * 安卓只支持一下三种
+ */
+private fun Bitmap.CompressFormat.getSuffix(): String {
+    return when (this) {
+        JPEG -> ".jpg"
+        PNG -> ".png"
+        else -> ".webp"
+    }
 }
 
 /**
@@ -140,7 +161,7 @@ fun Context.degreeImage(file: File, delete: Boolean = false): File {
         val tempFile = File(applicationContext.externalCacheDir, file.name.replace(".jpg", "_degree.jpg"))
         try {
             val fileOutputStream = FileOutputStream(tempFile)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+            bitmap.compress(JPEG, 100, fileOutputStream)
             fileOutputStream.flush()
             fileOutputStream.close()
             bitmap.recycle()
@@ -164,10 +185,10 @@ fun readDegree(path: String): Float {
         exifInterface = ExifInterface(path)
     } catch (_: IOException) {
     }
-    when (exifInterface?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
-        ExifInterface.ORIENTATION_ROTATE_90 -> degree = 90f
-        ExifInterface.ORIENTATION_ROTATE_180 -> degree = 180f
-        ExifInterface.ORIENTATION_ROTATE_270 -> degree = 270f
+    when (exifInterface?.getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL)) {
+        ORIENTATION_ROTATE_90 -> degree = 90f
+        ORIENTATION_ROTATE_180 -> degree = 180f
+        ORIENTATION_ROTATE_270 -> degree = 270f
     }
     return degree
 }
@@ -209,6 +230,29 @@ fun Bitmap?.resizeBitmap(w: Int, h: Int): Bitmap? {
 }
 
 /**
+ * 当measure完后，并不会实际改变View的尺寸，需要调用View.layout方法去进行布局
+ * 按示例调用layout函数后，View的大小将会变成你想要设置成的大小
+ */
+fun View.loadLayout(width: Int, height: Int) {
+    //整个View的大小 参数是左上角 和右下角的坐标
+    layout(0, 0, width, height)
+    val measuredWidth = View.MeasureSpec.makeMeasureSpec(ScreenUtil.screenWidth, View.MeasureSpec.EXACTLY)
+    val measuredHeight = View.MeasureSpec.makeMeasureSpec(ScreenUtil.screenHeight, View.MeasureSpec.EXACTLY)
+    measure(measuredWidth, measuredHeight)
+    layout(0, 0, measuredWidth, measuredHeight)
+}
+
+//如果不设置canvas画布为白色，则生成透明
+fun View.loadBitmap(): Bitmap? {
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    canvas.drawColor(Color.WHITE)
+    layout(0, 0, width, height)
+    draw(canvas)
+    return bitmap
+}
+
+/**
  * 画笔默认取中心点坐标，所以要除2
  * 只有继承了当前画笔接口的类才能使用以下方法
  */
@@ -231,7 +275,12 @@ interface PaintImpl {
      */
     fun Paint.drawTextCenter(x: Number?, y: Number?, text: String, canvas: Canvas) {
         val size = measureSize(text)
-        canvas.drawText(text, (x.toSafeFloat() - size.first / 2), (y.toSafeFloat() + size.second / 2), this)
+        canvas.drawText(
+            text,
+            (x.toSafeFloat() - size.first / 2),
+            (y.toSafeFloat() + size.second / 2),
+            this
+        )
     }
 
     /**
@@ -248,10 +297,25 @@ interface PaintImpl {
     /**
      * text本身默认绘制是一行的，不会自动换行，使用此方法传入指定宽度换行
      */
-    fun TextPaint.drawTextStatic(maxTextWidth: Number?, text: String, canvas: Canvas, dx: Number? = 0, dy: Number? = 0, spacingmult: Number? = 1f) {
+    fun TextPaint.drawTextStatic(
+        maxTextWidth: Number?,
+        text: String,
+        canvas: Canvas,
+        dx: Number? = 0,
+        dy: Number? = 0,
+        spacingmult: Number? = 1f
+    ) {
         //spacingmult 是行间距的倍数，通常情况下填 1 就好；
         //spacingadd 是行间距的额外增加值，通常情况下填 0 就好
-        val layout = StaticLayout(text, this, maxTextWidth.toSafeInt(), Layout.Alignment.ALIGN_NORMAL, spacingmult.toSafeFloat(), 0f, false)
+        val layout = StaticLayout(
+            text,
+            this,
+            maxTextWidth.toSafeInt(),
+            Layout.Alignment.ALIGN_NORMAL,
+            spacingmult.toSafeFloat(),
+            0f,
+            false
+        )
         canvas.save()
         //StaticLayout默认画在Canvas的(0,0)点，如果需要调整位置只能在draw之前移Canvas的起始坐标
         canvas.translate(dx.toSafeFloat(), dy.toSafeFloat())
@@ -261,7 +325,11 @@ interface PaintImpl {
     /**
      * 获取一个预设的文字画笔
      */
-    fun getTextPaint(textSize: Float, color: Int = Color.WHITE, typeface: Typeface = Typeface.DEFAULT): TextPaint {
+    fun getTextPaint(
+        textSize: Float,
+        color: Int = Color.WHITE,
+        typeface: Typeface = Typeface.DEFAULT
+    ): TextPaint {
         val paint = TextPaint()
         paint.isAntiAlias = true
         paint.textSize = textSize
