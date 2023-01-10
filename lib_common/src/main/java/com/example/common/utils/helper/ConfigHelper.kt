@@ -77,7 +77,7 @@ object ConfigHelper {
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="私有调取方法">
+    // <editor-fold defaultstate="collapsed" desc="调取方法">
     /**
      * 获取当前app version code
      */
