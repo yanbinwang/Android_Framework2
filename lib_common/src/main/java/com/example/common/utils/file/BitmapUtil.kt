@@ -9,10 +9,10 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.view.View
-import com.example.framework.utils.function.value.DateFormat
-import com.example.framework.utils.function.value.getDateTime
 import com.example.common.BaseApplication
 import com.example.common.config.Constants
+import com.example.framework.utils.function.value.DateFormat
+import com.example.framework.utils.function.value.getDateTime
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import java.io.File
@@ -23,8 +23,9 @@ import java.util.*
 
 /**
  * 获取asset下的图片
+ * "share/img_order_share_logo.webp".decodeAsset()
  */
-fun String?.getBitmapFromAsset(): Bitmap? {
+fun String?.decodeAsset(): Bitmap? {
     this ?: return null
     val assets = BaseApplication.instance.assets
     var stream: InputStream? = null
@@ -49,11 +50,11 @@ fun Context?.decodeResource(id: Int): Bitmap? {
 /**
  * 绘制bit时对原图进行缩放
  */
-fun Bitmap?.scaleBitmap(scale: Float): Bitmap? {
+fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
     this ?: return null
     val matrix = Matrix()
     matrix.postScale(scale, scale)
-    val bit = Bitmap.createBitmap(this, 0, 0, width, height, matrix, false)
+    val bit = Bitmap.createBitmap(this, 0, 0, width, height, matrix, filter)
     if (!isRecycled) recycle()
     return bit
 }
@@ -63,32 +64,27 @@ fun Bitmap?.scaleBitmap(scale: Float): Bitmap? {
  */
 fun Bitmap?.scaleBitmap(): Bitmap? {
     this ?: return null
-    var size = 1f
-    val matrix = Matrix()
-    if (width > 720) {
-        size = 720f / width
-    } else if (height > 1280) {
-        size = 1280f / height
-    }
-    matrix.postScale(size, size)
-    val bitmap = Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
-    recycle()
-    return bitmap
+    return scaleBitmap(
+        if (width > 720) {
+            720f / width
+        } else if (height > 1280) {
+            1280f / height
+        } else {
+            1f
+        }, true)
 }
 
 /**
  * 根据宽高缩放图片
  */
 fun Drawable.zoomDrawable(w: Int, h: Int = w): Drawable {
-    val width = intrinsicWidth
-    val height = intrinsicHeight
-    val oldbmp = drawableToBitmap()
+    val oldBit = drawableToBitmap()
     val matrix = Matrix()
-    val scaleWidth = w.toFloat() / width
-    val scaleHeight = h.toFloat() / height
+    val scaleWidth = w.toFloat() / intrinsicWidth
+    val scaleHeight = h.toFloat() / intrinsicHeight
     matrix.postScale(scaleWidth, scaleHeight)
-    val newbmp = Bitmap.createBitmap(oldbmp, 0, 0, width, height, matrix, true)
-    return BitmapDrawable(null, newbmp)
+    val newBit = Bitmap.createBitmap(oldBit, 0, 0, intrinsicWidth, intrinsicHeight, matrix, true)
+    return BitmapDrawable(null, newBit)
 }
 
 fun Drawable.drawableToBitmap(): Bitmap {
@@ -203,14 +199,12 @@ fun View?.getBitmapFromView(w: Int? = null, h: Int? = null, needBg: Boolean = tr
 /**
  * 重设bitmap大小
  */
-fun Bitmap?.resizeBitmap(width: Int, height: Int): Bitmap? {
+fun Bitmap?.resizeBitmap(w: Int, h: Int): Bitmap? {
     this ?: return null
-    val oriWidth = this.width
-    val oriHeight = this.height
     val matrix = Matrix()
-    matrix.postScale(width / oriWidth.toFloat(), height / oriHeight.toFloat()) //长和宽放大缩小的比例
-    val resultBitmap = Bitmap.createBitmap(this, 0, 0, this.width, this.height, matrix, true)
-    this.recycle()
+    matrix.postScale(w / width.toFloat(), h / height.toFloat()) //长和宽放大缩小的比例
+    val resultBitmap = Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
+    recycle()
     return resultBitmap
 }
 
