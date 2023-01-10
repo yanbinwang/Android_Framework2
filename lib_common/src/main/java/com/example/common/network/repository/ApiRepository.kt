@@ -1,6 +1,8 @@
 package com.example.common.network.repository
 
 import com.example.common.R
+import com.example.common.network.repository.ApiCode.SUCCESS
+import com.example.common.network.repository.ApiCode.TOKEN_EXPIRED
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.analysis.GsonUtil
 import com.example.common.utils.builder.shortToast
@@ -19,15 +21,15 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * map扩展，如果只需传入map则使用
  * hashMapOf("" to "")不需要写此扩展
  */
-fun <K, V> HashMap<K, V>?.params() = (if (null == this) "" else GsonUtil.objToJson(this).orEmpty()).toRequestBody("application/json; charset=utf-8".toMediaType())
+fun <K, V> HashMap<K, V>?.params() = (if (null == this) "" else GsonUtil.objToJson(this)
+    .orEmpty()).toRequestBody("application/json; charset=utf-8".toMediaType())
 
 /**
  * 提示方法，根据接口返回的msg提示
  */
-fun String?.responseMsg(){
-    val strTemp = this
-    (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.label_response_net_error) else { if(strTemp.isNullOrEmpty()) resString(R.string.label_response_error) else strTemp }).shortToast()
-}
+fun String?.responseMsg() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.label_response_net_error) else {
+    if (isNullOrEmpty()) resString(R.string.label_response_error) else this
+}).shortToast()
 
 /**
  * 网络请求协程扩展-并行请求
@@ -43,14 +45,14 @@ suspend fun <T> request(
     try {
         "1:${Thread.currentThread().name}".logE("repository")
         //请求+响应数据
-        val data = withContext(IO) {
+        withContext(IO) {
             "2:${Thread.currentThread().name}".logE("repository")
             request()
-        }
-        val body = data.response()
-        if (null != body) resp(body) else {
-            if (isShowToast) data.msg.responseMsg()
-            err(Triple(data.code, data.msg, null))
+        }.let {
+            if (it.process()) resp(it.response()) else {
+                if (isShowToast) it.msg.responseMsg()
+                err(Triple(it.code, it.msg, null))
+            }
         }
     } catch (e: Exception) {
         if (isShowToast) "".responseMsg()
@@ -97,7 +99,7 @@ suspend fun request(
             for (req in requests) {
                 "请求${req}执行时间：${System.nanoTime()}".logE("repository")
                 val data = req()
-                if (200 == data.code) {
+                if (data.process()) {
                     val body = data.response()
                     respList.add(body)
                     "请求${req}执行结果：${GsonUtil.objToJson(body ?: Any())}".logE("repository")
@@ -121,11 +123,26 @@ suspend fun request(
  */
 fun <T> ApiResponse<T>?.response(): T? {
     if (this == null) return null
-    return if (200 == code) {
-        if (null == data) Any() as? T else data
-//        data
+    return if (process()) {
+        data
     } else {
-        if (408 == code) AccountHelper.signOut()
+        tokenExpired()
         null
     }
+}
+
+/**
+ * 判断此次请求是否成功
+ */
+fun <T> ApiResponse<T>?.process(): Boolean {
+    if (this == null) return false
+    return SUCCESS == code
+}
+
+/**
+ * 判断此次请求是否成功
+ */
+fun <T> ApiResponse<T>?.tokenExpired() {
+    if (this == null) return
+    if (TOKEN_EXPIRED == code) AccountHelper.signOut()
 }
