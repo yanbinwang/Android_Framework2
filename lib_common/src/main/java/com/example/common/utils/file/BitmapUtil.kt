@@ -275,12 +275,7 @@ interface PaintImpl {
      */
     fun Paint.drawTextCenter(x: Number?, y: Number?, text: String, canvas: Canvas) {
         val size = measureSize(text)
-        canvas.drawText(
-            text,
-            (x.toSafeFloat() - size.first / 2),
-            (y.toSafeFloat() + size.second / 2),
-            this
-        )
+        canvas.drawText(text, (x.toSafeFloat() - size.first / 2), (y.toSafeFloat() + size.second / 2), this)
     }
 
     /**
@@ -297,25 +292,10 @@ interface PaintImpl {
     /**
      * text本身默认绘制是一行的，不会自动换行，使用此方法传入指定宽度换行
      */
-    fun TextPaint.drawTextStatic(
-        maxTextWidth: Number?,
-        text: String,
-        canvas: Canvas,
-        dx: Number? = 0,
-        dy: Number? = 0,
-        spacingmult: Number? = 1f
-    ) {
+    fun TextPaint.drawTextStatic(maxTextWidth: Number?, text: String, canvas: Canvas, dx: Number? = 0, dy: Number? = 0, spacingmult: Number? = 1f) {
         //spacingmult 是行间距的倍数，通常情况下填 1 就好；
         //spacingadd 是行间距的额外增加值，通常情况下填 0 就好
-        val layout = StaticLayout(
-            text,
-            this,
-            maxTextWidth.toSafeInt(),
-            Layout.Alignment.ALIGN_NORMAL,
-            spacingmult.toSafeFloat(),
-            0f,
-            false
-        )
+        val layout = StaticLayout(text, this, maxTextWidth.toSafeInt(), Layout.Alignment.ALIGN_NORMAL, spacingmult.toSafeFloat(), 0f, false)
         canvas.save()
         //StaticLayout默认画在Canvas的(0,0)点，如果需要调整位置只能在draw之前移Canvas的起始坐标
         canvas.translate(dx.toSafeFloat(), dy.toSafeFloat())
@@ -325,11 +305,7 @@ interface PaintImpl {
     /**
      * 获取一个预设的文字画笔
      */
-    fun getTextPaint(
-        textSize: Float,
-        color: Int = Color.WHITE,
-        typeface: Typeface = Typeface.DEFAULT
-    ): TextPaint {
+    fun getTextPaint(textSize: Float, color: Int = Color.WHITE, typeface: Typeface = Typeface.DEFAULT): TextPaint {
         val paint = TextPaint()
         paint.isAntiAlias = true
         paint.textSize = textSize
