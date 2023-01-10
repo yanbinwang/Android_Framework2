@@ -22,15 +22,12 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * map扩展，如果只需传入map则使用
  * hashMapOf("" to "")不需要写此扩展
  */
-fun <K, V> HashMap<K, V>?.params() = (if (null == this) "" else GsonUtil.objToJson(this)
-    .orEmpty()).toRequestBody("application/json; charset=utf-8".toMediaType())
+fun <K, V> HashMap<K, V>?.params() = (if (null == this) "" else GsonUtil.objToJson(this).orEmpty()).toRequestBody("application/json; charset=utf-8".toMediaType())
 
 /**
  * 提示方法，根据接口返回的msg提示
  */
-fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.label_response_net_error) else {
-    if (isNullOrEmpty()) resString(R.string.label_response_error) else this
-}).shortToast()
+fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.label_response_net_error) else { if (isNullOrEmpty()) resString(R.string.label_response_error) else this }).shortToast()
 
 /**
  * 网络请求协程扩展-并行请求
