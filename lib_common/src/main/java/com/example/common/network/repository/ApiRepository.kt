@@ -1,6 +1,7 @@
 package com.example.common.network.repository
 
 import com.example.common.R
+import com.example.common.network.repository.ApiCode.FAILURE
 import com.example.common.network.repository.ApiCode.SUCCESS
 import com.example.common.network.repository.ApiCode.TOKEN_EXPIRED
 import com.example.common.utils.NetWorkUtil
@@ -27,7 +28,7 @@ fun <K, V> HashMap<K, V>?.params() = (if (null == this) "" else GsonUtil.objToJs
 /**
  * 提示方法，根据接口返回的msg提示
  */
-fun String?.responseMsg() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.label_response_net_error) else {
+fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.label_response_net_error) else {
     if (isNullOrEmpty()) resString(R.string.label_response_error) else this
 }).shortToast()
 
@@ -50,13 +51,13 @@ suspend fun <T> request(
             request()
         }.let {
             if (it.process()) resp(it.response()) else {
-                if (isShowToast) it.msg.responseMsg()
+                if (isShowToast) it.msg.responseToast()
                 err(Triple(it.code, it.msg, null))
             }
         }
     } catch (e: Exception) {
-        if (isShowToast) "".responseMsg()
-        err(Triple(-1, "", e))  //可根据具体异常显示具体错误提示
+        if (isShowToast) "".responseToast()
+        err(Triple(FAILURE, "", e))  //可根据具体异常显示具体错误提示
     } finally {
         "3:${Thread.currentThread().name}".logE("repository")
         end()
