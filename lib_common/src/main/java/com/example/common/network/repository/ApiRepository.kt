@@ -22,12 +22,15 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * map扩展，如果只需传入map则使用
  * hashMapOf("" to "")不需要写此扩展
  */
-fun <K, V> HashMap<K, V>?.params() = (if (null == this) "" else GsonUtil.objToJson(this).orEmpty()).toRequestBody("application/json; charset=utf-8".toMediaType())
+fun <K, V> HashMap<K, V>?.params() = (if (null == this) "" else GsonUtil.objToJson(this)
+    .orEmpty()).toRequestBody("application/json; charset=utf-8".toMediaType())
 
 /**
  * 提示方法，根据接口返回的msg提示
  */
-fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.label_response_net_error) else { if (isNullOrEmpty()) resString(R.string.label_response_error) else this }).shortToast()
+fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.label_response_net_error) else {
+    if (isNullOrEmpty()) resString(R.string.label_response_error) else this
+}).shortToast()
 
 /**
  * 网络请求协程扩展-并行请求
@@ -41,12 +44,13 @@ suspend fun <T> request(
     isShowToast: Boolean = false
 ) {
     try {
-        "1:${Thread.currentThread().name}".logE("repository")
+        log("开始请求")
         //请求+响应数据
         withContext(IO) {
-            "2:${Thread.currentThread().name}".logE("repository")
+            log("发起请求")
             request()
         }.let {
+            log("处理结果")
             if (it.process()) resp(it.response()) else {
                 if (isShowToast) it.msg.responseToast()
                 err(Triple(it.code, it.msg, null))
@@ -56,7 +60,7 @@ suspend fun <T> request(
         if (isShowToast) "".responseToast()
         err(Triple(FAILURE, "", e))  //可根据具体异常显示具体错误提示
     } finally {
-        "3:${Thread.currentThread().name}".logE("repository")
+        log("结束请求")
         end()
     }
 }
@@ -93,28 +97,30 @@ suspend fun request(
     val respList = ArrayList<Any?>()
     try {
         withContext(IO) {
-            "串行请求开始时间：${System.nanoTime()}".logE("repository")
+            log("串行请求开始时间：${System.nanoTime()}")
             for (req in requests) {
-                "请求${req}执行时间：${System.nanoTime()}".logE("repository")
+                log("请求${req}执行时间：${System.nanoTime()}")
                 val data = req()
                 if (data.process()) {
                     val body = data.response()
                     respList.add(body)
-                    "请求${req}执行结果：${GsonUtil.objToJson(body ?: Any())}".logE("repository")
+                    log("请求${req}执行结果：${GsonUtil.objToJson(body ?: Any())}")
                 } else {
-                    "请求${req}执行结果：返回参数非200，中断执行".logE("repository")
+                    log("请求${req}执行结果：返回参数非200，中断执行")
                     break
                 }
             }
         }
     } catch (e: Exception) {
-        "串行请求返回结果：接口执行中出现异常".logE("repository")
+        log("串行请求返回结果：接口执行中出现异常")
     } finally {
         //如果返回的对象长度和发起的请求长度是一样的，说明此次串行都执行成功，直接拿取集合即可,其中一条失败就返回空
-        "串行请求返回结果:${respList.size == requests.size}".logE("repository")
+        log("串行请求返回结果:${respList.size == requests.size}")
         end(if (respList.size == requests.size) respList else null)
     }
 }
+
+private fun log(msg: String) = "${msg}\n当前线程：${Thread.currentThread().name}".logE("repository")
 
 /**
  * 项目接口返回对象解析
