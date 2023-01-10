@@ -9,6 +9,7 @@ import android.os.ParcelFileDescriptor
 import android.util.Patterns
 import android.view.View
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
 import com.example.common.config.Constants
 import com.example.common.subscribe.Subscribe
@@ -35,13 +36,13 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 工具类中，实现了对应文件流下载保存的方法，此处采用协程的方式引用
  */
-class FileHelper(activity: FragmentActivity) : CoroutineScope {
+class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = (Main)
     private var job: Job? = null
 
     init {
-        activity.doOnDestroy { job?.cancel() }
+        lifecycleOwner.doOnDestroy { job?.cancel() }
     }
 
     /**
@@ -52,7 +53,7 @@ class FileHelper(activity: FragmentActivity) : CoroutineScope {
         job = launch { savePic(bitmap, root, fileName, delete, formatJpg, onComplete) }
     }
 
-    suspend fun savePic(bitmap: Bitmap, root: String, fileName: String, delete: Boolean = false, formatJpg: Boolean = true, onComplete: (filePath: String?) -> Unit = {}) {
+    private suspend fun savePic(bitmap: Bitmap, root: String, fileName: String, delete: Boolean = false, formatJpg: Boolean = true, onComplete: (filePath: String?) -> Unit = {}) {
         onComplete(withContext(IO) { saveBitmap(bitmap, root, fileName, delete, formatJpg) })
     }
 
@@ -64,7 +65,7 @@ class FileHelper(activity: FragmentActivity) : CoroutineScope {
         job = launch { savePDF(file, index, onComplete) }
     }
 
-    suspend fun savePDF(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}) {
+    private suspend fun savePDF(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}) {
         val root = "${Constants.APPLICATION_PATH}/保存图片"
         val fileName = EN_YMDHMS.getDateTime(Date())
         onComplete(withContext(IO) {
@@ -92,7 +93,7 @@ class FileHelper(activity: FragmentActivity) : CoroutineScope {
         job = launch { saveView(view, width, height, onStart, onResult, onComplete) }
     }
 
-    suspend fun saveView(view: View, width: Int = screenWidth, height: Int = screenHeight, onStart: () -> Unit = {}, onResult: (bitmap: Bitmap?) -> Unit = {}, onComplete: () -> Unit = {}) {
+    private suspend fun saveView(view: View, width: Int = screenWidth, height: Int = screenHeight, onStart: () -> Unit = {}, onResult: (bitmap: Bitmap?) -> Unit = {}, onComplete: () -> Unit = {}) {
         onStart()
         view.loadLayout(width, height)
         try {
@@ -111,7 +112,7 @@ class FileHelper(activity: FragmentActivity) : CoroutineScope {
         job = launch { zip(folderPath, zipPath, onStart, onComplete) }
     }
 
-    suspend fun zip(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onComplete: (filePath: String?) -> Unit? = {}) {
+    private suspend fun zip(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onComplete: (filePath: String?) -> Unit? = {}) {
         var result = true
         try {
             onStart()
@@ -182,7 +183,7 @@ class FileHelper(activity: FragmentActivity) : CoroutineScope {
         job = launch { download(downloadUrl, filePath, fileName, onStart, onSuccess, onLoading, onFailed, onComplete) }
     }
 
-    suspend fun download(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
+    private suspend fun download(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
         if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
             R.string.toast_download_url_error.shortToast()
             return
