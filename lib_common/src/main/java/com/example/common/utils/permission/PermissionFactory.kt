@@ -29,9 +29,7 @@ class PermissionFactory(private val context: Context) {
          * 权限检测
          */
         fun checkSelfPermission(context: Context, vararg permission: String): Boolean {
-            for (perm in permission) {
-                if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(context, perm)) return false
-            }
+            permission.forEach { if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(context, it)) return false }
             return true
         }
 
@@ -87,24 +85,22 @@ class PermissionFactory(private val context: Context) {
      * 彈出授權彈框
      */
     private fun description(permissions: MutableList<String>?) {
-        with(context) {
-            if (permissions.isNullOrEmpty()) return
-            //拼接用戶拒絕後的提示参数
-            var rationale = ""
-            for (index in permsGroup.indices) {
-                if (listOf(*permsGroup[index]).contains(permissions[0])) {
-                    rationale += "*${rationale(index)};\n"
-                }
+        if (permissions.isNullOrEmpty()) return
+        //拼接用戶拒絕後的提示参数
+        var rationale = ""
+        for (index in permsGroup.indices) {
+            if (listOf(*permsGroup[index]).contains(permissions[0])) {
+                rationale += "*${rationale(index)};\n"
             }
-            andDialog.apply {
-                onConfirm = { XXPermissions.startPermissionActivity(context, permissions) }
-                setParams(
-                    string(R.string.label_window_title),
-                    string(R.string.label_window_permission, rationale),
-                    string(R.string.label_window_sure),
-                    string(R.string.label_window_cancel))
-                show()
-            }
+        }
+        andDialog.apply {
+            onConfirm = { XXPermissions.startPermissionActivity(context, permissions) }
+            setParams(
+                string(R.string.label_window_title),
+                string(R.string.label_window_permission, rationale),
+                string(R.string.label_window_sure),
+                string(R.string.label_window_cancel))
+            show()
         }
     }
 
@@ -112,14 +108,12 @@ class PermissionFactory(private val context: Context) {
      * 获取提示文案
      */
     private fun rationale(index: Int): String? {
-        with(context) {
-            return when (index) {
-                0 -> string(R.string.label_permissions_location)
-                1 -> string(R.string.label_permissions_camera)
-                2 -> string(R.string.label_permissions_microphone)
-                3 -> string(R.string.label_permissions_storage)
-                else -> null
-            }
+        return when (index) {
+            0 -> string(R.string.label_permissions_location)
+            1 -> string(R.string.label_permissions_camera)
+            2 -> string(R.string.label_permissions_microphone)
+            3 -> string(R.string.label_permissions_storage)
+            else -> null
         }
     }
 
