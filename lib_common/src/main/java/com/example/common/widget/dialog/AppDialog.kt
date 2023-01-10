@@ -2,10 +2,11 @@ package com.example.common.widget.dialog
 
 import android.content.Context
 import android.view.Gravity
-import com.example.framework.utils.function.view.click
-import com.example.framework.utils.function.view.gone
 import com.example.common.base.BaseDialog
 import com.example.common.databinding.ViewDialogBinding
+import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.visible
 
 /**
  * author: wyb
@@ -18,29 +19,27 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context, close
 
     fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = "", center: Boolean = true) {
         binding.apply {
-            //如果没有传入标题字段,则隐藏标题view
-            if (title.isNullOrEmpty()) tvTip.gone()
-            //如果没有传入取消字段,则隐藏取消view
-            if (negativeText.isNullOrEmpty()) {
-                viewLine.gone()
-                tvCancel.gone()
-            }
-            //文案方向
-            tvContainer.gravity = if (center) Gravity.CENTER else Gravity.LEFT
-            //对控件赋值
-            tvTip.text = title
-            tvContainer.text = message
+            if (title.isNullOrEmpty()) tvTip.gone() else tvTip.text = title
+            tvMessage.gravity = if (center) Gravity.CENTER else Gravity.LEFT
+            tvMessage.text = message
             tvSure.text = positiveText
-            tvCancel.text = negativeText
-            //点击了取消按钮的回调
-            tvCancel.click {
-                dismiss()
-                onCancel?.invoke()
-            }
-            //点击了确定按钮的回调
             tvSure.click {
                 dismiss()
                 onConfirm?.invoke()
+            }
+            if (negativeText.isNullOrEmpty()) {
+                viewLine.gone()
+                tvCancel.gone()
+            } else {
+                viewLine.visible()
+                tvCancel.apply {
+                    visible()
+                    text = negativeText
+                    click {
+                        dismiss()
+                        onCancel?.invoke()
+                    }
+                }
             }
         }
     }

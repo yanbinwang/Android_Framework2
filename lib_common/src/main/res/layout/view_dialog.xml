@@ -26,7 +26,7 @@
             tools:text="标题" />
 
         <TextView
-            android:id="@+id/tv_container"
+            android:id="@+id/tv_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -44,7 +44,7 @@
             style="@style/LineConstraintWidth"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_container" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_message" />
 
         <TextView
             android:id="@+id/tv_cancel"
