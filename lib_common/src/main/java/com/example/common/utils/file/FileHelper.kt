@@ -203,7 +203,7 @@ class FileHelper(activity: FragmentActivity) : CoroutineScope {
                 inputStream = body.byteStream()
                 fileOutputStream = FileOutputStream(file)
                 var len: Int
-                var sum: Long = 0
+                var sum = 0L
                 while (((inputStream.read(buf)).also { len = it }) != -1) {
                     fileOutputStream.write(buf, 0, len)
                     sum += len.toLong()

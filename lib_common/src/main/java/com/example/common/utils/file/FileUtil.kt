@@ -284,7 +284,7 @@ fun Context.getApplicationIcon(): Bitmap? {
 }
 
 /**
- * 判断目录是否存在,不存则创建
+ * 判断目录是否存在,不存在则创建
  * 返回对应路径
  */
 fun String?.isMkdirs(): String {
