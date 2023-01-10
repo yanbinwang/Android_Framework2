@@ -14,12 +14,11 @@ class AndDialog(context: Context) : AlertDialog.Builder(context, R.style.AndDial
     var onConfirm: (() -> Unit)? = null
     var onCancel: (() -> Unit)? = null
 
-    fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = ""): AndDialog {
+    fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = "") {
         if (!title.isNullOrEmpty()) setTitle(title)
         setMessage(if (message.isNullOrEmpty()) "" else message)
         setPositiveButton(positiveText) { _: DialogInterface?, _: Int -> onConfirm?.invoke() }
         if (!negativeText.isNullOrEmpty()) setNegativeButton(negativeText) { _: DialogInterface?, _: Int -> onCancel?.invoke() }
-        return this
     }
 
 }
