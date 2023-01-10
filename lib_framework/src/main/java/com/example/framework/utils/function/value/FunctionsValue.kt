@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Looper
 import androidx.annotation.ColorInt
+import com.example.framework.BuildConfig
 import java.util.*
 
 //------------------------------------方法工具类------------------------------------
@@ -11,6 +12,11 @@ import java.util.*
  * 当前是否是主线程
  */
 val isMainThread get() = Looper.getMainLooper() == Looper.myLooper()
+
+/**
+ * 是否是debug包
+ */
+val isDebug get() = BuildConfig.DEBUG
 
 /**
  * Boolean防空

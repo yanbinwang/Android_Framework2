@@ -28,11 +28,6 @@ import com.example.framework.utils.setSpanFirst
 
 //------------------------------------按钮，控件行为工具类------------------------------------
 /**
- * 是否是debug包
- */
-val isDebug get() = BuildConfig.DEBUG
-
-/**
  * 对应的拼接区分本地和测试
  */
 val Int?.byHostUrl: String get() { return string(this.orZero).byHostUrl }
