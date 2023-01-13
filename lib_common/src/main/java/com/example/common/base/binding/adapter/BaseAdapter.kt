@@ -159,17 +159,17 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 刷新数据
      */
-    fun itemNotify(it: Page<T>?, paging: Paging, onConvert: (newList: MutableList<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
+    fun itemNotify(it: Page<T>?, paging: Paging, onConvert: (newList: List<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
         paging.totalCount = it?.total.orZero
-        val newList = it?.list ?: ArrayList()
+        val newList = it?.list.orEmpty()
         if (paging.hasRefresh) refresh(newList) else insert(newList)
         onConvert.invoke(newList)
         if (data.safeSize == 0) onEmpty.invoke()
         paging.currentCount = data.size
     }
 
-    fun itemNotify(it: Page<T>?, onConvert: (list: MutableList<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
-        val newList = it?.list ?: ArrayList()
+    fun itemNotify(it: Page<T>?, onConvert: (list: List<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
+        val newList = it?.list.orEmpty()
         refresh(newList)
         onConvert.invoke(newList)
         if (data.safeSize == 0) onEmpty.invoke()
