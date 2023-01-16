@@ -54,17 +54,17 @@ object DateFormat {
 @Synchronized
 fun String.compareDate(toSource: String, format: String = EN_YMD): Int {
     val dateFormat = format.getDateFormat()
-    try {
+    return try {
         val comparedDate = dateFormat.parse(this) ?: Date()
         val comparedDate2 = dateFormat.parse(toSource) ?: Date()
-        return when {
+        when {
             comparedDate.time > comparedDate2.time -> 1//日程时间大于系统时间
             comparedDate.time < comparedDate2.time -> -1//日程时间小于系统时间
             else -> 0
         }
     } catch (_: Exception) {
+        0
     }
-    return 0
 }
 
 /**
@@ -75,12 +75,11 @@ fun String.compareDate(toSource: String, format: String = EN_YMD): Int {
  */
 @Synchronized
 fun String.getDateFormat(toFormat: String, source: String): String {
-    var result = ""
-    try {
-        result = toFormat.getDateTime(getDateFormat().parse(source) ?: Date())
+    return try {
+         toFormat.getDateTime(getDateFormat().parse(source) ?: Date())
     } catch (_: ParseException) {
+        ""
     }
-    return result
 }
 
 /**
@@ -113,15 +112,14 @@ fun String.getDateTime(date: Date) = getDateFormat().format(date) ?: ""
  */
 @Synchronized
 fun String.getWeekOfMonth(): Int {
-    try {
-        val source = this
-        Calendar.getInstance().apply {
-            time = EN_YMD.getDateFormat().parse(source) ?: Date()
-            return get(Calendar.WEEK_OF_MONTH)
+    return try {
+        Calendar.getInstance().let {
+            it.time = EN_YMD.getDateFormat().parse(this) ?: Date()
+            it.get(Calendar.WEEK_OF_MONTH)
         }
     } catch (_: ParseException) {
+        0
     }
-    return 0
 }
 
 /**
@@ -130,17 +128,16 @@ fun String.getWeekOfMonth(): Int {
  */
 @Synchronized
 fun String.getWeekOfDate(): Int {
-    try {
-        val source = this
-        Calendar.getInstance().apply {
-            time = EN_YMD.getDateFormat().parse(source) ?: Date()
-            var weekIndex = get(Calendar.DAY_OF_WEEK) - 1
+    return try {
+        Calendar.getInstance().let {
+            it.time = EN_YMD.getDateFormat().parse(this) ?: Date()
+            var weekIndex = it.get(Calendar.DAY_OF_WEEK) - 1
             if (weekIndex < 0) weekIndex = 0
-            return weekIndex
+            weekIndex
         }
     } catch (_: ParseException) {
+        0
     }
-    return 0
 }
 
 /**

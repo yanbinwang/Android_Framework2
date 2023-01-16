@@ -91,15 +91,27 @@ fun string(@StringRes res: Int): String {
     return resString(res)
 }
 
-/**
- * 获取资源文字
- */
 fun resString(@StringRes res: Int): String {
     return try {
         BaseApplication.instance.getString(res)
     } catch (ignore: Exception) {
         ""
     }
+}
+
+/**
+ * 针对string的一些默认值操作
+ */
+fun String?.toNoData(): String {
+    return if (isNullOrEmpty()) string(R.string.label_no_data) else this
+}
+
+fun String?.toNoDollar(): String {
+    return if (isNullOrEmpty()) string(R.string.label_no_data_dollar) else this
+}
+
+fun String?.toNoPercent(): String {
+    return if (isNullOrEmpty()) string(R.string.label_no_data_percent) else this
 }
 
 /**

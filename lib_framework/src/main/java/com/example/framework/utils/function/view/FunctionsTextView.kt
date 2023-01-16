@@ -142,7 +142,7 @@ fun TextView?.setClickableSpan(textStr: String, keyword: String, clickableSpan: 
 /**
  * EditText输入密码是否可见(显隐)
  */
-fun EditText?.inputTransformation(): Boolean {
+fun EditText?.passwordInputCutover(): Boolean {
     if (this == null) return false
     var display = false
     try {
@@ -167,20 +167,27 @@ fun EditText?.decimalFilter(decimalPoint: Int = 2) {
     if (this == null) return
     val decimalInputFilter = DecimalInputFilter()
     decimalInputFilter.decimalPoint = decimalPoint
-    filters = arrayOf<InputFilter>(decimalInputFilter)
+    addFilter(decimalInputFilter)
+//    filters = arrayOf<InputFilter>(decimalInputFilter)
 }
 
 /**
  * EditText不允许输入空格
  */
-fun EditText?.inhibitInputSpace() {
+fun EditText?.inhibitSpace() {
     if (this == null) return
-    filters = arrayOf(object : InputFilter {
+    addFilter(object : InputFilter {
         override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
             val result = source ?: ""
             return if (result == " ") "" else null
         }
     })
+//    filters = arrayOf(object : InputFilter {
+//        override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
+//            val result = source ?: ""
+//            return if (result == " ") "" else null
+//        }
+//    })
 }
 
 /**

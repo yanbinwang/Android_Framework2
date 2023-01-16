@@ -172,9 +172,9 @@ object BaseBindingAdapter {
      * 是否禁止输入空格
      */
     @JvmStatic
-    @BindingAdapter(value = ["is_inhibit_input_space"])
+    @BindingAdapter(value = ["is_inhibit_space"])
     fun bindingEditTextInhibitInputSpace(editText: EditText, isInhibitInputSpace: Boolean?) {
-        if (isInhibitInputSpace.orFalse) editText.inhibitInputSpace()
+        if (isInhibitInputSpace.orFalse) editText.inhibitSpace()
     }
 
     /**

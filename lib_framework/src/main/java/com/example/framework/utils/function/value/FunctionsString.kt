@@ -1,8 +1,6 @@
 package com.example.framework.utils.function.value
 
 import android.util.Base64
-import java.math.RoundingMode
-import java.text.DecimalFormat
 import java.util.regex.Pattern
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
@@ -105,21 +103,6 @@ fun String.hide4BitLetter(): String {
  * 验证手机号
  */
 fun String.isMobile() = Pattern.matches("^1[0-9]{10}$", this)
-
-/**
- * 截取小数点后X位
- */
-fun String?.getFormat(decimalPlace: Int): String {
-    if (this.isNullOrEmpty()) return ""
-    val value = toDouble()
-    val format = StringBuilder()
-    for (i in 0 until decimalPlace) {
-        format.append("0")
-    }
-    val decimalFormat = DecimalFormat("0.$format")
-    decimalFormat.roundingMode = RoundingMode.DOWN
-    return decimalFormat.format(value)
-}
 
 /**
  * 返回密码强度

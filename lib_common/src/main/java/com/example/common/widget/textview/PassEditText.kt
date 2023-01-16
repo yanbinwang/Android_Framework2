@@ -33,7 +33,7 @@ class PassEditText @JvmOverloads constructor(context: Context, attrs: AttributeS
             if (keyCode == KeyEvent.KEYCODE_DEL) binding.etClear.setText("")
             false
         }
-        binding.ivShow.apply { click { setResource(Triple(binding.etClear.inputTransformation(), showRes, hideRes)) }}
+        binding.ivShow.apply { click { setResource(Triple(binding.etClear.passwordInputCutover(), showRes, hideRes)) }}
         //以下属性在xml中前缀使用app:调取
         if (attrs != null) {
             val ta = getContext().obtainStyledAttributes(attrs, R.styleable.PassEditText)
