@@ -55,23 +55,31 @@ fun Number?.toFixedDouble(fixed: Int, mode: Int = BigDecimal.ROUND_UP): Double {
 }
 
 /**
- * 当小数位超过两位时，只显示两位，但只有一位或没有，则不需要补0
+ * 保证小数位X位,不做四舍五入
  */
-fun Number?.toFixedRounding() = DecimalFormat("0.##").format(this) ?: ""
+fun Number.toFixed(fixed: Int = 6): String {
+    val format = StringBuffer("0.")
+    for (i in 0 until fixed) {
+        format.append("0")
+    }
+    return DecimalFormat(format.toString()).format(this)
+}
 
 /**
- * 保证小数位6位的经纬度
+ * 当小数位超过X位时，只显示X位，不补0,不做四舍五入
  */
-fun Number.toFixedCompletion(length: Int = 6): String {
-    var pattern = "0."
-    for (index in 0 until length) {
-        pattern = "${pattern}0"
+fun Number?.toFixedWithoutZero(fixed: Int): String {
+    val format = StringBuffer("0.")
+    val size = if (fixed < 2) 1 else fixed
+    for (i in 0 until size) {
+        format.append("#")
     }
-    return DecimalFormat(pattern).format(this)
+    return DecimalFormat(format.toString()).format(this) ?: "0"
 }
 
 /**
  * 保留小数，末尾为零则不显示0
+ * 1.0000000->1
  */
 fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
     return BigDecimal((this.orZero).toString()).setScale(fixed, mode).stripTrailingZeros().toPlainString()
