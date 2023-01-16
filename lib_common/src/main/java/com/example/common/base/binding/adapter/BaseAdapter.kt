@@ -5,13 +5,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.example.framework.utils.function.value.findIndexOf
-import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.safeGet
-import com.example.framework.utils.function.value.safeSize
-import com.example.framework.utils.function.view.click
 import com.example.common.base.page.Page
-import com.example.common.base.page.Paging
+import com.example.framework.utils.function.value.*
+import com.example.framework.utils.function.view.click
 
 /**
  * Created by WangYanBin on 2020/7/17.
@@ -157,21 +153,16 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     }
 
     /**
-     * 刷新数据
+     * 刷新/添加数据
+     * page：手机端整理的分页对象类，和服务端约定好data内嵌套的格式
+     * hasRefresh：指定此次的数据是否是刷新的数据（由外层刷新控件或手动指定）
+     * onConvert：返回此次请求获取到的集合
+     * onEmpty：当前适配器的集合为空时才会回调
      */
-    fun itemNotify(it: Page<T>?, paging: Paging, onConvert: (newList: List<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
-        paging.totalCount = it?.total.orZero
-        val newList = it?.list.orEmpty()
-        if (paging.hasRefresh) refresh(newList) else insert(newList)
-        onConvert.invoke(newList)
-        if (data.safeSize == 0) onEmpty.invoke()
-        paging.currentCount = data.size
-    }
-
-    fun itemNotify(it: Page<T>?, onConvert: (list: List<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
-        val newList = it?.list.orEmpty()
-        refresh(newList)
-        onConvert.invoke(newList)
+    fun itemNotify(page: Page<T>?, hasRefresh: Boolean? = true, onConvert: (list: List<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
+        val list = page?.list.orEmpty()
+        if (hasRefresh.orFalse) refresh(list) else insert(list)
+        onConvert.invoke(list)
         if (data.safeSize == 0) onEmpty.invoke()
     }
 
