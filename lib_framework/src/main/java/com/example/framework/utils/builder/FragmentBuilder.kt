@@ -77,6 +77,13 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
         onTabShow?.invoke(tab)
     }
 
+    /**
+     * 获取对应的fragment
+     */
+    fun <T : Fragment> getFragment(index: Int): T? {
+        return list.safeGet(index) as? T
+    }
+
     private fun newInstance(pair: Pair<Class<*>, String>?): Fragment {
         val transaction = manager.beginTransaction()
         var fragment = manager.findFragmentByTag(pair?.second)
