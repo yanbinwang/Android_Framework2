@@ -1,20 +1,11 @@
 package com.example.common.utils.helper
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import com.app.hubert.guide.NewbieGuide
-import com.app.hubert.guide.core.Controller
-import com.app.hubert.guide.listener.OnGuideChangedListener
-import com.app.hubert.guide.model.GuidePage
-import com.example.common.R
-import com.example.common.utils.MmkvUtil
-import com.example.framework.utils.function.color
-import java.lang.ref.WeakReference
 
 /**
  *  Created by wangyanbin
@@ -29,41 +20,7 @@ object ConfigHelper {
         context = application
     }
 
-    // <editor-fold defaultstate="collapsed" desc="公用方法">
-    /**
-     * 遮罩引导
-     * https://www.jianshu.com/p/f28603e59318
-     * ConfigHelper.showGuide(this,"sdd",GuidePage
-     *  .newInstance()
-     *  .addHighLight(binding.btnList)
-     *  .setBackgroundColor(color(R.color.black_4c000000))
-     *  .setLayoutRes(R.layout.view_guide_simple))
-     */
-    @JvmStatic
-    fun showGuide(activity: Activity, label: String, vararg pages: GuidePage) {
-        if (!MmkvUtil.decodeBool(label)) {
-            MmkvUtil.encode(label, true)
-            WeakReference(activity).get()?.apply {
-                val builder = NewbieGuide.with(this)//传入activity
-                    .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
-                    .setOnGuideChangedListener(object : OnGuideChangedListener {
-                        override fun onShowed(controller: Controller?) {
-                        }
-
-                        override fun onRemoved(controller: Controller?) {
-                        }
-                    })
-                    .alwaysShow(true)
-                for (page in pages) {
-                    //此处处理一下阴影背景
-                    page.backgroundColor = activity.color(R.color.black_4c000000)
-                    builder.addGuidePage(page)
-                }
-                builder.show()
-            }
-        }
-    }
-
+    // <editor-fold defaultstate="collapsed" desc="调取方法">
     /**
      * 在进程中去寻找当前APP的信息，判断是否在运行
      * 100表示取的最大的任务数，info.topActivity表示当前正在运行的Activity，info.baseActivity表系统后台有此进程在运行
@@ -75,9 +32,7 @@ object ConfigHelper {
         }
         return false
     }
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="调取方法">
     /**
      * 获取当前app version code
      */

@@ -14,17 +14,26 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.alibaba.android.arouter.launcher.ARouter
+import com.app.hubert.guide.NewbieGuide
+import com.app.hubert.guide.core.Controller
+import com.app.hubert.guide.listener.OnGuideChangedListener
+import com.app.hubert.guide.model.GuidePage
+import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.utils.AppManager
+import com.example.common.utils.MmkvUtil
+import com.example.common.utils.MmkvUtil.decodeBool
+import com.example.common.utils.MmkvUtil.encode
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.function.color
 import com.example.common.widget.dialog.LoadingDialog
+import com.example.framework.utils.function.color
 import com.example.framework.utils.function.view.*
-import com.example.framework.utils.logE
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -72,7 +81,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        log(TAG)
         if (Looper.getMainLooper() == Looper.myLooper()) {
             AutoSizeConfig.getInstance()
                 .setScreenWidth(screenWidth)
@@ -165,10 +173,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
-    override fun log(msg: String) {
-        msg.logE(TAG)
-    }
-
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
         if (second >= 0) {
@@ -185,6 +189,27 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun hideDialog() {
         loadingDialog.hidden()
+    }
+
+    override fun showGuide(label: String, vararg pages: GuidePage) {
+        if (!decodeBool(label)) {
+            encode(label, true)
+            val builder = NewbieGuide.with(this)//传入activity
+                .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
+                .setOnGuideChangedListener(object : OnGuideChangedListener {
+                    override fun onShowed(controller: Controller?) {
+                    }
+
+                    override fun onRemoved(controller: Controller?) {
+                    }
+                })
+                .alwaysShow(true)
+            for (page in pages) {
+                page.backgroundColor = color(R.color.black_4c000000)//此处处理一下阴影背景
+                builder.addGuidePage(page)
+            }
+            builder.show()
+        }
     }
 
     override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity {

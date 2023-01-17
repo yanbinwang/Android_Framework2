@@ -79,8 +79,8 @@ dependencies {
     api deps.autosize
     api deps.recovery
     api deps.smartrefresh
+    api deps.guide
     implementation deps.mmkv
-    implementation deps.guide
     implementation deps.eventbus
     implementation deps.xxpermissions
     implementation deps.immersionbar
