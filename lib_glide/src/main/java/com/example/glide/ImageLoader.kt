@@ -172,7 +172,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         Glide.with(context)
             .downloadOnly()
             .load(string)
-            .listener(object : GlideRequestListener<File>() {
+            .listener(object : GlideRequestListener<File?>() {
                 override fun onStart() {
                     onStart()
                 }

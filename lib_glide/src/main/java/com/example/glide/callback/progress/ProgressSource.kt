@@ -23,7 +23,8 @@ class ProgressSource(private var responseBody: ResponseBody, private var onProgr
         } else {
             totalBytesRead += bytesRead
         }
-        val progress = (100f.times(totalBytesRead).div(fullLength.orZero)).toSafeInt()
+        //float和double使用了IEEE 754标准,标准规定：浮点数除以0等于正无穷或负无穷，不会造成闪退
+        val progress = (100f * totalBytesRead / fullLength.orZero).toSafeInt()
         "download progress is $progress".logE("ProgressSource")
         if (progress != currentProgress) onProgress?.invoke(progress)
         if (totalBytesRead == fullLength) onProgress = null

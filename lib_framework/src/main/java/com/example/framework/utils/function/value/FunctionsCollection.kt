@@ -229,7 +229,7 @@ fun <T> Collection<T>.findIndexed(func: ((T) -> Boolean)): Pair<Int, T>? {
 fun <T> MutableList<T>.findAndRemove(func: ((T) -> Boolean)) {
     try {
         remove(find { func(it) })
-    } catch (e: Exception) {
+    } catch (_: Exception) {
     }
 }
 
@@ -237,20 +237,22 @@ fun <T> MutableList<T>.findAndRemove(func: ((T) -> Boolean)) {
  * 返回List中随机一个值
  */
 val <T> List<T>?.randomItem: T?
-    get() = if (isNullOrEmpty())
+    get() = if (isNullOrEmpty()) {
         null
-    else
+    } else {
         this[Random.nextInt(0, size)]
-
+    }
 
 /**
  * 返回Array中随机一个值
  */
 val <T> Array<T>?.randomItem: T?
-    get() = if (isNullOrEmpty())
+    get() = if (isNullOrEmpty()) {
         null
-    else
+    } else {
         this[Random.nextInt(0, size)]
+    }
+
 
 /**
  * 返回CharArray中随机一个值
