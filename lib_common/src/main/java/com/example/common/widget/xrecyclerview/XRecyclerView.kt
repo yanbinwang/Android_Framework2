@@ -147,7 +147,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 当数据正在加载的时候显示
      */
-    fun showLoading() {
+    fun loading() {
         if (0 != emptyType) empty?.loading()
     }
 
@@ -155,7 +155,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 当数据为空时(显示需要显示的图片，以及内容字)
      */
     @JvmOverloads
-    fun showEmpty(imgInt: Int = -1, text: String? = null) {
+    fun empty(imgInt: Int = -1, text: String? = null) {
         if (0 != emptyType) empty?.empty(imgInt, text)
     }
 
@@ -163,7 +163,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 当数据异常时
      */
     @JvmOverloads
-    fun showError(imgInt: Int = -1, text: String? = null) {
+    fun error(imgInt: Int = -1, text: String? = null) {
         if (0 != emptyType) empty?.error(imgInt, text)
     }
 
