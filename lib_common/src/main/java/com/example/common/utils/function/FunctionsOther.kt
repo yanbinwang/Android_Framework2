@@ -15,6 +15,8 @@ import com.example.common.BaseApplication
 import com.example.common.BuildConfig
 import com.example.common.R
 import com.example.common.utils.ScreenUtil
+import com.example.common.utils.ScreenUtil.getRealSize
+import com.example.common.utils.ScreenUtil.getRealSizeFloat
 import com.example.common.utils.analysis.GsonUtil
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
@@ -32,9 +34,9 @@ import java.lang.reflect.Type
 /**
  * 对应的拼接区分本地和测试
  */
-val Int?.byHostUrl: String get() { return string(this.orZero).byHostUrl }
+val Int?.byHostUrl get() = string(this.orZero).byHostUrl
 
-val String?.byHostUrl: String get() { return "${BuildConfig.LOCALHOST}${this}" }
+val String?.byHostUrl get() = "${BuildConfig.LOCALHOST}${this}"
 
 /**
  * 设计图尺寸转换为实际尺寸
@@ -195,7 +197,7 @@ object ExtraNumber {
      */
     fun Number?.pt(): Int {
         if (this == null) return 0
-        return ScreenUtil.getRealSize(this.toDouble())
+        return getRealSize(this.toDouble())
     }
 
     /**
@@ -203,7 +205,7 @@ object ExtraNumber {
      */
     fun Number?.ptFloat(context: Context = BaseApplication.instance): Float {
         if (this == null) return 0f
-        return ScreenUtil.getRealSizeFloat(context, this.toFloat())
+        return getRealSizeFloat(context, this.toFloat())
     }
 
     /**
