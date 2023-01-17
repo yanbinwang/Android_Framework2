@@ -14,9 +14,7 @@ import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
-import com.example.common.utils.function.getStatusBarHeight
-import com.example.common.utils.function.load
-import com.example.common.utils.function.setSpanFirst
+import com.example.common.utils.function.*
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
@@ -142,11 +140,23 @@ object BaseBindingAdapter {
     // <editor-fold defaultstate="collapsed" desc="textview绑定方法">
     /**
      * 高亮文本
+     * text:文本
+     * key_text：高亮文本
+     * key_color：高亮文本颜色
+     * is_match_text：文字是否撑满宽度（textview本身有一定的padding且会根据内容自动换行）
+     * empty_type：0：默认 1：数据空 2：金额空 3：%空
      */
     @JvmStatic
-    @BindingAdapter(value = ["text", "key_text", "key_color", "is_match_text"], requireAll = false)
-    fun bindingTextViewSpanFirst(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isMatchText: Boolean?) {
-        if (!keyText.isNullOrEmpty()) textview.setSpanFirst(text.orEmpty(), keyText, keyColor.toSafeInt(R.color.defaultTheme)) else textview.text = text.orEmpty()
+    @BindingAdapter(value = ["text", "key_text", "key_color", "is_match_text", "empty_type"], requireAll = false)
+    fun bindingTextViewSpanFirst(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isMatchText: Boolean?, emptyType: Int?) {
+        if (!text.isNullOrEmpty() && !keyText.isNullOrEmpty()) textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.defaultTheme)) else {
+            textview.text = when (emptyType.toSafeInt()) {
+                0 -> text.orEmpty()
+                1 -> text.toNoData()
+                2 -> text.toNoDollar()
+                else -> text.toNoPercent()
+            }
+        }
         if (isMatchText.orFalse) textview.setMatchText()
     }
 
