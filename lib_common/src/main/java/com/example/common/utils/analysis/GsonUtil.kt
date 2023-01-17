@@ -16,7 +16,9 @@ object GsonUtil {
             .registerTypeAdapter(Boolean::class.java, BooleanTypeAdapter()).create()
     }
 
-    @JvmStatic
+    /**
+     * json字符串转对象
+     */
     fun <T> jsonToObj(json: String, className: Class<T>): T? {
         var ret: T? = null
         try {
@@ -26,7 +28,9 @@ object GsonUtil {
         return ret
     }
 
-    @JvmStatic
+    /**
+     * json字符串转集合
+     */
     fun <T> jsonToList(json: String): List<T>? {
         var ret: List<T>? = null
         try {
@@ -36,17 +40,25 @@ object GsonUtil {
         return ret
     }
 
-//    @JvmStatic
-//    fun <T> jsonToList(array: JsonArray): List<T>? {
-//        var ret: List<T>? = null
-//        try {
-//            ret = gson.fromJson<List<T>>(array, object : TypeToken<List<T>>() {}.type)
-//        } catch (_: Exception) {
-//        }
-//        return ret
-//    }
+    /**
+     * JsonArray转集合
+     * 由于类型擦除，解析器无法在运行时获取真实类型 T
+     * 直接传T获取会报com.google.gson.internal.LinkedTreeMap cannot be cast to object
+     * 故而直接把T的class传入，让解析器能够识别，并且重新转换成一个list
+     */
+    fun <T> jsonToList(array: JsonArray, clazz: Class<T>): List<T> {
+        val ret = ArrayList<T>()
+        try {
+            array.forEach { ret.add(gson.fromJson(it, clazz)) }
+        } catch (_: Exception) {
+        }
+        return ret
+    }
 
-    @JvmStatic
+    /**
+     * JsonArray转集合
+     * 指定type->object : TypeToken<List<XXXX>>() {}.type
+     */
     fun <T> jsonToList(array: JsonArray, type: Type): List<T>? {
         var ret: List<T>? = null
         try {
@@ -56,7 +68,9 @@ object GsonUtil {
         return ret
     }
 
-    @JvmStatic
+    /**
+     * 对象转json字符串
+     */
     fun objToJson(obj: Any): String? {
         var ret: String? = null
         try {
