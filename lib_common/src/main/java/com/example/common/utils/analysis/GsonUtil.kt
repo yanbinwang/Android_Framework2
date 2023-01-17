@@ -1,6 +1,8 @@
 package com.example.common.utils.analysis
 
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
+import com.google.gson.reflect.TypeToken
 
 /**
  * author:wyb
@@ -24,6 +26,26 @@ object GsonUtil {
     }
 
     @JvmStatic
+    fun <T> jsonToList(json: String): List<T>? {
+        var ret: List<T>? = null
+        try {
+            ret = gson.fromJson<List<T>>(json, object : TypeToken<List<T>>() {}.type)
+        } catch (_: Exception) {
+        }
+        return ret
+    }
+
+    @JvmStatic
+    fun <T> jsonToList(array: JsonArray): List<T>? {
+        var ret: List<T>? = null
+        try {
+            ret = gson.fromJson<List<T>>(array, object : TypeToken<List<T>>() {}.type)
+        } catch (_: Exception) {
+        }
+        return ret
+    }
+
+    @JvmStatic
     fun objToJson(obj: Any): String? {
         var ret: String? = null
         try {
@@ -31,6 +53,11 @@ object GsonUtil {
         } catch (_: Exception) {
         }
         return ret
+    }
+
+    @JvmStatic
+    fun listToJson(list: Collection<Any>): String? {
+        return objToJson(list)
     }
 
 }

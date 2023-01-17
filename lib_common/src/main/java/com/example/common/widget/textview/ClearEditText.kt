@@ -43,34 +43,34 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         binding.ivClear.click { binding.etClear.setText("") }
         //以下属性在xml中前缀使用app:调取
         if (attrs != null) {
-            val ta = getContext().obtainStyledAttributes(attrs, R.styleable.ClearEditText)
+            val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.ClearEditText)
             //文本内容
-            val text = ta.getResourceId(R.styleable.ClearEditText_text, -1)
+            val text = typedArray.getResourceId(R.styleable.ClearEditText_text, -1)
             if (text != -1) setText(text)
             //文字大小
-            val textSize = ta.getDimension(R.styleable.ClearEditText_textSize, context.dimen(R.dimen.textSize14))
+            val textSize = typedArray.getDimension(R.styleable.ClearEditText_textSize, context.dimen(R.dimen.textSize14))
             setTextSize(textSize)
             //文字颜色
-            val textColor = ta.getColor(R.styleable.ClearEditText_textColor, color(R.color.textPrimary))
+            val textColor = typedArray.getColor(R.styleable.ClearEditText_textColor, color(R.color.textPrimary))
             setTextColor(textColor)
             //无内容显示的文本内容
-            val hint = ta.getResourceId(R.styleable.ClearEditText_hint, -1)
+            val hint = typedArray.getResourceId(R.styleable.ClearEditText_hint, -1)
             if (hint != -1) setHint(hint)
             //无为内容显示的文本内容颜色
-            val hintColor = ta.getColor(R.styleable.ClearEditText_textColorHint, color(R.color.textHint))
+            val hintColor = typedArray.getColor(R.styleable.ClearEditText_textColorHint, color(R.color.textHint))
             setHintTextColor(hintColor)
             //文本方向
-            val gravity = ta.getInt(R.styleable.ClearEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
+            val gravity = typedArray.getInt(R.styleable.ClearEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
             setGravity(gravity)
             //清除按钮图片资源
-            val clearBtnImage = ta.getResourceId(R.styleable.ClearEditText_clearBtnImage, R.mipmap.ic_text_clear)
+            val clearBtnImage = typedArray.getResourceId(R.styleable.ClearEditText_clearBtnImage, R.mipmap.ic_text_clear)
             setImageResource(clearBtnImage)
             //文案最大范围
-            val maxLength = ta.getInt(R.styleable.ClearEditText_maxLength, -1)
+            val maxLength = typedArray.getInt(R.styleable.ClearEditText_maxLength, -1)
             if (maxLength != -1) setMaxLength(maxLength)
             //最小和最大函数，不设置默认单行
-            val minLine = ta.getInt(R.styleable.ClearEditText_minLine, -1)
-            val maxLine = ta.getInt(R.styleable.ClearEditText_maxLine, -1)
+            val minLine = typedArray.getInt(R.styleable.ClearEditText_minLine, -1)
+            val maxLine = typedArray.getInt(R.styleable.ClearEditText_maxLine, -1)
             if (minLine > 0 || maxLine > 0) {
                 binding.etClear.isSingleLine = false
             } else {
@@ -79,18 +79,18 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             }
             if (minLine > 0) binding.etClear.minLines = minLine
             if (maxLine > 0) binding.etClear.maxLines = maxLine
-            val minHeight = ta.getDimension(R.styleable.ClearEditText_android_minHeight, -1f)
+            val minHeight = typedArray.getDimension(R.styleable.ClearEditText_android_minHeight, -1f)
             if (minHeight > 0) binding.etClear.minHeight = minHeight.toInt()
             //当前控件是否可用
-            val disabled = ta.getBoolean(R.styleable.ClearEditText_disabled, false)
+            val disabled = typedArray.getBoolean(R.styleable.ClearEditText_disabled, false)
             if (disabled) setDisabled()
             //配置文案输入的格式
-            val inputType = ta.getInt(R.styleable.ClearEditText_inputType, 0)
+            val inputType = typedArray.getInt(R.styleable.ClearEditText_inputType, 0)
             binding.etClear.inputType(inputType)
             //配置输入法右下角按钮的样式
-            val imeOptions = ta.getInt(R.styleable.ClearEditText_imeOptions, 0)
+            val imeOptions = typedArray.getInt(R.styleable.ClearEditText_imeOptions, 0)
             binding.etClear.imeOptions(imeOptions)
-            ta.recycle()
+            typedArray.recycle()
         }
     }
 

@@ -15,13 +15,13 @@ class WordWrapLayout @JvmOverloads constructor(context: Context, attrs: Attribut
 
     init {
         if (attrs != null) {
-            val ta = getContext().obtainStyledAttributes(attrs, R.styleable.WordWrapLayout)
-            paddingStart = ta.getInt(R.styleable.WordWrapLayout_paddingStart, 10)
-            paddingTop = ta.getInt(R.styleable.WordWrapLayout_paddingTop, 5)
-            paddingEnd = ta.getInt(R.styleable.WordWrapLayout_paddingEnd, 10)
-            paddingBottom = ta.getInt(R.styleable.WordWrapLayout_paddingBottom, 5)
-            marginChild = ta.getInt(R.styleable.WordWrapLayout_marginChild, 10)//view左右间距
-            ta.recycle()
+            val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.WordWrapLayout)
+            paddingStart = typedArray.getInt(R.styleable.WordWrapLayout_paddingChildStart, 10)
+            paddingTop = typedArray.getInt(R.styleable.WordWrapLayout_paddingChildTop, 5)
+            paddingEnd = typedArray.getInt(R.styleable.WordWrapLayout_paddingChildEnd, 10)
+            paddingBottom = typedArray.getInt(R.styleable.WordWrapLayout_paddingChildBottom, 5)
+            marginChild = typedArray.getInt(R.styleable.WordWrapLayout_marginChild, 10)//view左右间距
+            typedArray.recycle()
         }
     }
 

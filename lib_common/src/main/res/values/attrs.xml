@@ -3,10 +3,10 @@
 
     <!-- 自定义换行容器 -->
     <declare-styleable name="WordWrapLayout">
-        <attr name="paddingStart" format="integer" />
-        <attr name="paddingTop" format="integer" />
-        <attr name="paddingEnd" format="integer" />
-        <attr name="paddingBottom" format="integer" />
+        <attr name="paddingChildStart" format="integer" />
+        <attr name="paddingChildTop" format="integer" />
+        <attr name="paddingChildEnd" format="integer" />
+        <attr name="paddingChildBottom" format="integer" />
         <attr name="marginChild" format="integer" />
     </declare-styleable>
 
