@@ -4,6 +4,7 @@ import android.app.Activity
 import com.example.common.config.Constants
 import com.example.common.config.RequestCode.REQUEST_PHOTO
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.file.mb
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.execute
@@ -60,7 +61,7 @@ class AlbumHelper(private val activity: Activity) {
     /**
      * 选择图片
      */
-    fun imageSelection(hasCamera: Boolean = true, hasTailor: Boolean = false) = activity.execute {
+    fun imageSelection(hasCamera: Boolean = true, hasTailor: Boolean = false, fileSize: Long = 10) = activity.execute {
         Album.image(this)
             //多选模式为：multipleChoice,单选模式为：singleChoice()
             .singleChoice()
@@ -75,8 +76,8 @@ class AlbumHelper(private val activity: Activity) {
             .afterFilterVisibility(false)
             .onResult {
                 it[0].apply {
-                    if (size > 10 * 1024 * 1024) {
-                        string(R.string.toast_album_pic_choice).shortToast()
+                    if (size > fileSize.mb) {
+                        string(R.string.toast_album_image_error).shortToast()
                         return@onResult
                     }
                     if (hasTailor) toTailor(path) else onAlbum?.invoke(path)
@@ -87,7 +88,7 @@ class AlbumHelper(private val activity: Activity) {
     /**
      * 选择视频
      */
-    fun videoSelection() = activity.execute {
+    fun videoSelection(fileSize: Long = 100) = activity.execute {
         Album.video(this)
             //多选模式为：multipleChoice,单选模式为：singleChoice()
             .singleChoice()
@@ -102,8 +103,8 @@ class AlbumHelper(private val activity: Activity) {
             .afterFilterVisibility(false)
             .onResult {
                 it[0].apply {
-                    if (size > 100 * 1024 * 1024) {
-                        string(R.string.toast_album_video_choice).shortToast()
+                    if (size > fileSize.mb) {
+                        string(R.string.toast_album_video_error).shortToast()
                         return@onResult
                     }
                     onAlbum?.invoke(path)

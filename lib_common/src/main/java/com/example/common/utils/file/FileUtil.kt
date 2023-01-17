@@ -233,6 +233,13 @@ object FileUtil {
 }
 
 /**
+ * 各个单位换算
+ */
+val Number.mb get() = this.toSafeLong() * 1024L * 1024L
+val Number.gb get() = this.toSafeLong() * 1024L * 1024L * 1024L
+val Number.tb get() = this.toSafeLong() * 1024L * 1024L * 1024L * 1024L
+
+/**
  * 是否安装了XXX应用
  *  <uses-permission
  *  android:name="android.permission.QUERY_ALL_PACKAGES"

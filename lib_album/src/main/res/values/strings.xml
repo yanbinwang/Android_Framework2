@@ -1,7 +1,7 @@
 <resources>
     <!-- app内的一些提示 -->
-    <string name="toast_album_pic_choice">请选择10M以内的图片</string>
-    <string name="toast_album_video_choice">请选择100M以内的视频</string>
+    <string name="toast_album_image_error">请选择10M以内的图片</string>
+    <string name="toast_album_video_error">请选择100M以内的视频</string>
 
     <!-- app内的view显示字段 -->
     <string name="label_title_album">相册</string>
