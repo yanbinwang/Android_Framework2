@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- 自定义换行容器 -->
+    <declare-styleable name="WordWrapLayout">
+        <attr name="paddingStart" format="integer" />
+        <attr name="paddingTop" format="integer" />
+        <attr name="paddingEnd" format="integer" />
+        <attr name="paddingBottom" format="integer" />
+        <attr name="marginChild" format="integer" />
+    </declare-styleable>
+
     <!-- 自定义XRecyclerView -->
     <declare-styleable name="XRecyclerView">
         <!-- recyclerview的类型 -->

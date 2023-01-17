@@ -6,12 +6,12 @@ import com.example.common.config.ARouterPath
 import com.example.common.config.Constants
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.logWTF
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.automatic.AutomaticBean
 import com.example.mvvm.widget.automatic.AutomaticBuilder
 import com.example.mvvm.widget.dialog.TestDialog
-import com.example.mvvm.widget.popup.TestPopup
 
 
 @Route(path = ARouterPath.MainActivity)
@@ -27,6 +27,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         viewList.forEach {
             binding.llContainer.addView(it.getView())
         }
+        binding.btnFileManager.padding()
        binding.btnFileManager.click { testDialog.shown() }
         "${Constants.APPLICATION_PATH}".logWTF
     }

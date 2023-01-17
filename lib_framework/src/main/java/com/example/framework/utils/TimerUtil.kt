@@ -30,7 +30,7 @@ object TimerUtil {
      */
     @JvmOverloads
     @JvmStatic
-    fun startTask(tag: String = "TIMER_DEFULT", run: (() -> Unit)?, millisecond: Long = 1000) {
+    fun startTask(tag: String = "TIMER_DEFAULT", run: (() -> Unit)?, millisecond: Long = 1000) {
         if (timerMap[tag] == null) {
             val timer = Timer()
             val timerTask = object : TimerTask() {
@@ -47,7 +47,7 @@ object TimerUtil {
      * 计时（累加）-结束
      */
     @JvmStatic
-    fun stopTask(tag: String = "TIMER_DEFULT") {
+    fun stopTask(tag: String = "TIMER_DEFAULT") {
         timerMap[tag]?.apply {
             first?.cancel()
             second?.cancel()
@@ -65,7 +65,7 @@ object TimerUtil {
      * second-秒
      */
     @JvmStatic
-    fun startCountDown(tag: String = "COUNT_DOWN_DEFULT", onTick: ((second: Long) -> Unit)?, onFinish: (() -> Unit)?, second: Long = 1) {
+    fun startCountDown(tag: String = "COUNT_DOWN_DEFAULT", onTick: ((second: Long) -> Unit)?, onFinish: (() -> Unit)?, second: Long = 1) {
         if (countDownMap[tag] == null) {
             val countDownTimer = object : CountDownTimer(second * 1000, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
@@ -86,7 +86,7 @@ object TimerUtil {
      * 倒计时-结束
      */
     @JvmStatic
-    fun stopCountDown(tag: String = "COUNT_DOWN_DEFULT") {
+    fun stopCountDown(tag: String = "COUNT_DOWN_DEFAULT") {
         countDownMap[tag]?.cancel()
         countDownMap.remove(tag)
     }

@@ -3,12 +3,27 @@ package com.example.common.widget
 import android.content.Context
 import android.util.AttributeSet
 import android.view.ViewGroup
+import com.example.common.R
 import com.example.common.utils.function.pt
 
 class WordWrapLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ViewGroup(context, attrs, defStyleAttr) {
-    private val PADDING_HORIZONTAL by lazy { 10.pt } //水平方向padding
-    private val PADDING_VERTICAL by lazy { 5.pt }//垂直方向padding
-    private val MARGIN_CHILD by lazy { 10.pt }//view左右间距
+    private var paddingStart: Int? = 10
+    private var paddingTop: Int? = 5
+    private var paddingEnd: Int? = 10
+    private var paddingBottom: Int? = 5
+    private var marginChild: Int? = 10
+
+    init {
+        if (attrs != null) {
+            val ta = getContext().obtainStyledAttributes(attrs, R.styleable.WordWrapLayout)
+            paddingStart = ta.getInt(R.styleable.WordWrapLayout_paddingStart, 10)
+            paddingTop = ta.getInt(R.styleable.WordWrapLayout_paddingTop, 5)
+            paddingEnd = ta.getInt(R.styleable.WordWrapLayout_paddingEnd, 10)
+            paddingBottom = ta.getInt(R.styleable.WordWrapLayout_paddingBottom, 5)
+            marginChild = ta.getInt(R.styleable.WordWrapLayout_marginChild, 10)//view左右间距
+            ta.recycle()
+        }
+    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         //设置横纵坐标0,0开始，总行数为1
@@ -21,12 +36,12 @@ class WordWrapLayout @JvmOverloads constructor(context: Context, attrs: Attribut
         for (index in 0 until childCount) {
             //给子view设置内部的padding
             val child = getChildAt(index)
-            child.setPadding(PADDING_HORIZONTAL, PADDING_VERTICAL, PADDING_HORIZONTAL, PADDING_VERTICAL)
+            child.setPadding(paddingStart.pt, paddingTop.pt, paddingEnd.pt, paddingBottom.pt)
             child.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED)
             val width = child.measuredWidth
             val height = child.measuredHeight
             //x坐标等于view本身的宽度加上设置的左右的margin
-            x += width + MARGIN_CHILD
+            x += width + marginChild.pt
             //如果x累加的长度大于了实际容器的长度
             if (x > actualWidth) {
                 //x等于view本身的长度加上间距（清空之前累加的值，算作第二行的第一个）
@@ -35,7 +50,7 @@ class WordWrapLayout @JvmOverloads constructor(context: Context, attrs: Attribut
                 rows++
             }
             //计算view纵坐标间距
-            y = rows * (height + MARGIN_CHILD)
+            y = rows * (height + marginChild.pt)
         }
         //重新对view的显示长宽绘制，应等于计算出来的view的长宽的宽高加上margin和padding等操作的值
         setMeasuredDimension(actualWidth, y)
@@ -55,18 +70,18 @@ class WordWrapLayout @JvmOverloads constructor(context: Context, attrs: Attribut
             val width = view.measuredWidth
             val height = view.measuredHeight
             //x坐标等于view本身的宽度加上设置的左右的margin
-            x += width + MARGIN_CHILD
+            x += width + marginChild.pt
             //如果x累加的长度大于了实际容器的长度
             if (x > actualWidth) {
                 //x等于view本身的长度加上间距（清空之前累加的值，算作第二行的第一个）
-                x = width + MARGIN_CHILD
+                x = width + marginChild.pt
                 //总行数+1
                 rows++
             }
             //计算view纵坐标间距
-            y = (rows - 1) * (height + MARGIN_CHILD)
+            y = (rows - 1) * (height + marginChild.pt)
             //重新对view的方向进行绘制
-            view.layout(x - width - MARGIN_CHILD, y, x - MARGIN_CHILD, y + height)
+            view.layout(x - width - marginChild.pt, y, x - marginChild.pt, y + height)
         }
     }
 
