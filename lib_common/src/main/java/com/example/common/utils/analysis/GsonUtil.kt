@@ -3,6 +3,7 @@ package com.example.common.utils.analysis
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
 
 /**
  * author:wyb
@@ -44,6 +45,16 @@ object GsonUtil {
 //        }
 //        return ret
 //    }
+
+    @JvmStatic
+    fun <T> jsonToList(array: JsonArray, type: Type): List<T>? {
+        var ret: List<T>? = null
+        try {
+            ret = gson.fromJson<List<T>>(array, type)
+        } catch (_: Exception) {
+        }
+        return ret
+    }
 
     @JvmStatic
     fun objToJson(obj: Any): String? {

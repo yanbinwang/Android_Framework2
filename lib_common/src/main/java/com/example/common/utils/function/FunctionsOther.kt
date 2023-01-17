@@ -26,6 +26,7 @@ import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanFirst
 import com.google.gson.JsonArray
+import java.lang.reflect.Type
 
 //------------------------------------按钮，控件行为工具类------------------------------------
 /**
@@ -126,9 +127,13 @@ fun Any?.toJsonString(): String {
 /**
  * 后端直接data是集合的话，使用该方法得到一个集合
  */
-fun <T> JsonArray?.toList(): List<T>? {
+//fun <T> JsonArray?.toList(): List<T>? {
+//    if (this == null) return emptyList()
+//    return GsonUtil.jsonToList(this)
+//}
+fun <T> JsonArray?.toList(type: Type): List<T>? {
     if (this == null) return emptyList()
-    return GsonUtil.jsonToList(this)
+    return GsonUtil.jsonToList(this, type)
 }
 
 /**
