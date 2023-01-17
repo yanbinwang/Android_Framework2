@@ -33,7 +33,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
             val index = ids.indexOfFirst { it == item.itemId }
             //如果频繁点击相同的页面tab，不执行切换代码，只做结果返回
             val isPager = null != flipper
-            val isCurrent = index == if (isPager) flipper?.currentItem else builder?.currentItem
+            val isCurrent = index == if (isPager) flipper?.currentItem else builder?.getCurrentIndex()
             if (!isCurrent) {
                 if (isPager) flipper?.setCurrentItem(index, false) else builder?.selectTab(index)
                 if (animation) getItemView(index).getChildAt(0).apply {

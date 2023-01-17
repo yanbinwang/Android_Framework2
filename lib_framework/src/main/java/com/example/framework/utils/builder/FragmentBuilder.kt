@@ -3,6 +3,7 @@ package com.example.framework.utils.builder
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.example.framework.utils.function.value.getSimpleName
 import com.example.framework.utils.function.value.safeGet
 
 /**
@@ -35,10 +36,10 @@ import com.example.framework.utils.function.value.safeGet
  */
 class FragmentBuilder(private val manager: FragmentManager, private val containerViewId: Int) {
     private var arguments = false
+    private var currentItem = 0
     private var clazzPair: List<Pair<Class<*>, String>>? = null
     private var clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>? = null
     private val list by lazy { ArrayList<Fragment>() }
-    var currentItem = 0
     var onTabShow: ((tab: Int) -> Unit)? = null
 
     init {
@@ -72,7 +73,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
         currentItem = tab
         val transaction = manager.beginTransaction()
         list.forEach { transaction.hide(it) }
-        transaction.show(if (arguments) newInstanceArguments(clazzTriple.safeGet(tab)) else newInstance(clazzPair.safeGet(tab)))
+        transaction.show(if (arguments) newInstanceArguments() else newInstance())
         transaction.commitAllowingStateLoss()
         onTabShow?.invoke(tab)
     }
@@ -84,31 +85,56 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
         return list.safeGet(index) as? T
     }
 
-    private fun newInstance(pair: Pair<Class<*>, String>?): Fragment {
-        val transaction = manager.beginTransaction()
-        var fragment = manager.findFragmentByTag(pair?.second)
-        if (null == fragment) {
-            fragment = pair?.first?.newInstance() as Fragment
-            transaction.add(containerViewId, fragment, pair.second)
-            transaction.commitAllowingStateLoss()
-            list.add(fragment)
-        }
-        return fragment
+    /**
+     * 获取当前选中的下标
+     */
+    fun getCurrentIndex(): Int {
+        return currentItem
     }
 
-    private fun newInstanceArguments(triple: Triple<Class<*>, Pair<String, String>, String>?): Fragment {
-        val transaction = manager.beginTransaction()
-        var fragment = manager.findFragmentByTag(triple?.third)
-        if (null == fragment) {
-            fragment = triple?.first?.newInstance() as Fragment
-            val bundle = Bundle()
-            bundle.putString(triple.second.first, triple.second.second)
-            fragment.arguments = bundle
-            transaction.add(containerViewId, fragment, triple.third)
-            transaction.commitAllowingStateLoss()
-            list.add(fragment)
+    private fun newInstance(): Fragment {
+        clazzPair.safeGet(currentItem).let {
+            val transaction = manager.beginTransaction()
+            var fragment = manager.findFragmentByTag(it?.second)
+            if (null == fragment) {
+                fragment = it?.first?.newInstance() as Fragment
+                transaction.add(containerViewId, fragment, it.second)
+                transaction.commitAllowingStateLoss()
+                list.add(fragment)
+            }
+            return fragment
         }
-        return fragment
     }
 
+    private fun newInstanceArguments(): Fragment {
+        clazzTriple.safeGet(currentItem).let {
+            val transaction = manager.beginTransaction()
+            var fragment = manager.findFragmentByTag(it?.third)
+            if (null == fragment) {
+                fragment = it?.first?.newInstance() as Fragment
+                val bundle = Bundle()
+                bundle.putString(it.second.first, it.second.second)
+                fragment.arguments = bundle
+                transaction.add(containerViewId, fragment, it.third)
+                transaction.commitAllowingStateLoss()
+                list.add(fragment)
+            }
+            return fragment
+        }
+    }
+
+}
+
+/**
+ * 默认返回自身和自身class名小写，也可指定
+ */
+fun Class<*>.getPair(name: String? = null): Pair<Class<*>, String> {
+    return this to getSimpleName(name)
+}
+
+/**
+ * 默认返回自身和自身class名小写以及请求的id
+ */
+fun Class<*>.getTriple(pair: Pair<String, String>, name: String? = null): Triple<Class<*>, Pair<String, String>, String> {
+    return Triple(this, pair, getSimpleName(name))
 }

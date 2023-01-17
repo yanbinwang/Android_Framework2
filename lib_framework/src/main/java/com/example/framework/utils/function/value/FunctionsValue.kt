@@ -46,27 +46,6 @@ fun CharSequence?.toSafeBoolean(default: Boolean = false): Boolean {
 }
 
 /**
- * 默认返回自身和自身class名小写，也可指定
- */
-fun Class<*>.getPair(name: String? = null): Pair<Class<*>, String> {
-    return this to getSimpleName(name)
-}
-
-/**
- * 默认返回自身和自身class名小写以及请求的id
- */
-fun Class<*>.getTriple(pair: Pair<String, String>, name: String? = null): Triple<Class<*>, Pair<String, String>, String> {
-    return Triple(this, pair, getSimpleName(name))
-}
-
-/**
- * 不指定name，默认返回class命名
- */
-fun Class<*>.getSimpleName(name: String? = null): String {
-    return name ?: this.simpleName.lowercase(Locale.getDefault())
-}
-
-/**
  * 判断某个对象上方是否具备某个注解
  * if (activity.hasAnnotation(SocketRequest::class.java)) {
  * SocketEventHelper.checkConnection(forceConnect = true)
@@ -90,11 +69,18 @@ fun Bundle?.clearFragmentSavedState() {
 }
 
 /**
+ * 不指定name，默认返回class命名
+ */
+fun Class<*>.getSimpleName(name: String? = null): String {
+    return name ?: this.simpleName.lowercase(Locale.getDefault())
+}
+
+/**
  * 获取Color String中的color
  * eg: "#ffffff"
  */
 @ColorInt
-fun color(color: String?) = Color.parseColor(color ?: "#ffffff")
+fun String?.parseColor() = Color.parseColor(this ?: "#ffffff")
 
 /**
  *  fun init() = frag.execute {
