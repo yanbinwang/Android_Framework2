@@ -10,11 +10,7 @@ import androidx.activity.result.ActivityResultLauncher
 import com.alibaba.android.arouter.core.LogisticsCenter
 import com.alibaba.android.arouter.exception.NoRouteFoundException
 import com.alibaba.android.arouter.launcher.ARouter
-import com.example.common.R
 import com.example.common.config.Extras
-import com.example.common.utils.NetWorkUtil.isNetworkAvailable
-import com.example.common.utils.builder.shortToast
-import com.example.common.utils.function.resString
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.function.value.orFalse
@@ -31,7 +27,7 @@ fun ViewGroup.setState(imgRes: Int = -1, text: String? = null){
     val emptyLayout = if (this is EmptyLayout) this else getEmptyView()
     emptyLayout.apply {
         visibility = View.VISIBLE
-        showError(imgRes, text)
+        error(imgRes, text)
     }
 }
 
@@ -54,7 +50,7 @@ fun ViewGroup.getEmptyView(): EmptyLayout {
         emptyLayout = EmptyLayout(context)
         emptyLayout.apply {
             onInflateView()
-            showLoading()
+            loading()
         }
         addView(emptyLayout)
     } else emptyLayout = getChildAt(1) as EmptyLayout

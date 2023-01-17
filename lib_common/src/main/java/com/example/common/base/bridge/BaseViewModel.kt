@@ -58,8 +58,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.softView = SoftReference(view)
     }
 
-    fun setEmptyView(empty: ViewGroup) {
-        this.softEmpty = SoftReference(empty.getEmptyView())
+    /**
+     * 此处传入的是外层容器，而不是一个写好的EmptyView
+     * 继承BaseTitleActivity的页面传父类的ViewGroup
+     * 其余页面外层写FrameLayout，套上要使用的布局后再initView中调用该方法
+     */
+    fun setEmptyView(viewGroup: ViewGroup) {
+        this.softEmpty = SoftReference(viewGroup.getEmptyView())
     }
 
     fun setRecyclerView(recycler: XRecyclerView) {
@@ -71,6 +76,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.softRefresh = SoftReference(refresh)
     }
 
+    /**
+     * 带刷新或者空白布局的列表/详情页再接口交互结束时直接在对应的viewmodel调用该方法
+     */
     protected fun reset(hasNextPage: Boolean? = true) {
         if(null == recyclerView) refreshLayout?.finishRefreshing()
         recyclerView?.finishRefreshing(!hasNextPage.orTrue)

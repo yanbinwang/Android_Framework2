@@ -63,7 +63,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                     recycler?.setEmptyView(empty?.setListView(recycler))
                     recycler?.setHasFixedSize(true)
                     recycler?.cancelItemAnimator()
-                    empty?.onRefreshClick = { onClick?.invoke() }
+                    empty?.onRefresh = { onClick?.invoke() }
                 }
             }
             1 -> {
@@ -74,7 +74,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 recycler?.setHasFixedSize(true)
                 recycler?.cancelItemAnimator()
                 if (0 != emptyType) {
-                    empty?.onRefreshClick = { onClick?.invoke() }
+                    empty?.onRefresh = { onClick?.invoke() }
                 } else {
                     empty?.gone()
                 }
@@ -148,7 +148,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 当数据正在加载的时候显示
      */
     fun showLoading() {
-        if (0 != emptyType) empty?.showLoading()
+        if (0 != emptyType) empty?.loading()
     }
 
     /**
@@ -156,7 +156,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     @JvmOverloads
     fun showEmpty(imgInt: Int = -1, text: String? = null) {
-        if (0 != emptyType) empty?.showEmpty(imgInt, text)
+        if (0 != emptyType) empty?.empty(imgInt, text)
     }
 
     /**
@@ -164,7 +164,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     @JvmOverloads
     fun showError(imgInt: Int = -1, text: String? = null) {
-        if (0 != emptyType) empty?.showError(imgInt, text)
+        if (0 != emptyType) empty?.error(imgInt, text)
     }
 
 }

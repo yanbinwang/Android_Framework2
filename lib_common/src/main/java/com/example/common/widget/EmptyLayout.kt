@@ -30,7 +30,7 @@ import com.example.framework.widget.BaseViewGroup
 @SuppressLint("InflateParams")
 class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private val binding by lazy { ViewEmptyBinding.bind(context.inflate(R.layout.view_empty)) }
-    var onRefreshClick: (() -> Unit)? = null
+    var onRefresh: (() -> Unit)? = null
 
     init {
         //设置样式
@@ -39,11 +39,11 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         //设置监听
         binding.tvRefresh.click {
             //进入加载中，并停止刷新动画
-            showLoading()
-            onRefreshClick?.invoke()
+            loading()
+            onRefresh?.invoke()
         }
         binding.root.click(null)
-        showLoading()
+        loading()
     }
 
     override fun onInflateView() {
@@ -62,7 +62,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据加载中
      */
-    fun showLoading() = context.execute {
+    fun loading() = context.execute {
         visible()
         binding.ivEmpty.imageResource(R.mipmap.img_data_loading)
         binding.tvEmpty.text = string(R.string.label_data_loading)
@@ -72,7 +72,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun showEmpty(resId: Int = -1, text: String? = null) = context.execute {
+    fun empty(resId: Int = -1, text: String? = null) = context.execute {
         visible()
         binding.ivEmpty.imageResource(if (-1 == resId) R.mipmap.img_data_empty else resId)
         binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.label_data_empty) else text
@@ -83,7 +83,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun showError(resId: Int = -1, text: String? = null, refreshText: String? = null) = context.execute {
+    fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) = context.execute {
         visible()
         if (!isNetworkAvailable()) {
             binding.ivEmpty.imageResource(R.mipmap.img_data_net_error)
