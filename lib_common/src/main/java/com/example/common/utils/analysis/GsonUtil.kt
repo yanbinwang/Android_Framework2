@@ -35,15 +35,15 @@ object GsonUtil {
         return ret
     }
 
-    @JvmStatic
-    fun <T> jsonToList(array: JsonArray): List<T>? {
-        var ret: List<T>? = null
-        try {
-            ret = gson.fromJson<List<T>>(array, object : TypeToken<List<T>>() {}.type)
-        } catch (_: Exception) {
-        }
-        return ret
-    }
+//    @JvmStatic
+//    fun <T> jsonToList(array: JsonArray): List<T>? {
+//        var ret: List<T>? = null
+//        try {
+//            ret = gson.fromJson<List<T>>(array, object : TypeToken<List<T>>() {}.type)
+//        } catch (_: Exception) {
+//        }
+//        return ret
+//    }
 
     @JvmStatic
     fun objToJson(obj: Any): String? {
