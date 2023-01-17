@@ -55,9 +55,4 @@ object GsonUtil {
         return ret
     }
 
-    @JvmStatic
-    fun listToJson(list: Collection<Any>): String? {
-        return objToJson(list)
-    }
-
 }

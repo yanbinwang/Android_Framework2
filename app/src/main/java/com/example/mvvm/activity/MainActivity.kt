@@ -23,7 +23,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 //        binding.btnFileManager.padding()
 //       binding.btnFileManager.click { testDialog.shown() }
 //        val list = listOf(AutomaticBean(0, "key1", "标题1"), AutomaticBean(1, "key2", "标题2"))
-//        GsonUtil.listToJson(list).logWTF
+//        GsonUtil.objToJson(list).logWTF
 
 //        val list =
 //            GsonUtil.jsonToList<AutomaticBean>("[{\"key\":\"key1\",\"label\":\"标题1\",\"type\":0},{\"key\":\"key2\",\"label\":\"标题2\",\"type\":1}]")
