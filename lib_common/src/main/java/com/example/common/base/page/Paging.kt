@@ -3,14 +3,39 @@ package com.example.common.base.page
 /**
  * Created by WangYanBin on 2020/7/1.
  * 应用于刷新页面工具类
- * viewModel页中var paging: Paging? = null / activity页中赋值
+ * override fun onRefresh(refreshLayout: RefreshLayout) {
+ * paging.onRefresh { viewModel.getEvidenceList(paging) }
+ * }
+ *
+ * override fun onLoadMore(refreshLayout: RefreshLayout) {
+ * paging.onLoad { if (it) binding.xrvEvidence.finishRefreshing() else viewModel.getEvidenceList(paging) }
+ * }
+ *
+ *fun getEvidenceList(paging: Paging) {
+ *  launch({
+ *      EvidenceSubscribe.getEvidenceListApi(hashMapOf(
+ *              "evidenceType" to evidenceType,
+ *              "type" to "1",
+ *              "current" to paging.page,
+ *"             limit" to Paging.pageLimit).params())
+ *  }, {
+ *      paging.currentCount = it?.total.orZero
+ *      reset(it?.hasNextPage)
+ *      evidenceData.postValue(it)
+ *  }, {
+ *      recyclerView?.setState(paging.currentCount.orZero)
+ *  }, isShowDialog = false)}
  */
 class Paging {
+    companion object {
+        //固定配置页数
+        val pageLimit = "10"
+    }
+
     var hasRefresh = false//是否刷新
-    var totalCount = 0//服务器数组总数
-    var currentCount = 0//当前页面数组数
     var page = 1//当前页数
-    val pageLimit = "10"
+    var currentCount = 0//当前页面列表数据总数
+    var totalCount = 0//服务器列表数据总数
 
     //是否需要加载更多
     fun hasNextPage(): Boolean {
@@ -18,18 +43,19 @@ class Paging {
     }
 
     //刷新清空
-    fun onRefresh() {
+    fun onRefresh(onConvert: () -> Unit = {}) {
         hasRefresh = true
         page = 1
+        onConvert.invoke()
     }
 
     //加载更多
-    fun onLoad(): Boolean {
-        return if (hasNextPage()) {
+    fun onLoad(onConvert: (noMore: Boolean) -> Unit = {}) {
+        if (hasNextPage()) {
             hasRefresh = false
             ++page
-            true
-        } else false
+            onConvert(false)
+        } else onConvert(true)
     }
 
 }
