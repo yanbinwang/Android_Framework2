@@ -10,6 +10,8 @@ import android.os.Build
 /**
  *  Created by wangyanbin
  *  应用配置工具类
+ *  application中尽量做一些第三方和项目工具的初始化，取值赋值静态变量容易丢失
+ *  可以注入一个application，然后需要的时候再去调取方法取
  */
 @SuppressLint("StaticFieldLeak")
 object ConfigHelper {

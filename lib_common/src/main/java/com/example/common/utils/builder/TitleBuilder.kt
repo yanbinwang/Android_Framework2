@@ -44,8 +44,6 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}): TitleBuilder {
         binding.ivLeft.apply {
             visible()
-//            size(88.pt, 88.pt)
-//            paddingAll(20.pt)
             imageResource(resId)
             if (0 != tintColor) tint(tintColor)
             click { onClick.invoke() }
