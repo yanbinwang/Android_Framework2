@@ -31,12 +31,12 @@ abstract class WebBundle : Serializable {
     /**
      * 黑白电池
      */
-    abstract fun isLight(): Boolean
+    abstract fun getLight(): Boolean
 
     /**
      * 是否需要头
      */
-    abstract fun isWebTitleRequired(): Boolean
+    abstract fun getTitleRequired(): Boolean
 
     /**
      * 获取页面标题

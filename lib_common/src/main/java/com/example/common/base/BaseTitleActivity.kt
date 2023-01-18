@@ -8,6 +8,7 @@ import com.example.common.utils.builder.TitleBuilder
 /**
  * Created by WangYanBin on 2020/6/10.
  * 带标题的基类，将整一个xml插入容器
+ * 由于项目中带固定标题的页面占80%以上，故而实现一个带头的activity，直接可使用titleBuilder操作
  */
 abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
     private val baseBinding by lazy { ActivityBaseBinding.inflate(layoutInflater) }

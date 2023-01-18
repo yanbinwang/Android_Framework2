@@ -7,14 +7,12 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="20pt">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/iv_left"
             android:layout_width="88pt"
             android:layout_height="88pt"
-            android:layout_marginStart="12pt"
             android:padding="20pt"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/view_shade"
@@ -30,8 +28,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:lines="1"
-            android:paddingHorizontal="32pt"
-            android:textSize="@dimen/textSize32"
+            android:paddingHorizontal="30pt"
+            android:paddingVertical="12pt"
+            android:textSize="@dimen/textSize28"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/iv_left"
             app:layout_constraintStart_toEndOf="@+id/iv_left"
@@ -46,7 +45,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLength="10"
-            android:textSize="@dimen/textSize32"
+            android:textSize="@dimen/textSize36"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@+id/iv_left"
             app:layout_constraintEnd_toEndOf="parent"
@@ -61,8 +60,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:lines="1"
-            android:paddingHorizontal="32pt"
-            android:textSize="@dimen/textSize32"
+            android:paddingHorizontal="30pt"
+            android:paddingVertical="12pt"
+            android:textSize="@dimen/textSize28"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/iv_left"
             app:layout_constraintEnd_toStartOf="@+id/iv_right"

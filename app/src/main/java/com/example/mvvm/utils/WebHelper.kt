@@ -40,11 +40,11 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
         activity.lifecycle.addObserver(this)
         addWebView()
         FormActivityUtil.setAct(activity)
-        if (!bean?.isLight().orTrue) activity.initImmersionBar(false)
+        if (!bean?.getLight().orTrue) activity.initImmersionBar(false)
     }
 
     private fun addWebView() {
-        if (bean?.isWebTitleRequired().orTrue) {
+        if (bean?.getTitleRequired().orTrue) {
             bean?.getWebTitle()?.apply { if (!isNullOrEmpty()) setTitle(this) }
         } else {
             titleBuilder.hideTitle()
@@ -59,7 +59,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
         webView?.setClient(binding.pbWeb, {
 //            toolBarUtil.hideRightBtn()
         }, {
-            if (bean?.isWebTitleRequired().orFalse && bean?.getWebTitle().isNullOrEmpty()) {
+            if (bean?.getTitleRequired().orFalse && bean?.getWebTitle().isNullOrEmpty()) {
                 webView?.title?.trim().apply { if (!isNullOrEmpty()) setTitle(this) else titleBuilder.getDefault() }
             }
 //            val url = webView?.url.orEmpty()

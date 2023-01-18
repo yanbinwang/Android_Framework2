@@ -27,5 +27,10 @@
     <dimen name="textSize32">32pt</dimen>
     <dimen name="textSize33">33pt</dimen>
     <dimen name="textSize34">34pt</dimen>
+    <dimen name="textSize35">35pt</dimen>
+    <dimen name="textSize36">36pt</dimen>
+    <dimen name="textSize37">37pt</dimen>
+    <dimen name="textSize38">38pt</dimen>
+    <dimen name="textSize39">39pt</dimen>
     <dimen name="textSize40">40pt</dimen>
 </resources>

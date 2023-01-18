@@ -1,6 +1,7 @@
 package com.example.common.utils.builder
 
 import android.app.Activity
+import android.graphics.Color
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.ScreenUtil.statusBarPadding
@@ -10,6 +11,7 @@ import com.example.framework.utils.function.view.*
 
 /**
  * 顶部标题默认不具备任何颜色和显示的按钮
+ * 格式->左右侧图片/文本，中间是大标题
  */
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
 
@@ -23,11 +25,10 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * titleColor->标题颜色
      * bgColor->背景颜色
      * shade->标题底部是否带阴影
-     * transparent->是否是透明
      */
     @JvmOverloads
-    fun setTitle(title: String = "", titleColor: Int = R.color.grey_333333, bgColor: Int = R.color.white, shade: Boolean = false): TitleBuilder {
-        binding.clContainer.setBackgroundColor(activity.color(bgColor))
+    fun setTitle(title: String = "", titleColor: Int = R.color.black, bgColor: Int = R.color.white, shade: Boolean = false): TitleBuilder {
+        binding.clContainer.setBackgroundColor(if(0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
         binding.tvTitle.setArguments(title, titleColor)
         binding.viewShade.apply { if (shade) visible() else gone() }
         return this
@@ -70,7 +71,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * onClick->点击事件
      */
     @JvmOverloads
-    fun setLeft(label: String, labelColor: Int = R.color.grey_333333, onClick: () -> Unit = {}): TitleBuilder {
+    fun setLeft(label: String, labelColor: Int = R.color.black, onClick: () -> Unit = {}): TitleBuilder {
         binding.tvLeft.apply {
             visible()
             setArguments(label, labelColor)
@@ -80,7 +81,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     }
 
     @JvmOverloads
-    fun setRight(label: String, labelColor: Int = R.color.grey_333333, onClick: () -> Unit = {}): TitleBuilder {
+    fun setRight(label: String, labelColor: Int = R.color.black, onClick: () -> Unit = {}): TitleBuilder {
         binding.tvRight.apply {
             visible()
             setArguments(label, labelColor)
@@ -107,5 +108,19 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         }
         return this
     }
+
+    /**
+     * 如果UI出的图或者特殊页面图片过于奇葩，获取后单独操作
+     * 如果实在无法满足需求（如搜索页顶部）请自行实现
+     */
+    fun getTitle() = binding.tvTitle
+
+    fun getLeftTxt() = binding.tvLeft
+
+    fun getLeftImg() = binding.ivLeft
+
+    fun getRightTxt() = binding.tvRight
+
+    fun getRightImg() = binding.ivRight
 
 }
