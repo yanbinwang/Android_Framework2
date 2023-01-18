@@ -2,7 +2,8 @@ package com.example.common.base.page
 
 /**
  * Created by WangYanBin on 2020/7/1.
- * 应用于刷新页面页数操作
+ * 应用于刷新页面工具类
+ * viewModel页中var paging: Paging? = null / activity页中赋值
  */
 class Paging {
     var hasRefresh = false//是否刷新
