@@ -27,25 +27,25 @@ import com.example.common.BaseApplication
  */
 @SuppressLint("SetJavaScriptEnabled", "SourceLockedOrientationActivity")
 class WebUtil : DefaultLifecycleObserver {
-    private var lifecycleOwner: LifecycleOwner?
     private var container: ViewGroup?
-    private var act: Activity? = null
+    private var lifecycleOwner: LifecycleOwner?
+    private var mActivity: Activity? = null
     private var mXCustomView: View? = null
     private var mXCustomViewCallback: WebChromeClient.CustomViewCallback? = null
     var webView: WebView? = null
     var webSettings: WebSettings? = null
 
     constructor(activity: AppCompatActivity, container: ViewGroup?) {
+        mActivity = activity
         lifecycleOwner = activity
-        act = activity
         lifecycleOwner?.lifecycle?.addObserver(this)
         this.container = container
         init()
     }
 
     constructor(fragment: Fragment, container: ViewGroup?) {
+        mActivity = fragment.activity
         lifecycleOwner = fragment
-        act = fragment.activity
         lifecycleOwner?.lifecycle?.addObserver(this)
         this.container = container
         init()
@@ -91,7 +91,7 @@ class WebUtil : DefaultLifecycleObserver {
     }
 
     fun onShowCustomView(view: View?, callback: WebChromeClient.CustomViewCallback?) {
-        act?.apply {
+        mActivity?.apply {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             webView.invisible()
             // 如果一个视图已经存在，那么立刻终止并新建一个
@@ -108,13 +108,13 @@ class WebUtil : DefaultLifecycleObserver {
     }
 
     fun onHideCustomView() {
-        act?.apply {
+        mActivity?.apply {
             if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) return
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             mXCustomView.gone()
-            val decor = window.decorView as FrameLayout
+            val decor = window.decorView as? FrameLayout
             try {
-                decor.removeView(mXCustomView)
+                decor?.removeView(mXCustomView)
             } catch (e: Exception) {
                 e.logE
             }
@@ -141,7 +141,7 @@ class WebUtil : DefaultLifecycleObserver {
         super.onDestroy(owner)
         lifecycleOwner?.lifecycle?.removeObserver(this)
         lifecycleOwner = null
-        val decor = act?.window?.decorView as? FrameLayout
+        val decor = mActivity?.window?.decorView as? FrameLayout
         if (mXCustomView != null) try {
             decor?.removeView(mXCustomView)
         } catch (e: Exception) {
@@ -160,7 +160,7 @@ class WebUtil : DefaultLifecycleObserver {
             destroy()
             webView = null
         }
-        act = null
+        mActivity = null
     }
 
 }
