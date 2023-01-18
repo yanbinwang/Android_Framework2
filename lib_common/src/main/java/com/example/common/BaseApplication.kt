@@ -27,12 +27,13 @@ import java.util.*
 open class BaseApplication : Application() {
 
     companion object {
-        lateinit var instance: BaseApplication
+//        lateinit var instance: BaseApplication
+        val instance get() = this
     }
 
     override fun onCreate() {
         super.onCreate()
-        instance = this
+//        instance = this
         initialize()
     }
 
