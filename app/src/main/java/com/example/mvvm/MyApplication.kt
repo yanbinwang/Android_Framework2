@@ -18,7 +18,6 @@ class MyApplication : BaseApplication() {
 
     companion object {
         lateinit var instance: MyApplication
-//        val instance get() = this
     }
 
     override fun onCreate() {
