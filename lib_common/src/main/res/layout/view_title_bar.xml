@@ -8,8 +8,7 @@
         android:id="@+id/cl_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="20pt"
-        tools:background="@color/white">
+        android:paddingHorizontal="20pt">
 
         <ImageView
             android:id="@+id/iv_left"
