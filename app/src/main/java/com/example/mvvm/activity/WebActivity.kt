@@ -41,11 +41,11 @@ abstract class WebBundle : Serializable {
     /**
      * 获取页面标题
      */
-    abstract fun getWebTitle(): String
+    abstract fun getTitle(): String
 
     /**
      *获取页面地址
      */
-    abstract fun getWebUrl(): String
+    abstract fun getUrl(): String
 
 }
