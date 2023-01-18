@@ -154,17 +154,17 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
             zipOutputSteam.closeEntry()
         } else {
             //文件夹
-            val fileList = file.list()
-            //没有子文件和压缩
-            if (fileList.isNullOrEmpty()) {
-                val zipEntry = ZipEntry(fileName + File.separator)
-                zipOutputSteam.putNextEntry(zipEntry)
-                zipOutputSteam.closeEntry()
-            }
-            if (!fileList.isNullOrEmpty()) {
-                //子文件和递归
-                for (i in fileList.indices) {
-                    zipFiles("$folderPath$fileName/", fileList[i], zipOutputSteam)
+            file.list().let {
+                //没有子文件和压缩
+                if (it.isNullOrEmpty()) {
+                    val zipEntry = ZipEntry(fileName + File.separator)
+                    zipOutputSteam.putNextEntry(zipEntry)
+                    zipOutputSteam.closeEntry()
+                } else {
+                    //子文件和递归
+                    for (i in it.indices) {
+                        zipFiles("$folderPath$fileName/", it[i], zipOutputSteam)
+                    }
                 }
             }
         }
