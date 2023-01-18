@@ -5,7 +5,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.example.common.base.page.Page
+import com.example.common.base.binding.adapter.BaseItemType.BEAN
+import com.example.common.base.binding.adapter.BaseItemType.LIST
 import com.example.framework.utils.function.value.*
 import com.example.framework.utils.function.view.click
 
@@ -18,15 +19,18 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 适配器类型-后续可扩展
      */
-    private var itemType = BaseItemType.BEAN
+    private var itemType = BEAN
+
     /**
      * 数据类型为集合
      */
     private var data: MutableList<T> = ArrayList()
+
     /**
      * 数据类型为对象
      */
     private var t: T? = null
+
     /**
      * 点击回调，返回对象和下标
      */
@@ -43,7 +47,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     constructor(bean: T?) {
         if (t != null) {
             t = bean
-            itemType = BaseItemType.BEAN
+            itemType = BEAN
         }
     }
 
@@ -53,14 +57,14 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     constructor(list: MutableList<T>?) {
         if (list != null) {
             data = list
-            itemType = BaseItemType.LIST
+            itemType = LIST
         }
     }
 
     override fun getItemCount(): Int {
         return when (itemType) {
-            BaseItemType.LIST -> data.size
-            BaseItemType.BEAN -> 1
+            LIST -> data.size
+            BEAN -> 1
         }
     }
 
@@ -80,8 +84,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
         //注意判断当前适配器是否具有头部view
         holder.itemView.click { onItemClick?.invoke(data.safeGet(position), position) }
         convert(holder, when (itemType) {
-            BaseItemType.LIST -> data.safeGet(position)
-            BaseItemType.BEAN -> t
+            LIST -> data.safeGet(position)
+            BEAN -> t
         }, payloads)
     }
 
@@ -159,10 +163,15 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
      * onConvert：返回此次请求获取到的集合
      * onEmpty：当前适配器的集合为空时才会回调
      */
-    fun notify(page: Page<T>?, hasRefresh: Boolean? = true, onConvert: (list: List<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
-        val list = page?.list.orEmpty()
+//    fun notify(page: Page<T>?, hasRefresh: Boolean? = true, onConvert: (list: List<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
+//        val list = page?.list.orEmpty()
+//        if (hasRefresh.orFalse) refresh(list) else insert(list)
+//        onConvert.invoke(list)
+//        if (data.safeSize == 0) onEmpty.invoke()
+//    }
+
+    fun notify(list: List<T>, hasRefresh: Boolean? = true, onEmpty: () -> Unit = {}) {
         if (hasRefresh.orFalse) refresh(list) else insert(list)
-        onConvert.invoke(list)
         if (data.safeSize == 0) onEmpty.invoke()
     }
 
