@@ -23,29 +23,30 @@ import com.example.mvvm.R
 import com.example.mvvm.activity.WebActivity
 import com.example.mvvm.activity.WebBundle
 import com.example.mvvm.databinding.ActivityWebBinding
+import java.lang.ref.WeakReference
 
 /**
  * 网页帮助类
  */
 class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
-    private val binding by lazy { ActivityWebBinding.inflate(activity.layoutInflater) }
     private val bean by lazy { activity.intentSerializable(Extras.BUNDLE_BEAN) as? WebBundle }
+    private val binding by lazy { ActivityWebBinding.inflate(activity.layoutInflater) }
     private val titleBuilder by lazy { TitleBuilder(activity, binding.titleContainer) }
     private val webUtil by lazy { WebUtil(activity, binding.flWebRoot) }
     private var webView: WebView? = null
 
     init {
         activity.lifecycle.addObserver(this)
+        if (!bean?.getLight().orTrue) activity.initImmersionBar(false)
         addWebView()
         FormActivityUtil.setAct(activity)
-        if (!bean?.getLight().orTrue) activity.initImmersionBar(false)
     }
 
     private fun addWebView() {
         //需要标题头并且值已经传输过来了则设置标题
         bean?.apply {
             if (getTitleRequired().orTrue) {
-                if(getTitle().isNotEmpty()) titleBuilder.setTitle(getTitle()).getDefault()
+                if (getTitle().isNotEmpty()) titleBuilder.setTitle(getTitle()).getDefault()
             } else {
                 titleBuilder.hideTitle()
             }
@@ -56,9 +57,9 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
         webView?.settings?.useWideViewPort = true
         webView?.settings?.loadWithOverviewMode = true
         //WebView与JS交互
-//        webView?.addJavascriptInterface(JsInterface(WeakReference(this)), "JSCallAndroid")
+        webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(activity)), "JSCallAndroid")
         webView?.setClient(binding.pbWeb, {
-        //开始加载页面的操作...
+            //开始加载页面的操作...
         }, {
             //加载完成后的操作...
             bean?.let { if (it.getTitleRequired().orFalse && it.getTitle().isEmpty()) titleBuilder.setTitle(webView?.title?.trim().orEmpty()).getDefault() }
@@ -95,11 +96,11 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
 //        webView.evaluateJs("javascript:onBackPressed()") {
 //            //请求结果不为true（请求拦截）时的处理
 //            if (it?.lowercase(Locale.US) != "true") {
-                if (webView?.canGoBack().orFalse) {
-                    webView?.goBack()
-                } else {
-                    activity.finish()
-                }
+        if (webView?.canGoBack().orFalse) {
+            webView?.goBack()
+        } else {
+            activity.finish()
+        }
 //            }
 //        }
     }
@@ -115,7 +116,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
             Lifecycle.Event.ON_DESTROY -> {
-                //        webView?.removeJavascriptInterface("JSCallAndroid")
+                webView?.removeJavascriptInterface("JSCallAndroid")
                 webView = null
                 activity.lifecycle.removeObserver(this)
             }
