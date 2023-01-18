@@ -27,11 +27,11 @@ object Constants {
     //sd卡的根路径/android/data/{包名}->访问这个目录不需要动态申请STORAGE权限
     val SDCARD_PATH by lazy { BaseApplication.instance.getExternalFilesDir(null)?.absolutePath }
     //无数据占位符
-    val NO_DATA: String get() = string(R.string.label_no_data)
+    val NO_DATA: String get() = string(R.string.unit_no_data)
     //无数据占位符
-    val NO_DATA_DOLLAR: String get() = string(R.string.label_no_data_dollar)
+    val NO_DATA_DOLLAR: String get() = string(R.string.unit_no_data_dollar)
     //无数据占位符
-    val NO_DATA_PERCENT: String get() = string(R.string.label_no_data_percent)
+    val NO_DATA_PERCENT: String get() = string(R.string.unit_no_data_percent)
     //------app内接口的一些默认配置字段------
     const val LOGIN_INTERCEPTOR_CODE = 1 //阿里路由登录全局拦截器编号
     const val PUSH_NOTIFY_ID = 0 //固定通知id

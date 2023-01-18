@@ -30,7 +30,7 @@
             android:ellipsize="end"
             android:lines="1"
             android:scrollHorizontally="true"
-            android:text="@string/label_title_crop"
+            android:text="@string/label_crop_title"
             android:textColor="@color/white"
             android:textSize="20sp" />
 

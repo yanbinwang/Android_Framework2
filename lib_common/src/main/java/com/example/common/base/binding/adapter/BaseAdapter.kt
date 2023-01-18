@@ -106,32 +106,32 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 刷新符合条件的item（数据在item内部更改）
      */
-    fun itemChanged(func: ((T) -> Boolean)) {
+    fun changed(func: ((T) -> Boolean)) {
         data.findIndexOf(func).apply { if (this != -1) notifyItemChanged(this) }
     }
 
     /**
      * 查找到符合条件的对象，改变为新的对象并刷新对应item
      */
-    fun itemChanged(func: ((T) -> Boolean), bean: T) {
-        itemChanged(data.findIndexOf(func), bean)
+    fun changed(func: ((T) -> Boolean), bean: T) {
+        changed(data.findIndexOf(func), bean)
     }
 
     /**
      * 传入要改变的对象和对象下标，直接刷新对应item
      */
-    fun itemChanged(index: Int, bean: T) {
+    fun changed(index: Int, bean: T) {
         if (index != -1) {
             data[index] = bean
             notifyItemChanged(index)
         }
     }
 
-    fun itemChanged(func: ((T) -> Boolean), payloads: MutableList<Any>, bean: T) {
-        itemChanged(data.findIndexOf(func), payloads, bean)
+    fun changed(func: ((T) -> Boolean), payloads: MutableList<Any>, bean: T) {
+        changed(data.findIndexOf(func), payloads, bean)
     }
 
-    fun itemChanged(index: Int, payloads: MutableList<Any>, bean: T) {
+    fun changed(index: Int, payloads: MutableList<Any>, bean: T) {
         if (index != -1) {
             data[index] = bean
             notifyItemChanged(index, payloads)
@@ -141,11 +141,11 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 删除某个条目
      */
-    fun itemRemoved(func: ((T) -> Boolean)) {
-        itemRemoved(data.findIndexOf(func))
+    fun removed(func: ((T) -> Boolean)) {
+        removed(data.findIndexOf(func))
     }
 
-    fun itemRemoved(index: Int) {
+    fun removed(index: Int) {
         if (index != -1) {
             data.removeAt(index)
             notifyItemRemoved(index)
@@ -159,7 +159,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
      * onConvert：返回此次请求获取到的集合
      * onEmpty：当前适配器的集合为空时才会回调
      */
-    fun itemNotify(page: Page<T>?, hasRefresh: Boolean? = true, onConvert: (list: List<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
+    fun notify(page: Page<T>?, hasRefresh: Boolean? = true, onConvert: (list: List<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
         val list = page?.list.orEmpty()
         if (hasRefresh.orFalse) refresh(list) else insert(list)
         onConvert.invoke(list)
@@ -169,7 +169,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 查找并返回符合条件的对象
      */
-    fun itemFind(func: ((T) -> Boolean)): T? {
+    fun find(func: ((T) -> Boolean)): T? {
         val index = data.findIndexOf(func)
         return if (index != -1) data.safeGet(index) else null
     }
@@ -177,14 +177,14 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 查找到符合条件的对象，返回下标和对象本身，调用notifyItemChanged（position）修改改变的值
      */
-    fun itemFind(func: ((T) -> Boolean), onConvert: (position: Int, bean: T?) -> Unit) {
+    fun find(func: ((T) -> Boolean), onConvert: (position: Int, bean: T?) -> Unit) {
         data.findIndexOf(func).apply { onConvert.invoke(this, data.safeGet(this)) }
     }
 
     /**
      * 查找符合条件的data数据总数
      */
-    fun itemFindCount(func: ((T) -> Boolean)): Int {
+    fun findCount(func: ((T) -> Boolean)): Int {
         return data.filter(func).size
     }
 

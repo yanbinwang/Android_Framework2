@@ -28,7 +28,6 @@ import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanFirst
 import com.google.gson.JsonArray
-import java.lang.reflect.Type
 
 //------------------------------------按钮，控件行为工具类------------------------------------
 /**
@@ -107,15 +106,15 @@ fun resString(@StringRes res: Int): String {
  * 针对string的一些默认值操作
  */
 fun String?.toNoData(): String {
-    return if (isNullOrEmpty()) string(R.string.label_no_data) else this
+    return if (isNullOrEmpty()) string(R.string.unit_no_data) else this
 }
 
 fun String?.toNoDollar(): String {
-    return if (isNullOrEmpty()) string(R.string.label_no_data_dollar) else this
+    return if (isNullOrEmpty()) string(R.string.unit_no_data_dollar) else this
 }
 
 fun String?.toNoPercent(): String {
-    return if (isNullOrEmpty()) string(R.string.label_no_data_percent) else this
+    return if (isNullOrEmpty()) string(R.string.unit_no_data_percent) else this
 }
 
 /**
@@ -134,9 +133,12 @@ fun <T> JsonArray?.toList(clazz: Class<T>): List<T> {
     return GsonUtil.jsonToList(this, clazz)
 }
 
-fun <T> JsonArray?.toList(type: Type): List<T>? {
-    if (this == null) return emptyList()
-    return GsonUtil.jsonToList(this, type)
+/**
+ * 将json转换为对象
+ */
+fun <T> String?.toObj(clazz: Class<T>): T? {
+    if (this == null) return null
+    return GsonUtil.jsonToObj(this, clazz)
 }
 
 /**
@@ -156,9 +158,9 @@ fun getStatusBarHeight(): Int {
 /**
  * 获取底栏高度
  */
-fun getNavigationBarHeight(ctx: Context): Int {
-    if (!ScreenUtil.hasNavigationBar(ctx)) return 0
-    return ExtraNumber.getInternalDimensionSize(ctx, "navigation_bar_height")
+fun getNavigationBarHeight(context: Context): Int {
+    if (!ScreenUtil.hasNavigationBar(context)) return 0
+    return ExtraNumber.getInternalDimensionSize(context, "navigation_bar_height")
 }
 
 /**
@@ -176,7 +178,7 @@ fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color
 @JvmOverloads
 fun TextView?.setArguments(txt: String ?= "", colorRes: Int = R.color.defaultTheme, resId: Int = 0) {
     this ?: return
-    if (!txt.isNullOrEmpty()) text = txt
+    text = txt
     textColor(colorRes)
     background(resId)
 }

@@ -6,12 +6,11 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.LinearLayout.LayoutParams.MATCH_PARENT
 import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.string
-import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.view.*
 import com.example.framework.widget.BaseViewGroup
 
@@ -33,12 +32,10 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     var onRefresh: (() -> Unit)? = null
 
     init {
-        //设置样式
-        binding.root.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT) //设置LayoutParams
-        binding.root.setBackgroundColor(color(R.color.grey_f6f8ff))
-        //设置监听
+        binding.root.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT) //设置LayoutParams
+        binding.root.setBackgroundColor(color(R.color.defaultWindowBackground))
         binding.tvRefresh.click {
-            //进入加载中，并停止刷新动画
+            //进入加载中
             loading()
             onRefresh?.invoke()
         }
@@ -62,7 +59,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据加载中
      */
-    fun loading() = context.execute {
+    fun loading() {
         visible()
         binding.ivEmpty.imageResource(R.mipmap.img_data_loading)
         binding.tvEmpty.text = string(R.string.label_data_loading)
@@ -72,7 +69,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun empty(resId: Int = -1, text: String? = null) = context.execute {
+    fun empty(resId: Int = -1, text: String? = null) {
         visible()
         binding.ivEmpty.imageResource(if (-1 == resId) R.mipmap.img_data_empty else resId)
         binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.label_data_empty) else text
@@ -83,7 +80,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) = context.execute {
+    fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
         visible()
         if (!isNetworkAvailable()) {
             binding.ivEmpty.imageResource(R.mipmap.img_data_net_error)

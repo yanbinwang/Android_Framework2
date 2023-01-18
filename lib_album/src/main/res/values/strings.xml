@@ -4,7 +4,7 @@
     <string name="toast_album_video_error">请选择100M以内的视频</string>
 
     <!-- app内的view显示字段 -->
-    <string name="label_title_album">相册</string>
-    <string name="label_title_crop">图片裁剪</string>
+    <string name="label_album_title">相册</string>
+    <string name="label_crop_title">图片裁剪</string>
 
 </resources>
