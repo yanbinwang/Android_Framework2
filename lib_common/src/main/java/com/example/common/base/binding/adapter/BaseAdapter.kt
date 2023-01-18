@@ -170,8 +170,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
 //        if (data.safeSize == 0) onEmpty.invoke()
 //    }
 
-    fun notify(list: List<T>, hasRefresh: Boolean? = true, onEmpty: () -> Unit = {}) {
-        if (hasRefresh.orFalse) refresh(list) else insert(list)
+    fun notify(list: List<T>, hasRefresh: Boolean = true, onEmpty: () -> Unit = {}) {
+        if (hasRefresh) refresh(list) else insert(list)
         if (data.safeSize == 0) onEmpty.invoke()
     }
 
