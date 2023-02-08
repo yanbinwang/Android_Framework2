@@ -6,17 +6,17 @@ import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.Bitmap.CompressFormat.PNG
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.media.ExifInterface
+import android.media.ExifInterface.*
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.view.View
-import androidx.exifinterface.media.ExifInterface
-import androidx.exifinterface.media.ExifInterface.*
 import com.example.common.BaseApplication
 import com.example.common.config.Constants
 import com.example.common.utils.ScreenUtil
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
-import com.example.framework.utils.function.value.getDateTime
+import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import java.io.File
@@ -108,7 +108,7 @@ fun Drawable.drawableToBitmap(): Bitmap {
  * format->图片类型
  * quality->压缩率
  */
-fun saveBit(bitmap: Bitmap, root: String = "${Constants.APPLICATION_PATH}/保存图片", fileName: String = EN_YMDHMS.getDateTime(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
+fun saveBit(bitmap: Bitmap, root: String = "${Constants.APPLICATION_PATH}/保存图片", fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
     //存储目录文件
     val storeDir = File(root)
     //存储目录完整的手机路径

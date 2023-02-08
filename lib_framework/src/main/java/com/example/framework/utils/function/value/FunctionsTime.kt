@@ -3,29 +3,13 @@ package com.example.framework.utils.function.value
 import com.example.framework.utils.function.value.DateFormat.EN_YMD
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import java.text.ParseException
+import java.text.ParsePosition
 import java.text.SimpleDateFormat
 import java.util.*
 
 //------------------------------------日期时间工具类------------------------------------
 /**
- * 现在的运行时间，用来作时间间隔判断
- */
-val currentTimeNano: Long
-    get() {
-        return System.nanoTime() / 1000000L
-    }
-
-/**
- * 获取毫秒值
- */
-val Int.hour get() = this * 1000L * 60L * 60L
-val Int.minute get() = this * 1000L * 60L
-val Int.second get() = this * 1000L
-val Int.day get() = this * 1000L * 60L * 60L * 24L
-val Int.week get() = this * 1000L * 60L * 60L * 24L * 7L
-
-/**
- * 日期形式字符串
+ * 常用的日期格式
  */
 object DateFormat {
     const val EN_M = "MM"
@@ -47,16 +31,101 @@ object DateFormat {
 }
 
 /**
- * 日期对比（统一年月日形式）
- * @param this       比较日期a
- * @param toSource   比较日期b
+ * 现在的运行时间，用来作时间间隔判断
+ */
+val currentTimeNano get() = System.nanoTime() / 1000000L
+
+/**
+ * 获取毫秒值
+ */
+val Int.hour get() = this * 1000L * 60L * 60L
+val Int.minute get() = this * 1000L * 60L
+val Int.second get() = this * 1000L
+val Int.day get() = this * 1000L * 60L * 60L * 24L
+val Int.week get() = this * 1000L * 60L * 60L * 24L * 7L
+
+/**
+ * 假定服务器给的日期格式为：yyyy-MM-dd HH:mm:ss，通常使用US或者China，本身为零时区
+ * 此时应减去手机获取到的时区，从而得到转换后的时区
+ * @param this 日期(2022-12-11 22:22:22)
+ */
+fun String?.convertServerTime(format: String = EN_YMDHMS): Long? {
+    if (isNullOrEmpty()) return null
+    val date = SimpleDateFormat(format, Locale.US).parse(this, ParsePosition(0)) ?: return null
+    return date.time - date.timezoneOffset * 60000
+}
+
+/**
+ * 获取手机本身日期格式，指定为国内时区，避免用户手动改时区
+ * @param this 日期格式（yyyy-MM-dd）
+ */
+private fun String.getDateFormat(): SimpleDateFormat {
+    val dateFormat = SimpleDateFormat(this, Locale.getDefault())
+    dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+    return dateFormat
+}
+
+/**
+ * 转换日期如果为空，则new一个当前手机的日期类返回
+ */
+fun Date?.toSafeDate(): Date {
+    this ?: return Date()
+    return this
+}
+
+/**
+ * 获取转换日期
+ * @param this     被转换的日期格式(yyyy-MM-dd)
+ * @param format   要转换的日期格式(yyyy-MM-dd)
+ * @param source   被转换的日期(2022-12-11)
  */
 @Synchronized
-fun String.compareDate(toSource: String, format: String = EN_YMD): Int {
+fun String?.convert(format: String, source: String): String {
+    this ?: return ""
+    return try {
+        format.convert(getDateFormat().parse(source).toSafeDate())
+    } catch (_: ParseException) {
+        ""
+    }
+}
+
+/**
+ * 传入指定格式的日期字符串转成毫秒
+ * @param this   日期格式(yyyy-MM-dd)
+ * @param source 日期(2022-12-11)
+ */
+@Synchronized
+fun String.convert(source: String) = getDateFormat().parse(source)?.time.orZero
+
+/**
+ * 传入指定日期格式和毫秒转换成日期字符串
+ * @param this 日期格式
+ * @param timestamp 时间戳
+ */
+@Synchronized
+fun String.convert(timestamp: Long) = getDateFormat().format(Date(timestamp)).orEmpty()
+
+/**
+ * 传入指定日期格式和日期類转换成日期字符串
+ * @param this 日期格式(yyyy-MM-dd)
+ * @param date 日期类
+ */
+@Synchronized
+fun String.convert(date: Date) = getDateFormat().format(date).orEmpty()
+
+/**
+ * 日期对比（统一年月日形式）
+ * @param this     比较日期a(2022-12-11 11:11:11)
+ * @param source   比较日期b(2022-12-12 11:11:11)
+ * @param format   比较日期的格式(a和b要一致->yyyy-MM-dd HH:mm:ss)
+ */
+@Synchronized
+fun String?.compare(source: String, format: String = EN_YMD): Int {
+    this ?: return 0
     val dateFormat = format.getDateFormat()
     return try {
-        val comparedDate = dateFormat.parse(this) ?: Date()
-        val comparedDate2 = dateFormat.parse(toSource) ?: Date()
+        val comparedDate = dateFormat.parse(this).toSafeDate()
+        val comparedDate2 = dateFormat.parse(source).toSafeDate()
         when {
             comparedDate.time > comparedDate2.time -> 1//日程时间大于系统时间
             comparedDate.time < comparedDate2.time -> -1//日程时间小于系统时间
@@ -68,45 +137,6 @@ fun String.compareDate(toSource: String, format: String = EN_YMD): Int {
 }
 
 /**
- * 获取转换日期
- * @param this       被转换的日期格式
- * @param toFormat   要转换的日期格式
- * @param source     被转换的日期
- */
-@Synchronized
-fun String.getDateFormat(toFormat: String, source: String): String {
-    return try {
-         toFormat.getDateTime(getDateFormat().parse(source) ?: Date())
-    } catch (_: ParseException) {
-        ""
-    }
-}
-
-/**
- * 传入指定格式的日期字符串转成毫秒
- * @param this   日期格式
- * @param source 日期
- */
-@Synchronized
-fun String.getDateTime(source: String) = getDateFormat().parse(source)?.time ?: 0
-
-/**
- * 传入指定日期格式和毫秒转换成日期字符串
- * @param this 日期格式
- * @param timestamp 时间戳
- */
-@Synchronized
-fun String.getDateTime(timestamp: Long) = getDateFormat().format(Date(timestamp)) ?: ""
-
-/**
- * 传入指定日期格式和日期類转换成日期字符串
- * @param this 日期格式
- * @param date 日期类
- */
-@Synchronized
-fun String.getDateTime(date: Date) = getDateFormat().format(date) ?: ""
-
-/**
  * 获取日期的当月的第几周
  * @param this 日期（yyyy-MM-dd）
  */
@@ -114,7 +144,7 @@ fun String.getDateTime(date: Date) = getDateFormat().format(date) ?: ""
 fun String.getWeekOfMonth(): Int {
     return try {
         Calendar.getInstance().let {
-            it.time = EN_YMD.getDateFormat().parse(this) ?: Date()
+            it.time = EN_YMD.getDateFormat().parse(this).toSafeDate()
             it.get(Calendar.WEEK_OF_MONTH)
         }
     } catch (_: ParseException) {
@@ -130,7 +160,7 @@ fun String.getWeekOfMonth(): Int {
 fun String.getWeekOfDate(): Int {
     return try {
         Calendar.getInstance().let {
-            it.time = EN_YMD.getDateFormat().parse(this) ?: Date()
+            it.time = EN_YMD.getDateFormat().parse(this).toSafeDate()
             var weekIndex = it.get(Calendar.DAY_OF_WEEK) - 1
             if (weekIndex < 0) weekIndex = 0
             weekIndex
@@ -145,7 +175,7 @@ fun String.getWeekOfDate(): Int {
  * @param source 日期（yyyy-MM-dd）
  */
 @Synchronized
-fun String.getDateWeek(): String {
+fun String.getWeek(): String {
     return when (getWeekOfDate()) {
         0 -> "星期天"
         1 -> "星期一"
@@ -159,16 +189,6 @@ fun String.getDateWeek(): String {
 }
 
 /**
- * 获取日期格式，时区为校准的中国时区
- * @param format 日期格式
- */
-private fun String.getDateFormat(): SimpleDateFormat {
-    val dateFormat = SimpleDateFormat(this, Locale.getDefault())
-    dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
-    return dateFormat
-}
-
-/**
  * 是否为当日
  */
 @Synchronized
@@ -176,7 +196,7 @@ fun Date.isToday(): Boolean {
     var flag = false
     try {
         //获取当前系统时间
-        val subDate = EN_YMD.getDateTime(System.currentTimeMillis())
+        val subDate = EN_YMD.convert(System.currentTimeMillis())
         //定义每天的24h时间范围
         val beginTime = "$subDate 00:00:00"
         val endTime = "$subDate 23:59:59"
@@ -191,41 +211,27 @@ fun Date.isToday(): Boolean {
 }
 
 /**
- * 传入毫秒转换成00:00的格式
+ * 处理时间
  * @param this 时间戳
  */
 @Synchronized
-fun Long.getTime(): String {
-    if (this <= 0) return "00:00"
-    val second = (this / 1000 / 60).toInt()
-    val million = (this / 1000 % 60).toInt()
-    return "${if (second >= 10) second.toString() else "0$second"}:${if (million >= 10) million.toString() else "0$million"}"
-}
-
-/**
- * 处理时间
- * @param this 时间戳->秒
- */
-@Synchronized
-fun Long.getSecondFormat(): String {
-    val result: String?
+fun Long.timer(): String {
     val hour: Long
     val second: Long
     var minute: Long
-    if (this <= 0) return "00:00" else {
+    return if (this <= 0) "00:00" else {
         minute = this / 60
         if (minute < 60) {
             second = this % 60
-            result = "${minute.unitFormat()}:${second.unitFormat()}"
+            "${minute.timerUnit()}:${second.timerUnit()}"
         } else {
             hour = minute / 60
             if (hour > 99) return "99:59:59"
             minute %= 60
             second = this - hour * 3600 - minute * 60
-            result = "${hour.unitFormat()}:${minute.unitFormat()}:${second.unitFormat()}"
+            "${hour.timerUnit()}:${minute.timerUnit()}:${second.timerUnit()}"
         }
     }
-    return result
 }
 
-private fun Long.unitFormat() = if (this in 0..9) "0$this" else this.toString()
+private fun Long.timerUnit() = if (this in 0..9) "0$this" else this.toString()
