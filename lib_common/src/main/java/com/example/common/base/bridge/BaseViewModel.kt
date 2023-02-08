@@ -43,14 +43,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var softRefresh: SoftReference<SmartRefreshLayout>? = null//刷新控件
 
     //基础的注入参数
-    protected val activity: FragmentActivity get() { return weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity() }
-    protected val context: Context get() { return activity }
-    protected val view: BaseView? get() { return softView?.get() }
+    protected val activity: FragmentActivity get() = weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity()
+    protected val context: Context get() = activity
+    protected val view: BaseView? get() = softView?.get()
 
     //获取对应的控件
-    val emptyView: EmptyLayout? get() { return softEmpty?.get() }
-    val recyclerView: XRecyclerView? get() { return softRecycler?.get() }
-    val refreshLayout: SmartRefreshLayout? get() { return softRefresh?.get() }
+    val emptyView: EmptyLayout? get() = softEmpty?.get()
+    val recyclerView: XRecyclerView? get() = softRecycler?.get()
+    val refreshLayout: SmartRefreshLayout? get() = softRefresh?.get()
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
