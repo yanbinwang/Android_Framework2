@@ -1,14 +1,29 @@
 package com.example.common.utils.function
 
+import android.app.Activity
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.provider.MediaStore
 import androidx.core.content.FileProvider
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
 import java.io.File
+
+/**
+ * 跳转系统默认相册
+ * if (resultCode == RESULT_OK && data != null) {
+ * val uri = data.data
+ * val oriFile = uri.getFileFromUri()
+ * val albumPath = oriFile?.absolutePath
+ */
+fun Activity.pullUpPackage() {
+    val intent = Intent(Intent.ACTION_PICK, null)
+    intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+    startActivityForResult(intent, 0x114)
+}
 
 /**
  * 拉起app

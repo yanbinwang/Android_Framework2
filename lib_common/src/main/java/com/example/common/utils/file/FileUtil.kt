@@ -411,7 +411,6 @@ fun String?.getFileFromUri(): File? {
     if (uri.path == null) return null
     if (uri.scheme == "file") return File(this)
     if (uri.scheme.isNullOrEmpty()) return File(this)
-
     var realPath = String()
     val databaseUri: Uri
     val selection: String?
