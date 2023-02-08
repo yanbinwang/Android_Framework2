@@ -3,6 +3,8 @@ package com.example.common.base
 import android.os.Bundle
 import android.view.View
 import androidx.databinding.ViewDataBinding
+import com.example.common.bean.interf.FragmentOwner
+import com.example.framework.utils.function.value.hasAnnotation
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -13,7 +15,6 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
     private var hasLoad = false//页面是否被加载
     private var canLoad = true//数据是否允许加载
     private var loaded = false//数据是否被加载
-    protected var pagerOrManager = false//是否是管理器管理页面（ViewPager嵌套fragment或FragmentManager）
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -23,7 +24,7 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
 
     override fun initView() {
         super.initView()
-        if (pagerOrManager) onHiddenChanged(false)
+        if (needFragmentOwner) onHiddenChanged(false)
     }
 
     override fun onResume() {
@@ -39,7 +40,7 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        if (pagerOrManager) {
+        if (needFragmentOwner) {
             if (hidden) onPause() else onResume()
         }
     }
@@ -58,3 +59,5 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
     // </editor-fold>
 
 }
+
+val BaseLazyFragment<*>.needFragmentOwner get() = hasAnnotation(FragmentOwner::class.java)

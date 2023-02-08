@@ -112,8 +112,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
-                val vbClass = type.actualTypeArguments[0] as Class<VDB>
-                val method = vbClass.getDeclaredMethod("inflate", LayoutInflater::class.java)
+                val vdbClass = type.actualTypeArguments[0] as Class<VDB>
+                val method = vdbClass.getDeclaredMethod("inflate", LayoutInflater::class.java)
                 binding = method.invoke(null, layoutInflater) as VDB
                 binding.lifecycleOwner = this
                 setContentView(binding.root)

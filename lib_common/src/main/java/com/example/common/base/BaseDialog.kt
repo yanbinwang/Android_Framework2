@@ -34,8 +34,8 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
-                val vbClass = type.actualTypeArguments[0] as Class<VDB>
-                val method = vbClass.getMethod("inflate", LayoutInflater::class.java)
+                val vdbClass = type.actualTypeArguments[0] as Class<VDB>
+                val method = vdbClass.getMethod("inflate", LayoutInflater::class.java)
                 binding = method.invoke(null, layoutInflater) as VDB
                 setContentView(binding.root)
             } catch (_: Exception) {
