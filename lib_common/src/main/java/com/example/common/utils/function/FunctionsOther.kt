@@ -105,15 +105,15 @@ fun resString(@StringRes res: Int): String {
 /**
  * 针对string的一些默认值操作
  */
-fun String?.toNoData(): String {
+fun String?.orNoData(): String {
     return if (isNullOrEmpty()) string(R.string.unit_no_data) else this
 }
 
-fun String?.toNoDollar(): String {
+fun String?.orNoDollar(): String {
     return if (isNullOrEmpty()) string(R.string.unit_no_data_dollar) else this
 }
 
-fun String?.toNoPercent(): String {
+fun String?.orNoPercent(): String {
     return if (isNullOrEmpty()) string(R.string.unit_no_data_percent) else this
 }
 

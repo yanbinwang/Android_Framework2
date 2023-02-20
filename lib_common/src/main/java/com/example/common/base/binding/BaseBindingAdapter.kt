@@ -152,9 +152,9 @@ object BaseBindingAdapter {
         if (!text.isNullOrEmpty() && !keyText.isNullOrEmpty()) textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.defaultTheme)) else {
             textview.text = when (emptyType.toSafeInt()) {
                 0 -> text.orEmpty()
-                1 -> text.toNoData()
-                2 -> text.toNoDollar()
-                else -> text.toNoPercent()
+                1 -> text.orNoData()
+                2 -> text.orNoDollar()
+                else -> text.orNoPercent()
             }
         }
         if (isMatchText.orFalse) textview.setMatchText()
