@@ -2,17 +2,11 @@ package com.example.framework.utils.function.value
 
 import java.math.BigDecimal
 import java.text.DecimalFormat
+import java.util.regex.Pattern
 
 //------------------------------------计算工具类------------------------------------
 /**
- * kotlin中使用其自带的方法:
- * （1）a + b -> a.plus(b)
- * （2）a - b -> a.minus(b)
- * （3）a * b -> a.times(b)
- * （4）a / b -> a.div(b)
- * （5）a % b -> a.mod(b)
- *
- * 保留小数
+ * 保留fixed位小数
  * double a = 1.66728D;
  * double b = 1.33333D;
  * double c = 1.00000D;
@@ -34,44 +28,45 @@ fun Number?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
 }
 
 /**
- * 保留小数
+ * 保留fixed位小数
+ * 后端如果数值过大是不能用double接取的，使用string接受转BigDecimal
  */
 fun String?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
     return BigDecimal(this ?: "0").toFixed(fixed, mode)
 }
 
 /**
- * 保留小数
+ * 保留fixed位小数
  */
 fun BigDecimal?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
     return (this ?: BigDecimal.ZERO).setScale(fixed, mode).toPlainString()
 }
 
 /**
- * 保留小数
- */
-fun Number?.toFixedDouble(fixed: Int, mode: Int = BigDecimal.ROUND_UP): Double {
-    return BigDecimal((this ?: 0).toString()).setScale(fixed, mode).toDouble()
-}
-
-/**
  * 保证小数位X位,不做四舍五入
+ * val a = 1.6672; fixed=2
+ * ->1.66
+ * val b = 1.6672; fixed=5
+ * ->1.66720
  */
-fun Number.toFixed(fixed: Int = 6): String {
+fun Number.toFixed(fixed: Int = 1): String {
     val format = StringBuffer("0.")
     for (i in 0 until fixed) {
         format.append("0")
     }
-    return DecimalFormat(format.toString()).format(this)
+    return DecimalFormat(format.toString()).format(this) ?: "0"
 }
 
 /**
  * 当小数位超过X位时，只显示X位，不补0,不做四舍五入
+ * val a = 1.66; fixed=2
+ * ->1.66
+ * val b = 1.6; fixed=2
+ * ->1.6
  */
-fun Number?.toFixedWithoutZero(fixed: Int): String {
+fun Number?.toFixedWithoutZero(fixed: Int = 1): String {
     val format = StringBuffer("0.")
-    val size = if (fixed < 2) 1 else fixed
-    for (i in 0 until size) {
+    for (i in 0 until fixed) {
         format.append("#")
     }
     return DecimalFormat(format.toString()).format(this) ?: "0"
@@ -94,6 +89,18 @@ fun String.removeEndZero(): String {
     } catch (e: Exception) {
         this
     }
+}
+
+/**
+ * 千分位格式
+ * 10000
+ * ->10,00
+ */
+fun String?.thousandthsFormat(): String {
+    this ?: "0"
+    val tmp = StringBuffer().append(this).reverse()
+    val retNum = Pattern.compile("(\\d{3})(?=\\d)").matcher(tmp.toString()).replaceAll("$1,")
+    return StringBuffer().append(retNum).reverse().toString()
 }
 
 /**
