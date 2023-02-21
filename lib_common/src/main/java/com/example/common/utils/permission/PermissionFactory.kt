@@ -96,10 +96,10 @@ class PermissionFactory(private val context: Context) {
         andDialog.apply {
             onConfirm = { XXPermissions.startPermissionActivity(context, permissions) }
             setParams(
-                string(R.string.label_window_title),
-                string(R.string.label_window_permission, rationale),
-                string(R.string.label_window_sure),
-                string(R.string.label_window_cancel))
+                string(R.string.label_hint_title),
+                string(R.string.label_permission, rationale),
+                string(R.string.label_sure),
+                string(R.string.label_cancel))
             show()
         }
     }
@@ -109,10 +109,10 @@ class PermissionFactory(private val context: Context) {
      */
     private fun rationale(index: Int): String? {
         return when (index) {
-            0 -> string(R.string.label_permissions_location)
-            1 -> string(R.string.label_permissions_camera)
-            2 -> string(R.string.label_permissions_microphone)
-            3 -> string(R.string.label_permissions_storage)
+            0 -> string(R.string.label_permission_location)
+            1 -> string(R.string.label_permission_camera)
+            2 -> string(R.string.label_permission_microphone)
+            3 -> string(R.string.label_permission_storage)
             else -> null
         }
     }

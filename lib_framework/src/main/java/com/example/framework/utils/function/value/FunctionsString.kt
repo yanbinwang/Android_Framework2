@@ -17,17 +17,17 @@ private val cipher by lazy { Cipher.getInstance("AES/ECB/PKCS5Padding") }
  * @return 返回Base64转码后的加密数据
  */
 @JvmOverloads
-fun String.encrypt(secretKey: String = ""): String {
-    try {
+fun String?.encrypt(secretKey: String = ""): String {
+    return try {
         //创建AES秘钥
         val secretKeySpec = SecretKeySpec(secretKey.toByteArray(), "AES")
         //初始化加密器
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
         //将加密以后的数据进行 Base64 编码
-        return cipher.doFinal(toByteArray()).base64Encode()
+        return cipher.doFinal(orEmpty().toByteArray()).base64Encode()
     } catch (_: Exception) {
+        ""
     }
-    return ""
 }
 
 /**
@@ -37,8 +37,8 @@ fun String.encrypt(secretKey: String = ""): String {
  * @return 返回Base64转码后的加密数据
  */
 @JvmOverloads
-fun String.decrypt(secretKey: String = ""): String {
-    try {
+fun String?.decrypt(secretKey: String = ""): String {
+    return try {
         val data = base64Decode()
         //创建AES秘钥
         val secretKeySpec = SecretKeySpec(secretKey.toByteArray(), "AES")
@@ -47,25 +47,26 @@ fun String.decrypt(secretKey: String = ""): String {
         //执行解密操作
         return String(cipher.doFinal(data), Charsets.UTF_8)
     } catch (_: Exception) {
+        ""
     }
-    return ""
 }
 
 /**
  * 将 字节数组 转换成 Base64 编码
  * 用Base64.DEFAULT模式会导致加密的text下面多一行（在应用中显示是这样）
  */
-fun ByteArray.base64Encode() = Base64.encodeToString(this, Base64.NO_WRAP)
+fun ByteArray?.base64Encode() = Base64.encodeToString(this, Base64.NO_WRAP)
 
 /**
  * 将 Base64 字符串 解码成 字节数组
  */
-fun String.base64Decode() = Base64.decode(this, Base64.NO_WRAP)
+fun String?.base64Decode() = Base64.decode(this, Base64.NO_WRAP)
 
 /**
  * 提取链接中的参数
  */
-fun String.getValueByName(name: String): String {
+fun String?.getValueByName(name: String): String {
+    this ?: return ""
     var result = ""
     val index = indexOf("?")
     val temp = substring(index + 1)
@@ -82,7 +83,8 @@ fun String.getValueByName(name: String): String {
 /**
  * 隐藏手机号码的中间4位
  */
-fun String.hide4BitLetter(): String {
+fun String?.hide4BitLetter(): String {
+    this ?: return ""
     var result = ""
     if (isMobile()) {
         val ch = toCharArray()

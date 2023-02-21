@@ -9,28 +9,6 @@ import java.util.*
 
 //------------------------------------日期时间工具类------------------------------------
 /**
- * 常用的日期格式
- */
-object DateFormat {
-    const val EN_M = "MM"
-    const val EN_MD = "MM-dd"
-    const val EN_HM = "HH:mm"
-    const val EN_HMS = "HH:mm:ss"
-    const val EN_YM = "yyyy-MM"
-    const val EN_YMD = "yyyy-MM-dd"
-    const val EN_YMDHM = "yyyy-MM-dd HH:mm"
-    const val EN_YMDHMS = "yyyy-MM-dd HH:mm:ss"
-    const val CN_M = "M月"
-    const val CN_MD = "M月d日"
-    const val CN_HM = "HH时mm分"
-    const val CN_HMS = "HH时mm分ss秒"
-    const val CN_YM = "yyyy年M月"
-    const val CN_YMD = "yyyy年MM月dd日"
-    const val CN_YMDHM = "yyyy年MM月dd日 HH时mm分"
-    const val CN_YMDHMS = "yyyy年MM月dd日 HH时mm分ss秒"
-}
-
-/**
  * 现在的运行时间，用来作时间间隔判断
  */
 val currentTimeNano get() = System.nanoTime() / 1000000L
@@ -141,7 +119,8 @@ fun String?.compare(source: String, format: String = EN_YMD): Int {
  * @param this 日期（yyyy-MM-dd）
  */
 @Synchronized
-fun String.getWeekOfMonth(): Int {
+fun String?.getWeekOfMonth(): Int {
+    this ?: return 0
     return try {
         Calendar.getInstance().let {
             it.time = EN_YMD.getDateFormat().parse(this).toSafeDate()
@@ -157,7 +136,8 @@ fun String.getWeekOfMonth(): Int {
  * @param source 日期（yyyy-MM-dd）
  */
 @Synchronized
-fun String.getWeekOfDate(): Int {
+fun String?.getWeekOfDate(): Int {
+    this ?: return 0
     return try {
         Calendar.getInstance().let {
             it.time = EN_YMD.getDateFormat().parse(this).toSafeDate()
@@ -189,7 +169,7 @@ fun String.getWeek(): String {
 }
 
 /**
- * 是否为当日
+ * 是否为当日(手机时间为准)
  */
 @Synchronized
 fun Date.isToday(): Boolean {
@@ -235,3 +215,24 @@ fun Long.timer(): String {
 }
 
 private fun Long.timerUnit() = if (this in 0..9) "0$this" else this.toString()
+
+// <editor-fold defaultstate="collapsed" desc="常用的日期格式">
+object DateFormat {
+    const val EN_M = "MM"
+    const val EN_MD = "MM-dd"
+    const val EN_HM = "HH:mm"
+    const val EN_HMS = "HH:mm:ss"
+    const val EN_YM = "yyyy-MM"
+    const val EN_YMD = "yyyy-MM-dd"
+    const val EN_YMDHM = "yyyy-MM-dd HH:mm"
+    const val EN_YMDHMS = "yyyy-MM-dd HH:mm:ss"
+    const val CN_M = "M月"
+    const val CN_MD = "M月d日"
+    const val CN_HM = "HH时mm分"
+    const val CN_HMS = "HH时mm分ss秒"
+    const val CN_YM = "yyyy年M月"
+    const val CN_YMD = "yyyy年MM月dd日"
+    const val CN_YMDHM = "yyyy年MM月dd日 HH时mm分"
+    const val CN_YMDHMS = "yyyy年MM月dd日 HH时mm分ss秒"
+}
+// </editor-fold>

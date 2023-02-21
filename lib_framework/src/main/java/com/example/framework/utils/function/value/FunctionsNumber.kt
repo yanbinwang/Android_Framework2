@@ -94,10 +94,11 @@ fun String.removeEndZero(): String {
 /**
  * 千分位格式
  * 10000
- * ->10,00
+ * ->10,000
  */
 fun String?.thousandthsFormat(): String {
-    this ?: "0"
+    this ?: return "0"
+    if (BigDecimal(this).toDouble() < 1000) return this
     val tmp = StringBuffer().append(this).reverse()
     val retNum = Pattern.compile("(\\d{3})(?=\\d)").matcher(tmp.toString()).replaceAll("$1,")
     return StringBuffer().append(retNum).reverse().toString()

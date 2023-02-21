@@ -1,15 +1,15 @@
 <resources>
     <!-- app内的一些提示 -->
-    <string name="label_window_title">系统提示</string>
-    <string name="label_window_sure">确定</string>
-    <string name="label_window_cancel">取消</string>
-    <string name="label_window_permission">缺少%1$s,请前往设置页面开启</string>
+    <string name="label_hint_title">系统提示</string>
+    <string name="label_sure">确定</string>
+    <string name="label_cancel">取消</string>
 
     <!-- 权限库的的提示语句 -->
-    <string name="label_permissions_location">定位权限,该权限用于取证定位</string>
-    <string name="label_permissions_camera">相机权限,该权限用于拍摄图片</string>
-    <string name="label_permissions_microphone">麦克风权限,该权限用于接受推送通知时候的提醒音效等</string>
-    <string name="label_permissions_storage">存储空间权限,该权限用于应用升级安装和文件存储</string>
+    <string name="label_permission">缺少%1$s,请前往设置页面开启</string>
+    <string name="label_permission_location">定位权限,该权限用于取证定位</string>
+    <string name="label_permission_camera">相机权限,该权限用于拍摄图片</string>
+    <string name="label_permission_microphone">麦克风权限,该权限用于接受推送通知时候的提醒音效等</string>
+    <string name="label_permission_storage">存储空间权限,该权限用于应用升级安装和文件存储</string>
 
     <!-- app内的默认单位 -->
     <string name="unit_no_data">--</string>
