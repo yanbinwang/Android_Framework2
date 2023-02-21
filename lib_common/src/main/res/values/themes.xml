@@ -9,19 +9,19 @@
         <!-- 设置页面切换动画 -->
         <item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
         <!-- 字体颜色 -->
-        <item name="colorPrimary">@color/defaultPrimary</item>
+        <item name="colorPrimary">@color/appPrimary</item>
         <!-- 状态栏栏颜色 -->
-        <item name="colorPrimaryDark">@color/defaultPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/appPrimaryDark</item>
         <!-- 状态栏深色UI -->
         <item name="android:windowLightStatusBar">true</item>
         <!-- 导航栏颜色 -->
-        <item name="android:navigationBarColor">@color/defaultNavigationBar</item>
+        <item name="android:navigationBarColor">@color/appNavigationBar</item>
         <!-- 页面背景色 -->
-        <item name="android:windowBackground">@color/defaultWindowBackground</item>
+        <item name="android:windowBackground">@color/appWindowBackground</item>
         <!-- 控件被选中时的颜色 -->
-        <item name="colorAccent">@color/defaultAccent</item>
+        <item name="colorAccent">@color/appAccent</item>
         <!-- 控制控件的默认颜色 -->
-        <item name="colorControlNormal">@color/defaultControlNormal</item>
+        <item name="colorControlNormal">@color/appControlNormal</item>
         <!-- 剔除控件的点击效果 -->
         <item name="selectableItemBackground">@null</item>
         <item name="selectableItemBackgroundBorderless">@null</item>

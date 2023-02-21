@@ -166,8 +166,7 @@ fun getNavigationBarHeight(context: Context): Int {
 /**
  * 设置textview内容当中某一段的颜色
  */
-@JvmOverloads
-fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color.defaultTheme) {
+fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color.appTheme) {
     this ?: return
     text = txt.setSpanFirst(keyword, ColorSpan(context.color(colorRes)))
 }
@@ -175,8 +174,7 @@ fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color
 /**
  * 设置显示内容和对应文本颜色
  */
-@JvmOverloads
-fun TextView?.setArguments(txt: String ?= "", colorRes: Int = R.color.defaultTheme, resId: Int = 0) {
+fun TextView?.setArguments(txt: String ?= "", colorRes: Int = R.color.appTheme, resId: Int = 0) {
     this ?: return
     text = txt
     textColor(colorRes)

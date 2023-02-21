@@ -35,10 +35,7 @@ class RetrofitFactory private constructor() {
     }
 
     companion object {
-        @JvmStatic
-        val instance: RetrofitFactory by lazy {
-            RetrofitFactory()
-        }
+        val instance by lazy { RetrofitFactory() }
     }
 
     //获取一个请求API

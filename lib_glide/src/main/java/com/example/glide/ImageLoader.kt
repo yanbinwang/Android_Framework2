@@ -22,7 +22,6 @@ import java.io.File
 class ImageLoader private constructor() : GlideModule(), GlideImpl {
 
     companion object {
-        @JvmStatic
         val instance by lazy { ImageLoader() }
     }
 

@@ -7,8 +7,8 @@ import android.net.NetworkCapabilities
 import android.net.NetworkInfo
 import android.net.wifi.WifiManager
 import android.os.Build
-import com.example.framework.utils.logE
 import com.example.common.BaseApplication
+import com.example.framework.utils.logE
 
 /**
  * author: wyb
@@ -25,7 +25,6 @@ object NetWorkUtil {
     /**
      * 验证是否联网,保证连接正常建立
      */
-    @JvmStatic
     fun isNetworkAvailable(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             val networkInfo = manager.activeNetworkInfo
@@ -41,7 +40,6 @@ object NetWorkUtil {
     /**
      * 判断当前网络环境是否为wifi，只需校验是否是wifi
      */
-    @JvmStatic
     fun isWifiConnected(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return manager.activeNetworkInfo?.type == ConnectivityManager.TYPE_WIFI
@@ -56,7 +54,6 @@ object NetWorkUtil {
     /**
      * 判断当前网络环境是否为手机流量，只需校验是否是流量
      */
-    @JvmStatic
     fun isMobileConnected(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return manager.activeNetworkInfo?.type == ConnectivityManager.TYPE_MOBILE
@@ -71,13 +68,11 @@ object NetWorkUtil {
     /**
      * 是否挂载了网络代理（wifi模式下）
      */
-    @JvmStatic
     fun isMountAgent() = (!System.getProperty("http.proxyHost").isNullOrEmpty()) && ((System.getProperty("http.proxyPort") ?: "-1").toInt() != -1)
 
     /**
      * 是否挂载了VPN，只需校验是否是Vpn
      */
-    @JvmStatic
     fun isMountVpn(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return manager.activeNetworkInfo?.type == ConnectivityManager.TYPE_VPN
@@ -97,7 +92,6 @@ object NetWorkUtil {
      * WPA是WEP加密的改进版，包含两种方式：预共享密钥和Radius密钥（远程用户拨号认证系统）。其中预共享密钥（pre-share key缩写为PSK）有两种密码方式：TKIP和AES，而RADIUS密钥利用RADIUS服务器认证并可以动态选择TKIP、AES、WEP方式。相比TKIP，AES具有更好的安全系数，建议用户使用。
      * WPA2即WPA加密的升级版。WPA2同样也分为TKIP和AES两种方式，因此也建议选AES加密不要选TKIP。
      */
-    @JvmStatic
     fun getWifiSecurity(): String {
         var result = "NONE"
         if (isWifiConnected()) {

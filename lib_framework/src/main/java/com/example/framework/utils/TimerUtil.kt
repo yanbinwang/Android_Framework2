@@ -17,8 +17,6 @@ object TimerUtil {
     /**
      * 延时任务-容易造成内存泄漏
      */
-    @JvmOverloads
-    @JvmStatic
     fun schedule(run: (() -> Unit)?, millisecond: Long = 1000) {
         weakHandler.postDelayed({
             run?.invoke()
@@ -28,8 +26,6 @@ object TimerUtil {
     /**
      * 计时(累加)-开始
      */
-    @JvmOverloads
-    @JvmStatic
     fun startTask(tag: String = "TIMER_DEFAULT", run: (() -> Unit)?, millisecond: Long = 1000) {
         if (timerMap[tag] == null) {
             val timer = Timer()
@@ -46,7 +42,6 @@ object TimerUtil {
     /**
      * 计时（累加）-结束
      */
-    @JvmStatic
     fun stopTask(tag: String = "TIMER_DEFAULT") {
         timerMap[tag]?.apply {
             first?.cancel()
@@ -55,7 +50,6 @@ object TimerUtil {
         timerMap.remove(tag)
     }
 
-    @JvmStatic
     fun stopTask(vararg tags: String) {
         tags.forEach { stopTask(it) }
     }
@@ -64,7 +58,6 @@ object TimerUtil {
      * 倒计时-开始
      * second-秒
      */
-    @JvmStatic
     fun startCountDown(tag: String = "COUNT_DOWN_DEFAULT", onTick: ((second: Long) -> Unit)?, onFinish: (() -> Unit)?, second: Long = 1) {
         if (countDownMap[tag] == null) {
             val countDownTimer = object : CountDownTimer(second * 1000, 1000) {
@@ -85,13 +78,11 @@ object TimerUtil {
     /**
      * 倒计时-结束
      */
-    @JvmStatic
     fun stopCountDown(tag: String = "COUNT_DOWN_DEFAULT") {
         countDownMap[tag]?.cancel()
         countDownMap.remove(tag)
     }
 
-    @JvmStatic
     fun stopCountDown(vararg tags: String) {
         tags.forEach { stopCountDown(it) }
     }
@@ -99,7 +90,6 @@ object TimerUtil {
     /**
      * 完全销毁所有定时器
      */
-    @JvmStatic
     fun destroy() {
         for ((_, value) in timerMap) {
             value.apply {

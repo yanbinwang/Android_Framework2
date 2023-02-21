@@ -131,7 +131,6 @@ fun Context.openFile(filePath: String, type: String) {
  * 发送文件
  * image -> 图片
  */
-@JvmOverloads
 fun Context.sendFile(filePath: String, fileType: String? = "*/*", title: String? = "分享文件") {
     val file = File(filePath)
     if (!file.exists()) {

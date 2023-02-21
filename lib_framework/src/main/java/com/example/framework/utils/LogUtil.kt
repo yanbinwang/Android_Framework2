@@ -11,25 +11,18 @@ private const val TAG = "dota" // 默认的tag
 object LogUtil {
     private const val debug = BuildConfig.ISDEBUG
 
-    @JvmStatic
     fun v(tag: String = TAG, msg: String) = run { if (debug) Log.v(tag, msg) }
 
-    @JvmStatic
     fun d(tag: String = TAG, msg: String) = run { if (debug) Log.d(tag, msg) }
 
-    @JvmStatic
     fun i(tag: String = TAG, msg: String) = run { if (debug) Log.i(tag, msg) }
 
-    @JvmStatic
     fun w(tag: String = TAG, msg: String) = run { if (debug) Log.w(tag, msg) }
 
-    @JvmStatic
     fun e(tag: String = TAG, msg: String) = run { if (debug) Log.e(tag, msg) }
 
-    @JvmStatic
     fun wtf(msg: String) = run { if (debug) Log.println(Log.ASSERT, TAG, msg) }
 
-    @JvmStatic
     fun wtf(tag: String = TAG, msg: String) = run { if (debug) Log.println(Log.ASSERT, tag, msg) }
 
 }

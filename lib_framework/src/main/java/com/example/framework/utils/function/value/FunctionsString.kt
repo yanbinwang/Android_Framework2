@@ -16,7 +16,6 @@ private val cipher by lazy { Cipher.getInstance("AES/ECB/PKCS5Padding") }
  * @param secretKey 加密密码，长度：16 或 32 个字符
  * @return 返回Base64转码后的加密数据
  */
-@JvmOverloads
 fun String?.encrypt(secretKey: String = ""): String {
     return try {
         //创建AES秘钥
@@ -36,16 +35,14 @@ fun String?.encrypt(secretKey: String = ""): String {
  * @param secretKey  解密的密钥，长度：16 或 32 个字符
  * @return 返回Base64转码后的加密数据
  */
-@JvmOverloads
 fun String?.decrypt(secretKey: String = ""): String {
     return try {
-        val data = base64Decode()
         //创建AES秘钥
         val secretKeySpec = SecretKeySpec(secretKey.toByteArray(), "AES")
         //初始化解密器
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
         //执行解密操作
-        return String(cipher.doFinal(data), Charsets.UTF_8)
+        return String(cipher.doFinal(base64Decode()), Charsets.UTF_8)
     } catch (_: Exception) {
         ""
     }
@@ -67,17 +64,17 @@ fun String?.base64Decode() = Base64.decode(this, Base64.NO_WRAP)
  */
 fun String?.getValueByName(name: String): String {
     this ?: return ""
-    var result = ""
+    var value = ""
     val index = indexOf("?")
     val temp = substring(index + 1)
     val keyValue = temp.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
     for (str in keyValue) {
         if (str.contains(name)) {
-            result = str.replace("$name=", "")
+            value = str.replace("$name=", "")
             break
         }
     }
-    return result
+    return value
 }
 
 /**
@@ -85,26 +82,24 @@ fun String?.getValueByName(name: String): String {
  */
 fun String?.hide4BitLetter(): String {
     this ?: return ""
-    var result = ""
+    var value = ""
     if (isMobile()) {
         val ch = toCharArray()
         for (index in ch.indices) {
             if (index in 3..6) {
-                result = "$result*"
+                value = "$value*"
             } else {
-                result += ch[index]
+                value += ch[index]
             }
         }
-    } else {
-        result = this
-    }
-    return result
+    } else value = this
+    return value
 }
 
 /**
  * 验证手机号
  */
-fun String.isMobile() = Pattern.matches("^1[0-9]{10}$", this)
+fun String?.isMobile() = Pattern.matches("^1[0-9]{10}$", this.orEmpty())
 
 /**
  * 返回密码强度

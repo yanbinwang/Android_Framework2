@@ -15,25 +15,18 @@ import com.tencent.mmkv.MMKV
 object MmkvUtil {
     private val mmkv by lazy { MMKV.defaultMMKV() }
 
-    @JvmStatic
     fun encode(key: String, value: Boolean) = mmkv.encode(key, value)
 
-    @JvmStatic
     fun encode(key: String, value: String) = mmkv.encode(key, value)
 
-    @JvmStatic
     fun <T : Parcelable> encode(key: String, value: T?) = mmkv.encode(key, value)
 
-    @JvmStatic
     fun decodeBool(key: String, value: Boolean = false) = mmkv.decodeBool(key, value)
 
-    @JvmStatic
     fun decodeString(key: String, value: String = "") = mmkv.decodeString(key, value)
 
-    @JvmStatic
     fun <T : Parcelable> decodeParcelable(label: String, tClass: Class<T>) = mmkv.decodeParcelable(label, tClass)
 
-    @JvmStatic
     fun removeValueForKey(label: String) = mmkv.removeValueForKey(label)
 
 }

@@ -22,7 +22,6 @@ import java.io.Serializable
  * 1.接口提示
  * 2.遮罩层操作
  */
-@JvmOverloads
 fun ViewGroup.setState(imgRes: Int = -1, text: String? = null){
     val emptyLayout = if (this is EmptyLayout) this else getEmptyView()
     emptyLayout.apply {
@@ -34,7 +33,6 @@ fun ViewGroup.setState(imgRes: Int = -1, text: String? = null){
 /**
  * 列表页调取方法
  */
-@JvmOverloads
 fun XRecyclerView.setState(length: Int = 0, imgRes: Int = -1, text: String? = null) {
     finishRefreshing()
     //判断集合长度，有长度不展示emptyview只做提示

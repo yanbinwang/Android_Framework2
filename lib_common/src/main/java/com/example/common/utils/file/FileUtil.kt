@@ -31,7 +31,6 @@ object FileUtil {
     /**
      * 是否Root-报错或获取失败都为未Root
      */
-    @JvmStatic
     fun isRoot(): Boolean {
         var file: File
         val paths = arrayOf("/system/bin/", "/system/xbin/", "/system/sbin/", "/sbin/", "/vendor/bin/")
@@ -48,7 +47,6 @@ object FileUtil {
     /**
      * 递归完全删除对应文件夹下的所有文件
      */
-    @JvmStatic
     fun deleteDirWithFile(dir: File?) {
         if (dir == null || !dir.exists() || !dir.isDirectory) return
         for (file in dir.listFiles()) {
@@ -61,7 +59,6 @@ object FileUtil {
     /**
      * 获取整个目录的文件大小
      */
-    @JvmStatic
     fun getFileSize(file: File): Long {
         var size: Long = 0
         for (mFile in file.listFiles()) {
@@ -77,7 +74,6 @@ object FileUtil {
     /**
      * 获取手机cpu信息-报错或获取失败显示暂无
      */
-    @JvmStatic
     fun getCpuInfo(): String {
         try {
             val result = BufferedReader(FileReader("/proc/cpuinfo")).readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
@@ -90,7 +86,6 @@ object FileUtil {
     /**
      * 获取文件base64位地址
      */
-    @JvmStatic
     fun fileToBase64(file: File): String {
         var base64: String? = null
         var inputStream: InputStream? = null
@@ -124,7 +119,6 @@ object FileUtil {
      * @param targetFile 分割的文件
      * @param cutSize    分割文件的大小
      */
-    @JvmStatic
     fun split(targetFile: File, cutSize: Long): MutableList<String> {
         val splitList = ArrayList<String>()
         try {
@@ -168,7 +162,6 @@ object FileUtil {
      * @param begin 开始指针的位置
      * @param end   结束指针的位置
      */
-    @JvmStatic
     private fun getWrite(filePath: String, index: Int, begin: Long, end: Long): TmpInfo {
         val info = TmpInfo()
         try {
@@ -199,14 +192,12 @@ object FileUtil {
         return info
     }
 
-    @JvmStatic
     fun getSignature(southPath: String) = getSignature(File(southPath))
 
     /**
      * 获取文件哈希值
      * 满足64位哈希，不足则前位补0
      */
-    @JvmStatic
     fun getSignature(file: File): String {
         var hash = ""
         try {

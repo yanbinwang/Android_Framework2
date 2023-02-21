@@ -23,7 +23,7 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
     init {
         text = "发送验证码"
         gravity = Gravity.CENTER
-        textColor(R.color.defaultTheme)
+        textColor(R.color.appTheme)
         textSize(R.dimen.textSize14)
     }
 

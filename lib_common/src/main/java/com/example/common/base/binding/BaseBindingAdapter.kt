@@ -149,7 +149,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["text", "key_text", "key_color", "is_match_text", "empty_type"], requireAll = false)
     fun bindingTextViewSpanFirst(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isMatchText: Boolean?, emptyType: Int?) {
-        if (!text.isNullOrEmpty() && !keyText.isNullOrEmpty()) textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.defaultTheme)) else {
+        if (!text.isNullOrEmpty() && !keyText.isNullOrEmpty()) textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.appTheme)) else {
             textview.text = when (emptyType.toSafeInt()) {
                 0 -> text.orEmpty()
                 1 -> text.orNoData()

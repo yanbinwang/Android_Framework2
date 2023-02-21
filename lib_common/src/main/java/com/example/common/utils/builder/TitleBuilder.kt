@@ -26,7 +26,6 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * bgColor->背景颜色
      * shade->标题底部是否带阴影
      */
-    @JvmOverloads
     fun setTitle(title: String = "", titleColor: Int = R.color.black, bgColor: Int = R.color.white, shade: Boolean = false): TitleBuilder {
         binding.clContainer.setBackgroundColor(if(0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
         binding.tvTitle.setArguments(title, titleColor)
@@ -40,7 +39,6 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * tintColor->图片覆盖色（存在相同图片颜色不同的情况，直接传覆盖色即可）
      * onClick->点击事件
      */
-    @JvmOverloads
     fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}): TitleBuilder {
         binding.ivLeft.apply {
             visible()
@@ -51,7 +49,6 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         return this
     }
 
-    @JvmOverloads
     fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}): TitleBuilder {
         binding.ivRight.apply {
             visible()
@@ -68,7 +65,6 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * labelColor->文案颜色
      * onClick->点击事件
      */
-    @JvmOverloads
     fun setLeft(label: String, labelColor: Int = R.color.black, onClick: () -> Unit = {}): TitleBuilder {
         binding.tvLeft.apply {
             visible()
@@ -78,7 +74,6 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         return this
     }
 
-    @JvmOverloads
     fun setRight(label: String, labelColor: Int = R.color.black, onClick: () -> Unit = {}): TitleBuilder {
         binding.tvRight.apply {
             visible()

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- app内的一些颜色-->
-    <color name="defaultTheme">#3d81f2</color>
-    <color name="defaultPrimary">#000000</color>
-    <color name="defaultPrimaryDark">#ffffff</color>
-    <color name="defaultNavigationBar">#ffffff</color>
-    <color name="defaultWindowBackground">#f6f8ff</color>
-    <color name="defaultAccent">#2e60df</color>
-    <color name="defaultControlNormal">#333333</color>
+    <color name="appTheme">#3d81f2</color>
+    <color name="appPrimary">#000000</color>
+    <color name="appPrimaryDark">#ffffff</color>
+    <color name="appNavigationBar">#ffffff</color>
+    <color name="appWindowBackground">#f6f8ff</color>
+    <color name="appAccent">#2e60df</color>
+    <color name="appControlNormal">#333333</color>
     <!-- 输入框/显示文本 -->
     <color name="textPrimary">#3d81f2</color>
     <color name="textHint">#7F8185</color>
@@ -17,15 +17,15 @@
     <color name="bgLine">#f6f8ff</color>
     <!-- 其余定义的颜色 -->
     <color name="white">#ffffff</color>
-    <color name="black">#000000</color>
-
     <color name="white_ccc">#ccc</color>
     <color name="white_00ffffff">#00ffffff</color>
     <color name="white_efffffff">#efffffff</color>
-    <color name="white_ff000000">#ff000000</color>
+
+    <color name="black">#000000</color>
     <color name="black_111b34">#111b34</color>
     <color name="black_4c000000">#4c000000</color>
     <color name="black_ef111111">#ef111111</color>
+    <color name="white_ff000000">#ff000000</color>
 
     <color name="grey_f1f1f4">#f1f1f4</color>
     <color name="grey_333333">#333333</color>
@@ -36,6 +36,7 @@
     <color name="grey_f6f8ff">#f6f8ff</color>
     <color name="grey_c5cad5">#c5cad5</color>
     <color name="grey_cccccc">#cccccc</color>
+
     <color name="blue_1566ec">#1566ec</color>
     <color name="blue_2a3160">#2a3160</color>
     <color name="blue_3d81f2">#3d81f2</color>

@@ -17,7 +17,6 @@ import android.os.Build
 object ConfigHelper {
     private lateinit var context: Context
 
-    @JvmStatic
     fun initialize(application: Application) {
         context = application
     }

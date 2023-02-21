@@ -38,7 +38,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
         binding.ivProgress.let {
             it.padding(top = 2.5.pt, bottom = 2.5.pt)
             it.imageResource(R.drawable.animation_list_loading)
-            it.tint(R.color.defaultTheme)
+            it.tint(R.color.appTheme)
             animation = it.drawable as? AnimationDrawable
         }
     }
