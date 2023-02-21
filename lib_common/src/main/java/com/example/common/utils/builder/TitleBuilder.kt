@@ -4,7 +4,7 @@ import android.app.Activity
 import android.graphics.Color
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
-import com.example.common.utils.ScreenUtil.statusBarPadding
+import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.setArguments
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.view.*
@@ -16,7 +16,7 @@ import com.example.framework.utils.function.view.*
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
 
     init {
-        binding.clContainer.statusBarPadding()
+        binding.clContainer.padding(top = getStatusBarHeight())
     }
 
     /**

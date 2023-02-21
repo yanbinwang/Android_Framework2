@@ -7,8 +7,8 @@ import com.example.common.network.factory.RetrofitFactory
  * 通用接口类
  */
 object Subscribe : Api {
-    private val api by lazy { RetrofitFactory.instance.create(Api::class.java) }
-    private val downloadApi by lazy { RetrofitFactory.instance.create2(Api::class.java) }
+    private val api by lazy { RetrofitFactory.instance.createByServer(Api::class.java) }
+    private val downloadApi by lazy { RetrofitFactory.instance.create(Api::class.java) }
 
     override suspend fun getDownloadApi(downloadUrl: String) = downloadApi.getDownloadApi(downloadUrl)
 

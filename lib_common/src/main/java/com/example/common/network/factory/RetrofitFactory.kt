@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
  * retrofit单例
  */
 class RetrofitFactory private constructor() {
-    private val retrofit by lazy {
+    private val serverRetrofit by lazy {
         Retrofit.Builder()
             .client(OkHttpFactory.instance.okHttpClient)
             .baseUrl(BuildConfig.LOCALHOST)
@@ -21,7 +21,7 @@ class RetrofitFactory private constructor() {
     }
 
     //纯粹的网络请求，不加任何拦截
-    private val retrofit2 by lazy {
+    private val retrofit by lazy {
         Retrofit.Builder()
             .client(OkHttpClient.Builder()
                     .connectTimeout(6, TimeUnit.SECONDS)//设置连接超时
@@ -39,13 +39,13 @@ class RetrofitFactory private constructor() {
     }
 
     //获取一个请求API
-    fun <T> create(service: Class<T>): T {
-        return retrofit.create(service)
+    fun <T> createByServer(service: Class<T>): T {
+        return serverRetrofit.create(service)
     }
 
     //获取一个不加头不加拦截器的API
-    fun <T> create2(service: Class<T>): T {
-        return retrofit2.create(service)
+    fun <T> create(service: Class<T>): T {
+        return retrofit.create(service)
     }
 
 }

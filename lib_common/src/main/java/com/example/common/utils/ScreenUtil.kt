@@ -7,17 +7,10 @@ import android.os.Build
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.common.BaseApplication
 import com.example.common.utils.function.getManifestString
-import com.example.common.utils.function.getStatusBarHeight
 import com.example.framework.utils.function.value.min
 import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.function.view.margin
-import com.example.framework.utils.function.view.padding
 import kotlin.LazyThreadSafetyMode.NONE
 
 /**
@@ -158,41 +151,6 @@ object ScreenUtil {
             lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
             attributes = lp
         }
-    }
-
-//    /**
-//     * 设置view高度为导航栏高度
-//     * 手动添加一个view，高度设为wrap
-//     */
-//    fun View.statusBarHeight() {
-//        getStatusBarHeight().also {
-//            layoutParams = when (parent) {
-//                is LinearLayout -> LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, it)
-//                is RelativeLayout -> RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, it)
-//                is FrameLayout -> FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, it)
-//                else -> ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, it)
-//            }
-//        }
-//    }
-
-    /**
-     * 设置view底部所有子控件居下导航栏高度
-     */
-    fun View.statusBarPadding() { padding(top = getStatusBarHeight()) }
-
-    /**
-     * 设置view整体向上导航栏高度
-     */
-    fun View.statusBarMargin() {
-//        val params = when (parent) {
-//            is LinearLayout -> layoutParams as LinearLayout.LayoutParams
-//            is RelativeLayout -> layoutParams as RelativeLayout.LayoutParams
-//            is FrameLayout -> layoutParams as FrameLayout.LayoutParams
-//            else -> layoutParams as ConstraintLayout.LayoutParams
-//        }
-//        params.topMargin = getStatusBarHeight()
-//        layoutParams = params
-        margin(top = getStatusBarHeight())
     }
 
 }
