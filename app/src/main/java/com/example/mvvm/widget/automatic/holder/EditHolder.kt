@@ -1,4 +1,4 @@
-package com.example.mvvm.widget.automatic
+package com.example.mvvm.widget.automatic.holder
 
 import android.content.Context
 import android.view.View
@@ -6,14 +6,15 @@ import android.widget.EditText
 import android.widget.TextView
 import com.example.framework.utils.function.inflate
 import com.example.mvvm.R
+import com.example.mvvm.widget.automatic.AutomaticBean
 import kotlin.LazyThreadSafetyMode.NONE
 
 /**
  * @description
  * @author
  */
-class AutomaticEdit(context: Context, private val bean: AutomaticBean) : AutomaticInterface {
-    private val rootView by lazy(NONE) { context.inflate(R.layout.view_automatic_edit) }
+class EditHolder(context: Context, private val bean: AutomaticBean) : AutomaticInterface {
+    private val rootView by lazy(NONE) { context.inflate(R.layout.view_edit) }
     private val editText by lazy(NONE) { rootView.findViewById<EditText>(R.id.et_content) }
 
     init {

@@ -1,4 +1,4 @@
-package com.example.mvvm.widget.automatic
+package com.example.mvvm.widget.automatic.holder
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
@@ -16,14 +16,15 @@ import com.example.common.utils.file.getFileFromUri
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.click
 import com.example.mvvm.R
+import com.example.mvvm.widget.automatic.AutomaticBean
 import kotlin.LazyThreadSafetyMode.NONE
 
 /**
  * @description
  * @author
  */
-class AutomaticPic(private val activity: AppCompatActivity, private val bean: AutomaticBean) : AutomaticInterface, LifecycleEventObserver {
-    private val rootView by lazy(NONE) { activity.inflate(R.layout.view_automatic_pic) }
+class PicHolder(private val activity: AppCompatActivity, private val bean: AutomaticBean) : AutomaticInterface, LifecycleEventObserver {
+    private val rootView by lazy(NONE) { activity.inflate(R.layout.view_pic) }
     private var activityResultValue = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
             it?.data ?: return@registerForActivityResult
