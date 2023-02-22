@@ -158,18 +158,10 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
 
     /**
      * 刷新/添加数据
-     * page：手机端整理的分页对象类，和服务端约定好data内嵌套的格式
+     * list：此次需要修改的集合
      * hasRefresh：指定此次的数据是否是刷新的数据（由外层刷新控件或手动指定）
-     * onConvert：返回此次请求获取到的集合
      * onEmpty：当前适配器的集合为空时才会回调
      */
-//    fun notify(page: Page<T>?, hasRefresh: Boolean? = true, onConvert: (list: List<T>) -> Unit = {}, onEmpty: () -> Unit = {}) {
-//        val list = page?.list.orEmpty()
-//        if (hasRefresh.orFalse) refresh(list) else insert(list)
-//        onConvert.invoke(list)
-//        if (data.safeSize == 0) onEmpty.invoke()
-//    }
-
     fun notify(list: List<T>, hasRefresh: Boolean = true, onEmpty: () -> Unit = {}) {
         if (hasRefresh) refresh(list) else insert(list)
         if (data.safeSize == 0) onEmpty.invoke()
