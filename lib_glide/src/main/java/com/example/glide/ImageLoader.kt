@@ -190,7 +190,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
 
     //清除磁盘缓存是在子线程中进行
     override fun clearDiskCache(context: Context) {
-        Glide.get(context).clearDiskCache()
+        Thread { Glide.get(context).clearDiskCache() }.start()
     }
 
     //获取用于缓存图片的路劲
