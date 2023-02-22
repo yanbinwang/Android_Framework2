@@ -62,7 +62,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     //默认底部弹出，可重写
-    protected open fun setTransition() {
+    open fun setTransition() {
         if (animation) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 enterTransition = Slide().apply {
