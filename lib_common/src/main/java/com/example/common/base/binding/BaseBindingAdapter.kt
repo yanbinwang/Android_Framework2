@@ -37,7 +37,6 @@ object BaseBindingAdapter {
     /**
      * 约束布局等高线设置
      */
-    @JvmStatic
     @BindingAdapter(value = ["statusBar_margin"])
     fun bindingGuidelineStatusBar(guideline: Guideline, statusBarMargin: Boolean?) {
         if (statusBarMargin.orFalse) guideline.setGuidelineBegin(getStatusBarHeight())
@@ -48,7 +47,6 @@ object BaseBindingAdapter {
     /**
      * 尽量替换为viewpager2，viewpager也支持绑定
      */
-    @JvmStatic
     @BindingAdapter(value = ["adapter"])
     fun <T : PagerAdapter> bindingScaleViewPagerAdapter(pager: ViewPager, adapter: T) {
         pager.adapter = adapter
@@ -60,7 +58,6 @@ object BaseBindingAdapter {
     /**
      * 不和tablayout或者其他view关联的数据加载可以直接在xml中绑定
      */
-    @JvmStatic
     @BindingAdapter(value = ["adapter", "orientation", "user_input_enabled", "page_limit"], requireAll = false)
     fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, adapter: T, orientation: Int?, userInputEnabled: Boolean?, pageLimit: Boolean?) {
         flipper.adapter(adapter, orientation.toSafeInt(ViewPager2.ORIENTATION_HORIZONTAL), userInputEnabled.orTrue, pageLimit.orFalse)
@@ -69,7 +66,6 @@ object BaseBindingAdapter {
     /**
      * ConcatAdapter为recyclerview支持的多适配器拼接的适配器，可用于绘制复杂界面拼接
      */
-    @JvmStatic
     @BindingAdapter(value = ["concat_adapter"])
     fun bindingRecyclerViewConcatAdapter(rec: RecyclerView, adapter: ConcatAdapter) {
         rec.layoutManager = LinearLayoutManager(rec.context)
@@ -79,7 +75,6 @@ object BaseBindingAdapter {
     /**
      * 给recyclerview绑定一个适配器
      */
-    @JvmStatic
     @BindingAdapter(value = ["linear_adapter", "linear_orientation"], requireAll = false)
     fun <T : RecyclerView.Adapter<*>> bindingRecyclerViewLinearLayoutManager(rec: RecyclerView, linearAdapter: T, @RecyclerView.Orientation linearOrientation: Int?) {
         rec.cancelItemAnimator()
@@ -93,7 +88,6 @@ object BaseBindingAdapter {
     /**
      * 给recyclerview绑定一个适配器
      */
-    @JvmStatic
     @BindingAdapter(value = ["grid_adapter", "grid_orientation", "grid_columns"], requireAll = false)
     fun <T : RecyclerView.Adapter<*>> bindingRecyclerViewGridLayoutManager(rec: RecyclerView, gridAdapter: T, @RecyclerView.Orientation gridOrientation: Int?, gridColumns: Int?) {
         rec.cancelItemAnimator()
@@ -108,7 +102,6 @@ object BaseBindingAdapter {
      * 适配器
      * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
      */
-    @JvmStatic
     @BindingAdapter(value = ["adapter", "span_count", "horizontal_space", "vertical_space", "has_horizontal_edge", "has_vertical_edge"], requireAll = false)
     fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
         rec.setAdapter(adapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
@@ -119,7 +112,6 @@ object BaseBindingAdapter {
     /**
      * 加载网页
      */
-    @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["load_url", "need_header"], requireAll = false)
     fun bindingWebViewLoadUrl(webView: WebView, loadPageUrl: String, needHeader: Boolean?) {
@@ -129,7 +121,6 @@ object BaseBindingAdapter {
     /**
      * 加载本地网页
      */
-    @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["load_asset_url", "need_header"], requireAll = false)
     fun bindingWebViewLoadAssetUrl(webView: WebView, assetPath: String, needHeader: Boolean?) {
@@ -146,7 +137,6 @@ object BaseBindingAdapter {
      * is_match_text：文字是否撑满宽度（textview本身有一定的padding且会根据内容自动换行）
      * empty_type：0：默认 1：数据空 2：金额空 3：%空
      */
-    @JvmStatic
     @BindingAdapter(value = ["text", "key_text", "key_color", "is_match_text", "empty_type"], requireAll = false)
     fun bindingTextViewSpanFirst(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isMatchText: Boolean?, emptyType: Int?) {
         if (!text.isNullOrEmpty() && !keyText.isNullOrEmpty()) textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.appTheme)) else {
@@ -163,7 +153,6 @@ object BaseBindingAdapter {
     /**
      * 设置小数点
      */
-    @JvmStatic
     @BindingAdapter(value = ["decimal_point"])
     fun bindingEditTextDecimal(editText: EditText, decimalPoint: Int?) {
         editText.decimalFilter(decimalPoint.toSafeInt())
@@ -172,7 +161,6 @@ object BaseBindingAdapter {
     /**
      * 是否禁止edittext输入emoji
      */
-    @JvmStatic
     @BindingAdapter(value = ["is_emoji_limit"])
     fun bindingEditTextRejectEmoji(editText: EditText, isReject: Boolean?) {
         if (isReject.orFalse) editText.emojiLimit()
@@ -181,7 +169,6 @@ object BaseBindingAdapter {
     /**
      * 是否禁止输入空格
      */
-    @JvmStatic
     @BindingAdapter(value = ["is_inhibit_space"])
     fun bindingEditTextInhibitInputSpace(editText: EditText, isInhibitInputSpace: Boolean?) {
         if (isInhibitInputSpace.orFalse) editText.inhibitSpace()
@@ -190,7 +177,6 @@ object BaseBindingAdapter {
     /**
      * 限制输入内容为非目标值
      */
-    @JvmStatic
     @BindingAdapter(value = ["char_black_limit"])
     fun bindingEditTextCharBlackList(editText: EditText, charBlackList: CharArray?) {
         if (charBlackList == null) return
@@ -200,7 +186,6 @@ object BaseBindingAdapter {
     /**
      * 限制输入内容为目标值
      */
-    @JvmStatic
     @BindingAdapter(value = ["char_limit"])
     fun bindingEditTextCharLimit(editText: EditText, charLimit: CharArray?) {
         if (charLimit == null) return

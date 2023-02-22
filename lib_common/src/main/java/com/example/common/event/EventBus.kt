@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 class EventBus private constructor() {
 
     companion object {
-        @JvmStatic
         val instance by lazy { EventBus() }
     }
 

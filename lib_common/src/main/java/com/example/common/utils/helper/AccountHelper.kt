@@ -16,20 +16,17 @@ object AccountHelper {
     private val userBean = DataCacheUtil(MMKV_USER_BEAN, UserBean::class.java)
 
     //存储用户对象
-    @JvmStatic
     fun setUserBean(bean: UserBean?) {
         bean ?: return
         userBean.set(bean)
     }
 
     //获取用户对象
-    @JvmStatic
     fun getUserBean(): UserBean? {
         return userBean.get()
     }
 
     //用户是否登陆
-    @JvmStatic
     fun isLogin(): Boolean {
         val bean = getUserBean()
         bean ?: return false
@@ -37,14 +34,12 @@ object AccountHelper {
     }
 
     //获取手机号
-    @JvmStatic
     fun getMobile(): String? {
         val bean = getUserBean()
         bean ?: return null
         return bean.mobile
     }
 
-    @JvmStatic
     fun setMobile(mobile: String?) {
         val bean = getUserBean()
         bean?.mobile = mobile
@@ -52,7 +47,6 @@ object AccountHelper {
     }
 
     //用户注销操作（清除信息,清除用户凭证）
-    @JvmStatic
     fun signOut() {
         userBean.del()
 //        MmkvUtil.apply {
