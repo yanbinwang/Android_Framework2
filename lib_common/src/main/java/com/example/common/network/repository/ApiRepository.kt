@@ -70,7 +70,7 @@ suspend fun <T> request(
  */
 suspend fun <T> request(
     request: suspend CoroutineScope.() -> ApiResponse<T>,
-    isShowToast: Boolean = true
+    isShowToast: Boolean = false
 ): T? {
     var t: T? = null
     request({ request() }, {

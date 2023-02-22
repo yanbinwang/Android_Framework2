@@ -135,7 +135,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      */
     protected fun <T> async(
         request: suspend CoroutineScope.() -> ApiResponse<T>,
-        isShowToast: Boolean = true
+        isShowToast: Boolean = false
     ): Deferred<T?> {
         return async(Main, LAZY) { request({ request() }, isShowToast = isShowToast) }
     }
