@@ -17,7 +17,7 @@ abstract class BaseQuickAdapter<T, VDB : ViewDataBinding> : BaseAdapter<T> {
 
     constructor(bean: T?) : super(bean)
 
-    constructor(list: MutableList<T>?) : super(list)
+    constructor(list: ArrayList<T>?) : super(list)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewDataBindingHolder {
         context = parent.context

@@ -52,7 +52,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 传入集合的方法
      */
-    constructor(list: MutableList<T>?) {
+    constructor(list: ArrayList<T>?) {
         itemType = LIST
         if (list != null) data = list
     }
