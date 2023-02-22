@@ -2,7 +2,7 @@ package com.example.mvvm
 
 import android.os.Looper
 import android.util.Log
-import com.example.album.AlbumGlideLoader
+import com.example.album.GlideLoader
 import com.example.framework.BuildConfig
 import com.example.common.BaseApplication
 import com.example.mvvm.activity.MainActivity
@@ -57,7 +57,7 @@ class MyApplication : BaseApplication() {
         }
         //初始化图片库类
         Album.initialize(AlbumConfig.newBuilder(this)
-            .setAlbumLoader(AlbumGlideLoader()) //设置Album加载器。
+            .setAlbumLoader(GlideLoader()) //设置Album加载器。
             .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
             .build())
     }

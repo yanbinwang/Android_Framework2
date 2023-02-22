@@ -10,7 +10,7 @@ import com.yanzhenjie.album.AlbumLoader
  * date: 2017/8/29.
  * 相册使用glide图片加载库
  */
-class AlbumGlideLoader : AlbumLoader {
+class GlideLoader : AlbumLoader {
 
     override fun load(imageView: ImageView, albumFile: AlbumFile) {
         load(imageView, albumFile.path)
