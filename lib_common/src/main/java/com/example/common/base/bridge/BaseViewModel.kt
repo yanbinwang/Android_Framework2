@@ -5,8 +5,6 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
-import com.example.framework.utils.function.value.orTrue
-import com.example.framework.utils.function.view.gone
 import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
@@ -16,6 +14,8 @@ import com.example.common.utils.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
+import com.example.framework.utils.function.value.orTrue
+import com.example.framework.utils.function.view.gone
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.*
 import kotlinx.coroutines.CoroutineStart.LAZY
@@ -114,6 +114,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     /**
      * 串行发起多个网络请求
+     * 多个网络请求之间并无关联，可以使用此方法
      */
     protected fun launch(
         requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
@@ -132,6 +133,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     /**
      * 不做回调，直接得到结果
+     * 在不调用await（）方法时可以当一个参数写，调用了才会发起请求并拿到结果
      */
     protected fun <T> async(
         request: suspend CoroutineScope.() -> ApiResponse<T>,

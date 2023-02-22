@@ -66,7 +66,12 @@ suspend fun <T> request(
 }
 
 /**
- * 直接获取到对象
+ * 网络请求协程扩展-直接获取到对象
+ * 如果几个以上的请求，互相之间有关联，则使用当前方法
+ * launch {
+ *  val req1 = request(1api)
+ *  val req2 = request(2api)
+ * }
  */
 suspend fun <T> request(
     request: suspend CoroutineScope.() -> ApiResponse<T>,
@@ -82,9 +87,9 @@ suspend fun <T> request(
 /**
  * 网络请求协程扩展-串行请求
  * 几个以上的挂起方法套在一个launch或async内都会是串行请求
- * 如项目中某个请求前必须先完成另一个请求，则可以使用当前的扩展，只有开始和完成
+ * 如项目中触发多个请求，并且毫无关联，则可以使用当前扩展，只有开始和完成
  * launch {
- * loadHttp({},
+ * request({},
  * arrayOf({AccountSubscribe.getAuthInfoApi()},{AccountSubscribe.getAuthInfoApi()}),
  * end = {
  * })
