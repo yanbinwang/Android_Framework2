@@ -31,10 +31,9 @@ import java.util.*
  */
 fun String?.decodeAsset(): Bitmap? {
     this ?: return null
-    val assets = BaseApplication.instance.assets
     var stream: InputStream? = null
     return try {
-        stream = assets.open(this)
+        stream = BaseApplication.instance.assets.open(this)
         BitmapFactory.decodeStream(stream)
     } catch (e: Exception) {
         null
@@ -88,6 +87,7 @@ fun Drawable.zoomDrawable(w: Int, h: Int = w): Drawable {
     val scaleHeight = h.toFloat() / intrinsicHeight
     matrix.postScale(scaleWidth, scaleHeight)
     val newBit = Bitmap.createBitmap(oldBit, 0, 0, intrinsicWidth, intrinsicHeight, matrix, true)
+    oldBit.recycle()
     return BitmapDrawable(null, newBit)
 }
 
