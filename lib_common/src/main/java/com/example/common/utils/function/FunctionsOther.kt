@@ -14,6 +14,9 @@ import androidx.core.widget.NestedScrollView
 import com.example.common.BaseApplication
 import com.example.common.BuildConfig
 import com.example.common.R
+import com.example.common.config.Constants.NO_DATA
+import com.example.common.config.Constants.NO_DATA_DOLLAR
+import com.example.common.config.Constants.NO_DATA_PERCENT
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.ScreenUtil.getRealSize
 import com.example.common.utils.ScreenUtil.getRealSizeFloat
@@ -106,15 +109,15 @@ fun resString(@StringRes res: Int): String {
  * 针对string的一些默认值操作
  */
 fun String?.orNoData(): String {
-    return if (isNullOrEmpty()) string(R.string.unit_no_data) else this
+    return if (isNullOrEmpty()) NO_DATA else this
 }
 
 fun String?.orNoDollar(): String {
-    return if (isNullOrEmpty()) string(R.string.unit_no_data_dollar) else this
+    return if (isNullOrEmpty()) NO_DATA_DOLLAR else this
 }
 
 fun String?.orNoPercent(): String {
-    return if (isNullOrEmpty()) string(R.string.unit_no_data_percent) else this
+    return if (isNullOrEmpty()) NO_DATA_PERCENT else this
 }
 
 /**

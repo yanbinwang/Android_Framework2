@@ -9,9 +9,9 @@ import java.lang.reflect.ParameterizedType
  * Created by WangYanBin on 2020/7/17.
  * 快捷适配器，传入对应的ViewBinding即可
  */
-abstract class BaseQuickAdapter<T, VB : ViewDataBinding> : BaseAdapter<T> {
+abstract class BaseQuickAdapter<T, VDB : ViewDataBinding> : BaseAdapter<T> {
     protected lateinit var context: Context
-    protected lateinit var binding: VB
+    protected lateinit var binding: VDB
 
     constructor() : super(ArrayList())
 
@@ -23,7 +23,7 @@ abstract class BaseQuickAdapter<T, VB : ViewDataBinding> : BaseAdapter<T> {
         context = parent.context
         val superclass = javaClass.genericSuperclass
         val aClass = (superclass as ParameterizedType).actualTypeArguments[1] as Class<*>
-        return onCreateViewBindingHolder(parent, aClass as Class<VB>)
+        return onCreateViewBindingHolder(parent, aClass as Class<VDB>)
     }
 
     override fun convert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>?) {

@@ -92,11 +92,11 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?>
     /**
      * 构建ViewBinding
      */
-    protected fun <VB : ViewDataBinding> onCreateViewBindingHolder(parent: ViewGroup, aClass: Class<VB>): BaseViewDataBindingHolder {
-        lateinit var binding: VB
+    protected fun <VDB : ViewDataBinding> onCreateViewBindingHolder(parent: ViewGroup, aClass: Class<VDB>): BaseViewDataBindingHolder {
+        lateinit var binding: VDB
         try {
             val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            binding = method.invoke(null, LayoutInflater.from(parent.context), parent, false) as VB
+            binding = method.invoke(null, LayoutInflater.from(parent.context), parent, false) as VDB
         } catch (_: Exception) {
         }
         return BaseViewDataBindingHolder(binding)

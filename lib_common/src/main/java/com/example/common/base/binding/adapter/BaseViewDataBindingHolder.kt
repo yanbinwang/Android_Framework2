@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
  */
 open class BaseViewDataBindingHolder(private val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
 
-    fun <VB : ViewDataBinding?> getBinding(): VB {
-        return binding as VB
+    fun <VDB : ViewDataBinding> getBinding(): VDB {
+        return binding as VDB
     }
 
 }
