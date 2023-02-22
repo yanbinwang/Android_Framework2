@@ -10,7 +10,7 @@ import android.widget.EditText
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import com.example.common.R
-import com.example.common.databinding.ViewPassEditBinding
+import com.example.common.databinding.ViewPasswordEditBinding
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.*
@@ -21,11 +21,11 @@ import java.util.*
  * @description 密码显影输入框
  * @author yan
  */
-class PassEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
+class PasswordEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private var isShowBtn = true
     private var hideRes = -1
     private var showRes = -1
-    private val binding by lazy { ViewPassEditBinding.bind(context.inflate(R.layout.view_pass_edit)) }
+    private val binding by lazy { ViewPasswordEditBinding.bind(context.inflate(R.layout.view_password_edit)) }
 
     init {
         binding.etClear.emojiLimit()
@@ -36,33 +36,33 @@ class PassEditText @JvmOverloads constructor(context: Context, attrs: AttributeS
         binding.ivShow.apply { click { setResource(Triple(binding.etClear.passwordInputCutover(), showRes, hideRes)) }}
         //以下属性在xml中前缀使用app:调取
         if (attrs != null) {
-            val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PassEditText)
+            val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PasswordEditText)
             //文本内容
-            val text = typedArray.getResourceId(R.styleable.PassEditText_text, -1)
+            val text = typedArray.getResourceId(R.styleable.PasswordEditText_text, -1)
             if (text != -1) setText(text)
             //文字大小
-            val textSize = typedArray.getDimension(R.styleable.PassEditText_textSize, context.dimen(R.dimen.textSize14))
+            val textSize = typedArray.getDimension(R.styleable.PasswordEditText_textSize, context.dimen(R.dimen.textSize14))
             setTextSize(textSize)
             //文字颜色
-            val textColor = typedArray.getColor(R.styleable.PassEditText_textColor, color(R.color.textPrimary))
+            val textColor = typedArray.getColor(R.styleable.PasswordEditText_textColor, color(R.color.textPrimary))
             setTextColor(textColor)
             //无内容显示的文本内容
-            val hint = typedArray.getResourceId(R.styleable.PassEditText_hint, -1)
+            val hint = typedArray.getResourceId(R.styleable.PasswordEditText_hint, -1)
             if (hint != -1) setHint(hint)
             //无为内容显示的文本内容颜色
-            val hintColor = typedArray.getColor(R.styleable.PassEditText_textColorHint, color(R.color.textHint))
+            val hintColor = typedArray.getColor(R.styleable.PasswordEditText_textColorHint, color(R.color.textHint))
             setHintTextColor(hintColor)
             //文本方向
-            val gravity = typedArray.getInt(R.styleable.PassEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
+            val gravity = typedArray.getInt(R.styleable.PasswordEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
             setGravity(gravity)
             //睁眼闭眼图片资源
-            hideRes = typedArray.getResourceId(R.styleable.PassEditText_btnImageHide, R.mipmap.ic_pass_hide)
-            showRes = typedArray.getResourceId(R.styleable.PassEditText_btnImageShow, R.mipmap.ic_pass_show)
+            hideRes = typedArray.getResourceId(R.styleable.PasswordEditText_btnImageHide, R.mipmap.ic_pass_hide)
+            showRes = typedArray.getResourceId(R.styleable.PasswordEditText_btnImageShow, R.mipmap.ic_pass_show)
             //文案最大范围
-            val maxLength = typedArray.getInt(R.styleable.PassEditText_maxLength, -1)
+            val maxLength = typedArray.getInt(R.styleable.PasswordEditText_maxLength, -1)
             if (maxLength != -1) setMaxLength(maxLength)
             //配置输入法右下角按钮的样式
-            val imeOptions = typedArray.getInt(R.styleable.PassEditText_imeOptions, 0)
+            val imeOptions = typedArray.getInt(R.styleable.PasswordEditText_imeOptions, 0)
             binding.etClear.imeOptions(imeOptions)
             typedArray.recycle()
         }

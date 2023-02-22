@@ -52,4 +52,5 @@ dependencies {
     api deps.androidx.livedata
     //其余谷歌官方库
     api deps.material
+    api deps.flexbox
 }

@@ -12,6 +12,7 @@ import android.widget.EditText
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.core.widget.addTextChangedListener
 import com.example.common.R
 import com.example.common.databinding.ViewClearEditBinding
 import com.example.framework.utils.function.dimen
@@ -32,14 +33,10 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     init {
         binding.etClear.emojiLimit()
-        binding.etClear.addTextChangedListener(object : OnMultiTextWatcher {
-            override fun afterTextChanged(s: Editable) {
-                super.afterTextChanged(s)
-                if (isDisabled) return
-                if (!isShowBtn) return
-                binding.ivClear.also { if (s.toString().isNotEmpty()) it.visible() else it.gone() }
-            }
-        })
+        binding.etClear.addTextChangedListener {
+            if (isDisabled || !isShowBtn) return@addTextChangedListener
+            binding.ivClear.also { if (it.toString().isNotEmpty()) it.visible() else it.gone() }
+        }
         binding.ivClear.click { binding.etClear.setText("") }
         //以下属性在xml中前缀使用app:调取
         if (attrs != null) {

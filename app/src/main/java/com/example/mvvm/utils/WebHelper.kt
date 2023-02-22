@@ -6,9 +6,10 @@ import android.webkit.WebView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.common.bean.WebBundle
 import com.example.common.config.Extras
 import com.example.common.utils.FormActivityUtil
-import com.example.common.utils.WebUtil
+import com.example.common.utils.WebViewUtil
 import com.example.common.utils.builder.TitleBuilder
 import com.example.common.utils.function.OnWebChangedListener
 import com.example.common.utils.function.load
@@ -21,7 +22,6 @@ import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.byHardwareAccelerate
 import com.example.mvvm.R
 import com.example.mvvm.activity.WebActivity
-import com.example.mvvm.activity.WebBundle
 import com.example.mvvm.databinding.ActivityWebBinding
 import java.lang.ref.WeakReference
 
@@ -32,7 +32,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
     private val bean by lazy { activity.intentSerializable(Extras.BUNDLE_BEAN) as? WebBundle }
     private val binding by lazy { ActivityWebBinding.inflate(activity.layoutInflater) }
     private val titleBuilder by lazy { TitleBuilder(activity, binding.titleContainer) }
-    private val webUtil by lazy { WebUtil(activity, binding.flWebRoot) }
+    private val webViewUtil by lazy { WebViewUtil(activity, binding.flWebRoot) }
     private var webView: WebView? = null
 
     init {
@@ -46,12 +46,12 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
         //需要标题头并且值已经传输过来了则设置标题
         bean?.apply {
             if (getTitleRequired().orTrue) {
-                if (getTitle().isNotEmpty()) titleBuilder.setTitle(getTitle()).getDefault()
+                titleBuilder.setTitle(getTitle()).getDefault()
             } else {
                 titleBuilder.hideTitle()
             }
         }
-        webView = webUtil.webView
+        webView = webViewUtil.webView
         webView?.byHardwareAccelerate()
         webView?.background(R.color.white)
         webView?.settings?.useWideViewPort = true
@@ -66,11 +66,11 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
 //            val url = webView?.url.orEmpty()
         }, object : OnWebChangedListener {
             override fun onShowCustomView(view: View?, callback: WebChromeClient.CustomViewCallback?) {
-                webUtil.onShowCustomView(view, callback)
+                webViewUtil.onShowCustomView(view, callback)
             }
 
             override fun onHideCustomView() {
-                webUtil.onHideCustomView()
+                webViewUtil.onHideCustomView()
             }
 
             override fun onProgressChanged(progress: Int) {

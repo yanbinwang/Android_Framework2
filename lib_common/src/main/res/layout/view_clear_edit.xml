@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingHorizontal="10pt">
@@ -9,7 +11,7 @@
         <EditText
             android:id="@+id/et_clear"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0pt"
             android:background="@null"
             android:minHeight="40pt"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -21,14 +23,16 @@
             android:id="@+id/iv_clear"
             android:layout_width="20pt"
             android:layout_height="20pt"
-            android:layout_marginStart="10pt"
+            android:layout_marginStart="5pt"
             android:scaleType="fitXY"
             android:src="@mipmap/ic_text_clear"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/et_clear"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

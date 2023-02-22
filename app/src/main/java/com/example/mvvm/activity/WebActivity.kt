@@ -9,7 +9,6 @@ import com.example.common.config.ARouterPath
 import com.example.mvvm.databinding.ActivityWebBinding
 import com.example.mvvm.utils.WebHelper
 import com.example.mvvm.utils.WebImpl
-import java.io.Serializable
 
 @Route(path = ARouterPath.WebActivity)
 class WebActivity : BaseActivity<ActivityWebBinding>(),WebImpl {
@@ -40,29 +39,5 @@ class WebActivity : BaseActivity<ActivityWebBinding>(),WebImpl {
 
     override fun onBack(result: String?) {
     }
-
-}
-
-abstract class WebBundle : Serializable {
-
-    /**
-     * 黑白电池
-     */
-    abstract fun getLight(): Boolean
-
-    /**
-     * 是否需要头
-     */
-    abstract fun getTitleRequired(): Boolean
-
-    /**
-     * 获取页面标题
-     */
-    abstract fun getTitle(): String
-
-    /**
-     *获取页面地址
-     */
-    abstract fun getUrl(): String
 
 }

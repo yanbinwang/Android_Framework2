@@ -17,6 +17,7 @@ versions.arouter = "1.5.2"
 versions.arouter_compiler = "1.5.2"
 //------------------------------------------------------------------------------------------
 versions.material = "1.7.0"
+versions.flexbox = "3.0.0"
 versions.okhttp = "4.9.1"
 versions.autosize = "v1.2.1"
 versions.mmkv = "1.2.2"
@@ -51,6 +52,7 @@ deps.alibaba = alibaba
 
 //非组的第三方控件
 deps.material = "com.google.android.material:material:$versions.material"//design库
+deps.flexbox = "com.google.android.flexbox:flexbox:$versions.flexbox"//谷歌官方自动换行布局
 deps.okhttp3 = "com.squareup.okhttp3:okhttp:$versions.okhttp"//okhttp
 deps.autosize = "com.github.JessYanCoding:AndroidAutoSize:$versions.autosize"//今日头条布局兼容
 deps.mmkv = "com.tencent:mmkv-static:$versions.mmkv"//腾讯读写库
@@ -65,7 +67,7 @@ ext.deps = deps
 
 //全局版本配置
 def build_versions = [:]
-build_versions.compileSdkVersion = 32//构建版本号
+build_versions.compileSdkVersion = 33//构建版本号
 build_versions.minSdkVersion = 21//最低安装版本
 build_versions.targetSdkVersion = 32//最高安装版本
 build_versions.versionCode = 1//版本号

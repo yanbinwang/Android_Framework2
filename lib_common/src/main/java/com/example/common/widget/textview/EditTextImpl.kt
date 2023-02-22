@@ -33,7 +33,7 @@ interface EditTextImpl {
         return getEditText().lengthLimit(min, max, res)
     }
 
-    fun PassEditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
+    fun PasswordEditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
         return getEditText().lengthLimit(min, max, res)
     }
 
@@ -53,7 +53,7 @@ interface EditTextImpl {
         return getEditText().notEmpty(res)
     }
 
-    fun PassEditText.notEmpty(@StringRes res: Int = -1): Boolean {
+    fun PasswordEditText.notEmpty(@StringRes res: Int = -1): Boolean {
         return getEditText().notEmpty(res)
     }
 
@@ -74,7 +74,7 @@ interface EditTextImpl {
         return getEditText().checkEmailReg(hasToast)
     }
 
-    fun PassEditText.checkEmailReg(hasToast: Boolean = true): Boolean {
+    fun PasswordEditText.checkEmailReg(hasToast: Boolean = true): Boolean {
         return getEditText().checkEmailReg(hasToast)
     }
 
@@ -97,7 +97,7 @@ interface EditTextImpl {
         return getEditText().checkPassReg(hasToast)
     }
 
-    fun PassEditText.checkPassReg(hasToast: Boolean = true): Boolean {
+    fun PasswordEditText.checkPassReg(hasToast: Boolean = true): Boolean {
         return getEditText().checkPassReg(hasToast)
     }
 

@@ -196,8 +196,8 @@ class BackgroundImageSpan(private val context: Context, private val triple: Trip
 
     override fun getSpanTypeId() = 0
 
-    override fun writeToParcel(dest: Parcel?, flags: Int) {
-        dest?.writeInt(triple.first)
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeInt(triple.first)
     }
 
     override fun describeContents() = 0

@@ -306,18 +306,18 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         animSet.playTogether(animationList)
         animSet.duration = millisecond
         animSet.addListener(object : Animator.AnimatorListener {
-            override fun onAnimationStart(animation: Animator?) {
+            override fun onAnimationStart(animation: Animator) {
                 onStart?.invoke()
             }
 
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 onEnd?.invoke()
             }
 
-            override fun onAnimationCancel(animation: Animator?) {
+            override fun onAnimationCancel(animation: Animator) {
             }
 
-            override fun onAnimationRepeat(animation: Animator?) {
+            override fun onAnimationRepeat(animation: Animator) {
             }
         })
         view?.tag = animSet

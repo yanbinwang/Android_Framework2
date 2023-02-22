@@ -42,7 +42,7 @@
     </declare-styleable>
 
     <!-- 显影按钮edittext -->
-    <declare-styleable name="PassEditText">
+    <declare-styleable name="PasswordEditText">
         <attr name="text" />
         <attr name="hint" />
         <attr name="textSize" />
