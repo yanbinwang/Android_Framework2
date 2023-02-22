@@ -45,20 +45,16 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 传入对象的方法
      */
     constructor(bean: T?) {
-        if (t != null) {
-            t = bean
-            itemType = BEAN
-        }
+        itemType = BEAN
+        if (t != null) t = bean
     }
 
     /**
      * 传入集合的方法
      */
     constructor(list: MutableList<T>?) {
-        if (list != null) {
-            data = list
-            itemType = LIST
-        }
+        itemType = LIST
+        if (list != null) data = list
     }
 
     override fun getItemCount(): Int {
