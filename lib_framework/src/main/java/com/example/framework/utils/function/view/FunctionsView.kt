@@ -454,6 +454,13 @@ fun ViewGroup.string(@StringRes res: Int) = context.string(res)
 
 /**
  * 传入上下文获取绘制的item
+ * 如果是context调用inflate，因为并未插入父布局，所以layoutParams是获取不到的，会造成宽高绘制不正常
+ * 故而使用父布局的inflate可以确保获取到准确的layoutParams
+ *  fun addToParent(parent: ViewGroup) {
+ *  val view = getView()
+ *  parent.addView(view)
+ *  view.size(MATCH_PARENT, WRAP_CONTENT)
+ *  }
  */
 fun ViewGroup.inflate(@LayoutRes res: Int, attachToRoot: Boolean) = LayoutInflater.from(context).inflate(res, this, attachToRoot)
 
