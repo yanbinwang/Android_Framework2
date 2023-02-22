@@ -15,7 +15,7 @@ import com.example.framework.utils.function.view.click
  * 基础适配器，适用于定制页面，加头加尾，需要重写onCreateViewHolder
  */
 @SuppressLint("NotifyDataSetChanged")
-abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder?> {
+abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> {
     /**
      * 适配器类型-后续可扩展
      */
