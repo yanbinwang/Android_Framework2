@@ -131,7 +131,7 @@ fun Any?.toJsonString(): String {
 /**
  * 后端请求如果data是JsonArray的话，使用该方法得到一个集合
  */
-fun <T> JsonArray?.toList(clazz: Class<T>): List<T> {
+fun <T> String?.toList(clazz: Class<T>): List<T>? {
     if (this == null) return emptyList()
     return GsonUtil.jsonToList(this, clazz)
 }

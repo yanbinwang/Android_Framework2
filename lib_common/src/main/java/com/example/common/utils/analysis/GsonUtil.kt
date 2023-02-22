@@ -1,9 +1,6 @@
 package com.example.common.utils.analysis
 
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonArray
-import com.google.gson.reflect.TypeToken
-import java.lang.reflect.Type
 
 /**
  * author:wyb
@@ -31,42 +28,42 @@ object GsonUtil {
     /**
      * json字符串转集合
      */
-    fun <T> jsonToList(json: String): List<T>? {
+    fun <T> jsonToList(json: String, clazz: Class<T>): List<T>? {
         var ret: List<T>? = null
         try {
-            ret = gson.fromJson<List<T>>(json, object : TypeToken<List<T>>() {}.type)
+            ret = gson.fromJson<List<T>>(json, clazz)
         } catch (_: Exception) {
         }
         return ret
     }
 
-    /**
-     * JsonArray转集合
-     * 由于类型擦除，解析器无法在运行时获取真实类型 T
-     * 直接传T获取会报com.google.gson.internal.LinkedTreeMap cannot be cast to object
-     * 故而直接把T的class传入，让解析器能够识别，并且重新转换成一个list
-     */
-    fun <T> jsonToList(array: JsonArray, clazz: Class<T>): List<T> {
-        val ret = ArrayList<T>()
-        try {
-            array.forEach { ret.add(gson.fromJson(it, clazz)) }
-        } catch (_: Exception) {
-        }
-        return ret
-    }
-
-    /**
-     * JsonArray转集合
-     * 指定type->object : TypeToken<List<XXXX>>() {}.type
-     */
-    fun <T> jsonToList(array: JsonArray, type: Type): List<T>? {
-        var ret: List<T>? = null
-        try {
-            ret = gson.fromJson<List<T>>(array, type)
-        } catch (_: Exception) {
-        }
-        return ret
-    }
+//    /**
+//     * JsonArray转集合
+//     * 由于类型擦除，解析器无法在运行时获取真实类型 T
+//     * 直接传T获取会报com.google.gson.internal.LinkedTreeMap cannot be cast to object
+//     * 故而直接把T的class传入，让解析器能够识别，并且重新转换成一个list
+//     */
+//    fun <T> jsonToList(array: JsonArray, clazz: Class<T>): List<T> {
+//        val ret = ArrayList<T>()
+//        try {
+//            array.forEach { ret.add(gson.fromJson(it, clazz)) }
+//        } catch (_: Exception) {
+//        }
+//        return ret
+//    }
+//
+//    /**
+//     * JsonArray转集合
+//     * 指定type->object : TypeToken<List<XXXX>>() {}.type
+//     */
+//    fun <T> jsonToList(array: JsonArray, type: Type): List<T>? {
+//        var ret: List<T>? = null
+//        try {
+//            ret = gson.fromJson<List<T>>(array, type)
+//        } catch (_: Exception) {
+//        }
+//        return ret
+//    }
 
     /**
      * 对象转json字符串
