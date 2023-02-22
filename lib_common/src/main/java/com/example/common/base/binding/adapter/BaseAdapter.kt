@@ -63,7 +63,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
 
     override fun getItemCount(): Int {
         return when (itemType) {
-            LIST -> data.size
+            LIST -> data.safeSize
             BEAN -> 1
         }
     }
@@ -125,7 +125,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 传入要改变的对象和对象下标，直接刷新对应item
      */
     fun changed(index: Int, bean: T) {
-        if (index != -1) {
+        if (index != -1 && data.safeGet(index) != null) {
             data[index] = bean
             notifyItemChanged(index)
         }
@@ -136,7 +136,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     }
 
     fun changed(index: Int, payloads: MutableList<Any>, bean: T) {
-        if (index != -1) {
+        if (index != -1 && data.safeGet(index) != null) {
             data[index] = bean
             notifyItemChanged(index, payloads)
         }
@@ -150,7 +150,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     }
 
     fun removed(index: Int) {
-        if (index != -1) {
+        if (index != -1 && data.safeGet(index) != null) {
             data.removeAt(index)
             notifyItemRemoved(index)
         }
