@@ -29,6 +29,7 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.textColor
+import com.example.framework.utils.setSpanAll
 import com.example.framework.utils.setSpanFirst
 import com.google.gson.JsonArray
 
@@ -174,14 +175,19 @@ fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color
     text = txt.setSpanFirst(keyword, ColorSpan(context.color(colorRes)))
 }
 
+fun TextView?.setSpanAll(txt: String, keyword: String, colorRes: Int = R.color.appTheme) {
+    this ?: return
+    text = txt.setSpanAll(keyword, ColorSpan(context.color(colorRes)))
+}
+
 /**
  * 设置显示内容和对应文本颜色
  */
-fun TextView?.setArguments(txt: String ?= "", colorRes: Int = R.color.appTheme, resId: Int = 0) {
+fun TextView?.setArguments(txt: String = "", colorRes: Int = R.color.appTheme, resId: Int = -1) {
     this ?: return
     text = txt
     textColor(colorRes)
-    background(resId)
+    if(-1 != resId) background(resId)
 }
 
 /**
