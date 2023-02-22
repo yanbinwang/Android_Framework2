@@ -11,7 +11,7 @@ import com.example.mvvm.utils.WebHelper
 import com.example.mvvm.utils.WebImpl
 
 @Route(path = ARouterPath.WebActivity)
-class WebActivity : BaseActivity<ActivityWebBinding>(),WebImpl {
+class WebActivity : BaseActivity<ActivityWebBinding>(), WebImpl {
     private val webHelper by lazy { WebHelper(this) }
 
     override fun initData() {
