@@ -34,10 +34,10 @@ class WebActivity : BaseActivity<ActivityWebBinding>(), WebImpl {
         return this
     }
 
-    override fun openKolPage() {
+    override fun getToKolPage() {
     }
 
-    override fun onBack(result: String?) {
+    override fun getBack(result: String?) {
     }
 
 }

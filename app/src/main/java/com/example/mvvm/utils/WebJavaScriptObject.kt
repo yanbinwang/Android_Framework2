@@ -27,13 +27,13 @@ class WebJavaScriptObject(private val webImpl: WeakReference<WebImpl>) {
     @JavascriptInterface
     fun toKol(result: String?) = webImpl.get()?.execute {
         job?.cancel()
-        job = GlobalScope.launch(Main) { openKolPage() }
+        job = GlobalScope.launch(Main) { getToKolPage() }
     }
 
     @JavascriptInterface
     fun goBack(result: String?) = webImpl.get()?.execute {
         job?.cancel()
-        job = GlobalScope.launch(Main) { onBack(result) }
+        job = GlobalScope.launch(Main) { getBack(result) }
     }
 
     @JavascriptInterface
@@ -53,6 +53,6 @@ class WebJavaScriptObject(private val webImpl: WeakReference<WebImpl>) {
 interface WebImpl {
     fun getContext(): Context
     fun getLifecycleOwner(): LifecycleOwner
-    fun openKolPage()
-    fun onBack(result: String?)
+    fun getToKolPage()
+    fun getBack(result: String?)
 }
