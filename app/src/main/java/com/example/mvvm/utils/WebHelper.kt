@@ -44,9 +44,9 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
 
     private fun addWebView() {
         //需要标题头并且值已经传输过来了则设置标题
-        bean?.apply {
-            if (getTitleRequired().orTrue) {
-                titleBuilder.setTitle(getTitle()).getDefault()
+        bean?.let {
+            if (it.getTitleRequired().orTrue) {
+                titleBuilder.setTitle(it.getTitle()).getDefault()
             } else {
                 titleBuilder.hideTitle()
             }
