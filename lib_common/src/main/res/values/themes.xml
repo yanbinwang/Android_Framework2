@@ -197,4 +197,17 @@
         <item name="tabMinWidth">0dp</item>
     </style>
 
+    <!--
+        App全局定义CheckBox样式
+        <CheckBox
+          android:id="@+id/ckClause"
+          style="@style/CheckBoxStyle" />
+     -->
+    <style name="CheckBoxStyle" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:button">@null</item>
+        <item name="android:background">@drawable/selector_check_box</item>
+        <item name="android:layout_width">20pt</item>
+        <item name="android:layout_height">20pt</item>
+    </style>
+
 </resources>

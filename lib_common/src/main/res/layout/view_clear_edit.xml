@@ -25,7 +25,7 @@
             android:layout_height="20pt"
             android:layout_marginStart="5pt"
             android:scaleType="fitXY"
-            android:src="@mipmap/ic_text_clear"
+            android:src="@mipmap/ic_clear"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

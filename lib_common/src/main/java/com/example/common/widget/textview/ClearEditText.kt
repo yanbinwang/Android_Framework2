@@ -2,7 +2,6 @@ package com.example.common.widget.textview
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.text.Editable
 import android.text.InputFilter
 import android.text.InputFilter.LengthFilter
 import android.util.AttributeSet
@@ -60,7 +59,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             val gravity = typedArray.getInt(R.styleable.ClearEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
             setGravity(gravity)
             //清除按钮图片资源
-            val clearBtnImage = typedArray.getResourceId(R.styleable.ClearEditText_clearBtnImage, R.mipmap.ic_text_clear)
+            val clearBtnImage = typedArray.getResourceId(R.styleable.ClearEditText_clearBtnImage, R.mipmap.ic_clear)
             setImageResource(clearBtnImage)
             //文案最大范围
             val maxLength = typedArray.getInt(R.styleable.ClearEditText_maxLength, -1)

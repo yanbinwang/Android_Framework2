@@ -56,8 +56,8 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
             val gravity = typedArray.getInt(R.styleable.PasswordEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
             setGravity(gravity)
             //睁眼闭眼图片资源
-            hideRes = typedArray.getResourceId(R.styleable.PasswordEditText_btnImageHide, R.mipmap.ic_pass_hide)
-            showRes = typedArray.getResourceId(R.styleable.PasswordEditText_btnImageShow, R.mipmap.ic_pass_show)
+            hideRes = typedArray.getResourceId(R.styleable.PasswordEditText_btnImageHide, R.mipmap.ic_password_hide)
+            showRes = typedArray.getResourceId(R.styleable.PasswordEditText_btnImageShow, R.mipmap.ic_password_show)
             //文案最大范围
             val maxLength = typedArray.getInt(R.styleable.PasswordEditText_maxLength, -1)
             if (maxLength != -1) setMaxLength(maxLength)
