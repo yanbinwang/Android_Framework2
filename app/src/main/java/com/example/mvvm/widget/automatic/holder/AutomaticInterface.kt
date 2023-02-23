@@ -31,8 +31,13 @@ interface AutomaticInterface {
     /**
      * 默认实现的方法，因为不同view可能有的需要事先插入父viewgroup中才能操作宽高
      * 如有特殊操作，在对应view中重写
+     * override fun addToParent(parent: ViewGroup, change: Boolean) {
+     *  val view = getView()
+     *  parent.addView(view)
+     *  view.size(100.pt, WRAP_CONTENT)
+     * }
      */
-    fun addToParent(parent: ViewGroup) {
+    fun addToParent(parent: ViewGroup, change: Boolean) {
         val view = getView()
         parent.addView(view)
         view.size(MATCH_PARENT, WRAP_CONTENT)

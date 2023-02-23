@@ -14,6 +14,7 @@ data class AutomaticBean(
     val label: Spannable? = null,//顯示的文案
     val value: String? = null,//控件的值（輸出框為text，圖片為url）
     val maxLength: Int? = null,//輸入框支持的最大長度
+    var required: Boolean? = null,//是否必填
     var enable: Boolean? = null,//是否可用（可點擊可操作）
     var extras: String? = null//補充json字符
 )
