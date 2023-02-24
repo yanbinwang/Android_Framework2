@@ -219,7 +219,6 @@ fun Float?.max(max: Float): Float {
     }
 }
 
-
 /**
  * 设定最大值
  */
@@ -304,7 +303,7 @@ fun Number?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
 
 /**
  * 保留fixed位小数
- * 后端如果数值过大是不能用double接取的，使用string接受转BigDecimal
+ * 后端如果数值过大是不能用double接取的，使用string接受转BigDecimal，或直接BigDecimal接取
  */
 fun String?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
     return BigDecimal(this ?: "0").toFixed(fixed, mode)
@@ -323,26 +322,19 @@ fun BigDecimal?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
  * ->1.66
  * val b = 1.6672; fixed=5
  * ->1.66720
- */
-fun Number.toFixed(fixed: Int = 1): String {
-    val format = StringBuffer("0.")
-    for (i in 0 until fixed) {
-        format.append("0")
-    }
-    return DecimalFormat(format.toString()).format(this) ?: "0"
-}
-
-/**
- * 当小数位超过X位时，只显示X位，不补0,不做四舍五入
+ * -------------------------
  * val a = 1.667; fixed=2
  * ->1.66
  * val b = 1.6; fixed=2
  * ->1.6
+ * -------------------------
+ * '0'->会补
+ * '#'->不会补
  */
-fun Number?.toFixedWithoutValue(fixed: Int = 1): String {
+fun Number.toFixed(fixed: Int = 1, replenish: Boolean = true): String {
     val format = StringBuffer("0.")
     for (i in 0 until fixed) {
-        format.append("#")
+        format.append(if(replenish) "0" else "#")
     }
     return DecimalFormat(format.toString()).format(this) ?: "0"
 }
@@ -350,13 +342,15 @@ fun Number?.toFixedWithoutValue(fixed: Int = 1): String {
 /**
  * 保留小数，末尾为零则不显示0
  * 1.0000000->1
+ * 1.0003300->1.00033
  */
 fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
     return BigDecimal((this.orZero).toString()).setScale(fixed, mode).stripTrailingZeros().toPlainString()
 }
 
 /**
- * 去除所有0
+ * 去除所有小数的0
+ * 1.0000000->1
  */
 fun String.removeEndZero(): String {
     return try {
