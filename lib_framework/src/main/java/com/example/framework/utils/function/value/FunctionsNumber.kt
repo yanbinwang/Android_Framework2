@@ -377,6 +377,15 @@ fun String?.thousandsFormat(): String {
 }
 
 /**
+ * 获取小数位
+ */
+fun String?.getNumberDecimalDigits(): Int {
+    this ?: return 0
+    val list = this.split(".")
+    return if(list.size > 1) list.safeGet(1)?.length.orZero else 0
+}
+
+/**
  * 加
  * number可以是Number類型轉換為字符串
  * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
