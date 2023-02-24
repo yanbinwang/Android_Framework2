@@ -173,10 +173,14 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         views.forEach { it?.gone() }
     }
 
-    override fun onDetach() {
-        super.onDetach()
+    override fun onDestroy() {
+        super.onDestroy()
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
         SocketLifecycleHelper.remove(this)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
         binding.unbind()
         job.cancel()
     }
