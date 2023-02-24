@@ -379,10 +379,20 @@ fun String?.thousandsFormat(): String {
 /**
  * 获取小数位
  */
-fun String?.getNumberDecimalDigits(): Int {
+fun String?.numberDigits(): Int {
     this ?: return 0
     val list = this.split(".")
     return if(list.size > 1) list.safeGet(1)?.length.orZero else 0
+}
+
+/**
+ * val a= bd1.compareTo(bd2)
+ * a = -1,表示bd1小于bd2
+ * a = 0,表示bd1等于bd2
+ * a = 1,表示bd1大于bd2
+ */
+fun String.numberCompareTo(number: String): Int {
+    return BigDecimal(this).compareTo(BigDecimal(number))
 }
 
 /**
@@ -392,7 +402,7 @@ fun String?.getNumberDecimalDigits(): Int {
  */
 fun String?.add(number: String): String {
     this ?: return "0"
-    return BigDecimal(this).add(BigDecimal(number)).toPlainString()
+    return BigDecimal(this).add(BigDecimal(number)).toPlainString().removeEndZero()
 }
 
 /**
@@ -402,7 +412,7 @@ fun String?.add(number: String): String {
  */
 fun String?.subtract(number: String): String {
     this ?: return "0"
-    return BigDecimal(this).subtract(BigDecimal(number)).toPlainString()
+    return BigDecimal(this).subtract(BigDecimal(number)).toPlainString().removeEndZero()
 }
 
 /**
@@ -412,7 +422,7 @@ fun String?.subtract(number: String): String {
  */
 fun String?.multiply(number: String): String {
     this ?: return "0"
-    return BigDecimal(this).multiply(BigDecimal(number)).toPlainString()
+    return BigDecimal(this).multiply(BigDecimal(number)).toPlainString().removeEndZero()
 }
 
 /**
@@ -426,5 +436,5 @@ fun String?.divide(number: String): String {
     val numberDecimal = BigDecimal(number.removeEndZero())
     //被除數不能為0，碰到這種情況直接賦0
     if (numberDecimal.toPlainString() == "0") return "0"
-    return BigDecimal(this).divide(numberDecimal).toPlainString()
+    return BigDecimal(this).divide(numberDecimal).toPlainString().removeEndZero()
 }
