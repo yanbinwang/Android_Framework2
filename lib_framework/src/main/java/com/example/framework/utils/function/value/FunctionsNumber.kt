@@ -367,7 +367,8 @@ fun String.removeEndZero(): String {
  */
 fun String?.thousandsFormat(): String {
     this ?: return "0"
-    if (BigDecimal(this).toDouble() < 1000) return this
+//    if (BigDecimal(this).toDouble() < 1000) return this
+    if (numberCompareTo("1000") == -1) return this
     val list = split(".")
     val text = if (list.size > 1) list.safeGet(0) else this
     val tmp = StringBuffer().append(text).reverse()
