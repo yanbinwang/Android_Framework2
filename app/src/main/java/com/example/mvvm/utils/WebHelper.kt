@@ -9,12 +9,9 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.bean.WebBundle
 import com.example.common.config.Extras
 import com.example.common.utils.FormActivityUtil
-import com.example.common.utils.WebViewUtil
+import com.example.common.utils.WebUtil
 import com.example.common.utils.builder.TitleBuilder
-import com.example.common.utils.function.OnWebChangedListener
-import com.example.common.utils.function.load
-import com.example.common.utils.function.refresh
-import com.example.common.utils.function.setClient
+import com.example.common.utils.function.*
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
@@ -32,7 +29,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
     private val bean by lazy { activity.intentSerializable(Extras.BUNDLE_BEAN) as? WebBundle }
     private val binding by lazy { ActivityWebBinding.inflate(activity.layoutInflater) }
     private val titleBuilder by lazy { TitleBuilder(activity, binding.titleContainer) }
-    private val webViewUtil by lazy { WebViewUtil(activity, binding.flWebRoot) }
+    private val webUtil by lazy { WebUtil(activity, binding.flWebRoot) }
     private var webView: WebView? = null
 
     init {
@@ -51,7 +48,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
                 titleBuilder.hideTitle()
             }
         }
-        webView = webViewUtil.webView
+        webView = webUtil.webView
         webView?.byHardwareAccelerate()
         webView?.background(R.color.white)
         webView?.settings?.useWideViewPort = true
@@ -66,11 +63,11 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
 //            val url = webView?.url.orEmpty()
         }, object : OnWebChangedListener {
             override fun onShowCustomView(view: View?, callback: WebChromeClient.CustomViewCallback?) {
-                webViewUtil.onShowCustomView(view, callback)
+                webUtil.onShowCustomView(view, callback)
             }
 
             override fun onHideCustomView() {
-                webViewUtil.onHideCustomView()
+                webUtil.onHideCustomView()
             }
 
             override fun onProgressChanged(progress: Int) {
@@ -117,6 +114,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
         when (event) {
             Lifecycle.Event.ON_DESTROY -> {
                 webView?.removeJavascriptInterface("JSCallAndroid")
+                webView?.clear()
                 webView = null
                 activity.lifecycle.removeObserver(this)
             }
