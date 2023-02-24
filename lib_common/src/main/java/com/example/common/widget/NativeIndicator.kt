@@ -1,4 +1,4 @@
-package com.example.common.utils
+package com.example.common.widget
 
 import com.example.common.R
 import com.example.common.databinding.ItemTabBinding
