@@ -26,14 +26,15 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.socket.helper.SocketLifecycleHelper
 import com.example.common.utils.AppManager
+import com.example.common.utils.MmkvUtil
 import com.example.common.utils.MmkvUtil.decodeBool
 import com.example.common.utils.MmkvUtil.encode
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
 import com.example.common.widget.dialog.LoadingDialog
+import com.example.framework.utils.function.color
 import com.example.framework.utils.function.view.*
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
@@ -85,7 +86,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
-        SocketLifecycleHelper.add(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -176,7 +176,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     override fun onDestroy() {
         super.onDestroy()
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
-        SocketLifecycleHelper.remove(this)
     }
 
     override fun onDetach() {

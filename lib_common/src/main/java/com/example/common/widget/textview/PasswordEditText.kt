@@ -33,7 +33,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
             if (keyCode == KeyEvent.KEYCODE_DEL) binding.etClear.setText("")
             false
         }
-        binding.ivShow.apply { click { setResource(Triple(binding.etClear.passwordInputCutover(), showRes, hideRes)) }}
+        binding.ivShow.apply { click { setResource(Triple(binding.etClear.passwordMethod(), showRes, hideRes)) }}
         //以下属性在xml中前缀使用app:调取
         if (attrs != null) {
             val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PasswordEditText)

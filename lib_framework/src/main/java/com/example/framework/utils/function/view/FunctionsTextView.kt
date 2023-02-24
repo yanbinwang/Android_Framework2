@@ -2,10 +2,7 @@ package com.example.framework.utils.function.view
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.LinearGradient
-import android.graphics.Paint
-import android.graphics.Shader
-import android.graphics.Typeface
+import android.graphics.*
 import android.text.*
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.LinkMovementMethod
@@ -26,6 +23,7 @@ import com.example.framework.utils.EditTextUtil
 import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
+import java.util.*
 
 //------------------------------------textview扩展函数类------------------------------------
 /**
@@ -86,6 +84,28 @@ fun TextView?.setPxTextSize(size: Float) {
 }
 
 /**
+ * textview颜色随机
+ */
+fun TextView?.setRandomTextColor() {
+    if (this == null) return
+    val random = Random()
+    val r = random.nextInt(256)
+    val g = random.nextInt(256)
+    val b = random.nextInt(256)
+    setTextColor(Color.rgb(r, g, b))
+}
+
+/**
+ * 某些特殊布局如一个输入框最后测有个textview，然后输入框内容又是居中的
+ * 通常外层会套一个Framelayout，然后把textview绘制在右侧，但是边距显示会很不正常，
+ * 调用当前构造函数修整这种畸形效果,绘制时设置edittext宽度match，textview居左右侧都可以
+ */
+fun TextView?.setFixDistance(editText: EditText?) {
+    if (this == null || editText == null) return
+    doOnceAfterLayout { editText.margin(start = it.width, end = it.width) }
+}
+
+/**
  * 设置撑满的文本内容
  */
 fun TextView?.setMatchText() {
@@ -142,7 +162,7 @@ fun TextView?.setClickableSpan(textStr: String, keyword: String, clickableSpan: 
 /**
  * EditText输入密码是否可见(显隐)
  */
-fun EditText?.passwordInputCutover(): Boolean {
+fun EditText?.passwordMethod(): Boolean {
     if (this == null) return false
     var display = false
     try {
@@ -168,7 +188,6 @@ fun EditText?.decimalFilter(decimalPoint: Int = 2) {
     val decimalInputFilter = DecimalInputFilter()
     decimalInputFilter.decimalPoint = decimalPoint
     addFilter(decimalInputFilter)
-//    filters = arrayOf<InputFilter>(decimalInputFilter)
 }
 
 /**
@@ -182,12 +201,6 @@ fun EditText?.inhibitSpace() {
             return if (result == " ") "" else null
         }
     })
-//    filters = arrayOf(object : InputFilter {
-//        override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
-//            val result = source ?: ""
-//            return if (result == " ") "" else null
-//        }
-//    })
 }
 
 /**

@@ -22,15 +22,15 @@ import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
+import com.example.common.event.Event
+import com.example.common.event.EventBus
 import com.example.common.utils.AppManager
-import com.example.common.utils.MmkvUtil
 import com.example.common.utils.MmkvUtil.decodeBool
 import com.example.common.utils.MmkvUtil.encode
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
 import com.example.common.widget.dialog.LoadingDialog
-import com.example.framework.utils.function.color
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.*
@@ -43,6 +43,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
+import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.*
@@ -82,6 +83,11 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -189,9 +195,28 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         views.forEach { it?.gone() }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isEventBusEnabled()) EventBus.instance.unregister(this)
+    }
+
     override fun onDetach() {
         super.onDetach()
         binding.unbind()
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="订阅相关">
+    @Subscribe
+    fun onReceive(event: Event) {
+        event.onEvent()
+    }
+
+    protected open fun Event.onEvent() {
+    }
+
+    protected open fun isEventBusEnabled(): Boolean {
+        return false
     }
     // </editor-fold>
 
