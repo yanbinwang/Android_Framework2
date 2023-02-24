@@ -413,5 +413,9 @@ fun String?.multiply(number: String): String {
  */
 fun String?.divide(number: String): String {
     this ?: return "0"
-    return BigDecimal(this).divide(BigDecimal(number)).toPlainString()
+    //抹去末尾多餘的0，某些字符串可能是0.0或0.00
+    val numberDecimal = BigDecimal(number.removeEndZero())
+    //被除數不能為0，碰到這種情況直接賦0
+    if (numberDecimal.toPlainString() == "0") return "0"
+    return BigDecimal(this).divide(numberDecimal).toPlainString()
 }
