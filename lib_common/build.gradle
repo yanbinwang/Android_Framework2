@@ -66,8 +66,10 @@ dependencies {
     testImplementation "junit:junit:$build_versions.junit"
     androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
-    //xwebview的jar
+    //頂部彈框的jar
     implementation files('libs/top_sheet.jar')
+    //socket库
+    api 'cn.zhxu:okhttps-stomp:4.0.1'
     //框架库
     api project(':lib_framework')
     api project(':lib_glide')

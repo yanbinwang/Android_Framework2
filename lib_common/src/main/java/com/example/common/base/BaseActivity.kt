@@ -23,6 +23,7 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
+import com.example.common.socket.helper.SocketLifecycleHelper
 import com.example.common.utils.AppManager
 import com.example.common.utils.MmkvUtil.decodeBool
 import com.example.common.utils.MmkvUtil.encode
@@ -82,6 +83,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppManager.addActivity(this)
+        SocketLifecycleHelper.add(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
         if (isImmersionBarEnabled()) initImmersionBar()
         initView()
@@ -194,6 +196,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun onDestroy() {
         super.onDestroy()
         AppManager.removeActivity(this)
+        SocketLifecycleHelper.remove(this)
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
         binding.unbind()
         job.cancel()
