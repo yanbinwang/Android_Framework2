@@ -375,3 +375,43 @@ fun String?.thousandsFormat(): String {
     val value = StringBuffer().append(retNum).reverse().toString()
     return if (list.size > 1) "${value}.${list.safeGet(1)}" else value
 }
+
+/**
+ * 加
+ * number可以是Number類型轉換為字符串
+ * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
+ */
+fun String?.add(number: String): String {
+    this ?: return "0"
+    return BigDecimal(this).add(BigDecimal(number)).toPlainString()
+}
+
+/**
+ * 減
+ * number可以是Number類型轉換為字符串
+ * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
+ */
+fun String?.subtract(number: String): String {
+    this ?: return "0"
+    return BigDecimal(this).subtract(BigDecimal(number)).toPlainString()
+}
+
+/**
+ * 乘
+ * number可以是Number類型轉換為字符串
+ * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
+ */
+fun String?.multiply(number: String): String {
+    this ?: return "0"
+    return BigDecimal(this).multiply(BigDecimal(number)).toPlainString()
+}
+
+/**
+ * 除
+ * number可以是Number類型轉換為字符串
+ * 如果number是字符串，必須是數值（'1'或‘-1’）的字符串
+ */
+fun String?.divide(number: String): String {
+    this ?: return "0"
+    return BigDecimal(this).divide(BigDecimal(number)).toPlainString()
+}
