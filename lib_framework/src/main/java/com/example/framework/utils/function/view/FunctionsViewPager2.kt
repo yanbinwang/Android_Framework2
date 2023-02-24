@@ -73,7 +73,7 @@ fun ViewPager2?.desensitization() {
         touchSlopField.isAccessible = true
         val touchSlop = touchSlopField.get(recyclerView) as Int
         touchSlopField.set(recyclerView, touchSlop * 3)
-    } catch (ignore: java.lang.Exception) {
+    } catch (ignore: Exception) {
     }
 }
 
