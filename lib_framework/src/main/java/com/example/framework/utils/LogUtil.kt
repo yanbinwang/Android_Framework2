@@ -37,9 +37,9 @@ val String?.logW: Unit get() { if (this != null) LogUtil.w(msg = this) }
 
 val String?.logE: Unit get() { if (this != null) LogUtil.e(msg = this) }
 
-val Throwable?.logE: Unit get() { this?.toString()?.logE }
-
 val String?.logWTF: Unit get() { if (this != null) LogUtil.wtf(msg = this) }
+
+val Throwable?.logE: Unit get() { this?.toString()?.logE }
 
 val Throwable?.logWTF: Unit get() { this?.toString()?.logWTF }
 

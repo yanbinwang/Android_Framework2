@@ -81,7 +81,7 @@ fun <T> List<T>?.safeLast(): T? {
 }
 
 /**
- * 返回最后一个item，无法返回则返回null
+ * 设置最后一个item的值，报错不处理
  */
 fun <T> MutableList<T>?.setSafeLast(t: T) {
     if (isNullOrEmpty()) return
