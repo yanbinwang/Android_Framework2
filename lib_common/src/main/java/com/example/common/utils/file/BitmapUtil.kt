@@ -118,16 +118,18 @@ fun saveBit(bitmap: Bitmap, root: String = "${Constants.APPLICATION_PATH}/保存
     storeDirRoot.isMkdirs()
     //在目录文件夹下生成一个新的图片
     val file = File(storeDir, "${fileName}${format.getSuffix()}")
+    var fileOutputStream : FileOutputStream? = null
     //开流开始写入
     try {
-        val fileOutputStream = FileOutputStream(file)
+        fileOutputStream = FileOutputStream(file)
         //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
         bitmap.compress(format, if (format != PNG) quality else 100, fileOutputStream)
-        fileOutputStream.flush()
-        fileOutputStream.close()
     } catch (_: Exception) {
+    } finally {
+        fileOutputStream?.flush()
+        fileOutputStream?.close()
+        bitmap.recycle()
     }
-    bitmap.recycle()
     return file.absolutePath
 }
 
@@ -159,16 +161,18 @@ fun Context.degreeImage(file: File, delete: Boolean = false): File {
             it.recycle()
         }
         val tempFile = File(applicationContext.externalCacheDir, file.name.replace(".jpg", "_degree.jpg"))
+        var fileOutputStream : FileOutputStream? = null
         try {
-            val fileOutputStream = FileOutputStream(tempFile)
+            fileOutputStream = FileOutputStream(tempFile)
             bitmap.compress(JPEG, 100, fileOutputStream)
-            fileOutputStream.flush()
-            fileOutputStream.close()
-            bitmap.recycle()
             if (delete) file.delete()
             tempFile
         } catch (e: IOException) {
             file
+        } finally {
+            fileOutputStream?.flush()
+            fileOutputStream?.close()
+            bitmap.recycle()
         }
     } else file
 }
