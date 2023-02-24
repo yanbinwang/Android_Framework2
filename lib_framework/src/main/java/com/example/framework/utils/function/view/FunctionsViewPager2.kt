@@ -23,7 +23,7 @@ fun ViewPager2?.hideFadingEdge() {
 fun ViewPager2?.getRecyclerView(): RecyclerView? {
     if (this == null) return null
     return try {
-        (getChildAt(0) as RecyclerView)
+        (getChildAt(0) as? RecyclerView)
     } catch (ignore: Exception) {
         null
     }
