@@ -20,7 +20,7 @@ import androidx.annotation.DimenRes
 import androidx.core.content.ContextCompat
 import com.example.framework.utils.DecimalInputFilter
 import com.example.framework.utils.EditTextUtil
-import com.example.framework.utils.function.value.parseColor
+import com.example.framework.utils.function.value.*
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
 import java.util.*
@@ -293,6 +293,35 @@ fun EditText?.setSafeSelection(start: Int, stop: Int? = null) {
         }
     } catch (_: Exception) {
     }
+}
+
+/**
+ * 数学计算相关（加减乘除-》取值）
+ * EditText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+ */
+fun EditText?.add(number: String) {
+    this ?: return
+    setText(getNumber().add(number))
+}
+
+fun EditText?.subtract(number: String) {
+    this ?: return
+    setText(getNumber().subtract(number))
+}
+
+fun EditText?.multiply(number: String) {
+    this ?: return
+    setText(getNumber().multiply(number))
+}
+
+fun EditText?.divide(number: String) {
+    this ?: return
+    setText(getNumber().divide(number))
+}
+
+fun EditText?.getNumber(): String {
+    this ?: return "0"
+    return text.toString().orZero()
 }
 
 /**
