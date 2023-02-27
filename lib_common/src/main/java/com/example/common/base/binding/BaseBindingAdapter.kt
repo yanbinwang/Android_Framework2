@@ -1,6 +1,7 @@
 package com.example.common.base.binding
 
 import android.annotation.SuppressLint
+import android.text.InputType
 import android.webkit.WebView
 import android.widget.EditText
 import android.widget.TextView
@@ -190,6 +191,14 @@ object BaseBindingAdapter {
     fun bindingEditTextCharLimit(editText: EditText, charLimit: CharArray?) {
         if (charLimit == null) return
         editText.charLimit(charLimit)
+    }
+
+    /**
+     * 限制输入内容为正負號小數或整數
+     */
+    @BindingAdapter(value = ["number_decimal"])
+    fun bindingEditTextNumberDecimal(editText: EditText, numberDecimal: Boolean?) {
+        if(numberDecimal.orFalse) editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
     }
     // </editor-fold>
 
