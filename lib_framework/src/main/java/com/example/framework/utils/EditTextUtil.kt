@@ -190,13 +190,21 @@ object EditTextUtil {
      */
     fun setInputType(target: EditText, inputType: Int) = target.execute {
         when (inputType) {
+            //text
             0 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL)
+            //textPassword
             1 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD)
+            //phone
             2 -> setInputType(InputType.TYPE_CLASS_PHONE)
+            //number
             3 -> setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_NORMAL)
+            //rate,numberDecimal
             9, 4 -> setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
-            5 -> setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
+            //email
+            5 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
+            //idcard,textVisiblePassword
             8, 6 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
+            //money
             7 -> {
                 setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
                 addFilter(object : InputFilter {
