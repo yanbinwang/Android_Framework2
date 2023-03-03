@@ -134,12 +134,18 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     /**
      * 不做回调，直接得到结果
      * 在不调用await（）方法时可以当一个参数写，调用了才会发起请求并拿到结果
+     * //並發
      * launch{
      *   val task1 = async { req.request(model.getUserData()) }
      *   val task2 = async { req.request(model.getUserData()) }
      *   //.....對象的處理
      *   //並發請求
      *   awaitAll(task1,task2)
+     * }
+     * //串行
+     * launch{
+     *    val task1 = request { (model.getUserData()) }
+     *    val task2 = request { (model.getUserData()) }
      * }
      */
     protected fun <T> async(
