@@ -23,14 +23,6 @@ val <T : Number> T?.orZero: T
     }
 
 /**
- * 字符串空取‘0’
- */
-fun String?.orZero(): String {
-    if (this.isNullOrEmpty()) return "0"
-    return this
-}
-
-/**
  * 防空转换Int
  */
 fun CharSequence?.toSafeInt(default: Int = 0): Int {
@@ -361,10 +353,11 @@ fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_UP): Str
  * 1.0000000->1
  */
 fun String?.removeEndZero(): String {
+    this ?: return "0"
     return try {
-        BigDecimal(orZero()).stripTrailingZeros().toPlainString()
+        BigDecimal(this).stripTrailingZeros().toPlainString()
     } catch (e: Exception) {
-        this.orZero()
+        this
     }
 }
 
@@ -400,7 +393,7 @@ fun String?.numberDigits(): Int {
  * a = 1,表示bd1大于bd2
  */
 fun String?.numberCompareTo(number: String): Int {
-    return BigDecimal(orZero()).compareTo(BigDecimal(number))
+    return BigDecimal(this).compareTo(BigDecimal(number))
 }
 
 /**
@@ -409,7 +402,7 @@ fun String?.numberCompareTo(number: String): Int {
  * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
  */
 fun String?.add(number: String): String {
-    return BigDecimal(orZero()).add(BigDecimal(number)).toPlainString().removeEndZero()
+    return BigDecimal(this).add(BigDecimal(number)).toPlainString().removeEndZero()
 }
 
 /**
@@ -418,7 +411,7 @@ fun String?.add(number: String): String {
  * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
  */
 fun String?.subtract(number: String): String {
-    return BigDecimal(orZero()).subtract(BigDecimal(number)).toPlainString().removeEndZero()
+    return BigDecimal(this).subtract(BigDecimal(number)).toPlainString().removeEndZero()
 }
 
 /**
@@ -427,7 +420,7 @@ fun String?.subtract(number: String): String {
  * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
  */
 fun String?.multiply(number: String): String {
-    return BigDecimal(orZero()).multiply(BigDecimal(number)).toPlainString().removeEndZero()
+    return BigDecimal(this).multiply(BigDecimal(number)).toPlainString().removeEndZero()
 }
 
 /**
@@ -436,9 +429,7 @@ fun String?.multiply(number: String): String {
  * 如果number是字符串，必須是數值（'1'或‘-1’）的字符串
  */
 fun String?.divide(number: String): String {
-    //抹去末尾多餘的0，某些字符串可能是0.0或0.00
-    val numberDecimal = BigDecimal(number.removeEndZero())
-    //除數不能為0，碰到這種情況直接返回0
-    if (numberDecimal.toPlainString() == "0") return "0"
-    return BigDecimal(orZero()).divide(numberDecimal).toPlainString().removeEndZero()
+    //抹去末尾多餘的0，某些字符串可能是0.0或0.00,除數不能為0，碰到這種情況直接返回0
+    if (number.removeEndZero() == "0") return "0"
+    return BigDecimal(this).divide(BigDecimal(number.removeEndZero())).toPlainString().removeEndZero()
 }
