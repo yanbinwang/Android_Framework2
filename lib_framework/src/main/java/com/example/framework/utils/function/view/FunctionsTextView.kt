@@ -299,6 +299,11 @@ fun EditText?.setSafeSelection(start: Int, stop: Int? = null) {
  * 数学计算相关（加减乘除-》取值）
  * EditText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
  */
+fun EditText?.getNumber(): String {
+    this ?: return "0"
+    return text.toString().orZero()
+}
+
 fun EditText?.add(number: String) {
     this ?: return
     setText(getNumber().add(number))
@@ -317,11 +322,6 @@ fun EditText?.multiply(number: String) {
 fun EditText?.divide(number: String) {
     this ?: return
     setText(getNumber().divide(number))
-}
-
-fun EditText?.getNumber(): String {
-    this ?: return "0"
-    return text.toString().orZero()
 }
 
 /**
