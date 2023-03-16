@@ -349,6 +349,13 @@ fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_UP): Str
 }
 
 /**
+ * 空自动变为“0”
+ */
+fun String?.orZero(): String {
+    return if(isNullOrEmpty()) "0" else this
+}
+
+/**
  * 去除所有小数的0
  * 1.0000000->1
  */
