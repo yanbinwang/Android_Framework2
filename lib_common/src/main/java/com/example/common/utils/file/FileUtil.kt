@@ -3,6 +3,7 @@ package com.example.common.utils.file
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.*
 import android.net.Uri
 import android.provider.DocumentsContract
@@ -244,11 +245,14 @@ val Number.tb get() = this.toSafeLong() * 1024L * 1024L * 1024L * 1024L
  */
 @SuppressLint("QueryPermissionsNeeded")
 fun Context.isAvailable(packageName: String): Boolean {
-    val packages = packageManager.getInstalledPackages(0)
-    for (i in packages.indices) {
-        if (packages[i].packageName == packageName) return true
-    }
-    return false
+    return run {
+        try {
+            packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }.orFalse
 }
 
 /**
