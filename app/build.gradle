@@ -116,8 +116,6 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //基础库
-    implementation project(':lib_album')
-
     implementation project(':lib_common')
     //页面路由
     implementation deps.alibaba.arouter
