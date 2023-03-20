@@ -23,7 +23,7 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.socket.helper.SocketLifecycleHelper
+import com.example.socket.helper.SocketLifecycleHelper
 import com.example.common.utils.AppManager
 import com.example.common.utils.MmkvUtil.decodeBool
 import com.example.common.utils.MmkvUtil.encode

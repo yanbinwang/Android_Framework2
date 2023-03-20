@@ -37,4 +37,7 @@ object Constants {
     const val PUSH_NOTIFY_ID = 0 //固定通知id
     const val PUSH_CHANNEL_ID = "dataqin" //推送渠道id
     const val PUSH_CHANNEL_NAME = "数秦科技" //推送渠道名
+    //------socket订阅地址配置字段------
+    const val DEAL_SOCKET_URL = "/user/topic/console/subscribe/pendingOrder"//訂單
+    const val ADVERTISE_SOCKET_URL = "/user/topic/console/subscribe/entrustInProgress"//廣告
 }

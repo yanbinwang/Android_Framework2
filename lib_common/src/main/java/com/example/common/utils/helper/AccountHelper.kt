@@ -3,17 +3,14 @@ package com.example.common.utils.helper
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
-import com.example.common.config.Constants
+import com.example.common.config.CacheData.userBean
 import com.example.common.utils.AppManager
-import com.example.common.utils.DataCacheUtil
 
 /**
  * Created by WangYanBin on 2020/8/11.
  * 用户信息做了规整和管控，全局直接调用
  */
 object AccountHelper {
-    private val MMKV_USER_BEAN = "${Constants.APPLICATION_ID}.UserBean" //用户类
-    private val userBean = DataCacheUtil(MMKV_USER_BEAN, UserBean::class.java)
 
     //存储用户对象
     fun setUserBean(bean: UserBean?) {

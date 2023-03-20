@@ -1,9 +1,8 @@
-package com.example.common.socket
+package com.example.socket
 
 import cn.zhxu.okhttps.OkHttps
 import cn.zhxu.stomp.Header
 import cn.zhxu.stomp.Stomp
-import com.example.common.utils.function.toJsonString
 import com.example.framework.utils.logWTF
 
 /**
@@ -22,7 +21,7 @@ class WebSocketProxy(private val socketUrl: String) {
      * 1：广告
      * 2：资金
      */
-    private fun connect(topicUrl: String) {
+    private fun connect(vararg value: String) {
         //头部内容配置
         val headers = ArrayList<Header>()
 //        headers.add(Header("Lang", language.get()))
@@ -33,7 +32,7 @@ class WebSocketProxy(private val socketUrl: String) {
             .setOnConnected {
                 //服务器连接成功回调
                 "Stomp connection opened $it".logWTF
-                topic(topicUrl)
+                topic(*value)
             }
             .setOnDisconnected {
                 //连接已断开回调
@@ -53,29 +52,29 @@ class WebSocketProxy(private val socketUrl: String) {
     /**
      *  订阅服务提供的topic
      */
-    fun topic(topicUrl: String) {
+    fun topic(vararg value: String) {
         if (!stompClient.isConnected) {
-            connect(topicUrl)
+            connect(*value)
             return
         }
-        //開始訂閱
-        stompClient.subscribe(topicUrl,null) {
-            //得到消息负载
-            val payload = it.payload
-            "Received ${it.toJsonString()}".logWTF
-//            when (topicUrl) {
-//                DEAL_SOCKET_URL -> EVENT_SOCKET_TYPE_DEAL.post(payload)
-//                ADVERTISE_SOCKET_URL -> EVENT_SOCKET_TYPE_ADVERTISE.post(payload)
-//                FUNDS_SOCKET_URL -> EVENT_SOCKET_TYPE_FUNDS.post(payload)
-//            }
+        value.forEach { url ->
+            //開始訂閱
+            stompClient.subscribe(url, null) {
+                //得到消息负载
+                val payload = it.payload
+//                "Received ${it.toJsonString()}".logWTF
+                SocketInit.listener(url,payload)
+            }
         }
     }
 
     /**
      * 断开訂閱
      */
-    fun untopic(topicUrl: String) {
-        stompClient.untopic(topicUrl)
+    fun untopic(vararg value: String) {
+        value.forEach {
+            stompClient.untopic(it)
+        }
     }
 
     /**

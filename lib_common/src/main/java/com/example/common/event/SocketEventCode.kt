@@ -1,6 +1,4 @@
-package com.example.common.socket.event
-
-import com.example.common.event.Code
+package com.example.common.event
 
 /**
  * socket引發的一些頁面的刷新

@@ -68,11 +68,10 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //頂部彈框的jar
     implementation files('libs/top_sheet.jar')
-    //socket库
-    api 'cn.zhxu:okhttps-stomp:4.0.1'
     //框架库
     api project(':lib_framework')
     api project(':lib_glide')
+    api project(':lib_socket')
     //网络请求
     api deps.retrofit2.retrofit
     api deps.retrofit2.converter_gson

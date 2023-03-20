@@ -9,11 +9,16 @@ import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
 import com.example.common.base.proxy.NetworkCallbackImpl
 import com.example.common.base.proxy.NetworkReceiver
+import com.example.common.config.Constants.ADVERTISE_SOCKET_URL
+import com.example.common.config.Constants.DEAL_SOCKET_URL
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
+import com.example.common.event.SocketEventCode.EVENT_SOCKET_TYPE_ADVERTISE
+import com.example.common.event.SocketEventCode.EVENT_SOCKET_TYPE_DEAL
 import com.example.common.utils.helper.ConfigHelper
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
+import com.example.socket.SocketInit
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
 import me.jessyan.autosize.AutoSizeConfig
@@ -69,6 +74,13 @@ open class BaseApplication : Application() {
         }
         SmartRefreshLayout.setDefaultRefreshFooterCreator { context, _ ->
             ProjectRefreshFooter(context)
+        }
+        //全局socket接收消息分发
+        SocketInit.setOnMessageListener { url, payload ->
+            when (url) {
+                DEAL_SOCKET_URL -> EVENT_SOCKET_TYPE_DEAL.post(payload)
+                ADVERTISE_SOCKET_URL -> EVENT_SOCKET_TYPE_ADVERTISE.post(payload)
+            }
         }
     }
 
