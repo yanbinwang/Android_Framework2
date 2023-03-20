@@ -1,4 +1,4 @@
-package com.example.framework;
+package com.example.home;
 
 import org.junit.Test;
 
