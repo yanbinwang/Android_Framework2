@@ -1,4 +1,4 @@
-package com.example.mvvm.utils
+package com.example.home.utils
 
 import android.content.Context
 import android.webkit.JavascriptInterface

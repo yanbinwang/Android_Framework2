@@ -15,7 +15,9 @@
         <FrameLayout
             android:id="@+id/fl_webRoot"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="0pt"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title_container" />
 
         <ProgressBar
             android:id="@+id/pb_web"

@@ -16,6 +16,7 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Android_Framework2"
 include ':app'
+include ':module_home'
 include ':lib_common'
 include ':lib_framework'
 include ':lib_glide'

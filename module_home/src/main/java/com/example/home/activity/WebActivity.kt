@@ -1,14 +1,14 @@
-package com.example.mvvm.activity
+package com.example.home.activity
 
 import android.content.Context
 import android.view.KeyEvent
 import androidx.lifecycle.LifecycleOwner
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.example.album.databinding.ActivityWebBinding
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
-import com.example.mvvm.databinding.ActivityWebBinding
-import com.example.mvvm.utils.WebHelper
-import com.example.mvvm.utils.WebImpl
+import com.example.home.utils.WebHelper
+import com.example.home.utils.WebImpl
 
 @Route(path = ARouterPath.WebActivity)
 class WebActivity : BaseActivity<ActivityWebBinding>(), WebImpl {
