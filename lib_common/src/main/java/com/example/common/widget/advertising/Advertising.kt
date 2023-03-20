@@ -193,7 +193,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                             }
                         }
                     }
-                }, 3000)
+                }, 0, 3000)
             }
         }
     }
