@@ -63,7 +63,7 @@ class WebSocketProxy(private val socketUrl: String) {
                 //得到消息负载
                 val payload = it.payload
 //                "Received ${it.toJsonString()}".logWTF
-                SocketInit.listener(url,payload)
+                SocketInit.listener(url, payload)
             }
         }
     }
