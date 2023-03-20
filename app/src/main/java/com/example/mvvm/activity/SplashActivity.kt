@@ -5,7 +5,7 @@ import android.os.Bundle
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
-import com.example.common.utils.ScreenUtil.fullScreen
+import com.example.common.utils.fullScreen
 import com.example.mvvm.databinding.ActivitySplashBinding
 import me.jessyan.autosize.internal.CancelAdapt
 

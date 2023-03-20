@@ -15,6 +15,7 @@ import com.example.glide.transform.CornerTransform
 import com.example.glide.transform.ZoomTransform
 import java.io.File
 
+
 /**
  * Created by WangYanBin on 2020/5/29.
  * 图片加载库使用Application上下文，Glide请求将不受Activity/Fragment生命周期控制。
@@ -70,6 +71,22 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun display(view: ImageView, string: String?, placeholderId: Int, errorId: Int, onStart: () -> Unit?, onComplete: (drawable: Drawable?) -> Unit?) {
+//        val factory = DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
+//        Glide.with(view.context)
+//            .load(string)
+//            .placeholder(placeholderId)
+//            .error(errorId)
+//            .transition(DrawableTransitionOptions.withCrossFade(factory))
+//            .listener(object : GlideRequestListener<Drawable?>() {
+//                override fun onStart() {
+//                    onStart()
+//                }
+//
+//                override fun onComplete(resource: Drawable?) {
+//                    onComplete.invoke(resource)
+//                }
+//            })
+//            .into(view)
         Glide.with(view.context)
             .load(string)
             .placeholder(placeholderId)

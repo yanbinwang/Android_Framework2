@@ -32,6 +32,7 @@ import com.scwang.smart.refresh.layout.constant.SpinnerStyle
 class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), RefreshHeader {
     private var animation: AnimationDrawable? = null
     private val binding by lazy { ViewRefreshHeaderBinding.bind(context.inflate(R.layout.view_refresh_header, this, false)) }
+    var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
         binding.root.size(LayoutParams.MATCH_PARENT, 40.pt)
@@ -81,9 +82,8 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
      * @param maxDragHeight 最大拖动高度 offset 可以超过 height 参数 但是不会超过 maxDragHeight
      */
     override fun onMoving(isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) {
-//        if (isDragging) {
-//            animation?.start()
-//        }
+        onDragListener?.invoke(isDragging, percent, offset, height, maxDragHeight)
+//        if (isDragging) animation?.start()
     }
 
     /**

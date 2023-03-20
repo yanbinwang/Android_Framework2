@@ -41,6 +41,18 @@ fun WebView?.load(url: String, needHeader: Boolean) {
 }
 
 /**
+ * 添加请求头
+ */
+private fun getHeader(): Map<String, String> {
+    val map = HashMap<String, String>()
+//    if (UserDataUtil.isLogin()) {
+//        UserDataUtil.getUserData()?.token?.let { map["token"] = it }
+//    }
+    map["Content-Type"] = "application/json"
+    return map
+}
+
+/**
  * 刷新网页
  */
 fun WebView?.refresh() {
@@ -50,12 +62,14 @@ fun WebView?.refresh() {
 }
 
 /**
- * 设置client处理
+ * 网页緩存清除
  */
-fun WebView?.setClient(loading: ProgressBar?, onPageStarted: () -> Unit, onPageFinished: () -> Unit, webChangedListener: OnWebChangedListener?) {
+fun WebView?.clear() {
     if (this == null) return
-    webChromeClient = XWebChromeClient(WeakReference(loading), webChangedListener)
-    webViewClient = XWebViewClient(onPageStarted, onPageFinished)
+    WebStorage.getInstance().deleteAllData() //清空WebView的localStorage
+    clearHistory()
+    context.deleteDatabase("webview.db")
+    context.deleteDatabase("webviewCache.db")
 }
 
 /**
@@ -76,26 +90,19 @@ fun WebView?.evaluateJs(script: String, listener: (String?) -> Unit) {
 }
 
 /**
- * 添加请求头
+ * 设置client处理
  */
-private fun getHeader(): Map<String, String> {
-    val map = HashMap<String, String>()
-//    if (UserDataUtil.isLogin()) {
-//        UserDataUtil.getUserData()?.token?.let { map["token"] = it }
-//    }
-    map["Content-Type"] = "application/json"
-    return map
+fun WebView?.setClient(loading: ProgressBar?, onPageStarted: () -> Unit, onPageFinished: () -> Unit, webChangedListener: OnWebChangedListener?) {
+    if (this == null) return
+    webChromeClient = XWebChromeClient(WeakReference(loading), webChangedListener)
+    webViewClient = XWebViewClient(onPageStarted, onPageFinished)
 }
 
 private class XWebViewClient(val onPageStarted: () -> Unit, val onPageFinished: () -> Unit) : WebViewClient() {
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                shouldOverrideUrlLoading(view, request.url, request.url.toString())
-            } else {
-                shouldOverrideUrlLoading(view, request.toString().toUri(), request.toString())
-            }
+            shouldOverrideUrlLoading(view, request.url, request.url.toString())
         } catch (e: Exception) {
             e.logE
             false

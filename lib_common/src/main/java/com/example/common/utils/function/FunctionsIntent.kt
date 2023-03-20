@@ -34,9 +34,15 @@ fun Activity.pullUpPackage() {
  * </queries>
  */
 fun Context.pullUpPackage(packageName: String) {
-    val intent = packageManager.getLaunchIntentForPackage(packageName)
-    intent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    startActivity(intent)
+    if (packageName.isEmpty()) return
+    try {
+        val intent = packageManager.getLaunchIntentForPackage(packageName)
+        if (intent != null) {
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+        }
+    } catch (_: Exception) {
+    }
 }
 
 /**

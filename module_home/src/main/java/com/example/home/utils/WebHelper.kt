@@ -1,4 +1,4 @@
-package com.example.mvvm.utils
+package com.example.home.utils
 
 import android.view.View
 import android.webkit.WebChromeClient
@@ -6,33 +6,31 @@ import android.webkit.WebView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.album.R
+import com.example.album.databinding.ActivityWebBinding
 import com.example.common.bean.WebBundle
 import com.example.common.config.Extras
 import com.example.common.utils.FormActivityUtil
-import com.example.common.utils.WebViewUtil
+import com.example.common.utils.WebUtil
 import com.example.common.utils.builder.TitleBuilder
-import com.example.common.utils.function.OnWebChangedListener
-import com.example.common.utils.function.load
-import com.example.common.utils.function.refresh
-import com.example.common.utils.function.setClient
+import com.example.common.utils.function.*
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.byHardwareAccelerate
-import com.example.mvvm.R
-import com.example.mvvm.activity.WebActivity
-import com.example.mvvm.databinding.ActivityWebBinding
+import com.example.home.activity.WebActivity
 import java.lang.ref.WeakReference
 
 /**
  * 网页帮助类
  */
 class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
+    //在此处获取跳转的值以及重新绑定对应的view
     private val bean by lazy { activity.intentSerializable(Extras.BUNDLE_BEAN) as? WebBundle }
     private val binding by lazy { ActivityWebBinding.inflate(activity.layoutInflater) }
     private val titleBuilder by lazy { TitleBuilder(activity, binding.titleContainer) }
-    private val webViewUtil by lazy { WebViewUtil(activity, binding.flWebRoot) }
+    private val webUtil by lazy { WebUtil(activity, binding.flWebRoot) }
     private var webView: WebView? = null
 
     init {
@@ -51,7 +49,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
                 titleBuilder.hideTitle()
             }
         }
-        webView = webViewUtil.webView
+        webView = webUtil.webView
         webView?.byHardwareAccelerate()
         webView?.background(R.color.white)
         webView?.settings?.useWideViewPort = true
@@ -66,11 +64,11 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
 //            val url = webView?.url.orEmpty()
         }, object : OnWebChangedListener {
             override fun onShowCustomView(view: View?, callback: WebChromeClient.CustomViewCallback?) {
-                webViewUtil.onShowCustomView(view, callback)
+                webUtil.onShowCustomView(view, callback)
             }
 
             override fun onHideCustomView() {
-                webViewUtil.onHideCustomView()
+                webUtil.onHideCustomView()
             }
 
             override fun onProgressChanged(progress: Int) {
@@ -81,12 +79,17 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
     /**
      * 加载页面
      */
-    fun load() = webView.load(bean?.getUrl().orEmpty(), true)
+    fun load() = webView.load(getUrl(), true)
 
     /**
      * 刷新页面
      */
     fun refresh() = webView.refresh()
+
+    /**
+     * 获取加载的url
+     */
+    fun getUrl() = bean?.getUrl().orEmpty()
 
     /**
      * 返回点击
@@ -106,18 +109,15 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
     }
 
     /**
-     * 获取加载的url
-     */
-    fun getUrl() = bean?.getUrl()
-
-    /**
      * 生命周期订阅
      */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
             Lifecycle.Event.ON_DESTROY -> {
                 webView?.removeJavascriptInterface("JSCallAndroid")
+                webView?.clear()
                 webView = null
+                binding.unbind()
                 activity.lifecycle.removeObserver(this)
             }
             else -> {}

@@ -5,13 +5,13 @@ package com.example.common.config
  * app内的跳转字段
  */
 object Extras {
-    const val BUNDLE_BEAN = "bundleBean" //跳转对象
     /**
      * navigation(ARouterPath.LoginActivity, Extras.REQUEST_CODE to REQUEST_FINISH)
      * setOnActivityResultListener { if (it.resultCode == REQUEST_FINISH) finish() }
      */
     const val REQUEST_CODE = "requestCode" //页面跳转链接
     const val REQUEST_ID = "requestId" //请求id
+    const val BUNDLE_BEAN = "bundleBean" //跳转对象
     const val PAGE_FROM = "pageFrom" //来自何种页面
     const val PAGE_TYPE = "pageType" //页面类型
     const val MOBILE = "mobile" //手机号

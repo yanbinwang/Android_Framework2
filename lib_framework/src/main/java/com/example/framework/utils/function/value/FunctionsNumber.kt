@@ -349,10 +349,18 @@ fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_UP): Str
 }
 
 /**
+ * 空自动变为“0”
+ */
+fun String?.orZero(): String {
+    return if(isNullOrEmpty()) "0" else this
+}
+
+/**
  * 去除所有小数的0
  * 1.0000000->1
  */
-fun String.removeEndZero(): String {
+fun String?.removeEndZero(): String {
+    this ?: return "0"
     return try {
         BigDecimal(this).stripTrailingZeros().toPlainString()
     } catch (e: Exception) {
@@ -367,11 +375,68 @@ fun String.removeEndZero(): String {
  */
 fun String?.thousandsFormat(): String {
     this ?: return "0"
-    if (BigDecimal(this).toDouble() < 1000) return this
+    if (numberCompareTo("1000") == -1) return this
     val list = split(".")
     val text = if (list.size > 1) list.safeGet(0) else this
     val tmp = StringBuffer().append(text).reverse()
     val retNum = Pattern.compile("(\\d{3})(?=\\d)").matcher(tmp.toString()).replaceAll("$1,")
     val value = StringBuffer().append(retNum).reverse().toString()
     return if (list.size > 1) "${value}.${list.safeGet(1)}" else value
+}
+
+/**
+ * 获取小数位
+ */
+fun String?.numberDigits(): Int {
+    this ?: return 0
+    val list = this.split(".")
+    return if(list.size > 1) list.safeGet(1)?.length.orZero else 0
+}
+
+/**
+ * val a= bd1.compareTo(bd2)
+ * a = -1,表示bd1小于bd2
+ * a = 0,表示bd1等于bd2
+ * a = 1,表示bd1大于bd2
+ */
+fun String?.numberCompareTo(number: String): Int {
+    return BigDecimal(this).compareTo(BigDecimal(number))
+}
+
+/**
+ * 加
+ * number可以是Number類型轉換為字符串
+ * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
+ */
+fun String?.add(number: String): String {
+    return BigDecimal(this).add(BigDecimal(number)).toPlainString().removeEndZero()
+}
+
+/**
+ * 減
+ * number可以是Number類型轉換為字符串
+ * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
+ */
+fun String?.subtract(number: String): String {
+    return BigDecimal(this).subtract(BigDecimal(number)).toPlainString().removeEndZero()
+}
+
+/**
+ * 乘
+ * number可以是Number類型轉換為字符串
+ * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
+ */
+fun String?.multiply(number: String): String {
+    return BigDecimal(this).multiply(BigDecimal(number)).toPlainString().removeEndZero()
+}
+
+/**
+ * 除
+ * number可以是Number類型轉換為字符串
+ * 如果number是字符串，必須是數值（'1'或‘-1’）的字符串
+ */
+fun String?.divide(number: String): String {
+    //抹去末尾多餘的0，某些字符串可能是0.0或0.00,除數不能為0，碰到這種情況直接返回0
+    if (number.removeEndZero() == "0") return "0"
+    return BigDecimal(this).divide(BigDecimal(number.removeEndZero())).toPlainString().removeEndZero()
 }
