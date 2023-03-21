@@ -31,7 +31,7 @@ class NotificationFactory private constructor() {
     /**
      * 构建常规通知栏
      */
-    fun normal(title: String, text: String, smallIcon: Int, largeIcon: Int, intent: Intent? = null, id: String = "") {
+    fun normal(title: String, text: String, smallIcon: Int, largeIcon: Int, intent: Intent? = Intent(), id: String = "") {
         builder.apply {
             color = color(R.color.black)//6.0提示框白色小球的颜色
             setTicker(title)//状态栏显示的提示
@@ -41,7 +41,7 @@ class NotificationFactory private constructor() {
             setSmallIcon(smallIcon)//状态栏显示的小图标
             setLargeIcon(BitmapFactory.decodeResource(context?.resources, largeIcon))//状态栏下拉显示的大图标
             setDefaults(NotificationCompat.DEFAULT_ALL)
-            setContentIntent(PendingIntent.getActivity(context, 1, intent ?: Intent(), PendingIntent.FLAG_ONE_SHOT))//intent为空说明此次为普通推送
+            setContentIntent(PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_ONE_SHOT))//intent为空说明此次为普通推送
         }
         manager?.apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createNotificationChannel(NotificationChannel(Constants.PUSH_CHANNEL_ID, Constants.PUSH_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH))
