@@ -6,11 +6,10 @@ import com.example.common.config.ARouterPath
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.framework.utils.function.view.margin
 import com.example.mvvm.databinding.ActivityMainBinding
-import com.example.mvvm.widget.dialog.TestDialog
 
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
-    private val testDialog by lazy { TestDialog(this) }
+//    private val testDialog by lazy { TestDialog(this) }
 //    private val testPopup by lazy { TestPopup(this) }
 
     override fun initEvent() {
