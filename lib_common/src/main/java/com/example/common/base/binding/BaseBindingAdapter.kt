@@ -21,7 +21,7 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.*
-import com.example.framework.utils.shownAnim
+import com.example.framework.utils.scaleShown
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -53,7 +53,7 @@ object BaseBindingAdapter {
         pager.adapter = adapter
         pager.offscreenPageLimit = adapter.count - 1
         pager.currentItem = 0
-        pager.startAnimation(pager.context.shownAnim())
+        pager.startAnimation(pager.context.scaleShown())
     }
 
     /**

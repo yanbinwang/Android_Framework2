@@ -73,37 +73,25 @@
         <item name="android:shadowDy">3</item>
     </style>
 
-    <!-- 顶部弹窗动画 -->
-    <style name="PushTopAnimStyle">
-        <!-- 指定显示的动画xml -->
-        <item name="android:windowEnterAnimation">@anim/set_translate_top_in</item>
-        <!-- 指定消失的动画xml -->
-        <item name="android:windowExitAnimation">@anim/set_translate_top_out</item>
-    </style>
-
     <!-- 底部弹窗动画 -->
-    <style name="PushBottomAnimStyle">
+    <style name="PopupTranslateAnimStyle">
         <!-- 指定显示的动画xml -->
         <item name="android:windowEnterAnimation">@anim/set_translate_bottom_in</item>
         <!-- 指定消失的动画xml -->
         <item name="android:windowExitAnimation">@anim/set_translate_bottom_out</item>
     </style>
 
-    <!-- 左侧弹窗动画 -->
-    <style name="PushLeftAnimStyle">
-        <!-- 指定显示的动画xml -->
-        <item name="android:windowEnterAnimation">@anim/set_translate_left_in</item>
-        <!-- 指定消失的动画xml -->
-        <item name="android:windowExitAnimation">@anim/set_translate_left_out</item>
+    <!-- 渐隐动画 -->
+    <style name="PopupAlphaAnimStyle">
+        <item name="android:windowEnterAnimation">@anim/set_alpha_trans_in</item>
+        <item name="android:windowExitAnimation">@anim/set_alpha_trans_out</item>
     </style>
 
-    <!-- 右侧弹窗动画 -->
-    <style name="PushRightAnimStyle">
-        <!-- 指定显示的动画xml -->
-        <item name="android:windowEnterAnimation">@anim/set_translate_right_in</item>
-        <!-- 指定消失的动画xml -->
-        <item name="android:windowExitAnimation">@anim/set_translate_right_out</item>
-    </style>
+<!--    &lt;!&ndash;popup显影 &ndash;&gt;-->
+<!--    <style name="popupWindowAnimStyle">-->
+<!--        <item name="android:windowEnterAnimation">@anim/gallery_fade_in</item>-->
+<!--        <item name="android:windowExitAnimation">@anim/gallery_fade_out</item>-->
+<!--    </style>-->
 
     <!-- 去除动画 -->
     <style name="NoAnimTheme" parent="AppTheme">
