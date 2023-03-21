@@ -171,10 +171,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      */
     open fun showUp(anchor: View?) {
         if (!isShowing) {
-            //获取需要在其上方显示的控件的位置信息
             val location = IntArray(2)
             anchor?.getLocationOnScreen(location)
-            //在控件上方显示
             showAtLocation(anchor, Gravity.NO_GRAVITY, (location[0]) - measuredWidth / 2, location[1] - measuredHeight)
         }
     }
@@ -184,10 +182,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      */
     open fun showUp2(anchor: View?) {
         if (!isShowing) {
-            //获取需要在其上方显示的控件的位置信息
             val location = IntArray(2)
             anchor?.getLocationOnScreen(location)
-            //在控件上方显示
             showAtLocation(anchor, Gravity.NO_GRAVITY, (location[0] + anchor?.width.orZero / 2) - measuredWidth / 2, location[1] - measuredHeight)
         }
     }
