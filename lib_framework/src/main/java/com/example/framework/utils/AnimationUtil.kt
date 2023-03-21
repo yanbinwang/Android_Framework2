@@ -399,7 +399,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
 /**
  * 进入
  */
-fun Context.shownAnim(): AnimationSet {
+fun Context.scaleShown(): AnimationSet {
     return AnimationSet(this, null).apply {
         val alpha = AlphaAnimation(0.0f, 1.0f)
         alpha.duration = 90
@@ -421,7 +421,7 @@ fun Context.shownAnim(): AnimationSet {
 /**
  * 退出
  */
-fun Context.hiddenAnim(): AnimationSet {
+fun Context.scaleHidden(): AnimationSet {
     return AnimationSet(this, null).apply {
         val alpha = AlphaAnimation(1.0f, 0.0f)
         alpha.duration = 150

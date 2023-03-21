@@ -14,9 +14,9 @@ import androidx.databinding.ViewDataBinding
 import com.example.common.R
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.hiddenAnim
 import com.example.framework.utils.logE
-import com.example.framework.utils.shownAnim
+import com.example.framework.utils.scaleHidden
+import com.example.framework.utils.scaleShown
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -49,9 +49,9 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
             }
             if (animation) {
                 //当布局show出来的时候执行开始动画
-                setOnShowListener { binding.root.startAnimation(context.shownAnim()) }
+                setOnShowListener { binding.root.startAnimation(context.scaleShown()) }
                 //当布局销毁时执行结束动画
-                setOnDismissListener { binding.root.startAnimation(context.hiddenAnim()) }
+                setOnDismissListener { binding.root.startAnimation(context.scaleHidden()) }
             }
             if (close) {
                 setOnKeyListener { _: DialogInterface?, _: Int, _: KeyEvent? -> true }

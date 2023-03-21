@@ -10,5 +10,5 @@ import com.example.mvvm.databinding.ViewPopupTestBinding
  * @author
  */
 class TestPopup(activity: FragmentActivity) :
-    BasePopupWindow<ViewPopupTestBinding>(activity, gravity = TOP) {
+    BasePopupWindow<ViewPopupTestBinding>(activity) {
 }

@@ -7,7 +7,8 @@ import android.os.Build
 import android.os.Looper
 import android.transition.Slide
 import android.transition.Visibility
-import android.view.Gravity.*
+import android.view.Gravity
+import android.view.Gravity.BOTTOM
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -17,8 +18,10 @@ import android.widget.PopupWindow
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
+import com.example.common.base.PopupAnimType.*
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orZero
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -26,14 +29,17 @@ import java.lang.reflect.ParameterizedType
  * 所有弹框的基类
  * 用于实现上下左右弹出的效果，如有特殊动画需求，重写animation
  * 默认底部弹出,不需要传view，并带有顶栏间距
- * 传view则默认view下方弹出
+ * 也可使用渐隐显示
+ * 默认view下方弹出
  * popupwindows在设置isClippingEnabled=false后会撑满整个屏幕变成全屏
  * 但这会使底部有虚拟栏的手机重叠，哪怕使用的margin底部高度的代码，部分手机兼容性上也会存在问题
  * 可以使用BaseBottomSheetDialogFragment替代，也可以使用调整windos透明度的方法
  */
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val gravity: Int = BOTTOM, private val animation: Boolean = true, private val light: Boolean = false) : PopupWindow() {
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val popupAnimType: PopupAnimType = NONE, private val light: Boolean = false) : PopupWindow() {
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
+    private var measuredWidth = 0
+    private var measuredHeight = 0
     protected val context get() = window.context
     protected lateinit var binding: VDB
 
@@ -52,7 +58,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
             isFocusable = true
             isOutsideTouchable = true
             softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-            setTransition()
+            setAnimation()
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setOnDismissListener {
                 if (light) {
@@ -60,34 +66,35 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                     window.attributes = layoutParams
                 }
             }
+            //获取自身的长宽高
+            binding.root.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+            measuredWidth = binding.root.measuredWidth
+            measuredHeight = binding.root.measuredHeight
         }
     }
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     //默认底部弹出，可重写
-    open fun setTransition() {
-        if (animation) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                enterTransition = Slide().apply {
-                    duration = 500
-                    mode = Visibility.MODE_IN
-                    slideEdge = gravity
-                }
-                setExitTransition(Slide().apply {
-                    duration = 500
-                    mode = Visibility.MODE_OUT
-                    slideEdge = gravity
-                })
-            } else {
-                animationStyle = when (gravity) {
-                    TOP -> R.style.PushTopAnimStyle
-                    BOTTOM -> R.style.PushBottomAnimStyle
-                    START, LEFT -> R.style.PushLeftAnimStyle
-                    else -> R.style.PushRightAnimStyle
+    private fun setAnimation() {
+        when (popupAnimType) {
+            ALPHA -> animationStyle = R.style.PopupTranslateAnimStyle
+            TRANSLATE -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    enterTransition = Slide().apply {
+                        duration = 500
+                        mode = Visibility.MODE_IN
+                        slideEdge = BOTTOM
+                    }
+                    setExitTransition(Slide().apply {
+                        duration = 500
+                        mode = Visibility.MODE_OUT
+                        slideEdge = BOTTOM
+                    })
+                } else {
+                    animationStyle = R.style.PopupTranslateAnimStyle
                 }
             }
-        } else {
-            animationStyle = -1
+            NONE -> animationStyle = -1
         }
     }
     // </editor-fold>
@@ -152,11 +159,43 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         binding.unbind()
     }
 
+    /**
+     * 默认底部坐标展示
+     */
     open fun shown() {
-        if (!isShowing) showAtLocation(binding.root, gravity, 0, 0)
+        if (!isShowing) showAtLocation(binding.root, BOTTOM, 0, 0)
     }
 
-    open fun shown(anchor: View?){
+    /**
+     * 控件上方显示(以v的左边距为开始位置)
+     */
+    open fun showUp(anchor: View?) {
+        if (!isShowing) {
+            //获取需要在其上方显示的控件的位置信息
+            val location = IntArray(2)
+            anchor?.getLocationOnScreen(location)
+            //在控件上方显示
+            showAtLocation(anchor, Gravity.NO_GRAVITY, (location[0]) - measuredWidth / 2, location[1] - measuredHeight)
+        }
+    }
+
+    /**
+     * 控件上方显示(以v的中心位置为开始位置)
+     */
+    open fun showUp2(anchor: View?) {
+        if (!isShowing) {
+            //获取需要在其上方显示的控件的位置信息
+            val location = IntArray(2)
+            anchor?.getLocationOnScreen(location)
+            //在控件上方显示
+            showAtLocation(anchor, Gravity.NO_GRAVITY, (location[0] + anchor?.width.orZero / 2) - measuredWidth / 2, location[1] - measuredHeight)
+        }
+    }
+
+    /**
+     * 控件下方显示
+     */
+    open fun showDown(anchor: View?) {
         if (!isShowing) showAsDropDown(anchor)
     }
 
@@ -165,4 +204,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     }
     // </editor-fold>
 
+}
+
+enum class PopupAnimType {
+    NONE, TRANSLATE, ALPHA
 }
