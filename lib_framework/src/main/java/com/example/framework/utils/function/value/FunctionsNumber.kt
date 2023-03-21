@@ -2,7 +2,6 @@ package com.example.framework.utils.function.value
 
 import java.math.BigDecimal
 import java.text.DecimalFormat
-import java.util.regex.Pattern
 
 //------------------------------------计算工具类------------------------------------
 /**
@@ -366,22 +365,6 @@ fun String?.removeEndZero(): String {
     } catch (e: Exception) {
         this
     }
-}
-
-/**
- * 千分位格式
- * 10000
- * ->10,000
- */
-fun String?.thousandsFormat(): String {
-    this ?: return "0"
-    if (numberCompareTo("1000") == -1) return this
-    val list = split(".")
-    val text = if (list.size > 1) list.safeGet(0) else this
-    val tmp = StringBuffer().append(text).reverse()
-    val retNum = Pattern.compile("(\\d{3})(?=\\d)").matcher(tmp.toString()).replaceAll("$1,")
-    val value = StringBuffer().append(retNum).reverse().toString()
-    return if (list.size > 1) "${value}.${list.safeGet(1)}" else value
 }
 
 /**

@@ -2,51 +2,6 @@ package com.example.framework.utils.function.value
 
 import android.util.Base64
 import java.util.regex.Pattern
-import javax.crypto.Cipher
-import javax.crypto.spec.SecretKeySpec
-
-/**
- * 创建密码器
- */
-private val cipher by lazy { Cipher.getInstance("AES/ECB/PKCS5Padding") }
-
-/**
- * 加密
- * @param this      待加密内容
- * @param secretKey 加密密码，长度：16 或 32 个字符
- * @return 返回Base64转码后的加密数据
- */
-fun String?.encrypt(secretKey: String = ""): String {
-    return try {
-        //创建AES秘钥
-        val secretKeySpec = SecretKeySpec(secretKey.toByteArray(), "AES")
-        //初始化加密器
-        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
-        //将加密以后的数据进行 Base64 编码
-        return cipher.doFinal(orEmpty().toByteArray()).base64Encode()
-    } catch (_: Exception) {
-        ""
-    }
-}
-
-/**
- * 解密
- * @param this 加密的密文 Base64 字符串
- * @param secretKey  解密的密钥，长度：16 或 32 个字符
- * @return 返回Base64转码后的加密数据
- */
-fun String?.decrypt(secretKey: String = ""): String {
-    return try {
-        //创建AES秘钥
-        val secretKeySpec = SecretKeySpec(secretKey.toByteArray(), "AES")
-        //初始化解密器
-        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
-        //执行解密操作
-        return String(cipher.doFinal(base64Decode()), Charsets.UTF_8)
-    } catch (_: Exception) {
-        ""
-    }
-}
 
 /**
  * 将 字节数组 转换成 Base64 编码
@@ -58,6 +13,22 @@ fun ByteArray?.base64Encode() = Base64.encodeToString(this, Base64.NO_WRAP)
  * 将 Base64 字符串 解码成 字节数组
  */
 fun String?.base64Decode() = Base64.decode(this, Base64.NO_WRAP)
+
+/**
+ * 千分位格式
+ * 10000
+ * ->10,000
+ */
+fun String?.thousandsFormat(): String {
+    this ?: return "0"
+    if (numberCompareTo("1000") == -1) return this
+    val list = split(".")
+    val text = if (list.size > 1) list.safeGet(0) else this
+    val tmp = StringBuffer().append(text).reverse()
+    val retNum = Pattern.compile("(\\d{3})(?=\\d)").matcher(tmp.toString()).replaceAll("$1,")
+    val value = StringBuffer().append(retNum).reverse().toString()
+    return if (list.size > 1) "${value}.${list.safeGet(1)}" else value
+}
 
 /**
  * 提取链接中的参数
