@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -91,6 +92,17 @@ fun Context.getPrimaryClip(): String {
     if (!clipboardManager.hasPrimaryClip()) return ""
     //获取 text
     return clipboardManager.primaryClip?.getItemAt(0)?.text.toString()
+}
+
+/**
+ * 判断当前是否开启通知，方便用户接受推送消息
+ */
+fun Context.isNotificationEnabled(): Boolean {
+    return try {
+        NotificationManagerCompat.from(this).areNotificationsEnabled()
+    } catch (e: Exception) {
+        false
+    }
 }
 
 /**

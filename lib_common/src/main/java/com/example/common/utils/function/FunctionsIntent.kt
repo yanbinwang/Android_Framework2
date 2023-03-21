@@ -13,13 +13,41 @@ import com.example.common.utils.builder.shortToast
 import java.io.File
 
 /**
+ * 跳转通知设置界面
+ */
+fun Activity.notificationSetting() {
+    val intent = Intent()
+    val sdkVersion = Build.VERSION.SDK_INT
+    when {
+        //8.0+
+        sdkVersion >= Build.VERSION_CODES.O -> {
+            intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
+            intent.putExtra("android.provider.extra.APP_PACKAGE", Constants.APPLICATION_ID)
+        }
+        //5.0-7.0
+        sdkVersion >= Build.VERSION_CODES.LOLLIPOP && sdkVersion < Build.VERSION_CODES.O -> {
+            intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
+            intent.putExtra("app_package", Constants.APPLICATION_ID)
+            intent.putExtra("app_uid", applicationInfo?.uid)
+        }
+        //其他
+        else -> {
+            intent.action = "android.settings.APPLICATION_DETAILS_SETTINGS"
+            intent.data = Uri.fromParts("package", Constants.APPLICATION_ID, null)
+        }
+    }
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    startActivity(intent)
+}
+
+/**
  * 跳转系统默认相册
  * if (resultCode == RESULT_OK && data != null) {
  * val uri = data.data
  * val oriFile = uri.getFileFromUri()
  * val albumPath = oriFile?.absolutePath
  */
-fun Activity.pullUpPackage() {
+fun Activity.pullUpAlbum() {
     val intent = Intent(Intent.ACTION_PICK, null)
     intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
     startActivityForResult(intent, 0x114)
@@ -111,7 +139,8 @@ fun Context.openWorld(filePath: String) = openFile(filePath, "application/msword
 /**
  * 打开安装包
  */
-fun Context.openSetupApk(filePath: String) = openFile(filePath, "application/vnd.android.package-archive")
+fun Context.openSetupApk(filePath: String) =
+    openFile(filePath, "application/vnd.android.package-archive")
 
 /**
  * 统一开启文件
