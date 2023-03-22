@@ -17,10 +17,10 @@ import com.example.common.R
 import com.example.common.config.Constants.NO_DATA
 import com.example.common.config.Constants.NO_DATA_DOLLAR
 import com.example.common.config.Constants.NO_DATA_PERCENT
+import com.example.common.utils.GsonUtil
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.ScreenUtil.getRealSize
 import com.example.common.utils.ScreenUtil.getRealSizeFloat
-import com.example.common.utils.analysis.GsonUtil
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.framework.utils.ColorSpan
@@ -31,7 +31,6 @@ import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanAll
 import com.example.framework.utils.setSpanFirst
-import com.google.gson.JsonArray
 
 //------------------------------------按钮，控件行为工具类------------------------------------
 /**

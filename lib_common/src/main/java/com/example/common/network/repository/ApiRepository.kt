@@ -5,9 +5,9 @@ import com.example.common.network.repository.ApiCode.FAILURE
 import com.example.common.network.repository.ApiCode.SUCCESS
 import com.example.common.network.repository.ApiCode.TOKEN_EXPIRED
 import com.example.common.utils.NetWorkUtil
-import com.example.common.utils.analysis.GsonUtil
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.resString
+import com.example.common.utils.function.toJsonString
 import com.example.common.utils.helper.AccountHelper
 import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
@@ -22,8 +22,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * map扩展，如果只需传入map则使用
  * hashMapOf("" to "")不需要写此扩展
  */
-fun <K, V> HashMap<K, V>?.params() = (if (null == this) "" else GsonUtil.objToJson(this)
-    .orEmpty()).toRequestBody("application/json; charset=utf-8".toMediaType())
+fun <K, V> HashMap<K, V>?.params() =
+    this?.toJsonString().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
 
 /**
  * 提示方法，根据接口返回的msg提示
