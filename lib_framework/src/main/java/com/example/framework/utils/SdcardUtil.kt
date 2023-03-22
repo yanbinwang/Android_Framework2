@@ -5,19 +5,11 @@ import android.os.Build
 import android.os.Environment
 import android.os.StatFs
 
+//------------------------------------sd卡工具类(只能拿到外置存储器的大致容量，并不准确)------------------------------------
 /**
- *  Created by wangyanbin
- *  sd卡工具类
- *  只能拿到外置存储器的大致容量，并不准确
+ * 判断sd卡是否存在
  */
-object SdcardUtil {
-
-    /**
-     * 判断sd卡是否存在
-     */
-    fun hasSdcard() = Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
-
-}
+fun hasSdcard() = Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
 
 /**
  * 获取sd卡目录-绝对路径
