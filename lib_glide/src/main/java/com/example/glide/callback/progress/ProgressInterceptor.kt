@@ -2,6 +2,7 @@ package com.example.glide.callback.progress
 
 import okhttp3.Interceptor
 import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -33,7 +34,7 @@ class ProgressInterceptor : Interceptor {
         val request = chain.request()
         val response = chain.proceed(request)
         val url = request.url.toString()
-        return response.newBuilder().body(ProgressResponseBody(url, response.body!!)).build()
+        return response.newBuilder().body(ProgressResponseBody(url, response.body ?: "".toResponseBody())).build()
     }
 
 }
