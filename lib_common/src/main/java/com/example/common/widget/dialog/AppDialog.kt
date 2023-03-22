@@ -19,7 +19,12 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context, close
 
     fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = "", center: Boolean = true) {
         binding.apply {
-            if (title.isNullOrEmpty()) tvTip.gone() else tvTip.text = title
+            if (title.isNullOrEmpty()) {
+                tvTip.gone()
+            } else {
+                tvTip.visible()
+                tvTip.text = title
+            }
             tvMessage.gravity = if (center) Gravity.CENTER else Gravity.LEFT
             tvMessage.text = message
             tvSure.text = positiveText
