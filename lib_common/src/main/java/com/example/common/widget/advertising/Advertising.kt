@@ -9,7 +9,8 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
-import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
@@ -27,7 +28,7 @@ import java.util.*
  * 广告控件
  */
 @SuppressLint("ClickableViewAccessibility")
-class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), AdvertisingImpl, DefaultLifecycleObserver {
+class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), AdvertisingImpl, LifecycleEventObserver {
     private var list = ArrayList<String>()//图片路径数组
     private var triple = Triple(R.drawable.shape_advert_select, R.drawable.shape_advert_unselect, 10)//3个资源路径
     private var allowScroll = true//是否允许滑动
@@ -54,8 +55,8 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                     curIndex = position % list.size
                     if (null != ovalLayout) {
                         if (list.size > 1) {
-                            ovalLayout?.getChildAt(oldIndex)?.setBackgroundResource(triple.second.orZero)
-                            ovalLayout?.getChildAt(curIndex)?.setBackgroundResource(triple.first.orZero)
+                            ovalLayout?.getChildAt(oldIndex)?.background(triple.second.orZero)
+                            ovalLayout?.getChildAt(curIndex)?.background(triple.first.orZero)
                             oldIndex = curIndex
                         }
                     }
@@ -82,20 +83,19 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         if (isInflate()) addView(banner)
     }
 
-    override fun onResume(owner: LifecycleOwner) {
-        super.onResume(owner)
-        if (autoScroll) startRoll()
-    }
-
-    override fun onPause(owner: LifecycleOwner) {
-        super.onPause(owner)
-        if (autoScroll) stopRoll()
-    }
-
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         stopRoll()
         (banner?.parent as? ViewGroup)?.removeAllViews()
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_RESUME -> startRoll()
+            Lifecycle.Event.ON_PAUSE -> stopRoll()
+            Lifecycle.Event.ON_DESTROY -> source.lifecycle.removeObserver(this)
+            else -> {}
+        }
     }
     // </editor-fold>
 
@@ -156,7 +156,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     override fun setAutoScroll(scroll: Boolean) {
         this.autoScroll = scroll
-        if (!scroll) stopRoll()
+        stopRoll()
     }
 
     override fun setOrientation(orientation: Int) {
@@ -168,32 +168,26 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     /**
-     * 绑定对应页面的生命周期-》对应回调重写对应方法
-     * @param lifecycleOwner
-     */
-    fun addLifecycleObserver(lifecycleOwner: LifecycleOwner) {
-        lifecycleOwner.lifecycle.addObserver(this)
-    }
-
-    /**
      * 开始自动滚动任务 图片大于1张才滚动
      */
-    fun startRoll() {
-        if (list.size > 1) {
-            if (timer == null) {
-                timer = Timer()
-                timer?.schedule(object : TimerTask() {
-                    override fun run() {
-                        if (allowScroll) {
-                            weakHandler.post {
-                                val current = banner?.currentItem.orZero
-                                var position = current + 1
-                                if (current == 0 || current == Int.MAX_VALUE) position = halfPosition - halfPosition % list.size
-                                banner?.currentItem = position
+    private fun startRoll() {
+        if (autoScroll) {
+            if (list.size > 1) {
+                if (timer == null) {
+                    timer = Timer()
+                    timer?.schedule(object : TimerTask() {
+                        override fun run() {
+                            if (allowScroll) {
+                                weakHandler.post {
+                                    val current = banner?.currentItem.orZero
+                                    var position = current + 1
+                                    if (current == 0 || current == Int.MAX_VALUE) position = halfPosition - halfPosition % list.size
+                                    banner?.currentItem = position
+                                }
                             }
                         }
-                    }
-                }, 0, 3000)
+                    }, 0, 3000)
+                }
             }
         }
     }
@@ -201,11 +195,21 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 停止自动滚动任务
      */
-    fun stopRoll() {
-        if (timer != null) {
-            timer?.cancel()
-            timer = null
+    private fun stopRoll() {
+        if (autoScroll) {
+            if (timer != null) {
+                timer?.cancel()
+                timer = null
+            }
         }
+    }
+
+    /**
+     * 绑定对应页面的生命周期-》对应回调重写对应方法
+     * @param lifecycleOwner
+     */
+    fun addLifecycleObserver(lifecycleOwner: LifecycleOwner) {
+        lifecycleOwner.lifecycle.addObserver(this)
     }
     // </editor-fold>
 
