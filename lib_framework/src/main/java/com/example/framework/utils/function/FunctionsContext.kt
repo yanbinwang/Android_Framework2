@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.framework.utils.function.value.orFalse
 import java.io.Serializable
 
 //------------------------------------context扩展函数类------------------------------------
@@ -83,14 +84,14 @@ fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean
 /**
  * 粘贴板操作
  */
-fun Context.setPrimaryClip(label: String, text: String) = (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(label, text))
+fun Context.setPrimaryClip(label: String, text: String) = (getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager)?.setPrimaryClip(ClipData.newPlainText(label, text))
 
 fun Context.getPrimaryClip(): String {
-    val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
     //判断剪切版时候有内容
-    if (!clipboardManager.hasPrimaryClip()) return ""
+    if (!clipboardManager?.hasPrimaryClip().orFalse) return ""
     //获取 text
-    return clipboardManager.primaryClip?.getItemAt(0)?.text.toString()
+    return clipboardManager?.primaryClip?.getItemAt(0)?.text.toString()
 }
 
 /**
