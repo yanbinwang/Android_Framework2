@@ -2,6 +2,7 @@ package com.example.common.widget.textview
 
 import android.content.Context
 import android.text.Spannable
+import android.text.method.LinkMovementMethod
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.widget.TextView
@@ -86,6 +87,20 @@ class CheckBoxLabel @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     fun isChecked(): Boolean {
         return binding.ck.isChecked
+    }
+
+    /**
+     * 设置对应点击样式的文本内容
+     */
+    fun setSpan(spannable: Spannable) {
+        binding.tvLabel.text = spannable
+    }
+
+    /**
+     * 部分文字点击需要配置一下当前参数，不然点击无效
+     */
+    fun setLinkMovementMethod() {
+        binding.tvLabel.movementMethod = LinkMovementMethod.getInstance()
     }
 
     /**
