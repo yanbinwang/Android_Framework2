@@ -26,6 +26,20 @@ class NotificationFactory private constructor() {
 
     companion object {
         val instance by lazy { NotificationFactory() }
+        /**
+         * 推送id自增长，避免相同id之前的通知被顶掉
+         */
+        private var notificationId = 100
+            get() {
+                return ++field
+            }
+        /**
+         * 返回request自增长，避免拉起的页面取得值会是之前历史页面的值
+         */
+        private var requestCode = 100
+            get() {
+                return ++field
+            }
     }
 
     /**
@@ -41,18 +55,18 @@ class NotificationFactory private constructor() {
             setSmallIcon(smallIcon)//状态栏显示的小图标
             setLargeIcon(BitmapFactory.decodeResource(context?.resources, largeIcon))//状态栏下拉显示的大图标
             setDefaults(NotificationCompat.DEFAULT_ALL)
-            setContentIntent(PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_ONE_SHOT))//intent为空说明此次为普通推送
+            setContentIntent(PendingIntent.getActivity(context, requestCode, intent, getPendingIntentFlags(PendingIntent.FLAG_UPDATE_CURRENT)))//intent为空说明此次为普通推送
         }
         manager?.apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createNotificationChannel(NotificationChannel(Constants.PUSH_CHANNEL_ID, Constants.PUSH_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH))
-            notify(if (id.isEmpty()) 0 else id.hashCode(), builder.build())
+            notify(if (id.isEmpty()) notificationId else id.hashCode(), builder.build())
         }
     }
 
     /**
      * 构建进度条通知栏
      */
-    fun progress(progress: Int, title: String, text: String, smallIcon: Int, largeIcon: Int, id: String = "") {
+    fun progress(progress: Int, title: String, text: String, smallIcon: Int, largeIcon: Int, id: String) {
         builder.apply {
             color = color(R.color.black)//6.0提示框白色小球的颜色
             setProgress(100, progress, false)
@@ -70,6 +84,10 @@ class NotificationFactory private constructor() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createNotificationChannel(NotificationChannel(Constants.PUSH_CHANNEL_ID, Constants.PUSH_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH))
             notify(id.toSafeInt(), notification)
         }
+    }
+
+    private fun getPendingIntentFlags(baseFlags: Int): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) baseFlags or PendingIntent.FLAG_MUTABLE else baseFlags
     }
 
 }
