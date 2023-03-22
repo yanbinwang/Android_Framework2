@@ -1,4 +1,4 @@
-package com.example.common.utils.analysis
+package com.example.common.utils
 
 import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapter

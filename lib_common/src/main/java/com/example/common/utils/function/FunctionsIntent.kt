@@ -9,6 +9,7 @@ import android.os.Build
 import android.provider.MediaStore
 import androidx.core.content.FileProvider
 import com.example.common.config.Constants
+import com.example.common.config.RequestCode.REQUEST_PHOTO
 import com.example.common.utils.builder.shortToast
 import java.io.File
 
@@ -50,7 +51,7 @@ fun Activity.notificationSetting() {
 fun Activity.pullUpAlbum() {
     val intent = Intent(Intent.ACTION_PICK, null)
     intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
-    startActivityForResult(intent, 0x114)
+    startActivityForResult(intent, REQUEST_PHOTO)
 }
 
 /**

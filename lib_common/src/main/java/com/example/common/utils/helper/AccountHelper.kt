@@ -58,7 +58,7 @@ object AccountHelper {
     /**
      * 登录成功调取
      */
-    fun singIn(bean: UserBean?) {
+    fun signIn(bean: UserBean?) {
         setUserBean(bean)
     }
 
