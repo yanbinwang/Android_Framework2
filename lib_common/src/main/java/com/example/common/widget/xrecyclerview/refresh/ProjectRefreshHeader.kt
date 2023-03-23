@@ -5,16 +5,15 @@ import android.content.Context
 import android.graphics.drawable.AnimationDrawable
 import android.util.AttributeSet
 import android.view.View
+import com.example.common.R
+import com.example.common.databinding.ViewRefreshHeaderBinding
+import com.example.common.utils.function.pt
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.imageResource
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.tint
 import com.example.framework.widget.BaseViewGroup
-import com.example.common.R
-import com.example.common.databinding.ViewRefreshHeaderBinding
-import com.example.common.utils.function.getStatusBarHeight
-import com.example.common.utils.function.pt
 import com.scwang.smart.refresh.layout.api.RefreshHeader
 import com.scwang.smart.refresh.layout.api.RefreshKernel
 import com.scwang.smart.refresh.layout.api.RefreshLayout
@@ -44,9 +43,8 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
         }
     }
 
-    fun setStatusBarPadding() {
+    fun setStatusBarPadding(statusBarHeight: Int) {
         binding.root.apply {
-            val statusBarHeight = getStatusBarHeight()
             size(LayoutParams.MATCH_PARENT, 40.pt + statusBarHeight)
             padding(top = statusBarHeight)
         }
