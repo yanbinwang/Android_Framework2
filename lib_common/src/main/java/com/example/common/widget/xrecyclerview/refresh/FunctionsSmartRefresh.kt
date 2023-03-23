@@ -91,7 +91,7 @@ fun SmartRefreshLayout?.noMoreOnInit() {
  * app:srlEnableLoadMore="false"
  * app:srlEnableRefresh="true"
  */
-fun SmartRefreshLayout?.statusBarPadding() {
+fun SmartRefreshLayout?.headerMaxDragRate() {
     this ?: return
     doOnceAfterLayout {
         (it.refreshHeader as ProjectRefreshHeader?)?.apply {
