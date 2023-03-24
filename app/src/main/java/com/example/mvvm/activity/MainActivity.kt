@@ -40,7 +40,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private fun changeBgHeight(offset: Int) {
         val imgBgHeight = binding.llFunds.measuredHeight
         if (imgBgHeight <= 0) return
+        //设置视图围绕其旋转和缩放的点的 y 位置。默认情况下，枢轴点以对象为中心。设置此属性会禁用此行为并导致视图仅使用显式设置的 pivotX 和 pivotY 值。
         binding.ivFundsBg.pivotY = 0f
+        //设置视图围绕轴心点在 Y 轴上缩放的量，作为视图未缩放宽度的比例。值为 1 表示不应用缩放。
         binding.ivFundsBg.scaleY = offset.toSafeFloat() / imgBgHeight.toSafeFloat() + 1f
     }
 
