@@ -8,12 +8,15 @@ import com.example.common.utils.function.pt
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.common.widget.xrecyclerview.refresh.headerMaxDragRate
 import com.example.framework.utils.function.value.toSafeFloat
+import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.mvvm.databinding.ActivityMainBinding
+import com.example.mvvm.widget.automatic.IllustratePopup
 
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>() {
+    private val illustratePopup by lazy { IllustratePopup(this) }
 
     override fun initEvent() {
         super.initEvent()
@@ -31,6 +34,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             onDragListener = { isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int ->
                 changeBgHeight(offset)
             }
+        }
+        binding.viewContent.click {
+            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
         }
     }
 

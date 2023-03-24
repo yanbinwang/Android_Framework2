@@ -38,8 +38,8 @@ import java.lang.reflect.ParameterizedType
 abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val popupAnimType: PopupAnimType = NONE, private val light: Boolean = false) : PopupWindow() {
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
-    private var measuredWidth = 0
-    private var measuredHeight = 0
+    protected var measuredWidth = 0
+    protected var measuredHeight = 0
     protected val context get() = window.context
     protected lateinit var binding: VDB
 
@@ -77,7 +77,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     //默认底部弹出，可重写
     private fun setAnimation() {
         when (popupAnimType) {
-            ALPHA -> animationStyle = R.style.PopupTranslateAnimStyle
+            ALPHA -> animationStyle = R.style.PopupAlphaAnimStyle
             TRANSLATE -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     enterTransition = Slide().apply {
