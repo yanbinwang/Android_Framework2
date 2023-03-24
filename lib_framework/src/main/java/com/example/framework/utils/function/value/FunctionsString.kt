@@ -73,6 +73,16 @@ fun String?.hide4BitLetter(): String {
 fun String?.isMobile() = Pattern.matches("^1[0-9]{10}$", this.orEmpty())
 
 /**
+ * 验证邮箱
+ */
+fun String?.isEmail() = Pattern.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+\$", this.orEmpty())
+
+/**
+ * 验证密码
+ */
+fun String?.isPassword() = Pattern.matches("^(?![0-9]+\$)(?![a-zA-Z]+\$)[0-9A-Za-z]{6,20}\$", this.orEmpty())
+
+/**
  * 返回密码强度
  */
 fun String?.checkSecurity(): Int {

@@ -7,6 +7,7 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import com.example.framework.utils.function.value.toSafeFloat
 import com.example.glide.callback.GlideImpl
 import com.example.glide.callback.GlideModule
 import com.example.glide.callback.GlideRequestListener
@@ -130,7 +131,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
 //            .error(errorId)
 //            .dontAnimate()
 //            .into(view)
-        val transformation = CornerTransform(view.context, roundingRadius.toFloat())
+        val transformation = CornerTransform(view.context, roundingRadius.toSafeFloat())
         transformation.setExceptCorner(overRide[0], overRide[1], overRide[2], overRide[3])
         Glide.with(view.context)
             .load(string)
@@ -142,7 +143,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun displayRound(view: ImageView, resourceId: Int?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
-        val transformation = CornerTransform(view.context, roundingRadius.toFloat())
+        val transformation = CornerTransform(view.context, roundingRadius.toSafeFloat())
         transformation.setExceptCorner(overRide[0], overRide[1], overRide[2], overRide[3])
         Glide.with(view.context)
             .load(resourceId)

@@ -5,16 +5,15 @@ import android.content.Context
 import android.graphics.drawable.AnimationDrawable
 import android.util.AttributeSet
 import android.view.View
+import com.example.common.R
+import com.example.common.databinding.ViewRefreshHeaderBinding
+import com.example.common.utils.function.pt
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.imageResource
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.tint
 import com.example.framework.widget.BaseViewGroup
-import com.example.common.R
-import com.example.common.databinding.ViewRefreshHeaderBinding
-import com.example.common.utils.function.getStatusBarHeight
-import com.example.common.utils.function.pt
 import com.scwang.smart.refresh.layout.api.RefreshHeader
 import com.scwang.smart.refresh.layout.api.RefreshKernel
 import com.scwang.smart.refresh.layout.api.RefreshLayout
@@ -35,19 +34,20 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
-        binding.root.size(LayoutParams.MATCH_PARENT, 40.pt)
+        binding.root.size(LayoutParams.MATCH_PARENT, 80.pt)
         binding.ivProgress.let {
-            it.padding(top = 2.5.pt, bottom = 2.5.pt)
             it.imageResource(R.drawable.animation_list_loading)
             it.tint(R.color.appTheme)
             animation = it.drawable as? AnimationDrawable
         }
     }
 
-    fun setStatusBarPadding() {
+    /**
+     * 顶部如果直接是刷新，需要让刷新的头在状态栏下方展示并刷新，故而调用此代码重新设置一下顶部的高度和padding
+     */
+    fun setStatusBarSpacing(statusBarHeight: Int) {
         binding.root.apply {
-            val statusBarHeight = getStatusBarHeight()
-            size(LayoutParams.MATCH_PARENT, 40.pt + statusBarHeight)
+            size(LayoutParams.MATCH_PARENT, 80.pt + statusBarHeight)
             padding(top = statusBarHeight)
         }
     }

@@ -1,21 +1,21 @@
 package com.example.glide.callback
 
+import android.os.Looper
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import com.example.framework.utils.WeakHandler
 
 /**
  * Created by WangYanBin on 2020/7/31.
  * 图片下载监听
  */
 abstract class GlideRequestListener<R> : RequestListener<R> {
+    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
 
     init {
-        GlobalScope.launch(Dispatchers.Main) { onStart() }
+        weakHandler.post { onStart() }
     }
 
     override fun onResourceReady(resource: R, model: Any?, target: Target<R>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
@@ -29,7 +29,7 @@ abstract class GlideRequestListener<R> : RequestListener<R> {
     }
 
     private fun doResult(resource: R?) {
-        GlobalScope.launch(Dispatchers.Main) { onComplete(resource) }
+        weakHandler.post { onComplete(resource) }
     }
 
     protected abstract fun onStart()
