@@ -34,9 +34,8 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
-        binding.root.size(LayoutParams.MATCH_PARENT, 40.pt)
+        binding.root.size(LayoutParams.MATCH_PARENT, 80.pt)
         binding.ivProgress.let {
-            it.padding(top = 2.5.pt, bottom = 2.5.pt)
             it.imageResource(R.drawable.animation_list_loading)
             it.tint(R.color.appTheme)
             animation = it.drawable as? AnimationDrawable
@@ -45,7 +44,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
 
     fun setStatusBarPadding(statusBarHeight: Int) {
         binding.root.apply {
-            size(LayoutParams.MATCH_PARENT, 40.pt + statusBarHeight)
+            size(LayoutParams.MATCH_PARENT, 80.pt + statusBarHeight)
             padding(top = statusBarHeight)
         }
     }

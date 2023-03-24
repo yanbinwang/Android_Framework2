@@ -1,49 +1,47 @@
 package com.example.mvvm.activity
 
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.example.common.base.BaseTitleActivity
+import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.function.getStatusBarHeight
-import com.example.framework.utils.function.view.click
-import com.example.framework.utils.function.view.margin
+import com.example.common.utils.function.pt
+import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
+import com.example.common.widget.xrecyclerview.refresh.headerMaxDragRate
+import com.example.framework.utils.function.value.toSafeFloat
+import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.size
 import com.example.mvvm.databinding.ActivityMainBinding
-import com.example.mvvm.widget.ChatPopup
 
 @Route(path = ARouterPath.MainActivity)
-class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
-//    private val testDialog by lazy { TestDialog(this) }
-//    private val testPopup by lazy { TestPopup(this) }
-    private val chatPopup by lazy { ChatPopup(this) }
+class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun initEvent() {
         super.initEvent()
-        binding.btnFileManager.margin(top = getStatusBarHeight())
-        titleBuilder.setTitle(bgColor = 0).getDefault()
-        binding.btnFileManager.click {
-            chatPopup.showDown(it)
+        //通过代码动态重置一下顶部的高度
+        val bgHeight = 328.pt + getStatusBarHeight()
+        binding.ivFundsBg.size(height = bgHeight)
+        binding.llFunds.apply {
+            size(height = bgHeight)
+            padding(top = getStatusBarHeight())
         }
-//        showGuide(
-//             "test", GuidePage
-//                .newInstance()
-//                .addHighLight(binding.btnFileManager)
-//                .setBackgroundColor(color(R.color.black_4c000000))
-//                .setLayoutRes(R.layout.view_guide_simple)
-//        )
+        //全屏的刷新，顶部需要空出导航栏的距离
+        binding.refresh.headerMaxDragRate()
+        //设置头部的滑动监听
+        (binding.refresh.refreshHeader as? ProjectRefreshHeader)?.apply {
+            onDragListener = { isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int ->
+                changeBgHeight(offset)
+            }
+        }
+    }
 
-//        val list = listOf(AutomaticBean(0, "key1", "标题1"), AutomaticBean(1, "key2", "标题2"))
-//        val viewList = list.toNewList { AutomaticBuilder.builder(it).build(this) }
-//        binding.llContainer.removeAllViews()
-//        viewList.forEach {
-//            binding.llContainer.addView(it.getView())
-//        }
-//        binding.btnFileManager.padding()
-//       binding.btnFileManager.click { testDialog.shown() }
-//        val list = listOf(AutomaticBean(0, "key1", "标题1"), AutomaticBean(1, "key2", "标题2"))
-//        GsonUtil.objToJson(list).logWTF
-
-//        val list =
-//            GsonUtil.jsonToList<AutomaticBean>("[{\"key\":\"key1\",\"label\":\"标题1\",\"type\":0},{\"key\":\"key2\",\"label\":\"标题2\",\"type\":1}]")
-//        "${list?.size}".logWTF
+    /**
+     * 滑动时改变对应的图片高度
+     */
+    private fun changeBgHeight(offset: Int) {
+        val imgBgHeight = binding.llFunds.measuredHeight
+        if (imgBgHeight <= 0) return
+        binding.ivFundsBg.pivotY = 0f
+        binding.ivFundsBg.scaleY = offset.toSafeFloat() / imgBgHeight.toSafeFloat() + 1f
     }
 
 }
