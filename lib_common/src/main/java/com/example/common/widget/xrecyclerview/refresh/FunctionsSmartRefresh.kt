@@ -94,7 +94,7 @@ fun SmartRefreshLayout?.noMoreOnInit() {
 fun SmartRefreshLayout?.headerMaxDragRate() {
     this ?: return
     doOnceAfterLayout {
-        (it.refreshHeader as ProjectRefreshHeader?)?.apply {
+        (it.refreshHeader as? ProjectRefreshHeader)?.apply {
             val statusBarHeight = getStatusBarHeight()
             setStatusBarSpacing(statusBarHeight)
             val height = 80.pt + statusBarHeight
