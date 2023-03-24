@@ -4,18 +4,24 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseTitleActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.function.getStatusBarHeight
+import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.margin
 import com.example.mvvm.databinding.ActivityMainBinding
+import com.example.mvvm.widget.ChatPopup
 
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseTitleActivity<ActivityMainBinding>() {
 //    private val testDialog by lazy { TestDialog(this) }
 //    private val testPopup by lazy { TestPopup(this) }
+    private val chatPopup by lazy { ChatPopup(this) }
 
     override fun initEvent() {
         super.initEvent()
         binding.btnFileManager.margin(top = getStatusBarHeight())
         titleBuilder.setTitle(bgColor = 0).getDefault()
+        binding.btnFileManager.click {
+            chatPopup.showDown(it)
+        }
 //        showGuide(
 //             "test", GuidePage
 //                .newInstance()
