@@ -42,7 +42,10 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
         }
     }
 
-    fun setStatusBarPadding(statusBarHeight: Int) {
+    /**
+     * 顶部如果直接是刷新，需要让刷新的头在状态栏下方展示并刷新，故而调用此代码重新设置一下顶部的高度和padding
+     */
+    fun setStatusBarSpacing(statusBarHeight: Int) {
         binding.root.apply {
             size(LayoutParams.MATCH_PARENT, 80.pt + statusBarHeight)
             padding(top = statusBarHeight)
