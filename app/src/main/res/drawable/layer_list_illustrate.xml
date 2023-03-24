@@ -1,6 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 倒三角 -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item>
+        <rotate
+            android:fromDegrees="45"
+            android:pivotX="123%"
+            android:pivotY="19%">
+            <shape android:shape="rectangle">
+                <size
+                    android:width="10pt"
+                    android:height="10pt" />
+                <solid android:color="#0DCCCCCC" />
+            </shape>
+        </rotate>
+    </item>
+    <item>
+        <rotate
+            android:fromDegrees="45"
+            android:pivotX="126%"
+            android:pivotY="18%">
+            <shape android:shape="rectangle">
+                <size
+                    android:width="10pt"
+                    android:height="10pt" />
+                <solid android:color="#10CCCCCC" />
+            </shape>
+        </rotate>
+    </item>
+    <item>
+        <rotate
+            android:fromDegrees="45"
+            android:pivotX="129%"
+            android:pivotY="17%">
+            <shape android:shape="rectangle">
+                <size
+                    android:width="10pt"
+                    android:height="10pt" />
+                <solid android:color="#15CCCCCC" />
+            </shape>
+        </rotate>
+    </item>
+    <item>
+        <rotate
+            android:fromDegrees="45"
+            android:pivotX="132%"
+            android:pivotY="16%">
+            <shape android:shape="rectangle">
+                <size
+                    android:width="10pt"
+                    android:height="10pt" />
+                <solid android:color="#20CCCCCC" />
+            </shape>
+        </rotate>
+    </item>
     <item>
         <rotate
             android:fromDegrees="45"
@@ -8,8 +59,8 @@
             android:pivotY="15%">
             <shape android:shape="rectangle">
                 <size
-                    android:width="15pt"
-                    android:height="15pt" />
+                    android:width="10pt"
+                    android:height="10pt" />
                 <solid android:color="@color/white" />
             </shape>
         </rotate>

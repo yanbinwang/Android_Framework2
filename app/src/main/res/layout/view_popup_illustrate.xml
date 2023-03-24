@@ -22,6 +22,7 @@
             android:id="@+id/view_arrow"
             android:layout_width="30pt"
             android:layout_height="30pt"
+            android:layout_marginTop="-3.5pt"
             android:background="@drawable/layer_list_illustrate"
             tools:layout_marginStart="20pt" />
 
