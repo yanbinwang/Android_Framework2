@@ -205,26 +205,8 @@ object EditTextUtil {
             //idcard,textVisiblePassword
             8, 6 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
             //money
-            7 -> {
-                setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED)
-//                setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
-//                addFilter(object : InputFilter {
-//                    override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence {
-//                        if (source == "." && dest.toString().isEmpty()) return "0."
-//                        if (dest.toString().contains(".")) {
-//                            val index = dest.toString().indexOf(".")
-//                            val length1 = dest.toString().substring(0, index).length
-//                            val length2 = dest.toString().substring(index).length
-//                            if (length1 >= 8 && dstart < index) return ""
-//                            if (length2 >= 3 && dstart > index) return ""
-//                        } else {
-//                            val length1 = dest.toString().length
-//                            if (length1 >= 8 && source != ".") return ""
-//                        }
-//                        return ""
-//                    }
-//                })
-            }
+            7 -> setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED)
+            //text
             else -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL)
         }
     }
