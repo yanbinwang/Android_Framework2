@@ -429,7 +429,8 @@ fun View?.text(): String {
 
 /**
  * 当一个容器内的view在被滑动时，如果执行取消刷新的操作，并不会执行，故而先传递一个取消的事件（模拟手指离开屏幕）
- *
+ * header的onDragListener中关闭refresh的刷新前，先调用取消的action，告知系统手势离开屏幕，然后再关闭
+ * ->(refresh.parent as? ViewGroup)?.dispatchTouchEvent....
  */
 fun ViewGroup?.actionCancel() {
     if (this == null) return
