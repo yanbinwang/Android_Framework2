@@ -8,7 +8,7 @@ import com.example.framework.utils.function.mipmapId
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
-import com.example.framework.utils.function.view.imageResource
+import com.example.framework.utils.function.view.setResource
 import com.example.glide.ImageLoader
 
 /**
@@ -33,7 +33,7 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         holder.itemView.click { onItemClick?.invoke(position.mod(list.safeSize)) }
         val bean = list.safeGet(position.mod(list.safeSize)).orEmpty()
         if (localAsset) {
-            (holder.itemView as ImageView).imageResource(holder.itemView.context.mipmapId(bean))
+            (holder.itemView as ImageView).setResource(holder.itemView.context.mipmapId(bean))
         } else {
             ImageLoader.instance.display((holder.itemView as ImageView), bean)
         }

@@ -42,7 +42,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}): TitleBuilder {
         binding.ivLeft.apply {
             visible()
-            imageResource(resId)
+            setResource(resId)
             if (0 != tintColor) tint(tintColor)
             click { onClick.invoke() }
         }
@@ -52,7 +52,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}): TitleBuilder {
         binding.ivRight.apply {
             visible()
-            imageResource(resId)
+            setResource(resId)
             if (0 != tintColor) tint(tintColor)
             click { onClick.invoke() }
         }
@@ -95,7 +95,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      */
     fun getDefault(): TitleBuilder {
         binding.ivLeft.apply {
-            imageResource(R.mipmap.ic_btn_back)
+            setResource(R.mipmap.ic_btn_back)
             visible()
             click { activity.finish() }
         }

@@ -428,6 +428,15 @@ fun View?.text(): String {
 }
 
 /**
+ * 当一个容器内的view在被滑动时，如果执行取消刷新的操作，并不会执行，故而先传递一个取消的事件（模拟手指离开屏幕）
+ *
+ */
+fun ViewGroup?.actionCancel() {
+    if (this == null) return
+    dispatchTouchEvent(MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
+}
+
+/**
  * 遍历父布局的child，批量隐藏或显示
  */
 fun ViewGroup?.foreachChild(loop: (View) -> Unit) {
@@ -496,7 +505,7 @@ fun ImageView?.tint(@ColorRes res: Int) {
 /**
  * 图片src资源
  */
-fun ImageView?.imageResource(@DrawableRes resId: Int) {
+fun ImageView?.setResource(@DrawableRes resId: Int) {
     this ?: return
     setImageResource(resId)
 }

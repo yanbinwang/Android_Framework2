@@ -31,7 +31,7 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
     init {
         binding.root.size(LayoutParams.MATCH_PARENT, 80.pt)
         binding.ivProgress.let {
-            it.imageResource(R.drawable.animation_list_loadmore)
+            it.setResource(R.drawable.animation_list_loadmore)
             it.tint(R.color.appTheme)
             animation = it.drawable as? AnimationDrawable
         }
