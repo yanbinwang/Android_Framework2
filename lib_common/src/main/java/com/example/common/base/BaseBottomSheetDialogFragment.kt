@@ -7,6 +7,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.ViewDataBinding
@@ -48,6 +49,9 @@ import java.lang.reflect.ParameterizedType
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
+/**
+ * 底部弹框使用的dialog
+ */
 abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
     protected lateinit var binding: VDB
     protected var mContext: Context? = null
@@ -125,7 +129,11 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     }
 
     override fun dismiss() {
-        super.dismissAllowingStateLoss()
+        try {
+            super.dismissAllowingStateLoss()
+        } catch (e: Exception) {
+            e.logE
+        }
     }
 
     override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
@@ -186,6 +194,18 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     override fun GONE(vararg views: View?) {
         views.forEach { it?.gone() }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        //设置软键盘不自动弹出
+        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
+//        //本身完全弹出
+//        (view?.parent as? View)?.let {
+//            runCatching {
+//                BottomSheetBehavior.from(it).peekHeight = screenHeight
+//            }
+//        }
     }
 
     override fun onDestroy() {

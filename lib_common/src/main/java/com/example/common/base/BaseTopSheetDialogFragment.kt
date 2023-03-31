@@ -7,6 +7,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.ViewDataBinding
@@ -130,7 +131,11 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     }
 
     override fun dismiss() {
-        super.dismissAllowingStateLoss()
+        try {
+            super.dismissAllowingStateLoss()
+        } catch (e: Exception) {
+            e.logE
+        }
     }
 
     override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
@@ -191,6 +196,12 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
 
     override fun GONE(vararg views: View?) {
         views.forEach { it?.gone() }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        //设置软键盘不自动弹出
+        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
     }
 
     override fun onDestroy() {
