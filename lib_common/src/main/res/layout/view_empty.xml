@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="@color/black"
+            android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize30"
             android:textStyle="bold"
             tools:text="页面加载失败，请重试" />
@@ -34,7 +34,7 @@
             android:gravity="center"
             android:paddingVertical="10pt"
             android:text="刷新"
-            android:textColor="@color/black"
+            android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize18" />
 
     </LinearLayout>

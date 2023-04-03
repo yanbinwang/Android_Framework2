@@ -18,7 +18,7 @@
         <item name="android:navigationBarColor">@color/appNavigationBar</item>
         <!-- 页面背景色 -->
         <item name="android:windowBackground">@color/appWindowBackground</item>
-        <!-- 控件被选中时的颜色 -->
+        <!-- 控件被选中时的颜色（光标） -->
         <item name="colorAccent">@color/appAccent</item>
         <!-- 控制控件的默认颜色 -->
         <item name="colorControlNormal">@color/appControlNormal</item>

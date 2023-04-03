@@ -12,7 +12,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingHorizontal="12pt"
-            android:textColor="@color/blue_3d81f2"
+            android:textColor="@color/appTheme"
             android:textSize="@dimen/textSize15"
             tools:text="文案文案文案" />
 

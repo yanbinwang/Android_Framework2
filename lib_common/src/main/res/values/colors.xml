@@ -2,14 +2,14 @@
 <resources>
     <!-- app内的一些颜色-->
     <color name="appTheme">#3d81f2</color>
-    <color name="appPrimary">#000000</color>
+    <color name="appPrimary">#333333</color>
     <color name="appPrimaryDark">#ffffff</color>
     <color name="appNavigationBar">#ffffff</color>
     <color name="appWindowBackground">#f6f8ff</color>
     <color name="appAccent">#2e60df</color>
     <color name="appControlNormal">#333333</color>
     <!-- 输入框/显示文本 -->
-    <color name="textPrimary">#3d81f2</color>
+    <color name="textPrimary">#333333</color>
     <color name="textHint">#7F8185</color>
     <color name="textDisabled">#aaa</color>
     <!-- 弹框/默认线条背景 -->
