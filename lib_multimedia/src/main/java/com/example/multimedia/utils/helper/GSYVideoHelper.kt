@@ -100,10 +100,7 @@ class GSYVideoHelper(private val activity: FragmentActivity, layout: FrameLayout
     fun setUrl(url: String, autoPlay: Boolean = false) {
         retryWithPlay = false
         //加载图片
-        try {
-            ImageLoader.instance.displayCover(imgCover, url)
-        } catch (_: Exception) {
-        }
+        ImageLoader.instance.displayCover(imgCover, url)
         if (videoType == VideoType.MOBILE) {
             GSYVideoOptionBuilder()
                 .setIsTouchWiget(false)

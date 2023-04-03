@@ -45,11 +45,14 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun displayCover(view: ImageView, string: String) {
-        Glide.with(view.context)
-            .setDefaultRequestOptions(RequestOptions().frame(1000000).centerCrop())
-            .load(string)
-            .dontAnimate()
-            .into(view)
+        try {
+            Glide.with(view.context)
+                .setDefaultRequestOptions(RequestOptions().frame(1000000).centerCrop())
+                .load(string)
+                .dontAnimate()
+                .into(view)
+        } catch (_: Exception) {
+        }
     }
 
     override fun displayProgress(view: ImageView, string: String, onStart: () -> Unit?, onProgress: (progress: Int?) -> Unit, onComplete: () -> Unit?) {
