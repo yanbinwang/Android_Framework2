@@ -149,7 +149,7 @@ fun <T> ApiResponse<T>?.process(): Boolean {
 }
 
 /**
- * 判断此次请求是否成功
+ * 判断此次请求是否token过期
  */
 fun <T> ApiResponse<T>?.tokenExpired() {
     if (this == null) return
