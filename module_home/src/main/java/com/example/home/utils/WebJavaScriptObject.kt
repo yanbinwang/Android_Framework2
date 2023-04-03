@@ -1,8 +1,7 @@
 package com.example.home.utils
 
-import android.content.Context
 import android.webkit.JavascriptInterface
-import androidx.lifecycle.LifecycleOwner
+import androidx.fragment.app.FragmentActivity
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.toBrowser
 import com.example.framework.utils.function.doOnDestroy
@@ -21,7 +20,7 @@ class WebJavaScriptObject(private val webImpl: WeakReference<WebImpl>) {
     private var job: Job? = null
 
     init {
-        webImpl.get()?.getLifecycleOwner().doOnDestroy { job?.cancel() }
+        webImpl.get()?.getActivity().doOnDestroy { job?.cancel() }
     }
 
     @JavascriptInterface
@@ -45,14 +44,13 @@ class WebJavaScriptObject(private val webImpl: WeakReference<WebImpl>) {
     @JavascriptInterface
     fun download(result: String?) = webImpl.get()?.execute {
         job?.cancel()
-        job = GlobalScope.launch(Main) { getContext().toBrowser(result.orEmpty()) }
+        job = GlobalScope.launch(Main) { getActivity().toBrowser(result.orEmpty()) }
     }
 
 }
 
 interface WebImpl {
-    fun getContext(): Context
-    fun getLifecycleOwner(): LifecycleOwner
+    fun getActivity(): FragmentActivity
     fun getToKolPage()
     fun getBack(result: String?)
 }
