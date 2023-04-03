@@ -16,7 +16,6 @@ import com.example.glide.transform.CornerTransform
 import com.example.glide.transform.ZoomTransform
 import java.io.File
 
-
 /**
  * Created by WangYanBin on 2020/5/29.
  * 图片加载库使用Application上下文，Glide请求将不受Activity/Fragment生命周期控制。
@@ -27,7 +26,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         val instance by lazy { ImageLoader() }
     }
 
-    override fun displayZoom(view: ImageView, string: String?, onStart: () -> Unit?, onComplete: (bitmap: Bitmap?) -> Unit?) {
+    override fun displayZoom(view: ImageView, string: String, onStart: () -> Unit?, onComplete: (bitmap: Bitmap?) -> Unit?) {
         Glide.with(view.context)
             .asBitmap()
             .load(string)
@@ -45,7 +44,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(ZoomTransform(view))
     }
 
-    override fun displayCover(view: ImageView, string: String?) {
+    override fun displayCover(view: ImageView, string: String) {
         Glide.with(view.context)
             .setDefaultRequestOptions(RequestOptions().frame(1000000).centerCrop())
             .load(string)
@@ -71,7 +70,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun display(view: ImageView, string: String?, placeholderId: Int, errorId: Int, onStart: () -> Unit?, onComplete: (drawable: Drawable?) -> Unit?) {
+    override fun display(view: ImageView, string: String, placeholderId: Int, errorId: Int, onStart: () -> Unit?, onComplete: (drawable: Drawable?) -> Unit?) {
 //        val factory = DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
 //        Glide.with(view.context)
 //            .load(string)
@@ -105,7 +104,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun display(view: ImageView, resourceId: Int?, placeholderId: Int, errorId: Int, onStart: () -> Unit?, onComplete: (drawable: Drawable?) -> Unit?) {
+    override fun display(view: ImageView, resourceId: Int, placeholderId: Int, errorId: Int, onStart: () -> Unit?, onComplete: (drawable: Drawable?) -> Unit?) {
         Glide.with(view.context)
             .load(resourceId)
             .placeholder(placeholderId)
@@ -123,7 +122,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayRound(view: ImageView, string: String?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
+    override fun displayRound(view: ImageView, string: String, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
 //        Glide.with(view.context)
 //            .load(string)
 //            .apply(RequestOptions.bitmapTransform(RoundedCorners(roundingRadius)))
@@ -142,7 +141,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayRound(view: ImageView, resourceId: Int?, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
+    override fun displayRound(view: ImageView, resourceId: Int, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
         val transformation = CornerTransform(view.context, roundingRadius.toSafeFloat())
         transformation.setExceptCorner(overRide[0], overRide[1], overRide[2], overRide[3])
         Glide.with(view.context)
@@ -154,7 +153,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayCircle(view: ImageView, string: String?, errorId: Int) {
+    override fun displayCircle(view: ImageView, string: String, errorId: Int) {
         Glide.with(view.context)
             .load(string)
             .apply(RequestOptions.circleCropTransform())
@@ -164,7 +163,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayCircle(view: ImageView, resourceId: Int?, errorId: Int) {
+    override fun displayCircle(view: ImageView, resourceId: Int, errorId: Int) {
         Glide.with(view.context)
             .load(resourceId)
             .apply(RequestOptions.circleCropTransform())
@@ -174,7 +173,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun download(context: Context, string: String?, onStart: () -> Unit?, onComplete: (file: File?) -> Unit?) {
+    override fun download(context: Context, string: String, onStart: () -> Unit?, onComplete: (file: File?) -> Unit?) {
 //        //创建保存的文件目录
 //        val destFile = File(FileUtil.isMkdirs(Constants.APPLICATION_FILE_PATH + "/图片"))
 //        //下载对应的图片文件
