@@ -2,7 +2,6 @@ package com.example.multimedia.utils
 
 import android.content.Context
 import android.media.MediaPlayer
-import android.provider.MediaStore
 import com.example.common.config.Constants
 import com.example.common.utils.helper.AccountHelper
 import com.example.framework.utils.function.value.convert
@@ -23,7 +22,7 @@ object MultimediaUtil {
     /**
      * 获取对应文件类型的存储地址
      */
-    fun getOutputFile(mimeType: Int): File? {
+    fun getOutputFile(mimeType: MediaType): File? {
         if (!hasSdcard()) {
             "未找到手机sd卡".logE(TAG)
             return null
@@ -32,14 +31,13 @@ object MultimediaUtil {
         val storage = "${Constants.APPLICATION_PATH}/证据文件/${AccountHelper.getUserId()}/"
         val storageInfo = when (mimeType) {
             //拍照/抓拍
-            MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE -> "${storage}拍照取证" to "jpg"
+            MediaType.IMAGE -> "${storage}拍照取证" to "jpg"
             //录像
-            MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO -> "${storage}录像取证" to "mp4"
+            MediaType.VIDEO -> "${storage}录像取证" to "mp4"
             //录音
-            MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO -> "${storage}录音取证" to "wav"
+            MediaType.AUDIO -> "${storage}录音取证" to "wav"
             //录屏
-            MediaStore.Files.FileColumns.MEDIA_TYPE_PLAYLIST -> "${storage}录屏取证" to "mp4"
-            else -> "" to ""
+            MediaType.SCREEN -> "${storage}录屏取证" to "mp4"
         }
         //先在包名目录下建立对应类型的文件夹，构建失败直接返回null
         val storageDir = File(storageInfo.first)
@@ -76,4 +74,11 @@ fun String?.getDuration(): Int {
     val duration = (time / 1000)
     "文件时长：${duration}秒".logE(TAG)
     return duration
+}
+
+/**
+ * 定义传入的枚举类型
+ */
+enum class MediaType {
+    IMAGE, VIDEO, AUDIO, SCREEN
 }
