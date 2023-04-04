@@ -40,6 +40,7 @@ import com.example.framework.utils.function.view.*
 import com.example.framework.utils.logE
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
@@ -61,6 +62,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
     private var showTime = 0L
     private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving
+    private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
     private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }
     private val job = SupervisorJob()
@@ -87,6 +89,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
+        if (isImmersionBarEnabled()) initImmersionBar()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -227,11 +230,23 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         }
     }
 
+    protected open fun isImmersionBarEnabled(): Boolean {
+        return false
+    }
+
     override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
         return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
     }
 
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
+        immersionBar?.apply {
+            reset()
+            //如果当前设备支持状态栏字体变色，会设置状态栏字体为黑色
+            //如果当前设备不支持状态栏字体变色，会使当前状态栏加上透明度，否则不执行透明度
+            statusBarDarkFont(titleDark, 0.2f)
+            navigationBarColor(navigationBarColor)?.navigationBarDarkIcon(naviTrans, 0.2f)
+            init()
+        }
     }
 
     override fun initView() {

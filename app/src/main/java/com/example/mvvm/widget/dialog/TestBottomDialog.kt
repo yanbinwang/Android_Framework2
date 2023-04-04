@@ -8,4 +8,12 @@ import com.example.mvvm.databinding.ViewDialogTestBottomBinding
  * @author
  */
 class TestBottomDialog : BaseBottomSheetDialogFragment<ViewDialogTestBottomBinding>() {
+
+    override fun isImmersionBarEnabled() = true
+
+    override fun initView() {
+        super.initView()
+        initImmersionBar(false,false)
+    }
+
 }

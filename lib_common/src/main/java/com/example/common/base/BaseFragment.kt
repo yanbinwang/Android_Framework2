@@ -82,6 +82,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
+        if (isImmersionBarEnabled()) initImmersionBar()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -106,6 +107,10 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         initView()
         initEvent()
         if (!lazyData) initData()
+    }
+
+    protected open fun isImmersionBarEnabled(): Boolean {
+        return false
     }
 
     override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
