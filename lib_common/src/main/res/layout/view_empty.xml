@@ -10,9 +10,9 @@
 
         <ImageView
             android:id="@+id/iv_empty"
-            android:layout_width="480pt"
-            android:layout_height="450pt"
-            android:layout_marginBottom="30pt"
+            android:layout_width="240pt"
+            android:layout_height="225pt"
+            android:layout_marginBottom="15pt"
             tools:src="@mipmap/img_data_error" />
 
         <TextView
@@ -21,18 +21,18 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textColor="@color/textPrimary"
-            android:textSize="@dimen/textSize30"
+            android:textSize="@dimen/textSize15"
             android:textStyle="bold"
             tools:text="页面加载失败，请重试" />
 
         <TextView
             android:id="@+id/tv_refresh"
-            android:layout_width="120pt"
+            android:layout_width="60pt"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20pt"
+            android:layout_marginTop="10pt"
             android:background="@drawable/shape_empty_btn"
             android:gravity="center"
-            android:paddingVertical="10pt"
+            android:paddingVertical="5pt"
             android:text="刷新"
             android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize18" />

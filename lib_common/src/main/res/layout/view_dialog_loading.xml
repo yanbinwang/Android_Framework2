@@ -3,14 +3,14 @@
 
     <FrameLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingVertical="10pt">
 
         <ProgressBar
             android:id="@+id/pb_process"
-            android:layout_width="26pt"
-            android:layout_height="26pt"
+            android:layout_width="25pt"
+            android:layout_height="25pt"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="30pt"
             android:indeterminate="false"
             android:indeterminateDrawable="@drawable/layer_list_loading"
             android:indeterminateOnly="false" />
@@ -19,13 +19,12 @@
             android:id="@+id/tv_msg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="210pt"
-            android:layout_marginBottom="20pt"
+            android:layout_marginTop="30pt"
             android:gravity="center"
-            android:paddingHorizontal="50pt"
+            android:paddingHorizontal="15pt"
             android:text="@string/label_loading"
             android:textColor="@color/blue_2e60df"
-            android:textSize="@dimen/textSize26" />
+            android:textSize="@dimen/textSize13" />
 
     </FrameLayout>
 

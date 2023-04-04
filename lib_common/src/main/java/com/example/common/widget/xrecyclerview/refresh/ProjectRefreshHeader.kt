@@ -34,7 +34,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
-        binding.root.size(LayoutParams.MATCH_PARENT, 80.pt)
+        binding.root.size(LayoutParams.MATCH_PARENT, 40.pt)
         binding.ivProgress.let {
             it.setResource(R.drawable.animation_list_loading)
             it.tint(R.color.appTheme)

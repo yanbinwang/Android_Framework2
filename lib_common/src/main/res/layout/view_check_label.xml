@@ -17,6 +17,7 @@
             android:id="@+id/tv_label"
             android:layout_width="0pt"
             android:layout_height="match_parent"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/ck" />
 
