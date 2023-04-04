@@ -21,7 +21,7 @@ import java.util.*
  * @description 密码显影输入框
  * @author yan
  */
-class PasswordEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
+class PasswordEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
     private var isShowBtn = true
     private var hideRes = -1
     private var showRes = -1

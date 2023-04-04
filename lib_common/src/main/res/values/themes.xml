@@ -122,6 +122,21 @@
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
+    <!--底部弹出样式 -->
+    <style name="TransparentBottomSheetStyle" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/SheetStyle</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:statusBarColor" tools:ignore="NewApi">@android:color/transparent</item>
+    </style>
+
+    <style name="SheetStyle" parent="android:Widget">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="behavior_peekHeight">auto</item>
+        <item name="behavior_hideable">true</item>
+        <item name="behavior_skipCollapsed">true</item>
+    </style>
+
     <!-- 数据请求的动画样式 -->
     <style name="LoadingStyle" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowFrame">@null</item>

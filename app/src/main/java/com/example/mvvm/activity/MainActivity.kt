@@ -13,10 +13,12 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.automatic.IllustratePopup
+import com.example.mvvm.widget.dialog.TestBottomDialog
 
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>() {
-    private val illustratePopup by lazy { IllustratePopup(this) }
+//    private val illustratePopup by lazy { IllustratePopup(this) }
+    private val testBottom by lazy { TestBottomDialog() }
 
     override fun initEvent() {
         super.initEvent()
@@ -36,7 +38,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             }
         }
         binding.viewContent.click {
-            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
+            testBottom.show(supportFragmentManager,"testBottom")
+//            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
         }
     }
 
