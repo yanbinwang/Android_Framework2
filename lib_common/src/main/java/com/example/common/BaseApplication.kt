@@ -5,15 +5,24 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkRequest
+import android.view.Gravity
+import android.widget.TextView
+import android.widget.Toast
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
 import com.example.common.base.proxy.NetworkCallbackImpl
 import com.example.common.base.proxy.NetworkReceiver
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
+import com.example.common.utils.builder.ToastBuilder
+import com.example.common.utils.function.pt
 import com.example.common.utils.helper.ConfigHelper
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
+import com.example.framework.utils.function.string
+import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.textColor
+import com.example.framework.utils.function.view.textSize
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
 import me.jessyan.autosize.AutoSizeConfig
@@ -69,6 +78,43 @@ open class BaseApplication : Application() {
         }
         SmartRefreshLayout.setDefaultRefreshFooterCreator { context, _ ->
             ProjectRefreshFooter(context)
+        }
+        //全局toast
+        ToastBuilder.setResToastBuilder { message, length ->
+            val toast = Toast(instance)
+            //设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位，
+            toast.setGravity(Gravity.CENTER, 0, 0)
+            //设置显示时间
+            toast.duration = length
+            val view = TextView(instance)
+            view.text = string(message)
+            view.setBackgroundResource(R.drawable.shape_toast_bg)
+            view.minHeight = 40.pt
+            view.minWidth = 190.pt
+            view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
+            view.gravity = Gravity.CENTER
+            view.textSize(R.dimen.textSize14)
+            view.textColor(R.color.white)
+            toast.view = view
+            return@setResToastBuilder toast
+        }
+        ToastBuilder.setStringToastBuilder { message, length ->
+            val toast = Toast(instance)
+            //设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位，
+            toast.setGravity(Gravity.CENTER, 0, 0)
+            //设置显示时间
+            toast.duration = length
+            val view = TextView(instance)
+            view.text = message
+            view.setBackgroundResource(R.drawable.shape_toast_bg)
+            view.minHeight = 40.pt
+            view.minWidth = 190.pt
+            view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
+            view.gravity = Gravity.CENTER
+            view.textSize(R.dimen.textSize14)
+            view.textColor(R.color.white)
+            toast.view = view
+            return@setStringToastBuilder toast
         }
     }
 
