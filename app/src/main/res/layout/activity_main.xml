@@ -9,7 +9,7 @@
         <ImageView
             android:id="@+id/iv_funds_bg"
             android:layout_width="match_parent"
-            android:layout_height="328pt"
+            android:layout_height="164pt"
             android:scaleType="fitXY"
             android:src="@mipmap/img_funds" />
 
@@ -34,51 +34,51 @@
                     <LinearLayout
                         android:id="@+id/ll_funds"
                         android:layout_width="match_parent"
-                        android:layout_height="328pt"
+                        android:layout_height="164pt"
                         android:orientation="vertical"
-                        android:paddingHorizontal="30pt">
+                        android:paddingHorizontal="15pt">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="24pt"
+                            android:layout_marginTop="12pt"
                             android:text="Total assets converted(USDT)"
                             android:textColor="@color/grey_a8a5a5"
-                            android:textSize="24pt" />
+                            android:textSize="12pt" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4pt"
+                            android:layout_marginTop="2pt"
                             android:text="232,232,212.00"
                             android:textColor="@color/grey_333333"
-                            android:textSize="56pt" />
+                            android:textSize="28pt" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6pt"
+                            android:layout_marginTop="3pt"
                             android:text="≈ ₹0.00"
                             android:textColor="@color/grey_a8a5a5"
-                            android:textSize="30pt" />
+                            android:textSize="15pt" />
 
                         <View
                             android:id="@+id/view_content"
                             android:layout_width="match_parent"
-                            android:layout_height="76pt"
-                            android:layout_marginTop="30pt"
+                            android:layout_height="38pt"
+                            android:layout_marginTop="15pt"
                             android:background="@color/blue_1566ec" />
 
                     </LinearLayout>
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="1600pt"
+                        android:layout_height="800pt"
                         android:background="@color/black"
                         android:gravity="center"
                         android:text="底部内容"
                         android:textColor="@color/white"
-                        android:textSize="58pt" />
+                        android:textSize="29pt" />
 
                 </LinearLayout>
 

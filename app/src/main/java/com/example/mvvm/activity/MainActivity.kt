@@ -14,16 +14,17 @@ import com.example.framework.utils.function.view.size
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.automatic.IllustratePopup
 import com.example.mvvm.widget.dialog.TestBottomDialog
+import com.example.mvvm.widget.dialog.TestTopDialog
 
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>() {
 //    private val illustratePopup by lazy { IllustratePopup(this) }
-    private val testBottom by lazy { TestBottomDialog() }
+    private val testBottom by lazy { TestTopDialog() }
 
     override fun initEvent() {
         super.initEvent()
         //通过代码动态重置一下顶部的高度
-        val bgHeight = 328.pt + getStatusBarHeight()
+        val bgHeight = 164.pt + getStatusBarHeight()
         binding.ivFundsBg.size(height = bgHeight)
         binding.llFunds.apply {
             size(height = bgHeight)
