@@ -91,6 +91,8 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        //设置软键盘不自动弹出
+        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
         if (Looper.getMainLooper() == Looper.myLooper()) {
             AutoSizeConfig.getInstance()
                 .setScreenWidth(screenWidth)

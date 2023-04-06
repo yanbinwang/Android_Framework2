@@ -66,11 +66,10 @@ dependencies {
     testImplementation "junit:junit:$build_versions.junit"
     androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
-    //xwebview的jar
-    api files('libs/top_sheet.jar')
     //框架库
     api project(':lib_framework')
     api project(':lib_glide')
+    api project(':lib_topsheet')
     //网络请求
     api deps.retrofit2.retrofit
     api deps.retrofit2.converter_gson
