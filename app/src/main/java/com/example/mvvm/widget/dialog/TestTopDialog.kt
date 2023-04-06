@@ -9,7 +9,6 @@ import com.example.mvvm.databinding.ViewDialogTestTopBinding
  * @author
  */
 class TestTopDialog : BaseTopSheetDialogFragment<ViewDialogTestTopBinding>() {
-    override fun isImmersionBarEnabled(): Boolean {
-        return true
-    }
+
+
 }
