@@ -89,7 +89,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
-        if (isImmersionBarEnabled()) initImmersionBar()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -228,10 +227,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         } catch (e: Exception) {
             e.logE
         }
-    }
-
-    protected open fun isImmersionBarEnabled(): Boolean {
-        return false
     }
 
     override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
