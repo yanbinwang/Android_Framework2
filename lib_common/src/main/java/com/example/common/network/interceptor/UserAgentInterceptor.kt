@@ -1,7 +1,7 @@
 package com.example.common.network.interceptor
 
 import android.os.Build
-import android.util.ArrayMap
+import com.example.common.utils.helper.AccountHelper
 import okhttp3.Headers
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -22,17 +22,23 @@ internal class UserAgentInterceptor : Interceptor {
     }
 
     private fun defaultHeaders(): Headers {
-//        val token: String? = AccountHelper.getToken()//取得本地token
-//        if (!TextUtils.isEmpty(token)) {
-//            params["Authorization"] = "basic $token"
+////        val token: String? = AccountHelper.getToken()//取得本地token
+////        if (!TextUtils.isEmpty(token)) {
+////            params["Authorization"] = "basic $token"
+////        }
+//        val params = ArrayMap<String, String>()
+//        params["system-name"] = "Android"
+//        params["phone-model"] = Build.MODEL
+//        val builder = Headers.Builder()
+//        for (key in params.keys) {
+//            builder.add(key, params[key].orEmpty())
 //        }
-        val params = ArrayMap<String, String>()
-        params["system-name"] = "Android"
-        params["phone-model"] = Build.MODEL
+//        return builder.build()
         val builder = Headers.Builder()
-        for (key in params.keys) {
-            builder.add(key, params[key].orEmpty())
-        }
+        builder.add("system-name", "Android")
+        builder.add("phone-model", Build.MODEL)
+        //取得本地token
+        AccountHelper.getToken()?.apply { if (!isNullOrEmpty()) builder.add("Authorization-model", "basic $this") }
         return builder.build()
     }
 }
