@@ -6,9 +6,9 @@
 
     <!-- app内的默认单位 -->
     <string name="unit_no_data">--</string>
-    <string name="unit_no_data_dollar">$--</string>
-    <string name="unit_no_data_percent">--%</string>
-    <string name="unit_dollar">\$%1$s</string>
+<!--    <string name="unit_no_data_dollar">$&#45;&#45;</string>-->
+<!--    <string name="unit_no_data_percent">&#45;&#45;%</string>-->
+<!--    <string name="unit_dollar">\$%1$s</string>-->
 
     <!-- 权限库的的提示语句 -->
     <string name="label_permission">缺少%1$s,请前往设置页面开启</string>

@@ -15,7 +15,10 @@ import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
-import com.example.common.utils.function.*
+import com.example.common.utils.function.getStatusBarHeight
+import com.example.common.utils.function.load
+import com.example.common.utils.function.orNoData
+import com.example.common.utils.function.setSpanFirst
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.function.value.*
 import com.example.framework.utils.function.view.*
@@ -152,12 +155,7 @@ object BaseBindingAdapter {
         if (!text.isNullOrEmpty()) {
             textview.text = if(2 == type) text.removeEndZero().thousandsFormat() else text
         } else {
-            textview.text = when (type) {
-                0 -> text.orEmpty()
-                1 -> text.orNoData()
-                2 -> text.orNoDollar()
-                else -> text.orNoPercent()
-            }
+            textview.text = text.orNoData()
         }
     }
 
