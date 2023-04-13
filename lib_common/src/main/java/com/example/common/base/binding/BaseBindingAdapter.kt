@@ -17,9 +17,7 @@ import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.utils.function.*
 import com.example.common.widget.xrecyclerview.XRecyclerView
-import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orTrue
-import com.example.framework.utils.function.value.toSafeInt
+import com.example.framework.utils.function.value.*
 import com.example.framework.utils.function.view.*
 import com.example.framework.utils.scaleShown
 
@@ -136,19 +134,31 @@ object BaseBindingAdapter {
      * key_text：高亮文本
      * key_color：高亮文本颜色
      * is_match_text：文字是否撑满宽度（textview本身有一定的padding且会根据内容自动换行）
-     * empty_type：0：默认 1：数据空 2：金额空 3：%空
      */
-    @BindingAdapter(value = ["text", "key_text", "key_color", "is_match_text", "empty_type"], requireAll = false)
-    fun bindingTextViewSpanFirst(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isMatchText: Boolean?, emptyType: Int?) {
-        if (!text.isNullOrEmpty() && !keyText.isNullOrEmpty()) textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.appTheme)) else {
-            textview.text = when (emptyType.toSafeInt()) {
+    @BindingAdapter(value = ["text", "key_text", "key_color", "is_match_text", "text_type"], requireAll = false)
+    fun bindingTextViewSpanFirst(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isMatchText: Boolean?) {
+        if (!text.isNullOrEmpty() && !keyText.isNullOrEmpty()) textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.appTheme))
+        if (isMatchText.orFalse) textview.setMatchText()
+    }
+
+    /**
+     * 特殊文本显示文本
+     * text:文本
+     * text_type：0：默认 1：数据空 2：金额空 3：%空
+     */
+    @BindingAdapter(value = ["text", "text_type"], requireAll = false)
+    fun bindingTextViewText(textview: TextView, text: String?, textType: Int?) {
+        val type = textType.toSafeInt()
+        if (!text.isNullOrEmpty()) {
+            textview.text = if(2 == type) text.removeEndZero().thousandsFormat() else text
+        } else {
+            textview.text = when (type) {
                 0 -> text.orEmpty()
                 1 -> text.orNoData()
                 2 -> text.orNoDollar()
                 else -> text.orNoPercent()
             }
         }
-        if (isMatchText.orFalse) textview.setMatchText()
     }
 
     /**
