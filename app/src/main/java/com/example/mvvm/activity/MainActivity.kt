@@ -3,6 +3,7 @@ package com.example.mvvm.activity
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
+import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
@@ -39,7 +40,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             }
         }
         binding.viewContent.click {
-            testBottom.show(supportFragmentManager,"testBottom")
+            "dsfdsfdsfds".shortToast()
+//            testBottom.show(supportFragmentManager,"testBottom")
 //            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
         }
     }

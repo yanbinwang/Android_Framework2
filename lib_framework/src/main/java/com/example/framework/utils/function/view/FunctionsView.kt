@@ -1,5 +1,7 @@
 package com.example.framework.utils.function.view
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Paint
@@ -372,6 +374,24 @@ fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
         override fun onAnimationRepeat(animation: Animation?) {}
     })
     startAnimation(anim)
+}
+
+/**
+ * 旋轉
+ */
+fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
+    if (this == null) return
+    if (cancelAnim) {
+        cancelAnim()
+    } else if (animation != null) {
+        if (animation.hasStarted() && !animation.hasEnded()) {
+            return
+        }
+    }
+    val refresh = AnimatorSet()
+    refresh.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f))
+    refresh.duration = time
+    refresh.start()
 }
 
 /**
