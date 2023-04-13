@@ -28,7 +28,7 @@ object MultimediaUtil {
             return null
         }
         //根据类型在sd卡picture目录下建立对应app名称的对应类型文件
-        val storage = "${Constants.APPLICATION_PATH}/证据文件/${AccountHelper.getUserId()}/"
+        val storage = "${Constants.APPLICATION_PATH}/手机文件/${AccountHelper.getUserId()}/"
         val storageInfo = when (mimeType) {
             //拍照/抓拍
             MediaType.IMAGE -> "${storage}拍照取证" to "jpg"

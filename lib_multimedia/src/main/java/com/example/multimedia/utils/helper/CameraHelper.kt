@@ -1,12 +1,13 @@
 package com.example.multimedia.utils.helper
 
 import android.media.MediaActionSound
-import android.provider.MediaStore
 import android.widget.FrameLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.shortToast
+import com.example.multimedia.utils.MediaType.IMAGE
+import com.example.multimedia.utils.MediaType.VIDEO
 import com.example.multimedia.utils.MultimediaUtil
 import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.CameraView
@@ -91,7 +92,7 @@ class CameraHelper(private val layout: FrameLayout) : LifecycleEventObserver {
                 override fun onPictureTaken(result: PictureResult) {
                     super.onPictureTaken(result)
                     //在sd卡的Picture文件夹下创建对应的文件
-                    MultimediaUtil.getOutputFile(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE).apply {
+                    MultimediaUtil.getOutputFile(IMAGE).apply {
                         if (null != this) {
                             result.toFile(this) { if (null != it) onSuccess(it) else onFailed() }
                         } else {
@@ -110,7 +111,7 @@ class CameraHelper(private val layout: FrameLayout) : LifecycleEventObserver {
                 return
             }
             val videoFile =
-                MultimediaUtil.getOutputFile(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO)
+                MultimediaUtil.getOutputFile(VIDEO)
             if (null != videoFile) {
                 onStart()
                 if (snapshot) takeVideoSnapshot(videoFile) else takeVideo(videoFile)
