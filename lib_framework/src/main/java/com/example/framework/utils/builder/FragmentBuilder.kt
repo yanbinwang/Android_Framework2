@@ -42,16 +42,13 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     private val list by lazy { ArrayList<Fragment>() }
     var onTabShow: ((tab: Int) -> Unit)? = null
 
-    init {
-        list.clear()
-    }
-
     /**
      *  HomeFragment::class.java.getPair()
      *  first：class名
      *  second：tag值，不传默认为class名
      */
     fun bind(clazzPair: List<Pair<Class<*>, String>>) {
+        this.list.clear()
         this.arguments = false
         this.clazzPair = clazzPair
         selectTab(0)
@@ -64,6 +61,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      * third：内存中存储的tag
      */
     fun bindArguments(clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>) {
+        this.list.clear()
         this.arguments = true
         this.clazzTriple = clazzTriple
         selectTab(0)
