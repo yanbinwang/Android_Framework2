@@ -21,7 +21,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.CoroutineStart.LAZY
 import kotlinx.coroutines.Dispatchers.Main
 import org.greenrobot.eventbus.Subscribe
-import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -35,27 +34,27 @@ import kotlin.coroutines.EmptyCoroutineContext
 @SuppressLint("StaticFieldLeak")
 abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakActivity: WeakReference<FragmentActivity>? = null//引用的activity
-    private var softView: SoftReference<BaseView>? = null//基础UI操作
+    private var weakView: WeakReference<BaseView>? = null//基础UI操作
 
     //部分view的操作交予viewmodel去操作，不必让activity去操作
-    private var softEmpty: SoftReference<EmptyLayout>? = null//遮罩UI
-    private var softRecycler: SoftReference<XRecyclerView>? = null//列表UI
-    private var softRefresh: SoftReference<SmartRefreshLayout>? = null//刷新控件
+    private var weakEmpty: WeakReference<EmptyLayout>? = null//遮罩UI
+    private var weakRecycler: WeakReference<XRecyclerView>? = null//列表UI
+    private var weakRefresh: WeakReference<SmartRefreshLayout>? = null//刷新控件
 
     //基础的注入参数
     protected val activity: FragmentActivity get() = weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity()
     protected val context: Context get() = activity
-    protected val view: BaseView? get() = softView?.get()
+    protected val view: BaseView? get() = weakView?.get()
 
     //获取对应的控件
-    val emptyView: EmptyLayout? get() = softEmpty?.get()
-    val recyclerView: XRecyclerView? get() = softRecycler?.get()
-    val refreshLayout: SmartRefreshLayout? get() = softRefresh?.get()
+    val emptyView: EmptyLayout? get() = weakEmpty?.get()
+    val recyclerView: XRecyclerView? get() = weakRecycler?.get()
+    val refreshLayout: SmartRefreshLayout? get() = weakRefresh?.get()
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
         this.weakActivity = WeakReference(activity)
-        this.softView = SoftReference(view)
+        this.weakView = WeakReference(view)
     }
 
     /**
@@ -64,16 +63,16 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 其余页面外层写FrameLayout，套上要使用的布局后再initView中调用该方法
      */
     fun setEmptyView(viewGroup: ViewGroup) {
-        this.softEmpty = SoftReference(viewGroup.getEmptyView())
+        this.weakEmpty = WeakReference(viewGroup.getEmptyView())
     }
 
     fun setRecyclerView(recycler: XRecyclerView) {
-        this.softEmpty = SoftReference(recycler.empty)
-        this.softRecycler = SoftReference(recycler)
+        this.weakEmpty = WeakReference(recycler.empty)
+        this.weakRecycler = WeakReference(recycler)
     }
 
     fun setRefreshLayout(refresh: SmartRefreshLayout) {
-        this.softRefresh = SoftReference(refresh)
+        this.weakRefresh = WeakReference(refresh)
     }
 
     /**
@@ -143,10 +142,10 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     override fun onCleared() {
         super.onCleared()
         weakActivity?.clear()
-        softView?.clear()
-        softEmpty?.clear()
-        softRecycler?.clear()
-        softRefresh?.clear()
+        weakView?.clear()
+        weakEmpty?.clear()
+        weakRecycler?.clear()
+        weakRefresh?.clear()
     }
     // </editor-fold>
 
