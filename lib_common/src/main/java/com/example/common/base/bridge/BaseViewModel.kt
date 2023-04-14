@@ -112,40 +112,23 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         }
     }
 
-//    /**
-//     * 串行发起多个网络请求
-//     * 多个网络请求之间并无关联，可以使用此方法
-//     */
-//    protected fun launch(
-//        requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
-//        end: (result: MutableList<Any?>?) -> Unit = {},
-//        isShowDialog: Boolean = false,
-//        isClose: Boolean = true
-//    ): Job {
-//        if (isShowDialog) view?.showDialog()
-//        return launch(Main) {
-//            request(requests) {
-//                if (isShowDialog || isClose) view?.hideDialog()
-//                end(it)
-//            }
-//        }
-//    }
-
     /**
      * 不做回调，直接得到结果
      * 在不调用await（）方法时可以当一个参数写，调用了才会发起请求并拿到结果
-     * //並發
+     * //并发
      * launch{
-     *   val task1 = async { req.request(model.getUserData()) }
-     *   val task2 = async { req.request(model.getUserData()) }
+     *   val task1 = async({ req.request(model.getUserData() })
+     *   val task2 = async({ req.request(model.getUserData() })
      *   //.....對象的處理
-     *   //並發請求
-     *   awaitAll(task1,task2)
+     *   //并发請求
+     *   val taskList = awaitAll(task1, task2)
+     *   taskList.safeGet(0)
+     *   taskList.safeGet(1)
      * }
      * //串行
      * launch{
-     *    val task1 = request { (model.getUserData()) }
-     *    val task2 = request { (model.getUserData()) }
+     *    val task1 = request({ model.getUserData() })
+     *    val task2 = request({ model.getUserData() })
      * }
      */
     protected fun <T> async(

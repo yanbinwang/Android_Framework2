@@ -69,8 +69,8 @@ suspend fun <T> request(
  * 网络请求协程扩展-直接获取到对象
  * 如果几个以上的请求，互相之间有关联，则使用当前方法
  * launch {
- *  val req1 = request(1api)
- *  val req2 = request(2api)
+ *  val task1 = request(1api)
+ *  val task2 = request(2api)
  * }
  */
 suspend fun <T> request(
@@ -83,47 +83,6 @@ suspend fun <T> request(
     }, isShowToast = isShowToast)
     return t
 }
-
-///**
-// * 网络请求协程扩展-串行请求
-// * 几个以上的挂起方法套在一个launch或async内都会是串行请求
-// * 如项目中触发多个请求，并且毫无关联，则可以使用当前扩展，只有开始和完成
-// * launch {
-// * request({},
-// * arrayOf({AccountSubscribe.getAuthInfoApi()},{AccountSubscribe.getAuthInfoApi()}),
-// * end = {
-// * })
-// * }
-// */
-//suspend fun request(
-//    requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
-//    end: (result: MutableList<Any?>?) -> Unit = {}
-//) {
-//    val respList = ArrayList<Any?>()
-//    try {
-//        withContext(IO) {
-//            log("串行请求开始时间：${System.nanoTime()}")
-//            for (req in requests) {
-//                log("请求${req}执行时间：${System.nanoTime()}")
-//                val data = req()
-//                if (data.process()) {
-//                    val body = data.response()
-//                    respList.add(body)
-//                    log("请求${req}执行结果：${GsonUtil.objToJson(body ?: Any())}")
-//                } else {
-//                    log("请求${req}执行结果：返回参数非200，中断执行")
-//                    break
-//                }
-//            }
-//        }
-//    } catch (e: Exception) {
-//        log("串行请求返回结果：接口执行中出现异常")
-//    } finally {
-//        //如果返回的对象长度和发起的请求长度是一样的，说明此次串行都执行成功，直接拿取集合即可,其中一条失败就返回空
-//        log("串行请求返回结果:${respList.size == requests.size}")
-//        end(if (respList.size == requests.size) respList else null)
-//    }
-//}
 
 private fun log(msg: String) = "${msg}\n当前线程：${Thread.currentThread().name}".logE("repository")
 
