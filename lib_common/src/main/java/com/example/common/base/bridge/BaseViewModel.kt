@@ -47,9 +47,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val view: BaseView? get() = weakView?.get()
 
     //获取对应的控件
-    val emptyView: EmptyLayout? get() = weakEmpty?.get()
-    val recyclerView: XRecyclerView? get() = weakRecycler?.get()
-    val refreshLayout: SmartRefreshLayout? get() = weakRefresh?.get()
+    val emptyView get() = weakEmpty?.get()
+    val recyclerView get() = weakRecycler?.get()
+    val refreshLayout get() = weakRefresh?.get()
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
