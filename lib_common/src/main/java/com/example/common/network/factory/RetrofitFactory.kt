@@ -1,6 +1,6 @@
 package com.example.common.network.factory
 
-import com.example.common.BuildConfig
+import com.example.common.config.ServerConfig
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -15,7 +15,7 @@ class RetrofitFactory private constructor() {
     private val serverRetrofit by lazy {
         Retrofit.Builder()
             .client(OkHttpFactory.instance.okHttpClient)
-            .baseUrl(BuildConfig.LOCALHOST)
+            .baseUrl(ServerConfig.serverUrl())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -29,7 +29,7 @@ class RetrofitFactory private constructor() {
                     .readTimeout(2, TimeUnit.HOURS)//设置读超时
                     .retryOnConnectionFailure(true)
                     .build())
-            .baseUrl(BuildConfig.LOCALHOST)
+            .baseUrl(ServerConfig.serverUrl())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

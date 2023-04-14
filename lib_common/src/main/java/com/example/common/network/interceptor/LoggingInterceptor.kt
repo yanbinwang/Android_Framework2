@@ -1,7 +1,7 @@
 package com.example.common.network.interceptor
 
+import com.example.common.config.ServerConfig
 import com.example.framework.utils.LogUtil
-import com.example.common.BuildConfig
 import okhttp3.Headers
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -30,7 +30,7 @@ internal class LoggingInterceptor : Interceptor {
         val requestUrl = request.url.toString()
         //------对此次请求做处理------
         //不包含服务器地址的属于下载地址或图片加载地址，不做拦截
-        if (!requestUrl.contains(BuildConfig.LOCALHOST)) return chain.proceed(request)
+        if (!requestUrl.contains(ServerConfig.serverUrl())) return chain.proceed(request)
         //上传文件接口文本量过大，请求参数不做拦截
         if (dressingUrls.any { requestUrl.contains(it) }) {
             queryParams = "文件上传"

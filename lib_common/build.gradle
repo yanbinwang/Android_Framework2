@@ -45,20 +45,12 @@ android {
     }
 
     buildTypes {
-        //测试环境
-        debug {
-            buildConfigField "String", "LOCALHOST", build_config.LOCALHOST_DEBUG
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-
-        //生产环境
         release {
-            buildConfigField "String", "LOCALHOST", build_config.LOCALHOST_RELEASE
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
 }
 
 dependencies {

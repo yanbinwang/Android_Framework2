@@ -12,6 +12,7 @@ import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
 import com.example.common.base.proxy.NetworkCallbackImpl
 import com.example.common.base.proxy.NetworkReceiver
+import com.example.common.config.ServerConfig
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
 import com.example.common.utils.builder.ToastBuilder
@@ -65,6 +66,8 @@ open class BaseApplication : Application() {
         MMKV.initialize(this)
         //基础配置初始化
         ConfigHelper.initialize(this)
+        //服务器地址类初始化
+        ServerConfig.init()
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
         //注册网络监听

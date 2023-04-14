@@ -138,7 +138,7 @@ object BaseBindingAdapter {
      * key_color：高亮文本颜色
      * is_match_text：文字是否撑满宽度（textview本身有一定的padding且会根据内容自动换行）
      */
-    @BindingAdapter(value = ["text", "key_text", "key_color", "is_match_text", "text_type"], requireAll = false)
+    @BindingAdapter(value = ["text", "key_text", "key_color", "is_match_text"], requireAll = false)
     fun bindingTextViewSpanFirst(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isMatchText: Boolean?) {
         if (!text.isNullOrEmpty() && !keyText.isNullOrEmpty()) textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.appTheme))
         if (isMatchText.orFalse) textview.setMatchText()
