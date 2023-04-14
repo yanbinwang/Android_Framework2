@@ -27,11 +27,6 @@ package com.example.common.base.page
  *  }, isShowDialog = false)}
  */
 class Paging {
-    companion object {
-        //固定配置页数
-        val pageLimit = "10"
-    }
-
     var hasRefresh = false//是否刷新
     var page = 1//当前页数
     var currentCount = 0//当前页面列表数据总数

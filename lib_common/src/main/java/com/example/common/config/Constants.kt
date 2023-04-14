@@ -37,4 +37,5 @@ object Constants {
     const val PUSH_NOTIFY_ID = 0 //固定通知id
     const val PUSH_CHANNEL_ID = "dataqin" //推送渠道id
     const val PUSH_CHANNEL_NAME = "数秦科技" //推送渠道名
+    const val PAGE_LIMIT = "10"//固定配置页数
 }

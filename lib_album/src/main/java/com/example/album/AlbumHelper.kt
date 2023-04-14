@@ -1,8 +1,8 @@
 package com.example.album
 
 import android.app.Activity
+import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.config.Constants
-import com.example.common.config.RequestCode.REQUEST_PHOTO
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.mb
 import com.example.framework.utils.function.color

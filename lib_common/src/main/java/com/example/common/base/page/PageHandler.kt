@@ -10,7 +10,7 @@ import androidx.activity.result.ActivityResultLauncher
 import com.alibaba.android.arouter.core.LogisticsCenter
 import com.alibaba.android.arouter.exception.NoRouteFoundException
 import com.alibaba.android.arouter.launcher.ARouter
-import com.example.common.config.Extras
+import com.example.common.base.page.Extras.REQUEST_CODE
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.function.value.orFalse
@@ -66,7 +66,7 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
             val key = param?.first
             val value = param?.second
             val cls = value?.javaClass
-            if (key == Extras.REQUEST_CODE) {
+            if (key == REQUEST_CODE) {
                 requestCode = value as? Int
                 continue
             }
