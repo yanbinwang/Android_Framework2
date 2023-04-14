@@ -5,34 +5,36 @@
     tools:ignore="MissingConstraints">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="300pt"
+        android:layout_width="320pt"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/shape_dialog_bg"
-        android:padding="5pt">
+        android:background="@drawable/shape_dialog_bg">
 
         <TextView
             android:id="@+id/tv_tip"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
             android:gravity="center"
-            android:paddingVertical="10pt"
-            android:textColor="@color/grey_333333"
-            android:textSize="@dimen/textSize18"
+            android:paddingHorizontal="5pt"
+            android:paddingTop="24pt"
+            android:singleLine="true"
+            android:textColor="@color/textBlack"
+            android:textSize="@dimen/textSize14"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             tools:text="标题" />
 
         <TextView
             android:id="@+id/tv_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24pt"
+            android:layout_marginTop="16pt"
             android:gravity="center"
-            android:lineSpacingExtra="10pt"
-            android:padding="10pt"
-            android:textColor="@color/grey_333333"
+            android:lineSpacingExtra="2pt"
+            android:textColor="@color/textBlack"
             android:textSize="@dimen/textSize14"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -42,6 +44,7 @@
         <View
             android:id="@+id/view_split_line"
             style="@style/LineConstraintWidth"
+            android:layout_marginTop="24pt"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_message" />
@@ -49,28 +52,18 @@
         <TextView
             android:id="@+id/tv_cancel"
             android:layout_width="0dp"
-            android:layout_height="40pt"
+            android:layout_height="48pt"
+            android:ellipsize="end"
             android:gravity="center"
-            android:textColor="@color/grey_666666"
-            android:textSize="@dimen/textSize15"
+            android:paddingHorizontal="5pt"
+            android:singleLine="true"
+            android:textColor="@color/textBlack"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintEnd_toStartOf="@+id/tv_sure"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/view_split_line"
             tools:text="取消" />
-
-        <TextView
-            android:id="@+id/tv_sure"
-            android:layout_width="0dp"
-            android:layout_height="40pt"
-            android:gravity="center"
-            android:textColor="@color/blue_2e60df"
-            android:textSize="@dimen/textSize15"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@+id/tv_cancel"
-            app:layout_constraintTop_toBottomOf="@+id/view_split_line"
-            tools:text="确定" />
 
         <View
             android:id="@+id/view_line"
@@ -79,6 +72,22 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/tv_sure" />
+
+        <TextView
+            android:id="@+id/tv_sure"
+            android:layout_width="0dp"
+            android:layout_height="48pt"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:paddingHorizontal="5pt"
+            android:singleLine="true"
+            android:textColor="@color/appTheme"
+            android:textSize="@dimen/textSize14"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@+id/tv_cancel"
+            app:layout_constraintTop_toBottomOf="@+id/view_split_line"
+            tools:text="确定" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

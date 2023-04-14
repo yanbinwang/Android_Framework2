@@ -36,7 +36,7 @@
             app:layout_constraintStart_toEndOf="@+id/iv_left"
             app:layout_constraintTop_toTopOf="@+id/iv_left"
             tools:text="左侧文字"
-            tools:textColor="@color/grey_333333"
+            tools:textColor="@color/textBlack"
             tools:visibility="visible" />
 
         <TextView
@@ -52,7 +52,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/iv_left"
             tools:text="标题"
-            tools:textColor="@color/grey_333333" />
+            tools:textColor="@color/textBlack" />
 
         <TextView
             android:id="@+id/tv_right"
@@ -68,7 +68,7 @@
             app:layout_constraintEnd_toStartOf="@+id/iv_right"
             app:layout_constraintTop_toTopOf="@+id/iv_left"
             tools:text="右侧文字"
-            tools:textColor="@color/grey_333333"
+            tools:textColor="@color/textBlack"
             tools:visibility="visible" />
 
         <ImageView

@@ -162,9 +162,9 @@
         <item name="android:background">@null</item>
         <item name="android:backgroundDimEnabled">true</item>
         <!-- 标题，确认取消按钮的颜色 -->
-        <item name="android:textColor">@color/blue_3d81f2</item>
+        <item name="android:textColor">@color/appTheme</item>
         <!-- 内容颜色 -->
-        <item name="android:textColorPrimary">@color/grey_333333</item>
+        <item name="android:textColorPrimary">@color/textBlack</item>
     </style>
 
     <!-- App全局定义提示框样式 -->
