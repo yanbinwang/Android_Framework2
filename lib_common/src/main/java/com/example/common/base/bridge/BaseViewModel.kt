@@ -90,13 +90,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * job.cancel().apply{ view?.hideDialog() }
      */
     protected fun <T> launch(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,      // 请求
-        resp: (T?) -> Unit = {},                                   // 响应
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}, // 错误处理
-        end: () -> Unit = {},                                      // 最后执行方法
-        isShowToast: Boolean = true,                               // 是否toast
-        isShowDialog: Boolean = true,                              // 是否显示加载框
-        isClose: Boolean = true                                    // 请求结束前是否关闭dialog
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, // 请求
+        resp: (T?) -> Unit = {},                                     // 响应
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},   // 错误处理
+        end: () -> Unit = {},                                        // 最后执行方法
+        isShowToast: Boolean = true,                                 // 是否toast
+        isShowDialog: Boolean = true,                                // 是否显示加载框
+        isClose: Boolean = true                                      // 请求结束前是否关闭dialog
     ): Job {
         if (isShowDialog) view?.showDialog()
         return launch {
@@ -119,8 +119,10 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * launch{
      *   val task1 = async({ req.request(model.getUserData() })
      *   val task2 = async({ req.request(model.getUserData() })
-     *   //.....對象的處理
-     *   //并发請求
+     *   //单个请求主动发起，处理对象
+     *   task1.await()
+     *   task2.await()
+     *   //同时发起多个请求，list拿取对象
      *   val taskList = awaitAll(task1, task2)
      *   taskList.safeGet(0)
      *   taskList.safeGet(1)
