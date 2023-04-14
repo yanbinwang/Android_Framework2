@@ -37,7 +37,7 @@ fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(
  * 每个挂起方法外层都会套一个launch
  */
 suspend fun <T> request(
-    request: suspend CoroutineScope.() -> ApiResponse<T>,
+    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (T?) -> Unit = {},
     err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
     end: () -> Unit = {},
@@ -48,7 +48,7 @@ suspend fun <T> request(
         //请求+响应数据
         withContext(IO) {
             log("发起请求")
-            request()
+            coroutineScope()
         }.let {
             log("处理结果")
             if (it.process()) resp(it.response()) else {
@@ -74,11 +74,11 @@ suspend fun <T> request(
  * }
  */
 suspend fun <T> request(
-    request: suspend CoroutineScope.() -> ApiResponse<T>,
+    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     isShowToast: Boolean = false
 ): T? {
     var t: T? = null
-    request({ request() }, {
+    request({ coroutineScope() }, {
         t = it
     }, isShowToast = isShowToast)
     return t

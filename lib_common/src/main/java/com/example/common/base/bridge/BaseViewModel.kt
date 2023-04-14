@@ -90,7 +90,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * job.cancel().apply{ view?.hideDialog() }
      */
     protected fun <T> launch(
-        request: suspend CoroutineScope.() -> ApiResponse<T>,      // 请求
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,      // 请求
         resp: (T?) -> Unit = {},                                   // 响应
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}, // 错误处理
         end: () -> Unit = {},                                      // 最后执行方法
@@ -101,7 +101,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         if (isShowDialog) view?.showDialog()
         return launch {
             request(
-                { request() },
+                { coroutineScope() },
                 { resp(it) },
                 { err(it) },
                 {
@@ -132,10 +132,10 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * }
      */
     protected fun <T> async(
-        request: suspend CoroutineScope.() -> ApiResponse<T>,
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
         isShowToast: Boolean = false
     ): Deferred<T?> {
-        return async(Main, LAZY) { request({ request() }, isShowToast = isShowToast) }
+        return async(Main, LAZY) { request({ coroutineScope() }, isShowToast = isShowToast) }
     }
 
     override fun onCleared() {
