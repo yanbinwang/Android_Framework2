@@ -301,7 +301,7 @@ fun EditText?.setSafeSelection(start: Int, stop: Int? = null) {
  */
 fun EditText?.getNumber(): String {
     this ?: return "0"
-    return text.toString().orZero()
+    return text.toString().ifEmpty { "0" }
 }
 
 fun EditText?.add(number: String) {

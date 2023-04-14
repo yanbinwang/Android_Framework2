@@ -296,7 +296,7 @@ fun Float?.fitRange(range: IntRange): Float {
  * 1.00
  * var price: BigDecimal = BigDecimal.ZERO->使用BigDecimal接取过长小数点的价格
  */
-fun Number?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
+fun Number?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
     return BigDecimal((this ?: 0).toString()).toFixed(fixed, mode)
 }
 
@@ -304,14 +304,14 @@ fun Number?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
  * 保留fixed位小数
  * 后端如果数值过大是不能用double接取的，使用string接受转BigDecimal，或直接BigDecimal接取
  */
-fun String?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
+fun String?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
     return BigDecimal(this ?: "0").toFixed(fixed, mode)
 }
 
 /**
  * 保留fixed位小数
  */
-fun BigDecimal?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
+fun BigDecimal?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
     return (this ?: BigDecimal.ZERO).setScale(fixed, mode).toPlainString()
 }
 
@@ -343,15 +343,8 @@ fun Number.toFixed(fixed: Int = 1, replenish: Boolean = true): String {
  * 1.0000000->1
  * 1.0003300->1.00033
  */
-fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
+fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
     return BigDecimal((this.orZero).toString()).setScale(fixed, mode).stripTrailingZeros().toPlainString()
-}
-
-/**
- * 空自动变为“0”
- */
-fun String?.orZero(): String {
-    return if(isNullOrEmpty()) "0" else this
 }
 
 /**
