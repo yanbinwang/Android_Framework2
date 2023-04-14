@@ -7,6 +7,9 @@ import com.example.common.subscribe.Subscribe
 import com.example.framework.utils.function.value.safeGet
 import kotlinx.coroutines.awaitAll
 
+/**
+ * 串行/并发是否需要dialog需要主动调取，单纯一次性发起不需要
+ */
 class TestViewModel : BaseViewModel() {
 
     /**
@@ -15,8 +18,10 @@ class TestViewModel : BaseViewModel() {
      */
     fun serialTask() {
         launch {
+            view?.showDialog()
             val task1 = request({ Subscribe.getVerificationApi(mapOf("key" to "value")) })
             val task2 = request({ Subscribe.getVerificationApi(mapOf("key" to "value")) })
+            view?.hideDialog()
         }
     }
 
@@ -26,9 +31,11 @@ class TestViewModel : BaseViewModel() {
      */
     fun concurrencyTask() {
         launch {
+            view?.showDialog()
             val task1 = async({ Subscribe.getVerificationApi(mapOf("key" to "value")) })
             val task2 = async({ Subscribe.getVerificationApi(mapOf("key" to "value")) })
             val taskList = awaitAll(task1, task2)
+            view?.hideDialog()
             taskList.safeGet(0)
             taskList.safeGet(1)
         }
