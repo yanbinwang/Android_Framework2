@@ -1,7 +1,11 @@
 package com.example.framework.utils.function.value
 
+import android.net.Uri
+import android.text.Html
+import android.text.Spanned
 import android.util.Base64
 import java.util.regex.Pattern
+import kotlin.math.pow
 
 /**
  * 将 字节数组 转换成 Base64 编码
@@ -13,6 +17,100 @@ fun ByteArray?.base64Encode() = Base64.encodeToString(this, Base64.NO_WRAP)
  * 将 Base64 字符串 解码成 字节数组
  */
 fun String?.base64Decode() = Base64.decode(this, Base64.NO_WRAP)
+
+/**
+ * Url编码
+ */
+fun String?.uriEncode(): String? {
+    this ?: return null
+    return Uri.encode(this)
+}
+
+/**
+ * Url解码
+ */
+fun String?.uriDecode(): String? {
+    this ?: return null
+    return Uri.decode(this)
+}
+
+/**
+ * Unicode 编码转字符串
+ * 支持 Unicode 编码和普通字符混合的字符串
+ * @return 解码后的字符串
+ */
+fun String?.unicodeDecode(): String? {
+    this ?: return null
+    val prefix = "\\u"
+    if (indexOf(prefix).orZero < 0) return this
+    val value = StringBuilder(length shr 2)
+    val strings = split("\\\\u").toTypedArray()
+    var hex: String
+    var mix: String
+    var hexChar: Char
+    var ascii: Int
+    var n: Int
+    if (strings[0].isNotEmpty()) {
+        // 处理开头的普通字符串
+        value.append(strings[0])
+    }
+    try {
+        for (i in 1 until strings.size) {
+            hex = strings[i]
+            if (hex.length > 3) {
+                mix = ""
+                if (hex.length > 4) {
+                    // 处理 Unicode 编码符号后面的普通字符串
+                    mix = hex.substring(4, hex.length)
+                }
+                hex = hex.substring(0, 4)
+                try {
+                    hex.toInt(16)
+                } catch (e: Exception) {
+                    // 不能将当前 16 进制字符串正常转换为 10 进制数字，拼接原内容后跳出
+                    value.append(prefix).append(strings[i])
+                    continue
+                }
+                ascii = 0
+                for (j in hex.indices) {
+                    hexChar = hex[j]
+                    // 将 Unicode 编码中的 16 进制数字逐个转为 10 进制
+                    n = hexChar.toString().toInt(16)
+                    // 转换为 ASCII 码
+                    ascii += n * 16.0.pow(hex.length - j - 1).toInt()
+                }
+
+                // 拼接解码内容
+                value.append(ascii.toChar()).append(mix)
+            } else {
+                // 不转换特殊长度的 Unicode 编码
+                value.append(prefix).append(hex)
+            }
+        }
+    } catch (e: Exception) {
+        // Unicode 编码格式有误，解码失败
+        return null
+    }
+    return value.toString()
+}
+
+/**
+ * 检测正则
+ */
+fun String?.regCheck(reg: String): Boolean {
+    this ?: return false
+    val p = Pattern.compile(reg)
+    val m = p.matcher(this)
+    return m.matches()
+}
+
+/**
+ * 富文本转化Spannable
+ */
+fun String?.toSpanned(): Spanned? {
+    this ?: return null
+    return Html.fromHtml(this)
+}
 
 /**
  * 千分位格式
@@ -46,6 +144,20 @@ fun String?.getValueByName(name: String): String {
         }
     }
     return value
+}
+
+/**
+ * 添加网页链接中的Param
+ */
+fun String?.addUrlParam(key: String?, value: String?): String? {
+    key ?: return this
+    value ?: return this
+    this ?: return this
+    return if (this.contains("?")) {
+        "$this&$key=${Uri.encode(value)}"
+    } else {
+        "$this?$key=${Uri.encode(value)}"
+    }
 }
 
 /**
@@ -94,4 +206,16 @@ fun String?.checkSecurity(): Int {
     //字母+数字+特殊字符
     if (Pattern.matches("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$", this)) return 3
     return 3
+}
+
+/**
+ * 接取固定长度的字符串
+ */
+fun String?.toFixLength(size: Int): String {
+    if (this == null) return ""
+    return if (length.orZero > size) {
+        substring(0, size)
+    } else {
+        this
+    }
 }
