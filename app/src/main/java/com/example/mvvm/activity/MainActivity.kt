@@ -1,5 +1,6 @@
 package com.example.mvvm.activity
 
+import android.text.TextWatcher
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
@@ -44,17 +45,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             "dsfdsfdsfds".shortToast()
 //            testBottom.show(supportFragmentManager,"testBottom")
 //            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
-        }
-        binding.etNumber.afterTextChanged = {mBefore: String?, mCursor: Int, mContent: String->
-            val content = mContent.toSafeDouble()
-            if(content > 800.0 || content < 0.0) {
-                binding.etNumber.apply {
-                    removeTextChangedListener()
-                    setText(mBefore.orEmpty())
-                    addTextChangedListener()
-                    setSelection(mCursor)
-                }
-            }
         }
     }
 

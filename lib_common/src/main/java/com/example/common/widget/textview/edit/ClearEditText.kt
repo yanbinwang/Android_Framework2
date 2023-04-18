@@ -7,7 +7,7 @@ import android.text.InputFilter.LengthFilter
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
-import android.widget.EditText
+import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -35,7 +35,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         binding.etClear.emojiLimit()
         binding.etClear.addTextChangedListener {
             if (isDisabled || !isShowBtn) return@addTextChangedListener
-            binding.ivClear.also { if (it.toString().isNotEmpty()) it.visible() else it.gone() }
+            binding.ivClear.visibility = if(it.toString().isEmpty()) View.GONE else View.VISIBLE
         }
         binding.ivClear.click { binding.etClear.setText("") }
         //以下属性在xml中前缀使用app:调取

@@ -85,11 +85,12 @@
                             android:textColor="@color/white"
                             android:textSize="29pt" />
 
-                        <com.example.common.widget.textview.edit.MoneyEditText
+                        <com.example.common.widget.textview.edit.ClearEditText
                             android:id="@+id/et_number"
                             android:layout_width="match_parent"
                             android:layout_height="44pt"
-                            android:background="@color/white" />
+                            android:background="@color/white"
+                            app:inputType="money" />
 
                     </FrameLayout>
 

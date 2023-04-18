@@ -27,7 +27,7 @@
             android:layout_height="32pt"
             android:paddingHorizontal="8pt"
             android:paddingVertical="14pt"
-            android:scaleType="fitXY"
+            android:scaleType="centerCrop"
             android:src="@mipmap/ic_clear"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
