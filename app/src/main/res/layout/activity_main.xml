@@ -71,14 +71,27 @@
 
                     </LinearLayout>
 
-                    <TextView
+                    <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="800pt"
-                        android:background="@color/black"
-                        android:gravity="center"
-                        android:text="底部内容"
-                        android:textColor="@color/white"
-                        android:textSize="29pt" />
+                        android:layout_height="wrap_content"
+                        android:gravity="center">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="800pt"
+                            android:background="@color/black"
+                            android:gravity="center"
+                            android:text="底部内容"
+                            android:textColor="@color/white"
+                            android:textSize="29pt" />
+
+                        <com.example.common.widget.textview.edit.MoneyEditText
+                            android:id="@+id/et_number"
+                            android:layout_width="match_parent"
+                            android:layout_height="44pt"
+                            android:background="@color/white" />
+
+                    </FrameLayout>
 
                 </LinearLayout>
 

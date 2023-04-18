@@ -29,6 +29,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     private var isDisabled = false//是否不可操作
     private var isShowBtn = true//是否显示清除按钮
     private val binding by lazy { ViewClearEditBinding.bind(context.inflate(R.layout.view_clear_edit)) }
+    val editText get() = binding.etClear
 
     init {
         binding.etClear.emojiLimit()
@@ -130,6 +131,10 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         binding.etClear.setHintTextColor(color)
     }
 
+    fun setSelection(mCursor: Int) {
+        binding.etClear.setSelection(mCursor)
+    }
+
     fun addFilter(filter: InputFilter) {
         val filters = Arrays.copyOf(binding.etClear.filters, binding.etClear.filters.size + 1)
         filters[filters.size - 1] = filter
@@ -191,10 +196,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     fun showBtn() {
         isShowBtn = true
         binding.etClear.apply { if (text.isNotEmpty()) visible() }
-    }
-
-    fun getEditText(): EditText {
-        return binding.etClear
     }
 
 }

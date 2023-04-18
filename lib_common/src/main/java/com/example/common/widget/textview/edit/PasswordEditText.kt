@@ -6,16 +6,22 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.KeyEvent
-import android.widget.EditText
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import com.example.common.R
 import com.example.common.databinding.ViewPasswordEditBinding
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.view.*
+import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.color
+import com.example.framework.utils.function.view.emojiLimit
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.imeOptions
+import com.example.framework.utils.function.view.passwordMethod
+import com.example.framework.utils.function.view.setResource
+import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
-import java.util.*
+import java.util.Arrays
 
 /**
  * @description 密码显影输入框
@@ -26,6 +32,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     private var hideRes = -1
     private var showRes = -1
     private val binding by lazy { ViewPasswordEditBinding.bind(context.inflate(R.layout.view_password_edit)) }
+    val editText get() = binding.etClear
 
     init {
         binding.etClear.emojiLimit()
@@ -108,6 +115,10 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
         binding.etClear.setHintTextColor(color)
     }
 
+    fun setSelection(mCursor: Int) {
+        binding.etClear.setSelection(mCursor)
+    }
+
     fun addFilter(filter: InputFilter) {
         val filters = Arrays.copyOf(binding.etClear.filters, binding.etClear.filters.size + 1)
         filters[filters.size - 1] = filter
@@ -130,10 +141,6 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     fun showBtn() {
         isShowBtn = true
         binding.ivShow.visible()
-    }
-
-    fun getEditText(): EditText {
-        return binding.etClear
     }
 
 }
