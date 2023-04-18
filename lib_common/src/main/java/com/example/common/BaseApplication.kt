@@ -9,12 +9,16 @@ import android.view.Gravity
 import android.widget.TextView
 import android.widget.Toast
 import com.alibaba.android.arouter.launcher.ARouter
+import com.example.common.base.BaseActivity
+import com.example.common.base.OnFinishListener
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
 import com.example.common.base.proxy.NetworkCallbackImpl
 import com.example.common.base.proxy.NetworkReceiver
+import com.example.common.config.ARouterPath
 import com.example.common.config.ServerConfig
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
+import com.example.common.utils.AppManager
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.helper.ConfigHelper
@@ -37,6 +41,8 @@ import java.util.*
 open class BaseApplication : Application() {
 
     companion object {
+        //是否需要回首頁
+        var needOpenHome = false
         lateinit var instance: BaseApplication
     }
 
@@ -56,12 +62,7 @@ open class BaseApplication : Application() {
             .setSupportSP(false)
             .supportSubunits = Subunits.PT
         //阿里路由跳转初始化
-        if (BuildConfig.DEBUG) {
-            ARouter.openLog()//打印日志
-            ARouter.openDebug()
-        }
-        //开启调试模式(如果在InstantRun模式下运行，必须开启调试模式！线上版本需要关闭,否则有安全风险)
-        ARouter.init(this)
+        initARouter()
         //腾讯读写mmkv初始化
         MMKV.initialize(this)
         //基础配置初始化
@@ -71,18 +72,58 @@ open class BaseApplication : Application() {
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
         //注册网络监听
-        (getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager).registerNetworkCallback(NetworkRequest.Builder().build(), NetworkCallbackImpl())
-        registerReceiver(NetworkReceiver().apply { listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() } }, NetworkReceiver.filter)
+        initReceiver()
+        //部分推送打開的頁面，需要在關閉時回首頁,實現一個透明的activity，跳轉到對應push的activity之前，讓needOpenHome=true
+        initListener()
         //全局刷新控件的样式
+        initSmartRefresh()
+        //全局toast
+        initToast()
+    }
+
+    private fun initARouter() {
+        if (BuildConfig.DEBUG) {
+            ARouter.openLog()//打印日志
+            ARouter.openDebug()
+        }
+        //开启调试模式(如果在InstantRun模式下运行，必须开启调试模式！线上版本需要关闭,否则有安全风险)
+        ARouter.init(this)
+    }
+
+    private fun initReceiver() {
+        (getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager).registerNetworkCallback(NetworkRequest.Builder().build(), NetworkCallbackImpl())
+        registerReceiver(NetworkReceiver().apply {
+            listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() }
+        }, NetworkReceiver.filter)
+    }
+
+    private fun initListener() {
+        BaseActivity.setOnFinishListener(object :OnFinishListener{
+            override fun onFinish(act: BaseActivity<*>) {
+                if (!needOpenHome) return
+                if (act.TAG == "HomeActivity") return
+                if (act.TAG == "SplashActivity") return
+                if (AppManager.currentActivity() != act) return
+                if (AppManager.stackCount <= 1) {
+                    needOpenHome = false
+                    ARouter.getInstance().build(ARouterPath.MainActivity).navigation()
+                }
+            }
+        })
+    }
+
+    private fun initSmartRefresh() {
         SmartRefreshLayout.setDefaultRefreshHeaderCreator { context, _ ->
-//            //全局设置主题颜色
+            //全局设置主题颜色
 //            layout.setPrimaryColorsId(R.color.grey_f6f8ff, R.color.white_00ffffff)
             ProjectRefreshHeader(context)
         }
         SmartRefreshLayout.setDefaultRefreshFooterCreator { context, _ ->
             ProjectRefreshFooter(context)
         }
-        //全局toast
+    }
+
+    private fun initToast() {
         ToastBuilder.setResToastBuilder { message, length ->
             val toast = Toast(instance)
             //设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位，
