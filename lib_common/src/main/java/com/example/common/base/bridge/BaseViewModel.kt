@@ -37,9 +37,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakView: WeakReference<BaseView>? = null//基础UI操作
 
     //部分view的操作交予viewmodel去操作，不必让activity去操作
-    private var weakEmpty: WeakReference<EmptyLayout>? = null//遮罩UI
-    private var weakRecycler: WeakReference<XRecyclerView>? = null//列表UI
-    private var weakRefresh: WeakReference<SmartRefreshLayout>? = null//刷新控件
+    private var weakEmpty: WeakReference<EmptyLayout?>? = null//遮罩UI
+    private var weakRecycler: WeakReference<XRecyclerView?>? = null//列表UI
+    private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
 
     //基础的注入参数
     protected val activity: FragmentActivity get() = weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity()
