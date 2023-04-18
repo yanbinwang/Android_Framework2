@@ -181,8 +181,6 @@
     <!--
          全局默认tablayout样式
          app:tabMode="scrollable"
-         app:tabPaddingEnd="0dp"
-         app:tabPaddingStart="0dp"
          app:tabIndicatorFullWidth = false 指示器宽度跟随文本宽度
          实际项目中往往会有自定义的导航栏，此处在原有的基础上在扩展一些属性 -->
     <style name="TabLayoutStyle" parent="Base.Widget.Design.TabLayout">
@@ -190,8 +188,8 @@
         <item name="tabRippleColor">@android:color/transparent</item>
         <item name="tabIndicator">@drawable/layer_list_tab_line</item>
         <item name="tabIndicatorFullWidth">false</item>
-        <item name="tabSelectedTextColor">@color/blue_0d86ff</item>
-        <item name="tabTextColor">@color/grey_333333</item>
+        <item name="tabSelectedTextColor">@color/appTheme</item>
+        <item name="tabTextColor">@color/textHint</item>
         <item name="android:overScrollMode">never</item>
         <item name="tabPaddingStart">0dp</item>
         <item name="tabPaddingTop">0dp</item>

@@ -12,9 +12,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingHorizontal="6pt"
-            android:textColor="@color/appTheme"
-            android:textSize="@dimen/textSize15"
-            tools:text="文案文案文案" />
+            tools:text="文案文案文案"
+            tools:textColor="@color/appTheme"
+            tools:textSize="@dimen/textSize15" />
 
     </FrameLayout>
 

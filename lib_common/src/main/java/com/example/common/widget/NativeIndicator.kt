@@ -21,12 +21,13 @@ class NativeIndicator constructor(tab: TabLayout, tabTitle: List<String>) : TabL
     override fun getBindView() = ItemTabBinding.bind(context.inflate(R.layout.item_tab))
 
     override fun onBindView(binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) {
-        binding?.tvTitle.apply {
-            setArguments(item.orEmpty(), if (selected) R.color.blue_3d81f2 else R.color.grey_333333)
-            textSize(if (selected) 16.pt else 14.pt)
-            bold(selected)
-        }
-        onBindView?.invoke(binding, item, selected, index)
+        if(null == onBindView) {
+            binding?.tvTitle.apply {
+                setArguments(item.orEmpty(), if (selected) R.color.appTheme else R.color.textHint)
+                textSize(if (selected) 16.pt else 14.pt)
+                bold(selected)
+            }
+        } else onBindView?.invoke(binding, item, selected, index)
     }
 
 }

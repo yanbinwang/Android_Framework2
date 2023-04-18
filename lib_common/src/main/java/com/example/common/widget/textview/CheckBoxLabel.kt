@@ -22,6 +22,7 @@ import com.example.framework.widget.BaseViewGroup
  */
 class CheckBoxLabel @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private val binding by lazy { ViewCheckLabelBinding.bind(context.inflate(R.layout.view_check_label)) }
+    var onItemClick: ((check: Boolean) -> Unit)? = null
 
     init {
         if (attrs != null) {
@@ -46,7 +47,10 @@ class CheckBoxLabel @JvmOverloads constructor(context: Context, attrs: Attribute
             setTextColor(textColor)
             typedArray.recycle()
             //全局范围内点击都会让checkbox选中或未选中
-            binding.clContainer.click { binding.ck.checked() }
+            binding.clContainer.click {
+                binding.ck.checked()
+                onItemClick?.invoke(isChecked())
+            }
         }
     }
 
