@@ -27,8 +27,8 @@ class NativeIndicator constructor(tab: TabLayout, tabTitle: List<String>) : TabL
 
     override fun onBindView(binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) {
         binding?.tvTitle.apply {
-            setArguments(item.orEmpty(), if (selected) paramsMap["selectColor"].orZero else paramsMap["unselectColor"].orZero)
-            textSize(if (selected) paramsMap["selectSize"].orZero else paramsMap["unselectSize"].orZero)
+            setArguments(item.orEmpty(), if (selected) paramsMap["selectedColor"].orZero else paramsMap["oriSelectedColor"].orZero)
+            textSize(if (selected) paramsMap["selectedSize"].orZero else paramsMap["oriSelectedSize"].orZero)
             when (paramsMap["isBold"]) {
                 0 -> bold(false)
                 1 -> bold(true)
@@ -41,11 +41,11 @@ class NativeIndicator constructor(tab: TabLayout, tabTitle: List<String>) : TabL
      * 在bind前可重寫
      * isBold->0都不加粗，1都加粗，2選中的加粗未選擇不加粗
      */
-    fun setParams(selectSize: Int = 16.pt, unselectSize: Int = 14.pt, selectColor: Int = R.color.blue_3d81f2, unselectColor: Int = R.color.grey_333333, isBold: Int = 0) {
-        paramsMap["selectSize"] = selectSize
-        paramsMap["unselectSize"] = unselectSize
-        paramsMap["selectColor"] = selectColor
-        paramsMap["unselectColor"] = unselectColor
+    fun setParams(selectedSize: Int = 16.pt, oriSelectedSize: Int = 14.pt, selectedColor: Int = R.color.blue_3d81f2, oriSelectedColor: Int = R.color.grey_333333, isBold: Int = 0) {
+        paramsMap["selectedSize"] = selectedSize
+        paramsMap["oriSelectedSize"] = oriSelectedSize
+        paramsMap["selectedColor"] = selectedColor
+        paramsMap["oriSelectedColor"] = oriSelectedColor
         paramsMap["isBold"] = isBold
     }
 
