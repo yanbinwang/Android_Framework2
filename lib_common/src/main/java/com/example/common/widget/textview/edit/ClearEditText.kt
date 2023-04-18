@@ -32,10 +32,12 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     val editText get() = binding.etClear
 
     init {
-        binding.etClear.emojiLimit()
-        binding.etClear.addTextChangedListener {
-            if (isDisabled || !isShowBtn) return@addTextChangedListener
-            binding.ivClear.visibility = if(it.toString().isEmpty()) View.GONE else View.VISIBLE
+        binding.etClear.apply {
+            emojiLimit()
+            addTextChangedListener {
+                if (isDisabled || !isShowBtn) return@addTextChangedListener
+                visibility = if(it.toString().isEmpty()) View.GONE else View.VISIBLE
+            }
         }
         binding.ivClear.click { binding.etClear.setText("") }
         //以下属性在xml中前缀使用app:调取
