@@ -13,7 +13,11 @@ import com.example.common.databinding.ViewCheckLabelBinding
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.view.*
+import com.example.framework.utils.function.view.checked
+import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.color
+import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
 
 /**
@@ -95,16 +99,13 @@ class CheckBoxLabel @JvmOverloads constructor(context: Context, attrs: Attribute
 
     /**
      * 设置对应点击样式的文本内容
-     */
-    fun setSpan(spannable: Spannable) {
-        binding.tvLabel.text = spannable
-    }
-
-    /**
      * 部分文字点击需要配置一下当前参数，不然点击无效
      */
-    fun setLinkMovementMethod() {
-        binding.tvLabel.movementMethod = LinkMovementMethod.getInstance()
+    fun setSpan(spannable: Spannable) {
+        binding.tvLabel.apply {
+            text = spannable
+            movementMethod = LinkMovementMethod.getInstance()
+        }
     }
 
     /**
