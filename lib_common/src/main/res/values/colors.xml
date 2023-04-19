@@ -28,6 +28,7 @@
 
     <color name="black">#000000</color>
     <color name="black_111b34">#111b34</color>
+    <color name="black_33000000">#33000000</color>
     <color name="black_4c000000">#4c000000</color>
     <color name="black_ef111111">#ef111111</color>
     <color name="white_ff000000">#ff000000</color>
