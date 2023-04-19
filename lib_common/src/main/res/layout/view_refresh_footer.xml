@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -7,10 +8,11 @@
 
         <ImageView
             android:id="@+id/iv_progress"
-            android:layout_width="30pt"
-            android:layout_height="30pt"
+            android:layout_width="25pt"
+            android:layout_height="25pt"
             android:layout_gravity="center"
-            android:padding="5pt" />
+            android:paddingVertical="2.5pt"
+            tools:src="@drawable/ic_loadmore_0" />
 
         <TextView
             android:id="@+id/tv_msg"
@@ -19,7 +21,7 @@
             android:layout_gravity="center"
             android:text="暂无更多数据"
             android:textColor="@color/textBlack"
-            android:textSize="@dimen/textSize14"
+            android:textSize="@dimen/textSize12"
             android:visibility="gone" />
 
     </FrameLayout>
