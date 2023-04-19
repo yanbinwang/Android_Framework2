@@ -85,22 +85,15 @@
                             android:textColor="@color/white"
                             android:textSize="29pt" />
 
-                        <com.example.common.widget.textview.edit.PasswordEditText
-                            android:layout_width="match_parent"
-                            android:layout_height="44pt"
-                            android:layout_gravity="center"
-                            android:background="@color/white"
-                            app:hint="@string/permission_microphone"
-                            app:textColor="@color/blue_aac6f4"
-                            app:textColorHint="@color/blue_2e60df"
-                            app:textSize="14pt" />
-
-                        <!--                        <com.example.common.widget.textview.CheckLabel-->
-                        <!--                            android:layout_width="wrap_content"-->
-                        <!--                            android:layout_height="40pt"-->
+                        <!--                        <com.example.common.widget.textview.edit.PasswordEditText-->
+                        <!--                            android:layout_width="match_parent"-->
+                        <!--                            android:layout_height="44pt"-->
                         <!--                            android:layout_gravity="center"-->
-                        <!--                            app:labelText="@string/permission_microphone"-->
-                        <!--                            app:labelTextColor="@color/white" />-->
+                        <!--                            android:background="@color/white"-->
+                        <!--                            app:hint="@string/permission_microphone"-->
+                        <!--                            app:textColor="@color/blue_aac6f4"-->
+                        <!--                            app:textColorHint="@color/blue_2e60df"-->
+                        <!--                            app:textSize="14pt" />-->
 
                         <!--                        <LinearLayout-->
                         <!--                            android:id="@+id/ll_clause"-->
