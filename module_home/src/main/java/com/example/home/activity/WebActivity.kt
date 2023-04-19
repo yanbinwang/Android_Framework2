@@ -1,13 +1,11 @@
 package com.example.home.activity
 
-import android.content.Context
 import android.view.KeyEvent
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.LifecycleOwner
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.example.home.databinding.ActivityWebBinding
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
+import com.example.home.databinding.ActivityWebBinding
 import com.example.home.utils.WebHelper
 import com.example.home.utils.WebImpl
 
