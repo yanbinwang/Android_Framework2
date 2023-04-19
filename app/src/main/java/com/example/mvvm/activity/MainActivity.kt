@@ -1,6 +1,5 @@
 package com.example.mvvm.activity
 
-import android.text.TextWatcher
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
@@ -10,7 +9,6 @@ import com.example.common.utils.function.pt
 import com.example.common.widget.textview.edit.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.common.widget.xrecyclerview.refresh.headerMaxDragRate
-import com.example.framework.utils.function.value.toSafeDouble
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding

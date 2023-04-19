@@ -13,7 +13,6 @@
             android:layout_height="0pt"
             android:layout_marginStart="6pt"
             android:background="@null"
-            android:minHeight="40pt"
             android:textColor="@color/textPrimary"
             android:textColorHint="@color/textHint"
             app:layout_constraintBottom_toBottomOf="parent"

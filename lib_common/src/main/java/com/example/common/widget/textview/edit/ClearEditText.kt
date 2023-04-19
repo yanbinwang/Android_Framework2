@@ -14,6 +14,7 @@ import androidx.annotation.StringRes
 import androidx.core.widget.addTextChangedListener
 import com.example.common.R
 import com.example.common.databinding.ViewClearEditBinding
+import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.*
@@ -25,7 +26,7 @@ import java.util.*
  * @author yan
  */
 @SuppressLint("CustomViewStyleable")
-class ClearEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
+class ClearEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private var isDisabled = false//是否不可操作
     private var isShowBtn = true//是否显示清除按钮
     private val binding by lazy { ViewClearEditBinding.bind(context.inflate(R.layout.view_clear_edit)) }
@@ -36,7 +37,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             emojiLimit()
             addTextChangedListener {
                 if (isDisabled || !isShowBtn) return@addTextChangedListener
-                visibility = if(it.toString().isEmpty()) View.GONE else View.VISIBLE
+                binding.ivClear.visibility = if(it.toString().isEmpty()) View.GONE else View.VISIBLE
             }
         }
         binding.ivClear.click { binding.etClear.setText("") }
@@ -78,8 +79,8 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             }
             if (minLine > 0) binding.etClear.minLines = minLine
             if (maxLine > 0) binding.etClear.maxLines = maxLine
-            val minHeight = typedArray.getDimension(R.styleable.ClearEditText_android_minHeight, -1f)
-            if (minHeight > 0) binding.etClear.minHeight = minHeight.toInt()
+            val minHeight = typedArray.getDimension(R.styleable.ClearEditText_android_minHeight, 40.ptFloat)
+            binding.etClear.minHeight = minHeight.toInt()
             //当前控件是否可用
             val disabled = typedArray.getBoolean(R.styleable.ClearEditText_disabled, false)
             if (disabled) setDisabled()

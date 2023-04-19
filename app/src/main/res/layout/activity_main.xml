@@ -85,32 +85,42 @@
                             android:textColor="@color/white"
                             android:textSize="29pt" />
 
-                        <com.example.common.widget.textview.CheckLabel
-                            android:layout_width="wrap_content"
-                            android:layout_height="40pt"
+                        <com.example.common.widget.textview.edit.PasswordEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="44pt"
                             android:layout_gravity="center"
-                            app:labelText="@string/permission_microphone"
-                            app:labelTextColor="@color/white" />
+                            android:background="@color/white"
+                            app:hint="@string/permission_microphone"
+                            app:textColor="@color/blue_aac6f4"
+                            app:textColorHint="@color/blue_2e60df"
+                            app:textSize="14pt" />
 
-<!--                        <LinearLayout-->
-<!--                            android:id="@+id/ll_clause"-->
-<!--                            android:layout_width="wrap_content"-->
-<!--                            android:layout_height="wrap_content"-->
-<!--                            android:gravity="center">-->
+                        <!--                        <com.example.common.widget.textview.CheckLabel-->
+                        <!--                            android:layout_width="wrap_content"-->
+                        <!--                            android:layout_height="40pt"-->
+                        <!--                            android:layout_gravity="center"-->
+                        <!--                            app:labelText="@string/permission_microphone"-->
+                        <!--                            app:labelTextColor="@color/white" />-->
 
-<!--                            <CheckBox-->
-<!--                                android:id="@+id/ck_clause"-->
-<!--                                style="@style/CheckBoxStyle" />-->
+                        <!--                        <LinearLayout-->
+                        <!--                            android:id="@+id/ll_clause"-->
+                        <!--                            android:layout_width="wrap_content"-->
+                        <!--                            android:layout_height="wrap_content"-->
+                        <!--                            android:gravity="center">-->
 
-<!--                            <TextView-->
-<!--                                android:id="@+id/tv_label"-->
-<!--                                android:layout_width="wrap_content"-->
-<!--                                android:layout_height="wrap_content"-->
-<!--                                android:text="@string/permission_microphone"-->
-<!--                                android:textColor="@color/textPrimary"-->
-<!--                                android:textSize="@dimen/textSize14" />-->
+                        <!--                            <CheckBox-->
+                        <!--                                android:id="@+id/ck_clause"-->
+                        <!--                                style="@style/CheckBoxStyle" />-->
 
-<!--                        </LinearLayout>-->
+                        <!--                            <TextView-->
+                        <!--                                android:id="@+id/tv_label"-->
+                        <!--                                android:layout_width="wrap_content"-->
+                        <!--                                android:layout_height="wrap_content"-->
+                        <!--                                android:text="@string/permission_microphone"-->
+                        <!--                                android:textColor="@color/textPrimary"-->
+                        <!--                                android:textSize="@dimen/textSize14" />-->
+
+                        <!--                        </LinearLayout>-->
 
                     </FrameLayout>
 

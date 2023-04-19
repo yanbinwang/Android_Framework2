@@ -103,8 +103,10 @@
 
         <activity
             android:name=".activity.MainActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
-            android:theme="@style/MainTheme" />
+            android:theme="@style/MainTheme"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <activity
             android:name=".activity.TestActivity"
