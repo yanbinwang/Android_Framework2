@@ -28,8 +28,8 @@ fun <K, V> HashMap<K, V>?.params() =
 /**
  * 提示方法，根据接口返回的msg提示
  */
-fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.label_response_net_error) else {
-    if (isNullOrEmpty()) resString(R.string.label_response_error) else this
+fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.response_net_error) else {
+    if (isNullOrEmpty()) resString(R.string.response_error) else this
 }).shortToast()
 
 /**

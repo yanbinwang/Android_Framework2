@@ -6,7 +6,6 @@ import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.mb
 import com.example.framework.utils.function.color
-import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.execute
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.api.widget.Widget
@@ -77,7 +76,7 @@ class AlbumHelper(private val activity: Activity) {
             .onResult {
                 it[0].apply {
                     if (size > fileSize.mb) {
-                        string(R.string.toast_album_image_error).shortToast()
+                        R.string.toast_album_image_error.shortToast()
                         return@onResult
                     }
                     if (hasTailor) toTailor(path) else onAlbum?.invoke(path)
@@ -104,7 +103,7 @@ class AlbumHelper(private val activity: Activity) {
             .onResult {
                 it[0].apply {
                     if (size > fileSize.mb) {
-                        string(R.string.toast_album_video_error).shortToast()
+                        R.string.toast_album_video_error.shortToast()
                         return@onResult
                     }
                     onAlbum?.invoke(path)

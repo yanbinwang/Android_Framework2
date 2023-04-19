@@ -6,14 +6,21 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.view.View
-import android.webkit.*
+import android.webkit.ConsoleMessage
+import android.webkit.JsResult
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebStorage
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.ProgressBar
 import androidx.core.net.toUri
+import com.example.common.R
+import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.value.toBoolean
 import com.example.framework.utils.function.view.fade
 import com.example.framework.utils.function.view.visible
 import com.example.framework.utils.logE
-import com.example.common.utils.builder.shortToast
 import java.lang.ref.WeakReference
 
 /**
@@ -152,7 +159,7 @@ private class XWebViewClient(val onPageStarted: () -> Unit, val onPageFinished: 
         } catch (e: Exception) {
             // 防止没有安装的情况
             e.logE
-            "當前App尚未安裝，請安裝後再試，或嘗試其他渠道".shortToast()
+            R.string.app_not_installed.shortToast()
         }
     }
 

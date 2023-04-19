@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.core.content.FileProvider
+import com.example.common.R
 import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
@@ -119,19 +120,17 @@ fun Context.openSetupApk(filePath: String) = openFile(filePath, "application/vnd
  */
 fun Context.openFile(filePath: String, type: String) {
     val file = File(filePath)
-    if (!file.exists()) {
-        "文件路径错误".shortToast()
-        return
+    if (isExists(file)) {
+        startActivity(Intent(Intent.ACTION_VIEW).apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                setDataAndType(FileProvider.getUriForFile(this@openFile, "${Constants.APPLICATION_ID}.fileProvider", file), type)
+            } else {
+                setDataAndType(Uri.parse("file://$filePath"), type)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        })
     }
-    startActivity(Intent(Intent.ACTION_VIEW).apply {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            setDataAndType(FileProvider.getUriForFile(this@openFile, "${Constants.APPLICATION_ID}.fileProvider", file), type)
-        } else {
-            setDataAndType(Uri.parse("file://$filePath"), type)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-    })
 }
 
 /**
@@ -140,18 +139,24 @@ fun Context.openFile(filePath: String, type: String) {
  */
 fun Context.sendFile(filePath: String, fileType: String? = "*/*", title: String? = "分享文件") {
     val file = File(filePath)
-    if (!file.exists()) {
-        "文件路径错误".shortToast()
-        return
+    if (isExists(file)) {
+        startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this@sendFile, "${Constants.APPLICATION_ID}.fileProvider", file))
+            } else {
+                putExtra(Intent.EXTRA_STREAM, file)
+            }
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            type = fileType//此处可发送多种文件
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }, title))
     }
-    startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this@sendFile, "${Constants.APPLICATION_ID}.fileProvider", file))
-        } else {
-            putExtra(Intent.EXTRA_STREAM, file)
-        }
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        type = fileType//此处可发送多种文件
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    }, title))
+}
+
+private fun isExists(file: File): Boolean {
+    if (!file.exists()) {
+        R.string.file_path_error.shortToast()
+        return false
+    }
+    return true
 }

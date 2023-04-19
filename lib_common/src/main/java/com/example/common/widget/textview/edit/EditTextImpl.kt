@@ -2,6 +2,7 @@ package com.example.common.widget.textview.edit
 
 import android.widget.EditText
 import androidx.annotation.StringRes
+import com.example.common.R
 import com.example.common.utils.builder.shortToast
 
 /**
@@ -62,11 +63,11 @@ interface EditTextImpl {
      */
     fun EditText.checkEmailReg(hasToast: Boolean = true): Boolean {
         if (!notEmpty()) {
-            if (hasToast) "邮箱不能为空".shortToast()
+            if (hasToast) R.string.email_empty.shortToast()
             return false
         }
         if (regMail.matches(text)) return true
-        if (hasToast) "邮箱格式错误".shortToast()
+        if (hasToast) R.string.email_error.shortToast()
         return false
     }
 
@@ -83,11 +84,11 @@ interface EditTextImpl {
      */
     fun EditText.checkPassReg(hasToast: Boolean = true): Boolean {
         if (!notEmpty()) {
-            if (hasToast) "密码不能为空".shortToast()
+            if (hasToast) R.string.password_empty.shortToast()
             return false
         }
         if (!regPass.matches(text)) {
-            if (hasToast) "密码由6~20位的字母和數字組成".shortToast()
+            if (hasToast) R.string.password_error.shortToast()
             return false
         }
         return true
