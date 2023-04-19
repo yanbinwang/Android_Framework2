@@ -66,8 +66,8 @@ object TimerUtil {
                 }
 
                 override fun onFinish() {
-                    onFinish?.invoke()
                     stopCountDown(tag)
+                    onFinish?.invoke()
                 }
             }
             countDownMap[tag] = countDownTimer
