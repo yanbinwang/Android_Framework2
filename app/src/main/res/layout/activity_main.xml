@@ -79,11 +79,38 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="800pt"
-                            android:background="@color/black"
+                            android:background="@color/blue_2e60df"
                             android:gravity="center"
                             android:text="底部内容"
                             android:textColor="@color/white"
                             android:textSize="29pt" />
+
+                        <com.example.common.widget.textview.CheckLabel
+                            android:layout_width="wrap_content"
+                            android:layout_height="40pt"
+                            android:layout_gravity="center"
+                            app:labelText="@string/permission_microphone"
+                            app:labelTextColor="@color/white" />
+
+<!--                        <LinearLayout-->
+<!--                            android:id="@+id/ll_clause"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:gravity="center">-->
+
+<!--                            <CheckBox-->
+<!--                                android:id="@+id/ck_clause"-->
+<!--                                style="@style/CheckBoxStyle" />-->
+
+<!--                            <TextView-->
+<!--                                android:id="@+id/tv_label"-->
+<!--                                android:layout_width="wrap_content"-->
+<!--                                android:layout_height="wrap_content"-->
+<!--                                android:text="@string/permission_microphone"-->
+<!--                                android:textColor="@color/textPrimary"-->
+<!--                                android:textSize="@dimen/textSize14" />-->
+
+<!--                        </LinearLayout>-->
 
                     </FrameLayout>
 

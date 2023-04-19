@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- 自定义選框 -->
+    <declare-styleable name="CheckLabel">
+        <!-- 選框大小 -->
+        <attr name="checkSize" format="integer" />
+        <!-- 單獨改變左側圖標則重寫一個selector的xml -->
+        <attr name="checkBackground" format="reference|color" />
+        <!-- 文字距左側選框的邊距 -->
+        <attr name="marginChild" format="integer" />
+        <!-- 文字內容 -->
+        <attr name="labelText" format="reference" />
+        <!-- 文字大小 -->
+        <attr name="labelTextSize" format="dimension" />
+        <!-- 文字顏色 -->
+        <attr name="labelTextColor" format="color" />
+    </declare-styleable>
+
     <!-- 自定义XRecyclerView -->
     <declare-styleable name="XRecyclerView">
         <!-- recyclerview的类型 -->
