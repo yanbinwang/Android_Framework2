@@ -5,15 +5,17 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingHorizontal="10pt">
+        android:layout_height="match_parent">
 
         <EditText
             android:id="@+id/et_clear"
             android:layout_width="0dp"
             android:layout_height="0pt"
+            android:layout_marginStart="6pt"
             android:background="@null"
             android:minHeight="40pt"
+            android:textColor="@color/textPrimary"
+            android:textColorHint="@color/textHint"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/iv_clear"
             app:layout_constraintStart_toStartOf="parent"
@@ -21,10 +23,11 @@
 
         <ImageView
             android:id="@+id/iv_clear"
-            android:layout_width="20pt"
-            android:layout_height="20pt"
-            android:layout_marginStart="5pt"
-            android:scaleType="fitXY"
+            android:layout_width="40pt"
+            android:layout_height="32pt"
+            android:paddingHorizontal="8pt"
+            android:paddingVertical="14pt"
+            android:scaleType="centerCrop"
             android:src="@mipmap/ic_clear"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"

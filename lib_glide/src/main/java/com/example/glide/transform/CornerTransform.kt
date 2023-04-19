@@ -12,12 +12,16 @@ import java.security.MessageDigest
  * author: wyb
  * date: 2019/5/6.
  */
-class CornerTransform(context: Context, var radius: Float) : Transformation<Bitmap> {
+class CornerTransform(context: Context, private var radius: Float) : Transformation<Bitmap> {
     private var exceptLeftTop = false
     private var exceptRightTop = false
     private var exceptLeftBottom = false
     private var exceptRightBottom = false
     private val mBitmapPool = Glide.get(context).bitmapPool
+
+    fun setExceptCorner(overRide: BooleanArray) {
+        setExceptCorner(overRide[0], overRide[1], overRide[2], overRide[3])
+    }
 
     fun setExceptCorner(leftTop: Boolean, rightTop: Boolean, leftBottom: Boolean, rightBottom: Boolean) {
         this.exceptLeftTop = leftTop
@@ -53,7 +57,6 @@ class CornerTransform(context: Context, var radius: Float) : Transformation<Bitm
             finalHeight = source.height
             finalWidth = finalHeight
         }
-
         //修正圆角
         radius *= finalHeight.toFloat() / outHeight.toFloat()
         val outBitmap = mBitmapPool.get(finalWidth, finalHeight, Bitmap.Config.ARGB_8888)
@@ -77,7 +80,6 @@ class CornerTransform(context: Context, var radius: Float) : Transformation<Bitm
         if (exceptRightTop) canvas.drawRect(canvas.width - radius, 0f, radius, radius, paint)//右上角不为圆角
         if (exceptLeftBottom) canvas.drawRect(0f, canvas.height - radius, radius, canvas.height.toFloat(), paint)//左下角不为圆角
         if (exceptRightBottom) canvas.drawRect(canvas.width - radius, canvas.height - radius, canvas.width.toFloat(), canvas.height.toFloat(), paint)//右下角不为圆角
-
         return BitmapResource(outBitmap, mBitmapPool)
     }
 

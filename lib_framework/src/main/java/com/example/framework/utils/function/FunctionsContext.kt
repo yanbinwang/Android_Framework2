@@ -17,6 +17,7 @@ import androidx.annotation.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -127,6 +128,12 @@ fun Context.startForegroundService(cls: Class<out Service>, vararg pairs: Pair<S
 fun Context.stopService(cls: Class<out Service>) {
     stopService(getIntent(cls))
 }
+
+/**
+ * 獲取Typeface字體(res下新建一个font文件夹)
+ * ResourcesCompat.getFont(this, R.font.font_semi_bold)
+ */
+fun Context.getFont(id: Int) = ResourcesCompat.getFont(this, id)
 
 /**
  *  获取对应class类页面中intent的消息

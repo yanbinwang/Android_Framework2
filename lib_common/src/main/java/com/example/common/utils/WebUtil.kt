@@ -36,17 +36,17 @@ class WebUtil : DefaultLifecycleObserver {
     var webSettings: WebSettings? = null
 
     constructor(activity: AppCompatActivity, container: ViewGroup?) {
-        mActivity = activity
-        lifecycleOwner = activity
-        lifecycleOwner?.lifecycle?.addObserver(this)
+        this.mActivity = activity
+        this.lifecycleOwner = activity
+        this.lifecycleOwner?.lifecycle?.addObserver(this)
         this.container = container
         init()
     }
 
     constructor(fragment: Fragment, container: ViewGroup?) {
-        mActivity = fragment.activity
-        lifecycleOwner = fragment
-        lifecycleOwner?.lifecycle?.addObserver(this)
+        this.mActivity = fragment.activity
+        this.lifecycleOwner = fragment
+        this.lifecycleOwner?.lifecycle?.addObserver(this)
         this.container = container
         init()
     }

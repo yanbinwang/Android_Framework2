@@ -1,7 +1,6 @@
-package com.example.common.config
+package com.example.common.base.page
 
 /**
- * Created by wyb on 2016/6/28.
  * app内的跳转字段
  */
 object Extras {
@@ -10,10 +9,22 @@ object Extras {
      * setOnActivityResultListener { if (it.resultCode == REQUEST_FINISH) finish() }
      */
     const val REQUEST_CODE = "requestCode" //页面跳转链接
-    const val REQUEST_ID = "requestId" //请求id
     const val BUNDLE_BEAN = "bundleBean" //跳转对象
-    const val PAGE_FROM = "pageFrom" //来自何种页面
-    const val PAGE_TYPE = "pageType" //页面类型
+    const val ID = "id" //请求id
     const val MOBILE = "mobile" //手机号
     const val VERIFY_SMS = "verifySms" //短信验证码
+}
+
+/**
+ * app内跳转回调编码
+ */
+object RequestCode {
+    //批量关闭回调编码
+    const val REQUEST_FINISH = 10000
+    //图片回调编码
+    const val REQUEST_PHOTO = 10001
+    //文件管理器回调编码
+    const val REQUEST_MANAGER = 10002
+    //指定文件回调编码
+    const val REQUEST_FILE = 10003
 }

@@ -30,11 +30,11 @@ interface EditTextImpl {
     }
 
     fun ClearEditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
-        return getEditText().lengthLimit(min, max, res)
+        return editText.lengthLimit(min, max, res)
     }
 
     fun PasswordEditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
-        return getEditText().lengthLimit(min, max, res)
+        return editText.lengthLimit(min, max, res)
     }
 
     /**
@@ -50,11 +50,11 @@ interface EditTextImpl {
     }
 
     fun ClearEditText.notEmpty(@StringRes res: Int = -1): Boolean {
-        return getEditText().notEmpty(res)
+        return editText.notEmpty(res)
     }
 
     fun PasswordEditText.notEmpty(@StringRes res: Int = -1): Boolean {
-        return getEditText().notEmpty(res)
+        return editText.notEmpty(res)
     }
 
     /**
@@ -71,11 +71,11 @@ interface EditTextImpl {
     }
 
     fun ClearEditText.checkEmailReg(hasToast: Boolean = true): Boolean {
-        return getEditText().checkEmailReg(hasToast)
+        return editText.checkEmailReg(hasToast)
     }
 
     fun PasswordEditText.checkEmailReg(hasToast: Boolean = true): Boolean {
-        return getEditText().checkEmailReg(hasToast)
+        return editText.checkEmailReg(hasToast)
     }
 
     /**
@@ -94,11 +94,11 @@ interface EditTextImpl {
     }
 
     fun ClearEditText.checkPassReg(hasToast: Boolean = true): Boolean {
-        return getEditText().checkPassReg(hasToast)
+        return editText.checkPassReg(hasToast)
     }
 
     fun PasswordEditText.checkPassReg(hasToast: Boolean = true): Boolean {
-        return getEditText().checkPassReg(hasToast)
+        return editText.checkPassReg(hasToast)
     }
 
 }

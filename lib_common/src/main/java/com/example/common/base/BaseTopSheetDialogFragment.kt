@@ -7,6 +7,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.ViewDataBinding
@@ -57,9 +58,9 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     protected lateinit var binding: VDB
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
-    private val immersionBar by lazy { ImmersionBar.with(this) }
     private var showTime = 0L
     private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving
+    private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
     private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }
     private val job = SupervisorJob()
@@ -89,6 +90,16 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        ImmersionBar.with(this).apply {
+            reset()
+            //如果当前设备支持状态栏字体变色，会设置状态栏字体为黑色
+            //如果当前设备不支持状态栏字体变色，会使当前状态栏加上透明度，否则不执行透明度
+            statusBarDarkFont(true, 0.2f)
+            navigationBarColor(R.color.white)?.navigationBarDarkIcon(true, 0.2f)
+            init()
+        }
+        //设置软键盘不自动弹出
+        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
         if (Looper.getMainLooper() == Looper.myLooper()) {
             AutoSizeConfig.getInstance()
                 .setScreenWidth(screenWidth)
@@ -130,7 +141,11 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     }
 
     override fun dismiss() {
-        super.dismissAllowingStateLoss()
+        try {
+            super.dismissAllowingStateLoss()
+        } catch (e: Exception) {
+            e.logE
+        }
     }
 
     override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
@@ -191,6 +206,12 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
 
     override fun GONE(vararg views: View?) {
         views.forEach { it?.gone() }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        //设置软键盘不自动弹出
+        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
     }
 
     override fun onDestroy() {

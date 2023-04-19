@@ -84,6 +84,18 @@ object ToastBuilder {
         toast?.get()?.cancel()
     }
 
+    /**
+     * application中初始化全局的toast
+     * 部分手機定制導致顯示不全，樣式不統一，故而再重寫一次，統一樣式
+     */
+    fun setResToastBuilder(builder: (message: Int, length: Int) -> Toast) {
+        resToastBuilder = builder
+    }
+
+    fun setStringToastBuilder(builder: (message: String, length: Int) -> Toast) {
+        toastBuilder = builder
+    }
+
 }
 
 fun Int?.shortToast() {

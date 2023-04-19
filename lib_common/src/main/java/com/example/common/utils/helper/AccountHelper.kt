@@ -37,6 +37,18 @@ object AccountHelper {
         return bean.mobile
     }
 
+    fun getUserId(): String? {
+        val bean = getUserBean()
+        bean ?: return null
+        return bean.user_id
+    }
+
+    fun getToken(): String? {
+        val bean = getUserBean()
+        bean ?: return null
+        return bean.token
+    }
+
     /**
      * 存储手机号
      */

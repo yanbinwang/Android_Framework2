@@ -48,9 +48,9 @@ android {
         }
         //Manifest配置引用
         manifestPlaceholders = [
-            PACKAGE_NAME : build_config.applicationId,
-            DESIGN_WIDTH : build_config.DESIGN_WIDTH,
-            DESIGN_HEIGHT: build_config.DESIGN_HEIGHT
+                PACKAGE_NAME : build_config.applicationId,
+                DESIGN_WIDTH : build_config.DESIGN_WIDTH,
+                DESIGN_HEIGHT: build_config.DESIGN_HEIGHT
         ]
     }
 

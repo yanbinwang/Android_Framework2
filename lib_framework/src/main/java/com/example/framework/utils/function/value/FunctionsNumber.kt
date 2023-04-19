@@ -296,7 +296,7 @@ fun Float?.fitRange(range: IntRange): Float {
  * 1.00
  * var price: BigDecimal = BigDecimal.ZERO->使用BigDecimal接取过长小数点的价格
  */
-fun Number?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
+fun Number?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
     return BigDecimal((this ?: 0).toString()).toFixed(fixed, mode)
 }
 
@@ -304,14 +304,14 @@ fun Number?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
  * 保留fixed位小数
  * 后端如果数值过大是不能用double接取的，使用string接受转BigDecimal，或直接BigDecimal接取
  */
-fun String?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
+fun String?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
     return BigDecimal(this ?: "0").toFixed(fixed, mode)
 }
 
 /**
  * 保留fixed位小数
  */
-fun BigDecimal?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
+fun BigDecimal?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
     return (this ?: BigDecimal.ZERO).setScale(fixed, mode).toPlainString()
 }
 
@@ -343,15 +343,8 @@ fun Number.toFixed(fixed: Int = 1, replenish: Boolean = true): String {
  * 1.0000000->1
  * 1.0003300->1.00033
  */
-fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_UP): String {
+fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
     return BigDecimal((this.orZero).toString()).setScale(fixed, mode).stripTrailingZeros().toPlainString()
-}
-
-/**
- * 空自动变为“0”
- */
-fun String?.orZero(): String {
-    return if(isNullOrEmpty()) "0" else this
 }
 
 /**
@@ -417,9 +410,10 @@ fun String?.multiply(number: String): String {
  * 除
  * number可以是Number類型轉換為字符串
  * 如果number是字符串，必須是數值（'1'或‘-1’）的字符串
+ * 如果除数是小数或除不尽，则必须指定小数位数
  */
-fun String?.divide(number: String): String {
+fun String?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN): String {
     //抹去末尾多餘的0，某些字符串可能是0.0或0.00,除數不能為0，碰到這種情況直接返回0
     if (number.removeEndZero() == "0") return "0"
-    return BigDecimal(this).divide(BigDecimal(number.removeEndZero())).toPlainString().removeEndZero()
+    return BigDecimal(this).divide(BigDecimal(number.removeEndZero()), scale, mode).toPlainString().removeEndZero()
 }

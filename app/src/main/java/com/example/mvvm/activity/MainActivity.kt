@@ -1,24 +1,32 @@
 package com.example.mvvm.activity
 
+import android.text.TextWatcher
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
+import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
+import com.example.common.widget.textview.edit.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.common.widget.xrecyclerview.refresh.headerMaxDragRate
+import com.example.framework.utils.function.value.toSafeDouble
 import com.example.framework.utils.function.value.toSafeFloat
+import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.mvvm.databinding.ActivityMainBinding
+import com.example.mvvm.widget.dialog.TestTopDialog
 
 @Route(path = ARouterPath.MainActivity)
-class MainActivity : BaseActivity<ActivityMainBinding>() {
+class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
+    //    private val illustratePopup by lazy { IllustratePopup(this) }
+    private val testBottom by lazy { TestTopDialog() }
 
     override fun initEvent() {
         super.initEvent()
         //通过代码动态重置一下顶部的高度
-        val bgHeight = 328.pt + getStatusBarHeight()
+        val bgHeight = 164.pt + getStatusBarHeight()
         binding.ivFundsBg.size(height = bgHeight)
         binding.llFunds.apply {
             size(height = bgHeight)
@@ -28,9 +36,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         binding.refresh.headerMaxDragRate()
         //设置头部的滑动监听
         (binding.refresh.refreshHeader as? ProjectRefreshHeader)?.apply {
-            onDragListener = { isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int ->
-                changeBgHeight(offset)
-            }
+            onDragListener =
+                { isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int ->
+                    changeBgHeight(offset)
+                }
+        }
+        binding.viewContent.click {
+            "dsfdsfdsfds".shortToast()
+//            testBottom.show(supportFragmentManager,"testBottom")
+//            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
         }
     }
 

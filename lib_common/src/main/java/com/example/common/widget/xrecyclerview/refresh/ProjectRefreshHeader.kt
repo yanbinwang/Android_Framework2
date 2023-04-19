@@ -9,7 +9,7 @@ import com.example.common.R
 import com.example.common.databinding.ViewRefreshHeaderBinding
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.view.imageResource
+import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.tint
@@ -34,9 +34,9 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
-        binding.root.size(LayoutParams.MATCH_PARENT, 80.pt)
+        binding.root.size(LayoutParams.MATCH_PARENT, 40.pt)
         binding.ivProgress.let {
-            it.imageResource(R.drawable.animation_list_loading)
+            it.setResource(R.drawable.animation_list_loading)
             it.tint(R.color.appTheme)
             animation = it.drawable as? AnimationDrawable
         }

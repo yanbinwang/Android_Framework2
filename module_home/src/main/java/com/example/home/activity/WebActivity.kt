@@ -2,6 +2,7 @@ package com.example.home.activity
 
 import android.content.Context
 import android.view.KeyEvent
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.home.databinding.ActivityWebBinding
@@ -26,11 +27,7 @@ class WebActivity : BaseActivity<ActivityWebBinding>(), WebImpl {
         return true
     }
 
-    override fun getContext(): Context {
-        return this
-    }
-
-    override fun getLifecycleOwner(): LifecycleOwner {
+    override fun getActivity(): FragmentActivity {
         return this
     }
 

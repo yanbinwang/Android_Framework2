@@ -23,6 +23,7 @@ import com.example.framework.utils.EditTextUtil
 import com.example.framework.utils.function.value.*
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
+import java.math.BigDecimal
 import java.util.*
 
 //------------------------------------textview扩展函数类------------------------------------
@@ -301,7 +302,7 @@ fun EditText?.setSafeSelection(start: Int, stop: Int? = null) {
  */
 fun EditText?.getNumber(): String {
     this ?: return "0"
-    return text.toString().orZero()
+    return text.toString().ifEmpty { "0" }
 }
 
 fun EditText?.add(number: String) {
@@ -319,9 +320,9 @@ fun EditText?.multiply(number: String) {
     setText(getNumber().multiply(number))
 }
 
-fun EditText?.divide(number: String) {
+fun EditText?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
     this ?: return
-    setText(getNumber().divide(number))
+    setText(getNumber().divide(number, scale, mode))
 }
 
 /**

@@ -12,11 +12,9 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import com.example.common.BaseApplication
-import com.example.common.BuildConfig
 import com.example.common.R
 import com.example.common.config.Constants.NO_DATA
-import com.example.common.config.Constants.NO_DATA_DOLLAR
-import com.example.common.config.Constants.NO_DATA_PERCENT
+import com.example.common.config.ServerConfig
 import com.example.common.utils.GsonUtil
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.ScreenUtil.getRealSize
@@ -38,7 +36,7 @@ import com.example.framework.utils.setSpanFirst
  */
 val Int?.byHostUrl get() = string(this.orZero).byHostUrl
 
-val String?.byHostUrl get() = "${BuildConfig.LOCALHOST}${this}"
+val String?.byHostUrl get() = "${ServerConfig.serverUrl()}${this}"
 
 /**
  * 设计图尺寸转换为实际尺寸
@@ -112,13 +110,13 @@ fun String?.orNoData(): String {
     return if (isNullOrEmpty()) NO_DATA else this
 }
 
-fun String?.orNoDollar(): String {
-    return if (isNullOrEmpty()) NO_DATA_DOLLAR else this
-}
-
-fun String?.orNoPercent(): String {
-    return if (isNullOrEmpty()) NO_DATA_PERCENT else this
-}
+//fun String?.orNoDollar(): String {
+//    return if (isNullOrEmpty()) NO_DATA_DOLLAR else this
+//}
+//
+//fun String?.orNoPercent(): String {
+//    return if (isNullOrEmpty()) NO_DATA_PERCENT else this
+//}
 
 /**
  * 对象转json

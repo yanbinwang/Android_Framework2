@@ -1,5 +1,7 @@
 package com.example.framework.utils.function.view
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Paint
@@ -375,6 +377,24 @@ fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
 }
 
 /**
+ * 旋轉
+ */
+fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
+    if (this == null) return
+    if (cancelAnim) {
+        cancelAnim()
+    } else if (animation != null) {
+        if (animation.hasStarted() && !animation.hasEnded()) {
+            return
+        }
+    }
+    val refresh = AnimatorSet()
+    refresh.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f))
+    refresh.duration = time
+    refresh.start()
+}
+
+/**
  * 取消View的动画
  */
 fun View?.cancelAnim() {
@@ -425,6 +445,16 @@ fun View?.text(): String {
         is Button -> text.toString().trim { it <= ' ' }
         else -> ""
     }
+}
+
+/**
+ * 当一个容器内的view在被滑动时，如果执行取消刷新的操作，并不会执行，故而先传递一个取消的事件（模拟手指离开屏幕）
+ * header的onDragListener中关闭refresh的刷新前，先调用取消的action，告知系统手势离开屏幕，然后再关闭
+ * ->(refresh.parent as? ViewGroup)?.dispatchTouchEvent....
+ */
+fun ViewGroup?.actionCancel() {
+    if (this == null) return
+    dispatchTouchEvent(MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
 }
 
 /**
@@ -496,7 +526,7 @@ fun ImageView?.tint(@ColorRes res: Int) {
 /**
  * 图片src资源
  */
-fun ImageView?.imageResource(@DrawableRes resId: Int) {
+fun ImageView?.setResource(@DrawableRes resId: Int) {
     this ?: return
     setImageResource(resId)
 }

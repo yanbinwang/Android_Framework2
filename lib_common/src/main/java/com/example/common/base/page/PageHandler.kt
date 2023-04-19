@@ -4,13 +4,12 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
-import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import com.alibaba.android.arouter.core.LogisticsCenter
 import com.alibaba.android.arouter.exception.NoRouteFoundException
 import com.alibaba.android.arouter.launcher.ARouter
-import com.example.common.config.Extras
+import com.example.common.base.page.Extras.REQUEST_CODE
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.function.value.orFalse
@@ -24,10 +23,7 @@ import java.io.Serializable
  */
 fun ViewGroup.setState(imgRes: Int = -1, text: String? = null){
     val emptyLayout = if (this is EmptyLayout) this else getEmptyView()
-    emptyLayout.apply {
-        visibility = View.VISIBLE
-        error(imgRes, text)
-    }
+    emptyLayout?.error(imgRes, text)
 }
 
 /**
@@ -42,7 +38,7 @@ fun XRecyclerView.setState(length: Int = 0, imgRes: Int = -1, text: String? = nu
 /**
  * 详情页
  */
-fun ViewGroup.getEmptyView(): EmptyLayout {
+fun ViewGroup.getEmptyView(): EmptyLayout? {
     val emptyLayout: EmptyLayout?
     if (childCount <= 1) {
         emptyLayout = EmptyLayout(context)
@@ -51,7 +47,7 @@ fun ViewGroup.getEmptyView(): EmptyLayout {
             loading()
         }
         addView(emptyLayout)
-    } else emptyLayout = getChildAt(1) as EmptyLayout
+    } else emptyLayout = getChildAt(1) as? EmptyLayout
     return emptyLayout
 }
 
@@ -66,7 +62,7 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
             val key = param?.first
             val value = param?.second
             val cls = value?.javaClass
-            if (key == Extras.REQUEST_CODE) {
+            if (key == REQUEST_CODE) {
                 requestCode = value as? Int
                 continue
             }

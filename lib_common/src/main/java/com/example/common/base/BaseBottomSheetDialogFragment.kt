@@ -1,14 +1,16 @@
 package com.example.common.base
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.os.Looper
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.AppCompatEditText
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
@@ -16,6 +18,7 @@ import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.core.Controller
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.model.GuidePage
+import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
@@ -30,10 +33,12 @@ import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
 import com.example.common.widget.dialog.LoadingDialog
+import com.example.common.widget.textview.edit.SpecialEditText
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.*
 import com.example.framework.utils.logE
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
@@ -48,13 +53,16 @@ import java.lang.reflect.ParameterizedType
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
+/**
+ * 底部弹框使用的dialog
+ */
 abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
     protected lateinit var binding: VDB
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
-    private val immersionBar by lazy { ImmersionBar.with(this) }
     private var showTime = 0L
     private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving
+    private val immersionBar by lazy { ImmersionBar.with(mActivity) }
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
     private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }
     private val job = SupervisorJob()
@@ -100,6 +108,95 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         return binding.root
     }
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return object : BottomSheetDialog(requireContext(), R.style.TransparentBottomSheetStyle) {
+            override fun dismiss() {
+                hideSoftKeyboard()
+                super.dismiss()
+            }
+
+            protected fun hideSoftKeyboard() {
+                val inputMethodManager = BaseApplication.instance.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(binding.root.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+            }
+
+            /**
+             * 点击EditText之外的部分关闭软键盘
+             */
+            private var flagMove = false
+            override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+                when (ev.action) {
+                    MotionEvent.ACTION_DOWN -> flagMove = false
+                    MotionEvent.ACTION_MOVE -> flagMove = true
+                    MotionEvent.ACTION_UP -> {
+                        if (!flagMove) {
+                            val v = currentFocus
+                            if (isShouldHideInput(v, ev)) {
+                                clearEditTextFocus(v)
+                                hideInputMethod(v)
+                            }
+                            return super.dispatchTouchEvent(ev)
+                        }
+                    }
+                }
+                //必不可少，否则所有的组件都不会有TouchEvent了
+                return if (window?.superDispatchTouchEvent(ev).orFalse) true else onTouchEvent(ev)
+            }
+
+            protected fun hideInputMethod(v: View?) {
+                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+                imm?.hideSoftInputFromWindow(v?.windowToken, 0)
+            }
+
+            /**
+             * 设置EditText失去焦点
+             */
+            private fun clearEditTextFocus(view: View?) {
+                if (view != null && view is EditText) {
+                    view.clearFocus()
+                }
+            }
+
+            private fun View.findSpecialEditTextParent(maxTimes: Int): View? {
+                var view = this
+                for (i in 0..maxTimes) {
+                    if (view is SpecialEditText) return view
+                    view = view.parent as? View ?: return null
+                }
+                return null
+            }
+
+            /**
+             * 判断是否应该隐藏软键盘
+             */
+            private fun isShouldHideInput(v: View?, event: MotionEvent): Boolean {
+                if (v != null && (v is EditText || v is AppCompatEditText || v is SpecialEditText)) {
+                    val leftTop = intArrayOf(0, 0)
+                    val width: Int
+                    val height: Int
+                    //获取输入框当前的location位置
+                    val parent = v.findSpecialEditTextParent(5)
+                    if (parent != null) {
+                        parent.getLocationInWindow(leftTop)
+                        height = parent.height
+                        width = parent.width
+                    } else {
+                        v.getLocationInWindow(leftTop)
+                        height = v.height
+                        width = v.width
+                    }
+                    val left = leftTop[0]
+                    val top = leftTop[1]
+                    val bottom = top + height
+                    val right = left + width
+                    //点击的是输入框区域，保留点击EditText的事件
+                    return !(event.rawX.toInt() in left..right && event.rawY.toInt() in top..bottom)
+                }
+                return false
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
@@ -125,7 +222,11 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     }
 
     override fun dismiss() {
-        super.dismissAllowingStateLoss()
+        try {
+            super.dismissAllowingStateLoss()
+        } catch (e: Exception) {
+            e.logE
+        }
     }
 
     override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
@@ -186,6 +287,18 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     override fun GONE(vararg views: View?) {
         views.forEach { it?.gone() }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        //设置软键盘不自动弹出
+        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
+//        //本身完全弹出
+//        (view?.parent as? View)?.let {
+//            runCatching {
+//                BottomSheetBehavior.from(it).peekHeight = screenHeight
+//            }
+//        }
     }
 
     override fun onDestroy() {

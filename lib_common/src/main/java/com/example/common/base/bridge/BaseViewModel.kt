@@ -21,7 +21,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.CoroutineStart.LAZY
 import kotlinx.coroutines.Dispatchers.Main
 import org.greenrobot.eventbus.Subscribe
-import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -35,27 +34,27 @@ import kotlin.coroutines.EmptyCoroutineContext
 @SuppressLint("StaticFieldLeak")
 abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakActivity: WeakReference<FragmentActivity>? = null//引用的activity
-    private var softView: SoftReference<BaseView>? = null//基础UI操作
+    private var weakView: WeakReference<BaseView>? = null//基础UI操作
 
     //部分view的操作交予viewmodel去操作，不必让activity去操作
-    private var softEmpty: SoftReference<EmptyLayout>? = null//遮罩UI
-    private var softRecycler: SoftReference<XRecyclerView>? = null//列表UI
-    private var softRefresh: SoftReference<SmartRefreshLayout>? = null//刷新控件
+    private var weakEmpty: WeakReference<EmptyLayout?>? = null//遮罩UI
+    private var weakRecycler: WeakReference<XRecyclerView?>? = null//列表UI
+    private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
 
     //基础的注入参数
     protected val activity: FragmentActivity get() = weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity()
     protected val context: Context get() = activity
-    protected val view: BaseView? get() = softView?.get()
+    protected val view: BaseView? get() = weakView?.get()
 
     //获取对应的控件
-    val emptyView: EmptyLayout? get() = softEmpty?.get()
-    val recyclerView: XRecyclerView? get() = softRecycler?.get()
-    val refreshLayout: SmartRefreshLayout? get() = softRefresh?.get()
+    val emptyView get() = weakEmpty?.get()
+    val recyclerView get() = weakRecycler?.get()
+    val refreshLayout get() = weakRefresh?.get()
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
         this.weakActivity = WeakReference(activity)
-        this.softView = SoftReference(view)
+        this.weakView = WeakReference(view)
     }
 
     /**
@@ -64,16 +63,16 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 其余页面外层写FrameLayout，套上要使用的布局后再initView中调用该方法
      */
     fun setEmptyView(viewGroup: ViewGroup) {
-        this.softEmpty = SoftReference(viewGroup.getEmptyView())
+        this.weakEmpty = WeakReference(viewGroup.getEmptyView())
     }
 
     fun setRecyclerView(recycler: XRecyclerView) {
-        this.softEmpty = SoftReference(recycler.empty)
-        this.softRecycler = SoftReference(recycler)
+        this.weakEmpty = WeakReference(recycler.empty)
+        this.weakRecycler = WeakReference(recycler)
     }
 
     fun setRefreshLayout(refresh: SmartRefreshLayout) {
-        this.softRefresh = SoftReference(refresh)
+        this.weakRefresh = WeakReference(refresh)
     }
 
     /**
@@ -90,18 +89,18 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * job.cancel().apply{ view?.hideDialog() }
      */
     protected fun <T> launch(
-        request: suspend CoroutineScope.() -> ApiResponse<T>,      // 请求
-        resp: (T?) -> Unit = {},                                   // 响应
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}, // 错误处理
-        end: () -> Unit = {},                                      // 最后执行方法
-        isShowToast: Boolean = true,                               // 是否toast
-        isShowDialog: Boolean = true,                              // 是否显示加载框
-        isClose: Boolean = true                                    // 请求结束前是否关闭dialog
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, // 请求
+        resp: (T?) -> Unit = {},                                     // 响应
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},   // 错误处理
+        end: () -> Unit = {},                                        // 最后执行方法
+        isShowToast: Boolean = true,                                 // 是否toast
+        isShowDialog: Boolean = true,                                // 是否显示加载框
+        isClose: Boolean = true                                      // 请求结束前是否关闭dialog
     ): Job {
         if (isShowDialog) view?.showDialog()
         return launch {
             request(
-                { request() },
+                { coroutineScope() },
                 { resp(it) },
                 { err(it) },
                 {
@@ -112,56 +111,41 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         }
     }
 
-//    /**
-//     * 串行发起多个网络请求
-//     * 多个网络请求之间并无关联，可以使用此方法
-//     */
-//    protected fun launch(
-//        requests: List<suspend CoroutineScope.() -> ApiResponse<*>>,
-//        end: (result: MutableList<Any?>?) -> Unit = {},
-//        isShowDialog: Boolean = false,
-//        isClose: Boolean = true
-//    ): Job {
-//        if (isShowDialog) view?.showDialog()
-//        return launch(Main) {
-//            request(requests) {
-//                if (isShowDialog || isClose) view?.hideDialog()
-//                end(it)
-//            }
-//        }
-//    }
-
     /**
      * 不做回调，直接得到结果
      * 在不调用await（）方法时可以当一个参数写，调用了才会发起请求并拿到结果
-     * //並發
+     * //并发
      * launch{
-     *   val task1 = async { req.request(model.getUserData()) }
-     *   val task2 = async { req.request(model.getUserData()) }
-     *   //.....對象的處理
-     *   //並發請求
-     *   awaitAll(task1,task2)
+     *   val task1 = async({ req.request(model.getUserData() })
+     *   val task2 = async({ req.request(model.getUserData() })
+     *   //单个请求主动发起，处理对象
+     *   task1.await()
+     *   task2.await()
+     *   //同时发起多个请求，list拿取对象
+     *   val taskList = awaitAll(task1, task2)
+     *   taskList.safeGet(0)
+     *   taskList.safeGet(1)
      * }
      * //串行
      * launch{
-     *    val task1 = request { (model.getUserData()) }
-     *    val task2 = request { (model.getUserData()) }
+     *    val task1 = request({ model.getUserData() })
+     *    val task2 = request({ model.getUserData() })
      * }
      */
     protected fun <T> async(
-        request: suspend CoroutineScope.() -> ApiResponse<T>,
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
         isShowToast: Boolean = false
     ): Deferred<T?> {
-        return async(Main, LAZY) { request({ request() }, isShowToast = isShowToast) }
+        return async(Main, LAZY) { request({ coroutineScope() }, isShowToast = isShowToast) }
     }
 
     override fun onCleared() {
         super.onCleared()
         weakActivity?.clear()
-        softView?.clear()
-        softEmpty?.clear()
-        softRecycler?.clear()
-        softRefresh?.clear()
+        weakView?.clear()
+        weakEmpty?.clear()
+        weakRecycler?.clear()
+        weakRefresh?.clear()
     }
     // </editor-fold>
 
