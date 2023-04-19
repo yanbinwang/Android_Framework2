@@ -32,4 +32,7 @@
     <string name="password_error">密码由6~20位的字母和數字組成</string>
     <string name="app_not_installed">當前App尚未安裝，請安裝後再試，或嘗試其他渠道</string>
     <string name="file_path_error">文件路径错误</string>
+    <string name="send_sms">发送验证码</string>
+    <string name="send_sms_countdown">已发送{0}S</string>
+    <string name="send_sms_again">重发验证码</string>
 </resources>

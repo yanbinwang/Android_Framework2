@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.Gravity
 import androidx.appcompat.widget.AppCompatTextView
 import com.example.common.R
+import com.example.common.utils.function.string
 import com.example.framework.utils.TimerUtil
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
@@ -17,11 +18,11 @@ import java.text.MessageFormat
  */
 @SuppressLint("SetTextI18n")
 class TimerTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatTextView(context, attrs, defStyleAttr) {
-    private val tickTxt = "已发送{0}S"
+    private val tickTxt = string(R.string.send_sms_countdown)
     private var timerTag = javaClass.simpleName
 
     init {
-        text = "发送验证码"
+        text = string(R.string.send_sms)
         gravity = Gravity.CENTER
         textColor(R.color.appTheme)
         textSize(R.dimen.textSize14)
@@ -34,7 +35,7 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
             text = MessageFormat.format(tickTxt, second.toString())
         }, {
             isEnabled = true
-            text = "重发验证码"
+            text = string(R.string.send_sms_again)
         }, time)
     }
 
