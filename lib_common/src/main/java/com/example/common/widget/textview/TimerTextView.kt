@@ -8,6 +8,8 @@ import androidx.appcompat.widget.AppCompatTextView
 import com.example.common.R
 import com.example.common.utils.function.string
 import com.example.framework.utils.TimerUtil
+import com.example.framework.utils.function.view.disable
+import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
 import java.text.MessageFormat
@@ -31,10 +33,10 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
     fun start(tag: String? = "", time: Long = 60) {
         if (!tag.isNullOrEmpty()) timerTag = tag
         TimerUtil.startCountDown(timerTag, { second: Long? ->
-            isEnabled = false
+            disable()
             text = MessageFormat.format(tickTxt, second.toString())
         }, {
-            isEnabled = true
+            enable()
             text = string(R.string.send_sms_again)
         }, time)
     }
