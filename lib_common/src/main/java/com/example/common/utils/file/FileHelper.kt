@@ -177,7 +177,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
 
     private suspend fun download(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
         if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-            R.string.download_url_error.shortToast()
+            R.string.link_invalid_error.shortToast()
             return
         }
         onStart()

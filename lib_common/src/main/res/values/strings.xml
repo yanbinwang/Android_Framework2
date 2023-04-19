@@ -25,14 +25,5 @@
     <string name="data_error">页面加载失败，请重试~</string>
     <string name="data_net_error">暂无网络，试试刷新页面吧~</string>
     <string name="loading">正在加载中&#8230;</string>
-    <string name="download_url_error">链接地址不合法</string>
-    <string name="email_empty">邮箱不能为空</string>
-    <string name="email_error">邮箱格式错误</string>
-    <string name="password_empty">密码不能为空</string>
-    <string name="password_error">密码由6~20位的字母和數字組成</string>
-    <string name="app_not_installed">當前App尚未安裝，請安裝後再試，或嘗試其他渠道</string>
-    <string name="file_path_error">文件路径错误</string>
-    <string name="send_sms">发送验证码</string>
-    <string name="send_sms_countdown">已发送{0}S</string>
-    <string name="send_sms_again">重发验证码</string>
+    <string name="link_invalid_error">链接地址不合法</string>
 </resources>

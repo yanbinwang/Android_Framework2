@@ -159,7 +159,7 @@ private class XWebViewClient(val onPageStarted: () -> Unit, val onPageFinished: 
         } catch (e: Exception) {
             // 防止没有安装的情况
             e.logE
-            R.string.app_not_installed.shortToast()
+            "當前App尚未安裝，請安裝後再試，或嘗試其他渠道".shortToast()
         }
     }
 

@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.core.content.FileProvider
-import com.example.common.R
 import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
@@ -155,7 +154,7 @@ fun Context.sendFile(filePath: String, fileType: String? = "*/*", title: String?
 
 private fun isExists(file: File): Boolean {
     if (!file.exists()) {
-        R.string.file_path_error.shortToast()
+        "文件路径错误".shortToast()
         return false
     }
     return true
