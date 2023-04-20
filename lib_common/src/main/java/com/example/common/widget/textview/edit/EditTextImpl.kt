@@ -3,19 +3,14 @@ package com.example.common.widget.textview.edit
 import android.widget.EditText
 import androidx.annotation.StringRes
 import com.example.common.utils.builder.shortToast
+import com.example.framework.utils.function.value.detectEmail
+import com.example.framework.utils.function.value.detectPassword
+import java.util.regex.Pattern
 
 /**
  * kt中的接口是可以实现的，实现后的方法只有继承的类才能使用
  */
 interface EditTextImpl {
-
-    /**
-     * el表达式
-     */
-    companion object {
-        val regMail = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+\$")
-        val regPass = Regex("^(?![0-9]+\$)(?![a-zA-Z]+\$)[0-9A-Za-z]{6,20}\$")
-    }
 
     /**
      * 检测内容文本是否在输入范围内
@@ -65,7 +60,7 @@ interface EditTextImpl {
             if (hasToast) "邮箱不能为空".shortToast()
             return false
         }
-        if (regMail.matches(text)) return true
+        if (text.toString().detectEmail()) return true
         if (hasToast) "邮箱格式错误".shortToast()
         return false
     }
@@ -86,7 +81,7 @@ interface EditTextImpl {
             if (hasToast) "密码不能为空".shortToast()
             return false
         }
-        if (!regPass.matches(text)) {
+        if (!text.toString().detectPassword()) {
             if (hasToast) "密码由6~20位的字母和數字組成".shortToast()
             return false
         }
@@ -101,4 +96,18 @@ interface EditTextImpl {
         return editText.checkPassReg(hasToast)
     }
 
+}
+
+/**
+ * 返回密码强度
+ */
+fun String?.passwordLevel(): Int {
+    if (this.isNullOrEmpty()) return 0
+    //纯数字、纯字母、纯特殊字符
+    if (this.length < 8 || Pattern.matches("^\\d+$", this) || Pattern.matches("^[a-z]+$", this) || Pattern.matches("^[A-Z]+$", this) || Pattern.matches("^[@#$%^&]+$", this)) return 1
+    //字母+数字、字母+特殊字符、数字+特殊字符
+    if (Pattern.matches("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$", this) || Pattern.matches("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$", this) || Pattern.matches("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$", this) || Pattern.matches("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$", this) || Pattern.matches("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$", this) || Pattern.matches("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$", this)) return 2
+    //字母+数字+特殊字符
+    if (Pattern.matches("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$", this)) return 3
+    return 3
 }

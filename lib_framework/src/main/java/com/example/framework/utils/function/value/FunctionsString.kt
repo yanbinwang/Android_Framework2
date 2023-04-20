@@ -4,6 +4,9 @@ import android.net.Uri
 import android.text.Html
 import android.text.Spanned
 import android.util.Base64
+import com.example.framework.utils.function.value.ELFormat.EMAIL
+import com.example.framework.utils.function.value.ELFormat.MOBILE
+import com.example.framework.utils.function.value.ELFormat.PASSWORD
 import java.util.regex.Pattern
 import kotlin.math.pow
 
@@ -161,12 +164,24 @@ fun String?.addUrlParam(key: String?, value: String?): String? {
 }
 
 /**
+ * 接取固定长度的字符串
+ */
+fun String?.fixLength(size: Int): String {
+    if (this == null) return ""
+    return if (length.orZero > size) {
+        substring(0, size)
+    } else {
+        this
+    }
+}
+
+/**
  * 隐藏手机号码的中间4位
  */
-fun String?.hide4BitLetter(): String {
+fun String?.hidePhoneNumber(): String {
     this ?: return ""
     var value = ""
-    if (isMobile()) {
+    if (Regex(MOBILE).matches(this)) {
         val ch = toCharArray()
         for (index in ch.indices) {
             if (index in 3..6) {
@@ -180,42 +195,24 @@ fun String?.hide4BitLetter(): String {
 }
 
 /**
- * 验证手机号
+ * 检测手机号
  */
-fun String?.isMobile() = Pattern.matches("^1[0-9]{10}$", this.orEmpty())
+fun String?.detectMobile() = Pattern.matches(MOBILE, this.orEmpty())
 
 /**
- * 验证邮箱
+ * 检测邮箱
  */
-fun String?.isEmail() = Pattern.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+\$", this.orEmpty())
+fun String?.detectEmail() = Pattern.matches(EMAIL, this.orEmpty())
 
 /**
- * 验证密码
+ * 检测密码
  */
-fun String?.isPassword() = Pattern.matches("^(?![0-9]+\$)(?![a-zA-Z]+\$)[0-9A-Za-z]{6,20}\$", this.orEmpty())
+fun String?.detectPassword() = Pattern.matches(PASSWORD, this.orEmpty())
 
-/**
- * 返回密码强度
- */
-fun String?.checkSecurity(): Int {
-    if (this.isNullOrEmpty()) return 0
-    //纯数字、纯字母、纯特殊字符
-    if (this.length < 8 || Pattern.matches("^\\d+$", this) || Pattern.matches("^[a-z]+$", this) || Pattern.matches("^[A-Z]+$", this) || Pattern.matches("^[@#$%^&]+$", this)) return 1
-    //字母+数字、字母+特殊字符、数字+特殊字符
-    if (Pattern.matches("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$", this) || Pattern.matches("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$", this) || Pattern.matches("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$", this) || Pattern.matches("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$", this) || Pattern.matches("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$", this) || Pattern.matches("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$", this)) return 2
-    //字母+数字+特殊字符
-    if (Pattern.matches("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$", this)) return 3
-    return 3
+// <editor-fold defaultstate="collapsed" desc="EL表达式">
+object ELFormat {
+    const val MOBILE = "^1[0-9]{10}$"
+    const val EMAIL = "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+\$"
+    const val PASSWORD = "^(?![0-9]+\$)(?![a-zA-Z]+\$)[0-9A-Za-z]{6,20}\$"
 }
-
-/**
- * 接取固定长度的字符串
- */
-fun String?.toFixLength(size: Int): String {
-    if (this == null) return ""
-    return if (length.orZero > size) {
-        substring(0, size)
-    } else {
-        this
-    }
-}
+// </editor-fold>
