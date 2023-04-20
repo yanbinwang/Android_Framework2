@@ -4,9 +4,7 @@ import android.net.Uri
 import android.text.Html
 import android.text.Spanned
 import android.util.Base64
-import com.example.framework.utils.function.value.ELFormat.EMAIL
 import com.example.framework.utils.function.value.ELFormat.MOBILE
-import com.example.framework.utils.function.value.ELFormat.PASSWORD
 import java.util.regex.Pattern
 import kotlin.math.pow
 
@@ -181,7 +179,7 @@ fun String?.fixLength(size: Int): String {
 fun String?.hidePhoneNumber(): String {
     this ?: return ""
     var value = ""
-    if (matchMobile()) {
+    if (regexMatch(MOBILE)) {
         val ch = toCharArray()
         for (index in ch.indices) {
             if (index in 3..6) {
@@ -195,19 +193,9 @@ fun String?.hidePhoneNumber(): String {
 }
 
 /**
- * 检测手机号
+ * 检测
  */
-fun String?.matchMobile() = Pattern.matches(MOBILE, this.orEmpty())
-
-/**
- * 检测邮箱
- */
-fun String?.matchEmail() = Pattern.matches(EMAIL, this.orEmpty())
-
-/**
- * 检测密码
- */
-fun String?.matchPassword() = Pattern.matches(PASSWORD, this.orEmpty())
+fun String?.regexMatch(regex:String) = Pattern.matches(regex, this.orEmpty())
 
 // <editor-fold defaultstate="collapsed" desc="EL表达式">
 object ELFormat {
