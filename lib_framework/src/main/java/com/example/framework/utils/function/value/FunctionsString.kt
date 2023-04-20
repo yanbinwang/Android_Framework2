@@ -181,7 +181,7 @@ fun String?.fixLength(size: Int): String {
 fun String?.hidePhoneNumber(): String {
     this ?: return ""
     var value = ""
-    if (Regex(MOBILE).matches(this)) {
+    if (matchMobile()) {
         val ch = toCharArray()
         for (index in ch.indices) {
             if (index in 3..6) {
@@ -197,17 +197,17 @@ fun String?.hidePhoneNumber(): String {
 /**
  * 检测手机号
  */
-fun String?.detectMobile() = Pattern.matches(MOBILE, this.orEmpty())
+fun String?.matchMobile() = Pattern.matches(MOBILE, this.orEmpty())
 
 /**
  * 检测邮箱
  */
-fun String?.detectEmail() = Pattern.matches(EMAIL, this.orEmpty())
+fun String?.matchEmail() = Pattern.matches(EMAIL, this.orEmpty())
 
 /**
  * 检测密码
  */
-fun String?.detectPassword() = Pattern.matches(PASSWORD, this.orEmpty())
+fun String?.matchPassword() = Pattern.matches(PASSWORD, this.orEmpty())
 
 // <editor-fold defaultstate="collapsed" desc="EL表达式">
 object ELFormat {

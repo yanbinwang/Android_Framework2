@@ -3,8 +3,8 @@ package com.example.common.widget.textview.edit
 import android.widget.EditText
 import androidx.annotation.StringRes
 import com.example.common.utils.builder.shortToast
-import com.example.framework.utils.function.value.detectEmail
-import com.example.framework.utils.function.value.detectPassword
+import com.example.framework.utils.function.value.matchEmail
+import com.example.framework.utils.function.value.matchPassword
 import java.util.regex.Pattern
 
 /**
@@ -60,7 +60,7 @@ interface EditTextImpl {
             if (hasToast) "邮箱不能为空".shortToast()
             return false
         }
-        if (text.toString().detectEmail()) return true
+        if (text.toString().matchEmail()) return true
         if (hasToast) "邮箱格式错误".shortToast()
         return false
     }
@@ -81,7 +81,7 @@ interface EditTextImpl {
             if (hasToast) "密码不能为空".shortToast()
             return false
         }
-        if (!text.toString().detectPassword()) {
+        if (!text.toString().matchPassword()) {
             if (hasToast) "密码由6~20位的字母和數字組成".shortToast()
             return false
         }
