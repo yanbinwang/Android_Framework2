@@ -1,6 +1,7 @@
 package com.example.common.network.repository
 
 import com.example.common.R
+import com.example.common.base.bridge.BaseView
 import com.example.common.network.repository.ApiCode.FAILURE
 import com.example.common.network.repository.ApiCode.SUCCESS
 import com.example.common.network.repository.ApiCode.TOKEN_EXPIRED
@@ -16,6 +17,52 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 
+/**
+ * 网络请求协程扩展-直接获取到对象
+ * 如果几个以上的请求，互相之间有关联，则使用当前方法
+ * launch {
+ *  val task1 = request(1api)
+ *  val task2 = request(2api)
+ * }
+ */
+class MultiReqUtil(
+    var view: BaseView?,
+    val isShowDialog: Boolean = true,
+    val err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+) {
+    private var loadingStarted = false//是否开始加载
+
+    /**
+     * 发起请求
+     */
+    suspend fun <T> request(
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+    ): T? {
+        if (isShowDialog && !loadingStarted) {
+            view?.showDialog()
+            loadingStarted = true
+        }
+        var t: T? = null
+        request({ coroutineScope() }, {
+            t = it
+        }, err, isShowToast = false)
+        return t
+    }
+
+    /**
+     * 请求结束主动调取
+     */
+    fun end() {
+        if (isShowDialog) {
+            view?.hideDialog()
+            loadingStarted = false
+        }
+        view = null
+    }
+
+}
+
 //------------------------------------针对协程返回的参数(协程只有成功和失败)------------------------------------
 /**
  * 请求转换
@@ -28,9 +75,10 @@ fun <K, V> HashMap<K, V>?.params() =
 /**
  * 提示方法，根据接口返回的msg提示
  */
-fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.response_net_error) else {
-    if (isNullOrEmpty()) resString(R.string.response_error) else this
-}).shortToast()
+fun String?.responseToast() =
+    (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.response_net_error) else {
+        if (isNullOrEmpty()) resString(R.string.response_error) else this
+    }).shortToast()
 
 /**
  * 网络请求协程扩展-并行请求
@@ -75,13 +123,12 @@ suspend fun <T> request(
  */
 suspend fun <T> request(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
     isShowToast: Boolean = false
 ): T? {
     var t: T? = null
     request({ coroutineScope() }, {
         t = it
-    }, err, isShowToast = isShowToast)
+    }, isShowToast = isShowToast)
     return t
 }
 

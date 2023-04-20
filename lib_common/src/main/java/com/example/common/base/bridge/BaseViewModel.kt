@@ -9,6 +9,7 @@ import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.repository.ApiResponse
+import com.example.common.network.repository.MultiReqUtil
 import com.example.common.network.repository.request
 import com.example.common.utils.AppManager
 import com.example.common.widget.EmptyLayout
@@ -137,6 +138,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         isShowToast: Boolean = false
     ): Deferred<T?> {
         return async(Main, LAZY) { request({ coroutineScope() }, isShowToast = isShowToast) }
+    }
+
+    protected fun <T> async(
+        req: MultiReqUtil,
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>
+    ): Deferred<T?> {
+        return async(Main, LAZY) { req.request({ coroutineScope() }) }
     }
 
     override fun onCleared() {
