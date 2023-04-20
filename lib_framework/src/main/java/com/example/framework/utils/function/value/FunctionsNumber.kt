@@ -152,9 +152,6 @@ fun Int?.min(min: Int): Int {
     }
 }
 
-/**
- * 设定最小值
- */
 fun Float?.min(min: Float): Float {
     return when {
         this == null -> min
@@ -163,9 +160,6 @@ fun Float?.min(min: Float): Float {
     }
 }
 
-/**
- * 设定最小值
- */
 fun Double?.min(min: Double): Double {
     return when {
         this == null -> min
@@ -174,13 +168,20 @@ fun Double?.min(min: Double): Double {
     }
 }
 
-/**
- * 设定最小值
- */
 fun Long?.min(min: Long): Long {
     return when {
         this == null -> min
         this <= min -> min
+        else -> this
+    }
+}
+
+fun String?.min(min: String): String {
+    return when {
+        this == null -> min
+        min.numberCompareTo(this).let {
+            it == 0 || it == 1
+        } -> min
         else -> this
     }
 }
@@ -196,9 +197,6 @@ fun Int?.max(max: Int): Int {
     }
 }
 
-/**
- * 设定最大值
- */
 fun Long?.max(max: Long): Long {
     return when {
         this == null -> max
@@ -207,9 +205,6 @@ fun Long?.max(max: Long): Long {
     }
 }
 
-/**
- * 设定最大值
- */
 fun Float?.max(max: Float): Float {
     return when {
         this == null -> max
@@ -218,13 +213,20 @@ fun Float?.max(max: Float): Float {
     }
 }
 
-/**
- * 设定最大值
- */
 fun Double?.max(max: Double): Double {
     return when {
         this == null -> max
         this >= max -> max
+        else -> this
+    }
+}
+
+fun String?.max(max: String): String {
+    return when {
+        this == null -> max
+        this.numberCompareTo(max).let {
+            it == 0 || it == 1
+        } -> max
         else -> this
     }
 }
