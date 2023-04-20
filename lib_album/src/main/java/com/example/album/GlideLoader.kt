@@ -17,7 +17,7 @@ class GlideLoader : AlbumLoader {
     }
 
     override fun load(imageView: ImageView, url: String) {
-        Glide.with(imageView.context).load(url).placeholder(R.drawable.shape_glide_loading).error(R.drawable.shape_glide_loading).dontAnimate().into(imageView)
+        Glide.with(imageView.context).load(url).placeholder(R.drawable.shape_glide_bg).error(R.drawable.shape_glide_bg).dontAnimate().into(imageView)
     }
 
 }
