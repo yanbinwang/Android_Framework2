@@ -75,12 +75,13 @@ suspend fun <T> request(
  */
 suspend fun <T> request(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
     isShowToast: Boolean = false
 ): T? {
     var t: T? = null
     request({ coroutineScope() }, {
         t = it
-    }, isShowToast = isShowToast)
+    }, err, isShowToast = isShowToast)
     return t
 }
 

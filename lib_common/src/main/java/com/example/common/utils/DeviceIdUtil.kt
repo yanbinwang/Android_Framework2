@@ -122,7 +122,6 @@ object DeviceIdUtil {
             } catch (ex: Exception) {
                 ex.printStackTrace()
             }
-
         }
         //如果以上硬件标识数据均无法获得，
         //则DeviceId默认使用系统随机数，这样保证DeviceId不为空
