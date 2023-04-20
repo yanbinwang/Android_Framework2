@@ -176,12 +176,13 @@ fun Long?.min(min: Long): Long {
     }
 }
 
-fun String?.min(min: String): String {
+fun String?.min(min: String?): String {
+    val minValue = if(min.isNullOrEmpty()) "0" else min
     return when {
-        this == null -> min
-        min.numberCompareTo(this).let {
+        this == null -> minValue
+        minValue.numberCompareTo(this).let {
             it == 0 || it == 1
-        } -> min
+        } -> minValue
         else -> this
     }
 }
@@ -221,12 +222,13 @@ fun Double?.max(max: Double): Double {
     }
 }
 
-fun String?.max(max: String): String {
+fun String?.max(max: String?): String {
+    val maxValue = if(max.isNullOrEmpty()) "0" else max
     return when {
-        this == null -> max
-        this.numberCompareTo(max).let {
+        this == null -> maxValue
+        this.numberCompareTo(maxValue).let {
             it == 0 || it == 1
-        } -> max
+        } -> maxValue
         else -> this
     }
 }
