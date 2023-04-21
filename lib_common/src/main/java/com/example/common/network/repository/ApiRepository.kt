@@ -27,8 +27,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
  */
 class MultiReqUtil(
     var view: BaseView?,
-    val isShowDialog: Boolean = true,
-    val err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+    private val isShowDialog: Boolean = true,
+    private val err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
 ) {
     private var loadingStarted = false//是否开始加载
 
