@@ -77,11 +77,11 @@
                         android:gravity="center">
 
                         <TextView
+                            text="@{`sadasdsadasdasdas`}"
                             android:layout_width="match_parent"
                             android:layout_height="800pt"
                             android:background="@color/blue_2e60df"
                             android:gravity="center"
-                            android:text="底部内容"
                             android:textColor="@color/white"
                             android:textSize="29pt" />
 

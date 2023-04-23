@@ -13,6 +13,7 @@ import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
+import com.example.mvvm.BR
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.dialog.TestTopDialog
 
