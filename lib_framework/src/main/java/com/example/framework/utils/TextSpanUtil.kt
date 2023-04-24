@@ -175,6 +175,10 @@ class BackgroundImage(private val bean: ImageSpanBean) : ReplacementSpan(), Parc
         canvas.translate(x, top.toFloat())
         //繪製背景
         bean.mDrawable?.setBounds(0, 0, mWidth, bottom - top)
+
+        val measureWidth = paint.measureText("測試標籤")
+        val measureHeight = paint.fontMetrics.bottom - paint.fontMetrics.top
+
         bean.mDrawable?.draw(canvas)
         canvas.drawText(text.toString(), start, end, x, y.toSafeFloat(), paint)
     }
