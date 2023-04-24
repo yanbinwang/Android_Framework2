@@ -171,11 +171,11 @@ class BackgroundImage(private val bean: ImageSpanBean) : ReplacementSpan(), Parc
     override fun draw(canvas: Canvas, text: CharSequence?, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
         paint.textSize = bean.size
         paint.color = bean.color
-        val mDrawable = bean.context.drawable(bean.resid)
         canvas.save()
         canvas.translate(x, top.toFloat())
-        mDrawable?.setBounds(0, 0, mWidth, bottom - top)
-        mDrawable?.draw(canvas)
+        //繪製背景
+        bean.mDrawable?.setBounds(0, 0, mWidth, bottom - top)
+        bean.mDrawable?.draw(canvas)
         canvas.drawText(text.toString(), start, end, x, y.toSafeFloat(), paint)
     }
 
@@ -192,7 +192,6 @@ class BackgroundImage(private val bean: ImageSpanBean) : ReplacementSpan(), Parc
     override fun getSpanTypeId() = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(bean.resid)
     }
 
     override fun describeContents() = 0
@@ -200,8 +199,7 @@ class BackgroundImage(private val bean: ImageSpanBean) : ReplacementSpan(), Parc
 }
 
 data class ImageSpanBean(
-    val context: Context,
-    val resid: Int,//资源id
+    val mDrawable: Drawable?,//资源id
     val size: Float,//文字大小（pt转换）
     val color: Int//文字颜色(color转换)
 )

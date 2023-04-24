@@ -10,6 +10,7 @@ import com.example.framework.utils.ImageSpanBean
 import com.example.framework.utils.TextSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
+import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.hideFadingEdge
 import com.example.mvvm.R
@@ -43,7 +44,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
 
         binding.tvTest.text = TextSpan()
-            .add("測試標籤", ImageSpan(ImageSpanBean(this, R.drawable.shape_test_bg, dimen(R.dimen.textSize14), color(R.color.white))))
+            .add("測試標籤", ImageSpan(ImageSpanBean(drawable(R.drawable.shape_test_bg), dimen(R.dimen.textSize14), color(R.color.white))))
             .add("文本內容")
             .build()
 //        binding.tvTest.text = TextSpan()
