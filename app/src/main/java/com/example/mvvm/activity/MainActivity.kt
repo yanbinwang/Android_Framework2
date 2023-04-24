@@ -20,16 +20,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
     private val ids = listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
     private val adapter by lazy { ImageAdapter() }
+    private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
 
     override fun initView() {
         super.initView()
         adapter.refresh(ids)
         binding.rvTest.adapter = adapter
         binding.rvTest.orientation = ViewPager2.ORIENTATION_VERTICAL
-//        binding.rvTest.orientation = ViewPager2.ORIENTATION_HORIZONTAL
         binding.rvTest.offscreenPageLimit = ids.safeSize - 1
         binding.rvTest.setPageTransformer(CardTransformer())
         binding.rvTest.hideFadingEdge()
+        binding.rvTest.setCurrentItem(if (ids.size > 1) halfPosition - halfPosition % ids.size else 0, false)
     }
 
     override fun initEvent() {

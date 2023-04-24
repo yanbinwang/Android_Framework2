@@ -5,6 +5,8 @@ import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
 import com.example.common.utils.function.color
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.safeGet
+import com.example.framework.utils.function.value.safeSize
 import com.example.mvvm.databinding.ItemImageBinding
 
 /**
@@ -25,8 +27,14 @@ class ImageAdapter : BaseQuickAdapter<Int, ItemImageBinding>() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
             )
+        val index = holder.absoluteAdapterPosition.mod(list().safeSize)
+        val bean = list().safeGet(index)
         binding.apply {
-            viewTest.setBackgroundColor(color(item.orZero))
+            viewTest.setBackgroundColor(color(bean.orZero))
         }
+    }
+
+    override fun getItemCount(): Int {
+        return if (list().size < 2) list().safeSize else Int.MAX_VALUE
     }
 }

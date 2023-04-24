@@ -17,9 +17,9 @@ class CardTransformer : ViewPager2.PageTransformer {
 //    //值越大item間距越大
 //    private val mTranslationOffset = 100f
     //值越大縮放越大
-    private val mScaleOffset = 100.ptFloat
+    private val scaleOffset = 100.ptFloat
     //值越大item間距越大
-    private val mTranslationOffset = 50.ptFloat
+    private val translationOffset = 50.ptFloat
 
     override fun transformPage(page: View, position: Float) {
         "position:${position}".logWTF
@@ -27,12 +27,12 @@ class CardTransformer : ViewPager2.PageTransformer {
             page.translationY = 0f
         } else {
             val pageHeight = page.height
-            val transY = -pageHeight * position + mTranslationOffset * position
+            val transY = -pageHeight * position + translationOffset * position
             page.translationY = transY
             //頂層蓋住下層
             page.translationZ = -position
             //缩放比例
-            val scale = (pageHeight - mScaleOffset * position) / pageHeight.toFloat()
+            val scale = (pageHeight - scaleOffset * position) / pageHeight.toFloat()
             page.scaleX = scale
             page.scaleY = scale
             //只顯示3個
