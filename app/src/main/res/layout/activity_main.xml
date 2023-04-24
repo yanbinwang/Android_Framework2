@@ -11,6 +11,14 @@
             android:layout_height="400pt"
             android:layout_marginTop="80pt" />
 
+        <TextView
+            android:id="@+id/tv_test"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="80pt"
+            android:textColor="@color/blue_1566ec"
+            android:textSize="@dimen/textSize24" />
+
     </FrameLayout>
 
     <!--    <FrameLayout-->

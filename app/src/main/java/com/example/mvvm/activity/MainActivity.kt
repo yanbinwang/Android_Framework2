@@ -5,6 +5,11 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.widget.textview.edit.EditTextImpl
+import com.example.framework.utils.ImageSpan
+import com.example.framework.utils.ImageSpanBean
+import com.example.framework.utils.TextSpan
+import com.example.framework.utils.function.color
+import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.hideFadingEdge
 import com.example.mvvm.R
@@ -18,7 +23,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //    //    private val illustratePopup by lazy { IllustratePopup(this) }
 //    private val testBottom by lazy { TestTopDialog() }
 
-    private val ids = listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
+    private val ids =
+        listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
     private val adapter by lazy { ImageAdapter() }
     private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
 
@@ -30,7 +36,20 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         binding.rvTest.offscreenPageLimit = ids.safeSize - 1
         binding.rvTest.setPageTransformer(CardTransformer())
         binding.rvTest.hideFadingEdge()
-        binding.rvTest.setCurrentItem(if (ids.size > 1) halfPosition - halfPosition % ids.size else 0, false)
+        binding.rvTest.setCurrentItem(
+            if (ids.size > 1) halfPosition - halfPosition % ids.size else 0,
+            false
+        )
+
+
+        binding.tvTest.text = TextSpan()
+            .add("測試標籤", ImageSpan(ImageSpanBean(this, R.drawable.shape_test_bg, dimen(R.dimen.textSize14), color(R.color.white))))
+            .add("文本內容")
+            .build()
+//        binding.tvTest.text = TextSpan()
+//            .add("$", SizeSpan(dimen(R.dimen.textSize14)))
+//            .add("111", ColorSpan(color(R.color.black)))
+//            .build()
     }
 
     override fun initEvent() {

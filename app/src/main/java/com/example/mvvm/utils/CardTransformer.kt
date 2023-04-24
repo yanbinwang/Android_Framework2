@@ -22,7 +22,7 @@ class CardTransformer : ViewPager2.PageTransformer {
     private val translationOffset = 50.ptFloat
 
     override fun transformPage(page: View, position: Float) {
-        "position:${position}".logWTF
+//        "position:${position}".logWTF
         if (position <= 0f) {
             page.translationY = 0f
         } else {
