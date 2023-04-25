@@ -13,6 +13,7 @@ import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.hideFadingEdge
+import com.example.framework.utils.function.view.padding
 import com.example.mvvm.R
 import com.example.mvvm.adapter.ImageAdapter
 import com.example.mvvm.databinding.ActivityMainBinding

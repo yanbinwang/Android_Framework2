@@ -62,13 +62,11 @@ internal class LoggingInterceptor : Interceptor {
             val contentType = responseBody?.contentType()
             if (contentType != null) charset = contentType.charset(UTF8)
             if (!isPlaintext(buffer)) {
-                //信息量过大会只打印部分
                 log(headerValues, requestUrl, queryParams, null)
                 return response
             }
             if (responseBody?.contentLength() != 0L) responseResult = buffer?.clone()?.readString(charset)
         }
-        //打印获取到的全部信息
         log(headerValues, requestUrl, queryParams, responseResult)
         return response
     }
@@ -97,6 +95,10 @@ internal class LoggingInterceptor : Interceptor {
         }
     }
 
+    /**
+     * 打印获取到的信息
+     * 量过大会只打印部分
+     */
     private fun log(headerValues: String, requestUrl: String, queryParams: String?, responseResult: String?) {
         LogUtil.e("LoggingInterceptor", " " +
                 "\n————————————————————————请求开始————————————————————————" +

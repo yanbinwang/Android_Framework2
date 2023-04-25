@@ -169,16 +169,34 @@ class BackgroundImage(private val bean: ImageSpanBean) : ReplacementSpan(), Parc
     private var mWidth = -1
 
     override fun draw(canvas: Canvas, text: CharSequence?, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
+//        paint.textSize = bean.size
+//        paint.color = bean.color
+//        canvas.save()
+//        canvas.translate(x, top.toFloat())
+//        //繪製背景
+//        bean.mDrawable?.setBounds(0, 0, mWidth, bottom - top)
+//        bean.mDrawable?.draw(canvas)
+//        canvas.drawText(text.toString(), start, end, x, y.toSafeFloat(), paint)
+
         paint.textSize = bean.size
         paint.color = bean.color
         canvas.save()
+        //将画布的原点（0，0）坐标移动到指定位置
         canvas.translate(x, top.toFloat())
-        //繪製背景
-        bean.mDrawable?.setBounds(0, 0, mWidth, bottom - top)
 
         val measureWidth = paint.measureText("測試標籤")
         val measureHeight = paint.fontMetrics.bottom - paint.fontMetrics.top
+        "绘制的宽:${mWidth}\n绘制的高:${bottom - top}\n重测的宽:${measureWidth}\n重测的高:${measureHeight}".logWTF
 
+        //top和bottom是字体xy的坐标，需要减去多出来的差值
+        val difference = bottom - top - measureHeight
+
+
+        //繪製背景
+        bean.mDrawable?.setBounds(0,
+            0,
+            (measureWidth +bean.start.orZero + bean.end.orZero).toSafeInt(),
+            ((bottom + difference/2) - (top - difference /2)).toSafeInt())
         bean.mDrawable?.draw(canvas)
         canvas.drawText(text.toString(), start, end, x, y.toSafeFloat(), paint)
     }
@@ -205,5 +223,9 @@ class BackgroundImage(private val bean: ImageSpanBean) : ReplacementSpan(), Parc
 data class ImageSpanBean(
     val mDrawable: Drawable?,//资源id
     val size: Float,//文字大小（pt转换）
-    val color: Int//文字颜色(color转换)
+    val color: Int,//文字颜色(color转换)
+    val start: Int? = null,
+    val top: Int? = null,
+    val end: Int? = null,
+    val bottom: Int? = null
 )
