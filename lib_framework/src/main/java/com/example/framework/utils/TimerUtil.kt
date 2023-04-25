@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
  *  定时器工具类
  */
 object TimerUtil {
-    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+    private val handler by lazy { WeakHandler(Looper.getMainLooper()) }
     private val timerMap by lazy { ConcurrentHashMap<String, Pair<Timer?, TimerTask?>>() }
     private val countDownMap by lazy { ConcurrentHashMap<String, CountDownTimer?>() }
 
@@ -18,7 +18,7 @@ object TimerUtil {
      * 延时任务-容易造成内存泄漏
      */
     fun schedule(run: (() -> Unit)?, millisecond: Long = 1000) {
-        weakHandler.postDelayed({
+        handler.postDelayed({
             run?.invoke()
         }, millisecond)
     }
@@ -31,7 +31,7 @@ object TimerUtil {
             val timer = Timer()
             val timerTask = object : TimerTask() {
                 override fun run() {
-                    weakHandler.post { run?.invoke() }
+                    handler.post { run?.invoke() }
                 }
             }
             timerMap[tag] = timer to timerTask
