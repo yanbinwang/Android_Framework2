@@ -2,6 +2,7 @@ package com.example.common
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.ComponentCallbacks2
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkRequest
@@ -28,6 +29,7 @@ import com.example.framework.utils.function.string
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
+import com.example.glide.ImageLoader
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
 import me.jessyan.autosize.AutoSizeConfig
@@ -98,7 +100,7 @@ open class BaseApplication : Application() {
     }
 
     private fun initListener() {
-        BaseActivity.setOnFinishListener(object :OnFinishListener{
+        BaseActivity.setOnFinishListener(object : OnFinishListener {
             override fun onFinish(act: BaseActivity<*>) {
                 if (!needOpenHome) return
                 if (act.TAG == "HomeActivity") return
@@ -165,6 +167,20 @@ open class BaseApplication : Application() {
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         System.gc()
+        try {
+            if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
+                ImageLoader.instance.clearMemoryCache(this)
+            }
+        } catch (ignore: Exception) {
+        }
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        try {
+            ImageLoader.instance.clearMemoryCache(this)
+        } catch (ignore: Exception) {
+        }
     }
 
 }
