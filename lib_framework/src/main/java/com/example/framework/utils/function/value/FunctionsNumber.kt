@@ -454,6 +454,6 @@ fun String?.multiply(number: String): String {
  */
 fun String?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN): String {
     //抹去末尾多餘的0，某些字符串可能是0.0或0.00,除數不能為0，碰到這種情況直接返回0
-    if (number.removeEndZero() == "0") return "0"
+    if (number.toSafeBigDecimal().toPlainString().removeEndZero() == "0") return "0"
     return toSafeBigDecimal().divide(number.removeEndZero().toSafeBigDecimal(), scale, mode).toPlainString().removeEndZero()
 }
