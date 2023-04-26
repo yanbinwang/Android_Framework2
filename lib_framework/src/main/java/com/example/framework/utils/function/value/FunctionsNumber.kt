@@ -416,7 +416,7 @@ fun String?.numberDigits(): Int {
  * a = 1,表示bd1大于bd2
  */
 fun String?.numberCompareTo(number: String): Int {
-    return BigDecimal(this).compareTo(BigDecimal(number))
+    return toSafeBigDecimal().compareTo(number.toSafeBigDecimal())
 }
 
 /**
@@ -425,7 +425,7 @@ fun String?.numberCompareTo(number: String): Int {
  * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
  */
 fun String?.add(number: String): String {
-    return BigDecimal(this).add(BigDecimal(number)).toPlainString().removeEndZero()
+    return toSafeBigDecimal().add(number.toSafeBigDecimal()).toPlainString().removeEndZero()
 }
 
 /**
@@ -434,7 +434,7 @@ fun String?.add(number: String): String {
  * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
  */
 fun String?.subtract(number: String): String {
-    return BigDecimal(this).subtract(BigDecimal(number)).toPlainString().removeEndZero()
+    return toSafeBigDecimal().subtract(number.toSafeBigDecimal()).toPlainString().removeEndZero()
 }
 
 /**
@@ -443,7 +443,7 @@ fun String?.subtract(number: String): String {
  * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
  */
 fun String?.multiply(number: String): String {
-    return BigDecimal(this).multiply(BigDecimal(number)).toPlainString().removeEndZero()
+    return toSafeBigDecimal().multiply(number.toSafeBigDecimal()).toPlainString().removeEndZero()
 }
 
 /**
@@ -455,5 +455,5 @@ fun String?.multiply(number: String): String {
 fun String?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN): String {
     //抹去末尾多餘的0，某些字符串可能是0.0或0.00,除數不能為0，碰到這種情況直接返回0
     if (number.removeEndZero() == "0") return "0"
-    return BigDecimal(this).divide(BigDecimal(number.removeEndZero()), scale, mode).toPlainString().removeEndZero()
+    return toSafeBigDecimal().divide(number.removeEndZero().toSafeBigDecimal(), scale, mode).toPlainString().removeEndZero()
 }
