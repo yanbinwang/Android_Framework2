@@ -42,10 +42,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             if (ids.size > 1) halfPosition - halfPosition % ids.size else 0,
             false
         )
-
+        val imageBean = ImageSpanBean("測試標籤",drawable(R.drawable.shape_test_bg), dimen(R.dimen.textSize14), color(R.color.white),5.pt,2.pt,5.pt,2.pt)
 
         binding.tvTest.text = TextSpan()
-            .add("測試標籤", ImageSpan(ImageSpanBean(drawable(R.drawable.shape_test_bg), dimen(R.dimen.textSize14), color(R.color.white))))
+            .add(imageBean.text, ImageSpan(imageBean))
             .add("文本內容")
             .build()
 //        binding.tvTest.text = TextSpan()
