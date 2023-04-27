@@ -56,14 +56,14 @@ class TestViewModel : BaseViewModel() {
     }
 
     private suspend fun getUserDataAsync(req: MultiReqUtil): Deferred<Any?> {
-        return async(Dispatchers.Main, CoroutineStart.LAZY) { req.request({Subscribe.getVerificationApi(mapOf("key" to "value"))}) }
+        return async(Dispatchers.Main, CoroutineStart.LAZY) { req.request({ Subscribe.getVerificationApi(mapOf("key" to "value")) }) }
     }
 
     /**
      * 普通一次性
      */
     fun task() {
-        launch({ Subscribe.getVerificationApi(mapOf("key" to "value")) },{
+        launch({ Subscribe.getVerificationApi(mapOf("key" to "value")) }, {
             //拿对象
         })
     }
@@ -77,4 +77,5 @@ class TestViewModel : BaseViewModel() {
             task1.await()//不调取await不会执行接口请求
         }
     }
+
 }
