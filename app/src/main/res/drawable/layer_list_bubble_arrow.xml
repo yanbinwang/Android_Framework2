@@ -9,7 +9,7 @@
                 <size
                     android:width="10pt"
                     android:height="10pt" />
-                <solid android:color="#0DCCCCCC" />
+                <solid android:color="#0DEFEEEE" />
             </shape>
         </rotate>
     </item>
@@ -22,7 +22,7 @@
                 <size
                     android:width="10pt"
                     android:height="10pt" />
-                <solid android:color="#10CCCCCC" />
+                <solid android:color="#10EFEEEE" />
             </shape>
         </rotate>
     </item>
@@ -35,7 +35,7 @@
                 <size
                     android:width="10pt"
                     android:height="10pt" />
-                <solid android:color="#15CCCCCC" />
+                <solid android:color="#15EFEEEE" />
             </shape>
         </rotate>
     </item>
@@ -48,7 +48,7 @@
                 <size
                     android:width="10pt"
                     android:height="10pt" />
-                <solid android:color="#20CCCCCC" />
+                <solid android:color="#20EFEEEE" />
             </shape>
         </rotate>
     </item>
