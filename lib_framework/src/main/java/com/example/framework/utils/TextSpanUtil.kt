@@ -158,8 +158,18 @@ class ClickSpan(private val clickable: ClickableSpan) : SpanType {
 
 /**
  * 加入一段图片样式的字符串
+ *  val imageBean = ImageSpanBean(
+ *  drawable(R.drawable.shape_test_bg),
+ *  "測試標籤",
+ *  dimen(R.dimen.textSize14),
+ *  color(R.color.white),
+ *  5.pt,
+ *  2.pt,
+ *  5.pt,
+ *  2.pt
+ *  )
  * TextSpan()
- * .add("測試標籤", ImageSpan(ImageSpanBean(this, R.drawable.shape_test_bg, dimen(R.dimen.textSize14), color(R.color.white))))
+ * .add("測試標籤", imageBean)
  * .add("文本內容")
  * .build()
  */
@@ -172,14 +182,6 @@ class ImageSpan(private val bean: ImageSpanBean) : SpanType {
 class BackgroundImage(private val bean: ImageSpanBean) : ReplacementSpan(), ParcelableSpan {
 
     override fun draw(canvas: Canvas, text: CharSequence?, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
-//        paint.textSize = bean.size
-//        paint.color = bean.color
-//        canvas.save()
-//        canvas.translate(x, top.toFloat())
-//        //繪製背景
-//        bean.mDrawable?.setBounds(0, 0, mWidth, bottom - top)
-//        bean.mDrawable?.draw(canvas)
-//        canvas.drawText(text.toString(), start, end, x, y.toSafeFloat(), paint)
         paint.textSize = bean.size
         paint.color = bean.color
         canvas.save()
@@ -197,7 +199,7 @@ class BackgroundImage(private val bean: ImageSpanBean) : ReplacementSpan(), Parc
         bean.mDrawable?.draw(canvas)
         //繪製文字（start和end是text文字長度，如4個字符，start為0，end為4）
         //xy為繪製文字坐標軸
-        canvas.drawText(text.toString(), start, end, x + bean.start.toSafeFloat(), measureHeight + bean.top.orZero + bean.bottom.orZero, paint)
+        canvas.drawText(text.toString(), start, end, x + bean.start.toSafeFloat(), measureHeight, paint)
     }
 
     override fun getSize(paint: Paint, text: CharSequence?, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {

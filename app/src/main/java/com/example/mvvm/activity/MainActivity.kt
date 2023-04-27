@@ -4,6 +4,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
+import com.example.common.utils.function.pt
 import com.example.common.widget.textview.edit.EditTextImpl
 import com.example.framework.utils.ImageSpan
 import com.example.framework.utils.ImageSpanBean
@@ -42,7 +43,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             if (ids.size > 1) halfPosition - halfPosition % ids.size else 0,
             false
         )
-        val imageBean = ImageSpanBean("測試標籤",drawable(R.drawable.shape_test_bg), dimen(R.dimen.textSize14), color(R.color.white),5.pt,2.pt,5.pt,2.pt)
+        val imageBean = ImageSpanBean(
+            drawable(R.drawable.shape_test_bg),
+            "測試標籤",
+            dimen(R.dimen.textSize18),
+            color(R.color.white),
+            5.pt,
+            2.pt,
+            5.pt,
+            2.pt
+        )
 
         binding.tvTest.text = TextSpan()
             .add(imageBean.text, ImageSpan(imageBean))
