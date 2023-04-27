@@ -178,7 +178,15 @@ class BackgroundImage(private val bean: ImageSpanBean) : ReplacementSpan(), Parc
         canvas.translate(0f, 0f)
         val measureWidth = paint.measureText(bean.text)
         val measureHeight = paint.fontMetrics.bottom - paint.fontMetrics.top
-        val y = measureHeight - (paint.fontMetrics.leading + paint.fontMetrics.descent)
+        val y = abs(paint.fontMetrics.top) - paint.fontMetrics.bottom
+
+        (" \nascent(字符最高点到baseline的推荐距离):${paint.fontMetrics.ascent}\n" +
+                "top(字符最高点到baseline的最大距离):${paint.fontMetrics.top}\n" +
+                "descent(字符最低点到baseline的推荐距离):${paint.fontMetrics.descent}\n" +
+                "bottom(字符最低点到baseline的最大距离):${paint.fontMetrics.bottom}\n" +
+                "leading(行间距，即前一行的descent与下一行的ascent之间的距离):${paint.fontMetrics.leading}\n" +
+                "计算${abs(paint.fontMetrics.top) - paint.fontMetrics.bottom}").logWTF
+
         //繪製背景
         bean.mDrawable?.setBounds(
             0,
@@ -189,7 +197,7 @@ class BackgroundImage(private val bean: ImageSpanBean) : ReplacementSpan(), Parc
         bean.mDrawable?.draw(canvas)
         //繪製文字（start和end是text文字長度，如4個字符，start為0，end為4）
         //xy為繪製文字坐標軸
-        canvas.drawText(text.toString(), start, end, x + bean.start.toSafeFloat(), y, paint)
+        canvas.drawText(bean.text, start, end, x + bean.start.toSafeFloat(), y, paint)
     }
 
     override fun getSize(paint: Paint, text: CharSequence?, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {
