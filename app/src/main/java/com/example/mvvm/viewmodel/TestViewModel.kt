@@ -22,7 +22,10 @@ class TestViewModel : BaseViewModel() {
      */
     fun serialTask() {
         launch {
-            val req = MultiReqUtil(view)
+            //每个请求如果失败了都会回调当前的err监听
+            val req = MultiReqUtil(view, err = {
+
+            })
             val task1 = req.request({ Subscribe.getVerificationApi(mapOf("key" to "value")) })
             val task2 = req.request({ Subscribe.getVerificationApi(mapOf("key" to "value")) })
             req.end()
