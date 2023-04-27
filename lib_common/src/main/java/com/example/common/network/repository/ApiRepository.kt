@@ -26,7 +26,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * }
  */
 class MultiReqUtil(
-    var view: BaseView?,
+    private var view: BaseView?,
     private val isShowDialog: Boolean = true,
     private val err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
 ) {
