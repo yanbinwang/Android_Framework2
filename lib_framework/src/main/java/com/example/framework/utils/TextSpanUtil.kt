@@ -19,6 +19,7 @@ import androidx.annotation.ColorInt
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
+import kotlin.math.abs
 
 //------------------------------------字符串扩展函数类------------------------------------
 /**
@@ -158,20 +159,8 @@ class ClickSpan(private val clickable: ClickableSpan) : SpanType {
 
 /**
  * 加入一段图片样式的字符串
- *  val imageBean = ImageSpanBean(
- *  drawable(R.drawable.shape_test_bg),
- *  "測試標籤",
- *  dimen(R.dimen.textSize14),
- *  color(R.color.white),
- *  5.pt,
- *  2.pt,
- *  5.pt,
- *  2.pt
- *  )
- * TextSpan()
- * .add("測試標籤", imageBean)
- * .add("文本內容")
- * .build()
+ * 只应用与首行加tips的形式
+ * 并且加入的tips的fontsize是需要小于textview本身设置的大小的
  */
 class ImageSpan(private val bean: ImageSpanBean) : SpanType {
     override fun setSpan(spannable: Spannable, start: Int, end: Int) {
@@ -188,18 +177,19 @@ class BackgroundImage(private val bean: ImageSpanBean) : ReplacementSpan(), Parc
         //将画布的原点（0，0）坐标移动到指定位置
         canvas.translate(0f, 0f)
         val measureWidth = paint.measureText(bean.text)
-        val measureHeight = paint.fontMetrics.leading - paint.fontMetrics.top
+        val measureHeight = paint.fontMetrics.bottom - paint.fontMetrics.top
+        val y = measureHeight - (paint.fontMetrics.leading + paint.fontMetrics.descent)
         //繪製背景
         bean.mDrawable?.setBounds(
             0,
             0,
             (measureWidth + bean.start.orZero + bean.end.orZero).toSafeInt(),
-            (measureHeight + bean.top.orZero + bean.bottom.orZero).toSafeInt()
+            (bean.size).toSafeInt()
         )
         bean.mDrawable?.draw(canvas)
         //繪製文字（start和end是text文字長度，如4個字符，start為0，end為4）
         //xy為繪製文字坐標軸
-        canvas.drawText(text.toString(), start, end, x + bean.start.toSafeFloat(), measureHeight, paint)
+        canvas.drawText(text.toString(), start, end, x + bean.start.toSafeFloat(), y, paint)
     }
 
     override fun getSize(paint: Paint, text: CharSequence?, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {

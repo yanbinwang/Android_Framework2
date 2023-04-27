@@ -49,9 +49,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             dimen(R.dimen.textSize18),
             color(R.color.white),
             5.pt,
-            2.pt,
+            0.pt,
             5.pt,
-            2.pt
+            0.pt
         )
 
         binding.tvTest.text = TextSpan()
