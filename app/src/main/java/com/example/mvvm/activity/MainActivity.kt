@@ -4,17 +4,11 @@ import androidx.viewpager2.widget.ViewPager2
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
-import com.example.common.utils.function.pt
 import com.example.common.widget.textview.edit.EditTextImpl
-import com.example.framework.utils.ImageSpan
-import com.example.framework.utils.ImageSpanBean
-import com.example.framework.utils.TextSpan
-import com.example.framework.utils.function.color
-import com.example.framework.utils.function.dimen
-import com.example.framework.utils.function.drawable
+import com.example.framework.utils.function.value.regCheck
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.hideFadingEdge
-import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.logWTF
 import com.example.mvvm.R
 import com.example.mvvm.adapter.ImageAdapter
 import com.example.mvvm.databinding.ActivityMainBinding
@@ -43,25 +37,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             if (ids.size > 1) halfPosition - halfPosition % ids.size else 0,
             false
         )
-        val imageBean = ImageSpanBean(
-            drawable(R.drawable.shape_test_bg),
-            "測試標籤",
-            dimen(R.dimen.textSize18),
-            color(R.color.white),
-            5.pt,
-            0.pt,
-            5.pt,
-            0.pt
-        )
-
-        binding.tvTest.text = TextSpan()
-            .add(imageBean.text, ImageSpan(imageBean))
-            .add("文本內容")
-            .build()
 //        binding.tvTest.text = TextSpan()
 //            .add("$", SizeSpan(dimen(R.dimen.textSize14)))
 //            .add("111", ColorSpan(color(R.color.black)))
 //            .build()
+        //判断是全角字符  \u0020为半角空格，\u3000为全角空格
+        "${"是".regCheck("[^\\x00-\\xff]")}".logWTF
     }
 
     override fun initEvent() {

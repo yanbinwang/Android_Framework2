@@ -1,25 +1,14 @@
 package com.example.framework.utils
 
-import android.graphics.Canvas
-import android.graphics.Paint
 import android.graphics.Typeface
-import android.graphics.drawable.Drawable
-import android.os.Parcel
-import android.text.ParcelableSpan
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
-import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
-import android.text.style.ReplacementSpan
 import android.text.style.StyleSpan
 import androidx.annotation.ColorInt
-import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.toSafeFloat
-import com.example.framework.utils.function.value.toSafeInt
-import kotlin.math.abs
 
 //------------------------------------字符串扩展函数类------------------------------------
 /**
@@ -156,75 +145,3 @@ class ClickSpan(private val clickable: ClickableSpan) : SpanType {
         spannable.setSpan(clickable, start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
     }
 }
-
-/**
- * 加入一段图片样式的字符串
- * 只应用与首行加tips的形式
- * 并且加入的tips的fontsize是需要小于textview本身设置的大小的
- */
-class ImageSpan(private val bean: ImageSpanBean) : SpanType {
-    override fun setSpan(spannable: Spannable, start: Int, end: Int) {
-        spannable.setSpan(BackgroundImage(bean), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
-    }
-}
-
-class BackgroundImage(private val bean: ImageSpanBean) : ReplacementSpan(), ParcelableSpan {
-
-    override fun draw(canvas: Canvas, text: CharSequence?, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
-        paint.textSize = bean.size
-        paint.color = bean.color
-        canvas.save()
-        //将画布的原点（0，0）坐标移动到指定位置
-        canvas.translate(0f, 0f)
-        val measureWidth = paint.measureText(bean.text)
-        val measureHeight = paint.fontMetrics.bottom - paint.fontMetrics.top
-        val y = abs(paint.fontMetrics.top) - paint.fontMetrics.bottom
-
-        (" \nascent(字符最高点到baseline的推荐距离):${paint.fontMetrics.ascent}\n" +
-                "top(字符最高点到baseline的最大距离):${paint.fontMetrics.top}\n" +
-                "descent(字符最低点到baseline的推荐距离):${paint.fontMetrics.descent}\n" +
-                "bottom(字符最低点到baseline的最大距离):${paint.fontMetrics.bottom}\n" +
-                "leading(行间距，即前一行的descent与下一行的ascent之间的距离):${paint.fontMetrics.leading}\n" +
-                "计算${abs(paint.fontMetrics.top) - paint.fontMetrics.bottom}").logWTF
-
-        //繪製背景
-        bean.mDrawable?.setBounds(
-            0,
-            0,
-            (measureWidth + bean.start.orZero + bean.end.orZero).toSafeInt(),
-            (bean.size).toSafeInt()
-        )
-        bean.mDrawable?.draw(canvas)
-        //繪製文字（start和end是text文字長度，如4個字符，start為0，end為4）
-        //xy為繪製文字坐標軸
-        canvas.drawText(bean.text, start, end, x + bean.start.toSafeFloat(), y, paint)
-    }
-
-    override fun getSize(paint: Paint, text: CharSequence?, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {
-        val size = paint.measureText(text, start, end)
-        if (fm != null) paint.getFontMetricsInt(fm)
-        return size.toInt()
-    }
-
-    override fun updateDrawState(ds: TextPaint?) {
-    }
-
-    override fun getSpanTypeId() = 0
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-    }
-
-    override fun describeContents() = 0
-
-}
-
-data class ImageSpanBean(
-    val mDrawable: Drawable?,//资源id
-    val text: String,//文字
-    val size: Float,//文字大小（pt转换）
-    val color: Int,//文字颜色(color转换)
-    val start: Int? = null,
-    val top: Int? = null,
-    val end: Int? = null,
-    val bottom: Int? = null
-)
