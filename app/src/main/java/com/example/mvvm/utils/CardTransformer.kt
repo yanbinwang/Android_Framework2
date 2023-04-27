@@ -3,7 +3,6 @@ package com.example.mvvm.utils
 import android.view.View
 import androidx.viewpager2.widget.ViewPager2
 import com.example.common.utils.function.ptFloat
-import com.example.framework.utils.logWTF
 import kotlin.math.abs
 
 /**
