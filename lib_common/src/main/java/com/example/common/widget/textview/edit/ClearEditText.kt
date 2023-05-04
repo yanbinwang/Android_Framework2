@@ -202,3 +202,8 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
 }
+
+fun ClearEditText?.text(): String {
+    this ?: return ""
+    return getText()
+}
