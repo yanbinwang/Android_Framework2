@@ -38,8 +38,11 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var refresh: SmartRefreshLayout? = null//刷新控件 类型1才有
     val layout: RefreshLayout get() { return refresh as RefreshLayout }//刷新控件
     var recycler: DataRecyclerView? = null//数据列表
+        private set
     var empty: EmptyLayout? = null//自定义封装的空布局
+        private set
     var onClick: (() -> Unit)? = null//空布局点击
+        private set
 
     init {
         val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
