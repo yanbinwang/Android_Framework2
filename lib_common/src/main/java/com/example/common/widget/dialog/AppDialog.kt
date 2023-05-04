@@ -13,7 +13,7 @@ import com.example.framework.utils.function.view.visible
  * date: 2017/8/25.
  * 类似苹果的弹出窗口类
  */
-class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context, close = true) {
+class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context) {
     var onConfirm: (() -> Unit)? = null
     var onCancel: (() -> Unit)? = null
 
