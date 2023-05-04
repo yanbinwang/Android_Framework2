@@ -81,6 +81,9 @@ class CameraHelper(private val layout: FrameLayout) : LifecycleEventObserver {
         if (cvFinder?.facing == Facing.BACK) cvFinder?.flash = Flash.OFF
     }
 
+    /**
+     * 拍照
+     */
     fun takePicture(onStart: () -> Unit = {}, onShutter: () -> Unit = {}, onSuccess: (sourceFile: File?) -> Unit = {}, onFailed: () -> Unit = {}, snapshot: Boolean = true) {
         cvFinder?.apply {
             if (isTakingPicture) {
@@ -111,6 +114,9 @@ class CameraHelper(private val layout: FrameLayout) : LifecycleEventObserver {
         }
     }
 
+    /**
+     * 录像
+     */
     fun takeVideo(onStart: () -> Unit = {}, onRecording: (sourcePath: String?) -> Unit = {}, onStop: (sourcePath: String?) -> Unit = {}, snapshot: Boolean = true) {
         cvFinder?.apply {
             if (isTakingVideo) {
