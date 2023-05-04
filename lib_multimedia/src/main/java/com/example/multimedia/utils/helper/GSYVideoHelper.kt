@@ -9,8 +9,10 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.TimerUtil
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.disable
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.size
 import com.example.glide.ImageLoader
 import com.shuyu.gsyvideoplayer.GSYVideoManager
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
@@ -63,6 +65,7 @@ class GSYVideoHelper(private val activity: FragmentActivity, layout: FrameLayout
         //将生成的播放器放入对应的容器中
         player = StandardGSYVideoPlayer(activity)
         layout.addView(player)
+        layout.doOnceAfterLayout { player.size(it.measuredWidth, it.measuredHeight) }
         //屏幕展示效果
         GSYVideoType.setShowType(if (videoType == VideoType.MOBILE && !fullScreen) GSYVideoType.SCREEN_MATCH_FULL else GSYVideoType.SCREEN_TYPE_DEFAULT)
         //设置底层渲染,关闭硬件解码
@@ -155,7 +158,7 @@ class GSYVideoHelper(private val activity: FragmentActivity, layout: FrameLayout
                 player?.currentPlayer?.release()
                 player?.release()
                 orientationUtils?.releaseListener()
-                source.lifecycle.removeObserver(this)
+                activity.lifecycle.removeObserver(this)
             }
             else -> {}
         }

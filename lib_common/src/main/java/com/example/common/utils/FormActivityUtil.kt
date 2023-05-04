@@ -12,9 +12,9 @@ import android.view.WindowInsets
 object FormActivityUtil {
 
     fun setAct(activity: Activity, extra: (bottom: Int) -> Unit = {}) {
-        val rootView = (activity.findViewById<View>(android.R.id.content) as ViewGroup).getChildAt(0)
-        rootView.fitsSystemWindows = true
-        rootView.setOnApplyWindowInsetsListener(object : View.OnApplyWindowInsetsListener {
+        val rootView = (activity.findViewById<View>(android.R.id.content) as? ViewGroup)?.getChildAt(0)
+        rootView?.fitsSystemWindows = true
+        rootView?.setOnApplyWindowInsetsListener(object : View.OnApplyWindowInsetsListener {
             var bottomBefore = 0
             override fun onApplyWindowInsets(v: View, insets: WindowInsets): WindowInsets {
                 val bottom = insets.systemWindowInsetBottom
