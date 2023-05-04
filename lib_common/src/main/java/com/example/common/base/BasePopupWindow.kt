@@ -35,7 +35,7 @@ import java.lang.reflect.ParameterizedType
  * 但这会使底部有虚拟栏的手机重叠，哪怕使用的margin底部高度的代码，部分手机兼容性上也会存在问题
  * 可以使用BaseBottomSheetDialogFragment替代，也可以使用调整windos透明度的方法
  */
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val popupAnimType: PopupAnimType = NONE, private val light: Boolean = false) : PopupWindow() {
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val light: Boolean = false) : PopupWindow() {
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
     protected var measuredWidth = 0
@@ -76,7 +76,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     //默认底部弹出，可重写
     private fun setAnimation() {
-        when (popupAnimType) {
+        when (popupAnimStyle) {
             ALPHA -> animationStyle = R.style.PopupAlphaAnimStyle
             TRANSLATE -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
