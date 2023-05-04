@@ -21,11 +21,13 @@ import com.example.common.utils.ScreenUtil.getRealSize
 import com.example.common.utils.ScreenUtil.getRealSizeFloat
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
+import com.example.common.widget.textview.edit.ClearEditText
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
+import com.example.framework.utils.function.view.text
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanAll
 import com.example.framework.utils.setSpanFirst
@@ -184,7 +186,12 @@ fun TextView?.setArguments(txt: String = "", colorRes: Int = R.color.appTheme, r
     this ?: return
     text = txt
     textColor(colorRes)
-    if(-1 != resId) background(resId)
+    if (-1 != resId) background(resId)
+}
+
+fun ClearEditText?.text(): String {
+    this ?: return ""
+    return editText.text()
 }
 
 /**
