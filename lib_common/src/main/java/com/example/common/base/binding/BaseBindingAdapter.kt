@@ -17,6 +17,7 @@ import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
 import com.example.common.utils.function.orNoData
 import com.example.common.utils.function.setSpanFirst
+import com.example.common.widget.textview.edit.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
@@ -180,6 +181,11 @@ object BaseBindingAdapter {
         editText.decimalFilter(decimalPoint.toSafeInt())
     }
 
+    @BindingAdapter(value = ["decimal_point"])
+    fun bindingEditTextDecimal(editText: ClearEditText, decimalPoint: Int?) {
+        editText.editText.decimalFilter(decimalPoint.toSafeInt())
+    }
+
     /**
      * 限制输入内容为非目标值
      */
@@ -189,6 +195,12 @@ object BaseBindingAdapter {
         editText.charBlackList(characterAllowed)
     }
 
+    @BindingAdapter(value = ["character_allowed"])
+    fun bindingEditTextCharBlackList(editText: ClearEditText, characterAllowed: CharArray?) {
+        if (characterAllowed == null) return
+        editText.editText.charBlackList(characterAllowed)
+    }
+
     /**
      * 限制输入内容为目标值
      */
@@ -196,6 +208,12 @@ object BaseBindingAdapter {
     fun bindingEditTextCharLimit(editText: EditText, charLimit: CharArray?) {
         if (charLimit == null) return
         editText.charLimit(charLimit)
+    }
+
+    @BindingAdapter(value = ["char_limit"])
+    fun bindingEditTextCharLimit(editText: ClearEditText, charLimit: CharArray?) {
+        if (charLimit == null) return
+        editText.editText.charLimit(charLimit)
     }
 
     /**
@@ -214,12 +232,22 @@ object BaseBindingAdapter {
         if (isInhibitSpace.orFalse) editText.inhibitSpace()
     }
 
+    @BindingAdapter(value = ["is_inhibit_space"])
+    fun bindingEditTextInhibitInputSpace(editText: ClearEditText, isInhibitSpace: Boolean?) {
+        if (isInhibitSpace.orFalse) editText.editText.inhibitSpace()
+    }
+
     /**
      * 限制输入内容为正負號小數或整數
      */
     @BindingAdapter(value = ["is_number_decimal"])
     fun bindingEditTextNumberDecimal(editText: EditText, isNumberDecimal: Boolean?) {
         if(isNumberDecimal.orFalse) editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+    }
+
+    @BindingAdapter(value = ["is_number_decimal"])
+    fun bindingEditTextNumberDecimal(editText: ClearEditText, isNumberDecimal: Boolean?) {
+        if(isNumberDecimal.orFalse) editText.editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
     }
     // </editor-fold>
 
