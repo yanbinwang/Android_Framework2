@@ -1,6 +1,7 @@
 package com.example.mvvm.adapter
 
 import android.widget.LinearLayout
+import android.widget.LinearLayout.LayoutParams.MATCH_PARENT
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
 import com.example.common.utils.function.color
@@ -14,19 +15,11 @@ import com.example.mvvm.databinding.ItemImageBinding
  * @author
  */
 class ImageAdapter : BaseQuickAdapter<Int, ItemImageBinding>() {
-    override fun convert(
-        holder: BaseViewDataBindingHolder,
-        item: Int?,
-        payloads: MutableList<Any>?
-    ) {
+    override fun convert(holder: BaseViewDataBindingHolder, item: Int?, payloads: MutableList<Any>?) {
         super.convert(holder, item, payloads)
 //        holder.getItemView().layoutParams =
 //            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
-        binding.root.layoutParams =
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
-            )
+        binding.root.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         val index = holder.absoluteAdapterPosition.mod(list().safeSize)
         val bean = list().safeGet(index)
         binding.apply {
@@ -37,4 +30,5 @@ class ImageAdapter : BaseQuickAdapter<Int, ItemImageBinding>() {
     override fun getItemCount(): Int {
         return if (list().size < 2) list().safeSize else Int.MAX_VALUE
     }
+
 }

@@ -53,7 +53,7 @@ fun String?.unicodeDecode(): String? {
     var ascii: Int
     var n: Int
     if (strings[0].isNotEmpty()) {
-        // 处理开头的普通字符串
+        //处理开头的普通字符串
         value.append(strings[0])
     }
     try {
@@ -62,35 +62,34 @@ fun String?.unicodeDecode(): String? {
             if (hex.length > 3) {
                 mix = ""
                 if (hex.length > 4) {
-                    // 处理 Unicode 编码符号后面的普通字符串
+                    //处理 Unicode 编码符号后面的普通字符串
                     mix = hex.substring(4, hex.length)
                 }
                 hex = hex.substring(0, 4)
                 try {
                     hex.toInt(16)
                 } catch (e: Exception) {
-                    // 不能将当前 16 进制字符串正常转换为 10 进制数字，拼接原内容后跳出
+                    //不能将当前 16 进制字符串正常转换为 10 进制数字，拼接原内容后跳出
                     value.append(prefix).append(strings[i])
                     continue
                 }
                 ascii = 0
                 for (j in hex.indices) {
                     hexChar = hex[j]
-                    // 将 Unicode 编码中的 16 进制数字逐个转为 10 进制
+                    //将 Unicode 编码中的 16 进制数字逐个转为 10 进制
                     n = hexChar.toString().toInt(16)
-                    // 转换为 ASCII 码
+                    //转换为 ASCII 码
                     ascii += n * 16.0.pow(hex.length - j - 1).toInt()
                 }
-
-                // 拼接解码内容
+                //拼接解码内容
                 value.append(ascii.toChar()).append(mix)
             } else {
-                // 不转换特殊长度的 Unicode 编码
+                //不转换特殊长度的 Unicode 编码
                 value.append(prefix).append(hex)
             }
         }
     } catch (e: Exception) {
-        // Unicode 编码格式有误，解码失败
+        //Unicode 编码格式有误，解码失败
         return null
     }
     return value.toString()
