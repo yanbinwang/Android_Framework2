@@ -5,6 +5,7 @@ plugins {
 }
 
 android {
+    namespace 'com.example.topsheet'
     compileSdkVersion build_versions.compileSdkVersion
 
     defaultConfig {

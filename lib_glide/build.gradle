@@ -5,6 +5,7 @@ plugins {
 }
 
 android {
+    namespace 'com.example.glide'
     compileSdkVersion build_versions.compileSdkVersion
 
     defaultConfig {

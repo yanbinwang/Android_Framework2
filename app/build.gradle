@@ -27,6 +27,7 @@ android {
         }
     }
 
+    namespace 'com.example.mvvm'
     compileSdk build_versions.compileSdkVersion
 
     defaultConfig {

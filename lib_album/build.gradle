@@ -5,6 +5,7 @@ plugins {
 }
 
 android {
+    namespace 'com.example.album'
     compileSdkVersion build_versions.compileSdkVersion
 
     defaultConfig {
