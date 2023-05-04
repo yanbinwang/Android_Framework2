@@ -17,7 +17,7 @@ import java.util.*
  * @author yan
  */
 object MultimediaUtil {
-    const val TAG = "MediaFileUtil"
+    const val TAG = "MultimediaUtil"
 
     /**
      * 获取对应文件类型的存储地址
