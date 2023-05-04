@@ -99,7 +99,7 @@ suspend fun <T> request(
             coroutineScope()
         }.let {
             log("处理结果")
-            if (it.process()) resp(it.response()) else {
+            if (it.successful()) resp(it.response()) else {
                 if (isShowToast) it.msg.responseToast()
                 err(Triple(it.code, it.msg, null))
             }
@@ -139,7 +139,7 @@ private fun log(msg: String) = "${msg}\n当前线程：${Thread.currentThread().
  */
 fun <T> ApiResponse<T>?.response(): T? {
     if (this == null) return null
-    return if (process()) {
+    return if (successful()) {
         data
     } else {
         tokenExpired()
@@ -150,7 +150,7 @@ fun <T> ApiResponse<T>?.response(): T? {
 /**
  * 判断此次请求是否成功
  */
-fun <T> ApiResponse<T>?.process(): Boolean {
+fun <T> ApiResponse<T>?.successful(): Boolean {
     if (this == null) return false
     return SUCCESS == code
 }
