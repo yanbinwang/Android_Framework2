@@ -27,9 +27,16 @@ object ServerConfig {
     }
 
     /**
+     * 是否是测试地址
+     */
+    fun isTest(): Boolean {
+        return serverType != 0
+    }
+
+    /**
      * 包内默认配置的的服务器ServerBean
      */
-    fun serverBeanDefault(): ServerBean {
+    fun serverBean(): ServerBean {
         return servers[serverType]
     }
 
@@ -37,7 +44,7 @@ object ServerConfig {
      * 目前正在用的服务器地址
      */
     fun serverUrl(): String {
-        return serverBeanDefault().getUrl()
+        return serverBean().getUrl()
     }
 
     /**
@@ -52,13 +59,6 @@ object ServerConfig {
      */
     fun serverType(): Int {
         return serverType
-    }
-
-    /**
-     * 是否是测试地址
-     */
-    fun isTest(): Boolean {
-        return serverType != 0
     }
 
 }
