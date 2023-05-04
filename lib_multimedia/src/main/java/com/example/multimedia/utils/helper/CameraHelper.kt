@@ -8,6 +8,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.size
+import com.example.multimedia.R
 import com.example.multimedia.utils.MediaType.IMAGE
 import com.example.multimedia.utils.MediaType.VIDEO
 import com.example.multimedia.utils.MultimediaUtil
@@ -70,7 +71,7 @@ class CameraHelper(private val layout: FrameLayout) : LifecycleEventObserver {
      * 开关闪光灯
      */
     fun flash() {
-        if (cvFinder?.facing == Facing.FRONT) "闪光灯仅支持后置摄像头".shortToast()
+        if (cvFinder?.facing == Facing.FRONT) R.string.camera_flash_error.shortToast()
         cvFinder?.apply { flash = if (flash == Flash.TORCH) Flash.OFF else Flash.TORCH }
     }
 
@@ -87,7 +88,7 @@ class CameraHelper(private val layout: FrameLayout) : LifecycleEventObserver {
     fun takePicture(onStart: () -> Unit = {}, onShutter: () -> Unit = {}, onSuccess: (sourceFile: File?) -> Unit = {}, onFailed: () -> Unit = {}, snapshot: Boolean = true) {
         cvFinder?.apply {
             if (isTakingPicture) {
-                "正在生成图片,请勿频繁操作...".shortToast()
+                R.string.camera_picture_shutter.shortToast()
                 return
             }
             sound.play(MediaActionSound.SHUTTER_CLICK)
@@ -120,7 +121,7 @@ class CameraHelper(private val layout: FrameLayout) : LifecycleEventObserver {
     fun takeVideo(onStart: () -> Unit = {}, onRecording: (sourcePath: String?) -> Unit = {}, onStop: (sourcePath: String?) -> Unit = {}, snapshot: Boolean = true) {
         cvFinder?.apply {
             if (isTakingVideo) {
-                "正在生成视频,请勿频繁操作...".shortToast()
+                R.string.camera_video_shutter.shortToast()
                 return
             }
             val videoFile = MultimediaUtil.getOutputFile(VIDEO)
