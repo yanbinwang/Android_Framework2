@@ -381,7 +381,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
             anim.interpolator = AccelerateInterpolator() // 设置插入器3
             anim.setAnimationListener(object : Animation.AnimationListener {
                 override fun onAnimationEnd(animation: Animation?) {
-                    endListener?.invoke() ?: if (to == 0f) view.gone()
+                    endListener?.invoke() ?: { if (to == 0f) view.gone() }
                 }
 
                 override fun onAnimationStart(animation: Animation?) {

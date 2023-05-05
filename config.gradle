@@ -3,12 +3,12 @@ ext.deps = [:]
 
 //所有库的版本配置
 def versions = [:]
-versions.appcompat = "1.6.0"
-versions.core = "1.7.0"
+versions.appcompat = "1.6.1"
 versions.constraintlayout = "2.1.4"
 versions.recyclerview = "1.2.1"
-versions.viewmodel = "2.5.1"
-versions.livedata = "2.5.1"
+versions.core = "1.10.0"
+versions.viewmodel = "2.6.1"
+versions.livedata = "2.6.1"
 //------------------------------------------------------------------------------------------
 versions.retrofit = "2.9.0"
 versions.converter_gson = "2.9.0"
@@ -16,9 +16,9 @@ versions.converter_gson = "2.9.0"
 versions.arouter = "1.5.2"
 versions.arouter_compiler = "1.5.2"
 //------------------------------------------------------------------------------------------
-versions.material = "1.7.0"
+versions.material = "1.9.0"
 versions.flexbox = "3.0.0"
-versions.okhttp = "4.9.1"
+versions.okhttp = "4.10.0"
 versions.autosize = "v1.2.1"
 versions.mmkv = "1.2.2"
 versions.recovery = "1.0.0"
@@ -31,9 +31,9 @@ versions.immersionbar = "3.2.2"
 //安卓x库
 def androidx = [:]
 androidx.appcompat = "androidx.appcompat:appcompat:$versions.appcompat"
-androidx.core = "androidx.core:core:$versions.core"
 androidx.constraintlayout = "androidx.constraintlayout:constraintlayout:$versions.constraintlayout"
 androidx.recyclerview = "androidx.recyclerview:recyclerview:$versions.recyclerview"
+androidx.core = "androidx.core:core-ktx:$versions.core"
 androidx.viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.viewmodel"
 androidx.livedata = "androidx.lifecycle:lifecycle-livedata-ktx:$versions.livedata"
 deps.androidx = androidx
