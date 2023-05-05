@@ -1,7 +1,7 @@
 package com.example.framework.utils
 
 import android.util.Log
-import com.example.framework.BuildConfig
+import com.example.framework.utils.function.value.isDebug
 
 /**
  * 日志输出类
@@ -9,21 +9,19 @@ import com.example.framework.BuildConfig
 private const val TAG = "dota" // 默认的tag
 
 object LogUtil {
-    private const val debug = BuildConfig.ISDEBUG
+    fun v(tag: String = TAG, msg: String) = run { if (isDebug) Log.v(tag, msg) }
 
-    fun v(tag: String = TAG, msg: String) = run { if (debug) Log.v(tag, msg) }
+    fun d(tag: String = TAG, msg: String) = run { if (isDebug) Log.d(tag, msg) }
 
-    fun d(tag: String = TAG, msg: String) = run { if (debug) Log.d(tag, msg) }
+    fun i(tag: String = TAG, msg: String) = run { if (isDebug) Log.i(tag, msg) }
 
-    fun i(tag: String = TAG, msg: String) = run { if (debug) Log.i(tag, msg) }
+    fun w(tag: String = TAG, msg: String) = run { if (isDebug) Log.w(tag, msg) }
 
-    fun w(tag: String = TAG, msg: String) = run { if (debug) Log.w(tag, msg) }
+    fun e(tag: String = TAG, msg: String) = run { if (isDebug) Log.e(tag, msg) }
 
-    fun e(tag: String = TAG, msg: String) = run { if (debug) Log.e(tag, msg) }
+    fun wtf(msg: String) = run { if (isDebug) Log.println(Log.ASSERT, TAG, msg) }
 
-    fun wtf(msg: String) = run { if (debug) Log.println(Log.ASSERT, TAG, msg) }
-
-    fun wtf(tag: String = TAG, msg: String) = run { if (debug) Log.println(Log.ASSERT, tag, msg) }
+    fun wtf(tag: String = TAG, msg: String) = run { if (isDebug) Log.println(Log.ASSERT, tag, msg) }
 
 }
 

@@ -26,6 +26,7 @@ import com.example.common.utils.helper.ConfigHelper
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.framework.utils.function.string
+import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
@@ -84,7 +85,7 @@ open class BaseApplication : Application() {
     }
 
     private fun initARouter() {
-        if (BuildConfig.DEBUG) {
+        if (isDebug) {
             ARouter.openLog()//打印日志
             ARouter.openDebug()
         }
