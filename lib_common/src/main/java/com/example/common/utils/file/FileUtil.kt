@@ -233,15 +233,6 @@ val Number.tb get() = this.toSafeLong() * 1024L * 1024L * 1024L * 1024L
 
 /**
  * 是否安装了XXX应用
- *  <uses-permission
- *  android:name="android.permission.QUERY_ALL_PACKAGES"
- *  tools:ignore="QueryAllPackagesPermission" />
- *  <uses-permission
- *  android:name="android.permission.WRITE_EXTERNAL_STORAGE"
- *  tools:ignore="ScopedStorage" />
- *  <uses-permission
- *  android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
- *  tools:ignore="ScopedStorage" />
  */
 @SuppressLint("QueryPermissionsNeeded")
 fun Context.isAvailable(packageName: String): Boolean {
