@@ -1,6 +1,7 @@
 package com.example.common.base.page
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import com.alibaba.android.arouter.core.LogisticsCenter
 import com.alibaba.android.arouter.exception.NoRouteFoundException
+import com.alibaba.android.arouter.facade.Postcard
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.page.Extras.REQUEST_CODE
 import com.example.common.widget.EmptyLayout
@@ -84,11 +86,22 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
     if (requestCode == null) {
         postcard.navigation()
     } else {
-        postcard.context = this
-        try {
-            LogisticsCenter.completion(postcard)
-            activityResultValue?.launch(Intent(this, postcard.destination))
-        } catch (_: NoRouteFoundException) {
-        }
+//        postcard.context = this
+//        try {
+//            LogisticsCenter.completion(postcard)
+//            activityResultValue?.launch(Intent(this, postcard.destination))
+//        } catch (_: NoRouteFoundException) {
+//        }
+        activityResultValue?.launch(Intent(this, postcard.getPostcardClass(this) ?: return))
+    }
+}
+
+fun Postcard.getPostcardClass(mContext: Context): Class<*>? {
+    context = mContext
+    return try {
+        LogisticsCenter.completion(this)
+        destination
+    } catch (_: NoRouteFoundException) {
+        null
     }
 }
