@@ -27,7 +27,7 @@ class ScaleAdapter(private var data: List<ScaleImageView>, private var fileList:
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val img = data.safeGet(position) ?: return Any()
-        ImageLoader.instance.display(img, fileList[position])
+        ImageLoader.instance.display(img, fileList.safeGet(position).orEmpty())
         container.addView(img, MATCH_PARENT, MATCH_PARENT)
         return img
     }
