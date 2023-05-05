@@ -3,8 +3,10 @@ package com.example.home.activity
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
+import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extras
+import com.example.common.config.ARouterPath
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.view.click
@@ -18,6 +20,7 @@ import com.example.home.view.scale.ScaleImageView
  * @description 大图伸缩
  * @author yan
  */
+@Route(path = ARouterPath.ScaleActivity)
 class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
     private val list by lazy { intentSerializable(Extras.BUNDLE_LIST) as? ArrayList<String> }
 
