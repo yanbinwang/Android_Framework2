@@ -110,6 +110,13 @@
         <activity
             android:name=".activity.TestActivity"
             android:screenOrientation="portrait" />
+
+        <!-- 伸縮大圖 -->
+        <activity
+            android:name="com.example.home.activity.ScaleActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:theme="@style/TransTheme"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"

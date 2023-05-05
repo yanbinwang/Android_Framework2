@@ -3,9 +3,9 @@ package com.example.home.view.scale
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout.LayoutParams.MATCH_PARENT
-import androidx.core.net.toUri
 import androidx.viewpager.widget.PagerAdapter
 import com.example.framework.utils.function.value.safeGet
+import com.example.glide.ImageLoader
 
 /**
  * Created by wangyanbin
@@ -26,10 +26,10 @@ class ScaleAdapter(private var data: List<ScaleImageView>, private var fileList:
     }
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
-        val img = data.safeGet(position)
-        img?.setImageURI(fileList.safeGet(position)?.toUri())
+        val img = data.safeGet(position) ?: return Any()
+        ImageLoader.instance.display(img, fileList[position])
         container.addView(img, MATCH_PARENT, MATCH_PARENT)
-        return img ?: Any()
+        return img
     }
 
 }
