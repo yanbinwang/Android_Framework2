@@ -100,9 +100,9 @@ fun String?.unicodeDecode(): String? {
  */
 fun String?.regCheck(reg: String): Boolean {
     this ?: return false
-    val p = Pattern.compile(reg)
-    val m = p.matcher(this)
-    return m.matches()
+    val pattern = Pattern.compile(reg)
+    val matcher = pattern.matcher(this)
+    return matcher.matches()
 }
 
 /**
@@ -184,24 +184,12 @@ fun String?.addUrlParam(key: String?, value: String?): String? {
 }
 
 /**
- * 接取固定长度的字符串
- */
-fun String?.fixLength(size: Int): String {
-    if (this == null) return ""
-    return if (length.orZero > size) {
-        substring(0, size)
-    } else {
-        this
-    }
-}
-
-/**
  * 隐藏手机号码的中间4位
  */
 fun String?.hidePhoneNumber(): String {
     this ?: return ""
     var value = ""
-    if (regexMatch(MOBILE)) {
+    if (regCheck(MOBILE)) {
         val ch = toCharArray()
         for (index in ch.indices) {
             if (index in 3..6) {
@@ -215,9 +203,16 @@ fun String?.hidePhoneNumber(): String {
 }
 
 /**
- * 检测
+ * 接取固定长度的字符串
  */
-fun String?.regexMatch(regex:String) = Pattern.matches(regex, this.orEmpty())
+fun String?.fixLength(size: Int): String {
+    if (this == null) return ""
+    return if (length.orZero > size) {
+        substring(0, size)
+    } else {
+        this
+    }
+}
 
 // <editor-fold defaultstate="collapsed" desc="EL表达式">
 object ELFormat {
