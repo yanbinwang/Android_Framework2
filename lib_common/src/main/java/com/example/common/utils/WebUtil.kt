@@ -14,11 +14,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.common.BaseApplication
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.invisible
 import com.example.framework.utils.function.view.visible
 import com.example.framework.utils.logE
-import com.example.common.BaseApplication
+
 
 /**
  * @description webview工具类
@@ -94,7 +95,7 @@ class WebUtil : DefaultLifecycleObserver {
         mActivity?.apply {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             webView.invisible()
-            // 如果一个视图已经存在，那么立刻终止并新建一个
+            //如果一个视图已经存在，那么立刻终止并新建一个
             if (mXCustomView != null) {
                 callback?.onCustomViewHidden()
                 return
@@ -163,4 +164,18 @@ class WebUtil : DefaultLifecycleObserver {
         mActivity = null
     }
 
+}
+
+fun WebView?.clearAllCache() {
+    this ?: return
+    try {
+        settings.cacheMode = WebSettings.LOAD_NO_CACHE
+        context.deleteDatabase("webviewCache.db")
+        context.deleteDatabase("webview.db")
+        clearCache(true)
+        clearHistory()
+        clearFormData()
+    } catch (e: Exception) {
+        e.logE
+    }
 }
