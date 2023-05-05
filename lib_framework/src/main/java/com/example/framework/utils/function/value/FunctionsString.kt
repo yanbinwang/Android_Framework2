@@ -13,12 +13,18 @@ import kotlin.math.pow
  * 将 字节数组 转换成 Base64 编码
  * 用Base64.DEFAULT模式会导致加密的text下面多一行（在应用中显示是这样）
  */
-fun ByteArray?.base64Encode() = Base64.encodeToString(this, Base64.NO_WRAP)
+fun ByteArray?.base64Encode(): String {
+    this ?: return ""
+    return Base64.encodeToString(this, Base64.NO_WRAP)
+}
 
 /**
  * 将 Base64 字符串 解码成 字节数组
  */
-fun String?.base64Decode() = Base64.decode(this, Base64.NO_WRAP)
+fun String?.base64Decode(): ByteArray {
+    this ?: return "".toByteArray()
+    return Base64.decode(this, Base64.NO_WRAP)
+}
 
 /**
  * Url编码
