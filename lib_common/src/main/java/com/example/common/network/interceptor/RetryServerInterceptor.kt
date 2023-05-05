@@ -28,8 +28,7 @@ internal class RetryServerInterceptor : Interceptor {
     //切换请求前缀地址
     private fun retryServer(chain: Interceptor.Chain, request: Request, server: String): Response {
         var response: Response? = null
-        val newRequest =
-            request.newBuilder().url(request.url.toString().replace(ServerConfig.serverUrl(), server)).build()
+        val newRequest = request.newBuilder().url(request.url.toString().replace(ServerConfig.serverUrl(), server)).build()
         try {
             response = chain.proceed(newRequest)
         } catch (_: Exception) {
