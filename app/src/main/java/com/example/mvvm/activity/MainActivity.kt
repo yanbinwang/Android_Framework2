@@ -4,9 +4,11 @@ import androidx.viewpager2.widget.ViewPager2
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
+import com.example.common.utils.builder.shortToast
 import com.example.common.widget.textview.edit.EditTextImpl
 import com.example.framework.utils.function.value.regCheck
 import com.example.framework.utils.function.value.safeSize
+import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.hideFadingEdge
 import com.example.framework.utils.logWTF
 import com.example.mvvm.R
@@ -37,6 +39,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             if (ids.size > 1) halfPosition - halfPosition % ids.size else 0,
             false
         )
+        binding.tvTest.click {
+
+            "dsdsfds".shortToast()
+        }
 //        binding.tvTest.text = TextSpan()
 //            .add("$", SizeSpan(dimen(R.dimen.textSize14)))
 //            .add("111", ColorSpan(color(R.color.black)))

@@ -27,6 +27,9 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun displayZoom(view: ImageView, string: String, onStart: () -> Unit?, onComplete: (bitmap: Bitmap?) -> Unit?) {
+//        GradientDrawable().apply {
+//            setColor(Color.parseColor("#000000"))
+//        }
         Glide.with(view.context)
             .asBitmap()
             .load(string)
