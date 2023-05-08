@@ -1,12 +1,12 @@
 package com.example.multimedia.utils.helper
 
 import android.widget.FrameLayout
-import android.widget.ImageView
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.TimerUtil
+import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.doOnceAfterLayout
@@ -14,6 +14,8 @@ import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.size
 import com.example.glide.ImageLoader
+import com.example.multimedia.R
+import com.example.multimedia.databinding.ViewGsyvideoThumbBinding
 import com.shuyu.gsyvideoplayer.GSYVideoManager
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
 import com.shuyu.gsyvideoplayer.cache.CacheFactory
@@ -35,7 +37,7 @@ class GSYVideoHelper(private val activity: FragmentActivity, layout: FrameLayout
     private var retryWithPlay = false
     private var player: StandardGSYVideoPlayer? = null
     private var orientationUtils: OrientationUtils? = null
-    private val imgCover by lazy { ImageView(activity) }
+    private val binding by lazy { ViewGsyvideoThumbBinding.bind(activity.inflate(R.layout.view_gsyvideo_thumb)) }
     private val gSYSampleCallBack by lazy { object : GSYSampleCallBack() {
         override fun onQuitFullscreen(url: String, vararg objects: Any) {
             super.onQuitFullscreen(url, *objects)
@@ -75,10 +77,9 @@ class GSYVideoHelper(private val activity: FragmentActivity, layout: FrameLayout
         //默认采用exo内核，播放报错则切ijk内核
         PlayerFactory.setPlayManager(Exo2PlayerManager::class.java)
         CacheFactory.setCacheManager(ExoPlayerCacheManager::class.java)
-        imgCover.scaleType = if (videoType == VideoType.MOBILE && !fullScreen) ImageView.ScaleType.FIT_XY else ImageView.ScaleType.CENTER_CROP
         player?.titleTextView?.gone()
         player?.backButton?.gone()
-        player?.thumbImageView = imgCover
+        player?.thumbImageView = binding.root
         if (!fullScreen) {
             player?.fullscreenButton?.gone()
         } else {
@@ -103,7 +104,7 @@ class GSYVideoHelper(private val activity: FragmentActivity, layout: FrameLayout
     fun setUrl(url: String, autoPlay: Boolean = false) {
         retryWithPlay = false
         //加载图片
-        ImageLoader.instance.displayCover(imgCover, url)
+        ImageLoader.instance.displayCover(binding.ivThumb, url)
         if (videoType == VideoType.MOBILE) {
             GSYVideoOptionBuilder()
                 .setIsTouchWiget(false)
