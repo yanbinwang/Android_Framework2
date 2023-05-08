@@ -37,7 +37,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private var timer: Timer? = null//自动滚动的定时器
     private var banner: ViewPager2? = null//广告容器
     private var ovalLayout: LinearLayout? = null//圆点容器
-    private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
+    private val halfPosition by lazy { Int.MAX_VALUE / 2 }//设定一个中心值下标
     private val triple by lazy {
         Triple(GradientDrawable().apply {
             shape = OVAL
@@ -47,8 +47,8 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             setColor(Color.parseColor("#6e7ce2"))
         }, 10)
     }//3个资源路径->圆点选中时的背景ID second：圆点未选中时的背景ID third：圆点间距 （圆点容器可为空写0）
-    private val advAdapter by lazy { AdvertisingAdapter() } //图片适配器
-    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) } //切线程
+    private val advAdapter by lazy { AdvertisingAdapter() }//图片适配器
+    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }//切线程
     var onPagerClick: ((index: Int) -> Unit)? = null
     var onPagerCurrent: ((index: Int) -> Unit)? = null
 
