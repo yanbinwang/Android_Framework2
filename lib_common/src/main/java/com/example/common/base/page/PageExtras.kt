@@ -9,6 +9,7 @@ object Extras {
      * setOnActivityResultListener { if (it.resultCode == REQUEST_FINISH) finish() }
      */
     const val REQUEST_CODE = "requestCode" //页面跳转链接
+    const val RESULT_CODE = "resultCode"
     const val BUNDLE_BEAN = "bundleBean" //跳转对象
     const val BUNDLE_LIST = "bundleList" //跳转集合
     const val ID = "id" //请求id
@@ -28,4 +29,6 @@ object RequestCode {
     const val REQUEST_MANAGER = 10002
     //指定文件回调编码
     const val REQUEST_FILE = 10003
+    //录屏回调编码
+    const val REQUEST_SERVICE = 10004
 }
