@@ -171,15 +171,15 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
     }
 
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
+        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
+            R.string.link_invalid_error.shortToast()
+            return
+        }
         job?.cancel()
         job = launch { download(downloadUrl, filePath, fileName, onStart, onSuccess, onLoading, onFailed, onComplete) }
     }
 
     private suspend fun download(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
-        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-            R.string.link_invalid_error.shortToast()
-            return
-        }
         onStart()
         //清除目录下的所有文件
         filePath.deleteDir()
