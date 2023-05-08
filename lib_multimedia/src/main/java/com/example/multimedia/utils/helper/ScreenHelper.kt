@@ -1,8 +1,11 @@
 package com.example.multimedia.utils.helper
 
 import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.media.projection.MediaProjectionManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
@@ -77,10 +80,17 @@ class ScreenHelper(private val activity: FragmentActivity) {
      * 尝试唤起手机录屏弹窗，会在onActivityResult中回调结果
      */
     fun startScreen() = activity.execute {
-        startWaitingTime()
-        val mediaProjectionManager = getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
-        val permissionIntent = mediaProjectionManager?.createScreenCaptureIntent()
-        activityResultValue.launch(permissionIntent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+            "请授权上层显示".shortToast()
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+            intent.data = Uri.parse("package:${packageName}")
+            startActivity(intent)
+        } else {
+            startWaitingTime()
+            val mediaProjectionManager = getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
+            val permissionIntent = mediaProjectionManager?.createScreenCaptureIntent()
+            activityResultValue.launch(permissionIntent)
+        }
     }
 
     private fun startWaitingTime() {
