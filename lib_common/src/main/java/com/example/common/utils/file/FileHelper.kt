@@ -11,7 +11,7 @@ import android.util.Patterns
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
-import com.example.common.subscribe.Subscribe
+import com.example.common.subscribe.CommonSubscribe
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
@@ -190,7 +190,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
             var fileOutputStream: FileOutputStream? = null
             try {
                 //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
-                val body = Subscribe.getDownloadApi(downloadUrl)
+                val body = CommonSubscribe.getDownloadApi(downloadUrl)
                 val buf = ByteArray(2048)
                 val total = body.contentLength()
                 inputStream = body.byteStream()
