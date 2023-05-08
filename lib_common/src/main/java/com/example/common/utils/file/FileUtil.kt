@@ -424,7 +424,7 @@ fun String?.getFileFromUri(): File? {
     } catch (e: Exception) {
         e.logE
     }
-    val path = if (realPath.isNotEmpty()) realPath else {
+    val path = realPath.ifEmpty {
         when {
             uri.path?.contains("/document/raw:").orFalse -> uri.path?.replace("/document/raw:", "")
             uri.path?.contains("/document/primary:").orFalse -> uri.path?.replace("/document/primary:", "/storage/emulated/0/")
