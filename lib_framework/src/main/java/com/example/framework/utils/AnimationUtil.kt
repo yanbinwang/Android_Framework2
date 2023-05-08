@@ -13,6 +13,9 @@ import android.view.ViewGroup
 import android.view.animation.*
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.toSafeFloat
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.setPxTextSize
 import com.example.framework.utils.function.view.visible
@@ -51,7 +54,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
             view.text = df.format(endNum) + endSuffix
             return this
         }
-        val animator = ValueAnimator.ofFloat(startNum.toFloat(), endNum.toFloat())
+        val animator = ValueAnimator.ofFloat(startNum.toSafeFloat(), endNum.toSafeFloat())
         //设置作用对象
         animator.setTarget(view)
         animator.interpolator = interpolator
@@ -60,7 +63,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         //添加动画更新监听
         animator.addUpdateListener { animation ->
             //获取当前值
-            val mValue = animation.animatedValue as Float
+            val mValue = animation.animatedValue as? Float
             view.text = df.format(mValue) + endSuffix
         }
         animationList.add(animator)
@@ -86,9 +89,9 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         //添加动画更新监听
         animator.addUpdateListener { animation ->
             //获取当前值
-            val mValue = animation.animatedValue as Float
+            val mValue = animation.animatedValue as? Float
             //设置字体大小
-            view.setTextSize(TypedValue.COMPLEX_UNIT_PX, mValue)
+            view.setTextSize(TypedValue.COMPLEX_UNIT_PX, mValue.orZero)
         }
         animationList.add(animator)
         return this
@@ -121,9 +124,9 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         //添加动画更新监听
         animator.addUpdateListener { animation ->
             //获取当前值
-            val mValue = animation.animatedValue as Float
+            val mValue = animation.animatedValue as? Float
             //设置颜色
-            view.setTextColor(argbEvaluator.evaluate(mValue, colorStart, colorEnd) as Int)
+            view.setTextColor(argbEvaluator.evaluate(mValue.orZero, colorStart, colorEnd) as Int)
         }
         animationList.add(animator)
         return this
@@ -144,8 +147,8 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         animator.interpolator = interpolator
         animator.duration = millisecond
         animator.addUpdateListener { animation ->
-            val mValue = animation.animatedValue as Float
-            view.setBackgroundColor(argbEvaluator.evaluate(mValue, colorStart, colorEnd) as Int)
+            val mValue = animation.animatedValue as? Float
+            view.setBackgroundColor(argbEvaluator.evaluate(mValue.orZero, colorStart, colorEnd) as Int)
         }
         animationList.add(animator)
         return this
@@ -162,7 +165,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
             view.layoutParams = layoutParams
             return this
         }
-        val animator = ValueAnimator.ofFloat(startPX.toFloat(), endPX.toFloat())
+        val animator = ValueAnimator.ofFloat(startPX.toSafeFloat(), endPX.toSafeFloat())
         //设置作用对象
         animator.setTarget(view)
         animator.interpolator = interpolator
@@ -171,10 +174,10 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         //添加动画更新监听
         animator.addUpdateListener { animation ->
             //获取当前值
-            val mValue = (animation.animatedValue as Float).toInt()
+            val mValue = (animation.animatedValue as? Float)?.toSafeInt()
             //设置高度
             val layoutParams = view.layoutParams
-            layoutParams.height = mValue
+            layoutParams.height = mValue.orZero
             view.layoutParams = layoutParams
         }
         animationList.add(animator)
@@ -192,14 +195,14 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
             view.layoutParams = layoutParams
             return this
         }
-        val animator = ValueAnimator.ofFloat(startPX.toFloat(), endPX.toFloat())
+        val animator = ValueAnimator.ofFloat(startPX.toSafeFloat(), endPX.toSafeFloat())
         animator.setTarget(view)
         animator.interpolator = interpolator
         animator.duration = millisecond
         animator.addUpdateListener { animation ->
-            val mValue = (animation.animatedValue as Float).toInt()
+            val mValue = (animation.animatedValue as? Float)?.toSafeInt()
             val layoutParams = view.layoutParams
-            layoutParams.width = mValue
+            layoutParams.width = mValue.orZero
             view.layoutParams = layoutParams
         }
         animationList.add(animator)
@@ -212,12 +215,12 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
     fun marginLeft(startPX: Int, endPX: Int): AnimationUtil {
         if (view == null) return this
         if (millisecond == 0L) {
-            val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.leftMargin = endPX
+            val layoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams
+            layoutParams?.leftMargin = endPX
             view.layoutParams = layoutParams
             return this
         }
-        val animator = ValueAnimator.ofFloat(startPX.toFloat(), endPX.toFloat())
+        val animator = ValueAnimator.ofFloat(startPX.toSafeFloat(), endPX.toSafeFloat())
         //设置作用对象
         animator.setTarget(view)
         animator.interpolator = interpolator
@@ -226,10 +229,10 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         //添加动画更新监听
         animator.addUpdateListener { animation ->
             //获取当前值
-            val mValue = (animation.animatedValue as Float).toInt()
+            val mValue = (animation.animatedValue as? Float)?.toSafeInt()
             //设置高度
-            val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.leftMargin = mValue
+            val layoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams
+            layoutParams?.leftMargin = mValue
             view.layoutParams = layoutParams
         }
         animationList.add(animator)
@@ -242,19 +245,19 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
     fun marginRight(startPX: Int, endPX: Int): AnimationUtil {
         if (view == null) return this
         if (millisecond == 0L) {
-            val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.leftMargin = endPX
+            val layoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams
+            layoutParams?.leftMargin = endPX
             view.layoutParams = layoutParams
             return this
         }
-        val animator = ValueAnimator.ofFloat(startPX.toFloat(), endPX.toFloat())
+        val animator = ValueAnimator.ofFloat(startPX.toSafeFloat(), endPX.toSafeFloat())
         animator.setTarget(view)
         animator.interpolator = interpolator
         animator.duration = millisecond
         animator.addUpdateListener { animation ->
-            val mValue = (animation.animatedValue as Float).toInt()
-            val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.rightMargin = mValue
+            val mValue = (animation.animatedValue as? Float)?.toSafeInt()
+            val layoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams
+            layoutParams?.rightMargin = mValue
             view.layoutParams = layoutParams
         }
         animationList.add(animator)
