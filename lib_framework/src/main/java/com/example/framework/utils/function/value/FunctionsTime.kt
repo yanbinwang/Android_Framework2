@@ -170,6 +170,8 @@ fun String.getWeek(): String {
 
 /**
  * 是否为当日(手机时间为准)
+ * after->当Date1大于Date2时，返回TRUE，当小于等于时，返回false
+ * before->当Date1小于Date2时，返回TRUE，当大于等于时，返回false
  */
 @Synchronized
 fun Date.isToday(): Boolean {
@@ -184,7 +186,7 @@ fun Date.isToday(): Boolean {
         val dateFormat = EN_YMDHMS.getDateFormat()
         val parseBeginTime = dateFormat.parse(beginTime)
         val parseEndTime = dateFormat.parse(endTime)
-        if (after(parseBeginTime) && before(parseEndTime)) flag = true
+        if ((after(parseBeginTime) && before(parseEndTime)) || equals(parseBeginTime) || equals(parseEndTime)) flag = true
     } catch (_: ParseException) {
     }
     return flag
