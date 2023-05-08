@@ -17,9 +17,6 @@
     <color name="bgLine">#f6f8ff</color>
     <!-- 特定字体的颜色 -->
     <color name="textBlack">#333333</color>
-    <!-- 廣告選中/未選中下標 -->
-    <color name="advertSelect">#3d81f2</color>
-    <color name="advertUnselect">#6e7ce2</color>
     <!-- 其余定义的颜色 -->
     <color name="white">#ffffff</color>
     <color name="white_ccc">#ccc</color>

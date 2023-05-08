@@ -2,6 +2,9 @@ package com.example.common.widget.advertising
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.GradientDrawable.OVAL
 import android.os.Looper
 import android.util.AttributeSet
 import android.view.Gravity
@@ -15,7 +18,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.example.common.R
 import com.example.common.utils.function.pt
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.orZero
@@ -30,13 +32,21 @@ import java.util.*
 @SuppressLint("ClickableViewAccessibility")
 class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), AdvertisingImpl, LifecycleEventObserver {
     private var list = ArrayList<String>()//图片路径数组
-    private var triple = Triple(R.drawable.shape_advert_select, R.drawable.shape_advert_unselect, 10)//3个资源路径
     private var allowScroll = true//是否允许滑动
     private var autoScroll = true//是否自动滚动
     private var timer: Timer? = null//自动滚动的定时器
     private var banner: ViewPager2? = null//广告容器
     private var ovalLayout: LinearLayout? = null//圆点容器
     private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
+    private val triple by lazy {
+        Triple(GradientDrawable().apply {
+            shape = OVAL
+            setColor(Color.parseColor("#3d81f2"))
+        }, GradientDrawable().apply {
+            shape = OVAL
+            setColor(Color.parseColor("#6e7ce2"))
+        }, 10)
+    }//3个资源路径->圆点选中时的背景ID second：圆点未选中时的背景ID third：圆点间距 （圆点容器可为空写0）
     private val advAdapter by lazy { AdvertisingAdapter() } //图片适配器
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) } //切线程
     var onPagerClick: ((index: Int) -> Unit)? = null
@@ -55,8 +65,8 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                     curIndex = position % list.size
                     if (null != ovalLayout) {
                         if (list.size > 1) {
-                            ovalLayout?.getChildAt(oldIndex)?.background(triple.second.orZero)
-                            ovalLayout?.getChildAt(curIndex)?.background(triple.first.orZero)
+                            ovalLayout?.getChildAt(oldIndex)?.background = triple.second
+                            ovalLayout?.getChildAt(curIndex)?.background = triple.first
                             oldIndex = curIndex
                         }
                     }
@@ -100,10 +110,9 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="实现方法">
-    override fun start(uriList: ArrayList<String>, ovalLayout: LinearLayout?, triple: Triple<Int, Int, Int>, localAsset: Boolean) {
+    override fun start(uriList: ArrayList<String>, ovalLayout: LinearLayout?, localAsset: Boolean) {
         this.list = uriList
         this.ovalLayout = ovalLayout
-        this.triple = triple
         advAdapter.localAsset = localAsset
         //设置数据
         initData()
@@ -135,12 +144,12 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                                 margin(top = ovalMargin, bottom = ovalMargin)
                                 size(width = it.measuredWidth, height = it.measuredWidth)
                             }
-                            setBackgroundResource(triple.second.orZero)
+                            background = triple.second
                             it.addView(this)
                         }
                     }
                     //选中第一个
-                    it.getChildAt(0)?.setBackgroundResource(triple.first.orZero)
+                    it.getChildAt(0)?.background = triple.first
                 }
             }
         }
