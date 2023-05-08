@@ -5,7 +5,7 @@ import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.mb
-import com.example.framework.utils.function.color
+import com.example.common.utils.function.color
 import com.example.framework.utils.function.value.execute
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.api.widget.Widget
@@ -19,7 +19,7 @@ import com.yanzhenjie.durban.Durban
  * android:configChanges="orientation|keyboardHidden|screenSize"
  */
 class AlbumHelper(private val activity: Activity) {
-    private val color by lazy { activity.color(R.color.grey_333333) }
+    private val color by lazy { color(R.color.black) }
     private val widget by lazy {
         Widget.newDarkBuilder(activity)
             //标题 ---标题颜色只有黑色白色
