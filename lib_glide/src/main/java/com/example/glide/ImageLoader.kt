@@ -3,6 +3,7 @@ package com.example.glide
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.os.Looper
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -213,7 +214,14 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
 
     //清除磁盘缓存是在子线程中进行
     override fun clearDiskCache(context: Context) {
-        Thread { Glide.get(context).clearDiskCache() }.start()
+        try {
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                Thread { Glide.get(context).clearDiskCache() }.start()
+            } else {
+                Glide.get(context).clearDiskCache()
+            }
+        } catch (_: Exception) {
+        }
     }
 
     //获取用于缓存图片的路劲
