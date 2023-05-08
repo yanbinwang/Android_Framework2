@@ -7,10 +7,9 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extras
 import com.example.common.config.ARouterPath
-import com.example.common.utils.function.getStatusBarHeight
+import com.example.common.utils.builder.TitleBuilder
 import com.example.framework.utils.function.intentSerializable
-import com.example.framework.utils.function.view.click
-import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.function.value.toNewList
 import com.example.home.R
 import com.example.home.databinding.ActivityScaleBinding
 import com.example.home.view.scale.ScaleAdapter
@@ -22,6 +21,7 @@ import com.example.home.view.scale.ScaleImageView
  */
 @Route(path = ARouterPath.ScaleActivity)
 class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
+    private val titleBuilder by lazy { TitleBuilder(this, binding.titleContainer) }
     private val list by lazy { intentSerializable(Extras.BUNDLE_LIST) as? ArrayList<String> }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,22 +42,14 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
         }
         super.initView()
         initImmersionBar(false, false)
-        binding.ivLeft.apply {
-            margin(top = getStatusBarHeight())
-            click { finish() }
-        }
+        titleBuilder.setLeft(tintColor = R.color.white) { finish() }
     }
 
     override fun initData() {
         super.initData()
-        val imgList = ArrayList<ScaleImageView>()
-        list?.forEach { _ ->
-            val img = ScaleImageView(this)
-            img.adjustViewBounds = true
-            imgList.add(img)
-        }
+        val imgList = list?.toNewList { ScaleImageView(this) }
         binding.vpPage.apply {
-            adapter = ScaleAdapter(imgList, list.orEmpty())
+            adapter = ScaleAdapter(imgList, list)
             currentItem = 0
         }
     }

@@ -4,17 +4,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout.LayoutParams.MATCH_PARENT
 import androidx.viewpager.widget.PagerAdapter
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
+import com.example.framework.utils.function.value.safeSize
 import com.example.glide.ImageLoader
 
 /**
  * Created by wangyanbin
  * 伸缩图片适配器
  */
-class ScaleAdapter(private var data: List<ScaleImageView>, private var fileList: List<String>) : PagerAdapter() {
+class ScaleAdapter(private var data: List<ScaleImageView>?, private var fileList: List<String>?) : PagerAdapter() {
 
     override fun getCount(): Int {
-        return data.size
+        return data?.safeSize.orZero
     }
 
     override fun isViewFromObject(view: View, any: Any): Boolean {
