@@ -1,14 +1,17 @@
 package com.example.multimedia.utils.helper
 
-import android.app.Activity
-import android.content.Intent
+import android.app.Activity.RESULT_OK
 import android.media.projection.MediaProjectionManager
 import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import com.example.common.base.page.Extras
-import com.example.common.base.page.RequestCode.REQUEST_SERVICE
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.builder.shortToast
+import com.example.framework.utils.function.startService
+import com.example.framework.utils.function.stopService
 import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.orFalse
 import com.example.multimedia.service.ScreenService
@@ -19,9 +22,24 @@ import java.util.TimerTask
  * @description 录屏工具类
  * @author yan
  */
-class ScreenHelper(private val activity: Activity) {
+class ScreenHelper(private val activity: FragmentActivity) {
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
+
+    /**
+     * 处理录屏的回调
+     */
+    private val activityResultValue =
+        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            stopWaitingTime()
+            if (it.resultCode == RESULT_OK) {
+                "开始录屏".shortToast()
+                activity.startService(ScreenService::class.java, Extras.RESULT_CODE to it.resultCode, Extras.BUNDLE_BEAN to it.data)
+//                moveTaskToBack(true)
+            } else {
+                "取消录屏".shortToast()
+            }
+        }
 
     companion object {
         var waitingTime = 0
@@ -59,6 +77,13 @@ class ScreenHelper(private val activity: Activity) {
      * 尝试唤起手机录屏弹窗，会在onActivityResult中回调结果
      */
     fun startScreen() = activity.execute {
+        startWaitingTime()
+        val mediaProjectionManager = getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
+        val permissionIntent = mediaProjectionManager?.createScreenCaptureIntent()
+        activityResultValue.launch(permissionIntent)
+    }
+
+    private fun startWaitingTime() {
         waitingTime = 0
         if (timer == null) {
             timer = Timer()
@@ -69,21 +94,18 @@ class ScreenHelper(private val activity: Activity) {
             }
             timer?.schedule(timerTask, 1000)
         }
-        val mediaProjectionManager = getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
-        val permissionIntent = mediaProjectionManager?.createScreenCaptureIntent()
-        startActivityForResult(permissionIntent, REQUEST_SERVICE)
     }
 
-    /**
-     * 处理录屏的回调
-     */
-    fun startScreenResult(resultCode: Int, data: Intent?) = activity.execute {
+    private fun stopWaitingTime() {
         timer?.cancel()
         timerTask?.cancel()
         timer = null
         timerTask = null
-//        startService(ScreenService::class.java, Extras.RESULT_CODE to resultCode, Extras.BUNDLE_BEAN to data)
-//        moveTaskToBack(true)
     }
+
+    /**
+     * 结束录屏
+     */
+    fun stopScreen() = activity.execute { stopService(ScreenService::class.java) }
 
 }

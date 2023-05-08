@@ -22,7 +22,6 @@ class ScreenShotObserver private constructor(): ContentObserver(null) {
     private val TAG = "ScreenShotObserver"
 
     companion object {
-        @JvmStatic
         val instance by lazy { ScreenShotObserver() }
     }
 
@@ -49,7 +48,7 @@ class ScreenShotObserver private constructor(): ContentObserver(null) {
                     //获取监听的路径
 //                    val queryPath = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA))
                     val queryPath = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        val sdPath = context.getExternalFilesDir(null)?.absolutePath ?: ""
+                        val sdPath = context.getExternalFilesDir(null)?.absolutePath.orEmpty()
                         "${sdPath.split("Android")[0]}${getQueryResult(cursor, columns[1])}${getQueryResult(cursor, columns[3])}"
 //                        "/storage/emulated/0/${getQueryResult(cursor, columns[1])}${getQueryResult(cursor, columns[3])}"
                     } else getQueryResult(cursor, columns[1])
