@@ -29,6 +29,7 @@ import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.view.*
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
@@ -166,7 +167,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     override fun getResources(): Resources {
         //AutoSize的防止界面错乱的措施,同时确认其在主线程运行
-        if (Looper.getMainLooper() == Looper.myLooper()) {
+        if (isMainThread) {
             AutoSizeConfig.getInstance()
                 .setScreenWidth(screenWidth)
                 .setScreenHeight(screenHeight)

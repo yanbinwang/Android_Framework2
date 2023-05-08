@@ -8,6 +8,7 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.glide.callback.GlideImpl
 import com.example.glide.callback.GlideModule
@@ -215,7 +216,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     //清除磁盘缓存是在子线程中进行
     override fun clearDiskCache(context: Context) {
         try {
-            if (Looper.myLooper() == Looper.getMainLooper()) {
+            if (isMainThread) {
                 Thread { Glide.get(context).clearDiskCache() }.start()
             } else {
                 Glide.get(context).clearDiskCache()
