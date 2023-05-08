@@ -1,4 +1,4 @@
-package com.example.home.view.scale
+package com.example.home.widget.scale
 
 import android.content.Context
 import android.util.AttributeSet

@@ -1,4 +1,4 @@
-package com.example.home.view.scale
+package com.example.home.widget.scale
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -33,7 +33,6 @@ import kotlin.math.abs
  */
 @SuppressLint("AppCompatCustomView", "ClickableViewAccessibility")
 class ScaleImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ImageView(context, attrs, defStyleAttr) {
-    var state: State? = null
     private var onDrawReady = false
     private var imageRenderedAtLeastOnce = false
     private var prevViewWidth = 0
@@ -47,6 +46,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     private var m = FloatArray(9)
     private var prevMatrix = Matrix()
     private var mScaleType = ScaleType.FIT_CENTER
+    private var state: State? = null
     private var delayedZoomVariables: ZoomVariables? = null
     private val SUPER_MIN_MULTIPLIER = 0.75f
     private val SUPER_MAX_MULTIPLIER = 1.25f
@@ -72,11 +72,6 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         fun getFixDragTrans(delta: Float, viewSize: Float, contentSize: Float): Float {
             return if (contentSize <= viewSize) 0f else delta
         }
-
-    }
-
-    enum class State {
-        NONE, DRAG, ZOOM, FLING, ANIMATE_ZOOM
     }
 
     init {
@@ -743,5 +738,9 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     private class ZoomVariables(var scale: Float?, var focusX: Float?, var focusY: Float?, var scaleType: ScaleType?)
+
+    private enum class State {
+        NONE, DRAG, ZOOM, FLING, ANIMATE_ZOOM
+    }
 
 }

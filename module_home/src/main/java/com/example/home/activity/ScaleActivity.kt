@@ -12,8 +12,8 @@ import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.toNewList
 import com.example.home.R
 import com.example.home.databinding.ActivityScaleBinding
-import com.example.home.view.scale.ScaleAdapter
-import com.example.home.view.scale.ScaleImageView
+import com.example.home.widget.scale.ScaleAdapter
+import com.example.home.widget.scale.ScaleImageView
 
 /**
  * @description 大图伸缩

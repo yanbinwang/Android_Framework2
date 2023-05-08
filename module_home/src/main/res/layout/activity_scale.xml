@@ -6,7 +6,7 @@
         android:layout_height="match_parent"
         android:background="@color/black">
 
-        <com.example.home.view.scale.ScaleViewPager
+        <com.example.home.widget.scale.ScaleViewPager
             android:id="@+id/vp_page"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
