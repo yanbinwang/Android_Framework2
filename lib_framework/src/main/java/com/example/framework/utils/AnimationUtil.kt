@@ -126,7 +126,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
             //获取当前值
             val mValue = animation.animatedValue as? Float
             //设置颜色
-            view.setTextColor(argbEvaluator.evaluate(mValue.orZero, colorStart, colorEnd) as Int)
+            view.setTextColor((argbEvaluator.evaluate(mValue.orZero, colorStart, colorEnd) as? Int).orZero)
         }
         animationList.add(animator)
         return this
@@ -148,7 +148,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         animator.duration = millisecond
         animator.addUpdateListener { animation ->
             val mValue = animation.animatedValue as? Float
-            view.setBackgroundColor(argbEvaluator.evaluate(mValue.orZero, colorStart, colorEnd) as Int)
+            view.setBackgroundColor((argbEvaluator.evaluate(mValue.orZero, colorStart, colorEnd) as? Int).orZero)
         }
         animationList.add(animator)
         return this
@@ -283,10 +283,10 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         //添加动画更新监听
         animator.addUpdateListener { animation ->
             //获取当前值
-            val mValue = animation.animatedValue as Float
+            val mValue = animation.animatedValue as? Float
             //设置缩放
-            view.scaleX = mValue
-            view.scaleY = mValue
+            view.scaleX = mValue.orZero
+            view.scaleY = mValue.orZero
         }
         animationList.add(animator)
         return this
