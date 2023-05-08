@@ -32,17 +32,16 @@ class ScreenHelper(private val activity: FragmentActivity) {
     /**
      * 处理录屏的回调
      */
-    private val activityResultValue =
-        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            stopWaitingTime()
-            if (it.resultCode == RESULT_OK) {
-                "开始录屏".shortToast()
-                activity.startService(ScreenService::class.java, Extras.RESULT_CODE to it.resultCode, Extras.BUNDLE_BEAN to it.data)
-//                activity.moveTaskToBack(true)
-            } else {
-                "取消录屏".shortToast()
-            }
+    private val activityResultValue = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        stopWaitingTime()
+        if (it.resultCode == RESULT_OK) {
+            "开始录屏".shortToast()
+            activity.startService(ScreenService::class.java, Extras.RESULT_CODE to it.resultCode, Extras.BUNDLE_BEAN to it.data)
+//            activity.moveTaskToBack(true)
+        } else {
+            "取消录屏".shortToast()
         }
+    }
 
     companion object {
         var waitingTime = 0
