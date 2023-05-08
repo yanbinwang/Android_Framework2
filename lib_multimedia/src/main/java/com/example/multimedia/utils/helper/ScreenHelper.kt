@@ -38,7 +38,7 @@ class ScreenHelper(private val activity: FragmentActivity) {
             if (it.resultCode == RESULT_OK) {
                 "开始录屏".shortToast()
                 activity.startService(ScreenService::class.java, Extras.RESULT_CODE to it.resultCode, Extras.BUNDLE_BEAN to it.data)
-//                moveTaskToBack(true)
+//                activity.moveTaskToBack(true)
             } else {
                 "取消录屏".shortToast()
             }
