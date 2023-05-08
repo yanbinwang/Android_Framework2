@@ -74,7 +74,7 @@ class ScreenService : Service() {
     }
 
     private fun createMediaProjection(): MediaProjection? {
-        return (getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager).getMediaProjection(resultCode, resultData ?: Intent())
+        return (getSystemService(MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager)?.getMediaProjection(resultCode, resultData ?: Intent())
     }
 
     private fun createMediaRecorder(): MediaRecorder {
