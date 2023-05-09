@@ -9,6 +9,9 @@ import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.base.page.Extras
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
@@ -18,22 +21,18 @@ import com.example.framework.utils.function.stopService
 import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.orFalse
 import com.example.multimedia.service.ScreenService
-import java.util.Timer
-import java.util.TimerTask
+import com.example.multimedia.service.ScreenShotObserver
 
 /**
  * @description 录屏工具类
  * @author yan
  */
-class ScreenHelper(private val activity: FragmentActivity) {
-    private var timer: Timer? = null
-    private var timerTask: TimerTask? = null
+class ScreenHelper(private val activity: FragmentActivity): LifecycleEventObserver {
 
     /**
      * 处理录屏的回调
      */
     private val activityResultValue = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        stopWaitingTime()
         if (it.resultCode == RESULT_OK) {
             "开始录屏".shortToast()
             activity.startService(ScreenService::class.java, Extras.RESULT_CODE to it.resultCode, Extras.BUNDLE_BEAN to it.data)
@@ -50,6 +49,7 @@ class ScreenHelper(private val activity: FragmentActivity) {
     }
 
     init {
+        activity.lifecycle.addObserver(this)
         //获取录屏屏幕宽高，高版本进行修正
         previewWidth = screenWidth
         previewHeight = screenHeight
@@ -85,36 +85,30 @@ class ScreenHelper(private val activity: FragmentActivity) {
             intent.data = Uri.parse("package:${packageName}")
             startActivity(intent)
         } else {
-            startWaitingTime()
             val mediaProjectionManager = getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
             val permissionIntent = mediaProjectionManager?.createScreenCaptureIntent()
             activityResultValue.launch(permissionIntent)
         }
     }
 
-    private fun startWaitingTime() {
-        waitingTime = 0
-        if (timer == null) {
-            timer = Timer()
-            timerTask = object : TimerTask() {
-                override fun run() {
-                    waitingTime++
-                }
-            }
-            timer?.schedule(timerTask, 1000)
-        }
-    }
-
-    private fun stopWaitingTime() {
-        timer?.cancel()
-        timerTask?.cancel()
-        timer = null
-        timerTask = null
-    }
-
     /**
      * 结束录屏
      */
     fun stopScreen() = activity.execute { stopService(ScreenService::class.java) }
+
+    /**
+     * 生命周期监听，不管录屏是否停止，页面销毁时都调取一次停止防止内存泄漏
+     */
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_CREATE -> ScreenShotObserver.instance.register()
+            Lifecycle.Event.ON_DESTROY -> {
+                stopScreen()
+                ScreenShotObserver.instance.unregister()
+                activity.lifecycle.removeObserver(this)
+            }
+            else -> {}
+        }
+    }
 
 }
