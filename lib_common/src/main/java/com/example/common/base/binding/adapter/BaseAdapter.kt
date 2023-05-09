@@ -34,7 +34,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 点击回调，返回对象和下标
      */
-    var onItemClick: ((t: T?, position: Int) -> Unit)? = null
+    private var onItemClick: ((t: T?, position: Int) -> Unit)? = null
 
     /**
      * 默认是返回对象
@@ -254,6 +254,14 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     fun insert(item: T) {
         data.add(item)
         notifyItemInserted(data.size - 1)
+    }
+
+
+    /**
+     * 设置item的点击
+     */
+    fun setOnItemClickListener(onItemClick: (t: T?, position: Int) -> Unit) {
+        this.onItemClick = onItemClick
     }
 
 }
