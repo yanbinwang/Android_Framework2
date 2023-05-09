@@ -50,8 +50,8 @@ class ScreenService : Service() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             startForeground(1, Notification())
         } else {
-            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(NotificationChannel(packageName, packageName, NotificationManager.IMPORTANCE_DEFAULT))
+            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as? NotificationManager
+            notificationManager?.createNotificationChannel(NotificationChannel(packageName, packageName, NotificationManager.IMPORTANCE_DEFAULT))
             val builder = NotificationCompat.Builder(this, packageName)
             //id不为0即可，该方法表示将服务设置为前台服务
             startForeground(1, builder.build())
