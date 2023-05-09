@@ -42,7 +42,11 @@ class ScreenService : Service() {
     private val timerFactory by lazy { TimeTickHelper(this) }
 
     companion object {
-        var onShutter: ((filePath: String?, exists: Boolean) -> Unit)? = null
+        internal var onShutter: (filePath: String?, exists: Boolean) -> Unit = { _, _ -> }
+
+        fun setOnScreenListener(onShutter: (filePath: String?, exists: Boolean) -> Unit) {
+            this.onShutter = onShutter
+        }
     }
 
     override fun onCreate() {
@@ -80,7 +84,7 @@ class ScreenService : Service() {
     private fun createMediaRecorder(): MediaRecorder {
         val screenFile = MultimediaUtil.getOutputFile(MediaType.SCREEN)
         filePath = screenFile.toString()
-        onShutter?.invoke(filePath,true)
+        onShutter.invoke(filePath,true)
         return MediaRecorder().apply {
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
             setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -121,7 +125,7 @@ class ScreenService : Service() {
             mediaProjection = null
         } catch (_: Exception) {
         }
-        onShutter?.invoke(filePath,false)
+        onShutter.invoke(filePath,false)
     }
 
 }
