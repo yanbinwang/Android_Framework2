@@ -34,7 +34,6 @@ object Constants {
 //    val NO_DATA_PERCENT get() = string(R.string.unit_no_data_percent)
     //------app内接口的一些默认配置字段------
     const val LOGIN_INTERCEPTOR_CODE = 1 //阿里路由登录全局拦截器编号
-    const val PUSH_NOTIFY_ID = 0 //固定通知id
     const val PUSH_CHANNEL_ID = "dataqin" //推送渠道id
     const val PUSH_CHANNEL_NAME = "数秦科技" //推送渠道名
     const val PAGE_LIMIT = "10"//固定配置页数
