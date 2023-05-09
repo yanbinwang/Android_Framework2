@@ -101,12 +101,12 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
      * @param folderPath 要打成压缩包文件的路径
      * @param zipPath 压缩完成的Zip路径（包含压缩文件名）-"${Constants.SDCARD_PATH}/10086.zip"
      */
-    fun zipJob(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onComplete: (filePath: String?) -> Unit? = {}) {
+    fun zipJob(folderPath: String, zipPath: String, onStart: () -> Unit = {}, onComplete: (filePath: String?) -> Unit = {}) {
         job?.cancel()
         job = launch { zip(folderPath, zipPath, onStart, onComplete) }
     }
 
-    private suspend fun zip(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onComplete: (filePath: String?) -> Unit? = {}) {
+    private suspend fun zip(folderPath: String, zipPath: String, onStart: () -> Unit = {}, onComplete: (filePath: String?) -> Unit = {}) {
         onStart()
         try {
             withContext(IO) { File(folderPath).let { if (it.exists()) zipFolder(it.absolutePath, File(zipPath).absolutePath) } }
