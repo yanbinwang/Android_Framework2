@@ -43,7 +43,6 @@ class ScreenHelper(private val activity: FragmentActivity): LifecycleEventObserv
     }
 
     companion object {
-        var waitingTime = 0
         var previewWidth = 0
         var previewHeight = 0
     }
