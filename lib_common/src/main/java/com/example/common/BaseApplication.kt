@@ -44,7 +44,7 @@ import java.util.*
  * Created by WangYanBin on 2020/8/14.
  */
 @SuppressLint("MissingPermission")
-open class BaseApplication : Application() {
+abstract class BaseApplication : Application() {
 
     companion object {
         //是否需要回首頁
