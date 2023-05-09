@@ -13,15 +13,21 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.base.page.Extras
+import com.example.common.config.Constants
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.file.copyFile
+import com.example.common.utils.file.deleteDir
+import com.example.common.utils.file.isMkdirs
+import com.example.common.utils.helper.AccountHelper
 import com.example.framework.utils.function.startService
 import com.example.framework.utils.function.stopService
 import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.orFalse
 import com.example.multimedia.service.ScreenService
 import com.example.multimedia.service.ScreenShotObserver
+import java.io.File
 
 /**
  * @description 录屏工具类
@@ -34,6 +40,7 @@ class ScreenHelper(private val activity: FragmentActivity): LifecycleEventObserv
      */
     private val activityResultValue = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
+            isStart = true
             "开始录屏".shortToast()
             activity.startService(ScreenService::class.java, Extras.RESULT_CODE to it.resultCode, Extras.BUNDLE_BEAN to it.data)
 //            activity.moveTaskToBack(true)
@@ -43,6 +50,7 @@ class ScreenHelper(private val activity: FragmentActivity): LifecycleEventObserv
     }
 
     companion object {
+        var isStart = false
         var previewWidth = 0
         var previewHeight = 0
     }
@@ -71,6 +79,19 @@ class ScreenHelper(private val activity: FragmentActivity): LifecycleEventObserv
                 }
             }
         }
+        //只要在录屏中，截一张图就copy一张到目标目录，但是需要及时清空
+        ScreenShotObserver.setOnScreenShotListener {
+            if(isStart) {
+                it ?: return@setOnScreenShotListener
+                val shotFile = File("${Constants.APPLICATION_PATH}/手机文件/${AccountHelper.getUserId()}/录屏取证/截屏".isMkdirs())
+                shotFile.absolutePath.deleteDir()
+                val file = File(it)
+                file.copyFile(shotFile)
+            }
+        }
+        ScreenService.setOnScreenListener { filePath, exists ->
+
+        }
     }
 
     /**
@@ -93,7 +114,10 @@ class ScreenHelper(private val activity: FragmentActivity): LifecycleEventObserv
     /**
      * 结束录屏
      */
-    fun stopScreen() = activity.execute { stopService(ScreenService::class.java) }
+    fun stopScreen() = activity.execute {
+        isStart = false
+        stopService(ScreenService::class.java)
+    }
 
     /**
      * 生命周期监听，不管录屏是否停止，页面销毁时都调取一次停止防止内存泄漏

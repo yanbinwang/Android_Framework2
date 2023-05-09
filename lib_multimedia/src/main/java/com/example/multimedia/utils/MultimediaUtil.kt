@@ -10,7 +10,7 @@ import com.example.framework.utils.hasSdcard
 import com.example.framework.utils.logE
 import com.example.multimedia.utils.MultimediaUtil.TAG
 import java.io.File
-import java.util.*
+import java.util.Date
 
 /**
  * @description 多媒体工具类
