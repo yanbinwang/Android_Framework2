@@ -25,7 +25,6 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(), CancelAdapt {
         }
     }
 
-
     override fun isImmersionBarEnabled() = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
