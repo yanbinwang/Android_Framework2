@@ -5,6 +5,7 @@ import android.os.Bundle
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
+import com.example.common.databinding.ActivityTransparentBinding
 import com.example.common.utils.fullScreen
 import com.example.framework.utils.WeakHandler
 import com.example.mvvm.databinding.ActivitySplashBinding
@@ -17,7 +18,7 @@ import me.jessyan.autosize.internal.CancelAdapt
  *  2.启动页去除autosize的兼容布局，改用dp绘制，因为启动app使用了自定义的dp背景，启动app时布局兼容并未启动会大小不一
  */
 @Route(path = ARouterPath.SplashActivity)
-class SplashActivity : BaseActivity<ActivitySplashBinding>(), CancelAdapt {
+class SplashActivity : BaseActivity<ActivityTransparentBinding>(), CancelAdapt {
     private val weakHandler by lazy {
         WeakHandler {
             navigation(ARouterPath.MainActivity).finish()
