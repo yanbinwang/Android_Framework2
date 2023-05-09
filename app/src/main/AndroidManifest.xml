@@ -94,18 +94,19 @@
             </intent-filter>
         </activity>
 
-        <!-- 启动页 -->
-        <activity
-            android:name=".activity.StartActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/NoAnimTheme" />
+        <!--        &lt;!&ndash; 启动页 &ndash;&gt;-->
+        <!--        <activity-->
+        <!--            android:name=".activity.StartActivity"-->
+        <!--            android:screenOrientation="portrait"-->
+        <!--            android:theme="@style/NoAnimTheme" />-->
 
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/MainTheme"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
+            android:windowSoftInputMode="stateHidden|adjustUnspecified" />
 
         <activity
             android:name=".activity.TestActivity"
