@@ -95,7 +95,7 @@ object NetWorkUtil {
     fun getWifiSecurity(): String {
         var result = "NONE"
         if (isWifiConnected()) {
-            val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as? WifiManager ?: return result
             val connectionInfo = wifiManager.connectionInfo
             for (scanResult in wifiManager.scanResults) {
                 val capabilities = scanResult.capabilities
