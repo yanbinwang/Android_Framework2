@@ -97,7 +97,7 @@ abstract class BaseApplication : Application() {
     }
 
     private fun initReceiver() {
-        (getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager).registerNetworkCallback(NetworkRequest.Builder().build(), NetworkCallbackImpl())
+        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.registerNetworkCallback(NetworkRequest.Builder().build(), NetworkCallbackImpl())
         registerReceiver(NetworkReceiver().apply {
             listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() }
         }, NetworkReceiver.filter)
