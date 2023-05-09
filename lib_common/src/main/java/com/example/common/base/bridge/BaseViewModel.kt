@@ -80,7 +80,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 带刷新或者空白布局的列表/详情页再接口交互结束时直接在对应的viewmodel调用该方法
      */
     protected fun reset(hasNextPage: Boolean? = true) {
-        if(null == recyclerView) refreshLayout?.finishRefreshing()
+        if (null == recyclerView) refreshLayout?.finishRefreshing()
         recyclerView?.finishRefreshing(!hasNextPage.orTrue)
         emptyView?.gone()
     }
@@ -108,7 +108,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                     if (isShowDialog || isClose) view?.hideDialog()
                     end()
                 },
-                isShowToast)
+                isShowToast
+            )
         }
     }
 
