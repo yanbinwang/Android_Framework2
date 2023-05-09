@@ -17,12 +17,12 @@ import java.util.Locale
 class MyApplication : BaseApplication() {
 
     companion object {
-        lateinit var instance: MyApplication
+        val instance: MyApplication
+            get() = BaseApplication.instance as MyApplication
     }
 
     override fun onCreate() {
         super.onCreate()
-        instance = this
         initialize()
     }
 
