@@ -26,12 +26,12 @@ object GlideBindingAdapter {
      */
     @BindingAdapter(value = ["display", "placeholder_id"], requireAll = false)
     fun bindingDisplay(view: ImageView, url: String, placeholderId: Int?) {
-        ImageLoader.instance.display(view, url, placeholderId.toSafeInt(R.drawable.shape_glide_loading), onStart = { view.disable() }, onComplete = { view.enable() })
+        ImageLoader.instance.display(view, url, placeholderId.toSafeInt(R.drawable.shape_glide_bg), onStart = { view.disable() }, onComplete = { view.enable() })
     }
 
     @BindingAdapter(value = ["display_resource", "placeholder_id"], requireAll = false)
     fun bindingDisplayResource(view: ImageView, resource: Int, placeholderId: Int?) {
-        ImageLoader.instance.display(view, resource, placeholderId.toSafeInt(R.drawable.shape_glide_loading), onStart = { view.disable() }, onComplete = { view.enable() })
+        ImageLoader.instance.display(view, resource, placeholderId.toSafeInt(R.drawable.shape_glide_bg), onStart = { view.disable() }, onComplete = { view.enable() })
     }
 
     /**

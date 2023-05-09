@@ -2,6 +2,7 @@ package com.example.framework.utils.function.view
 
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.example.framework.utils.function.value.orZero
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -71,8 +72,8 @@ fun ViewPager2?.desensitization() {
         val recyclerView = getRecyclerView()
         val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
         touchSlopField.isAccessible = true
-        val touchSlop = touchSlopField.get(recyclerView) as Int
-        touchSlopField.set(recyclerView, touchSlop * 3)
+        val touchSlop = touchSlopField.get(recyclerView) as? Int
+        touchSlopField.set(recyclerView, touchSlop.orZero * 3)
     } catch (ignore: Exception) {
     }
 }

@@ -29,8 +29,8 @@
             android:ellipsize="end"
             android:gravity="center"
             android:paddingHorizontal="5pt"
-            android:text="@string/label_loading"
-            android:textColor="@color/appTheme"
+            android:text="@string/loading"
+            android:textColor="@color/white"
             android:textSize="@dimen/textSize12"
             app:layout_constraintBottom_toBottomOf="parent" />
 

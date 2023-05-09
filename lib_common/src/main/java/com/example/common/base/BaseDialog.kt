@@ -40,7 +40,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
                 setContentView(binding.root)
             } catch (_: Exception) {
             }
-            window?.let { it ->
+            window?.let {
                 val lp = it.attributes
                 lp.width = if (dialogWidth < 0) dialogWidth else dialogWidth.pt
                 lp.height = if (dialogHeight < 0) dialogHeight else dialogHeight.pt

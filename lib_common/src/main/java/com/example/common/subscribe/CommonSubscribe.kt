@@ -6,17 +6,17 @@ import com.example.common.network.factory.RetrofitFactory
  * author:wyb
  * 通用接口类
  */
-object Subscribe : Api {
-    private val api by lazy { RetrofitFactory.instance.createByServer(Api::class.java) }
-    private val downloadApi by lazy { RetrofitFactory.instance.create(Api::class.java) }
+object CommonSubscribe : CommonApi {
+    private val commonApi by lazy { RetrofitFactory.instance.createByServer(CommonApi::class.java) }
+    private val downloadApi by lazy { RetrofitFactory.instance.create(CommonApi::class.java) }
 
     override suspend fun getDownloadApi(downloadUrl: String) = downloadApi.getDownloadApi(downloadUrl)
 
-    override suspend fun getSendVerificationApi(agent: String, map: Map<String, String>) = api.getSendVerificationApi(agent, map)
+    override suspend fun getSendVerificationApi(agent: String, map: Map<String, String>) = commonApi.getSendVerificationApi(agent, map)
 
-    override suspend fun getVerificationApi(map: Map<String, String>) = api.getVerificationApi(map)
+    override suspend fun getVerificationApi(map: Map<String, String>) = commonApi.getVerificationApi(map)
 
-    override suspend fun getTestApi() = api.getTestApi()
+    override suspend fun getTestApi() = commonApi.getTestApi()
 
 //    //上传图片接口
 //    fun getUploadFile(header: Int, partList: MutableList<MultipartBody.Part>, resourceSubscriber: ResourceSubscriber<BaseBean<UploadBean>>): Disposable {

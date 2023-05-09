@@ -17,7 +17,7 @@ import java.nio.charset.Charset
  */
 internal class LoggingInterceptor : Interceptor {
     private val UTF8 by lazy { Charset.forName("UTF-8") }
-    private val dressingUrls = arrayOf("user/uploadImg")
+    private val excludedUrls = arrayOf("user/uploadImg")
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -32,7 +32,7 @@ internal class LoggingInterceptor : Interceptor {
         //不包含服务器地址的属于下载地址或图片加载地址，不做拦截
         if (!requestUrl.contains(ServerConfig.serverUrl())) return chain.proceed(request)
         //上传文件接口文本量过大，请求参数不做拦截
-        if (dressingUrls.any { requestUrl.contains(it) }) {
+        if (excludedUrls.any { requestUrl.contains(it) }) {
             queryParams = "文件上传"
         } else {
             val requestBody = request.body
@@ -62,13 +62,11 @@ internal class LoggingInterceptor : Interceptor {
             val contentType = responseBody?.contentType()
             if (contentType != null) charset = contentType.charset(UTF8)
             if (!isPlaintext(buffer)) {
-                //信息量过大会只打印部分
                 log(headerValues, requestUrl, queryParams, null)
                 return response
             }
             if (responseBody?.contentLength() != 0L) responseResult = buffer?.clone()?.readString(charset)
         }
-        //打印获取到的全部信息
         log(headerValues, requestUrl, queryParams, responseResult)
         return response
     }
@@ -97,6 +95,10 @@ internal class LoggingInterceptor : Interceptor {
         }
     }
 
+    /**
+     * 打印获取到的信息
+     * 量过大会只打印部分
+     */
     private fun log(headerValues: String, requestUrl: String, queryParams: String?, responseResult: String?) {
         LogUtil.e("LoggingInterceptor", " " +
                 "\n————————————————————————请求开始————————————————————————" +

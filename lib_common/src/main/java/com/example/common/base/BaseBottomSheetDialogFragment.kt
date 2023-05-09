@@ -35,6 +35,7 @@ import com.example.common.utils.function.color
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.common.widget.textview.edit.SpecialEditText
 import com.example.framework.utils.function.value.currentTimeNano
+import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.*
 import com.example.framework.utils.logE
@@ -92,7 +93,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if (Looper.getMainLooper() == Looper.myLooper()) {
+        if (isMainThread) {
             AutoSizeConfig.getInstance()
                 .setScreenWidth(screenWidth)
                 .setScreenHeight(screenHeight)

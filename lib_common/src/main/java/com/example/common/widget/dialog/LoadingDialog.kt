@@ -9,7 +9,7 @@ import com.example.common.databinding.ViewDialogLoadingBinding
  * Created by wyb on 2017/6/28.
  * 加载动画view
  */
-class LoadingDialog(context: Context) : BaseDialog<ViewDialogLoadingBinding>(context, dialogWidth = 90, 90, animation = false, themeResId = R.style.LoadingStyle) {
+class LoadingDialog(context: Context) : BaseDialog<ViewDialogLoadingBinding>(context, 90, 90, themeResId = R.style.LoadingStyle, animation = false) {
 
     override fun shown(flag: Boolean) {
         super.shown(flag)

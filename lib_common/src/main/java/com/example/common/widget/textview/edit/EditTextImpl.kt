@@ -2,20 +2,17 @@ package com.example.common.widget.textview.edit
 
 import android.widget.EditText
 import androidx.annotation.StringRes
+import com.example.common.R
 import com.example.common.utils.builder.shortToast
+import com.example.framework.utils.function.value.ELFormat.EMAIL
+import com.example.framework.utils.function.value.ELFormat.PASSWORD
+import com.example.framework.utils.function.value.regCheck
+import java.util.regex.Pattern
 
 /**
  * kt中的接口是可以实现的，实现后的方法只有继承的类才能使用
  */
 interface EditTextImpl {
-
-    /**
-     * el表达式
-     */
-    companion object {
-        val regMail = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+\$")
-        val regPass = Regex("^(?![0-9]+\$)(?![a-zA-Z]+\$)[0-9A-Za-z]{6,20}\$")
-    }
 
     /**
      * 检测内容文本是否在输入范围内
@@ -62,11 +59,11 @@ interface EditTextImpl {
      */
     fun EditText.checkEmailReg(hasToast: Boolean = true): Boolean {
         if (!notEmpty()) {
-            if (hasToast) "邮箱不能为空".shortToast()
+            if (hasToast) R.string.email_empty.shortToast()
             return false
         }
-        if (regMail.matches(text)) return true
-        if (hasToast) "邮箱格式错误".shortToast()
+        if (text.toString().regCheck(EMAIL)) return true
+        if (hasToast) R.string.email_error.shortToast()
         return false
     }
 
@@ -83,11 +80,11 @@ interface EditTextImpl {
      */
     fun EditText.checkPassReg(hasToast: Boolean = true): Boolean {
         if (!notEmpty()) {
-            if (hasToast) "密码不能为空".shortToast()
+            if (hasToast) R.string.password_empty.shortToast()
             return false
         }
-        if (!regPass.matches(text)) {
-            if (hasToast) "密码由6~20位的字母和數字組成".shortToast()
+        if (!text.toString().regCheck(PASSWORD)) {
+            if (hasToast) R.string.password_error.shortToast()
             return false
         }
         return true
@@ -101,4 +98,18 @@ interface EditTextImpl {
         return editText.checkPassReg(hasToast)
     }
 
+}
+
+/**
+ * 返回密码强度
+ */
+fun String?.passwordLevel(): Int {
+    if (this.isNullOrEmpty()) return 0
+    //纯数字、纯字母、纯特殊字符
+    if (this.length < 8 || Pattern.matches("^\\d+$", this) || regCheck("^[a-z]+$") || regCheck("^[A-Z]+$") || regCheck("^[@#$%^&]+$")) return 1
+    //字母+数字、字母+特殊字符、数字+特殊字符
+    if (regCheck("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$") || regCheck("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$") || regCheck("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$") || regCheck("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$") || regCheck("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$") || regCheck("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$")) return 2
+    //字母+数字+特殊字符
+    if (regCheck("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
+    return 3
 }

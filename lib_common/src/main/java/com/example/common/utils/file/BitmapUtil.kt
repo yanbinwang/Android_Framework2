@@ -208,9 +208,9 @@ fun View?.getBitmapFromView(w: Int? = null, h: Int? = null, needBg: Boolean = tr
     //请求转换
     return try {
         val screenshot = Bitmap.createBitmap(width, height, if (needBg) Bitmap.Config.RGB_565 else Bitmap.Config.ARGB_8888)
-        val c = Canvas(screenshot)
-        if (needBg) c.drawColor(Color.WHITE)
-        draw(c)
+        val canvas = Canvas(screenshot)
+        if (needBg) canvas.drawColor(Color.WHITE)
+        draw(canvas)
         if (w != null && h != null) {
             screenshot.resizeBitmap(w, h)
         } else {
@@ -227,7 +227,7 @@ fun View?.getBitmapFromView(w: Int? = null, h: Int? = null, needBg: Boolean = tr
 fun Bitmap?.resizeBitmap(w: Int, h: Int): Bitmap? {
     this ?: return null
     val matrix = Matrix()
-    matrix.postScale(w / width.toFloat(), h / height.toFloat()) //长和宽放大缩小的比例
+    matrix.postScale(w / width.toSafeFloat(), h / height.toSafeFloat()) //长和宽放大缩小的比例
     val resultBitmap = Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
     recycle()
     return resultBitmap

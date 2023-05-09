@@ -9,6 +9,7 @@ import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.repository.ApiResponse
+import com.example.common.network.repository.MultiReqUtil
 import com.example.common.network.repository.request
 import com.example.common.utils.AppManager
 import com.example.common.widget.EmptyLayout
@@ -79,7 +80,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 带刷新或者空白布局的列表/详情页再接口交互结束时直接在对应的viewmodel调用该方法
      */
     protected fun reset(hasNextPage: Boolean? = true) {
-        if(null == recyclerView) refreshLayout?.finishRefreshing()
+        if (null == recyclerView) refreshLayout?.finishRefreshing()
         recyclerView?.finishRefreshing(!hasNextPage.orTrue)
         emptyView?.gone()
     }
@@ -107,7 +108,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                     if (isShowDialog || isClose) view?.hideDialog()
                     end()
                 },
-                isShowToast)
+                isShowToast
+            )
         }
     }
 
@@ -137,6 +139,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         isShowToast: Boolean = false
     ): Deferred<T?> {
         return async(Main, LAZY) { request({ coroutineScope() }, isShowToast = isShowToast) }
+    }
+
+    protected fun <T> async(
+        req: MultiReqUtil,
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>
+    ): Deferred<T?> {
+        return async(Main, LAZY) { req.request({ coroutineScope() }) }
     }
 
     override fun onCleared() {

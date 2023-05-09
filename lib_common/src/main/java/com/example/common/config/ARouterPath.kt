@@ -10,17 +10,13 @@ object ARouterPath {
     const val StartActivity = "/app/StartActivity"
     const val MainActivity = "/app/MainActivity"
     const val LoginActivity = "/app/LoginActivity"
-    const val TestListActivity = "/app/TestListActivity"
-    const val UserInfoActivity = "/app/UserInfoActivity"
     const val TestActivity = "/app/TestActivity"
-    const val WebActivity = "/home/WebActivity"
-    const val PullActivity = "/app/PullActivity"
-
 
     //    String StartActivity = "/main/start";//启动页
     //    String MainActivity = "/main/main";//首页
-    //    //homepage模块
+    //homepage模块
     //    String UnlockIPActivity = "/homepage/unlockIP";//锁定ip页
     //    String WebViewActivity = "/homepage/webView";//全局网页
-    //    String ScanActivity = "/homepage/scan";//全局扫码页
+    const val WebActivity = "/home/WebActivity"
+    const val ScaleActivity = "/home/ScaleActivity"
 }

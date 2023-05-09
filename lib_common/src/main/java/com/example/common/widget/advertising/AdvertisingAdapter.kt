@@ -32,10 +32,11 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.itemView.click { onItemClick?.invoke(position.mod(list.safeSize)) }
         val bean = list.safeGet(position.mod(list.safeSize)).orEmpty()
+        val image = holder.itemView as? ImageView ?: return
         if (localAsset) {
-            (holder.itemView as ImageView).setResource(holder.itemView.context.mipmapId(bean))
+            image.setResource(holder.itemView.context.mipmapId(bean))
         } else {
-            ImageLoader.instance.display((holder.itemView as ImageView), bean)
+            ImageLoader.instance.display(image, bean)
         }
     }
 
@@ -44,7 +45,6 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
     }
 
     class ViewHolder(itemView: ImageView) : RecyclerView.ViewHolder(itemView) {
-
         init {
             //设置缩放方式
             itemView.scaleType = ImageView.ScaleType.FIT_XY

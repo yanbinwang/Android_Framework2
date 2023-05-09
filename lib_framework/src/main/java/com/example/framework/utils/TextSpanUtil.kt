@@ -1,16 +1,14 @@
 package com.example.framework.utils
 
-import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
 import android.graphics.Typeface
-import android.os.Parcel
-import android.text.*
-import android.text.style.*
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.AbsoluteSizeSpan
+import android.text.style.ClickableSpan
+import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
-import com.example.framework.utils.function.value.toSafeFloat
 
 //------------------------------------字符串扩展函数类------------------------------------
 /**
@@ -120,10 +118,7 @@ class ColorSpan(@ColorInt val color: Int) : SpanType {
  */
 class SizeSpan(val textSize: Float) : SpanType {
     override fun setSpan(spannable: Spannable, start: Int, end: Int) {
-        spannable.setSpan(
-            AbsoluteSizeSpan(textSize.toInt()), start, end,
-            Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-        )
+        spannable.setSpan(AbsoluteSizeSpan(textSize.toInt()), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
     }
 }
 
@@ -149,57 +144,4 @@ class ClickSpan(private val clickable: ClickableSpan) : SpanType {
     override fun setSpan(spannable: Spannable, start: Int, end: Int) {
         spannable.setSpan(clickable, start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
     }
-}
-
-/**
- * 加入一段图片样式的字符串
- */
-class ImageSpan(private val context: Context, private val triple: Triple<Int, Int, Int>) : SpanType {
-    override fun setSpan(spannable: Spannable, start: Int, end: Int) {
-        spannable.setSpan(BackgroundImageSpan(context, triple), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
-    }
-}
-
-/**
- * first->资源id
- * second->文字大小（pt转换）
- * third->文字颜色
- */
-class BackgroundImageSpan(private val context: Context, private val triple: Triple<Int, Int, Int>) : ReplacementSpan(), ParcelableSpan {
-    private var mWidth = -1
-
-    override fun draw(canvas: Canvas, text: CharSequence?, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
-        paint.textSize = triple.second.toSafeFloat()
-        paint.color = triple.third
-        draw(canvas, mWidth, x, top, bottom)
-        canvas.drawText(text.toString(), start, end, x, y.toSafeFloat(), paint)
-    }
-
-    private fun draw(canvas: Canvas, width: Int, x: Float, top: Int, bottom: Int) {
-        val mDrawable = ContextCompat.getDrawable(context, triple.first)
-        canvas.save()
-        canvas.translate(x, top.toFloat())
-        mDrawable?.setBounds(0, 0, width, bottom - top)
-        mDrawable?.draw(canvas)
-        canvas.restore()
-    }
-
-    override fun getSize(paint: Paint, text: CharSequence?, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {
-        val size = paint.measureText(text, start, end)
-        if (fm != null) paint.getFontMetricsInt(fm)
-        mWidth = size.toInt()
-        return mWidth
-    }
-
-    override fun updateDrawState(ds: TextPaint?) {
-    }
-
-    override fun getSpanTypeId() = 0
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(triple.first)
-    }
-
-    override fun describeContents() = 0
-
 }

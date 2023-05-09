@@ -32,6 +32,7 @@ import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.function.value.currentTimeNano
+import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.*
 import com.example.framework.utils.logE
@@ -100,7 +101,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         }
         //设置软键盘不自动弹出
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
-        if (Looper.getMainLooper() == Looper.myLooper()) {
+        if (isMainThread) {
             AutoSizeConfig.getInstance()
                 .setScreenWidth(screenWidth)
                 .setScreenHeight(screenHeight)

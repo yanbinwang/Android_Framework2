@@ -184,7 +184,7 @@ fun TextView?.setArguments(txt: String = "", colorRes: Int = R.color.appTheme, r
     this ?: return
     text = txt
     textColor(colorRes)
-    if(-1 != resId) background(resId)
+    if (-1 != resId) background(resId)
 }
 
 /**

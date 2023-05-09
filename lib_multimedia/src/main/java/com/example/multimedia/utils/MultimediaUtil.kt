@@ -17,7 +17,7 @@ import java.util.*
  * @author yan
  */
 object MultimediaUtil {
-    const val TAG = "MediaFileUtil"
+    const val TAG = "MultimediaUtil"
 
     /**
      * 获取对应文件类型的存储地址
@@ -60,7 +60,7 @@ object MultimediaUtil {
 fun Context.scanDiskSpace(space: Long = 1024) = getSdcardAvailableCapacity() > space
 
 /**
- * 返回时长(音频，视频)
+ * 返回时长(音频，视频)->不支持在线音视频
  * 放在线程中读取，超时会导致卡顿或闪退
  */
 fun String?.getDuration(): Int {

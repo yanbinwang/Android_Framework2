@@ -122,6 +122,6 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
             }
             else -> {}
         }
-
     }
+
 }

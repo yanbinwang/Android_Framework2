@@ -11,7 +11,7 @@ import android.util.Patterns
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
-import com.example.common.subscribe.Subscribe
+import com.example.common.subscribe.CommonSubscribe
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
@@ -101,12 +101,12 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
      * @param folderPath 要打成压缩包文件的路径
      * @param zipPath 压缩完成的Zip路径（包含压缩文件名）-"${Constants.SDCARD_PATH}/10086.zip"
      */
-    fun zipJob(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onComplete: (filePath: String?) -> Unit? = {}) {
+    fun zipJob(folderPath: String, zipPath: String, onStart: () -> Unit = {}, onComplete: (filePath: String?) -> Unit = {}) {
         job?.cancel()
         job = launch { zip(folderPath, zipPath, onStart, onComplete) }
     }
 
-    private suspend fun zip(folderPath: String, zipPath: String, onStart: () -> Unit? = {}, onComplete: (filePath: String?) -> Unit? = {}) {
+    private suspend fun zip(folderPath: String, zipPath: String, onStart: () -> Unit = {}, onComplete: (filePath: String?) -> Unit = {}) {
         onStart()
         try {
             withContext(IO) { File(folderPath).let { if (it.exists()) zipFolder(it.absolutePath, File(zipPath).absolutePath) } }
@@ -171,15 +171,15 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
     }
 
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
+        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
+            R.string.link_invalid_error.shortToast()
+            return
+        }
         job?.cancel()
         job = launch { download(downloadUrl, filePath, fileName, onStart, onSuccess, onLoading, onFailed, onComplete) }
     }
 
     private suspend fun download(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
-        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-            R.string.toast_download_url_error.shortToast()
-            return
-        }
         onStart()
         //清除目录下的所有文件
         filePath.deleteDir()
@@ -190,7 +190,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
             var fileOutputStream: FileOutputStream? = null
             try {
                 //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
-                val body = Subscribe.getDownloadApi(downloadUrl)
+                val body = CommonSubscribe.getDownloadApi(downloadUrl)
                 val buf = ByteArray(2048)
                 val total = body.contentLength()
                 inputStream = body.byteStream()

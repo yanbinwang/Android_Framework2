@@ -2,11 +2,14 @@
 
     <!-- 启动页，直接背景是一张启动页图，点开app就是引导页的展示 -->
     <style name="SplashTheme" parent="AppTheme">
-        <item name="colorPrimaryDark">@color/blue_3d81f2</item>
-        <item name="android:navigationBarColor">@color/blue_3d81f2</item>
-        <item name="android:windowBackground">@drawable/layout_list_splash</item>
-        <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:windowLightStatusBar">false</item>
+                <item name="colorPrimaryDark">@color/blue_3d81f2</item>
+                <item name="android:navigationBarColor">@color/blue_3d81f2</item>
+                <item name="android:windowBackground">@drawable/layout_list_splash</item>
+                <item name="android:windowAnimationStyle">@null</item>
+                <item name="android:windowLightStatusBar">false</item>
+<!--        <item name="android:windowIsTranslucent">true</item>-->
+<!--        <item name="android:windowBackground">@color/white_00ffffff</item>-->
+<!--        <item name="android:windowAnimationStyle">@null</item>-->
     </style>
 
     <style name="MainTheme" parent="AppTheme">

@@ -1,22 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- 自定义选择容器容器 -->
-    <declare-styleable name="CheckBoxLabel">
-        <!-- 文案距左侧单选框距离 -->
-        <attr name="marginChild" format="integer" />
-        <!-- 选框大小 -->
-        <attr name="checkSize" format="integer" />
-        <!-- 选框style -->
-        <attr name="checkStyle" format="reference" />
-        <!-- 文字大小 -->
-        <attr name="textSize" />
-        <!-- 文字颜色 -->
-        <attr name="textColor" />
-        <!-- 文字内容 -->
-        <attr name="text" />
-    </declare-styleable>
-
     <!-- 自定义XRecyclerView -->
     <declare-styleable name="XRecyclerView">
         <!-- recyclerview的类型 -->

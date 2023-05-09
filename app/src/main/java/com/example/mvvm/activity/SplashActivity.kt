@@ -6,6 +6,7 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.fullScreen
+import com.example.framework.utils.WeakHandler
 import com.example.mvvm.databinding.ActivitySplashBinding
 import me.jessyan.autosize.internal.CancelAdapt
 
@@ -17,6 +18,13 @@ import me.jessyan.autosize.internal.CancelAdapt
  */
 @Route(path = ARouterPath.SplashActivity)
 class SplashActivity : BaseActivity<ActivitySplashBinding>(), CancelAdapt {
+    private val weakHandler by lazy {
+        WeakHandler {
+            navigation(ARouterPath.MainActivity).finish()
+            false
+        }
+    }
+
 
     override fun isImmersionBarEnabled() = false
 
@@ -30,7 +38,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(), CancelAdapt {
         }
         window.fullScreen()
         super.onCreate(savedInstanceState)
-        navigation(ARouterPath.StartActivity).finish()
+        weakHandler.sendEmptyMessageDelayed(0, 2000)
     }
 
 }

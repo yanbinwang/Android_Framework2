@@ -21,7 +21,7 @@ class RecorderHelper {
      */
     fun startRecord(context: Context) {
         val recordFile = MultimediaUtil.getOutputFile(AUDIO)
-        val sourcePath = recordFile?.absolutePath.orEmpty()
+        val sourcePath = recordFile?.absolutePath
         try {
             recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
             recorder?.apply {

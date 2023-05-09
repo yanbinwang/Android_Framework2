@@ -5,7 +5,6 @@ import android.view.View
 import androidx.fragment.app.FragmentActivity
 import com.example.common.base.BasePopupWindow
 import com.example.common.base.PopupAnimType.ALPHA
-import com.example.common.utils.function.getStatusBarHeight
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.margin
 import com.example.mvvm.databinding.ViewPopupIllustrateBinding
@@ -14,7 +13,7 @@ import com.example.mvvm.databinding.ViewPopupIllustrateBinding
  * @description 说明的气泡弹框
  * @author yan
  */
-class IllustratePopup(activity: FragmentActivity) : BasePopupWindow<ViewPopupIllustrateBinding>(activity, popupAnimType = ALPHA) {
+class IllustratePopup(activity: FragmentActivity) : BasePopupWindow<ViewPopupIllustrateBinding>(activity, popupAnimStyle = ALPHA) {
 
     fun showUp(anchor: View?, text: String) {
         binding.tvContent.text = text

@@ -2,7 +2,10 @@ package com.example.common
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.ComponentCallbacks2
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkRequest
 import android.view.Gravity
@@ -21,13 +24,16 @@ import com.example.common.event.EventCode.EVENT_ONLINE
 import com.example.common.utils.AppManager
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.ptFloat
 import com.example.common.utils.helper.ConfigHelper
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.framework.utils.function.string
+import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
+import com.example.glide.ImageLoader
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
 import me.jessyan.autosize.AutoSizeConfig
@@ -38,7 +44,7 @@ import java.util.*
  * Created by WangYanBin on 2020/8/14.
  */
 @SuppressLint("MissingPermission")
-open class BaseApplication : Application() {
+abstract class BaseApplication : Application() {
 
     companion object {
         //是否需要回首頁
@@ -82,7 +88,7 @@ open class BaseApplication : Application() {
     }
 
     private fun initARouter() {
-        if (BuildConfig.DEBUG) {
+        if (isDebug) {
             ARouter.openLog()//打印日志
             ARouter.openDebug()
         }
@@ -91,14 +97,14 @@ open class BaseApplication : Application() {
     }
 
     private fun initReceiver() {
-        (getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager).registerNetworkCallback(NetworkRequest.Builder().build(), NetworkCallbackImpl())
+        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.registerNetworkCallback(NetworkRequest.Builder().build(), NetworkCallbackImpl())
         registerReceiver(NetworkReceiver().apply {
             listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() }
         }, NetworkReceiver.filter)
     }
 
     private fun initListener() {
-        BaseActivity.setOnFinishListener(object :OnFinishListener{
+        BaseActivity.setOnFinishListener(object : OnFinishListener {
             override fun onFinish(act: BaseActivity<*>) {
                 if (!needOpenHome) return
                 if (act.TAG == "HomeActivity") return
@@ -124,6 +130,10 @@ open class BaseApplication : Application() {
     }
 
     private fun initToast() {
+        val drawable = GradientDrawable().apply {
+            setColor(Color.parseColor("#4c000000"))
+            cornerRadius = 7.ptFloat
+        }
         ToastBuilder.setResToastBuilder { message, length ->
             val toast = Toast(instance)
             //设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位，
@@ -132,7 +142,8 @@ open class BaseApplication : Application() {
             toast.duration = length
             val view = TextView(instance)
             view.text = string(message)
-            view.setBackgroundResource(R.drawable.shape_toast_bg)
+//            view.setBackgroundResource(R.drawable.shape_toast_bg)
+            view.background = drawable
             view.minHeight = 40.pt
             view.minWidth = 190.pt
             view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
@@ -150,7 +161,7 @@ open class BaseApplication : Application() {
             toast.duration = length
             val view = TextView(instance)
             view.text = message
-            view.setBackgroundResource(R.drawable.shape_toast_bg)
+            view.background = drawable
             view.minHeight = 40.pt
             view.minWidth = 190.pt
             view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
@@ -165,6 +176,20 @@ open class BaseApplication : Application() {
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         System.gc()
+        try {
+            if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
+                ImageLoader.instance.clearMemoryCache(this)
+            }
+        } catch (ignore: Exception) {
+        }
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        try {
+            ImageLoader.instance.clearMemoryCache(this)
+        } catch (ignore: Exception) {
+        }
     }
 
 }
