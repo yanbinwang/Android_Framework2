@@ -28,7 +28,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         val instance by lazy { ImageLoader() }
     }
 
-    override fun displayZoom(view: ImageView, string: String, onStart: () -> Unit?, onComplete: (bitmap: Bitmap?) -> Unit?) {
+    override fun displayZoom(view: ImageView, string: String, onStart: () -> Unit, onComplete: (bitmap: Bitmap?) -> Unit) {
 //        GradientDrawable().apply {
 //            setColor(Color.parseColor("#000000"))
 //        }
@@ -60,7 +60,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         }
     }
 
-    override fun displayProgress(view: ImageView, string: String, onStart: () -> Unit?, onProgress: (progress: Int?) -> Unit, onComplete: () -> Unit?) {
+    override fun displayProgress(view: ImageView, string: String, onStart: () -> Unit, onProgress: (progress: Int?) -> Unit, onComplete: () -> Unit) {
         ProgressInterceptor.addListener(string) { onProgress(it) }
         Glide.with(view.context)
             .load(string)
@@ -78,7 +78,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun display(view: ImageView, string: String, placeholderId: Int, errorId: Int, onStart: () -> Unit?, onComplete: (drawable: Drawable?) -> Unit?) {
+    override fun display(view: ImageView, string: String, placeholderId: Int, errorId: Int, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
 //        val factory = DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
 //        Glide.with(view.context)
 //            .load(string)
@@ -112,7 +112,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun display(view: ImageView, resourceId: Int, placeholderId: Int, errorId: Int, onStart: () -> Unit?, onComplete: (drawable: Drawable?) -> Unit?) {
+    override fun display(view: ImageView, resourceId: Int, placeholderId: Int, errorId: Int, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
         Glide.with(view.context)
             .load(resourceId)
             .placeholder(placeholderId)
@@ -181,7 +181,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun download(context: Context, string: String, onStart: () -> Unit?, onComplete: (file: File?) -> Unit?) {
+    override fun download(context: Context, string: String, onStart: () -> Unit, onComplete: (file: File?) -> Unit) {
 //        //创建保存的文件目录
 //        val destFile = File(FileUtil.isMkdirs(Constants.APPLICATION_FILE_PATH + "/图片"))
 //        //下载对应的图片文件
