@@ -25,14 +25,12 @@ class WebActivity : BaseActivity<ActivityWebBinding>(), WebImpl {
         return true
     }
 
-    override fun getActivity(): FragmentActivity {
-        return this
-    }
+    override fun getActivity() = this
 
     override fun getToKolPage() {
     }
 
-    override fun getBack(result: String?) {
+    override fun getBack(value: String?) {
     }
 
 }

@@ -24,27 +24,27 @@ class WebJavaScriptObject(private val webImpl: WeakReference<WebImpl>) {
     }
 
     @JavascriptInterface
-    fun toKol(result: String?) = webImpl.get()?.execute {
+    fun toKol(value: String?) = webImpl.get()?.execute {
         job?.cancel()
         job = GlobalScope.launch(Main) { getToKolPage() }
     }
 
     @JavascriptInterface
-    fun goBack(result: String?) = webImpl.get()?.execute {
+    fun goBack(value: String?) = webImpl.get()?.execute {
         job?.cancel()
-        job = GlobalScope.launch(Main) { getBack(result) }
+        job = GlobalScope.launch(Main) { getBack(value) }
     }
 
     @JavascriptInterface
-    fun toast(result: String?) {
+    fun toast(value: String?) {
         job?.cancel()
-        job = GlobalScope.launch(Main) { result.orEmpty().shortToast() }
+        job = GlobalScope.launch(Main) { value.orEmpty().shortToast() }
     }
 
     @JavascriptInterface
-    fun download(result: String?) = webImpl.get()?.execute {
+    fun download(value: String?) = webImpl.get()?.execute {
         job?.cancel()
-        job = GlobalScope.launch(Main) { getActivity().toBrowser(result.orEmpty()) }
+        job = GlobalScope.launch(Main) { getActivity().toBrowser(value.orEmpty()) }
     }
 
 }
@@ -52,5 +52,5 @@ class WebJavaScriptObject(private val webImpl: WeakReference<WebImpl>) {
 interface WebImpl {
     fun getActivity(): FragmentActivity
     fun getToKolPage()
-    fun getBack(result: String?)
+    fun getBack(value: String?)
 }
