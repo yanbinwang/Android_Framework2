@@ -1,18 +1,14 @@
 package com.example.multimedia.utils.helper
 
 import android.media.MediaActionSound
-import android.widget.FrameLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.shortToast
-import com.example.framework.utils.function.view.doOnceAfterLayout
-import com.example.framework.utils.function.view.size
 import com.example.multimedia.R
 import com.example.multimedia.utils.MediaType.IMAGE
 import com.example.multimedia.utils.MediaType.VIDEO
 import com.example.multimedia.utils.MultimediaUtil
-import com.example.multimedia.widget.ViewfinderView
 import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.CameraView
 import com.otaliastudios.cameraview.PictureResult
@@ -29,15 +25,11 @@ import java.io.File
  *  相机帮助类
  *  https://github.com/natario1/CameraView
  */
-class CameraHelper(private val layout: FrameLayout) : LifecycleEventObserver {
-    private var cvFinder: CameraView? = null
+class CameraHelper(private val cvFinder: CameraView) : LifecycleEventObserver {
     private val sound by lazy { MediaActionSound() }
-    private val context get() = layout.context
 
     init {
-        val finderView = ViewfinderView(context)
-        cvFinder = CameraView(context)
-        cvFinder?.apply {
+        cvFinder.apply {
             keepScreenOn = true//是否保持屏幕高亮
             playSounds = true//录像是否录制声音
             useDeviceOrientation = false//禁止掉换
@@ -47,52 +39,46 @@ class CameraHelper(private val layout: FrameLayout) : LifecycleEventObserver {
             facing = Facing.BACK//打开时镜头默认后置
             flash = Flash.AUTO//闪光灯自动
         }
-        layout.addView(cvFinder)
-        layout.addView(finderView)
-        layout.doOnceAfterLayout {
-            cvFinder.size(it.measuredWidth, it.measuredHeight)
-            finderView.size(it.measuredWidth, it.measuredHeight)
-        }
     }
 
     /**
      * 绑定相机生命周期
      */
     fun addLifecycleObserver(owner: LifecycleOwner) {
-        cvFinder?.setLifecycleOwner(owner)
+        cvFinder.setLifecycleOwner(owner)
         owner.lifecycle.addObserver(this)
     }
 
     /**
      * 镜头复位
      */
-    fun reset() = run { cvFinder?.zoom = 0f }
+    fun reset() = run { cvFinder.zoom = 0f }
 
     /**
      * 镜头翻转
      */
-    fun toggleFacing() = run { cvFinder?.toggleFacing() }
+    fun toggleFacing() = run { cvFinder.toggleFacing() }
 
     /**
      * 开关闪光灯
      */
     fun flash() {
-        if (cvFinder?.facing == Facing.FRONT) R.string.camera_flash_error.shortToast()
-        cvFinder?.apply { flash = if (flash == Flash.TORCH) Flash.OFF else Flash.TORCH }
+        if (cvFinder.facing == Facing.FRONT) R.string.camera_flash_error.shortToast()
+        cvFinder.apply { flash = if (flash == Flash.TORCH) Flash.OFF else Flash.TORCH }
     }
 
     /**
      * 关灯
      */
     fun closeFlash() {
-        if (cvFinder?.facing == Facing.BACK) cvFinder?.flash = Flash.OFF
+        if (cvFinder.facing == Facing.BACK) cvFinder.flash = Flash.OFF
     }
 
     /**
      * 拍照
      */
     fun takePicture(onStart: () -> Unit = {}, onShutter: () -> Unit = {}, onSuccess: (sourceFile: File?) -> Unit = {}, onFailed: () -> Unit = {}, snapshot: Boolean = true) {
-        cvFinder?.apply {
+        cvFinder.apply {
             if (isTakingPicture) {
                 R.string.camera_picture_shutter.shortToast()
                 return
@@ -125,7 +111,7 @@ class CameraHelper(private val layout: FrameLayout) : LifecycleEventObserver {
      * 录像
      */
     fun takeVideo(onStart: () -> Unit = {}, onRecording: (sourcePath: String?) -> Unit = {}, onStop: (sourcePath: String?) -> Unit = {}, snapshot: Boolean = true) {
-        cvFinder?.apply {
+        cvFinder.apply {
             if (isTakingVideo) {
                 R.string.camera_video_shutter.shortToast()
                 return
@@ -154,10 +140,7 @@ class CameraHelper(private val layout: FrameLayout) : LifecycleEventObserver {
         when (event) {
 //            Lifecycle.Event.ON_RESUME ->
             Lifecycle.Event.ON_PAUSE -> closeFlash()
-            Lifecycle.Event.ON_DESTROY -> {
-                layout.removeAllViews()
-                source.lifecycle.removeObserver(this)
-            }
+            Lifecycle.Event.ON_DESTROY -> source.lifecycle.removeObserver(this)
             else -> {}
         }
     }
