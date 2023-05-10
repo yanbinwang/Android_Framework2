@@ -30,7 +30,7 @@ class WebActivity : BaseActivity<ActivityWebBinding>(), WebImpl {
     override fun getToKolPage() {
     }
 
-    override fun getBack(result: String?) {
+    override fun getBack(value: String?) {
     }
 
 }
