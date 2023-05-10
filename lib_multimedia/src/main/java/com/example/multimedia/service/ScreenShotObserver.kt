@@ -23,6 +23,15 @@ class ScreenShotObserver private constructor(): ContentObserver(null) {
 
     companion object {
         val instance by lazy { ScreenShotObserver() }
+
+        internal var onShutter: (filePath: String?) -> Unit = { _ -> }
+
+        /**
+         * exists->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
+         */
+        fun setOnScreenShotListener(onShutter: (filePath: String?) -> Unit) {
+            this.onShutter = onShutter
+        }
     }
 
     override fun onChange(selfChange: Boolean) {
@@ -61,6 +70,7 @@ class ScreenShotObserver private constructor(): ContentObserver(null) {
                         if (options.outWidth != -1) {
                             val file = File(queryPath)
                             " \n生成图片的路径:$queryPath\n手机截屏的路径：${file.parent}".logE(TAG)
+                            onShutter.invoke(queryPath)
 //                            LiveDataBus.instance.post(LiveDataEvent(Constants.APP_SHOT_PATH, file.parent ?: ""), LiveDataEvent(Constants.APP_SHOT_IMAGE_PATH, queryPath))
                         }
                     }
