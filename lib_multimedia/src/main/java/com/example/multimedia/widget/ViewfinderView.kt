@@ -9,6 +9,7 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import com.example.common.utils.function.pt
+import com.example.framework.utils.function.value.toSafeFloat
 
 /**
  * Created by wangyanbin
@@ -28,14 +29,14 @@ class ViewfinderView @JvmOverloads constructor(context: Context, attrs: Attribut
         //画扫描框边上的角，总共8个部分
         paint.color = Color.YELLOW
         canvas?.apply {
-            drawRect(frame.left.toFloat(), frame.top.toFloat(), (frame.left + screenRate).toFloat(), (frame.top + cornerWidth).toFloat(), paint)
-            drawRect(frame.left.toFloat(), frame.top.toFloat(), (frame.left + cornerWidth).toFloat(), (frame.top + screenRate).toFloat(), paint)
-            drawRect((frame.right - screenRate).toFloat(), frame.top.toFloat(), frame.right.toFloat(), (frame.top + cornerWidth).toFloat(), paint)
-            drawRect((frame.right - cornerWidth).toFloat(), frame.top.toFloat(), frame.right.toFloat(), (frame.top + screenRate).toFloat(), paint)
-            drawRect(frame.left.toFloat(), (frame.bottom - cornerWidth).toFloat(), (frame.left + screenRate).toFloat(), frame.bottom.toFloat(), paint)
-            drawRect(frame.left.toFloat(), (frame.bottom - screenRate).toFloat(), (frame.left + cornerWidth).toFloat(), frame.bottom.toFloat(), paint)
-            drawRect((frame.right - screenRate).toFloat(), (frame.bottom - cornerWidth).toFloat(), frame.right.toFloat(), frame.bottom.toFloat(), paint)
-            drawRect((frame.right - cornerWidth).toFloat(), (frame.bottom - screenRate).toFloat(), frame.right.toFloat(), frame.bottom.toFloat(), paint)
+            drawRect(frame.left.toSafeFloat(), frame.top.toSafeFloat(), (frame.left + screenRate).toSafeFloat(), (frame.top + cornerWidth).toSafeFloat(), paint)
+            drawRect(frame.left.toSafeFloat(), frame.top.toSafeFloat(), (frame.left + cornerWidth).toSafeFloat(), (frame.top + screenRate).toSafeFloat(), paint)
+            drawRect((frame.right - screenRate).toSafeFloat(), frame.top.toSafeFloat(), frame.right.toSafeFloat(), (frame.top + cornerWidth).toSafeFloat(), paint)
+            drawRect((frame.right - cornerWidth).toSafeFloat(), frame.top.toSafeFloat(), frame.right.toSafeFloat(), (frame.top + screenRate).toSafeFloat(), paint)
+            drawRect(frame.left.toSafeFloat(), (frame.bottom - cornerWidth).toSafeFloat(), (frame.left + screenRate).toSafeFloat(), frame.bottom.toSafeFloat(), paint)
+            drawRect(frame.left.toSafeFloat(), (frame.bottom - screenRate).toSafeFloat(), (frame.left + cornerWidth).toSafeFloat(), frame.bottom.toSafeFloat(), paint)
+            drawRect((frame.right - screenRate).toSafeFloat(), (frame.bottom - cornerWidth).toSafeFloat(), frame.right.toSafeFloat(), frame.bottom.toSafeFloat(), paint)
+            drawRect((frame.right - cornerWidth).toSafeFloat(), (frame.bottom - screenRate).toSafeFloat(), frame.right.toSafeFloat(), frame.bottom.toSafeFloat(), paint)
         }
     }
 }
