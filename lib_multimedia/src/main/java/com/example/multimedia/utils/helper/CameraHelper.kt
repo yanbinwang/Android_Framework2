@@ -148,7 +148,10 @@ class CameraHelper(private val layout: FrameLayout) : LifecycleEventObserver {
         when (event) {
 //            Lifecycle.Event.ON_RESUME ->
             Lifecycle.Event.ON_PAUSE -> closeFlash()
-            Lifecycle.Event.ON_DESTROY -> source.lifecycle.removeObserver(this)
+            Lifecycle.Event.ON_DESTROY -> {
+                layout.removeAllViews()
+                source.lifecycle.removeObserver(this)
+            }
             else -> {}
         }
     }
