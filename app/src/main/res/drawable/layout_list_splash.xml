@@ -11,7 +11,7 @@
             android:antialias="true"
             android:gravity="top|center_horizontal"
             android:scaleType="fitXY"
-            android:src="@mipmap/img_splash_header"
+            android:src="@mipmap/bg_splash_header"
             android:tileMode="disabled" />
     </item>
 
@@ -25,7 +25,7 @@
             android:antialias="true"
             android:gravity="bottom|center_horizontal"
             android:scaleType="fitXY"
-            android:src="@mipmap/img_splash_footer"
+            android:src="@mipmap/bg_splash_footer"
             android:tileMode="disabled" />
     </item>
 

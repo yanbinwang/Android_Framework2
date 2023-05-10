@@ -14,7 +14,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="215dp"
             android:scaleType="fitXY"
-            android:src="@mipmap/img_splash_header" />
+            android:src="@mipmap/bg_splash_header" />
 
         <ImageView
             android:id="@+id/iv_footer"
@@ -23,7 +23,7 @@
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="60dp"
             android:scaleType="fitXY"
-            android:src="@mipmap/img_splash_footer" />
+            android:src="@mipmap/bg_splash_footer" />
 
         <TextView
             android:id="@+id/tv_refresh"

@@ -61,7 +61,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun loading() {
         visible()
-        binding.ivEmpty.setResource(R.mipmap.img_data_loading)
+        binding.ivEmpty.setResource(R.mipmap.bg_data_loading)
         binding.tvEmpty.text = string(R.string.data_loading)
         binding.tvRefresh.gone()
     }
@@ -71,7 +71,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun empty(resId: Int = -1, text: String? = null) {
         visible()
-        binding.ivEmpty.setResource(if (-1 == resId) R.mipmap.img_data_empty else resId)
+        binding.ivEmpty.setResource(if (-1 == resId) R.mipmap.bg_data_empty else resId)
         binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.data_empty) else text
         binding.tvRefresh.gone()
     }
@@ -83,10 +83,10 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
         visible()
         if (!isNetworkAvailable()) {
-            binding.ivEmpty.setResource(R.mipmap.img_data_net_error)
+            binding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
             binding.tvEmpty.text = string(R.string.data_net_error)
         } else {
-            binding.ivEmpty.setResource(if (-1 == resId) R.mipmap.img_data_error else resId)
+            binding.ivEmpty.setResource(if (-1 == resId) R.mipmap.bg_data_error else resId)
             binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.data_error) else text
         }
         if (!refreshText.isNullOrEmpty()) binding.tvRefresh.text = refreshText
