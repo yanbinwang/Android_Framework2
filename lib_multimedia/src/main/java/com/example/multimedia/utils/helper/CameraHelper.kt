@@ -12,6 +12,7 @@ import com.example.multimedia.R
 import com.example.multimedia.utils.MediaType.IMAGE
 import com.example.multimedia.utils.MediaType.VIDEO
 import com.example.multimedia.utils.MultimediaUtil
+import com.example.multimedia.widget.ViewfinderView
 import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.CameraView
 import com.otaliastudios.cameraview.PictureResult
@@ -34,6 +35,7 @@ class CameraHelper(private val layout: FrameLayout) : LifecycleEventObserver {
     private val context get() = layout.context
 
     init {
+        val finderView = ViewfinderView(context)
         cvFinder = CameraView(context)
         cvFinder?.apply {
             keepScreenOn = true//是否保持屏幕高亮
@@ -46,7 +48,11 @@ class CameraHelper(private val layout: FrameLayout) : LifecycleEventObserver {
             flash = Flash.AUTO//闪光灯自动
         }
         layout.addView(cvFinder)
-        layout.doOnceAfterLayout { cvFinder.size(it.measuredWidth, it.measuredHeight) }
+        layout.addView(finderView)
+        layout.doOnceAfterLayout {
+            cvFinder.size(it.measuredWidth, it.measuredHeight)
+            finderView.size(it.measuredWidth, it.measuredHeight)
+        }
     }
 
     /**
