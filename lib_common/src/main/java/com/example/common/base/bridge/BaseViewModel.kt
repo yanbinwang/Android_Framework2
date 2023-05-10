@@ -16,6 +16,7 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.framework.utils.function.value.orTrue
+import com.example.framework.utils.function.view.fade
 import com.example.framework.utils.function.view.gone
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.*
@@ -82,7 +83,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun reset(hasNextPage: Boolean? = true) {
         if (null == recyclerView) refreshLayout?.finishRefreshing()
         recyclerView?.finishRefreshing(!hasNextPage.orTrue)
-        emptyView?.gone()
+//        emptyView?.gone()
+        emptyView?.fade(100)
     }
 
     /**
