@@ -45,7 +45,7 @@ class RankSpan : ReplacementSpan() {
 
 interface RankSpanInterface {
 
-    fun Spannable.setStarSpan(): Spannable {
+    fun Spannable.setRankSpan(): Spannable {
         if (!contains("★")) return this
         var index = -1
         for (i in 1..10) {
