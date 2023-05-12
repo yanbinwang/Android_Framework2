@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.*
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.toSafeInt
 
 //------------------------------------recyclerview扩展函数类------------------------------------
 /**
@@ -94,8 +95,8 @@ fun RecyclerView?.smoothScroll(pos: Int, type: Int, scale: Float) {
         val height = manager.findViewByPosition(pos)?.height.orZero
         val listHeight = measuredHeight
         when (type) {
-            LinearSmoothScroller.SNAP_TO_START -> smoothScrollBy(0, (top * scale).toInt())
-            LinearSmoothScroller.SNAP_TO_END -> smoothScrollBy(0, ((top + height - listHeight) * scale).toInt())
+            LinearSmoothScroller.SNAP_TO_START -> smoothScrollBy(0, (top * scale).toSafeInt())
+            LinearSmoothScroller.SNAP_TO_END -> smoothScrollBy(0, ((top + height - listHeight) * scale).toSafeInt())
         }
     }
 }
