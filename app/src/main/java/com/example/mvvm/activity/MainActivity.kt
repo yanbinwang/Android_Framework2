@@ -5,10 +5,10 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.function.toJsonString
+import com.example.common.utils.file.getSizeFormat
+import com.example.common.utils.file.sampleMemory
 import com.example.common.widget.textview.edit.EditTextImpl
 import com.example.framework.utils.function.value.safeSize
-import com.example.framework.utils.function.value.toArray
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.hideFadingEdge
 import com.example.framework.utils.logWTF
@@ -52,7 +52,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            .build()
         //判断是全角字符  \u0020为半角空格，\u3000为全角空格
 //        "${"是".regCheck("[^\\x00-\\xff]")}".logWTF
-        "${map.toArray { TestBean(it.key, it.value) }.toJsonString()}".logWTF
+        "${sampleMemory().getSizeFormat()}".logWTF
     }
 
     class TestBean(
