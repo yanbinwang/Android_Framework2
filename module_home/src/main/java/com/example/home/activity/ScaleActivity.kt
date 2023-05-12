@@ -27,12 +27,12 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        overridePendingTransition(R.anim.set_alpha_trans_in, R.anim.set_alpha_no)
+        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
     }
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.set_alpha_no, R.anim.set_alpha_trans_in)
+        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_in)
     }
 
     override fun initView() {

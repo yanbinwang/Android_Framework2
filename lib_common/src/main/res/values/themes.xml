@@ -83,8 +83,8 @@
 
     <!-- 渐隐动画 -->
     <style name="PopupAlphaAnimStyle">
-        <item name="android:windowEnterAnimation">@anim/set_alpha_trans_in</item>
-        <item name="android:windowExitAnimation">@anim/set_alpha_trans_out</item>
+        <item name="android:windowEnterAnimation">@anim/set_alpha_in</item>
+        <item name="android:windowExitAnimation">@anim/set_alpha_out</item>
     </style>
 
 <!--    &lt;!&ndash;popup显影 &ndash;&gt;-->
