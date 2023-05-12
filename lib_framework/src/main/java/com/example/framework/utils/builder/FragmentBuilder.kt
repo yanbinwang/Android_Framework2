@@ -16,7 +16,7 @@ import com.example.framework.utils.function.value.safeGet
  *
  *  //记录下标
  *  override fun recreate() {
- *  intent = Intent().apply { putExtra("tab", tabBottom.selectedTabPosition) }
+ *  intent = Intent().apply { putExtra(Extras.TAB_INDEX, tabBottom.selectedTabPosition) }
  *  super.recreate()
  *  }
  *
@@ -30,7 +30,7 @@ import com.example.framework.utils.function.value.safeGet
  *
  *  override fun onRestoreInstanceState(savedInstanceState: Bundle) {
  *  super.onRestoreInstanceState(savedInstanceState)
- *  intent.getIntExtra(Extras.TAB_INDEX, -1).also { navigationBuilder.selectedItem(it) }
+ *  intent.getIntExtra(Extras.TAB_INDEX, 0).also { navigationBuilder.selectedItem(it) }
  *  }
  *
  */
