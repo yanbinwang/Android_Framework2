@@ -5,9 +5,10 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.function.toJsonString
 import com.example.common.widget.textview.edit.EditTextImpl
-import com.example.framework.utils.function.value.regCheck
 import com.example.framework.utils.function.value.safeSize
+import com.example.framework.utils.function.value.toArray
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.hideFadingEdge
 import com.example.framework.utils.logWTF
@@ -26,6 +27,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
     private val adapter by lazy { ImageAdapter() }
     private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
+
+    private val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
 
     override fun initView() {
         super.initView()
@@ -48,8 +51,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            .add("111", ColorSpan(color(R.color.black)))
 //            .build()
         //判断是全角字符  \u0020为半角空格，\u3000为全角空格
-        "${"是".regCheck("[^\\x00-\\xff]")}".logWTF
+//        "${"是".regCheck("[^\\x00-\\xff]")}".logWTF
+        "${map.toArray { TestBean(it.key, it.value) }.toJsonString()}".logWTF
     }
+
+    class TestBean(
+        var key: String? = null,
+        var value: String? = null
+    )
 
     override fun initEvent() {
         super.initEvent()

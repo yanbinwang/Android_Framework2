@@ -184,6 +184,17 @@ fun <T, K, P> Map<P, T>?.toList(func: (Map.Entry<P, T>) -> K?): ArrayList<K> {
 
 /**
  * 将Map转换为Array
+ * val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
+ * map.toArray { it.key to it.value }
+ * [{"first":"1111","second":"一"},{"first":"2222","second":"二"},{"first":"3333","second":"三"}]
+ * ----------------------------------------
+ *  class TestBean(
+ *      var key: String? = null,
+ *      var value: String? = null
+ *  )
+ *  val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
+ *  map.toArray { TestBean(it.key, it.value) }
+ *  [{"key":"1111","value":"一"},{"key":"2222","value":"二"},{"key":"3333","value":"三"}]
  */
 inline fun <T, reified K, P> Map<P, T>?.toArray(func: (Map.Entry<P, T>) -> K?): Array<K> {
     if (this == null) return arrayOf()
@@ -235,6 +246,7 @@ fun <T> MutableList<T>.findAndRemove(func: ((T) -> Boolean)) {
 
 /**
  * 返回List中随机一个值
+ * 抽奖/取随机
  */
 val <T> List<T>?.randomItem: T?
     get() = if (isNullOrEmpty()) {
@@ -265,7 +277,10 @@ val CharArray?.randomItem: Char?
     }
 
 /**
- * string集合合并成一个string
+ * string集合合并成一个string->某些id提取出来后需要‘,’号分隔拼接成string参数传递给后端，可以使用当前方法
+ * val list = listOf("1111","2222","3333")
+ * list.join(",")
+ * 1111,2222,3333
  */
 fun List<String>?.join(separator: String): String {
     if (isNullOrEmpty()) return ""
