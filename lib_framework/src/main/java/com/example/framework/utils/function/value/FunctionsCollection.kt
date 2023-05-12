@@ -265,7 +265,7 @@ val CharArray?.randomItem: Char?
     }
 
 /**
- * string集合合并成成一个string
+ * string集合合并成一个string
  */
 fun List<String>?.join(separator: String): String {
     if (isNullOrEmpty()) return ""
