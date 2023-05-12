@@ -34,9 +34,9 @@ import com.example.framework.utils.setSpanFirst
 /**
  * 对应的拼接区分本地和测试
  */
-val Int?.byHostUrl get() = string(this.orZero).byHostUrl
+val Int?.byServerUrl get() = string(this.orZero).byServerUrl
 
-val String?.byHostUrl get() = "${ServerConfig.serverUrl()}${this}"
+val String?.byServerUrl get() = "${ServerConfig.serverUrl()}${this}"
 
 /**
  * 设计图尺寸转换为实际尺寸
