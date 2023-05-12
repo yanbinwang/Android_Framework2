@@ -18,8 +18,8 @@ internal class RetryServerInterceptor : Interceptor {
         val headerValues: String
         val request = chain.request()
         headerValues = request.headers.toString()
-        //当请求头中包含User-Agent，切换请求地址(第三个参数为切换的具体地址)
-        if (headerValues.contains("User-Agent")) {
+        //当请求头中包含Retry-Agent，切换请求地址(第三个参数为切换的具体地址)
+        if (headerValues.contains("Retry-Agent")) {
             return retryServer(chain, request, ServerConfig.serverUrl())
         }
         return chain.proceed(request)

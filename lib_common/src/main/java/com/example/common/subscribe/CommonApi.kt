@@ -15,7 +15,7 @@ interface CommonApi {
 
     @FormUrlEncoded
     @POST("http://www.baidu.com")
-    suspend fun getSendVerificationApi(@Header("User-Agent") agent: String, @FieldMap map: Map<String, String>): ApiResponse<Any>
+    suspend fun getSendVerificationApi(@Header("Retry-Agent") retryAgent: String, @FieldMap map: Map<String, String>): ApiResponse<Any>
 
     @FormUrlEncoded
     @POST("http://www.baidu.com")
