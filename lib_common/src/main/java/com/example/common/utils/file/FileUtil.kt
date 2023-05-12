@@ -50,7 +50,7 @@ object FileUtil {
      */
     fun deleteDirWithFile(dir: File?) {
         if (dir == null || !dir.exists() || !dir.isDirectory) return
-        for (file in dir.listFiles()) {
+        for (file in dir.listFiles().orEmpty()) {
             if (file.isFile) file.delete() //删除所有文件
             else if (file.isDirectory) deleteDirWithFile(file) //递规的方式删除文件夹
         }
@@ -62,7 +62,7 @@ object FileUtil {
      */
     fun getFileSize(file: File): Long {
         var size: Long = 0
-        for (mFile in file.listFiles()) {
+        for (mFile in file.listFiles().orEmpty()) {
             size = if (mFile.isDirectory) {
                 size + getFileSize(mFile)
             } else {
