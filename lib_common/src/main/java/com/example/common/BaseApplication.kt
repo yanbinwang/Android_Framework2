@@ -134,7 +134,7 @@ abstract class BaseApplication : Application() {
 
     private fun initToast() {
         val drawable = GradientDrawable().apply {
-            setColor(Color.parseColor("#4c000000"))
+            setColor(Color.parseColor("#cf111111"))
             cornerRadius = 7.ptFloat
         }
         ToastBuilder.setResToastBuilder { message, length ->
