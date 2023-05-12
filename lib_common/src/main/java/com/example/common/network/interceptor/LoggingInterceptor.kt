@@ -14,6 +14,9 @@ import java.nio.charset.Charset
 /**
  * author: wyb
  * date: 2019/7/9.
+ * 日志输出类
+ * 需要注意的是文件流上传不能拦截，会造成闪退（已处理）
+ * 返回日志过长的话，也会打印不完整
  */
 internal class LoggingInterceptor : Interceptor {
     private val UTF8 by lazy { Charset.forName("UTF-8") }

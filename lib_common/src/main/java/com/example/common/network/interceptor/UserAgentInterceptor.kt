@@ -10,6 +10,7 @@ import java.io.IOException
 /**
  * Created by WangYanBin on 2020/6/1.
  * 用户拦截器
+ * 请求头中添加后台需要的参数
  */
 internal class UserAgentInterceptor : Interceptor {
 
