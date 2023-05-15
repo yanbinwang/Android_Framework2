@@ -212,7 +212,7 @@ fun EditText?.decimalFilter(decimalPoint: Int = 2) {
 /**
  * EditText不允许输入空格
  */
-fun EditText?.inhibitSpace() {
+fun EditText?.spaceLimit() {
     if (this == null) return
     addFilter(object : InputFilter {
         override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
