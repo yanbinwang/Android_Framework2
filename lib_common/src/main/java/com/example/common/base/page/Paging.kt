@@ -20,7 +20,7 @@ package com.example.common.base.page
  *"             limit" to Paging.pageLimit).params())
  *  }, {
  *      paging.currentCount = it?.total.orZero
- *      reset(it?.hasNextPage)
+ *      reset(paging?.hasNextPage())
  *      evidenceData.postValue(it)
  *  }, {
  *      recyclerView?.setState(paging.currentCount.orZero)

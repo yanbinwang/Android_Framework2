@@ -137,6 +137,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     /**
      * 结束刷新
+     * noMoreData是否有更多数据
      */
     fun finishRefreshing(noMoreData: Boolean? = true) {
         if (refreshType == 1) refresh?.finishRefreshing(noMoreData)

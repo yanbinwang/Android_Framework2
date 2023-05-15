@@ -17,7 +17,6 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.view.fade
-import com.example.framework.utils.function.view.gone
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.*
 import kotlinx.coroutines.CoroutineStart.LAZY
@@ -79,10 +78,11 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     /**
      * 带刷新或者空白布局的列表/详情页再接口交互结束时直接在对应的viewmodel调用该方法
+     * hasNextPage是否有下一页
      */
     protected fun reset(hasNextPage: Boolean? = true) {
         if (null == recyclerView) refreshLayout?.finishRefreshing()
-        recyclerView?.finishRefreshing(!hasNextPage.orTrue)
+        recyclerView?.finishRefreshing(hasNextPage.orTrue)
 //        emptyView?.gone()
         emptyView?.fade(300)
     }
