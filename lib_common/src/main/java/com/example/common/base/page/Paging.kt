@@ -12,19 +12,21 @@ package com.example.common.base.page
  * }
  *
  *fun getEvidenceList(paging: Paging) {
- *  launch({
- *      EvidenceSubscribe.getEvidenceListApi(hashMapOf(
+ *  launch({EvidenceSubscribe.getEvidenceListApi(hashMapOf(
  *              "evidenceType" to evidenceType,
  *              "type" to "1",
  *              "current" to paging.page,
  *"             limit" to Paging.pageLimit).params())
  *  }, {
- *      paging.currentCount = it?.total.orZero
- *      reset(paging?.hasNextPage())
+ *      paging.totalCount = it?.total.orZero
+ *      reset(it?.hasNextPage.orFalse)
  *      evidenceData.postValue(it)
  *  }, {
  *      recyclerView?.setState(paging.currentCount.orZero)
  *  }, isShowDialog = false)}
+ *
+ *  postValue完成后，回调的订阅里赋值一下
+ *  paging.currentCount = binding.adapter.size()
  */
 class Paging {
     var hasRefresh = false//是否刷新
