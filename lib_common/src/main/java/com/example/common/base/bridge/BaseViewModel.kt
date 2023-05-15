@@ -84,7 +84,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         if (null == recyclerView) refreshLayout?.finishRefreshing()
         recyclerView?.finishRefreshing(!hasNextPage.orTrue)
 //        emptyView?.gone()
-        emptyView?.fade(100)
+        emptyView?.fade(300)
     }
 
     /**
