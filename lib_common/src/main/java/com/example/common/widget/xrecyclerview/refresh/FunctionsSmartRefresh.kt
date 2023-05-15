@@ -43,21 +43,21 @@ fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: O
     }
 }
 
-fun SmartRefreshLayout?.finishRefreshing(noMore: Boolean? = true) {
+fun SmartRefreshLayout?.finishRefreshing(noMoreData: Boolean? = true) {
     this ?: return
     when (this.state) {
         RefreshState.Loading, RefreshState.LoadFinish, RefreshState.LoadReleased -> {
             finishLoadMore(300)
-            if (noMore.orFalse) setNoMoreData(true)
+            if (noMoreData.orFalse) setNoMoreData(true)
         }
         RefreshState.Refreshing, RefreshState.RefreshFinish, RefreshState.RefreshReleased -> {
             finishRefresh()
-            if (noMore.orFalse) setNoMoreData(true)
+            if (noMoreData.orFalse) setNoMoreData(true)
         }
         else -> {
             finishLoadMore(300)
             finishRefresh()
-            setNoMoreData(noMore.orFalse)
+            setNoMoreData(noMoreData.orFalse)
         }
     }
 }
