@@ -4,10 +4,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.viewpager2.widget.ViewPager2
-import com.example.framework.utils.function.scaleShown
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.vibrate
+import com.example.framework.utils.scaleShown
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView

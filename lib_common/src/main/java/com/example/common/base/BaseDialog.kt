@@ -13,10 +13,10 @@ import android.view.WindowManager
 import androidx.databinding.ViewDataBinding
 import com.example.common.R
 import com.example.common.utils.function.pt
-import com.example.framework.utils.function.scaleHidden
-import com.example.framework.utils.function.scaleShown
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.logE
+import com.example.framework.utils.scaleHidden
+import com.example.framework.utils.scaleShown
 import java.lang.reflect.ParameterizedType
 
 /**
