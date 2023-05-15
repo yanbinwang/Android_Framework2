@@ -95,7 +95,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
      * 返回点击
      */
     fun onKeyDown() {
-        webView?.copyBackForwardList()
+//        webView?.copyBackForwardList()
 //        webView.evaluateJs("javascript:onBackPressed()") {
 //            //请求结果不为true（请求拦截）时的处理
 //            if (it?.lowercase(Locale.US) != "true") {
