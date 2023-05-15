@@ -48,9 +48,9 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
 
     override fun initData() {
         super.initData()
-        val imgList = list?.toNewList { ScaleImageView(this) }
+        val imgList = list?.toNewList { ScaleImageView(this) to it }
         binding.vpPage.apply {
-            adapter = ScaleAdapter(imgList, list)
+            adapter = ScaleAdapter(imgList)
             currentItem = 0
             animation = scaleShown()
         }
