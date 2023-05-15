@@ -161,6 +161,24 @@ fun TextView?.setClickableSpan(textStr: String, keyword: String, clickableSpan: 
 }
 
 /**
+ * 获取textview文字占据的行数
+ * xml中设置属性：
+ * android:ellipsize="end"
+ * android:maxLines="2"
+ * 代码中在设置了text后调取
+ * 需要注意如果在list列表的话，数据不宜过多，会造成卡顿
+ */
+fun TextView?.getEllipsisCount(onConvert: (ellipsisCount: Int) -> Unit = {}) {
+    if (this == null) {
+        onConvert.invoke(0)
+        return
+    }
+    post {
+        onConvert.invoke(layout.getEllipsisCount(lineCount - 1))
+    }
+}
+
+/**
  * EditText输入密码是否可见(显隐)
  */
 fun EditText?.passwordMethod(): Boolean {
