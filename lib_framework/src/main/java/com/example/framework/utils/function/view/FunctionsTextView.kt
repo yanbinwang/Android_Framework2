@@ -181,7 +181,7 @@ fun TextView?.getEllipsisCount(onConvert: (ellipsisCount: Int) -> Unit = {}) {
 /**
  * EditText输入密码是否可见(显隐)
  */
-fun EditText?.passwordMethod(): Boolean {
+fun EditText?.passwordDevelopment(): Boolean {
     if (this == null) return false
     var display = false
     try {

@@ -17,7 +17,7 @@ import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.imeOptions
-import com.example.framework.utils.function.view.passwordMethod
+import com.example.framework.utils.function.view.passwordDevelopment
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
@@ -40,7 +40,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
             if (keyCode == KeyEvent.KEYCODE_DEL) binding.etClear.setText("")
             false
         }
-        binding.ivShow.apply { click { setResource(Triple(binding.etClear.passwordMethod(), showRes, hideRes)) }}
+        binding.ivShow.apply { click { setResource(Triple(binding.etClear.passwordDevelopment(), showRes, hideRes)) }}
         //以下属性在xml中前缀使用app:调取
         if (attrs != null) {
             val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PasswordEditText)
