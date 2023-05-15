@@ -63,16 +63,16 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 继承BaseTitleActivity的页面传父类的ViewGroup
      * 其余页面外层写FrameLayout，套上要使用的布局后再initView中调用该方法
      */
-    fun setEmptyView(viewGroup: ViewGroup) {
+    fun setEmptyView(viewGroup: ViewGroup?) {
         this.weakEmpty = WeakReference(viewGroup.getEmptyView())
     }
 
-    fun setRecyclerView(recycler: XRecyclerView) {
-        this.weakEmpty = WeakReference(recycler.empty)
+    fun setRecyclerView(recycler: XRecyclerView?) {
+        this.weakEmpty = WeakReference(recycler?.empty)
         this.weakRecycler = WeakReference(recycler)
     }
 
-    fun setRefreshLayout(refresh: SmartRefreshLayout) {
+    fun setRefreshLayout(refresh: SmartRefreshLayout?) {
         this.weakRefresh = WeakReference(refresh)
     }
 
