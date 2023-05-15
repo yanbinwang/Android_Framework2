@@ -5,7 +5,6 @@ import android.animation.AnimatorSet
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.Color
 import android.util.TypedValue
 import android.view.View
@@ -16,9 +15,7 @@ import androidx.annotation.ColorInt
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.setPxTextSize
-import com.example.framework.utils.function.view.visible
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
@@ -327,111 +324,4 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         animSet.start()
     }
 
-}
-
-/**
- * 旋转
- */
-fun View?.rotate(from: Float, to: Float, timeMS: Long, interpolator: Interpolator = AccelerateDecelerateInterpolator(), repeat: Boolean = false) {
-    this ?: return
-    animation?.cancel()
-    val anim = RotateAnimation(from, to, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-    anim.fillAfter = true // 设置保持动画最后的状态
-    anim.duration = timeMS // 设置动画时间3
-    if (repeat) anim.repeatCount = -1
-    anim.interpolator = interpolator // 设置插入器
-    startAnimation(anim)
-}
-
-/**
- * 移动
- * @param type Animation.ABSOLUTE, Animation.RELATIVE_TO_SELF, or Animation.RELATIVE_TO_PARENT.
- */
-fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long, fillAfter: Boolean = true, onStart: (() -> Unit)? = null, onEnd: (() -> Unit)? = null, type: Int = Animation.RELATIVE_TO_SELF, interpolator: Interpolator = LinearInterpolator(), ) {
-    this ?: return
-    animation?.setAnimationListener(null)
-    animation?.cancel()
-    val anim = TranslateAnimation(type, xFrom, type, xTo, type, yFrom, type, yTo)
-    if (fillAfter) anim.fillAfter = true //设置保持动画最后的状态
-    anim.duration = timeMS //设置动画时间
-    anim.interpolator = interpolator //设置插入器
-    if (onEnd != null || onStart != null) {
-        anim.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationEnd(animation: Animation?) {
-                onEnd?.invoke()
-            }
-
-            override fun onAnimationStart(animation: Animation?) {
-                onStart?.invoke()
-            }
-
-            override fun onAnimationRepeat(animation: Animation?) {
-            }
-        })
-    }
-    startAnimation(anim)
-}
-
-/**
- * 透明度
- * @param from 0f-1f
- * @param to 0f-1f
- */
-fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)? = null) {
-    this ?: return
-    animation?.setAnimationListener(null)
-    animation?.cancel()
-    val anim = AlphaAnimation(from, to)
-    if (to == 1f) visible()
-    anim.fillAfter = false // 设置保持动画最后的状态
-    anim.duration = timeMS // 设置动画时间
-    anim.interpolator = AccelerateInterpolator() // 设置插入器3
-    anim.setAnimationListener(object : Animation.AnimationListener {
-        override fun onAnimationEnd(animation: Animation?) {
-            endListener?.invoke() ?: { if (to == 0f) gone() }
-        }
-
-        override fun onAnimationStart(animation: Animation?) {
-        }
-
-        override fun onAnimationRepeat(animation: Animation?) {
-        }
-    })
-    startAnimation(anim)
-}
-
-/**
- * 进入
- */
-fun Context.scaleShown(): AnimationSet {
-    return AnimationSet(this, null).apply {
-        val alpha = AlphaAnimation(0.0f, 1.0f)
-        alpha.duration = 90
-        val scale1 = ScaleAnimation(0.8f, 1.05f, 0.8f, 1.05f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale1.duration = 135
-        val scale2 = ScaleAnimation(1.05f, 0.95f, 1.05f, 0.95f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale2.duration = 105
-        scale2.startOffset = 135
-        val scale3 = ScaleAnimation(0.95f, 1f, 0.95f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale3.duration = 60
-        scale3.startOffset = 240
-        addAnimation(alpha)
-        addAnimation(scale1)
-        addAnimation(scale2)
-        addAnimation(scale3)
-    }
-}
-
-/**
- * 退出
- */
-fun Context.scaleHidden(): AnimationSet {
-    return AnimationSet(this, null).apply {
-        val alpha = AlphaAnimation(1.0f, 0.0f)
-        alpha.duration = 150
-        val scale = ScaleAnimation(1.0f, 0.6f, 1.0f, 0.6f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale.duration = 150
-        addAnimation(alpha)
-        addAnimation(scale)
-    }
 }
