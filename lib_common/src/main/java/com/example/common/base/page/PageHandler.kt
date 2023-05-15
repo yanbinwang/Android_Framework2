@@ -23,7 +23,8 @@ import java.io.Serializable
  * 1.接口提示
  * 2.遮罩层操作
  */
-fun ViewGroup.setState(imgRes: Int = -1, text: String? = null){
+fun ViewGroup?.setState(imgRes: Int = -1, text: String? = null) {
+    this ?: return
     val emptyLayout = if (this is EmptyLayout) this else getEmptyView()
     emptyLayout?.error(imgRes, text)
 }
@@ -31,7 +32,8 @@ fun ViewGroup.setState(imgRes: Int = -1, text: String? = null){
 /**
  * 列表页调取方法
  */
-fun XRecyclerView.setState(length: Int = 0, imgRes: Int = -1, text: String? = null) {
+fun XRecyclerView?.setState(length: Int = 0, imgRes: Int = -1, text: String? = null) {
+    this ?: return
     finishRefreshing()
     //判断集合长度，有长度不展示emptyview只做提示
     if (length <= 0) empty?.setState(imgRes, text)
@@ -40,7 +42,8 @@ fun XRecyclerView.setState(length: Int = 0, imgRes: Int = -1, text: String? = nu
 /**
  * 详情页
  */
-fun ViewGroup.getEmptyView(): EmptyLayout? {
+fun ViewGroup?.getEmptyView(): EmptyLayout? {
+    this ?: return null
     val emptyLayout: EmptyLayout?
     if (childCount <= 1) {
         emptyLayout = EmptyLayout(context)
