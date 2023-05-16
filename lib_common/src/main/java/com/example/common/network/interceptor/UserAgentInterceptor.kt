@@ -23,18 +23,6 @@ internal class UserAgentInterceptor : Interceptor {
     }
 
     private fun defaultHeaders(): Headers {
-////        val token: String? = AccountHelper.getToken()//取得本地token
-////        if (!TextUtils.isEmpty(token)) {
-////            params["Authorization"] = "basic $token"
-////        }
-//        val params = ArrayMap<String, String>()
-//        params["system-name"] = "Android"
-//        params["phone-model"] = Build.MODEL
-//        val builder = Headers.Builder()
-//        for (key in params.keys) {
-//            builder.add(key, params[key].orEmpty())
-//        }
-//        return builder.build()
         val builder = Headers.Builder()
         builder.add("system-name", "Android")
         builder.add("phone-model", Build.MODEL)
