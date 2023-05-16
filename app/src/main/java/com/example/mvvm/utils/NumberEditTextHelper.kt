@@ -16,7 +16,7 @@ import com.example.framework.utils.logWTF
 class NumberEditTextHelper(private val editText: EditText) {
     init {
 //        //可在xml中实现
-        EditTextUtil.setInputType(editText, 7)
+//        EditTextUtil.setInputType(editText, 7)
         val numberEditTextHelper = object : NumberTextWatcher(editText) {
             override fun onEmpty() {
                 "值为空".logWTF
