@@ -12,8 +12,8 @@
             android:layout_marginTop="80pt"
             android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/tv_test"
+        <EditText
+            android:id="@+id/et_test"
             android:layout_width="match_parent"
             android:layout_height="200pt"
             android:background="@color/black"

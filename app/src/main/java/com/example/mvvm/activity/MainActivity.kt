@@ -16,6 +16,8 @@ import com.example.mvvm.R
 import com.example.mvvm.adapter.ImageAdapter
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.CardTransformer
+import com.example.mvvm.utils.NumberEditTextHelper
+import java.math.BigDecimal
 
 
 @Route(path = ARouterPath.MainActivity)
@@ -42,10 +44,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             if (ids.size > 1) halfPosition - halfPosition % ids.size else 0,
             false
         )
-        binding.tvTest.click {
-
-            "dsdsfds".shortToast()
-        }
+        NumberEditTextHelper(binding.etTest)
+//        class a(func:(a:Int,b:Int,c:Int)-> BigDecimal)
+//
+//        fun test(){
+//            a{a,b,c->
+//                BigDecimal.ONE
+//            }
+//            a{a,b,c->
+//                BigDecimal.ONE
+//            }
+//        }
 //        binding.tvTest.text = TextSpan()
 //            .add("$", SizeSpan(dimen(R.dimen.textSize14)))
 //            .add("111", ColorSpan(color(R.color.black)))
