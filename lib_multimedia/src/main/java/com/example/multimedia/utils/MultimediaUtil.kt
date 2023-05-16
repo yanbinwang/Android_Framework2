@@ -2,8 +2,7 @@ package com.example.multimedia.utils
 
 import android.content.Context
 import android.media.MediaPlayer
-import com.example.common.config.Constants
-import com.example.common.utils.helper.AccountHelper
+import com.example.common.utils.helper.AccountHelper.storage
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.getSdcardAvailableCapacity
 import com.example.framework.utils.hasSdcard
@@ -28,16 +27,15 @@ object MultimediaUtil {
             return null
         }
         //根据类型在sd卡picture目录下建立对应app名称的对应类型文件
-        val storage = "${Constants.APPLICATION_PATH}/手机文件/${AccountHelper.getUserId()}/"
         val storageInfo = when (mimeType) {
             //拍照/抓拍
-            MediaType.IMAGE -> "${storage}拍照取证" to "jpg"
+            MediaType.IMAGE -> "${storage}拍照" to "jpg"
             //录像
-            MediaType.VIDEO -> "${storage}录像取证" to "mp4"
+            MediaType.VIDEO -> "${storage}录像" to "mp4"
             //录音
-            MediaType.AUDIO -> "${storage}录音取证" to "wav"
+            MediaType.AUDIO -> "${storage}录音" to "wav"
             //录屏
-            MediaType.SCREEN -> "${storage}录屏取证" to "mp4"
+            MediaType.SCREEN -> "${storage}录屏" to "mp4"
         }
         //先在包名目录下建立对应类型的文件夹，构建失败直接返回null
         val storageDir = File(storageInfo.first)

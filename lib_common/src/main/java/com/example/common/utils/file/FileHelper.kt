@@ -170,61 +170,6 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
         }
     }
 
-    fun zipJob(folderPath: String, zipPath: String, containsFile: List<String>, onStart: () -> Unit = {}, onComplete: (filePath: String?) -> Unit = {}) {
-        job?.cancel()
-        job = launch { zip(folderPath, zipPath, containsFile, onStart, onComplete) }
-    }
-
-    private suspend fun zip(folderPath: String, zipPath: String, containsFile: List<String>, onStart: () -> Unit = {}, onComplete: (filePath: String?) -> Unit = {}) {
-        onStart()
-        try {
-            withContext(IO) { File(folderPath).let { if (it.exists()) zipFolder(it.absolutePath, File(zipPath).absolutePath, containsFile) } }
-        } catch (e: Exception) {
-            "打包图片生成压缩文件异常: $e".logWTF
-        }
-        onComplete(if (File(zipPath).exists()) zipPath else null)
-    }
-
-    @Throws(Exception::class)
-    private fun zipFolder(srcFilePath: String, zipFilePath: String, containsFile: List<String>) {
-        val outZip = ZipOutputStream(FileOutputStream(zipFilePath))
-        val file = File(srcFilePath)
-        zipFiles(file.parent + File.separator, file.name, outZip, containsFile)
-        outZip.finish()
-        outZip.close()
-    }
-
-    @Throws(Exception::class)
-    private fun zipFiles(folderPath: String, fileName: String, zipOutputSteam: ZipOutputStream?, containsFile: List<String>) {
-        if (zipOutputSteam == null) return
-        val file = File(folderPath + fileName)
-        if (file.isFile) {
-            val zipEntry = ZipEntry(fileName)
-            val inputStream = FileInputStream(file)
-            zipOutputSteam.putNextEntry(zipEntry)
-            var len: Int
-            val buffer = ByteArray(4096)
-            while (inputStream.read(buffer).also { len = it } != -1) {
-                zipOutputSteam.write(buffer, 0, len)
-            }
-            zipOutputSteam.closeEntry()
-        } else {
-            file.list().let {
-                if (it.isNullOrEmpty()) {
-                    val zipEntry = ZipEntry(fileName + File.separator)
-                    zipOutputSteam.putNextEntry(zipEntry)
-                    zipOutputSteam.closeEntry()
-                } else {
-                    for (i in it.indices) {
-                        if (containsFile.any { name -> it.contains(name) }) {
-                            zipFiles("$folderPath$fileName/", it[i], zipOutputSteam)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
         if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
             R.string.link_invalid_error.shortToast()

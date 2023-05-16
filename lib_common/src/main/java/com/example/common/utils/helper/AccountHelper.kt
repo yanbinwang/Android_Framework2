@@ -4,6 +4,7 @@ import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
 import com.example.common.config.CacheData.userBean
+import com.example.common.config.Constants
 import com.example.common.utils.AppManager
 
 /**
@@ -11,6 +12,8 @@ import com.example.common.utils.AppManager
  * 用户信息做了规整和管控，全局直接调用
  */
 object AccountHelper {
+    //默认用户文件保存位置
+    val storage get() = "${Constants.APPLICATION_PATH}/手机文件/${getUserId()}/"
 
     /**
      * 存储用户对象
