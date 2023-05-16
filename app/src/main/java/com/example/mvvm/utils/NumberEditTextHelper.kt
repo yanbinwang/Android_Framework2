@@ -14,30 +14,43 @@ import com.example.framework.utils.logWTF
  * @author yan
  */
 class NumberEditTextHelper(private val editText: EditText) {
-    init {
-//        //可在xml中实现
-//        EditTextUtil.setInputType(editText, 7)
-        val numberEditTextHelper = object : NumberTextWatcher(editText) {
-            override fun onEmpty() {
-                "值为空".logWTF
-                editText.setText("")
-            }
-
-            override fun onOutOfPrecision(before: String?, cursor: Int?) {
-                "值超过小数位".logWTF
-                editText.setText(before.orEmpty())
-                editText.setSafeSelection(cursor.orZero)
-            }
-
-            override fun onResult(text: String) {
-                "输入合法".logWTF
-            }
+    private val numberEditTextHelper = object : NumberTextWatcher(editText) {
+        override fun onEmpty() {
+            "值为空".logWTF
+            editText.setText("")
         }
-        editText.addTextChangedListener(numberEditTextHelper)
-        numberEditTextHelper.precision = 2
+
+        override fun onOutOfPrecision(before: String?, cursor: Int?) {
+            "值超过小数位".logWTF
+            editText.setText(before.orEmpty())
+            editText.setSafeSelection(cursor.orZero)
+        }
+
+        override fun onResult(text: String) {
+            "输入合法".logWTF
+        }
     }
+
+    init {
+        //可在xml中实现输入限制
+        EditTextUtil.setInputType(editText, 7)
+        //添加监听
+        editText.addTextChangedListener(numberEditTextHelper)
+    }
+
+    /**
+     * 设置小数位数限制
+     */
+    fun setPrecision(precision: Int) {
+        numberEditTextHelper.precision = precision
+    }
+
 }
 
+/**
+ * 对应输入框限制输入的监听
+ * 注：如果是输入范围限制，只能做最大值的限制
+ */
 private abstract class NumberTextWatcher constructor(private val editText: EditText) : TextWatcher {
     private var textBefore: String? = null//用于记录变化前的文字
     private var textCursor = 0//用于记录变化时光标的位置

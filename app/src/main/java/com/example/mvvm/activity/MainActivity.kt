@@ -40,11 +40,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         binding.rvTest.offscreenPageLimit = ids.safeSize - 1
         binding.rvTest.setPageTransformer(CardTransformer())
         binding.rvTest.hideFadingEdge()
-        binding.rvTest.setCurrentItem(
-            if (ids.size > 1) halfPosition - halfPosition % ids.size else 0,
-            false
-        )
-        NumberEditTextHelper(binding.etTest)
+        binding.rvTest.setCurrentItem(if (ids.size > 1) halfPosition - halfPosition % ids.size else 0, false)
+        val numberHelper = NumberEditTextHelper(binding.etTest)
+        numberHelper.setPrecision(2)
 //        class a(func:(a:Int,b:Int,c:Int)-> BigDecimal)
 //
 //        fun test(){
