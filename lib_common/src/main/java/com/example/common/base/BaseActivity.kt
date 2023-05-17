@@ -3,6 +3,7 @@ package com.example.common.base
 import android.app.Activity
 import android.content.res.Resources
 import android.os.Bundle
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.result.ActivityResult
@@ -28,6 +29,7 @@ import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.widget.dialog.LoadingDialog
+import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.isMainThread
@@ -151,11 +153,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         views.forEach {
             if (it != null) {
                 it.disable()
-                Timer().schedule(object : TimerTask() {
-                    override fun run() {
-                        launch { it.enable() }
-                    }
-                }, second)
+                WeakHandler(Looper.getMainLooper()).postDelayed({ it.enable() }, second)
             }
         }
     }
