@@ -22,7 +22,6 @@ object LogUtil {
     fun wtf(msg: String) = run { if (isDebug) Log.println(Log.ASSERT, TAG, msg) }
 
     fun wtf(tag: String = TAG, msg: String) = run { if (isDebug) Log.println(Log.ASSERT, tag, msg) }
-
 }
 
 val String?.logV: Unit get() { if (this != null) LogUtil.v(msg = this) }

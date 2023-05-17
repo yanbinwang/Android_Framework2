@@ -3,7 +3,6 @@ package com.example.common.base
 import android.app.Activity
 import android.content.res.Resources
 import android.os.Bundle
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.result.ActivityResult
@@ -21,6 +20,7 @@ import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
+import com.example.common.databinding.ActivityTransparentBinding
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.utils.AppManager
@@ -29,8 +29,13 @@ import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.isMainThread
-import com.example.framework.utils.function.view.*
+import com.example.framework.utils.function.view.disable
+import com.example.framework.utils.function.view.enable
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.invisible
+import com.example.framework.utils.function.view.visible
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -40,13 +45,16 @@ import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import org.greenrobot.eventbus.Subscribe
 import java.lang.reflect.ParameterizedType
-import java.util.*
+import java.util.Locale
+import java.util.Timer
+import java.util.TimerTask
 import kotlin.coroutines.CoroutineContext
 
 /**
  * Created by WangYanBin on 2020/6/3.
  * 对应页面传入继承自BaseViewModel的数据模型类，以及由系统生成的ViewDataBinding绑定类
  * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context
+ * 無xml的界面，泛型括號裡傳ViewDataBinding
  */
 abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected lateinit var binding: VDB
@@ -118,6 +126,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                 binding.lifecycleOwner = this
                 setContentView(binding.root)
             } catch (_: Exception) {
+                binding = ActivityTransparentBinding.bind(inflate(R.layout.activity_transparent)) as VDB
             }
         }
         ARouter.getInstance().inject(this)

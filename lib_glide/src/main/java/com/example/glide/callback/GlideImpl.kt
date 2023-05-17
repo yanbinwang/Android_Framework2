@@ -23,9 +23,9 @@ interface GlideImpl {
 
     fun display(view: ImageView, resourceId: Int, placeholderId: Int = R.drawable.shape_glide_bg, errorId: Int = 0, onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
 
-    fun displayRound(view: ImageView, string: String, errorId: Int = 0, roundingRadius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun displayRound(view: ImageView, string: String, errorId: Int = 0, radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
-    fun displayRound(view: ImageView, resourceId: Int, errorId: Int = 0, roundingRadius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun displayRound(view: ImageView, resourceId: Int, errorId: Int = 0, radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
     fun displayCircle(view: ImageView, string: String, errorId: Int = R.drawable.shape_glide_oval_bg)
 
