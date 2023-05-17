@@ -39,6 +39,11 @@ class LinkActivity : BaseActivity<ViewDataBinding>() {
         onLink()
     }
 
+    override fun finish() {
+        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+        super.finish()
+    }
+
     private fun onLink() {
 
     }
