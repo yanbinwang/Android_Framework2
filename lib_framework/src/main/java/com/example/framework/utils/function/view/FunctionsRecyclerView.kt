@@ -38,7 +38,7 @@ fun RecyclerView?.cancelItemAnimator() {
  */
 fun RecyclerView?.isTop(): Boolean {
     if (this == null) return true
-    val layoutManager = layoutManager as LinearLayoutManager? ?: return true
+    val layoutManager = layoutManager as? LinearLayoutManager ?: return true
     val position = layoutManager.findFirstVisibleItemPosition()
     return if (position <= 0) {
         val firstChild = layoutManager.findViewByPosition(position)
@@ -53,7 +53,7 @@ fun RecyclerView?.isTop(): Boolean {
  */
 fun RecyclerView?.isBottom(): Boolean {
     if (this == null) return true
-    val layoutManager = layoutManager as LinearLayoutManager? ?: return true
+    val layoutManager = layoutManager as? LinearLayoutManager ?: return true
     val position = layoutManager.findLastVisibleItemPosition()
     return if (position >= adapter?.itemCount.orZero - 1) {
         val lastChild = layoutManager.findViewByPosition(position)
