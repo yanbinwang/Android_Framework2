@@ -110,8 +110,9 @@ abstract class BaseApplication : Application() {
         BaseActivity.setOnFinishListener(object : OnFinishListener {
             override fun onFinish(act: BaseActivity<*>) {
                 if (!needOpenHome) return
-                if (act.TAG == "HomeActivity") return
-                if (act.TAG == "SplashActivity") return
+                val clazzName = act.javaClass.simpleName.lowercase(Locale.getDefault())
+                if (clazzName == "homeactivity") return
+                if (clazzName == "splashactivity") return
                 if (AppManager.currentActivity() != act) return
                 if (AppManager.stackCount <= 1) {
                     needOpenHome = false
