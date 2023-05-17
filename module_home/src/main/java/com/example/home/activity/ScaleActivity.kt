@@ -42,7 +42,7 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
         super.initView()
-        initImmersionBar(false, false)
+        initImmersionBar(false)
         titleBuilder.setLeft(tintColor = R.color.white) { finish() }
     }
 

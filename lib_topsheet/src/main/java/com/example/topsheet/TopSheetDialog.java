@@ -51,8 +51,7 @@ public class TopSheetDialog extends AppCompatDialog {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
     }
 
-    protected TopSheetDialog(@NonNull Context context, boolean cancelable,
-                             OnCancelListener cancelListener) {
+    protected TopSheetDialog(@NonNull Context context, boolean cancelable, OnCancelListener cancelListener) {
         super(context, cancelable, cancelListener);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
     }
@@ -65,8 +64,7 @@ public class TopSheetDialog extends AppCompatDialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }
 
     @Override
@@ -80,8 +78,7 @@ public class TopSheetDialog extends AppCompatDialog {
     }
 
     private View wrapInTopSheet(int layoutResId, View view, ViewGroup.LayoutParams params) {
-        final CoordinatorLayout coordinator = (CoordinatorLayout) View.inflate(getContext(),
-                R.layout.top_sheet_dialog, null);
+        final CoordinatorLayout coordinator = (CoordinatorLayout) View.inflate(getContext(), R.layout.top_sheet_dialog, null);
         if (layoutResId != 0 && view == null) {
             view = getLayoutInflater().inflate(layoutResId, coordinator, false);
         }
@@ -95,15 +92,11 @@ public class TopSheetDialog extends AppCompatDialog {
         }
         // We treat the CoordinatorLayout as outside the dialog though it is technically inside
         if (shouldWindowCloseOnTouchOutside()) {
-            coordinator.findViewById(R.id.top_sheet_touch_outside).setOnClickListener(
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if (isShowing()) {
-                                cancel();
-                            }
-                        }
-                    });
+            coordinator.findViewById(R.id.top_sheet_touch_outside).setOnClickListener(view1 -> {
+                if (isShowing()) {
+                    cancel();
+                }
+            });
         }
         return coordinator;
     }
@@ -112,14 +105,12 @@ public class TopSheetDialog extends AppCompatDialog {
         if (true) {
             return true;
         }
-
         if (Build.VERSION.SDK_INT < 11) {
             return true;
         }
         TypedValue value = new TypedValue();
         //noinspection SimplifiableIfStatement
-        if (getContext().getTheme()
-                .resolveAttribute(android.R.attr.windowCloseOnTouchOutside, value, true)) {
+        if (getContext().getTheme().resolveAttribute(android.R.attr.windowCloseOnTouchOutside, value, true)) {
             return value.data != 0;
         }
         return false;
@@ -145,11 +136,9 @@ public class TopSheetDialog extends AppCompatDialog {
         return themeId;
     }
 
-    private TopSheetBehavior.TopSheetCallback mTopSheetCallback
-            = new TopSheetBehavior.TopSheetCallback() {
+    private final TopSheetBehavior.TopSheetCallback mTopSheetCallback = new TopSheetBehavior.TopSheetCallback() {
         @Override
-        public void onStateChanged(@NonNull View topSheet,
-                                   @BottomSheetBehavior.State int newState) {
+        public void onStateChanged(@NonNull View topSheet, @BottomSheetBehavior.State int newState) {
             if (newState == TopSheetBehavior.STATE_HIDDEN) {
                 dismiss();
             }
@@ -159,6 +148,5 @@ public class TopSheetDialog extends AppCompatDialog {
         public void onSlide(@NonNull View topSheet, float slideOffset) {
         }
     };
-
 
 }

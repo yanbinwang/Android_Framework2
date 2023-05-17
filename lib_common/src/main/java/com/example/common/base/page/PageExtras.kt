@@ -12,6 +12,7 @@ object Extras {
     const val RESULT_CODE = "resultCode"
     const val BUNDLE_BEAN = "bundleBean" //跳转对象
     const val BUNDLE_LIST = "bundleList" //跳转集合
+    const val PAYLOAD = "payload" //透傳信息
     const val ID = "id" //请求id
     const val MOBILE = "mobile" //手机号
     const val VERIFY_SMS = "verifySms" //短信验证码
