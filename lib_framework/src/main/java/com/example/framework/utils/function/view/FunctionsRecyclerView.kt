@@ -177,19 +177,20 @@ fun <K : RecyclerView.ViewHolder> RecyclerView?.getHolder(position: Int): K? {
 }
 
 /**
- * 获取滑动出来的第一个item的下标，仅支持LinearLayoutManager
+ * 获取滑动出来的第一个item的下标
+ * (recyclerView.layoutManager as? LinearLayoutManager)?.findFirstVisibleItemPosition().orZero
  */
-fun RecyclerView?.addOnScrollFirstVisibleItemPositionListener(onCurrent: ((index: Int) -> Unit)?) {
+fun RecyclerView?.addOnScrollFirstVisibleItemPositionListener(onCurrent: ((manager: RecyclerView.LayoutManager?) -> Unit)?) {
     if (this == null) return
     addOnScrollListener(object : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
-            onCurrent?.invoke((recyclerView.layoutManager as? LinearLayoutManager)?.findFirstVisibleItemPosition().orZero)
+            onCurrent?.invoke(recyclerView.layoutManager)
         }
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
-            onCurrent?.invoke((recyclerView.layoutManager as? LinearLayoutManager)?.findFirstVisibleItemPosition().orZero)
+            onCurrent?.invoke(recyclerView.layoutManager)
         }
     })
 }
