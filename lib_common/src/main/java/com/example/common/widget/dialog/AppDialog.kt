@@ -27,10 +27,12 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context) {
             }
             tvMessage.gravity = gravity
             tvMessage.text = message
-            tvSure.text = positiveText
-            tvSure.click {
-                dismiss()
-                onConfirm?.invoke()
+            tvSure.apply {
+                text = positiveText
+                click {
+                    dismiss()
+                    onConfirm?.invoke()
+                }
             }
             if (negativeText.isNullOrEmpty()) {
                 viewLine.gone()
