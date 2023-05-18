@@ -21,10 +21,10 @@ import com.example.common.utils.ScreenUtil.getRealSize
 import com.example.common.utils.ScreenUtil.getRealSizeFloat
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
+import com.example.common.utils.string
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanAll
@@ -68,33 +68,8 @@ fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.
 fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
 
 /**
- *  <string name="dollar">\$%1$s</string>
- *  string(R.string.dollar, "10086")
- *  $10086
- *  字符串表达式的处理
- *  %n$ms：代表输出的是字符串，n代表是第几个参数，设置m的值可以在输出之前放置空格
- *  %n$md：代表输出的是整数，n代表是第几个参数，设置m的值可以在输出之前放置空格，也可以设为0m,在输出之前放置m个0
- *  %n$mf：代表输出的是浮点数，n代表是第几个参数，设置m的值可以控制小数位数，如m=2.2时，输出格式为00.00
- *  也可简单写成：
- *  %d   （表示整数）
- *  %f   （表示浮点数）
- *  %s   （表示字符串）
+ * 获取Resources中的String
  */
-fun string(@StringRes res: Int, vararg param: Int): String {
-    val paramString = param.toNewList { resString(it) }.toTypedArray()
-    val result = resString(res)
-    return String.format(result, paramString)
-}
-
-fun string(@StringRes res: Int, vararg param: String): String {
-    val result = resString(res)
-    return String.format(result, *param)
-}
-
-fun string(@StringRes res: Int): String {
-    return resString(res)
-}
-
 fun resString(@StringRes res: Int): String {
     return try {
         BaseApplication.instance.getString(res)

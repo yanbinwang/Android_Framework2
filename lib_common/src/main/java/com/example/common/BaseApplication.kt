@@ -22,6 +22,11 @@ import com.example.common.config.ServerConfig
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
 import com.example.common.utils.AppManager
+import com.example.common.utils.I18nUtil.getPackVersion
+import com.example.common.utils.LanguageUtil
+import com.example.common.utils.LanguageUtil.checkLanguageVersion
+import com.example.common.utils.LanguageUtil.resetLanguage
+import com.example.common.utils.LanguageUtil.setLocalLanguage
 import com.example.common.utils.NotificationUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
@@ -80,6 +85,8 @@ abstract class BaseApplication : Application() {
         NotificationUtil.init()
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
+        //語言包初始化
+        initLanguage()
         //注册网络监听
         initReceiver()
         //部分推送打開的頁面，需要在關閉時回首頁,實現一個透明的activity，跳轉到對應push的activity之前，讓needOpenHome=true
@@ -97,6 +104,17 @@ abstract class BaseApplication : Application() {
             ARouter.openDebug()
         }
         ARouter.init(this)
+    }
+
+    private fun initLanguage() {
+        if (getPackVersion() <= 0) {
+            //语言包未配置
+            resetLanguage()
+            setLocalLanguage(LanguageUtil.getLanguage())
+        } else {
+            //语言包已配置
+            checkLanguageVersion(LanguageUtil.getLanguage())
+        }
     }
 
     private fun initReceiver() {

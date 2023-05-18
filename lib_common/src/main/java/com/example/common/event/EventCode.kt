@@ -13,4 +13,7 @@ object EventCode {
     //断网
     val EVENT_OFFLINE = Code<Any>()
 
+    //語言切換
+    val EVENT_LANGUAGE_CHANGE = Code<Any>()
+
 }

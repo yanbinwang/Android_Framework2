@@ -87,11 +87,11 @@
         <item name="android:windowExitAnimation">@anim/set_alpha_out</item>
     </style>
 
-<!--    &lt;!&ndash;popup显影 &ndash;&gt;-->
-<!--    <style name="popupWindowAnimStyle">-->
-<!--        <item name="android:windowEnterAnimation">@anim/gallery_fade_in</item>-->
-<!--        <item name="android:windowExitAnimation">@anim/gallery_fade_out</item>-->
-<!--    </style>-->
+    <!--    &lt;!&ndash;popup显影 &ndash;&gt;-->
+    <!--    <style name="popupWindowAnimStyle">-->
+    <!--        <item name="android:windowEnterAnimation">@anim/gallery_fade_in</item>-->
+    <!--        <item name="android:windowExitAnimation">@anim/gallery_fade_out</item>-->
+    <!--    </style>-->
 
     <!-- 去除动画 -->
     <style name="NoAnimTheme" parent="AppTheme">
@@ -210,5 +210,10 @@
         <item name="android:layout_width">20pt</item>
         <item name="android:layout_height">20pt</item>
     </style>
+
+    <declare-styleable name="I18n">
+        <attr name="android:text" />
+        <attr name="android:hint" />
+    </declare-styleable>
 
 </resources>
