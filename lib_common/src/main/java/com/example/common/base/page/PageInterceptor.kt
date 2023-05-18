@@ -27,7 +27,7 @@ class PageInterceptor : IInterceptor {
         "PageInterceptor 开始执行".logE(TAG)
         //给需要跳转的页面添加值为Constants.LOGIN_INTERCEPTOR_CODE的extra参数，用来标记是否需要用户先登录才可以访问该页面
         //先判断需不需要
-        if (postcard.extra == Constants.LOGIN_INTERCEPTOR_CODE) {
+        if (postcard.extra == Constants.INTERCEPTOR_LOGIN_CODE) {
             //判断用户的登录情况，可以把值保存在sp中
             if (AccountHelper.isLogin()) {
                 callback.onContinue(postcard)

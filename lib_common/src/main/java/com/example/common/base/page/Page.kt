@@ -48,6 +48,8 @@ class Paging {
     fun onRefresh(onConvert: () -> Unit = {}) {
         hasRefresh = true
         page = 1
+        currentCount = 0
+        totalCount = 0
         onConvert.invoke()
     }
 
