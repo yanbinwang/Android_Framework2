@@ -32,6 +32,7 @@ import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
 import com.example.common.widget.dialog.LoadingDialog
+import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.view.*
 import com.gyf.immersionbar.ImmersionBar
@@ -149,11 +150,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         views.forEach {
             if (it != null) {
                 it.disable()
-                Timer().schedule(object : TimerTask() {
-                    override fun run() {
-                        launch { it.enable() }
-                    }
-                }, second)
+                WeakHandler(Looper.getMainLooper()).postDelayed({ it.enable() }, second)
             }
         }
     }
