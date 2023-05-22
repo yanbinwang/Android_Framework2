@@ -39,7 +39,6 @@ import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import org.greenrobot.eventbus.Subscribe
@@ -197,13 +196,9 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
         if (second >= 0) {
-            Timer().schedule(object : TimerTask() {
-                override fun run() {
-                    launch {
-                        hideDialog()
-                        block.invoke()
-                    }
-                }
+            WeakHandler(Looper.getMainLooper()).postDelayed({
+                hideDialog()
+                block.invoke()
             }, second)
         }
     }
