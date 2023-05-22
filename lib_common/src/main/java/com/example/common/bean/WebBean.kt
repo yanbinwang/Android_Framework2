@@ -6,11 +6,11 @@ import java.io.Serializable
  * @description 全局页面跳转
  * @author yan
  */
-data class WebBean(private val title: String = "", private val url: String = "", private val isLight: Boolean = true, private val isTitleRequired: Boolean = true) : WebBundle() {
+data class WebBean(private val title: String = "", private val url: String = "", private val light: Boolean = true, private val titleRequired: Boolean = true) : WebBundle() {
 
-    override fun getLight() = isLight
+    override fun getLight() = light
 
-    override fun getTitleRequired() = isTitleRequired
+    override fun getTitleRequired() = titleRequired
 
     override fun getTitle() = title
 
