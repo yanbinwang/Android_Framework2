@@ -123,11 +123,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                 val vdbClass = type.actualTypeArguments[0] as Class<VDB>
                 val method = vdbClass.getDeclaredMethod("inflate", LayoutInflater::class.java)
                 binding = method.invoke(null, layoutInflater) as VDB
-                binding.lifecycleOwner = this
                 setContentView(binding.root)
             } catch (_: Exception) {
                 binding = ActivityTransparentBinding.bind(inflate(R.layout.activity_transparent)) as VDB
             }
+            binding.lifecycleOwner = this
         }
         ARouter.getInstance().inject(this)
     }
