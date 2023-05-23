@@ -12,7 +12,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.base.page.Extras
+import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
@@ -60,7 +60,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
             isStart = true
             "开始录屏".shortToast()
             clearCache()
-            activity.startService(ScreenService::class.java, Extras.RESULT_CODE to it.resultCode, Extras.BUNDLE_BEAN to it.data)
+            activity.startService(ScreenService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
             activity.moveTaskToBack(true)
         } else {
             isStart = false

@@ -5,7 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.databinding.ViewDataBinding
 import com.example.common.base.BaseActivity
-import com.example.common.base.page.Extras
+import com.example.common.base.page.Extra
 import com.example.framework.utils.function.intentString
 import com.example.home.R
 import kotlinx.coroutines.Job
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
  * @author yan
  */
 class LinkActivity : BaseActivity<ViewDataBinding>() {
-    private val payload by lazy { intentString(Extras.PAYLOAD) }
+    private val payload by lazy { intentString(Extra.PAYLOAD) }
     private var timeOutJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

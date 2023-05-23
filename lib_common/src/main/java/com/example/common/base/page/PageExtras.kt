@@ -3,7 +3,7 @@ package com.example.common.base.page
 /**
  * app内的跳转字段
  */
-object Extras {
+object Extra {
     /**
      * navigation(ARouterPath.LoginActivity, Extras.REQUEST_CODE to REQUEST_FINISH)
      * setOnActivityResultListener { if (it.resultCode == REQUEST_FINISH) finish() }

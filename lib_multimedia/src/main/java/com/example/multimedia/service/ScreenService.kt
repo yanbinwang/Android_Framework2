@@ -13,7 +13,7 @@ import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.example.common.base.page.Extras
+import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenDensity
 import com.example.framework.utils.function.value.orZero
 import com.example.multimedia.utils.MediaType
@@ -69,8 +69,8 @@ class ScreenService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         try {
-            resultCode = intent?.getIntExtra(Extras.RESULT_CODE, -1).orZero
-            resultData = intent?.getParcelableExtra(Extras.BUNDLE_BEAN)
+            resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1).orZero
+            resultData = intent?.getParcelableExtra(Extra.BUNDLE_BEAN)
             mediaProjection = createMediaProjection()
             mediaRecorder = createMediaRecorder()
             virtualDisplay = createVirtualDisplay()
