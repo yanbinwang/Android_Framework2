@@ -168,7 +168,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     fun find(func: ((T) -> Boolean)): T? {
         val index = data.findIndexOf(func)
-        return if (index != -1) data.safeGet(index) else null
+        return data.safeGet(index)
     }
 
     /**
