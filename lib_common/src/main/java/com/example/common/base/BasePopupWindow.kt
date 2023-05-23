@@ -168,24 +168,13 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     }
 
     /**
-     * 控件上方显示(以v的左边距为开始位置)
+     * 控件上方显示(以v的中心位置/左边距->为开始位置)
      */
-    open fun showUp(anchor: View?) {
+    open fun showUp(anchor: View?, center: Boolean = true) {
         if (!isShowing) {
             val location = IntArray(2)
             anchor?.getLocationOnScreen(location)
-            showAtLocation(anchor, Gravity.NO_GRAVITY, (location[0]) - measuredWidth / 2, location[1] - measuredHeight)
-        }
-    }
-
-    /**
-     * 控件上方显示(以v的中心位置为开始位置)
-     */
-    open fun showUp2(anchor: View?) {
-        if (!isShowing) {
-            val location = IntArray(2)
-            anchor?.getLocationOnScreen(location)
-            showAtLocation(anchor, Gravity.NO_GRAVITY, (location[0] + anchor?.width.orZero / 2) - measuredWidth / 2, location[1] - measuredHeight)
+            showAtLocation(anchor, Gravity.NO_GRAVITY, if (center) ((location[0] + anchor?.width.orZero / 2) - measuredWidth / 2) else ((location[0]) - measuredWidth / 2), location[1] - measuredHeight)
         }
     }
 
