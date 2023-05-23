@@ -17,6 +17,9 @@
     <color name="bgLine">#f6f8ff</color>
     <!-- 特定字体的颜色 -->
     <color name="textBlack">#333333</color>
+    <!-- 虚拟键盘 -->
+    <color name="bgKeyboard">#999999</color>
+    <color name="bgKeyboardBtn">#f7f7f7</color>
     <!-- 其余定义的颜色 -->
     <color name="white">#ffffff</color>
     <color name="white_ccc">#ccc</color>

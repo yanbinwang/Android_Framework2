@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="60pt"
+        android:background="@color/bgKeyboardBtn">
+
+        <TextView
+            android:id="@+id/tvKeyboard"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/selector_keyboard_btn"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:textColor="@color/textBlack"
+            android:textSize="@dimen/textSize27" />
+
+        <FrameLayout
+            android:id="@+id/fl_delete"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="60pt"
+                android:layout_height="20pt"
+                android:layout_gravity="center"
+                android:src="@mipmap/ic_keyboard_delete" />
+
+        </FrameLayout>
+
+    </FrameLayout>
+
+</layout>
