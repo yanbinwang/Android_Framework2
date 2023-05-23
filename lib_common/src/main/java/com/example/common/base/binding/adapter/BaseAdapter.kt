@@ -182,7 +182,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 查找符合条件的data数据总数
      */
     fun findCount(func: ((T) -> Boolean)): Int {
-        return data.filter(func).size
+        return data.filter(func).safeSize
     }
 
     /**
