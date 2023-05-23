@@ -135,17 +135,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun initData() {
     }
 
-    override fun isEmpty(vararg objs: Any?): Boolean {
-        objs.forEach {
-            if (it == null) {
-                return true
-            } else if (it is String && it == "") {
-                return true
-            }
-        }
-        return false
-    }
-
     override fun ENABLED(vararg views: View?, second: Long) {
         views.forEach {
             if (it != null) {
