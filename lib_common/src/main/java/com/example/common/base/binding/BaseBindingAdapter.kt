@@ -148,13 +148,15 @@ object BaseBindingAdapter {
     /**
      * 特殊文本显示文本
      * text:文本
-     * text_type：0：默认 1：数据空 2：金额空 3：%空
+     * text_type：
+     * 0：默认
+     * 1：金额
      */
     @BindingAdapter(value = ["text", "text_type"], requireAll = false)
     fun bindingTextViewText(textview: TextView, text: String?, textType: Int?) {
         val type = textType.toSafeInt()
         if (!text.isNullOrEmpty()) {
-            textview.text = if(2 == type) text.removeEndZero().thousandsFormat() else text
+            textview.text = if(1 == type) text.removeEndZero().thousandsFormat() else text
         } else {
             textview.text = text.orNoData()
         }

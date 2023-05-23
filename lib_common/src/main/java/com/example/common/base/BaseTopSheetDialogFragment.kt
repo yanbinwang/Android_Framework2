@@ -31,22 +31,26 @@ import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
 import com.example.common.widget.dialog.LoadingDialog
+import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.view.*
+import com.example.framework.utils.function.view.disable
+import com.example.framework.utils.function.view.enable
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.invisible
+import com.example.framework.utils.function.view.visible
 import com.example.framework.utils.logE
+import com.example.topsheet.TopSheetDialogFragment
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
-import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -172,26 +176,11 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     override fun initData() {
     }
 
-    override fun isEmpty(vararg objs: Any?): Boolean {
-        objs.forEach {
-            if (it == null) {
-                return true
-            } else if (it is String && it == "") {
-                return true
-            }
-        }
-        return false
-    }
-
     override fun ENABLED(vararg views: View?, second: Long) {
         views.forEach {
             if (it != null) {
                 it.disable()
-                Timer().schedule(object : TimerTask() {
-                    override fun run() {
-                        launch { it.enable() }
-                    }
-                }, second)
+                WeakHandler(Looper.getMainLooper()).postDelayed({ it.enable() }, second)
             }
         }
     }
@@ -243,13 +232,9 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
         if (second >= 0) {
-            Timer().schedule(object : TimerTask() {
-                override fun run() {
-                    launch {
-                        hideDialog()
-                        block.invoke()
-                    }
-                }
+            WeakHandler(Looper.getMainLooper()).postDelayed({
+                hideDialog()
+                block.invoke()
             }, second)
         }
     }

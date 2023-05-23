@@ -35,11 +35,6 @@ interface BaseImpl {
     fun initData()
 
     /**
-     * 对象判空（批量）
-     */
-    fun isEmpty(vararg objs: Any?): Boolean
-
-    /**
      * 控件不可操作
      */
     fun ENABLED(vararg views: View?, second: Long = 1000)

@@ -172,9 +172,19 @@ fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color
     text = txt.setSpanFirst(keyword, ColorSpan(context.color(colorRes)))
 }
 
+fun TextView?.setSpanFirst(@StringRes res: Int, @StringRes resKeyword: Int, colorRes: Int = R.color.appTheme) {
+    this ?: return
+    text = string(res).setSpanFirst(string(resKeyword), ColorSpan(context.color(colorRes)))
+}
+
 fun TextView?.setSpanAll(txt: String, keyword: String, colorRes: Int = R.color.appTheme) {
     this ?: return
     text = txt.setSpanAll(keyword, ColorSpan(context.color(colorRes)))
+}
+
+fun TextView?.setSpanAll(@StringRes res: Int, @StringRes resKeyword: Int, colorRes: Int = R.color.appTheme) {
+    this ?: return
+    text = string(res).setSpanAll(string(resKeyword), ColorSpan(context.color(colorRes)))
 }
 
 /**
