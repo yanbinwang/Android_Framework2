@@ -234,9 +234,9 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 插入集合
      */
     fun insert(list: List<T>) {
-        val size = data.size
+        val positionStart = size()
         data.addAll(list)
-        notifyItemRangeInserted(size, list.size)
+        notifyItemRangeInserted(positionStart, list.safeSize)
     }
 
     /**
@@ -253,7 +253,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     fun insert(item: T) {
         data.add(item)
-        notifyItemInserted(data.size - 1)
+        notifyItemInserted(data.safeSize - 1)
     }
 
 }
