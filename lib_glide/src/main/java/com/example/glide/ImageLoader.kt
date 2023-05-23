@@ -2,7 +2,9 @@ package com.example.glide
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -31,7 +33,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         Glide.with(view.context)
             .asBitmap()
             .load(string)
-            .placeholder(R.drawable.shape_glide_zoom_bg)
+            .placeholder(GradientDrawable().apply { setColor(Color.parseColor("#000000")) })
             .dontAnimate()
             .listener(object : GlideRequestListener<Bitmap?>() {
                 override fun onStart() {
