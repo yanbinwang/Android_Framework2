@@ -1,10 +1,8 @@
 package com.example.common.network.factory
 
 import com.example.common.config.ServerConfig
-import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
 
 /**
  * author: wyb
@@ -14,21 +12,15 @@ import java.util.concurrent.TimeUnit
 class RetrofitFactory private constructor() {
     private val serverRetrofit by lazy {
         Retrofit.Builder()
-            .client(OkHttpFactory.instance.okHttpClient)
+            .client(OkHttpFactory.instance.serverOkHttpClient)
             .baseUrl(ServerConfig.serverUrl())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 
-    //纯粹的网络请求，不加任何拦截
     private val retrofit by lazy {
         Retrofit.Builder()
-            .client(OkHttpClient.Builder()
-                    .connectTimeout(6, TimeUnit.SECONDS)//设置连接超时
-                    .writeTimeout(2, TimeUnit.HOURS)//设置写超时
-                    .readTimeout(2, TimeUnit.HOURS)//设置读超时
-                    .retryOnConnectionFailure(true)
-                    .build())
+            .client(OkHttpFactory.instance.okHttpClient)
             .baseUrl(ServerConfig.serverUrl())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
