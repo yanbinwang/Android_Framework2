@@ -45,21 +45,21 @@ class Paging {
     var totalCount = 0//服务器列表数据总数
 
     //刷新清空
-    fun onRefresh(onConvert: () -> Unit = {}) {
+    fun onRefresh(listener: () -> Unit = {}) {
         hasRefresh = true
         page = 1
         currentCount = 0
         totalCount = 0
-        onConvert.invoke()
+        listener.invoke()
     }
 
     //加载更多
-    fun onLoad(onConvert: (noMore: Boolean) -> Unit = {}) {
+    fun onLoad(listener: (noMore: Boolean) -> Unit = {}) {
         if (hasNextPage()) {
             hasRefresh = false
             ++page
-            onConvert(false)
-        } else onConvert(true)
+            listener(false)
+        } else listener(true)
     }
 
     //是否需要加载更多

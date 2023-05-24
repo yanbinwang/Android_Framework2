@@ -144,9 +144,9 @@ object FileUtil {
                 val end = (i + 1) * maxSize
                 val tmpInfo = getWrite(targetFile.absolutePath, i, begin, end)
                 offSet = tmpInfo.fileSize
-                splitList.add(tmpInfo.filePath ?: "")
+                splitList.add(tmpInfo.filePath.orEmpty())
             }
-            if (length - offSet > 0) splitList.add(getWrite(targetFile.absolutePath, count - 1, offSet, length).filePath ?: "")
+            if (length - offSet > 0) splitList.add(getWrite(targetFile.absolutePath, count - 1, offSet, length).filePath.orEmpty())
             accessFile.close()
         } catch (_: Exception) {
         } finally {

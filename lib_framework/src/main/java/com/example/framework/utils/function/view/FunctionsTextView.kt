@@ -168,13 +168,13 @@ fun TextView?.setClickableSpan(textStr: String, keyword: String, clickableSpan: 
  * 代码中在设置了text后调取
  * 需要注意如果在list列表的话，数据不宜过多，会造成卡顿
  */
-fun TextView?.getEllipsisCount(onConvert: (ellipsisCount: Int) -> Unit = {}) {
+fun TextView?.getEllipsisCount(listener: (ellipsisCount: Int) -> Unit = {}) {
     if (this == null) {
-        onConvert.invoke(0)
+        listener.invoke(0)
         return
     }
     post {
-        onConvert.invoke(layout.getEllipsisCount(lineCount - 1))
+        listener.invoke(layout.getEllipsisCount(lineCount - 1))
     }
 }
 

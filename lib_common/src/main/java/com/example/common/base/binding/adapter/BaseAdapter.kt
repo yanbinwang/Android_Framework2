@@ -176,8 +176,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 查找到符合条件的对象，返回下标和对象本身，调用notifyItemChanged（position）修改改变的值
      */
-    fun find(func: ((T) -> Boolean), onConvert: (position: Int, bean: T?) -> Unit) {
-        data.findIndexOf(func).apply { onConvert.invoke(this, data.safeGet(this)) }
+    fun find(func: ((T) -> Boolean), listener: (position: Int, bean: T?) -> Unit) {
+        data.findIndexOf(func).apply { listener.invoke(this, data.safeGet(this)) }
     }
 
     /**
