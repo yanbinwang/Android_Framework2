@@ -1,9 +1,7 @@
 package com.example.common.utils.permission
 
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
-import androidx.core.app.ActivityCompat
 import com.example.common.R
 import com.example.common.utils.function.string
 import com.example.common.utils.permission.XXPermissionsGroup.CAMERA
@@ -12,7 +10,6 @@ import com.example.common.utils.permission.XXPermissionsGroup.MICROPHONE
 import com.example.common.utils.permission.XXPermissionsGroup.STORAGE
 import com.example.common.widget.dialog.AndDialog
 import com.hjq.permissions.OnPermissionCallback
-import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
 
 /**
@@ -22,29 +19,6 @@ import com.hjq.permissions.XXPermissions
  * 根据项目需求哪取需要的权限组
  */
 class PermissionFactory(private val context: Context) {
-
-    companion object {
-
-        /**
-         * 权限检测
-         */
-        fun checkSelfPermission(context: Context, vararg permission: String): Boolean {
-            permission.forEach { if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(context, it)) return false }
-            return true
-        }
-
-        /**
-         * 定位权限组
-         */
-        fun checkSelfLocation(context: Context) = checkSelfPermission(context, Permission.ACCESS_FINE_LOCATION, Permission.ACCESS_COARSE_LOCATION)
-
-        /**
-         * 存储权限组
-         */
-        fun checkSelfStorage(context: Context) = checkSelfPermission(context, Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE)
-
-    }
-
     private val andDialog by lazy { AndDialog(context) }
     private val permsGroup = arrayOf(
         LOCATION,//定位
@@ -60,7 +34,7 @@ class PermissionFactory(private val context: Context) {
         requestPermissions(*permsGroup)
     }
 
-    fun requestPermissions(vararg groups: Array<String>) {
+    fun requestPermissions(vararg groups: Array<String>, force: Boolean = true) {
         //6.0+系统做特殊处理
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             XXPermissions.with(context)
@@ -75,7 +49,7 @@ class PermissionFactory(private val context: Context) {
                         super.onDenied(permissions, never)
                         //never->被永久拒绝授权，请手动授予
                         onRequest?.invoke(false)
-                        description(permissions)
+                        if(force) description(permissions)
                     }
                 })
         } else onRequest?.invoke(true)
@@ -99,7 +73,8 @@ class PermissionFactory(private val context: Context) {
                 string(R.string.hint),
                 string(R.string.permission_go_setting, rationale),
                 string(R.string.sure),
-                string(R.string.cancel))
+                string(R.string.cancel)
+            )
             show()
         }
     }
