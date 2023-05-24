@@ -25,16 +25,15 @@ class PermissionFactory(private val context: Context) {
         CAMERA,//拍摄照片，录制视频
         MICROPHONE,//录制音频(腾讯x5)
         STORAGE)//访问照片。媒体。内容和文件
-    var onRequest: ((hasPermissions: Boolean) -> Unit)? = null
 
     /**
      * 检测权限(默认拿全部，可单独拿某个权限组)
      */
-    fun requestPermissions() {
-        requestPermissions(*permsGroup)
+    fun requestPermissions(onRequest: (hasPermissions: Boolean) -> Unit = {}) {
+        requestPermissions(*permsGroup, onRequest = onRequest)
     }
 
-    fun requestPermissions(vararg groups: Array<String>, force: Boolean = true) {
+    fun requestPermissions(vararg groups: Array<String>, onRequest: (hasPermissions: Boolean) -> Unit = {}, force: Boolean = true) {
         //6.0+系统做特殊处理
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             XXPermissions.with(context)
@@ -42,17 +41,17 @@ class PermissionFactory(private val context: Context) {
                 .request(object : OnPermissionCallback {
                     override fun onGranted(permissions: MutableList<String>?, all: Boolean) {
                         //all->标记是否是获取部分权限成功，部分未正常授予，true全拿，false部分拿到
-                        onRequest?.invoke(all)
+                        onRequest.invoke(all)
                     }
 
                     override fun onDenied(permissions: MutableList<String>?, never: Boolean) {
                         super.onDenied(permissions, never)
                         //never->被永久拒绝授权，请手动授予
-                        onRequest?.invoke(false)
-                        if(force) description(permissions)
+                        onRequest.invoke(false)
+                        if (force) description(permissions)
                     }
                 })
-        } else onRequest?.invoke(true)
+        } else onRequest.invoke(true)
     }
 
     /**
