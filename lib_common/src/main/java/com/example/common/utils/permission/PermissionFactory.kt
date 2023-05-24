@@ -3,11 +3,11 @@ package com.example.common.utils.permission
 import android.content.Context
 import android.os.Build
 import com.example.common.R
-import com.example.common.utils.function.string
 import com.example.common.utils.permission.XXPermissionsGroup.CAMERA
 import com.example.common.utils.permission.XXPermissionsGroup.LOCATION
 import com.example.common.utils.permission.XXPermissionsGroup.MICROPHONE
 import com.example.common.utils.permission.XXPermissionsGroup.STORAGE
+import com.example.common.utils.string
 import com.example.common.widget.dialog.AndDialog
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.XXPermissions
