@@ -109,6 +109,8 @@ abstract class BaseApplication : Application() {
     /**
      * 默认如果没有存储服务器的bean会走本地的assets下配置的语言包
      * 如果用户进入设置，并选择了对应的语言，则会存储用户选择的语言的bean，并在应用启动时应用存储下来的bean
+     * 1.获取支持的语种列表
+     * 2.点击对应语种列表通过其url再请求获取bean对象，并存储替换本地的bean
      */
     private fun initLanguage() {
         if (getPackVersion() <= 0) {
