@@ -11,13 +11,13 @@ import com.example.common.utils.Language.Companion.en_IN
  * @author yan
  */
 object CacheData {
-    //语言包
-    private const val LANGUAGE_BEAN = "language_bean"
-    val languageBean = DataCacheUtil(LANGUAGE_BEAN, LanguageBean::class.java)
-
     //語言(默認英語)
     private const val LANGUAGE = "language"
     val language = DataStringCacheUtil(LANGUAGE, en_IN)
+
+    //语言包
+    private const val LANGUAGE_BEAN = "language_bean"
+    val languageBean = DataCacheUtil(LANGUAGE_BEAN, LanguageBean::class.java)
 
     //设备id
     private const val DEVICE_ID = "device_id"
