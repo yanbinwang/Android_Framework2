@@ -61,15 +61,15 @@ fun Context.scanDiskSpace(space: Long = 1024) = getSdcardAvailableCapacity() > s
  * 返回时长(音频，视频)->不支持在线音视频
  * 放在线程中读取，超时会导致卡顿或闪退
  */
-fun String?.getDuration(): Int {
-    if (isNullOrEmpty()) return 0
+fun String?.getDuration(): Double {
+    if (isNullOrEmpty()) return 0.0
     val file = File(this)
-    if (!file.exists()) return 0
+    if (!file.exists()) return 0.0
     val medialPlayer = MediaPlayer()
     medialPlayer.setDataSource(file.absolutePath)
     medialPlayer.prepare()
     val time = medialPlayer.duration//视频时长（毫秒）
-    val duration = (time / 1000)
+    val duration = (time / 1000.0)
     "文件时长：${duration}秒".logE(TAG)
     return duration
 }

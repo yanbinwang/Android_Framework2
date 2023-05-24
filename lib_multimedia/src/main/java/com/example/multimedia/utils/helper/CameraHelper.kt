@@ -57,7 +57,10 @@ class CameraHelper(private val cvFinder: CameraView) : LifecycleEventObserver {
     /**
      * 镜头翻转
      */
-    fun toggleFacing() = run { cvFinder.toggleFacing() }
+    fun toggleFacing() {
+        closeFlash()
+        cvFinder.toggleFacing()
+    }
 
     /**
      * 开关闪光灯

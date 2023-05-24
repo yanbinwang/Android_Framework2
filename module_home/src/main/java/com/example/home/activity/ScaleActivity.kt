@@ -5,7 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
-import com.example.common.base.page.Extras
+import com.example.common.base.page.Extra
 import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.TitleBuilder
 import com.example.framework.utils.function.intentSerializable
@@ -23,7 +23,7 @@ import com.example.home.widget.scale.ScaleImageView
 @Route(path = ARouterPath.ScaleActivity)
 class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
     private val titleBuilder by lazy { TitleBuilder(this, binding.titleContainer) }
-    private val list by lazy { intentSerializable(Extras.BUNDLE_LIST) as? ArrayList<String> }
+    private val list by lazy { intentSerializable(Extra.BUNDLE_LIST) as? ArrayList<String> }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

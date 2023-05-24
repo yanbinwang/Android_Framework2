@@ -100,12 +100,19 @@
         <!--            android:screenOrientation="portrait"-->
         <!--            android:theme="@style/NoAnimTheme" />-->
 
+        <!--        <activity-->
+        <!--            android:name=".activity.MainActivity"-->
+        <!--            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"-->
+        <!--            android:launchMode="singleTask"-->
+        <!--            android:screenOrientation="portrait"-->
+        <!--            android:theme="@style/MainTheme"-->
+        <!--            android:windowSoftInputMode="stateHidden|adjustUnspecified" />-->
+
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:theme="@style/MainTheme"
             android:windowSoftInputMode="stateHidden|adjustUnspecified" />
 
         <activity
@@ -113,7 +120,6 @@
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustPan" />
-
         <!-- 伸縮大圖 -->
         <activity
             android:name="com.example.home.activity.ScaleActivity"

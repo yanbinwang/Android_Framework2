@@ -2,6 +2,7 @@ package com.example.common.config
 
 import com.example.common.BaseApplication
 import com.example.common.R
+import com.example.common.utils.DeviceIdUtil
 import com.example.common.utils.function.string
 import com.example.common.utils.helper.ConfigHelper.getAppName
 import com.example.common.utils.helper.ConfigHelper.getAppVersionCode
@@ -26,6 +27,8 @@ object Constants {
     val APPLICATION_PATH get() = "${SDCARD_PATH}/${APPLICATION_NAME}"
     //sd卡的根路径/android/data/{包名}->访问这个目录不需要动态申请STORAGE权限
     val SDCARD_PATH get() = BaseApplication.instance.getExternalFilesDir(null)?.absolutePath
+    //设备id
+    val DEVICE_ID get() = DeviceIdUtil.deviceId
     //无数据占位符
     val NO_DATA get() = string(R.string.unit_no_data)
 //    //无数据占位符

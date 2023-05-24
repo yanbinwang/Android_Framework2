@@ -122,7 +122,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     fun changed(index: Int, bean: T) {
         if (index != -1 && data.safeGet(index) != null) {
-            data[index] = bean
+//            data[index] = bean
+            data.safeSet(index, bean)
             notifyItemChanged(index)
         }
     }
@@ -133,7 +134,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
 
     fun changed(index: Int, payloads: MutableList<Any>, bean: T) {
         if (index != -1 && data.safeGet(index) != null) {
-            data[index] = bean
+//            data[index] = bean
+            data.safeSet(index, bean)
             notifyItemChanged(index, payloads)
         }
     }
@@ -168,7 +170,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     fun find(func: ((T) -> Boolean)): T? {
         val index = data.findIndexOf(func)
-        return if (index != -1) data.safeGet(index) else null
+        return data.safeGet(index)
     }
 
     /**
@@ -182,7 +184,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 查找符合条件的data数据总数
      */
     fun findCount(func: ((T) -> Boolean)): Int {
-        return data.filter(func).size
+        return data.filter(func).safeSize
     }
 
     /**
@@ -234,9 +236,9 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 插入集合
      */
     fun insert(list: List<T>) {
-        val size = data.size
+        val positionStart = size()
         data.addAll(list)
-        notifyItemRangeInserted(size, list.size)
+        notifyItemRangeInserted(positionStart, list.safeSize)
     }
 
     /**
@@ -253,7 +255,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     fun insert(item: T) {
         data.add(item)
-        notifyItemInserted(data.size - 1)
+        notifyItemInserted(data.safeSize - 1)
     }
 
 }

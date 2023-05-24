@@ -12,7 +12,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.base.page.Extras
+import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
@@ -55,19 +55,18 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
     /**
      * 处理录屏的回调
      */
-    private val activityResultValue =
-        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == RESULT_OK) {
-                isStart = true
-                "开始录屏".shortToast()
-                shotFile.absolutePath.deleteDir()
-                activity.startService(ScreenService::class.java, Extras.RESULT_CODE to it.resultCode, Extras.BUNDLE_BEAN to it.data)
-                activity.moveTaskToBack(true)
-            } else {
-                isStart = false
-                "取消录屏".shortToast()
-            }
+    private val activityResultValue = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            isStart = true
+            "开始录屏".shortToast()
+            clearCache()
+            activity.startService(ScreenService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
+            activity.moveTaskToBack(true)
+        } else {
+            isStart = false
+            "取消录屏".shortToast()
         }
+    }
 
     companion object {
         var isStart = false
@@ -119,12 +118,16 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
                     val zipPath = File(filePath).name.replace("mp4", "zip")
                     withContext(Dispatchers.IO) { zipFolder("${storage}录屏", zipPath, containList) }
                     //打包成功清空录屏源文件和截屏文件夹
-                    filePath.deleteFile()
-                    shotFile.absolutePath.deleteDir()
+                    clearCache(filePath)
                     hideDialog()
                 }
             }
         }
+    }
+
+    private fun clearCache(filePath: String = "") {
+        if (filePath.isNotEmpty()) filePath.deleteFile()
+        shotFile.absolutePath.deleteDir()
     }
 
     /**
@@ -212,8 +215,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
             intent.data = Uri.parse("package:${packageName}")
             startActivity(intent)
         } else {
-            val mediaProjectionManager =
-                getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
+            val mediaProjectionManager = getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
             val permissionIntent = mediaProjectionManager?.createScreenCaptureIntent()
             activityResultValue.launch(permissionIntent)
         }

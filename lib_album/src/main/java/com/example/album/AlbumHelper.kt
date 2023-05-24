@@ -7,6 +7,7 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.mb
 import com.example.common.utils.function.color
 import com.example.framework.utils.function.value.execute
+import com.example.framework.utils.function.value.safeGet
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.api.widget.Widget
 import com.yanzhenjie.durban.Controller
@@ -74,7 +75,7 @@ class AlbumHelper(private val activity: Activity) {
             .filterSize { it == 0L }
             .afterFilterVisibility(false)
             .onResult {
-                it[0].apply {
+                it.safeGet(0)?.apply {
                     if (size > fileSize.mb) {
                         R.string.toast_album_image_error.shortToast()
                         return@onResult
@@ -101,7 +102,7 @@ class AlbumHelper(private val activity: Activity) {
             .filterSize { it == 0L }
             .afterFilterVisibility(false)
             .onResult {
-                it[0].apply {
+                it.safeGet(0)?.apply {
                     if (size > fileSize.mb) {
                         R.string.toast_album_video_error.shortToast()
                         return@onResult
