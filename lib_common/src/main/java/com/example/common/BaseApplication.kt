@@ -22,16 +22,16 @@ import com.example.common.config.ServerConfig
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
 import com.example.common.utils.AppManager
-import com.example.common.utils.i18n.I18nUtil.getPackVersion
-import com.example.common.utils.i18n.LanguageUtil
-import com.example.common.utils.i18n.LanguageUtil.checkLanguageVersion
-import com.example.common.utils.i18n.LanguageUtil.resetLanguage
-import com.example.common.utils.i18n.LanguageUtil.setLocalLanguage
 import com.example.common.utils.NotificationUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.common.utils.helper.ConfigHelper
+import com.example.common.utils.i18n.I18nUtil.getPackVersion
+import com.example.common.utils.i18n.LanguageUtil
+import com.example.common.utils.i18n.LanguageUtil.checkLanguageVersion
+import com.example.common.utils.i18n.LanguageUtil.resetLanguage
+import com.example.common.utils.i18n.LanguageUtil.setLocalLanguage
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.framework.utils.function.string
@@ -106,6 +106,10 @@ abstract class BaseApplication : Application() {
         ARouter.init(this)
     }
 
+    /**
+     * 默认如果没有存储服务器的bean会走本地的assets下配置的语言包
+     * 如果用户进入设置，并选择了对应的语言，则会存储用户选择的语言的bean，并在应用启动时应用存储下来的bean
+     */
     private fun initLanguage() {
         if (getPackVersion() <= 0) {
             //语言包未配置
