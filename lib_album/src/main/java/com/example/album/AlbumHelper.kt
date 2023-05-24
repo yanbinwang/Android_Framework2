@@ -31,37 +31,36 @@ class AlbumHelper(private val activity: Activity) {
             .toolBarColor(color)
             .build()
     }
-    var onAlbum: ((albumPath: String?) -> Unit)? = null//单选回调监听
 
     /**
      * 跳转至相机-拍照
      */
-    fun takePicture(filePath: String, hasTailor: Boolean = false) = activity.execute {
+    fun takePicture(filePath: String, hasTailor: Boolean = false, onAlbum: (albumPath: String?) -> Unit = {}) = activity.execute {
         Album.camera(this)
             .image()
             .filePath(filePath)
-            .onResult { if (hasTailor) toTailor(it) else onAlbum?.invoke(it) }
+            .onResult { if (hasTailor) toTailor(it) else onAlbum.invoke(it) }
             .start()
     }
 
     /**
      * 跳转至相机-录像(时间不一定能指定，大多数手机不兼容)
      */
-    fun recordVideo(filePath: String, duration: Long = 1000 * 60 * 60) = activity.execute {
+    fun recordVideo(filePath: String, duration: Long = 1000 * 60 * 60, onAlbum: (albumPath: String?) -> Unit = {}) = activity.execute {
         Album.camera(this)
             .video()
             .filePath(filePath)
             .quality(1)//视频质量, [0, 1].
             .limitDuration(duration)//视频的最长持续时间以毫秒为单位
 //                           .limitBytes(Long.MAX_VALUE)//视频的最大大小，以字节为单位
-            .onResult { onAlbum?.invoke(it) }
+            .onResult { onAlbum.invoke(it) }
             .start()
     }
 
     /**
      * 选择图片
      */
-    fun imageSelection(hasCamera: Boolean = true, hasTailor: Boolean = false, fileSize: Long = 10) = activity.execute {
+    fun imageSelection(hasCamera: Boolean = true, hasTailor: Boolean = false, fileSize: Long = 10, onAlbum: (albumPath: String?) -> Unit = {}) = activity.execute {
         Album.image(this)
             //多选模式为：multipleChoice,单选模式为：singleChoice()
             .singleChoice()
@@ -80,7 +79,7 @@ class AlbumHelper(private val activity: Activity) {
                         R.string.toast_album_image_error.shortToast()
                         return@onResult
                     }
-                    if (hasTailor) toTailor(path) else onAlbum?.invoke(path)
+                    if (hasTailor) toTailor(path) else onAlbum.invoke(path)
                 }
             }.start()
     }
@@ -88,7 +87,7 @@ class AlbumHelper(private val activity: Activity) {
     /**
      * 选择视频
      */
-    fun videoSelection(fileSize: Long = 100) = activity.execute {
+    fun videoSelection(fileSize: Long = 100, onAlbum: (albumPath: String?) -> Unit = {}) = activity.execute {
         Album.video(this)
             //多选模式为：multipleChoice,单选模式为：singleChoice()
             .singleChoice()
@@ -107,7 +106,7 @@ class AlbumHelper(private val activity: Activity) {
                         R.string.toast_album_video_error.shortToast()
                         return@onResult
                     }
-                    onAlbum?.invoke(path)
+                    onAlbum.invoke(path)
                 }
             }.start()
     }
