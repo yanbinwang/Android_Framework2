@@ -21,7 +21,7 @@ object CacheData {
 
     //设备id
     private const val DEVICE_ID = "device_id"
-    val deviceIdCache = DataStringCacheUtil(DEVICE_ID)
+    val deviceId = DataStringCacheUtil(DEVICE_ID)
 
     //用户类
     private const val USER_BEAN = "user_bean"
