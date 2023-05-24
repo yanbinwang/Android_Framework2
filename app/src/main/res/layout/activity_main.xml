@@ -20,6 +20,11 @@
             android:textColor="@color/blue_1566ec"
             android:textSize="@dimen/textSize26" />
 
+        <com.example.common.widget.xrecyclerview.XRecyclerView
+            android:layout_width="match_parent"
+            android:id="@+id/rvList"
+            android:layout_height="match_parent"/>
+
     </FrameLayout>
 
     <!--    <FrameLayout-->

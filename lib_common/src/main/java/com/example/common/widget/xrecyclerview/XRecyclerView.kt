@@ -35,13 +35,13 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private var emptyType = 0//是否具有空布局（0无-1有）
     private var refreshType = 0//页面类型(0无刷新-1带刷新)
-    private var refresh: SmartRefreshLayout? = null//刷新控件 类型1才有
 //    val layout: RefreshLayout get() { return refresh as RefreshLayout }//刷新控件
+    var onClick: (() -> Unit)? = null//空布局点击
     var recycler: DataRecyclerView? = null//数据列表
         private set
-    var empty: EmptyLayout? = null//自定义封装的空布局
+    var refresh: SmartRefreshLayout? = null//刷新控件 类型1才有
         private set
-    var onClick: (() -> Unit)? = null//空布局点击
+    var empty: EmptyLayout? = null//自定义封装的空布局
         private set
 
     init {
