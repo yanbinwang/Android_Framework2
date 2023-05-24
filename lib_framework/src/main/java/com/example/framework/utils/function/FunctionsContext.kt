@@ -1,5 +1,6 @@
 package com.example.framework.utils.function
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.app.Service
@@ -43,6 +44,7 @@ fun Context.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(this, re
 /**
  * 通过字符串获取drawable下的xml文件
  */
+@SuppressLint("DiscouragedApi")
 fun Context.drawableId(name: String): Int {
     return try {
         resources.getIdentifier(name, "drawable", packageName)
@@ -54,6 +56,7 @@ fun Context.drawableId(name: String): Int {
 /**
  * 通过字符串获取mipmap下的图片文件
  */
+@SuppressLint("DiscouragedApi")
 fun Context.mipmapId(name: String): Int {
     return try {
         resources.getIdentifier(name, "mipmap", packageName)
