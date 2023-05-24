@@ -1,13 +1,13 @@
-package com.example.common.utils
+package com.example.common.utils.i18n
 
 import com.example.common.bean.LanguageBean
 import com.example.common.config.CacheData.language
-import com.example.common.utils.Language.Companion.en_IN
-import com.example.common.utils.Language.Companion.in_ID
-import com.example.common.utils.Language.Companion.zh_TW
-import com.example.common.utils.LanguagePackAsset.Companion.en_IN_PACK
-import com.example.common.utils.LanguagePackAsset.Companion.in_ID_PACK
-import com.example.common.utils.LanguagePackAsset.Companion.zh_TW_PACK
+import com.example.common.utils.i18n.Language.Companion.en_IN
+import com.example.common.utils.i18n.Language.Companion.in_ID
+import com.example.common.utils.i18n.Language.Companion.zh_TW
+import com.example.common.utils.i18n.LanguagePackAsset.Companion.en_IN_PACK
+import com.example.common.utils.i18n.LanguagePackAsset.Companion.in_ID_PACK
+import com.example.common.utils.i18n.LanguagePackAsset.Companion.zh_TW_PACK
 import com.example.framework.utils.function.value.toSafeInt
 import java.util.Locale
 

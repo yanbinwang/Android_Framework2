@@ -22,11 +22,11 @@ import com.example.common.config.ServerConfig
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
 import com.example.common.utils.AppManager
-import com.example.common.utils.I18nUtil.getPackVersion
-import com.example.common.utils.LanguageUtil
-import com.example.common.utils.LanguageUtil.checkLanguageVersion
-import com.example.common.utils.LanguageUtil.resetLanguage
-import com.example.common.utils.LanguageUtil.setLocalLanguage
+import com.example.common.utils.i18n.I18nUtil.getPackVersion
+import com.example.common.utils.i18n.LanguageUtil
+import com.example.common.utils.i18n.LanguageUtil.checkLanguageVersion
+import com.example.common.utils.i18n.LanguageUtil.resetLanguage
+import com.example.common.utils.i18n.LanguageUtil.setLocalLanguage
 import com.example.common.utils.NotificationUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt

@@ -4,7 +4,7 @@ import com.example.common.bean.LanguageBean
 import com.example.common.bean.UserBean
 import com.example.common.utils.DataCacheUtil
 import com.example.common.utils.DataStringCacheUtil
-import com.example.common.utils.Language.Companion.en_IN
+import com.example.common.utils.i18n.Language.Companion.en_IN
 
 /**
  * @description 全局mmkv存储

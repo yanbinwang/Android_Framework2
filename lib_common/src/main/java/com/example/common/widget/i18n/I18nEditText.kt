@@ -6,8 +6,8 @@ import android.util.AttributeSet
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.AppCompatEditText
 import com.example.common.R
-import com.example.common.utils.I18nUtil
-import com.example.common.utils.string
+import com.example.common.utils.i18n.I18nUtil
+import com.example.common.utils.i18n.string
 import java.lang.ref.WeakReference
 
 /**
