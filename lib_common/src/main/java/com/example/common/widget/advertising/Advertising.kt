@@ -55,6 +55,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     init {
         banner = ViewPager2(context).apply {
+            desensitization()
             adapter(advAdapter, userInputEnabled = true)
             registerOnPageChangeCallback(object : OnPageChangeCallback() {
                 private var curIndex = 0//当前选中的数组索引
