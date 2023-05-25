@@ -48,15 +48,12 @@ class NormalPicHolder(private val activity: AppCompatActivity, private val bean:
         binding.tvLabel.text = bean.label
         if (bean.enable.orFalse) {
             binding.flContent.click {
-                permission.apply {
-                    onRequest = {
-                        if (it) {
-                            val intent = Intent(Intent.ACTION_PICK, null)
-                            intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
-                            activityResultValue.launch(intent)
-                        }
+                permission.requestPermissions {
+                    if (it) {
+                        val intent = Intent(Intent.ACTION_PICK, null)
+                        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+                        activityResultValue.launch(intent)
                     }
-                    requestPermissions()
                 }
             }
         }
