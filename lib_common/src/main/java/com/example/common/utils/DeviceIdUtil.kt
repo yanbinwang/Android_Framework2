@@ -6,7 +6,7 @@ import android.os.Build
 import android.provider.Settings
 import android.telephony.TelephonyManager
 import com.example.common.BaseApplication
-import com.example.common.config.CacheData.deviceIdCache
+import com.example.common.config.CacheData
 import java.security.MessageDigest
 import java.util.*
 
@@ -64,12 +64,12 @@ object DeviceIdUtil {
      */
     val deviceId: String
         get() {
-            if (deviceIdCache.get().isEmpty()) {
-                deviceIdCache.set(getId().let {
+            if (CacheData.deviceId.get().isEmpty()) {
+                CacheData.deviceId.set(getId().let {
                     return@let if (it.length > 30) it.substring(0, 30) else it
                 })
             }
-            return deviceIdCache.get()
+            return CacheData.deviceId.get()
         }
 
     /**

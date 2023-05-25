@@ -21,9 +21,20 @@
             android:textSize="@dimen/textSize26" />
 
         <com.example.common.widget.xrecyclerview.XRecyclerView
-            android:layout_width="match_parent"
             android:id="@+id/rvList"
-            android:layout_height="match_parent"/>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_width="86pt"
+            android:layout_height="32pt"
+            android:layout_marginTop="80pt"
+            android:background="@drawable/layer_list_r25_orange"
+            android:gravity="center"
+            android:text="Release"
+            android:textColor="@color/white"
+            android:textSize="@dimen/textSize14"
+            android:textStyle="bold" />
 
     </FrameLayout>
 
