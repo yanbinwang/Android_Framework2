@@ -16,14 +16,18 @@
             android:id="@+id/et_test"
             android:layout_width="match_parent"
             android:layout_height="200pt"
-            android:background="@color/black"
             android:textColor="@color/blue_1566ec"
             android:textSize="@dimen/textSize26" />
 
-        <com.example.common.widget.xrecyclerview.XRecyclerView
+        <Button
+            android:id="@+id/btn_test"
             android:layout_width="match_parent"
-            android:id="@+id/rvList"
-            android:layout_height="match_parent"/>
+            android:layout_height="80pt"
+            android:layout_marginHorizontal="20pt"
+            android:background="@drawable/shape_r5_blue"
+            android:text="dfdsfds"
+            android:textColor="@color/white"
+            android:textSize="@dimen/textSize32" />
 
     </FrameLayout>
 
