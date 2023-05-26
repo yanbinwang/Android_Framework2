@@ -17,7 +17,6 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.view.fade
-import com.example.framework.utils.function.view.gone
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.*
 import kotlinx.coroutines.CoroutineStart.LAZY
@@ -64,27 +63,27 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 继承BaseTitleActivity的页面传父类的ViewGroup
      * 其余页面外层写FrameLayout，套上要使用的布局后再initView中调用该方法
      */
-    fun setEmptyView(viewGroup: ViewGroup) {
+    fun setExtraView(viewGroup: ViewGroup?) {
         this.weakEmpty = WeakReference(viewGroup.getEmptyView())
     }
 
-    fun setRecyclerView(recycler: XRecyclerView) {
-        this.weakEmpty = WeakReference(recycler.empty)
+    fun setExtraView(recycler: XRecyclerView?) {
+        this.weakEmpty = WeakReference(recycler?.empty)
         this.weakRecycler = WeakReference(recycler)
     }
 
-    fun setRefreshLayout(refresh: SmartRefreshLayout) {
+    fun setExtraView(refresh: SmartRefreshLayout?) {
         this.weakRefresh = WeakReference(refresh)
     }
 
     /**
      * 带刷新或者空白布局的列表/详情页再接口交互结束时直接在对应的viewmodel调用该方法
+     * hasNextPage是否有下一页
      */
     protected fun reset(hasNextPage: Boolean? = true) {
         if (null == recyclerView) refreshLayout?.finishRefreshing()
-        recyclerView?.finishRefreshing(!hasNextPage.orTrue)
-//        emptyView?.gone()
-        emptyView?.fade(100)
+        recyclerView?.finishRefreshing(hasNextPage.orTrue)
+        emptyView?.fade(300)
     }
 
     /**
@@ -138,14 +137,16 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      */
     protected fun <T> async(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        isShowToast: Boolean = false
+        isShowToast: Boolean = false,
+        context: CoroutineContext = Main,
+        start: CoroutineStart = LAZY
     ): Deferred<T?> {
-        return async(Main, LAZY) { request({ coroutineScope() }, isShowToast = isShowToast) }
+        return async(context, start) { request({ coroutineScope() }, isShowToast = isShowToast) }
     }
 
     protected fun <T> async(
         req: MultiReqUtil,
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     ): Deferred<T?> {
         return async(Main, LAZY) { req.request({ coroutineScope() }) }
     }

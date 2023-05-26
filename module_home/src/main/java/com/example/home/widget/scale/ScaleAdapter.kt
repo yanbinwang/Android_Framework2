@@ -13,7 +13,7 @@ import com.example.glide.ImageLoader
  * Created by wangyanbin
  * 伸缩图片适配器
  */
-class ScaleAdapter(private var data: List<ScaleImageView>?, private var fileList: List<String>?) : PagerAdapter() {
+class ScaleAdapter(private var data: List<Pair<ScaleImageView, String>>?) : PagerAdapter() {
 
     override fun getCount(): Int {
         return data?.safeSize.orZero
@@ -24,12 +24,12 @@ class ScaleAdapter(private var data: List<ScaleImageView>?, private var fileList
     }
 
     override fun destroyItem(container: ViewGroup, position: Int, any: Any) {
-        container.removeView(data.safeGet(position))
+        container.removeView(data.safeGet(position)?.first)
     }
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
-        val img = data.safeGet(position) ?: return Any()
-        ImageLoader.instance.display(img, fileList.safeGet(position).orEmpty())
+        val img = data.safeGet(position)?.first ?: return Any()
+        ImageLoader.instance.display(img, data.safeGet(position)?.second.orEmpty())
         container.addView(img, MATCH_PARENT, MATCH_PARENT)
         return img
     }

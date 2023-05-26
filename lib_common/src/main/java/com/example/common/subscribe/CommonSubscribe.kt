@@ -12,7 +12,7 @@ object CommonSubscribe : CommonApi {
 
     override suspend fun getDownloadApi(downloadUrl: String) = downloadApi.getDownloadApi(downloadUrl)
 
-    override suspend fun getSendVerificationApi(agent: String, map: Map<String, String>) = commonApi.getSendVerificationApi(agent, map)
+    override suspend fun getSendVerificationApi(retryAgent: String, map: Map<String, String>) = commonApi.getSendVerificationApi(retryAgent, map)
 
     override suspend fun getVerificationApi(map: Map<String, String>) = commonApi.getVerificationApi(map)
 

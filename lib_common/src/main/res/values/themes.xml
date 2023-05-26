@@ -83,8 +83,8 @@
 
     <!-- 渐隐动画 -->
     <style name="PopupAlphaAnimStyle">
-        <item name="android:windowEnterAnimation">@anim/set_alpha_trans_in</item>
-        <item name="android:windowExitAnimation">@anim/set_alpha_trans_out</item>
+        <item name="android:windowEnterAnimation">@anim/set_alpha_in</item>
+        <item name="android:windowExitAnimation">@anim/set_alpha_out</item>
     </style>
 
 <!--    &lt;!&ndash;popup显影 &ndash;&gt;-->
@@ -140,7 +140,7 @@
     <!-- 数据请求的动画样式 -->
     <style name="LoadingStyle" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowFrame">@null</item>
-        <item name="android:windowBackground">@drawable/shape_loading_dialog_bg</item>
+        <item name="android:windowBackground">@drawable/shape_loading_bg</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowContentOverlay">@null</item>

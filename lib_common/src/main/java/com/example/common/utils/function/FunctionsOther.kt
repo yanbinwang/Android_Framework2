@@ -34,9 +34,9 @@ import com.example.framework.utils.setSpanFirst
 /**
  * 对应的拼接区分本地和测试
  */
-val Int?.byHostUrl get() = string(this.orZero).byHostUrl
+val Int?.byServerUrl get() = string(this.orZero).byServerUrl
 
-val String?.byHostUrl get() = "${ServerConfig.serverUrl()}${this}"
+val String?.byServerUrl get() = "${ServerConfig.serverUrl()}${this}"
 
 /**
  * 设计图尺寸转换为实际尺寸
@@ -172,9 +172,19 @@ fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color
     text = txt.setSpanFirst(keyword, ColorSpan(context.color(colorRes)))
 }
 
+fun TextView?.setSpanFirst(@StringRes res: Int, @StringRes resKeyword: Int, colorRes: Int = R.color.appTheme) {
+    this ?: return
+    text = string(res).setSpanFirst(string(resKeyword), ColorSpan(context.color(colorRes)))
+}
+
 fun TextView?.setSpanAll(txt: String, keyword: String, colorRes: Int = R.color.appTheme) {
     this ?: return
     text = txt.setSpanAll(keyword, ColorSpan(context.color(colorRes)))
+}
+
+fun TextView?.setSpanAll(@StringRes res: Int, @StringRes resKeyword: Int, colorRes: Int = R.color.appTheme) {
+    this ?: return
+    text = string(res).setSpanAll(string(resKeyword), ColorSpan(context.color(colorRes)))
 }
 
 /**

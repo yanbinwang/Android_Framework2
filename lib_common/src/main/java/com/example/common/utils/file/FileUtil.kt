@@ -1,6 +1,5 @@
 package com.example.common.utils.file
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -8,7 +7,6 @@ import android.graphics.*
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.provider.Settings
 import android.util.Base64
 import androidx.core.net.toUri
 import com.example.common.BaseApplication
@@ -30,27 +28,11 @@ import java.util.*
 object FileUtil {
 
     /**
-     * 是否Root-报错或获取失败都为未Root
-     */
-    fun isRoot(): Boolean {
-        var file: File
-        val paths = arrayOf("/system/bin/", "/system/xbin/", "/system/sbin/", "/sbin/", "/vendor/bin/")
-        try {
-            for (element in paths) {
-                file = File(element + "su")
-                if (file.exists()) return true
-            }
-        } catch (_: Exception) {
-        }
-        return false
-    }
-
-    /**
      * 递归完全删除对应文件夹下的所有文件
      */
     fun deleteDirWithFile(dir: File?) {
         if (dir == null || !dir.exists() || !dir.isDirectory) return
-        for (file in dir.listFiles()) {
+        for (file in dir.listFiles().orEmpty()) {
             if (file.isFile) file.delete() //删除所有文件
             else if (file.isDirectory) deleteDirWithFile(file) //递规的方式删除文件夹
         }
@@ -62,7 +44,7 @@ object FileUtil {
      */
     fun getFileSize(file: File): Long {
         var size: Long = 0
-        for (mFile in file.listFiles()) {
+        for (mFile in file.listFiles().orEmpty()) {
             size = if (mFile.isDirectory) {
                 size + getFileSize(mFile)
             } else {
@@ -70,18 +52,6 @@ object FileUtil {
             }
         }
         return size
-    }
-
-    /**
-     * 获取手机cpu信息-报错或获取失败显示暂无
-     */
-    fun getCpuInfo(): String {
-        try {
-            val result = BufferedReader(FileReader("/proc/cpuinfo")).readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
-            return if ("0" == result) "暂无" else result
-        } catch (_: Exception) {
-        }
-        return "暂无"
     }
 
     /**
@@ -140,9 +110,9 @@ object FileUtil {
                 val end = (i + 1) * maxSize
                 val tmpInfo = getWrite(targetFile.absolutePath, i, begin, end)
                 offSet = tmpInfo.fileSize
-                splitList.add(tmpInfo.filePath ?: "")
+                splitList.add(tmpInfo.filePath.orEmpty())
             }
-            if (length - offSet > 0) splitList.add(getWrite(targetFile.absolutePath, count - 1, offSet, length).filePath ?: "")
+            if (length - offSet > 0) splitList.add(getWrite(targetFile.absolutePath, count - 1, offSet, length).filePath.orEmpty())
             accessFile.close()
         } catch (_: Exception) {
         } finally {
@@ -193,8 +163,6 @@ object FileUtil {
         return info
     }
 
-    fun getSignature(southPath: String) = getSignature(File(southPath))
-
     /**
      * 获取文件哈希值
      * 满足64位哈希，不足则前位补0
@@ -234,7 +202,6 @@ val Number.tb get() = this.toSafeLong() * 1024L * 1024L * 1024L * 1024L
 /**
  * 是否安装了XXX应用
  */
-@SuppressLint("QueryPermissionsNeeded")
 fun Context.isAvailable(packageName: String): Boolean {
     return run {
         try {
@@ -245,11 +212,6 @@ fun Context.isAvailable(packageName: String): Boolean {
         }
     }.orFalse
 }
-
-/**
- * 判断手机是否开启开发者模式
- */
-fun Context.isAdbEnabled() = (Settings.Secure.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) > 0)
 
 /**
  * 发送广播通知更新数据库
@@ -338,11 +300,6 @@ fun File.copyFile(destFile: File) {
     }
 }
 
-@Throws(IOException::class)
-fun String.copyFile(destSouth: String) {
-    File(this).copyFile(File(destSouth))
-}
-
 /**
  * 获取文件采用base64形式
  */
@@ -351,9 +308,12 @@ fun File?.fileToBase64(): String {
     return FileUtil.fileToBase64(this)
 }
 
-fun String?.fileToBase64(): String {
-    this ?: return ""
-    return File(this).fileToBase64()
+/**
+ * 文件本身的整体大小
+ */
+fun File?.totalSize(): Long {
+    this ?: return 0
+    return FileUtil.getFileSize(this)
 }
 
 /**
@@ -362,11 +322,6 @@ fun String?.fileToBase64(): String {
 fun File?.getSizeFormat(): String {
     this ?: return ""
     return length().getSizeFormat()
-}
-
-fun String?.getSizeFormat(): String {
-    this ?: return ""
-    return File(this).getSizeFormat()
 }
 
 fun Number?.getSizeFormat(): String {

@@ -2,8 +2,9 @@ package com.example.glide
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.os.Looper
+import android.graphics.drawable.GradientDrawable
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -29,13 +30,10 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun displayZoom(view: ImageView, string: String, onStart: () -> Unit, onComplete: (bitmap: Bitmap?) -> Unit) {
-//        GradientDrawable().apply {
-//            setColor(Color.parseColor("#000000"))
-//        }
         Glide.with(view.context)
             .asBitmap()
             .load(string)
-            .placeholder(R.drawable.shape_glide_zoom_bg)
+            .placeholder(GradientDrawable().apply { setColor(Color.parseColor("#000000")) })
             .dontAnimate()
             .listener(object : GlideRequestListener<Bitmap?>() {
                 override fun onStart() {
@@ -130,7 +128,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayRound(view: ImageView, string: String, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
+    override fun displayRound(view: ImageView, string: String, errorId: Int, radius: Int, overRide: BooleanArray) {
 //        Glide.with(view.context)
 //            .load(string)
 //            .apply(RequestOptions.bitmapTransform(RoundedCorners(roundingRadius)))
@@ -138,7 +136,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
 //            .error(errorId)
 //            .dontAnimate()
 //            .into(view)
-        val transformation = CornerTransform(view.context, roundingRadius.toSafeFloat())
+        val transformation = CornerTransform(view.context, radius.toSafeFloat())
         transformation.setExceptCorner(overRide)
         Glide.with(view.context)
             .load(string)
@@ -149,8 +147,8 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayRound(view: ImageView, resourceId: Int, errorId: Int, roundingRadius: Int, overRide: BooleanArray) {
-        val transformation = CornerTransform(view.context, roundingRadius.toSafeFloat())
+    override fun displayRound(view: ImageView, resourceId: Int, errorId: Int, radius: Int, overRide: BooleanArray) {
+        val transformation = CornerTransform(view.context, radius.toSafeFloat())
         transformation.setExceptCorner(overRide)
         Glide.with(view.context)
             .load(resourceId)

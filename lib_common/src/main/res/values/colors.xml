@@ -12,11 +12,13 @@
     <color name="textPrimary">#333333</color>
     <color name="textHint">#7F8185</color>
     <color name="textDisabled">#aaa</color>
-    <!-- 弹框/默认线条背景 -->
+    <!-- 弹框/遮罩/默认线条背景 -->
     <color name="bgShadow">#ff000000</color>
+    <color name="bgOverlay">#4c000000</color>
     <color name="bgLine">#f6f8ff</color>
     <!-- 特定字体的颜色 -->
     <color name="textBlack">#333333</color>
+    <color name="textGrey">#a8a5a5</color>
     <!-- 其余定义的颜色 -->
     <color name="white">#ffffff</color>
     <color name="white_ccc">#ccc</color>

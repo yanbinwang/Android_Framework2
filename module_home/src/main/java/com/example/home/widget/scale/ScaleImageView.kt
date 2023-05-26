@@ -436,7 +436,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
 
         override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             if (fling != null) fling?.cancelFling()
-            fling = Fling(view, velocityX.toInt(), velocityY.toInt())
+            fling = Fling(view, velocityX.toSafeInt(), velocityY.toSafeInt())
             compatPostOnAnimation(view, fling)
             return super.onFling(e1, e2, velocityX, velocityY)
         }
@@ -660,14 +660,14 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
             val minY: Int
             val maxY: Int
             if (view.getImageWidth() > viewWidth) {
-                minX = viewWidth - view.getImageWidth().toInt()
+                minX = viewWidth - view.getImageWidth().toSafeInt()
                 maxX = 0
             } else {
                 maxX = startX.toSafeInt()
                 minX = maxX
             }
             if (view.getImageHeight() > viewHeight) {
-                minY = viewHeight - view.getImageHeight().toInt()
+                minY = viewHeight - view.getImageHeight().toSafeInt()
                 maxY = 0
             } else {
                 maxY = startY.toSafeInt()

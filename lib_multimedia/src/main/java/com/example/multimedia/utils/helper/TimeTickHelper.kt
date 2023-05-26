@@ -15,6 +15,7 @@ import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.timer
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.multimedia.R
 import com.example.multimedia.databinding.ViewTimeTickBinding
 import java.util.Timer
@@ -69,14 +70,14 @@ class TimeTickHelper(context: Context, move: Boolean = true) {
                             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                                 when (event?.action) {
                                     MotionEvent.ACTION_DOWN -> {
-                                        lastX = event.rawX.toInt()
-                                        lastY = event.rawY.toInt()
+                                        lastX = event.rawX.toSafeInt()
+                                        lastY = event.rawY.toSafeInt()
                                         paramX = params.x
                                         paramY = params.y
                                     }
                                     MotionEvent.ACTION_MOVE -> {
-                                        val dx = event.rawX.toInt() - lastX
-                                        val dy = event.rawY.toInt() - lastY
+                                        val dx = event.rawX.toSafeInt() - lastX
+                                        val dy = event.rawY.toSafeInt() - lastY
                                         params.x = paramX - dx
                                         params.y = paramY + dy
                                         window?.attributes = params

@@ -29,7 +29,7 @@ import com.example.framework.widget.BaseViewGroup
 @SuppressLint("InflateParams")
 class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private val binding by lazy { ViewEmptyBinding.bind(context.inflate(R.layout.view_empty)) }
-    var onRefresh: (() -> Unit)? = null
+    private var onRefresh: (() -> Unit)? = null
 
     init {
         binding.root.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT) //设置LayoutParams
@@ -60,7 +60,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载中
      */
     fun loading() {
-        visible()
+        appear(300)
         binding.ivEmpty.setResource(R.mipmap.bg_data_loading)
         binding.tvEmpty.text = string(R.string.data_loading)
         binding.tvRefresh.gone()
@@ -70,7 +70,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据为空--只会在200并且无数据的时候展示
      */
     fun empty(resId: Int = -1, text: String? = null) {
-        visible()
+        appear(300)
         binding.ivEmpty.setResource(if (-1 == resId) R.mipmap.bg_data_empty else resId)
         binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.data_empty) else text
         binding.tvRefresh.gone()
@@ -81,7 +81,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 无网络优先级最高
      */
     fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
-        visible()
+        appear(300)
         if (!isNetworkAvailable()) {
             binding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
             binding.tvEmpty.text = string(R.string.data_net_error)
@@ -91,6 +91,13 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
         if (!refreshText.isNullOrEmpty()) binding.tvRefresh.text = refreshText
         binding.tvRefresh.visible()
+    }
+
+    /**
+     * 设置刷新监听
+     */
+    fun setRefreshListener(onRefresh: (() -> Unit)) {
+        this.onRefresh = onRefresh
     }
 
     /**

@@ -11,14 +11,19 @@ import com.example.common.R
  * 安卓原生提示框
  */
 class AndDialog(context: Context) : AlertDialog.Builder(context, R.style.AndDialogStyle) {
-    var onConfirm: (() -> Unit)? = null
-    var onCancel: (() -> Unit)? = null
+    private var onConfirm: (() -> Unit)? = null
+    private var onCancel: (() -> Unit)? = null
 
     fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = "") {
         if (!title.isNullOrEmpty()) setTitle(title)
         setMessage(message)
         setPositiveButton(positiveText) { _: DialogInterface?, _: Int -> onConfirm?.invoke() }
         if (!negativeText.isNullOrEmpty()) setNegativeButton(negativeText) { _: DialogInterface?, _: Int -> onCancel?.invoke() }
+    }
+
+    fun setDialogListener(onConfirm: () -> Unit = {}, onCancel: () -> Unit = {}) {
+        this.onConfirm = onConfirm
+        this.onCancel = onCancel
     }
 
 }

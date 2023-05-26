@@ -30,12 +30,12 @@ import com.example.framework.utils.function.view.charBlackList
 import com.example.framework.utils.function.view.charLimit
 import com.example.framework.utils.function.view.decimalFilter
 import com.example.framework.utils.function.view.emojiLimit
-import com.example.framework.utils.function.view.inhibitSpace
 import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.initLinearVertical
 import com.example.framework.utils.function.view.setMatchText
+import com.example.framework.utils.function.view.spaceLimit
 import com.example.framework.utils.scaleShown
 
 /**
@@ -148,13 +148,15 @@ object BaseBindingAdapter {
     /**
      * 特殊文本显示文本
      * text:文本
-     * text_type：0：默认 1：数据空 2：金额空 3：%空
+     * text_type：
+     * 0：默认
+     * 1：金额(100.00会变为100，抹去多余的0，大于等于1000会有逗号千分位分隔)
      */
     @BindingAdapter(value = ["text", "text_type"], requireAll = false)
     fun bindingTextViewText(textview: TextView, text: String?, textType: Int?) {
         val type = textType.toSafeInt()
         if (!text.isNullOrEmpty()) {
-            textview.text = if(2 == type) text.removeEndZero().thousandsFormat() else text
+            textview.text = if(1 == type) text.removeEndZero().thousandsFormat() else text
         } else {
             textview.text = text.orNoData()
         }
@@ -219,35 +221,35 @@ object BaseBindingAdapter {
     /**
      * 是否禁止edittext输入emoji
      */
-    @BindingAdapter(value = ["is_emoji"])
-    fun bindingEditTextRejectEmoji(editText: EditText, isEmoji: Boolean?) {
-        if (isEmoji.orFalse) editText.emojiLimit()
+    @BindingAdapter(value = ["emoji_limit"])
+    fun bindingEditTextEmojiLimit(editText: EditText, emojiLimit: Boolean?) {
+        if (emojiLimit.orFalse) editText.emojiLimit()
     }
 
     /**
      * 是否禁止输入空格
      */
-    @BindingAdapter(value = ["is_inhibit_space"])
-    fun bindingEditTextInhibitInputSpace(editText: EditText, isInhibitSpace: Boolean?) {
-        if (isInhibitSpace.orFalse) editText.inhibitSpace()
+    @BindingAdapter(value = ["space_limit"])
+    fun bindingEditTextSpaceLimit(editText: EditText, spaceLimit: Boolean?) {
+        if (spaceLimit.orFalse) editText.spaceLimit()
     }
 
-    @BindingAdapter(value = ["is_inhibit_space"])
-    fun bindingEditTextInhibitInputSpace(editText: ClearEditText, isInhibitSpace: Boolean?) {
-        if (isInhibitSpace.orFalse) editText.editText.inhibitSpace()
+    @BindingAdapter(value = ["space_limit"])
+    fun bindingEditTextSpaceLimit(editText: ClearEditText, spaceLimit: Boolean?) {
+        if (spaceLimit.orFalse) editText.editText.spaceLimit()
     }
 
     /**
      * 限制输入内容为正負號小數或整數
      */
-    @BindingAdapter(value = ["is_number_decimal"])
-    fun bindingEditTextNumberDecimal(editText: EditText, isNumberDecimal: Boolean?) {
-        if(isNumberDecimal.orFalse) editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+    @BindingAdapter(value = ["number_decimal"])
+    fun bindingEditTextNumberDecimal(editText: EditText, numberDecimal: Boolean?) {
+        if(numberDecimal.orFalse) editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
     }
 
-    @BindingAdapter(value = ["is_number_decimal"])
-    fun bindingEditTextNumberDecimal(editText: ClearEditText, isNumberDecimal: Boolean?) {
-        if(isNumberDecimal.orFalse) editText.editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+    @BindingAdapter(value = ["number_decimal"])
+    fun bindingEditTextNumberDecimal(editText: ClearEditText, numberDecimal: Boolean?) {
+        if(numberDecimal.orFalse) editText.editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
     }
     // </editor-fold>
 

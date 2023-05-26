@@ -1,6 +1,8 @@
 package com.example.framework.utils.function
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ActivityManager
 import android.app.Application
 import android.app.Service
 import android.content.ClipData
@@ -10,12 +12,16 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.*
+import androidx.annotation.ColorRes
+import androidx.annotation.DimenRes
+import androidx.annotation.DrawableRes
+import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -23,7 +29,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.toSafeLong
 import java.io.Serializable
+
 
 //------------------------------------context扩展函数类------------------------------------
 /**
@@ -39,7 +48,8 @@ fun Context.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(this, re
 /**
  * 通过字符串获取drawable下的xml文件
  */
-fun Context.drawableId(name: String): Int {
+@SuppressLint("DiscouragedApi")
+fun Context.defTypeDrawable(name: String): Int {
     return try {
         resources.getIdentifier(name, "drawable", packageName)
     } catch (_: Exception) {
@@ -50,7 +60,8 @@ fun Context.drawableId(name: String): Int {
 /**
  * 通过字符串获取mipmap下的图片文件
  */
-fun Context.mipmapId(name: String): Int {
+@SuppressLint("DiscouragedApi")
+fun Context.defTypeMipmap(name: String): Int {
     return try {
         resources.getIdentifier(name, "mipmap", packageName)
     } catch (_: Exception) {
@@ -97,15 +108,39 @@ fun Context.getPrimaryClip(): String {
 }
 
 /**
- * 判断当前是否开启通知，方便用户接受推送消息
+ *  获取android当前可用运行内存大小(byte)
  */
-fun Context.isNotificationEnabled(): Boolean {
-    return try {
-        NotificationManagerCompat.from(this).areNotificationsEnabled()
-    } catch (e: Exception) {
-        false
-    }
+fun Context.getAvailMemory(): Long {
+    val manager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+    val memoryInfo = ActivityManager.MemoryInfo()
+    manager?.getMemoryInfo(memoryInfo)
+    return memoryInfo.availMem
 }
+
+/**
+ * 获取当前应用使用的内存大小(byte)
+ */
+fun Context.sampleMemory(): Long {
+    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+    var memory = 0L
+    try {
+        val memInfo = activityManager?.getProcessMemoryInfo(intArrayOf(android.os.Process.myPid()));
+        if (memInfo?.size.orZero > 0) {
+            memInfo ?: return 0
+            val totalPss = memInfo[0].totalPss
+            if (totalPss >= 0) {
+                memory = totalPss.toSafeLong()
+            }
+        }
+    } catch (_: Exception) {
+    }
+    return memory * 1024
+}
+
+/**
+ * 判断手机是否开启开发者模式
+ */
+fun Context.isAdbEnabled() = (Settings.Secure.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) > 0)
 
 /**
  * 开启服务

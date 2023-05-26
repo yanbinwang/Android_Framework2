@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap
 class ProgressInterceptor : Interceptor {
 
     companion object {
-        val listenerMap by lazy { ConcurrentHashMap<String, ((progress: Int) -> Unit)>() }
+        internal val listenerMap by lazy { ConcurrentHashMap<String, ((progress: Int) -> Unit)>() }
 
         /**
          * 注册下载监听

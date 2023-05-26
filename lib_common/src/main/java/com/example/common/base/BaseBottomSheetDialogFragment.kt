@@ -5,7 +5,11 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.os.Looper
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.activity.result.ActivityResult
@@ -15,8 +19,8 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.app.hubert.guide.NewbieGuide
-import com.app.hubert.guide.core.Controller
 import com.app.hubert.guide.listener.OnGuideChangedListener
+import com.app.hubert.guide.listener.OnPageChangedListener
 import com.app.hubert.guide.model.GuidePage
 import com.example.common.BaseApplication
 import com.example.common.R
@@ -34,10 +38,15 @@ import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.common.widget.textview.edit.SpecialEditText
+import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.view.*
+import com.example.framework.utils.function.view.disable
+import com.example.framework.utils.function.view.enable
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.invisible
+import com.example.framework.utils.function.view.visible
 import com.example.framework.utils.logE
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -45,13 +54,11 @@ import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
-import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -254,26 +261,11 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     override fun initData() {
     }
 
-    override fun isEmpty(vararg objs: Any?): Boolean {
-        objs.forEach {
-            if (it == null) {
-                return true
-            } else if (it is String && it == "") {
-                return true
-            }
-        }
-        return false
-    }
-
     override fun ENABLED(vararg views: View?, second: Long) {
         views.forEach {
             if (it != null) {
                 it.disable()
-                Timer().schedule(object : TimerTask() {
-                    override fun run() {
-                        launch { it.enable() }
-                    }
-                }, second)
+                WeakHandler(Looper.getMainLooper()).postDelayed({ it.enable() }, second)
             }
         }
     }
@@ -331,13 +323,9 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
         if (second >= 0) {
-            Timer().schedule(object : TimerTask() {
-                override fun run() {
-                    launch {
-                        hideDialog()
-                        block.invoke()
-                    }
-                }
+            WeakHandler(Looper.getMainLooper()).postDelayed({
+                hideDialog()
+                block.invoke()
             }, second)
         }
     }
@@ -346,22 +334,17 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         loadingDialog.hidden()
     }
 
-    override fun showGuide(label: String, vararg pages: GuidePage) {
+    override fun showGuide(label: String, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
         val labelTag = DataBooleanCacheUtil(label)
         if (!labelTag.get()) {
             labelTag.set(true)
             val builder = NewbieGuide.with(this)//传入activity
                 .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
-                .setOnGuideChangedListener(object : OnGuideChangedListener {
-                    override fun onShowed(controller: Controller?) {
-                    }
-
-                    override fun onRemoved(controller: Controller?) {
-                    }
-                })
+                .setOnGuideChangedListener(guideListener)
+                .setOnPageChangedListener(pageListener)
                 .alwaysShow(true)
             for (page in pages) {
-                page.backgroundColor = color(R.color.black_4c000000)//此处处理一下阴影背景
+                page.backgroundColor = color(R.color.bgOverlay)//此处处理一下阴影背景
                 builder.addGuidePage(page)
             }
             builder.show()

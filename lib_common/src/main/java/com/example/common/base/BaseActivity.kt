@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.ViewDataBinding
 import com.alibaba.android.arouter.launcher.ARouter
 import com.app.hubert.guide.NewbieGuide
-import com.app.hubert.guide.core.Controller
 import com.app.hubert.guide.listener.OnGuideChangedListener
+import com.app.hubert.guide.listener.OnPageChangedListener
 import com.app.hubert.guide.model.GuidePage
 import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
@@ -21,6 +21,7 @@ import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
+import com.example.common.databinding.ActivityTransparentBinding
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.socket.helper.SocketLifecycleHelper
@@ -29,25 +30,31 @@ import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.widget.dialog.LoadingDialog
+import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.isMainThread
-import com.example.framework.utils.function.view.*
+import com.example.framework.utils.function.view.disable
+import com.example.framework.utils.function.view.enable
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.invisible
+import com.example.framework.utils.function.view.visible
+import com.example.framework.utils.logWTF
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import org.greenrobot.eventbus.Subscribe
 import java.lang.reflect.ParameterizedType
-import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 /**
  * Created by WangYanBin on 2020/6/3.
  * 对应页面传入继承自BaseViewModel的数据模型类，以及由系统生成的ViewDataBinding绑定类
  * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context
+ * 無xml的界面，泛型括號裡傳ViewDataBinding
  */
 abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected lateinit var binding: VDB
@@ -56,7 +63,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }
     private val job = SupervisorJob()//https://blog.csdn.net/chuyouyinghe/article/details/123057776
     override val coroutineContext: CoroutineContext get() = Main + job//加上SupervisorJob，提升协程作用域
-    val TAG get() = javaClass.simpleName.lowercase(Locale.getDefault())
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     companion object {
@@ -117,10 +123,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                 val vdbClass = type.actualTypeArguments[0] as Class<VDB>
                 val method = vdbClass.getDeclaredMethod("inflate", LayoutInflater::class.java)
                 binding = method.invoke(null, layoutInflater) as VDB
-                binding.lifecycleOwner = this
                 setContentView(binding.root)
             } catch (_: Exception) {
+                binding = ActivityTransparentBinding.bind(inflate(R.layout.activity_transparent)) as VDB
             }
+            binding.lifecycleOwner = this
         }
         ARouter.getInstance().inject(this)
     }
@@ -131,26 +138,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun initData() {
     }
 
-    override fun isEmpty(vararg objs: Any?): Boolean {
-        objs.forEach {
-            if (it == null) {
-                return true
-            } else if (it is String && it == "") {
-                return true
-            }
-        }
-        return false
-    }
-
     override fun ENABLED(vararg views: View?, second: Long) {
         views.forEach {
             if (it != null) {
                 it.disable()
-                Timer().schedule(object : TimerTask() {
-                    override fun run() {
-                        launch { it.enable() }
-                    }
-                }, second)
+                WeakHandler(Looper.getMainLooper()).postDelayed({ it.enable() }, second)
             }
         }
     }
@@ -221,13 +213,9 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
         if (second >= 0) {
-            Timer().schedule(object : TimerTask() {
-                override fun run() {
-                    launch(Main) {
-                        hideDialog()
-                        block.invoke()
-                    }
-                }
+            WeakHandler(Looper.getMainLooper()).postDelayed({
+                hideDialog()
+                block.invoke()
             }, second)
         }
     }
@@ -236,26 +224,21 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         loadingDialog.hidden()
     }
 
-    override fun showGuide(label: String, vararg pages: GuidePage) {
-        val labelTag = DataBooleanCacheUtil(label)
-        if (!labelTag.get()) {
-            labelTag.set(true)
+    override fun showGuide(label: String, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
+//        val labelTag = DataBooleanCacheUtil(label)
+//        if (!labelTag.get()) {
+//            labelTag.set(true)
             val builder = NewbieGuide.with(this)//传入activity
                 .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
-                .setOnGuideChangedListener(object : OnGuideChangedListener {
-                    override fun onShowed(controller: Controller?) {
-                    }
-
-                    override fun onRemoved(controller: Controller?) {
-                    }
-                })
+                .setOnGuideChangedListener(guideListener)
+                .setOnPageChangedListener(pageListener)
                 .alwaysShow(true)
             for (page in pages) {
-                page.backgroundColor = color(R.color.black_4c000000)//此处处理一下阴影背景
+                page.backgroundColor = color(R.color.bgOverlay)//此处处理一下阴影背景
                 builder.addGuidePage(page)
             }
             builder.show()
-        }
+//        }
     }
 
     override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity {

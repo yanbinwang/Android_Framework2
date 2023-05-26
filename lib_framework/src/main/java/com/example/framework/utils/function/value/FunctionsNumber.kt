@@ -180,8 +180,8 @@ fun String?.min(min: String?): String {
     val minValue = if(min.isNullOrEmpty()) "0" else min
     return when {
         this == null -> minValue
-        minValue.numberCompareTo(this).let {
-            it == 0 || it == 1
+        this.numberCompareTo(minValue).let {
+            it == -1 || it == 0
         } -> minValue
         else -> this
     }

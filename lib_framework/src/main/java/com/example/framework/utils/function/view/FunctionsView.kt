@@ -9,9 +9,14 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.view.*
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import android.view.animation.Interpolator
+import android.view.animation.LinearInterpolator
+import android.view.animation.RotateAnimation
+import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.annotation.ColorRes
@@ -344,6 +349,34 @@ fun View?.fade(time: Long = 500, cancelAnim: Boolean = true) {
 }
 
 /**
+ * 透明度
+ * @param from 0f-1f
+ * @param to 0f-1f
+ */
+fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)? = null) {
+    this ?: return
+    animation?.setAnimationListener(null)
+    animation?.cancel()
+    val anim = AlphaAnimation(from, to)
+    if (to == 1f) visible()
+    anim.fillAfter = false // 设置保持动画最后的状态
+    anim.duration = timeMS // 设置动画时间
+    anim.interpolator = AccelerateInterpolator() // 设置插入器3
+    anim.setAnimationListener(object : Animation.AnimationListener {
+        override fun onAnimationEnd(animation: Animation?) {
+            endListener?.invoke() ?: { if (to == 0f) gone() }
+        }
+
+        override fun onAnimationStart(animation: Animation?) {
+        }
+
+        override fun onAnimationRepeat(animation: Animation?) {
+        }
+    })
+    startAnimation(anim)
+}
+
+/**
  * 动画显示view
  */
 fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
@@ -392,6 +425,49 @@ fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
     refresh.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f))
     refresh.duration = time
     refresh.start()
+}
+
+/**
+ * 旋转
+ */
+fun View?.rotate(from: Float, to: Float, timeMS: Long, interpolator: Interpolator = AccelerateDecelerateInterpolator(), repeat: Boolean = false) {
+    this ?: return
+    animation?.cancel()
+    val anim = RotateAnimation(from, to, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+    anim.fillAfter = true // 设置保持动画最后的状态
+    anim.duration = timeMS // 设置动画时间3
+    if (repeat) anim.repeatCount = -1
+    anim.interpolator = interpolator // 设置插入器
+    startAnimation(anim)
+}
+
+/**
+ * 移动
+ * @param type Animation.ABSOLUTE, Animation.RELATIVE_TO_SELF, or Animation.RELATIVE_TO_PARENT.
+ */
+fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long, fillAfter: Boolean = true, onStart: (() -> Unit)? = null, onEnd: (() -> Unit)? = null, type: Int = Animation.RELATIVE_TO_SELF, interpolator: Interpolator = LinearInterpolator(), ) {
+    this ?: return
+    animation?.setAnimationListener(null)
+    animation?.cancel()
+    val anim = TranslateAnimation(type, xFrom, type, xTo, type, yFrom, type, yTo)
+    if (fillAfter) anim.fillAfter = true //设置保持动画最后的状态
+    anim.duration = timeMS //设置动画时间
+    anim.interpolator = interpolator //设置插入器
+    if (onEnd != null || onStart != null) {
+        anim.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationEnd(animation: Animation?) {
+                onEnd?.invoke()
+            }
+
+            override fun onAnimationStart(animation: Animation?) {
+                onStart?.invoke()
+            }
+
+            override fun onAnimationRepeat(animation: Animation?) {
+            }
+        })
+    }
+    startAnimation(anim)
 }
 
 /**

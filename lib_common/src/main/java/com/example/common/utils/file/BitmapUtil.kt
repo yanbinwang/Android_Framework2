@@ -6,12 +6,12 @@ import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.Bitmap.CompressFormat.PNG
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.media.ExifInterface
-import android.media.ExifInterface.*
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.view.View
+import androidx.exifinterface.media.ExifInterface
+import androidx.exifinterface.media.ExifInterface.*
 import com.example.common.BaseApplication
 import com.example.common.config.Constants
 import com.example.common.utils.ScreenUtil

@@ -16,7 +16,7 @@ import com.example.framework.utils.function.value.safeGet
  *
  *  //记录下标
  *  override fun recreate() {
- *  intent = Intent().apply { putExtra("tab", tabBottom.selectedTabPosition) }
+ *  intent = Intent().apply { putExtra(Extras.TAB_INDEX, tabBottom.selectedTabPosition) }
  *  super.recreate()
  *  }
  *
@@ -30,7 +30,7 @@ import com.example.framework.utils.function.value.safeGet
  *
  *  override fun onRestoreInstanceState(savedInstanceState: Bundle) {
  *  super.onRestoreInstanceState(savedInstanceState)
- *  intent.getIntExtra(Extras.TAB_INDEX, -1).also { navigationBuilder.selectedItem(it) }
+ *  intent.getIntExtra(Extras.TAB_INDEX, 0).also { navigationBuilder.selectedItem(it) }
  *  }
  *
  */
@@ -43,7 +43,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     var onTabShow: ((tab: Int) -> Unit)? = null
 
     /**
-     *  HomeFragment::class.java.getPair()
+     *  HomeFragment::class.java.getBind()
      *  first：class名
      *  second：tag值，不传默认为class名
      */
@@ -55,7 +55,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     }
 
     /**
-     * EvidencePageFragment::class.java.getTriple(Extras.REQUEST_ID to id, "EviPager${id}")
+     * EvidencePageFragment::class.java.getBind(Extras.REQUEST_ID to id, "EviPager${id}")
      * first：class名
      * second：pair对象 （first，fragment透传的key second，透传的值）
      * third：内存中存储的tag
@@ -126,13 +126,13 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
 /**
  * 默认返回自身和自身class名小写，也可指定
  */
-fun Class<*>.getPair(name: String? = null): Pair<Class<*>, String> {
+fun Class<*>.getBind(name: String? = null): Pair<Class<*>, String> {
     return this to getSimpleName(name)
 }
 
 /**
  * 默认返回自身和自身class名小写以及请求的id
  */
-fun Class<*>.getTriple(pair: Pair<String, String>, name: String? = null): Triple<Class<*>, Pair<String, String>, String> {
-    return Triple(this, pair, getSimpleName(name))
+fun Class<*>.getBind(data: Pair<String, String>, name: String? = null): Triple<Class<*>, Pair<String, String>, String> {
+    return Triple(this, data, getSimpleName(name))
 }

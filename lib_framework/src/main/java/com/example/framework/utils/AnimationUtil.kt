@@ -16,9 +16,7 @@ import androidx.annotation.ColorInt
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.setPxTextSize
-import com.example.framework.utils.function.view.visible
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
@@ -325,76 +323,6 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         })
         view?.tag = animSet
         animSet.start()
-    }
-
-    companion object {
-        /**
-         * 旋转
-         */
-        fun rotate(view: View, from: Float, to: Float, timeMS: Long, interpolator: Interpolator = AccelerateDecelerateInterpolator(), repeat: Boolean = false) {
-            view.animation?.cancel()
-            val anim = RotateAnimation(from, to, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-            anim.fillAfter = true // 设置保持动画最后的状态
-            anim.duration = timeMS // 设置动画时间3
-            if (repeat) anim.repeatCount = -1
-            anim.interpolator = interpolator // 设置插入器
-            view.startAnimation(anim)
-        }
-
-        /**
-         * 移动
-         * @param type Animation.ABSOLUTE, Animation.RELATIVE_TO_SELF, or Animation.RELATIVE_TO_PARENT.
-         */
-        fun move(view: View, xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long, fillAfter: Boolean = true, onStart: (() -> Unit)? = null, onEnd: (() -> Unit)? = null, type: Int = Animation.RELATIVE_TO_SELF, interpolator: Interpolator = LinearInterpolator(), ) {
-            view.animation?.setAnimationListener(null)
-            view.animation?.cancel()
-            val anim = TranslateAnimation(type, xFrom, type, xTo, type, yFrom, type, yTo)
-            if (fillAfter) anim.fillAfter = true //设置保持动画最后的状态
-            anim.duration = timeMS //设置动画时间
-            anim.interpolator = interpolator //设置插入器
-            if (onEnd != null || onStart != null) {
-                anim.setAnimationListener(object : Animation.AnimationListener {
-                    override fun onAnimationEnd(animation: Animation?) {
-                        onEnd?.invoke()
-                    }
-
-                    override fun onAnimationStart(animation: Animation?) {
-                        onStart?.invoke()
-                    }
-
-                    override fun onAnimationRepeat(animation: Animation?) {
-                    }
-                })
-            }
-            view.startAnimation(anim)
-        }
-
-        /**
-         * 透明度
-         * @param from 0f-1f
-         * @param to 0f-1f
-         */
-        fun alpha(view: View, from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)? = null) {
-            view.animation?.setAnimationListener(null)
-            view.animation?.cancel()
-            val anim = AlphaAnimation(from, to)
-            if (to == 1f) view.visible()
-            anim.fillAfter = false // 设置保持动画最后的状态
-            anim.duration = timeMS // 设置动画时间
-            anim.interpolator = AccelerateInterpolator() // 设置插入器3
-            anim.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation?) {
-                    endListener?.invoke() ?: { if (to == 0f) view.gone() }
-                }
-
-                override fun onAnimationStart(animation: Animation?) {
-                }
-
-                override fun onAnimationRepeat(animation: Animation?) {
-                }
-            })
-            view.startAnimation(anim)
-        }
     }
 
 }

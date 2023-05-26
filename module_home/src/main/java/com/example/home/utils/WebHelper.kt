@@ -7,7 +7,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.album.R
-import com.example.common.base.page.Extras
+import com.example.common.base.page.Extra
 import com.example.home.databinding.ActivityWebBinding
 import com.example.common.bean.WebBundle
 import com.example.common.utils.FormActivityUtil
@@ -27,7 +27,7 @@ import java.lang.ref.WeakReference
  */
 class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
     //在此处获取跳转的值以及重新绑定对应的view
-    private val bean by lazy { activity.intentSerializable(Extras.BUNDLE_BEAN) as? WebBundle }
+    private val bean by lazy { activity.intentSerializable(Extra.BUNDLE_BEAN) as? WebBundle }
     private val binding by lazy { ActivityWebBinding.inflate(activity.layoutInflater) }
     private val titleBuilder by lazy { TitleBuilder(activity, binding.titleContainer) }
     private val webUtil by lazy { WebUtil(activity, binding.flWebRoot) }
@@ -95,7 +95,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
      * 返回点击
      */
     fun onKeyDown() {
-        webView?.copyBackForwardList()
+//        webView?.copyBackForwardList()
 //        webView.evaluateJs("javascript:onBackPressed()") {
 //            //请求结果不为true（请求拦截）时的处理
 //            if (it?.lowercase(Locale.US) != "true") {

@@ -9,7 +9,9 @@ import java.io.IOException
 /**
  * author: wyb
  * date: 2019/7/9.
- * 重置网络请求地址拦截器
+ * 重置网络请求地址拦截器（一般不会用到）
+ * 项目中对接了第三方接口，可能需要在某些情况下，切换对应服务器发起的请求前缀，
+ * retrofit支持自定义头，包含特殊头的接口地址，接口前缀替换为对应三方的前缀
  */
 internal class RetryServerInterceptor : Interceptor {
 
@@ -18,8 +20,8 @@ internal class RetryServerInterceptor : Interceptor {
         val headerValues: String
         val request = chain.request()
         headerValues = request.headers.toString()
-        //当请求头中包含User-Agent，切换请求地址(第三个参数为切换的具体地址)
-        if (headerValues.contains("User-Agent")) {
+        //当请求头中包含Retry-Agent，切换请求地址(第三个参数为切换的具体地址)
+        if (headerValues.contains("Retry-Agent")) {
             return retryServer(chain, request, ServerConfig.serverUrl())
         }
         return chain.proceed(request)

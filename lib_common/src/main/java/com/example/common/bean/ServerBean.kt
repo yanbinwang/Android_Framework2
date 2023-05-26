@@ -3,6 +3,9 @@ package com.example.common.bean
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * 服务器请求类
+ */
 @Parcelize
 data class ServerBean(
     var server: String = "",

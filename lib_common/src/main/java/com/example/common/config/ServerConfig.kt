@@ -3,7 +3,7 @@ package com.example.common.config
 import com.example.common.bean.ServerBean
 
 /**
- * @description 服务器配置类
+ * @description 服务器配置类（可在master分支中，将serverType设为0，develop或release设为别的服务器类，避免上架合并分支接口地址获取错误）
  * @author yan
  */
 object ServerConfig {

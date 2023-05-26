@@ -19,15 +19,6 @@ import com.example.framework.utils.function.view.visible
  * 格式->左右侧图片/文本，中间是大标题
  */
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
-    /**
-     * 如果UI出的图或者特殊页面图片过于奇葩，获取后单独操作
-     * 实在无法满足需求（如搜索页顶部）请自行实现
-     */
-    val tvTitle get() = binding.tvTitle
-    val tvLeft get() = binding.tvLeft
-    val ivLeft get() = binding.ivLeft
-    val tvRight get() = binding.tvRight
-    val ivRight get() = binding.ivRight
 
     init {
         binding.clContainer.padding(top = getStatusBarHeight())
