@@ -29,6 +29,8 @@ import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanAll
 import com.example.framework.utils.setSpanFirst
+import java.io.BufferedReader
+import java.io.FileReader
 
 //------------------------------------按钮，控件行为工具类------------------------------------
 /**
@@ -162,6 +164,18 @@ fun getStatusBarHeight(): Int {
 fun getNavigationBarHeight(context: Context): Int {
     if (!ScreenUtil.hasNavigationBar(context)) return 0
     return ExtraNumber.getInternalDimensionSize(context, "navigation_bar_height")
+}
+
+/**
+ * 获取手机cpu信息-报错或获取失败显示--
+ */
+fun getCpuInfo(): String {
+    try {
+        val result = BufferedReader(FileReader("/proc/cpuinfo")).readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
+        return if ("0" == result || result.isEmpty()) NO_DATA else result
+    } catch (_: Exception) {
+    }
+    return NO_DATA
 }
 
 /**

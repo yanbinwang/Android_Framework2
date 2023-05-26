@@ -111,18 +111,6 @@ fun getTotalMemory(): Long {
 }
 
 /**
- * 获取手机cpu信息-报错或获取失败显示暂无
- */
-fun getCpuInfo(): String {
-    try {
-        val result = BufferedReader(FileReader("/proc/cpuinfo")).readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
-        return if ("0" == result) "暂无" else result
-    } catch (_: Exception) {
-    }
-    return "暂无"
-}
-
-/**
  * 是否Root-报错或获取失败都为未Root
  */
 fun isRoot(): Boolean {
