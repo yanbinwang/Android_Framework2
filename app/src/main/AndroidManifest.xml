@@ -84,6 +84,7 @@
 
         <activity
             android:name=".activity.SplashActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
@@ -131,6 +132,9 @@
                 在上面的示例中，MainActivity类具有处理设备方向和屏幕尺寸更改的能力，并且不会在这些事件发生时被销毁和重新创建，而是保留其当前状态。
                 需要注意的是，虽然使用configChanges参数可以避免Activity或Fragment被销毁并重新创建，但它可能会增加代码复杂性和管理难度。
                 因此，在使用configChanges参数时需要仔细权衡利弊，并确保在处理配置更改时正确管理组件状态。
+                //一个activity注册时基本标配的属性
+                android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+                android:screenOrientation="portrait"
         -->
 
         <activity
