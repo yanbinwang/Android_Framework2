@@ -1,6 +1,7 @@
 package com.example.common.base.bridge
 
 import android.app.Activity
+import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.model.GuidePage
 
 /**
@@ -34,7 +35,7 @@ interface BaseView {
      *  GuidePage即为引导页对象，表示一页引导页，可以通过.newInstance()创建对象。并通过addHighLight添加一个或多个需要高亮的view，该方法有多个重载，可以设置高亮的形状，以及padding等（默认是矩形）。setLayoutRes方法用于引导页说明布局，就是上图的说明文字的布局。
      *  show方法直接显示引导层，如果不想马上显示可以使用build方法返回一个Controller对象，完成构建。需要显示得时候再次调用Controller对象的show方法进行显示。
      */
-    fun showGuide(label: String, vararg pages: GuidePage)
+    fun showGuide(label: String, vararg pages: GuidePage, listener: OnGuideChangedListener? = null)
 
     /**
      * 路由跳转

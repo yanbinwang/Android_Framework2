@@ -3,14 +3,13 @@ package com.example.mvvm.activity
 import android.view.WindowManager
 import androidx.viewpager2.widget.ViewPager2
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.app.hubert.guide.model.GuidePage
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
-import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.getSizeFormat
 import com.example.common.utils.file.sampleMemory
 import com.example.common.widget.textview.edit.EditTextImpl
 import com.example.framework.utils.function.value.safeSize
-import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.hideFadingEdge
 import com.example.framework.utils.logWTF
 import com.example.mvvm.R
@@ -18,7 +17,6 @@ import com.example.mvvm.adapter.ImageAdapter
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.CardTransformer
 import com.example.mvvm.utils.NumberEditTextHelper
-import java.math.BigDecimal
 
 
 @Route(path = ARouterPath.MainActivity)
@@ -36,6 +34,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     override fun initView() {
         window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         super.initView()
+        showGuide("dsds", GuidePage.newInstance())
         adapter.refresh(ids)
         binding.rvTest.adapter = adapter
         binding.rvTest.orientation = ViewPager2.ORIENTATION_VERTICAL
