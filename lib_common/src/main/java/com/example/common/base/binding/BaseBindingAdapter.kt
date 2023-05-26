@@ -150,7 +150,7 @@ object BaseBindingAdapter {
      * text:文本
      * text_type：
      * 0：默认
-     * 1：金额
+     * 1：金额(100.00会变为100，抹去多余的0，大于等于1000会有逗号千分位分隔)
      */
     @BindingAdapter(value = ["text", "text_type"], requireAll = false)
     fun bindingTextViewText(textview: TextView, text: String?, textType: Int?) {

@@ -67,7 +67,7 @@ fun ViewPager2?.prevPage(isSmooth: Boolean = true) {
 /**
  * 降低ViewPager2灵敏度
  */
-fun ViewPager2?.desensitization() {
+fun ViewPager2?.reduceSensitivity() {
     try {
         val recyclerView = getRecyclerView()
         val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")

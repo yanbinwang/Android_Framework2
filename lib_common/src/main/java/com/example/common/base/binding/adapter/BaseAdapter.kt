@@ -34,7 +34,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 点击回调，返回对象和下标
      */
-    var onItemClick: ((t: T?, position: Int) -> Unit)? = null
+    private var onItemClick: ((t: T?, position: Int) -> Unit)? = null
 
     /**
      * 默认是返回对象
@@ -176,8 +176,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 查找到符合条件的对象，返回下标和对象本身，调用notifyItemChanged（position）修改改变的值
      */
-    fun find(func: ((T) -> Boolean), onConvert: (position: Int, bean: T?) -> Unit) {
-        data.findIndexOf(func).apply { onConvert.invoke(this, data.safeGet(this)) }
+    fun find(func: ((T) -> Boolean), listener: (position: Int, bean: T?) -> Unit) {
+        data.findIndexOf(func).apply { listener.invoke(this, data.safeGet(this)) }
     }
 
     /**
@@ -256,6 +256,13 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     fun insert(item: T) {
         data.add(item)
         notifyItemInserted(data.safeSize - 1)
+    }
+
+    /**
+     * 适配器点击
+     */
+    fun setOnItemClickListener(onItemClick: ((t: T?, position: Int) -> Unit)) {
+        this.onItemClick = onItemClick
     }
 
 }

@@ -29,7 +29,7 @@ import com.example.framework.widget.BaseViewGroup
 @SuppressLint("InflateParams")
 class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private val binding by lazy { ViewEmptyBinding.bind(context.inflate(R.layout.view_empty)) }
-    var onRefresh: (() -> Unit)? = null
+    private var onRefresh: (() -> Unit)? = null
 
     init {
         binding.root.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT) //设置LayoutParams
@@ -91,6 +91,13 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
         if (!refreshText.isNullOrEmpty()) binding.tvRefresh.text = refreshText
         binding.tvRefresh.visible()
+    }
+
+    /**
+     * 设置刷新监听
+     */
+    fun setRefreshListener(onRefresh: (() -> Unit)) {
+        this.onRefresh = onRefresh
     }
 
     /**

@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.framework.utils.function.mipmapId
+import com.example.framework.utils.function.defTypeMipmap
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
@@ -23,7 +23,7 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
             notifyDataSetChanged()
         }
     var localAsset = false
-    var onItemClick: ((position: Int) -> Unit)? = null
+    private var onItemClick: ((position: Int) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(ImageView(parent.context))
@@ -34,7 +34,7 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         val bean = list.safeGet(position.mod(list.safeSize)).orEmpty()
         val image = holder.itemView as? ImageView ?: return
         if (localAsset) {
-            image.setResource(holder.itemView.context.mipmapId(bean))
+            image.setResource(holder.itemView.context.defTypeMipmap(bean))
         } else {
             ImageLoader.instance.display(image, bean)
         }
@@ -50,6 +50,10 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
             itemView.scaleType = ImageView.ScaleType.FIT_XY
             itemView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.MATCH_PARENT)
         }
+    }
+
+    fun setOnItemClickListener(onItemClick: ((position: Int) -> Unit)) {
+        this.onItemClick = onItemClick
     }
 
 }

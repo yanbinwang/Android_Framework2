@@ -1,5 +1,8 @@
 package com.example.common.utils.permission
 
+import android.content.Context
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
 import com.hjq.permissions.Permission
 
 /**
@@ -15,4 +18,59 @@ object XXPermissionsGroup {
     val SENSORS = arrayOf(Permission.BODY_SENSORS)
     val SMS = arrayOf(Permission.SEND_SMS, Permission.RECEIVE_SMS, Permission.READ_SMS, Permission.RECEIVE_WAP_PUSH, Permission.RECEIVE_MMS)
     val STORAGE = arrayOf(Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE)
+}
+
+/**
+ * 日历权限组
+ */
+fun Context.checkSelfCalendar() = checkSelfPermission(this, *XXPermissionsGroup.CALENDAR)
+
+/**
+ * 相机权限组
+ */
+fun Context.checkSelfCamera() = checkSelfPermission(this, *XXPermissionsGroup.CAMERA)
+
+/**
+ * 联系人权限组
+ */
+fun Context.checkSelfContacts() = checkSelfPermission(this, *XXPermissionsGroup.CONTACTS)
+
+/**
+ * 定位权限组
+ */
+fun Context.checkSelfLocation() = checkSelfPermission(this, *XXPermissionsGroup.LOCATION)
+
+/**
+ * 麦克风权限组
+ */
+fun Context.checkSelfMicrophone() = checkSelfPermission(this, *XXPermissionsGroup.MICROPHONE)
+
+/**
+ * 手机权限组
+ */
+fun Context.checkSelfPhone() = checkSelfPermission(this, *XXPermissionsGroup.PHONE)
+
+/**
+ * 传感器权限组
+ */
+fun Context.checkSelfSensors() = checkSelfPermission(this, *XXPermissionsGroup.SENSORS)
+
+/**
+ * 短信权限组
+ */
+fun Context.checkSelfSMS() = checkSelfPermission(this, *XXPermissionsGroup.SMS)
+
+/**
+ * 存储权限组
+ */
+fun Context.checkSelfStorage() = checkSelfPermission(this, Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE)
+
+/**
+ * 权限检测
+ */
+private fun checkSelfPermission(context: Context, vararg permission: String): Boolean {
+    permission.forEach {
+        if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(context, it)) return false
+    }
+    return true
 }

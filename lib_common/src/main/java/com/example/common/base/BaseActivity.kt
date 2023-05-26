@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.ViewDataBinding
 import com.alibaba.android.arouter.launcher.ARouter
 import com.app.hubert.guide.NewbieGuide
-import com.app.hubert.guide.core.Controller
 import com.app.hubert.guide.listener.OnGuideChangedListener
+import com.app.hubert.guide.listener.OnPageChangedListener
 import com.app.hubert.guide.model.GuidePage
 import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
@@ -38,6 +38,7 @@ import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.invisible
 import com.example.framework.utils.function.view.visible
+import com.example.framework.utils.logWTF
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -220,26 +221,21 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         loadingDialog.hidden()
     }
 
-    override fun showGuide(label: String, vararg pages: GuidePage) {
-        val labelTag = DataBooleanCacheUtil(label)
-        if (!labelTag.get()) {
-            labelTag.set(true)
+    override fun showGuide(label: String, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
+//        val labelTag = DataBooleanCacheUtil(label)
+//        if (!labelTag.get()) {
+//            labelTag.set(true)
             val builder = NewbieGuide.with(this)//传入activity
                 .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
-                .setOnGuideChangedListener(object : OnGuideChangedListener {
-                    override fun onShowed(controller: Controller?) {
-                    }
-
-                    override fun onRemoved(controller: Controller?) {
-                    }
-                })
+                .setOnGuideChangedListener(guideListener)
+                .setOnPageChangedListener(pageListener)
                 .alwaysShow(true)
             for (page in pages) {
-                page.backgroundColor = color(R.color.black_4c000000)//此处处理一下阴影背景
+                page.backgroundColor = color(R.color.bgOverlay)//此处处理一下阴影背景
                 builder.addGuidePage(page)
             }
             builder.show()
-        }
+//        }
     }
 
     override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity {
