@@ -7,15 +7,12 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.app.hubert.guide.model.GuidePage
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
-import com.example.common.utils.file.getSizeFormat
-import com.example.common.utils.file.sampleMemory
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.widget.textview.edit.EditTextImpl
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.hideFadingEdge
 import com.example.framework.utils.function.view.margin
-import com.example.framework.utils.logWTF
 import com.example.mvvm.R
 import com.example.mvvm.adapter.ImageAdapter
 import com.example.mvvm.databinding.ActivityMainBinding
@@ -79,7 +76,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            .build()
         //判断是全角字符  \u0020为半角空格，\u3000为全角空格
 //        "${"是".regCheck("[^\\x00-\\xff]")}".logWTF
-        "${sampleMemory().getSizeFormat()}".logWTF
     }
 
     class TestBean(

@@ -1,7 +1,6 @@
 package com.example.common.utils.file
 
 import android.annotation.SuppressLint
-import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,15 +8,12 @@ import android.graphics.*
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.provider.Settings
 import android.util.Base64
 import androidx.core.net.toUri
 import com.example.common.BaseApplication
 import com.example.common.config.Constants
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
-import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.value.toSafeLong
 import com.example.framework.utils.logE
 import java.io.*
@@ -74,18 +70,6 @@ object FileUtil {
             }
         }
         return size
-    }
-
-    /**
-     * 获取手机cpu信息-报错或获取失败显示暂无
-     */
-    fun getCpuInfo(): String {
-        try {
-            val result = BufferedReader(FileReader("/proc/cpuinfo")).readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
-            return if ("0" == result) "暂无" else result
-        } catch (_: Exception) {
-        }
-        return "暂无"
     }
 
     /**
@@ -197,8 +181,6 @@ object FileUtil {
         return info
     }
 
-    fun getSignature(southPath: String) = getSignature(File(southPath))
-
     /**
      * 获取文件哈希值
      * 满足64位哈希，不足则前位补0
@@ -249,11 +231,6 @@ fun Context.isAvailable(packageName: String): Boolean {
         }
     }.orFalse
 }
-
-/**
- * 判断手机是否开启开发者模式
- */
-fun Context.isAdbEnabled() = (Settings.Secure.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) > 0)
 
 /**
  * 发送广播通知更新数据库
@@ -355,22 +332,12 @@ fun File?.fileToBase64(): String {
     return FileUtil.fileToBase64(this)
 }
 
-fun String?.fileToBase64(): String {
-    this ?: return ""
-    return File(this).fileToBase64()
-}
-
 /**
  * 获取对应大小的文字
  */
 fun File?.getSizeFormat(): String {
     this ?: return ""
     return length().getSizeFormat()
-}
-
-fun String?.getSizeFormat(): String {
-    this ?: return ""
-    return File(this).getSizeFormat()
 }
 
 fun Number?.getSizeFormat(): String {
@@ -436,58 +403,4 @@ fun String?.getFileFromUri(): File? {
         }
     } ?: return null
     return File(path)
-}
-
-/**
- * 获取android总运行内存大小(byte)
- */
-fun getTotalMemory(): Long {
-    //系统内存信息文件
-    val infoStr: String
-    val arrayOfString: Array<String>
-    var memory = 0L
-    try {
-        val localFileReader = FileReader("/proc/meminfo")
-        val localBufferedReader = BufferedReader(localFileReader, 8192)
-        //读取meminfo第一行，系统总内存大小
-        infoStr = localBufferedReader.readLine()
-        arrayOfString = infoStr.split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        //获得系统总内存，单位是KB
-        val systemMemory = Integer.valueOf(arrayOfString[1]).toSafeInt()
-        //int值乘以1024转换为long类型
-        memory = systemMemory.toSafeLong() * 1024
-        localBufferedReader.close()
-    } catch (_: IOException) {
-    }
-    return memory
-}
-
-/**
- *  获取android当前可用运行内存大小(byte)
- */
-fun Context.getAvailMemory(): Long {
-    val manager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-    val memoryInfo = ActivityManager.MemoryInfo()
-    manager?.getMemoryInfo(memoryInfo)
-    return memoryInfo.availMem
-}
-
-/**
- * 获取当前应用使用的内存大小(byte)
- */
-fun Context.sampleMemory(): Long {
-    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-    var memory = 0L
-    try {
-        val memInfo = activityManager?.getProcessMemoryInfo(intArrayOf(android.os.Process.myPid()));
-        if (memInfo?.size.orZero > 0) {
-            memInfo ?: return 0
-            val totalPss = memInfo[0].totalPss
-            if (totalPss >= 0) {
-                memory = totalPss.toSafeLong()
-            }
-        }
-    } catch (_: Exception) {
-    }
-    return memory * 1024
 }

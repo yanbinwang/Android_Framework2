@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.framework.utils.function.mipmapId
+import com.example.framework.utils.function.defTypeMipmap
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
@@ -34,7 +34,7 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         val bean = list.safeGet(position.mod(list.safeSize)).orEmpty()
         val image = holder.itemView as? ImageView ?: return
         if (localAsset) {
-            image.setResource(holder.itemView.context.mipmapId(bean))
+            image.setResource(holder.itemView.context.defTypeMipmap(bean))
         } else {
             ImageLoader.instance.display(image, bean)
         }
