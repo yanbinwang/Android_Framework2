@@ -108,6 +108,22 @@
         <!--            android:theme="@style/MainTheme"-->
         <!--            android:windowSoftInputMode="stateHidden|adjustUnspecified" />-->
 
+        <!--
+            orientation：设备方向更改（横向/纵向）
+            screenSize：屏幕尺寸更改
+            screenLayout：屏幕布局更改
+            keyboardHidden：键盘可见性更改（隐藏/显示）
+            locale：语言环境更改
+            fontScale：字体大小更改
+            例如，以下代码演示如何在AndroidManifest.xml文件中使用configChanges参数声明要处理设备方向更改和屏幕尺寸更改
+            <activity
+                android:name=".MainActivity"
+                android:configChanges="orientation|screenSize">
+                在上面的示例中，MainActivity类具有处理设备方向和屏幕尺寸更改的能力，并且不会在这些事件发生时被销毁和重新创建，而是保留其当前状态。
+                需要注意的是，虽然使用configChanges参数可以避免Activity或Fragment被销毁并重新创建，但它可能会增加代码复杂性和管理难度。
+                因此，在使用configChanges参数时需要仔细权衡利弊，并确保在处理配置更改时正确管理组件状态。
+        -->
+
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
