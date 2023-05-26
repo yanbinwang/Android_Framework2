@@ -34,8 +34,8 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private var emptyType = 0//是否具有空布局（0无-1有）
     private var refreshType = 0//页面类型(0无刷新-1带刷新)
+    private var onRefresh: (() -> Unit)? = null//空布局点击
 //    val layout: RefreshLayout get() { return refresh as RefreshLayout }//刷新控件
-    var onClick: (() -> Unit)? = null//空布局点击
     var recycler: DataRecyclerView? = null//数据列表
         private set
     var refresh: SmartRefreshLayout? = null//刷新控件 类型1才有
@@ -65,7 +65,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                     recycler?.setEmptyView(empty?.setListView(recycler))
                     recycler?.setHasFixedSize(true)
                     recycler?.cancelItemAnimator()
-                    empty?.onRefresh = { onClick?.invoke() }
+                    empty?.setRefreshListener { onRefresh?.invoke() }
                 }
             }
             1 -> {
@@ -76,7 +76,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 recycler?.setHasFixedSize(true)
                 recycler?.cancelItemAnimator()
                 if (0 != emptyType) {
-                    empty?.onRefresh = { onClick?.invoke() }
+                    empty?.setRefreshListener { onRefresh?.invoke() }
                 } else {
                     empty?.gone()
                 }
@@ -140,6 +140,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     fun finishRefreshing(noMoreData: Boolean? = true) {
         if (refreshType == 1) refresh?.finishRefreshing(noMoreData)
+    }
+
+    /**
+     * 设置空布局点击
+     */
+    fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
+        this.onRefresh = onRefresh
     }
 
     /**

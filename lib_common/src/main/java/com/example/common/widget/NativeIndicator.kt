@@ -16,7 +16,7 @@ import com.google.android.material.tabs.TabLayout
  * @author yan
  */
 class NativeIndicator constructor(tab: TabLayout, tabTitle: List<String>) : TabLayoutBuilder<String, ItemTabBinding>(tab, tabTitle) {
-    var onBindView: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)? = null//如需自定義，重寫此監聽
+    private var onBindView: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)? = null//如需自定義，重寫此監聽
 
     override fun getBindView() = ItemTabBinding.bind(context.inflate(R.layout.item_tab))
 
@@ -28,6 +28,10 @@ class NativeIndicator constructor(tab: TabLayout, tabTitle: List<String>) : TabL
                 bold(selected)
             }
         } else onBindView?.invoke(binding, item, selected, index)
+    }
+
+    fun setBindViewListener(onBindView: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)) {
+        this.onBindView = onBindView
     }
 
 }
