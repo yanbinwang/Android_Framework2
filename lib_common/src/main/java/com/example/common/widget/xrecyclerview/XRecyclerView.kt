@@ -20,7 +20,6 @@ import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.widget.BaseViewGroup
 import com.example.framework.widget.DataRecyclerView
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
-import com.scwang.smart.refresh.layout.api.RefreshLayout
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
@@ -60,7 +59,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         when (refreshType) {
             0 -> {
                 view = context.inflate(R.layout.view_xrecyclerview)
-                recycler = view.findViewById(R.id.d_rv)
+                recycler = view.findViewById(R.id.rv_list)
                 if (0 != emptyType) {
                     empty = EmptyLayout(context)
                     recycler?.setEmptyView(empty?.setListView(recycler))
@@ -71,9 +70,9 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
             }
             1 -> {
                 view = context.inflate(R.layout.view_xrecyclerview_refresh)
-                empty = view.findViewById(R.id.el)
-                refresh = view.findViewById(R.id.x_refresh)
-                recycler = view.findViewById(R.id.d_rv)
+                empty = view.findViewById(R.id.empty)
+                refresh = view.findViewById(R.id.refresh)
+                recycler = view.findViewById(R.id.rv_list)
                 recycler?.setHasFixedSize(true)
                 recycler?.cancelItemAnimator()
                 if (0 != emptyType) {
