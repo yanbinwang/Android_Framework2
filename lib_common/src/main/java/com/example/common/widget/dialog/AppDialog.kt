@@ -14,8 +14,8 @@ import com.example.framework.utils.function.view.visible
  * 类似苹果的弹出窗口类
  */
 class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context) {
-    var onConfirm: (() -> Unit)? = null
-    var onCancel: (() -> Unit)? = null
+    private var onConfirm: (() -> Unit)? = null
+    private var onCancel: (() -> Unit)? = null
 
     fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = "", gravity: Int = Gravity.CENTER) {
         binding.apply {
@@ -49,6 +49,11 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context) {
                 }
             }
         }
+    }
+
+    fun setDialogListener(onConfirm: () -> Unit = {}, onCancel: () -> Unit = {}) {
+        this.onConfirm = onConfirm
+        this.onCancel = onCancel
     }
 
 }

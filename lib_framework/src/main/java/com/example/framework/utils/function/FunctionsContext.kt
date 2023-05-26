@@ -2,6 +2,7 @@ package com.example.framework.utils.function
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ActivityManager
 import android.app.Application
 import android.app.Service
 import android.content.ClipData
@@ -11,6 +12,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +29,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.toSafeLong
 import java.io.Serializable
 
 
@@ -45,7 +49,7 @@ fun Context.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(this, re
  * 通过字符串获取drawable下的xml文件
  */
 @SuppressLint("DiscouragedApi")
-fun Context.drawableId(name: String): Int {
+fun Context.defTypeDrawable(name: String): Int {
     return try {
         resources.getIdentifier(name, "drawable", packageName)
     } catch (_: Exception) {
@@ -57,7 +61,7 @@ fun Context.drawableId(name: String): Int {
  * 通过字符串获取mipmap下的图片文件
  */
 @SuppressLint("DiscouragedApi")
-fun Context.mipmapId(name: String): Int {
+fun Context.defTypeMipmap(name: String): Int {
     return try {
         resources.getIdentifier(name, "mipmap", packageName)
     } catch (_: Exception) {
@@ -102,6 +106,41 @@ fun Context.getPrimaryClip(): String {
     //获取 text
     return clipboardManager?.primaryClip?.getItemAt(0)?.text.toString()
 }
+
+/**
+ *  获取android当前可用运行内存大小(byte)
+ */
+fun Context.getAvailMemory(): Long {
+    val manager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+    val memoryInfo = ActivityManager.MemoryInfo()
+    manager?.getMemoryInfo(memoryInfo)
+    return memoryInfo.availMem
+}
+
+/**
+ * 获取当前应用使用的内存大小(byte)
+ */
+fun Context.sampleMemory(): Long {
+    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+    var memory = 0L
+    try {
+        val memInfo = activityManager?.getProcessMemoryInfo(intArrayOf(android.os.Process.myPid()));
+        if (memInfo?.size.orZero > 0) {
+            memInfo ?: return 0
+            val totalPss = memInfo[0].totalPss
+            if (totalPss >= 0) {
+                memory = totalPss.toSafeLong()
+            }
+        }
+    } catch (_: Exception) {
+    }
+    return memory * 1024
+}
+
+/**
+ * 判断手机是否开启开发者模式
+ */
+fun Context.isAdbEnabled() = (Settings.Secure.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) > 0)
 
 /**
  * 开启服务

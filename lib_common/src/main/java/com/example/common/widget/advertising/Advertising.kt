@@ -49,8 +49,8 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }//3个资源路径->圆点选中时的背景ID second：圆点未选中时的背景ID third：圆点间距 （圆点容器可为空写0）
     private val advAdapter by lazy { AdvertisingAdapter() }//图片适配器
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }//切线程
-    var onPagerClick: ((index: Int) -> Unit)? = null
-    var onPagerCurrent: ((index: Int) -> Unit)? = null
+    private var onPagerClick: ((index: Int) -> Unit)? = null
+    private var onPagerCurrent: ((index: Int) -> Unit)? = null
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     init {
@@ -156,7 +156,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
         //设置图片数据
         advAdapter.list = list
-        advAdapter.onItemClick = { onPagerClick?.invoke(it) }
+        advAdapter.setOnItemClickListener { onPagerClick?.invoke(it) }
         //设置默认选中的起始位置
         banner?.setCurrentItem(if (list.size > 1) halfPosition - halfPosition % list.size else 0, false)
     }
@@ -220,6 +220,14 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun addLifecycleObserver(lifecycleOwner: LifecycleOwner) {
         lifecycleOwner.lifecycle.addObserver(this)
+    }
+
+    /**
+     * 设置广告监听
+     */
+    fun setAdvertisingListener(onPagerClick: (index: Int) -> Unit = {}, onPagerCurrent: (index: Int) -> Unit = {}) {
+        this.onPagerClick = onPagerClick
+        this.onPagerCurrent = onPagerCurrent
     }
     // </editor-fold>
 

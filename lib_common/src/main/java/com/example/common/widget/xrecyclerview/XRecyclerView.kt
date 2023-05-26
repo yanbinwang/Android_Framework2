@@ -20,7 +20,6 @@ import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.widget.BaseViewGroup
 import com.example.framework.widget.DataRecyclerView
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
-import com.scwang.smart.refresh.layout.api.RefreshLayout
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
@@ -35,8 +34,8 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private var emptyType = 0//是否具有空布局（0无-1有）
     private var refreshType = 0//页面类型(0无刷新-1带刷新)
+    private var onRefresh: (() -> Unit)? = null//空布局点击
 //    val layout: RefreshLayout get() { return refresh as RefreshLayout }//刷新控件
-    var onClick: (() -> Unit)? = null//空布局点击
     var recycler: DataRecyclerView? = null//数据列表
         private set
     var refresh: SmartRefreshLayout? = null//刷新控件 类型1才有
@@ -60,24 +59,24 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         when (refreshType) {
             0 -> {
                 view = context.inflate(R.layout.view_xrecyclerview)
-                recycler = view.findViewById(R.id.d_rv)
+                recycler = view.findViewById(R.id.rv_list)
                 if (0 != emptyType) {
                     empty = EmptyLayout(context)
                     recycler?.setEmptyView(empty?.setListView(recycler))
                     recycler?.setHasFixedSize(true)
                     recycler?.cancelItemAnimator()
-                    empty?.onRefresh = { onClick?.invoke() }
+                    empty?.setRefreshListener { onRefresh?.invoke() }
                 }
             }
             1 -> {
                 view = context.inflate(R.layout.view_xrecyclerview_refresh)
-                empty = view.findViewById(R.id.el)
-                refresh = view.findViewById(R.id.x_refresh)
-                recycler = view.findViewById(R.id.d_rv)
+                empty = view.findViewById(R.id.empty)
+                refresh = view.findViewById(R.id.refresh)
+                recycler = view.findViewById(R.id.rv_list)
                 recycler?.setHasFixedSize(true)
                 recycler?.cancelItemAnimator()
                 if (0 != emptyType) {
-                    empty?.onRefresh = { onClick?.invoke() }
+                    empty?.setRefreshListener { onRefresh?.invoke() }
                 } else {
                     empty?.gone()
                 }
@@ -141,6 +140,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     fun finishRefreshing(noMoreData: Boolean? = true) {
         if (refreshType == 1) refresh?.finishRefreshing(noMoreData)
+    }
+
+    /**
+     * 设置空布局点击
+     */
+    fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
+        this.onRefresh = onRefresh
     }
 
     /**

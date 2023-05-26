@@ -67,13 +67,13 @@ class PermissionFactory(private val context: Context) {
             }
         }
         andDialog.apply {
-            onConfirm = { XXPermissions.startPermissionActivity(context, permissions) }
             setParams(
                 string(R.string.hint),
                 string(R.string.permission_go_setting, rationale),
                 string(R.string.sure),
                 string(R.string.cancel)
             )
+            setDialogListener({ XXPermissions.startPermissionActivity(context, permissions) })
             show()
         }
     }
