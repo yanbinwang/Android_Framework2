@@ -21,28 +21,11 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.*
 
-
 /**
  * Created by WangYanBin on 2020/7/1.
  * 文件管理工具类
  */
 object FileUtil {
-
-    /**
-     * 是否Root-报错或获取失败都为未Root
-     */
-    fun isRoot(): Boolean {
-        var file: File
-        val paths = arrayOf("/system/bin/", "/system/xbin/", "/system/sbin/", "/sbin/", "/vendor/bin/")
-        try {
-            for (element in paths) {
-                file = File(element + "su")
-                if (file.exists()) return true
-            }
-        } catch (_: Exception) {
-        }
-        return false
-    }
 
     /**
      * 递归完全删除对应文件夹下的所有文件
@@ -323,6 +306,14 @@ fun File.copyFile(destFile: File) {
 fun File?.fileToBase64(): String {
     this ?: return ""
     return FileUtil.fileToBase64(this)
+}
+
+/**
+ * 文件本身的整体大小
+ */
+fun File?.totalSize(): Long {
+    this ?: return 0
+    return FileUtil.getFileSize(this)
 }
 
 /**

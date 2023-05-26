@@ -6,6 +6,7 @@ import android.os.Looper
 import androidx.annotation.ColorInt
 import com.example.framework.BuildConfig
 import java.io.BufferedReader
+import java.io.File
 import java.io.FileReader
 import java.io.IOException
 import java.util.Locale
@@ -72,18 +73,18 @@ fun Bundle?.clearFragmentSavedState() {
 }
 
 /**
- * 不指定name，默认返回class命名
- */
-fun Class<*>.getSimpleName(name: String? = null): String {
-    return name ?: this.simpleName.lowercase(Locale.getDefault())
-}
-
-/**
  * 获取Color String中的color
  * eg: "#ffffff"
  */
 @ColorInt
 fun String?.parseColor() = Color.parseColor(this ?: "#ffffff")
+
+/**
+ * 不指定name，默认返回class命名
+ */
+fun Class<*>.getSimpleName(name: String? = null): String {
+    return name ?: this.simpleName.lowercase(Locale.getDefault())
+}
 
 /**
  * 获取android总运行内存大小(byte)
@@ -119,6 +120,22 @@ fun getCpuInfo(): String {
     } catch (_: Exception) {
     }
     return "暂无"
+}
+
+/**
+ * 是否Root-报错或获取失败都为未Root
+ */
+fun isRoot(): Boolean {
+    var file: File
+    val paths = arrayOf("/system/bin/", "/system/xbin/", "/system/sbin/", "/sbin/", "/vendor/bin/")
+    try {
+        for (element in paths) {
+            file = File(element + "su")
+            if (file.exists()) return true
+        }
+    } catch (_: Exception) {
+    }
+    return false
 }
 
 /**
