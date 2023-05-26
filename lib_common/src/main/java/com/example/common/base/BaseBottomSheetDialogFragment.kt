@@ -20,6 +20,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
+import com.app.hubert.guide.listener.OnPageChangedListener
 import com.app.hubert.guide.model.GuidePage
 import com.example.common.BaseApplication
 import com.example.common.R
@@ -333,16 +334,17 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         loadingDialog.hidden()
     }
 
-    override fun showGuide(label: String, vararg pages: GuidePage, listener: OnGuideChangedListener?) {
+    override fun showGuide(label: String, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
         val labelTag = DataBooleanCacheUtil(label)
         if (!labelTag.get()) {
             labelTag.set(true)
             val builder = NewbieGuide.with(this)//传入activity
                 .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
-                .setOnGuideChangedListener(listener)
+                .setOnGuideChangedListener(guideListener)
+                .setOnPageChangedListener(pageListener)
                 .alwaysShow(true)
             for (page in pages) {
-                page.backgroundColor = color(R.color.black_4c000000)//此处处理一下阴影背景
+                page.backgroundColor = color(R.color.bgOverlay)//此处处理一下阴影背景
                 builder.addGuidePage(page)
             }
             builder.show()

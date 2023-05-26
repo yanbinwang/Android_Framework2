@@ -1,6 +1,7 @@
 package com.example.mvvm.activity
 
 import android.view.WindowManager
+import android.widget.ImageView
 import androidx.viewpager2.widget.ViewPager2
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.app.hubert.guide.model.GuidePage
@@ -8,9 +9,12 @@ import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.file.getSizeFormat
 import com.example.common.utils.file.sampleMemory
+import com.example.common.utils.function.getStatusBarHeight
+import com.example.common.utils.function.pt
 import com.example.common.widget.textview.edit.EditTextImpl
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.hideFadingEdge
+import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.logWTF
 import com.example.mvvm.R
 import com.example.mvvm.adapter.ImageAdapter
@@ -28,25 +32,37 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
     private val adapter by lazy { ImageAdapter() }
     private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
-
     private val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
 
     override fun initView() {
         window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         super.initView()
-        showGuide("dsds", GuidePage.newInstance())
         adapter.refresh(ids)
         binding.rvTest.adapter = adapter
         binding.rvTest.orientation = ViewPager2.ORIENTATION_VERTICAL
         binding.rvTest.offscreenPageLimit = ids.safeSize - 1
         binding.rvTest.setPageTransformer(CardTransformer())
         binding.rvTest.hideFadingEdge()
-        binding.rvTest.setCurrentItem(if (ids.size > 1) halfPosition - halfPosition % ids.size else 0, false)
+        binding.rvTest.setCurrentItem(
+            if (ids.size > 1) halfPosition - halfPosition % ids.size else 0,
+            false
+        )
         val numberHelper = NumberEditTextHelper(binding.etTest)
         numberHelper.setPrecision(2)
-        binding.rvList.onClick = {
 
-        }
+
+        binding.btnTest.margin(top = getStatusBarHeight() + 80.pt)
+
+        showGuide("test", GuidePage
+            .newInstance()
+            .addHighLight(binding.btnTest)
+            .setLayoutRes(R.layout.view_guide_simple)
+            .setOnLayoutInflatedListener { view, _ ->
+                val hand = view?.findViewById<ImageView>(R.id.iv_hand)
+                hand.margin(top = getStatusBarHeight() + 80.pt + 80.pt)
+            })
+
+
 //        class a(func:(a:Int,b:Int,c:Int)-> BigDecimal)
 //
 //        fun test(){
