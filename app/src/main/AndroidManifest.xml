@@ -109,12 +109,21 @@
         <!--            android:windowSoftInputMode="stateHidden|adjustUnspecified" />-->
 
         <!--
-            orientation：设备方向更改（横向/纵向）
-            screenSize：屏幕尺寸更改
-            screenLayout：屏幕布局更改
-            keyboardHidden：键盘可见性更改（隐藏/显示）
+            在Android中，configChanges属性用于指示Activity或Fragment可处理哪些配置更改事件。以下是所有可能的configChanges配置：
+            mcc：mcc更改
+            mnc：mnc更改
             locale：语言环境更改
+            touchscreen：触摸屏幕类型更改
+            keyboard：物理键盘可见性更改（隐藏/显示）
+            keyboardHidden：虚拟键盘可见性更改（隐藏/显示）
+            navigation：导航方式更改（方向键等）
+            orientation：设备方向更改（横向/纵向）
+            screenLayout：屏幕布局更改
             fontScale：字体大小更改
+            uiMode：UI模式更改（夜间模式等）
+            screenSize：屏幕尺寸更改
+            smallestScreenSize：最小屏幕尺寸更改
+            layoutDirection：布局方向更改
             例如，以下代码演示如何在AndroidManifest.xml文件中使用configChanges参数声明要处理设备方向更改和屏幕尺寸更改
             <activity
                 android:name=".MainActivity"
