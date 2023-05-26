@@ -30,7 +30,7 @@ import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
  * @description 播放器帮助类
  * @author yan
  */
-class GSYVideoHelper(private val activity: FragmentActivity,private val player: StandardGSYVideoPlayer, fullScreen: Boolean = false) : LifecycleEventObserver {
+class GSYVideoHelper(private val activity: FragmentActivity, private val player: StandardGSYVideoPlayer, fullScreen: Boolean = false) : LifecycleEventObserver {
     private var retryWithPlay = false
     private var orientationUtils: OrientationUtils? = null
     private val binding by lazy { ViewGsyvideoThumbBinding.bind(activity.inflate(R.layout.view_gsyvideo_thumb)) }
@@ -46,7 +46,7 @@ class GSYVideoHelper(private val activity: FragmentActivity,private val player: 
                 retryWithPlay = true
                 player.disable()
                 //允许硬件解码，装载IJK播放器内核
-//                GSYVideoType.enableMediaCodec()
+//               GSYVideoType.enableMediaCodec()
                 GSYVideoType.enableMediaCodecTexture()
                 PlayerFactory.setPlayManager(IjkPlayerManager::class.java)
                 CacheFactory.setCacheManager(ProxyCacheManager::class.java)

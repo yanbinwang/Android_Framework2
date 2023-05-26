@@ -1,0 +1,7 @@
+<resources>
+    <!-- app内的一些提示 -->
+    <string name="map_amap">高德地图</string>
+    <string name="map_bmap">百度地图</string>
+    <string name="map_gps">获取地址信息失败，开启定位服务可以提高定位精确度</string>
+    <string name="map_gps_go_setting">去开启</string>
+</resources>
