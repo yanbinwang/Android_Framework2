@@ -1,6 +1,5 @@
 package com.example.common.utils.file
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -220,7 +219,6 @@ val Number.tb get() = this.toSafeLong() * 1024L * 1024L * 1024L * 1024L
 /**
  * 是否安装了XXX应用
  */
-@SuppressLint("QueryPermissionsNeeded")
 fun Context.isAvailable(packageName: String): Boolean {
     return run {
         try {
@@ -317,11 +315,6 @@ fun File.copyFile(destFile: File) {
             destination.transferFrom(source, 0, source.size())
         }
     }
-}
-
-@Throws(IOException::class)
-fun String.copyFile(destSouth: String) {
-    File(this).copyFile(File(destSouth))
 }
 
 /**
