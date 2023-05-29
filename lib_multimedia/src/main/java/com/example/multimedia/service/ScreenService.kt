@@ -33,7 +33,7 @@ import com.example.multimedia.utils.helper.TimeTickHelper
  *      android:foregroundServiceType="mediaProjection"--》 Q开始后台服务需要配置，否则录制不正常  />
  */
 class ScreenService : Service() {
-    private var filePath = ""
+    private var filePath: String? = null
     private var resultCode = 0
     private var resultData: Intent? = null
     private var mediaProjection: MediaProjection? = null
@@ -64,7 +64,7 @@ class ScreenService : Service() {
             startForeground(1, builder.build())
         }
 //        stopForeground(true)//关闭录屏的图标-可注释
-        timerFactory.onStart()
+        timerFactory.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -86,9 +86,9 @@ class ScreenService : Service() {
 
     private fun createMediaRecorder(): MediaRecorder {
         val screenFile = MultimediaUtil.getOutputFile(MediaType.SCREEN)
-        filePath = screenFile.toString()
+        filePath = screenFile?.absolutePath
         onShutter.invoke(filePath,true)
-        return MediaRecorder().apply {
+        return (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()).apply {
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
@@ -117,7 +117,7 @@ class ScreenService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         try {
-            timerFactory.onDestroy()
+            timerFactory.destroy()
             virtualDisplay?.release()
             virtualDisplay = null
             mediaRecorder?.stop()

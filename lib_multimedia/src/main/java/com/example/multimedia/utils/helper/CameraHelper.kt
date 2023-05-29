@@ -80,14 +80,13 @@ class CameraHelper(private val cvFinder: CameraView) : LifecycleEventObserver {
     /**
      * 拍照
      */
-    fun takePicture(onStart: () -> Unit = {}, onShutter: () -> Unit = {}, onSuccess: (sourceFile: File?) -> Unit = {}, onFailed: () -> Unit = {}, snapshot: Boolean = true) {
+    fun takePicture(onShutter: () -> Unit = {}, onSuccess: (sourceFile: File?) -> Unit = {}, onFailed: () -> Unit = {}, snapshot: Boolean = true) {
         cvFinder.apply {
             if (isTakingPicture) {
                 R.string.camera_picture_shutter.shortToast()
                 return
             }
             sound.play(MediaActionSound.SHUTTER_CLICK)
-            onStart()
             if (snapshot) takePictureSnapshot() else takePicture()
             addCameraListener(object : CameraListener() {
                 override fun onPictureShutter() {
@@ -111,9 +110,9 @@ class CameraHelper(private val cvFinder: CameraView) : LifecycleEventObserver {
     }
 
     /**
-     * 录像
+     * 开始录像
      */
-    fun takeVideo(onStart: () -> Unit = {}, onRecording: (sourcePath: String?) -> Unit = {}, onStop: (sourcePath: String?) -> Unit = {}, snapshot: Boolean = true) {
+    fun takeVideo(onRecording: (sourcePath: String?) -> Unit = {}, onShutter: () -> Unit = {}, onResult: (sourcePath: String?) -> Unit = {}, snapshot: Boolean = true) {
         cvFinder.apply {
             if (isTakingVideo) {
                 R.string.camera_video_shutter.shortToast()
@@ -121,22 +120,34 @@ class CameraHelper(private val cvFinder: CameraView) : LifecycleEventObserver {
             }
             val videoFile = MultimediaUtil.getOutputFile(VIDEO)
             if (null != videoFile) {
-                onStart()
                 if (snapshot) takeVideoSnapshot(videoFile) else takeVideo(videoFile)
                 addCameraListener(object : CameraListener() {
-                    //正式完成录制的回调，获取路径
-                    override fun onVideoTaken(result: VideoResult) {
-                        super.onVideoTaken(result)
-                        onStop(result.file.path)
-                    }
-
                     override fun onVideoRecordingStart() {
                         super.onVideoRecordingStart()
                         onRecording(videoFile.absolutePath)
                     }
+
+                    //stopVideo方法按下后会触发，此刻可能正在处理录制的文件，onVideoTaken并不会立刻调取
+                    override fun onVideoRecordingEnd() {
+                        super.onVideoRecordingEnd()
+                        onShutter()
+                    }
+
+                    //正式完成录制的回调，获取路径
+                    override fun onVideoTaken(result: VideoResult) {
+                        super.onVideoTaken(result)
+                        onResult(result.file.path)
+                    }
                 })
-            } else onStop(null)
+            } else onResult(null)
         }
+    }
+
+    /**
+     * 停止录像
+     */
+    fun stopVideo() {
+        cvFinder.stopVideo()
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {

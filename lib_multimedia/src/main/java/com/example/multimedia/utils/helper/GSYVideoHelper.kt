@@ -120,10 +120,10 @@ class GSYVideoHelper(private val activity: FragmentActivity, private val player:
      */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_RESUME -> onResume()
-            Lifecycle.Event.ON_PAUSE -> onPause()
+            Lifecycle.Event.ON_RESUME -> resume()
+            Lifecycle.Event.ON_PAUSE -> pause()
             Lifecycle.Event.ON_DESTROY -> {
-                onPause()
+                pause()
                 player.currentPlayer?.release()
                 player.release()
                 orientationUtils?.releaseListener()
@@ -136,11 +136,11 @@ class GSYVideoHelper(private val activity: FragmentActivity, private val player:
     /**
      * 写在系统的onPause之前
      */
-    private fun onPause() = player.currentPlayer?.onVideoPause()
+    private fun pause() = player.currentPlayer?.onVideoPause()
 
     /**
      * 写在系统的onResume之前
      */
-    private fun onResume() = player.currentPlayer?.onVideoResume(false)
+    private fun resume() = player.currentPlayer?.onVideoResume(false)
 
 }
