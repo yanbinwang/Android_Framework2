@@ -14,6 +14,11 @@ import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.widget.textview.edit.EditTextImpl
 import com.example.framework.utils.ClickSpan
+import com.example.framework.utils.ColorSpan
+import com.example.framework.utils.SizeSpan
+import com.example.framework.utils.TextSpan
+import com.example.framework.utils.function.color
+import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.hideFadingEdge
@@ -68,11 +73,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
         binding.tvTest.margin(top = getStatusBarHeight() + 80.pt + 80.pt)
 
-        binding.tvTest.text = "我已阅读《用户协议》和《隐私政策》".setSpanFirst("《用户协议》",ClickSpan(object :XClickableSpan(R.color.appTheme){
-            override fun onLinkClick(widget: View) {
-                "点击用户协议".logWTF
-            }
-        }))
+//        binding.tvTest.text = "我已阅读《用户协议》和《隐私政策》".setSpanFirst("《用户协议》",ClickSpan(object :XClickableSpan(R.color.appTheme){
+//            override fun onLinkClick(widget: View) {
+//                "点击用户协议".logWTF
+//            }
+//        }))
+
+
+
+
+        binding.tvTest.text = TextSpan()
+            .add("我已阅读《用户协议》和")
+         .add("《隐私政策》",SizeSpan(dimen(R.dimen.textSize10)),ColorSpan(color(R.color.grey_cccccc)))
+        .build()
+
+
+
+
         binding.tvTest.movementMethod = LinkMovementMethod.getInstance()
 
 //        binding.tvTest.setClickSpan(
