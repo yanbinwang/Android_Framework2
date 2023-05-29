@@ -111,7 +111,7 @@ class CameraHelper(private val cvFinder: CameraView) : LifecycleEventObserver {
     }
 
     /**
-     * 录像
+     * 开始录像
      */
     fun takeVideo(onStart: () -> Unit = {}, onRecording: (sourcePath: String?) -> Unit = {}, onStop: (sourcePath: String?) -> Unit = {}, snapshot: Boolean = true) {
         cvFinder.apply {
@@ -137,6 +137,13 @@ class CameraHelper(private val cvFinder: CameraView) : LifecycleEventObserver {
                 })
             } else onStop(null)
         }
+    }
+
+    /**
+     * 停止录像
+     */
+    fun stopVideo() {
+        cvFinder.stopVideo()
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
