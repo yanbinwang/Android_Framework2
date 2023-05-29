@@ -20,7 +20,6 @@ import com.example.mvvm.R
  */
 @SuppressLint("UseCompatLoadingForDrawables")
 class RankSpan : ReplacementSpan() {
-
     private var mSize = 0
     private val bitmap = ResourcesCompat.getDrawable(BaseApplication.instance.resources, R.mipmap.ic_rank, null)?.toBitmapOrNull(60, 60)
 

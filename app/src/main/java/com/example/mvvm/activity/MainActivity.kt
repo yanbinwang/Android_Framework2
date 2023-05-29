@@ -1,7 +1,6 @@
 package com.example.mvvm.activity
 
 import android.text.method.LinkMovementMethod
-import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import androidx.viewpager2.widget.ViewPager2
@@ -9,23 +8,19 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.app.hubert.guide.model.GuidePage
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
-import com.example.common.utils.function.XClickableSpan
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.widget.textview.edit.EditTextImpl
-import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
+import com.example.framework.utils.RadiusBackgroundSpan
+import com.example.framework.utils.RadiusSpan
 import com.example.framework.utils.SizeSpan
 import com.example.framework.utils.TextSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.value.safeSize
-import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.hideFadingEdge
 import com.example.framework.utils.function.view.margin
-import com.example.framework.utils.function.view.setClickSpan
-import com.example.framework.utils.logWTF
-import com.example.framework.utils.setSpanFirst
 import com.example.mvvm.R
 import com.example.mvvm.adapter.ImageAdapter
 import com.example.mvvm.databinding.ActivityMainBinding
@@ -84,7 +79,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
         binding.tvTest.text = TextSpan()
             .add("我已阅读《用户协议》和")
-         .add("《隐私政策》",SizeSpan(dimen(R.dimen.textSize10)),ColorSpan(color(R.color.grey_cccccc)))
+         .add("《隐私政策》",SizeSpan(dimen(R.dimen.textSize10)),ColorSpan(color(R.color.grey_cccccc)),
+             RadiusSpan(RadiusBackgroundSpan(color(R.color.blue_aac6f4),5))
+         )
         .build()
 
 
