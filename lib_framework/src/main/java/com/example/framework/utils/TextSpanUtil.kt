@@ -1,14 +1,18 @@
 package com.example.framework.utils
 
+import android.content.Context
 import android.graphics.Typeface
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
+import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.view.View
 import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
 
 //------------------------------------字符串扩展函数类------------------------------------
 /**
@@ -55,6 +59,18 @@ fun CharSequence.setSpanAll(string: String, vararg type: SpanType): Spannable {
         startIndex = foundIndex + string.length
     }
     return spannable
+}
+
+abstract class XClickableSpan(private val context: Context, private val colorRes: Int, var click: (v: View) -> Unit = {}) : ClickableSpan() {
+    override fun onClick(widget: View) {
+        click.invoke(widget)
+    }
+
+    override fun updateDrawState(ds: TextPaint) {
+        super.updateDrawState(ds)
+        ds.color = ContextCompat.getColor(context, colorRes)
+        ds.isUnderlineText = false
+    }
 }
 
 /**

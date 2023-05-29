@@ -11,6 +11,7 @@ import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.widget.textview.edit.EditTextImpl
 import com.example.framework.utils.function.value.safeSize
+import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.hideFadingEdge
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.setClickSpan
@@ -67,7 +68,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             "《用户协议》",
             R.color.appTheme
         ) { "点击用户协议".logWTF }
-
+binding.tvTest.click {  }
 //        class a(func:(a:Int,b:Int,c:Int)-> BigDecimal)
 //
 //        fun test(){

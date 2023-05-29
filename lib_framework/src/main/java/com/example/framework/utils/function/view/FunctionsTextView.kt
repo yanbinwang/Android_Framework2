@@ -20,6 +20,7 @@ import androidx.annotation.DimenRes
 import androidx.core.content.ContextCompat
 import com.example.framework.utils.DecimalInputFilter
 import com.example.framework.utils.EditTextUtil
+import com.example.framework.utils.XClickableSpan
 import com.example.framework.utils.function.value.*
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
@@ -162,18 +163,19 @@ fun TextView?.setClickSpan(txt: String, keyword: String, clickableSpan: Clickabl
 
 fun TextView?.setClickSpan(txt: String, keyword: String, colorRes: Int, listener: () -> Unit) {
     if (this == null) return
-    setClickSpan(txt, keyword, object : ClickableSpan() {
-        override fun onClick(widget: View) {
-            listener.invoke()
-            movementMethod = LinkMovementMethod.getInstance()
-        }
-
-        override fun updateDrawState(ds: TextPaint) {
-            super.updateDrawState(ds)
-            ds.color = ContextCompat.getColor(context, colorRes)
-            ds.isUnderlineText = false
-        }
-    })
+//    setClickSpan(txt, keyword, object : ClickableSpan() {
+//        override fun onClick(widget: View) {
+//            listener.invoke()
+//            movementMethod = LinkMovementMethod.getInstance()
+//        }
+//
+//        override fun updateDrawState(ds: TextPaint) {
+//            super.updateDrawState(ds)
+//            ds.color = ContextCompat.getColor(context, colorRes)
+//            ds.isUnderlineText = false
+//        }
+//    })
+    setClickSpan(txt, keyword, object : XClickableSpan(context, colorRes, { listener.invoke() }) {})
 }
 
 /**
