@@ -219,11 +219,11 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
     }
 
     @Throws(Exception::class)
-    private fun zipFolder(srcFileList: MutableList<String>, zipPath: String) {
+    private fun zipFolder(folderList: MutableList<String>, zipPath: String) {
         //创建ZIP
         val outZip = ZipOutputStream(FileOutputStream(zipPath))
         //批量打入压缩包
-        for (folderPath in srcFileList) {
+        for (folderPath in folderList) {
             val file = File(folderPath)
             val zipEntry = ZipEntry(file.name)
             val inputStream = FileInputStream(file)
