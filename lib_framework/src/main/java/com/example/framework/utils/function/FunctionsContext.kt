@@ -50,7 +50,7 @@ fun Context.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(this, re
  * 獲取Typeface字體(res下新建一个font文件夹)
  * ResourcesCompat.getFont(this, R.font.font_semi_bold)
  */
-fun Context.font(@FontRes id: Int) = ResourcesCompat.getFont(this, id)
+fun Context.font(@FontRes res: Int) = ResourcesCompat.getFont(this, res)
 
 /**
  * 获取Resources中的Dimes
