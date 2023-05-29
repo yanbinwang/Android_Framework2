@@ -35,8 +35,8 @@
             android:layout_height="400pt"
             android:gravity="center"
             android:text="dsadasdasdasdsadas"
-            android:textColor="@color/textBlack"
-            android:textSize="@dimen/textSize26" />
+            android:textColor="@color/textGrey"
+            android:textSize="@dimen/textSize20" />
 
     </FrameLayout>
 

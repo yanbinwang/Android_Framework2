@@ -26,9 +26,11 @@ import com.example.mvvm.adapter.ImageAdapter
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.CardTransformer
 import com.example.mvvm.utils.NumberEditTextHelper
+import com.example.mvvm.utils.span.RankSpan
+import com.example.mvvm.utils.span.RankSpanInterface
 
 @Route(path = ARouterPath.MainActivity)
-class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
+class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl , RankSpanInterface {
 //    //    private val illustratePopup by lazy { IllustratePopup(this) }
 //    private val testBottom by lazy { TestTopDialog() }
 
@@ -77,12 +79,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
 
 
+//        binding.tvTest.text = TextSpan()
+//            .add("我已阅读《用户协议》和")
+//         .add("《隐私政策》",SizeSpan(dimen(R.dimen.textSize10)),ColorSpan(color(R.color.grey_cccccc)),
+//             RadiusSpan(RadiusBackgroundSpan(color(R.color.blue_aac6f4),5, 3.pt))
+//         )
+//        .build()
+
         binding.tvTest.text = TextSpan()
-            .add("我已阅读《用户协议》和")
-         .add("《隐私政策》",SizeSpan(dimen(R.dimen.textSize10)),ColorSpan(color(R.color.grey_cccccc)),
-             RadiusSpan(RadiusBackgroundSpan(color(R.color.blue_aac6f4),5, 3.pt))
-         )
-        .build()
+            .add("在Cheezeebit交易，訂單賺取高達",SizeSpan(dimen(R.dimen.textSize14)))
+            .add(" 0.5% ",SizeSpan(dimen(R.dimen.textSize14)),ColorSpan(color(R.color.grey_cccccc)))
+            .add("的訂單獎勵",SizeSpan(dimen(R.dimen.textSize14)))
+            .add("★")
+            .build().setRankSpan(18.pt)
 
 
 

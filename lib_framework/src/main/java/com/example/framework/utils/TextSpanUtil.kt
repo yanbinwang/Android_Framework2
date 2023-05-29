@@ -1,5 +1,6 @@
 package com.example.framework.utils
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
@@ -13,6 +14,8 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.ReplacementSpan
 import android.text.style.StyleSpan
 import androidx.annotation.ColorInt
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmapOrNull
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 
@@ -198,5 +201,33 @@ class RadiusBackgroundSpan(private val mColor: Int, private val mRadius: Int, pr
         canvas.drawRoundRect(oval, mRadius.toSafeFloat(), mRadius.toSafeFloat(), paint)
         paint.color = color
         canvas.drawText(text ?: return, start, end, (x + mRadius).toSafeFloat(), differenceY + fontHeight - mDifference, paint)
+    }
+}
+
+/**
+ * @description 图片span
+ * @param bitmap     替换的图片
+ * @param mImageSize 图片的大小，传入pt
+ * @param mDifference 差值，如果居中的话，文字的一段高度是无法代码计算的，需要传入对应pt微调
+ * @author yan
+ */
+class ImageSpan(private val bitmap: Bitmap?, private val mImageSize: Int, private val mDifference: Int = 0) : ReplacementSpan() {
+    private var mSize = 0
+//    private val bitmap = ResourcesCompat.getDrawable(BaseApplication.instance.resources, R.mipmap.ic_rank, null)?.toBitmapOrNull(mImageSize, mImageSize)
+
+    override fun getSize(paint: Paint, text: CharSequence?, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {
+        mSize = paint.measureText(text, start, end).toInt()
+        //mSize就是span的宽度，span有多宽，开发者可以在这里随便定义规则
+        //可以根据传入起始截至位置获得截取文字的宽度，最后加上左右两个圆角的半径得到span宽度
+        return mSize
+    }
+
+    override fun draw(canvas: Canvas, text: CharSequence?, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
+        if (bitmap == null) return
+        paint.isAntiAlias = true //设置画笔的锯齿效果
+        val lineHeight = bottom - top
+        val differenceY = (lineHeight - mImageSize) / 2f
+        val oval = RectF(x, differenceY, x + mSize, differenceY + mImageSize + mDifference)
+        canvas.drawBitmap(bitmap, null, oval, paint)
     }
 }
