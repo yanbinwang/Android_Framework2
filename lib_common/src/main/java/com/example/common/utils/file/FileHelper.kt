@@ -44,25 +44,48 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
     /**
      * 存储图片协程
      */
-    fun savePicJob(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, onComplete: (filePath: String?) -> Unit = {}) {
+    fun savePicJob(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
         job?.cancel()
-        job = launch { savePic(bitmap, root, fileName, deleteDir, format, onComplete) }
+        job = launch {
+            onStart()
+            savePic(bitmap, root, fileName, deleteDir, format, onResult)
+        }
     }
 
-    private suspend fun savePic(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, onComplete: (filePath: String?) -> Unit = {}) {
-        onComplete(withContext(IO) { saveBit(bitmap, root, fileName, deleteDir, format) })
+    private suspend fun savePic(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, listener: (filePath: String?) -> Unit = {}) {
+        listener(withContext(IO) { saveBit(bitmap, root, fileName, deleteDir, format) })
     }
 
     /**
      * 保存pdf文件存成图片形式
+     * 指定页数
      */
-    fun savePDFJob(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}) {
+    fun savePDFJob(file: File, index: Int = 0, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
         job?.cancel()
-        job = launch { savePDF(file, index, onComplete) }
+        job = launch {
+            onStart()
+            savePDF(file, index, onResult)
+        }
     }
 
-    private suspend fun savePDF(file: File, index: Int = 0, onComplete: (filePath: String?) -> Unit = {}) {
-        onComplete(withContext(IO) {
+    /**
+     * 全部保存下来，返回集合
+     */
+    fun savePDFJob(file: File, onStart: () -> Unit = {}, onResult: (list: MutableList<String?>?) -> Unit = {}) {
+        job?.cancel()
+        job = launch {
+            onStart()
+            val list: MutableList<String?>? = null
+            val pageCount = withContext(IO) { PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).pageCount }
+            for (index in 0 until pageCount) {
+                savePDF(file, index) { list?.add(it) }
+            }
+            onResult.invoke(list)
+        }
+    }
+
+    private suspend fun savePDF(file: File, index: Int = 0, listener: (filePath: String?) -> Unit = {}) {
+        listener(withContext(IO) {
             val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
             val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
             val width = page.width
@@ -82,38 +105,42 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
     /**
      * 构建图片
      */
-    fun saveViewJob(view: View, width: Int = screenWidth, height: Int = screenHeight, onStart: () -> Unit = {}, onResult: (bitmap: Bitmap?) -> Unit = {}, onComplete: () -> Unit = {}) {
+    fun saveViewJob(view: View, width: Int = screenWidth, height: Int = screenHeight, onStart: () -> Unit = {}, onResult: (bitmap: Bitmap?) -> Unit = {}) {
         job?.cancel()
-        job = launch { saveView(view, width, height, onStart, onResult, onComplete) }
+        job = launch {
+            onStart()
+            saveView(view, width, height, onResult)
+        }
     }
 
-    private suspend fun saveView(view: View, width: Int = screenWidth, height: Int = screenHeight, onStart: () -> Unit = {}, onResult: (bitmap: Bitmap?) -> Unit = {}, onComplete: () -> Unit = {}) {
-        onStart()
+    private suspend fun saveView(view: View, width: Int = screenWidth, height: Int = screenHeight, listener: (bitmap: Bitmap?) -> Unit = {}) {
         view.loadLayout(width, height)
         try {
-            onResult(withContext(IO) { view.loadBitmap() })
+            listener(withContext(IO) { view.loadBitmap() })
         } catch (_: Exception) {
+            listener(null)
         }
-        onComplete()
     }
 
     /**
      * @param folderPath 要打成压缩包文件的路径
      * @param zipPath 压缩完成的Zip路径（包含压缩文件名）-"${Constants.SDCARD_PATH}/10086.zip"
      */
-    fun zipJob(folderPath: String, zipPath: String, onStart: () -> Unit = {}, onComplete: (filePath: String?) -> Unit = {}) {
+    fun zipJob(folderPath: String, zipPath: String, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
         job?.cancel()
-        job = launch { zip(folderPath, zipPath, onStart, onComplete) }
+        job = launch {
+            onStart()
+            zip(folderPath, zipPath, onResult)
+        }
     }
 
-    private suspend fun zip(folderPath: String, zipPath: String, onStart: () -> Unit = {}, onComplete: (filePath: String?) -> Unit = {}) {
-        onStart()
+    private suspend fun zip(folderPath: String, zipPath: String, listener: (filePath: String?) -> Unit = {}) {
         try {
             withContext(IO) { File(folderPath).let { if (it.exists()) zipFolder(it.absolutePath, File(zipPath).absolutePath) } }
         } catch (e: Exception) {
             "打包图片生成压缩文件异常: $e".logWTF
         }
-        onComplete(if (File(zipPath).exists()) zipPath else null)
+        listener(if (File(zipPath).exists()) zipPath else null)
     }
 
     /**
@@ -176,11 +203,13 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
             return
         }
         job?.cancel()
-        job = launch { download(downloadUrl, filePath, fileName, onStart, onSuccess, onLoading, onFailed, onComplete) }
+        job = launch {
+            onStart()
+            download(downloadUrl, filePath, fileName, onSuccess, onLoading, onFailed, onComplete)
+        }
     }
 
-    private suspend fun download(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
-        onStart()
+    private suspend fun download(downloadUrl: String, filePath: String, fileName: String, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
         //清除目录下的所有文件
         filePath.deleteDir()
         //创建一个安装的文件，开启io协程写入
