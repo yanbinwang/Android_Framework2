@@ -19,6 +19,7 @@ import android.view.ViewGroup
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.FontRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -49,7 +50,7 @@ fun Context.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(this, re
  * 獲取Typeface字體(res下新建一个font文件夹)
  * ResourcesCompat.getFont(this, R.font.font_semi_bold)
  */
-fun Context.font(id: Int) = ResourcesCompat.getFont(this, id)
+fun Context.font(@FontRes id: Int) = ResourcesCompat.getFont(this, id)
 
 /**
  * 获取Resources中的Dimes
