@@ -80,14 +80,13 @@ class CameraHelper(private val cvFinder: CameraView) : LifecycleEventObserver {
     /**
      * 拍照
      */
-    fun takePicture(onStart: () -> Unit = {}, onShutter: () -> Unit = {}, onSuccess: (sourceFile: File?) -> Unit = {}, onFailed: () -> Unit = {}, snapshot: Boolean = true) {
+    fun takePicture(onShutter: () -> Unit = {}, onSuccess: (sourceFile: File?) -> Unit = {}, onFailed: () -> Unit = {}, snapshot: Boolean = true) {
         cvFinder.apply {
             if (isTakingPicture) {
                 R.string.camera_picture_shutter.shortToast()
                 return
             }
             sound.play(MediaActionSound.SHUTTER_CLICK)
-            onStart()
             if (snapshot) takePictureSnapshot() else takePicture()
             addCameraListener(object : CameraListener() {
                 override fun onPictureShutter() {
@@ -113,7 +112,7 @@ class CameraHelper(private val cvFinder: CameraView) : LifecycleEventObserver {
     /**
      * 开始录像
      */
-    fun takeVideo(onStart: () -> Unit = {}, onRecording: (sourcePath: String?) -> Unit = {}, onShutter: () -> Unit = {}, onResult: (sourcePath: String?) -> Unit = {}, snapshot: Boolean = true) {
+    fun takeVideo(onRecording: (sourcePath: String?) -> Unit = {}, onShutter: () -> Unit = {}, onResult: (sourcePath: String?) -> Unit = {}, snapshot: Boolean = true) {
         cvFinder.apply {
             if (isTakingVideo) {
                 R.string.camera_video_shutter.shortToast()
@@ -121,7 +120,6 @@ class CameraHelper(private val cvFinder: CameraView) : LifecycleEventObserver {
             }
             val videoFile = MultimediaUtil.getOutputFile(VIDEO)
             if (null != videoFile) {
-                onStart()
                 if (snapshot) takeVideoSnapshot(videoFile) else takeVideo(videoFile)
                 addCameraListener(object : CameraListener() {
                     override fun onVideoRecordingStart() {
