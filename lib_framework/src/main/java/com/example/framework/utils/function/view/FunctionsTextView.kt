@@ -174,7 +174,6 @@ fun TextView?.setClickSpan(txt: String, keyword: String, colorRes: Int, listener
             ds.isUnderlineText = false
         }
     })
-//    setClickSpan(txt, keyword, object : XClickableSpan(context, colorRes, { listener.invoke() }) {})
 }
 
 /**
