@@ -149,7 +149,7 @@ fun TextView?.setMatchText() {
 /**
  * 文案添加点击事件（单一）
  */
-fun TextView?.setClickableSpan(txt: String, keyword: String, clickableSpan: ClickableSpan) {
+fun TextView?.setClickSpan(txt: String, keyword: String, clickableSpan: ClickableSpan) {
     if (this == null) return
     val spannable = SpannableString(txt)
     val index = txt.indexOf(keyword)
@@ -158,6 +158,22 @@ fun TextView?.setClickableSpan(txt: String, keyword: String, clickableSpan: Clic
         spannable
     } else txt
     movementMethod = LinkMovementMethod.getInstance()
+}
+
+fun TextView?.setClickSpan(txt: String, keyword: String, colorRes: Int, listener: () -> Unit) {
+    if (this == null) return
+    setClickSpan(txt, keyword, object : ClickableSpan() {
+        override fun onClick(widget: View) {
+            listener.invoke()
+            movementMethod = LinkMovementMethod.getInstance()
+        }
+
+        override fun updateDrawState(ds: TextPaint) {
+            super.updateDrawState(ds)
+            ds.color = ContextCompat.getColor(context, colorRes)
+            ds.isUnderlineText = false
+        }
+    })
 }
 
 /**
