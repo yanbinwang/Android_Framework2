@@ -46,6 +46,28 @@ fun Context.color(@ColorRes res: Int) = ContextCompat.getColor(this, res)
 fun Context.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(this, res)
 
 /**
+ * 獲取Typeface字體(res下新建一个font文件夹)
+ * ResourcesCompat.getFont(this, R.font.font_semi_bold)
+ */
+fun Context.font(id: Int) = ResourcesCompat.getFont(this, id)
+
+/**
+ * 获取Resources中的Dimes
+ */
+fun Context.dimen(@DimenRes res: Int) = resources.getDimension(res)
+
+/**
+ * 获取Resources中的String
+ */
+fun Context.string(@StringRes res: Int): String {
+    return try {
+        resources.getString(res)
+    } catch (_: Exception) {
+        ""
+    }
+}
+
+/**
  * 通过字符串获取drawable下的xml文件
  */
 @SuppressLint("DiscouragedApi")
@@ -67,24 +89,6 @@ fun Context.defTypeMipmap(name: String): Int {
     } catch (_: Exception) {
         0
     }
-}
-
-/**
- * 获取Resources中的String
- */
-fun Context.string(@StringRes res: Int): String {
-    return try {
-        resources.getString(res)
-    } catch (_: Exception) {
-        ""
-    }
-}
-
-/**
- * 获取Resources中的Dimes
- */
-fun Context.dimen(@DimenRes res: Int): Float {
-    return resources.getDimension(res)
 }
 
 /**
@@ -163,12 +167,6 @@ fun Context.startForegroundService(cls: Class<out Service>, vararg pairs: Pair<S
 fun Context.stopService(cls: Class<out Service>) {
     stopService(getIntent(cls))
 }
-
-/**
- * 獲取Typeface字體(res下新建一个font文件夹)
- * ResourcesCompat.getFont(this, R.font.font_semi_bold)
- */
-fun Context.getFont(id: Int) = ResourcesCompat.getFont(this, id)
 
 /**
  *  获取对应class类页面中intent的消息
