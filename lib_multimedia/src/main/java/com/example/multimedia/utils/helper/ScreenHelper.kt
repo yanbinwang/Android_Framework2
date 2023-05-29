@@ -98,15 +98,16 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
         //录屏文件创建/停止录屏时（exists=false）都会回调
         ScreenService.setOnScreenListener { filePath, exists ->
             if (!exists) {
-                filePath ?: return@setOnScreenListener
+                val folderPath = filePath.orEmpty()
                 //说明未截图
                 if(shotList.size == 0) {
-                    onShutter.invoke(filePath, false)
+                    onShutter.invoke(folderPath, false)
                 } else {
                     //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
-                    shotList.add(filePath)
+                    shotList.add(folderPath)
                     //压缩包输出路径（会以录屏文件的命名方式来命名）
-                    val zipPath = File(filePath).name.replace("mp4", "zip")
+                    val zipPath = File(folderPath).name.replace("mp4", "zip")
+                    //开始压包
                     fileHelper.zipJob(shotList, zipPath, { showDialog() }, {
                         hideDialog()
                         filePath.deleteFile()
