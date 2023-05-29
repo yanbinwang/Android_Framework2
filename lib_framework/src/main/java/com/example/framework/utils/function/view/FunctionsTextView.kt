@@ -149,14 +149,14 @@ fun TextView?.setMatchText() {
 /**
  * 文案添加点击事件（单一）
  */
-fun TextView?.setClickableSpan(textStr: String, keyword: String, clickableSpan: ClickableSpan) {
+fun TextView?.setClickableSpan(txt: String, keyword: String, clickableSpan: ClickableSpan) {
     if (this == null) return
-    val spannable = SpannableString(textStr)
-    val index = textStr.indexOf(keyword)
+    val spannable = SpannableString(txt)
+    val index = txt.indexOf(keyword)
     text = if (index != -1) {
         spannable.setSpan(clickableSpan, index, index + keyword.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         spannable
-    } else textStr
+    } else txt
     movementMethod = LinkMovementMethod.getInstance()
 }
 

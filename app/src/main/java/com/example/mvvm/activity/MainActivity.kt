@@ -1,5 +1,7 @@
 package com.example.mvvm.activity
 
+import android.view.View
+import android.view.View.OnClickListener
 import android.view.WindowManager
 import android.widget.ImageView
 import androidx.viewpager2.widget.ViewPager2
@@ -9,16 +11,17 @@ import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.setClickSpan
 import com.example.common.widget.textview.edit.EditTextImpl
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.hideFadingEdge
 import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.logWTF
 import com.example.mvvm.R
 import com.example.mvvm.adapter.ImageAdapter
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.CardTransformer
 import com.example.mvvm.utils.NumberEditTextHelper
-
 
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
@@ -59,6 +62,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
                 hand.margin(top = getStatusBarHeight() + 80.pt + 80.pt)
             })
 
+        binding.tvTest.margin(top = getStatusBarHeight() + 80.pt + 80.pt)
+
+        binding.tvTest.setClickSpan("我已阅读《用户协议》和《隐私政策》","《用户协议》" to object :OnClickListener{
+            override fun onClick(v: View?) {
+                "点击".logWTF
+            }
+        })
 
 //        class a(func:(a:Int,b:Int,c:Int)-> BigDecimal)
 //

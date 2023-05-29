@@ -3,7 +3,13 @@ package com.example.common.utils.function
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.text.Spannable
+import android.text.TextPaint
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.util.TypedValue
+import android.view.View
+import android.view.View.OnClickListener
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -21,6 +27,7 @@ import com.example.common.utils.ScreenUtil.getRealSize
 import com.example.common.utils.ScreenUtil.getRealSizeFloat
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
+import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.value.orZero
@@ -185,6 +192,29 @@ fun TextView?.setSpanAll(txt: String, keyword: String, colorRes: Int = R.color.a
 fun TextView?.setSpanAll(@StringRes res: Int, @StringRes resKeyword: Int, colorRes: Int = R.color.appTheme) {
     this ?: return
     text = string(res).setSpanAll(string(resKeyword), ColorSpan(context.color(colorRes)))
+}
+
+fun TextView?.setClickSpan(txt: String, vararg content: Pair<String, OnClickListener>, colorRes: Int = R.color.appTheme) {
+    this ?: return
+    var textSpannable: Spannable? = null
+    content.forEach {
+        textSpannable = txt.setSpanFirst(it.first, ClickSpan(object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                it.second.onClick(widget)
+                movementMethod = LinkMovementMethod.getInstance()
+            }
+
+            override fun updateDrawState(ds: TextPaint) {
+                super.updateDrawState(ds)
+                ds.color = color(colorRes)
+                ds.isUnderlineText = false
+            }
+        }))
+    }
+    if (null != textSpannable) {
+        text = textSpannable
+        movementMethod = LinkMovementMethod.getInstance()
+    }
 }
 
 /**
