@@ -212,9 +212,13 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, onAlphaChange: (alpha: F
 
 /**
  * 点击链接的span
- * "我已阅读《用户协议》和《隐私政策》".setSpanFirst("《用户协议》",ClickSpan(object :XClickableSpan(R.color.appTheme){
+ * "我已阅读《用户协议》和《隐私政策》".setSpanFirst("《用户协议》",ClickSpan(object :XClickableSpan(){
  *      override fun onLinkClick(widget: View) {
  *          "点击用户协议".logWTF
+ *      }
+ *  })).setSpanFirst("《隐私政策》",ClickSpan(object :XClickableSpan(){
+ *      override fun onLinkClick(widget: View) {
+ *          "点击隐私政策".logWTF
  *      }
  *  }))
  */
