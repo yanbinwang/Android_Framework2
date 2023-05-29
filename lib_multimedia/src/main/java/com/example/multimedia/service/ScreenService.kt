@@ -64,7 +64,7 @@ class ScreenService : Service() {
             startForeground(1, builder.build())
         }
 //        stopForeground(true)//关闭录屏的图标-可注释
-        timerFactory.onStart()
+        timerFactory.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -117,7 +117,7 @@ class ScreenService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         try {
-            timerFactory.onDestroy()
+            timerFactory.destroy()
             virtualDisplay?.release()
             virtualDisplay = null
             mediaRecorder?.stop()
