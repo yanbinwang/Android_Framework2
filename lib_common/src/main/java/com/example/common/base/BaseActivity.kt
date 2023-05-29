@@ -222,9 +222,9 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun showGuide(label: String, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
-//        val labelTag = DataBooleanCacheUtil(label)
-//        if (!labelTag.get()) {
-//            labelTag.set(true)
+        val labelTag = DataBooleanCacheUtil(label)
+        if (!labelTag.get()) {
+            labelTag.set(true)
             val builder = NewbieGuide.with(this)//传入activity
                 .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
                 .setOnGuideChangedListener(guideListener)
@@ -235,7 +235,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                 builder.addGuidePage(page)
             }
             builder.show()
-//        }
+        }
     }
 
     override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity {
