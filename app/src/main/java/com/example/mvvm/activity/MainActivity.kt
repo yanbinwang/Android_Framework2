@@ -1,5 +1,7 @@
 package com.example.mvvm.activity
 
+import android.text.method.LinkMovementMethod
+import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import androidx.viewpager2.widget.ViewPager2
@@ -7,18 +9,23 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.app.hubert.guide.model.GuidePage
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
+import com.example.common.utils.function.XClickableSpan
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.widget.textview.edit.EditTextImpl
+import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.function.value.safeSize
+import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.hideFadingEdge
 import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.function.view.setClickSpan
+import com.example.framework.utils.logWTF
+import com.example.framework.utils.setSpanFirst
 import com.example.mvvm.R
 import com.example.mvvm.adapter.ImageAdapter
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.CardTransformer
 import com.example.mvvm.utils.NumberEditTextHelper
-
 
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
@@ -59,7 +66,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
                 hand.margin(top = getStatusBarHeight() + 80.pt + 80.pt)
             })
 
+        binding.tvTest.margin(top = getStatusBarHeight() + 80.pt + 80.pt)
 
+        binding.tvTest.text = "我已阅读《用户协议》和《隐私政策》".setSpanFirst("《用户协议》",ClickSpan(object :XClickableSpan(R.color.appTheme){
+            override fun onLinkClick(widget: View) {
+                "点击用户协议".logWTF
+            }
+        }))
+        binding.tvTest.movementMethod = LinkMovementMethod.getInstance()
+
+//        binding.tvTest.setClickSpan(
+//            "我已阅读《用户协议》和《隐私政策》",
+//            "《用户协议》",
+//            R.color.appTheme
+//        ) { "点击用户协议".logWTF }
+//binding.tvTest.click {  }
 //        class a(func:(a:Int,b:Int,c:Int)-> BigDecimal)
 //
 //        fun test(){
