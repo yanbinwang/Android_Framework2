@@ -16,62 +16,54 @@ import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.file.copyFile
-import com.example.common.utils.file.deleteDir
+import com.example.common.utils.file.FileHelper
 import com.example.common.utils.file.deleteFile
-import com.example.common.utils.file.isMkdirs
-import com.example.common.utils.helper.AccountHelper.storage
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.function.startService
 import com.example.framework.utils.function.stopService
 import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.logWTF
 import com.example.multimedia.service.ScreenService
 import com.example.multimedia.service.ScreenShotObserver
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
-import kotlin.coroutines.CoroutineContext
 
 /**
  * @description 录屏工具类
  * @author yan
  */
-class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObserver, CoroutineScope {
+class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObserver {
     private val loadingDialog by lazy { LoadingDialog(activity) }
-    private val shotFile by lazy { File("${storage}录屏/截屏".isMkdirs()) }
-    override val coroutineContext: CoroutineContext
-        get() = (Dispatchers.Main)
-    private var job: Job? = null
-
+    private val fileHelper by lazy { FileHelper(activity) }
+    private val shotList by lazy { ArrayList<String>() }
     /**
      * 处理录屏的回调
      */
     private val activityResultValue = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
-            isStart = true
+            shotList.clear()
+            isRecording = true
             "开始录屏".shortToast()
-            clearCache()
             activity.startService(ScreenService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
             activity.moveTaskToBack(true)
         } else {
-            isStart = false
+            isRecording = false
             "取消录屏".shortToast()
         }
     }
 
     companion object {
-        var isStart = false
         var previewWidth = 0
         var previewHeight = 0
+        var isRecording = false
+
+        internal var onShutter: (filePath: String?, isZip: Boolean) -> Unit = { _, _ -> }
+
+        /**
+         * isZip->true是zip文件夹，可能包含录制时的截图
+         */
+        fun setOnScreenListener(onShutter: (filePath: String?, isZip: Boolean) -> Unit) {
+            this.onShutter = onShutter
+        }
     }
 
     init {
@@ -100,97 +92,28 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
         }
         //只要在录屏中，截一张图就copy一张到目标目录，但是需要及时清空
         ScreenShotObserver.setOnScreenShotListener {
-            if (isStart) {
+            if (isRecording) {
                 it ?: return@setOnScreenShotListener
-                File(it).copyFile(shotFile)
+                shotList.add(it)
             }
         }
         //录屏文件创建/停止录屏时（exists=false）都会回调
         ScreenService.setOnScreenListener { filePath, exists ->
             if (!exists) {
                 filePath ?: return@setOnScreenListener
-                //拿到保存的截屏文件夹地址下的所有文件目录
-                val containList = shotFile.list()?.toMutableList()
-                containList?.add(filePath)
-                job?.cancel()
-                job = launch {
-                    showDialog()
-                    val zipPath = File(filePath).name.replace("mp4", "zip")
-                    withContext(Dispatchers.IO) { zipFolder("${storage}录屏", zipPath, containList) }
-                    //打包成功清空录屏源文件和截屏文件夹
-                    clearCache(filePath)
-                    hideDialog()
-                }
-            }
-        }
-    }
-
-    private fun clearCache(filePath: String = "") {
-        if (filePath.isNotEmpty()) filePath.deleteFile()
-        shotFile.absolutePath.deleteDir()
-    }
-
-    /**
-     * 将指定路径下的所有文件打成压缩包
-     * File fileDir = new File(rootDir + "/DCIM/Screenshots");
-     * File zipFile = new File(rootDir + "/" + taskId + ".zip");
-     *
-     * @param srcFilePath 要压缩的文件或文件夹路径
-     * @param zipFilePath 压缩完成的Zip路径
-     */
-    @Throws(Exception::class)
-    private fun zipFolder(srcFilePath: String, zipFilePath: String, containList: MutableList<String>? = null) {
-        //创建ZIP
-        val outZip = ZipOutputStream(FileOutputStream(zipFilePath))
-        //创建文件
-        val file = File(srcFilePath)
-        //压缩
-        zipFiles(file.parent + File.separator, file.name, outZip, containList)
-        //完成和关闭
-        outZip.finish()
-        outZip.close()
-    }
-
-    @Throws(Exception::class)
-    private fun zipFiles(folderPath: String, fileName: String, zipOutputSteam: ZipOutputStream?, containList: MutableList<String>? = null) {
-        " \n压缩路径:$folderPath\n压缩文件名:$fileName".logWTF
-        if (zipOutputSteam == null) return
-        val file = File(folderPath + fileName)
-        //是否需要做排除
-        if (containList != null) {
-            if (containList.contains(file.absolutePath).orFalse) startZip(folderPath, fileName, zipOutputSteam, containList)
-        } else {
-            startZip(folderPath, fileName, zipOutputSteam)
-        }
-    }
-
-    @Throws(Exception::class)
-    private fun startZip(folderPath: String, fileName: String, zipOutputSteam: ZipOutputStream?, containList: MutableList<String>? = null) {
-        if (zipOutputSteam == null) return
-        val file = File(folderPath + fileName)
-        if (file.isFile) {
-            val zipEntry = ZipEntry(fileName)
-            val inputStream = FileInputStream(file)
-            zipOutputSteam.putNextEntry(zipEntry)
-            var len: Int
-            val buffer = ByteArray(4096)
-            while (inputStream.read(buffer).also { len = it } != -1) {
-                zipOutputSteam.write(buffer, 0, len)
-            }
-            zipOutputSteam.closeEntry()
-        } else {
-            //文件夹
-            file.list().let {
-                //没有子文件和压缩
-                if (it.isNullOrEmpty()) {
-                    val zipEntry = ZipEntry(fileName + File.separator)
-                    zipOutputSteam.putNextEntry(zipEntry)
-                    zipOutputSteam.closeEntry()
+                //说明未截图
+                if(shotList.size == 0) {
+                    onShutter.invoke(filePath, false)
                 } else {
-                    //子文件和递归
-                    for (i in it.indices) {
-                        startZip("$folderPath$fileName/", it[i], zipOutputSteam, containList)
-                    }
+                    //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
+                    shotList.add(filePath)
+                    //压缩包输出路径（会以录屏文件的命名方式来命名）
+                    val zipPath = File(filePath).name.replace("mp4", "zip")
+                    fileHelper.zipJob(shotList, zipPath, { showDialog() }, {
+                        hideDialog()
+                        filePath.deleteFile()
+                    })
+                    onShutter.invoke(zipPath, true)
                 }
             }
         }
@@ -225,7 +148,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
      * 结束录屏
      */
     fun stopScreen() = activity.execute {
-        isStart = false
+        isRecording = false
         stopService(ScreenService::class.java)
     }
 
