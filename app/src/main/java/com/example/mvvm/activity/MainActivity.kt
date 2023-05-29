@@ -80,7 +80,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         binding.tvTest.text = TextSpan()
             .add("我已阅读《用户协议》和")
          .add("《隐私政策》",SizeSpan(dimen(R.dimen.textSize10)),ColorSpan(color(R.color.grey_cccccc)),
-             RadiusSpan(RadiusBackgroundSpan(color(R.color.blue_aac6f4),5, 4.pt))
+             RadiusSpan(RadiusBackgroundSpan(color(R.color.blue_aac6f4),5, 3.pt))
          )
         .build()
 

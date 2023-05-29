@@ -166,7 +166,7 @@ class RadiusSpan(private val radiusBackground: RadiusBackgroundSpan) : SpanType 
  * @param mColor  背景颜色
  * @param mRadius 圆角半径
  * @param mDifference 差值，如果居中的话，文字的一段高度是无法代码计算的，需要传入对应pt微调
- * RadiusSpan(RadiusBackgroundSpan(color(R.color.blue_aac6f4),5, 4.pt))
+ * RadiusSpan(RadiusBackgroundSpan(color(R.color.blue_aac6f4),5, 3.pt))
  * https://blog.csdn.net/industriously/article/details/53493392/
  * @author yan
  */
