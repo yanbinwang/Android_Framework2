@@ -1,6 +1,5 @@
 package com.example.mvvm.utils.span
 
-import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
@@ -16,9 +15,9 @@ import com.example.mvvm.R
 /**
  * description 一段文字中如果某行需要变为图片，则可以继承RankSpanInterface，
  * ‘在Cheezeebit交易，訂單賺取高達%1$s的訂單獎勵 ★’--》最后一个特殊星星符号就会被替换为对应的图片，每个大小会不一样，故而单独写成一个span
+ * 不同尺寸的图片需要微调
  * creator yan
  */
-@SuppressLint("UseCompatLoadingForDrawables")
 class RankSpan : ReplacementSpan() {
     private var mSize = 0
     private val bitmap = ResourcesCompat.getDrawable(BaseApplication.instance.resources, R.mipmap.ic_rank, null)?.toBitmapOrNull(60, 60)
