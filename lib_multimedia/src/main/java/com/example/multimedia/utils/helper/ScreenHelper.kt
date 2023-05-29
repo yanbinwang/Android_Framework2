@@ -52,8 +52,8 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
     }
 
     companion object {
-        var previewWidth = 0
-        var previewHeight = 0
+        var previewWidth = screenWidth
+        var previewHeight = screenHeight
         var isRecording = false
 
         internal var onShutter: (filePath: String?, isZip: Boolean) -> Unit = { _, _ -> }
@@ -69,8 +69,6 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
     init {
         activity.lifecycle.addObserver(this)
         //获取录屏屏幕宽高，高版本进行修正
-        previewWidth = screenWidth
-        previewHeight = screenHeight
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             var destroy = false
             if (activity.isFinishing.orFalse) destroy = true
