@@ -3,7 +3,10 @@ package com.example.common.utils.function
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.text.TextPaint
+import android.text.style.ClickableSpan
 import android.util.TypedValue
+import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -205,6 +208,21 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, onAlphaChange: (alpha: F
     setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
         onAlphaChange.invoke(if (scrollY <= menuHeight.pt / 2f) 0 + scrollY / (menuHeight.pt / 4f) else 1f)
     })
+}
+
+/**
+ * 点击链接的span
+ */
+abstract class XClickableSpan(private val colorRes: Int = R.color.appTheme, var listener: (v: View) -> Unit = {}) : ClickableSpan() {
+    override fun onClick(widget: View) {
+        listener.invoke(widget)
+    }
+
+    override fun updateDrawState(ds: TextPaint) {
+        super.updateDrawState(ds)
+        ds.color = color(colorRes)
+        ds.isUnderlineText = false
+    }
 }
 
 object ExtraNumber {
