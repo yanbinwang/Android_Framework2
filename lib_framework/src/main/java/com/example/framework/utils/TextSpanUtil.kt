@@ -165,10 +165,12 @@ class RadiusSpan(private val radiusBackground: RadiusBackgroundSpan) : SpanType 
  * @description 圆角span
  * @param mColor  背景颜色
  * @param mRadius 圆角半径
+ * @param mDifference 差值，如果居中的话，文字的一段高度是无法代码计算的，需要传入对应pt微调
+ * RadiusSpan(RadiusBackgroundSpan(color(R.color.blue_aac6f4),5, 4.pt))
  * https://blog.csdn.net/industriously/article/details/53493392/
  * @author yan
  */
-class RadiusBackgroundSpan(private val mColor: Int, private val mRadius: Int) : ReplacementSpan() {
+class RadiusBackgroundSpan(private val mColor: Int, private val mRadius: Int, private val mDifference: Int = 0) : ReplacementSpan() {
     private var mSize = 0
 
     override fun getSize(paint: Paint, text: CharSequence?, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {
@@ -183,10 +185,18 @@ class RadiusBackgroundSpan(private val mColor: Int, private val mRadius: Int) : 
         val color = paint.color//保存文字颜色
         paint.color = mColor//设置背景颜色
         paint.isAntiAlias = true// 设置画笔的锯齿效果
-        val oval = RectF(x, y + paint.ascent(), x + mSize, y + paint.descent())
-        //设置文字背景矩形，x为span其实左上角相对整个TextView的x值，y为span左上角相对整个View的y值。paint.ascent()获得文字上边缘，paint.descent()获得文字下边缘
-        canvas.drawRoundRect(oval, mRadius.toSafeFloat(), mRadius.toSafeFloat(), paint)//绘制圆角矩形，第二个参数是x半径，第三个参数是y半径
-        paint.color = color//恢复画笔的文字颜色
-        canvas.drawText(text ?: return, start, end, (x + mRadius).toSafeFloat(), y.toSafeFloat(), paint)//绘制文字
+//        val oval = RectF(x, y + paint.ascent(), x + mSize, y + paint.descent())
+//        //设置文字背景矩形，x为span其实左上角相对整个TextView的x值，y为span左上角相对整个View的y值。paint.ascent()获得文字上边缘，paint.descent()获得文字下边缘
+//        canvas.drawRoundRect(oval, mRadius.toSafeFloat(), mRadius.toSafeFloat(), paint)//绘制圆角矩形，第二个参数是x半径，第三个参数是y半径
+//        paint.color = color//恢复画笔的文字颜色
+//        canvas.drawText(text ?: return, start, end, (x + mRadius).toSafeFloat(), y.toSafeFloat(), paint)//绘制文字
+        //居中显示
+        val lineHeight = bottom - top
+        val fontHeight = paint.descent() - paint.ascent()
+        val differenceY = (lineHeight - fontHeight) / 2f
+        val oval = RectF(x, differenceY, x + mSize, differenceY + fontHeight)
+        canvas.drawRoundRect(oval, mRadius.toSafeFloat(), mRadius.toSafeFloat(), paint)
+        paint.color = color
+        canvas.drawText(text ?: return, start, end, (x + mRadius).toSafeFloat(), differenceY + fontHeight - mDifference, paint)
     }
 }
