@@ -60,12 +60,12 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun displayProgress(view: ImageView, string: String, onStart: () -> Unit, onProgress: (progress: Int?) -> Unit, onComplete: () -> Unit) {
-        ProgressInterceptor.addListener(string) { onProgress(it) }
         Glide.with(view.context)
             .load(string)
             .apply(RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE))
             .addListener(object : GlideRequestListener<Drawable?>() {
                 override fun onStart() {
+                    ProgressInterceptor.addListener(string) { onProgress(it) }
                     onStart()
                 }
 
