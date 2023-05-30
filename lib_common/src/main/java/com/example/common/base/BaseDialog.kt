@@ -8,6 +8,7 @@ import android.os.Looper
 import android.view.Gravity.CENTER
 import android.view.KeyEvent
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
 import androidx.databinding.ViewDataBinding
@@ -34,14 +35,14 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
     init {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
-            var initialization = true
+            var dialogView: View? = null
             try {
                 val vdbClass = type.actualTypeArguments[0] as Class<VDB>
                 val method = vdbClass.getMethod("inflate", LayoutInflater::class.java)
                 binding = method.invoke(null, layoutInflater) as VDB
                 setContentView(binding.root)
+                dialogView = binding.root
             } catch (_: Exception) {
-                initialization = false
             }
             window?.let {
                 val lp = it.attributes
@@ -50,11 +51,11 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
                 it.attributes = lp
                 it.setGravity(gravity)
             }
-            if (animation && initialization) {
+            if (animation) {
                 //当布局show出来的时候执行开始动画
-                setOnShowListener { binding.root.startAnimation(context.scaleShown()) }
+                setOnShowListener { dialogView?.startAnimation(context.scaleShown()) }
                 //当布局销毁时执行结束动画
-                setOnDismissListener { binding.root.startAnimation(context.scaleHidden()) }
+                setOnDismissListener { dialogView?.startAnimation(context.scaleHidden()) }
             }
             if (close) {
                 setOnKeyListener { _: DialogInterface?, _: Int, _: KeyEvent? -> true }
