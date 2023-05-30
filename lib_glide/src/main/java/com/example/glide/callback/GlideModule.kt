@@ -32,6 +32,9 @@ open class GlideModule : AppGlideModule() {
                 .build()
     }
 
+    /**
+     * MemorySizeCalculator类主要关注设备的内存类型，设备 RAM 大小，以及屏幕分辨率
+     */
     override fun applyOptions(context: Context, builder: GlideBuilder) {
         //        int memoryCacheSizeBytes = 1024 * 1024 * 20; // 20mb
         //        builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
