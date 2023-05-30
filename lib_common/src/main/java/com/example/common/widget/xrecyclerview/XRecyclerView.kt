@@ -67,7 +67,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                     recycler?.setEmptyView(empty?.setListView(recycler))
                     recycler?.setHasFixedSize(true)
                     recycler?.cancelItemAnimator()
-                    empty?.setRefreshListener { onRefresh?.invoke() }
+                    empty?.setEmptyRefreshListener { onRefresh?.invoke() }
                 }
             }
             1 -> {
@@ -78,7 +78,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 recycler?.setHasFixedSize(true)
                 recycler?.cancelItemAnimator()
                 if (0 != emptyType) {
-                    empty?.setRefreshListener { onRefresh?.invoke() }
+                    empty?.setEmptyRefreshListener { onRefresh?.invoke() }
                 } else {
                     empty?.gone()
                 }
