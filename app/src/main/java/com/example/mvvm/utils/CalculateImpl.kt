@@ -5,7 +5,7 @@ import com.example.framework.utils.function.value.toSafeBigDecimal
 import com.example.framework.utils.function.value.toSafeDouble
 
 /**
- * @description 计算帮助类
+ * @description 计算帮助类->一般来说不会用到，涉及到带有小数点的统一都用string接取，转换为BigDecimal计算最为精确
  * @author yan
  */
 interface CalculateImpl {
