@@ -55,6 +55,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
                 .dontAnimate()
                 .into(view)
         } catch (_: Exception) {
+            view.background = GradientDrawable().apply { setColor(Color.parseColor("#000000")) }
         }
     }
 
