@@ -137,11 +137,9 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
 //            .error(errorId)
 //            .dontAnimate()
 //            .into(view)
-        val transformation = CornerTransform(view.context, radius.toSafeFloat())
-        transformation.setExceptCorner(overRide)
         Glide.with(view.context)
             .load(string)
-            .apply(RequestOptions.bitmapTransform(transformation))
+            .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, radius.toSafeFloat()).apply { setExceptCorner(overRide) }))
             .placeholder(R.drawable.shape_glide_bg)
             .error(errorId)
             .dontAnimate()
@@ -149,11 +147,9 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun displayRound(view: ImageView, resourceId: Int, errorId: Int, radius: Int, overRide: BooleanArray) {
-        val transformation = CornerTransform(view.context, radius.toSafeFloat())
-        transformation.setExceptCorner(overRide)
         Glide.with(view.context)
             .load(resourceId)
-            .apply(RequestOptions.bitmapTransform(transformation))
+            .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, radius.toSafeFloat()).apply { setExceptCorner(overRide) }))
             .placeholder(R.drawable.shape_glide_bg)
             .error(errorId)
             .dontAnimate()
