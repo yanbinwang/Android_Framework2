@@ -21,7 +21,6 @@ import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
-import com.example.common.databinding.ActivityTransparentBinding
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.utils.AppManager
@@ -31,7 +30,6 @@ import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.color
-import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
@@ -120,11 +118,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                 val vdbClass = type.actualTypeArguments[0] as Class<VDB>
                 val method = vdbClass.getDeclaredMethod("inflate", LayoutInflater::class.java)
                 binding = method.invoke(null, layoutInflater) as VDB
+                binding.lifecycleOwner = this
                 setContentView(binding.root)
             } catch (_: Exception) {
-                binding = ActivityTransparentBinding.bind(inflate(R.layout.activity_transparent)) as VDB
             }
-            binding.lifecycleOwner = this
         }
         ARouter.getInstance().inject(this)
     }
@@ -186,7 +183,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         super.onDestroy()
         AppManager.removeActivity(this)
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
-        binding.unbind()
+        try {
+            binding.unbind()
+        } catch (_: Exception) {
+        }
         job.cancel()
     }
     // </editor-fold>

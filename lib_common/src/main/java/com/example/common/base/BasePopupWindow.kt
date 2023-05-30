@@ -47,12 +47,14 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     init {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
+            var initialization = true
             try {
                 val vdbClass = type.actualTypeArguments[0] as Class<VDB>
                 val method = vdbClass.getMethod("inflate", LayoutInflater::class.java)
                 binding = method.invoke(null, window.layoutInflater) as VDB
                 contentView = binding.root
             } catch (_: Exception) {
+                initialization = false
             }
             width = if (popupWidth < 0) popupWidth else popupWidth.pt
             height = if (popupHeight < 0) popupHeight else popupHeight.pt
@@ -68,9 +70,11 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 }
             }
             //获取自身的长宽高
-            binding.root.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-            measuredWidth = binding.root.measuredWidth
-            measuredHeight = binding.root.measuredHeight
+            if(initialization) {
+                binding.root.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+                measuredWidth = binding.root.measuredWidth
+                measuredHeight = binding.root.measuredHeight
+            }
         }
     }
 
@@ -157,7 +161,10 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         if (window.windowManager == null) return
         if (window.decorView.parent == null) return
         super.dismiss()
-        binding.unbind()
+        try {
+            binding.unbind()
+        } catch (_: Exception) {
+        }
     }
 
     /**

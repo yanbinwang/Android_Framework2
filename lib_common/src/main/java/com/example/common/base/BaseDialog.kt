@@ -34,12 +34,14 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
     init {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
+            var initialization = true
             try {
                 val vdbClass = type.actualTypeArguments[0] as Class<VDB>
                 val method = vdbClass.getMethod("inflate", LayoutInflater::class.java)
                 binding = method.invoke(null, layoutInflater) as VDB
                 setContentView(binding.root)
             } catch (_: Exception) {
+                initialization = false
             }
             window?.let {
                 val lp = it.attributes
@@ -48,7 +50,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
                 it.attributes = lp
                 it.setGravity(gravity)
             }
-            if (animation) {
+            if (animation && initialization) {
                 //当布局show出来的时候执行开始动画
                 setOnShowListener { binding.root.startAnimation(context.scaleShown()) }
                 //当布局销毁时执行结束动画
@@ -88,7 +90,10 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
         if (window?.decorView == null) return
         if (window?.decorView?.parent == null) return
         super.dismiss()
-        binding.unbind()
+        try {
+            binding.unbind()
+        } catch (_: Exception) {
+        }
     }
 
     open fun shown(flag: Boolean = false) {
