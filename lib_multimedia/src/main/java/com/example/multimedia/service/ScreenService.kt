@@ -33,7 +33,6 @@ import com.example.multimedia.utils.helper.TimeTickHelper
  *      android:foregroundServiceType="mediaProjection"--》 Q开始后台服务需要配置，否则录制不正常  />
  */
 class ScreenService : Service() {
-    private var filePath: String? = null
     private var resultCode = 0
     private var resultData: Intent? = null
     private var mediaProjection: MediaProjection? = null
@@ -45,6 +44,7 @@ class ScreenService : Service() {
         internal var onShutter: (filePath: String?, recoding: Boolean) -> Unit = { _, _ -> }
 
         /**
+         * filePath->开始录制时，会返回源文件存储地址(此时记录一下)停止录制时一定为空，此时做ui操作
          * recoding->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
          */
         fun setOnScreenListener(onShutter: (filePath: String?, recoding: Boolean) -> Unit) {
@@ -86,8 +86,7 @@ class ScreenService : Service() {
 
     private fun createMediaRecorder(): MediaRecorder {
         val screenFile = MultimediaUtil.getOutputFile(MediaType.SCREEN)
-        filePath = screenFile?.absolutePath
-        onShutter.invoke(filePath,true)
+        onShutter.invoke(screenFile?.absolutePath,true)
         return (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()).apply {
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
             setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -99,7 +98,7 @@ class ScreenService : Service() {
             setVideoFrameRate(60)
             try {
                 //若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) setOutputFile(filePath) else setOutputFile(screenFile)
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) setOutputFile(screenFile?.absolutePath) else setOutputFile(screenFile)
                 prepare()
             } catch (_: Exception) {
             }
@@ -128,7 +127,7 @@ class ScreenService : Service() {
             mediaProjection = null
         } catch (_: Exception) {
         }
-        onShutter.invoke(filePath,false)
+        onShutter.invoke("",false)
     }
 
 }
