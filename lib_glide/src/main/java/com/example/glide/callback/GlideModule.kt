@@ -10,6 +10,7 @@ import com.bumptech.glide.load.engine.cache.LruResourceCache
 import com.bumptech.glide.load.engine.cache.MemorySizeCalculator
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.module.AppGlideModule
+import com.example.glide.callback.progress.ProgressInterceptor
 import okhttp3.OkHttpClient
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
@@ -27,6 +28,7 @@ open class GlideModule : AppGlideModule() {
                 .writeTimeout(2, TimeUnit.HOURS)//设置写超时
                 .readTimeout(2, TimeUnit.HOURS)//设置读超时
                 .retryOnConnectionFailure(true)
+                .addInterceptor(ProgressInterceptor())//拦截下请求，监听加载进度
                 .build()
     }
 
