@@ -63,6 +63,9 @@ class TestViewModel : BaseViewModel() {
      * 普通一次性
      */
     fun task() {
+        val a = 0
+        val b = 0
+        a + b
         launch({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) }, {
             //拿对象
         })
