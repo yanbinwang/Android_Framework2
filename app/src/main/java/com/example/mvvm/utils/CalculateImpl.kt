@@ -1,10 +1,8 @@
 package com.example.mvvm.utils
 
-import com.example.framework.utils.function.value.add
-import com.example.framework.utils.function.value.divide
-import com.example.framework.utils.function.value.multiply
-import com.example.framework.utils.function.value.subtract
+import com.example.framework.utils.function.value.removeEndZero
 import com.example.framework.utils.function.value.toSafeBigDecimal
+import com.example.framework.utils.function.value.toSafeDouble
 
 /**
  * @description 计算帮助类
@@ -25,29 +23,33 @@ interface CalculateImpl {
     /**
      * 加法
      */
-    operator fun String?.plus(other: String?): String {
-        return this.add(other.toSafeBigDecimal().toPlainString())
+    operator fun Double?.plus(other: Double?): Double {
+        return toSafeBigDecimal().add(other.toSafeBigDecimal()).toPlainString().removeEndZero().toSafeDouble()
     }
 
     /**
      * 减法
      */
-    operator fun String?.minus(other: String?): String {
-        return this.subtract(other.toSafeBigDecimal().toPlainString())
+    operator fun Double?.minus(other: Double?): Double {
+        return toSafeBigDecimal().subtract(other.toSafeBigDecimal()).toPlainString().removeEndZero().toSafeDouble()
     }
 
     /**
      * 乘法
      */
-    operator fun String?.times(other: String?): String {
-        return this.multiply(other.toSafeBigDecimal().toPlainString())
+    operator fun Double?.times(other: Double?): Double {
+        return toSafeBigDecimal().multiply(other.toSafeBigDecimal()).toPlainString().removeEndZero().toSafeDouble()
     }
 
     /**
      * 除法->有误
      */
-    operator fun String?.div(other: String?): String {
-        return this.divide(other.toSafeBigDecimal().toPlainString())
+    operator fun Double?.div(other: Double?): Double {
+        return toSafeBigDecimal().divide(other.toSafeBigDecimal(), getScale(), getMode()).toPlainString().removeEndZero().toSafeDouble()
     }
+
+    fun getScale(): Int
+
+    fun getMode(): Int
 
 }
