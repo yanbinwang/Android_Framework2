@@ -7,6 +7,7 @@ import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
+import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
 import com.example.common.utils.function.pt
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
@@ -15,6 +16,7 @@ import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.common.widget.xrecyclerview.refresh.init
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.cancelItemAnimator
+import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.widget.BaseViewGroup
@@ -116,6 +118,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     fun <T : BaseQuickAdapter<*, *>> getAdapter() = recycler?.adapter as? T
 
     /**
+     * 获取一个列表中固定下标的holder
+     */
+    fun <K : BaseViewDataBindingHolder> getHolder(position: Int): K? {
+        return recycler?.getHolder(position)
+    }
+
+    /**
      * 刷新页面监听
      * 根据传入不同的监听，确定是否具备头和尾，无需在xml中指定
      */
@@ -164,7 +173,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 当数据为空时(显示需要显示的图片，以及内容字)
      */
-    @JvmOverloads
     fun empty(imgInt: Int = -1, text: String? = null) {
         if (0 != emptyType) empty?.empty(imgInt, text)
     }
@@ -172,7 +180,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 当数据异常时
      */
-    @JvmOverloads
     fun error(imgInt: Int = -1, text: String? = null) {
         if (0 != emptyType) empty?.error(imgInt, text)
     }
