@@ -96,8 +96,8 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
             }
         }
         //录屏文件创建/停止录屏时（exists=false）都会回调
-        ScreenService.setOnScreenListener { filePath, exists ->
-            if (!exists) {
+        ScreenService.setOnScreenListener { filePath, recoding ->
+            if (!recoding) {
                 val folderPath = filePath.orEmpty()
                 //说明未截图
                 if(shotList.size == 0) {

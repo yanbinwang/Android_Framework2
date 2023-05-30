@@ -42,12 +42,12 @@ class ScreenService : Service() {
     private val timerFactory by lazy { TimeTickHelper(this) }
 
     companion object {
-        internal var onShutter: (filePath: String?, exists: Boolean) -> Unit = { _, _ -> }
+        internal var onShutter: (filePath: String?, recoding: Boolean) -> Unit = { _, _ -> }
 
         /**
-         * exists->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
+         * recoding->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
          */
-        fun setOnScreenListener(onShutter: (filePath: String?, exists: Boolean) -> Unit) {
+        fun setOnScreenListener(onShutter: (filePath: String?, recoding: Boolean) -> Unit) {
             this.onShutter = onShutter
         }
     }
