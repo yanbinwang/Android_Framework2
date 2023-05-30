@@ -39,6 +39,7 @@ import java.lang.reflect.ParameterizedType
 abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val light: Boolean = false) : PopupWindow() {
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
+    private var popupView: View? = null
     protected var measuredWidth = 0
     protected var measuredHeight = 0
     protected val context get() = window.context
@@ -47,7 +48,6 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     init {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
-            var popupView: View? = null
             try {
                 val vdbClass = type.actualTypeArguments[0] as Class<VDB>
                 val method = vdbClass.getMethod("inflate", LayoutInflater::class.java)
@@ -105,7 +105,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     // <editor-fold defaultstate="collapsed" desc="重写方法">
     override fun showAsDropDown(anchor: View?) {
         if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if ((context as? Activity)?.isFinishing.orFalse) return
+        if (popupView?.context == null) return
+        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
         try {
             setAttributes()
             super.showAsDropDown(anchor)
@@ -115,7 +116,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int) {
         if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if ((context as? Activity)?.isFinishing.orFalse) return
+        if (popupView?.context == null) return
+        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
         try {
             setAttributes()
             super.showAsDropDown(anchor, xoff, yoff)
@@ -125,7 +127,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
         if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if ((context as? Activity)?.isFinishing.orFalse) return
+        if (popupView?.context == null) return
+        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
         try {
             setAttributes()
             super.showAsDropDown(anchor, xoff, yoff, gravity)
@@ -169,7 +172,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      * 默认底部坐标展示
      */
     open fun shown() {
-        if (!isShowing) showAtLocation(binding.root, BOTTOM, 0, 0)
+        if (!isShowing) showAtLocation(popupView, BOTTOM, 0, 0)
     }
 
     /**
