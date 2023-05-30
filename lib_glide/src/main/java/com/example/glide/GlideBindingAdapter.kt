@@ -18,7 +18,7 @@ object GlideBindingAdapter {
      */
     @BindingAdapter(value = ["display_zoom"])
     fun bindingDisplayZoom(view: ImageView, url: String) {
-        ImageLoader.instance.displayZoom(view, url, onStart = { view.disable() }, onComplete = { view.enable() })
+        ImageLoader.instance.displayZoom(view, url, { view.disable() }, { view.enable() })
     }
 
     /**
