@@ -40,9 +40,11 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
     private var popupView: View? = null
-    protected var measuredWidth = 0
-    protected var measuredHeight = 0
     protected val context get() = window.context
+    protected var measuredWidth = 0
+        private set
+    protected var measuredHeight = 0
+        private set
     protected lateinit var binding: VDB
 
     init {
