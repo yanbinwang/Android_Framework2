@@ -1,9 +1,11 @@
-package com.example.common.widget.textview.edit
+package com.example.common.widget.textview.edit.callback
 
 import android.widget.EditText
 import androidx.annotation.StringRes
 import com.example.common.R
 import com.example.common.utils.builder.shortToast
+import com.example.common.widget.textview.edit.ClearEditTextImpl
+import com.example.common.widget.textview.edit.PasswordEditTextImpl
 import com.example.framework.utils.function.value.ELFormat.EMAIL
 import com.example.framework.utils.function.value.ELFormat.PASSWORD
 import com.example.framework.utils.function.value.regCheck
@@ -26,11 +28,11 @@ interface EditTextImpl {
         }
     }
 
-    fun ClearEditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
+    fun ClearEditTextImpl.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
         return editText.lengthLimit(min, max, res)
     }
 
-    fun PasswordEditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
+    fun PasswordEditTextImpl.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
         return editText.lengthLimit(min, max, res)
     }
 
@@ -46,11 +48,11 @@ interface EditTextImpl {
         }
     }
 
-    fun ClearEditText.notEmpty(@StringRes res: Int = -1): Boolean {
+    fun ClearEditTextImpl.notEmpty(@StringRes res: Int = -1): Boolean {
         return editText.notEmpty(res)
     }
 
-    fun PasswordEditText.notEmpty(@StringRes res: Int = -1): Boolean {
+    fun PasswordEditTextImpl.notEmpty(@StringRes res: Int = -1): Boolean {
         return editText.notEmpty(res)
     }
 
@@ -67,11 +69,11 @@ interface EditTextImpl {
         return false
     }
 
-    fun ClearEditText.checkEmailReg(hasToast: Boolean = true): Boolean {
+    fun ClearEditTextImpl.checkEmailReg(hasToast: Boolean = true): Boolean {
         return editText.checkEmailReg(hasToast)
     }
 
-    fun PasswordEditText.checkEmailReg(hasToast: Boolean = true): Boolean {
+    fun PasswordEditTextImpl.checkEmailReg(hasToast: Boolean = true): Boolean {
         return editText.checkEmailReg(hasToast)
     }
 
@@ -90,26 +92,26 @@ interface EditTextImpl {
         return true
     }
 
-    fun ClearEditText.checkPassReg(hasToast: Boolean = true): Boolean {
+    fun ClearEditTextImpl.checkPassReg(hasToast: Boolean = true): Boolean {
         return editText.checkPassReg(hasToast)
     }
 
-    fun PasswordEditText.checkPassReg(hasToast: Boolean = true): Boolean {
+    fun PasswordEditTextImpl.checkPassReg(hasToast: Boolean = true): Boolean {
         return editText.checkPassReg(hasToast)
     }
 
-}
+    /**
+     * 返回密码强度
+     */
+    fun String?.passwordLevel(): Int {
+        if (this.isNullOrEmpty()) return 0
+        //纯数字、纯字母、纯特殊字符
+        if (this.length < 8 || Pattern.matches("^\\d+$", this) || regCheck("^[a-z]+$") || regCheck("^[A-Z]+$") || regCheck("^[@#$%^&]+$")) return 1
+        //字母+数字、字母+特殊字符、数字+特殊字符
+        if (regCheck("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$") || regCheck("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$") || regCheck("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$") || regCheck("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$") || regCheck("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$") || regCheck("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$")) return 2
+        //字母+数字+特殊字符
+        if (regCheck("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
+        return 3
+    }
 
-/**
- * 返回密码强度
- */
-fun String?.passwordLevel(): Int {
-    if (this.isNullOrEmpty()) return 0
-    //纯数字、纯字母、纯特殊字符
-    if (this.length < 8 || Pattern.matches("^\\d+$", this) || regCheck("^[a-z]+$") || regCheck("^[A-Z]+$") || regCheck("^[@#$%^&]+$")) return 1
-    //字母+数字、字母+特殊字符、数字+特殊字符
-    if (regCheck("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$") || regCheck("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$") || regCheck("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$") || regCheck("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$") || regCheck("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$") || regCheck("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$")) return 2
-    //字母+数字+特殊字符
-    if (regCheck("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
-    return 3
 }

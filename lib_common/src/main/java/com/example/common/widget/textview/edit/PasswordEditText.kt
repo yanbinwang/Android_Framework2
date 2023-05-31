@@ -10,6 +10,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import com.example.common.R
 import com.example.common.databinding.ViewPasswordEditBinding
+import com.example.common.widget.textview.edit.callback.SpecialEditTextImpl
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.click
@@ -27,7 +28,8 @@ import java.util.Arrays
  * @description 密码显影输入框
  * @author yan
  */
-class PasswordEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
+class PasswordEditTextImpl @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr),
+    SpecialEditTextImpl {
     private var isShowBtn = true
     private var hideRes = -1
     private var showRes = -1
@@ -145,7 +147,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
 
 }
 
-fun PasswordEditText?.text(): String {
+fun PasswordEditTextImpl?.text(): String {
     this ?: return ""
     return getText()
 }
