@@ -91,7 +91,7 @@ fun SmartRefreshLayout?.noMoreOnInit() {
  * app:srlEnableLoadMore="false"
  * app:srlEnableRefresh="true"
  */
-fun SmartRefreshLayout?.headerMaxDragRate() {
+fun SmartRefreshLayout?.setHeaderMaxDragRate() {
     this ?: return
     doOnceAfterLayout {
         (it.refreshHeader as? ProjectRefreshHeader)?.apply {
@@ -100,5 +100,19 @@ fun SmartRefreshLayout?.headerMaxDragRate() {
             val height = 40.pt + statusBarHeight
             setHeaderMaxDragRate(height * 2.5f / (statusBarHeight + height))
         }
+    }
+}
+
+fun SmartRefreshLayout?.setHeaderDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
+    this ?: return
+    doOnceAfterLayout {
+        (it.refreshHeader as? ProjectRefreshHeader)?.onDragListener = listener
+    }
+}
+
+fun SmartRefreshLayout?.setFooterDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
+    this ?: return
+    doOnceAfterLayout {
+        (it.refreshFooter as? ProjectRefreshFooter)?.onDragListener = listener
     }
 }
