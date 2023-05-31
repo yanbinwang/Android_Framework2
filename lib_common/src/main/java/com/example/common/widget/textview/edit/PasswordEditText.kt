@@ -28,8 +28,7 @@ import java.util.Arrays
  * @description 密码显影输入框
  * @author yan
  */
-class PasswordEditTextImpl @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr),
-    SpecialEditTextImpl {
+class PasswordEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditTextImpl {
     private var isShowBtn = true
     private var hideRes = -1
     private var showRes = -1
@@ -147,7 +146,7 @@ class PasswordEditTextImpl @JvmOverloads constructor(context: Context, attrs: At
 
 }
 
-fun PasswordEditTextImpl?.text(): String {
+fun PasswordEditText?.text(): String {
     this ?: return ""
     return getText()
 }

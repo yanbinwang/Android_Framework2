@@ -17,7 +17,7 @@ import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
 import com.example.common.utils.function.orNoData
 import com.example.common.utils.function.setSpanFirst
-import com.example.common.widget.textview.edit.ClearEditTextImpl
+import com.example.common.widget.textview.edit.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
@@ -184,7 +184,7 @@ object BaseBindingAdapter {
     }
 
     @BindingAdapter(value = ["decimal_point"])
-    fun bindingEditTextDecimal(editText: ClearEditTextImpl, decimalPoint: Int?) {
+    fun bindingEditTextDecimal(editText: ClearEditText, decimalPoint: Int?) {
         editText.editText.decimalFilter(decimalPoint.toSafeInt())
     }
 
@@ -198,7 +198,7 @@ object BaseBindingAdapter {
     }
 
     @BindingAdapter(value = ["character_allowed"])
-    fun bindingEditTextCharBlackList(editText: ClearEditTextImpl, characterAllowed: CharArray?) {
+    fun bindingEditTextCharBlackList(editText: ClearEditText, characterAllowed: CharArray?) {
         if (characterAllowed == null) return
         editText.editText.charBlackList(characterAllowed)
     }
@@ -213,7 +213,7 @@ object BaseBindingAdapter {
     }
 
     @BindingAdapter(value = ["char_limit"])
-    fun bindingEditTextCharLimit(editText: ClearEditTextImpl, charLimit: CharArray?) {
+    fun bindingEditTextCharLimit(editText: ClearEditText, charLimit: CharArray?) {
         if (charLimit == null) return
         editText.editText.charLimit(charLimit)
     }
@@ -235,7 +235,7 @@ object BaseBindingAdapter {
     }
 
     @BindingAdapter(value = ["space_limit"])
-    fun bindingEditTextSpaceLimit(editText: ClearEditTextImpl, spaceLimit: Boolean?) {
+    fun bindingEditTextSpaceLimit(editText: ClearEditText, spaceLimit: Boolean?) {
         if (spaceLimit.orFalse) editText.editText.spaceLimit()
     }
 
@@ -248,7 +248,7 @@ object BaseBindingAdapter {
     }
 
     @BindingAdapter(value = ["number_decimal"])
-    fun bindingEditTextNumberDecimal(editText: ClearEditTextImpl, numberDecimal: Boolean?) {
+    fun bindingEditTextNumberDecimal(editText: ClearEditText, numberDecimal: Boolean?) {
         if(numberDecimal.orFalse) editText.editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
     }
     // </editor-fold>

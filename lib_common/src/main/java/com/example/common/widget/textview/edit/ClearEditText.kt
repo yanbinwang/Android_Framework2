@@ -27,8 +27,7 @@ import java.util.*
  * @author yan
  */
 @SuppressLint("CustomViewStyleable")
-class ClearEditTextImpl @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr),
-    SpecialEditTextImpl {
+class ClearEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditTextImpl {
     private var isDisabled = false//是否不可操作
     private var isShowBtn = true//是否显示清除按钮
     private val binding by lazy { ViewClearEditBinding.bind(context.inflate(R.layout.view_clear_edit)) }
@@ -205,7 +204,7 @@ class ClearEditTextImpl @JvmOverloads constructor(context: Context, attrs: Attri
 
 }
 
-fun ClearEditTextImpl?.text(): String {
+fun ClearEditText?.text(): String {
     this ?: return ""
     return getText()
 }
