@@ -23,19 +23,19 @@ import java.lang.reflect.ParameterizedType
 /**
  * Created by WangYanBin on 2020/7/13.
  * 所有弹框的基类
- * 外层无需绘制额外布局，但需要指定宽高
- * 默认情况下是居中的，可设置对应角度
+ * 外层无需绘制额外布局，但需要指定宽高，默认情况下是居中的，可设置对应角度
+ * 需要注意binding使用了lateinit，但是不可能会不给值（VDB），稳妥期间，引用到view的地方，使用dialogView
  * window?.setWindowAnimations(R.style.pushRightAnimStyle)
  * window?.setGravity(Gravity.TOP xor Gravity.END)
  */
 @Suppress("LeakingThis")
 abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: Int = 320, dialogHeight: Int = WRAP_CONTENT, gravity: Int = CENTER, themeResId: Int = R.style.DialogStyle, animation: Boolean = true, close: Boolean = true) : Dialog(context, themeResId) {
     protected lateinit var binding: VDB
+    private var dialogView: View? = null
 
     init {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
-            var dialogView: View? = null
             try {
                 val vdbClass = type.actualTypeArguments[0] as Class<VDB>
                 val method = vdbClass.getMethod("inflate", LayoutInflater::class.java)
