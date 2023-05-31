@@ -1,11 +1,15 @@
 package com.example.multimedia.utils.helper
 
+import android.content.Intent
+import android.content.IntentFilter
 import android.media.MediaActionSound
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.shortToast
 import com.example.multimedia.R
+import com.example.multimedia.service.KeyEventReceiver
 import com.example.multimedia.utils.MediaType.IMAGE
 import com.example.multimedia.utils.MediaType.VIDEO
 import com.example.multimedia.utils.MultimediaUtil
@@ -25,10 +29,13 @@ import java.io.File
  *  相机帮助类
  *  https://github.com/natario1/CameraView
  */
-class CameraHelper(private val cvFinder: CameraView) : LifecycleEventObserver {
+class CameraHelper(private val activity: FragmentActivity, private val cvFinder: CameraView) : LifecycleEventObserver {
     private val sound by lazy { MediaActionSound() }
+    private val keyEventReceiver by lazy { KeyEventReceiver() }
 
     init {
+        activity.lifecycle.addObserver(this)
+        cvFinder.setLifecycleOwner(activity)
         cvFinder.apply {
             keepScreenOn = true//是否保持屏幕高亮
             playSounds = true//录像是否录制声音
@@ -39,14 +46,9 @@ class CameraHelper(private val cvFinder: CameraView) : LifecycleEventObserver {
             facing = Facing.BACK//打开时镜头默认后置
             flash = Flash.AUTO//闪光灯自动
         }
-    }
-
-    /**
-     * 绑定相机生命周期
-     */
-    fun addLifecycleObserver(owner: LifecycleOwner) {
-        cvFinder.setLifecycleOwner(owner)
-        owner.lifecycle.addObserver(this)
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
+        activity.registerReceiver(keyEventReceiver, intentFilter)
     }
 
     /**
@@ -153,7 +155,10 @@ class CameraHelper(private val cvFinder: CameraView) : LifecycleEventObserver {
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
             Lifecycle.Event.ON_PAUSE -> closeFlash()
-            Lifecycle.Event.ON_DESTROY -> source.lifecycle.removeObserver(this)
+            Lifecycle.Event.ON_DESTROY -> {
+                activity.unregisterReceiver(keyEventReceiver)
+                activity.lifecycle.removeObserver(this)
+            }
             else -> {}
         }
     }
