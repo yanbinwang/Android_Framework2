@@ -1,11 +1,11 @@
-package com.example.common.widget.textview.edit.callback
+package com.example.common.widget.textview.edittext.callback
 
 import android.widget.EditText
 import androidx.annotation.StringRes
 import com.example.common.R
 import com.example.common.utils.builder.shortToast
-import com.example.common.widget.textview.edit.ClearEditTextImpl
-import com.example.common.widget.textview.edit.PasswordEditTextImpl
+import com.example.common.widget.textview.edittext.ClearEditTextImpl
+import com.example.common.widget.textview.edittext.PasswordEditTextImpl
 import com.example.framework.utils.function.value.ELFormat.EMAIL
 import com.example.framework.utils.function.value.ELFormat.PASSWORD
 import com.example.framework.utils.function.value.regCheck

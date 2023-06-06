@@ -7,7 +7,7 @@ import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
-import com.example.common.widget.textview.edit.callback.EditTextImpl
+import com.example.common.widget.textview.edittext.callback.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
 import com.example.framework.utils.function.value.toSafeFloat

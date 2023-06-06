@@ -1,4 +1,4 @@
-package com.example.common.widget.textview.edit
+package com.example.common.widget.textview.edittext
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,7 +15,7 @@ import androidx.core.widget.addTextChangedListener
 import com.example.common.R
 import com.example.common.databinding.ViewClearEditBinding
 import com.example.common.utils.function.ptFloat
-import com.example.common.widget.textview.edit.callback.SpecialEditTextImpl
+import com.example.common.widget.textview.edittext.callback.SpecialEditTextImpl
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.add

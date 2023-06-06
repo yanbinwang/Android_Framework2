@@ -37,7 +37,7 @@ import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
 import com.example.common.widget.dialog.LoadingDialog
-import com.example.common.widget.textview.edit.callback.SpecialEditTextImpl
+import com.example.common.widget.textview.edittext.callback.SpecialEditTextImpl
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.isMainThread
