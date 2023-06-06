@@ -4,8 +4,8 @@ import android.widget.EditText
 import androidx.annotation.StringRes
 import com.example.common.R
 import com.example.common.utils.builder.shortToast
-import com.example.common.widget.textview.edittext.ClearEditTextImpl
-import com.example.common.widget.textview.edittext.PasswordEditTextImpl
+import com.example.common.widget.textview.edittext.ClearEditText
+import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.function.value.ELFormat.EMAIL
 import com.example.framework.utils.function.value.ELFormat.PASSWORD
 import com.example.framework.utils.function.value.regCheck
@@ -28,11 +28,11 @@ interface EditTextImpl {
         }
     }
 
-    fun ClearEditTextImpl.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
+    fun ClearEditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
         return editText.lengthLimit(min, max, res)
     }
 
-    fun PasswordEditTextImpl.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
+    fun PasswordEditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
         return editText.lengthLimit(min, max, res)
     }
 
@@ -48,11 +48,11 @@ interface EditTextImpl {
         }
     }
 
-    fun ClearEditTextImpl.notEmpty(@StringRes res: Int = -1): Boolean {
+    fun ClearEditText.notEmpty(@StringRes res: Int = -1): Boolean {
         return editText.notEmpty(res)
     }
 
-    fun PasswordEditTextImpl.notEmpty(@StringRes res: Int = -1): Boolean {
+    fun PasswordEditText.notEmpty(@StringRes res: Int = -1): Boolean {
         return editText.notEmpty(res)
     }
 
@@ -69,11 +69,11 @@ interface EditTextImpl {
         return false
     }
 
-    fun ClearEditTextImpl.checkEmailReg(hasToast: Boolean = true): Boolean {
+    fun ClearEditText.checkEmailReg(hasToast: Boolean = true): Boolean {
         return editText.checkEmailReg(hasToast)
     }
 
-    fun PasswordEditTextImpl.checkEmailReg(hasToast: Boolean = true): Boolean {
+    fun PasswordEditText.checkEmailReg(hasToast: Boolean = true): Boolean {
         return editText.checkEmailReg(hasToast)
     }
 
@@ -92,11 +92,11 @@ interface EditTextImpl {
         return true
     }
 
-    fun ClearEditTextImpl.checkPassReg(hasToast: Boolean = true): Boolean {
+    fun ClearEditText.checkPassReg(hasToast: Boolean = true): Boolean {
         return editText.checkPassReg(hasToast)
     }
 
-    fun PasswordEditTextImpl.checkPassReg(hasToast: Boolean = true): Boolean {
+    fun PasswordEditText.checkPassReg(hasToast: Boolean = true): Boolean {
         return editText.checkPassReg(hasToast)
     }
 
