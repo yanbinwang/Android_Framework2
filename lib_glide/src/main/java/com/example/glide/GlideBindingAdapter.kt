@@ -18,7 +18,7 @@ object GlideBindingAdapter {
      */
     @BindingAdapter(value = ["display_zoom"])
     fun bindingDisplayZoom(view: ImageView, url: String) {
-        ImageLoader.instance.displayZoom(view, url, onStart = { view.disable() }, onComplete = { view.enable() })
+        ImageLoader.instance.displayZoom(view, url, { view.disable() }, { view.enable() })
     }
 
     /**
@@ -37,14 +37,14 @@ object GlideBindingAdapter {
     /**
      * 加载图片（带圆角）
      */
-    @BindingAdapter(value = ["display_round", "rounding_radius"], requireAll = false)
-    fun bindingDisplayRound(view: ImageView, url: String, roundingRadius: Int?) {
-        ImageLoader.instance.displayRound(view, url, roundingRadius.toSafeInt(5))
+    @BindingAdapter(value = ["display_round", "round_radius"], requireAll = false)
+    fun bindingDisplayRound(view: ImageView, url: String, roundRadius: Int?) {
+        ImageLoader.instance.displayRound(view, url, roundRadius.toSafeInt(5))
     }
 
-    @BindingAdapter(value = ["display_round_resource", "rounding_radius"], requireAll = false)
-    fun bindingDisplayRoundResource(view: ImageView, resource: Int, roundingRadius: Int?) {
-        ImageLoader.instance.displayRound(view, resource, roundingRadius.toSafeInt(5))
+    @BindingAdapter(value = ["display_round_resource", "round_radius"], requireAll = false)
+    fun bindingDisplayRoundResource(view: ImageView, resource: Int, roundRadius: Int?) {
+        ImageLoader.instance.displayRound(view, resource, roundRadius.toSafeInt(5))
     }
 
     /**

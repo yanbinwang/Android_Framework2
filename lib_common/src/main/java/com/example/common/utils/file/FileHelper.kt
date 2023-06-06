@@ -126,75 +126,118 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
      * @param folderPath 要打成压缩包文件的路径
      * @param zipPath 压缩完成的Zip路径（包含压缩文件名）-"${Constants.SDCARD_PATH}/10086.zip"
      */
+//    fun zipJob(folderPath: String, zipPath: String, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+//        job?.cancel()
+//        job = launch {
+//            onStart()
+//            zip(folderPath, zipPath, onResult)
+//        }
+//    }
+//
+//    private suspend fun zip(folderPath: String, zipPath: String, listener: (filePath: String?) -> Unit = {}) {
+//        try {
+//            withContext(IO) { File(folderPath).let { if (it.exists()) zipFolder(it.absolutePath, File(zipPath).absolutePath) } }
+//        } catch (e: Exception) {
+//            "打包图片生成压缩文件异常: $e".logWTF
+//        }
+//        listener(zipPath.isMkdirs())
+//    }
+//
+//    /**
+//     * 将指定路径下的所有文件打成压缩包
+//     * File fileDir = new File(rootDir + "/DCIM/Screenshots");
+//     * File zipFile = new File(rootDir + "/" + taskId + ".zip");
+//     *
+//     * @param folderPath 要压缩的文件或文件夹路径
+//     * @param zipPath 压缩完成的Zip路径
+//     */
+//    @Throws(Exception::class)
+//    private fun zipFolder(folderPath: String, zipPath: String) {
+//        //创建ZIP
+//        val outZip = ZipOutputStream(FileOutputStream(zipPath))
+//        //创建文件
+//        val file = File(folderPath)
+//        //压缩
+//        zipFiles(file.parent + File.separator, file.name, outZip)
+//        //完成和关闭
+//        outZip.finish()
+//        outZip.close()
+//    }
+//
+//    @Throws(Exception::class)
+//    private fun zipFiles(folderPath: String, fileName: String, zipOutputSteam: ZipOutputStream?) {
+//        " \n压缩路径:$folderPath\n压缩文件名:$fileName".logWTF
+//        if (zipOutputSteam == null) return
+//        val file = File(folderPath + fileName)
+//        if (file.isFile) {
+//            val zipEntry = ZipEntry(fileName)
+//            val inputStream = FileInputStream(file)
+//            zipOutputSteam.putNextEntry(zipEntry)
+//            var len: Int
+//            val buffer = ByteArray(4096)
+//            while (inputStream.read(buffer).also { len = it } != -1) {
+//                zipOutputSteam.write(buffer, 0, len)
+//            }
+//            zipOutputSteam.closeEntry()
+//        } else {
+//            //文件夹
+//            file.list().let {
+//                //没有子文件和压缩
+//                if (it.isNullOrEmpty()) {
+//                    val zipEntry = ZipEntry(fileName + File.separator)
+//                    zipOutputSteam.putNextEntry(zipEntry)
+//                    zipOutputSteam.closeEntry()
+//                } else {
+//                    //子文件和递归
+//                    for (i in it.indices) {
+//                        zipFiles("$folderPath$fileName/", it[i], zipOutputSteam)
+//                    }
+//                }
+//            }
+//        }
+//    }
+
     fun zipJob(folderPath: String, zipPath: String, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+        zipJob(mutableListOf(folderPath), zipPath, onStart, onResult)
+    }
+
+    fun zipJob(folderList: MutableList<String>, zipPath: String, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
         job?.cancel()
         job = launch {
             onStart()
-            zip(folderPath, zipPath, onResult)
+            zip(folderList, zipPath, onResult)
         }
     }
 
-    private suspend fun zip(folderPath: String, zipPath: String, listener: (filePath: String?) -> Unit = {}) {
+    private suspend fun zip(folderList: MutableList<String>, zipPath: String, listener: (filePath: String?) -> Unit = {}) {
         try {
-            withContext(IO) { File(folderPath).let { if (it.exists()) zipFolder(it.absolutePath, File(zipPath).absolutePath) } }
+            withContext(IO) { zipFolder(folderList, File(zipPath).absolutePath) }
         } catch (e: Exception) {
             "打包图片生成压缩文件异常: $e".logWTF
         }
-        listener(if (File(zipPath).exists()) zipPath else null)
+        listener(zipPath.isMkdirs())
     }
 
-    /**
-     * 将指定路径下的所有文件打成压缩包
-     * File fileDir = new File(rootDir + "/DCIM/Screenshots");
-     * File zipFile = new File(rootDir + "/" + taskId + ".zip");
-     *
-     * @param srcFilePath 要压缩的文件或文件夹路径
-     * @param zipFilePath 压缩完成的Zip路径
-     */
     @Throws(Exception::class)
-    private fun zipFolder(srcFilePath: String, zipFilePath: String) {
+    private fun zipFolder(folderList: MutableList<String>, zipPath: String) {
         //创建ZIP
-        val outZip = ZipOutputStream(FileOutputStream(zipFilePath))
-        //创建文件
-        val file = File(srcFilePath)
-        //压缩
-        zipFiles(file.parent + File.separator, file.name, outZip)
-        //完成和关闭
-        outZip.finish()
-        outZip.close()
-    }
-
-    @Throws(Exception::class)
-    private fun zipFiles(folderPath: String, fileName: String, zipOutputSteam: ZipOutputStream?) {
-        " \n压缩路径:$folderPath\n压缩文件名:$fileName".logWTF
-        if (zipOutputSteam == null) return
-        val file = File(folderPath + fileName)
-        if (file.isFile) {
-            val zipEntry = ZipEntry(fileName)
+        val outZip = ZipOutputStream(FileOutputStream(zipPath))
+        //批量打入压缩包
+        for (folderPath in folderList) {
+            val file = File(folderPath)
+            val zipEntry = ZipEntry(file.name)
             val inputStream = FileInputStream(file)
-            zipOutputSteam.putNextEntry(zipEntry)
+            outZip.putNextEntry(zipEntry)
             var len: Int
             val buffer = ByteArray(4096)
             while (inputStream.read(buffer).also { len = it } != -1) {
-                zipOutputSteam.write(buffer, 0, len)
+                outZip.write(buffer, 0, len)
             }
-            zipOutputSteam.closeEntry()
-        } else {
-            //文件夹
-            file.list().let {
-                //没有子文件和压缩
-                if (it.isNullOrEmpty()) {
-                    val zipEntry = ZipEntry(fileName + File.separator)
-                    zipOutputSteam.putNextEntry(zipEntry)
-                    zipOutputSteam.closeEntry()
-                } else {
-                    //子文件和递归
-                    for (i in it.indices) {
-                        zipFiles("$folderPath$fileName/", it[i], zipOutputSteam)
-                    }
-                }
-            }
+            outZip.closeEntry()
         }
+        //完成和关闭
+        outZip.finish()
+        outZip.close()
     }
 
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {

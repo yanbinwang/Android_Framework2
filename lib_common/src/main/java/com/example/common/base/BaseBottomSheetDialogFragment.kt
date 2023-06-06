@@ -37,7 +37,7 @@ import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
 import com.example.common.widget.dialog.LoadingDialog
-import com.example.common.widget.textview.edit.SpecialEditText
+import com.example.common.widget.textview.edittext.callback.SpecialEditTextImpl
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.isMainThread
@@ -106,14 +106,15 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
                 .setScreenHeight(screenHeight)
             AutoSizeCompat.autoConvertDensityOfGlobal(resources)
         }
-        try {
+        return try {
             val superclass = javaClass.genericSuperclass
             val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>
             val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
             binding = method.invoke(null, layoutInflater, container, false) as VDB
+            binding.root
         } catch (_: Exception) {
+            null
         }
-        return binding.root
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -168,7 +169,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
             private fun View.findSpecialEditTextParent(maxTimes: Int): View? {
                 var view = this
                 for (i in 0..maxTimes) {
-                    if (view is SpecialEditText) return view
+                    if (view is SpecialEditTextImpl) return view
                     view = view.parent as? View ?: return null
                 }
                 return null
@@ -178,7 +179,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
              * 判断是否应该隐藏软键盘
              */
             private fun isShouldHideInput(v: View?, event: MotionEvent): Boolean {
-                if (v != null && (v is EditText || v is AppCompatEditText || v is SpecialEditText)) {
+                if (v != null && (v is EditText || v is AppCompatEditText || v is SpecialEditTextImpl)) {
                     val leftTop = intArrayOf(0, 0)
                     val width: Int
                     val height: Int
@@ -301,7 +302,10 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     override fun onDetach() {
         super.onDetach()
-        binding.unbind()
+        try {
+            binding.unbind()
+        } catch (_: Exception) {
+        }
     }
     // </editor-fold>
 

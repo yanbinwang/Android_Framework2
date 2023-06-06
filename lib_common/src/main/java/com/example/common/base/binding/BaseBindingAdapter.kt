@@ -17,7 +17,7 @@ import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
 import com.example.common.utils.function.orNoData
 import com.example.common.utils.function.setSpanFirst
-import com.example.common.widget.textview.edit.ClearEditText
+import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue

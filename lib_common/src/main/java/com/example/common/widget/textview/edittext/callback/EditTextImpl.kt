@@ -1,9 +1,11 @@
-package com.example.common.widget.textview.edit
+package com.example.common.widget.textview.edittext.callback
 
 import android.widget.EditText
 import androidx.annotation.StringRes
 import com.example.common.R
 import com.example.common.utils.builder.shortToast
+import com.example.common.widget.textview.edittext.ClearEditText
+import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.function.value.ELFormat.EMAIL
 import com.example.framework.utils.function.value.ELFormat.PASSWORD
 import com.example.framework.utils.function.value.regCheck
@@ -98,18 +100,18 @@ interface EditTextImpl {
         return editText.checkPassReg(hasToast)
     }
 
-}
+    /**
+     * 返回密码强度
+     */
+    fun String?.passwordLevel(): Int {
+        if (this.isNullOrEmpty()) return 0
+        //纯数字、纯字母、纯特殊字符
+        if (this.length < 8 || Pattern.matches("^\\d+$", this) || regCheck("^[a-z]+$") || regCheck("^[A-Z]+$") || regCheck("^[@#$%^&]+$")) return 1
+        //字母+数字、字母+特殊字符、数字+特殊字符
+        if (regCheck("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$") || regCheck("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$") || regCheck("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$") || regCheck("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$") || regCheck("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$") || regCheck("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$")) return 2
+        //字母+数字+特殊字符
+        if (regCheck("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
+        return 3
+    }
 
-/**
- * 返回密码强度
- */
-fun String?.passwordLevel(): Int {
-    if (this.isNullOrEmpty()) return 0
-    //纯数字、纯字母、纯特殊字符
-    if (this.length < 8 || Pattern.matches("^\\d+$", this) || regCheck("^[a-z]+$") || regCheck("^[A-Z]+$") || regCheck("^[@#$%^&]+$")) return 1
-    //字母+数字、字母+特殊字符、数字+特殊字符
-    if (regCheck("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$") || regCheck("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$") || regCheck("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$") || regCheck("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$") || regCheck("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$") || regCheck("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$")) return 2
-    //字母+数字+特殊字符
-    if (regCheck("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
-    return 3
 }

@@ -33,7 +33,6 @@ import com.example.multimedia.utils.helper.TimeTickHelper
  *      android:foregroundServiceType="mediaProjection"--》 Q开始后台服务需要配置，否则录制不正常  />
  */
 class ScreenService : Service() {
-    private var filePath = ""
     private var resultCode = 0
     private var resultData: Intent? = null
     private var mediaProjection: MediaProjection? = null
@@ -42,12 +41,13 @@ class ScreenService : Service() {
     private val timerFactory by lazy { TimeTickHelper(this) }
 
     companion object {
-        internal var onShutter: (filePath: String?, exists: Boolean) -> Unit = { _, _ -> }
+        internal var onShutter: (filePath: String?, recoding: Boolean) -> Unit = { _, _ -> }
 
         /**
-         * exists->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
+         * filePath->开始录制时，会返回源文件存储地址(此时记录一下)停止录制时一定为空，此时做ui操作
+         * recoding->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
          */
-        fun setOnScreenListener(onShutter: (filePath: String?, exists: Boolean) -> Unit) {
+        fun setOnScreenListener(onShutter: (filePath: String?, recoding: Boolean) -> Unit) {
             this.onShutter = onShutter
         }
     }
@@ -64,7 +64,7 @@ class ScreenService : Service() {
             startForeground(1, builder.build())
         }
 //        stopForeground(true)//关闭录屏的图标-可注释
-        timerFactory.onStart()
+        timerFactory.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -86,9 +86,8 @@ class ScreenService : Service() {
 
     private fun createMediaRecorder(): MediaRecorder {
         val screenFile = MultimediaUtil.getOutputFile(MediaType.SCREEN)
-        filePath = screenFile.toString()
-        onShutter.invoke(filePath,true)
-        return MediaRecorder().apply {
+        onShutter.invoke(screenFile?.absolutePath,true)
+        return (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()).apply {
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
@@ -99,7 +98,7 @@ class ScreenService : Service() {
             setVideoFrameRate(60)
             try {
                 //若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) setOutputFile(filePath) else setOutputFile(screenFile)
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) setOutputFile(screenFile?.absolutePath) else setOutputFile(screenFile)
                 prepare()
             } catch (_: Exception) {
             }
@@ -117,7 +116,7 @@ class ScreenService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         try {
-            timerFactory.onDestroy()
+            timerFactory.destroy()
             virtualDisplay?.release()
             virtualDisplay = null
             mediaRecorder?.stop()
@@ -128,7 +127,7 @@ class ScreenService : Service() {
             mediaProjection = null
         } catch (_: Exception) {
         }
-        onShutter.invoke(filePath,false)
+        onShutter.invoke("",false)
     }
 
 }

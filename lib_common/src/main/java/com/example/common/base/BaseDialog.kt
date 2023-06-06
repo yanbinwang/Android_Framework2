@@ -8,6 +8,7 @@ import android.os.Looper
 import android.view.Gravity.CENTER
 import android.view.KeyEvent
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
 import androidx.databinding.ViewDataBinding
@@ -22,14 +23,15 @@ import java.lang.reflect.ParameterizedType
 /**
  * Created by WangYanBin on 2020/7/13.
  * 所有弹框的基类
- * 外层无需绘制额外布局，但需要指定宽高
- * 默认情况下是居中的，可设置对应角度
+ * 外层无需绘制额外布局，但需要指定宽高，默认情况下是居中的，可设置对应角度
+ * 需要注意binding使用了lateinit，但是不可能会不给值（VDB），稳妥期间，引用到view的地方，使用dialogView
  * window?.setWindowAnimations(R.style.pushRightAnimStyle)
  * window?.setGravity(Gravity.TOP xor Gravity.END)
  */
 @Suppress("LeakingThis")
 abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: Int = 320, dialogHeight: Int = WRAP_CONTENT, gravity: Int = CENTER, themeResId: Int = R.style.DialogStyle, animation: Boolean = true, close: Boolean = true) : Dialog(context, themeResId) {
     protected lateinit var binding: VDB
+    private var dialogView: View? = null
 
     init {
         val type = javaClass.genericSuperclass
@@ -39,6 +41,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
                 val method = vdbClass.getMethod("inflate", LayoutInflater::class.java)
                 binding = method.invoke(null, layoutInflater) as VDB
                 setContentView(binding.root)
+                dialogView = binding.root
             } catch (_: Exception) {
             }
             window?.let {
@@ -50,9 +53,9 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
             }
             if (animation) {
                 //当布局show出来的时候执行开始动画
-                setOnShowListener { binding.root.startAnimation(context.scaleShown()) }
+                setOnShowListener { dialogView?.startAnimation(context.scaleShown()) }
                 //当布局销毁时执行结束动画
-                setOnDismissListener { binding.root.startAnimation(context.scaleHidden()) }
+                setOnDismissListener { dialogView?.startAnimation(context.scaleHidden()) }
             }
             if (close) {
                 setOnKeyListener { _: DialogInterface?, _: Int, _: KeyEvent? -> true }
@@ -88,7 +91,10 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
         if (window?.decorView == null) return
         if (window?.decorView?.parent == null) return
         super.dismiss()
-        binding.unbind()
+        try {
+            binding.unbind()
+        } catch (_: Exception) {
+        }
     }
 
     open fun shown(flag: Boolean = false) {

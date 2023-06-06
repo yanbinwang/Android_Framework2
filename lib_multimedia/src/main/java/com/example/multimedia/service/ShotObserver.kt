@@ -16,13 +16,13 @@ import java.io.File
  *  1.具备读写权限
  *  2.安卓10开始已淘汰MediaStore.MediaColumns.DATA方法，没法捕获绝对路径，只有通过RELATIVE_PATH捕获相对路径
  */
-class ScreenShotObserver private constructor(): ContentObserver(null) {
-    private var filePath = ""
+class ShotObserver private constructor(): ContentObserver(null) {
+    private var filePath = ""//存储上一次捕获到的文件地址
     private val context by lazy { BaseApplication.instance.applicationContext }
     private val TAG = "ScreenShotObserver"
 
     companion object {
-        val instance by lazy { ScreenShotObserver() }
+        val instance by lazy { ShotObserver() }
 
         internal var onShutter: (filePath: String?) -> Unit = { _ -> }
 
@@ -63,7 +63,7 @@ class ScreenShotObserver private constructor(): ContentObserver(null) {
                     } else getQueryResult(cursor, columns[1])
                     if (filePath != queryPath) {
                         filePath = queryPath
-                        //判断当前路径是否为图片，是的话捕获当前路径
+                        //inJustDecodeBounds=true不会把图片放入内存，只会获取宽高，判断当前路径是否为图片，是的话捕获文件路径
                         val options = BitmapFactory.Options()
                         options.inJustDecodeBounds = true
                         BitmapFactory.decodeFile(queryPath, options)
@@ -71,7 +71,6 @@ class ScreenShotObserver private constructor(): ContentObserver(null) {
                             val file = File(queryPath)
                             " \n生成图片的路径:$queryPath\n手机截屏的路径：${file.parent}".logE(TAG)
                             onShutter.invoke(queryPath)
-//                            LiveDataBus.instance.post(LiveDataEvent(Constants.APP_SHOT_PATH, file.parent ?: ""), LiveDataEvent(Constants.APP_SHOT_IMAGE_PATH, queryPath))
                         }
                     }
                 }

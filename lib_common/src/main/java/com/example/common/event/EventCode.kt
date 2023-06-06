@@ -13,7 +13,7 @@ object EventCode {
     //断网
     val EVENT_OFFLINE = Code<Any>()
 
-    //語言切換
-    val EVENT_LANGUAGE_CHANGE = Code<Any>()
+    //按下Home键,菜单键,电源键
+    val EVENT_MENU_ACTION = Code<Any>()
 
 }
