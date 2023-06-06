@@ -26,7 +26,7 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
     private var noMoreData = false
     private var animation: AnimationDrawable? = null
     private val binding by lazy { ViewRefreshFooterBinding.bind(context.inflate(R.layout.view_refresh_footer, this, false)) }
-    var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
+    internal var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
         binding.root.size(LayoutParams.MATCH_PARENT, 40.pt)

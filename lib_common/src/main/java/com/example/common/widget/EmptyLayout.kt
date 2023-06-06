@@ -96,7 +96,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 设置刷新监听
      */
-    fun setRefreshListener(onRefresh: (() -> Unit)) {
+    fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
         this.onRefresh = onRefresh
     }
 

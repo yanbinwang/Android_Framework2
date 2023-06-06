@@ -17,12 +17,8 @@ import com.example.glide.ImageLoader
  */
 @SuppressLint("NotifyDataSetChanged")
 class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>() {
-    var list: MutableList<String> = ArrayList()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
-    var localAsset = false
+    private var localAsset = false
+    private var list = ArrayList<String>()
     private var onItemClick: ((position: Int) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -50,6 +46,13 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
             itemView.scaleType = ImageView.ScaleType.FIT_XY
             itemView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.MATCH_PARENT)
         }
+    }
+
+    fun refresh(list: List<String>, localAsset: Boolean) {
+        this.localAsset = localAsset
+        this.list.clear()
+        this.list.addAll(list)
+        notifyDataSetChanged()
     }
 
     fun setOnItemClickListener(onItemClick: ((position: Int) -> Unit)) {

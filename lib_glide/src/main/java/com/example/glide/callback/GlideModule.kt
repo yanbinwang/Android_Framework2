@@ -10,6 +10,7 @@ import com.bumptech.glide.load.engine.cache.LruResourceCache
 import com.bumptech.glide.load.engine.cache.MemorySizeCalculator
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.module.AppGlideModule
+import com.example.glide.callback.progress.ProgressInterceptor
 import okhttp3.OkHttpClient
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
@@ -27,9 +28,13 @@ open class GlideModule : AppGlideModule() {
                 .writeTimeout(2, TimeUnit.HOURS)//设置写超时
                 .readTimeout(2, TimeUnit.HOURS)//设置读超时
                 .retryOnConnectionFailure(true)
+                .addInterceptor(ProgressInterceptor())//拦截下请求，监听加载进度
                 .build()
     }
 
+    /**
+     * MemorySizeCalculator类主要关注设备的内存类型，设备 RAM 大小，以及屏幕分辨率
+     */
     override fun applyOptions(context: Context, builder: GlideBuilder) {
         //        int memoryCacheSizeBytes = 1024 * 1024 * 20; // 20mb
         //        builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));

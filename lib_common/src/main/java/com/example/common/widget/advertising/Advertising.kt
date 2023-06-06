@@ -32,6 +32,7 @@ import java.util.*
 @SuppressLint("ClickableViewAccessibility")
 class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), AdvertisingImpl, LifecycleEventObserver {
     private var list = ArrayList<String>()//图片路径数组
+    private var localAsset = false//是否是本地图片
     private var allowScroll = true//是否允许滑动
     private var autoScroll = true//是否自动滚动
     private var timer: Timer? = null//自动滚动的定时器
@@ -114,7 +115,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     override fun start(uriList: ArrayList<String>, ovalLayout: LinearLayout?, localAsset: Boolean) {
         this.list = uriList
         this.ovalLayout = ovalLayout
-        advAdapter.localAsset = localAsset
+        this.localAsset = localAsset
         //设置数据
         initData()
     }
@@ -155,7 +156,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             }
         }
         //设置图片数据
-        advAdapter.list = list
+        advAdapter.refresh(list, localAsset)
         advAdapter.setOnItemClickListener { onPagerClick?.invoke(it) }
         //设置默认选中的起始位置
         banner?.setCurrentItem(if (list.size > 1) halfPosition - halfPosition % list.size else 0, false)

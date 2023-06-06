@@ -95,7 +95,7 @@ class TimeTickHelper(context: Context, move: Boolean = true) {
     /**
      * 开启定时器计时按秒累加，毫秒级的操作不能被获取
      */
-    fun onStart() {
+    fun start() {
         timerCount = 0
         if (timer == null) {
             timer = Timer()
@@ -122,7 +122,7 @@ class TimeTickHelper(context: Context, move: Boolean = true) {
     /**
      * 挂载的服务销毁同时调用，结束计时器,弹框等
      */
-    fun onDestroy() {
+    fun destroy() {
         timerCount = 0
         timerTask?.cancel()
         timer?.cancel()

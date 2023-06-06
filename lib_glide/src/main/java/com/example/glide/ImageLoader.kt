@@ -55,16 +55,17 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
                 .dontAnimate()
                 .into(view)
         } catch (_: Exception) {
+            view.background = GradientDrawable().apply { setColor(Color.parseColor("#000000")) }
         }
     }
 
     override fun displayProgress(view: ImageView, string: String, onStart: () -> Unit, onProgress: (progress: Int?) -> Unit, onComplete: () -> Unit) {
-        ProgressInterceptor.addListener(string) { onProgress(it) }
         Glide.with(view.context)
             .load(string)
             .apply(RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE))
             .addListener(object : GlideRequestListener<Drawable?>() {
                 override fun onStart() {
+                    ProgressInterceptor.addListener(string) { onProgress(it) }
                     onStart()
                 }
 
@@ -136,11 +137,9 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
 //            .error(errorId)
 //            .dontAnimate()
 //            .into(view)
-        val transformation = CornerTransform(view.context, radius.toSafeFloat())
-        transformation.setExceptCorner(overRide)
         Glide.with(view.context)
             .load(string)
-            .apply(RequestOptions.bitmapTransform(transformation))
+            .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, radius.toSafeFloat()).apply { setExceptCorner(overRide) }))
             .placeholder(R.drawable.shape_glide_bg)
             .error(errorId)
             .dontAnimate()
@@ -148,11 +147,9 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun displayRound(view: ImageView, resourceId: Int, errorId: Int, radius: Int, overRide: BooleanArray) {
-        val transformation = CornerTransform(view.context, radius.toSafeFloat())
-        transformation.setExceptCorner(overRide)
         Glide.with(view.context)
             .load(resourceId)
-            .apply(RequestOptions.bitmapTransform(transformation))
+            .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, radius.toSafeFloat()).apply { setExceptCorner(overRide) }))
             .placeholder(R.drawable.shape_glide_bg)
             .error(errorId)
             .dontAnimate()

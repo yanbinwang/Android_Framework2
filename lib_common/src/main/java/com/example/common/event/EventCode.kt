@@ -13,4 +13,7 @@ object EventCode {
     //断网
     val EVENT_OFFLINE = Code<Any>()
 
+    //按下Home键,菜单键,电源键
+    val EVENT_MENU_ACTION = Code<Any>()
+
 }

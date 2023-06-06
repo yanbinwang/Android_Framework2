@@ -29,19 +29,22 @@ import java.lang.reflect.ParameterizedType
  * 所有弹框的基类
  * 用于实现上下左右弹出的效果，如有特殊动画需求，重写animation
  * 默认底部弹出,不需要传view，并带有顶栏间距
- * 也可使用渐隐显示
- * 默认view下方弹出
+ * 也可使用渐隐显示，默认view下方弹出
  * popupwindows在设置isClippingEnabled=false后会撑满整个屏幕变成全屏
  * 但这会使底部有虚拟栏的手机重叠，哪怕使用的margin底部高度的代码，部分手机兼容性上也会存在问题
  * 可以使用BaseBottomSheetDialogFragment替代，也可以使用调整windos透明度的方法
+ * 需要注意binding使用了lateinit，但是不可能会不给值（VDB），稳妥期间，引用到view的地方，使用popupView
  */
 @Suppress("LeakingThis")
 abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val light: Boolean = false) : PopupWindow() {
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
-    protected var measuredWidth = 0
-    protected var measuredHeight = 0
+    private var popupView: View? = null
     protected val context get() = window.context
+    protected var measuredWidth = 0
+        private set
+    protected var measuredHeight = 0
+        private set
     protected lateinit var binding: VDB
 
     init {
@@ -52,6 +55,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 val method = vdbClass.getMethod("inflate", LayoutInflater::class.java)
                 binding = method.invoke(null, window.layoutInflater) as VDB
                 contentView = binding.root
+                popupView = binding.root
             } catch (_: Exception) {
             }
             width = if (popupWidth < 0) popupWidth else popupWidth.pt
@@ -68,9 +72,9 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 }
             }
             //获取自身的长宽高
-            binding.root.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-            measuredWidth = binding.root.measuredWidth
-            measuredHeight = binding.root.measuredHeight
+            popupView?.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+            measuredWidth = popupView?.measuredWidth.orZero
+            measuredHeight = popupView?.measuredHeight.orZero
         }
     }
 
@@ -103,7 +107,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     // <editor-fold defaultstate="collapsed" desc="重写方法">
     override fun showAsDropDown(anchor: View?) {
         if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if ((context as? Activity)?.isFinishing.orFalse) return
+        if (popupView?.context == null) return
+        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
         try {
             setAttributes()
             super.showAsDropDown(anchor)
@@ -113,7 +118,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int) {
         if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if ((context as? Activity)?.isFinishing.orFalse) return
+        if (popupView?.context == null) return
+        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
         try {
             setAttributes()
             super.showAsDropDown(anchor, xoff, yoff)
@@ -123,7 +129,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
         if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if ((context as? Activity)?.isFinishing.orFalse) return
+        if (popupView?.context == null) return
+        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
         try {
             setAttributes()
             super.showAsDropDown(anchor, xoff, yoff, gravity)
@@ -157,14 +164,17 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         if (window.windowManager == null) return
         if (window.decorView.parent == null) return
         super.dismiss()
-        binding.unbind()
+        try {
+            binding.unbind()
+        } catch (_: Exception) {
+        }
     }
 
     /**
      * 默认底部坐标展示
      */
     open fun shown() {
-        if (!isShowing) showAtLocation(binding.root, BOTTOM, 0, 0)
+        if (!isShowing) showAtLocation(popupView, BOTTOM, 0, 0)
     }
 
     /**

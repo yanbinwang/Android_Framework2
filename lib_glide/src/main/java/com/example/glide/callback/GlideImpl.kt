@@ -30,7 +30,7 @@ interface GlideImpl {
     fun displayCircle(view: ImageView, string: String, errorId: Int = R.drawable.shape_glide_oval_bg)
 
     fun displayCircle(view: ImageView, resourceId: Int, errorId: Int = R.drawable.shape_glide_oval_bg)
-    //---------------------------------------------圆形图片加载开始---------------------------------------------
+    //---------------------------------------------图片加载结束---------------------------------------------
 
     //---------------------------------------------图片库方法开始---------------------------------------------
     fun download(context: Context, string: String, onStart: () -> Unit = {}, onComplete: (file: File?) -> Unit = {})
