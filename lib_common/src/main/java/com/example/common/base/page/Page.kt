@@ -6,7 +6,6 @@ package com.example.common.base.page
  */
 data class Page<T>(
     var total: Int? = null,//总记录数
-    var hasNextPage: Boolean? = null,//是否有下一页（是否有更多数据）
     var list: MutableList<T>? = null
 )
 
