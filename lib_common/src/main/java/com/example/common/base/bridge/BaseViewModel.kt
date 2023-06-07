@@ -5,6 +5,7 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
+import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
@@ -47,10 +48,11 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val context: Context get() = activity
     protected val view: BaseView? get() = weakView?.get()
 
-    //获取对应的控件
+    //获取对应的控件/分页类
     val emptyView get() = weakEmpty?.get()
     val recyclerView get() = weakRecycler?.get()
     val refreshLayout get() = weakRefresh?.get()
+    val paging by lazy { Paging() }
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {

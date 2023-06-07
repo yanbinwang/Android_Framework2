@@ -24,7 +24,7 @@ import com.example.framework.utils.function.stopService
 import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.orFalse
 import com.example.multimedia.service.ScreenService
-import com.example.multimedia.service.ScreenShotObserver
+import com.example.multimedia.service.ShotObserver
 import java.io.File
 
 /**
@@ -89,15 +89,15 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
             }
         }
         //只要在录屏中，截一张图就copy一张到目标目录，但是需要及时清空
-        ScreenShotObserver.setOnScreenShotListener {
+        ShotObserver.setOnScreenShotListener {
             if (isRecording) {
                 it ?: return@setOnScreenShotListener
                 shotList.add(it)
             }
         }
         //录屏文件创建/停止录屏时（exists=false）都会回调
-        ScreenService.setOnScreenListener { filePath, exists ->
-            if (!exists) {
+        ScreenService.setOnScreenListener { filePath, recoding ->
+            if (!recoding) {
                 val folderPath = filePath.orEmpty()
                 //说明未截图
                 if(shotList.size == 0) {
@@ -156,11 +156,11 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
      */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_CREATE -> ScreenShotObserver.instance.register()
+            Lifecycle.Event.ON_CREATE -> ShotObserver.instance.register()
             Lifecycle.Event.ON_DESTROY -> {
                 hideDialog()
                 stopScreen()
-                ScreenShotObserver.instance.unregister()
+                ShotObserver.instance.unregister()
                 activity.lifecycle.removeObserver(this)
             }
             else -> {}

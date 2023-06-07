@@ -110,14 +110,15 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
                 .setScreenHeight(screenHeight)
             AutoSizeCompat.autoConvertDensityOfGlobal(resources)
         }
-        try {
+        return try {
             val superclass = javaClass.genericSuperclass
             val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>
             val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
             binding = method.invoke(null, layoutInflater, container, false) as VDB
+            binding.root
         } catch (_: Exception) {
+            null
         }
-        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -210,7 +211,10 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
 
     override fun onDetach() {
         super.onDetach()
-        binding.unbind()
+        try {
+            binding.unbind()
+        } catch (_: Exception) {
+        }
     }
     // </editor-fold>
 

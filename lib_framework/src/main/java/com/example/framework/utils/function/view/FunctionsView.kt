@@ -4,7 +4,9 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -143,6 +145,19 @@ fun View?.disable() {
 fun View?.background(@DrawableRes bg: Int) {
     if (this == null) return
     this.setBackgroundResource(bg)
+}
+
+/**
+ * 减少本地背景文件的绘制，直接代码绘制
+ * colorString 颜色字符 -> "#cf111111"
+ * radius 圆角 -> 传入X.ptFloat,代码添加一个对应圆角的背景
+ */
+fun View?.background(colorString: String, radius: Float) {
+    if (this == null) return
+    this.background = GradientDrawable().apply {
+        setColor(Color.parseColor(colorString))
+        cornerRadius = radius
+    }
 }
 
 /**
