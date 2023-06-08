@@ -6,6 +6,7 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.ViewFlipper
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.logWTF
 import com.example.mvvm.R
 
 /**
@@ -23,8 +24,7 @@ import com.example.mvvm.R
 class SwitchFlipper @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : ViewFlipper(context, attrs) {
 
     init {
-        inAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_right_in)
-        outAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_left_out)
+        setNextAnimation()
     }
 
     /**
@@ -45,11 +45,24 @@ class SwitchFlipper @JvmOverloads constructor(context: Context, attrs: Attribute
      * 需保证只有2个view插入的情况下，调用此方法，实现左右切换
      */
     fun turnThePage() {
-        if (displayedChild < childCount - 1) {
-            showNext()
-        } else {
+        "displayedChild:${displayedChild}\nchildCount:${childCount}".logWTF
+        if (displayedChild >= childCount - 1) {
+            setPreviousAnimation()
             showPrevious()
+        } else {
+            setNextAnimation()
+            showNext()
         }
+    }
+
+    private fun setNextAnimation() {
+        inAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_right_in)
+        outAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_left_out)
+    }
+
+    private fun setPreviousAnimation() {
+        inAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_left_in)
+        outAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_right_out)
     }
 
 }
