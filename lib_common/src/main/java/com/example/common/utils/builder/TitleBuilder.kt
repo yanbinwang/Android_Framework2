@@ -42,13 +42,8 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * 部分页面不需要标题，只需要一个定制的返回按钮和特定背景，故而使用此方法
      */
     fun setTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}, bgColor: Int = R.color.white): TitleBuilder {
-        binding.ivLeft.apply {
-            visible()
-            setResource(resId)
-            if (0 != tintColor) tint(tintColor)
-            click { onClick.invoke() }
-            binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
-        }
+        setLeft(resId, tintColor, onClick)
+        binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
         return this
     }
 
