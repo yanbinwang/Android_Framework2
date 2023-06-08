@@ -21,7 +21,9 @@ import com.example.framework.utils.function.view.visible
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
 
     init {
+        //默认情况下，白色背景外加距顶部导航栏padding
         binding.clContainer.padding(top = getStatusBarHeight())
+        setTitleBackgroundColor()
     }
 
     /**
@@ -32,7 +34,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * shade->标题底部是否带阴影
      */
     fun setTitle(title: String = "", titleColor: Int = R.color.black, bgColor: Int = R.color.white, shade: Boolean = false): TitleBuilder {
-        setTitleBackgroundColor(bgColor)
+        if (bgColor != R.color.white) setTitleBackgroundColor(bgColor)
         binding.tvTitle.setArguments(title, titleColor)
         binding.viewShade.apply { if (shade) visible() else gone() }
         return this
