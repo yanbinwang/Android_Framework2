@@ -32,7 +32,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * shade->标题底部是否带阴影
      */
     fun setTitle(title: String = "", titleColor: Int = R.color.black, bgColor: Int = R.color.white, shade: Boolean = false): TitleBuilder {
-        binding.clContainer.setBackgroundColor(if(0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
+        setTitleBackgroundColor(bgColor)
         binding.tvTitle.setArguments(title, titleColor)
         binding.viewShade.apply { if (shade) visible() else gone() }
         return this
@@ -93,6 +93,13 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      */
     fun hideTitle() {
         binding.clContainer.gone()
+    }
+
+    /**
+     * 设置背景色
+     */
+    fun setTitleBackgroundColor(bgColor: Int = R.color.white) {
+        binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
     }
 
     /**
