@@ -23,10 +23,6 @@ import com.example.mvvm.R
  */
 class SwitchFlipper @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : ViewFlipper(context, attrs) {
 
-    init {
-        setNextAnimation()
-    }
-
     /**
      * 添加view
      */
@@ -47,22 +43,22 @@ class SwitchFlipper @JvmOverloads constructor(context: Context, attrs: Attribute
     fun turnThePage() {
         "displayedChild:${displayedChild}\nchildCount:${childCount}".logWTF
         if (displayedChild >= childCount - 1) {
-            setPreviousAnimation()
             showPrevious()
         } else {
-            setNextAnimation()
             showNext()
         }
     }
 
-    private fun setNextAnimation() {
+    override fun showNext() {
         inAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_right_in)
         outAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_left_out)
+        super.showNext()
     }
 
-    private fun setPreviousAnimation() {
+    override fun showPrevious() {
         inAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_left_in)
         outAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_right_out)
+        super.showPrevious()
     }
 
 }
