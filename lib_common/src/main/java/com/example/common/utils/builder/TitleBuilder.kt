@@ -21,9 +21,7 @@ import com.example.framework.utils.function.view.visible
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
 
     init {
-        //默认情况下，白色背景外加距顶部导航栏padding
         binding.clContainer.padding(top = getStatusBarHeight())
-        setTitleBackgroundColor()
     }
 
     /**
@@ -34,9 +32,23 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * shade->标题底部是否带阴影
      */
     fun setTitle(title: String = "", titleColor: Int = R.color.black, bgColor: Int = R.color.white, shade: Boolean = false): TitleBuilder {
-        if (bgColor != R.color.white) setTitleBackgroundColor(bgColor)
+        binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
         binding.tvTitle.setArguments(title, titleColor)
         binding.viewShade.apply { if (shade) visible() else gone() }
+        return this
+    }
+
+    /**
+     * 部分页面不需要标题，只需要一个定制的返回按钮和特定背景，故而使用此方法
+     */
+    fun setTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}, bgColor: Int = R.color.white): TitleBuilder {
+        binding.ivLeft.apply {
+            visible()
+            setResource(resId)
+            if (0 != tintColor) tint(tintColor)
+            click { onClick.invoke() }
+            binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
+        }
         return this
     }
 
@@ -95,13 +107,6 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      */
     fun hideTitle() {
         binding.clContainer.gone()
-    }
-
-    /**
-     * 设置背景色
-     */
-    fun setTitleBackgroundColor(bgColor: Int = R.color.white) {
-        binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
     }
 
     /**
