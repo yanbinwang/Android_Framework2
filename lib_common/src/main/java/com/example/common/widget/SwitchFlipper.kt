@@ -1,13 +1,13 @@
-package com.example.mvvm.widget
+package com.example.common.widget
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.ViewFlipper
+import com.example.common.R
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.logWTF
-import com.example.mvvm.R
 
 /**
  * Created by wangyanbin
@@ -42,6 +42,7 @@ class SwitchFlipper @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     fun turnThePage() {
         "displayedChild:${displayedChild}\nchildCount:${childCount}".logWTF
+        if (childCount != 2) return
         if (displayedChild >= childCount - 1) {
             showPrevious()
         } else {
