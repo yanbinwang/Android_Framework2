@@ -8,7 +8,13 @@ import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.function.value.ELFormat.EMAIL
 import com.example.framework.utils.function.value.ELFormat.PASSWORD
+import com.example.framework.utils.function.value.add
+import com.example.framework.utils.function.value.divide
+import com.example.framework.utils.function.value.multiply
 import com.example.framework.utils.function.value.regCheck
+import com.example.framework.utils.function.value.subtract
+import com.example.framework.utils.function.view.getNumber
+import java.math.BigDecimal
 import java.util.regex.Pattern
 
 /**
@@ -112,6 +118,41 @@ interface EditTextImpl {
         //字母+数字+特殊字符
         if (regCheck("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
         return 3
+    }
+
+    fun ClearEditText?.text(): String {
+        this ?: return ""
+        return getText()
+    }
+
+    fun PasswordEditText?.text(): String {
+        this ?: return ""
+        return getText()
+    }
+
+    fun ClearEditText?.getNumber(): String {
+        this ?: return "0"
+        return editText.getNumber()
+    }
+
+    fun ClearEditText?.add(number: String) {
+        this ?: return
+        setText(getNumber().add(number))
+    }
+
+    fun ClearEditText?.subtract(number: String) {
+        this ?: return
+        setText(getNumber().subtract(number))
+    }
+
+    fun ClearEditText?.multiply(number: String) {
+        this ?: return
+        setText(getNumber().multiply(number))
+    }
+
+    fun ClearEditText?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
+        this ?: return
+        setText(getNumber().divide(number, scale, mode))
     }
 
 }

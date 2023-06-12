@@ -145,8 +145,3 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
 }
-
-fun PasswordEditText?.text(): String {
-    this ?: return ""
-    return getText()
-}
