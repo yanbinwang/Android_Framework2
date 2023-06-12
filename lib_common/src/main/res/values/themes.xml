@@ -120,6 +120,7 @@
     <style name="TransitionTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@color/white</item>
         <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:navigationBarColor">@color/appNavigationBar</item>
     </style>
 
     <!--底部弹出样式 -->
