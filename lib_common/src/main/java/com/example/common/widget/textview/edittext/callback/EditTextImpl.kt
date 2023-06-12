@@ -14,6 +14,7 @@ import com.example.framework.utils.function.value.multiply
 import com.example.framework.utils.function.value.regCheck
 import com.example.framework.utils.function.value.subtract
 import com.example.framework.utils.function.view.getNumber
+import com.example.framework.utils.function.view.text
 import java.math.BigDecimal
 import java.util.regex.Pattern
 
@@ -70,7 +71,7 @@ interface EditTextImpl {
             if (hasToast) R.string.email_empty.shortToast()
             return false
         }
-        if (text.toString().regCheck(EMAIL)) return true
+        if (text().regCheck(EMAIL)) return true
         if (hasToast) R.string.email_error.shortToast()
         return false
     }
@@ -91,7 +92,7 @@ interface EditTextImpl {
             if (hasToast) R.string.password_empty.shortToast()
             return false
         }
-        if (!text.toString().regCheck(PASSWORD)) {
+        if (!text().regCheck(PASSWORD)) {
             if (hasToast) R.string.password_error.shortToast()
             return false
         }
