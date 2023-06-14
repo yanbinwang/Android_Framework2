@@ -1,5 +1,6 @@
 package com.example.common.widget.textview.edittext.callback
 
+import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
 import com.example.common.R
@@ -13,6 +14,7 @@ import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.multiply
 import com.example.framework.utils.function.value.regCheck
 import com.example.framework.utils.function.value.subtract
+import com.example.framework.utils.function.view.OnMultiTextWatcher
 import com.example.framework.utils.function.view.getNumber
 import com.example.framework.utils.function.view.text
 import java.math.BigDecimal
@@ -20,6 +22,7 @@ import java.util.regex.Pattern
 
 /**
  * kt中的接口是可以实现的，实现后的方法只有继承的类才能使用
+ * 当前edittext的实现是方便项目使用对应自定义控件的
  */
 interface EditTextImpl {
 
@@ -154,6 +157,16 @@ interface EditTextImpl {
     fun ClearEditText?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
         this ?: return
         setText(getNumber().divide(number, scale, mode))
+    }
+
+    fun OnMultiTextWatcher.textWatcher(vararg views: View) {
+        for (view in views) {
+            when (view) {
+                is EditText -> view.addTextChangedListener(this)
+                is ClearEditText -> view.editText.addTextChangedListener(this)
+                is PasswordEditText -> view.editText.addTextChangedListener(this)
+            }
+        }
     }
 
 }
