@@ -16,6 +16,7 @@ import com.example.framework.utils.function.value.regCheck
 import com.example.framework.utils.function.value.subtract
 import com.example.framework.utils.function.view.OnMultiTextWatcher
 import com.example.framework.utils.function.view.getNumber
+import com.example.framework.utils.function.view.onDone
 import com.example.framework.utils.function.view.text
 import java.math.BigDecimal
 import java.util.regex.Pattern
@@ -157,6 +158,16 @@ interface EditTextImpl {
     fun ClearEditText?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
         this ?: return
         setText(getNumber().divide(number, scale, mode))
+    }
+
+    fun ClearEditText?.onDone(listener: () -> Unit) {
+        if (this == null) return
+        editText.onDone(listener)
+    }
+
+    fun PasswordEditText?.onDone(listener: () -> Unit) {
+        if (this == null) return
+        editText.onDone(listener)
     }
 
     fun OnMultiTextWatcher.textWatcher(vararg views: View) {
