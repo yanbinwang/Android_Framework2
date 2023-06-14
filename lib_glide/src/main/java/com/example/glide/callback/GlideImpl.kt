@@ -17,6 +17,8 @@ interface GlideImpl {
 
     fun displayFrame(view: ImageView, string: String)//线上视频加载某一帧
 
+    fun displayFrame(view: ImageView, resourceId: Int)
+
     fun displayGif(view: ImageView, resourceId: Int)//gif放入drawable中
 
     fun displayProgress(view: ImageView, string: String, onStart: () -> Unit = {}, onProgress: (progress: Int?) -> Unit = {}, onComplete: () -> Unit = {})
