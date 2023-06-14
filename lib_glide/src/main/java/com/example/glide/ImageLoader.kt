@@ -47,7 +47,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(ZoomTransform(view))
     }
 
-    override fun displayCover(view: ImageView, string: String) {
+    override fun displayFrame(view: ImageView, string: String) {
         try {
             Glide.with(view.context)
                 .setDefaultRequestOptions(RequestOptions().frame(1000000).centerCrop())
@@ -57,6 +57,10 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         } catch (_: Exception) {
             view.background = GradientDrawable().apply { setColor(Color.parseColor("#000000")) }
         }
+    }
+
+    override fun displayGif(view: ImageView, resourceId: Int) {
+        Glide.with(view.context).asGif().load(resourceId).into(view)
     }
 
     override fun displayProgress(view: ImageView, string: String, onStart: () -> Unit, onProgress: (progress: Int?) -> Unit, onComplete: () -> Unit) {
