@@ -1,6 +1,5 @@
 package com.example.mvvm.activity
 
-import android.view.WindowManager
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
@@ -29,7 +28,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
 //    private val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
 
     override fun initView() {
-        window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         super.initView()
 //        adapter.refresh(ids)
 //        binding.rvTest.adapter = adapter
