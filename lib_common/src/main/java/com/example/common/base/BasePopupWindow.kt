@@ -36,7 +36,7 @@ import java.lang.reflect.ParameterizedType
  * 需要注意binding使用了lateinit，但是不可能会不给值（VDB），稳妥期间，引用到view的地方，使用popupView
  */
 @Suppress("LeakingThis")
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val light: Boolean = false) : PopupWindow() {
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val light: Boolean = true) : PopupWindow() {
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
     private var popupView: View? = null
