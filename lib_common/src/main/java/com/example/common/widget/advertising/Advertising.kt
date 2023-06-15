@@ -100,6 +100,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 }
                 false
             }
+            isNestedScrollingEnabled = false
         }
     }
 
