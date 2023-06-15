@@ -1,5 +1,6 @@
 package com.example.common.widget.textview.edittext.callback
 
+import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
 import com.example.common.R
@@ -8,11 +9,21 @@ import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.function.value.ELFormat.EMAIL
 import com.example.framework.utils.function.value.ELFormat.PASSWORD
+import com.example.framework.utils.function.value.add
+import com.example.framework.utils.function.value.divide
+import com.example.framework.utils.function.value.multiply
 import com.example.framework.utils.function.value.regCheck
+import com.example.framework.utils.function.value.subtract
+import com.example.framework.utils.function.view.OnMultiTextWatcher
+import com.example.framework.utils.function.view.getNumber
+import com.example.framework.utils.function.view.onDone
+import com.example.framework.utils.function.view.text
+import java.math.BigDecimal
 import java.util.regex.Pattern
 
 /**
  * kt中的接口是可以实现的，实现后的方法只有继承的类才能使用
+ * 当前edittext的实现是方便项目使用对应自定义控件的
  */
 interface EditTextImpl {
 
@@ -64,7 +75,7 @@ interface EditTextImpl {
             if (hasToast) R.string.email_empty.shortToast()
             return false
         }
-        if (text.toString().regCheck(EMAIL)) return true
+        if (text().regCheck(EMAIL)) return true
         if (hasToast) R.string.email_error.shortToast()
         return false
     }
@@ -85,7 +96,7 @@ interface EditTextImpl {
             if (hasToast) R.string.password_empty.shortToast()
             return false
         }
-        if (!text.toString().regCheck(PASSWORD)) {
+        if (!text().regCheck(PASSWORD)) {
             if (hasToast) R.string.password_error.shortToast()
             return false
         }
@@ -112,6 +123,61 @@ interface EditTextImpl {
         //字母+数字+特殊字符
         if (regCheck("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
         return 3
+    }
+
+    fun ClearEditText?.text(): String {
+        this ?: return ""
+        return getText()
+    }
+
+    fun PasswordEditText?.text(): String {
+        this ?: return ""
+        return getText()
+    }
+
+    fun ClearEditText?.getNumber(): String {
+        this ?: return "0"
+        return editText.getNumber()
+    }
+
+    fun ClearEditText?.add(number: String) {
+        this ?: return
+        setText(getNumber().add(number))
+    }
+
+    fun ClearEditText?.subtract(number: String) {
+        this ?: return
+        setText(getNumber().subtract(number))
+    }
+
+    fun ClearEditText?.multiply(number: String) {
+        this ?: return
+        setText(getNumber().multiply(number))
+    }
+
+    fun ClearEditText?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
+        this ?: return
+        setText(getNumber().divide(number, scale, mode))
+    }
+
+    fun ClearEditText?.onDone(listener: () -> Unit) {
+        if (this == null) return
+        editText.onDone(listener)
+    }
+
+    fun PasswordEditText?.onDone(listener: () -> Unit) {
+        if (this == null) return
+        editText.onDone(listener)
+    }
+
+    fun OnMultiTextWatcher.textWatcher(vararg views: View) {
+        for (view in views) {
+            when (view) {
+                is EditText -> view.addTextChangedListener(this)
+                is ClearEditText -> view.editText.addTextChangedListener(this)
+                is PasswordEditText -> view.editText.addTextChangedListener(this)
+            }
+        }
     }
 
 }

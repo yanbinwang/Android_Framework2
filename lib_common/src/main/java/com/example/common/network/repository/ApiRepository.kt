@@ -26,7 +26,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * }
  */
 class MultiReqUtil(
-    private var view: BaseView?,
+    private var view: BaseView? = null,
     private val isShowDialog: Boolean = true,
     private val err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
 ) {
@@ -39,15 +39,22 @@ class MultiReqUtil(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
     ): T? {
+        return requestLayer(coroutineScope, err)?.data
+    }
+
+    suspend fun <T> requestLayer(
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+    ): ApiResponse<T>? {
         if (isShowDialog && !loadingStarted) {
             view?.showDialog()
             loadingStarted = true
         }
-        var t: T? = null
-        request({ coroutineScope() }, {
-            t = it
+        var response: ApiResponse<T>? = null
+        requestLayer({ coroutineScope() }, {
+            response = it
         }, err, isShowToast = false)
-        return t
+        return response
     }
 
     /**
@@ -75,18 +82,31 @@ fun <K, V> HashMap<K, V>?.params() =
 /**
  * 提示方法，根据接口返回的msg提示
  */
-fun String?.responseToast() =
-    (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.response_net_error) else {
-        if (isNullOrEmpty()) resString(R.string.response_error) else this
-    }).shortToast()
+fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.response_net_error) else {
+    if (isNullOrEmpty()) resString(R.string.response_error) else this
+}).shortToast()
 
 /**
  * 网络请求协程扩展-并行请求
  * 每个挂起方法外层都会套一个launch
+ * requestLayer中已经对body做了处理，直接拿对象返回即可
+ * 如果返回格式过于奇葩，放在body层级，则做特殊处理，其余情况不做改进！
  */
 suspend fun <T> request(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (T?) -> Unit = {},
+    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+    end: () -> Unit = {},
+    isShowToast: Boolean = false
+) {
+    requestLayer(coroutineScope, {
+        resp.invoke(it?.data)
+    }, err, end, isShowToast)
+}
+
+suspend fun <T> requestLayer(
+    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+    resp: (ApiResponse<T>?) -> Unit = {},
     err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false
@@ -99,8 +119,12 @@ suspend fun <T> request(
             coroutineScope()
         }.let {
             log("处理结果")
-            if (it.successful()) resp(it.response()) else {
-                if (isShowToast) it.msg.responseToast()
+            if (it.successful()) {
+                resp(it)
+            } else {
+                //如果不是被顶号才会有是否提示的逻辑
+                if (!it.tokenExpired()) if (isShowToast) it.msg.responseToast()
+                //不管结果如何，失败的回调是需要执行的
                 err(Triple(it.code, it.msg, null))
             }
         }
@@ -113,39 +137,7 @@ suspend fun <T> request(
     }
 }
 
-/**
- * 网络请求协程扩展-直接获取到对象
- * 如果几个以上的请求，互相之间有关联，则使用当前方法
- * launch {
- *  val task1 = request(1api)
- *  val task2 = request(2api)
- * }
- */
-suspend fun <T> request(
-    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    isShowToast: Boolean = false
-): T? {
-    var t: T? = null
-    request({ coroutineScope() }, {
-        t = it
-    }, isShowToast = isShowToast)
-    return t
-}
-
 private fun log(msg: String) = "${msg}\n当前线程：${Thread.currentThread().name}".logE("repository")
-
-/**
- * 项目接口返回对象解析
- */
-fun <T> ApiResponse<T>?.response(): T? {
-    if (this == null) return null
-    return if (successful()) {
-        data
-    } else {
-        tokenExpired()
-        null
-    }
-}
 
 /**
  * 判断此次请求是否成功
@@ -158,7 +150,11 @@ fun <T> ApiResponse<T>?.successful(): Boolean {
 /**
  * 判断此次请求是否token过期
  */
-fun <T> ApiResponse<T>?.tokenExpired() {
-    if (this == null) return
-    if (TOKEN_EXPIRED == code) AccountHelper.signOut()
+fun <T> ApiResponse<T>?.tokenExpired(): Boolean {
+    if (this == null) return false
+    if (TOKEN_EXPIRED == code) {
+        AccountHelper.signOut()
+        return true
+    }
+    return false
 }

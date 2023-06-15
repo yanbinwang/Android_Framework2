@@ -28,6 +28,18 @@ import java.util.*
 /**
  * Created by wangyanbin
  * 广告控件
+ * android:nestedScrollingEnabled="false"
+ * viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+ * @Override
+ * public void onPageSelected(int position) {
+ * super.onPageSelected(position);
+ * if (position == /*index of page with RecyclerView*/) {
+ * nestedScrollView.setNestedScrollingEnabled(false);
+ * } else {
+ * nestedScrollView.setNestedScrollingEnabled(true);
+ * }
+ * }
+ * });
  */
 @SuppressLint("ClickableViewAccessibility")
 class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), AdvertisingImpl, LifecycleEventObserver {
@@ -88,6 +100,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 }
                 false
             }
+            isNestedScrollingEnabled = false
         }
     }
 

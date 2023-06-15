@@ -195,6 +195,15 @@ fun TextView?.getEllipsisCount(listener: (ellipsisCount: Int) -> Unit = {}) {
 }
 
 /**
+ * 如果textview文字带有链接跳转，直接使用此构造函数
+ */
+fun TextView?.setSpannable(spannable: Spannable) {
+    this ?: return
+    text = spannable
+    movementMethod = LinkMovementMethod.getInstance()
+}
+
+/**
  * EditText输入密码是否可见(显隐)
  */
 fun EditText?.passwordDevelopment(): Boolean {
