@@ -129,4 +129,9 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         return this
     }
 
+    /**
+     * 返回容器本身
+     */
+    fun getContainer() = binding.clContainer
+
 }
