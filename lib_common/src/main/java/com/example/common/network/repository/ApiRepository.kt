@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
@@ -76,8 +77,17 @@ class MultiReqUtil(
  * map扩展，如果只需传入map则使用
  * hashMapOf("" to "")不需要写此扩展
  */
-fun <K, V> HashMap<K, V>?.params() =
-    this?.toJsonString().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
+fun <K, V> HashMap<K, V>?.requestBody() = this?.toJsonString().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
+
+fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
+    val map = hashMapOf<String, Any>()
+    pairs.forEach {
+        it.second?.let { v ->
+            map[it.first] = v
+        }
+    }
+    return map.requestBody()
+}
 
 /**
  * 提示方法，根据接口返回的msg提示
