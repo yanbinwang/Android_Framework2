@@ -46,12 +46,12 @@ class TestViewModel : BaseViewModel() {
 //            taskList.safeGet(0)
 //            taskList.safeGet(1)
             val req = MultiReqUtil(view)
-            val task1 = async(req) { CommonSubscribe.getVerificationApi(mapOf("key" to "value")) }
-            val task2 = async(req) { CommonSubscribe.getVerificationApi(mapOf("key" to "value")) }
+            val task1 = async(req, { CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
+            val task2 = async(req, { CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
             val taskList = awaitAll(task1, task2)
-            req.end()
             taskList.safeGet(0)
             taskList.safeGet(1)
+            req.end()
         }
     }
 
