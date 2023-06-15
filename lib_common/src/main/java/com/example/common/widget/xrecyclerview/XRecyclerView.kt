@@ -32,18 +32,6 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
  * <p>
  * 一般自定义view或viewGroup基本上都会去实现onMeasure、onLayout、onDraw方法，还有另外两个方法是onFinishInflate和onSizeChanged。
  * onFinishInflate方法只有在布局文件中加载view实例会回调，如果直接new一个view的话是不会回调的。
- * android:nestedScrollingEnabled="false"
- * viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
- * @Override
- * public void onPageSelected(int position) {
- * super.onPageSelected(position);
- * if (position == /*index of page with RecyclerView*/) {
- * nestedScrollView.setNestedScrollingEnabled(false);
- * } else {
- * nestedScrollView.setNestedScrollingEnabled(true);
- * }
- * }
- * });
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private var emptyType = 0//是否具有空布局（0无-1有）
