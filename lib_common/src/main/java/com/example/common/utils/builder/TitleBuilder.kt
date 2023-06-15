@@ -35,6 +35,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
         binding.tvTitle.setArguments(title, titleColor)
         binding.viewShade.apply { if (shade) visible() else gone() }
+        getDefault()
         return this
     }
 
@@ -45,6 +46,18 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         setLeft(resId, tintColor, onClick)
         binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
         return this
+    }
+
+    /**
+     * 继承BaseActivity，在xml中include对应标题布局
+     * 把布局bind传入工具类，实现绑定后，调取对应方法
+     */
+    fun setTransparentTitle(title: String = "", titleColor: Int = R.color.black): TitleBuilder {
+        return setTitle(title, titleColor, 0)
+    }
+
+    fun setTransparentTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }): TitleBuilder {
+        return setTitle(resId, tintColor, onClick, 0)
     }
 
     /**
