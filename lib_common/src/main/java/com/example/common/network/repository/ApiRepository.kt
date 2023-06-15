@@ -130,25 +130,6 @@ suspend fun <T> requestLayer(
     }
 }
 
-/**
- * 网络请求协程扩展-直接获取到对象
- * 如果几个以上的请求，互相之间有关联，则使用当前方法
- * launch {
- *  val task1 = request(1api)
- *  val task2 = request(2api)
- * }
- */
-suspend fun <T> request(
-    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    isShowToast: Boolean = false
-): T? {
-    var t: T? = null
-    request({ coroutineScope() }, {
-        t = it
-    }, isShowToast = isShowToast)
-    return t
-}
-
 private fun log(msg: String) = "${msg}\n当前线程：${Thread.currentThread().name}".logE("repository")
 
 /**

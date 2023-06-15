@@ -68,14 +68,4 @@ class TestViewModel : BaseViewModel() {
         })
     }
 
-    /**
-     * 普通一次性（并不主动发起）
-     */
-    fun taskAsync() {
-        launch {
-            val task1 = async({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
-            task1.await()//不调取await不会执行接口请求
-        }
-    }
-
 }
