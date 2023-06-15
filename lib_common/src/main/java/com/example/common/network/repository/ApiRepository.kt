@@ -39,15 +39,22 @@ class MultiReqUtil(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
     ): T? {
+        return requestLayer(coroutineScope, err)?.data
+    }
+
+    suspend fun <T> requestLayer(
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+    ): ApiResponse<T>? {
         if (isShowDialog && !loadingStarted) {
             view?.showDialog()
             loadingStarted = true
         }
-        var t: T? = null
-        request({ coroutineScope() }, {
-            t = it
+        var response: ApiResponse<T>? = null
+        requestLayer({ coroutineScope() }, {
+            response = it
         }, err, isShowToast = false)
-        return t
+        return response
     }
 
     /**
