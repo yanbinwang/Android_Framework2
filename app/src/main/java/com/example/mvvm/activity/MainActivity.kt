@@ -16,6 +16,27 @@ import com.example.framework.utils.function.view.size
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.span.RankSpanInterface
 
+/**
+ *    <data>
+
+<import type="android.view.View" />
+
+<variable
+name="kolVisible"
+type="Boolean"
+android:value="false" />
+
+</data>
+
+<ImageView
+android:id="@+id/iv_kol"
+android:layout_width="60pt"
+android:layout_height="70pt"
+android:layout_gravity="right|bottom"
+android:layout_marginBottom="154pt"
+android:src="@mipmap/ic_suspension"
+android:visibility="@{kolVisible==false?View.GONE:View.VISIBLE}" />
+ */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpanInterface {
 //    //    private val illustratePopup by lazy { IllustratePopup(this) }
