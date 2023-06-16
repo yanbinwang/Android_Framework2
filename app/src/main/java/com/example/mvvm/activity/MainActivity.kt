@@ -15,6 +15,7 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.span.RankSpanInterface
+import com.example.mvvm.viewmodel.TestViewModel
 
 /**
  *    <data>
@@ -49,6 +50,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
 //    private val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
 
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
+
+    private val viewModel by lazy { TestViewModel() }
 
     override fun initView() {
         super.initView()

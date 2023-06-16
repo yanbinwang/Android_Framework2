@@ -13,11 +13,11 @@ data class Page<T>(
  * Created by WangYanBin on 2020/7/1.
  * 应用于刷新页面工具类
  * override fun onRefresh(refreshLayout: RefreshLayout) {
- * viewModel.paging.onRefresh { viewModel.getEvidenceList() }
+ * viewModel.onRefresh { viewModel.getEvidenceList() }
  * }
  *
  * override fun onLoadMore(refreshLayout: RefreshLayout) {
- * viewModel.paging.onLoad { if (it) binding.xrvEvidence.finishRefreshing() else viewModel.getEvidenceList() }
+ * viewModel.onLoad { if (it) binding.xrvEvidence.finishRefreshing() else viewModel.getEvidenceList() }
  * }
  *
  * fun getEvidenceList() {
@@ -36,14 +36,14 @@ data class Page<T>(
  * }
  *
  *  postValue完成后，回调的订阅里赋值一下
- *  binding.adapter.notify(it.list, viewModel.paging.hasRefresh) { viewModel.emptyView?.empty() } or binding.adapter.notify<ViewModel>(it.list, viewModel)
- *  viewModel.paging.currentCount = binding.adapter.size()
+ *  binding.adapter.notify(it.list, viewModel.hasRefresh) { viewModel.emptyView?.empty() } or binding.adapter.notify<ViewModel>(it.list, viewModel)
+ *  viewModel.currentCount = binding.adapter.size()
  */
 class Paging {
     var hasRefresh = false//是否刷新
-    var page = 1//当前页数
     var currentCount = 0//当前页面列表数据总数
     var totalCount = 0//服务器列表数据总数
+    var page = 1//当前页数
 
     //刷新清空
     fun onRefresh(listener: () -> Unit = {}) {
