@@ -293,6 +293,15 @@ fun List<String>?.join(separator: String): String {
 }
 
 /**
+ *  val list = listOf("1" to true, "2" to true, "3" to true)
+ *  部分接口参数需要id逗号拼接或者特殊符号拼接，可以使用当前方式提取出其中选中的值
+ */
+fun List<Pair<String, Boolean>>?.join(separator: String): String {
+    if (isNullOrEmpty()) return ""
+    return filter { it.second }.toNewList { it.first }.join(separator)
+}
+
+/**
  * 集合转jsonarray
  */
 fun List<*>?.toJsonArray(): JSONArray? {
