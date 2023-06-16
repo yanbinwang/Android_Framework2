@@ -122,7 +122,6 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     fun changed(index: Int, bean: T) {
         if (index != -1 && data.safeGet(index) != null) {
-//            data[index] = bean
             data.safeSet(index, bean)
             notifyItemChanged(index)
         }
@@ -134,7 +133,6 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
 
     fun changed(index: Int, payloads: MutableList<Any>, bean: T) {
         if (index != -1 && data.safeGet(index) != null) {
-//            data[index] = bean
             data.safeSet(index, bean)
             notifyItemChanged(index, payloads)
         }

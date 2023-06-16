@@ -35,6 +35,7 @@ data class Page<T>(
  *  }, isShowDialog = false)}
  *
  *  postValue完成后，回调的订阅里赋值一下
+ *  binding.adapter.notify(it.data, paging.hasRefresh) { viewmodel.empty.empty() }
  *  paging.currentCount = binding.adapter.size()
  */
 class Paging {
