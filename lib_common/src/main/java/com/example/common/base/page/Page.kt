@@ -36,7 +36,7 @@ data class Page<T>(
  * }
  *
  *  postValue完成后，回调的订阅里赋值一下
- *  binding.adapter.notify(it.list, viewModel.paging.hasRefresh) { viewModel.emptyView?.empty() }
+ *  binding.adapter.notify(it.list, viewModel.paging.hasRefresh) { viewModel.emptyView?.empty() } or binding.adapter.notify<ViewModel>(it.list, viewModel)
  *  viewModel.paging.currentCount = binding.adapter.size()
  */
 class Paging {
