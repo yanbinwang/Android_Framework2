@@ -214,6 +214,19 @@ fun <T> List<T>.toArrayList(): ArrayList<T> {
     return ArrayList(this)
 }
 
+fun <T>ArrayList<T>?.toRequestParams():String{
+    if (this == null) return ""
+    var result = "["
+    for (index in indices) {
+        result = if (index + 1 == size) {
+            result + safeGet(index) + "]"
+        } else {
+            result + safeGet(index) + "],["
+        }
+    }
+    return result
+}
+
 /**
  * 寻找符合条件的第一个item的index
  */
@@ -296,7 +309,7 @@ fun List<String>?.join(separator: String): String {
  *  val list = listOf("1" to true, "2" to true, "3" to true)
  *  部分接口参数需要id逗号拼接或者特殊符号拼接，可以使用当前方式提取出其中选中的值
  */
-fun List<Pair<String, Boolean>>?.join(separator: String): String {
+fun List<Pair<String, Boolean>>?.joinSelect(separator: String): String {
     if (isNullOrEmpty()) return ""
     return filter { it.second }.toNewList { it.first }.join(separator)
 }
