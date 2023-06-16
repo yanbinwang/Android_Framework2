@@ -8,6 +8,7 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.function.value.ELFormat.EMAIL
+import com.example.framework.utils.function.value.ELFormat.MOBILE
 import com.example.framework.utils.function.value.ELFormat.PASSWORD
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.divide
@@ -109,6 +110,29 @@ interface EditTextImpl {
 
     fun PasswordEditText.checkPassReg(hasToast: Boolean = true): Boolean {
         return editText.checkPassReg(hasToast)
+    }
+
+    /**
+     * 检测内容文本是否符合手机号要求
+     */
+    fun EditText.checkMobileReg(hasToast: Boolean = true): Boolean {
+        if (!notEmpty()) {
+            if (hasToast) R.string.phone_empty.shortToast()
+            return false
+        }
+        if (!text().regCheck(MOBILE)) {
+            if (hasToast) R.string.phone_error.shortToast()
+            return false
+        }
+        return true
+    }
+
+    fun ClearEditText.checkMobileReg(hasToast: Boolean = true): Boolean {
+        return editText.checkMobileReg(hasToast)
+    }
+
+    fun PasswordEditText.checkMobileReg(hasToast: Boolean = true): Boolean {
+        return editText.checkMobileReg(hasToast)
     }
 
     /**
