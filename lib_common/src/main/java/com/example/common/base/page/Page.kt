@@ -13,11 +13,11 @@ data class Page<T>(
  * Created by WangYanBin on 2020/7/1.
  * 应用于刷新页面工具类
  * override fun onRefresh(refreshLayout: RefreshLayout) {
- * paging.onRefresh { viewModel.getEvidenceList() }
+ * viewModel.paging.onRefresh { viewModel.getEvidenceList() }
  * }
  *
  * override fun onLoadMore(refreshLayout: RefreshLayout) {
- * paging.onLoad { if (it) binding.xrvEvidence.finishRefreshing() else viewModel.getEvidenceList() }
+ * viewModel.paging.onLoad { if (it) binding.xrvEvidence.finishRefreshing() else viewModel.getEvidenceList() }
  * }
  *
  * fun getEvidenceList() {
