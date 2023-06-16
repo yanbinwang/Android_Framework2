@@ -13,14 +13,14 @@ data class Page<T>(
  * Created by WangYanBin on 2020/7/1.
  * 应用于刷新页面工具类
  * override fun onRefresh(refreshLayout: RefreshLayout) {
- * paging.onRefresh { viewModel.getEvidenceList(paging) }
+ * paging.onRefresh { viewModel.getEvidenceList() }
  * }
  *
  * override fun onLoadMore(refreshLayout: RefreshLayout) {
- * paging.onLoad { if (it) binding.xrvEvidence.finishRefreshing() else viewModel.getEvidenceList(paging) }
+ * paging.onLoad { if (it) binding.xrvEvidence.finishRefreshing() else viewModel.getEvidenceList() }
  * }
  *
- *fun getEvidenceList(paging: Paging) {
+ * fun getEvidenceList() {
  *  launch({EvidenceSubscribe.getEvidenceListApi(hashMapOf(
  *              "evidenceType" to evidenceType,
  *              "type" to "1",
@@ -32,11 +32,12 @@ data class Page<T>(
  *      evidenceData.postValue(it)
  *  }, {
  *      recyclerView?.setState(paging.currentCount.orZero)
- *  }, isShowDialog = false)}
+ *  }, isShowDialog = false)
+ * }
  *
  *  postValue完成后，回调的订阅里赋值一下
- *  binding.adapter.notify(it.data, paging.hasRefresh) { viewmodel.empty.empty() }
- *  paging.currentCount = binding.adapter.size()
+ *  binding.adapter.notify(it.data, paging.hasRefresh) { viewModel.emptyView?.empty() }
+ *  viewModel.paging.currentCount = binding.adapter.size()
  */
 class Paging {
     var hasRefresh = false//是否刷新
