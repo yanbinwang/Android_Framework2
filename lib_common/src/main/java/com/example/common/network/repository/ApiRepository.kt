@@ -109,8 +109,16 @@ suspend fun <T> request(
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
-    requestLayer(coroutineScope, {
-        resp.invoke(it?.data)
+    requestLayer(coroutineScope, { result ->
+//        resp.invoke(it?.data)
+        //如果接口是成功的，但是body为空或者后台偷懒没给，我们在写Api时，给一个对象，让结果能够返回
+        resp.invoke(result?.data.let {
+            if (it is EmptyBean?) {
+                EmptyBean()
+            } else {
+                it
+            } as? T
+        })
     }, err, end, isShowToast)
 }
 
