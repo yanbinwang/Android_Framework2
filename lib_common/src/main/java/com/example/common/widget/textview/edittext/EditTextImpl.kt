@@ -98,6 +98,10 @@ interface EditTextImpl {
         return true
     }
 
+    fun String?.checkPassReg(@StringRes res: Int = -1): Boolean {
+        return checkPassReg(res2 = res)
+    }
+
     fun String?.passwordLevel(): Int {
         this ?: return 0
         //纯数字、纯字母、纯特殊字符
@@ -137,6 +141,10 @@ interface EditTextImpl {
         if (-1 != res2) res2.shortToast()
         return false
     }
+
+    fun String?.checkEmailReg(@StringRes res: Int = -1): Boolean {
+        return checkEmailReg(res2 = res)
+    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="内容是否符合手机要求">
@@ -168,6 +176,10 @@ interface EditTextImpl {
         }
         return true
     }
+
+    fun String?.checkMobileReg(@StringRes res: Int = -1): Boolean {
+        return checkMobileReg(res2 = res)
+    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="内容是否符合验证码要求">
@@ -198,6 +210,10 @@ interface EditTextImpl {
             return false
         }
         return true
+    }
+
+    fun String?.checkVerifyReg(@StringRes res: Int = -1, length: Int = 6): Boolean {
+        return checkVerifyReg(res2 = res, length = length)
     }
     // </editor-fold>
 
