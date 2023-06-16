@@ -24,6 +24,7 @@ import java.util.regex.Pattern
 /**
  * kt中的接口是可以实现的，实现后的方法只有继承的类才能使用
  * 当前edittext的实现是方便项目使用对应自定义控件的
+ * 假定当前输入框页面的交互逻辑是底部提交按钮置灰，只有都输入值的时候才会亮起
  */
 interface EditTextImpl {
 
