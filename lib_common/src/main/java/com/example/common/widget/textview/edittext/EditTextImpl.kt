@@ -1,11 +1,9 @@
-package com.example.common.widget.textview.edittext.callback
+package com.example.common.widget.textview.edittext
 
 import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
 import com.example.common.utils.builder.shortToast
-import com.example.common.widget.textview.edittext.ClearEditText
-import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.function.value.ELFormat.EMAIL
 import com.example.framework.utils.function.value.ELFormat.MOBILE
 import com.example.framework.utils.function.value.ELFormat.PASSWORD
@@ -233,3 +231,10 @@ interface EditTextImpl {
     // </editor-fold>
 
 }
+
+/**
+ * @description 自定义Edittext，有一层的嵌套，自定义的edittext都需继承此接口，
+ * 便于BaseBottomSheetDialogFragment操作虚拟键盘
+ * @author yan
+ */
+interface SpecialEditText
