@@ -28,9 +28,7 @@ import java.util.regex.Pattern
  */
 interface EditTextImpl {
 
-    /**
-     * 检测内容文本是否为空
-     */
+    // <editor-fold defaultstate="collapsed" desc="内容是否为空">
     fun EditText.notEmpty(@StringRes res: Int = -1): Boolean {
         return if (!text.isNullOrEmpty()) {
             true
@@ -47,10 +45,9 @@ interface EditTextImpl {
     fun PasswordEditText.notEmpty(@StringRes res: Int = -1): Boolean {
         return editText.notEmpty(res)
     }
+    // </editor-fold>
 
-    /**
-     * 检测内容文本是否在输入范围内
-     */
+    // <editor-fold defaultstate="collapsed" desc="内容是否在输入范围内">
     fun EditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
         return if (text.length in min..max) {
             true
@@ -63,14 +60,46 @@ interface EditTextImpl {
     fun ClearEditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
         return editText.lengthLimit(min, max, res)
     }
+    // </editor-fold>
 
-    fun PasswordEditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
-        return editText.lengthLimit(min, max, res)
+    // <editor-fold defaultstate="collapsed" desc="内容是否符合密码要求">
+    fun EditText.checkPassReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
+        if (!notEmpty()) {
+            if (-1 != res) res.shortToast()
+            return false
+        }
+        if (!text().regCheck(PASSWORD)) {
+            if (-1 != res2) res2.shortToast()
+            return false
+        }
+        return true
     }
 
-    /**
-     * 检测内容文本是否符合邮箱要求
-     */
+    fun PasswordEditText.checkPassReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
+        return editText.checkPassReg(res, res2)
+    }
+
+    fun EditText.checkPassReg(@StringRes res: Int = -1): Boolean {
+        return checkPassReg(res2 = res)
+    }
+
+    fun PasswordEditText.checkPassReg(@StringRes res: Int = -1): Boolean {
+        return editText.checkPassReg(res)
+    }
+
+    fun String?.passwordLevel(): Int {
+        if (this.isNullOrEmpty()) return 0
+        //纯数字、纯字母、纯特殊字符
+        if (this.length < 8 || Pattern.matches("^\\d+$", this) || regCheck("^[a-z]+$") || regCheck("^[A-Z]+$") || regCheck("^[@#$%^&]+$")) return 1
+        //字母+数字、字母+特殊字符、数字+特殊字符
+        if (regCheck("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$") || regCheck("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$") || regCheck("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$") || regCheck("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$") || regCheck("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$") || regCheck("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$")) return 2
+        //字母+数字+特殊字符
+        if (regCheck("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
+        return 3
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="内容是否符合邮箱要求">
     fun EditText.checkEmailReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
         if (!notEmpty()) {
             if (-1 != res) res.shortToast()
@@ -85,9 +114,16 @@ interface EditTextImpl {
         return editText.checkEmailReg(res, res2)
     }
 
-    /**
-     * 检测内容文本是否符合手机号要求
-     */
+    fun EditText.checkEmailReg(@StringRes res: Int = -1): Boolean {
+        return checkEmailReg(res2 = res)
+    }
+
+    fun ClearEditText.checkEmailReg(@StringRes res: Int = -1): Boolean {
+        return editText.checkEmailReg(res)
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="内容是否符合手机要求">
     fun EditText.checkMobileReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
         if (!notEmpty()) {
             if (-1 != res) res.shortToast()
@@ -104,9 +140,16 @@ interface EditTextImpl {
         return editText.checkMobileReg(res, res2)
     }
 
-    /**
-     * 检测内容文本是否符合验证码
-     */
+    fun EditText.checkMobileReg(@StringRes res: Int = -1): Boolean {
+        return checkMobileReg(res2 = res)
+    }
+
+    fun ClearEditText.checkMobileReg(@StringRes res: Int = -1): Boolean {
+        return editText.checkMobileReg(res)
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="内容是否符合验证码要求">
     fun EditText.checkVerifyReg(@StringRes res: Int = -1, @StringRes res2: Int = -1, length: Int = 6): Boolean {
         if (!notEmpty()) {
             if (-1 != res) res.shortToast()
@@ -123,56 +166,16 @@ interface EditTextImpl {
         return editText.checkVerifyReg(res, res2)
     }
 
-    /**
-     * 检测内容文本是否符合密码要求
-     */
-    fun EditText.checkPassReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
-        if (!notEmpty()) {
-            if (-1 != res) res.shortToast()
-            return false
-        }
-        if (!text().regCheck(PASSWORD)) {
-            if (-1 != res2) res2.shortToast()
-            return false
-        }
-        return true
+    fun EditText.checkVerifyReg(@StringRes res: Int = -1, length: Int = 6): Boolean {
+        return checkVerifyReg(res2 = res, length = length)
     }
 
-    fun ClearEditText.checkPassReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
-        return editText.checkPassReg(res, res2)
+    fun ClearEditText.checkVerifyReg(@StringRes res: Int = -1): Boolean {
+        return editText.checkVerifyReg(res)
     }
+    // </editor-fold>
 
-    fun PasswordEditText.checkPassReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
-        return editText.checkPassReg(res, res2)
-    }
-
-    /**
-     * 返回密码强度
-     */
-    fun String?.passwordLevel(): Int {
-        if (this.isNullOrEmpty()) return 0
-        //纯数字、纯字母、纯特殊字符
-        if (this.length < 8 || Pattern.matches("^\\d+$", this) || regCheck("^[a-z]+$") || regCheck("^[A-Z]+$") || regCheck("^[@#$%^&]+$")) return 1
-        //字母+数字、字母+特殊字符、数字+特殊字符
-        if (regCheck("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$") || regCheck("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$") || regCheck("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$") || regCheck("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$") || regCheck("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$") || regCheck("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$")) return 2
-        //字母+数字+特殊字符
-        if (regCheck("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
-        return 3
-    }
-
-    /**
-     * 控件取值计算
-     */
-    fun ClearEditText?.text(): String {
-        this ?: return ""
-        return getText()
-    }
-
-    fun PasswordEditText?.text(): String {
-        this ?: return ""
-        return getText()
-    }
-
+    // <editor-fold defaultstate="collapsed" desc="控件取值计算/监听等构造函数">
     fun ClearEditText?.getNumber(): String {
         this ?: return "0"
         return editText.getNumber()
@@ -198,6 +201,16 @@ interface EditTextImpl {
         setText(getNumber().divide(number, scale, mode))
     }
 
+    fun ClearEditText?.text(): String {
+        this ?: return ""
+        return getText()
+    }
+
+    fun PasswordEditText?.text(): String {
+        this ?: return ""
+        return getText()
+    }
+
     fun ClearEditText?.onDone(listener: () -> Unit) {
         if (this == null) return
         editText.onDone(listener)
@@ -217,5 +230,6 @@ interface EditTextImpl {
             }
         }
     }
+    // </editor-fold>
 
 }
