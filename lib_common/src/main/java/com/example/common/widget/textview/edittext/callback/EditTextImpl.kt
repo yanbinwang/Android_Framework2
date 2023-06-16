@@ -28,26 +28,6 @@ import java.util.regex.Pattern
 interface EditTextImpl {
 
     /**
-     * 检测内容文本是否在输入范围内
-     */
-    fun EditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
-        return if (text.length in min..max) {
-            true
-        } else {
-            if (-1 != res) res.shortToast()
-            false
-        }
-    }
-
-    fun ClearEditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
-        return editText.lengthLimit(min, max, res)
-    }
-
-    fun PasswordEditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
-        return editText.lengthLimit(min, max, res)
-    }
-
-    /**
      * 检测内容文本是否为空
      */
     fun EditText.notEmpty(@StringRes res: Int = -1): Boolean {
@@ -68,70 +48,101 @@ interface EditTextImpl {
     }
 
     /**
+     * 检测内容文本是否在输入范围内
+     */
+    fun EditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
+        return if (text.length in min..max) {
+            true
+        } else {
+            if (-1 != res) res.shortToast()
+            false
+        }
+    }
+
+    fun ClearEditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
+        return editText.lengthLimit(min, max, res)
+    }
+
+    fun PasswordEditText.lengthLimit(min: Int, max: Int, @StringRes res: Int = -1): Boolean {
+        return editText.lengthLimit(min, max, res)
+    }
+
+    /**
      * 检测内容文本是否符合邮箱要求
      */
-    fun EditText.checkEmailReg(@StringRes res: Int = -1): Boolean {
+    fun EditText.checkEmailReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
         if (!notEmpty()) {
             if (-1 != res) res.shortToast()
             return false
         }
         if (text().regCheck(EMAIL)) return true
-        if (-1 != res) res.shortToast()
+        if (-1 != res2) res2.shortToast()
         return false
     }
 
-    fun ClearEditText.checkEmailReg(@StringRes res: Int = -1): Boolean {
-        return editText.checkEmailReg(res)
-    }
-
-    fun PasswordEditText.checkEmailReg(@StringRes res: Int = -1): Boolean {
-        return editText.checkEmailReg(res)
-    }
-
-    /**
-     * 检测内容文本是否符合密码要求
-     */
-    fun EditText.checkPassReg(@StringRes res: Int = -1): Boolean {
-        if (!notEmpty()) {
-            if (-1 != res) res.shortToast()
-            return false
-        }
-        if (!text().regCheck(PASSWORD)) {
-            if (-1 != res) res.shortToast()
-            return false
-        }
-        return true
-    }
-
-    fun ClearEditText.checkPassReg(@StringRes res: Int = -1): Boolean {
-        return editText.checkPassReg(res)
-    }
-
-    fun PasswordEditText.checkPassReg(@StringRes res: Int = -1): Boolean {
-        return editText.checkPassReg(res)
+    fun ClearEditText.checkEmailReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
+        return editText.checkEmailReg(res, res2)
     }
 
     /**
      * 检测内容文本是否符合手机号要求
      */
-    fun EditText.checkMobileReg(@StringRes res: Int = -1): Boolean {
+    fun EditText.checkMobileReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
         if (!notEmpty()) {
             if (-1 != res) res.shortToast()
             return false
         }
         if (!text().regCheck(MOBILE)) {
-            if (-1 != res) res.shortToast()
+            if (-1 != res2) res2.shortToast()
             return false
         }
         return true
     }
 
-    fun ClearEditText.checkMobileReg(@StringRes res: Int = -1): Boolean {
-        return editText.checkMobileReg(res)
+    fun ClearEditText.checkMobileReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
+        return editText.checkMobileReg(res, res2)
     }
 
-    fun PasswordEditText.checkMobileReg(@StringRes res: Int = -1): Boolean {
-        return editText.checkMobileReg(res)
+    /**
+     * 检测内容文本是否符合验证码
+     */
+    fun EditText.checkVerifyReg(@StringRes res: Int = -1, @StringRes res2: Int = -1, length: Int = 6): Boolean {
+        if (!notEmpty()) {
+            if (-1 != res) res.shortToast()
+            return false
+        }
+        if (text().length != length) {
+            if (-1 != res2) res2.shortToast()
+            return false
+        }
+        return true
+    }
+
+    fun ClearEditText.checkVerifyReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
+        return editText.checkVerifyReg(res, res2)
+    }
+
+    /**
+     * 检测内容文本是否符合密码要求
+     */
+    fun EditText.checkPassReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
+        if (!notEmpty()) {
+            if (-1 != res) res.shortToast()
+            return false
+        }
+        if (!text().regCheck(PASSWORD)) {
+            if (-1 != res2) res2.shortToast()
+            return false
+        }
+        return true
+    }
+
+    fun ClearEditText.checkPassReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
+        return editText.checkPassReg(res, res2)
+    }
+
+    fun PasswordEditText.checkPassReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
+        return editText.checkPassReg(res, res2)
     }
 
     /**
@@ -148,6 +159,9 @@ interface EditTextImpl {
         return 3
     }
 
+    /**
+     * 控件取值计算
+     */
     fun ClearEditText?.text(): String {
         this ?: return ""
         return getText()
