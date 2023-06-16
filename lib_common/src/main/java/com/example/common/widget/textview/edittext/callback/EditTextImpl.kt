@@ -3,7 +3,6 @@ package com.example.common.widget.textview.edittext.callback
 import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
-import com.example.common.R
 import com.example.common.utils.builder.shortToast
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.textview.edittext.PasswordEditText
@@ -71,68 +70,68 @@ interface EditTextImpl {
     /**
      * 检测内容文本是否符合邮箱要求
      */
-    fun EditText.checkEmailReg(hasToast: Boolean = true): Boolean {
+    fun EditText.checkEmailReg(@StringRes res: Int = -1): Boolean {
         if (!notEmpty()) {
-            if (hasToast) R.string.email_empty.shortToast()
+            if (-1 != res) res.shortToast()
             return false
         }
         if (text().regCheck(EMAIL)) return true
-        if (hasToast) R.string.email_error.shortToast()
+        if (-1 != res) res.shortToast()
         return false
     }
 
-    fun ClearEditText.checkEmailReg(hasToast: Boolean = true): Boolean {
-        return editText.checkEmailReg(hasToast)
+    fun ClearEditText.checkEmailReg(@StringRes res: Int = -1): Boolean {
+        return editText.checkEmailReg(res)
     }
 
-    fun PasswordEditText.checkEmailReg(hasToast: Boolean = true): Boolean {
-        return editText.checkEmailReg(hasToast)
+    fun PasswordEditText.checkEmailReg(@StringRes res: Int = -1): Boolean {
+        return editText.checkEmailReg(res)
     }
 
     /**
      * 检测内容文本是否符合密码要求
      */
-    fun EditText.checkPassReg(hasToast: Boolean = true): Boolean {
+    fun EditText.checkPassReg(@StringRes res: Int = -1): Boolean {
         if (!notEmpty()) {
-            if (hasToast) R.string.password_empty.shortToast()
+            if (-1 != res) res.shortToast()
             return false
         }
         if (!text().regCheck(PASSWORD)) {
-            if (hasToast) R.string.password_error.shortToast()
+            if (-1 != res) res.shortToast()
             return false
         }
         return true
     }
 
-    fun ClearEditText.checkPassReg(hasToast: Boolean = true): Boolean {
-        return editText.checkPassReg(hasToast)
+    fun ClearEditText.checkPassReg(@StringRes res: Int = -1): Boolean {
+        return editText.checkPassReg(res)
     }
 
-    fun PasswordEditText.checkPassReg(hasToast: Boolean = true): Boolean {
-        return editText.checkPassReg(hasToast)
+    fun PasswordEditText.checkPassReg(@StringRes res: Int = -1): Boolean {
+        return editText.checkPassReg(res)
     }
 
     /**
      * 检测内容文本是否符合手机号要求
      */
-    fun EditText.checkMobileReg(hasToast: Boolean = true): Boolean {
+    fun EditText.checkMobileReg(@StringRes res: Int = -1): Boolean {
         if (!notEmpty()) {
-            if (hasToast) R.string.phone_empty.shortToast()
+            if (-1 != res) res.shortToast()
             return false
         }
         if (!text().regCheck(MOBILE)) {
-            if (hasToast) R.string.phone_error.shortToast()
+            if (-1 != res) res.shortToast()
             return false
         }
         return true
     }
 
-    fun ClearEditText.checkMobileReg(hasToast: Boolean = true): Boolean {
-        return editText.checkMobileReg(hasToast)
+    fun ClearEditText.checkMobileReg(@StringRes res: Int = -1): Boolean {
+        return editText.checkMobileReg(res)
     }
 
-    fun PasswordEditText.checkMobileReg(hasToast: Boolean = true): Boolean {
-        return editText.checkMobileReg(hasToast)
+    fun PasswordEditText.checkMobileReg(@StringRes res: Int = -1): Boolean {
+        return editText.checkMobileReg(res)
     }
 
     /**
