@@ -148,7 +148,8 @@ suspend fun <T> requestLayer(
         }
     } catch (e: Exception) {
         if (isShowToast) "".responseToast()
-        err(Triple(FAILURE, "", e))  //可根据具体异常显示具体错误提示
+        //可根据具体异常显示具体错误提示,此处可能是框架/服务器报错（没有提供规定的json结构体）或者json结构解析错误
+        err(Triple(FAILURE, "", e))
     } finally {
         log("结束请求")
         end()
