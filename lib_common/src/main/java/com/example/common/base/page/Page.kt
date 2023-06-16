@@ -28,15 +28,15 @@ data class Page<T>(
  *"             limit" to Constants.PAGE_LIMIT).params())
  *  }, {
  *      paging.totalCount = it?.total.orZero
+ *      evidenceData.postValue(it)//先回调赋值刷新适配器
  *      reset(it?.hasNextPage.orFalse)
- *      evidenceData.postValue(it)
  *  }, {
  *      recyclerView?.setState(paging.currentCount.orZero)
  *  }, isShowDialog = false)
  * }
  *
  *  postValue完成后，回调的订阅里赋值一下
- *  binding.adapter.notify(it.data, paging.hasRefresh) { viewModel.emptyView?.empty() }
+ *  binding.adapter.notify(it.list, viewModel.paging.hasRefresh) { viewModel.emptyView?.empty() }
  *  viewModel.paging.currentCount = binding.adapter.size()
  */
 class Paging {
