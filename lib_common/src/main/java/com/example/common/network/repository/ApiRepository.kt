@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
@@ -76,8 +77,17 @@ class MultiReqUtil(
  * map扩展，如果只需传入map则使用
  * hashMapOf("" to "")不需要写此扩展
  */
-fun <K, V> HashMap<K, V>?.params() =
-    this?.toJsonString().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
+fun <K, V> HashMap<K, V>?.requestBody() = this?.toJsonString().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
+
+fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
+    val map = hashMapOf<String, Any>()
+    pairs.forEach {
+        it.second?.let { v ->
+            map[it.first] = v
+        }
+    }
+    return map.requestBody()
+}
 
 /**
  * 提示方法，根据接口返回的msg提示
@@ -99,8 +109,16 @@ suspend fun <T> request(
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
-    requestLayer(coroutineScope, {
-        resp.invoke(it?.data)
+    requestLayer(coroutineScope, { result ->
+//        resp.invoke(it?.data)
+        //如果接口是成功的，但是body为空或者后台偷懒没给，我们在写Api时，给一个对象，让结果能够返回
+        resp.invoke(result?.data.let {
+            if (it is EmptyBean?) {
+                EmptyBean()
+            } else {
+                it
+            } as? T
+        })
     }, err, end, isShowToast)
 }
 
@@ -130,7 +148,8 @@ suspend fun <T> requestLayer(
         }
     } catch (e: Exception) {
         if (isShowToast) "".responseToast()
-        err(Triple(FAILURE, "", e))  //可根据具体异常显示具体错误提示
+        //可根据具体异常显示具体错误提示,此处可能是框架/服务器报错（没有提供规定的json结构体）或者json结构解析错误
+        err(Triple(FAILURE, "", e))
     } finally {
         log("结束请求")
         end()

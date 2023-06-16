@@ -17,9 +17,9 @@ dependencyResolutionManagement {
 rootProject.name = "Android_Framework2"
 include ':app'
 include ':module_home'
+include ':module_account'
 include ':lib_common'
 include ':lib_framework'
 include ':lib_glide'
-include ':lib_album'
-include ':lib_multimedia'
+include ':lib_thirdparty'
 include ':lib_topsheet'
