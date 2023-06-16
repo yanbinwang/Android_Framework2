@@ -37,7 +37,7 @@ import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
 import com.example.common.widget.dialog.LoadingDialog
-import com.example.common.widget.textview.edittext.callback.SpecialEditTextImpl
+import com.example.common.widget.textview.edittext.callback.SpecialEditText
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.isMainThread
@@ -169,7 +169,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
             private fun View.findSpecialEditTextParent(maxTimes: Int): View? {
                 var view = this
                 for (i in 0..maxTimes) {
-                    if (view is SpecialEditTextImpl) return view
+                    if (view is SpecialEditText) return view
                     view = view.parent as? View ?: return null
                 }
                 return null
@@ -179,7 +179,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
              * 判断是否应该隐藏软键盘
              */
             private fun isShouldHideInput(v: View?, event: MotionEvent): Boolean {
-                if (v != null && (v is EditText || v is AppCompatEditText || v is SpecialEditTextImpl)) {
+                if (v != null && (v is EditText || v is AppCompatEditText || v is SpecialEditText)) {
                     val leftTop = intArrayOf(0, 0)
                     val width: Int
                     val height: Int
