@@ -28,6 +28,7 @@ import java.util.*
 /**
  * Created by wangyanbin
  * 广告控件
+ * 解决方案1
  * android:nestedScrollingEnabled="false"
  * viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
  * @Override
@@ -40,6 +41,24 @@ import java.util.*
  * }
  * }
  * });
+ * 解决方案2
+ * 配置 ScrollView 的传递模式
+ * 可以通过修改 ScrollView 的传递模式来解决滑动卡顿问题。
+ * 将传递模式设置为 "nonTouch"，
+ * 以便 ScrollView 只在滚动到底部或顶部时才将滑动事件传递给父级视图。这将确保 ScrollView 不会与 ViewPager2 上的滑动事件产生冲突，从而提高应用程序的滑动性能。
+ * <ScrollView
+ * android:layout_width="match_parent"
+ * android:layout_height="match_parent"
+ * android:nestedScrollingEnabled="true"
+ * app:layout_behavior="@string/appbar_scrolling_view_behavior"
+ * android:overScrollMode="never"
+ * android:scrollIndicators="none"
+ * android:scrollbarStyle="outsideOverlay"
+ * android:scrollbars="vertical">
+ * 解决方案3
+ * 禁用 NestedScrollView 的嵌套滚动特性
+ * 如果您使用的是 NestedScrollView，则可以通过将 android:nestedScrollingEnabled 属性设置为 "false" 来禁用其嵌套滚动特性。
+ * 这将确保 NestedScrollView 不会与 ViewPager2 上的滑动事件产生冲突，从而提高应用程序的滑动性能。
  */
 @SuppressLint("ClickableViewAccessibility")
 class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), AdvertisingImpl, LifecycleEventObserver {
@@ -93,14 +112,14 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                     allowScroll = positionOffsetPixels == 0
                 }
             })
-            setOnTouchListener { _, event ->
-                when (event?.action) {
-                    MotionEvent.ACTION_UP -> if (autoScroll) startRoll()
-                    else -> if (autoScroll) stopRoll()
-                }
-                false
-            }
-            isNestedScrollingEnabled = false
+//            setOnTouchListener { _, event ->
+//                when (event?.action) {
+//                    MotionEvent.ACTION_UP -> if (autoScroll) startRoll()
+//                    else -> if (autoScroll) stopRoll()
+//                }
+//                false
+//            }
+//            isNestedScrollingEnabled = false
         }
     }
 
