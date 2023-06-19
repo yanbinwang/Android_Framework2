@@ -50,6 +50,19 @@ Person("Alice", 25),
 Person("Charlie", 35)
 )
 val listWithoutDuplicates = listWithDuplicates.distinct()
+
+override fun equals(other: Any?): Boolean {
+if (other == null || other !is QuickPassBean) {
+return false
+}
+return outCoin == other.outCoin
+}
+
+override fun hashCode(): Int {
+var result = 17
+result = 31 * result + outCoin.hashCode()
+return result
+}
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpanInterface {
