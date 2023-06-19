@@ -17,6 +17,7 @@ object AccountHelper {
 
     /**
      * 存储用户对象
+     * bean：修改后的值
      */
     private fun setUserBean(bean: UserBean?) {
         bean ?: return
@@ -31,27 +32,6 @@ object AccountHelper {
     }
 
     /**
-     * 获取手机号
-     */
-    fun getMobile(): String? {
-        val bean = getUserBean()
-        bean ?: return null
-        return bean.mobile
-    }
-
-    fun getUserId(): String? {
-        val bean = getUserBean()
-        bean ?: return null
-        return bean.user_id
-    }
-
-    fun getToken(): String? {
-        val bean = getUserBean()
-        bean ?: return null
-        return bean.token
-    }
-
-    /**
      * 存储手机号
      */
     fun setMobile(mobile: String?) {
@@ -61,7 +41,48 @@ object AccountHelper {
     }
 
     /**
-     * 用户是否登陆
+     * 获取手机号
+     */
+    fun getMobile(): String? {
+        val bean = getUserBean()
+        bean ?: return null
+        return bean.mobile
+    }
+
+    /**
+     * 获取userid
+     */
+    fun getUserId(): String? {
+        val bean = getUserBean()
+        bean ?: return null
+        return bean.user_id
+    }
+
+    /**
+     * 获取token
+     */
+    fun getToken(): String? {
+        val bean = getUserBean()
+        bean ?: return null
+        return bean.token
+    }
+
+    /**
+     * 个人中心刷新时获取用户信息后调取当前方法
+     */
+    fun refresh(newData: UserBean?) {
+        newData ?: return
+        getUserBean()?.let { cacheData ->
+            newData.token?.let { cacheData.token = it }
+            //.....
+
+
+        }
+//        EVENT_USER_DATA_REFRESH.post(userDataCache)
+    }
+
+    /**
+     * 是否登陆
      */
     fun isLogin(): Boolean {
         val bean = getUserBean()
@@ -73,7 +94,8 @@ object AccountHelper {
      * 登录成功调取
      */
     fun signIn(bean: UserBean?) {
-        setUserBean(bean)
+        bean ?: return
+        userBean.set(bean)
     }
 
     /**
