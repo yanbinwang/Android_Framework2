@@ -243,6 +243,10 @@ interface EditTextImpl {
         setText(getNumber().divide(number, scale, mode))
     }
 
+    fun ClearEditText?.isZero(): Boolean {
+        return getNumber() == "0"
+    }
+
     fun ClearEditText?.text(): String {
         this ?: return ""
         return getText()
