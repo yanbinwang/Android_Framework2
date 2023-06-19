@@ -11,10 +11,10 @@ import com.example.common.utils.DataStringCacheUtil
 object CacheData {
     //设备id
     private const val DEVICE_ID = "device_id"
-    val deviceId = DataStringCacheUtil(DEVICE_ID)
+    internal val deviceId = DataStringCacheUtil(DEVICE_ID)
 
     //用户类
     private const val USER_BEAN = "user_bean"
-    val userBean = DataCacheUtil(USER_BEAN, UserBean::class.java)
+    internal val userBean = DataCacheUtil(USER_BEAN, UserBean::class.java)
 
 }

@@ -15,11 +15,12 @@ object AccountHelper {
     //默认用户文件保存位置
     val storage get() = "${Constants.APPLICATION_PATH}/手机文件/${getUserId()}/"
 
+    // <editor-fold defaultstate="collapsed" desc="用户类方法">
     /**
      * 存储用户对象
      * bean：修改后的值
      */
-    private fun setUserBean(bean: UserBean?) {
+    fun setUserBean(bean: UserBean?) {
         bean ?: return
         userBean.set(bean)
     }
@@ -27,7 +28,7 @@ object AccountHelper {
     /**
      * 获取用户对象
      */
-    private fun getUserBean(): UserBean? {
+    fun getUserBean(): UserBean? {
         return userBean.get()
     }
 
@@ -66,11 +67,13 @@ object AccountHelper {
         bean ?: return null
         return bean.token
     }
+    // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="通用用户工具类方法">
     /**
      * 个人中心刷新时获取用户信息后调取当前方法
      */
-    fun refresh(newData: UserBean?) {
+    fun refreshUser(newData: UserBean?) {
         newData ?: return
         setUserBean(newData)
 //        EVENT_USER_DATA_REFRESH.post(userDataCache)
@@ -101,5 +104,6 @@ object AccountHelper {
         AppManager.finishAll()
         ARouter.getInstance().build(ARouterPath.StartActivity).navigation()
     }
+    // </editor-fold>
 
 }
