@@ -72,12 +72,7 @@ object AccountHelper {
      */
     fun refresh(newData: UserBean?) {
         newData ?: return
-        getUserBean()?.let { cacheData ->
-            newData.token?.let { cacheData.token = it }
-            //.....
-
-
-        }
+        setUserBean(newData)
 //        EVENT_USER_DATA_REFRESH.post(userDataCache)
     }
 
@@ -91,15 +86,15 @@ object AccountHelper {
     }
 
     /**
-     * 登录成功调取
+     * 登录成功调取（初始化一些登录后才进行的操作，第三方库初始化）
      */
     fun signIn(bean: UserBean?) {
         bean ?: return
-        userBean.set(bean)
+        setUserBean(bean)
     }
 
     /**
-     * 用户注销操作（清除信息,清除用户凭证）
+     * 用户注销操作（清除信息,清除用户凭证，第三方库注销）
      */
     fun signOut() {
         userBean.del()
