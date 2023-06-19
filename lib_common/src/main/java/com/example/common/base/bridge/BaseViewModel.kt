@@ -81,14 +81,23 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.weakRefresh = WeakReference(refresh)
     }
 
+    /**
+     * 当前列表内的数据
+     */
     fun setCurrentCount(currentCount: Int) {
         paging.currentCount = currentCount
     }
 
+    /**
+     * 刷新监听
+     */
     fun onRefresh(listener: () -> Unit = {}) {
         paging.onRefresh(listener)
     }
 
+    /**
+     * 加载更多监听
+     */
     fun onLoad(listener: (noMore: Boolean) -> Unit = {}) {
         paging.onLoad(listener)
     }
