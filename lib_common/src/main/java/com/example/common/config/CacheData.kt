@@ -1,5 +1,6 @@
 package com.example.common.config
 
+import com.example.common.bean.UserAuthBean
 import com.example.common.bean.UserBean
 import com.example.common.bean.UserInfoBean
 import com.example.common.utils.DataCacheUtil
@@ -21,4 +22,9 @@ object CacheData {
     //用户信息类
     private val USER_INFO_BEAN = "user_info_bean"
     internal val userInfoBean = DataCacheUtil(USER_INFO_BEAN, UserInfoBean::class.java)
+
+    //用户认证状态类
+    private val USER_AUTH_BEAN = "user_auth_bean"
+    internal val userAuthBean = DataCacheUtil(USER_AUTH_BEAN, UserAuthBean::class.java)
+
 }

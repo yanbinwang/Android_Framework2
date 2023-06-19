@@ -1,9 +1,11 @@
 package com.example.common.utils.helper
 
 import com.alibaba.android.arouter.launcher.ARouter
+import com.example.common.bean.UserAuthBean
 import com.example.common.bean.UserBean
 import com.example.common.bean.UserInfoBean
 import com.example.common.config.ARouterPath
+import com.example.common.config.CacheData.userAuthBean
 import com.example.common.config.CacheData.userBean
 import com.example.common.config.CacheData.userInfoBean
 import com.example.common.config.Constants
@@ -24,7 +26,7 @@ object AccountHelper {
     /**
      * 存储用户对象
      */
-    private fun setUserBean(bean: UserBean?) {
+    private fun setUser(bean: UserBean?) {
         bean ?: return
         userBean.set(bean)
     }
@@ -32,7 +34,7 @@ object AccountHelper {
     /**
      * 获取用户对象
      */
-    private fun getUserBean(): UserBean? {
+    private fun getUser(): UserBean? {
         return userBean.get()
     }
 
@@ -40,37 +42,37 @@ object AccountHelper {
      * 获取userid
      */
     fun getUserId(): String {
-        return getUserBean()?.userId.orEmpty()
+        return getUser()?.userId.orEmpty()
     }
 
     /**
      * 获取token
      */
     fun getToken(): String {
-        return getUserBean()?.token.orEmpty()
+        return getUser()?.token.orEmpty()
     }
 
     /**
      * 是否通过实名认证
      */
     fun getIsReal(): Boolean {
-        return getUserBean()?.isReal.orFalse
+        return getUser()?.isReal.orFalse
     }
 
     /**
      * 存储手机号
      */
     fun setPhoneNumber(phoneNumber: String?) {
-        val bean = getUserBean()
+        val bean = getUser()
         bean?.phoneNumber = phoneNumber
-        setUserBean(bean)
+        setUser(bean)
     }
 
     /**
      * 获取手机号
      */
     fun getPhoneNumber(): String {
-        return getUserBean()?.phoneNumber.orEmpty()
+        return getUser()?.phoneNumber.orEmpty()
     }
     // </editor-fold>
 
@@ -78,7 +80,7 @@ object AccountHelper {
     /**
      * 存储用户信息对象
      */
-    private fun setUserInfoBean(bean: UserInfoBean?) {
+    private fun setUserInfo(bean: UserInfoBean?) {
         bean ?: return
         userInfoBean.set(bean)
     }
@@ -86,7 +88,7 @@ object AccountHelper {
     /**
      * 获取用户信息对象
      */
-    private fun getUserInfoBean(): UserInfoBean? {
+    private fun getUserInfo(): UserInfoBean? {
         return userInfoBean.get()
     }
 
@@ -95,36 +97,97 @@ object AccountHelper {
      * 0冻结 1正常
      */
     fun setStatus(status: Int?) {
-        val bean = getUserInfoBean()
+        val bean = getUserInfo()
         bean?.status = status
-        setUserInfoBean(bean)
+        setUserInfo(bean)
     }
 
     /**
      * 获取余额->balance+sendBalance
      */
     fun getLumpSum(): String {
-        return getUserInfoBean()?.let {
+        return getUserInfo()?.let {
             it.balance.add(it.sendBalance.orEmpty())
         }.orEmpty()
     }
     // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="用户认证信息">
+    /**
+     * 存储用户认证状态类
+     */
+    private fun setUserAuth(bean: UserAuthBean?) {
+        bean ?: return
+        userAuthBean.set(bean)
+    }
+
+    /**
+     * 获取用户对象（一定会有值）
+     */
+    private fun getUserAuth(): UserAuthBean {
+        return userAuthBean.get()
+    }
+
+    /**
+     * 通过认证直接调用
+     * 设置当前身份的审核状态
+     * 1：待审核 2：审核被拒 3：审核通过
+     */
+    fun setRealStatus(realStatus: Int?) {
+        val bean = getUserAuth()
+        bean.realStatus = realStatus
+        setUserAuth(bean)
+    }
+
+    /**
+     * 设置当前身份
+     * 0:个人认证，1:企业认证
+     */
+    fun setUserType(userType: String?) {
+        val bean = getUserAuth()
+        bean.userType = userType
+        setUserAuth(bean)
+    }
+
+    /**
+     * 是否是kol用户
+     */
+    fun getKolStatus(): Boolean {
+        return getUserAuth().kolStatus == 2
+    }
+    // </editor-fold>
+
     // <editor-fold defaultstate="collapsed" desc="通用用户工具类方法">
     /**
-     * 个人中心刷新时获取用户信息后调取当前方法
+     * 个人信息更新
      */
-    fun refreshUser(newData: UserBean?) {
-        newData ?: return
-        setUserBean(newData)
-//        EVENT_USER_DATA_REFRESH.post(userDataCache)
+    fun update(bean: UserInfoBean?) {
+        bean ?: return
+        setUserInfo(bean)
+    }
+
+    /**
+     * 个人认证信息更新
+     */
+    fun update(bean: UserAuthBean?) {
+        bean ?: return
+        setUserAuth(bean)
+    }
+
+    /**
+     * 刷新个人认证信息
+     */
+    fun refresh(bean: UserAuthBean?) {
+        bean ?: return
+        update(bean)
+//        EVENT_USER_DATA_REFRESH.post(userData.get())
     }
 
     /**
      * 是否登陆
      */
     fun isLogin(): Boolean {
-        val bean = getUserBean()
+        val bean = getUser()
         bean ?: return false
         return !bean.token.isNullOrEmpty()
     }
@@ -134,7 +197,7 @@ object AccountHelper {
      */
     fun signIn(bean: UserBean?) {
         bean ?: return
-        setUserBean(bean)
+        setUser(bean)
     }
 
     /**
