@@ -30,6 +30,9 @@ class NativeIndicator constructor(tab: TabLayout, tabTitle: List<String>) : TabL
         } else onBindView?.invoke(binding, item, selected, index)
     }
 
+    /**
+     * 重写此方法表示部分标题字体字号样式等需要使用非默认配置
+     */
     fun setBindViewListener(onBindView: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)) {
         this.onBindView = onBindView
     }
