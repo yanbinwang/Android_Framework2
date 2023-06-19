@@ -52,7 +52,11 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     val emptyView get() = weakEmpty?.get()
     val recyclerView get() = weakRecycler?.get()
     val refreshLayout get() = weakRefresh?.get()
-    val paging by lazy { Paging() }
+
+    //分页
+    internal val paging by lazy { Paging() }
+    var currentCount = paging.currentCount
+    var hasRefresh = paging.hasRefresh
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
@@ -76,6 +80,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     fun setExtraView(refresh: SmartRefreshLayout?) {
         this.weakRefresh = WeakReference(refresh)
+    }
+
+    fun onRefresh(listener: () -> Unit = {}) {
+        paging.onRefresh(listener)
+    }
+
+    fun onLoad(listener: (noMore: Boolean) -> Unit = {}) {
+        paging.onLoad(listener)
     }
 
     /**

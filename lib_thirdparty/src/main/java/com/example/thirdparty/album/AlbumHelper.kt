@@ -7,6 +7,7 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.mb
 import com.example.common.utils.function.color
 import com.example.framework.utils.function.value.execute
+import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
 import com.example.thirdparty.R
 import com.yanzhenjie.album.Album
@@ -47,7 +48,7 @@ class AlbumHelper(private val activity: Activity) {
     /**
      * 跳转至相机-录像(时间不一定能指定，大多数手机不兼容)
      */
-    fun recordVideo(filePath: String, duration: Long = 1000 * 60 * 60, onAlbum: (albumPath: String?) -> Unit = {}) = activity.execute {
+    fun recordVideo(filePath: String, duration: Long = 1.hour, onAlbum: (albumPath: String?) -> Unit = {}) = activity.execute {
         Album.camera(this)
             .video()
             .filePath(filePath)
@@ -61,7 +62,7 @@ class AlbumHelper(private val activity: Activity) {
     /**
      * 选择图片
      */
-    fun imageSelection(hasCamera: Boolean = true, hasTailor: Boolean = false, fileSize: Long = 10, onAlbum: (albumPath: String?) -> Unit = {}) = activity.execute {
+    fun imageSelection(hasCamera: Boolean = true, hasTailor: Boolean = false, megabyte: Long = 10, onAlbum: (albumPath: String?) -> Unit = {}) = activity.execute {
         Album.image(this)
             //多选模式为：multipleChoice,单选模式为：singleChoice()
             .singleChoice()
@@ -76,7 +77,7 @@ class AlbumHelper(private val activity: Activity) {
             .afterFilterVisibility(false)
             .onResult {
                 it.safeGet(0)?.apply {
-                    if (size > fileSize.mb) {
+                    if (size > megabyte.mb) {
                         R.string.album_image_error.shortToast()
                         return@onResult
                     }
@@ -88,7 +89,7 @@ class AlbumHelper(private val activity: Activity) {
     /**
      * 选择视频
      */
-    fun videoSelection(fileSize: Long = 100, onAlbum: (albumPath: String?) -> Unit = {}) = activity.execute {
+    fun videoSelection(megabyte: Long = 100, onAlbum: (albumPath: String?) -> Unit = {}) = activity.execute {
         Album.video(this)
             //多选模式为：multipleChoice,单选模式为：singleChoice()
             .singleChoice()
@@ -103,7 +104,7 @@ class AlbumHelper(private val activity: Activity) {
             .afterFilterVisibility(false)
             .onResult {
                 it.safeGet(0)?.apply {
-                    if (size > fileSize.mb) {
+                    if (size > megabyte.mb) {
                         R.string.album_video_error.shortToast()
                         return@onResult
                     }

@@ -11,8 +11,8 @@ import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.gone
 import com.example.glide.ImageLoader
-import com.example.multimedia.R
-import com.example.multimedia.databinding.ViewGsyvideoThumbBinding
+import com.example.thirdparty.R
+import com.example.thirdparty.databinding.ViewGsyvideoThumbBinding
 import com.shuyu.gsyvideoplayer.GSYVideoManager
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
 import com.shuyu.gsyvideoplayer.cache.CacheFactory
@@ -94,7 +94,7 @@ class GSYVideoHelper(private val activity: FragmentActivity, private val player:
     fun setUrl(url: String, autoPlay: Boolean = false) {
         retryWithPlay = false
         //加载图片
-        ImageLoader.instance.displayCover(binding.ivThumb, url)
+        ImageLoader.instance.displayFrame(binding.ivThumb, url)
         GSYVideoOptionBuilder()
             .setIsTouchWiget(false)
             .setRotateViewAuto(false)

@@ -16,8 +16,8 @@ import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.timer
 import com.example.framework.utils.function.value.toSafeInt
-import com.example.multimedia.R
-import com.example.multimedia.databinding.ViewTimeTickBinding
+import com.example.thirdparty.R
+import com.example.thirdparty.databinding.ViewTimeTickBinding
 import java.util.Timer
 import java.util.TimerTask
 

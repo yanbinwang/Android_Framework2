@@ -8,7 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.shortToast
-import com.example.multimedia.R
+import com.example.thirdparty.R
 import com.example.thirdparty.media.service.KeyEventReceiver
 import com.example.thirdparty.media.utils.MediaType.IMAGE
 import com.example.thirdparty.media.utils.MediaType.VIDEO

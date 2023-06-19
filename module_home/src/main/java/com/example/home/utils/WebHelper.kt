@@ -6,7 +6,6 @@ import android.webkit.WebView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.album.R
 import com.example.common.base.page.Extra
 import com.example.home.databinding.ActivityWebBinding
 import com.example.common.bean.WebBundle
@@ -19,6 +18,7 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.byHardwareAccelerate
+import com.example.home.R
 import com.example.home.activity.WebActivity
 import java.lang.ref.WeakReference
 
