@@ -2,14 +2,19 @@ package com.example.common.utils.helper
 
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.bean.UserBean
+import com.example.common.bean.UserInfoBean
 import com.example.common.config.ARouterPath
 import com.example.common.config.CacheData.userBean
+import com.example.common.config.CacheData.userInfoBean
 import com.example.common.config.Constants
 import com.example.common.utils.AppManager
+import com.example.framework.utils.function.value.add
+import com.example.framework.utils.function.value.orFalse
 
 /**
  * Created by WangYanBin on 2020/8/11.
  * 用户信息做了规整和管控，全局直接调用
+ * 注意get值一定要有，否则xml中取值会报错
  */
 object AccountHelper {
     //默认用户文件保存位置
@@ -18,9 +23,8 @@ object AccountHelper {
     // <editor-fold defaultstate="collapsed" desc="用户类方法">
     /**
      * 存储用户对象
-     * bean：修改后的值
      */
-    fun setUserBean(bean: UserBean?) {
+    private fun setUserBean(bean: UserBean?) {
         bean ?: return
         userBean.set(bean)
     }
@@ -28,44 +32,81 @@ object AccountHelper {
     /**
      * 获取用户对象
      */
-    fun getUserBean(): UserBean? {
+    private fun getUserBean(): UserBean? {
         return userBean.get()
+    }
+
+    /**
+     * 获取userid
+     */
+    fun getUserId(): String {
+        return getUserBean()?.userId.orEmpty()
+    }
+
+    /**
+     * 获取token
+     */
+    fun getToken(): String {
+        return getUserBean()?.token.orEmpty()
+    }
+
+    /**
+     * 是否通过实名认证
+     */
+    fun getIsReal(): Boolean {
+        return getUserBean()?.isReal.orFalse
     }
 
     /**
      * 存储手机号
      */
-    fun setMobile(mobile: String?) {
+    fun setPhoneNumber(phoneNumber: String?) {
         val bean = getUserBean()
-        bean?.mobile = mobile
+        bean?.phoneNumber = phoneNumber
         setUserBean(bean)
     }
 
     /**
      * 获取手机号
      */
-    fun getMobile(): String? {
-        val bean = getUserBean()
-        bean ?: return null
-        return bean.mobile
+    fun getPhoneNumber(): String {
+        return getUserBean()?.phoneNumber.orEmpty()
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="用户基本信息">
+    /**
+     * 存储用户信息对象
+     */
+    private fun setUserInfoBean(bean: UserInfoBean?) {
+        bean ?: return
+        userInfoBean.set(bean)
     }
 
     /**
-     * 获取userid
+     * 获取用户信息对象
      */
-    fun getUserId(): String? {
-        val bean = getUserBean()
-        bean ?: return null
-        return bean.user_id
+    private fun getUserInfoBean(): UserInfoBean? {
+        return userInfoBean.get()
     }
 
     /**
-     * 获取token
+     * 设置账户状态
+     * 0冻结 1正常
      */
-    fun getToken(): String? {
-        val bean = getUserBean()
-        bean ?: return null
-        return bean.token
+    fun setStatus(status: Int?) {
+        val bean = getUserInfoBean()
+        bean?.status = status
+        setUserInfoBean(bean)
+    }
+
+    /**
+     * 获取余额->balance+sendBalance
+     */
+    fun getLumpSum(): String {
+        return getUserInfoBean()?.let {
+            it.balance.add(it.sendBalance.orEmpty())
+        }.orEmpty()
     }
     // </editor-fold>
 
