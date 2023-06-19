@@ -55,8 +55,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     //分页
     internal val paging by lazy { Paging() }
-    var currentCount = paging.currentCount
-    var hasRefresh = paging.hasRefresh
+    val hasRefresh get() = paging.hasRefresh
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
@@ -80,6 +79,10 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     fun setExtraView(refresh: SmartRefreshLayout?) {
         this.weakRefresh = WeakReference(refresh)
+    }
+
+    fun setCurrentCount(currentCount: Int) {
+        paging.currentCount = currentCount
     }
 
     fun onRefresh(listener: () -> Unit = {}) {
