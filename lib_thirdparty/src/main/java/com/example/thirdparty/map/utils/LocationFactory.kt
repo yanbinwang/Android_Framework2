@@ -1,4 +1,4 @@
-package com.example.map.utils
+package com.example.thirdparty.map.utils
 
 import android.app.Activity
 import android.app.Notification
@@ -23,7 +23,7 @@ import com.example.common.utils.DataStringCacheUtil
 import com.example.common.utils.function.toJsonString
 import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.function.string
-import com.example.map.R
+import com.example.thirdparty.R
 
 /**
  *  Created by wangyanbin
@@ -63,14 +63,14 @@ class LocationFactory private constructor() : AMapLocationListener {
             //判断GPS模块是否开启，如果没有则开启
             return if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 AppDialog(this).apply {
-                    onConfirm = {
+                    setDialogListener({
                         val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                             if (it.resultCode == Activity.RESULT_OK) {
                                 listener.invoke(true)
                             }
                         }.launch(intent)
-                    }
+                    })
                     setParams(
                         string(R.string.hint),
                         string(R.string.map_gps),

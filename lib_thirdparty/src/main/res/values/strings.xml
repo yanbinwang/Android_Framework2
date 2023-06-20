@@ -8,4 +8,9 @@
     <string name="album_video_error">请选择100M以内的视频</string>
     <string name="album_title">相册</string>
     <string name="crop_title">图片裁剪</string>
+    <!-- 地图字段 -->
+    <string name="map_amap">高德地图</string>
+    <string name="map_bmap">百度地图</string>
+    <string name="map_gps">获取地址信息失败，开启定位服务可以提高定位精确度</string>
+    <string name="map_gps_go_setting">去开启</string>
 </resources>

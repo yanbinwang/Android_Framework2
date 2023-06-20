@@ -1,4 +1,4 @@
-package com.example.map.utils
+package com.example.thirdparty.map.utils
 
 import android.graphics.Color
 import android.graphics.Point
@@ -19,7 +19,7 @@ import com.example.common.utils.permission.checkSelfLocation
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.gone
-import com.example.map.utils.LocationFactory.Companion.aMapLatlng
+import com.example.thirdparty.map.utils.LocationFactory.Companion.aMapLatlng
 import kotlin.math.roundToInt
 
 /**
