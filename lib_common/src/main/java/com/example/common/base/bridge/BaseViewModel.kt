@@ -5,6 +5,7 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
+import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
@@ -47,10 +48,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val context: Context get() = activity
     protected val view: BaseView? get() = weakView?.get()
 
-    //获取对应的控件
+    //获取对应的控件/分页类
     val emptyView get() = weakEmpty?.get()
     val recyclerView get() = weakRecycler?.get()
     val refreshLayout get() = weakRefresh?.get()
+
+    //分页
+    internal val paging by lazy { Paging() }
+    val hasRefresh get() = paging.hasRefresh
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
@@ -63,8 +68,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 继承BaseTitleActivity的页面传父类的ViewGroup
      * 其余页面外层写FrameLayout，套上要使用的布局后再initView中调用该方法
      */
-    fun setExtraView(viewGroup: ViewGroup?) {
-        this.weakEmpty = WeakReference(viewGroup.getEmptyView())
+    fun setExtraView(viewGroup: ViewGroup?, index: Int = 1) {
+        this.weakEmpty = WeakReference(viewGroup.getEmptyView(index))
     }
 
     fun setExtraView(recycler: XRecyclerView?) {
@@ -74,6 +79,27 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     fun setExtraView(refresh: SmartRefreshLayout?) {
         this.weakRefresh = WeakReference(refresh)
+    }
+
+    /**
+     * 当前列表内的数据
+     */
+    fun setCurrentCount(currentCount: Int) {
+        paging.currentCount = currentCount
+    }
+
+    /**
+     * 刷新监听
+     */
+    fun onRefresh(listener: () -> Unit = {}) {
+        paging.onRefresh(listener)
+    }
+
+    /**
+     * 加载更多监听
+     */
+    fun onLoad(listener: (noMore: Boolean) -> Unit = {}) {
+        paging.onLoad(listener)
     }
 
     /**
@@ -136,19 +162,11 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * }
      */
     protected fun <T> async(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        isShowToast: Boolean = false,
-        context: CoroutineContext = Main,
-        start: CoroutineStart = LAZY
-    ): Deferred<T?> {
-        return async(context, start) { request({ coroutineScope() }, isShowToast = isShowToast) }
-    }
-
-    protected fun <T> async(
         req: MultiReqUtil,
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
     ): Deferred<T?> {
-        return async(Main, LAZY) { req.request({ coroutineScope() }) }
+        return async(Main, LAZY) { req.request({ coroutineScope() }, err) }
     }
 
     override fun onCleared() {

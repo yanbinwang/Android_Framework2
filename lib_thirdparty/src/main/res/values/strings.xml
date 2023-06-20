@@ -1,0 +1,11 @@
+<resources>
+    <!-- 相机/播放器字段 -->
+    <string name="camera_flash_error">闪光灯仅支持后置摄像头</string>
+    <string name="camera_picture_shutter">正在生成图片,请勿频繁操作…</string>
+    <string name="camera_video_shutter">正在生成视频,请勿频繁操作…</string>
+    <!-- 相册/裁剪字段 -->
+    <string name="album_image_error">请选择10M以内的图片</string>
+    <string name="album_video_error">请选择100M以内的视频</string>
+    <string name="album_title">相册</string>
+    <string name="crop_title">图片裁剪</string>
+</resources>

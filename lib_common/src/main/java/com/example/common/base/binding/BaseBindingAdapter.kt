@@ -2,6 +2,7 @@ package com.example.common.base.binding
 
 import android.annotation.SuppressLint
 import android.text.InputType
+import android.view.View
 import android.webkit.WebView
 import android.widget.EditText
 import android.widget.TextView
@@ -16,15 +17,18 @@ import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
 import com.example.common.utils.function.orNoData
+import com.example.common.utils.function.ptFloat
 import com.example.common.utils.function.setSpanFirst
-import com.example.common.widget.textview.edit.ClearEditText
+import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.removeEndZero
 import com.example.framework.utils.function.value.thousandsFormat
+import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.adapter
+import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.charBlackList
 import com.example.framework.utils.function.view.charLimit
@@ -56,6 +60,15 @@ object BaseBindingAdapter {
     @BindingAdapter(value = ["statusBar_margin"])
     fun bindingGuidelineStatusBar(guideline: Guideline, statusBarMargin: Boolean?) {
         if (statusBarMargin.orFalse) guideline.setGuidelineBegin(getStatusBarHeight())
+    }
+
+    /**
+     * gradient_color 颜色字符 -> "#cf111111"
+     * gradient_radius 圆角 -> 传入X.ptFloat,代码添加一个对应圆角的背景
+     */
+    @BindingAdapter(value = ["gradient_color", "gradient_radius"], requireAll = false)
+    fun bindingGradientBackground(view: View, gradientColor: String?, gradientRadius: Int?) {
+        view.background(gradientColor.orEmpty(), gradientRadius.toSafeFloat(4.ptFloat))
     }
     // </editor-fold>
 

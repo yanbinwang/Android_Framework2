@@ -10,3 +10,9 @@ data class ApiResponse<T>(
     var msg: String? = null,//信息
     var data: T? = null,//数据
 )
+
+/**
+ * 处理特殊情况，code=200，但是data后端偷懒直接不给值或者给空值
+ * 比如发送验证码接口，提交接口等，此时我们给一个指定的对象，保证有值返回
+ */
+class EmptyBean

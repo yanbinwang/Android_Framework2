@@ -7,6 +7,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.example.common.base.binding.adapter.BaseItemType.BEAN
 import com.example.common.base.binding.adapter.BaseItemType.LIST
+import com.example.common.base.bridge.BaseViewModel
 import com.example.framework.utils.function.value.*
 import com.example.framework.utils.function.view.click
 
@@ -122,7 +123,6 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     fun changed(index: Int, bean: T) {
         if (index != -1 && data.safeGet(index) != null) {
-//            data[index] = bean
             data.safeSet(index, bean)
             notifyItemChanged(index)
         }
@@ -134,7 +134,6 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
 
     fun changed(index: Int, payloads: MutableList<Any>, bean: T) {
         if (index != -1 && data.safeGet(index) != null) {
-//            data[index] = bean
             data.safeSet(index, bean)
             notifyItemChanged(index, payloads)
         }
@@ -163,6 +162,10 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     fun notify(list: List<T>, hasRefresh: Boolean = true, onEmpty: () -> Unit = {}) {
         if (hasRefresh) refresh(list) else insert(list)
         if (size() == 0) onEmpty.invoke()
+    }
+
+    fun <VDB : BaseViewModel> notify(list: List<T>, viewModel: VDB) {
+        notify(list, viewModel.paging.hasRefresh) { viewModel.emptyView?.empty() }
     }
 
     /**

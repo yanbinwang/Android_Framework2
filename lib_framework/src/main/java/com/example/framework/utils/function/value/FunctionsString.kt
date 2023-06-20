@@ -4,7 +4,6 @@ import android.net.Uri
 import android.text.Html
 import android.text.Spanned
 import android.util.Base64
-import com.example.framework.utils.function.value.ELFormat.FULL_WIDTH_STRING
 import com.example.framework.utils.function.value.ELFormat.MOBILE
 import java.util.regex.Pattern
 import kotlin.math.pow
@@ -154,28 +153,6 @@ fun String?.getValueByName(name: String): String {
 }
 
 /**
- * 将一组字符串根据全角半角转换成一组对应的空格字符
- */
-fun String?.getSpaceValue(extras: Int = 0): String {
-    this ?: return ""
-    val charArray = toCharArray()
-    var value = ""
-    charArray.forEach {
-        val text = it.toString()
-        value = if (text.regCheck(FULL_WIDTH_STRING)) {
-            value + "\u3000"
-        } else {
-            value + "\u0020"
-        }
-    }
-    //额外增多几个半角的中文空格，padding决定
-    for (index in 0 until extras) {
-        value += "\u3000"
-    }
-    return value
-}
-
-/**
  * 添加网页链接中的Param
  */
 fun String?.addUrlParam(key: String?, value: String?): String? {
@@ -225,6 +202,5 @@ object ELFormat {
     const val MOBILE = "^1[0-9]{10}$"
     const val EMAIL = "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+\$"
     const val PASSWORD = "^(?![0-9]+\$)(?![a-zA-Z]+\$)[0-9A-Za-z]{6,20}\$"
-    const val FULL_WIDTH_STRING = "[^\\x00-\\xff]"
 }
 // </editor-fold>

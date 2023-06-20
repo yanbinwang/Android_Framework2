@@ -42,7 +42,7 @@ class NumberEditTextHelper(private val editText: EditText) {
      * 设置小数位数限制
      */
     fun setPrecision(precision: Int) {
-        numberEditTextHelper.precision = precision
+        numberEditTextHelper.setPrecision(precision)
     }
 
 }
@@ -54,7 +54,11 @@ class NumberEditTextHelper(private val editText: EditText) {
 private abstract class NumberTextWatcher constructor(private val editText: EditText) : TextWatcher {
     private var textBefore: String? = null//用于记录变化前的文字
     private var textCursor = 0//用于记录变化时光标的位置
-    var precision = 0
+    private var precision = 0
+
+    fun setPrecision(precision: Int) {
+        this.precision = precision
+    }
 
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         textBefore = s.toString()
