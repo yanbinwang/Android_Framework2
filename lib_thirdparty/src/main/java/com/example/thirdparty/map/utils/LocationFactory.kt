@@ -43,7 +43,7 @@ class LocationFactory private constructor() : AMapLocationListener {
 
         //经纬度json->默认杭州
         private const val AMAP_LATLNG = "map_latlng"
-        val aMapLatlng = DataStringCacheUtil(AMAP_LATLNG, "{latitude:30.2780010000,longitude:120.1680690000}")
+        internal val aMapLatlng = DataStringCacheUtil(AMAP_LATLNG, "{latitude:30.2780010000,longitude:120.1680690000}")
 
         //回调监听
         internal var onShutter: (location: AMapLocation?, flag: Boolean) -> Unit = { _, _ -> }
