@@ -1,13 +1,12 @@
 package com.example.mvvm.activity
 
-import android.view.WindowManager
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
-import com.example.common.widget.textview.edittext.callback.EditTextImpl
+import com.example.common.widget.textview.edittext.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
 import com.example.framework.utils.function.value.toSafeFloat
@@ -16,7 +15,55 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.span.RankSpanInterface
+import com.example.mvvm.viewmodel.TestViewModel
 
+/**
+ *    <data>
+
+<import type="android.view.View" />
+
+<variable
+name="kolVisible"
+type="Boolean"
+android:value="false" />
+
+</data>
+
+<ImageView
+android:id="@+id/iv_kol"
+android:layout_width="60pt"
+android:layout_height="70pt"
+android:layout_gravity="right|bottom"
+android:layout_marginBottom="154pt"
+android:src="@mipmap/ic_suspension"
+android:visibility="@{kolVisible==false?View.GONE:View.VISIBLE}" />
+
+//去重
+Kotlin 标准库提供了 distinct() 函数，它可以用于删除集合中的所有重复项。
+但是，如果你使用的是自定义类（而不是基本数据类型），则需要确保该类正确实现了 equals() 和 hashCode() 函数，以便 distinct() 函数能够正常工作。
+data class Person(val name: String, val age: Int)
+
+val listWithDuplicates = listOf(
+Person("Alice", 25),
+Person("Bob", 30),
+Person("Alice", 25),
+Person("Charlie", 35)
+)
+val listWithoutDuplicates = listWithDuplicates.distinct()
+
+override fun equals(other: Any?): Boolean {
+if (other == null || other !is QuickPassBean) {
+return false
+}
+return outCoin == other.outCoin
+}
+
+override fun hashCode(): Int {
+var result = 17
+result = 31 * result + outCoin.hashCode()
+return result
+}
+ */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpanInterface {
 //    //    private val illustratePopup by lazy { IllustratePopup(this) }
@@ -28,8 +75,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
 //    private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
 //    private val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
 
+    private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
+
+    private val viewModel by lazy { TestViewModel() }
+
     override fun initView() {
-        window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         super.initView()
 //        adapter.refresh(ids)
 //        binding.rvTest.adapter = adapter

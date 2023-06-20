@@ -13,14 +13,14 @@ data class Page<T>(
  * Created by WangYanBin on 2020/7/1.
  * 应用于刷新页面工具类
  * override fun onRefresh(refreshLayout: RefreshLayout) {
- * paging.onRefresh { viewModel.getEvidenceList(paging) }
+ * viewModel.onRefresh { viewModel.getEvidenceList() }
  * }
  *
  * override fun onLoadMore(refreshLayout: RefreshLayout) {
- * paging.onLoad { if (it) binding.xrvEvidence.finishRefreshing() else viewModel.getEvidenceList(paging) }
+ * viewModel.onLoad { if (it) binding.xrvEvidence.finishRefreshing() else viewModel.getEvidenceList() }
  * }
  *
- *fun getEvidenceList(paging: Paging) {
+ * fun getEvidenceList() {
  *  launch({EvidenceSubscribe.getEvidenceListApi(hashMapOf(
  *              "evidenceType" to evidenceType,
  *              "type" to "1",
@@ -28,20 +28,22 @@ data class Page<T>(
  *"             limit" to Constants.PAGE_LIMIT).params())
  *  }, {
  *      paging.totalCount = it?.total.orZero
+ *      evidenceData.postValue(it)//先回调赋值刷新适配器
  *      reset(it?.hasNextPage.orFalse)
- *      evidenceData.postValue(it)
  *  }, {
  *      recyclerView?.setState(paging.currentCount.orZero)
- *  }, isShowDialog = false)}
+ *  }, isShowDialog = false)
+ * }
  *
  *  postValue完成后，回调的订阅里赋值一下
- *  paging.currentCount = binding.adapter.size()
+ *  binding.adapter.notify(it.list, viewModel.hasRefresh) { viewModel.emptyView?.empty() } or binding.adapter.notify<ViewModel>(it.list, viewModel)
+ *  viewModel.setCurrentCount(binding.adapter.size())
  */
 class Paging {
     var hasRefresh = false//是否刷新
-    var page = 1//当前页数
     var currentCount = 0//当前页面列表数据总数
     var totalCount = 0//服务器列表数据总数
+    var page = 1//当前页数
 
     //刷新清空
     fun onRefresh(listener: () -> Unit = {}) {

@@ -48,7 +48,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //框架库
     api project(':lib_common')
-    api project(':lib_album')
+    api project(':lib_thirdparty')
     //页面路由
     implementation deps.alibaba.arouter
     kapt deps.alibaba.arouter_compiler

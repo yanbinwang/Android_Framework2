@@ -23,9 +23,9 @@ import java.io.Serializable
  * 1.接口提示
  * 2.遮罩层操作
  */
-fun ViewGroup?.setState(imgRes: Int = -1, text: String? = null) {
+fun ViewGroup?.setState(imgRes: Int = -1, text: String? = null, index: Int = 1) {
     this ?: return
-    val emptyLayout = if (this is EmptyLayout) this else getEmptyView()
+    val emptyLayout = if (this is EmptyLayout) this else getEmptyView(index)
     emptyLayout?.error(imgRes, text)
 }
 
@@ -42,7 +42,7 @@ fun XRecyclerView?.setState(length: Int = 0, imgRes: Int = -1, text: String? = n
 /**
  * 详情页
  */
-fun ViewGroup?.getEmptyView(): EmptyLayout? {
+fun ViewGroup?.getEmptyView(index: Int = 1): EmptyLayout? {
     this ?: return null
     val emptyLayout: EmptyLayout?
     if (childCount <= 1) {
@@ -52,7 +52,7 @@ fun ViewGroup?.getEmptyView(): EmptyLayout? {
             loading()
         }
         addView(emptyLayout)
-    } else emptyLayout = getChildAt(1) as? EmptyLayout
+    } else emptyLayout = getChildAt(index) as? EmptyLayout
     return emptyLayout
 }
 

@@ -32,10 +32,32 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * shade->标题底部是否带阴影
      */
     fun setTitle(title: String = "", titleColor: Int = R.color.black, bgColor: Int = R.color.white, shade: Boolean = false): TitleBuilder {
-        binding.clContainer.setBackgroundColor(if(0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
+        binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
         binding.tvTitle.setArguments(title, titleColor)
         binding.viewShade.apply { if (shade) visible() else gone() }
+        getDefault()
         return this
+    }
+
+    /**
+     * 部分页面不需要标题，只需要一个定制的返回按钮和特定背景，故而使用此方法
+     */
+    fun setTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }, bgColor: Int = R.color.white): TitleBuilder {
+        setLeft(resId, tintColor, onClick)
+        binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
+        return this
+    }
+
+    /**
+     * 继承BaseActivity，在xml中include对应标题布局
+     * 把布局bind传入工具类，实现绑定后，调取对应方法
+     */
+    fun setTransparentTitle(title: String = "", titleColor: Int = R.color.black): TitleBuilder {
+        return setTitle(title, titleColor, 0)
+    }
+
+    fun setTransparentTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }): TitleBuilder {
+        return setTitle(resId, tintColor, onClick, 0)
     }
 
     /**
@@ -44,7 +66,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * tintColor->图片覆盖色（存在相同图片颜色不同的情况，直接传覆盖色即可）
      * onClick->点击事件
      */
-    fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}): TitleBuilder {
+    fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }): TitleBuilder {
         binding.ivLeft.apply {
             visible()
             setResource(resId)
@@ -54,7 +76,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         return this
     }
 
-    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}): TitleBuilder {
+    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }): TitleBuilder {
         binding.ivRight.apply {
             visible()
             setResource(resId)
@@ -70,7 +92,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * labelColor->文案颜色
      * onClick->点击事件
      */
-    fun setLeft(label: String, labelColor: Int = R.color.black, onClick: () -> Unit = {}): TitleBuilder {
+    fun setLeft(label: String, labelColor: Int = R.color.black, onClick: () -> Unit = { activity.finish() }): TitleBuilder {
         binding.tvLeft.apply {
             visible()
             setArguments(label, labelColor)
@@ -79,7 +101,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         return this
     }
 
-    fun setRight(label: String, labelColor: Int = R.color.black, onClick: () -> Unit = {}): TitleBuilder {
+    fun setRight(label: String, labelColor: Int = R.color.black, onClick: () -> Unit = { activity.finish() }): TitleBuilder {
         binding.tvRight.apply {
             visible()
             setArguments(label, labelColor)
@@ -106,5 +128,10 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         }
         return this
     }
+
+    /**
+     * 返回容器本身
+     */
+    fun getContainer() = binding.clContainer
 
 }
