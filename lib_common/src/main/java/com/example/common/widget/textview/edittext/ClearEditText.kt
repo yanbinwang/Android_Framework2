@@ -15,16 +15,10 @@ import androidx.core.widget.addTextChangedListener
 import com.example.common.R
 import com.example.common.databinding.ViewClearEditBinding
 import com.example.common.utils.function.ptFloat
-import com.example.common.widget.textview.edittext.callback.SpecialEditTextImpl
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.value.add
-import com.example.framework.utils.function.value.divide
-import com.example.framework.utils.function.value.multiply
-import com.example.framework.utils.function.value.subtract
 import com.example.framework.utils.function.view.*
 import com.example.framework.widget.BaseViewGroup
-import java.math.BigDecimal
 import java.util.*
 
 /**
@@ -32,7 +26,7 @@ import java.util.*
  * @author yan
  */
 @SuppressLint("CustomViewStyleable")
-class ClearEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditTextImpl {
+class ClearEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
     private var isDisabled = false//是否不可操作
     private var isShowBtn = true//是否显示清除按钮
     private val binding by lazy { ViewClearEditBinding.bind(context.inflate(R.layout.view_clear_edit)) }
@@ -207,34 +201,4 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         binding.etClear.apply { if (text.isNotEmpty()) visible() }
     }
 
-}
-
-fun ClearEditText?.text(): String {
-    this ?: return ""
-    return getText()
-}
-
-fun ClearEditText?.getNumber(): String {
-    this ?: return "0"
-    return editText.getNumber()
-}
-
-fun ClearEditText?.add(number: String) {
-    this ?: return
-    setText(getNumber().add(number))
-}
-
-fun ClearEditText?.subtract(number: String) {
-    this ?: return
-    setText(getNumber().subtract(number))
-}
-
-fun ClearEditText?.multiply(number: String) {
-    this ?: return
-    setText(getNumber().multiply(number))
-}
-
-fun ClearEditText?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
-    this ?: return
-    setText(getNumber().divide(number, scale, mode))
 }

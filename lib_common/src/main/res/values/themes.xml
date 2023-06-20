@@ -87,12 +87,6 @@
         <item name="android:windowExitAnimation">@anim/set_alpha_out</item>
     </style>
 
-<!--    &lt;!&ndash;popup显影 &ndash;&gt;-->
-<!--    <style name="popupWindowAnimStyle">-->
-<!--        <item name="android:windowEnterAnimation">@anim/gallery_fade_in</item>-->
-<!--        <item name="android:windowExitAnimation">@anim/gallery_fade_out</item>-->
-<!--    </style>-->
-
     <!-- 去除动画 -->
     <style name="NoAnimTheme" parent="AppTheme">
         <item name="android:windowAnimationStyle">@null</item>
@@ -117,9 +111,16 @@
             }
         }
     -->
-    <style name="TransTheme" parent="NoAnimTheme">
+    <style name="TransparentTheme" parent="NoAnimTheme">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <!-- 启动页/引导页/首页/背景纯色的页面，单独使用该样式，可重写把背景替换掉，解决页面切换之间不会黑一下屏 -->
+    <style name="TransitionTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:navigationBarColor">@color/appNavigationBar</item>
     </style>
 
     <!--底部弹出样式 -->
@@ -127,7 +128,7 @@
         <item name="bottomSheetStyle">@style/SheetStyle</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
-        <item name="android:statusBarColor" tools:ignore="NewApi">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="SheetStyle" parent="android:Widget">

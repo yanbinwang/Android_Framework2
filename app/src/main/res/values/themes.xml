@@ -1,22 +1,46 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="NewApi">
 
-    <!-- 启动页，直接背景是一张启动页图，点开app就是引导页的展示 -->
-    <style name="SplashTheme" parent="AppTheme">
-                <item name="colorPrimaryDark">@color/blue_3d81f2</item>
-                <item name="android:navigationBarColor">@color/blue_3d81f2</item>
-                <item name="android:windowBackground">@drawable/layout_list_splash</item>
-                <item name="android:windowAnimationStyle">@null</item>
-                <item name="android:windowLightStatusBar">false</item>
-<!--        <item name="android:windowIsTranslucent">true</item>-->
-<!--        <item name="android:windowBackground">@color/white_00ffffff</item>-->
-<!--        <item name="android:windowAnimationStyle">@null</item>-->
-    </style>
+    <!--
+    在 Android 应用程序中使用主题时，如果指定了 android:windowBackground 属性为一张图片，可能会导致屏幕出现残留。这是因为系统在绘制 Activity 时会使用窗口背景，并将其缓存以提高性能。但是，当应用程序的主题或窗口背景更改时，系统有时会无法正确清除缓存，导致屏幕出现残留。
+    要解决这个问题，可以尝试以下几种方法：
 
-    <style name="MainTheme" parent="AppTheme">
-        <item name="colorPrimaryDark">@color/white_00ffffff</item>
-        <item name="android:navigationBarColor">@color/white</item>
+    调用 View 的 setBackgroundColor() 方法
+    在 Activity 的 onCreate() 方法中，调用 View 的 setBackgroundColor() 方法，将背景颜色设置为与窗口背景相同。例如，可以使用以下代码：
+
+    java
+    View decorView = getWindow().getDecorView();
+    decorView.setBackgroundColor(getResources().getColor(android.R.color.white));
+    这样可以确保在 Activity 加载时，View 背景与窗口背景相同，从而避免屏幕残留。
+
+    强制重绘 View
+    在 Activity 的 onResume() 方法中，调用 View 的 invalidate() 方法强制重绘 View。例如，可以使用以下代码：
+
+    java
+    View decorView = getWindow().getDecorView();
+    decorView.invalidate();
+    这样可以强制系统重新绘制 View，而不是从缓存中读取旧的窗口背景。
+
+    更换窗口背景
+    如果以上方法都不能解决问题，建议更换窗口背景，使用其他图片或颜色作为窗口背景。可以尝试使用不同的分辨率或格式的图片，并检查是否有改善。
+    总之，在使用窗口背景时，请注意避免出现屏幕残留问题。如果出现了残留问题，可以尝试以上方法进行解决。建议在开发过程中经常测试应用程序，以确保应用程序的性能和用户体验。
+    -->
+    <!-- 启动页，直接背景是一张启动页图，点开app就是引导页的展示 -->
+    <style name="SplashTheme" parent="TransitionTheme">
+        <item name="colorPrimaryDark">@color/appTheme</item>
+        <item name="android:navigationBarColor">@color/appTheme</item>
+        <item name="android:windowBackground">@drawable/layout_list_splash</item>
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowLightStatusBar">false</item>
+        <!--        <item name="android:windowIsTranslucent">true</item>-->
+        <!--        <item name="android:windowBackground">@color/white_00ffffff</item>-->
+        <!--        <item name="android:windowAnimationStyle">@null</item>-->
+    </style>
+
+    <!--注册选择页背景是蓝色，故而使用此样式-->
+    <style name="StartTheme" parent="TransitionTheme">
+        <item name="android:windowBackground">@color/appTheme</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:navigationBarColor">@color/appTheme</item>
     </style>
 
 </resources>

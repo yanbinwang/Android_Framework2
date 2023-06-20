@@ -2,7 +2,7 @@ package com.example.mvvm
 
 import android.os.Looper
 import android.util.Log
-import com.example.album.GlideLoader
+import com.example.thirdparty.album.GlideLoader
 import com.example.common.BaseApplication
 import com.example.framework.utils.function.value.isDebug
 import com.example.mvvm.activity.MainActivity

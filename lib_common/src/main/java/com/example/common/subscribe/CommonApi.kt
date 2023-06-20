@@ -1,6 +1,7 @@
 package com.example.common.subscribe
 
 import com.example.common.network.repository.ApiResponse
+import com.example.common.network.repository.EmptyBean
 import retrofit2.http.*
 
 /**
@@ -15,11 +16,11 @@ interface CommonApi {
 
     @FormUrlEncoded
     @POST("http://www.baidu.com")
-    suspend fun getSendVerificationApi(@Header("Retry-Agent") retryAgent: String, @FieldMap map: Map<String, String>): ApiResponse<Any>
+    suspend fun getSendVerificationApi(@Header("Retry-Agent") retryAgent: String, @FieldMap map: Map<String, String>): ApiResponse<EmptyBean>
 
     @FormUrlEncoded
     @POST("http://www.baidu.com")
-    suspend fun getVerificationApi(@FieldMap map: Map<String, String>): ApiResponse<Any>
+    suspend fun getVerificationApi(@FieldMap map: Map<String, String>): ApiResponse<EmptyBean>
 
     @GET("test")
     suspend fun getTestApi(): ApiResponse<Any>

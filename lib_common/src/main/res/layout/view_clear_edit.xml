@@ -11,7 +11,7 @@
             android:id="@+id/et_clear"
             android:layout_width="0dp"
             android:layout_height="0pt"
-            android:layout_marginStart="6pt"
+            android:layout_marginStart="10pt"
             android:background="@null"
             android:textColor="@color/textPrimary"
             android:textColorHint="@color/textHint"
@@ -22,10 +22,9 @@
 
         <ImageView
             android:id="@+id/iv_clear"
-            android:layout_width="40pt"
-            android:layout_height="32pt"
-            android:paddingHorizontal="8pt"
-            android:paddingVertical="14pt"
+            android:layout_width="36pt"
+            android:layout_height="36pt"
+            android:padding="10pt"
             android:scaleType="centerCrop"
             android:src="@mipmap/ic_clear"
             android:visibility="gone"

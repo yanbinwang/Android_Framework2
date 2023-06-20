@@ -49,8 +49,7 @@
             android:id="@+id/iv_funds_bg"
             android:layout_width="match_parent"
             android:layout_height="164pt"
-            android:scaleType="fitXY"
-            android:src="@mipmap/img_funds" />
+            android:scaleType="fitXY" />
 
         <com.scwang.smart.refresh.layout.SmartRefreshLayout
             android:id="@+id/refresh"

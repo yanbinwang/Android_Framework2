@@ -24,6 +24,7 @@ import java.io.File
  * 图片加载库使用Application上下文，Glide请求将不受Activity/Fragment生命周期控制。
  */
 class ImageLoader private constructor() : GlideModule(), GlideImpl {
+    private val maskDrawable by lazy { GradientDrawable().apply { setColor(Color.parseColor("#000000")) } }
 
     companion object {
         val instance by lazy { ImageLoader() }
@@ -33,7 +34,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         Glide.with(view.context)
             .asBitmap()
             .load(string)
-            .placeholder(GradientDrawable().apply { setColor(Color.parseColor("#000000")) })
+            .placeholder(maskDrawable)
             .dontAnimate()
             .listener(object : GlideRequestListener<Bitmap?>() {
                 override fun onStart() {
@@ -47,7 +48,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(ZoomTransform(view))
     }
 
-    override fun displayCover(view: ImageView, string: String) {
+    override fun displayFrame(view: ImageView, string: String) {
         try {
             Glide.with(view.context)
                 .setDefaultRequestOptions(RequestOptions().frame(1000000).centerCrop())
@@ -55,8 +56,24 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
                 .dontAnimate()
                 .into(view)
         } catch (_: Exception) {
-            view.background = GradientDrawable().apply { setColor(Color.parseColor("#000000")) }
+            view.background = maskDrawable
         }
+    }
+
+    override fun displayFrame(view: ImageView, resourceId: Int) {
+        try {
+            Glide.with(view.context)
+                .setDefaultRequestOptions(RequestOptions().frame(1000000).centerCrop())
+                .load(resourceId)
+                .dontAnimate()
+                .into(view)
+        } catch (_: Exception) {
+            view.background = maskDrawable
+        }
+    }
+
+    override fun displayGif(view: ImageView, resourceId: Int) {
+        Glide.with(view.context).asGif().load(resourceId).into(view)
     }
 
     override fun displayProgress(view: ImageView, string: String, onStart: () -> Unit, onProgress: (progress: Int?) -> Unit, onComplete: () -> Unit) {

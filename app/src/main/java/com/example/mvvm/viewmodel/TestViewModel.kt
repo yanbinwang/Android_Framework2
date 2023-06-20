@@ -46,12 +46,12 @@ class TestViewModel : BaseViewModel() {
 //            taskList.safeGet(0)
 //            taskList.safeGet(1)
             val req = MultiReqUtil(view)
-            val task1 = async(req) { CommonSubscribe.getVerificationApi(mapOf("key" to "value")) }
-            val task2 = async(req) { CommonSubscribe.getVerificationApi(mapOf("key" to "value")) }
+            val task1 = async(req, { CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
+            val task2 = async(req, { CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
             val taskList = awaitAll(task1, task2)
-            req.end()
             taskList.safeGet(0)
             taskList.safeGet(1)
+            req.end()
         }
     }
 
@@ -66,16 +66,6 @@ class TestViewModel : BaseViewModel() {
         launch({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) }, {
             //拿对象
         })
-    }
-
-    /**
-     * 普通一次性（并不主动发起）
-     */
-    fun taskAsync() {
-        launch {
-            val task1 = async({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
-            task1.await()//不调取await不会执行接口请求
-        }
     }
 
 }
