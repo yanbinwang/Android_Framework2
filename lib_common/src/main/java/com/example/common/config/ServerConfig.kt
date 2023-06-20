@@ -51,7 +51,7 @@ object ServerConfig {
      * 服务器名称
      */
     fun serverName(): String {
-        return servers[serverType].name
+        return serverBean().name
     }
 
     /**
