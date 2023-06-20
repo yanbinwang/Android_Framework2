@@ -180,7 +180,7 @@ object AccountHelper {
     fun refresh(bean: UserAuthBean?) {
         bean ?: return
         update(bean)
-//        EVENT_USER_DATA_REFRESH.post(userData.get())
+//        EVENT_USER_INFO_REFRESH.post(userData.get())
     }
 
     /**
