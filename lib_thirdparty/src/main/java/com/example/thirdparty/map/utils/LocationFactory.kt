@@ -23,6 +23,7 @@ import com.example.common.utils.DataStringCacheUtil
 import com.example.common.utils.function.toJsonString
 import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.function.string
+import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
 
 /**
@@ -59,9 +60,9 @@ class LocationFactory private constructor() : AMapLocationListener {
          * 跳转设置gps
          */
         fun FragmentActivity.settingGps(listener: (flag: Boolean) -> Unit = {}): Boolean {
-            val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val locationManager = getSystemService(Context.LOCATION_SERVICE) as? LocationManager
             //判断GPS模块是否开启，如果没有则开启
-            return if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            return if (!locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER).orFalse) {
                 AppDialog(this).apply {
                     setDialogListener({
                         val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
@@ -90,7 +91,7 @@ class LocationFactory private constructor() : AMapLocationListener {
             val builder: Notification.Builder?
             //Android O上对Notification进行了修改，如果设置的targetSDKVersion>=26建议使用此种方式创建通知栏
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
                 val notificationChannel = NotificationChannel(Constants.PUSH_CHANNEL_ID, Constants.PUSH_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT)
                 notificationChannel.apply {
                     enableLights(true) //是否在桌面icon右上角展示小圆点
