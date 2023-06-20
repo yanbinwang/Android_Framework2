@@ -7,11 +7,14 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
+import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.file.getFileFromUri
 import java.io.File
 
 /**
@@ -25,6 +28,23 @@ fun Activity.pullUpAlbum() {
     val intent = Intent(Intent.ACTION_PICK, null)
     intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
     startActivityForResult(intent, REQUEST_PHOTO)
+}
+
+/**
+ * 需要读写权限
+ */
+fun FragmentActivity?.pullUpAlbum(onResult: ((filePath: String?) -> Unit)) {
+    this ?: return
+    val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            it?.data ?: return@registerForActivityResult
+            val uri = it.data?.data
+            onResult.invoke(uri.getFileFromUri()?.absolutePath)
+        }
+    }
+    val intent = Intent(Intent.ACTION_PICK, null)
+    intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+    activityResultValue.launch(intent)
 }
 
 /**
