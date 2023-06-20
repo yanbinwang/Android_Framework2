@@ -27,6 +27,16 @@ android {
         }
     }
 
+//    sourceSets {
+//        main {
+//            res {
+//                srcDirs "src/main/res"
+//                srcDirs "src/main/res-bg"
+//                srcDirs "src/main/res-race"
+//            }
+//        }
+//    }
+
     namespace 'com.example.mvvm'
     compileSdk build_versions.compileSdkVersion
 

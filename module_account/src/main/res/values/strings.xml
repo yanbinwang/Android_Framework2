@@ -1,9 +1,15 @@
 <resources>
     <!-- app内的一些提示 -->
+    <string name="email_hint">请输入邮箱</string>
     <string name="email_empty">邮箱不能为空</string>
     <string name="email_error">邮箱格式错误</string>
+    <string name="password_hint">请输入密码</string>
     <string name="password_empty">密码不能为空</string>
     <string name="password_error">密码由6~20位的字母和數字組成</string>
+    <string name="phone_hint">请输入手机号</string>
     <string name="phone_empty">手机号不能为空</string>
     <string name="phone_error">手机号格式错误</string>
+    <string name="verify_code_hint">请输入验证码</string>
+    <string name="verify_code_empty">验证码不能为空</string>
+    <string name="verify_code_error">请输入6位數字验证码</string>
 </resources>
