@@ -50,6 +50,7 @@ dependencies {
     api project(':lib_framework')
     api project(':lib_glide')
     api project(':lib_topsheet')
+    api project(':lib_socket')
     //网络请求
     api deps.retrofit2.retrofit
     api deps.retrofit2.converter_gson

@@ -1,12 +1,10 @@
-package com.example.socket.helper
-
-import com.example.socket.WebSocketProxy
+package com.example.socket
 
 /**
  * @description socket連接幫助類
  * @author yan
  */
-object SocketConnectHelper {
+object SocketConnect {
     private val proxy = WebSocketProxy("11111")
 
     fun topic(vararg value: String) {

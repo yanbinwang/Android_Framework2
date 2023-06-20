@@ -23,7 +23,7 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.socket.helper.SocketLifecycleHelper
+import com.example.socket.SocketLifecycle
 import com.example.common.utils.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
@@ -86,7 +86,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppManager.addActivity(this)
-        SocketLifecycleHelper.add(this)
+        SocketLifecycle.add(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
         if (isImmersionBarEnabled()) initImmersionBar()
         initView()
@@ -184,7 +184,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun onDestroy() {
         super.onDestroy()
         AppManager.removeActivity(this)
-        SocketLifecycleHelper.remove(this)
+        SocketLifecycle.remove(this)
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
         try {
             binding.unbind()

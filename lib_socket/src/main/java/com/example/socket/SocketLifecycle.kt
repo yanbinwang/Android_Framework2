@@ -1,9 +1,9 @@
-package com.example.socket.helper
+package com.example.socket
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.socket.interf.SocketRequest
+import com.example.socket.interf.SocketRequest
 import com.example.framework.utils.function.value.hasAnnotation
 import java.lang.ref.WeakReference
 
@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference
  * @description socket生命週期管理類
  * @author yan
  */
-object SocketLifecycleHelper : LifecycleEventObserver {
+object SocketLifecycle : LifecycleEventObserver {
     private val list by lazy { ArrayList<WeakReference<LifecycleOwner>>() }
 
     fun add(owner: LifecycleOwner) {
@@ -31,8 +31,8 @@ object SocketLifecycleHelper : LifecycleEventObserver {
         if (null != clazz) {
             val value = clazz.value
             when (event) {
-                Lifecycle.Event.ON_RESUME -> SocketConnectHelper.topic(*value)
-                Lifecycle.Event.ON_PAUSE -> SocketConnectHelper.untopic(*value)
+                Lifecycle.Event.ON_RESUME -> SocketConnect.topic(*value)
+                Lifecycle.Event.ON_PAUSE -> SocketConnect.untopic(*value)
                 else -> {}
             }
         }
