@@ -52,7 +52,6 @@ dependencies {
     api deps.androidx.appcompat
     api deps.androidx.constraintlayout
     api deps.androidx.recyclerview
-    api deps.androidx.cardview
     api deps.androidx.core
     api deps.androidx.viewmodel
     api deps.androidx.livedata
