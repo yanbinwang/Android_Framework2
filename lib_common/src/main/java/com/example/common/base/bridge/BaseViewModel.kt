@@ -114,7 +114,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     /**
      * 常规发起一个网络请求
-     * job.cancel().apply{ view?.hideDialog() }
      */
     protected fun <T> launch(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, // 请求
