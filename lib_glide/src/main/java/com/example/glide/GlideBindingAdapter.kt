@@ -2,6 +2,8 @@ package com.example.glide
 
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
+import com.example.framework.utils.function.defTypeDrawable
+import com.example.framework.utils.function.defTypeMipmap
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
@@ -30,8 +32,8 @@ object GlideBindingAdapter {
     }
 
     @BindingAdapter(value = ["display_resource", "placeholder_id"], requireAll = false)
-    fun bindingDisplayResource(view: ImageView, resource: Int, placeholderId: Int?) {
-        ImageLoader.instance.display(view, resource, placeholderId.toSafeInt(R.drawable.shape_glide_bg), onStart = { view.disable() }, onComplete = { view.enable() })
+    fun bindingDisplayResource(view: ImageView, resource: String, placeholderId: Int?) {
+        ImageLoader.instance.display(view, view.context.defTypeMipmap(resource), placeholderId.toSafeInt(R.drawable.shape_glide_bg), onStart = { view.disable() }, onComplete = { view.enable() })
     }
 
     /**
@@ -43,8 +45,8 @@ object GlideBindingAdapter {
     }
 
     @BindingAdapter(value = ["display_round_resource", "round_radius"], requireAll = false)
-    fun bindingDisplayRoundResource(view: ImageView, resource: Int, roundRadius: Int?) {
-        ImageLoader.instance.displayRound(view, resource, roundRadius.toSafeInt(5))
+    fun bindingDisplayRoundResource(view: ImageView, resource: String, roundRadius: Int?) {
+        ImageLoader.instance.displayRound(view, view.context.defTypeMipmap(resource), roundRadius.toSafeInt(5))
     }
 
     /**
@@ -56,8 +58,16 @@ object GlideBindingAdapter {
     }
 
     @BindingAdapter(value = ["display_circle_resource"])
-    fun bindingDisplayCircleResource(view: ImageView, resource: Int) {
-        ImageLoader.instance.displayCircle(view, resource)
+    fun bindingDisplayCircleResource(view: ImageView, resource: String) {
+        ImageLoader.instance.displayCircle(view, view.context.defTypeMipmap(resource))
+    }
+
+    /**
+     * 加载图片（gif）
+     */
+    @BindingAdapter(value = ["display_gif"], requireAll = false)
+    fun bindingDisplayGif(view: ImageView, resource: String) {
+        ImageLoader.instance.displayGif(view, view.context.defTypeDrawable(resource))
     }
     // </editor-fold>
 
