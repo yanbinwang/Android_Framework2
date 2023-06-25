@@ -236,10 +236,6 @@ fun <T : Serializable> Activity.intentSerializable(key: String) = intent.getSeri
 
 fun <T : Parcelable> Activity.intentParcelable(key: String) = intent.getParcelableExtra(key) as? T
 
-//fun Activity.intentParcelable(key: String): Parcelable? {
-//    return intent.getParcelableExtra(key)
-//}
-
 fun Fragment.intentString(key: String, default: String = "") = arguments?.getString(key) ?: default
 
 fun Fragment.intentStringNullable(key: String) = arguments?.getString(key)
@@ -257,10 +253,6 @@ fun <T : Serializable> Fragment.intentSerializable(key: String) = arguments?.get
 //fun <T : Serializable> Fragment.intentSerializable(key: String, default: T) = arguments?.getSerializable(key) as? T ?: default
 
 fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParcelable(key) as? T
-
-//fun Fragment.intentParcelable(key: String): Parcelable? {
-//    return arguments?.getParcelable(key)
-//}
 
 /**
  * 可在协程类里传入AppComActivity，然后init{}方法里调取，销毁内部的job
