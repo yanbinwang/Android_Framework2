@@ -25,6 +25,21 @@ object GlideBindingAdapter {
     }
 
     /**
+     * 加载gif图片
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["display_gif"])
+    fun bindingDisplayGif(view: ImageView, url: String) {
+        ImageLoader.instance.displayGif(view, url)
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["display_gif_resource"])
+    fun bindingDisplayGifResource(view: ImageView, resource: String) {
+        ImageLoader.instance.displayGif(view, view.context.defTypeDrawable(resource))
+    }
+
+    /**
      * 加载图片
      */
     @JvmStatic
@@ -67,21 +82,6 @@ object GlideBindingAdapter {
     @BindingAdapter(value = ["display_circle_resource"])
     fun bindingDisplayCircleResource(view: ImageView, resource: String) {
         ImageLoader.instance.displayCircle(view, view.context.defTypeMipmap(resource))
-    }
-
-    /**
-     * 加载gif图片
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["display_gif"])
-    fun bindingDisplayGif(view: ImageView, url: String) {
-        ImageLoader.instance.displayGif(view, url)
-    }
-
-    @JvmStatic
-    @BindingAdapter(value = ["display_gif_resource"])
-    fun bindingDisplayGifResource(view: ImageView, resource: String) {
-        ImageLoader.instance.displayGif(view, view.context.defTypeDrawable(resource))
     }
     // </editor-fold>
 
