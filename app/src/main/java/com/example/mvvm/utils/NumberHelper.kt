@@ -13,7 +13,7 @@ import com.example.framework.utils.logWTF
  * @description 输入框帮助类
  * @author yan
  */
-class NumberEditTextHelper(private val editText: EditText) {
+class NumberHelper(private val editText: EditText) {
     private val numberHelper = object : NumberTextWatcher(editText) {
         override fun onEmpty() {
             "值为空".logWTF
@@ -26,7 +26,7 @@ class NumberEditTextHelper(private val editText: EditText) {
             editText.setSafeSelection(cursor.orZero)
         }
 
-        override fun onResult(text: String) {
+        override fun onChanged(text: String) {
             "输入合法".logWTF
         }
     }
@@ -78,14 +78,14 @@ private abstract class NumberTextWatcher constructor(private val editText: EditT
             editText.addTextChangedListener(this)
             return
         }
-        onResult(text)
+        onChanged(text)
     }
 
     abstract fun onEmpty()
 
     abstract fun onOutOfPrecision(before: String?, cursor: Int?)
 
-    abstract fun onResult(text: String)
+    abstract fun onChanged(text: String)
 
 }
 
