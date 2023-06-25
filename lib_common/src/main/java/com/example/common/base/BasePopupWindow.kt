@@ -58,24 +58,24 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 popupView = binding.root
             } catch (_: Exception) {
             }
-            width = if (popupWidth < 0) popupWidth else popupWidth.pt
-            height = if (popupHeight < 0) popupHeight else popupHeight.pt
-            isFocusable = true
-            isOutsideTouchable = true
-            softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-            setAnimation()
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            setOnDismissListener {
-                if (light) {
-                    layoutParams?.alpha = 1f
-                    window.attributes = layoutParams
-                }
-            }
-            //获取自身的长宽高
-            popupView?.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-            measuredWidth = popupView?.measuredWidth.orZero
-            measuredHeight = popupView?.measuredHeight.orZero
         }
+        width = if (popupWidth < 0) popupWidth else popupWidth.pt
+        height = if (popupHeight < 0) popupHeight else popupHeight.pt
+        isFocusable = true
+        isOutsideTouchable = true
+        softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        setAnimation()
+        setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        setOnDismissListener {
+            if (light) {
+                layoutParams?.alpha = 1f
+                window.attributes = layoutParams
+            }
+        }
+        //获取自身的长宽高
+        popupView?.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+        measuredWidth = popupView?.measuredWidth.orZero
+        measuredHeight = popupView?.measuredHeight.orZero
     }
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
