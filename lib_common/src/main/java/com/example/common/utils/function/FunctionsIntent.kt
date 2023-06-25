@@ -15,6 +15,7 @@ import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.getFileFromUri
+import com.example.common.utils.permission.checkSelfStorage
 import java.io.File
 
 /**
@@ -35,16 +36,18 @@ fun Activity.pullUpAlbum() {
  */
 fun FragmentActivity?.pullUpAlbum(onResult: ((filePath: String?) -> Unit)) {
     this ?: return
-    val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == Activity.RESULT_OK) {
-            it?.data ?: return@registerForActivityResult
-            val uri = it.data?.data
-            onResult.invoke(uri.getFileFromUri()?.absolutePath)
+    if (checkSelfStorage()) {
+        val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                it?.data ?: return@registerForActivityResult
+                val uri = it.data?.data
+                onResult.invoke(uri.getFileFromUri()?.absolutePath)
+            }
         }
-    }
-    val intent = Intent(Intent.ACTION_PICK, null)
-    intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
-    activityResultValue.launch(intent)
+        val intent = Intent(Intent.ACTION_PICK, null)
+        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+        activityResultValue.launch(intent)
+    } else string(R.string.data_error).shortToast()
 }
 
 /**

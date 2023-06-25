@@ -72,6 +72,10 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         }
     }
 
+    override fun displayGif(view: ImageView, string: String) {
+        Glide.with(view.context).asGif().load(string).into(view)
+    }
+
     override fun displayGif(view: ImageView, resourceId: Int) {
         Glide.with(view.context).asGif().load(resourceId).into(view)
     }

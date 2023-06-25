@@ -5,12 +5,12 @@
     <declare-styleable name="XRecyclerView">
         <!-- recyclerview的类型 -->
         <attr name="refresh">
-            <enum name="ordinary" value="0" />
-            <enum name="equipped" value="1" />
+            <enum name="general" value="0" />
+            <enum name="possess" value="1" />
         </attr>
         <attr name="empty">
-            <enum name="ordinary" value="0" />
-            <enum name="equipped" value="1" />
+            <enum name="general" value="0" />
+            <enum name="possess" value="1" />
         </attr>
     </declare-styleable>
 

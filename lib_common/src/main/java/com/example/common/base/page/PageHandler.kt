@@ -108,3 +108,7 @@ fun Postcard.getPostcardClass(mContext: Context): Class<*>? {
         null
     }
 }
+
+fun String.getPostcardClass(mContext: Context): Class<*>? {
+    return ARouter.getInstance().build(this).getPostcardClass(mContext)
+}
