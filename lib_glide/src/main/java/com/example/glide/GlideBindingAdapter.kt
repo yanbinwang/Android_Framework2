@@ -28,15 +28,15 @@ object GlideBindingAdapter {
      * 加载图片
      */
     @JvmStatic
-    @BindingAdapter(value = ["display", "placeholder_id"], requireAll = false)
-    fun bindingDisplay(view: ImageView, url: String, placeholderId: Int?) {
-        ImageLoader.instance.display(view, url, placeholderId.toSafeInt(R.drawable.shape_glide_bg), onStart = { view.disable() }, onComplete = { view.enable() })
+    @BindingAdapter(value = ["display"])
+    fun bindingDisplay(view: ImageView, url: String) {
+        ImageLoader.instance.display(view, url, onStart = { view.disable() }, onComplete = { view.enable() })
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["display_resource", "placeholder_id"], requireAll = false)
-    fun bindingDisplayResource(view: ImageView, resource: String, placeholderId: Int?) {
-        ImageLoader.instance.display(view, view.context.defTypeMipmap(resource), placeholderId.toSafeInt(R.drawable.shape_glide_bg), onStart = { view.disable() }, onComplete = { view.enable() })
+    @BindingAdapter(value = ["display_resource"])
+    fun bindingDisplayResource(view: ImageView, resource: String) {
+        ImageLoader.instance.display(view, view.context.defTypeMipmap(resource), onStart = { view.disable() }, onComplete = { view.enable() })
     }
 
     /**
