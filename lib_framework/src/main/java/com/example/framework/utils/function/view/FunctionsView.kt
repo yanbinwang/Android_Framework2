@@ -634,11 +634,11 @@ fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
 /**
  * appbar监听
  */
-fun AppBarLayout?.stateChanged(onStateChanged: (state: AppBarStateChangeListener.State?) -> Unit?) {
+fun AppBarLayout?.stateChanged(func: (state: AppBarStateChangeListener.State?) -> Unit?) {
     this ?: return
     addOnOffsetChangedListener(object : AppBarStateChangeListener() {
         override fun onStateChanged(appBarLayout: AppBarLayout?, state: State?) {
-            onStateChanged.invoke(state)
+            func.invoke(state)
         }
     })
 }
