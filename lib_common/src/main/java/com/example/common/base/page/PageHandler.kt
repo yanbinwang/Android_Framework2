@@ -109,10 +109,6 @@ fun Postcard.getPostcardClass(mContext: Context): Class<*>? {
     }
 }
 
-fun String.getPostcardClass(mContext: Context): Class<*>? {
-    return ARouter.getInstance().build(this).getPostcardClass(mContext)
-}
-
 fun Context.getPostcardClass(path: String): Class<*>? {
     return ARouter.getInstance().build(path).getPostcardClass(this)
 }
