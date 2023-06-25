@@ -69,9 +69,18 @@ object GlideBindingAdapter {
         ImageLoader.instance.displayCircle(view, view.context.defTypeMipmap(resource))
     }
 
+    /**
+     * 加载gif图片
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["display_gif"])
+    fun bindingDisplayGif(view: ImageView, url: String) {
+        ImageLoader.instance.displayGif(view, url)
+    }
+
     @JvmStatic
     @BindingAdapter(value = ["display_gif_resource"])
-    fun bindingDisplayGif(view: ImageView, resource: String) {
+    fun bindingDisplayGifResource(view: ImageView, resource: String) {
         ImageLoader.instance.displayGif(view, view.context.defTypeDrawable(resource))
     }
     // </editor-fold>
