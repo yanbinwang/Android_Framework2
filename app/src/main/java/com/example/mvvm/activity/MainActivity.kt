@@ -2,6 +2,7 @@ package com.example.mvvm.activity
 
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
+import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.getStatusBarHeight
@@ -9,6 +10,7 @@ import com.example.common.utils.function.pt
 import com.example.common.widget.textview.edittext.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
+import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
@@ -78,6 +80,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
 
     private val viewModel by lazy { TestViewModel() }
+
+    protected val bean by lazy { intentParcelable("bean") as? UserBean}
 
     override fun initView() {
         super.initView()

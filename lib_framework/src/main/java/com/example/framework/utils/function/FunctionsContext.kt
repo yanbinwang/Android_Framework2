@@ -230,9 +230,9 @@ fun Activity.intentFloat(key: String, default: Float = 0f) = intent.getFloatExtr
 
 fun Activity.intentBoolean(key: String, default: Boolean = false) = intent.getBooleanExtra(key, default)
 
-fun <T> Activity.intentSerializable(key: String) = intent.getSerializableExtra(key) as? T
+fun <T : Serializable> Activity.intentSerializable(key: String) = intent.getSerializableExtra(key) as? T
 
-fun <T> Activity.intentSerializable(key: String, default: T) = intent.getSerializableExtra(key) as? T ?: default
+fun <T : Serializable> Activity.intentSerializable(key: String, default: T) = intent.getSerializableExtra(key) as? T ?: default
 
 fun <T : Parcelable> Activity.intentParcelable(key: String) = intent.getParcelableExtra(key) as? T
 
@@ -252,9 +252,9 @@ fun Fragment.intentFloat(key: String, default: Float = 0f) = arguments?.getFloat
 
 fun Fragment.intentBoolean(key: String, default: Boolean = false) = arguments?.getBoolean(key, default)
 
-fun <T> Fragment.intentSerializable(key: String) = arguments?.getSerializable(key) as? T
+fun <T : Serializable> Fragment.intentSerializable(key: String) = arguments?.getSerializable(key) as? T
 
-fun <T> Fragment.intentSerializable(key: String, default: T) = arguments?.getSerializable(key) as? T ?: default
+fun <T : Serializable> Fragment.intentSerializable(key: String, default: T) = arguments?.getSerializable(key) as? T ?: default
 
 fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParcelable(key) as? T
 
