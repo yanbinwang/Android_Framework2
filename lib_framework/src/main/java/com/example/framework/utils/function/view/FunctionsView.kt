@@ -31,6 +31,7 @@ import androidx.core.content.ContextCompat
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.parseColor
 import com.google.android.material.appbar.AppBarLayout
 import kotlin.math.abs
 
@@ -155,7 +156,7 @@ fun View?.background(@DrawableRes bg: Int) {
 fun View?.background(colorString: String, radius: Float) {
     if (this == null) return
     this.background = GradientDrawable().apply {
-        setColor(Color.parseColor(colorString))
+        setColor(colorString.parseColor())
         cornerRadius = radius
     }
 }
