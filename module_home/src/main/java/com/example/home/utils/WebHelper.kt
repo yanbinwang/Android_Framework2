@@ -27,7 +27,7 @@ import java.lang.ref.WeakReference
  */
 class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
     //在此处获取跳转的值以及重新绑定对应的view
-    private val bean by lazy { activity.intentSerializable(Extra.BUNDLE_BEAN) as? WebBundle }
+    private val bean by lazy { activity.intentSerializable<WebBundle>(Extra.BUNDLE_BEAN) }
     private val binding by lazy { ActivityWebBinding.inflate(activity.layoutInflater) }
     private val titleBuilder by lazy { TitleBuilder(activity, binding.titleContainer) }
     private val webUtil by lazy { WebUtil(activity, binding.flWebRoot) }
