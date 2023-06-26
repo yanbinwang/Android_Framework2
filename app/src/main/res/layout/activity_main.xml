@@ -123,6 +123,11 @@
                             android:textColor="@color/textWhite"
                             android:textSize="29pt" />
 
+                        <com.example.common.widget.XImageView
+                            android:id="@+id/iv_bg"
+                            android:layout_width="match_parent"
+                            android:layout_height="108pt" />
+
                     </FrameLayout>
 
                 </LinearLayout>

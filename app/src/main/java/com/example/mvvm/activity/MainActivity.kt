@@ -19,6 +19,8 @@ import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.span.RankSpanInterface
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestTopDialog
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  *  <data>
@@ -188,6 +190,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
 //            "dsfdsfdsfds".shortToast()
             testBottom.show(supportFragmentManager,"testBottom")
 //            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
+        }
+        launch {
+            delay(2000)
+            binding.ivBg.load("https://images.91fafafa.com/upload/image/banner/banner.png")
         }
     }
 
