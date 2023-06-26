@@ -61,7 +61,7 @@
                 <size
                     android:width="10pt"
                     android:height="10pt" />
-                <solid android:color="@color/white" />
+                <solid android:color="@color/bgWhite" />
             </shape>
         </rotate>
     </item>

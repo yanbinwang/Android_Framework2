@@ -31,7 +31,7 @@
             android:lines="1"
             android:scrollHorizontally="true"
             android:text="@string/crop_title"
-            android:textColor="@color/white"
+            android:textColor="@color/textWhite"
             android:textSize="@dimen/textSize18" />
 
     </androidx.appcompat.widget.Toolbar>

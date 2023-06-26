@@ -214,7 +214,7 @@ fun <T> List<T>.toArrayList(): ArrayList<T> {
     return ArrayList(this)
 }
 
-fun <T>ArrayList<T>?.toRequestParams():String{
+fun <T> ArrayList<T>?.toRequestParams(): String {
     if (this == null) return ""
     var result = "["
     for (index in indices) {

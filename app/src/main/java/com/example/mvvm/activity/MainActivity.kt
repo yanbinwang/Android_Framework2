@@ -2,6 +2,7 @@ package com.example.mvvm.activity
 
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
+import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.getStatusBarHeight
@@ -9,6 +10,7 @@ import com.example.common.utils.function.pt
 import com.example.common.widget.textview.edittext.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
+import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
@@ -16,6 +18,7 @@ import com.example.framework.utils.function.view.size
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.span.RankSpanInterface
 import com.example.mvvm.viewmodel.TestViewModel
+import com.example.mvvm.widget.dialog.TestTopDialog
 
 /**
  *  <data>
@@ -67,7 +70,7 @@ import com.example.mvvm.viewmodel.TestViewModel
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpanInterface {
 //    //    private val illustratePopup by lazy { IllustratePopup(this) }
-//    private val testBottom by lazy { TestTopDialog() }
+    private val testBottom by lazy { TestTopDialog() }
 
 //    private val ids =
 //        listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
@@ -78,6 +81,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
 
     private val viewModel by lazy { TestViewModel() }
+
+    private val bean by lazy { intentParcelable("bean") as? UserBean}
 
     override fun initView() {
         super.initView()
@@ -180,8 +185,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
             changeBgHeight(offset)
         }
         binding.viewContent.click {
-            "dsfdsfdsfds".shortToast()
-//            testBottom.show(supportFragmentManager,"testBottom")
+//            "dsfdsfdsfds".shortToast()
+            testBottom.show(supportFragmentManager,"testBottom")
 //            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
         }
     }

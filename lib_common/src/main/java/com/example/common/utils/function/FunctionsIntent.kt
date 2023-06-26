@@ -34,14 +34,14 @@ fun Activity.pullUpAlbum() {
 /**
  * 需要读写权限
  */
-fun FragmentActivity?.pullUpAlbum(onResult: ((filePath: String?) -> Unit)) {
+fun FragmentActivity?.pullUpAlbum(func: ((path: String?) -> Unit)) {
     this ?: return
     if (checkSelfStorage()) {
         val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 it?.data ?: return@registerForActivityResult
                 val uri = it.data?.data
-                onResult.invoke(uri.getFileFromUri()?.absolutePath)
+                func.invoke(uri.getFileFromUri()?.absolutePath)
             }
         }
         val intent = Intent(Intent.ACTION_PICK, null)

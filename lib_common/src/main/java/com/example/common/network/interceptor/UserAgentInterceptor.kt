@@ -27,7 +27,7 @@ internal class UserAgentInterceptor : Interceptor {
         builder.add("system-name", "Android")
         builder.add("phone-model", Build.MODEL)
         //取得本地token
-        AccountHelper.getToken()?.apply { if (!isNullOrEmpty()) builder.add("Authorization-model", "basic $this") }
+        AccountHelper.getToken().apply { if (!isNullOrEmpty()) builder.add("Authorization-model", "basic $this") }
         return builder.build()
     }
 }

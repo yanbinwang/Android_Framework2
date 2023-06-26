@@ -378,14 +378,14 @@ fun Number.toFixed(fixed: Int = 1, replenish: Boolean = true): String {
     return DecimalFormat(format.toString()).format(this) ?: "0"
 }
 
-/**
- * 保留小数，末尾为零则不显示0
- * 1.0000000->1
- * 1.0003300->1.00033
- */
-fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
-    return BigDecimal((this.orZero).toString()).setScale(fixed, mode).stripTrailingZeros().toPlainString()
-}
+///**
+// * 保留小数，末尾为零则不显示0
+// * 1.0000000->1
+// * 1.0003300->1.00033
+// */
+//fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
+//    return BigDecimal((this.orZero).toString()).setScale(fixed, mode).stripTrailingZeros().toPlainString()
+//}
 
 /**
  * 去除所有小数的0

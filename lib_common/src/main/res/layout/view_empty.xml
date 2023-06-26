@@ -36,7 +36,7 @@
             android:paddingHorizontal="14pt"
             android:paddingVertical="11pt"
             android:text="刷新"
-            android:textColor="@color/white"
+            android:textColor="@color/textWhite"
             android:textSize="@dimen/textSize15" />
 
     </LinearLayout>

@@ -47,7 +47,7 @@ object NotificationUtil {
                 .setSmallIcon(R.mipmap.ic_launcher)//96*96
                 .setContentTitle(title.orEmpty())
                 .setContentText(body.orEmpty())
-                .setColor(color(R.color.white))
+                .setColor(color(R.color.textWhite))
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent)
@@ -77,7 +77,7 @@ object NotificationUtil {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title.orEmpty())
                 .setContentText(body.orEmpty())
-                .setColor(color(R.color.white))
+                .setColor(color(R.color.textWhite))
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
         if (intent != null) {
