@@ -6,7 +6,7 @@ package com.example.common.base.page
  */
 data class Page<T>(
     var total: Int? = null,//总记录数
-    var list: MutableList<T>? = null
+    var list: List<T>? = null
 )
 
 /**

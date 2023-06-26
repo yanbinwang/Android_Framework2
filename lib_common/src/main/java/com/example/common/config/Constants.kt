@@ -31,10 +31,6 @@ object Constants {
     val DEVICE_ID get() = DeviceIdUtil.deviceId
     //无数据占位符
     val NO_DATA get() = string(R.string.unit_no_data)
-//    //无数据占位符
-//    val NO_DATA_DOLLAR get() = string(R.string.unit_no_data_dollar)
-//    //无数据占位符
-//    val NO_DATA_PERCENT get() = string(R.string.unit_no_data_percent)
     //------app内接口的一些默认配置字段------
     const val INTERCEPTOR_LOGIN_CODE = 1 //阿里路由登录全局拦截器编号
     const val PUSH_CHANNEL_ID = "dataqin" //推送渠道id

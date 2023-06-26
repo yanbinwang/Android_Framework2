@@ -2,6 +2,7 @@ package com.example.common.network.repository
 
 import com.example.common.R
 import com.example.common.base.bridge.BaseView
+import com.example.common.base.page.Page
 import com.example.common.network.repository.ApiCode.FAILURE
 import com.example.common.network.repository.ApiCode.SUCCESS
 import com.example.common.network.repository.ApiCode.TOKEN_EXPIRED
@@ -29,7 +30,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 class MultiReqUtil(
     private var view: BaseView? = null,
     private val isShowDialog: Boolean = true,
-    private val err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
+    private val err: (e: Triple<String?, String?, Exception?>?) -> Unit = {}
 ) {
     private var loadingStarted = false//是否开始加载
 
@@ -38,14 +39,14 @@ class MultiReqUtil(
      */
     suspend fun <T> request(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+        err: (e: Triple<String?, String?, Exception?>?) -> Unit = this.err
     ): T? {
         return requestLayer(coroutineScope, err)?.data
     }
 
     suspend fun <T> requestLayer(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+        err: (e: Triple<String?, String?, Exception?>?) -> Unit = this.err
     ): ApiResponse<T>? {
         if (isShowDialog && !loadingStarted) {
             view?.showDialog()
@@ -105,12 +106,11 @@ fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(
 suspend fun <T> request(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (T?) -> Unit = {},
-    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+    err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
     requestLayer(coroutineScope, { result ->
-//        resp.invoke(it?.data)
         //如果接口是成功的，但是body为空或者后台偷懒没给，我们在写Api时，给一个对象，让结果能够返回
         resp.invoke(result?.data.let {
             if (it is EmptyBean?) {
@@ -125,7 +125,7 @@ suspend fun <T> request(
 suspend fun <T> requestLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (ApiResponse<T>?) -> Unit = {},
-    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+    err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
@@ -141,9 +141,9 @@ suspend fun <T> requestLayer(
                 resp(it)
             } else {
                 //如果不是被顶号才会有是否提示的逻辑
-                if (!it.tokenExpired()) if (isShowToast) it.msg.responseToast()
+                if (!it.tokenExpired()) if (isShowToast) it.errMessage.responseToast()
                 //不管结果如何，失败的回调是需要执行的
-                err(Triple(it.code, it.msg, null))
+                err(Triple(it.errCode, it.errMessage, null))
             }
         }
     } catch (e: Exception) {
@@ -163,7 +163,7 @@ private fun log(msg: String) = "${msg}\n当前线程：${Thread.currentThread().
  */
 fun <T> ApiResponse<T>?.successful(): Boolean {
     if (this == null) return false
-    return SUCCESS == code
+    return SUCCESS == errCode
 }
 
 /**
@@ -171,9 +171,17 @@ fun <T> ApiResponse<T>?.successful(): Boolean {
  */
 fun <T> ApiResponse<T>?.tokenExpired(): Boolean {
     if (this == null) return false
-    if (TOKEN_EXPIRED == code) {
+    if (TOKEN_EXPIRED == statusCode) {
         AccountHelper.signOut()
         return true
     }
     return false
+}
+
+/**
+ * 页数和集合被包含在的data同一层级，添加处理
+ */
+fun <T, V> ApiResponse<T>?.pageOfData(): Page<V>? {
+    this ?: return null
+    return Page(totalCount, data as? List<V>)
 }
