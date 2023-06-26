@@ -25,12 +25,12 @@
             app:drawBackgroundOutsideProgress="false"
             app:line_width="4pt"
             app:progress_background_color="@color/blue_aac6f4"
-            app:progress_end_color="@color/white"
-            app:progress_start_color="@color/white"
+            app:progress_end_color="@color/textWhite"
+            app:progress_start_color="@color/textWhite"
             app:progress_stroke_cap="round"
             app:progress_stroke_width="4pt"
             app:progress_style="solid_line"
-            app:progress_text_color="@color/white"
+            app:progress_text_color="@color/textWhite"
             app:progress_text_size="9pt" />
 
     </FrameLayout>

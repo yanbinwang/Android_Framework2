@@ -18,6 +18,7 @@ import com.example.framework.utils.function.view.size
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.span.RankSpanInterface
 import com.example.mvvm.viewmodel.TestViewModel
+import com.example.mvvm.widget.dialog.TestTopDialog
 
 /**
  *  <data>
@@ -69,7 +70,7 @@ import com.example.mvvm.viewmodel.TestViewModel
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpanInterface {
 //    //    private val illustratePopup by lazy { IllustratePopup(this) }
-//    private val testBottom by lazy { TestTopDialog() }
+    private val testBottom by lazy { TestTopDialog() }
 
 //    private val ids =
 //        listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
@@ -81,7 +82,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
 
     private val viewModel by lazy { TestViewModel() }
 
-    protected val bean by lazy { intentParcelable("bean") as? UserBean}
+    private val bean by lazy { intentParcelable("bean") as? UserBean}
 
     override fun initView() {
         super.initView()
@@ -184,8 +185,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
             changeBgHeight(offset)
         }
         binding.viewContent.click {
-            "dsfdsfdsfds".shortToast()
-//            testBottom.show(supportFragmentManager,"testBottom")
+//            "dsfdsfdsfds".shortToast()
+            testBottom.show(supportFragmentManager,"testBottom")
 //            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
         }
     }

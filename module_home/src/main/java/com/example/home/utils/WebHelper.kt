@@ -57,7 +57,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
         }
 //        webView = webUtil.webView
         webView?.byHardwareAccelerate()
-        webView?.background(R.color.white)
+        webView?.background(R.color.bgWhite)
         webView?.settings?.useWideViewPort = true
         webView?.settings?.loadWithOverviewMode = true
         //WebView与JS交互

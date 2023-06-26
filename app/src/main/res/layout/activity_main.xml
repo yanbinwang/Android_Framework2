@@ -120,7 +120,7 @@
                             android:layout_height="800pt"
                             android:background="@color/blue_2e60df"
                             android:gravity="center"
-                            android:textColor="@color/white"
+                            android:textColor="@color/textWhite"
                             android:textSize="29pt" />
 
                     </FrameLayout>

@@ -153,7 +153,7 @@ abstract class BaseApplication : Application() {
             view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
             view.gravity = Gravity.CENTER
             view.textSize(R.dimen.textSize14)
-            view.textColor(R.color.white)
+            view.textColor(R.color.textWhite)
             toast.view = view
             return@setResToastBuilder toast
         }
@@ -171,7 +171,7 @@ abstract class BaseApplication : Application() {
             view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
             view.gravity = Gravity.CENTER
             view.textSize(R.dimen.textSize14)
-            view.textColor(R.color.white)
+            view.textColor(R.color.textWhite)
             toast.view = view
             return@setStringToastBuilder toast
         }
