@@ -2,6 +2,7 @@ package com.example.common.utils.builder
 
 import android.app.Activity
 import android.graphics.Color
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.function.getStatusBarHeight
@@ -19,6 +20,9 @@ import com.example.framework.utils.function.view.visible
  * 格式->左右侧图片/文本，中间是大标题
  */
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
+    //容器本身
+    val layout: ConstraintLayout
+        get() = binding.clContainer
 
     init {
         binding.clContainer.padding(top = getStatusBarHeight())
@@ -128,10 +132,5 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         }
         return this
     }
-
-    /**
-     * 返回容器本身
-     */
-    fun getContainer() = binding.clContainer
 
 }
