@@ -22,6 +22,7 @@ class ShotObserver private constructor(): ContentObserver(null) {
     private val TAG = "ScreenShotObserver"
 
     companion object {
+        @JvmStatic
         val instance by lazy { ShotObserver() }
 
         internal var onShutter: (filePath: String?) -> Unit = { _ -> }

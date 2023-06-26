@@ -30,6 +30,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     private val maskDrawable by lazy { GradientDrawable().apply { setColor(Color.parseColor("#000000")) } }
 
     companion object {
+        @JvmStatic
         val instance by lazy { ImageLoader() }
     }
 
