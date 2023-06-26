@@ -43,7 +43,7 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
         }
         super.initView()
         initImmersionBar(false)
-        titleBuilder.setLeft(tintColor = R.color.white) { finish() }
+        titleBuilder.setLeft(tintColor = R.color.white)
     }
 
     override fun initData() {
