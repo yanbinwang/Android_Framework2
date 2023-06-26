@@ -31,7 +31,9 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
     private val binding by lazy { ActivityWebBinding.inflate(activity.layoutInflater) }
     private val titleBuilder by lazy { TitleBuilder(activity, binding.titleContainer) }
     private val webUtil by lazy { WebUtil(activity, binding.flWebRoot) }
-    private var webView: WebView? = null
+//    private var webView: WebView? = null
+    private val webView: WebView?
+        get() = webUtil.webView
 
     init {
         activity.lifecycle.addObserver(this)
@@ -49,7 +51,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
                 titleBuilder.hideTitle()
             }
         }
-        webView = webUtil.webView
+//        webView = webUtil.webView
         webView?.byHardwareAccelerate()
         webView?.background(R.color.white)
         webView?.settings?.useWideViewPort = true
@@ -116,7 +118,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
             Lifecycle.Event.ON_DESTROY -> {
                 webView?.removeJavascriptInterface("JSCallAndroid")
                 webView?.clear()
-                webView = null
+//                webView = null
                 binding.unbind()
                 activity.lifecycle.removeObserver(this)
             }
