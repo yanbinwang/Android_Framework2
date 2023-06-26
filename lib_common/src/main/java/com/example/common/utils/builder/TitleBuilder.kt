@@ -39,7 +39,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
         binding.tvTitle.setArguments(title, titleColor)
         binding.viewShade.apply { if (shade) visible() else gone() }
-        getDefault()
+        setLeft()
         return this
     }
 
@@ -119,18 +119,6 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      */
     fun hideTitle() {
         binding.clContainer.gone()
-    }
-
-    /**
-     * 默认配置返回样式
-     */
-    fun getDefault(): TitleBuilder {
-        binding.ivLeft.apply {
-            setResource(R.mipmap.ic_btn_back)
-            visible()
-            click { activity.finish() }
-        }
-        return this
     }
 
 }
