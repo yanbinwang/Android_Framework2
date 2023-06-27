@@ -80,6 +80,9 @@ import kotlinx.coroutines.launch
  *  // 此处可以执行其他操作，例如更新 UI 界面等
  *  }
  *  }
+ *  需要注意的是，这个方法是基于比较对象的引用，
+ *  也就是比较两个对象是否为同一内存地址而不是比较对象内容。
+ *  如果您想要比较对象的内容，请确保在对象类中实现 equals() 和 hashCode() 方法，并在比较时使用它们。
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpanInterface {
