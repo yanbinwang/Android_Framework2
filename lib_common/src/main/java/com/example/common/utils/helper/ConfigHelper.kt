@@ -2,7 +2,6 @@ package com.example.common.utils.helper
 
 import android.annotation.SuppressLint
 import android.app.ActivityManager
-import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -17,8 +16,8 @@ import android.os.Build
 object ConfigHelper {
     private lateinit var context: Context
 
-    fun initialize(application: Application) {
-        context = application
+    fun initialize(context: Context) {
+        this.context = context
     }
 
     // <editor-fold defaultstate="collapsed" desc="调取方法">
