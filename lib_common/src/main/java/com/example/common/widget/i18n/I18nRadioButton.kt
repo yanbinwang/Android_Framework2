@@ -1,5 +1,6 @@
 package com.example.common.widget.i18n
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.text.Spannable
 import android.util.AttributeSet
@@ -15,6 +16,7 @@ import java.lang.ref.WeakReference
  * 设置内容请务必使用 setContent / setI18nContent
  * @author yan
  */
+@SuppressLint("CustomViewStyleable")
 class I18nRadioButton @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatRadioButton(context, attrs, defStyleAttr), I18nImpl {
     private var i18nTextRes: Int = -1
     private var contents: Array<out String>? = null
