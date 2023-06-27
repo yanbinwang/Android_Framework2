@@ -443,6 +443,23 @@ fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
 }
 
 /**
+ * 展开页面按钮的动画，传入是否是展开状态
+ */
+fun View?.rotate(isOpen: Boolean = false): Boolean {
+    if (this == null) return isOpen
+    if (animation != null) {
+        if (animation.hasStarted() && !animation.hasEnded()) return isOpen
+    }
+    val startRot = if (isOpen) 180f else 0f
+    val endRot = if (isOpen) 0f else 180f
+    val anim = AnimatorSet()
+    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
+    anim.duration = 500
+    anim.start()
+    return !isOpen
+}
+
+/**
  * 旋转
  */
 fun View?.rotate(from: Float, to: Float, timeMS: Long, interpolator: Interpolator = AccelerateDecelerateInterpolator(), repeat: Boolean = false) {
