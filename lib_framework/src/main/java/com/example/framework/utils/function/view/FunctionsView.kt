@@ -4,7 +4,6 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
@@ -437,10 +436,10 @@ fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
             return
         }
     }
-    val refresh = AnimatorSet()
-    refresh.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f))
-    refresh.duration = time
-    refresh.start()
+    val anim = AnimatorSet()
+    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f))
+    anim.duration = time
+    anim.start()
 }
 
 /**
