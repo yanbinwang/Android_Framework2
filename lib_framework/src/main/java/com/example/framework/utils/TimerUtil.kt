@@ -2,6 +2,7 @@ package com.example.framework.utils
 
 import android.os.CountDownTimer
 import android.os.Looper
+import com.example.framework.utils.function.value.second
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -58,11 +59,11 @@ object TimerUtil {
      * 倒计时-开始
      * second-秒
      */
-    fun startCountDown(tag: String = "COUNT_DOWN_DEFAULT", onTick: ((second: Long) -> Unit)?, onFinish: (() -> Unit)?, second: Long = 1) {
+    fun startCountDown(tag: String = "COUNT_DOWN_DEFAULT", onTick: ((second: Long) -> Unit)?, onFinish: (() -> Unit)?, second: Int = 1) {
         if (countDownMap[tag] == null) {
-            val countDownTimer = object : CountDownTimer(second * 1000, 1000) {
+            val countDownTimer = object : CountDownTimer(second.second, 1.second) {
                 override fun onTick(millisUntilFinished: Long) {
-                    onTick?.invoke((millisUntilFinished / 1000))
+                    onTick?.invoke((millisUntilFinished / 1000L))
                 }
 
                 override fun onFinish() {

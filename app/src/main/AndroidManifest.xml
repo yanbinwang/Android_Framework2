@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="LockedOrientationActivity,DataExtractionRules"
-    tools:replace="android:allowBackup,android:icon,android:theme,android:label"
-    tools:targetApi="m">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- 系统 -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -49,7 +46,10 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:ignore="LockedOrientationActivity"
+        tools:replace="android:allowBackup,android:icon,android:theme,android:label"
+        tools:targetApi="m">
 
         <!-- ******************************************************基础全局配置****************************************************** -->
         <!-- 表示当前项目已经适配了分区存储特性 -->

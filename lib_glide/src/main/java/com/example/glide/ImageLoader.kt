@@ -230,7 +230,10 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
 
     //清除内存缓存是在主线程中
     override fun clearMemoryCache(context: Context) {
-        Glide.get(context).clearMemory()
+        try {
+            Glide.get(context).clearMemory()
+        } catch (ignore: Exception) {
+        }
     }
 
     //清除磁盘缓存是在子线程中进行
