@@ -92,4 +92,10 @@
         </attr>
     </declare-styleable>
 
+    <!-- 国际化属性 -->
+    <declare-styleable name="I18n">
+        <attr name="android:text" />
+        <attr name="android:hint" />
+    </declare-styleable>
+
 </resources>
