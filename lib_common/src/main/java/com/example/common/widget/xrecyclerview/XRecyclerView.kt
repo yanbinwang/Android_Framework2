@@ -46,7 +46,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         private set
 
     init {
-        val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
         refreshType = typedArray.getInt(R.styleable.XRecyclerView_refresh, 0)
         emptyType = typedArray.getInt(R.styleable.XRecyclerView_empty, 0)
         typedArray.recycle()
