@@ -177,20 +177,14 @@ abstract class BaseApplication : Application() {
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         System.gc()
-        try {
-            if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
-                ImageLoader.instance.clearMemoryCache(this)
-            }
-        } catch (ignore: Exception) {
+        if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
+            ImageLoader.instance.clearMemoryCache(this)
         }
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        try {
-            ImageLoader.instance.clearMemoryCache(this)
-        } catch (ignore: Exception) {
-        }
+        ImageLoader.instance.clearMemoryCache(this)
     }
 
 }
