@@ -77,8 +77,6 @@ abstract class BaseApplication : Application() {
         initARouter()
         //腾讯读写mmkv初始化
         MMKV.initialize(this)
-        //基础配置初始化
-        ConfigHelper.initialize(this)
         //服务器地址类初始化
         ServerConfig.init()
         //通知类初始化
