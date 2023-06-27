@@ -5,6 +5,7 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import com.example.common.BaseApplication
 
 /**
  *  Created by wangyanbin
@@ -14,11 +15,7 @@ import android.os.Build
  */
 @SuppressLint("StaticFieldLeak")
 object ConfigHelper {
-    private lateinit var context: Context
-
-    fun initialize(context: Context) {
-        this.context = context
-    }
+    private val context by lazy { BaseApplication.instance.applicationContext }
 
     // <editor-fold defaultstate="collapsed" desc="调取方法">
     /**

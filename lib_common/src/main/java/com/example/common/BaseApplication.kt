@@ -26,7 +26,6 @@ import com.example.common.utils.NotificationUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
-import com.example.common.utils.helper.ConfigHelper
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.framework.utils.function.string
@@ -72,8 +71,6 @@ abstract class BaseApplication : Application() {
         initARouter()
         //腾讯读写mmkv初始化
         MMKV.initialize(this)
-        //基础配置初始化
-        ConfigHelper.initialize(this)
         //服务器地址类初始化
         ServerConfig.init()
         //通知类初始化
