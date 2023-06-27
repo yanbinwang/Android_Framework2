@@ -132,7 +132,6 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //基础库
     implementation project(':module_home')
-    implementation 'com.dinuscxj:circleprogressbar:1.3.6'
     //页面路由
     implementation deps.alibaba.arouter
     kapt deps.alibaba.arouter_compiler

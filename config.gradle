@@ -27,6 +27,7 @@ versions.smartrefresh = "2.0.5"
 versions.eventbus = "3.3.1"
 versions.xxpermissions = "16.2"
 versions.immersionbar = "3.2.2"
+versions.circleprogressbar = "1.3.6"
 
 //安卓x库
 def androidx = [:]
@@ -62,6 +63,7 @@ deps.smartrefresh = "io.github.scwang90:refresh-layout-kernel:$versions.smartref
 deps.eventbus = "org.greenrobot:eventbus:$versions.eventbus"//广播
 deps.xxpermissions = "com.github.getActivity:XXPermissions:$versions.xxpermissions"//权限
 deps.immersionbar = "com.geyifeng.immersionbar:immersionbar:$versions.immersionbar"//状态栏
+deps.circleprogressbar = "com.dinuscxj:circleprogressbar:$versions.circleprogressbar"//加载进度条
 ext.deps = deps
 //---------------------------------------------全局引用配置结束---------------------------------------------
 

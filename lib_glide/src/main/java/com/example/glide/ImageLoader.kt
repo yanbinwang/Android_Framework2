@@ -5,10 +5,12 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.os.Looper
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.glide.callback.GlideImpl
@@ -24,9 +26,11 @@ import java.io.File
  * 图片加载库使用Application上下文，Glide请求将不受Activity/Fragment生命周期控制。
  */
 class ImageLoader private constructor() : GlideModule(), GlideImpl {
+    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
     private val maskDrawable by lazy { GradientDrawable().apply { setColor(Color.parseColor("#000000")) } }
 
     companion object {
+        @JvmStatic
         val instance by lazy { ImageLoader() }
     }
 
@@ -86,7 +90,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .apply(RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE))
             .addListener(object : GlideRequestListener<Drawable?>() {
                 override fun onStart() {
-                    ProgressInterceptor.addListener(string) { onProgress(it) }
+                    ProgressInterceptor.addListener(string) { weakHandler.post { onProgress(it) } }
                     onStart()
                 }
 

@@ -28,7 +28,8 @@ import kotlin.coroutines.CoroutineContext
  * @author yan
  */
 class NormalPicHolder(private val activity: AppCompatActivity, private val bean: AutomaticBean) : CoroutineScope, LifecycleEventObserver, AutomaticInterface {
-    private val binding by lazy { ViewNormalPicBinding.bind(activity.inflate(R.layout.view_normal_edit)) }
+//    private val binding by lazy { ViewNormalPicBinding.bind(activity.inflate(R.layout.view_normal_edit)) }
+    private val binding by lazy { ViewNormalPicBinding.inflate(activity.layoutInflater) }
     private val loadingDialog by lazy { LoadingDialog(activity) }
     private val permission by lazy { PermissionFactory(activity) }
     private val activityResultValue = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {

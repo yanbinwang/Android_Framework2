@@ -59,6 +59,7 @@ dependencies {
     api deps.recovery
     api deps.smartrefresh
     api deps.guide
+    api deps.circleprogressbar
     implementation deps.mmkv
     implementation deps.eventbus
     implementation deps.xxpermissions
