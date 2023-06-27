@@ -14,6 +14,7 @@ import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.rotate
 import com.example.framework.utils.function.view.size
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.span.RankSpanInterface
@@ -86,23 +87,23 @@ import kotlinx.coroutines.launch
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpanInterface {
-//    //    private val illustratePopup by lazy { IllustratePopup(this) }
+//    private val illustratePopup by lazy { IllustratePopup(this) }
     private val testBottom by lazy { TestTopDialog() }
-
-//    private val ids =
-//        listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
+//    private val ids = listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
 //    private val adapter by lazy { ImageAdapter() }
 //    private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
 //    private val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
-
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
-
     private val viewModel by lazy { TestViewModel() }
-
     private val bean by lazy { intentParcelable("bean") as? UserBean}
+
+    private var isOpen = false
 
     override fun initView() {
         super.initView()
+
+        binding.ivArrow.click { isOpen = it.rotate(isOpen) }
+
 //        adapter.refresh(ids)
 //        binding.rvTest.adapter = adapter
 //        binding.rvTest.orientation = ViewPager2.ORIENTATION_VERTICAL
