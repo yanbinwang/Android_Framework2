@@ -68,6 +68,18 @@ import kotlinx.coroutines.launch
  *  result = 31 * result + outCoin.hashCode()
  *  return result
  *  }
+ *
+ *  对于两个长度相等且元素类型相同的列表，如果它们都包含具有相同 id 的元素，则可以使用以下代码查找在第二个列表中与第一个列表中元素不同的所有对象，并刷新它们：
+ *
+ *  kotlin
+ *  firstList.forEachIndexed { index, firstItem ->
+ *  val secondItem = secondList[index]
+ *  if (firstItem.id == secondItem.id && firstItem != secondItem) {
+ *  // 找到 id 相同但对象不同的元素，刷新它们
+ *  secondList[index] = firstItem
+ *  // 此处可以执行其他操作，例如更新 UI 界面等
+ *  }
+ *  }
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpanInterface {
