@@ -4,18 +4,18 @@ import android.content.Context
 import android.text.Spannable
 import android.util.AttributeSet
 import androidx.annotation.StringRes
-import androidx.appcompat.widget.AppCompatTextView
+import androidx.appcompat.widget.AppCompatRadioButton
 import com.example.common.R
 import com.example.common.utils.i18n.I18nUtil
 import com.example.common.utils.i18n.string
 import java.lang.ref.WeakReference
 
 /**
- * @description 全局文字替換文本
+ * @description 全局文字替換单选
  * 设置内容请务必使用 setContent / setI18nContent
  * @author yan
  */
-class I18nTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatTextView(context, attrs, defStyleAttr), I18nImpl {
+class I18nRadioButton @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatRadioButton(context, attrs, defStyleAttr), I18nImpl {
     private var i18nTextRes: Int = -1
     private var contents: Array<out String>? = null
     private val weakReference: WeakReference<I18nImpl> by lazy { WeakReference(this) }
