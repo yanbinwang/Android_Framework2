@@ -43,7 +43,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
         binding.ivShow.apply { click { setResource(Triple(binding.etClear.passwordDevelopment(), showRes, hideRes)) }}
         //以下属性在xml中前缀使用app:调取
         if (attrs != null) {
-            val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PasswordEditText)
+            val typedArray = context.obtainStyledAttributes(attrs, R.styleable.PasswordEditText)
             //文本内容
             val text = typedArray.getResourceId(R.styleable.PasswordEditText_text, -1)
             if (text != -1) setText(text)

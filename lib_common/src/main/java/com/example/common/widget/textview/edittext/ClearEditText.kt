@@ -43,7 +43,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         binding.ivClear.click { binding.etClear.setText("") }
         //以下属性在xml中前缀使用app:调取
         if (attrs != null) {
-            val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.ClearEditText)
+            val typedArray = context.obtainStyledAttributes(attrs, R.styleable.ClearEditText)
             //文本内容
             val text = typedArray.getResourceId(R.styleable.ClearEditText_text, -1)
             if (text != -1) setText(text)

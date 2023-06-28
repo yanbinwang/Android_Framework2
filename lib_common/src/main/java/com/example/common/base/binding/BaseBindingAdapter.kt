@@ -40,7 +40,7 @@ import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.initLinearVertical
 import com.example.framework.utils.function.view.setMatchText
 import com.example.framework.utils.function.view.spaceLimit
-import com.example.framework.utils.scaleShown
+import com.example.framework.utils.enterAnimation
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -84,7 +84,7 @@ object BaseBindingAdapter {
         pager.adapter = pagerAdapter
         pager.offscreenPageLimit = pagerAdapter.count - 1
         pager.currentItem = 0
-        pager.startAnimation(pager.context.scaleShown())
+        pager.startAnimation(pager.context.enterAnimation())
     }
 
     /**

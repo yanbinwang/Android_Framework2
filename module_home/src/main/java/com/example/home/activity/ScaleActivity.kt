@@ -10,7 +10,7 @@ import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.TitleBuilder
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.toNewList
-import com.example.framework.utils.scaleShown
+import com.example.framework.utils.enterAnimation
 import com.example.home.R
 import com.example.home.databinding.ActivityScaleBinding
 import com.example.home.widget.scale.ScaleAdapter
@@ -52,7 +52,7 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
         binding.vpPage.apply {
             adapter = ScaleAdapter(imgList)
             currentItem = 0
-            animation = scaleShown()
+            animation = enterAnimation()
         }
     }
 
