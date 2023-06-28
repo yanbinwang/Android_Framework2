@@ -2,6 +2,8 @@ package com.example.common.utils.builder
 
 import android.app.Activity
 import android.graphics.Color
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
@@ -20,9 +22,16 @@ import com.example.framework.utils.function.view.visible
  * 格式->左右侧图片/文本，中间是大标题
  */
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
-    //容器本身
     val layout: ConstraintLayout
         get() = binding.clContainer
+    val leftIv: ImageView
+        get() = binding.ivLeft
+    val leftTv: TextView
+        get() = binding.tvLeft
+    val rightIv: ImageView
+        get() = binding.ivRight
+    val rightTv: TextView
+        get() = binding.tvRight
 
     init {
         binding.clContainer.padding(top = getStatusBarHeight())
