@@ -88,12 +88,8 @@ class I18nEditText @JvmOverloads constructor(context: Context, attrs: AttributeS
             when {
                 i18nTextRes < 0 -> {
                 }
-                contents.isNullOrEmpty() -> {
-                    setText(string(i18nTextRes))
-                }
-                else -> {
-                    setText(string(i18nTextRes, *contents))
-                }
+                contents.isNullOrEmpty() -> setText(string(i18nTextRes))
+                else -> setText(string(i18nTextRes, *contents))
             }
             if (i18nHintRes != -1) {
                 hint = string(i18nHintRes)

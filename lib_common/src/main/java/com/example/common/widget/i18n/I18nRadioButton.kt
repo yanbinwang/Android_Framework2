@@ -77,12 +77,8 @@ class I18nRadioButton @JvmOverloads constructor(context: Context, attrs: Attribu
             when {
                 i18nTextRes < 0 -> {
                 }
-                contents.isNullOrEmpty() -> {
-                    text = string(i18nTextRes)
-                }
-                else -> {
-                    text = string(i18nTextRes, *contents)
-                }
+                contents.isNullOrEmpty() -> setText(string(i18nTextRes))
+                else -> setText(string(i18nTextRes, *contents))
             }
         }
     }
