@@ -8,8 +8,8 @@ import com.example.common.config.CacheData.languageBean
 import com.example.common.config.I18nMap
 import com.example.common.event.EventCode.EVENT_LANGUAGE_CHANGE
 import com.example.common.utils.GsonUtil.gson
-import com.example.common.utils.i18n.LanguagePackAsset.Companion.en_IN_PACK
 import com.example.common.utils.function.resString
+import com.example.common.utils.i18n.LanguagePackAsset.Companion.en_US_PACK
 import com.example.common.widget.i18n.I18nImpl
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.isDebug
@@ -160,7 +160,7 @@ object I18nUtil {
         val inputStream = try {
             assetManager.open(pack)
         } catch (e: Exception) {
-            assetManager.open(en_IN_PACK)
+            assetManager.open(en_US_PACK)
         }
         val reader = JsonReader(InputStreamReader(inputStream, "UTF-8"))
         val bean = try {

@@ -12,7 +12,7 @@
             android:layout_height="30pt"
             android:layout_gravity="center"
             android:padding="2.5pt"
-            tools:src="@drawable/ic_loading_0" />
+            tools:src="@mipmap/ic_loading_0" />
 
     </FrameLayout>
 

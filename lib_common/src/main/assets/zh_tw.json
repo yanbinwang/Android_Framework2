@@ -1,0 +1,31 @@
+{
+  "version": "1",
+  "data": {
+    "hint":"系統提示",
+    "sure":"確定",
+    "cancel":"取消",
+    "refresh":"刷新",
+    "permission_go_setting":"缺少\n%1$s請前往設置頁面開啟",
+    "permission_storage":"存儲權限,該權限用於上傳保存文件",
+    "response_error":"數據返回異常",
+    "response_net_error":"請打開網絡連接",
+    "data_loading":"正在加載...",
+    "data_empty":"暫無數據",
+    "data_error":"服務器出錯，請稍後重試",
+    "data_net_error":"網絡未連接，請檢查網絡設置",
+    "link_invalid_error":"鏈接地址不合法",
+    "source_path_error":"文件路徑錯誤",
+    "email_hint":"請輸入郵箱",
+    "email_empty":"郵箱不能為空",
+    "email_error":"郵箱格式錯誤",
+    "password_hint":"請輸入密碼",
+    "password_empty":"密碼不能為空",
+    "password_error":"密碼由6~20位的字母和數字組成",
+    "phone_hint":"請輸入手機號",
+    "phone_empty":"手機號不能為空",
+    "phone_error":"手機號格式錯誤",
+    "verify_code_hint":"請輸入驗證碼",
+    "verify_code_empty":"驗證碼不能為空",
+    "verify_code_error":"請輸入6位數字驗證碼"
+  }
+}

@@ -11,6 +11,7 @@ import com.alibaba.android.arouter.core.LogisticsCenter
 import com.alibaba.android.arouter.exception.NoRouteFoundException
 import com.alibaba.android.arouter.facade.Postcard
 import com.alibaba.android.arouter.launcher.ARouter
+import com.example.common.R
 import com.example.common.base.page.Extra.REQUEST_CODE
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
@@ -23,20 +24,20 @@ import java.io.Serializable
  * 1.接口提示
  * 2.遮罩层操作
  */
-fun ViewGroup?.setState(imgRes: Int = -1, text: String? = null, index: Int = 1) {
+fun ViewGroup?.setState(imgRes: Int = -1, textRes: Int = R.string.data_error, index: Int = 1) {
     this ?: return
     val emptyLayout = if (this is EmptyLayout) this else getEmptyView(index)
-    emptyLayout?.error(imgRes, text)
+    emptyLayout?.error(imgRes, textRes)
 }
 
 /**
  * 列表页调取方法
  */
-fun XRecyclerView?.setState(length: Int = 0, imgRes: Int = -1, text: String? = null) {
+fun XRecyclerView?.setState(length: Int = 0, imgRes: Int = -1, textRes: Int = R.string.data_error) {
     this ?: return
     finishRefreshing()
     //判断集合长度，有长度不展示emptyview只做提示
-    if (length <= 0) empty?.setState(imgRes, text)
+    if (length <= 0) empty?.setState(imgRes, textRes)
 }
 
 /**

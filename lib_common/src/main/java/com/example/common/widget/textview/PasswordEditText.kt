@@ -1,4 +1,4 @@
-package com.example.common.widget.textview.edittext
+package com.example.common.widget.textview
 
 import android.content.Context
 import android.text.InputFilter
@@ -27,7 +27,8 @@ import java.util.Arrays
  * @description 密码显影输入框
  * @author yan
  */
-class PasswordEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
+class PasswordEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr),
+    SpecialEditText {
     private var isShowBtn = true
     private var hideRes = -1
     private var showRes = -1

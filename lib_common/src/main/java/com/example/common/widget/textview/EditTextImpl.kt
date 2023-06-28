@@ -1,4 +1,4 @@
-package com.example.common.widget.textview.edittext
+package com.example.common.widget.textview
 
 import android.view.View
 import android.widget.EditText

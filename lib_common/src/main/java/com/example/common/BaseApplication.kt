@@ -26,7 +26,6 @@ import com.example.common.utils.NotificationUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
-import com.example.common.utils.helper.ConfigHelper
 import com.example.common.utils.i18n.I18nUtil.getPackVersion
 import com.example.common.utils.i18n.LanguageUtil
 import com.example.common.utils.i18n.LanguageUtil.checkLanguageVersion
@@ -202,20 +201,14 @@ abstract class BaseApplication : Application() {
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         System.gc()
-        try {
-            if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
-                ImageLoader.instance.clearMemoryCache(this)
-            }
-        } catch (ignore: Exception) {
+        if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
+            ImageLoader.instance.clearMemoryCache(this)
         }
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        try {
-            ImageLoader.instance.clearMemoryCache(this)
-        } catch (ignore: Exception) {
-        }
+        ImageLoader.instance.clearMemoryCache(this)
     }
 
 }

@@ -22,7 +22,7 @@
             tools:src="@mipmap/ic_btn_back"
             tools:visibility="visible" />
 
-        <TextView
+        <com.example.common.widget.i18n.I18nTextView
             android:id="@+id/tv_left"
             android:layout_width="wrap_content"
             android:layout_height="0pt"
@@ -38,7 +38,7 @@
             tools:textColor="@color/textBlack"
             tools:visibility="visible" />
 
-        <TextView
+        <com.example.common.widget.i18n.I18nTextView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -53,7 +53,7 @@
             tools:text="标题"
             tools:textColor="@color/textBlack" />
 
-        <TextView
+        <com.example.common.widget.i18n.I18nTextView
             android:id="@+id/tv_right"
             android:layout_width="wrap_content"
             android:layout_height="0pt"

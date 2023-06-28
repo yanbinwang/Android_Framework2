@@ -2,10 +2,10 @@ package com.example.common.utils.i18n
 
 import com.example.common.bean.LanguageBean
 import com.example.common.config.CacheData.language
-import com.example.common.utils.i18n.Language.Companion.en_IN
+import com.example.common.utils.i18n.Language.Companion.en_US
 import com.example.common.utils.i18n.Language.Companion.in_ID
 import com.example.common.utils.i18n.Language.Companion.zh_TW
-import com.example.common.utils.i18n.LanguagePackAsset.Companion.en_IN_PACK
+import com.example.common.utils.i18n.LanguagePackAsset.Companion.en_US_PACK
 import com.example.common.utils.i18n.LanguagePackAsset.Companion.in_ID_PACK
 import com.example.common.utils.i18n.LanguagePackAsset.Companion.zh_TW_PACK
 import com.example.framework.utils.function.value.toSafeInt
@@ -22,7 +22,7 @@ object LanguageUtil {
      */
     fun setLocalLanguage(language: String?) {
         if (language.isNullOrEmpty()) {
-            I18nUtil.setLanguagePack(en_IN, LanguageBean())
+            I18nUtil.setLanguagePack(en_US, LanguageBean())
             return
         }
         val bean = I18nUtil.getLocalLanguageBean(language) ?: return
@@ -55,8 +55,8 @@ object LanguageUtil {
         return when (language) {
             in_ID -> in_ID_PACK
             zh_TW -> zh_TW_PACK
-            en_IN -> en_IN_PACK
-            else -> en_IN_PACK
+            en_US -> en_US_PACK
+            else -> en_US_PACK
         }
     }
 
@@ -67,8 +67,8 @@ object LanguageUtil {
         when (Locale.getDefault().language.lowercase()) {
             "in" -> language.set(in_ID)
             "zh" -> language.set(zh_TW)
-            "en" -> language.set(en_IN)
-            else -> language.set(en_IN)
+            "en" -> language.set(en_US)
+            else -> language.set(en_US)
         }
     }
 
@@ -77,7 +77,7 @@ object LanguageUtil {
      */
     fun checkLanguageVersion(language: String?) {
         if (language.isNullOrEmpty()) {
-            I18nUtil.setLanguagePack(en_IN, LanguageBean())
+            I18nUtil.setLanguagePack(en_US, LanguageBean())
             return
         }
         val version = I18nUtil.getLocalLanguageVersion(language) ?: return
@@ -95,26 +95,26 @@ object LanguageUtil {
  */
 annotation class Language {
     companion object {
-        /**印尼语*/
-        const val in_ID = "id_ID"
-
         /**繁中*/
         const val zh_TW = "zh_HK"
 
-        /**印度英语*/
-        const val en_IN = "en_IN"
+        /**英语*/
+        const val en_US = "en_US"
+
+        /**印尼语*/
+        const val in_ID = "id_ID"
     }
 }
 
 annotation class LanguagePackAsset {
     companion object {
-        /**印尼语*/
-        const val in_ID_PACK = "in_id.json"
-
         /**繁中*/
         const val zh_TW_PACK = "zh_tw.json"
 
-        /**印度英语*/
-        const val en_IN_PACK = "en_in.json"
+        /**英语*/
+        const val en_US_PACK = "en_us.json"
+
+        /**印尼语*/
+        const val in_ID_PACK = "in_id.json"
     }
 }

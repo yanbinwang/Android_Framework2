@@ -69,10 +69,10 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun empty(resId: Int = -1, text: String? = null) {
+    fun empty(resId: Int = -1, textRes: Int = R.string.data_empty) {
         appear(300)
         binding.ivEmpty.setResource(if (-1 == resId) R.mipmap.bg_data_empty else resId)
-        binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.data_empty) else text
+        binding.tvEmpty.setI18nRes(textRes)
         binding.tvRefresh.gone()
     }
 
@@ -80,16 +80,16 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
+    fun error(resId: Int = -1, textRes: Int = R.string.data_error, refreshText: Int = R.string.refresh) {
         appear(300)
         if (!isNetworkAvailable()) {
             binding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
-            binding.tvEmpty.text = string(R.string.data_net_error)
+            binding.tvEmpty.setI18nRes(R.string.data_net_error)
         } else {
             binding.ivEmpty.setResource(if (-1 == resId) R.mipmap.bg_data_error else resId)
-            binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.data_error) else text
+            binding.tvEmpty.setI18nRes(textRes)
         }
-        if (!refreshText.isNullOrEmpty()) binding.tvRefresh.text = refreshText
+        binding.tvRefresh.setI18nRes(refreshText)
         binding.tvRefresh.visible()
     }
 

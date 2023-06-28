@@ -4,10 +4,9 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
-import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
-import com.example.common.widget.textview.edittext.EditTextImpl
+import com.example.common.widget.textview.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
 import com.example.framework.utils.function.intentParcelable
@@ -20,8 +19,6 @@ import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.span.RankSpanInterface
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestTopDialog
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /**
  *  <data>
@@ -206,10 +203,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
 //            "dsfdsfdsfds".shortToast()
             testBottom.show(supportFragmentManager,"testBottom")
 //            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
-        }
-        launch {
-            delay(2000)
-            binding.ivBg.load("https://images.91fafafa.com/upload/image/banner/banner.png")
         }
     }
 

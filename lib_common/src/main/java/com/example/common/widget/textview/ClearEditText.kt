@@ -1,4 +1,4 @@
-package com.example.common.widget.textview.edittext
+package com.example.common.widget.textview
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -26,7 +26,8 @@ import java.util.*
  * @author yan
  */
 @SuppressLint("CustomViewStyleable")
-class ClearEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
+class ClearEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr),
+    SpecialEditText {
     private var isDisabled = false//是否不可操作
     private var isShowBtn = true//是否显示清除按钮
     private val binding by lazy { ViewClearEditBinding.bind(context.inflate(R.layout.view_clear_edit)) }
@@ -198,7 +199,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun showBtn() {
         isShowBtn = true
-        binding.etClear.apply { if (text.isNotEmpty()) visible() }
+        binding.etClear.apply { if (text.toString().isNotEmpty()) visible() }
     }
 
 }

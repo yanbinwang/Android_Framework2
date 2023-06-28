@@ -2,6 +2,7 @@ package com.example.common.config
 
 import com.example.common.BaseApplication
 import com.example.common.R
+import com.example.common.bean.ServerLanguage
 import com.example.common.utils.DeviceIdUtil
 import com.example.common.utils.helper.ConfigHelper.getAppName
 import com.example.common.utils.helper.ConfigHelper.getAppVersionCode
@@ -31,6 +32,14 @@ object Constants {
     val DEVICE_ID get() = DeviceIdUtil.deviceId
     //无数据占位符
     val NO_DATA get() = string(R.string.unit_no_data)
+    //语言包
+    val LANGUAGE_LIST by lazy {
+        listOf(
+            ServerLanguage(0, "en_US", "English", "", 13),
+            ServerLanguage(1, "zh_HK", "繁體中文", "", 13),
+            ServerLanguage(2, "id_ID", "Bahasa Indonesia", "", 13)
+        )
+    }
     //------app内接口的一些默认配置字段------
     const val INTERCEPTOR_LOGIN_CODE = 1 //阿里路由登录全局拦截器编号
     const val PUSH_CHANNEL_ID = "dataqin" //推送渠道id

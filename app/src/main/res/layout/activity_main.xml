@@ -124,18 +124,21 @@
                             android:textSize="29pt"
                             android:visibility="gone" />
 
-                        <com.example.common.widget.XImageView
-                            android:id="@+id/iv_bg"
+                        <com.example.common.widget.i18n.I18nTextView
                             android:layout_width="match_parent"
-                            android:layout_height="108pt"
-                            android:visibility="gone" />
+                            android:layout_height="800pt"
+                            android:gravity="center"
+                            android:text="@string/refresh"
+                            android:textColor="@color/blue_2e60df"
+                            android:textSize="29pt" />
 
                         <ImageView
                             android:id="@+id/iv_arrow"
                             android:layout_width="24pt"
                             android:layout_height="10pt"
                             android:layout_gravity="center"
-                            android:src="@mipmap/ic_arrow_down" />
+                            android:src="@mipmap/ic_arrow_down"
+                            android:visibility="gone" />
 
                     </FrameLayout>
 

@@ -1,27 +1,38 @@
 <resources>
-    <!-- app内的一些提示 -->
-    <string name="hint">系统提示</string>
-    <string name="sure">确定</string>
-    <string name="cancel">取消</string>
-
     <!-- app内的默认单位 -->
     <string name="unit_no_data">--</string>
 
+    <!-- app内的一些提示 -->
+    <string name="hint">系統提示</string>
+    <string name="sure">確定</string>
+    <string name="cancel">取消</string>
+    <string name="refresh">刷新</string>
+
     <!-- 权限库的的提示语句 -->
-    <string name="permission_go_setting">缺少\n%1$s请前往设置页面开启</string>
-    <string name="permission_location">定位权限,该权限用于手机定位</string>
-    <string name="permission_camera">相机权限,该权限用于拍摄照片</string>
-    <string name="permission_microphone">麦克风权限,该权限用于录制音频</string>
-    <string name="permission_storage">存储空间权限,该权限用于文件存储</string>
+    <string name="permission_go_setting">缺少\n%1$s請前往設置頁面開啟</string>
+    <string name="permission_storage">存儲權限,該權限用於上傳保存文件</string>
+
+    <!-- 框架内字段 -->
+    <string name="response_error">數據返回異常</string>
+    <string name="response_net_error">請打開網絡連接</string>
+    <string name="data_loading">正在加載&#8230;</string>
+    <string name="data_empty">暫無數據</string>
+    <string name="data_error">服務器出錯，請稍後重試</string>
+    <string name="data_net_error">網絡未連接，請檢查網絡設置</string>
+    <string name="link_invalid_error">鏈接地址不合法</string>
+    <string name="source_path_error">文件路徑錯誤</string>
 
     <!-- app内的view显示字段 -->
-    <string name="response_error">数据返回异常</string>
-    <string name="response_net_error">请打开网络连接</string>
-    <string name="data_loading">正在玩命加载数据&#8230;</string>
-    <string name="data_empty">这里还什么都没有呢~</string>
-    <string name="data_error">页面加载失败，请重试~</string>
-    <string name="data_net_error">暂无网络，试试刷新页面吧~</string>
-    <string name="loading">正在加载中&#8230;</string>
-    <string name="link_invalid_error">链接地址不合法</string>
-    <string name="source_path_error">文件路径错误</string>
+    <string name="email_hint">請輸入郵箱</string>
+    <string name="email_empty">郵箱不能為空</string>
+    <string name="email_error">郵箱格式錯誤</string>
+    <string name="password_hint">請輸入密碼</string>
+    <string name="password_empty">密碼不能為空</string>
+    <string name="password_error">密碼由6~20位的字母和數字組成</string>
+    <string name="phone_hint">請輸入手機號</string>
+    <string name="phone_empty">手機號不能為空</string>
+    <string name="phone_error">手機號格式錯誤</string>
+    <string name="verify_code_hint">請輸入驗證碼</string>
+    <string name="verify_code_empty">驗證碼不能為空</string>
+    <string name="verify_code_error">請輸入6位數字驗證碼</string>
 </resources>

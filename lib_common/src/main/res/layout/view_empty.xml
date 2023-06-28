@@ -25,7 +25,7 @@
             android:textStyle="bold"
             tools:text="页面加载失败，请重试" />
 
-        <TextView
+        <com.example.common.widget.i18n.I18nTextView
             android:id="@+id/tv_refresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,7 +35,6 @@
             android:minWidth="164pt"
             android:paddingHorizontal="14pt"
             android:paddingVertical="11pt"
-            android:text="刷新"
             android:textColor="@color/textWhite"
             android:textSize="@dimen/textSize15" />
 

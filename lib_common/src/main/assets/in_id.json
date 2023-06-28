@@ -1,0 +1,31 @@
+{
+  "version": "1",
+  "data": {
+    "hint":"Petunjuk sistem",
+    "sure":"Tentu",
+    "cancel":"Membatalkan",
+    "refresh":"menyegarkan",
+    "permission_go_setting":"Kekurangan\n%1$s buka halaman setelan untuk mengaktifkan",
+    "permission_storage":"Izin penyimpanan, yang digunakan untuk mengunggah dan menyimpan file",
+    "response_error":"Pengecualian pengembalian data",
+    "response_net_error":"Silahkan buka koneksi internet",
+    "data_loading":"Memuat...",
+    "data_empty":"Tidak ada data",
+    "data_error":"Kesalahan server, harap coba lagi nanti",
+    "data_net_error":"Jaringan tidak terhubung, silakan periksa pengaturan jaringan",
+    "link_invalid_error":"Alamat tautan tidak valid",
+    "source_path_error":"Jalur file yang salah",
+    "email_hint":"Silahkan masukan email anda",
+    "email_empty":"Email tidak boleh kosong",
+    "email_error":"Kesalahan format email",
+    "password_hint":"Silakan masukkan kata sandi",
+    "password_empty":"Kata sandi tidak boleh kosong",
+    "password_error":"Kata sandi terdiri dari 6~20 huruf dan angka",
+    "phone_hint":"Masukkan nomor telepon",
+    "phone_empty":"Nomor ponsel tidak boleh kosong",
+    "phone_error":"Nomor telepon rusak",
+    "verify_code_hint":"Silahkan masukkan kode verifikasi",
+    "verify_code_empty":"Kode verifikasi harus diisi",
+    "verify_code_error":"Masukkan kode verifikasi 6 digit"
+  }
+}
