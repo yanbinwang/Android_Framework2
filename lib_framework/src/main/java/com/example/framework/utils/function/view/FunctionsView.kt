@@ -303,8 +303,9 @@ fun <T : View> T?.doOnceAfterLayout(listener: (T) -> Unit) {
  * 开启软键盘
  */
 fun View?.openDecor() {
+    if (this == null) return
     focus()
-    val inputMethodManager = this?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
     inputMethodManager.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
 }
 
@@ -312,7 +313,8 @@ fun View?.openDecor() {
  * 关闭软键盘
  */
 fun View?.closeDecor() {
-    val inputMethodManager = this?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+    if (this == null) return
+    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
     inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
 }
 
@@ -347,7 +349,6 @@ fun View?.fade(time: Long = 500, cancelAnim: Boolean = true) {
             return
         }
     }
-
     val anim = AlphaAnimation(1f, 0f)
     anim.fillAfter = false // 设置保持动画最后的状态
     anim.duration = time // 设置动画时间
@@ -356,7 +357,6 @@ fun View?.fade(time: Long = 500, cancelAnim: Boolean = true) {
         override fun onAnimationEnd(animation: Animation?) {
             gone()
         }
-
         override fun onAnimationStart(animation: Animation?) {}
         override fun onAnimationRepeat(animation: Animation?) {}
     })
@@ -381,12 +381,8 @@ fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)?
         override fun onAnimationEnd(animation: Animation?) {
             endListener?.invoke() ?: { if (to == 0f) gone() }
         }
-
-        override fun onAnimationStart(animation: Animation?) {
-        }
-
-        override fun onAnimationRepeat(animation: Animation?) {
-        }
+        override fun onAnimationStart(animation: Animation?) {}
+        override fun onAnimationRepeat(animation: Animation?) {}
     })
     startAnimation(anim)
 }
@@ -417,7 +413,6 @@ fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
         override fun onAnimationEnd(animation: Animation?) {
             visible()
         }
-
         override fun onAnimationStart(animation: Animation?) {}
         override fun onAnimationRepeat(animation: Animation?) {}
     })
@@ -490,13 +485,10 @@ fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long,
             override fun onAnimationEnd(animation: Animation?) {
                 onEnd?.invoke()
             }
-
             override fun onAnimationStart(animation: Animation?) {
                 onStart?.invoke()
             }
-
-            override fun onAnimationRepeat(animation: Animation?) {
-            }
+            override fun onAnimationRepeat(animation: Animation?) {}
         })
     }
     startAnimation(anim)
@@ -534,10 +526,11 @@ fun View?.stopHardwareAccelerate() {
  * 控件获取焦点
  */
 fun View?.focus() {
-    this?.isFocusable = true //设置输入框可聚集
-    this?.isFocusableInTouchMode = true //设置触摸聚焦
-    this?.requestFocus() //请求焦点
-    this?.findFocus() //获取焦点
+    if (this == null) return
+    isFocusable = true //设置输入框可聚集
+    isFocusableInTouchMode = true //设置触摸聚焦
+    requestFocus() //请求焦点
+    findFocus() //获取焦点
 }
 
 /**
