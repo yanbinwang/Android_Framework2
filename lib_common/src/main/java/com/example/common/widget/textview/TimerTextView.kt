@@ -29,7 +29,7 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
         textSize(R.dimen.textSize14)
     }
 
-    fun start(tag: String? = "", time: Long = 60) {
+    fun start(tag: String? = "", time: Int = 60) {
         if (!tag.isNullOrEmpty()) timerTag = tag
         TimerUtil.startCountDown(timerTag, { second: Long? ->
             disable()

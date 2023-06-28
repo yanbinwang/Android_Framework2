@@ -137,6 +137,14 @@
                             android:layout_gravity="center"
                             android:src="@mipmap/ic_arrow_down" />
 
+                        <TextView
+                            android:id="@+id/tv_test"
+                            android:layout_width="match_parent"
+                            android:layout_height="400pt"
+                            android:gravity="center"
+                            android:textColor="@color/textGrey"
+                            android:textSize="@dimen/textSize20" />
+
                     </FrameLayout>
 
                 </LinearLayout>

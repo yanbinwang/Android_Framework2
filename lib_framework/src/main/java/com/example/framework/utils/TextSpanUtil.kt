@@ -14,8 +14,6 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.ReplacementSpan
 import android.text.style.StyleSpan
 import androidx.annotation.ColorInt
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.toBitmapOrNull
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 
@@ -201,6 +199,21 @@ class RadiusBackgroundSpan(private val mColor: Int, private val mRadius: Int, pr
         canvas.drawRoundRect(oval, mRadius.toSafeFloat(), mRadius.toSafeFloat(), paint)
         paint.color = color
         canvas.drawText(text ?: return, start, end, (x + mRadius).toSafeFloat(), differenceY + fontHeight - mDifference, paint)
+    }
+}
+
+/**
+ * 文案替换图片
+ *  binding.tvTest.text = TextSpan()
+ *  .add("在Cheezeebit交易，訂單賺取高達", SizeSpan(dimen(R.dimen.textSize14)))
+ *  .add(" 0.5% ", SizeSpan(dimen(R.dimen.textSize14)), ColorSpan(color(R.color.grey_cccccc)))
+ *  .add("的訂單獎勵", SizeSpan(dimen(R.dimen.textSize14)))
+ *  .add("★", BitmapSpan(ImageSpan(drawable(R.mipmap.ic_rank)?.toBitmapOrNull(), 18.pt, 18.pt)))
+ *  .build().setRankSpan(18.pt)
+ */
+class BitmapSpan(private val imageSpan: ImageSpan) : SpanType {
+    override fun setSpan(spannable: Spannable, start: Int, end: Int) {
+        spannable.setSpan(imageSpan, start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
     }
 }
 
