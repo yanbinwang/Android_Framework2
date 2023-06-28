@@ -62,7 +62,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
          * isZip->true是zip文件夹，可能包含录制时的截图
          */
         fun setOnScreenListener(onShutter: (filePath: String?, isZip: Boolean) -> Unit) {
-            Companion.onShutter = onShutter
+            this.onShutter = onShutter
         }
     }
 

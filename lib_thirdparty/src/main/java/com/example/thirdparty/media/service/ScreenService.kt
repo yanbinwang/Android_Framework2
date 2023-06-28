@@ -48,7 +48,7 @@ class ScreenService : Service() {
          * recoding->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
          */
         fun setOnScreenListener(onShutter: (filePath: String?, recoding: Boolean) -> Unit) {
-            Companion.onShutter = onShutter
+            this.onShutter = onShutter
         }
     }
 

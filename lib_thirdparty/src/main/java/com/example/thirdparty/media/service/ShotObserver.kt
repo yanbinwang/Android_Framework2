@@ -31,7 +31,7 @@ class ShotObserver private constructor(): ContentObserver(null) {
          * exists->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
          */
         fun setOnScreenShotListener(onShutter: (filePath: String?) -> Unit) {
-            Companion.onShutter = onShutter
+            this.onShutter = onShutter
         }
     }
 

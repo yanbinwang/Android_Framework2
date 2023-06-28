@@ -19,7 +19,7 @@ class RecorderHelper {
         internal var onRecorderListener: OnRecorderListener? = null
 
         fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
-            Companion.onRecorderListener = onRecorderListener
+            this.onRecorderListener = onRecorderListener
         }
     }
 
