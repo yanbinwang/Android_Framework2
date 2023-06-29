@@ -93,7 +93,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
      *
      * </LinearLayout>
      */
-    fun setTips(resource: Int, index: Int = 0) {
+    fun addView(resource: Int, index: Int = 0): View {
         //获取整个的NavigationView
         val menuView = navigationView.getChildAt(0) as? BottomNavigationMenuView
         //这里就是获取所添加的每一个Tab(或者叫menu)
@@ -102,6 +102,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
         val badge = LayoutInflater.from(navigationView.context).inflate(resource, menuView, false)
         //添加到Tab上
         tab?.addView(badge)
+        return badge
     }
 
 }
