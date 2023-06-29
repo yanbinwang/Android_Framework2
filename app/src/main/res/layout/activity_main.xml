@@ -157,7 +157,7 @@
             android:id="@+id/bnv_menu"
             android:layout_width="match_parent"
             android:layout_height="50pt"
-            android:background="@color/textWhite"
+            android:background="@color/bgWhite"
             app:itemBackground="@null"
             app:itemIconSize="20pt"
             app:itemIconTint="@drawable/selector_main_theme"
