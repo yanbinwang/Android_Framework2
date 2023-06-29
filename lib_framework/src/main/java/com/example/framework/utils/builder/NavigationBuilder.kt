@@ -101,11 +101,11 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
      * </LinearLayout>
      */
     fun addView(resource: Int, index: Int = 0): View {
-        val tab = getItem(index)
         //加载我们的角标View，新创建的一个布局
         val badge = LayoutInflater.from(navigationView.context).inflate(resource, menuView, false)
         //添加到Tab上
-        tab?.addView(badge)
+        getItem(index)?.addView(badge)
+        //返回我们添加的view整体
         return badge
     }
 
@@ -113,8 +113,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
      * 获取当前选中的图片
      */
     fun getItemImage(index: Int = 0): ImageView? {
-        val tab = getItem(index)
-        return tab?.findViewById(R.id.navigation_bar_item_icon_view) as? ImageView
+        return getItem(index)?.findViewById(R.id.navigation_bar_item_icon_view) as? ImageView
     }
 
     private fun getItem(index: Int = 0): BottomNavigationItemView? {
