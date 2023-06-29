@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 图片20*20 -->
+    <TextView
+        android:id="@+id/tv_number"
+        android:layout_width="20pt"
+        android:layout_height="16pt"
+        android:layout_gravity="center"
+        android:layout_marginStart="10pt"
+        android:layout_marginTop="-10pt"
+        android:background="@drawable/shape_unread"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textColor="@color/textWhite"
+        android:textSize="@dimen/textSize8"
+        android:textStyle="bold"
+        tools:text="99+"
+        tools:visibility="visible" />
+
+</FrameLayout>

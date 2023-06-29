@@ -24,6 +24,10 @@
     <color name="textDarkBlack">#666666</color>
     <color name="textGrey">#a8a5a5</color>
     <color name="textWhite">#ffffff</color>
+    <color name="textRed">#E25728</color>
+    <!--首页-->
+    <color name="homeTabSelected">#3d81f2</color>
+    <color name="homeTabUnselected">#858b9c</color>
     <!-- 其余定义的颜色 -->
     <color name="white_ccc">#ccc</color>
     <color name="white_00ffffff">#00ffffff</color>
@@ -44,6 +48,7 @@
     <color name="grey_c5cad5">#c5cad5</color>
     <color name="grey_cccccc">#cccccc</color>
     <color name="grey_a8a5a5">#a8a5a5</color>
+    <color name="grey_858b9c">#858b9c</color>
 
     <color name="blue_1566ec">#1566ec</color>
     <color name="blue_2a3160">#2a3160</color>

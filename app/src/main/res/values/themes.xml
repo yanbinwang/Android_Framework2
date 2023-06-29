@@ -43,4 +43,18 @@
         <item name="android:navigationBarColor">@color/appTheme</item>
     </style>
 
+    <!--底部菜单-->
+    <style name="HomeNavigationTheme">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">10pt</item>
+    </style>
+
+    <style name="HomeNavigationActiveTheme" parent="HomeNavigationTheme">
+        <item name="android:textColor">@color/homeTabSelected</item>
+    </style>
+
+    <style name="HomeNavigationInactiveTheme" parent="HomeNavigationTheme">
+        <item name="android:textColor">@color/homeTabUnselected</item>
+    </style>
+
 </resources>
