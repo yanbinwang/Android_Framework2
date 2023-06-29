@@ -73,6 +73,11 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
     fun getItemView(index: Int) = menuView?.getChildAt(index) as? BottomNavigationItemView
 
     /**
+     * 获取当前选中的图片
+     */
+    fun getItemImage(index: Int = 0) = getItemView(index)?.findViewById(R.id.navigation_bar_item_icon_view) as? ImageView
+
+    /**
      * 获取当前选中的下标
      */
     fun getCurrentIndex(): Int {
@@ -114,13 +119,6 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
         getItemView(index)?.addView(badge)
         //返回我们添加的view整体
         return badge
-    }
-
-    /**
-     * 获取当前选中的图片
-     */
-    fun getItemImage(index: Int = 0): ImageView? {
-        return getItemView(index)?.findViewById(R.id.navigation_bar_item_icon_view) as? ImageView
     }
 
     /**
