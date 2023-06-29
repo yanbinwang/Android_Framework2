@@ -27,6 +27,7 @@ import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.rotate
 import com.example.framework.utils.function.view.size
+import com.example.glide.ImageLoader
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.span.RankSpanInterface
@@ -120,6 +121,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
         val view = navigationBuilder.addView(R.layout.view_main_tab_unread)
         val tvNumber = view.findViewById<TextView>(R.id.tv_number)
         tvNumber.text = "22"
+
+        ImageLoader.instance.displayGif(navigationBuilder.getItemImage(0)?:return,R.drawable.bg_quick_pass)
 
 //        adapter.refresh(ids)
 //        binding.rvTest.adapter = adapter
