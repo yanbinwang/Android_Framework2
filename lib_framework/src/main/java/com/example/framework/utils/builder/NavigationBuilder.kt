@@ -22,7 +22,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
     var flipper: ViewPager2? = null
     var builder: FragmentBuilder? = null
     var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
-    val menuView
+    private val menuView
         get() = navigationView.getChildAt(0) as? BottomNavigationMenuView
 
     /**
@@ -109,6 +109,9 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
         return badge
     }
 
+    /**
+     * 获取当前选中的图片
+     */
     fun getItemImage(index: Int = 0): ImageView? {
         val tab = getItem(index)
         return tab?.findViewById(R.id.navigation_bar_item_icon_view) as? ImageView
