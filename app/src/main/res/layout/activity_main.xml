@@ -163,6 +163,7 @@
             app:itemIconTint="@drawable/selector_main_theme"
             app:itemTextAppearanceActive="@style/HomeNavigationActiveTheme"
             app:itemTextAppearanceInactive="@style/HomeNavigationInactiveTheme"
+            app:itemPaddingTop="5pt"
             app:itemTextColor="@drawable/selector_main_theme"
             app:labelVisibilityMode="labeled"
             app:menu="@menu/menu_main_item" />
