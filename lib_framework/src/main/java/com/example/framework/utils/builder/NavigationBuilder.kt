@@ -3,11 +3,13 @@ package com.example.framework.utils.builder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.viewpager2.widget.ViewPager2
+import com.example.framework.R
+import com.example.framework.utils.enterAnimation
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.vibrate
-import com.example.framework.utils.enterAnimation
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -20,6 +22,8 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
     var flipper: ViewPager2? = null
     var builder: FragmentBuilder? = null
     var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
+    private val menuView
+        get() = navigationView.getChildAt(0) as? BottomNavigationMenuView
 
     /**
      * 初始化
@@ -93,15 +97,27 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
      *
      * </LinearLayout>
      */
-    fun setTips(resource: Int, index: Int = 0) {
-        //获取整个的NavigationView
-        val menuView = navigationView.getChildAt(0) as? BottomNavigationMenuView
-        //这里就是获取所添加的每一个Tab(或者叫menu)
-        val tab = menuView?.getChildAt(index) as? BottomNavigationItemView
+    fun addView(resource: Int, index: Int = 0): View {
         //加载我们的角标View，新创建的一个布局
         val badge = LayoutInflater.from(navigationView.context).inflate(resource, menuView, false)
         //添加到Tab上
-        tab?.addView(badge)
+        getItem(index)?.addView(badge)
+        //返回我们添加的view整体
+        return badge
+    }
+
+    /**
+     * 获取当前选中的图片
+     */
+    fun getItemImage(index: Int = 0): ImageView? {
+        return getItem(index)?.findViewById(R.id.navigation_bar_item_icon_view) as? ImageView
+    }
+
+    private fun getItem(index: Int = 0): BottomNavigationItemView? {
+//        //获取整个的NavigationView
+//        val menuView = navigationView.getChildAt(0) as? BottomNavigationMenuView
+        //这里就是获取所添加的每一个Tab(或者叫menu)
+        return menuView?.getChildAt(index) as? BottomNavigationItemView
     }
 
 }
