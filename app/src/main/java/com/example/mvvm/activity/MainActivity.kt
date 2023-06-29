@@ -1,5 +1,6 @@
 package com.example.mvvm.activity
 
+import android.widget.TextView
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
@@ -16,11 +17,13 @@ import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.ImageSpan
 import com.example.framework.utils.SizeSpan
 import com.example.framework.utils.TextSpan
+import com.example.framework.utils.builder.NavigationBuilder
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.rotate
 import com.example.framework.utils.function.view.size
@@ -106,13 +109,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
     private val viewModel by lazy { TestViewModel() }
     private val bean by lazy { intentParcelable("bean") as? UserBean }
-
     private var isOpen = false
+    private val navigationBuilder by lazy { NavigationBuilder(binding.bnvMenu, listOf(R.id.navigation_home, R.id.navigation_evidence, R.id.navigation_account)) }
 
     override fun initView() {
         super.initView()
 
         binding.ivArrow.click { isOpen = it.rotate(isOpen) }
+        binding.bnvMenu.margin(top = getStatusBarHeight())
+        val view = navigationBuilder.addView(R.layout.view_main_tab_unread)
+        val tvNumber = view.findViewById<TextView>(R.id.tv_number)
+        tvNumber.text = "22"
 
 //        adapter.refresh(ids)
 //        binding.rvTest.adapter = adapter
@@ -170,9 +177,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
 
         binding.tvTest.text = TextSpan()
             .add("在Cheezeebit交易，訂單賺取高達", SizeSpan(dimen(R.dimen.textSize14)))
-            .add(" 0.5% ", SizeSpan(dimen(R.dimen.textSize14)), ColorSpan(color(R.color.grey_cccccc)))
+            .add(
+                " 0.5% ",
+                SizeSpan(dimen(R.dimen.textSize14)),
+                ColorSpan(color(R.color.grey_cccccc))
+            )
             .add("的訂單獎勵", SizeSpan(dimen(R.dimen.textSize14)))
-            .add("★", BitmapSpan(ImageSpan(drawable(R.mipmap.ic_rank)?.toBitmapOrNull(), 18.pt, 18.pt)))
+            .add(
+                "★",
+                BitmapSpan(ImageSpan(drawable(R.mipmap.ic_rank)?.toBitmapOrNull(), 18.pt, 18.pt))
+            )
             .build().setRankSpan(18.pt)
 
 
