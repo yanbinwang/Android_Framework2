@@ -29,15 +29,15 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
         textSize(R.dimen.textSize14)
     }
 
-    fun start(tag: String? = "", time: Int = 60) {
+    fun start(tag: String? = "", second: Int = 60) {
         if (!tag.isNullOrEmpty()) timerTag = tag
-        TimerUtil.startCountDown(timerTag, { second: Long? ->
+        TimerUtil.startCountDown(timerTag, {
             disable()
-            text = MessageFormat.format(tickTxt, second.toString())
+            text = MessageFormat.format(tickTxt, it.toString())
         }, {
             enable()
             text = "重发验证码"
-        }, time)
+        }, second)
     }
 
     override fun onDetachedFromWindow() {
