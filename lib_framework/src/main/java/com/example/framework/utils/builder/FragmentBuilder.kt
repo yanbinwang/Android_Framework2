@@ -39,8 +39,8 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     private var currentItem = 0
     private var clazzPair: List<Pair<Class<*>, String>>? = null
     private var clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>? = null
+    private var onTabShow: ((tab: Int) -> Unit)? = null
     private val list by lazy { ArrayList<Fragment>() }
-    var onTabShow: ((tab: Int) -> Unit)? = null
 
     /**
      *  HomeFragment::class.java.getBind()
@@ -60,13 +60,16 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      * second：pair对象 （first，fragment透传的key second，透传的值）
      * third：内存中存储的tag
      */
-    fun bindArguments(clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>) {
+    fun bind(clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>) {
         this.list.clear()
         this.arguments = true
         this.clazzTriple = clazzTriple
         selectTab(0)
     }
 
+    /**
+     * 切换选择
+     */
     fun selectTab(tab: Int) {
         currentItem = tab
         val transaction = manager.beginTransaction()
@@ -74,20 +77,6 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
         transaction.show(if (arguments) newInstanceArguments() else newInstance())
         transaction.commitAllowingStateLoss()
         onTabShow?.invoke(tab)
-    }
-
-    /**
-     * 获取对应的fragment
-     */
-    fun <T : Fragment> getFragment(index: Int): T? {
-        return list.safeGet(index) as? T
-    }
-
-    /**
-     * 获取当前选中的下标
-     */
-    fun getCurrentIndex(): Int {
-        return currentItem
     }
 
     private fun newInstance(): Fragment {
@@ -119,6 +108,27 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
             }
             return fragment
         }
+    }
+
+    /**
+     * 获取对应的fragment
+     */
+    fun <T : Fragment> getFragment(index: Int): T? {
+        return list.safeGet(index) as? T
+    }
+
+    /**
+     * 获取当前选中的下标
+     */
+    fun getCurrentIndex(): Int {
+        return currentItem
+    }
+
+    /**
+     * 设置点击事件
+     */
+    fun setOnItemClickListener(onTabShow: ((tab: Int) -> Unit)) {
+        this.onTabShow = onTabShow
     }
 
 }
