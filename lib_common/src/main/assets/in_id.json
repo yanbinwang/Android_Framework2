@@ -11,6 +11,7 @@
     "response_net_error":"Silahkan buka koneksi internet",
     "data_loading":"Memuat...",
     "data_empty":"Tidak ada data",
+    "data_no_more":"Tidak lagi",
     "data_error":"Kesalahan server, harap coba lagi nanti",
     "data_net_error":"Jaringan tidak terhubung, silakan periksa pengaturan jaringan",
     "link_invalid_error":"Alamat tautan tidak valid",

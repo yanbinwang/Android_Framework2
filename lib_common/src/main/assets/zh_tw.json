@@ -11,6 +11,7 @@
     "response_net_error":"請打開網絡連接",
     "data_loading":"正在加載...",
     "data_empty":"暫無數據",
+    "data_no_more":"暫無更多數據",
     "data_error":"服務器出錯，請稍後重試",
     "data_net_error":"網絡未連接，請檢查網絡設置",
     "link_invalid_error":"鏈接地址不合法",

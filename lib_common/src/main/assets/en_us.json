@@ -11,6 +11,7 @@
     "response_net_error":"Please open internet connection",
     "data_loading":"Loading...",
     "data_empty":"No data",
+    "data_no_more":"No more",
     "data_error":"Server error, please try again later",
     "data_net_error":"The network is not connected, please check the network settings",
     "link_invalid_error":"The link address is invalid",

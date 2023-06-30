@@ -17,6 +17,7 @@
     <string name="response_net_error">請打開網絡連接</string>
     <string name="data_loading">正在加載&#8230;</string>
     <string name="data_empty">暫無數據</string>
+    <string name="data_no_more">暫無更多數據</string>
     <string name="data_error">服務器出錯，請稍後重試</string>
     <string name="data_net_error">網絡未連接，請檢查網絡設置</string>
     <string name="link_invalid_error">鏈接地址不合法</string>

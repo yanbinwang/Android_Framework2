@@ -18,6 +18,7 @@ object I18nMap {
         R.string.response_net_error to "response_net_error",
         R.string.data_loading to "data_loading",
         R.string.data_empty to "data_empty",
+        R.string.data_no_more to "data_no_more",
         R.string.data_error to "data_error",
         R.string.data_net_error to "data_net_error",
         R.string.link_invalid_error to "link_invalid_error",
