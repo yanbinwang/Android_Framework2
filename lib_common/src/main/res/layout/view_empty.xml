@@ -35,7 +35,7 @@
             android:minWidth="164pt"
             android:paddingHorizontal="14pt"
             android:paddingVertical="11pt"
-            android:text="刷新"
+            android:text="@string/refresh"
             android:textColor="@color/textWhite"
             android:textSize="@dimen/textSize15" />
 

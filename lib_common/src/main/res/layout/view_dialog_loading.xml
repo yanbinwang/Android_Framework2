@@ -29,7 +29,7 @@
             android:ellipsize="end"
             android:gravity="center"
             android:paddingHorizontal="5pt"
-            android:text="@string/loading"
+            android:text="@string/data_loading"
             android:textColor="@color/textWhite"
             android:textSize="@dimen/textSize12"
             app:layout_constraintBottom_toBottomOf="parent" />

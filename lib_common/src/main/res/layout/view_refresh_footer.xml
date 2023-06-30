@@ -12,14 +12,14 @@
             android:layout_height="25pt"
             android:layout_gravity="center"
             android:paddingVertical="2.5pt"
-            tools:src="@drawable/ic_loadmore_0" />
+            tools:src="@mipmap/ic_loadmore_0" />
 
         <TextView
             android:id="@+id/tv_msg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="暂无更多数据"
+            android:text="@string/data_no_more"
             android:textColor="@color/textBlack"
             android:textSize="@dimen/textSize12"
             android:visibility="gone" />
