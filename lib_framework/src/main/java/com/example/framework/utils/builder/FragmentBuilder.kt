@@ -154,6 +154,6 @@ fun Class<*>.getBind(name: String? = null): Pair<Class<*>, String> {
 /**
  * 默认返回自身和自身class名小写以及请求的id
  */
-fun Class<*>.getBind(data: HashMap<String, String>, name: String? = null): Triple<Class<*>, HashMap<String, String>, String> {
-    return Triple(this, data, getSimpleName(name))
+fun Class<*>.getBind(dataMap: HashMap<String, String>, name: String? = null): Triple<Class<*>, HashMap<String, String>, String> {
+    return Triple(this, dataMap, getSimpleName(name))
 }
