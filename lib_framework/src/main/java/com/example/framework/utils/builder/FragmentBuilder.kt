@@ -3,6 +3,7 @@ package com.example.framework.utils.builder
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.example.framework.utils.TimerUtil
 import com.example.framework.utils.function.value.getSimpleName
 import com.example.framework.utils.function.value.safeGet
 
@@ -38,7 +39,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     private var arguments = false
     private var currentItem = 0
     private var clazzPair: List<Pair<Class<*>, String>>? = null
-    private var clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>? = null
+    private var clazzTriple: List<Triple<Class<*>, HashMap<String, String>, String>>? = null
     private var onTabShow: ((tab: Int) -> Unit)? = null
     private val list by lazy { ArrayList<Fragment>() }
 
@@ -47,7 +48,11 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      *  first：class名
      *  second：tag值，不传默认为class名
      */
-    fun bind(clazzPair: List<Pair<Class<*>, String>>) {
+    fun bind(vararg clazzPair: Pair<Class<*>, String>) {
+        bind(listOf(*clazzPair))
+    }
+
+    private fun bind(clazzPair: List<Pair<Class<*>, String>>) {
         this.list.clear()
         this.arguments = false
         this.clazzPair = clazzPair
@@ -55,12 +60,16 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     }
 
     /**
-     * EvidencePageFragment::class.java.getBind(Extras.REQUEST_ID to id, "EviPager${id}")
+     * EvidencePageFragment::class.java.getBind(hashMapOf(Extras.REQUEST_ID to id), "EviPager${id}")
      * first：class名
-     * second：pair对象 （first，fragment透传的key second，透传的值）
+     * second：map对象 （first，fragment透传的key值，tag值->不传默认为class名）
      * third：内存中存储的tag
      */
-    fun bindArguments(clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>) {
+    fun bindArguments(vararg clazzTriple: Triple<Class<*>, HashMap<String, String>, String>) {
+        bindArguments(listOf(*clazzTriple))
+    }
+
+    private fun bindArguments(clazzTriple: List<Triple<Class<*>, HashMap<String, String>, String>>) {
         this.list.clear()
         this.arguments = true
         this.clazzTriple = clazzTriple
@@ -100,7 +109,9 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
             if (null == fragment) {
                 fragment = it?.first?.newInstance() as Fragment
                 val bundle = Bundle()
-                bundle.putString(it.second.first, it.second.second)
+                for ((key, value) in it.second) {
+                    bundle.putString(key, value)
+                }
                 fragment.arguments = bundle
                 transaction.add(containerViewId, fragment, it.third)
                 transaction.commitAllowingStateLoss()
@@ -143,6 +154,6 @@ fun Class<*>.getBind(name: String? = null): Pair<Class<*>, String> {
 /**
  * 默认返回自身和自身class名小写以及请求的id
  */
-fun Class<*>.getBind(data: Pair<String, String>, name: String? = null): Triple<Class<*>, Pair<String, String>, String> {
+fun Class<*>.getBind(data: HashMap<String, String>, name: String? = null): Triple<Class<*>, HashMap<String, String>, String> {
     return Triple(this, data, getSimpleName(name))
 }
