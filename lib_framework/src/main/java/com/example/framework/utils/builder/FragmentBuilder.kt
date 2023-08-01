@@ -60,7 +60,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      * second：pair对象 （first，fragment透传的key second，透传的值）
      * third：内存中存储的tag
      */
-    fun bind(clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>) {
+    fun bindArguments(clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>) {
         this.list.clear()
         this.arguments = true
         this.clazzTriple = clazzTriple
