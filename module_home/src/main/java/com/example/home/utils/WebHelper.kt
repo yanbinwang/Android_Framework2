@@ -54,10 +54,7 @@ class WebHelper(private val activity: AppCompatActivity, container: ViewGroup? =
             onPageFinished.invoke()
 //            val url = webView?.url.orEmpty()
         }, object : OnWebChangedListener {
-            override fun onShowCustomView(
-                view: View?,
-                callback: WebChromeClient.CustomViewCallback?
-            ) {
+            override fun onShowCustomView(view: View?, callback: WebChromeClient.CustomViewCallback?) {
                 webUtil.onShowCustomView(view, callback)
             }
 
