@@ -1,5 +1,6 @@
 package com.example.home.utils
 
+import android.annotation.SuppressLint
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
@@ -20,13 +21,15 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.byHardwareAccelerate
 import com.example.home.R
+import java.lang.ref.WeakReference
 
 /**
  * 网页帮助类
  */
+@SuppressLint("JavascriptInterface")
 class WebHelper(private val activity: AppCompatActivity, container: ViewGroup? = null, private val url: String? = null) : LifecycleEventObserver {
     private val webUtil by lazy { WebUtil(activity, container) }
-    val webView: WebView?
+    private val webView: WebView?
         get() = webUtil.webView
 
     init {
@@ -40,6 +43,40 @@ class WebHelper(private val activity: AppCompatActivity, container: ViewGroup? =
         webView?.background(R.color.bgWhite)
         webView?.settings?.useWideViewPort = true
         webView?.settings?.loadWithOverviewMode = true
+    }
+
+    /**
+     * 加载页面
+     */
+    fun load() = webView.load(url.orEmpty(), true)
+
+    /**
+     * 刷新页面
+     */
+    fun refresh() = webView.refresh()
+
+    /**
+     * js注入
+     */
+    fun addJavascriptInterface(obj: Any, name: String) {
+        webView?.addJavascriptInterface(obj, name)
+    }
+
+    /**
+     * 返回点击
+     */
+    fun onKeyDown() {
+//        webView?.copyBackForwardList()
+//        webView.evaluateJs("javascript:onBackPressed()") {
+//            //请求结果不为true（请求拦截）时的处理
+//            if (it?.lowercase(Locale.US) != "true") {
+        if (webView?.canGoBack().orFalse) {
+            webView?.goBack()
+        } else {
+            activity.finish()
+        }
+//            }
+//        }
     }
 
     /**
@@ -68,31 +105,14 @@ class WebHelper(private val activity: AppCompatActivity, container: ViewGroup? =
     }
 
     /**
-     * 加载页面
+     * 获取webview的title
      */
-    fun load() = webView.load(url.orEmpty(), true)
+    fun getTitle() = webView?.title
 
     /**
-     * 刷新页面
+     * 获取webview的url
      */
-    fun refresh() = webView.refresh()
-
-    /**
-     * 返回点击
-     */
-    fun onKeyDown() {
-//        webView?.copyBackForwardList()
-//        webView.evaluateJs("javascript:onBackPressed()") {
-//            //请求结果不为true（请求拦截）时的处理
-//            if (it?.lowercase(Locale.US) != "true") {
-        if (webView?.canGoBack().orFalse) {
-            webView?.goBack()
-        } else {
-            activity.finish()
-        }
-//            }
-//        }
-    }
+    fun getUrl() = webView?.url
 
     /**
      * 生命周期订阅

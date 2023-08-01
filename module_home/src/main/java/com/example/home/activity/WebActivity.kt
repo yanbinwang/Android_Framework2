@@ -41,8 +41,8 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
         super.initEvent()
         //WebView与JS交互
         webHelper.apply {
-            webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(this@WebActivity)), "JSCallAndroid")
-            setClient(binding.pbWeb, onPageFinished = { bean?.let { if (it.getTitleRequired().orFalse && it.getTitle().isEmpty()) titleBuilder.setTitle(webView?.title?.trim().orEmpty()) } })
+            addJavascriptInterface(WebJavaScriptObject(WeakReference(this@WebActivity)), "JSCallAndroid")
+            setClient(binding.pbWeb, onPageFinished = { bean?.let { if (it.getTitleRequired().orFalse && it.getTitle().isEmpty()) titleBuilder.setTitle(getTitle().orEmpty().trim()) } })
         }
     }
 
