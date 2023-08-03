@@ -11,7 +11,6 @@ import com.github.fujianlian.klinechart.base.IAdapter;
  */
 
 public abstract class BaseKLineChartAdapter implements IAdapter {
-
     private final DataSetObservable mDataSetObservable = new DataSetObservable();
 
     @Override
@@ -23,7 +22,6 @@ public abstract class BaseKLineChartAdapter implements IAdapter {
         }
     }
 
-
     @Override
     public void registerDataSetObserver(DataSetObserver observer) {
         mDataSetObservable.registerObserver(observer);
@@ -33,4 +31,5 @@ public abstract class BaseKLineChartAdapter implements IAdapter {
     public void unregisterDataSetObserver(DataSetObserver observer) {
         mDataSetObservable.unregisterObserver(observer);
     }
+
 }

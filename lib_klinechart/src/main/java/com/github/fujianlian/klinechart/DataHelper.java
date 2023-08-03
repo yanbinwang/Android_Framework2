@@ -27,7 +27,6 @@ public class DataHelper {
             } else {
                 float Rmax = Math.max(0, closePrice - dataList.get(i - 1).getClosePrice());
                 float RAbs = Math.abs(closePrice - dataList.get(i - 1).getClosePrice());
-
                 rsiMaxEma = (Rmax + (14f - 1) * rsiMaxEma) / 14f;
                 rsiABSEma = (RAbs + (14f - 1) * rsiABSEma) / 14f;
                 rsi = (rsiMaxEma / rsiABSEma) * 100;
@@ -87,7 +86,6 @@ public class DataHelper {
                 point.j = 3f * k - 2 * d;
             }
         }
-
     }
 
     /**
@@ -120,7 +118,6 @@ public class DataHelper {
                 }
             }
         }
-
     }
 
     /**
@@ -134,7 +131,6 @@ public class DataHelper {
         float dif = 0;
         float dea = 0;
         float macd = 0;
-
         for (int i = 0; i < dataList.size(); i++) {
             KLineEntity point = dataList.get(i);
             final float closePrice = point.getClosePrice();
@@ -157,7 +153,6 @@ public class DataHelper {
             point.dea = dea;
             point.macd = macd;
         }
-
     }
 
     /**
@@ -188,7 +183,6 @@ public class DataHelper {
                 point.dn = point.mb - 2f * md;
             }
         }
-
     }
 
     /**
@@ -202,11 +196,9 @@ public class DataHelper {
         float ma20 = 0;
         float ma30 = 0;
         float ma60 = 0;
-
         for (int i = 0; i < dataList.size(); i++) {
             KLineEntity point = dataList.get(i);
             final float closePrice = point.getClosePrice();
-
             ma5 += closePrice;
             ma10 += closePrice;
             ma20 += closePrice;
@@ -273,13 +265,10 @@ public class DataHelper {
     private static void calculateVolumeMA(List<KLineEntity> entries) {
         float volumeMa5 = 0;
         float volumeMa10 = 0;
-
         for (int i = 0; i < entries.size(); i++) {
             KLineEntity entry = entries.get(i);
-
             volumeMa5 += entry.getVolume();
             volumeMa10 += entry.getVolume();
-
             if (i == 4) {
                 entry.MA5Volume = (volumeMa5 / 5f);
             } else if (i > 4) {
@@ -299,4 +288,5 @@ public class DataHelper {
             }
         }
     }
+
 }

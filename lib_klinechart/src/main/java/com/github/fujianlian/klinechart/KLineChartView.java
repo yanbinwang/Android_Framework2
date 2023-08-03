@@ -24,22 +24,20 @@ import com.github.fujianlian.klinechart.draw.WRDraw;
  * Created by tian on 2016/5/20.
  */
 public class KLineChartView extends BaseKLineChartView {
-
-    ProgressBar mProgressBar;
     private boolean isRefreshing = false;
     private boolean isLoadMoreEnd = false;
     private boolean mLastScrollEnable;
     private boolean mLastScaleEnable;
-
-    private KChartRefreshListener mRefreshListener;
-
+    private int startX;
+    private int startY;
+    private ProgressBar mProgressBar;
     private MACDDraw mMACDDraw;
     private RSIDraw mRSIDraw;
     private MainDraw mMainDraw;
     private KDJDraw mKDJDraw;
     private WRDraw mWRDraw;
     private VolumeDraw mVolumeDraw;
-
+    private KChartRefreshListener mRefreshListener;
 
     public KLineChartView(Context context) {
         this(context, null);
@@ -91,7 +89,6 @@ public class KLineChartView extends BaseKLineChartView {
 
                 setSelectedXLineColor(Color.WHITE);
                 setSelectedXLineWidth(getDimension(R.dimen.chart_line_width));
-
                 setSelectedYLineColor(Color.parseColor("#8040424D"));
                 setSelectedYLineWidth(getDimension(R.dimen.chart_point_width));
 
@@ -221,15 +218,6 @@ public class KLineChartView extends BaseKLineChartView {
 
     public void setLoadMoreEnd() {
         isLoadMoreEnd = true;
-    }
-
-    public interface KChartRefreshListener {
-        /**
-         * 加载更多
-         *
-         * @param chart
-         */
-        void onLoadMoreBegin(KLineChartView chart);
     }
 
     @Override
@@ -431,9 +419,6 @@ public class KLineChartView extends BaseKLineChartView {
         invalidate();
     }
 
-    private int startX;
-    private int startY;
-
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         switch (ev.getAction()) {
@@ -464,4 +449,14 @@ public class KLineChartView extends BaseKLineChartView {
             super.onLongPress(e);
         }
     }
+
+    public interface KChartRefreshListener {
+        /**
+         * 加载更多
+         *
+         * @param chart
+         */
+        void onLoadMoreBegin(KLineChartView chart);
+    }
+
 }

@@ -8,11 +8,9 @@ import java.util.List;
  * Created by tifezh on 2016/6/18.
  */
 public class KLineChartAdapter extends BaseKLineChartAdapter {
-
-    private List<KLineEntity> datas = new ArrayList<>();
+    private final List<KLineEntity> datas = new ArrayList<>();
 
     public KLineChartAdapter() {
-
     }
 
     @Override
@@ -67,4 +65,5 @@ public class KLineChartAdapter extends BaseKLineChartAdapter {
         datas.clear();
         notifyDataSetChanged();
     }
+
 }

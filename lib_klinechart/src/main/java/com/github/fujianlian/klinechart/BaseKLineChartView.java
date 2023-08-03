@@ -34,84 +34,61 @@ import java.util.List;
  * Created by tian on 2016/5/3.
  */
 public abstract class BaseKLineChartView extends ScrollAndScaleView {
-
-    private int mChildDrawPosition = -1;
-
-    private float mTranslateX = Float.MIN_VALUE;
-
-    private int mWidth = 0;
-
+    //当前点的个数
+    private int mItemCount;
     private int mTopPadding;
-
     private int mChildPadding;
-
     private int mBottomPadding;
-
-    private float mMainScaleY = 1;
-
-    private float mVolScaleY = 1;
-
-    private float mChildScaleY = 1;
-
-    private float mDataLen = 0;
-
-    private float mMainMaxValue = Float.MAX_VALUE;
-
-    private float mMainMinValue = Float.MIN_VALUE;
-
-    private float mMainHighMaxValue = 0;
-
-    private float mMainLowMinValue = 0;
-
-    private int mMainMaxIndex = 0;
-
-    private int mMainMinIndex = 0;
-
-    private Float mVolMaxValue = Float.MAX_VALUE;
-
-    private Float mVolMinValue = Float.MIN_VALUE;
-
-    private Float mChildMaxValue = Float.MAX_VALUE;
-
-    private Float mChildMinValue = Float.MIN_VALUE;
-
-    private int mStartIndex = 0;
-
-    private int mStopIndex = 0;
-
-    private float mPointWidth = 6;
-
-    private int mGridRows = 4;
-
-    private int mGridColumns = 4;
-
-    private Paint mGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-    private Paint mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-    private Paint mMaxMinPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-    private Paint mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-    private Paint mSelectedXLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-    private Paint mSelectedYLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-    private Paint mSelectPointPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-    private Paint mSelectorFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
     private int mSelectedIndex;
-
-    private IChartDraw mMainDraw;
+    private int mChildDrawPosition = -1;
+    private int mWidth = 0;
+    private int mMainMaxIndex = 0;
+    private int mMainMinIndex = 0;
+    private int mStartIndex = 0;
+    private int mStopIndex = 0;
+    private int mGridRows = 4;
+    private int mGridColumns = 4;
+    private int displayHeight = 0;
+    private float mMainScaleY = 1;
+    private float mVolScaleY = 1;
+    private float mChildScaleY = 1;
+    private float mDataLen = 0;
+    private float mOverScrollRange = 0;
+    private float mTranslateX = Float.MIN_VALUE;
+    private float mMainMaxValue = Float.MAX_VALUE;
+    private float mMainMinValue = Float.MIN_VALUE;
+    private float mMainHighMaxValue = 0;
+    private float mMainLowMinValue = 0;
+    private float mPointWidth = 6;
+    private float mLineWidth;
+    private long mAnimationDuration = 500;
+    private Float mVolMaxValue = Float.MAX_VALUE;
+    private Float mVolMinValue = Float.MIN_VALUE;
+    private Float mChildMaxValue = Float.MAX_VALUE;
+    private Float mChildMinValue = Float.MIN_VALUE;
+    private Paint mGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint mMaxMinPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint mSelectedXLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint mSelectedYLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint mSelectPointPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint mSelectorFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private MainDraw mainDraw;
+    private IChartDraw mMainDraw;
     private IChartDraw mVolDraw;
-
     private IAdapter mAdapter;
-
     private Boolean isWR = false;
     private Boolean isShowChild = false;
-
+    private Rect mMainRect;
+    private Rect mVolRect;
+    private Rect mChildRect;
+    private IChartDraw mChildDraw;
+    private IValueFormatter mValueFormatter;
+    private IDateTimeFormatter mDateTimeFormatter;
+    private ValueAnimator mAnimator;
+    private OnSelectedChangedListener mOnSelectedChangedListener = null;
+    private List<IChartDraw> mChildDraws = new ArrayList<>();
     private DataSetObserver mDataSetObserver = new DataSetObserver() {
         @Override
         public void onChanged() {
@@ -125,29 +102,6 @@ public abstract class BaseKLineChartView extends ScrollAndScaleView {
             notifyChanged();
         }
     };
-    //当前点的个数
-    private int mItemCount;
-    private IChartDraw mChildDraw;
-    private List<IChartDraw> mChildDraws = new ArrayList<>();
-
-    private IValueFormatter mValueFormatter;
-    private IDateTimeFormatter mDateTimeFormatter;
-
-    private ValueAnimator mAnimator;
-
-    private long mAnimationDuration = 500;
-
-    private float mOverScrollRange = 0;
-
-    private OnSelectedChangedListener mOnSelectedChangedListener = null;
-
-    private Rect mMainRect;
-
-    private Rect mVolRect;
-
-    private Rect mChildRect;
-
-    private float mLineWidth;
 
     public BaseKLineChartView(Context context) {
         super(context);
@@ -174,18 +128,12 @@ public abstract class BaseKLineChartView extends ScrollAndScaleView {
 
         mAnimator = ValueAnimator.ofFloat(0f, 1f);
         mAnimator.setDuration(mAnimationDuration);
-        mAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                invalidate();
-            }
-        });
+        mAnimator.addUpdateListener(animation -> invalidate());
 
         mSelectorFramePaint.setStrokeWidth(ViewUtil.Dp2Px(getContext(), 0.6f));
         mSelectorFramePaint.setStyle(Paint.Style.STROKE);
         mSelectorFramePaint.setColor(Color.WHITE);
     }
-
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -195,8 +143,6 @@ public abstract class BaseKLineChartView extends ScrollAndScaleView {
         initRect();
         setTranslateXFromScrollX(mScrollX);
     }
-
-    int displayHeight = 0;
 
     private void initRect() {
         if (isShowChild) {
@@ -383,15 +329,13 @@ public abstract class BaseKLineChartView extends ScrollAndScaleView {
         }
         //--------------画中间子图的值-------------
         if (mVolDraw != null) {
-            canvas.drawText(mVolDraw.getValueFormatter().format(mVolMaxValue),
-                    mWidth - calculateWidth(formatValue(mVolMaxValue)), mMainRect.bottom + baseLine, mTextPaint);
+            canvas.drawText(mVolDraw.getValueFormatter().format(mVolMaxValue), mWidth - calculateWidth(formatValue(mVolMaxValue)), mMainRect.bottom + baseLine, mTextPaint);
             /*canvas.drawText(mVolDraw.getValueFormatter().format(mVolMinValue),
                     mWidth - calculateWidth(formatValue(mVolMinValue)), mVolRect.bottom, mTextPaint);*/
         }
         //--------------画下方子图的值-------------
         if (mChildDraw != null) {
-            canvas.drawText(mChildDraw.getValueFormatter().format(mChildMaxValue),
-                    mWidth - calculateWidth(formatValue(mChildMaxValue)), mVolRect.bottom + baseLine, mTextPaint);
+            canvas.drawText(mChildDraw.getValueFormatter().format(mChildMaxValue), mWidth - calculateWidth(formatValue(mChildMaxValue)), mVolRect.bottom + baseLine, mTextPaint);
             /*canvas.drawText(mChildDraw.getValueFormatter().format(mChildMinValue),
                     mWidth - calculateWidth(formatValue(mChildMinValue)), mChildRect.bottom, mTextPaint);*/
         }
@@ -491,14 +435,10 @@ public abstract class BaseKLineChartView extends ScrollAndScaleView {
      */
     private void drawMaxAndMin(Canvas canvas) {
         if (!mainDraw.isLine()) {
-            IKLine maxEntry = null, minEntry = null;
-            boolean firstInit = true;
-
-
             //绘制最大值和最小值
             float x = translateXtoX(getX(mMainMinIndex));
             float y = getMainY(mMainLowMinValue);
-            String LowString = "── " + Float.toString(mMainLowMinValue);
+            String LowString = "── " + mMainLowMinValue;
             //计算显示位置
             //计算文本宽度
             int lowStringWidth = calculateMaxMin(LowString).width();
@@ -508,14 +448,14 @@ public abstract class BaseKLineChartView extends ScrollAndScaleView {
                 canvas.drawText(LowString, x, y + lowStringHeight / 2, mMaxMinPaint);
             } else {
                 //画左边
-                LowString = Float.toString(mMainLowMinValue) + " ──";
+                LowString = mMainLowMinValue + " ──";
                 canvas.drawText(LowString, x - lowStringWidth, y + lowStringHeight / 2, mMaxMinPaint);
             }
 
             x = translateXtoX(getX(mMainMaxIndex));
             y = getMainY(mMainHighMaxValue);
 
-            String highString = "── " + Float.toString(mMainHighMaxValue);
+            String highString = "── " + mMainHighMaxValue;
             int highStringWidth = calculateMaxMin(highString).width();
             int highStringHeight = calculateMaxMin(highString).height();
             if (x < getWidth() / 2) {
@@ -523,10 +463,9 @@ public abstract class BaseKLineChartView extends ScrollAndScaleView {
                 canvas.drawText(highString, x, y + highStringHeight / 2, mMaxMinPaint);
             } else {
                 //画左边
-                highString = Float.toString(mMainHighMaxValue) + " ──";
+                highString = mMainHighMaxValue + " ──";
                 canvas.drawText(highString, x - highStringWidth, y + highStringHeight / 2, mMaxMinPaint);
             }
-
         }
     }
 
@@ -770,7 +709,6 @@ public abstract class BaseKLineChartView extends ScrollAndScaleView {
     public void drawMainLine(Canvas canvas, Paint paint, float startX, float startValue, float stopX, float stopValue) {
         canvas.drawLine(startX, getMainY(startValue), stopX, getMainY(stopValue), paint);
     }
-
 
     /**
      * 在主区域画分时线
@@ -1312,4 +1250,5 @@ public abstract class BaseKLineChartView extends ScrollAndScaleView {
     public int getDisplayHeight() {
         return displayHeight + mTopPadding + mBottomPadding;
     }
+
 }
