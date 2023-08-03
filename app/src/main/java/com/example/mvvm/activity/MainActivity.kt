@@ -6,7 +6,7 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.function.getStatusBarHeight
-import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.margin
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.DataRequest
 import com.github.fujianlian.klinechart.DataHelper
@@ -30,7 +30,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), CancelAdapt {
 
     override fun initView() {
         super.initView()
-        binding.title.padding(top = getStatusBarHeight())
+        binding.title.margin(top = getStatusBarHeight())
         binding.kLineChartView.adapter = adapter
         binding.kLineChartView.dateTimeFormatter = DateFormatter()
         binding.kLineChartView.setGridRows(4)
