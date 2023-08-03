@@ -1,19 +1,13 @@
-package com.github.fujianlian.klinechart.base;
+package com.github.fujianlian.klinechart.base
 
-import android.graphics.Canvas;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.github.fujianlian.klinechart.BaseKLineChartView;
-
+import android.graphics.Canvas
+import com.github.fujianlian.klinechart.BaseKLineChartView
 
 /**
  * 画图的基类 根据实体来画图形
  * Created by tifezh on 2016/6/14.
  */
-public interface IChartDraw<T> {
-
+interface IChartDraw<T> {
     /**
      * 需要滑动 物体draw方法
      *
@@ -25,7 +19,7 @@ public interface IChartDraw<T> {
      * @param lastX     上一个点的x坐标
      * @param curX      当前点的X坐标
      */
-    void drawTranslated(@Nullable T lastPoint, @NonNull T curPoint, float lastX, float curX, @NonNull Canvas canvas, @NonNull BaseKLineChartView view, int position);
+    fun drawTranslated(lastPoint: T?, curPoint: T, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int)
 
     /**
      * @param canvas
@@ -34,7 +28,7 @@ public interface IChartDraw<T> {
      * @param x        x的起始坐标
      * @param y        y的起始坐标
      */
-    void drawText(@NonNull Canvas canvas, @NonNull BaseKLineChartView view, int position, float x, float y);
+    fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float)
 
     /**
      * 获取当前实体中最大的值
@@ -42,7 +36,7 @@ public interface IChartDraw<T> {
      * @param point
      * @return
      */
-    float getMaxValue(T point);
+    fun getMaxValue(point: T): Float
 
     /**
      * 获取当前实体中最小的值
@@ -50,10 +44,10 @@ public interface IChartDraw<T> {
      * @param point
      * @return
      */
-    float getMinValue(T point);
+    fun getMinValue(point: T): Float
 
     /**
      * 获取value格式化器
      */
-    IValueFormatter getValueFormatter();
+    fun getValueFormatter(): IValueFormatter
 }

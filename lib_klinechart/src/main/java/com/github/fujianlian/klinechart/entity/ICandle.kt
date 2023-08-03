@@ -1,72 +1,69 @@
-package com.github.fujianlian.klinechart.entity;
+package com.github.fujianlian.klinechart.entity
 
 /**
  * 蜡烛图实体接口
  * Created by tifezh on 2016/6/9.
  */
-public interface ICandle {
-
+interface ICandle {
     /**
      * 开盘价
      */
-    float getOpenPrice();
+    fun getOpenPrice(): Float
 
     /**
      * 最高价
      */
-    float getHighPrice();
+    fun getHighPrice(): Float
 
     /**
      * 最低价
      */
-    float getLowPrice();
+    fun getLowPrice(): Float
 
     /**
      * 收盘价
      */
-    float getClosePrice();
-
+    fun getClosePrice(): Float
 
     // 以下为MA数据
     /**
      * 五(月，日，时，分，5分等)均价
      */
-    float getMA5Price();
+    fun getMA5Price(): Float
 
     /**
      * 十(月，日，时，分，5分等)均价
      */
-    float getMA10Price();
+    fun getMA10Price(): Float
 
     /**
      * 二十(月，日，时，分，5分等)均价
      */
-    float getMA20Price();
+    fun getMA20Price(): Float
 
     /**
      * 三十(月，日，时，分，5分等)均价
      */
-    float getMA30Price();
+    fun getMA30Price(): Float
 
     /**
      * 六十(月，日，时，分，5分等)均价
      */
-    float getMA60Price();
+    fun getMA60Price(): Float
 
     // 以下为BOLL数据
     /**
      * 上轨线
      */
-    float getUp();
+    fun getUp(): Float
 
     /**
      * 中轨线
      */
-    float getMb();
+    fun getMb(): Float
 
     /**
      * 下轨线
      */
-    float getDn();
-
+    fun getDn(): Float
 }

@@ -16,7 +16,8 @@
             android:gravity="center"
             android:paddingHorizontal="10pt"
             android:text="KLineChart"
-            android:textColor="@color/textWhite" />
+            android:textColor="@color/textWhite"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/text1"

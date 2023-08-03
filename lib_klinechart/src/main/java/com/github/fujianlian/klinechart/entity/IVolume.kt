@@ -1,34 +1,32 @@
-package com.github.fujianlian.klinechart.entity;
+package com.github.fujianlian.klinechart.entity
 
 /**
  * 成交量接口
  * Created by hjm on 2017/11/14 17:46.
  */
-
-public interface IVolume {
-
+interface IVolume {
     /**
      * 开盘价
      */
-    float getOpenPrice();
+    fun getOpenPrice(): Float
 
     /**
      * 收盘价
      */
-    float getClosePrice();
+    fun getClosePrice(): Float
 
     /**
      * 成交量
      */
-    float getVolume();
+    fun getVolume(): Float
 
     /**
      * 五(月，日，时，分，5分等)均量
      */
-    float getMA5Volume();
+    fun getMA5Volume(): Float
 
     /**
      * 十(月，日，时，分，5分等)均量
      */
-    float getMA10Volume();
+    fun getMA10Volume(): Float
 }
