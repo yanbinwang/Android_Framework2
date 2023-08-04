@@ -19,7 +19,7 @@ interface IChartDraw<T> {
      * @param lastX     上一个点的x坐标
      * @param curX      当前点的X坐标
      */
-    fun drawTranslated(lastPoint: T?, curPoint: T, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int)
+    fun drawTranslated(lastPoint: T?, curPoint: T?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int)
 
     /**
      * @param canvas
@@ -49,5 +49,5 @@ interface IChartDraw<T> {
     /**
      * 获取value格式化器
      */
-    fun getValueFormatter(): IValueFormatter
+    val valueFormatter: IValueFormatter
 }

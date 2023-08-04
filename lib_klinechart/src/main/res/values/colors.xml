@@ -4,22 +4,41 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="chart_red">#26BF66</color>
-    <color name="chart_green">#FD6433</color>
-    <color name="chart_line">#C9933E</color>
-    <color name="chart_line_background">#1aC9933E</color>
+    <color name="chartGreen">#26BF66</color>
+    <color name="chartRed">#FD6433</color>
+    <color name="chart_line">#4D97E3</color>
+    <color name="chart_line_background">#1a4D97E3</color>
 
     <color name="chart_ma5">#DA8AE5</color>
     <color name="chart_ma10">#39B0E8</color>
     <color name="chart_ma30">#FFC76D</color>
-    <color name="chart_white">#ffffff</color>
 
     <color name="chart_background">#202326</color>
     <color name="chart_bac">#00FFFFFF</color>
-    <color name="chart_point_bac">#202326</color>
-    <color name="chart_grid_line">#1AFFFFFF</color>
-    <color name="chart_text">#818596</color>
-    <color name="chart_selector">#202326</color>
     <color name="chart_tab_background">#30343C</color>
     <color name="chart_tab_indicator">#FF6601</color>
+
+    <!-- 最后一根动态线颜色-->
+    <color name="chart_last_line">#256CB6</color>
+    <!-- 最后一根动态线字体颜色-->
+    <color name="chart_last_text">#FFFFFF</color>
+    <!-- 字体颜色-->
+    <color name="chart_text">#FF788289</color>
+    <!-- 最大最小值颜色-->
+    <color name="chart_white">#313131</color>
+    <!-- 选中板背景颜色-->
+    <color name="chart_selector">#f9f9f9</color>
+    <!-- 选中板背景描边颜色-->
+    <color name="chart_selector_stroke">#dbdbdb</color>
+    <!-- 选中的XY标点颜色-->
+    <color name="chart_point_bac">#969697</color>
+    <!-- 十字选择线颜色-->
+    <color name="chart_selected_x_line">#969697</color>
+    <color name="chart_selected_y_line">#969697</color>
+    <!-- 网线颜色-->
+    <color name="chart_grid_line">#FFD8DBE5</color>
+    <color name="chart_border_line">#FFD8DBE5</color>
+
+    <color name="chart_open_line">#FFE3453D</color>
+    <color name="chart_open_text">#FFE3453D</color>
 </resources>

@@ -2,10 +2,11 @@ package com.github.fujianlian.klinechart.draw
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import com.example.framework.utils.function.value.orZero
 import com.github.fujianlian.klinechart.BaseKLineChartView
 import com.github.fujianlian.klinechart.base.IChartDraw
 import com.github.fujianlian.klinechart.base.IValueFormatter
+import com.github.fujianlian.klinechart.entity.ICandle
+import com.github.fujianlian.klinechart.entity.IKLine
 import com.github.fujianlian.klinechart.entity.IRSI
 import com.github.fujianlian.klinechart.formatter.ValueFormatter
 
@@ -17,36 +18,38 @@ class RSIDraw(view: BaseKLineChartView) : IChartDraw<IRSI> {
     private val mRSI1Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mRSI2Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mRSI3Paint = Paint(Paint.ANTI_ALIAS_FLAG)
-
-    override fun drawTranslated(lastPoint: IRSI?, curPoint: IRSI, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
-        if (lastPoint?.getRsi() != 0f) {
-            view.drawChildLine(canvas, mRSI1Paint, lastX, lastPoint?.getRsi().orZero, curX, curPoint.getRsi())
+    override fun drawTranslated(lastPoint: IRSI?, curPoint: IRSI?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
+        if (lastPoint == null || curPoint == null) return
+        if (lastPoint.rsi != 0f) {
+            view.drawChildLine(canvas, mRSI1Paint, lastX, lastPoint.rsi, curX, curPoint.rsi)
         }
     }
 
     override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
-        val point = view.getItem(position) as? IRSI
-        if (point?.getRsi() != 0f) {
-            var valueX = x
-            var text: String? = "RSI(14)  "
-            canvas.drawText(text!!, valueX, y, view.textPaint)
-            valueX += view.textPaint.measureText(text)
-            text = view.formatValue(point?.getRsi().orZero)
-            canvas.drawText(text, valueX, y, mRSI1Paint)
+        var newX = x
+        val point = view.getItem(position) as? IRSI ?: return
+        val point1: ICandle = view.getItem(position) as? IKLine ?: return
+        // 位数
+        val digits = point1.digits
+        if (point.rsi != 0f) {
+            var text = "RSI(14)  "
+            canvas.drawText(text, newX, y, view.textPaint)
+            newX += view.textPaint.measureText(text)
+            text = view.formatValue(point.rsi, digits)
+            canvas.drawText(text, newX, y, mRSI1Paint)
         }
     }
 
-    override fun getValueFormatter(): IValueFormatter {
-        return ValueFormatter()
+    override fun getMaxValue(point: IRSI): Float {
+        return point.rsi
     }
 
     override fun getMinValue(point: IRSI): Float {
-        return point.getRsi()
+        return point.rsi
     }
 
-    override fun getMaxValue(point: IRSI): Float {
-        return point.getRsi()
-    }
+    override val valueFormatter: IValueFormatter
+        get() = ValueFormatter()
 
     fun setRSI1Color(color: Int) {
         mRSI1Paint.color = color
@@ -77,5 +80,4 @@ class RSIDraw(view: BaseKLineChartView) : IChartDraw<IRSI> {
         mRSI3Paint.textSize = textSize
         mRSI1Paint.textSize = textSize
     }
-
 }

@@ -9,15 +9,15 @@ interface IKDJ {
     /**
      * K值
      */
-    fun getK(): Float
+    val k: Float
 
     /**
      * D值
      */
-    fun getD(): Float
+    val d: Float
 
     /**
      * J值
      */
-    fun getJ(): Float
+    val j: Float
 }

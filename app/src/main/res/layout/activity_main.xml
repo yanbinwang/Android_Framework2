@@ -163,6 +163,7 @@
             android:id="@+id/kLineChartView"
             android:layout_width="match_parent"
             android:layout_height="0pt"
+            app:kc_candle_solid="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fenText" />
 

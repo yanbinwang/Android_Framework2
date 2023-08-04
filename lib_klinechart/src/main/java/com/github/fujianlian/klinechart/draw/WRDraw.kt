@@ -2,10 +2,11 @@ package com.github.fujianlian.klinechart.draw
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import com.example.framework.utils.function.value.orZero
 import com.github.fujianlian.klinechart.BaseKLineChartView
 import com.github.fujianlian.klinechart.base.IChartDraw
 import com.github.fujianlian.klinechart.base.IValueFormatter
+import com.github.fujianlian.klinechart.entity.ICandle
+import com.github.fujianlian.klinechart.entity.IKLine
 import com.github.fujianlian.klinechart.entity.IWR
 import com.github.fujianlian.klinechart.formatter.ValueFormatter
 
@@ -15,36 +16,38 @@ import com.github.fujianlian.klinechart.formatter.ValueFormatter
  */
 class WRDraw(view: BaseKLineChartView) : IChartDraw<IWR> {
     private val mRPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-
-    override fun drawTranslated(lastPoint: IWR?, curPoint: IWR, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
-        if (lastPoint?.getR() != -10f) {
-            view.drawChildLine(canvas, mRPaint, lastX, lastPoint?.getR().orZero, curX, curPoint.getR())
+    override fun drawTranslated(lastPoint: IWR?, curPoint: IWR?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
+        if (lastPoint == null || curPoint == null) return
+        if (lastPoint.r != -10f) {
+            view.drawChildLine(canvas, mRPaint, lastX, lastPoint.r, curX, curPoint.r)
         }
     }
 
     override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
-        var valueX = x
-        val point = view.getItem(position) as IWR
-        if (point.getR() != -10f) {
+        var newX = x
+        val point = view.getItem(position) as? IWR ?: return
+        val point1: ICandle = view.getItem(position) as? IKLine ?: return
+        // 位数
+        val digits = point1.digits
+        if (point.r != -10f) {
             var text = "WR(14):"
-            canvas.drawText(text, valueX, y, view.textPaint)
-            valueX += view.textPaint.measureText(text)
-            text = view.formatValue(point.getR()) + " "
-            canvas.drawText(text, valueX, y, mRPaint)
+            canvas.drawText(text, newX, y, view.textPaint)
+            newX += view.textPaint.measureText(text)
+            text = view.formatValue(point.r, digits) + " "
+            canvas.drawText(text, newX, y, mRPaint)
         }
     }
 
-    override fun getValueFormatter(): IValueFormatter {
-        return ValueFormatter()
+    override fun getMaxValue(point: IWR): Float {
+        return point.r
     }
 
     override fun getMinValue(point: IWR): Float {
-        return point.getR()
+        return point.r
     }
 
-    override fun getMaxValue(point: IWR): Float {
-        return point.getR()
-    }
+    override val valueFormatter: IValueFormatter
+        get() = ValueFormatter()
 
     /**
      * 设置%R颜色
@@ -66,5 +69,4 @@ class WRDraw(view: BaseKLineChartView) : IChartDraw<IWR> {
     fun setTextSize(textSize: Float) {
         mRPaint.textSize = textSize
     }
-
 }

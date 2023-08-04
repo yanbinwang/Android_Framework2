@@ -7,8 +7,10 @@ package com.github.fujianlian.klinechart.base
 interface IValueFormatter {
     /**
      * 格式化value
-     * @param value 传入的value值
+     *
+     * @param value  传入的value值
+     * @param digits 位数
      * @return 返回字符串
      */
-    fun format(value: Float): String?
+    fun format(value: Float, digits: String): String
 }

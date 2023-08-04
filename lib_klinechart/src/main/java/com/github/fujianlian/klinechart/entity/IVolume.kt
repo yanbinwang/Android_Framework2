@@ -8,25 +8,25 @@ interface IVolume {
     /**
      * 开盘价
      */
-    fun getOpenPrice(): Float
+    val openPrice: Float
 
     /**
      * 收盘价
      */
-    fun getClosePrice(): Float
+    val closePrice: Float
 
     /**
      * 成交量
      */
-    fun getVolume(): Float
+    val volume: Float
 
     /**
      * 五(月，日，时，分，5分等)均量
      */
-    fun getMA5Volume(): Float
+    val mA5Volume: Float
 
     /**
      * 十(月，日，时，分，5分等)均量
      */
-    fun getMA10Volume(): Float
+    val mA10Volume: Float
 }

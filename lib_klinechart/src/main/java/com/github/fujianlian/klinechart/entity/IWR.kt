@@ -8,5 +8,5 @@ interface IWR {
     /**
      * %R值
      */
-    fun getR(): Float
+    val r: Float
 }

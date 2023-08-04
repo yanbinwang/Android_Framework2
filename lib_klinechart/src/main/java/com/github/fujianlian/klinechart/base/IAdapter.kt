@@ -12,7 +12,7 @@ interface IAdapter {
      *
      * @return
      */
-    fun getCount(): Int
+    val count: Int
 
     /**
      * 通过序号获取item
@@ -23,12 +23,28 @@ interface IAdapter {
     fun getItem(position: Int): Any?
 
     /**
+     * 通过序号获取item
+     *
+     * @param position 对应的序号
+     * @return 数据实体
+     */
+    fun getPositionFromTime(time: Long): Int?
+
+    /**
      * 通过序号获取时间
      *
      * @param position
      * @return
      */
     fun getDate(position: Int): String?
+
+    /**
+     * 通过序号获取时间（年月日）
+     *
+     * @param position
+     * @return
+     */
+    fun getDateL(position: Int): String?
 
     /**
      * 注册一个数据观察者

@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
@@ -71,6 +72,13 @@ fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.
  * 获取图片
  */
 fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
+
+/**
+ * 获取resources中的drawable
+ */
+fun dimen(@DimenRes res: Int): Float {
+    return BaseApplication.instance.resources.getDimension(res)
+}
 
 /**
  *  <string name="dollar">\$%1$s</string>

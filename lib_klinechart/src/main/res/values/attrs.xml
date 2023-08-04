@@ -6,6 +6,8 @@
         <attr name="kc_text_color" format="color" />
         <attr name="kc_line_width" format="dimension" />
         <attr name="kc_background_color" format="color" />
+        <attr name="kc_setLastLinePaintColor" format="color" />
+        <attr name="kc_setLastTextPaintColor" format="color" />
         <attr name="kc_selected_line_color" format="color" />
         <attr name="kc_selected_line_width" format="dimension" />
         <attr name="kc_grid_line_width" format="dimension" />
@@ -35,6 +37,7 @@
         <attr name="kc_candle_width" format="dimension" />
         <attr name="kc_candle_line_width" format="dimension" />
         <attr name="kc_selector_background_color" format="color" />
+        <attr name="kc_selector_background_stroke_color" format="color" />
         <attr name="kc_selector_text_size" format="dimension" />
         <attr name="kc_candle_solid" format="boolean" />
         <!--tab-->

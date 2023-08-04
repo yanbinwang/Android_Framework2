@@ -1,22 +1,20 @@
 package com.github.fujianlian.klinechart.utils
 
 import android.content.Context
-import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.toSafeInt
+import com.example.common.BaseApplication
 
 /**
  * Created by tian on 2016/4/11.
  */
 object ViewUtil {
-    @JvmStatic
-    fun Dp2Px(context: Context?, dp: Float): Int {
-        val scale = context?.resources?.displayMetrics?.density.orZero
-        return (dp * scale + 0.5f).toSafeInt()
+
+    fun Px2Dp(context: Context, px: Float): Float {
+        val scale = context.resources.displayMetrics.density
+        return (px / scale + 0.5f)
     }
 
-    @JvmStatic
-    fun Px2Dp(context: Context?, px: Float): Int {
-        val scale = context?.resources?.displayMetrics?.density.orZero
-        return (px / scale + 0.5f).toSafeInt()
+    fun Float?.toDp(): Float {
+        this ?: return 0f
+        return Px2Dp(BaseApplication.instance, this)
     }
 }

@@ -1,7 +1,8 @@
 package com.github.fujianlian.klinechart.formatter
 
 import com.github.fujianlian.klinechart.base.IValueFormatter
-import java.util.Locale
+import com.github.fujianlian.klinechart.utils.BigDecimalUtil
+import java.math.BigDecimal
 
 /**
  * 对较大数据进行格式化
@@ -9,21 +10,20 @@ import java.util.Locale
  */
 class BigValueFormatter : IValueFormatter {
     //必须是排好序的
-    private val values = intArrayOf(10000, 1000000, 100000000)
-    private val units = arrayOf("万", "百万", "亿")
-
-    override fun format(value: Float): String {
-        var formatValue = value
+    private val values = intArrayOf(1000, 1000000, 1000000000)
+    private val units = arrayOf("K", "M", "B")
+    override fun format(value: Float, digits: String): String {
+        var newValue = value
         var unit = ""
         var i = values.size - 1
         while (i >= 0) {
-            if (formatValue > values[i]) {
-                formatValue /= values[i].toFloat()
+            if (newValue > values[i]) {
+                newValue /= values[i]
                 unit = units[i]
                 break
             }
             i--
         }
-        return String.format(Locale.getDefault(), "%.2f", formatValue) + unit
+        return BigDecimalUtil.getBigDecimal(newValue.toDouble(), digits.toInt(), BigDecimal.ROUND_HALF_UP) + unit
     }
 }

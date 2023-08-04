@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">KLineChartLib</string>
+    <string name="chartHigh">高:</string>
+    <string name="chartLow">低:</string>
+    <string name="chartOpen">开:</string>
+    <string name="chartClose">收:</string>
+</resources>

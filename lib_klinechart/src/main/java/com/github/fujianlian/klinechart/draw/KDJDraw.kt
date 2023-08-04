@@ -2,12 +2,15 @@ package com.github.fujianlian.klinechart.draw
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import com.example.framework.utils.function.value.orZero
 import com.github.fujianlian.klinechart.BaseKLineChartView
 import com.github.fujianlian.klinechart.base.IChartDraw
 import com.github.fujianlian.klinechart.base.IValueFormatter
+import com.github.fujianlian.klinechart.entity.ICandle
 import com.github.fujianlian.klinechart.entity.IKDJ
+import com.github.fujianlian.klinechart.entity.IKLine
 import com.github.fujianlian.klinechart.formatter.ValueFormatter
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * KDJ实现类
@@ -18,49 +21,52 @@ class KDJDraw(view: BaseKLineChartView) : IChartDraw<IKDJ> {
     private val mDPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mJPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    override fun drawTranslated(lastPoint: IKDJ?, curPoint: IKDJ, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
-        if (lastPoint?.getK() != 0f) {
-            view.drawChildLine(canvas, mKPaint, lastX, lastPoint?.getK().orZero, curX, curPoint.getK())
+    override fun drawTranslated(lastPoint: IKDJ?, curPoint: IKDJ?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
+        if (lastPoint == null || curPoint == null) return
+        if (lastPoint.k != 0f) {
+            view.drawChildLine(canvas, mKPaint, lastX, lastPoint.k, curX, curPoint.k)
         }
-        if (lastPoint?.getD() != 0f) {
-            view.drawChildLine(canvas, mDPaint, lastX, lastPoint?.getD().orZero, curX, curPoint.getD())
+        if (lastPoint.d != 0f) {
+            view.drawChildLine(canvas, mDPaint, lastX, lastPoint.d, curX, curPoint.d)
         }
-        if (lastPoint?.getJ() != 0f) {
-            view.drawChildLine(canvas, mJPaint, lastX, lastPoint?.getJ().orZero, curX, curPoint.getJ())
+        if (lastPoint.j != 0f) {
+            view.drawChildLine(canvas, mJPaint, lastX, lastPoint.j, curX, curPoint.j)
         }
     }
 
     override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
-        var valueX = x
-        val point = view.getItem(position) as IKDJ
-        if (point.getK() != 0f) {
+        var newX = x
+        val point = view.getItem(position) as? IKDJ ?: return
+        val point1: ICandle = view.getItem(position) as? IKLine ?: return
+        // 位数
+        val digits = point1.digits
+        if (point.k != 0f) {
             var text = "KDJ(14,1,3)  "
-            canvas.drawText(text, valueX, y, view.textPaint)
-            valueX += view.textPaint.measureText(text)
-            text = "K:" + view.formatValue(point.getK()) + " "
-            canvas.drawText(text, valueX, y, mKPaint)
-            valueX += mKPaint.measureText(text)
-            if (point.getD() != 0f) {
-                text = "D:" + view.formatValue(point.getD()) + " "
-                canvas.drawText(text, valueX, y, mDPaint)
-                valueX += mDPaint.measureText(text)
-                text = "J:" + view.formatValue(point.getJ()) + " "
-                canvas.drawText(text, valueX, y, mJPaint)
+            canvas.drawText(text, newX, y, view.textPaint)
+            newX += view.textPaint.measureText(text)
+            text = "K:" + view.formatValue(point.k, digits) + " "
+            canvas.drawText(text, newX, y, mKPaint)
+            newX += mKPaint.measureText(text)
+            if (point.d != 0f) {
+                text = "D:" + view.formatValue(point.d, digits) + " "
+                canvas.drawText(text, newX, y, mDPaint)
+                newX += mDPaint.measureText(text)
+                text = "J:" + view.formatValue(point.j, digits) + " "
+                canvas.drawText(text, newX, y, mJPaint)
             }
         }
     }
 
-    override fun getValueFormatter(): IValueFormatter {
-        return ValueFormatter()
+    override fun getMaxValue(point: IKDJ): Float {
+        return max(point.k, max(point.d, point.j))
     }
 
     override fun getMinValue(point: IKDJ): Float {
-        return point.getK().coerceAtMost(point.getD().coerceAtMost(point.getJ()))
+        return min(point.k, min(point.d, point.j))
     }
 
-    override fun getMaxValue(point: IKDJ): Float {
-        return point.getK().coerceAtLeast(point.getD().coerceAtLeast(point.getJ()))
-    }
+    override val valueFormatter: IValueFormatter
+        get() = ValueFormatter()
 
     /**
      * 设置K颜色
@@ -100,5 +106,6 @@ class KDJDraw(view: BaseKLineChartView) : IChartDraw<IKDJ> {
         mDPaint.textSize = textSize
         mJPaint.textSize = textSize
     }
+
 
 }
