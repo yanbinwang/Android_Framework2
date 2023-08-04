@@ -11,11 +11,15 @@ import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.logWTF
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.viewmodel.MainViewModel
+import com.github.fujianlian.klinechart.BaseKLineChartView
+import com.github.fujianlian.klinechart.BaseKLineChartView.OnSelectedChangedListener
 import com.github.fujianlian.klinechart.KLineChartAdapter
 import com.github.fujianlian.klinechart.draw.Status
+import com.github.fujianlian.klinechart.entity.ICandle
 import com.github.fujianlian.klinechart.formatter.DateFormatter
 
 @Route(path = ARouterPath.MainActivity)
@@ -58,6 +62,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
                     binding.kLineChartView.setChildDraw(subIndex)
                 }
             }
+        }
+        binding.kLineChartView.setOnSelectedChangedListener { view, point, index ->
+            var text = ""
+            text += "高:${(point as? ICandle)?.getHighPrice()}\n"
+            text += "低:${(point as? ICandle)?.getLowPrice()}\n"
+            text += "开:${(point as? ICandle)?.getOpenPrice()}\n"
+            text += "收:${(point as? ICandle)?.getClosePrice()}\n"
+            text.logWTF
         }
         viewModel.kLineData.observe(this) {
             adapter.addFooterData(it)
