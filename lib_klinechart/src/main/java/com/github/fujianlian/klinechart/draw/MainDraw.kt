@@ -198,19 +198,19 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
         val metrics = mSelectorTextPaint.fontMetrics
         val textHeight = metrics.descent - metrics.ascent
         val index = view.selectedIndex
-        val padding = Dp2Px(mContext, 5f).toFloat()
-        val margin = Dp2Px(mContext, 5f).toFloat()
+        val padding = Dp2Px(mContext, 5f).toSafeFloat()
+        val margin = Dp2Px(mContext, 5f).toSafeFloat()
         var width = 0f
         val left: Float
         val top = margin + view.topPadding
         val height = padding * 8 + textHeight * 5
-        val point = view.getItem(index) as ICandle
-        val strings: MutableList<String?> = ArrayList()
+        val point = view.getItem(index) as? ICandle
+        val strings = ArrayList<String?>()
         strings.add(view.adapter.getDate(index))
-        strings.add("高:" + point.getHighPrice())
-        strings.add("低:" + point.getLowPrice())
-        strings.add("开:" + point.getOpenPrice())
-        strings.add("收:" + point.getClosePrice())
+        strings.add("高:${point?.getHighPrice().orZero}")
+        strings.add("低:${point?.getLowPrice().orZero}")
+        strings.add("开:${point?.getOpenPrice().orZero}")
+        strings.add("收:${point?.getClosePrice().orZero}")
         for (s in strings) {
             width = width.coerceAtLeast(mSelectorTextPaint.measureText(s))
         }

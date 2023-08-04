@@ -34,8 +34,8 @@ class MACDDraw(view: BaseKLineChartView) : IChartDraw<IMACD> {
 
     override fun drawTranslated(lastPoint: IMACD?, curPoint: IMACD, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
         drawMACD(canvas, view, curX, curPoint.getMacd())
-        view.drawChildLine(canvas, mDIFPaint, lastX, lastPoint!!.getDea(), curX, curPoint.getDea())
-        view.drawChildLine(canvas, mDEAPaint, lastX, lastPoint.getDif(), curX, curPoint.getDif())
+        view.drawChildLine(canvas, mDIFPaint, lastX, lastPoint?.getDea().orZero, curX, curPoint.getDea())
+        view.drawChildLine(canvas, mDEAPaint, lastX, lastPoint?.getDif().orZero, curX, curPoint.getDif())
     }
 
     /**
@@ -63,13 +63,13 @@ class MACDDraw(view: BaseKLineChartView) : IChartDraw<IMACD> {
         var text = "MACD(12,26,9)  "
         canvas.drawText(text, valueX, y, view.textPaint)
         valueX += view.textPaint.measureText(text)
-        text = "MACD:" + view.formatValue(point?.getMacd().orZero) + "  "
+        text = "MACD:${view.formatValue(point?.getMacd().orZero)}  "
         canvas.drawText(text, valueX, y, mMACDPaint)
         valueX += mMACDPaint.measureText(text)
-        text = "DIF:" + view.formatValue(point?.getDif().orZero) + "  "
+        text = "DIF:${view.formatValue(point?.getDif().orZero)}  "
         canvas.drawText(text, valueX, y, mDEAPaint)
         valueX += mDIFPaint.measureText(text)
-        text = "DEA:" + view.formatValue(point?.getDea().orZero)
+        text = "DEA:${view.formatValue(point?.getDea().orZero)}"
         canvas.drawText(text, valueX, y, mDIFPaint)
     }
 

@@ -32,19 +32,19 @@ class KDJDraw(view: BaseKLineChartView) : IChartDraw<IKDJ> {
 
     override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
         var valueX = x
-        val point = view.getItem(position) as IKDJ
-        if (point.getK() != 0f) {
+        val point = view.getItem(position) as? IKDJ
+        if (point?.getK() != 0f) {
             var text = "KDJ(14,1,3)  "
             canvas.drawText(text, valueX, y, view.textPaint)
             valueX += view.textPaint.measureText(text)
-            text = "K:" + view.formatValue(point.getK()) + " "
+            text = "K:${view.formatValue(point?.getK().orZero)} "
             canvas.drawText(text, valueX, y, mKPaint)
             valueX += mKPaint.measureText(text)
-            if (point.getD() != 0f) {
-                text = "D:" + view.formatValue(point.getD()) + " "
+            if (point?.getD() != 0f) {
+                text = "D:${view.formatValue(point?.getD().orZero)} "
                 canvas.drawText(text, valueX, y, mDPaint)
                 valueX += mDPaint.measureText(text)
-                text = "J:" + view.formatValue(point.getJ()) + " "
+                text = "J:${view.formatValue(point?.getJ().orZero)} "
                 canvas.drawText(text, valueX, y, mJPaint)
             }
         }

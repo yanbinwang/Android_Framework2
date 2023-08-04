@@ -24,12 +24,12 @@ class WRDraw(view: BaseKLineChartView) : IChartDraw<IWR> {
 
     override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
         var valueX = x
-        val point = view.getItem(position) as IWR
-        if (point.getR() != -10f) {
+        val point = view.getItem(position) as? IWR
+        if (point?.getR() != -10f) {
             var text = "WR(14):"
             canvas.drawText(text, valueX, y, view.textPaint)
             valueX += view.textPaint.measureText(text)
-            text = view.formatValue(point.getR()) + " "
+            text = "${view.formatValue(point?.getR().orZero)} "
             canvas.drawText(text, valueX, y, mRPaint)
         }
     }

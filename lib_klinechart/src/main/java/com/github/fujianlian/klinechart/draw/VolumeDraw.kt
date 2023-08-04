@@ -52,14 +52,14 @@ class VolumeDraw(view: BaseKLineChartView) : IChartDraw<IVolume> {
 
     override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
         var valueX = x
-        val point = view.getItem(position) as IVolume
-        var text = "VOL:" + getValueFormatter().format(point.getVolume()) + "  "
+        val point = view.getItem(position) as? IVolume
+        var text = "VOL:${getValueFormatter().format(point?.getVolume().orZero)}  "
         canvas.drawText(text, valueX, y, view.textPaint)
         valueX += view.textPaint.measureText(text)
-        text = "MA5:" + getValueFormatter().format(point.getMA5Volume()) + "  "
+        text = "MA5:${getValueFormatter().format(point?.getMA5Volume().orZero)}  "
         canvas.drawText(text, valueX, y, ma5Paint)
         valueX += ma5Paint.measureText(text)
-        text = "MA10:" + getValueFormatter().format(point.getMA10Volume())
+        text = "MA10:${getValueFormatter().format(point?.getMA10Volume().orZero)}"
         canvas.drawText(text, valueX, y, ma10Paint)
     }
 
