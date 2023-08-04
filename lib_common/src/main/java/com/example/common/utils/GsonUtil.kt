@@ -1,10 +1,12 @@
 package com.example.common.utils
 
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import java.io.IOException
+import java.lang.reflect.Type
 
 /**
  * author:wyb
@@ -32,42 +34,27 @@ object GsonUtil {
     /**
      * json字符串转集合
      */
-    fun <T> jsonToList(json: String, clazz: Class<T>): List<T>? {
+    fun <T> jsonToList(json: String, type: Type): List<T>? {
         var ret: List<T>? = null
         try {
-            ret = gson.fromJson<List<T>>(json, clazz)
+            ret = gson.fromJson<List<T>>(json, type)
         } catch (_: Exception) {
         }
         return ret
     }
 
-//    /**
-//     * JsonArray转集合
-//     * 由于类型擦除，解析器无法在运行时获取真实类型 T
-//     * 直接传T获取会报com.google.gson.internal.LinkedTreeMap cannot be cast to object
-//     * 故而直接把T的class传入，让解析器能够识别，并且重新转换成一个list
-//     */
-//    fun <T> jsonToList(array: JsonArray, clazz: Class<T>): List<T> {
-//        val ret = ArrayList<T>()
-//        try {
-//            array.forEach { ret.add(gson.fromJson(it, clazz)) }
-//        } catch (_: Exception) {
-//        }
-//        return ret
-//    }
-//
-//    /**
-//     * JsonArray转集合
-//     * 指定type->object : TypeToken<List<XXXX>>() {}.type
-//     */
-//    fun <T> jsonToList(array: JsonArray, type: Type): List<T>? {
-//        var ret: List<T>? = null
-//        try {
-//            ret = gson.fromJson<List<T>>(array, type)
-//        } catch (_: Exception) {
-//        }
-//        return ret
-//    }
+    /**
+     * JsonArray转集合
+     * 指定type->object : TypeToken<List<XXXX>>() {}.type
+     */
+    fun <T> jsonToList(array: JsonArray, type: Type): List<T>? {
+        var ret: List<T>? = null
+        try {
+            ret = gson.fromJson<List<T>>(array, type)
+        } catch (_: Exception) {
+        }
+        return ret
+    }
 
     /**
      * 对象转json字符串

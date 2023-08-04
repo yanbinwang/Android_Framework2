@@ -12,137 +12,150 @@
         <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"
-            android:layout_height="44dp"
+            android:layout_height="44pt"
             android:gravity="center"
             android:paddingHorizontal="10pt"
             android:text="KLineChart"
             android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize18"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/text1"
-            android:layout_width="50dp"
-            android:layout_height="40dp"
+            android:layout_width="50pt"
+            android:layout_height="40pt"
             android:gravity="center"
             android:text="主图"
             android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintTop_toBottomOf="@id/title" />
 
         <TextView
             android:id="@+id/maText"
-            android:layout_width="50dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
+            android:layout_width="50pt"
+            android:layout_height="40pt"
+            android:layout_marginStart="10pt"
             android:gravity="center"
             android:text="MA"
             android:textColor="@color/colorAccent"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintLeft_toRightOf="@+id/text1"
             app:layout_constraintTop_toTopOf="@id/text1" />
 
         <TextView
             android:id="@+id/bollText"
-            android:layout_width="50dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
+            android:layout_width="50pt"
+            android:layout_height="40pt"
+            android:layout_marginStart="10pt"
             android:gravity="center"
             android:text="BOLL"
             android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintLeft_toRightOf="@+id/maText"
             app:layout_constraintTop_toTopOf="@id/text1" />
 
         <TextView
             android:id="@+id/mainHide"
-            android:layout_width="50dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
+            android:layout_width="50pt"
+            android:layout_height="40pt"
+            android:layout_marginStart="10pt"
             android:gravity="center"
             android:text="隐藏"
             android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintLeft_toRightOf="@+id/bollText"
             app:layout_constraintTop_toTopOf="@id/text1" />
 
         <TextView
             android:id="@+id/text2"
-            android:layout_width="50dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="10dp"
+            android:layout_width="50pt"
+            android:layout_height="40pt"
+            android:layout_marginTop="10pt"
             android:gravity="center"
             android:text="副图"
             android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintTop_toBottomOf="@+id/text1" />
 
         <TextView
             android:id="@+id/macdText"
-            android:layout_width="50dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
+            android:layout_width="50pt"
+            android:layout_height="40pt"
+            android:layout_marginStart="10pt"
             android:gravity="center"
             android:text="MACD"
             android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintStart_toEndOf="@+id/text2"
             app:layout_constraintTop_toTopOf="@id/text2" />
 
         <TextView
             android:id="@+id/kdjText"
-            android:layout_width="50dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
+            android:layout_width="50pt"
+            android:layout_height="40pt"
+            android:layout_marginStart="10pt"
             android:gravity="center"
             android:text="KDJ"
             android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintStart_toEndOf="@+id/macdText"
             app:layout_constraintTop_toTopOf="@id/text2" />
 
         <TextView
             android:id="@+id/rsiText"
-            android:layout_width="50dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
+            android:layout_width="50pt"
+            android:layout_height="40pt"
+            android:layout_marginStart="10pt"
             android:gravity="center"
             android:text="RSI"
             android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintStart_toEndOf="@+id/kdjText"
             app:layout_constraintTop_toTopOf="@id/text2" />
 
         <TextView
             android:id="@+id/wrText"
-            android:layout_width="50dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
+            android:layout_width="50pt"
+            android:layout_height="40pt"
+            android:layout_marginStart="10pt"
             android:gravity="center"
             android:text="WR"
             android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintStart_toEndOf="@+id/rsiText"
             app:layout_constraintTop_toTopOf="@id/text2" />
 
         <TextView
             android:id="@+id/subHide"
-            android:layout_width="50dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
+            android:layout_width="50pt"
+            android:layout_height="40pt"
+            android:layout_marginStart="10pt"
             android:gravity="center"
             android:text="隐藏"
             android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintStart_toEndOf="@+id/wrText"
             app:layout_constraintTop_toTopOf="@id/text2" />
 
         <TextView
             android:id="@+id/fenText"
-            android:layout_width="50dp"
-            android:layout_height="40dp"
+            android:layout_width="50pt"
+            android:layout_height="40pt"
             android:gravity="center"
             android:text="分时"
             android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintTop_toBottomOf="@+id/text2" />
 
         <TextView
             android:id="@+id/kText"
-            android:layout_width="50dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
+            android:layout_width="50pt"
+            android:layout_height="40pt"
+            android:layout_marginStart="10pt"
             android:gravity="center"
             android:text="k线图"
             android:textColor="@color/colorAccent"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintStart_toEndOf="@id/fenText"
             app:layout_constraintTop_toTopOf="@id/fenText" />
 

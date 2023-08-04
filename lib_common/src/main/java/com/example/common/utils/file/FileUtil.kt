@@ -18,6 +18,7 @@ import com.example.framework.utils.logE
 import java.io.*
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.nio.charset.Charset
 import java.security.MessageDigest
 import java.util.*
 
@@ -236,6 +237,21 @@ fun Context.getApplicationIcon(): Bitmap? {
     } catch (_: Exception) {
     }
     return null
+}
+
+/**
+ * 获取assets中的json文件
+ */
+fun Context.getStringFromAssert(fileName: String): String {
+    return try {
+        val stream = resources.assets.open(fileName)
+        val length = stream.available()
+        val buffer = ByteArray(length)
+        stream.read(buffer)
+        String(buffer, 0, buffer.size, Charset.forName("UTF-8"))
+    } catch (e: Exception) {
+        ""
+    }
 }
 
 /**
