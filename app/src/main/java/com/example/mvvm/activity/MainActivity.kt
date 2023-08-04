@@ -16,10 +16,10 @@ import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.viewmodel.MainViewModel
 import com.github.fujianlian.klinechart.KLineChartAdapter
 import com.github.fujianlian.klinechart.draw.Status
-import com.github.fujianlian.klinechart.formatter.DateFormatter
+import com.github.fujianlian.klinechart.utils.BigDecimalHelper
 
 @Route(path = ARouterPath.MainActivity)
-class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
+class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener, BigDecimalHelper {
     //主图指标下标
     private var mainIndex = 0
     //副图指标下标
@@ -33,10 +33,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
         binding.title.margin(top = getStatusBarHeight())
         binding.kLineChartView.apply {
             adapter = this@MainActivity.adapter
-            dateTimeFormatter = DateFormatter()
             setGridRows(4)
             setGridColumns(4)
             justShowLoading()
+
         }
     }
 

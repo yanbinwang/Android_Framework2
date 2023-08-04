@@ -7,8 +7,11 @@ import com.github.fujianlian.klinechart.entity.IKLine
  * Created by tifezh on 2016/5/16.
  */
 class KLineEntity : IKLine {
-    var date: String? = null
     var DateL: Long? = null
+
+    //当前期数
+    var period = 0
+    var date: String? = null
     override var openPrice = 0f
     override var highPrice = 0f
     override var lowPrice = 0f
@@ -32,8 +35,5 @@ class KLineEntity : IKLine {
     override var dn = 0f
     override var mA5Volume = 0f
     override var mA10Volume = 0f
-    // 位数
-    override var digits: String =""
-    // 当前期数
-    var period = 0
+    override var digits = ""//位数
 }

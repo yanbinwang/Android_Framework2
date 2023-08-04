@@ -7,6 +7,9 @@ import android.widget.ProgressBar
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.core.content.ContextCompat
+import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.view.gone
 import com.github.fujianlian.klinechart.base.IChartDraw
 import com.github.fujianlian.klinechart.draw.KDJDraw
 import com.github.fujianlian.klinechart.draw.MACDDraw
@@ -15,9 +18,6 @@ import com.github.fujianlian.klinechart.draw.RSIDraw
 import com.github.fujianlian.klinechart.draw.VolumeDraw
 import com.github.fujianlian.klinechart.draw.WRDraw
 import com.github.fujianlian.klinechart.utils.ViewUtil.toDp
-import com.lib.framework.extraFunction.value.orFalse
-import com.lib.framework.extraFunction.value.orZero
-import com.lib.framework.extraFunction.view.gone
 import kotlin.math.abs
 
 /**
@@ -112,8 +112,8 @@ class KLineChartView @JvmOverloads constructor(context: Context?, attrs: Attribu
             setmSelectorBackgroundPaintStrokeColor(array.getColor(R.styleable.KLineChartView_kc_selector_background_stroke_color, getColor(R.color.chart_selector_stroke)))
             setSelectorTextSize(array.getDimension(R.styleable.KLineChartView_kc_selector_text_size, getDimension(R.dimen.chart_selector_text_size)))
 
-            setOpenPaintBgColor(getColor(R.color.bgDefault))
-            setSlTpBgColor(getColor(R.color.bgDefault))
+            setOpenPaintBgColor(getColor(R.color.appWindowBackground))
+            setSlTpBgColor(getColor(R.color.appWindowBackground))
 
             setRedGreen(getColor(R.color.chartRed), getColor(R.color.chartGreen))
         } catch (e: Exception) {

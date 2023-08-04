@@ -12,6 +12,7 @@ class BigValueFormatter : IValueFormatter {
     //必须是排好序的
     private val values = intArrayOf(1000, 1000000, 1000000000)
     private val units = arrayOf("K", "M", "B")
+
     override fun format(value: Float, digits: String): String {
         var newValue = value
         var unit = ""
@@ -24,6 +25,8 @@ class BigValueFormatter : IValueFormatter {
             }
             i--
         }
-        return BigDecimalUtil.getBigDecimal(newValue.toDouble(), digits.toInt(), BigDecimal.ROUND_HALF_UP) + unit
+//        return BigDecimalUtil.getBigDecimal(newValue.toDouble(), digits.toInt(), BigDecimal.ROUND_HALF_UP) + unit
+        return BigDecimalUtil.getBigDecimal(newValue.toDouble(), 0, BigDecimal.ROUND_HALF_UP) + unit
     }
+
 }

@@ -17,10 +17,9 @@ class MainViewModel : BaseViewModel() {
     fun getPageData() {
         launch {
             val data = withContext(IO) { context.getStringFromAssert("ibm.json").toList<KLineEntity>(object : TypeToken<List<KLineEntity>>() {}.type) }?.subList(0, 500)
-            DataHelper.calculate(data)
+            DataHelper.calculate(data.orEmpty())
             kLineData.value = data
         }
-
     }
 
 }
