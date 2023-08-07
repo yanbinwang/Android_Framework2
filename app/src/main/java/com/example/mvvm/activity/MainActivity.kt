@@ -21,6 +21,11 @@ import com.github.fujianlian.klinechart.KLineChartAdapter
 import com.github.fujianlian.klinechart.draw.Status
 import com.github.fujianlian.klinechart.entity.ICandle
 import com.github.fujianlian.klinechart.formatter.DateFormatter
+import com.github.fujianlian.klinechart.utils.hideChild
+import com.github.fujianlian.klinechart.utils.init
+import com.github.fujianlian.klinechart.utils.mainDrawLine
+import com.github.fujianlian.klinechart.utils.mainDrawType
+import com.github.fujianlian.klinechart.utils.showChild
 
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
@@ -35,13 +40,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
     override fun initView() {
         super.initView()
         binding.title.margin(top = getStatusBarHeight())
-        binding.kLineChartView.apply {
-            adapter = this@MainActivity.adapter
-            dateTimeFormatter = DateFormatter()
-            setGridRows(4)
-            setGridColumns(4)
-            justShowLoading()
-        }
+        binding.kLineChartView.init(adapter)
     }
 
     override fun initData() {
@@ -55,11 +54,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
         for ((index, text) in subTexts.withIndex()) {
             text.click {
                 if (subIndex != index) {
-                    binding.kLineChartView.hideSelectData()
                     subTexts.safeGet(subIndex)?.setTextColor(Color.WHITE)
                     subIndex = index
                     text.setTextColor(Color.parseColor("#eeb350"))
-                    binding.kLineChartView.setChildDraw(subIndex)
+                    binding.kLineChartView.showChild(subIndex)
                 }
             }
         }
@@ -83,50 +81,44 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
         when (v?.id) {
             R.id.maText -> {
                 if (mainIndex != 0) {
-                    binding.kLineChartView.hideSelectData()
                     mainIndex = 0
                     binding.maText.setTextColor(Color.parseColor("#eeb350"))
                     binding.bollText.setTextColor(Color.WHITE)
-                    binding.kLineChartView.changeMainDrawType(Status.MA)
+                    binding.kLineChartView.mainDrawType(Status.MA)
                 }
             }
             R.id.bollText -> {
                 if (mainIndex != 1) {
-                    binding.kLineChartView.hideSelectData()
                     mainIndex = 1
                     binding.bollText.setTextColor(Color.parseColor("#eeb350"))
                     binding.maText.setTextColor(Color.WHITE)
-                    binding.kLineChartView.changeMainDrawType(Status.BOLL)
+                    binding.kLineChartView.mainDrawType(Status.BOLL)
                 }
             }
             R.id.mainHide -> {
                 if (mainIndex != -1) {
-                    binding.kLineChartView.hideSelectData()
                     mainIndex = -1
                     binding.bollText.setTextColor(Color.WHITE)
                     binding.maText.setTextColor(Color.WHITE)
-                    binding.kLineChartView.changeMainDrawType(Status.NONE)
+                    binding.kLineChartView.mainDrawType(Status.NONE)
                 }
             }
             R.id.subHide -> {
                 if (subIndex != -1) {
-                    binding.kLineChartView.hideSelectData()
                     subTexts[subIndex].setTextColor(Color.WHITE)
                     subIndex = -1
-                    binding.kLineChartView.hideChildDraw()
+                    binding.kLineChartView.hideChild()
                 }
             }
             R.id.fenText -> {
                 binding.kLineChartView.hideSelectData()
                 binding.fenText.setTextColor(Color.parseColor("#eeb350"))
-                binding.kText.setTextColor(Color.WHITE)
-                binding.kLineChartView.setMainDrawLine(true)
+                binding.kLineChartView.mainDrawLine(true)
             }
             R.id.kText -> {
-                binding.kLineChartView.hideSelectData()
                 binding.kText.setTextColor(Color.parseColor("#eeb350"))
                 binding.fenText.setTextColor(Color.WHITE)
-                binding.kLineChartView.setMainDrawLine(false)
+                binding.kLineChartView.mainDrawLine(false)
             }
         }
     }
