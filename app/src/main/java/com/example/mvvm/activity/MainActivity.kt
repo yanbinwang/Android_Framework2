@@ -63,10 +63,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
         }
         binding.kLineChartView.setOnSelectedChangedListener { view, point, index ->
             var text = ""
-            text += "高:${(point as? ICandle)?.getHighPrice()}\n"
-            text += "低:${(point as? ICandle)?.getLowPrice()}\n"
-            text += "开:${(point as? ICandle)?.getOpenPrice()}\n"
-            text += "收:${(point as? ICandle)?.getClosePrice()}\n"
+            (point as? ICandle)?.apply {
+                text += "最高价:${getHighPrice()}\n"
+                text += "最低价:${getLowPrice()}\n"
+                text += "开盘价:${getOpenPrice()}\n"
+                text += "收盘价:${getClosePrice()}\n"
+            }
             text.logWTF
         }
         viewModel.kLineData.observe(this) {

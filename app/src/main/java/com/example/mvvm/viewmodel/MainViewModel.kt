@@ -20,7 +20,6 @@ class MainViewModel : BaseViewModel() {
             DataHelper.calculate(data)
             kLineData.value = data
         }
-
     }
 
 }
