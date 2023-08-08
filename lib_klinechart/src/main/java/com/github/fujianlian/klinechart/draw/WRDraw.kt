@@ -27,8 +27,8 @@ class WRDraw(view: BaseKLineChartView) : IChartDraw<IWR> {
         val point = view.getItem(position) as? IWR
         if (point?.getR() != -10f) {
             var text = "WR(14):"
-            canvas.drawText(text, valueX, y, view.textPaint)
-            valueX += view.textPaint.measureText(text)
+            canvas.drawText(text, valueX, y, view.getTextPaint())
+            valueX += view.getTextPaint().measureText(text)
             text = "${view.formatValue(point?.getR().orZero)} "
             canvas.drawText(text, valueX, y, mRPaint)
         }

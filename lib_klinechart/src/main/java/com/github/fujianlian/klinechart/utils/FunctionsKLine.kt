@@ -10,8 +10,8 @@ import com.github.fujianlian.klinechart.formatter.DateFormatter
  */
 fun <T : IAdapter> KLineChartView?.init(klineAdapter: T?, rows: Int = 4, columns: Int = 4) {
     if (this == null || klineAdapter == null) return
-    adapter = klineAdapter
-    dateTimeFormatter = DateFormatter()
+    setAdapter(klineAdapter)
+    setDateTimeFormatter(DateFormatter())
     setGridRows(rows)
     setGridColumns(columns)
     justShowLoading()

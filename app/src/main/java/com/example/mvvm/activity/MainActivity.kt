@@ -61,16 +61,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
                 }
             }
         }
-        binding.kLineChartView.setOnSelectedChangedListener { view, point, index ->
-            var text = ""
-            (point as? ICandle)?.apply {
-                text += "最高价:${getHighPrice()}\n"
-                text += "最低价:${getLowPrice()}\n"
-                text += "开盘价:${getOpenPrice()}\n"
-                text += "收盘价:${getClosePrice()}\n"
+        binding.kLineChartView.setOnSelectedChangedListener(object : OnSelectedChangedListener {
+            override fun onSelectedChanged(view: BaseKLineChartView?, point: Any?, index: Int) {
+                var text = ""
+                (point as? ICandle)?.apply {
+                    text += "最高价:${getHighPrice()}\n"
+                    text += "最低价:${getLowPrice()}\n"
+                    text += "开盘价:${getOpenPrice()}\n"
+                    text += "收盘价:${getClosePrice()}\n"
+                }
+                text.logWTF
             }
-            text.logWTF
-        }
+        })
         viewModel.kLineData.observe(this) {
             adapter.addFooterData(it)
             adapter.notifyDataSetChanged()

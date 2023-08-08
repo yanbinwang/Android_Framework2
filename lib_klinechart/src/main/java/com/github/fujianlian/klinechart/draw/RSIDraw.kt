@@ -29,10 +29,10 @@ class RSIDraw(view: BaseKLineChartView) : IChartDraw<IRSI> {
         if (point?.getRsi() != 0f) {
             var valueX = x
             var text: String? = "RSI(14)  "
-            canvas.drawText(text.orEmpty(), valueX, y, view.textPaint)
-            valueX += view.textPaint.measureText(text)
+            canvas.drawText(text.orEmpty(), valueX, y, view.getTextPaint())
+            valueX += view.getTextPaint().measureText(text)
             text = view.formatValue(point?.getRsi().orZero)
-            canvas.drawText(text, valueX, y, mRSI1Paint)
+            canvas.drawText(text.orEmpty(), valueX, y, mRSI1Paint)
         }
     }
 
