@@ -268,18 +268,18 @@ public abstract class BaseKLineChartView extends ScrollAndScaleView {
         //画选择线
         if (isLongPress) {
             IKLine point = (IKLine) getItem(mSelectedIndex);
-            float x = getX(mSelectedIndex);
+//            float x = getX(mSelectedIndex);
             float y = getMainY(point.getClosePrice());
-            // k线图竖线
-            canvas.drawLine(x, mMainRect.top, x, mMainRect.bottom, mSelectedYLinePaint);
+//            // k线图竖线
+//            canvas.drawLine(x, mMainRect.top, x, mMainRect.bottom, mSelectedYLinePaint);
             // k线图横线
             canvas.drawLine(-mTranslateX, y, -mTranslateX + mWidth / mScaleX, y, mSelectedXLinePaint);
-            // 柱状图竖线
-            canvas.drawLine(x, mMainRect.bottom, x, mVolRect.bottom, mSelectedYLinePaint);
-            if (mChildDraw != null) {
-                // 子线图竖线
-                canvas.drawLine(x, mVolRect.bottom, x, mChildRect.bottom, mSelectedYLinePaint);
-            }
+//            // 柱状图竖线
+//            canvas.drawLine(x, mMainRect.bottom, x, mVolRect.bottom, mSelectedYLinePaint);
+//            if (mChildDraw != null) {
+//                // 子线图竖线
+//                canvas.drawLine(x, mVolRect.bottom, x, mChildRect.bottom, mSelectedYLinePaint);
+//            }
         }
         //还原 平移缩放
         canvas.restore();
@@ -405,26 +405,26 @@ public abstract class BaseKLineChartView extends ScrollAndScaleView {
                 canvas.drawText(text, x + w1 + w2, fixTextY1(y), mTextPaint);
             }
 
-            // 画X值
-            String date = mAdapter.getDate(mSelectedIndex);
-            textWidth = mTextPaint.measureText(date);
-            r = textHeight / 2;
-            x = translateXtoX(getX(mSelectedIndex));
-            if (isShowChild) {
-                y = mChildRect.bottom;
-            } else {
-                y = mVolRect.bottom;
-            }
-
-            if (x < textWidth + 2 * w1) {
-                x = 1 + textWidth / 2 + w1;
-            } else if (mWidth - x < textWidth + 2 * w1) {
-                x = mWidth - 1 - textWidth / 2 - w1;
-            }
-
-            canvas.drawRect(x - textWidth / 2 - w1, y, x + textWidth / 2 + w1, y + baseLine + r, mSelectPointPaint);
-            canvas.drawRect(x - textWidth / 2 - w1, y, x + textWidth / 2 + w1, y + baseLine + r, mSelectorFramePaint);
-            canvas.drawText(date, x - textWidth / 2, y + baseLine + 5, mTextPaint);
+//            // 画X值
+//            String date = mAdapter.getDate(mSelectedIndex);
+//            textWidth = mTextPaint.measureText(date);
+//            r = textHeight / 2;
+//            x = translateXtoX(getX(mSelectedIndex));
+//            if (isShowChild) {
+//                y = mChildRect.bottom;
+//            } else {
+//                y = mVolRect.bottom;
+//            }
+//
+//            if (x < textWidth + 2 * w1) {
+//                x = 1 + textWidth / 2 + w1;
+//            } else if (mWidth - x < textWidth + 2 * w1) {
+//                x = mWidth - 1 - textWidth / 2 - w1;
+//            }
+//
+//            canvas.drawRect(x - textWidth / 2 - w1, y, x + textWidth / 2 + w1, y + baseLine + r, mSelectPointPaint);
+//            canvas.drawRect(x - textWidth / 2 - w1, y, x + textWidth / 2 + w1, y + baseLine + r, mSelectorFramePaint);
+//            canvas.drawText(date, x - textWidth / 2, y + baseLine + 5, mTextPaint);
         }
     }
 

@@ -183,9 +183,9 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
                 }
             }
         }
-        if (view.isLongPress) {
-            drawSelector(view, canvas)
-        }
+//        if (view.isLongPress) {
+//            drawSelector(view, canvas)
+//        }
     }
 
     /**
