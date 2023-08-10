@@ -1,8 +1,8 @@
 package com.example.mvvm.activity
 
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
@@ -30,14 +30,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         val constrains = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)//网络连接的情况下执行
             .build()
-        //单次请求->OneTimeWorkRequestBuilder
-        val workRequestA = OneTimeWorkRequestBuilder<RecordWork>()
-            .setConstraints(constrains)
-            //传递数据
-            .setInputData(workDataOf("input_data_key" to "input_work_data"))
-            .build()
-        //多次请求->PeriodicWorkRequestBuilder
-        val workRequestB = PeriodicWorkRequestBuilder<RecordWork>(24, TimeUnit.HOURS)
+//        //单次请求->OneTimeWorkRequestBuilder
+//        val workRequestA = OneTimeWorkRequestBuilder<RecordWork>()
+//            .setConstraints(constrains)
+//            //传递数据
+//            .setInputData(workDataOf("input_data_key" to "input_work_data"))
+//            .build()
+        //周期性地重复执行多次请求->PeriodicWorkRequestBuilder
+        //!!!!!!!!!!!!!定期工作请求的最小间隔为15分钟!!!!!!!!!!!!!
+        val workRequestB = PeriodicWorkRequestBuilder<RecordWork>(15, TimeUnit.MINUTES)
             .setConstraints(constrains)
             //传递数据
             .setInputData(workDataOf("input_data_key" to "input_work_data"))
@@ -57,8 +58,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         //existingWorkPolicy - 此 enum 可告知 WorkManager：如果已有使用该名称且尚未完成的唯一工作链，应执行什么操作。如需了解详情，请参阅冲突解决政策。
         //work - 要调度的 WorkRequest
         //————————————————
-        manager.enqueue(workRequestA)
-        manager.getWorkInfoByIdLiveData(workRequestA.id).observe(this) {
+        manager.enqueue(workRequestB)
+//        manager.enqueueUniquePeriodicWork("test", ExistingPeriodicWorkPolicy.KEEP, workRequestB)
+        manager.getWorkInfoByIdLiveData(workRequestB.id).observe(this) {
             val state = it.state//状态
             "state:${state}".logWTF
             if (state == WorkInfo.State.SUCCEEDED) {
