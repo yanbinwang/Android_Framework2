@@ -6,7 +6,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/blue_3d81f2">
+        android:background="@color/bgBlue">
 
         <ImageView
             android:layout_width="280dp"
@@ -34,7 +34,7 @@
             android:background="@drawable/shape_r5_blue"
             android:gravity="center"
             android:text="刷新"
-            android:textColor="@color/blue_3d81f2"
+            android:textColor="@color/textBlue"
             android:textSize="12sp"
             android:visibility="gone" />
 

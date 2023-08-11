@@ -7,9 +7,9 @@
 
             <gradient
                 android:angle="270"
-                android:centerColor="@color/grey_9f9f9f"
-                android:endColor="@color/grey_cccccc"
-                android:startColor="@color/grey_6c6c6c" />
+                android:centerColor="@color/bgWebCenter"
+                android:endColor="@color/bgWebEnd"
+                android:startColor="@color/bgWebStart" />
 
         </shape>
 
@@ -23,9 +23,9 @@
                 <corners android:radius="2dp" />
 
                 <gradient
-                    android:centerColor="@color/blue_3e78f1"
-                    android:endColor="@color/blue_3259e1"
-                    android:startColor="@color/blue_2e60df" />
+                    android:centerColor="@color/bgWebProgressCenter"
+                    android:endColor="@color/bgWebProgressEnd"
+                    android:startColor="@color/bgWebProgressStart" />
 
             </shape>
 

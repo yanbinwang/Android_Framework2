@@ -1,6 +1,7 @@
 package com.example.thirdparty.album
 
 import android.app.Activity
+import android.graphics.Color
 import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
@@ -22,7 +23,7 @@ import com.yanzhenjie.durban.Durban
  * android:configChanges="orientation|keyboardHidden|screenSize"
  */
 class AlbumHelper(private val activity: Activity) {
-    private val color by lazy { color(R.color.black) }
+    private val color by lazy { Color.BLACK }
     private val widget by lazy {
         Widget.newDarkBuilder(activity)
             //标题 ---标题颜色只有黑色白色

@@ -495,8 +495,8 @@ private class TextLengthFilter(private val maxLength: Int) : InputFilter {
  *      android:hint="请输入积分充值数额"
  *      android:inputType="numberDecimal"
  *      android:lines="1"
- *      android:textColor="@color/black_111b34"
- *      android:textColorHint="@color/grey_c5cad5"
+ *      android:textColor="@color/textPrimary"
+ *      android:textColorHint="@color/textHint"
  *      android:textSize="30mm"
  *      android:textStyle="bold" />
  */
