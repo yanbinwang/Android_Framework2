@@ -2,6 +2,10 @@ package com.github.fujianlian.klinechart
 
 import com.github.fujianlian.klinechart.entity.IKLine
 
+/**
+ * K线实体
+ * Created by tifezh on 2016/5/16.
+ */
 open class KLineEntity : IKLine {
     var Date: String? = null
 
