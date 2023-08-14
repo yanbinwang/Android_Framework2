@@ -214,44 +214,44 @@ object DataHelper {
             ma30 += closePrice
             ma60 += closePrice
             if (i == 4) {
-                point?.MA5Price = ma5 / 5f
+                point?.mA5Price = ma5 / 5f
             } else if (i >= 5) {
                 ma5 -= dataList.safeGet(i - 5)?.closePrice.orZero
-                point?.MA5Price = ma5 / 5f
+                point?.mA5Price = ma5 / 5f
             } else {
-                point?.MA5Price = 0f
+                point?.mA5Price = 0f
             }
             if (i == 9) {
-                point?.MA10Price = ma10 / 10f
+                point?.mA10Price = ma10 / 10f
             } else if (i >= 10) {
                 ma10 -= dataList.safeGet(i - 10)?.closePrice.orZero
-                point?.MA10Price = ma10 / 10f
+                point?.mA10Price = ma10 / 10f
             } else {
-                point?.MA10Price = 0f
+                point?.mA10Price = 0f
             }
             if (i == 19) {
-                point?.MA20Price = ma20 / 20f
+                point?.mA20Price = ma20 / 20f
             } else if (i >= 20) {
                 ma20 -= dataList.safeGet(i - 20)?.closePrice.orZero
-                point?.MA20Price = ma20 / 20f
+                point?.mA20Price = ma20 / 20f
             } else {
-                point?.MA20Price = 0f
+                point?.mA20Price = 0f
             }
             if (i == 29) {
-                point?.MA30Price = ma30 / 30f
+                point?.mA30Price = ma30 / 30f
             } else if (i >= 30) {
                 ma30 -= dataList.safeGet(i - 30)?.closePrice.orZero
-                point?.MA30Price = ma30 / 30f
+                point?.mA30Price = ma30 / 30f
             } else {
-                point?.MA30Price = 0f
+                point?.mA30Price = 0f
             }
             if (i == 59) {
-                point?.MA60Price = ma60 / 60f
+                point?.mA60Price = ma60 / 60f
             } else if (i >= 60) {
                 ma60 -= dataList.safeGet(i - 60)?.closePrice.orZero
-                point?.MA60Price = ma60 / 60f
+                point?.mA60Price = ma60 / 60f
             } else {
-                point?.MA60Price = 0f
+                point?.mA60Price = 0f
             }
         }
     }
@@ -280,20 +280,20 @@ object DataHelper {
             volumeMa5 += entry?.volume.orZero
             volumeMa10 += entry?.volume.orZero
             if (i == 4) {
-                entry?.MA5Volume = volumeMa5 / 5f
+                entry?.mA5Volume = volumeMa5 / 5f
             } else if (i > 4) {
                 volumeMa5 -= entries.safeGet(i - 5)?.volume.orZero
-                entry?.MA5Volume = volumeMa5 / 5f
+                entry?.mA5Volume = volumeMa5 / 5f
             } else {
-                entry?.MA5Volume = 0f
+                entry?.mA5Volume = 0f
             }
             if (i == 9) {
-                entry?.MA10Volume = volumeMa10 / 10f
+                entry?.mA10Volume = volumeMa10 / 10f
             } else if (i > 9) {
                 volumeMa10 -= entries.safeGet(i - 10)?.volume.orZero
-                entry?.MA10Volume = volumeMa10 / 10f
+                entry?.mA10Volume = volumeMa10 / 10f
             } else {
-                entry?.MA10Volume = 0f
+                entry?.mA10Volume = 0f
             }
         }
     }
