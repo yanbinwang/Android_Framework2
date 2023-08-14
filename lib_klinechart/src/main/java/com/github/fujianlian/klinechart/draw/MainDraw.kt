@@ -183,7 +183,7 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
                 }
             }
         }
-        if (view.isLongPress) {
+        if (view.getIsLongPress()) {
             drawSelector(view, canvas)
         }
     }
@@ -197,16 +197,16 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
     private fun drawSelector(view: BaseKLineChartView, canvas: Canvas) {
         val metrics = mSelectorTextPaint.fontMetrics
         val textHeight = metrics.descent - metrics.ascent
-        val index = view.selectedIndex
+        val index = view.getSelectedIndex()
         val padding = Dp2Px(mContext, 5f).toSafeFloat()
         val margin = Dp2Px(mContext, 5f).toSafeFloat()
         var width = 0f
         val left: Float
-        val top = margin + view.topPadding
+        val top = margin + view.getTopPadding()
         val height = padding * 8 + textHeight * 5
         val point = view.getItem(index) as? ICandle
         val strings = ArrayList<String?>()
-        strings.add(view.adapter.getDate(index))
+        strings.add(view.getAdapter()?.getDate(index))
         strings.add("高:${point?.getHighPrice().orZero}")
         strings.add("低:${point?.getLowPrice().orZero}")
         strings.add("开:${point?.getOpenPrice().orZero}")
@@ -216,10 +216,10 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
         }
         width += padding * 2
         val x = view.translateXtoX(view.getX(index))
-        left = if (x > view.chartWidth / 2) {
+        left = if (x > view.getChartWidth() / 2) {
             margin
         } else {
-            view.chartWidth - width - margin
+            view.getChartWidth() - width - margin
         }
         val r = RectF(left, top, left + width, top + height)
         canvas.drawRoundRect(r, padding, padding, mSelectorBackgroundPaint)

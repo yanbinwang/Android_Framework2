@@ -36,8 +36,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
         super.initView()
         binding.title.margin(top = getStatusBarHeight())
         binding.kLineChartView.apply {
-            adapter = this@MainActivity.adapter
-            dateTimeFormatter = DateFormatter()
+            setAdapter(adapter)
+            setDateTimeFormatter(DateFormatter())
             setGridRows(4)
             setGridColumns(4)
             justShowLoading()
@@ -63,14 +63,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
                 }
             }
         }
-        binding.kLineChartView.setOnSelectedChangedListener { view, point, index ->
-            var text = ""
-            text += "高:${(point as? ICandle)?.getHighPrice()}\n"
-            text += "低:${(point as? ICandle)?.getLowPrice()}\n"
-            text += "开:${(point as? ICandle)?.getOpenPrice()}\n"
-            text += "收:${(point as? ICandle)?.getClosePrice()}\n"
-            text.logWTF
-        }
+        binding.kLineChartView.setOnSelectedChangedListener(object :OnSelectedChangedListener{
+            override fun onSelectedChanged(view: BaseKLineChartView?, point: Any?, index: Int) {
+                var text = ""
+                text += "高:${(point as? ICandle)?.getHighPrice()}\n"
+                text += "低:${(point as? ICandle)?.getLowPrice()}\n"
+                text += "开:${(point as? ICandle)?.getOpenPrice()}\n"
+                text += "收:${(point as? ICandle)?.getClosePrice()}\n"
+                text.logWTF
+            }
+        })
         viewModel.kLineData.observe(this) {
             adapter.addFooterData(it)
             adapter.notifyDataSetChanged()

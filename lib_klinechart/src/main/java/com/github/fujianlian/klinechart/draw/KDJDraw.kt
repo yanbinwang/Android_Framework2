@@ -35,8 +35,8 @@ class KDJDraw(view: BaseKLineChartView) : IChartDraw<IKDJ> {
         val point = view.getItem(position) as? IKDJ
         if (point?.getK() != 0f) {
             var text = "KDJ(14,1,3)  "
-            canvas.drawText(text, valueX, y, view.textPaint)
-            valueX += view.textPaint.measureText(text)
+            canvas.drawText(text, valueX, y, view.getTextPaint())
+            valueX += view.getTextPaint().measureText(text)
             text = "K:${view.formatValue(point?.getK().orZero)} "
             canvas.drawText(text, valueX, y, mKPaint)
             valueX += mKPaint.measureText(text)

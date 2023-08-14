@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.core.content.ContextCompat
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.toSafeFloat
 import com.github.fujianlian.klinechart.BaseKLineChartView
 import com.github.fujianlian.klinechart.R
 import com.github.fujianlian.klinechart.base.IChartDraw
@@ -40,13 +41,13 @@ class VolumeDraw(view: BaseKLineChartView) : IChartDraw<IVolume> {
     }
 
     private fun drawHistogram(canvas: Canvas, curPoint: IVolume?, lastPoint: IVolume?, curX: Float, view: BaseKLineChartView, position: Int) {
-        val r = (pillarWidth / 2).toFloat()
+        val r = (pillarWidth / 2).toSafeFloat()
         val top = view.getVolY(curPoint?.getVolume().orZero)
-        val bottom = view.volRect.bottom
+        val bottom = view.getVolRect()?.bottom
         if (curPoint?.getClosePrice().orZero >= curPoint?.getOpenPrice().orZero) { //涨
-            canvas.drawRect(curX - r, top, curX + r, bottom.toFloat(), mRedPaint)
+            canvas.drawRect(curX - r, top, curX + r, bottom?.toSafeFloat().orZero, mRedPaint)
         } else {
-            canvas.drawRect(curX - r, top, curX + r, bottom.toFloat(), mGreenPaint)
+            canvas.drawRect(curX - r, top, curX + r, bottom?.toSafeFloat().orZero, mGreenPaint)
         }
     }
 
@@ -54,8 +55,8 @@ class VolumeDraw(view: BaseKLineChartView) : IChartDraw<IVolume> {
         var valueX = x
         val point = view.getItem(position) as? IVolume
         var text = "VOL:${getValueFormatter().format(point?.getVolume().orZero)}  "
-        canvas.drawText(text, valueX, y, view.textPaint)
-        valueX += view.textPaint.measureText(text)
+        canvas.drawText(text, valueX, y, view.getTextPaint())
+        valueX += view.getTextPaint().measureText(text)
         text = "MA5:${getValueFormatter().format(point?.getMA5Volume().orZero)}  "
         canvas.drawText(text, valueX, y, ma5Paint)
         valueX += ma5Paint.measureText(text)

@@ -61,8 +61,8 @@ class MACDDraw(view: BaseKLineChartView) : IChartDraw<IMACD> {
         var valueX = x
         val point = view.getItem(position) as? IMACD
         var text = "MACD(12,26,9)  "
-        canvas.drawText(text, valueX, y, view.textPaint)
-        valueX += view.textPaint.measureText(text)
+        canvas.drawText(text, valueX, y, view.getTextPaint())
+        valueX += view.getTextPaint().measureText(text)
         text = "MACD:${view.formatValue(point?.getMacd().orZero)}  "
         canvas.drawText(text, valueX, y, mMACDPaint)
         valueX += mMACDPaint.measureText(text)
