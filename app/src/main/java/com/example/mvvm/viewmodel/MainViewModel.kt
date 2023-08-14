@@ -22,8 +22,7 @@ class MainViewModel : BaseViewModel() {
             val data = withContext(IO) {
                 context.getStringFromAssert("ibm.json")
                     .toList<KLineBean>(object : TypeToken<List<KLineBean>>() {}.type)
-            }?.subList(0, 500)
-            val newData = data.toNewList {
+            }?.subList(0, 500).toNewList {
                 KLineEntity().apply {
                     Date = it.Date
                     openPrice = it.Open.toSafeFloat()
@@ -33,8 +32,8 @@ class MainViewModel : BaseViewModel() {
                     volume = it.Volume.toSafeFloat()
                 }
             }
-            DataHelper.calculate(newData)
-            kLineData.value = newData
+            DataHelper.calculate(data)
+            kLineData.value = data
         }
 
     }
