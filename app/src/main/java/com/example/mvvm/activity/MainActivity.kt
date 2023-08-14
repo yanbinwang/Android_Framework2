@@ -66,10 +66,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
         binding.kLineChartView.setOnSelectedChangedListener(object :OnSelectedChangedListener{
             override fun onSelectedChanged(view: BaseKLineChartView?, point: Any?, index: Int) {
                 var text = ""
-                text += "高:${(point as? ICandle)?.getHighPrice()}\n"
-                text += "低:${(point as? ICandle)?.getLowPrice()}\n"
-                text += "开:${(point as? ICandle)?.getOpenPrice()}\n"
-                text += "收:${(point as? ICandle)?.getClosePrice()}\n"
+                text += "高:${(point as? ICandle)?.highPrice}\n"
+                text += "低:${(point as? ICandle)?.lowPrice}\n"
+                text += "开:${(point as? ICandle)?.openPrice}\n"
+                text += "收:${(point as? ICandle)?.closePrice}\n"
                 text.logWTF
             }
         })

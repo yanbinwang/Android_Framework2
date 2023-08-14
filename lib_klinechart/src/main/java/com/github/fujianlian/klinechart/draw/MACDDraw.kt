@@ -33,9 +33,9 @@ class MACDDraw(view: BaseKLineChartView) : IChartDraw<IMACD> {
     }
 
     override fun drawTranslated(lastPoint: IMACD?, curPoint: IMACD, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
-        drawMACD(canvas, view, curX, curPoint.getMacd())
-        view.drawChildLine(canvas, mDIFPaint, lastX, lastPoint?.getDea().orZero, curX, curPoint.getDea())
-        view.drawChildLine(canvas, mDEAPaint, lastX, lastPoint?.getDif().orZero, curX, curPoint.getDif())
+        drawMACD(canvas, view, curX, curPoint.macd)
+        view.drawChildLine(canvas, mDIFPaint, lastX, lastPoint?.dea.orZero, curX, curPoint.dea)
+        view.drawChildLine(canvas, mDEAPaint, lastX, lastPoint?.dif.orZero, curX, curPoint.dif)
     }
 
     /**
@@ -63,13 +63,13 @@ class MACDDraw(view: BaseKLineChartView) : IChartDraw<IMACD> {
         var text = "MACD(12,26,9)  "
         canvas.drawText(text, valueX, y, view.getTextPaint())
         valueX += view.getTextPaint().measureText(text)
-        text = "MACD:${view.formatValue(point?.getMacd().orZero)}  "
+        text = "MACD:${view.formatValue(point?.macd.orZero)}  "
         canvas.drawText(text, valueX, y, mMACDPaint)
         valueX += mMACDPaint.measureText(text)
-        text = "DIF:${view.formatValue(point?.getDif().orZero)}  "
+        text = "DIF:${view.formatValue(point?.dif.orZero)}  "
         canvas.drawText(text, valueX, y, mDEAPaint)
         valueX += mDIFPaint.measureText(text)
-        text = "DEA:${view.formatValue(point?.getDea().orZero)}"
+        text = "DEA:${view.formatValue(point?.dea.orZero)}"
         canvas.drawText(text, valueX, y, mDIFPaint)
     }
 
@@ -78,11 +78,11 @@ class MACDDraw(view: BaseKLineChartView) : IChartDraw<IMACD> {
     }
 
     override fun getMinValue(point: IMACD): Float {
-        return point.getMacd().coerceAtMost(point.getDea().coerceAtMost(point.getDif()))
+        return point.macd.coerceAtMost(point.dea.coerceAtMost(point.dif))
     }
 
     override fun getMaxValue(point: IMACD): Float {
-        return point.getMacd().coerceAtLeast(point.getDea().coerceAtLeast(point.getDif()))
+        return point.macd.coerceAtLeast(point.dea.coerceAtLeast(point.dif))
     }
 
     /**

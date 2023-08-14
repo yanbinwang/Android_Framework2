@@ -22,7 +22,7 @@ object DataHelper {
         var d = 0f
         for (i in dataList.indices) {
             val point = dataList.safeGet(i)
-            val closePrice = point?.getClosePrice().orZero
+            val closePrice = point?.closePrice.orZero
             var startIndex = i - 13
             if (startIndex < 0) {
                 startIndex = 0
@@ -30,8 +30,8 @@ object DataHelper {
             var max14 = Float.MIN_VALUE
             var min14 = Float.MAX_VALUE
             for (index in startIndex..i) {
-                max14 = max14.coerceAtLeast(dataList.safeGet(index)?.getHighPrice().orZero)
-                min14 = min14.coerceAtMost(dataList.safeGet(index)?.getLowPrice().orZero)
+                max14 = max14.coerceAtLeast(dataList.safeGet(index)?.highPrice.orZero)
+                min14 = min14.coerceAtMost(dataList.safeGet(index)?.lowPrice.orZero)
             }
             var rsv = 100f * (closePrice - min14) / (max14 - min14)
             if (rsv.isNaN()) {
@@ -72,15 +72,15 @@ object DataHelper {
         var rsiMaxEma = 0f
         for (i in dataList.indices) {
             val point = dataList.safeGet(i)
-            val closePrice = point?.getClosePrice().orZero
+            val closePrice = point?.closePrice.orZero
             if (i == 0) {
                 rsi = 0f
                 rsiABSEma = 0f
                 rsiMaxEma = 0f
             } else {
                 val Rmax =
-                    0f.coerceAtLeast(closePrice - dataList.safeGet(i - 1)?.getClosePrice().orZero)
-                val RAbs = abs(closePrice - dataList.safeGet(i - 1)?.getClosePrice().orZero)
+                    0f.coerceAtLeast(closePrice - dataList.safeGet(i - 1)?.closePrice.orZero)
+                val RAbs = abs(closePrice - dataList.safeGet(i - 1)?.closePrice.orZero)
                 rsiMaxEma = (Rmax + (14f - 1) * rsiMaxEma) / 14f
                 rsiABSEma = (RAbs + (14f - 1) * rsiABSEma) / 14f
                 rsi = rsiMaxEma / rsiABSEma * 100
@@ -110,13 +110,13 @@ object DataHelper {
             var max14 = Float.MIN_VALUE
             var min14 = Float.MAX_VALUE
             for (index in startIndex..i) {
-                max14 = max14.coerceAtLeast(dataList.safeGet(index)?.getHighPrice().orZero)
-                min14 = min14.coerceAtMost(dataList.safeGet(index)?.getLowPrice().orZero)
+                max14 = max14.coerceAtLeast(dataList.safeGet(index)?.highPrice.orZero)
+                min14 = min14.coerceAtMost(dataList.safeGet(index)?.lowPrice.orZero)
             }
             if (i < 13) {
                 point?.r = -10f
             } else {
-                r = -100 * (max14 - dataList.safeGet(i)?.getClosePrice().orZero) / (max14 - min14)
+                r = -100 * (max14 - dataList.safeGet(i)?.closePrice.orZero) / (max14 - min14)
                 if (r.isNaN()) {
                     point?.r = 0f
                 } else {
@@ -140,7 +140,7 @@ object DataHelper {
         var macd: Float
         for (i in dataList.indices) {
             val point = dataList.safeGet(i)
-            val closePrice = point?.getClosePrice().orZero
+            val closePrice = point?.closePrice.orZero
             if (i == 0) {
                 ema12 = closePrice
                 ema26 = closePrice
@@ -179,14 +179,14 @@ object DataHelper {
                 val n = 20
                 var md = 0f
                 for (j in i - n + 1..i) {
-                    val c = dataList.safeGet(j)?.getClosePrice().orZero
-                    val m = point?.getMA20Price().orZero
+                    val c = dataList.safeGet(j)?.closePrice.orZero
+                    val m = point?.mA20Price.orZero
                     val value = c - m
                     md += value * value
                 }
                 md /= (n - 1)
                 md = sqrt(md.toDouble()).toFloat()
-                point?.mb = point?.getMA20Price().orZero
+                point?.mb = point?.mA20Price.orZero
                 point?.up = point?.mb.orZero + 2f * md
                 point?.dn = point?.mb.orZero - 2f * md
             }
@@ -207,7 +207,7 @@ object DataHelper {
         var ma60 = 0f
         for (i in dataList.indices) {
             val point = dataList.safeGet(i)
-            val closePrice = point?.getClosePrice().orZero
+            val closePrice = point?.closePrice.orZero
             ma5 += closePrice
             ma10 += closePrice
             ma20 += closePrice
@@ -216,7 +216,7 @@ object DataHelper {
             if (i == 4) {
                 point?.MA5Price = ma5 / 5f
             } else if (i >= 5) {
-                ma5 -= dataList.safeGet(i - 5)?.getClosePrice().orZero
+                ma5 -= dataList.safeGet(i - 5)?.closePrice.orZero
                 point?.MA5Price = ma5 / 5f
             } else {
                 point?.MA5Price = 0f
@@ -224,7 +224,7 @@ object DataHelper {
             if (i == 9) {
                 point?.MA10Price = ma10 / 10f
             } else if (i >= 10) {
-                ma10 -= dataList.safeGet(i - 10)?.getClosePrice().orZero
+                ma10 -= dataList.safeGet(i - 10)?.closePrice.orZero
                 point?.MA10Price = ma10 / 10f
             } else {
                 point?.MA10Price = 0f
@@ -232,7 +232,7 @@ object DataHelper {
             if (i == 19) {
                 point?.MA20Price = ma20 / 20f
             } else if (i >= 20) {
-                ma20 -= dataList.safeGet(i - 20)?.getClosePrice().orZero
+                ma20 -= dataList.safeGet(i - 20)?.closePrice.orZero
                 point?.MA20Price = ma20 / 20f
             } else {
                 point?.MA20Price = 0f
@@ -240,7 +240,7 @@ object DataHelper {
             if (i == 29) {
                 point?.MA30Price = ma30 / 30f
             } else if (i >= 30) {
-                ma30 -= dataList.safeGet(i - 30)?.getClosePrice().orZero
+                ma30 -= dataList.safeGet(i - 30)?.closePrice.orZero
                 point?.MA30Price = ma30 / 30f
             } else {
                 point?.MA30Price = 0f
@@ -248,7 +248,7 @@ object DataHelper {
             if (i == 59) {
                 point?.MA60Price = ma60 / 60f
             } else if (i >= 60) {
-                ma60 -= dataList.safeGet(i - 60)?.getClosePrice().orZero
+                ma60 -= dataList.safeGet(i - 60)?.closePrice.orZero
                 point?.MA60Price = ma60 / 60f
             } else {
                 point?.MA60Price = 0f
@@ -277,12 +277,12 @@ object DataHelper {
         var volumeMa10 = 0f
         for (i in entries.indices) {
             val entry = entries.safeGet(i)
-            volumeMa5 += entry?.getVolume().orZero
-            volumeMa10 += entry?.getVolume().orZero
+            volumeMa5 += entry?.volume.orZero
+            volumeMa10 += entry?.volume.orZero
             if (i == 4) {
                 entry?.MA5Volume = volumeMa5 / 5f
             } else if (i > 4) {
-                volumeMa5 -= entries.safeGet(i - 5)?.getVolume().orZero
+                volumeMa5 -= entries.safeGet(i - 5)?.volume.orZero
                 entry?.MA5Volume = volumeMa5 / 5f
             } else {
                 entry?.MA5Volume = 0f
@@ -290,7 +290,7 @@ object DataHelper {
             if (i == 9) {
                 entry?.MA10Volume = volumeMa10 / 10f
             } else if (i > 9) {
-                volumeMa10 -= entries.safeGet(i - 10)?.getVolume().orZero
+                volumeMa10 -= entries.safeGet(i - 10)?.volume.orZero
                 entry?.MA10Volume = volumeMa10 / 10f
             } else {
                 entry?.MA10Volume = 0f
