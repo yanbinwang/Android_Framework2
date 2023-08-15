@@ -3,6 +3,8 @@ package com.github.fujianlian.klinechart
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSet
 import com.example.framework.utils.function.value.safeSize
+import com.github.fujianlian.klinechart.base.BaseKLineChartAdapter
+import com.github.fujianlian.klinechart.entity.KLineEntity
 
 /**
  * 数据适配器

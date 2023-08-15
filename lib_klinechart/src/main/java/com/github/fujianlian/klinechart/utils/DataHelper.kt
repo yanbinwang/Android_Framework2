@@ -2,7 +2,7 @@ package com.github.fujianlian.klinechart.utils
 
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
-import com.github.fujianlian.klinechart.KLineEntity
+import com.github.fujianlian.klinechart.entity.KLineEntity
 import kotlin.math.abs
 import kotlin.math.sqrt
 

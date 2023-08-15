@@ -15,8 +15,8 @@ import com.example.framework.utils.logWTF
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.viewmodel.MainViewModel
-import com.github.fujianlian.klinechart.BaseKLineChartView
-import com.github.fujianlian.klinechart.BaseKLineChartView.OnSelectedChangedListener
+import com.github.fujianlian.klinechart.base.BaseKLineChartView
+import com.github.fujianlian.klinechart.base.BaseKLineChartView.OnSelectedChangedListener
 import com.github.fujianlian.klinechart.KLineChartAdapter
 import com.github.fujianlian.klinechart.draw.Status
 import com.github.fujianlian.klinechart.entity.ICandle

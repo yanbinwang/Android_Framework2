@@ -1,7 +1,7 @@
 package com.example.mvvm.bean
 
 import com.example.framework.utils.function.value.toSafeFloat
-import com.github.fujianlian.klinechart.KLineEntity
+import com.github.fujianlian.klinechart.entity.KLineEntity
 
 /**
  * 服务器给定的数据对象，做一个转换

@@ -1,4 +1,4 @@
-package com.github.fujianlian.klinechart
+package com.github.fujianlian.klinechart.base
 
 import android.database.DataSetObservable
 import android.database.DataSetObserver

@@ -1,7 +1,6 @@
 package com.github.fujianlian.klinechart.base
 
 import android.graphics.Canvas
-import com.github.fujianlian.klinechart.BaseKLineChartView
 
 /**
  * 画图的基类 根据实体来画图形

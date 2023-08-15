@@ -8,6 +8,7 @@ import android.widget.ProgressBar
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.core.content.ContextCompat
+import com.github.fujianlian.klinechart.base.BaseKLineChartView
 import com.github.fujianlian.klinechart.base.IChartDraw
 import com.github.fujianlian.klinechart.draw.KDJDraw
 import com.github.fujianlian.klinechart.draw.MACDDraw
