@@ -1,4 +1,4 @@
-package com.github.fujianlian.klinechart.entity
+package com.github.fujianlian.klinechart
 
 import com.github.fujianlian.klinechart.entity.IKLine
 

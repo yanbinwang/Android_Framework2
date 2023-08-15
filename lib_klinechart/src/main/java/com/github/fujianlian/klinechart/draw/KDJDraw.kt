@@ -3,7 +3,7 @@ package com.github.fujianlian.klinechart.draw
 import android.graphics.Canvas
 import android.graphics.Paint
 import com.example.framework.utils.function.value.orZero
-import com.github.fujianlian.klinechart.base.BaseKLineChartView
+import com.github.fujianlian.klinechart.BaseKLineChartView
 import com.github.fujianlian.klinechart.base.IChartDraw
 import com.github.fujianlian.klinechart.base.IValueFormatter
 import com.github.fujianlian.klinechart.entity.IKDJ

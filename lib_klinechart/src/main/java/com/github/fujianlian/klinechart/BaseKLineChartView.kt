@@ -1,4 +1,4 @@
-package com.github.fujianlian.klinechart.base
+package com.github.fujianlian.klinechart
 
 import android.animation.ValueAnimator
 import android.content.Context
@@ -17,8 +17,10 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
-import com.github.fujianlian.klinechart.R
-import com.github.fujianlian.klinechart.ScrollAndScaleView
+import com.github.fujianlian.klinechart.base.IAdapter
+import com.github.fujianlian.klinechart.base.IChartDraw
+import com.github.fujianlian.klinechart.base.IDateTimeFormatter
+import com.github.fujianlian.klinechart.base.IValueFormatter
 import com.github.fujianlian.klinechart.draw.MainDraw
 import com.github.fujianlian.klinechart.draw.Status
 import com.github.fujianlian.klinechart.entity.IKLine

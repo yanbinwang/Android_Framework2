@@ -8,7 +8,7 @@ import com.example.common.utils.function.toList
 import com.example.framework.utils.function.value.toNewList
 import com.example.mvvm.bean.KLineBean
 import com.github.fujianlian.klinechart.utils.DataHelper
-import com.github.fujianlian.klinechart.entity.KLineEntity
+import com.github.fujianlian.klinechart.KLineEntity
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext

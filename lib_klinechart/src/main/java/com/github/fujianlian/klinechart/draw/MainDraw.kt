@@ -7,7 +7,7 @@ import android.graphics.RectF
 import androidx.core.content.ContextCompat
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
-import com.github.fujianlian.klinechart.base.BaseKLineChartView
+import com.github.fujianlian.klinechart.BaseKLineChartView
 import com.github.fujianlian.klinechart.KLineChartView
 import com.github.fujianlian.klinechart.R
 import com.github.fujianlian.klinechart.base.IChartDraw
