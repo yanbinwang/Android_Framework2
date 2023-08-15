@@ -163,7 +163,7 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
             MotionEvent.ACTION_MOVE -> {
                 val dX = (ev.x - startX).toInt()
                 val dY = (ev.y - startX).toInt()
-                return abs(dX) > Math.abs(dY)
+                return abs(dX) > abs(dY)
             }
             MotionEvent.ACTION_UP -> {}
             else -> {}
