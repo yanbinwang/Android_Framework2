@@ -4,6 +4,6 @@
 
     <corners android:radius="10pt" />
 
-    <solid android:color="@color/black_ef111111" />
+    <solid android:color="@color/bgTimeTick" />
 
 </shape>

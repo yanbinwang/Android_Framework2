@@ -26,8 +26,8 @@
             android:id="@+id/toolbar"
             style="@style/Album.Toolbar.Dark"
             app:navigationIcon="@drawable/album_ic_back_white"
-            app:subtitleTextColor="@color/white_00ffffff"
-            app:titleTextColor="@color/white_00ffffff">
+            app:subtitleTextColor="@color/textAlbum"
+            app:titleTextColor="@color/textAlbum">
 
             <TextView
                 android:layout_width="wrap_content"

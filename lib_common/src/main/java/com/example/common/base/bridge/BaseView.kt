@@ -28,7 +28,7 @@ interface BaseView {
      * ConfigHelper.showGuide(this,"sdd",GuidePage
      *  .newInstance()
      *  .addHighLight(binding.btnList)
-     *  .setBackgroundColor(color(R.color.black_4c000000))//可不写，默认赋值了遮罩颜色
+     *  .setBackgroundColor(color(R.color.bgOverlay))//可不写，默认赋值了遮罩颜色
      *  .setLayoutRes(R.layout.view_guide_simple)
      *  .setOnLayoutInflatedListener(object :OnLayoutInflatedListener{
      *  override fun onLayoutInflated(view: View?, controller: Controller?) {

@@ -1,171 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingConstraints">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!--    <FrameLayout-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent">-->
+
+    <!--        <androidx.viewpager2.widget.ViewPager2-->
+    <!--            android:id="@+id/rv_test"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="400pt"-->
+    <!--            android:layout_marginTop="80pt"-->
+    <!--            android:visibility="gone" />-->
+
+    <!--        <EditText-->
+    <!--            android:id="@+id/et_test"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="200pt"-->
+    <!--            android:textColor="@color/blue_1566ec"-->
+    <!--            android:textSize="@dimen/textSize26" />-->
+
+    <!--        <Button-->
+    <!--            android:id="@+id/btn_test"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="80pt"-->
+    <!--            android:layout_marginHorizontal="20pt"-->
+    <!--            android:background="@drawable/shape_r5_blue"-->
+    <!--            android:text="dfdsfds"-->
+    <!--            android:textColor="@color/white"-->
+    <!--            android:textSize="@dimen/textSize32" />-->
+
+    <!--        <TextView-->
+    <!--            android:id="@+id/tv_test"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="400pt"-->
+    <!--            android:gravity="center"-->
+    <!--            android:text="dsadasdasdasdsadas"-->
+    <!--            android:textColor="@color/textGrey"-->
+    <!--            android:textSize="@dimen/textSize20" />-->
+
+    <!--    </FrameLayout>-->
+
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/bgBlack">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/title"
+        <ImageView
+            android:id="@+id/iv_funds_bg"
             android:layout_width="match_parent"
-            android:layout_height="44pt"
-            android:gravity="center"
-            android:paddingHorizontal="10pt"
-            android:text="KLineChart"
-            android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize18"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_height="164pt"
+            android:scaleType="fitXY" />
 
-        <TextView
-            android:id="@+id/text1"
-            android:layout_width="50pt"
-            android:layout_height="40pt"
-            android:gravity="center"
-            android:text="主图"
-            android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize14"
-            app:layout_constraintTop_toBottomOf="@id/title" />
-
-        <TextView
-            android:id="@+id/maText"
-            android:layout_width="50pt"
-            android:layout_height="40pt"
-            android:layout_marginStart="10pt"
-            android:gravity="center"
-            android:text="MA"
-            android:textColor="@color/colorAccent"
-            android:textSize="@dimen/textSize14"
-            app:layout_constraintLeft_toRightOf="@+id/text1"
-            app:layout_constraintTop_toTopOf="@id/text1" />
-
-        <TextView
-            android:id="@+id/bollText"
-            android:layout_width="50pt"
-            android:layout_height="40pt"
-            android:layout_marginStart="10pt"
-            android:gravity="center"
-            android:text="BOLL"
-            android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize14"
-            app:layout_constraintLeft_toRightOf="@+id/maText"
-            app:layout_constraintTop_toTopOf="@id/text1" />
-
-        <TextView
-            android:id="@+id/mainHide"
-            android:layout_width="50pt"
-            android:layout_height="40pt"
-            android:layout_marginStart="10pt"
-            android:gravity="center"
-            android:text="隐藏"
-            android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize14"
-            app:layout_constraintLeft_toRightOf="@+id/bollText"
-            app:layout_constraintTop_toTopOf="@id/text1" />
-
-        <TextView
-            android:id="@+id/text2"
-            android:layout_width="50pt"
-            android:layout_height="40pt"
-            android:layout_marginTop="10pt"
-            android:gravity="center"
-            android:text="副图"
-            android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize14"
-            app:layout_constraintTop_toBottomOf="@+id/text1" />
-
-        <TextView
-            android:id="@+id/macdText"
-            android:layout_width="50pt"
-            android:layout_height="40pt"
-            android:layout_marginStart="10pt"
-            android:gravity="center"
-            android:text="MACD"
-            android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize14"
-            app:layout_constraintStart_toEndOf="@+id/text2"
-            app:layout_constraintTop_toTopOf="@id/text2" />
-
-        <TextView
-            android:id="@+id/kdjText"
-            android:layout_width="50pt"
-            android:layout_height="40pt"
-            android:layout_marginStart="10pt"
-            android:gravity="center"
-            android:text="KDJ"
-            android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize14"
-            app:layout_constraintStart_toEndOf="@+id/macdText"
-            app:layout_constraintTop_toTopOf="@id/text2" />
-
-        <TextView
-            android:id="@+id/rsiText"
-            android:layout_width="50pt"
-            android:layout_height="40pt"
-            android:layout_marginStart="10pt"
-            android:gravity="center"
-            android:text="RSI"
-            android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize14"
-            app:layout_constraintStart_toEndOf="@+id/kdjText"
-            app:layout_constraintTop_toTopOf="@id/text2" />
-
-        <TextView
-            android:id="@+id/wrText"
-            android:layout_width="50pt"
-            android:layout_height="40pt"
-            android:layout_marginStart="10pt"
-            android:gravity="center"
-            android:text="WR"
-            android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize14"
-            app:layout_constraintStart_toEndOf="@+id/rsiText"
-            app:layout_constraintTop_toTopOf="@id/text2" />
-
-        <TextView
-            android:id="@+id/subHide"
-            android:layout_width="50pt"
-            android:layout_height="40pt"
-            android:layout_marginStart="10pt"
-            android:gravity="center"
-            android:text="隐藏"
-            android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize14"
-            app:layout_constraintStart_toEndOf="@+id/wrText"
-            app:layout_constraintTop_toTopOf="@id/text2" />
-
-        <TextView
-            android:id="@+id/fenText"
-            android:layout_width="50pt"
-            android:layout_height="40pt"
-            android:gravity="center"
-            android:text="分时"
-            android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize14"
-            app:layout_constraintTop_toBottomOf="@+id/text2" />
-
-        <TextView
-            android:id="@+id/kText"
-            android:layout_width="50pt"
-            android:layout_height="40pt"
-            android:layout_marginStart="10pt"
-            android:gravity="center"
-            android:text="k线图"
-            android:textColor="@color/colorAccent"
-            android:textSize="@dimen/textSize14"
-            app:layout_constraintStart_toEndOf="@id/fenText"
-            app:layout_constraintTop_toTopOf="@id/fenText" />
-
-        <com.github.fujianlian.klinechart.KLineChartView
-            android:id="@+id/kLineChartView"
+        <com.scwang.smart.refresh.layout.SmartRefreshLayout
+            android:id="@+id/refresh"
             android:layout_width="match_parent"
-            android:layout_height="0pt"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fenText" />
+            android:layout_height="match_parent"
+            app:srlEnableLoadMore="false"
+            app:srlEnableRefresh="true">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:overScrollMode="never"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/ll_funds"
+                        android:layout_width="match_parent"
+                        android:layout_height="164pt"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="15pt">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12pt"
+                            android:text="Total assets converted(USDT)"
+                            android:textColor="@color/textGrey"
+                            android:textSize="12pt" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2pt"
+                            android:text="232,232,212.00"
+                            android:textColor="@color/textGrey"
+                            android:textSize="28pt" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3pt"
+                            android:text="≈ ₹0.00"
+                            android:textColor="@color/textGrey"
+                            android:textSize="15pt" />
+
+                        <View
+                            android:id="@+id/view_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="38pt"
+                            android:layout_marginTop="15pt"
+                            android:background="@color/textBlue" />
+
+                    </LinearLayout>
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center">
+
+                        <TextView
+                            text="@{`sadasdsadasdasdas`}"
+                            android:layout_width="match_parent"
+                            android:layout_height="800pt"
+                            android:background="@color/textBlue"
+                            android:gravity="center"
+                            android:textColor="@color/textWhite"
+                            android:textSize="29pt"
+                            android:visibility="gone" />
+
+                        <com.example.common.widget.XImageView
+                            android:id="@+id/iv_bg"
+                            android:layout_width="match_parent"
+                            android:layout_height="108pt"
+                            android:visibility="gone" />
+
+                        <ImageView
+                            android:id="@+id/iv_arrow"
+                            android:layout_width="24pt"
+                            android:layout_height="10pt"
+                            android:layout_gravity="center"
+                            android:src="@mipmap/ic_arrow_down" />
+
+                        <TextView
+                            android:id="@+id/tv_test"
+                            android:layout_width="match_parent"
+                            android:layout_height="400pt"
+                            android:gravity="center"
+                            android:textColor="@color/textGrey"
+                            android:textSize="@dimen/textSize20" />
+
+                    </FrameLayout>
+
+                </LinearLayout>
+
+            </androidx.core.widget.NestedScrollView>
+
+        </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+
+    </FrameLayout>
 
 </layout>
