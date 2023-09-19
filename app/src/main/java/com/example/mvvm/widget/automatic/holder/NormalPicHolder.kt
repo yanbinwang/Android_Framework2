@@ -12,6 +12,7 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.getFileFromUri
 import com.example.common.utils.permission.PermissionFactory
 import com.example.common.widget.dialog.LoadingDialog
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.click
@@ -21,6 +22,7 @@ import com.example.mvvm.widget.automatic.AutomaticBean
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -40,9 +42,9 @@ class NormalPicHolder(private val activity: AppCompatActivity, private val bean:
         }
     }
     private var value = ""
-    private var job: Job? = null
+    private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
-        get() = (Dispatchers.Main)
+        get() = Dispatchers.Main + job
 
     init {
         activity.lifecycle.addObserver(this)
@@ -79,7 +81,7 @@ class NormalPicHolder(private val activity: AppCompatActivity, private val bean:
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
             Lifecycle.Event.ON_DESTROY -> {
-                job?.cancel()
+                job.cancel()
                 activity.lifecycle.removeObserver(this)
             }
             else -> {}

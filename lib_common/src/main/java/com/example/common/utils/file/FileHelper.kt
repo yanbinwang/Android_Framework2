@@ -21,6 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.*
@@ -33,20 +34,25 @@ import kotlin.coroutines.CoroutineContext
  * 工具类中，实现了对应文件流下载保存的方法，此处采用协程的方式引用
  */
 class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
+    private var picJob: Job? = null
+    private var pdfJob: Job? = null
+    private var viewJob: Job? = null
+    private var zipJob: Job? = null
+    private var downloadJob: Job? = null
+    private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
-        get() = (Main)
-    private var job: Job? = null
+        get() = Main + job
 
     init {
-        lifecycleOwner.doOnDestroy { job?.cancel() }
+        lifecycleOwner.doOnDestroy { job.cancel() }
     }
 
     /**
      * 存储图片协程
      */
     fun savePicJob(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
-        job?.cancel()
-        job = launch {
+        picJob?.cancel()
+        picJob = launch {
             onStart()
             savePic(bitmap, root, fileName, deleteDir, format, onResult)
         }
@@ -61,8 +67,8 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
      * 指定页数
      */
     fun savePDFJob(file: File, index: Int = 0, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
-        job?.cancel()
-        job = launch {
+        pdfJob?.cancel()
+        pdfJob = launch {
             onStart()
             savePDF(file, index, onResult)
         }
@@ -72,8 +78,8 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
      * 全部保存下来，返回集合
      */
     fun savePDFJob(file: File, onStart: () -> Unit = {}, onResult: (list: MutableList<String?>?) -> Unit = {}) {
-        job?.cancel()
-        job = launch {
+        pdfJob?.cancel()
+        pdfJob = launch {
             onStart()
             val list: MutableList<String?>? = null
             val pageCount = withContext(IO) { PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).pageCount }
@@ -106,8 +112,8 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
      * 构建图片
      */
     fun saveViewJob(view: View, width: Int = screenWidth, height: Int = screenHeight, onStart: () -> Unit = {}, onResult: (bitmap: Bitmap?) -> Unit = {}) {
-        job?.cancel()
-        job = launch {
+        viewJob?.cancel()
+        viewJob = launch {
             onStart()
             saveView(view, width, height, onResult)
         }
@@ -202,8 +208,8 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
     }
 
     fun zipJob(folderList: MutableList<String>, zipPath: String, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
-        job?.cancel()
-        job = launch {
+        zipJob?.cancel()
+        zipJob = launch {
             onStart()
             zip(folderList, zipPath, onResult)
         }
@@ -245,8 +251,8 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
             R.string.link_invalid_error.shortToast()
             return
         }
-        job?.cancel()
-        job = launch {
+        downloadJob?.cancel()
+        downloadJob = launch {
             onStart()
             download(downloadUrl, filePath, fileName, onSuccess, onLoading, onFailed, onComplete)
         }
