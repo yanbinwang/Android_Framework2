@@ -28,6 +28,7 @@ import java.io.*
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlin.collections.ArrayList
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -81,10 +82,10 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
         pdfJob?.cancel()
         pdfJob = launch {
             onStart()
-            val list: MutableList<String?>? = null
+            val list = ArrayList<String?>()
             val pageCount = withContext(IO) { PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).pageCount }
             for (index in 0 until pageCount) {
-                savePDF(file, index) { list?.add(it) }
+                savePDF(file, index) { list.add(it) }
             }
             onResult.invoke(list)
         }
