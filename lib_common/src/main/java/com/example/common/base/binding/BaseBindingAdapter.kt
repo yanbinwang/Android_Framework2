@@ -41,6 +41,8 @@ import com.example.framework.utils.function.view.initLinearVertical
 import com.example.framework.utils.function.view.setMatchText
 import com.example.framework.utils.function.view.spaceLimit
 import com.example.framework.utils.enterAnimation
+import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.function.view.padding
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -57,10 +59,22 @@ object BaseBindingAdapter {
     /**
      * 约束布局等高线设置
      */
+//    @JvmStatic
+//    @BindingAdapter(value = ["statusBar_margin"])
+//    fun bindingGuidelineStatusBar(guideline: Guideline, statusBarMargin: Boolean?) {
+//        if (statusBarMargin.orFalse) guideline.setGuidelineBegin(getStatusBarHeight())
+//    }
+
     @JvmStatic
     @BindingAdapter(value = ["statusBar_margin"])
-    fun bindingGuidelineStatusBar(guideline: Guideline, statusBarMargin: Boolean?) {
-        if (statusBarMargin.orFalse) guideline.setGuidelineBegin(getStatusBarHeight())
+    fun bindingStatusBarMargin(view: View, statusBarMargin: Boolean?) {
+        if (statusBarMargin.orFalse) view.margin(top = getStatusBarHeight())
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["statusBar_padding"])
+    fun bindingStatusBarPadding(view: View, statusBarPadding: Boolean?) {
+        if (statusBarPadding.orFalse) view.padding(top = getStatusBarHeight())
     }
 
     /**
