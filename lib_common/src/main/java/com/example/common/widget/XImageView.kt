@@ -16,6 +16,7 @@ import com.example.common.R
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
@@ -42,7 +43,7 @@ class XImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         iv.scaleType = ImageView.ScaleType.FIT_XY
         root?.addView(iv)
         cover.apply {
-            background = GradientDrawable().apply { setColor(Color.parseColor("#cf111111")) }
+            background = GradientDrawable().apply { setColor("#cf111111".parseColor()) }
             size(MATCH_PARENT, MATCH_PARENT)
         }
         root?.addView(cover)

@@ -2,7 +2,6 @@ package com.example.glide
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Looper
@@ -12,6 +11,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.isMainThread
+import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.glide.callback.GlideImpl
 import com.example.glide.callback.GlideModule
@@ -27,7 +27,7 @@ import java.io.File
  */
 class ImageLoader private constructor() : GlideModule(), GlideImpl {
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
-    private val maskDrawable by lazy { GradientDrawable().apply { setColor(Color.parseColor("#000000")) } }
+    private val maskDrawable by lazy { GradientDrawable().apply { setColor("#000000".parseColor()) } }
 
     companion object {
         @JvmStatic
