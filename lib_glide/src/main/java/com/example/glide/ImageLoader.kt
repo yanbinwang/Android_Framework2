@@ -247,7 +247,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     override fun clearDiskCache(context: Context) {
         try {
             if (isMainThread) {
-                Thread { Glide.get(context).clearDiskCache() }.start()
+                GlobalScope.launch(Dispatchers.IO) { Glide.get(context).clearDiskCache() }
             } else {
                 Glide.get(context).clearDiskCache()
             }
