@@ -24,13 +24,13 @@ import com.example.framework.utils.function.view.visible
 class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
     val layout: ConstraintLayout
         get() = binding.clContainer
-    val leftIv: ImageView
+    val ivLeft: ImageView
         get() = binding.ivLeft
-    val leftTv: TextView
+    val tvLeft: TextView
         get() = binding.tvLeft
-    val rightIv: ImageView
+    val ivRight: ImageView
         get() = binding.ivRight
-    val rightTv: TextView
+    val tvRight: TextView
         get() = binding.tvRight
 
     init {
