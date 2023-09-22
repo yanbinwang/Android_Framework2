@@ -86,6 +86,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
             if (0 != tintColor) tint(tintColor)
             click { onClick.invoke() }
         }
+        binding.tvLeft.gone()
         return this
     }
 
@@ -96,6 +97,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
             if (0 != tintColor) tint(tintColor)
             click { onClick.invoke() }
         }
+        binding.tvRight.gone()
         return this
     }
 
@@ -111,6 +113,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
             setArguments(label, labelColor)
             click { onClick.invoke() }
         }
+        binding.ivLeft.gone()
         return this
     }
 
@@ -120,6 +123,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
             setArguments(label, labelColor)
             click { onClick.invoke() }
         }
+        binding.ivRight.gone()
         return this
     }
 
