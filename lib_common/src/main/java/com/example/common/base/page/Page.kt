@@ -64,7 +64,7 @@ class Paging {
     }
 
     //是否需要加载更多
-    private fun hasNextPage(): Boolean {
+    fun hasNextPage(): Boolean {
         return currentCount < totalCount
     }
 

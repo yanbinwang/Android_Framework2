@@ -159,12 +159,13 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * hasRefresh：指定此次的数据是否是刷新的数据（由外层刷新控件或手动指定）
      * onEmpty：当前适配器的集合为空时才会回调
      */
-    fun notify(list: List<T>, hasRefresh: Boolean = true, onEmpty: () -> Unit = {}) {
+    fun notify(list: List<T>?, hasRefresh: Boolean = true, onEmpty: () -> Unit = {}) {
+        list ?: return
         if (hasRefresh) refresh(list) else insert(list)
         if (size() == 0) onEmpty.invoke()
     }
 
-    fun <VDB : BaseViewModel> notify(list: List<T>, viewModel: VDB) {
+    fun <VDB : BaseViewModel> notify(list: List<T>?, viewModel: VDB) {
         notify(list, viewModel.paging.hasRefresh) { viewModel.emptyView?.empty() }
     }
 
