@@ -48,14 +48,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val context: Context get() = activity
     protected val view: BaseView? get() = weakView?.get()
 
+    //分页
+    protected val paging by lazy { Paging() }
+    val hasRefresh get() = paging.hasRefresh
+
     //获取对应的控件/分页类
     val emptyView get() = weakEmpty?.get()
     val recyclerView get() = weakRecycler?.get()
     val refreshLayout get() = weakRefresh?.get()
-
-    //分页
-    protected val paging by lazy { Paging() }
-    val hasRefresh get() = paging.hasRefresh
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
