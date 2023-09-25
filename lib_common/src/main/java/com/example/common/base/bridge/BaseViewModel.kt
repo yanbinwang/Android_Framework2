@@ -54,7 +54,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     val refreshLayout get() = weakRefresh?.get()
 
     //分页
-    internal val paging by lazy { Paging() }
+    protected val paging by lazy { Paging() }
     val hasRefresh get() = paging.hasRefresh
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
