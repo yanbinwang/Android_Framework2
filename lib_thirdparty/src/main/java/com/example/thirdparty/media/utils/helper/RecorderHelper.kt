@@ -14,14 +14,15 @@ import com.example.thirdparty.media.utils.MultimediaUtil
 class RecorderHelper {
     private val player by lazy { MediaPlayer() }
     private var recorder: MediaRecorder? = null
+    private var onRecorderListener: OnRecorderListener? = null
 
-    companion object {
-        internal var onRecorderListener: OnRecorderListener? = null
-
-        fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
-            this.onRecorderListener = onRecorderListener
-        }
-    }
+//    companion object {
+//        internal var onRecorderListener: OnRecorderListener? = null
+//
+//        fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
+//            this.onRecorderListener = onRecorderListener
+//        }
+//    }
 
     /**
      * 开始录音
@@ -116,14 +117,21 @@ class RecorderHelper {
         }
     }
 
-}
+    /**
+     * 录音监听
+     */
+    fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
+        this.onRecorderListener = onRecorderListener
+    }
 
-interface OnRecorderListener {
+    interface OnRecorderListener {
 
-    fun onStart(sourcePath: String?)
+        fun onStart(sourcePath: String?)
 
-    fun onShutter()
+        fun onShutter()
 
-    fun onStop()
+        fun onStop()
+
+    }
 
 }

@@ -35,6 +35,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
     private val loadingDialog by lazy { LoadingDialog(activity) }
     private val fileHelper by lazy { FileHelper(activity) }
     private val shotList by lazy { ArrayList<String>() }
+    private var onShutter: (filePath: String?, isZip: Boolean) -> Unit = { _, _ -> }
     /**
      * 处理录屏的回调
      */
@@ -55,15 +56,6 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
         var previewWidth = screenWidth
         var previewHeight = screenHeight
         var isRecording = false
-
-        internal var onShutter: (filePath: String?, isZip: Boolean) -> Unit = { _, _ -> }
-
-        /**
-         * isZip->true是zip文件夹，可能包含录制时的截图
-         */
-        fun setOnScreenListener(onShutter: (filePath: String?, isZip: Boolean) -> Unit) {
-            this.onShutter = onShutter
-        }
     }
 
     init {
@@ -149,6 +141,13 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
     fun stopScreen() = activity.execute {
         isRecording = false
         stopService(ScreenService::class.java)
+    }
+
+    /**
+     * isZip->true是zip文件夹，可能包含录制时的截图
+     */
+    fun setOnScreenListener(onShutter: (filePath: String?, isZip: Boolean) -> Unit) {
+        this.onShutter = onShutter
     }
 
     /**
