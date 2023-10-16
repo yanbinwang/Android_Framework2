@@ -49,7 +49,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val view: BaseView? get() = weakView?.get()
 
     //分页
-    protected val paging by lazy { Paging() }
+    val paging by lazy { Paging() }
     val hasRefresh get() = paging.hasRefresh
 
     //获取对应的控件/分页类
