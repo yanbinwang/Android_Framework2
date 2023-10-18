@@ -125,13 +125,11 @@ class RecorderHelper {
     }
 
     interface OnRecorderListener {
-
         fun onStart(sourcePath: String?)
 
         fun onShutter()
 
         fun onStop()
-
     }
 
 }

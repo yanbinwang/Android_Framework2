@@ -1,5 +1,6 @@
 package com.example.thirdparty.media.utils.helper
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.MediaActionSound
@@ -29,7 +30,10 @@ import java.io.File
  *  相机帮助类
  *  https://github.com/natario1/CameraView
  */
-class CameraHelper(private val activity: FragmentActivity, private val cvFinder: CameraView) : LifecycleEventObserver {
+@SuppressLint("UnspecifiedRegisterReceiverFlag")
+class CameraHelper(private val activity: FragmentActivity, private val cvFinder: CameraView, private val hasReceiver: Boolean = false) : LifecycleEventObserver {
+    private var onTakePictureListener: OnTakePictureListener? = null
+    private var onTakeVideoListener: OnTakeVideoListener? = null
     private val sound by lazy { MediaActionSound() }
     private val keyEventReceiver by lazy { KeyEventReceiver() }
 
@@ -46,9 +50,11 @@ class CameraHelper(private val activity: FragmentActivity, private val cvFinder:
             facing = Facing.BACK//打开时镜头默认后置
             flash = Flash.AUTO//闪光灯自动
         }
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
-        activity.registerReceiver(keyEventReceiver, intentFilter)
+        if (hasReceiver) {
+            val intentFilter = IntentFilter()
+            intentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
+            activity.registerReceiver(keyEventReceiver, intentFilter)
+        }
     }
 
     /**
@@ -68,21 +74,30 @@ class CameraHelper(private val activity: FragmentActivity, private val cvFinder:
      * 开关闪光灯
      */
     fun flash() {
-        if (cvFinder.facing == Facing.FRONT) R.string.camera_flash_error.shortToast()
-        cvFinder.apply { flash = if (flash == Flash.TORCH) Flash.OFF else Flash.TORCH }
+        if (cvFinder.facing == Facing.FRONT) {
+            R.string.camera_flash_error.shortToast()
+        } else {
+            cvFinder.apply { flash = if (flash == Flash.TORCH) Flash.OFF else Flash.TORCH }
+            onTakePictureListener?.onFlash(cvFinder.flash == Flash.TORCH)
+            onTakeVideoListener?.onFlash(cvFinder.flash == Flash.TORCH)
+        }
     }
 
     /**
      * 关灯
      */
     fun closeFlash() {
-        if (cvFinder.facing == Facing.BACK) cvFinder.flash = Flash.OFF
+        if (cvFinder.facing == Facing.BACK) {
+            cvFinder.flash = Flash.OFF
+            onTakePictureListener?.onFlash(false)
+            onTakeVideoListener?.onFlash(false)
+        }
     }
 
     /**
      * 拍照
      */
-    fun takePicture(onShutter: () -> Unit = {}, onSuccess: (sourceFile: File?) -> Unit = {}, onFailed: () -> Unit = {}, snapshot: Boolean = true) {
+    fun takePicture(snapshot: Boolean = true) {
         cvFinder.apply {
             if (isTakingPicture) {
                 R.string.camera_picture_shutter.shortToast()
@@ -93,7 +108,7 @@ class CameraHelper(private val activity: FragmentActivity, private val cvFinder:
             addCameraListener(object : CameraListener() {
                 override fun onPictureShutter() {
                     super.onPictureShutter()
-                    onShutter()
+                    onTakePictureListener?.onShutter()
                 }
 
                 override fun onPictureTaken(result: PictureResult) {
@@ -101,9 +116,9 @@ class CameraHelper(private val activity: FragmentActivity, private val cvFinder:
                     //在sd卡的Picture文件夹下创建对应的文件
                     MultimediaUtil.getOutputFile(IMAGE).apply {
                         if (null != this) {
-                            result.toFile(this) { if (null != it) onSuccess(it) else onFailed() }
+                            result.toFile(this) { if (null != it) onTakePictureListener?.onSuccess(it) else onTakePictureListener?.onFailed() }
                         } else {
-                            onFailed()
+                            onTakePictureListener?.onFailed()
                         }
                     }
                 }
@@ -114,7 +129,7 @@ class CameraHelper(private val activity: FragmentActivity, private val cvFinder:
     /**
      * 开始录像
      */
-    fun takeVideo(onRecording: (sourcePath: String?) -> Unit = {}, onShutter: () -> Unit = {}, onResult: (sourcePath: String?) -> Unit = {}, snapshot: Boolean = true) {
+    fun takeVideo(snapshot: Boolean = true) {
         cvFinder.apply {
             if (isTakingVideo) {
                 R.string.camera_video_shutter.shortToast()
@@ -126,22 +141,22 @@ class CameraHelper(private val activity: FragmentActivity, private val cvFinder:
                 addCameraListener(object : CameraListener() {
                     override fun onVideoRecordingStart() {
                         super.onVideoRecordingStart()
-                        onRecording(videoFile.absolutePath)
+                        onTakeVideoListener?.onRecording(videoFile.absolutePath)
                     }
 
                     //stopVideo方法按下后会触发，此刻可能正在处理录制的文件，onVideoTaken并不会立刻调取
                     override fun onVideoRecordingEnd() {
                         super.onVideoRecordingEnd()
-                        onShutter()
+                        onTakeVideoListener?.onShutter()
                     }
 
                     //正式完成录制的回调，获取路径
                     override fun onVideoTaken(result: VideoResult) {
                         super.onVideoTaken(result)
-                        onResult(result.file.path)
+                        onTakeVideoListener?.onResult(result.file.path)
                     }
                 })
-            } else onResult(null)
+            } else onTakeVideoListener?.onResult(null)
         }
     }
 
@@ -152,11 +167,42 @@ class CameraHelper(private val activity: FragmentActivity, private val cvFinder:
         cvFinder.stopVideo()
     }
 
+    /**
+     * 设置监听
+     */
+    fun setOnTakePictureListener(onTakePictureListener: OnTakePictureListener) {
+        this.onTakePictureListener = onTakePictureListener
+    }
+
+    fun setOnTakeVideoListener(onTakeVideoListener: OnTakeVideoListener) {
+        this.onTakeVideoListener = onTakeVideoListener
+    }
+
+    interface OnTakePictureListener {
+        fun onShutter()
+
+        fun onSuccess(sourceFile: File?)
+
+        fun onFailed()
+
+        fun onFlash(isOpen: Boolean)
+    }
+
+    interface OnTakeVideoListener {
+        fun onRecording(sourcePath: String?)
+
+        fun onShutter()
+
+        fun onResult(sourcePath: String?)
+
+        fun onFlash(isOpen: Boolean)
+    }
+
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
             Lifecycle.Event.ON_PAUSE -> closeFlash()
             Lifecycle.Event.ON_DESTROY -> {
-                activity.unregisterReceiver(keyEventReceiver)
+                if (hasReceiver) activity.unregisterReceiver(keyEventReceiver)
                 activity.lifecycle.removeObserver(this)
             }
             else -> {}
