@@ -40,12 +40,14 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
      * 处理录屏的回调
      */
     private val activityResultValue = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        shotList.clear()
         if (it.resultCode == RESULT_OK) {
-            shotList.clear()
             isRecording = true
             "开始录屏".shortToast()
-            activity.startService(ScreenService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
-            activity.moveTaskToBack(true)
+            activity.apply {
+                startService(ScreenService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
+                moveTaskToBack(true)
+            }
         } else {
             isRecording = false
             "取消录屏".shortToast()
@@ -83,8 +85,8 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
         //只要在录屏中，截一张图就copy一张到目标目录，但是需要及时清空
         ShotObserver.setOnScreenShotListener {
             if (isRecording) {
-                it ?: return@setOnScreenShotListener
-                shotList.add(it)
+                if(!File(it.orEmpty()).exists()) return@setOnScreenShotListener
+                shotList.add(it.orEmpty())
             }
         }
         //录屏文件创建/停止录屏时（exists=false）都会回调
