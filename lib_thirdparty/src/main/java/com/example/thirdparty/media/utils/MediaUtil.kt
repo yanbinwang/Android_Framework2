@@ -7,7 +7,6 @@ import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.getSdcardAvailableCapacity
 import com.example.framework.utils.hasSdcard
 import com.example.framework.utils.logE
-import com.example.thirdparty.media.utils.MultimediaUtil.TAG
 import java.io.File
 import java.util.Date
 
@@ -15,15 +14,22 @@ import java.util.Date
  * @description 多媒体工具类
  * @author yan
  */
-object MultimediaUtil {
-    const val TAG = "MultimediaUtil"
+object MediaUtil {
+
+    /**
+     * 定义传入的枚举类型
+     */
+    enum class MediaType {
+        IMAGE, VIDEO, AUDIO, SCREEN
+    }
 
     /**
      * 获取对应文件类型的存储地址
      */
+    @JvmStatic
     fun getOutputFile(mimeType: MediaType): File? {
         if (!hasSdcard()) {
-            "未找到手机sd卡".logE(TAG)
+            "未找到手机sd卡".logE()
             return null
         }
         //根据类型在sd卡picture目录下建立对应app名称的对应类型文件
@@ -40,12 +46,12 @@ object MultimediaUtil {
         //先在包名目录下建立对应类型的文件夹，构建失败直接返回null
         val storageDir = File(storageInfo.first)
         if (!storageDir.exists()) {
-            "开始创建文件目录\n地址:${storageDir.path}".logE(TAG)
+            "开始创建文件目录\n地址:${storageDir.path}".logE()
             if (!storageDir.mkdirs()) {
-                "创建文件目录失败".logE(TAG)
+                "创建文件目录失败".logE()
                 return null
             }
-        } else "文件目录已创建\n地址:${storageDir.path}".logE(TAG)
+        } else "文件目录已创建\n地址:${storageDir.path}".logE()
         return File("${storageDir.path}/${"yyyyMMdd_HHmmss".convert(Date())}.${storageInfo.second}")
     }
 
@@ -70,13 +76,6 @@ fun String?.getDuration(): Double {
     medialPlayer.prepare()
     val time = medialPlayer.duration//视频时长（毫秒）
     val duration = (time / 1000.0)
-    "文件时长：${duration}秒".logE(TAG)
+    "文件时长：${duration}秒".logE()
     return duration
-}
-
-/**
- * 定义传入的枚举类型
- */
-enum class MediaType {
-    IMAGE, VIDEO, AUDIO, SCREEN
 }
