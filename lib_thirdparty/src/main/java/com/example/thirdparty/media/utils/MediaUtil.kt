@@ -35,13 +35,13 @@ object MediaUtil {
         //根据类型在sd卡picture目录下建立对应app名称的对应类型文件
         val storageInfo = when (mimeType) {
             //拍照/抓拍
-            MediaType.IMAGE -> "${storage}拍照" to "jpg"
+            MediaType.IMAGE -> getOutputRoute(mimeType) to "jpg"
             //录像
-            MediaType.VIDEO -> "${storage}录像" to "mp4"
+            MediaType.VIDEO -> getOutputRoute(mimeType) to "mp4"
             //录音
-            MediaType.AUDIO -> "${storage}录音" to "wav"
+            MediaType.AUDIO -> getOutputRoute(mimeType) to "wav"
             //录屏
-            MediaType.SCREEN -> "${storage}录屏" to "mp4"
+            MediaType.SCREEN -> getOutputRoute(mimeType) to "mp4"
         }
         //先在包名目录下建立对应类型的文件夹，构建失败直接返回null
         val storageDir = File(storageInfo.first)
@@ -53,6 +53,23 @@ object MediaUtil {
             }
         } else "文件目录已创建\n地址:${storageDir.path}".logE()
         return File("${storageDir.path}/${"yyyyMMdd_HHmmss".convert(Date())}.${storageInfo.second}")
+    }
+
+    /**
+     * 获取输出文件的路径
+     */
+    @JvmStatic
+    fun getOutputRoute(mimeType: MediaType): String {
+        return when (mimeType) {
+            //拍照/抓拍
+            MediaType.IMAGE -> "${storage}拍照"
+            //录像
+            MediaType.VIDEO -> "${storage}录像"
+            //录音
+            MediaType.AUDIO -> "${storage}录音"
+            //录屏
+            MediaType.SCREEN -> "${storage}录屏"
+        }
     }
 
 }
