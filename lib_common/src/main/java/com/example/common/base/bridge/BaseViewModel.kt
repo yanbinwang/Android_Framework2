@@ -49,8 +49,12 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val view: BaseView? get() = weakView?.get()
 
     //分页
-    val paging by lazy { Paging() }
+    protected val paging by lazy { Paging() }
+    val hasNextPage get() = paging.hasNextPage()
     val hasRefresh get() = paging.hasRefresh
+    val currentCount get() = paging.currentCount
+    val totalCount get() = paging.totalCount
+    val page get() = paging.page
 
     //获取对应的控件/分页类
     val emptyView get() = weakEmpty?.get()
@@ -86,6 +90,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      */
     fun setCurrentCount(currentCount: Int) {
         paging.currentCount = currentCount
+    }
+
+    /**
+     * 设置当前总记录数
+     */
+    fun setTotalCount(totalCount: Int) {
+        paging.totalCount = totalCount
     }
 
     /**
