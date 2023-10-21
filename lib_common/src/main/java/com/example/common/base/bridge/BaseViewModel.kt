@@ -17,6 +17,7 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.framework.utils.function.value.orTrue
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.*
@@ -88,15 +89,15 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     /**
      * 当前列表内的数据
      */
-    fun setCurrentCount(currentCount: Int) {
-        paging.currentCount = currentCount
+    fun setCurrentCount(currentCount: Int?) {
+        paging.currentCount = currentCount.orZero
     }
 
     /**
      * 设置当前总记录数
      */
-    fun setTotalCount(totalCount: Int) {
-        paging.totalCount = totalCount
+    fun setTotalCount(totalCount: Int?) {
+        paging.totalCount = totalCount.orZero
     }
 
     /**
