@@ -36,31 +36,31 @@ import kotlin.coroutines.EmptyCoroutineContext
  */
 @SuppressLint("StaticFieldLeak")
 abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
+    //基础引用
     private var weakActivity: WeakReference<FragmentActivity>? = null//引用的activity
     private var weakView: WeakReference<BaseView>? = null//基础UI操作
-
-    //部分view的操作交予viewmodel去操作，不必让activity去操作
-    private var weakEmpty: WeakReference<EmptyLayout?>? = null//遮罩UI
-    private var weakRecycler: WeakReference<XRecyclerView?>? = null//列表UI
-    private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
-
     //基础的注入参数
     protected val activity: FragmentActivity get() = weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity()
     protected val context: Context get() = activity
     protected val view: BaseView? get() = weakView?.get()
 
-    //分页
-    protected val paging by lazy { Paging() }
-    val hasNextPage get() = paging.hasNextPage()
-    val hasRefresh get() = paging.hasRefresh
-    val currentCount get() = paging.currentCount
-    val totalCount get() = paging.totalCount
-    val page get() = paging.page
-
+    //部分view的操作交予viewmodel去操作，不必让activity去操作
+    private var weakEmpty: WeakReference<EmptyLayout?>? = null//遮罩UI
+    private var weakRecycler: WeakReference<XRecyclerView?>? = null//列表UI
+    private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
     //获取对应的控件/分页类
     val emptyView get() = weakEmpty?.get()
     val recyclerView get() = weakRecycler?.get()
     val refreshLayout get() = weakRefresh?.get()
+
+    //分页
+    private val paging by lazy { Paging() }
+    //分页参数
+    val hasNextPage get() = paging.hasNextPage()
+    val hasRefresh get() = paging.hasRefresh
+    val currentCount get() = paging.currentCount
+    val totalCount get() = paging.totalCount
+    val page get() = paging.page.toString()
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
