@@ -50,9 +50,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val context: Context get() = activity
     protected val view: BaseView? get() = weakView?.get()
     //获取对应的控件/分页类
-    protected val emptyView get() = weakEmpty?.get()
-    protected val recyclerView get() = weakRecycler?.get()
-    protected val refreshLayout get() = weakRefresh?.get()
+    val emptyView get() = weakEmpty?.get()
+    val recyclerView get() = weakRecycler?.get()
+    val refreshLayout get() = weakRefresh?.get()
     //分页参数
     val hasNextPage get() = paging.hasNextPage()
     val hasRefresh get() = paging.hasRefresh
