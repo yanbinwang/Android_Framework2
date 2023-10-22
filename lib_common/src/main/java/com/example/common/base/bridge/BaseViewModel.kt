@@ -50,15 +50,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val context: Context get() = activity
     protected val view: BaseView? get() = weakView?.get()
     //获取对应的控件/分页类
-    val emptyView get() = weakEmpty?.get()
-    val recyclerView get() = weakRecycler?.get()
-    val refreshLayout get() = weakRefresh?.get()
+    protected val emptyView get() = weakEmpty?.get()
+    protected val recyclerView get() = weakRecycler?.get()
+    protected val refreshLayout get() = weakRefresh?.get()
     //分页参数
-    val hasNextPage get() = paging.hasNextPage()
-    val hasRefresh get() = paging.hasRefresh
-    val currentCount get() = paging.currentCount
-    val totalCount get() = paging.totalCount
-    val page get() = paging.page.toString()
+    protected val hasNextPage get() = paging.hasNextPage()
+    protected val currentCount get() = paging.currentCount
+    protected val totalCount get() = paging.totalCount
+    protected val page get() = paging.page.toString()
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
@@ -84,6 +83,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.weakRefresh = WeakReference(refresh)
     }
 
+    /**
+     * 空布局监听
+     */
     fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
         emptyView?.setEmptyRefreshListener(onRefresh)
     }
@@ -117,10 +119,30 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     /**
+     * 当前是否是刷新
+     */
+    fun hasRefresh() = paging.hasRefresh
+
+    /**
+     * empty布局操作
+     */
+    fun loading() {
+        emptyView?.loading()
+    }
+
+    fun empty(resId: Int = -1, text: String? = null) {
+        emptyView?.empty(resId, text)
+    }
+
+    fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
+        emptyView?.error(resId, text, refreshText)
+    }
+
+    /**
      * 带刷新或者空白布局的列表/详情页再接口交互结束时直接在对应的viewmodel调用该方法
      * hasNextPage是否有下一页
      */
-    protected fun reset(hasNextPage: Boolean? = true) {
+    fun reset(hasNextPage: Boolean? = true) {
         if (null == recyclerView) refreshLayout?.finishRefreshing()
         recyclerView?.finishRefreshing(hasNextPage.orTrue)
         emptyView?.fade(300)

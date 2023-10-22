@@ -166,7 +166,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     }
 
     fun <VDB : BaseViewModel> notify(list: List<T>?, viewModel: VDB) {
-        notify(list, viewModel.hasRefresh) { viewModel.emptyView?.empty() }
+        viewModel.apply { notify(list, hasRefresh()) { empty() } }
     }
 
     /**
