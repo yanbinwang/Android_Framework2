@@ -42,12 +42,12 @@ import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
 import me.jessyan.autosize.AutoSizeConfig
 import me.jessyan.autosize.unit.Subunits
-import java.util.*
+import java.util.Locale
 
 /**
  * Created by WangYanBin on 2020/8/14.
  */
-@SuppressLint("MissingPermission")
+@SuppressLint("MissingPermission", "UnspecifiedRegisterReceiverFlag")
 abstract class BaseApplication : Application() {
 
     companion object {
