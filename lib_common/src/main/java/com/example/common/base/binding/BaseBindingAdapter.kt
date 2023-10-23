@@ -6,7 +6,6 @@ import android.view.View
 import android.webkit.WebView
 import android.widget.EditText
 import android.widget.TextView
-import androidx.constraintlayout.widget.Guideline
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.PagerAdapter
@@ -21,6 +20,7 @@ import com.example.common.utils.function.ptFloat
 import com.example.common.utils.function.setSpanFirst
 import com.example.common.widget.textview.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
+import com.example.framework.utils.enterAnimation
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.removeEndZero
@@ -38,9 +38,10 @@ import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.initLinearVertical
+import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.setMatchText
 import com.example.framework.utils.function.view.spaceLimit
-import com.example.framework.utils.enterAnimation
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -57,10 +58,22 @@ object BaseBindingAdapter {
     /**
      * 约束布局等高线设置
      */
+//    @JvmStatic
+//    @BindingAdapter(value = ["statusBar_margin"])
+//    fun bindingGuidelineStatusBar(guideline: Guideline, statusBarMargin: Boolean?) {
+//        if (statusBarMargin.orFalse) guideline.setGuidelineBegin(getStatusBarHeight())
+//    }
+
     @JvmStatic
     @BindingAdapter(value = ["statusBar_margin"])
-    fun bindingGuidelineStatusBar(guideline: Guideline, statusBarMargin: Boolean?) {
-        if (statusBarMargin.orFalse) guideline.setGuidelineBegin(getStatusBarHeight())
+    fun bindingStatusBarMargin(view: View, statusBarMargin: Boolean?) {
+        if (statusBarMargin.orFalse) view.margin(top = getStatusBarHeight())
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["statusBar_padding"])
+    fun bindingStatusBarPadding(view: View, statusBarPadding: Boolean?) {
+        if (statusBarPadding.orFalse) view.padding(top = getStatusBarHeight())
     }
 
     /**

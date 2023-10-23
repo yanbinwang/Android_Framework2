@@ -267,6 +267,16 @@ interface EditTextImpl {
         editText.onDone(listener)
     }
 
+    fun ClearEditText?.textWatcher(watcher: OnMultiTextWatcher) {
+        if (this == null) return
+        this.editText.addTextChangedListener(watcher)
+    }
+
+    fun PasswordEditText?.textWatcher(watcher: OnMultiTextWatcher) {
+        if (this == null) return
+        this.editText.addTextChangedListener(watcher)
+    }
+
     fun OnMultiTextWatcher.textWatcher(vararg views: View) {
         for (view in views) {
             when (view) {

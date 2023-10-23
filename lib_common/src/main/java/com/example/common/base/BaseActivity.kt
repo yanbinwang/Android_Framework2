@@ -40,6 +40,7 @@ import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import org.greenrobot.eventbus.Subscribe
@@ -187,7 +188,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             binding.unbind()
         } catch (_: Exception) {
         }
-        job.cancel()
+        job.cancel()//之后再起的job无法工作
+//        coroutineContext.cancelChildren()//之后再起的可以工作
     }
     // </editor-fold>
 

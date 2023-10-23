@@ -48,7 +48,7 @@ android {
         versionName build_versions.versionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         //减少语言支持
-        resConfigs "zh"
+        resourceConfigurations += ['zh']
         //dex突破65535的限制
         multiDexEnabled true
         //arouter编译
@@ -67,10 +67,6 @@ android {
 
     buildFeatures {
         dataBinding true
-    }
-
-    lintOptions {
-        disable 'GoogleAppIndexingWarning'
     }
 
     compileOptions {
@@ -122,6 +118,9 @@ android {
                 }
             }
         }
+    }
+    lint {
+        disable 'GoogleAppIndexingWarning'
     }
 }
 

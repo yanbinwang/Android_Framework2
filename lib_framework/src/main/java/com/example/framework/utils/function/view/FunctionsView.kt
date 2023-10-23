@@ -523,6 +523,15 @@ fun View?.stopHardwareAccelerate() {
 }
 
 /**
+ * 在viewgroup中插入一个xml引用的view，需设置这个view的root目录撑满
+ * 可调用该方法
+ */
+fun View?.layoutParamsMatch() {
+    if (this == null) return
+    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+}
+
+/**
  * 控件获取焦点
  */
 fun View?.focus() {

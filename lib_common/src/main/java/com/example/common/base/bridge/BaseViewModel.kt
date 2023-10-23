@@ -17,6 +17,7 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.framework.utils.function.value.orTrue
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.*
@@ -35,27 +36,28 @@ import kotlin.coroutines.EmptyCoroutineContext
  */
 @SuppressLint("StaticFieldLeak")
 abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
+    //基础引用
     private var weakActivity: WeakReference<FragmentActivity>? = null//引用的activity
     private var weakView: WeakReference<BaseView>? = null//基础UI操作
-
     //部分view的操作交予viewmodel去操作，不必让activity去操作
     private var weakEmpty: WeakReference<EmptyLayout?>? = null//遮罩UI
     private var weakRecycler: WeakReference<XRecyclerView?>? = null//列表UI
     private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
-
+    //分页
+    private val paging by lazy { Paging() }
     //基础的注入参数
     protected val activity: FragmentActivity get() = weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity()
     protected val context: Context get() = activity
     protected val view: BaseView? get() = weakView?.get()
-
     //获取对应的控件/分页类
-    val emptyView get() = weakEmpty?.get()
-    val recyclerView get() = weakRecycler?.get()
-    val refreshLayout get() = weakRefresh?.get()
-
-    //分页
-    internal val paging by lazy { Paging() }
-    val hasRefresh get() = paging.hasRefresh
+    protected val emptyView get() = weakEmpty?.get()
+    protected val recyclerView get() = weakRecycler?.get()
+    protected val refreshLayout get() = weakRefresh?.get()
+    //分页参数
+    protected val hasNextPage get() = paging.hasNextPage()
+    protected val currentCount get() = paging.currentCount
+    protected val totalCount get() = paging.totalCount
+    protected val page get() = paging.page.toString()
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
@@ -82,10 +84,24 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     /**
+     * 空布局监听
+     */
+    fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
+        emptyView?.setEmptyRefreshListener(onRefresh)
+    }
+
+    /**
      * 当前列表内的数据
      */
-    fun setCurrentCount(currentCount: Int) {
-        paging.currentCount = currentCount
+    fun setCurrentCount(currentCount: Int?) {
+        paging.currentCount = currentCount.orZero
+    }
+
+    /**
+     * 设置当前总记录数
+     */
+    fun setTotalCount(totalCount: Int?) {
+        paging.totalCount = totalCount.orZero
     }
 
     /**
@@ -103,10 +119,30 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     /**
+     * 当前是否是刷新
+     */
+    fun hasRefresh() = paging.hasRefresh
+
+    /**
+     * empty布局操作
+     */
+    fun loading() {
+        emptyView?.loading()
+    }
+
+    fun empty(resId: Int = -1, text: String? = null) {
+        emptyView?.empty(resId, text)
+    }
+
+    fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
+        emptyView?.error(resId, text, refreshText)
+    }
+
+    /**
      * 带刷新或者空白布局的列表/详情页再接口交互结束时直接在对应的viewmodel调用该方法
      * hasNextPage是否有下一页
      */
-    protected fun reset(hasNextPage: Boolean? = true) {
+    fun reset(hasNextPage: Boolean? = true) {
         if (null == recyclerView) refreshLayout?.finishRefreshing()
         recyclerView?.finishRefreshing(hasNextPage.orTrue)
         emptyView?.fade(300)

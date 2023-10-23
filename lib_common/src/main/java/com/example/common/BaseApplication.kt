@@ -35,6 +35,7 @@ import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.isDebug
+import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
@@ -156,7 +157,7 @@ abstract class BaseApplication : Application() {
 
     private fun initToast() {
         val drawable = GradientDrawable().apply {
-            setColor(Color.parseColor("#cf111111"))
+            setColor("#cf111111".parseColor())
             cornerRadius = 7.ptFloat
         }
         ToastBuilder.setResToastBuilder { message, length ->

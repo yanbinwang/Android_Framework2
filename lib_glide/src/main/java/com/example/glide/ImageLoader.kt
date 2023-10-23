@@ -2,7 +2,6 @@ package com.example.glide
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Looper
@@ -12,6 +11,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.isMainThread
+import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.glide.callback.GlideImpl
 import com.example.glide.callback.GlideModule
@@ -19,6 +19,9 @@ import com.example.glide.callback.GlideRequestListener
 import com.example.glide.callback.progress.ProgressInterceptor
 import com.example.glide.transform.CornerTransform
 import com.example.glide.transform.ZoomTransform
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 /**
@@ -27,7 +30,7 @@ import java.io.File
  */
 class ImageLoader private constructor() : GlideModule(), GlideImpl {
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
-    private val maskDrawable by lazy { GradientDrawable().apply { setColor(Color.parseColor("#000000")) } }
+    private val maskDrawable by lazy { GradientDrawable().apply { setColor("#000000".parseColor()) } }
 
     companion object {
         @JvmStatic
@@ -231,7 +234,11 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     //清除内存缓存是在主线程中
     override fun clearMemoryCache(context: Context) {
         try {
-            Glide.get(context).clearMemory()
+            if (!isMainThread) {
+                GlobalScope.launch(Dispatchers.Main) { Glide.get(context).clearMemory() }
+            } else {
+                Glide.get(context).clearMemory()
+            }
         } catch (ignore: Exception) {
         }
     }
@@ -240,7 +247,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     override fun clearDiskCache(context: Context) {
         try {
             if (isMainThread) {
-                Thread { Glide.get(context).clearDiskCache() }.start()
+                GlobalScope.launch(Dispatchers.IO) { Glide.get(context).clearDiskCache() }
             } else {
                 Glide.get(context).clearDiskCache()
             }
