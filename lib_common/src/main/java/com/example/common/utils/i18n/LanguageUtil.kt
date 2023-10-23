@@ -20,7 +20,7 @@ object LanguageUtil {
     /**
      * 設置本機的語言
      */
-    fun setLocalLanguage(language: String?) {
+    fun setLocalLanguage(language: String? = getLanguage()) {
         if (language.isNullOrEmpty()) {
             I18nUtil.setLanguagePack(en_US, LanguageBean())
             return
@@ -75,7 +75,7 @@ object LanguageUtil {
     /**
      * 检测语言包是否需要更新为本地版本的
      */
-    fun checkLanguageVersion(language: String?) {
+    fun checkLanguageVersion(language: String? = getLanguage()) {
         if (language.isNullOrEmpty()) {
             I18nUtil.setLanguagePack(en_US, LanguageBean())
             return

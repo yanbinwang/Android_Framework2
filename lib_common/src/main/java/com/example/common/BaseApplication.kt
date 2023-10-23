@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.Context
-import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkRequest
@@ -27,7 +26,6 @@ import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.common.utils.i18n.I18nUtil.getPackVersion
-import com.example.common.utils.i18n.LanguageUtil
 import com.example.common.utils.i18n.LanguageUtil.checkLanguageVersion
 import com.example.common.utils.i18n.LanguageUtil.resetLanguage
 import com.example.common.utils.i18n.LanguageUtil.setLocalLanguage
@@ -114,10 +112,10 @@ abstract class BaseApplication : Application() {
         if (getPackVersion() <= 0) {
             //语言包未配置
             resetLanguage()
-            setLocalLanguage(LanguageUtil.getLanguage())
+            setLocalLanguage()
         } else {
             //语言包已配置
-            checkLanguageVersion(LanguageUtil.getLanguage())
+            checkLanguageVersion()
         }
     }
 
