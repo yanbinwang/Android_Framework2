@@ -60,8 +60,8 @@ dependencies {
     api deps.smartrefresh
     api deps.guide
     api deps.circleprogressbar
+    api deps.eventbus
     implementation deps.mmkv
-    implementation deps.eventbus
     implementation deps.xxpermissions
     implementation deps.immersionbar
     //页面路由

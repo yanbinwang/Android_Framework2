@@ -179,7 +179,7 @@ class I18nTextView @JvmOverloads constructor(context: Context, attrs: AttributeS
             isFocusableInTouchMode = false
             defaultMovementMethod
         }
-        highlightColor = context.color(R.color.white_00ffffff)
+        highlightColor = context.color(R.color.appTheme)
     }
 
     override fun getWeakRef() = weakReference

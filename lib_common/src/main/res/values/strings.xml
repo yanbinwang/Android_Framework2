@@ -33,7 +33,12 @@
     <string name="phone_hint">請輸入手機號</string>
     <string name="phone_empty">手機號不能為空</string>
     <string name="phone_error">手機號格式錯誤</string>
-    <string name="verify_code_hint">請輸入驗證碼</string>
-    <string name="verify_code_empty">驗證碼不能為空</string>
-    <string name="verify_code_error">請輸入6位數字驗證碼</string>
+    <string name="verify_sms_hint">請輸入驗證碼</string>
+    <string name="verify_sms_empty">驗證碼不能為空</string>
+    <string name="verify_sms_error">請輸入6位數字驗證碼</string>
+    <!-- 首页 -->
+    <string name="main_home">首頁</string>
+    <string name="main_market">市場</string>
+    <string name="main_balance">資金</string>
+    <string name="main_user">我的</string>
 </resources>

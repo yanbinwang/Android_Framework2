@@ -2,160 +2,65 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!--    <FrameLayout-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="match_parent">-->
-
-    <!--        <androidx.viewpager2.widget.ViewPager2-->
-    <!--            android:id="@+id/rv_test"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="400pt"-->
-    <!--            android:layout_marginTop="80pt"-->
-    <!--            android:visibility="gone" />-->
-
-    <!--        <EditText-->
-    <!--            android:id="@+id/et_test"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="200pt"-->
-    <!--            android:textColor="@color/blue_1566ec"-->
-    <!--            android:textSize="@dimen/textSize26" />-->
-
-    <!--        <Button-->
-    <!--            android:id="@+id/btn_test"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="80pt"-->
-    <!--            android:layout_marginHorizontal="20pt"-->
-    <!--            android:background="@drawable/shape_r5_blue"-->
-    <!--            android:text="dfdsfds"-->
-    <!--            android:textColor="@color/white"-->
-    <!--            android:textSize="@dimen/textSize32" />-->
-
-    <!--        <TextView-->
-    <!--            android:id="@+id/tv_test"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="400pt"-->
-    <!--            android:gravity="center"-->
-    <!--            android:text="dsadasdasdasdsadas"-->
-    <!--            android:textColor="@color/textGrey"-->
-    <!--            android:textSize="@dimen/textSize20" />-->
-
-    <!--    </FrameLayout>-->
-
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/bgWhite"
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/iv_funds_bg"
+        <TextView
+            android:id="@+id/tv_language"
             android:layout_width="match_parent"
-            android:layout_height="164pt"
-            android:scaleType="fitXY" />
+            android:layout_height="40pt"
+            android:gravity="center"
+            android:textColor="@color/textBlack"
+            android:textSize="@dimen/textSize14" />
 
-        <com.scwang.smart.refresh.layout.SmartRefreshLayout
-            android:id="@+id/refresh"
+        <View style="@style/LineWidth" />
+
+        <TextView
+            android:id="@+id/tv_us"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:srlEnableLoadMore="false"
-            app:srlEnableRefresh="true">
+            android:layout_height="40pt"
+            android:gravity="center"
+            android:text="英语"
+            android:textColor="@color/textBlack"
+            android:textSize="@dimen/textSize14" />
 
-            <androidx.core.widget.NestedScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:overScrollMode="never"
-                android:scrollbars="none">
+        <View style="@style/LineWidth" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
+        <TextView
+            android:id="@+id/tv_hk"
+            android:layout_width="match_parent"
+            android:layout_height="40pt"
+            android:gravity="center"
+            android:text="香港"
+            android:textColor="@color/textBlack"
+            android:textSize="@dimen/textSize14" />
 
-                    <LinearLayout
-                        android:id="@+id/ll_funds"
-                        android:layout_width="match_parent"
-                        android:layout_height="164pt"
-                        android:orientation="vertical"
-                        android:paddingHorizontal="15pt">
+        <View style="@style/LineWidth" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12pt"
-                            android:text="Total assets converted(USDT)"
-                            android:textColor="@color/textGrey"
-                            android:textSize="12pt" />
+        <TextView
+            android:id="@+id/tv_in"
+            android:layout_width="match_parent"
+            android:layout_height="40pt"
+            android:gravity="center"
+            android:text="印尼"
+            android:textColor="@color/textBlack"
+            android:textSize="@dimen/textSize14" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2pt"
-                            android:text="232,232,212.00"
-                            android:textColor="@color/textGrey"
-                            android:textSize="28pt" />
+        <View style="@style/LineWidth" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="3pt"
-                            android:text="≈ ₹0.00"
-                            android:textColor="@color/textGrey"
-                            android:textSize="15pt" />
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tb_main"
+            android:layout_width="match_parent"
+            android:layout_height="50pt"
+            android:background="@color/bgWhite"
+            android:clipChildren="true"
+            android:paddingHorizontal="20pt"
+            android:theme="@style/TabLayoutStyle"
+            app:tabIndicator="@drawable/layer_list_tab_line" />
 
-                        <View
-                            android:id="@+id/view_content"
-                            android:layout_width="match_parent"
-                            android:layout_height="38pt"
-                            android:layout_marginTop="15pt"
-                            android:background="@color/textBlue" />
-
-                    </LinearLayout>
-
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center">
-
-                        <TextView
-                            text="@{`sadasdsadasdasdas`}"
-                            android:layout_width="match_parent"
-                            android:layout_height="800pt"
-                            android:background="@color/textBlue"
-                            android:gravity="center"
-                            android:textColor="@color/textWhite"
-                            android:textSize="29pt"
-                            android:visibility="gone" />
-
-                        <com.example.common.widget.i18n.I18nTextView
-                            android:layout_width="match_parent"
-                            android:layout_height="800pt"
-                            android:gravity="center"
-                            android:text="@string/refresh"
-                            android:textColor="@color/blue_2e60df"
-                            android:textSize="29pt" />
-
-                        <ImageView
-                            android:id="@+id/iv_arrow"
-                            android:layout_width="24pt"
-                            android:layout_height="10pt"
-                            android:layout_gravity="center"
-                            android:src="@mipmap/ic_arrow_down"
-                            android:visibility="gone" />
-
-                        <TextView
-                            android:id="@+id/tv_test"
-                            android:layout_width="match_parent"
-                            android:layout_height="400pt"
-                            android:gravity="center"
-                            android:textColor="@color/textGrey"
-                            android:textSize="@dimen/textSize20" />
-
-                    </FrameLayout>
-
-                </LinearLayout>
-
-            </androidx.core.widget.NestedScrollView>
-
-        </com.scwang.smart.refresh.layout.SmartRefreshLayout>
-
-    </FrameLayout>
+    </LinearLayout>
 
 </layout>

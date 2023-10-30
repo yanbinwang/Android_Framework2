@@ -25,8 +25,12 @@
     "phone_hint":"請輸入手機號",
     "phone_empty":"手機號不能為空",
     "phone_error":"手機號格式錯誤",
-    "verify_code_hint":"請輸入驗證碼",
-    "verify_code_empty":"驗證碼不能為空",
-    "verify_code_error":"請輸入6位數字驗證碼"
+    "verify_sms_hint":"請輸入驗證碼",
+    "verify_sms_empty":"驗證碼不能為空",
+    "verify_sms_error":"請輸入6位數字驗證碼",
+    "main_home":"首頁",
+    "main_market":"市場",
+    "main_balance":"資金",
+    "main_user":"我的"
   }
 }

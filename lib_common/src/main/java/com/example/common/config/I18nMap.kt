@@ -32,8 +32,12 @@ object I18nMap {
         R.string.phone_hint to "phone_hint",
         R.string.phone_empty to "phone_empty",
         R.string.phone_error to "phone_error",
-        R.string.verify_code_hint to "verify_code_hint",
-        R.string.verify_code_empty to "verify_code_empty",
-        R.string.verify_code_error to "verify_code_error",
+        R.string.verify_sms_hint to "verify_sms_hint",
+        R.string.verify_sms_empty to "verify_sms_empty",
+        R.string.verify_sms_error to "verify_sms_error",
+        R.string.main_home to "main_home",
+        R.string.main_market to "main_market",
+        R.string.main_balance to "main_balance",
+        R.string.main_user to "main_user",
     )
 }

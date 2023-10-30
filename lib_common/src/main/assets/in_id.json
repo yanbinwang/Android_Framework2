@@ -25,8 +25,12 @@
     "phone_hint":"Masukkan nomor telepon",
     "phone_empty":"Nomor ponsel tidak boleh kosong",
     "phone_error":"Nomor telepon rusak",
-    "verify_code_hint":"Silahkan masukkan kode verifikasi",
-    "verify_code_empty":"Kode verifikasi harus diisi",
-    "verify_code_error":"Masukkan kode verifikasi 6 digit"
+    "verify_sms_hint":"Silahkan masukkan kode verifikasi",
+    "verify_sms_empty":"Kode verifikasi harus diisi",
+    "verify_sms_error":"Masukkan kode verifikasi 6 digit",
+    "main_home":"Depan",
+    "main_market":"Pasar",
+    "main_balance":"Dana",
+    "main_user":"Akun Saya"
   }
 }

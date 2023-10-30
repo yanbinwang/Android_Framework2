@@ -21,10 +21,10 @@ class EventBus private constructor() {
 
     private val busDefault get() = org.greenrobot.eventbus.EventBus.getDefault()
 
-    fun register(subscriber: Any, lifecycle: Lifecycle) {
+    fun register(subscriber: Any, lifecycle: Lifecycle? = null) {
         if (!busDefault.isRegistered(subscriber)) {
             busDefault.register(subscriber)
-            lifecycle.doOnDestroy {
+            lifecycle?.doOnDestroy {
                 busDefault.unregister(subscriber)
             }
         }

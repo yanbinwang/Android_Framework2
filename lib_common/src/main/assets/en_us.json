@@ -25,8 +25,12 @@
     "phone_hint":"Please enter phone number",
     "phone_empty":"Mobile phone number cannot be empty",
     "phone_error":"Malformed phone number",
-    "verify_code_hint":"Please enter verification code",
-    "verify_code_empty":"Verification code must be filled",
-    "verify_code_error":"Please enter the 6-digit verification code"
+    "verify_sms_hint":"Please enter verification code",
+    "verify_sms_empty":"Verification code must be filled",
+    "verify_sms_error":"Please enter the 6-digit verification code",
+    "main_home":"Home",
+    "main_market":"Market",
+    "main_balance":"Balance",
+    "main_user":"My"
   }
 }

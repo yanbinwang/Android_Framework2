@@ -40,4 +40,7 @@
     <color name="bgWebProgressStart">#2e60df</color>
     <color name="bgWebProgressEnd">#3259e1</color>
     <color name="bgWebProgressCenter">#3e78f1</color>
+    <!--首页-->
+    <color name="mainTabSelected">#333333</color>
+    <color name="mainTabUnselected">#A8A5A5</color>
 </resources>
