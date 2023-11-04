@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_language"
+            android:layout_width="match_parent"
+            android:layout_height="50pt"
+            android:layout_marginHorizontal="15pt"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:textColor="@color/textBlack"
+            android:textSize="@dimen/textSize14" />
+
+        <View
+            style="@style/LineWidth"
+            android:layout_width="match_parent"
+            android:layout_marginStart="15pt"
+            android:layout_marginTop="50pt" />
+
+        <ImageView
+            android:id="@+id/iv_selected"
+            android:layout_width="17pt"
+            android:layout_height="17pt"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="15pt"
+            android:src="@mipmap/ic_selected" />
+
+    </FrameLayout>
+
+</layout>

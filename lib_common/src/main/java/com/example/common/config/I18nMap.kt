@@ -35,9 +35,7 @@ object I18nMap {
         R.string.verify_sms_hint to "verify_sms_hint",
         R.string.verify_sms_empty to "verify_sms_empty",
         R.string.verify_sms_error to "verify_sms_error",
-        R.string.main_home to "main_home",
-        R.string.main_market to "main_market",
-        R.string.main_balance to "main_balance",
-        R.string.main_user to "main_user",
+        R.string.main_now_language to "main_now_language",
+        R.string.main_now_header to "main_now_header",
     )
 }

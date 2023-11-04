@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="adapter"
+            type="com.example.mvvm.adapter.LanguageAdapter" />
+    </data>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -8,58 +15,68 @@
         android:background="@color/bgWhite"
         android:orientation="vertical">
 
+        <com.example.common.widget.i18n.I18nTextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="44pt"
+            android:background="@color/bgWhite"
+            android:gravity="center"
+            android:text="@string/hint"
+            android:textColor="@color/textBlack"
+            android:textSize="@dimen/textSize18"
+            android:textStyle="bold" />
+
+        <View style="@style/LineWidth" />
+
+        <com.example.common.widget.i18n.I18nTextView
+            android:layout_width="match_parent"
+            android:layout_height="40pt"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="20pt"
+            android:text="@string/main_now_language"
+            android:textColor="@color/textBlack"
+            android:textSize="@dimen/textSize14" />
+
         <TextView
             android:id="@+id/tv_language"
             android:layout_width="match_parent"
-            android:layout_height="40pt"
-            android:gravity="center"
-            android:textColor="@color/textBlack"
-            android:textSize="@dimen/textSize14" />
-
-        <View style="@style/LineWidth" />
-
-        <TextView
-            android:id="@+id/tv_us"
-            android:layout_width="match_parent"
-            android:layout_height="40pt"
-            android:gravity="center"
-            android:text="英语"
-            android:textColor="@color/textBlack"
-            android:textSize="@dimen/textSize14" />
-
-        <View style="@style/LineWidth" />
-
-        <TextView
-            android:id="@+id/tv_hk"
-            android:layout_width="match_parent"
-            android:layout_height="40pt"
-            android:gravity="center"
-            android:text="香港"
-            android:textColor="@color/textBlack"
-            android:textSize="@dimen/textSize14" />
-
-        <View style="@style/LineWidth" />
-
-        <TextView
-            android:id="@+id/tv_in"
-            android:layout_width="match_parent"
-            android:layout_height="40pt"
-            android:gravity="center"
-            android:text="印尼"
-            android:textColor="@color/textBlack"
-            android:textSize="@dimen/textSize14" />
-
-        <View style="@style/LineWidth" />
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tb_main"
-            android:layout_width="match_parent"
-            android:layout_height="50pt"
-            android:background="@color/bgWhite"
-            android:clipChildren="true"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:paddingHorizontal="20pt"
-            android:theme="@style/TabLayoutStyle"
-            app:tabIndicator="@drawable/layer_list_tab_line" />
+            android:textColor="@color/textGrey"
+            android:textSize="@dimen/textSize14"
+            tools:text="English" />
+
+        <View style="@style/LineWidth" />
+
+        <com.example.common.widget.i18n.I18nTextView
+            android:layout_width="match_parent"
+            android:layout_height="40pt"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="20pt"
+            android:text="@string/main_now_header"
+            android:textColor="@color/textBlack"
+            android:textSize="@dimen/textSize14" />
+
+        <TextView
+            android:id="@+id/tv_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="20pt"
+            android:textColor="@color/textGrey"
+            android:textSize="@dimen/textSize14"
+            tools:text="en_US" />
+
+        <View
+            style="@style/LineWidth"
+            android:layout_marginTop="20pt" />
+
+        <com.example.common.widget.xrecyclerview.XRecyclerView
+            android:id="@+id/rec_list"
+            quick_adapter="@{adapter}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
