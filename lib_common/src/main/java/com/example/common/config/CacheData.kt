@@ -4,6 +4,7 @@ import com.example.common.bean.LanguageBean
 import com.example.common.bean.UserAuthBean
 import com.example.common.bean.UserBean
 import com.example.common.bean.UserInfoBean
+import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.DataCacheUtil
 import com.example.common.utils.DataStringCacheUtil
 
@@ -35,5 +36,9 @@ object CacheData {
     //用户认证状态类
     private val USER_AUTH_BEAN = "user_auth_bean"
     internal val userAuthBean = DataCacheUtil(USER_AUTH_BEAN, UserAuthBean::class.java)
+
+    //是否是黑夜模式
+    private const val NIGHT_MODE = "night_mode"
+    internal var nightMode = DataBooleanCacheUtil(NIGHT_MODE)
 
 }

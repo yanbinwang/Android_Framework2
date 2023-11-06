@@ -64,6 +64,7 @@ dependencies {
     implementation deps.mmkv
     implementation deps.xxpermissions
     implementation deps.immersionbar
+    implementation deps.night_mode
     //页面路由
     implementation deps.alibaba.arouter
     kapt deps.alibaba.arouter_compiler

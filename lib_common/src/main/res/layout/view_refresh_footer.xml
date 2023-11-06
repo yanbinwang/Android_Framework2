@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/data_no_more"
-            android:textColor="@color/textBlack"
+            android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize12"
             android:visibility="gone" />
 

@@ -8,12 +8,14 @@ import com.example.common.config.ARouterPath
 import com.example.common.config.Constants.LANGUAGE_LIST
 import com.example.common.event.Event
 import com.example.common.event.EventCode.EVENT_LANGUAGE_CHANGE
+import com.example.common.utils.NightModeUtil
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.i18n.I18nUtil
 import com.example.common.utils.i18n.I18nUtil.getLocalLanguageBean
 import com.example.common.utils.i18n.LanguageUtil
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.padding
 import com.example.mvvm.BR
 import com.example.mvvm.adapter.LanguageAdapter
 import com.example.mvvm.databinding.ActivityMainBinding
@@ -33,7 +35,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun initView() {
         super.initView()
-        binding.tvTitle.margin(top = getStatusBarHeight())
+        binding.flTitle.padding(top = getStatusBarHeight())
         binding.setVariable(BR.adapter, LanguageAdapter())
         binding.adapter?.notify(LANGUAGE_LIST)//接口请求之后
         refreshLanguage()
@@ -41,6 +43,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun initEvent() {
         super.initEvent()
+        binding.tvModeSwitcher.click { NightModeUtil.toggleNightMode() }
         binding.adapter?.setOnItemClickListener { t, _ -> getServerLanguage(t) }
     }
 

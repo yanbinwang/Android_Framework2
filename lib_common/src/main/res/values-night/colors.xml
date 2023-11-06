@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- app内的一些颜色-->
+    <color name="appTheme">#3d81f2</color><!-- app主题色 -->
+    <color name="appPrimary">#ffffff</color><!-- 全局字体默认颜色 -->
+    <color name="appPrimaryDark">#000000</color><!-- 状态栏栏颜色 -->
+    <color name="appNavigationBar">#ffffff</color><!-- 导航栏颜色 -->
+    <color name="appWindowBackground">#000000</color><!-- 背景色 -->
+    <color name="appAccent">#3d81f2</color><!-- 光标色 -->
+    <color name="appControlNormal">#333333</color><!-- 控制控件的默认颜色 -->
+    <!-- 输入框/显示文本 -->
+    <color name="textPrimary">#ffffff</color><!-- 字体默认颜色 -->
+    <color name="textSecondary">#999EA4</color><!-- 字体二级默认颜色 -->
+    <color name="textHint">#999EA4</color><!-- 控件显示提示文案字体颜色 -->
+    <color name="textDisabled">#aaa</color><!-- 不可用控件字体颜色 -->
+    <!-- 弹框/遮罩/默认线条背景 -->
+    <color name="bgLine">#f6f8ff</color><!-- 线条颜色 -->
+    <color name="bgDialog">#33000000</color><!-- 弹框背景 -->
+    <color name="bgAppDialog">#00ffffff</color><!-- 提示背景 -->
+    <color name="bgToolbar">#000000</color><!-- 标题背景 -->
+    <color name="bgDefault">#000000</color><!-- 背景色 -->
+</resources>

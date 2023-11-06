@@ -13,7 +13,7 @@
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
-            android:textColor="@color/textBlack"
+            android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize14" />
 
         <View

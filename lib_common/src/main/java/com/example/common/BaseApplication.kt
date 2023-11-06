@@ -21,6 +21,7 @@ import com.example.common.config.ServerConfig
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
 import com.example.common.utils.AppManager
+import com.example.common.utils.NightModeUtil
 import com.example.common.utils.NotificationUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
@@ -79,6 +80,8 @@ abstract class BaseApplication : Application() {
         ServerConfig.init()
         //通知类初始化
         NotificationUtil.init()
+        //黑白夜模式初始化
+        NightModeUtil.init()
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
         //語言包初始化

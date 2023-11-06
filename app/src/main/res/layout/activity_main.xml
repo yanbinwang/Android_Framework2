@@ -12,19 +12,32 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bgWhite"
         android:orientation="vertical">
 
-        <com.example.common.widget.i18n.I18nTextView
-            android:id="@+id/tv_title"
+        <FrameLayout
+            android:id="@+id/fl_title"
             android:layout_width="match_parent"
-            android:layout_height="44pt"
-            android:background="@color/bgWhite"
-            android:gravity="center"
-            android:text="@string/hint"
-            android:textColor="@color/textBlack"
-            android:textSize="@dimen/textSize18"
-            android:textStyle="bold" />
+            android:layout_height="wrap_content"
+            android:background="@color/bgToolbar">
+
+            <com.example.common.widget.i18n.I18nTextView
+                android:layout_width="match_parent"
+                android:layout_height="44pt"
+                android:gravity="center"
+                android:text="@string/hint"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize18"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/tv_mode_switcher"
+                android:layout_width="37pt"
+                android:layout_height="44pt"
+                android:layout_gravity="end"
+                android:paddingHorizontal="9pt"
+                android:src="@mipmap/ic_mode_day" />
+
+        </FrameLayout>
 
         <View style="@style/LineWidth" />
 
@@ -34,7 +47,7 @@
             android:gravity="center_vertical"
             android:paddingHorizontal="20pt"
             android:text="@string/main_now_language"
-            android:textColor="@color/textBlack"
+            android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize14" />
 
         <TextView
@@ -43,11 +56,13 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:paddingHorizontal="20pt"
-            android:textColor="@color/textGrey"
+            android:textColor="@color/textSecondary"
             android:textSize="@dimen/textSize14"
             tools:text="English" />
 
-        <View style="@style/LineWidth" />
+        <View
+            style="@style/LineWidth"
+            android:layout_marginTop="20pt" />
 
         <com.example.common.widget.i18n.I18nTextView
             android:layout_width="match_parent"
@@ -55,7 +70,7 @@
             android:gravity="center_vertical"
             android:paddingHorizontal="20pt"
             android:text="@string/main_now_header"
-            android:textColor="@color/textBlack"
+            android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize14" />
 
         <TextView
@@ -64,7 +79,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:paddingHorizontal="20pt"
-            android:textColor="@color/textGrey"
+            android:textColor="@color/textSecondary"
             android:textSize="@dimen/textSize14"
             tools:text="en_US" />
 

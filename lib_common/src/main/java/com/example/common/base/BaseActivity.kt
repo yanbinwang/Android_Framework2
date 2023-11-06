@@ -25,6 +25,7 @@ import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.utils.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
+import com.example.common.utils.NightModeUtil.isNightMode
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.widget.dialog.LoadingDialog
@@ -87,7 +88,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         super.onCreate(savedInstanceState)
         AppManager.addActivity(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
-        if (isImmersionBarEnabled()) initImmersionBar()
+        if (isImmersionBarEnabled()) initImmersionBar(!isNightMode)
         initView()
         initEvent()
         initData()
@@ -104,10 +105,18 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
         immersionBar?.apply {
             reset()
-            //如果当前设备支持状态栏字体变色，会设置状态栏字体为黑色
-            //如果当前设备不支持状态栏字体变色，会使当前状态栏加上透明度，否则不执行透明度
-            statusBarDarkFont(titleDark, 0.2f)
-            navigationBarColor(navigationBarColor)?.navigationBarDarkIcon(naviTrans, 0.2f)
+            if (titleDark) {
+                //如果当前设备支持状态栏字体变色，会设置状态栏字体为黑色
+                //如果当前设备不支持状态栏字体变色，会使当前状态栏加上透明度，否则不执行透明度
+                statusBarDarkFont(true, 0.2f)
+            } else {
+                statusBarAlpha(0f)
+            }
+            if (naviTrans) {
+                transparentNavigationBar()?.navigationBarDarkIcon(true, 0.2f)
+            } else {
+                navigationBarColor(R.color.bgWhite)?.navigationBarDarkIcon(true, 0.2f)
+            }
             init()
         }
     }

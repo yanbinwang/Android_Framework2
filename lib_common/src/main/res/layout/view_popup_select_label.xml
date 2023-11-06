@@ -22,7 +22,7 @@
             android:background="@color/bgWhite"
             android:gravity="center"
             android:text="@string/cancel"
-            android:textColor="@color/textBlack"
+            android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize16" />
 
     </LinearLayout>
