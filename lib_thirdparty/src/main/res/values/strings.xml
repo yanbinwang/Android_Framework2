@@ -5,4 +5,6 @@
     <string name="camera_flash_error">闪光灯仅支持后置摄像头</string>
     <string name="camera_picture_shutter">正在生成图片,请勿频繁操作…</string>
     <string name="camera_video_shutter">正在生成视频,请勿频繁操作…</string>
+    <!-- 图片压缩 -->
+    <string name="album_error">请上传10M以内的图片</string>
 </resources>

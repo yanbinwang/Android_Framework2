@@ -42,9 +42,10 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //框架库
     implementation project(':lib_common')
-    //相机/播放器
-    api 'com.github.CarGuo.GSYVideoPlayer:GSYVideoPlayer:v8.3.2-release-jitpack'
+    //相机
     api 'com.otaliastudios:cameraview:2.7.2'
+    //图片压缩
+    api 'id.zelory:compressor:3.0.1'
     //谷歌异常捕获/推送
     implementation platform('com.google.firebase:firebase-bom:31.0.3')
     implementation 'com.google.firebase:firebase-analytics-ktx'

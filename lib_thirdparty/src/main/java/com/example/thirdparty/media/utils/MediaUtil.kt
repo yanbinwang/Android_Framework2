@@ -20,7 +20,7 @@ object MediaUtil {
      * 定义传入的枚举类型
      */
     enum class MediaType {
-        IMAGE, VIDEO, AUDIO, SCREEN
+        IMAGE, VIDEO, AUDIO
     }
 
     /**
@@ -40,8 +40,6 @@ object MediaUtil {
             MediaType.VIDEO -> getOutputRoute(mimeType) to "mp4"
             //录音
             MediaType.AUDIO -> getOutputRoute(mimeType) to "wav"
-            //录屏
-            MediaType.SCREEN -> getOutputRoute(mimeType) to "mp4"
         }
         //先在包名目录下建立对应类型的文件夹，构建失败直接返回null
         val storageDir = File(storageInfo.first)
@@ -67,8 +65,6 @@ object MediaUtil {
             MediaType.VIDEO -> "${storage}录像"
             //录音
             MediaType.AUDIO -> "${storage}录音"
-            //录屏
-            MediaType.SCREEN -> "${storage}录屏"
         }
     }
 
