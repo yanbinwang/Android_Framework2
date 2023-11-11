@@ -170,7 +170,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
 
         binding.tvTest.text = TextSpan()
             .add("在Cheezeebit交易，訂單賺取高達", SizeSpan(dimen(R.dimen.textSize14)))
-            .add(" 0.5% ", SizeSpan(dimen(R.dimen.textSize14)), ColorSpan(color(R.color.textGrey)))
+            .add(" 0.5% ", SizeSpan(dimen(R.dimen.textSize14)), ColorSpan(color(R.color.textSecondary)))
             .add("的訂單獎勵", SizeSpan(dimen(R.dimen.textSize14)))
             .add("★", BitmapSpan(ImageSpan(drawable(R.mipmap.ic_rank)?.toBitmapOrNull(), 18.pt, 18.pt)))
             .build().setRankSpan(18.pt)

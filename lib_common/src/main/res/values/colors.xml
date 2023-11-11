@@ -1,38 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- app内的一些颜色-->
-    <color name="appTheme">#3d81f2</color>
-    <color name="appPrimary">#333333</color>
-    <color name="appPrimaryDark">#ffffff</color>
-    <color name="appNavigationBar">#ffffff</color>
-    <color name="appWindowBackground">#f6f8ff</color>
-    <color name="appAccent">#3d81f2</color>
-    <color name="appControlNormal">#333333</color>
+    <color name="appTheme">#3d81f2</color><!-- app主题色 -->
+    <color name="appPrimary">#202630</color><!-- app全局字体默认颜色 -->
+    <color name="appPrimaryDark">#ffffff</color><!-- app状态栏栏颜色 -->
+    <color name="appNavigationBar">#ffffff</color><!-- app导航栏颜色 -->
+    <color name="appWindowBackground">#f6f8ff</color><!-- app背景色 -->
+    <color name="appAccent">#3d81f2</color><!-- 光标色 -->
+    <color name="appControlNormal">#333333</color><!-- 控制控件的默认颜色 -->
     <!-- 输入框/显示文本 -->
-    <color name="textPrimary">#202630</color>
-    <color name="textHint">#999EA4</color>
-    <color name="textDisabled">#aaa</color>
+    <color name="textPrimary">#202630</color><!-- 字体默认颜色 -->
+    <color name="textSecondary">#999EA4</color><!-- 字体二级默认颜色 -->
+    <color name="textHint">#999EA4</color><!-- 控件显示提示文案字体颜色 -->
+    <color name="textDisabled">#aaa</color><!-- 不可用控件字体颜色 -->
     <!-- 弹框/遮罩/默认线条背景 -->
+    <color name="bgLine">#f6f8ff</color><!-- 线条颜色 -->
+    <color name="bgDialog">#33000000</color><!-- 弹框背景 -->
+    <color name="bgAppDialog">#00ffffff</color><!-- 提示背景 -->
+    <color name="bgToolbar">#ffffff</color><!-- 标题背景 -->
+    <color name="bgDefault">#ffffff</color><!-- 背景色 -->
+    <!-- 特定字体的颜色,不管何种模式基本不可改变（每种颜色最多3种样式，需要UI统一） -->
     <color name="bgShadow">#ff000000</color>
     <color name="bgOverlay">#4c000000</color>
-    <color name="bgLine">#f6f8ff</color>
-    <color name="bgDialog">#33000000</color>
-    <color name="bgAppDialog">#00ffffff</color>
-    <color name="bgStrokeWhite">#ffffff</color>
     <color name="bgWhite">#ffffff</color>
     <color name="bgBlack">#000000</color>
     <color name="bgBlue">#3d81f2</color>
-    <!-- 特定字体的颜色（每种颜色最多3种样式，需要UI统一） -->
-    <color name="textBlack">#202630</color>
     <!--    <color name="textLightBlack">#525B65</color>-->
     <!--    <color name="textDarkBlack">#666666</color>-->
-    <color name="textGrey">#999EA4</color>
+    <color name="textBlack">#000000</color>
     <color name="textWhite">#ffffff</color>
-    <color name="textBlue">#3d81f2</color>
-    <!-- 自定义进度条 -->
-    <color name="bgProgress">#aac6f4</color>
-    <color name="bgProgressStart">#ffffff</color>
-    <color name="bgProgressEnd">#ffffff</color>
     <!-- 自定义网页进度条 -->
     <color name="bgWebStart">#6c6c6c</color>
     <color name="bgWebEnd">#cccccc</color>

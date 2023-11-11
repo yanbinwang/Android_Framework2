@@ -81,7 +81,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12pt"
                             android:text="Total assets converted(USDT)"
-                            android:textColor="@color/textGrey"
+                            android:textColor="@color/textSecondary"
                             android:textSize="12pt" />
 
                         <TextView
@@ -89,7 +89,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2pt"
                             android:text="232,232,212.00"
-                            android:textColor="@color/textGrey"
+                            android:textColor="@color/textSecondary"
                             android:textSize="28pt" />
 
                         <TextView
@@ -97,7 +97,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="3pt"
                             android:text="≈ ₹0.00"
-                            android:textColor="@color/textGrey"
+                            android:textColor="@color/textSecondary"
                             android:textSize="15pt" />
 
                         <View
@@ -142,7 +142,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="400pt"
                             android:gravity="center"
-                            android:textColor="@color/textGrey"
+                            android:textColor="@color/textSecondary"
                             android:textSize="@dimen/textSize20" />
 
                     </FrameLayout>
