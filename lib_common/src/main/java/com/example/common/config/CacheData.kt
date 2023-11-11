@@ -11,6 +11,10 @@ import com.example.common.utils.DataStringCacheUtil
  * @author yan
  */
 object CacheData {
+    //设备token
+    private val DEVICE_TOKEN = "device_token"
+    val deviceToken = DataStringCacheUtil(DEVICE_TOKEN)
+
     //设备id
     private const val DEVICE_ID = "device_id"
     internal val deviceId = DataStringCacheUtil(DEVICE_ID)

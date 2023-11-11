@@ -1,10 +1,12 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     apply from: 'config.gradle'
-//    ext.mobsdk_version = '2018.0319.1724'
-//    dependencies {
-//        classpath "com.mob.sdk:MobSDK:$mobsdk_version"
-//    }
+    ext.firebase = '2.9.4'
+    ext.gms = '4.3.15'
+    dependencies {
+        classpath "com.google.firebase:firebase-crashlytics-gradle:$firebase"
+        classpath "com.google.gms:google-services:$gms"
+    }
 }
 
 plugins {

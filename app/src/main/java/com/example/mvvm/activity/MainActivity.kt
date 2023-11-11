@@ -2,6 +2,7 @@ package com.example.mvvm.activity
 
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.example.common.BaseApplication
 import com.example.common.base.BaseActivity
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
@@ -170,9 +171,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
 
         binding.tvTest.text = TextSpan()
             .add("在Cheezeebit交易，訂單賺取高達", SizeSpan(dimen(R.dimen.textSize14)))
-            .add(" 0.5% ", SizeSpan(dimen(R.dimen.textSize14)), ColorSpan(color(R.color.textSecondary)))
+            .add(
+                " 0.5% ",
+                SizeSpan(dimen(R.dimen.textSize14)),
+                ColorSpan(color(R.color.textSecondary))
+            )
             .add("的訂單獎勵", SizeSpan(dimen(R.dimen.textSize14)))
-            .add("★", BitmapSpan(ImageSpan(drawable(R.mipmap.ic_rank)?.toBitmapOrNull(), 18.pt, 18.pt)))
+            .add(
+                "★",
+                BitmapSpan(ImageSpan(drawable(R.mipmap.ic_rank)?.toBitmapOrNull(), 18.pt, 18.pt))
+            )
             .build().setRankSpan(18.pt)
 
 
@@ -244,4 +252,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
         binding.ivFundsBg.scaleY = offset.toSafeFloat() / imgBgHeight.toSafeFloat() + 1f
     }
 
+
+    override fun onResume() {
+        if (BaseApplication.needOpenHome) BaseApplication.needOpenHome = false
+        super.onResume()
+    }
 }

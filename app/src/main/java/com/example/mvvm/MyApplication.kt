@@ -2,14 +2,16 @@ package com.example.mvvm
 
 import android.os.Looper
 import android.util.Log
-import com.example.thirdparty.album.GlideLoader
 import com.example.common.BaseApplication
+import com.example.common.config.CacheData.deviceToken
 import com.example.framework.utils.function.value.isDebug
+import com.example.framework.utils.function.value.toArray
+import com.example.framework.utils.logE
+import com.example.home.activity.LinkActivity
 import com.example.mvvm.activity.MainActivity
-import com.yanzhenjie.album.Album
-import com.yanzhenjie.album.AlbumConfig
+import com.example.thirdparty.appsFlyer.AppsFlyerUtil
+import com.example.thirdparty.firebase.FireBaseUtil
 import com.zxy.recovery.core.Recovery
-import java.util.Locale
 
 /**
  * Created by WangYanBin on 2020/8/14.
@@ -55,11 +57,21 @@ class MyApplication : BaseApplication() {
                 }
             }
         }
-        //初始化图片库类
-        Album.initialize(AlbumConfig.newBuilder(this)
-            .setAlbumLoader(GlideLoader()) //设置Album加载器。
-            .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
-            .build())
+//        //af初始化
+//        AppsFlyerUtil.init(instance, CHANNEL)
+//        AppsFlyerUtil.initDeepLink { link ->
+//            RouterUtil.jump(instance, link)
+//        }
+        //firebase初始化
+        FireBaseUtil.notificationIntentGenerator = { _, map ->
+            LinkActivity.byPush(instance, *map.toArray { it.key to it.value })
+        }
+        FireBaseUtil.tokenRefreshListener = {
+            deviceToken.set(it)
+            "firebase token $it".logE
+        }
+        FireBaseUtil.refreshToken()
+        FireBaseUtil.initTestReport()
     }
 
 }
