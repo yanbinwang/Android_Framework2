@@ -68,6 +68,12 @@
         <meta-data
             android:name="design_height_in_dp"
             android:value="${DESIGN_HEIGHT}" />
+
+        <!--appsFlyer-->
+        <meta-data
+            android:name="AF_DEV_KEY"
+            android:value="${AF_DEV_KEY}"
+            tools:replace="android:value" />
         <!-- ******************************************************基础全局配置****************************************************** -->
 
         <activity

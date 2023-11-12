@@ -12,6 +12,9 @@ android {
         minSdk build_versions.minSdkVersion
         targetSdk build_versions.targetSdkVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders = [
+                AF_DEV_KEY: "SeXtATir5GUM5joTp27Fdj"
+        ]
     }
 
     buildFeatures {
