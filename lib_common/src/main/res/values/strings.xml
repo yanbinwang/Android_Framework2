@@ -1,20 +1,21 @@
 <resources>
+    <!-- app内的默认单位 -->
+    <string name="unit_no_data">--</string>
+    <!--    <string name="unit_no_data_dollar">$&#45;&#45;</string>-->
+    <!--    <string name="unit_no_data_percent">&#45;&#45;%</string>-->
+    <!--    <string name="unit_dollar">\$%1$s</string>-->
+    <!-- firebase推送id -->
+    <string name="notificationChannelId">testMsg</string>
+    <string name="notificationChannelName">数秦科技</string>
     <!-- app内的一些提示 -->
     <string name="hint">系统提示</string>
     <string name="sure">确定</string>
     <string name="cancel">取消</string>
     <string name="refresh">刷新</string>
-    <!-- app内的默认单位 -->
-    <string name="unit_no_data">--</string>
-<!--    <string name="unit_no_data_dollar">$&#45;&#45;</string>-->
-<!--    <string name="unit_no_data_percent">&#45;&#45;%</string>-->
-<!--    <string name="unit_dollar">\$%1$s</string>-->
 
     <!-- 权限库的的提示语句 -->
     <string name="permission_go_setting">缺少\n%1$s请前往设置页面开启</string>
-    <string name="permission_location">定位权限,该权限用于手机定位</string>
     <string name="permission_camera">相机权限,该权限用于拍摄照片</string>
-    <string name="permission_microphone">麦克风权限,该权限用于录制音频</string>
     <string name="permission_storage">存储空间权限,该权限用于文件存储</string>
 
     <!-- app内的view显示字段 -->

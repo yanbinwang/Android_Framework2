@@ -21,9 +21,7 @@ import com.hjq.permissions.XXPermissions
 class PermissionFactory(private val context: Context) {
     private val andDialog by lazy { AndDialog(context) }
     private val permsGroup = arrayOf(
-        LOCATION,//定位
         CAMERA,//拍摄照片，录制视频
-        MICROPHONE,//录制音频(腾讯x5)
         STORAGE)//访问照片。媒体。内容和文件
 
     /**
@@ -83,10 +81,8 @@ class PermissionFactory(private val context: Context) {
      */
     private fun rationale(index: Int): String? {
         return when (index) {
-            0 -> string(R.string.permission_location)
-            1 -> string(R.string.permission_camera)
-            2 -> string(R.string.permission_microphone)
-            3 -> string(R.string.permission_storage)
+            0 -> string(R.string.permission_camera)
+            1 -> string(R.string.permission_storage)
             else -> null
         }
     }
