@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.drawable.AnimationDrawable
 import android.util.AttributeSet
 import android.view.View
+import androidx.annotation.ColorRes
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshHeaderBinding
 import com.example.common.utils.function.pt
@@ -50,6 +51,10 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
             size(LayoutParams.MATCH_PARENT, 80.pt + statusBarHeight)
             padding(top = statusBarHeight)
         }
+    }
+
+    fun setProgressTint(@ColorRes color: Int) {
+        binding.ivProgress.tint(color)
     }
 
     override fun onInflateView() {

@@ -1,5 +1,6 @@
 package com.example.common.widget.xrecyclerview.refresh
 
+import androidx.annotation.ColorRes
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.orFalse
@@ -100,6 +101,13 @@ fun SmartRefreshLayout?.setHeaderMaxDragRate() {
             val height = 40.pt + statusBarHeight
             setHeaderMaxDragRate(height * 2.5f / (statusBarHeight + height))
         }
+    }
+}
+
+fun SmartRefreshLayout?.setHeaderProgressTint(@ColorRes color: Int) {
+    this ?: return
+    doOnceAfterLayout {
+        (it.refreshHeader as? ProjectRefreshHeader)?.setProgressTint(color)
     }
 }
 
