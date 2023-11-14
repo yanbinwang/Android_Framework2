@@ -4,8 +4,8 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
-import com.example.thirdparty.media.utils.MediaType.AUDIO
-import com.example.thirdparty.media.utils.MultimediaUtil
+import com.example.thirdparty.media.utils.MediaUtil.MediaType.AUDIO
+import com.example.thirdparty.media.utils.MediaUtil
 
 /**
  * @description 录音帮助类（熄屏后无声音，并可能会导致后续声音也录制不了）
@@ -28,7 +28,7 @@ class RecorderHelper {
      * 开始录音
      */
     fun startRecord(context: Context) {
-        val recordFile = MultimediaUtil.getOutputFile(AUDIO)
+        val recordFile = MediaUtil.getOutputFile(AUDIO)
         val sourcePath = recordFile?.absolutePath
         try {
             recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()

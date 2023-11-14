@@ -104,10 +104,11 @@ fun SmartRefreshLayout?.setHeaderMaxDragRate() {
     }
 }
 
-fun SmartRefreshLayout?.setHeaderProgressTint(@ColorRes color: Int) {
+fun SmartRefreshLayout?.setProgressTint(@ColorRes color: Int) {
     this ?: return
     doOnceAfterLayout {
         (it.refreshHeader as? ProjectRefreshHeader)?.setProgressTint(color)
+        (it.refreshFooter as? ProjectRefreshFooter)?.setProgressTint(color)
     }
 }
 

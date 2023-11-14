@@ -11,9 +11,9 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.shortToast
 import com.example.thirdparty.R
 import com.example.thirdparty.media.service.KeyEventReceiver
-import com.example.thirdparty.media.utils.MediaType.IMAGE
-import com.example.thirdparty.media.utils.MediaType.VIDEO
-import com.example.thirdparty.media.utils.MultimediaUtil
+import com.example.thirdparty.media.utils.MediaUtil.MediaType.IMAGE
+import com.example.thirdparty.media.utils.MediaUtil.MediaType.VIDEO
+import com.example.thirdparty.media.utils.MediaUtil
 import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.CameraView
 import com.otaliastudios.cameraview.PictureResult
@@ -114,7 +114,7 @@ class CameraHelper(private val activity: FragmentActivity, private val cvFinder:
                 override fun onPictureTaken(result: PictureResult) {
                     super.onPictureTaken(result)
                     //在sd卡的Picture文件夹下创建对应的文件
-                    MultimediaUtil.getOutputFile(IMAGE).apply {
+                    MediaUtil.getOutputFile(IMAGE).apply {
                         if (null != this) {
                             result.toFile(this) { if (null != it) onTakePictureListener?.onSuccess(it) else onTakePictureListener?.onFailed() }
                         } else {
@@ -135,7 +135,7 @@ class CameraHelper(private val activity: FragmentActivity, private val cvFinder:
                 R.string.camera_video_shutter.shortToast()
                 return
             }
-            val videoFile = MultimediaUtil.getOutputFile(VIDEO)
+            val videoFile = MediaUtil.getOutputFile(VIDEO)
             if (null != videoFile) {
                 if (snapshot) takeVideoSnapshot(videoFile) else takeVideo(videoFile)
                 addCameraListener(object : CameraListener() {

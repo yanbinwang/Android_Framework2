@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.drawable.AnimationDrawable
 import android.util.AttributeSet
 import android.view.View
+import androidx.annotation.ColorRes
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.*
 import com.example.framework.widget.BaseViewGroup
@@ -36,6 +37,10 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
             animation = it.drawable as? AnimationDrawable
         }
         setNoMoreData(noMoreData)
+    }
+
+    fun setProgressTint(@ColorRes color: Int) {
+        binding.ivProgress.tint(color)
     }
 
     override fun onInflateView() {

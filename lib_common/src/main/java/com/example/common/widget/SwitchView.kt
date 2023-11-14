@@ -6,8 +6,8 @@ import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
 import com.example.common.R
-import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.alpha
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.byHardwareAccelerate
@@ -56,18 +56,10 @@ class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         viewCircle.background("#ffffff", 9.ptFloat)
         //布局属性绘制
         if (isInEditMode) {
-            val pt1 = dimen(R.dimen.textSize20) / 20
-            layout.size((38 * pt1).toInt(), (21 * pt1).toInt())
-            viewBg.size((38 * pt1).toInt(), (21 * pt1).toInt())
-            viewBgSelected.size((38 * pt1).toInt(), (21 * pt1).toInt())
-            viewCircle.size((17 * pt1).toInt(), (17 * pt1).toInt())
-            viewCircle.margin(start = (2 * pt1).toInt(), end = (2 * pt1).toInt())
+            val ratio = dimen(R.dimen.textSize20) / 20
+            size(layout, ratio)
         } else {
-            layout.size(38.pt, 21.pt)
-            viewBg.size(38.pt, 21.pt)
-            viewBgSelected.size(38.pt, 21.pt)
-            viewCircle.size(17.pt, 17.pt)
-            viewCircle.margin(start = 2.pt, end = 2.pt)
+            size(layout)
         }
         //        context.inflate(R.layout.view_deal_check, this).apply {
         //            viewCircle = findViewById(R.id.viewCircle)
@@ -84,6 +76,17 @@ class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         byHardwareAccelerate()
         viewCircle.byHardwareAccelerate()
         viewBgSelected.byHardwareAccelerate()
+    }
+
+    /**
+     * 控件大小设置
+     */
+    private fun size(layout: FrameLayout, ratio: Float = 1f) {
+        layout.size((76 * ratio).toSafeInt(), (42 * ratio).toSafeInt())
+        viewBg.size((76 * ratio).toSafeInt(), (42 * ratio).toSafeInt())
+        viewBgSelected.size((76 * ratio).toSafeInt(), (42 * ratio).toSafeInt())
+        viewCircle.size((34 * ratio).toSafeInt(), (34 * ratio).toSafeInt())
+        viewCircle.margin(start = (4 * ratio).toSafeInt(), end = (4 * ratio).toSafeInt())
     }
 
     /**

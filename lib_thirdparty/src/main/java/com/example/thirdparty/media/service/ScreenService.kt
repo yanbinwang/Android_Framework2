@@ -16,8 +16,8 @@ import androidx.core.app.NotificationCompat
 import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenDensity
 import com.example.framework.utils.function.value.orZero
-import com.example.thirdparty.media.utils.MediaType
-import com.example.thirdparty.media.utils.MultimediaUtil
+import com.example.thirdparty.media.utils.MediaUtil.MediaType
+import com.example.thirdparty.media.utils.MediaUtil
 import com.example.thirdparty.media.utils.helper.ScreenHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.helper.ScreenHelper.Companion.previewWidth
 import com.example.thirdparty.media.utils.helper.TimeTickHelper
@@ -85,7 +85,7 @@ class ScreenService : Service() {
     }
 
     private fun createMediaRecorder(): MediaRecorder {
-        val screenFile = MultimediaUtil.getOutputFile(MediaType.SCREEN)
+        val screenFile = MediaUtil.getOutputFile(MediaType.SCREEN)
         onShutter.invoke(screenFile?.absolutePath,true)
         return (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()).apply {
             setVideoSource(MediaRecorder.VideoSource.SURFACE)

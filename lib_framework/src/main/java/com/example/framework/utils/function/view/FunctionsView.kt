@@ -388,7 +388,11 @@ fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)?
     anim.interpolator = AccelerateInterpolator() // 设置插入器3
     anim.setAnimationListener(object : Animation.AnimationListener {
         override fun onAnimationEnd(animation: Animation?) {
-            endListener?.invoke() ?: { if (to == 0f) gone() }
+            endListener?.invoke() ?: if (to == 0f) {
+                gone()
+            } else {
+                visible()
+            }
         }
         override fun onAnimationStart(animation: Animation?) {}
         override fun onAnimationRepeat(animation: Animation?) {}

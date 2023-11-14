@@ -145,6 +145,11 @@
                             android:textColor="@color/textSecondary"
                             android:textSize="@dimen/textSize20" />
 
+                        <com.example.common.widget.SwitchView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center" />
+
                     </FrameLayout>
 
                 </LinearLayout>
