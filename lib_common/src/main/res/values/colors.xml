@@ -36,4 +36,8 @@
     <color name="bgWebProgressStart">#2e60df</color>
     <color name="bgWebProgressEnd">#3259e1</color>
     <color name="bgWebProgressCenter">#3e78f1</color>
+    <!-- 自定义图片进度条 -->
+    <color name="bgProgressStart">#2e60df</color>
+    <color name="bgProgressEnd">#3259e1</color>
+    <color name="bgProgress">#3e78f1</color>
 </resources>

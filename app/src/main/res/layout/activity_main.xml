@@ -105,7 +105,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="38pt"
                             android:layout_marginTop="15pt"
-                            android:background="@color/textBlue" />
+                            android:background="@color/appTheme" />
 
                     </LinearLayout>
 
@@ -118,7 +118,7 @@
                             text="@{`sadasdsadasdasdas`}"
                             android:layout_width="match_parent"
                             android:layout_height="800pt"
-                            android:background="@color/textBlue"
+                            android:background="@color/appTheme"
                             android:gravity="center"
                             android:textColor="@color/textWhite"
                             android:textSize="29pt"

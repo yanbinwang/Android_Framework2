@@ -25,6 +25,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -277,3 +278,5 @@ fun AppCompatActivity?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDest
 fun Fragment?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
 
 fun LifecycleOwner?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
+
+fun ViewDataBinding?.doOnDestroy(func: () -> Unit) = this?.lifecycleOwner?.doOnDestroy(func)

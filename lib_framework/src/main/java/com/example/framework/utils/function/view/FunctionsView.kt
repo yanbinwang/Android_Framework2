@@ -21,6 +21,7 @@ import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.annotation.ColorRes
+import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
@@ -137,6 +138,14 @@ fun View?.disable() {
     if (this == null) return
     if (!isEnabled) return
     isEnabled = false
+}
+
+/**
+ * 获取resources中的drawable
+ */
+fun View?.dimen(@DimenRes res: Int): Float {
+    this ?: return 0f
+    return context.resources.getDimension(res)
 }
 
 /**
