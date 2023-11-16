@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_toast"
+    android:gravity="center"
+    android:paddingHorizontal="15pt"
+    android:paddingVertical="11pt">
+
+    <ImageView
+        android:id="@+id/imgLoading"
+        android:layout_width="24pt"
+        android:layout_height="24pt"
+        android:src="@mipmap/icon_toast_successful" />
+
+    <com.cheezeebit.trading.view.i18n.I18nTextView
+        android:id="@+id/txtTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="9pt"
+        android:gravity="center"
+        android:textColor="@color/textWhite"
+        android:textSize="@dimen/textSize12" />
+
+</LinearLayout>

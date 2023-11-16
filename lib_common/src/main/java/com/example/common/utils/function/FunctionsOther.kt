@@ -26,6 +26,7 @@ import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
@@ -120,6 +121,14 @@ fun String?.orNoData(): String {
 //fun String?.orNoPercent(): String {
 //    return if (isNullOrEmpty()) NO_DATA_PERCENT else this
 //}
+
+/**
+ * 复制字符串
+ */
+fun String?.setPrimaryClip(label: String = "Label") {
+    if (this == null) return
+    BaseApplication.instance.setPrimaryClip(label, this)
+}
 
 /**
  * 对象转json
