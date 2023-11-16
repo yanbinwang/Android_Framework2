@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_toast"
-    android:gravity="center"
     android:paddingHorizontal="15pt"
-    android:paddingVertical="11pt">
+    android:paddingVertical="11pt"
+    app:gradient_color="@{'#cf111111'}"
+    app:gradient_radius="@{5}">
 
     <ImageView
-        android:id="@+id/imgLoading"
+        android:id="@+id/iv_state"
         android:layout_width="24pt"
         android:layout_height="24pt"
-        android:src="@mipmap/icon_toast_successful" />
+        android:layout_gravity="center_vertical"
+        tools:src="@mipmap/ic_toast_successful" />
 
-    <com.cheezeebit.trading.view.i18n.I18nTextView
-        android:id="@+id/txtTitle"
+    <TextView
+        android:id="@+id/tv_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="9pt"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="33pt"
         android:gravity="center"
         android:textColor="@color/textWhite"
         android:textSize="@dimen/textSize12" />
 
-</LinearLayout>
+</FrameLayout>

@@ -1,6 +1,8 @@
 package com.example.mvvm.utils
 
 import android.view.Gravity
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import com.example.common.BaseApplication
 import com.example.common.utils.builder.ToastBuilder
@@ -17,13 +19,14 @@ fun String?.copy() {
 //    setToastView(R.string.refShareCopySuccess)
 }
 
-fun setToastView(message: Int) {
-    ToastBuilder.short(message) { resId, length ->
+fun setToastView(message: Int, resId: Int = R.mipmap.ic_toast_successful) {
+    ToastBuilder.short(message) { _, length ->
         val toast = Toast.makeText(BaseApplication.instance, null, length)
         toast?.setGravity(Gravity.CENTER, 0, 0)
         toast?.duration = length
         val view = BaseApplication.instance.inflate(R.layout.view_toast_image_style)
-//        view.txtTitle.setI18nRes(resId)
+        view.findViewById<ImageView>(R.id.iv_state).setBackgroundResource(resId)
+        view.findViewById<TextView>(R.id.tv_content).setText(message)
         toast?.view = view
         toast
     }
