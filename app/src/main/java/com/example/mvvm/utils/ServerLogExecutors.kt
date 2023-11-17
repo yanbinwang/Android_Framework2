@@ -1,5 +1,6 @@
 package com.example.mvvm.utils
 
+import android.util.ArrayMap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -9,8 +10,6 @@ import com.example.common.network.repository.successful
 import com.example.common.subscribe.CommonSubscribe
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.currentTimeNano
-import com.example.framework.utils.function.value.findAndRemove
-import com.example.framework.utils.function.value.orZero
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +25,7 @@ class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, Lifec
     private var lastRecordTime = 0L
     private var serverLogId = 0
         get() = ++field
-    private val list by lazy { ArrayList<ServerLog>() }
+    private val map by lazy { ArrayMap<Int, ServerLog>() }
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
@@ -39,7 +38,7 @@ class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, Lifec
      * 记录操作，间隔小于10秒不做提交
      */
     fun record(type: Int?) {
-        list.add(ServerLog(serverLogId, type))
+        map[serverLogId] = ServerLog(1, type)
         if (currentTimeNano - lastRecordTime < 10000L) return
         lastRecordTime = currentTimeNano
         post()
@@ -47,21 +46,21 @@ class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, Lifec
 
     /**
      * 提交本地操作集合
+     * 可在baseactivity内调用
      */
-    private fun post() {
-        if(list.isEmpty()) return
+    fun post() {
+        if (map.isEmpty()) return
         postJob?.cancel()
         postJob = launch {
-            //用于记录所有的id
-            val ids = ArrayList<Int>()
-            //串行发起提交
-            list.forEach {
-                if (logAsync(it).await().successful()) {
-                    ids.add(it.id.orZero)
+            val it = map.entries.iterator()
+            while (it.hasNext()) {
+                //串行发起提交
+                val entry = it.next()
+                //使用迭代器的remove()方法删除元素/删除成功的日志
+                if (logAsync(entry.value).await().successful()) {
+                    it.remove()
                 }
             }
-            //删除成功的日志
-            ids.forEach { id -> list.findAndRemove { it.id == id } }
         }
     }
 
@@ -77,7 +76,7 @@ class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, Lifec
      */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_RESUME -> post()
+//            Lifecycle.Event.ON_RESUME -> post()
             Lifecycle.Event.ON_DESTROY -> source.lifecycle.removeObserver(this)
             else -> {}
         }
