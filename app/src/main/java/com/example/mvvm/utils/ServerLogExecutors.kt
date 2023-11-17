@@ -20,10 +20,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class LogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, LifecycleEventObserver {
+class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, LifecycleEventObserver {
     private var lastRefreshTime = 0L
     private var postJob: Job? = null
-    private var logId = 0
+    private var serverLogId = 0
         get() = ++field
     private val list by lazy { ArrayList<ServerLog>() }
     private val job = SupervisorJob()
@@ -35,16 +35,18 @@ class LogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, LifecycleEv
     }
 
     /**
-     * 每次操作主动发起提交
-     * 间隔小于10秒不做刷新
+     * 记录操作，间隔小于10秒不做提交
      */
-    fun post(type: Int?) {
-        list.add(ServerLog(logId, type))
+    fun record(type: Int?) {
+        list.add(ServerLog(serverLogId, type))
         if (currentTimeNano - lastRefreshTime < 10000L) return
         lastRefreshTime = currentTimeNano
         post()
     }
 
+    /**
+     * 提交本地操作集合
+     */
     private fun post() {
         if(list.isEmpty()) return
         postJob?.cancel()
