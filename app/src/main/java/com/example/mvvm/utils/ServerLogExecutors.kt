@@ -21,8 +21,8 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, LifecycleEventObserver {
-    private var lastRefreshTime = 0L
     private var postJob: Job? = null
+    private var lastRecordTime = 0L
     private var serverLogId = 0
         get() = ++field
     private val list by lazy { ArrayList<ServerLog>() }
@@ -39,8 +39,8 @@ class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, Lifec
      */
     fun record(type: Int?) {
         list.add(ServerLog(serverLogId, type))
-        if (currentTimeNano - lastRefreshTime < 10000L) return
-        lastRefreshTime = currentTimeNano
+        if (currentTimeNano - lastRecordTime < 10000L) return
+        lastRecordTime = currentTimeNano
         post()
     }
 
