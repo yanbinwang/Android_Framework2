@@ -19,7 +19,10 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-object LogFactory: CoroutineScope, LifecycleEventObserver {
+/**
+ * 服务器行为统计
+ */
+object ServerLogHelper: CoroutineScope, LifecycleEventObserver {
     private var postJob: Job? = null
     private var lastRecordTime = 0L
     private var serverLogId = 0
@@ -82,8 +85,8 @@ object LogFactory: CoroutineScope, LifecycleEventObserver {
      * app会在返回首页后再按返回键关闭，此时可以销毁
      */
     @JvmStatic
-    fun addLifecycleObserver(lifecycleOwner: LifecycleOwner) {
-        lifecycleOwner.lifecycle.addObserver(this)
+    fun addObserver(observer: LifecycleOwner) {
+        observer.lifecycle.addObserver(this)
     }
 
     /**

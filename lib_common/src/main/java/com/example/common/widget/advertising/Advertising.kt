@@ -250,10 +250,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     /**
      * 绑定对应页面的生命周期-》对应回调重写对应方法
-     * @param lifecycleOwner
+     * @param observer
      */
-    fun addLifecycleObserver(lifecycleOwner: LifecycleOwner) {
-        lifecycleOwner.lifecycle.addObserver(this)
+    fun addObserver(observer: LifecycleOwner) {
+        observer.lifecycle.addObserver(this)
     }
 
     /**
