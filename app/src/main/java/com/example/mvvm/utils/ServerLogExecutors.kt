@@ -8,7 +8,6 @@ import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.EmptyBean
 import com.example.common.network.repository.successful
 import com.example.common.subscribe.CommonSubscribe
-import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.currentTimeNano
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -20,8 +19,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-//class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, LifecycleEventObserver {
-class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope {
+object ServerLogExecutors : CoroutineScope, LifecycleEventObserver {
     private var postJob: Job? = null
     private var lastRecordTime = 0L
     private var serverLogId = 0
@@ -30,10 +28,6 @@ class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope {
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
-
-    init {
-        lifecycleOwner.doOnDestroy { job.cancel() }
-    }
 
     /**
      * 记录操作，间隔小于10秒不做提交
@@ -72,16 +66,26 @@ class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope {
         return coroutineScope { async { CommonSubscribe.getTestApi(mapOf("id" to bean.id.toString(), "type" to bean.type.toString())) } }
     }
 
-//    /**
-//     * 回到主页时也会触发一次上传（无10s间隔）
-//     */
-//    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-//        when (event) {
-////            Lifecycle.Event.ON_RESUME -> post()
-//            Lifecycle.Event.ON_DESTROY -> source.lifecycle.removeObserver(this)
-//            else -> {}
-//        }
-//    }
+    /**
+     * 绑定MainActivity生命周期
+     */
+    fun addLifecycleObserver(lifecycleOwner: LifecycleOwner) {
+        lifecycleOwner.lifecycle.addObserver(this)
+    }
+
+    /**
+     * 回到主页时也会触发一次上传（无10s间隔）
+     */
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+//            Lifecycle.Event.ON_RESUME -> post()
+            Lifecycle.Event.ON_DESTROY -> {
+                job.cancel()
+                source.lifecycle.removeObserver(this)
+            }
+            else -> {}
+        }
+    }
 
     /**
      * 提交参数类
