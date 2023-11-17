@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -68,7 +69,7 @@ class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, Lifec
      * 模拟发起一个日志提交
      */
     private suspend fun logAsync(bean: ServerLog): Deferred<ApiResponse<EmptyBean>> {
-        return async { CommonSubscribe.getTestApi(mapOf("id" to bean.id.toString(), "type" to bean.type.toString())) }
+        return coroutineScope { async { CommonSubscribe.getTestApi(mapOf("id" to bean.id.toString(), "type" to bean.type.toString())) } }
     }
 
     /**
