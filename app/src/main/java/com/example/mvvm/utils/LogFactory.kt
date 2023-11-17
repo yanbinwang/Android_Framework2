@@ -4,7 +4,6 @@ import android.util.ArrayMap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.network.factory.OkHttpFactory
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.EmptyBean
 import com.example.common.network.repository.successful
@@ -20,7 +19,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class ServerLogFactory private constructor(): CoroutineScope, LifecycleEventObserver {
+object LogFactory: CoroutineScope, LifecycleEventObserver {
     private var postJob: Job? = null
     private var lastRecordTime = 0L
     private var serverLogId = 0
@@ -30,29 +29,32 @@ class ServerLogFactory private constructor(): CoroutineScope, LifecycleEventObse
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
-    companion object {
-        @JvmStatic
-        val instance by lazy { ServerLogFactory() }
-
-        @JvmStatic
-        fun postAll() = instance.post()
-    }
+    /**
+     * 提交参数类
+     */
+    data class ServerLog(
+        var id: Int? = null,
+        var type: Int? = null
+    )
 
     /**
-     * 记录操作，间隔小于10秒不做提交
+     * 记录操作，间隔小于10秒不做提交，只做操作记录
      */
+    @JvmStatic
     fun record(type: Int?) {
         map[serverLogId] = ServerLog(1, type)
         if (currentTimeNano - lastRecordTime < 10000L) return
         lastRecordTime = currentTimeNano
-        post()
+        push()
     }
 
     /**
      * 提交本地操作集合
-     * 可在baseactivity内调用
+     * 可在BaseActivity的onDestroy中调用
      */
-    private fun post() {
+    @JvmStatic
+    fun push() {
+        //本地集合内已经都提交了，没必要再创建协程了
         if (map.isEmpty()) return
         postJob?.cancel()
         postJob = launch {
@@ -77,7 +79,9 @@ class ServerLogFactory private constructor(): CoroutineScope, LifecycleEventObse
 
     /**
      * 绑定MainActivity生命周期
+     * app会在返回首页后再按返回键关闭，此时可以销毁
      */
+    @JvmStatic
     fun addLifecycleObserver(lifecycleOwner: LifecycleOwner) {
         lifecycleOwner.lifecycle.addObserver(this)
     }
@@ -95,13 +99,5 @@ class ServerLogFactory private constructor(): CoroutineScope, LifecycleEventObse
             else -> {}
         }
     }
-
-    /**
-     * 提交参数类
-     */
-    data class ServerLog(
-        var id: Int? = null,
-        var type: Int? = null
-    )
 
 }
