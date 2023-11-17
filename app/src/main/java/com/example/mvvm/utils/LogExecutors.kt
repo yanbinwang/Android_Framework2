@@ -46,6 +46,7 @@ class LogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, LifecycleEv
     }
 
     private fun post() {
+        if(list.isEmpty()) return
         postJob?.cancel()
         postJob = launch {
             //用于记录所有的id
