@@ -20,7 +20,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, LifecycleEventObserver {
+//class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, LifecycleEventObserver {
+class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope {
     private var postJob: Job? = null
     private var lastRecordTime = 0L
     private var serverLogId = 0
@@ -71,16 +72,16 @@ class ServerLogExecutors(lifecycleOwner: LifecycleOwner) : CoroutineScope, Lifec
         return coroutineScope { async { CommonSubscribe.getTestApi(mapOf("id" to bean.id.toString(), "type" to bean.type.toString())) } }
     }
 
-    /**
-     * 回到主页时也会触发一次上传（无10s间隔）
-     */
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        when (event) {
-//            Lifecycle.Event.ON_RESUME -> post()
-            Lifecycle.Event.ON_DESTROY -> source.lifecycle.removeObserver(this)
-            else -> {}
-        }
-    }
+//    /**
+//     * 回到主页时也会触发一次上传（无10s间隔）
+//     */
+//    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+//        when (event) {
+////            Lifecycle.Event.ON_RESUME -> post()
+//            Lifecycle.Event.ON_DESTROY -> source.lifecycle.removeObserver(this)
+//            else -> {}
+//        }
+//    }
 
     /**
      * 提交参数类
