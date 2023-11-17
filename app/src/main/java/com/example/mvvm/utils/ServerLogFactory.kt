@@ -4,6 +4,7 @@ import android.util.ArrayMap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.common.network.factory.OkHttpFactory
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.EmptyBean
 import com.example.common.network.repository.successful
@@ -19,7 +20,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-object ServerLogExecutors : CoroutineScope, LifecycleEventObserver {
+class ServerLogFactory private constructor(): CoroutineScope, LifecycleEventObserver {
     private var postJob: Job? = null
     private var lastRecordTime = 0L
     private var serverLogId = 0
@@ -28,6 +29,14 @@ object ServerLogExecutors : CoroutineScope, LifecycleEventObserver {
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
+
+    companion object {
+        @JvmStatic
+        val instance by lazy { ServerLogFactory() }
+
+        @JvmStatic
+        fun postAll() = instance.post()
+    }
 
     /**
      * 记录操作，间隔小于10秒不做提交
@@ -43,7 +52,7 @@ object ServerLogExecutors : CoroutineScope, LifecycleEventObserver {
      * 提交本地操作集合
      * 可在baseactivity内调用
      */
-    fun post() {
+    private fun post() {
         if (map.isEmpty()) return
         postJob?.cancel()
         postJob = launch {
