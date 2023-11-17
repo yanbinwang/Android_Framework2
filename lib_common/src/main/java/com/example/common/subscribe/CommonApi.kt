@@ -23,6 +23,6 @@ interface CommonApi {
     suspend fun getVerificationApi(@FieldMap map: Map<String, String>): ApiResponse<EmptyBean>
 
     @GET("test")
-    suspend fun getTestApi(): ApiResponse<Any>
+    suspend fun getTestApi(@FieldMap map: Map<String, String>): ApiResponse<EmptyBean>
 
 }

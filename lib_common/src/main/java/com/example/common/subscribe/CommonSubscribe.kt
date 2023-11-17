@@ -16,7 +16,7 @@ object CommonSubscribe : CommonApi {
 
     override suspend fun getVerificationApi(map: Map<String, String>) = commonApi.getVerificationApi(map)
 
-    override suspend fun getTestApi() = commonApi.getTestApi()
+    override suspend fun getTestApi(map: Map<String, String>) = commonApi.getTestApi(map)
 
 //    //上传图片接口
 //    fun getUploadFile(header: Int, partList: MutableList<MultipartBody.Part>, resourceSubscriber: ResourceSubscriber<BaseBean<UploadBean>>): Disposable {
