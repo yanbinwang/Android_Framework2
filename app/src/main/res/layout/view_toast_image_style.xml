@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:paddingHorizontal="15pt"
     android:paddingVertical="11pt"
-    app:gradient_color="@{'#cf111111'}"
-    app:gradient_radius="@{5}">
+    gradient_color="@{'#cf111111'}"
+    gradient_radius="@{5}">
 
     <ImageView
         android:id="@+id/iv_state"

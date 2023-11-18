@@ -13,15 +13,15 @@ object TrackUtil {
     private var userSid: String? = null
     private val deviceId: String? by lazy { DeviceIdUtil.deviceId }
 
-    /**
-     * 用户登录/登出分别重新调用该方法
-     */
-    fun init(userId: String? = null, userSid: String? = null) {
-        TrackUtil.userId = userId
-        TrackUtil.userSid = userSid
-//        firebaseAnalytics.setUserId(userSid ?: userId)
-//        appsFlyerInstance.setCustomerUserId(userSid ?: userId)
-    }
+//    /**
+//     * 用户登录/登出分别重新调用该方法
+//     */
+//    fun init(userId: String? = null, userSid: String? = null) {
+//        TrackUtil.userId = userId
+//        TrackUtil.userSid = userSid
+////        firebaseAnalytics.setUserId(userSid ?: userId)
+////        appsFlyerInstance.setCustomerUserId(userSid ?: userId)
+//    }
 
     @JvmStatic
     fun TrackEvent.log(vararg pairs: Pair<String, Any?>) {

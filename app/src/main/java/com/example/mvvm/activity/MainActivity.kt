@@ -26,7 +26,6 @@ import com.example.framework.utils.function.view.rotate
 import com.example.framework.utils.function.view.size
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
-import com.example.mvvm.utils.span.RankSpanInterface
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestTopDialog
 import kotlinx.coroutines.delay
@@ -95,7 +94,7 @@ import kotlinx.coroutines.launch
  *  如果您想要比较对象的内容，请确保在对象类中实现 equals() 和 hashCode() 方法，并在比较时使用它们。
  */
 @Route(path = ARouterPath.MainActivity)
-class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpanInterface {
+class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     //    private val illustratePopup by lazy { IllustratePopup(this) }
     private val testBottom by lazy { TestTopDialog() }
 
@@ -172,8 +171,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl, RankSpan
             .add("在Cheezeebit交易，訂單賺取高達", SizeSpan(dimen(R.dimen.textSize14)))
             .add(" 0.5% ", SizeSpan(dimen(R.dimen.textSize14)), ColorSpan(color(R.color.textSecondary)))
             .add("的訂單獎勵", SizeSpan(dimen(R.dimen.textSize14)))
-            .add("★", BitmapSpan(ImageSpan(drawable(R.mipmap.ic_rank)?.toBitmapOrNull(), 18.pt, 18.pt)))
-            .build().setRankSpan(18.pt)
+            .add("★", BitmapSpan(ImageSpan(drawable(R.mipmap.ic_rank)?.toBitmapOrNull(), 18.pt)))
+            .build()
 
 
 //        binding.tvTest.setClickSpan(
