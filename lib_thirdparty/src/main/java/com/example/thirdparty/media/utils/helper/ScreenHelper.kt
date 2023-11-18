@@ -42,15 +42,15 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
     private val activityResultValue = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         shotList.clear()
         if (it.resultCode == RESULT_OK) {
-            isRecording = true
             "开始录屏".shortToast()
+            isRecording = true
             activity.apply {
                 startService(ScreenService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
                 moveTaskToBack(true)
             }
         } else {
-            isRecording = false
             "取消录屏".shortToast()
+            isRecording = false
         }
     }
 
@@ -83,7 +83,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
             }
         }
         //只要在录屏中，截一张图就copy一张到目标目录，但是需要及时清空
-        ShotObserver.setOnScreenShotListener {
+        ShotObserver.instance.setOnScreenShotListener {
             if (isRecording) {
                 if(!File(it.orEmpty()).exists()) return@setOnScreenShotListener
                 shotList.add(it.orEmpty())

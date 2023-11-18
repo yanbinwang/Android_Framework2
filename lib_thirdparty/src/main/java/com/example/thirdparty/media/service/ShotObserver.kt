@@ -20,19 +20,11 @@ class ShotObserver private constructor(): ContentObserver(null) {
     private var filePath = ""//存储上一次捕获到的文件地址
     private val context by lazy { BaseApplication.instance.applicationContext }
     private val TAG = "ScreenShotObserver"
+    private var onShutter: (filePath: String?) -> Unit = { _ -> }
 
     companion object {
         @JvmStatic
         val instance by lazy { ShotObserver() }
-
-        internal var onShutter: (filePath: String?) -> Unit = { _ -> }
-
-        /**
-         * exists->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
-         */
-        fun setOnScreenShotListener(onShutter: (filePath: String?) -> Unit) {
-            this.onShutter = onShutter
-        }
     }
 
     override fun onChange(selfChange: Boolean) {
@@ -96,5 +88,12 @@ class ShotObserver private constructor(): ContentObserver(null) {
      * 注销监听
      */
     fun unregister() = context.contentResolver.unregisterContentObserver(this)
+
+    /**
+     * exists->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
+     */
+    fun setOnScreenShotListener(onShutter: (filePath: String?) -> Unit) {
+        this.onShutter = onShutter
+    }
 
 }
