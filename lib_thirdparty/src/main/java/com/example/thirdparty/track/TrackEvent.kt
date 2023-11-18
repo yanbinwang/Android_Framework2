@@ -1,4 +1,4 @@
-package com.example.mvvm.utils.track
+package com.example.thirdparty.track
 
 /**
  * 埋点枚举类

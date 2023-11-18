@@ -1,4 +1,4 @@
-package com.example.mvvm.utils.track
+package com.example.thirdparty.track
 
 import android.os.Bundle
 import com.example.common.utils.DeviceIdUtil
@@ -16,9 +16,9 @@ object TrackUtil {
     /**
      * 用户登录/登出分别重新调用该方法
      */
-    fun init(userId: String?, userSid: String?) {
-        this.userId = userId
-        this.userSid = userSid
+    fun init(userId: String? = null, userSid: String? = null) {
+        TrackUtil.userId = userId
+        TrackUtil.userSid = userSid
 //        firebaseAnalytics.setUserId(userSid ?: userId)
 //        appsFlyerInstance.setCustomerUserId(userSid ?: userId)
     }
