@@ -17,6 +17,7 @@ import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
 import com.example.common.utils.function.orNoData
 import com.example.common.utils.function.ptFloat
+import com.example.common.utils.function.setSpanAll
 import com.example.common.utils.function.setSpanFirst
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
@@ -206,9 +207,15 @@ object BaseBindingAdapter {
      * is_match：文字是否撑满宽度（textview本身有一定的padding且会根据内容自动换行）
      */
     @JvmStatic
-    @BindingAdapter(value = ["span_text", "key_text", "key_color", "is_match"], requireAll = false)
-    fun bindingTextViewSpanFirst(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isMatch: Boolean?) {
-        if (!text.isNullOrEmpty() && !keyText.isNullOrEmpty()) textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.appTheme))
+    @BindingAdapter(value = ["span_text", "key_text", "key_color", "is_all", "is_match"], requireAll = false)
+    fun bindingTextViewSpan(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isAll: Boolean?, isMatch: Boolean?) {
+        if (!text.isNullOrEmpty() && !keyText.isNullOrEmpty()) {
+            if (isAll.orFalse) {
+                textview.setSpanAll(text, keyText, keyColor.toSafeInt(R.color.appTheme))
+            } else {
+                textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.appTheme))
+            }
+        }
         if (isMatch.orFalse) textview.setMatchText()
     }
 
