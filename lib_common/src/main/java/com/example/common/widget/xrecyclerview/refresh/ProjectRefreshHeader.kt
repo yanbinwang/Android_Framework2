@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.drawable.AnimationDrawable
 import android.util.AttributeSet
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.annotation.ColorRes
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshHeaderBinding
@@ -35,7 +36,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     internal var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
-        binding.root.size(LayoutParams.MATCH_PARENT, 40.pt)
+        binding.root.size(MATCH_PARENT, 40.pt)
         binding.ivProgress.let {
             it.setResource(R.drawable.animation_list_loading)
             it.tint(R.color.appTheme)

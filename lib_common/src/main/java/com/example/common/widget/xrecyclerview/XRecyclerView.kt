@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
@@ -20,6 +21,7 @@ import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.layoutParamsMatch
+import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
 import com.example.framework.widget.DataRecyclerView
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
@@ -85,8 +87,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 }
             }
         }
-        view?.layoutParamsMatch()
         addView(view)
+        view?.size(MATCH_PARENT, MATCH_PARENT)
     }
 
     /**
