@@ -15,6 +15,7 @@ import com.example.framework.utils.function.view.click
  * Created by WangYanBin on 2020/7/17.
  * 基础适配器，适用于定制页面，加头加尾，需要重写onCreateViewHolder
  */
+@Suppress("UNCHECKED_CAST")
 @SuppressLint("NotifyDataSetChanged")
 abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> {
     /**

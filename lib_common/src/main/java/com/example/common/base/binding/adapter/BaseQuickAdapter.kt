@@ -9,6 +9,7 @@ import java.lang.reflect.ParameterizedType
  * Created by WangYanBin on 2020/7/17.
  * 快捷适配器，传入对应的ViewBinding即可
  */
+@Suppress("UNCHECKED_CAST")
 abstract class BaseQuickAdapter<T, VDB : ViewDataBinding> : BaseAdapter<T> {
     protected var mContext: Context? = null
     protected lateinit var binding: VDB
