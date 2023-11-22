@@ -32,7 +32,8 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private var onRefresh: (() -> Unit)? = null
 
     init {
-        binding.root.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT) //设置LayoutParams
+//        binding.root.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT) //设置LayoutParams
+        binding.root.layoutParamsMatch()
         binding.root.setBackgroundColor(color(R.color.appWindowBackground))
         binding.tvRefresh.click {
             //进入加载中

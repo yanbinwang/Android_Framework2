@@ -19,6 +19,7 @@ import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.initLinearHorizontal
+import com.example.framework.utils.function.view.layoutParamsMatch
 import com.example.framework.widget.BaseViewGroup
 import com.example.framework.widget.DataRecyclerView
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
@@ -84,6 +85,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 }
             }
         }
+        view?.layoutParamsMatch()
         addView(view)
     }
 
