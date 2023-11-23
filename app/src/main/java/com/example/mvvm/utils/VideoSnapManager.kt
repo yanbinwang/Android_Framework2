@@ -10,7 +10,7 @@ import kotlin.math.abs
 /**
  * 仿抖音上下滑动
  */
-class PagerSnapManager : LinearLayoutManager, RecyclerView.OnChildAttachStateChangeListener {
+class VideoSnapManager : LinearLayoutManager, RecyclerView.OnChildAttachStateChangeListener {
     private var mDrift = 0//判断是否上滑还是下滑
     private var onViewPagerListener: OnViewPagerListener? = null
     private val pagerSnapHelper by lazy { PagerSnapHelper() }//吸顶，吸底

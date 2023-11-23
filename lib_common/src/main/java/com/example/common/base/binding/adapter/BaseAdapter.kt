@@ -247,6 +247,14 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     }
 
     /**
+     * 对应下标插入集合
+     */
+    fun insert(position: Int, list: List<T>) {
+        data.addAll(position, list)
+        notifyDataSetChanged()
+    }
+
+    /**
      * 对应下标插入对象
      */
     fun insert(position: Int, item: T) {
