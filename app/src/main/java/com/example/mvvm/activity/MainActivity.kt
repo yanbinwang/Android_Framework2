@@ -1,6 +1,9 @@
 package com.example.mvvm.activity
 
+import android.view.View
 import androidx.core.graphics.drawable.toBitmapOrNull
+import androidx.recyclerview.widget.OrientationHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.bean.UserBean
@@ -26,6 +29,7 @@ import com.example.framework.utils.function.view.rotate
 import com.example.framework.utils.function.view.size
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
+import com.example.mvvm.utils.PagerSnapManager
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestTopDialog
 import kotlinx.coroutines.delay
@@ -197,6 +201,20 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            .build()
         //判断是全角字符  \u0020为半角空格，\u3000为全角空格
 //        "${"是".regCheck("[^\\x00-\\xff]")}".logWTF
+
+//        val recycler = RecyclerView(this)
+//        val pagerSnapManager = PagerSnapManager(this,OrientationHelper.VERTICAL,false)
+//        recycler.layoutManager = pagerSnapManager
+////        recycler.adapter
+//        pagerSnapManager.setOnViewPagerListener(object :PagerSnapManager.OnViewPagerListener{
+//            override fun onPageRelease(isNest: Boolean, position: View) {
+////                releaseVideo(position)
+//            }
+//
+//            override fun onPageSelected(isBottom: Boolean, position: View) {
+////                playVideo(position)
+//            }
+//        })
     }
 
 //    class TestBean(
