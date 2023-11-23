@@ -160,7 +160,7 @@ object FileUtil {
      * @param begin 开始指针的位置
      * @param end   结束指针的位置
      */
-    private fun write(filePath: String, index: Int, begin: Long, end: Long): TmpInfo {
+    fun write(filePath: String, index: Int, begin: Long, end: Long): TmpInfo {
         val info = TmpInfo()
         try {
             //源文件
