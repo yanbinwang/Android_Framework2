@@ -1,4 +1,7 @@
 <resources>
+    <!-- 推送信息 -->
+    <string name="notificationChannelId">dataqin</string>
+    <string name="notificationChannelName">数秦科技</string>
     <!-- app内的一些提示 -->
     <string name="hint">系统提示</string>
     <string name="sure">确定</string>
