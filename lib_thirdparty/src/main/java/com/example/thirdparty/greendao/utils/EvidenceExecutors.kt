@@ -1,7 +1,7 @@
 package com.example.thirdparty.greendao.utils
 
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.utils.file.FileHelper
+import com.example.common.utils.file.FileUtil
 import com.example.common.utils.file.deleteFile
 import com.example.common.utils.file.getSizeFormat
 import com.example.common.utils.helper.AccountHelper.getUserId
@@ -20,6 +20,9 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
+/**
+ * 放在MainActivity中addObserver，绑定全局的文件上传
+ */
 object EvidenceExecutors : CoroutineScope {
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
@@ -47,7 +50,7 @@ object EvidenceExecutors : CoroutineScope {
             when (fileType) {
                 "3", "4" -> {
                     if (File(sourcePath).length() >= 100 * 1024 * 1024) {
-
+                        partUpload(baoquan_no, sourcePath, fileType, isZip)
                     } else {
                         upload(baoquan_no, sourcePath, fileType, isZip)
                     }
@@ -59,19 +62,17 @@ object EvidenceExecutors : CoroutineScope {
         }
     }
 
-    private fun partUpload(
-        queryDB: EvidenceDB,
-        tmpPath: String,
-        fileType: String,
-        baoquan_no: String,
-        isZip: Boolean = false
-    ) {
+    @JvmStatic
+    private fun partUpload(baoquan_no: String, sourcePath: String, fileType: String, isZip: Boolean = false) {
         launch {
-
+            suspendingSplit(baoquan_no, sourcePath).apply {
+                suspendingUpload(first, second.filePath.orEmpty(), fileType, baoquan_no, isZip)
+            }
         }
     }
 
-    private suspend fun suspendingSplit(baoquan_no: String, sourcePath: String): EvidenceDB {
+    @JvmStatic
+    private suspend fun suspendingSplit(baoquan_no: String, sourcePath: String): Pair<EvidenceDB, FileUtil.TmpInfo> {
         return withContext(IO) {
             //查询/创建一条用于存表的数据，并重新插入一次
             val queryDB = query(baoquan_no, sourcePath)
@@ -82,12 +83,13 @@ object EvidenceExecutors : CoroutineScope {
             //开始分片，并获取分片信息
             val tmp = EvidenceHelper.split(queryDB)
             queryDB.filePointer = tmp.fileSize
-            queryDB
+            Pair(queryDB, tmp)
         }
     }
 
-    private suspend fun suspendingUpload(queryDB: EvidenceDB, tmpPath: String, fileType: String, baoquan_no: String, isZip: Boolean = false){
-        withContext(IO){
+    @JvmStatic
+    private suspend fun suspendingUpload(queryDB: EvidenceDB, tmpPath: String, fileType: String, baoquan_no: String, isZip: Boolean = false) {
+        withContext(IO) {
             val paramsFile = File(tmpPath)
             val builder = MultipartBody.Builder()
             builder.setType(MultipartBody.FORM)
@@ -111,15 +113,15 @@ object EvidenceExecutors : CoroutineScope {
                     fileDB.filePointer = nextTmp.fileSize
 //                    LiveDataBus.instance.post(LiveDataEvent(Constants.APP_EVIDENCE_EXTRAS_UPDATE))
                     //再开启下一次传输
-                    partUpload(fileDB, nextTmp.filePath.orEmpty(), fileType, baoquan_no, isZip)
+                    suspendingUpload(fileDB, nextTmp.filePath.orEmpty(), fileType, baoquan_no, isZip)
                 } else if (fileDB.index >= queryDB.total) {
 //                    loadHttp(request = {
 //                        SplitSubscribe.getPartCombineApi(HttpParams().append("baoquan_no", baoquan_no).map)
 //                    }, end = {
-//                        //删除源文件，清空表
-//                        FileUtil.deleteFile(queryDB.sourcePath)
-//                        FileHelper.complete(queryDB.sourcePath, true)
-//                        FileHelper.delete(queryDB.sourcePath)
+//                    //删除源文件，清空表
+//                    queryDB.sourcePath.deleteFile()
+//                    EvidenceHelper.complete(queryDB.sourcePath, true)
+//                    EvidenceHelper.delete(queryDB.sourcePath)
 //                        LiveDataBus.instance.post(LiveDataEvent(Constants.APP_EVIDENCE_UPDATE, fileType), LiveDataEvent(Constants.APP_EVIDENCE_EXTRAS_UPDATE))
 //                    })
                 }
@@ -148,11 +150,7 @@ object EvidenceExecutors : CoroutineScope {
         val builder = MultipartBody.Builder()
         builder.setType(MultipartBody.FORM)
         builder.addFormDataPart("baoquan", baoquan_no)
-        builder.addFormDataPart(
-            "file",
-            paramsFile.name,
-            paramsFile.asRequestBody(mediaType.toMediaTypeOrNull())
-        )
+        builder.addFormDataPart("file", paramsFile.name, paramsFile.asRequestBody(mediaType.toMediaTypeOrNull()))
         //成功
         sourcePath.deleteFile()
         EvidenceHelper.complete(baoquan_no, true)
@@ -168,17 +166,7 @@ object EvidenceExecutors : CoroutineScope {
     }
 
     private fun query(baoquan_no: String, sourcePath: String): EvidenceDB {
-        var bean = EvidenceHelper.query(baoquan_no)
-        if (bean == null) bean =
-            EvidenceDB(
-                baoquan_no,
-                sourcePath,
-                getUserId(),
-                0,
-                0,
-                true,
-                false
-            )
-        return bean
+        return EvidenceHelper.query(baoquan_no) ?: EvidenceDB(baoquan_no, sourcePath, getUserId(), 0, 0, true, false)
     }
+
 }
