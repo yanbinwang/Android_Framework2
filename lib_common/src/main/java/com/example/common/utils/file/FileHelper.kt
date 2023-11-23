@@ -178,7 +178,7 @@ class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
 
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
         if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-            R.string.link_invalid_error.shortToast()
+            R.string.linkInvalidError.shortToast()
             return
         }
         downloadJob?.cancel()

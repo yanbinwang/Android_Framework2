@@ -30,11 +30,15 @@ object Constants {
     //设备id
     val DEVICE_ID get() = DeviceIdUtil.deviceId
     //无数据占位符
-    val NO_DATA get() = string(R.string.unit_no_data)
+    val NO_DATA get() = string(R.string.unitNoData)
 //    //无数据占位符
-//    val NO_DATA_DOLLAR get() = string(R.string.unit_no_data_dollar)
+//    val NO_DATA_DOLLAR get() = string(R.string.unitNoDataDollar)
 //    //无数据占位符
-//    val NO_DATA_PERCENT get() = string(R.string.unit_no_data_percent)
+//    val NO_DATA_PERCENT get() = string(R.string.unitNoDataPercent)
+    //推送渠道id
+    val PUSH_CHANNEL_ID get() = string(R.string.notificationChannelId)
+    //推送渠道名
+    val PUSH_CHANNEL_NAME get() = string(R.string.notificationChannelName)
     //------app内接口的一些默认配置字段------
     const val PAGE_LIMIT = "10"//固定配置页数
 }

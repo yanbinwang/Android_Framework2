@@ -47,7 +47,7 @@ fun FragmentActivity?.pullUpAlbum(func: ((path: String?) -> Unit)) {
         val intent = Intent(Intent.ACTION_PICK, null)
         intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
         activityResultValue.launch(intent)
-    } else string(R.string.data_error).shortToast()
+    } else string(R.string.dataError).shortToast()
 }
 
 /**
@@ -178,7 +178,7 @@ fun Context.sendFile(filePath: String, fileType: String? = "*/*", title: String?
 
 private fun isExists(file: File): Boolean {
     if (!file.exists()) {
-        R.string.source_path_error.shortToast()
+        R.string.sourcePathError.shortToast()
         return false
     }
     return true

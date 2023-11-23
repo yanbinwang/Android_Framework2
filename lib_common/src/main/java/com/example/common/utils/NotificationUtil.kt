@@ -13,9 +13,10 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.common.BaseApplication
 import com.example.common.R
+import com.example.common.config.Constants.PUSH_CHANNEL_ID
+import com.example.common.config.Constants.PUSH_CHANNEL_NAME
 import com.example.common.utils.function.color
 import com.example.common.utils.function.dp
-import com.example.common.utils.function.string
 import com.example.glide.ImageLoader
 
 /**
@@ -23,8 +24,6 @@ import com.example.glide.ImageLoader
  * @author yan
  */
 object NotificationUtil {
-    private val notificationChannelId by lazy { string(R.string.notificationChannelId) }//推送渠道id
-    private val notificationChannelName by lazy { string(R.string.notificationChannelName) }//推送渠道名
     private val notificationManager by lazy { BaseApplication.instance.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager }
     private var notificationId = 100
         get() = ++field
@@ -36,7 +35,7 @@ object NotificationUtil {
      */
     fun init() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager?.createNotificationChannel(NotificationChannel(notificationChannelId, notificationChannelName, NotificationManager.IMPORTANCE_DEFAULT))
+            notificationManager?.createNotificationChannel(NotificationChannel(PUSH_CHANNEL_ID, PUSH_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT))
         }
     }
 
@@ -44,7 +43,7 @@ object NotificationUtil {
         this ?: return
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val pendingIntent = PendingIntent.getActivity(this, requestCode, intent, getPendingIntentFlags(PendingIntent.FLAG_UPDATE_CURRENT))
-        val notificationBuilder = NotificationCompat.Builder(this, notificationChannelId)
+        val notificationBuilder = NotificationCompat.Builder(this, PUSH_CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)//96*96
                 .setContentTitle(title.orEmpty())
                 .setContentText(body.orEmpty())
@@ -74,7 +73,7 @@ object NotificationUtil {
 
     fun Context.getSimpleNotification(title: String?, body: String?, intent: Intent?): Notification {
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        val notificationBuilder = NotificationCompat.Builder(this, notificationChannelId)
+        val notificationBuilder = NotificationCompat.Builder(this, PUSH_CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title.orEmpty())
                 .setContentText(body.orEmpty())
