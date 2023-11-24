@@ -60,7 +60,9 @@ class CameraHelper(private val activity: FragmentActivity, private val cvFinder:
     /**
      * 镜头复位
      */
-    fun reset() = run { cvFinder.zoom = 0f }
+    fun reset() {
+        cvFinder.zoom = 0f
+    }
 
     /**
      * 镜头翻转
