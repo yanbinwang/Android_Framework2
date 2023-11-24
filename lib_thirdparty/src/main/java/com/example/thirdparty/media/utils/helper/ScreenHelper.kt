@@ -23,6 +23,7 @@ import com.example.framework.utils.function.startService
 import com.example.framework.utils.function.stopService
 import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.safeSize
 import com.example.thirdparty.media.service.ScreenService
 import com.example.thirdparty.media.service.ShotObserver
 import java.io.File
@@ -96,7 +97,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
             if (!recoding) {
                 val folderPath = filePath.orEmpty()
                 //说明未截图
-                if (shotList.size == 0) {
+                if (shotList.safeSize == 0) {
                     onShutter.invoke(folderPath, false)
                 } else {
                     //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
