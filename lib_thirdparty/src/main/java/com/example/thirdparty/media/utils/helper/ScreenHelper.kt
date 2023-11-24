@@ -36,6 +36,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
     private val fileHelper by lazy { FileHelper(activity) }
     private val shotList by lazy { ArrayList<String>() }
     private var onShutter: (filePath: String?, isZip: Boolean) -> Unit = { _, _ -> }
+
     /**
      * 处理录屏的回调
      */
@@ -84,9 +85,10 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
         }
         //只要在录屏中，截一张图就copy一张到目标目录，但是需要及时清空
         ShotObserver.instance.setOnScreenShotListener {
+            it ?: return@setOnScreenShotListener
             if (isRecording) {
-                if(!File(it.orEmpty()).exists()) return@setOnScreenShotListener
-                shotList.add(it.orEmpty())
+                if (!File(it).exists()) return@setOnScreenShotListener
+                shotList.add(it)
             }
         }
         //录屏文件创建/停止录屏时（exists=false）都会回调
@@ -94,7 +96,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
             if (!recoding) {
                 val folderPath = filePath.orEmpty()
                 //说明未截图
-                if(shotList.size == 0) {
+                if (shotList.size == 0) {
                     onShutter.invoke(folderPath, false)
                 } else {
                     //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
