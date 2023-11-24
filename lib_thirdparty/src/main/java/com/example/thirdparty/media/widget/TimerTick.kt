@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.utils.helper
+package com.example.thirdparty.media.widget
 
 import android.app.AlertDialog
 import android.content.Context
@@ -25,7 +25,7 @@ import java.util.TimerTask
  * @author yan
  * @description 录屏小组件工具栏
  */
-class TimeTickHelper(context: Context, move: Boolean = true) {
+class TimerTick(context: Context, move: Boolean = true) {
     private val binding by lazy { ViewTimeTickBinding.bind(context.inflate(R.layout.view_time_tick)) }
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null

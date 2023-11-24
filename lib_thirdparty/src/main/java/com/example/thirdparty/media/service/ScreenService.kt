@@ -20,7 +20,7 @@ import com.example.thirdparty.media.utils.MediaUtil.MediaType
 import com.example.thirdparty.media.utils.MediaUtil
 import com.example.thirdparty.media.utils.helper.ScreenHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.helper.ScreenHelper.Companion.previewWidth
-import com.example.thirdparty.media.utils.helper.TimeTickHelper
+import com.example.thirdparty.media.widget.TimerTick
 
 /**
  *  Created by wangyanbin
@@ -38,7 +38,7 @@ class ScreenService : Service() {
     private var mediaProjection: MediaProjection? = null
     private var mediaRecorder: MediaRecorder? = null
     private var virtualDisplay: VirtualDisplay? = null
-    private val timerFactory by lazy { TimeTickHelper(this) }
+    private val timerTick by lazy { TimerTick(this) }
 
     companion object {
         internal var onShutter: (filePath: String?, recoding: Boolean) -> Unit = { _, _ -> }
@@ -64,7 +64,7 @@ class ScreenService : Service() {
             startForeground(1, builder.build())
         }
 //        stopForeground(true)//关闭录屏的图标-可注释
-        timerFactory.start()
+        timerTick.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -116,7 +116,7 @@ class ScreenService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         try {
-            timerFactory.destroy()
+            timerTick.destroy()
             virtualDisplay?.release()
             virtualDisplay = null
             mediaRecorder?.stop()
