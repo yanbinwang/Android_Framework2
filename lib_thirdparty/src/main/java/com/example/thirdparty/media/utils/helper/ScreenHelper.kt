@@ -93,9 +93,9 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
             }
         }
         //录屏文件创建/停止录屏时（exists=false）都会回调
-        ScreenService.setOnScreenListener { filePath, recoding ->
+        ScreenService.setOnScreenListener { folderPath, recoding ->
             if (!recoding) {
-                val folderPath = filePath.orEmpty()
+                folderPath ?: return@setOnScreenListener
                 //说明未截图
                 if (shotList.safeSize == 0) {
                     onShutter.invoke(folderPath, false)
@@ -107,7 +107,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
                     //开始压包
                     fileHelper.zipJob(shotList, zipPath, { showDialog() }, {
                         hideDialog()
-                        filePath.deleteFile()
+                        folderPath.deleteFile()
                     })
                     onShutter.invoke(zipPath, true)
                 }
