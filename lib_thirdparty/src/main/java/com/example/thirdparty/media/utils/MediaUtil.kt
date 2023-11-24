@@ -4,6 +4,8 @@ import android.content.Context
 import android.media.MediaPlayer
 import com.example.common.utils.helper.AccountHelper.storage
 import com.example.framework.utils.function.value.convert
+import com.example.framework.utils.function.value.divide
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.getSdcardAvailableCapacity
 import com.example.framework.utils.hasSdcard
 import com.example.framework.utils.logE
@@ -95,4 +97,17 @@ fun String?.getDuration(): Double {
     val duration = (time / 1000.0)
     "文件时长：${duration}秒".logE()
     return duration
+}
+
+fun String?.mediaDuration(): Int {
+    if (isNullOrEmpty()) return 0
+    val file = File(this)
+    if (!file.exists()) return 0
+    val medialPlayer = MediaPlayer()
+    medialPlayer.setDataSource(file.absolutePath)
+    medialPlayer.prepare()
+    val time = medialPlayer.duration.toString()//视频时长（毫秒）
+    val duration = time.divide("1000")
+    "文件时长：${duration}秒".logE()
+    return duration.toSafeInt()
 }
