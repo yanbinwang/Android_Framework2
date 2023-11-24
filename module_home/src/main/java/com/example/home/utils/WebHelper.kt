@@ -2,7 +2,6 @@ package com.example.home.utils
 
 import android.view.View
 import android.webkit.WebChromeClient
-import android.webkit.WebView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner

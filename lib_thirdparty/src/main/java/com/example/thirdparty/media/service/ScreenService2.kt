@@ -3,7 +3,6 @@ package com.example.thirdparty.media.service
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.Service
 import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
@@ -11,28 +10,20 @@ import android.media.MediaRecorder
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
-import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleService
 import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenDensity
 import com.example.framework.utils.function.value.orZero
-import com.example.thirdparty.media.utils.MediaUtil.MediaType
 import com.example.thirdparty.media.utils.MediaUtil
 import com.example.thirdparty.media.utils.helper.ScreenHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.helper.ScreenHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick
 
-/**
- *  Created by wangyanbin
- *  录屏服务
- *  <!-- 屏幕录制 -->
- *  <service
- *      android:name="com.sqkj.home.service.ScreenService"
- *      android:enabled="true"
- *      android:exported="false"
- *      android:foregroundServiceType="mediaProjection"--》 Q开始后台服务需要配置，否则录制不正常  />
- */
-class ScreenService : Service() {
+class ScreenService2 : LifecycleService(), LifecycleEventObserver {
     private var folderPath = ""
     private var resultCode = 0
     private var resultData: Intent? = null
@@ -42,7 +33,7 @@ class ScreenService : Service() {
     private val timerTick by lazy { TimerTick(this) }
 
     companion object {
-        internal var onShutter: (filePath: String?, recoding: Boolean) -> Unit = { _, _ -> }
+        private var onShutter: (filePath: String?, recoding: Boolean) -> Unit = { _, _ -> }
 
         /**
          * filePath->开始录制时，会返回源文件存储地址(此时记录一下)停止录制时一定为空，此时做ui操作
@@ -53,19 +44,8 @@ class ScreenService : Service() {
         }
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            startForeground(1, Notification())
-        } else {
-            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as? NotificationManager
-            notificationManager?.createNotificationChannel(NotificationChannel(packageName, packageName, NotificationManager.IMPORTANCE_DEFAULT))
-            val builder = NotificationCompat.Builder(this, packageName)
-            //id不为0即可，该方法表示将服务设置为前台服务
-            startForeground(1, builder.build())
-        }
-//        stopForeground(true)//关闭录屏的图标-可注释
-        timerTick.start()
+    init {
+        lifecycle.addObserver(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -78,7 +58,7 @@ class ScreenService : Service() {
             mediaRecorder?.start()
         } catch (_: Exception) {
         }
-        return START_STICKY
+        return super.onStartCommand(intent, flags, startId)
     }
 
     private fun createMediaProjection(): MediaProjection? {
@@ -86,9 +66,9 @@ class ScreenService : Service() {
     }
 
     private fun createMediaRecorder(): MediaRecorder {
-        val screenFile = MediaUtil.getOutputFile(MediaType.SCREEN)
+        val screenFile = MediaUtil.getOutputFile(MediaUtil.MediaType.SCREEN)
         folderPath = screenFile?.absolutePath.orEmpty()
-        onShutter.invoke(folderPath,true)
+        ScreenService.onShutter.invoke(folderPath,true)
         return (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()).apply {
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
             setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -111,25 +91,39 @@ class ScreenService : Service() {
         return mediaProjection?.createVirtualDisplay("mediaProjection", previewWidth, previewHeight, screenDensity, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mediaRecorder?.surface, null, null)
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        try {
-            timerTick.destroy()
-            virtualDisplay?.release()
-            virtualDisplay = null
-            mediaRecorder?.stop()
-            mediaRecorder?.reset()
-            mediaRecorder?.release()
-            mediaRecorder = null
-            mediaProjection?.stop()
-            mediaProjection = null
-        } catch (_: Exception) {
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_CREATE -> {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    startForeground(1, Notification())
+                } else {
+                    val notificationManager = getSystemService(NOTIFICATION_SERVICE) as? NotificationManager
+                    notificationManager?.createNotificationChannel(NotificationChannel(packageName, packageName, NotificationManager.IMPORTANCE_DEFAULT))
+                    val builder = NotificationCompat.Builder(this, packageName)
+                    //id不为0即可，该方法表示将服务设置为前台服务
+                    startForeground(1, builder.build())
+                }
+//                stopForeground(true)//关闭录屏的图标-可注释
+                timerTick.start()
+            }
+            Lifecycle.Event.ON_DESTROY -> {
+                try {
+                    timerTick.destroy()
+                    virtualDisplay?.release()
+                    virtualDisplay = null
+                    mediaRecorder?.stop()
+                    mediaRecorder?.reset()
+                    mediaRecorder?.release()
+                    mediaRecorder = null
+                    mediaProjection?.stop()
+                    mediaProjection = null
+                } catch (_: Exception) {
+                }
+                onShutter.invoke(folderPath, false)
+                lifecycle.removeObserver(this)
+            }
+            else -> {}
         }
-        onShutter.invoke(folderPath,false)
     }
 
 }
