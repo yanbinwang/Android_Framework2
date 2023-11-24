@@ -33,6 +33,7 @@ import java.io.File
  * @author yan
  */
 class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObserver {
+    private var isDestroy = false
     private val loadingDialog by lazy { LoadingDialog(activity) }
     private val fileHelper by lazy { FileHelper(activity) }
     private val shotList by lazy { ArrayList<String>() }
@@ -94,6 +95,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
         }
         //录屏文件创建/停止录屏时（exists=false）都会回调
         ScreenService.setOnScreenListener { folderPath, recoding ->
+            if(isDestroy) return@setOnScreenListener
             if (!recoding) {
                 folderPath ?: return@setOnScreenListener
                 //说明未截图
@@ -162,6 +164,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
         when (event) {
             Lifecycle.Event.ON_CREATE -> ShotObserver.instance.register()
             Lifecycle.Event.ON_DESTROY -> {
+                isDestroy = true
                 hideDialog()
                 stopScreen()
                 ShotObserver.instance.unregister()
