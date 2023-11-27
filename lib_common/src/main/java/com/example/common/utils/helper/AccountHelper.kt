@@ -121,6 +121,7 @@ object AccountHelper {
      */
     fun refresh(bean: UserInfoBean?) {
         bean ?: return
+        if (getUserInfo() == bean) return
         setUserInfo(bean)
         EVENT_USER_INFO_REFRESH.post(userInfoBean.get())
     }

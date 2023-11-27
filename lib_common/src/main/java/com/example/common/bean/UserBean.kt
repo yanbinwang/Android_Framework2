@@ -28,9 +28,43 @@ data class UserInfoBean(
     var freeze: String? = null,//冻结金额(元)
     var freezeSendBalance: String? = null,//冻结赠送金额(元)
     var id: Int? = null,
-    var invoiceAmount: Int? = null,
+    var invoiceAmount: String? = null,
     var sendBalance: String? = null,//赠送金额(元)
     var status: Int? = null,//0冻结 1正常
     var userId: String? = null,//用户id
     var waitPayCount: Int? = null//等待支付订单
-) : Parcelable
+) : Parcelable {
+
+    /**
+     * 我们需要规定两个不同的对象在部分值相同的时候让安卓虚拟机视为是相同的对象
+     * 每个页面可以调取一下接口，然后用==和本地做对比
+     */
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is UserInfoBean) {
+            return false
+        }
+        return balance == other.balance &&
+                consumeBalance == other.consumeBalance &&
+                consumeSendBalance == other.consumeSendBalance &&
+                freeze == other.freeze &&
+                freezeSendBalance == other.freezeSendBalance &&
+                invoiceAmount == other.invoiceAmount &&
+                sendBalance == other.sendBalance &&
+                status == other.status &&
+                waitPayCount == other.waitPayCount
+    }
+
+    override fun hashCode(): Int {
+        var result = 17
+        result = 31 * result + balance.hashCode()
+        result = 31 * result + consumeSendBalance.hashCode()
+        result = 31 * result + freeze.hashCode()
+        result = 31 * result + freezeSendBalance.hashCode()
+        result = 31 * result + invoiceAmount.hashCode()
+        result = 31 * result + sendBalance.hashCode()
+        result = 31 * result + status.hashCode()
+        result = 31 * result + userId.hashCode()
+        result = 31 * result + waitPayCount.hashCode()
+        return result
+    }
+}
