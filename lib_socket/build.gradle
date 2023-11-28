@@ -6,18 +6,13 @@ plugins {
 }
 
 android {
-    namespace 'com.example.common'
+    namespace 'com.example.socket'
     compileSdkVersion build_versions.compileSdkVersion
 
     defaultConfig {
         minSdk build_versions.minSdkVersion
         targetSdk build_versions.targetSdkVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        kapt {
-            arguments {
-                arg("AROUTER_MODULE_NAME", project.getName())
-            }
-        }
     }
 
     buildFeatures {
@@ -47,25 +42,7 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //框架库
-    api project(':lib_framework')
-    api project(':lib_glide')
-    api project(':lib_topsheet')
-    api project(':lib_socket')
-    //网络请求
-    api deps.retrofit2.retrofit
-    api deps.retrofit2.converter_gson
-    implementation deps.okhttp3
-    //其余第三方库
-    api deps.autosize
-    api deps.recovery
-    api deps.smartrefresh
-    api deps.guide
-    api deps.circleprogressbar
-    implementation deps.mmkv
-    implementation deps.eventbus
-    implementation deps.xxpermissions
-    implementation deps.immersionbar
-    //页面路由
-    implementation deps.alibaba.arouter
-    kapt deps.alibaba.arouter_compiler
+    implementation project(':lib_framework')
+    //socket库
+    api 'cn.zhxu:okhttps-stomp:4.0.1'
 }

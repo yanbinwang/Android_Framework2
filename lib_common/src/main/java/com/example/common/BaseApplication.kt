@@ -35,6 +35,8 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
 import com.example.glide.ImageLoader
+import com.example.socket.config.SocketConfig
+import com.example.socket.utils.WebSocketProxy
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
 import me.jessyan.autosize.AutoSizeConfig
@@ -86,6 +88,8 @@ abstract class BaseApplication : Application() {
         initSmartRefresh()
         //全局toast
         initToast()
+        //初始化socket
+        initSocket()
     }
 
     private fun initARouter() {
@@ -172,6 +176,13 @@ abstract class BaseApplication : Application() {
             view.textColor(R.color.textWhite)
             toast.view = view
             return@setStringToastBuilder toast
+        }
+    }
+
+    private fun initSocket() {
+        SocketConfig.init()
+        WebSocketProxy.setOnMessageListener{ url, data ->
+
         }
     }
 
