@@ -1,9 +1,10 @@
-package com.example.socket.utils
+package com.example.common.socket.utils
 
 import cn.zhxu.okhttps.OkHttps
 import cn.zhxu.stomp.Header
 import cn.zhxu.stomp.Message
 import cn.zhxu.stomp.Stomp
+import com.example.common.utils.helper.AccountHelper.isLogin
 import com.example.framework.utils.logWTF
 
 /**
@@ -64,6 +65,7 @@ class WebSocketProxy(private val socketUrl: String) {
      *  订阅服务提供的topic
      */
     fun topic(vararg destinations: String) {
+        if (!isLogin()) return
         if (!stompClient.isConnected) {
             connect(*destinations)
             return

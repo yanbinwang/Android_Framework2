@@ -66,4 +66,11 @@ object ServerConfig {
         return serverType
     }
 
+    /**
+     * 目前正在用的socket服务器地址
+     */
+    fun socketUrl(): String {
+        return "wss://${serverBean().server}/api/ws_endpoint/websocket"
+    }
+
 }

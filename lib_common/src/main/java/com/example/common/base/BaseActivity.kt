@@ -36,7 +36,7 @@ import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.invisible
 import com.example.framework.utils.function.view.visible
-import com.example.socket.utils.WebSocketRequest
+import com.example.common.socket.utils.WebSocketRequest
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.Context
-import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkRequest
@@ -21,6 +20,7 @@ import com.example.common.config.ARouterPath
 import com.example.common.config.ServerConfig
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
+import com.example.common.socket.utils.WebSocketProxy
 import com.example.common.utils.AppManager
 import com.example.common.utils.NotificationUtil
 import com.example.common.utils.builder.ToastBuilder
@@ -35,8 +35,6 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
 import com.example.glide.ImageLoader
-import com.example.socket.config.SocketConfig
-import com.example.socket.utils.WebSocketProxy
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
 import me.jessyan.autosize.AutoSizeConfig
@@ -180,7 +178,6 @@ abstract class BaseApplication : Application() {
     }
 
     private fun initSocket() {
-        SocketConfig.init()
         WebSocketProxy.setOnMessageListener{ url, data ->
 
         }
