@@ -1,10 +1,10 @@
-package com.example.socket.utils
+package com.example.common.socket.utils
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.function.value.hasAnnotation
-import com.example.socket.interf.SocketRequest
+import com.example.common.socket.interf.SocketRequest
 import java.lang.ref.WeakReference
 
 /**

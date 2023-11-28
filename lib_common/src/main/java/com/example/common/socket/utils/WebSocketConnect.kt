@@ -1,12 +1,12 @@
-package com.example.socket.utils
+package com.example.common.socket.utils
 
-import com.example.socket.config.SocketConfig
+import com.example.common.config.ServerConfig
 
 /**
  * socket连接helper
  */
 object WebSocketConnect {
-    private val proxy by lazy { WebSocketProxy(SocketConfig.socketUrl()) }
+    private val proxy by lazy { WebSocketProxy(ServerConfig.socketUrl()) }
 
 //    fun connect(topicUrl: String) {
 //        proxy.connect(topicUrl)
