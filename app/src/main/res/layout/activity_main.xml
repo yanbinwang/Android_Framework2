@@ -2,54 +2,16 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!--    <FrameLayout-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="match_parent">-->
-
-    <!--        <androidx.viewpager2.widget.ViewPager2-->
-    <!--            android:id="@+id/rv_test"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="400pt"-->
-    <!--            android:layout_marginTop="80pt"-->
-    <!--            android:visibility="gone" />-->
-
-    <!--        <EditText-->
-    <!--            android:id="@+id/et_test"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="200pt"-->
-    <!--            android:textColor="@color/blue_1566ec"-->
-    <!--            android:textSize="@dimen/textSize26" />-->
-
-    <!--        <Button-->
-    <!--            android:id="@+id/btn_test"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="80pt"-->
-    <!--            android:layout_marginHorizontal="20pt"-->
-    <!--            android:background="@drawable/shape_r5_blue"-->
-    <!--            android:text="dfdsfds"-->
-    <!--            android:textColor="@color/white"-->
-    <!--            android:textSize="@dimen/textSize32" />-->
-
-    <!--        <TextView-->
-    <!--            android:id="@+id/tv_test"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="400pt"-->
-    <!--            android:gravity="center"-->
-    <!--            android:text="dsadasdasdasdsadas"-->
-    <!--            android:textColor="@color/textGrey"-->
-    <!--            android:textSize="@dimen/textSize20" />-->
-
-    <!--    </FrameLayout>-->
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/iv_funds_bg"
+            android:id="@+id/iv_home_bg"
             android:layout_width="match_parent"
-            android:layout_height="164pt"
-            android:scaleType="fitXY" />
+            android:layout_height="163pt"
+            android:scaleType="fitXY"
+            android:src="@mipmap/bg_home" />
 
         <com.scwang.smart.refresh.layout.SmartRefreshLayout
             android:id="@+id/refresh"
@@ -58,103 +20,145 @@
             app:srlEnableLoadMore="false"
             app:srlEnableRefresh="true">
 
-            <androidx.core.widget.NestedScrollView
+            <androidx.coordinatorlayout.widget.CoordinatorLayout
+                android:id="@+id/cl_container"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:overScrollMode="never"
-                android:scrollbars="none">
+                android:layout_height="match_parent">
 
-                <LinearLayout
+                <com.google.android.material.appbar.AppBarLayout
+                    android:id="@+id/al_top"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:orientation="vertical"
+                    app:elevation="0pt">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/clTop"
+                        android:layout_width="match_parent"
+                        android:layout_height="44pt"
+                        android:paddingHorizontal="15pt"
+                        app:layout_scrollFlags="scroll">
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.google.android.material.appbar.AppBarLayout>
+
+                <FrameLayout
+                    android:id="@+id/fl_list"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-                    <LinearLayout
-                        android:id="@+id/ll_funds"
+                    <com.example.common.widget.xrecyclerview.XRecyclerView
+                        android:id="@+id/rec_list"
                         android:layout_width="match_parent"
-                        android:layout_height="164pt"
-                        android:orientation="vertical"
-                        android:paddingHorizontal="15pt">
+                        android:layout_height="match_parent"
+                        app:empty="possess"
+                        app:refresh="possess" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12pt"
-                            android:text="Total assets converted(USDT)"
-                            android:textColor="@color/textSecondary"
-                            android:textSize="12pt" />
+                </FrameLayout>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2pt"
-                            android:text="232,232,212.00"
-                            android:textColor="@color/textSecondary"
-                            android:textSize="28pt" />
+            </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="3pt"
-                            android:text="≈ ₹0.00"
-                            android:textColor="@color/textSecondary"
-                            android:textSize="15pt" />
+            <!--            <androidx.core.widget.NestedScrollView-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="match_parent"-->
+            <!--                android:overScrollMode="never"-->
+            <!--                android:scrollbars="none">-->
 
-                        <View
-                            android:id="@+id/view_content"
-                            android:layout_width="match_parent"
-                            android:layout_height="38pt"
-                            android:layout_marginTop="15pt"
-                            android:background="@color/appTheme" />
+            <!--                <LinearLayout-->
+            <!--                    android:layout_width="match_parent"-->
+            <!--                    android:layout_height="match_parent"-->
+            <!--                    android:orientation="vertical">-->
 
-                    </LinearLayout>
+            <!--                    <LinearLayout-->
+            <!--                        android:id="@+id/ll_funds"-->
+            <!--                        android:layout_width="match_parent"-->
+            <!--                        android:layout_height="164pt"-->
+            <!--                        android:orientation="vertical"-->
+            <!--                        android:paddingHorizontal="15pt">-->
 
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center">
+            <!--                        <TextView-->
+            <!--                            android:layout_width="wrap_content"-->
+            <!--                            android:layout_height="wrap_content"-->
+            <!--                            android:layout_marginTop="12pt"-->
+            <!--                            android:text="Total assets converted(USDT)"-->
+            <!--                            android:textColor="@color/textSecondary"-->
+            <!--                            android:textSize="12pt" />-->
 
-                        <TextView
-                            text="@{`sadasdsadasdasdas`}"
-                            android:layout_width="match_parent"
-                            android:layout_height="800pt"
-                            android:background="@color/appTheme"
-                            android:gravity="center"
-                            android:textColor="@color/textWhite"
-                            android:textSize="29pt"
-                            android:visibility="gone" />
+            <!--                        <TextView-->
+            <!--                            android:layout_width="wrap_content"-->
+            <!--                            android:layout_height="wrap_content"-->
+            <!--                            android:layout_marginTop="2pt"-->
+            <!--                            android:text="232,232,212.00"-->
+            <!--                            android:textColor="@color/textSecondary"-->
+            <!--                            android:textSize="28pt" />-->
 
-                        <com.example.common.widget.XImageView
-                            android:id="@+id/iv_bg"
-                            android:layout_width="match_parent"
-                            android:layout_height="108pt"
-                            android:visibility="gone" />
+            <!--                        <TextView-->
+            <!--                            android:layout_width="wrap_content"-->
+            <!--                            android:layout_height="wrap_content"-->
+            <!--                            android:layout_marginTop="3pt"-->
+            <!--                            android:text="≈ ₹0.00"-->
+            <!--                            android:textColor="@color/textSecondary"-->
+            <!--                            android:textSize="15pt" />-->
 
-                        <ImageView
-                            android:id="@+id/iv_arrow"
-                            android:layout_width="24pt"
-                            android:layout_height="10pt"
-                            android:layout_gravity="center"
-                            android:src="@mipmap/ic_arrow_down" />
+            <!--                        <View-->
+            <!--                            android:id="@+id/view_content"-->
+            <!--                            android:layout_width="match_parent"-->
+            <!--                            android:layout_height="38pt"-->
+            <!--                            android:layout_marginTop="15pt"-->
+            <!--                            android:background="@color/appTheme" />-->
 
-                        <TextView
-                            android:id="@+id/tv_test"
-                            android:layout_width="match_parent"
-                            android:layout_height="400pt"
-                            android:gravity="center"
-                            android:textColor="@color/textSecondary"
-                            android:textSize="@dimen/textSize20" />
+            <!--                    </LinearLayout>-->
 
-                        <com.example.common.widget.SwitchView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center" />
+            <!--                    <FrameLayout-->
+            <!--                        android:layout_width="match_parent"-->
+            <!--                        android:layout_height="wrap_content"-->
+            <!--                        android:gravity="center">-->
 
-                    </FrameLayout>
+            <!--                        <TextView-->
+            <!--                            text="@{`sadasdsadasdasdas`}"-->
+            <!--                            android:layout_width="match_parent"-->
+            <!--                            android:layout_height="800pt"-->
+            <!--                            android:background="@color/appTheme"-->
+            <!--                            android:gravity="center"-->
+            <!--                            android:textColor="@color/textWhite"-->
+            <!--                            android:textSize="29pt"-->
+            <!--                            android:visibility="gone" />-->
 
-                </LinearLayout>
+            <!--                        <com.example.common.widget.XImageView-->
+            <!--                            android:id="@+id/iv_bg"-->
+            <!--                            android:layout_width="match_parent"-->
+            <!--                            android:layout_height="108pt"-->
+            <!--                            android:visibility="gone" />-->
 
-            </androidx.core.widget.NestedScrollView>
+            <!--                        <ImageView-->
+            <!--                            android:id="@+id/iv_arrow"-->
+            <!--                            android:layout_width="24pt"-->
+            <!--                            android:layout_height="10pt"-->
+            <!--                            android:layout_gravity="center"-->
+            <!--                            android:src="@mipmap/ic_arrow_down" />-->
+
+            <!--                        <TextView-->
+            <!--                            android:id="@+id/tv_test"-->
+            <!--                            android:layout_width="match_parent"-->
+            <!--                            android:layout_height="400pt"-->
+            <!--                            android:gravity="center"-->
+            <!--                            android:textColor="@color/textSecondary"-->
+            <!--                            android:textSize="@dimen/textSize20" />-->
+
+            <!--                        <com.example.common.widget.SwitchView-->
+            <!--                            android:layout_width="wrap_content"-->
+            <!--                            android:layout_height="wrap_content"-->
+            <!--                            android:layout_gravity="center" />-->
+
+            <!--                    </FrameLayout>-->
+
+            <!--                </LinearLayout>-->
+
+            <!--            </androidx.core.widget.NestedScrollView>-->
 
         </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
