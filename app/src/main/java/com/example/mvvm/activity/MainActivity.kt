@@ -12,8 +12,11 @@ import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.actionCancel
+import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.disable
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.enable
+import com.example.framework.utils.function.view.fade
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.mvvm.databinding.ActivityMainBinding
@@ -36,6 +39,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         binding.refresh.setHeaderMaxDragRate()
         binding.recList.refresh.disable()
         binding.recList.refresh?.setHeaderMaxDragRate(2.5f)
+        binding.alTop.doOnceAfterLayout {
+            //2-2.5
+            val translationY = (binding.alTop.measuredHeight - binding.clMenu.measuredHeight) / 2.5f
+            binding.recList.translationY = -translationY
+        }
     }
 
     override fun initEvent() {
@@ -58,18 +66,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
                         binding.refresh.enable()
                         binding.recList.isNestedScrollingEnabled = true
                         binding.recList.refresh.disable()
-//                        viewAppBarCover.fade(100)
-//                        llMenu.fade(100)
-//                        ivFilter.appear(100)
+                        binding.viewCover.fade(100)
+                        binding.llMenuBtn.fade(100)
                     } else {
                         binding.refresh.disable()
                         binding.recList.isNestedScrollingEnabled = false
                         binding.recList.refresh.enable()
-//                        viewAppBarCover.appear(100)
-//                        llMenu.appear(100)
-//                        ivFilter.fade(100)
+                        binding.viewCover.appear(100)
+                        binding.llMenuBtn.appear(100)
                     }
                 }
+                //2-2.5
+                binding.recList.translationY = -((binding.alTop.measuredHeight - binding.clMenu.measuredHeight) + verticalOffset) / 2.5f
             }
         })
         binding.recList.refresh?.setHeaderDragListener { _: Boolean, percent: Float, _: Int, _: Int, _: Int ->

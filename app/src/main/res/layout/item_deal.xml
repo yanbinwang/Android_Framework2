@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingConstraints">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10pt">
+
+        <ImageView
+            android:id="@+id/iv_cover"
+            android:layout_width="80pt"
+            android:layout_height="80pt"
+            android:src="@color/textBlack" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10pt"
+            android:text="订单号：100000000000000000"
+            android:textColor="@color/textPrimary"
+            android:textSize="@dimen/textSize14"
+            app:layout_constraintStart_toEndOf="@+id/iv_cover"
+            app:layout_constraintTop_toTopOf="@id/iv_cover" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10pt"
+            android:text="简介：测试测试测试测试"
+            android:textColor="@color/textSecondary"
+            android:textSize="@dimen/textSize14"
+            app:layout_constraintBottom_toBottomOf="@id/iv_cover"
+            app:layout_constraintStart_toEndOf="@+id/iv_cover" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

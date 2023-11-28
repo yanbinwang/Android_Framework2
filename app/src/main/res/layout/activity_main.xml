@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingConstraints">
+
+    <data>
+
+        <variable
+            name="adapter"
+            type="com.example.mvvm.adapter.DealAdapter" />
+
+    </data>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -34,12 +44,154 @@
                     app:elevation="0pt">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/clTop"
                         android:layout_width="match_parent"
                         android:layout_height="44pt"
-                        android:paddingHorizontal="15pt"
+                        android:paddingHorizontal="10pt"
                         app:layout_scrollFlags="scroll">
 
+                        <ImageView
+                            android:id="@+id/iv_logo"
+                            android:layout_width="149pt"
+                            android:layout_height="20pt"
+                            android:src="@mipmap/ic_logo"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <ImageView
+                            android:id="@+id/iv_customer"
+                            android:layout_width="34pt"
+                            android:layout_height="34pt"
+                            android:padding="5pt"
+                            android:src="@mipmap/ic_customer"
+                            app:layout_constraintEnd_toStartOf="@id/iv_message"
+                            app:layout_constraintTop_toTopOf="@id/iv_message" />
+
+                        <ImageView
+                            android:id="@+id/iv_message"
+                            android:layout_width="34pt"
+                            android:layout_height="34pt"
+                            android:padding="5pt"
+                            android:src="@mipmap/ic_message"
+                            app:layout_constraintBottom_toBottomOf="@id/iv_logo"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="@+id/iv_logo" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_scrollFlags="scroll">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <FrameLayout
+                                android:id="@+id/fl_assets"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="80pt"
+                                    android:gravity="center"
+                                    android:text="顶部"
+                                    android:textColor="@color/textPrimary"
+                                    android:textSize="@dimen/textSize34" />
+
+                            </FrameLayout>
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="match_parent"
+                                android:layout_height="108pt"
+                                android:layout_marginHorizontal="15pt"
+                                android:layout_marginTop="6pt"
+                                app:cardBackgroundColor="@color/bgDefault"
+                                app:cardCornerRadius="10pt"
+                                app:cardElevation="0px">
+
+                                <com.example.common.widget.advertising.Advertising
+                                    android:id="@+id/vpBanner"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:nestedScrollingEnabled="false" />
+
+                            </androidx.cardview.widget.CardView>
+
+                        </LinearLayout>
+
+                        <!-- 被折叠后顶部的白色背景 -->
+                        <View
+                            android:id="@+id/view_cover"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/bgWhite"
+                            android:visibility="gone" />
+
+                    </FrameLayout>
+
+                    <!-- 不会被折叠的部分 -->
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/cl_menu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_scrollFlags="noScroll">
+
+                        <ImageView
+                            android:id="@+id/iv_menu"
+                            android:layout_width="34pt"
+                            android:layout_height="34pt"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="10pt"
+                            android:padding="5pt"
+                            android:src="@mipmap/ic_menu"
+                            app:layout_constraintStart_toStartOf="parent" />
+
+                        <LinearLayout
+                            android:id="@+id/ll_menu_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="34pt"
+                            android:layout_marginEnd="10pt"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:visibility="gone"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            tools:visibility="visible">
+
+                            <ImageView
+                                android:layout_width="34pt"
+                                android:layout_height="34pt"
+                                android:padding="5pt"
+                                android:src="@mipmap/ic_customer" />
+
+                            <ImageView
+                                android:layout_width="34pt"
+                                android:layout_height="34pt"
+                                android:padding="5pt"
+                                android:src="@mipmap/ic_message" />
+
+                            <ImageView
+                                android:layout_width="34pt"
+                                android:layout_height="34pt"
+                                android:padding="5pt"
+                                android:src="@mipmap/ic_search" />
+
+                        </LinearLayout>
+
+                        <!-- app:tabIndicator一定要再写一次 -->
+                        <com.google.android.material.tabs.TabLayout
+                            android:id="@+id/tb_menu"
+                            android:layout_width="match_parent"
+                            android:layout_height="44pt"
+                            android:clipChildren="true"
+                            android:clipToPadding="false"
+                            android:paddingHorizontal="15pt"
+                            android:theme="@style/TabLayoutStyle"
+                            app:layout_constraintTop_toBottomOf="@+id/iv_menu"
+                            app:tabIndicator="@drawable/layer_list_tab_line"
+                            app:tabMode="scrollable" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -53,6 +205,7 @@
 
                     <com.example.common.widget.xrecyclerview.XRecyclerView
                         android:id="@+id/rec_list"
+                        quick_adapter="@{adapter}"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         app:empty="possess"
@@ -61,104 +214,6 @@
                 </FrameLayout>
 
             </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-            <!--            <androidx.core.widget.NestedScrollView-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="match_parent"-->
-            <!--                android:overScrollMode="never"-->
-            <!--                android:scrollbars="none">-->
-
-            <!--                <LinearLayout-->
-            <!--                    android:layout_width="match_parent"-->
-            <!--                    android:layout_height="match_parent"-->
-            <!--                    android:orientation="vertical">-->
-
-            <!--                    <LinearLayout-->
-            <!--                        android:id="@+id/ll_funds"-->
-            <!--                        android:layout_width="match_parent"-->
-            <!--                        android:layout_height="164pt"-->
-            <!--                        android:orientation="vertical"-->
-            <!--                        android:paddingHorizontal="15pt">-->
-
-            <!--                        <TextView-->
-            <!--                            android:layout_width="wrap_content"-->
-            <!--                            android:layout_height="wrap_content"-->
-            <!--                            android:layout_marginTop="12pt"-->
-            <!--                            android:text="Total assets converted(USDT)"-->
-            <!--                            android:textColor="@color/textSecondary"-->
-            <!--                            android:textSize="12pt" />-->
-
-            <!--                        <TextView-->
-            <!--                            android:layout_width="wrap_content"-->
-            <!--                            android:layout_height="wrap_content"-->
-            <!--                            android:layout_marginTop="2pt"-->
-            <!--                            android:text="232,232,212.00"-->
-            <!--                            android:textColor="@color/textSecondary"-->
-            <!--                            android:textSize="28pt" />-->
-
-            <!--                        <TextView-->
-            <!--                            android:layout_width="wrap_content"-->
-            <!--                            android:layout_height="wrap_content"-->
-            <!--                            android:layout_marginTop="3pt"-->
-            <!--                            android:text="≈ ₹0.00"-->
-            <!--                            android:textColor="@color/textSecondary"-->
-            <!--                            android:textSize="15pt" />-->
-
-            <!--                        <View-->
-            <!--                            android:id="@+id/view_content"-->
-            <!--                            android:layout_width="match_parent"-->
-            <!--                            android:layout_height="38pt"-->
-            <!--                            android:layout_marginTop="15pt"-->
-            <!--                            android:background="@color/appTheme" />-->
-
-            <!--                    </LinearLayout>-->
-
-            <!--                    <FrameLayout-->
-            <!--                        android:layout_width="match_parent"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:gravity="center">-->
-
-            <!--                        <TextView-->
-            <!--                            text="@{`sadasdsadasdasdas`}"-->
-            <!--                            android:layout_width="match_parent"-->
-            <!--                            android:layout_height="800pt"-->
-            <!--                            android:background="@color/appTheme"-->
-            <!--                            android:gravity="center"-->
-            <!--                            android:textColor="@color/textWhite"-->
-            <!--                            android:textSize="29pt"-->
-            <!--                            android:visibility="gone" />-->
-
-            <!--                        <com.example.common.widget.XImageView-->
-            <!--                            android:id="@+id/iv_bg"-->
-            <!--                            android:layout_width="match_parent"-->
-            <!--                            android:layout_height="108pt"-->
-            <!--                            android:visibility="gone" />-->
-
-            <!--                        <ImageView-->
-            <!--                            android:id="@+id/iv_arrow"-->
-            <!--                            android:layout_width="24pt"-->
-            <!--                            android:layout_height="10pt"-->
-            <!--                            android:layout_gravity="center"-->
-            <!--                            android:src="@mipmap/ic_arrow_down" />-->
-
-            <!--                        <TextView-->
-            <!--                            android:id="@+id/tv_test"-->
-            <!--                            android:layout_width="match_parent"-->
-            <!--                            android:layout_height="400pt"-->
-            <!--                            android:gravity="center"-->
-            <!--                            android:textColor="@color/textSecondary"-->
-            <!--                            android:textSize="@dimen/textSize20" />-->
-
-            <!--                        <com.example.common.widget.SwitchView-->
-            <!--                            android:layout_width="wrap_content"-->
-            <!--                            android:layout_height="wrap_content"-->
-            <!--                            android:layout_gravity="center" />-->
-
-            <!--                    </FrameLayout>-->
-
-            <!--                </LinearLayout>-->
-
-            <!--            </androidx.core.widget.NestedScrollView>-->
 
         </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
