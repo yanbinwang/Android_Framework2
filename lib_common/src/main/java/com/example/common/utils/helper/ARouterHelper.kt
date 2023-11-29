@@ -12,7 +12,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 跳转帮助类
  */
-object NavigationHelper : CoroutineScope {
+object ARouterHelper : CoroutineScope {
     private val loadingDialog by lazy { LoadingDialog(BaseApplication.instance.applicationContext) }
     private var job: Job? = null
     override val coroutineContext: CoroutineContext
