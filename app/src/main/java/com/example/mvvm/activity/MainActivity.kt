@@ -72,12 +72,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
                 if (needHide != isHide) {
                     isHide = needHide
                     if (needHide) {
+                        "外层刷新可用".logWTF
                         binding.refresh.enable()
                         binding.recList.refresh.disable()
                         binding.recList.isNestedScrollingEnabled = true
                         binding.viewCover.fade(100)
                         binding.llMenuBtn.fade(100)
                     } else {
+                        "外层刷新不可用".logWTF
                         binding.refresh.disable()
                         binding.recList.refresh.enable()
                         binding.recList.isNestedScrollingEnabled = false
@@ -91,6 +93,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         })
         binding.recList.setHeaderDragListener { _: Boolean, percent: Float, _: Int, _: Int, _: Int ->
             if (percent >= 1.8f) {
+                "拉动了一部分距离，不触发刷新$percent".logWTF
                 //给刷新父级传递一个取消事件
                 binding.recList.isNestedScrollingEnabled = true
                 (binding.recList.refresh?.parent as? ViewGroup)?.actionCancel()
