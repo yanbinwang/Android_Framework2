@@ -72,14 +72,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
                 if (needHide != isHide) {
                     isHide = needHide
                     if (needHide) {
-                        "外层刷新可用".logWTF
                         binding.refresh.enable()
                         binding.recList.refresh.disable()
                         binding.recList.recycler?.isNestedScrollingEnabled = true
                         binding.viewCover.fade(100)
                         binding.llMenuBtn.fade(100)
                     } else {
-                        "外层刷新不可用".logWTF
                         binding.refresh.disable()
                         binding.recList.refresh.enable()
                         binding.recList.recycler?.isNestedScrollingEnabled = false
@@ -93,24 +91,20 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         })
         binding.recList.setHeaderDragListener { _: Boolean, percent: Float, _: Int, _: Int, _: Int ->
             if (percent >= 1.8f) {
-                "拉动了一部分距离，不触发刷新$percent".logWTF
-                binding.recList.recycler?.isNestedScrollingEnabled = true
-                //给刷新父级传递一个取消事件
+                binding.refresh.enable()
                 (binding.recList.refresh?.parent as? ViewGroup)?.actionCancel()
                 binding.recList.refresh?.finishRefresh(100)
                 binding.recList.refresh.disable()
-                binding.refresh.enable()
+                binding.recList.recycler?.isNestedScrollingEnabled = true
                 binding.alTop.setExpanded(true, true)
             }
         }
         binding.recList.setOnRefreshListener(object : OnRefreshLoadMoreListener {
             override fun onRefresh(refreshLayout: RefreshLayout) {
-                "下半下拉刷新".logWTF
                 onRefresh()
             }
 
             override fun onLoadMore(refreshLayout: RefreshLayout) {
-                "下半上拉加载更多".logWTF
                 onLoadMore()
             }
         })
@@ -131,7 +125,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     override fun initData() {
         super.initData()
         val list = ArrayList<String>()
-        for(index in 0 until 20){
+        for(index in 0 until 40){
             list.add("")
         }
         binding.adapter?.refresh(list)
