@@ -61,7 +61,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             changeBgHeight(offset)
         }
         binding.refresh.setOnRefreshListener {
-            "上半下拉刷新".logWTF
             onRefresh()
         }
         binding.alTop.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
