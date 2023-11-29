@@ -15,7 +15,7 @@ import com.google.android.material.tabs.TabLayout
  * 掏空系统tablayout，全部自定义
  * @author yan
  */
-class NativeIndicator constructor(tab: TabLayout, tabTitle: List<String>) : TabLayoutBuilder<String, ItemTabBinding>(tab, tabTitle) {
+class NativeIndicator constructor(tab: TabLayout, tabTitle: List<String>? = null) : TabLayoutBuilder<String, ItemTabBinding>(tab, tabTitle) {
     private var onBindView: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)? = null//如需自定義，重寫此監聽
 
     override fun getBindView() = ItemTabBinding.bind(context.inflate(R.layout.item_tab))
@@ -24,7 +24,7 @@ class NativeIndicator constructor(tab: TabLayout, tabTitle: List<String>) : TabL
         if(null == onBindView) {
             binding?.tvTitle.apply {
                 setArguments(item.orEmpty(), if (selected) R.color.appTheme else R.color.textHint)
-                textSize(if (selected) 16.pt else 14.pt)
+                textSize(if (selected) R.dimen.textSize16 else R.dimen.textSize14)
                 bold(selected)
             }
         } else onBindView?.invoke(binding, item, selected, index)

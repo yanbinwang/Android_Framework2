@@ -137,6 +137,7 @@
                         android:id="@+id/cl_menu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@color/bgWhite"
                         app:layout_scrollFlags="noScroll">
 
                         <ImageView
@@ -198,7 +199,6 @@
                 </com.google.android.material.appbar.AppBarLayout>
 
                 <FrameLayout
-                    android:id="@+id/fl_list"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior">

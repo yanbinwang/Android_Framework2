@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.common.R
@@ -15,8 +16,12 @@ import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.ItemDecorationProps
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.common.widget.xrecyclerview.refresh.init
+import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.view.actionCancel
 import com.example.framework.utils.function.view.cancelItemAnimator
+import com.example.framework.utils.function.view.disable
+import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.initLinearHorizontal
@@ -138,6 +143,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun setOnRefreshListener(onRefresh: OnRefreshListener? = null, onLoadMore: OnLoadMoreListener? = null) {
         refresh?.init(onRefresh, onLoadMore)
+    }
+
+    /**
+     * 设置头部滑动监听
+     */
+    fun setHeaderDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
+        refresh?.setHeaderDragListener(listener)
     }
 
     /**

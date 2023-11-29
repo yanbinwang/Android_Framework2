@@ -6,6 +6,7 @@ import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
+import com.example.common.widget.NativeIndicator
 import com.example.common.widget.textview.edittext.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
@@ -17,8 +18,12 @@ import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.fade
+import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
+import com.example.framework.utils.logWTF
+import com.example.mvvm.BR
+import com.example.mvvm.adapter.DealAdapter
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.google.android.material.appbar.AppBarLayout
 import com.scwang.smart.refresh.layout.api.RefreshLayout
@@ -27,9 +32,12 @@ import kotlin.math.abs
 
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
+    private val indicator by lazy { NativeIndicator(binding.tbMenu) }
 
     override fun initView() {
         super.initView()
+        indicator.bind(listOf("全部", "付款中", "確認中", "凍結中"))
+        binding.setVariable(BR.adapter, DealAdapter())
         //通过代码动态设置一下顶部的高度
         val statusBarHeight = getStatusBarHeight()
         binding.ivHomeBg.size(height = 163.pt + statusBarHeight)
@@ -42,7 +50,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         binding.alTop.doOnceAfterLayout {
             //2-2.5
             val translationY = (binding.alTop.measuredHeight - binding.clMenu.measuredHeight) / 2.5f
-            binding.recList.translationY = -translationY
+            binding.recList.empty?.translationY = -translationY
         }
     }
 
@@ -53,6 +61,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             changeBgHeight(offset)
         }
         binding.refresh.setOnRefreshListener {
+            "上半下拉刷新".logWTF
             onRefresh()
         }
         binding.alTop.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
@@ -64,39 +73,41 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
                     isHide = needHide
                     if (needHide) {
                         binding.refresh.enable()
-                        binding.recList.isNestedScrollingEnabled = true
                         binding.recList.refresh.disable()
+                        binding.recList.isNestedScrollingEnabled = true
                         binding.viewCover.fade(100)
                         binding.llMenuBtn.fade(100)
                     } else {
                         binding.refresh.disable()
-                        binding.recList.isNestedScrollingEnabled = false
                         binding.recList.refresh.enable()
+                        binding.recList.isNestedScrollingEnabled = false
                         binding.viewCover.appear(100)
                         binding.llMenuBtn.appear(100)
                     }
                 }
                 //2-2.5
-                binding.recList.translationY = -((binding.alTop.measuredHeight - binding.clMenu.measuredHeight) + verticalOffset) / 2.5f
+                binding.recList.empty?.translationY = -((binding.alTop.measuredHeight - binding.clMenu.measuredHeight) + verticalOffset) / 2.5f
             }
         })
-        binding.recList.refresh?.setHeaderDragListener { _: Boolean, percent: Float, _: Int, _: Int, _: Int ->
+        binding.recList.setHeaderDragListener { _: Boolean, percent: Float, _: Int, _: Int, _: Int ->
             if (percent >= 1.8f) {
                 //给刷新父级传递一个取消事件
+                binding.recList.isNestedScrollingEnabled = true
                 (binding.recList.refresh?.parent as? ViewGroup)?.actionCancel()
                 binding.recList.refresh?.finishRefresh(100)
-                binding.recList.isNestedScrollingEnabled = true
                 binding.recList.refresh.disable()
                 binding.refresh.enable()
                 binding.alTop.setExpanded(true, true)
             }
         }
-        binding.recList.refresh?.setOnRefreshListener(object : OnRefreshLoadMoreListener {
+        binding.recList.setOnRefreshListener(object : OnRefreshLoadMoreListener {
             override fun onRefresh(refreshLayout: RefreshLayout) {
+                "下半下拉刷新".logWTF
                 onRefresh()
             }
 
             override fun onLoadMore(refreshLayout: RefreshLayout) {
+                "下半上拉加载更多".logWTF
                 onLoadMore()
             }
         })
@@ -114,12 +125,26 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         binding.ivHomeBg.scaleY = offset.toSafeFloat() / imgBgHeight.toSafeFloat() + 1f
     }
 
-    private fun onRefresh() {
+    override fun initData() {
+        super.initData()
+        val list = ArrayList<String>()
+        for(index in 0 until 20){
+            list.add("")
+        }
+        binding.adapter?.refresh(list)
+        binding.recList.empty.gone()
+    }
 
+    private fun onRefresh() {
+        binding.refresh.finishRefresh()
+        binding.recList.refresh?.finishRefresh()
+        binding.recList.refresh?.finishLoadMore()
     }
 
     private fun onLoadMore() {
-
+        binding.refresh.finishRefresh()
+        binding.recList.refresh?.finishRefresh()
+        binding.recList.refresh?.finishLoadMore()
     }
 
 }
