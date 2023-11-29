@@ -6,6 +6,7 @@ import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import androidx.annotation.ColorRes
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
@@ -16,7 +17,10 @@ import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.ItemDecorationProps
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.common.widget.xrecyclerview.refresh.init
+import com.example.common.widget.xrecyclerview.refresh.setFooterDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
+import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
+import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.actionCancel
 import com.example.framework.utils.function.view.cancelItemAnimator
@@ -146,10 +150,22 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
-     * 设置头部滑动监听
+     * 刷新的一些操作
      */
+    fun setHeaderMaxDragRate() {
+        refresh?.setHeaderMaxDragRate()
+    }
+
+    fun setProgressTint(@ColorRes color: Int) {
+        refresh?.setProgressTint(color)
+    }
+
     fun setHeaderDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
         refresh?.setHeaderDragListener(listener)
+    }
+
+    fun setFooterDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
+        refresh?.setFooterDragListener(listener)
     }
 
     /**
