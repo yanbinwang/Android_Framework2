@@ -1,4 +1,6 @@
 <resources>
+    <!-- app名称 -->
+    <string name="appName">Cheezeebit</string>
     <!-- 推送信息 -->
     <string name="notificationChannelId">dataqin</string>
     <string name="notificationChannelName">数秦科技</string>

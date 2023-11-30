@@ -1,6 +1,9 @@
 package com.example.common.base
 
 import android.app.Activity
+import android.app.Application
+import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
 import android.os.Looper
@@ -23,6 +26,7 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
+import com.example.common.socket.utils.WebSocketRequest
 import com.example.common.utils.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
@@ -30,13 +34,13 @@ import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.invisible
 import com.example.framework.utils.function.view.visible
-import com.example.common.socket.utils.WebSocketRequest
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -55,6 +59,7 @@ import kotlin.coroutines.CoroutineContext
  */
 abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected lateinit var binding: VDB
+    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
     private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }
@@ -63,27 +68,27 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     companion object {
-        private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
-        private var onFinishListener: OnFinishListener? = null
+        var onCreateListener: OnCreateListener? = null
+        var onFinishListener: OnFinishListener? = null
+        var isAnyActivityStarting = false
 
-        fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
-            this.onActivityResultListener = onActivityResultListener
+        fun Context.startActivity(cls: Class<out Activity>, vararg pairs: Pair<String, Any?>) {
+            startActivity(getIntent(cls, *pairs).apply {
+                if (this@startActivity is Application) {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            })
+            if (BaseActivity::class.java.isAssignableFrom(cls)) isAnyActivityStarting = true
         }
 
-        fun setOnFinishListener(onFinishListener: OnFinishListener) {
-            this.onFinishListener = onFinishListener
-        }
-
-        fun clearOnActivityResultListener() {
-            onActivityResultListener = null
-        }
-
-        fun clearOnFinishListener() {
-            onFinishListener = null
+        fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, vararg pairs: Pair<String, Any?>) {
+            startActivityForResult(getIntent(cls, *pairs), requestCode)
+            if (BaseActivity::class.java.isAssignableFrom(cls)) isAnyActivityStarting = true
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        onCreateListener?.onCreate(this)
         super.onCreate(savedInstanceState)
         AppManager.addActivity(this)
         WebSocketRequest.addObserver(this)
@@ -194,6 +199,16 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
     // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="页面管理方法">
+    open fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
+        this.onActivityResultListener = onActivityResultListener
+    }
+
+    open fun clearOnActivityResultListener() {
+        onActivityResultListener = null
+    }
+    // </editor-fold>
+
     // <editor-fold defaultstate="collapsed" desc="订阅相关">
     @Subscribe
     fun onReceive(event: Event) {
@@ -250,4 +265,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
 interface OnFinishListener {
     fun onFinish(act: BaseActivity<*>)
+}
+
+interface OnCreateListener {
+    fun onCreate(act: BaseActivity<*>)
 }
