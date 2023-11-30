@@ -104,9 +104,10 @@ abstract class BaseApplication : Application() {
     }
 
     private fun initListener() {
-        BaseActivity.setOnFinishListener(object : OnFinishListener {
+        BaseActivity.onFinishListener = object : OnFinishListener {
             override fun onFinish(act: BaseActivity<*>) {
                 if (!needOpenHome) return
+                if (BaseActivity.isAnyActivityStarting) return
                 val clazzName = act.javaClass.simpleName.lowercase(Locale.getDefault())
                 if (clazzName == "homeactivity") return
                 if (clazzName == "splashactivity") return
@@ -116,7 +117,7 @@ abstract class BaseApplication : Application() {
                     ARouter.getInstance().build(ARouterPath.MainActivity).navigation()
                 }
             }
-        })
+        }
     }
 
     private fun initSmartRefresh() {

@@ -1,9 +1,0 @@
-<resources>
-    <!-- firebase推送 -->
-    <color name="notificationDefaultColor">#ffffff</color>
-    <string name="notificationChannelId">dataqin</string>
-    <string name="notificationChannelName">数秦科技</string>
-    <!-- 脸书 -->
-    <string name="facebook_app_id" />
-    <string name="fb_login_protocol_scheme" />
-</resources>
