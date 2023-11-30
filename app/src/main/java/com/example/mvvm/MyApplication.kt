@@ -3,8 +3,15 @@ package com.example.mvvm
 import android.os.Looper
 import android.util.Log
 import com.example.common.BaseApplication
+import com.example.common.config.CacheData.deviceToken
+import com.example.common.utils.function.toJsonString
 import com.example.framework.utils.function.value.isDebug
+import com.example.framework.utils.function.value.toArray
+import com.example.framework.utils.logE
+import com.example.framework.utils.logWTF
+import com.example.home.activity.LinkActivity
 import com.example.mvvm.activity.MainActivity
+import com.example.thirdparty.firebase.FireBaseUtil
 import com.example.thirdparty.firebase.NotificationUtil
 import com.zxy.recovery.core.Recovery
 
@@ -58,16 +65,16 @@ class MyApplication : BaseApplication() {
 
     private fun initFireBase() {
         NotificationUtil.init()
-//        FireBaseUtil.notificationIntentGenerator = { ctx, map ->
-////            " \n收到firebase\nmap:${map.toJsonString()}".logWTF
-//            LinkActivity.byPush(instance, *map.toArray { it.key to it.value })
-//        }
-//        FireBaseUtil.tokenRefreshListener = {
-//            CacheData.deviceToken.set(it)
-//            "firebase token $it".logE
-//        }
-//        FireBaseUtil.refreshToken()
-//        FireBaseUtil.initTestReport()
+        FireBaseUtil.notificationIntentGenerator = { ctx, map ->
+            "收到firebase\nmap:${map.toJsonString()}".logWTF
+            LinkActivity.byPush(instance, *map.toArray { it.key to it.value })
+        }
+        FireBaseUtil.tokenRefreshListener = {
+            deviceToken.set(it)
+            "firebase token $it".logE
+        }
+        FireBaseUtil.refreshToken()
+        FireBaseUtil.initTestReport()
     }
 
 }

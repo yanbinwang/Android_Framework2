@@ -11,15 +11,15 @@ import com.example.thirdparty.firebase.FireBaseUtil.firebaseAnalytics
  */
 object TrackUtil {
     private var userId: String? = null
-    private var userSid: String? = null
+//    private var userSid: String? = null
     private val deviceId: String? by lazy { DeviceIdUtil.deviceId }
 
     /**
-     * 用户登录/登出分别重新调用该方法
+     * 用户登录调用该方法
      */
     fun init(userId: String? = null, userSid: String? = null) {
-        TrackUtil.userId = userId
-        TrackUtil.userSid = userSid
+        this.userId = userId
+//        this.userSid = userSid
         firebaseAnalytics.setUserId(userSid ?: userId)
     }
 
@@ -33,7 +33,7 @@ object TrackUtil {
         if (isDebug) return
         val bundle = pairs.toBundle { this }
         userId?.let { bundle.putString("user_id", it) }
-        userSid?.let { bundle.putString("user_sid", it) }
+//        userSid?.let { bundle.putString("user_sid", it) }
         deviceId?.let { bundle.putString("device_num", it) }
         firebaseAnalytics.logEvent(key, bundle)
         facebookLogger.logEvent(key, bundle)
