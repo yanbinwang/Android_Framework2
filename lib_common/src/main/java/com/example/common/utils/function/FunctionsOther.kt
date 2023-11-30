@@ -114,14 +114,6 @@ fun String?.orNoData(): String {
     return if (isNullOrEmpty()) NO_DATA else this
 }
 
-//fun String?.orNoDollar(): String {
-//    return if (isNullOrEmpty()) NO_DATA_DOLLAR else this
-//}
-//
-//fun String?.orNoPercent(): String {
-//    return if (isNullOrEmpty()) NO_DATA_PERCENT else this
-//}
-
 /**
  * 复制字符串
  */
