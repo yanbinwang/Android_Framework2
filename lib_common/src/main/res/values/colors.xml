@@ -34,6 +34,10 @@
 <!--    <color name="strokeBlue">#3d81f2</color>-->
 <!--    <color name="strokeGrey">#999EA4</color>-->
 <!--    <color name="strokeRed">#E25728</color>-->
+    <!-- 按钮 -->
+    <color name="btnMain">#3d81f2</color>
+    <color name="btnMainPressed">#3d81f2</color>
+    <color name="btnMainDisabled">#acb1c8</color>
     <!-- 自定义网页进度条 -->
     <color name="bgWebStart">#6c6c6c</color>
     <color name="bgWebEnd">#cccccc</color>
