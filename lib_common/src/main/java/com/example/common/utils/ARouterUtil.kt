@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 /**
- * 跳转帮助类
+ * 管理App中跳转
  */
 object ARouterUtil : CoroutineScope {
     private var job: Job? = null
