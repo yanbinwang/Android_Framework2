@@ -178,7 +178,7 @@
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.mvvm.fileProvider"
+            android:authorities="${PACKAGE_NAME}.fileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
