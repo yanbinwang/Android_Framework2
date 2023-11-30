@@ -13,7 +13,7 @@ import com.example.framework.utils.function.value.unicodeDecode
 /**
  * 处理推送通知
  */
-object PushJumpUtil {
+object JumpUtil {
     private const val routerLink = "tradewills.com"//跳转地址
     private const val PUSH_URL = "pushUrl"//需要打开的url
     private const val PUSH_WEB_URL = "pushWebUrl"//需要打开的web的url

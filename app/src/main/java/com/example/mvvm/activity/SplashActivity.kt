@@ -8,6 +8,7 @@ import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.fullScreen
 import com.example.framework.utils.WeakHandler
+import com.example.thirdparty.firebase.JumpUtil.tryJump
 import me.jessyan.autosize.internal.CancelAdapt
 
 /**
@@ -28,12 +29,10 @@ import me.jessyan.autosize.internal.CancelAdapt
  */
 @Route(path = ARouterPath.SplashActivity)
 class SplashActivity : BaseActivity<ViewDataBinding>(), CancelAdapt {
-    private val weakHandler by lazy {
-        WeakHandler {
-            navigation(ARouterPath.MainActivity).finish()
-            false
-        }
-    }
+    private val weakHandler by lazy { WeakHandler {
+        navigation(ARouterPath.MainActivity).finish()
+        false
+    }}
 
     override fun isImmersionBarEnabled() = false
 
@@ -47,7 +46,11 @@ class SplashActivity : BaseActivity<ViewDataBinding>(), CancelAdapt {
         }
         window.fullScreen()
         super.onCreate(savedInstanceState)
-        weakHandler.sendEmptyMessageDelayed(0, 2000)
+        if (!isTaskRoot) {
+            tryJump(this) { finish() }
+        } else {
+            weakHandler.sendEmptyMessageDelayed(0, 2000)
+        }
     }
 
 }
