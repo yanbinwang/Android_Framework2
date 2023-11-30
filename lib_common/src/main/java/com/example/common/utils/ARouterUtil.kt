@@ -67,11 +67,9 @@ object ARouterUtil : CoroutineScope {
         }
         when (skipWay) {
             1 -> {
-                if (!Patterns.WEB_URL.matcher(id.orEmpty()).matches()) {
-                    onResult.invoke(false)
-                } else {
-//                    JumpTo.webUrl(activity, url)
-                    onResult.invoke(true)
+                (Patterns.WEB_URL.matcher(id.orEmpty()).matches()).apply {
+                    onResult.invoke(this)
+//                    if(this) JumpTo.webUrl(activity, url)
                 }
             }
 //            2 ->
