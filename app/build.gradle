@@ -61,8 +61,13 @@ android {
         manifestPlaceholders = [
                 PACKAGE_NAME : build_config.applicationId,
                 DESIGN_WIDTH : build_config.DESIGN_WIDTH,
-                DESIGN_HEIGHT: build_config.DESIGN_HEIGHT
+                DESIGN_HEIGHT: build_config.DESIGN_HEIGHT,
+                FACEBOOK_ID    : build_config.FACEBOOK_ID,
+                FACEBOOK_SCHEME: build_config.FACEBOOK_SCHEME,
+                GOOGLE_AUTH_API: build_config.GOOGLE_AUTH_API
         ]
+        resValue "string", "facebook_app_id", defaultConfig.manifestPlaceholders["FACEBOOK_ID"]
+        resValue "string", "fb_login_protocol_scheme", defaultConfig.manifestPlaceholders["FACEBOOK_SCHEME"]
     }
 
     buildFeatures {

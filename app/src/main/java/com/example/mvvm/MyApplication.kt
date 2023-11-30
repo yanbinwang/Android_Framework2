@@ -2,14 +2,11 @@ package com.example.mvvm
 
 import android.os.Looper
 import android.util.Log
-import com.example.thirdparty.album.GlideLoader
 import com.example.common.BaseApplication
 import com.example.framework.utils.function.value.isDebug
 import com.example.mvvm.activity.MainActivity
-import com.yanzhenjie.album.Album
-import com.yanzhenjie.album.AlbumConfig
+import com.example.thirdparty.firebase.NotificationUtil
 import com.zxy.recovery.core.Recovery
-import java.util.Locale
 
 /**
  * Created by WangYanBin on 2020/8/14.
@@ -55,11 +52,22 @@ class MyApplication : BaseApplication() {
                 }
             }
         }
-        //初始化图片库类
-        Album.initialize(AlbumConfig.newBuilder(this)
-            .setAlbumLoader(GlideLoader()) //设置Album加载器。
-            .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
-            .build())
+        //通知类/firebase初始化
+        initFireBase()
+    }
+
+    private fun initFireBase() {
+        NotificationUtil.init()
+//        FireBaseUtil.notificationIntentGenerator = { ctx, map ->
+////            " \n收到firebase\nmap:${map.toJsonString()}".logWTF
+//            LinkActivity.byPush(instance, *map.toArray { it.key to it.value })
+//        }
+//        FireBaseUtil.tokenRefreshListener = {
+//            CacheData.deviceToken.set(it)
+//            "firebase token $it".logE
+//        }
+//        FireBaseUtil.refreshToken()
+//        FireBaseUtil.initTestReport()
     }
 
 }
