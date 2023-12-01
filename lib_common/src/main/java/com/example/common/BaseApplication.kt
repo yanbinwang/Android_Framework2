@@ -22,7 +22,6 @@ import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
 import com.example.common.socket.utils.WebSocketProxy
 import com.example.common.utils.AppManager
-import com.example.common.utils.NotificationUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
@@ -74,8 +73,6 @@ abstract class BaseApplication : Application() {
         MMKV.initialize(this)
         //服务器地址类初始化
         ServerConfig.init()
-        //通知类初始化
-        NotificationUtil.init()
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
         //注册网络监听
