@@ -31,11 +31,7 @@ object TrackUtil {
 
     @JvmStatic
     fun log(key: String, vararg pairs: Pair<String, Any?>) {
-        if (isDebug) return
-        if (!isLogin()) {
-            init()
-            return
-        }
+        if (isDebug || !isLogin()) return
         val bundle = pairs.toBundle { this }
         userId?.let { bundle.putString("user_id", it) }
 //        userSid?.let { bundle.putString("user_sid", it) }
