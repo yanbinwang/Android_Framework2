@@ -18,6 +18,7 @@ object TrackUtil {
     /**
      * 用户登录调用该方法
      */
+    @JvmStatic
     fun init(userId: String? = null, userSid: String? = null) {
         this.userId = userId
 //        this.userSid = userSid

@@ -2,14 +2,12 @@ package com.example.thirdparty.facebook
 
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import com.example.common.BaseApplication
 import com.example.common.base.BaseActivity
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.toJsonString
 import com.example.common.utils.function.toObj
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.second
 import com.example.framework.utils.logE
@@ -33,7 +31,7 @@ import org.json.JSONObject
 /**
  * facebook三方登录
  */
-class FacebookAuthUtil(private val activity: BaseActivity<*>) : LifecycleEventObserver {
+class FacebookAuthUtil(private val activity: BaseActivity<*>) {
     private val reqTimeout by lazy { 5.second }
     private val callbackManager by lazy { CallbackManager.Factory.create() }
     private val loginManager by lazy { LoginManager.getInstance() }
@@ -56,7 +54,10 @@ class FacebookAuthUtil(private val activity: BaseActivity<*>) : LifecycleEventOb
     }
 
     init {
-        activity.lifecycle.addObserver(this)
+        activity.doOnDestroy {
+            job?.cancel()
+            activity.clearOnActivityResultListener()
+        }
         loginManager.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(result: LoginResult) {
                 val accessToken = result.accessToken
@@ -95,7 +96,7 @@ class FacebookAuthUtil(private val activity: BaseActivity<*>) : LifecycleEventOb
     }
 
     private fun requestData(accessToken: AccessToken) {
-        val request = GraphRequest.newMeRequest(accessToken) { json: JSONObject?, response: GraphResponse? ->
+        val request = GraphRequest.newMeRequest(accessToken) { json: JSONObject?, _: GraphResponse? ->
             //超时不作处理
             if (currentTimeNano - reqStartTime > reqTimeout) return@newMeRequest
             "Facebook:\n${json.toJsonString()}".logWTF
@@ -126,21 +127,8 @@ class FacebookAuthUtil(private val activity: BaseActivity<*>) : LifecycleEventOb
      * 退出Facebook
      */
     private fun disconnectFromFacebook() {
-        if (AccessToken.getCurrentAccessToken() == null) {
-            return
-        }
+        if (AccessToken.getCurrentAccessToken() == null) return
         loginManager.logOut()
-    }
-
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        when (event) {
-            Lifecycle.Event.ON_DESTROY -> {
-                job?.cancel()
-                activity.clearOnActivityResultListener()
-                activity.lifecycle.removeObserver(this)
-            }
-            else -> {}
-        }
     }
 
 }
