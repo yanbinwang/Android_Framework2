@@ -199,7 +199,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         super.onRestoreInstanceState(state)
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         onDrawReady = true
         imageRenderedAtLeastOnce = true
         if (delayedZoomVariables != null) {
@@ -436,7 +436,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
             view.performLongClick()
         }
 
-        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             if (fling != null) fling?.cancelFling()
             fling = Fling(view, velocityX.toSafeInt(), velocityY.toSafeInt())
             compatPostOnAnimation(view, fling)
