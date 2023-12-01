@@ -215,6 +215,7 @@ class CameraHelper(private val observer: LifecycleOwner) : LifecycleEventObserve
             Lifecycle.Event.ON_PAUSE -> closeFlash()
             Lifecycle.Event.ON_DESTROY -> {
                 if (hasReceiver.orFalse) cvFinder?.context?.unregisterReceiver(eventReceiver)
+                cvFinder = null
                 observer.lifecycle.removeObserver(this)
             }
             else -> {}
