@@ -41,7 +41,7 @@ class FacebookAuthUtil(private val activity: BaseActivity<*>) : LifecycleEventOb
     private var reqStartTime = 0L
     private var success: (account: FacebookInfoBean?) -> Unit = {}
     private var cancel: () -> Unit = {}
-    private var fail: () -> Unit = {}
+    private var failed: () -> Unit = {}
 
     companion object {
         val permissions = listOf(
@@ -70,17 +70,17 @@ class FacebookAuthUtil(private val activity: BaseActivity<*>) : LifecycleEventOb
 
             override fun onError(error: FacebookException) {
                 R.string.authError.shortToast()
-                fail()
+                failed()
                 error.logE
             }
         })
         disconnectFromFacebook()
     }
 
-    fun signIn(success: (account: FacebookInfoBean?) -> Unit, cancel: () -> Unit, fail: () -> Unit) {
+    fun signIn(success: (account: FacebookInfoBean?) -> Unit, cancel: () -> Unit, failed: () -> Unit) {
         this.success = success
         this.cancel = cancel
-        this.fail = fail
+        this.failed = failed
         val accessToken = AccessToken.getCurrentAccessToken()
         if (accessToken?.isExpired != false) {
             loginManager.logInWithReadPermissions(activity, permissions)
@@ -103,7 +103,7 @@ class FacebookAuthUtil(private val activity: BaseActivity<*>) : LifecycleEventOb
             job?.cancel()
             if (json == null) {
                 R.string.authError.shortToast()
-                fail()
+                failed()
                 return@newMeRequest
             }
 //            success(gson.fromJson(json.toString(), FacebookInfoBean::class.java))
@@ -118,7 +118,7 @@ class FacebookAuthUtil(private val activity: BaseActivity<*>) : LifecycleEventOb
             reqStartTime = currentTimeNano
             request.executeAsync()
             delay(reqTimeout)
-            fail()
+            failed()
         }
     }
 

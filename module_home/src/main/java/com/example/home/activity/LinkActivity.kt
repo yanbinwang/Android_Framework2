@@ -14,8 +14,8 @@ import com.example.common.utils.ScreenUtil
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
 import com.example.home.R
-import com.example.thirdparty.firebase.JumpUtil.handleDeepLink
-import com.example.thirdparty.firebase.JumpUtil.handlePush
+import com.example.thirdparty.firebase.JumpLinkUtil.handleDeepLink
+import com.example.thirdparty.firebase.JumpLinkUtil.handlePush
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

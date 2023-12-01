@@ -31,7 +31,7 @@ class GoogleAuthUtil(private val activity: BaseActivity<*>) {
         signOut()
     }
 
-    fun signIn(success: (account: GoogleInfoBean) -> Unit, cancel: () -> Unit, fail: () -> Unit, ) {
+    fun signIn(success: (account: GoogleInfoBean) -> Unit, cancel: () -> Unit, failed: () -> Unit, ) {
         val account = GoogleSignIn.getLastSignedInAccount(activity)
         when {
             account != null -> {
@@ -41,21 +41,21 @@ class GoogleAuthUtil(private val activity: BaseActivity<*>) {
                 }
                 success(GoogleInfoBean(account))
             }
-            else -> callSignIn(success, cancel, fail)
+            else -> callSignIn(success, cancel, failed)
         }
     }
 
-    private fun callSignIn(success: (account: GoogleInfoBean) -> Unit, cancel: () -> Unit, fail: () -> Unit, ) {
+    private fun callSignIn(success: (account: GoogleInfoBean) -> Unit, cancel: () -> Unit, failed: () -> Unit, ) {
         val signInIntent = mGoogleSignInClient.signInIntent
         activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
-            handleSignInResult(task, success, cancel, fail)
+            handleSignInResult(task, success, cancel, failed)
             activity.clearOnActivityResultListener()
             signOut()
         }.launch(signInIntent)
     }
 
-    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>, success: (account: GoogleInfoBean) -> Unit, cancel: () -> Unit, fail: () -> Unit, ) {
+    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>, success: (account: GoogleInfoBean) -> Unit, cancel: () -> Unit, failed: () -> Unit, ) {
         try {
             val account = completedTask.getResult(ApiException::class.java) ?: throw ApiException(RESULT_INTERNAL_ERROR)
             if (account.id.isNullOrEmpty()) {
@@ -71,11 +71,11 @@ class GoogleAuthUtil(private val activity: BaseActivity<*>) {
                 }
                 7 -> {
                     R.string.authNetworkFail.shortToast()
-                    fail()
+                    failed()
                 }
                 else -> {
                     R.string.authError.shortToast()
-                    fail()
+                    failed()
                 }
             }
         }

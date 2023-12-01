@@ -13,7 +13,7 @@ import com.example.framework.utils.function.value.unicodeDecode
 /**
  * 处理推送通知
  */
-object JumpUtil {
+object JumpLinkUtil {
     private const val routerLink = "tradewills.com"//跳转地址
     private const val PUSH_URL = "pushUrl"//需要打开的url
     private const val PUSH_WEB_URL = "pushWebUrl"//需要打开的web的url
@@ -64,12 +64,12 @@ object JumpUtil {
                 jump(activity, this)
                 onResult(true)
             } catch (e: Exception) {
-                handleRouterLink(activity, activity.intent.data, onResult)
+                handleDeepLinkByFailed(activity, activity.intent.data, onResult)
             }
-        }, { handleRouterLink(activity, activity.intent.data, onResult) })
+        }, { handleDeepLinkByFailed(activity, activity.intent.data, onResult) })
     }
 
-    private fun handleRouterLink(context: Context, uri: Uri?, onResult: (Boolean) -> Unit = {}) {
+    private fun handleDeepLinkByFailed(context: Context, uri: Uri?, onResult: (Boolean) -> Unit = {}) {
         if (uri?.host?.endsWith(routerLink).orFalse) {
             jump(context, uri)
             onResult(true)

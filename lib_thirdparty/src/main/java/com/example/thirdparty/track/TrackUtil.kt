@@ -1,6 +1,7 @@
 package com.example.thirdparty.track
 
 import com.example.common.utils.DeviceIdUtil
+import com.example.common.utils.helper.AccountHelper.isLogin
 import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.function.value.toBundle
 import com.example.thirdparty.facebook.FacebookAuthUtil.Companion.facebookLogger
@@ -11,7 +12,7 @@ import com.example.thirdparty.firebase.FireBaseUtil.firebaseAnalytics
  */
 object TrackUtil {
     private var userId: String? = null
-//    private var userSid: String? = null
+    //    private var userSid: String? = null
     private val deviceId: String? by lazy { DeviceIdUtil.deviceId }
 
     /**
@@ -31,6 +32,10 @@ object TrackUtil {
     @JvmStatic
     fun log(key: String, vararg pairs: Pair<String, Any?>) {
         if (isDebug) return
+        if (!isLogin()) {
+            init()
+            return
+        }
         val bundle = pairs.toBundle { this }
         userId?.let { bundle.putString("user_id", it) }
 //        userSid?.let { bundle.putString("user_sid", it) }

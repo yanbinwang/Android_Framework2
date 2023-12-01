@@ -61,16 +61,16 @@ object FireBaseUtil {
     /**
      * 获取深度连接
      */
-    fun onDeepLink(activity: Activity, onSuccess: Uri.() -> Unit, onFail: () -> Unit) {
+    fun onDeepLink(activity: Activity, onSuccess: Uri.() -> Unit, onFailed: () -> Unit) {
         Firebase.dynamicLinks
             .getDynamicLink(activity.intent)
             .addOnSuccessListener(activity) { dynamicLinkData ->
-                dynamicLinkData?.link?.onSuccess() ?: onFail()
+                dynamicLinkData?.link?.onSuccess() ?: onFailed()
             }.addOnFailureListener(activity) { e ->
                 e.logE
-                onFail()
+                onFailed()
             }.addOnCanceledListener {
-                onFail()
+                onFailed()
             }
     }
 

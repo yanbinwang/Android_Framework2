@@ -8,7 +8,7 @@ import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.fullScreen
 import com.example.framework.utils.WeakHandler
-import com.example.thirdparty.firebase.JumpUtil.tryJump
+import com.example.thirdparty.firebase.JumpLinkUtil.tryJump
 import me.jessyan.autosize.internal.CancelAdapt
 
 /**
