@@ -6,7 +6,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.framework.utils.TimerUtil
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.disable
@@ -25,6 +24,10 @@ import com.shuyu.gsyvideoplayer.player.PlayerFactory
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
 
@@ -34,6 +37,7 @@ import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
  */
 class GSYVideoHelper(private val observer: LifecycleOwner) : LifecycleEventObserver {
     private var retryWithPlay = false
+    private var job: Job? = null
     private var context: Context? = null
     private var binding: ViewGsyvideoThumbBinding? = null
     private var player: StandardGSYVideoPlayer? = null
@@ -109,10 +113,12 @@ class GSYVideoHelper(private val observer: LifecycleOwner) : LifecycleEventObser
                         GSYVideoType.enableMediaCodecTexture()
                         PlayerFactory.setPlayManager(IjkPlayerManager::class.java)
                         CacheFactory.setCacheManager(ProxyCacheManager::class.java)
-                        TimerUtil.schedule({
+                        job?.cancel()
+                        job = GlobalScope.launch {
+                            delay(1000)
                             player.enable()
                             player?.startPlayLogic()
-                        })
+                        }
                     }
                 }
             }).build(player)
@@ -136,6 +142,7 @@ class GSYVideoHelper(private val observer: LifecycleOwner) : LifecycleEventObser
             Lifecycle.Event.ON_PAUSE -> pause()
             Lifecycle.Event.ON_DESTROY -> {
                 pause()
+                job?.cancel()
                 orientationUtils?.releaseListener()
                 player?.currentPlayer?.release()
                 player?.release()
