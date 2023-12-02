@@ -87,7 +87,7 @@ class CameraHelper(private val observer: LifecycleOwner) : LifecycleEventObserve
      */
     fun flash() {
         if (cvFinder?.facing == Facing.FRONT) {
-            R.string.camera_flash_error.shortToast()
+            R.string.cameraFlashError.shortToast()
         } else {
             cvFinder?.apply { flash = if (flash == Flash.TORCH) Flash.OFF else Flash.TORCH }
             onTakePictureListener?.onFlash(cvFinder?.flash == Flash.TORCH)
@@ -112,7 +112,7 @@ class CameraHelper(private val observer: LifecycleOwner) : LifecycleEventObserve
     fun takePicture(snapshot: Boolean = true) {
         cvFinder?.apply {
             if (isTakingPicture) {
-                R.string.camera_picture_shutter.shortToast()
+                R.string.cameraPictureShutter.shortToast()
                 return
             }
             actionSound.play(MediaActionSound.SHUTTER_CLICK)
@@ -144,7 +144,7 @@ class CameraHelper(private val observer: LifecycleOwner) : LifecycleEventObserve
     fun takeVideo(snapshot: Boolean = true) {
         cvFinder?.apply {
             if (isTakingVideo) {
-                R.string.camera_video_shutter.shortToast()
+                R.string.cameraVideoShutter.shortToast()
                 return
             }
             val videoFile = MediaUtil.getOutputFile(VIDEO)

@@ -24,6 +24,7 @@ import com.example.framework.utils.function.stopService
 import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.safeSize
+import com.example.thirdparty.R
 import com.example.thirdparty.media.service.ScreenService
 import com.example.thirdparty.media.service.ShotObserver
 import java.io.File
@@ -45,14 +46,14 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
     private val activityResultValue = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         shotList.clear()
         if (it.resultCode == RESULT_OK) {
-            "开始录屏".shortToast()
+            R.string.screenStart.shortToast()
             isRecording = true
             activity.apply {
                 startService(ScreenService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
                 moveTaskToBack(true)
             }
         } else {
-            "取消录屏".shortToast()
+            R.string.screenCancel.shortToast()
             isRecording = false
         }
     }
@@ -131,7 +132,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
      */
     fun startScreen() = activity.execute {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-            "请授权上层显示".shortToast()
+            R.string.screenGranted.shortToast()
             val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
             intent.data = Uri.parse("package:${packageName}")
             startActivity(intent)

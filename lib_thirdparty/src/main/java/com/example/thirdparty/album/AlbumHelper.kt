@@ -6,6 +6,7 @@ import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.mb
+import com.example.common.utils.function.string
 import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
 import com.example.thirdparty.R
@@ -81,7 +82,7 @@ class AlbumHelper(activity: Activity) {
             .onResult {
                 it.safeGet(0)?.apply {
                     if (size > megabyte.mb) {
-                        R.string.album_image_error.shortToast()
+                        string(R.string.albumImageError, megabyte.mb.toString()).shortToast()
                         return@onResult
                     }
                     if (hasTailor) toTailor(path) else onResult.invoke(path)
@@ -108,7 +109,7 @@ class AlbumHelper(activity: Activity) {
             .onResult {
                 it.safeGet(0)?.apply {
                     if (size > megabyte.mb) {
-                        R.string.album_video_error.shortToast()
+                        string(R.string.albumVideoError, megabyte.mb.toString()).shortToast()
                         return@onResult
                     }
                     onResult.invoke(path)
