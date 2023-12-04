@@ -9,10 +9,10 @@
             android:layout_width="match_parent"
             android:layout_height="160pt"
             android:layout_gravity="bottom"
-            android:background="@color/blue_3259e1"
+            android:background="@color/appTheme"
             android:gravity="center"
             android:text="测试"
-            android:textColor="@color/white"
+            android:textColor="@color/textWhite"
             android:textSize="@dimen/textSize28" />
 
     </FrameLayout>

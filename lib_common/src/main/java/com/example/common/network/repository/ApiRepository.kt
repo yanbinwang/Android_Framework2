@@ -29,7 +29,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 class MultiReqUtil(
     private var view: BaseView? = null,
     private val isShowDialog: Boolean = true,
-    private val err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+    private val err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
 ) {
     private var loadingStarted = false//是否开始加载
 
@@ -92,8 +92,8 @@ fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
 /**
  * 提示方法，根据接口返回的msg提示
  */
-fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.response_net_error) else {
-    if (isNullOrEmpty()) resString(R.string.response_error) else this
+fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.responseNetError) else {
+    if (isNullOrEmpty()) resString(R.string.responseError) else this
 }).shortToast()
 
 /**

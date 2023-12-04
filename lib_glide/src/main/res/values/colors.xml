@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="white_ccc">#ccc</color>
-    <color name="white_00ffffff">#00ffffff</color>
-    <color name="black">#000000</color>
+    <color name="bgGlide">#ccc</color>
 </resources>

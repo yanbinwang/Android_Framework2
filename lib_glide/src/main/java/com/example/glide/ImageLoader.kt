@@ -2,14 +2,16 @@ package com.example.glide
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.os.Looper
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.isMainThread
+import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.glide.callback.GlideImpl
 import com.example.glide.callback.GlideModule
@@ -17,6 +19,9 @@ import com.example.glide.callback.GlideRequestListener
 import com.example.glide.callback.progress.ProgressInterceptor
 import com.example.glide.transform.CornerTransform
 import com.example.glide.transform.ZoomTransform
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 /**
@@ -24,9 +29,11 @@ import java.io.File
  * 图片加载库使用Application上下文，Glide请求将不受Activity/Fragment生命周期控制。
  */
 class ImageLoader private constructor() : GlideModule(), GlideImpl {
-    private val maskDrawable by lazy { GradientDrawable().apply { setColor(Color.parseColor("#000000")) } }
+    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+    private val maskDrawable by lazy { GradientDrawable().apply { setColor("#000000".parseColor()) } }
 
     companion object {
+        @JvmStatic
         val instance by lazy { ImageLoader() }
     }
 
@@ -72,6 +79,10 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         }
     }
 
+    override fun displayGif(view: ImageView, string: String) {
+        Glide.with(view.context).asGif().load(string).into(view)
+    }
+
     override fun displayGif(view: ImageView, resourceId: Int) {
         Glide.with(view.context).asGif().load(resourceId).into(view)
     }
@@ -82,7 +93,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .apply(RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE))
             .addListener(object : GlideRequestListener<Drawable?>() {
                 override fun onStart() {
-                    ProgressInterceptor.addListener(string) { onProgress(it) }
+                    ProgressInterceptor.addListener(string) { weakHandler.post { onProgress(it) } }
                     onStart()
                 }
 
@@ -222,14 +233,21 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
 
     //清除内存缓存是在主线程中
     override fun clearMemoryCache(context: Context) {
-        Glide.get(context).clearMemory()
+        try {
+            if (!isMainThread) {
+                GlobalScope.launch(Dispatchers.Main) { Glide.get(context).clearMemory() }
+            } else {
+                Glide.get(context).clearMemory()
+            }
+        } catch (ignore: Exception) {
+        }
     }
 
     //清除磁盘缓存是在子线程中进行
     override fun clearDiskCache(context: Context) {
         try {
             if (isMainThread) {
-                Thread { Glide.get(context).clearDiskCache() }.start()
+                GlobalScope.launch(Dispatchers.IO) { Glide.get(context).clearDiskCache() }
             } else {
                 Glide.get(context).clearDiskCache()
             }

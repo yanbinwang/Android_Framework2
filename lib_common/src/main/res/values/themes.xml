@@ -118,7 +118,7 @@
 
     <!-- 启动页/引导页/首页/背景纯色的页面，单独使用该样式，可重写把背景替换掉，解决页面切换之间不会黑一下屏 -->
     <style name="TransitionTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowBackground">@color/bgWhite</item>
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:navigationBarColor">@color/appNavigationBar</item>
     </style>
@@ -156,7 +156,7 @@
         <item name="android:windowFrame">@null</item>
         <item name="android:windowNoTitle">true</item>
         <!-- 背景颜色 -->
-        <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowBackground">@color/bgDefault</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <!-- 提示框背景颜色 -->
@@ -165,14 +165,14 @@
         <!-- 标题，确认取消按钮的颜色 -->
         <item name="android:textColor">@color/appTheme</item>
         <!-- 内容颜色 -->
-        <item name="android:textColorPrimary">@color/textBlack</item>
+        <item name="android:textColorPrimary">@color/textPrimary</item>
     </style>
 
     <!-- App全局定义提示框样式 -->
     <style name="DialogStyle" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@color/white_00ffffff</item>
+        <item name="android:windowBackground">@color/bgAppDialog</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:background">@null</item>

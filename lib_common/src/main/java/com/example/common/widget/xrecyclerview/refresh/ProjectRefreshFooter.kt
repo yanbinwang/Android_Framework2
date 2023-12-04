@@ -5,6 +5,8 @@ import android.content.Context
 import android.graphics.drawable.AnimationDrawable
 import android.util.AttributeSet
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import androidx.annotation.ColorRes
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.*
 import com.example.framework.widget.BaseViewGroup
@@ -29,13 +31,17 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
     internal var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
-        binding.root.size(LayoutParams.MATCH_PARENT, 40.pt)
+        binding.root.size(MATCH_PARENT, 40.pt)
         binding.ivProgress.let {
             it.setResource(R.drawable.animation_list_loadmore)
             it.tint(R.color.appTheme)
             animation = it.drawable as? AnimationDrawable
         }
         setNoMoreData(noMoreData)
+    }
+
+    fun setProgressTint(@ColorRes color: Int) {
+        binding.ivProgress.tint(color)
     }
 
     override fun onInflateView() {

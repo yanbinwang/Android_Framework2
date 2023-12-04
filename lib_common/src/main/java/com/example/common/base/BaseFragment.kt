@@ -26,6 +26,7 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
+import com.example.common.socket.utils.WebSocketRequest
 import com.example.common.utils.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
@@ -56,6 +57,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected var lazyData = false
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
+    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(mActivity) }
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
     private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }
@@ -63,18 +65,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     override val coroutineContext: CoroutineContext get() = Main + job
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
-    companion object {
-        private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
-
-        fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
-            this.onActivityResultListener = onActivityResultListener
-        }
-
-        fun clearOnActivityResultListener() {
-            onActivityResultListener = null
-        }
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
@@ -82,6 +72,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WebSocketRequest.addObserver(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
     }
 
@@ -168,6 +159,16 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         } catch (_: Exception) {
         }
         job.cancel()
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="页面管理方法">
+    open fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
+        this.onActivityResultListener = onActivityResultListener
+    }
+
+    open fun clearOnActivityResultListener() {
+        onActivityResultListener = null
     }
     // </editor-fold>
 

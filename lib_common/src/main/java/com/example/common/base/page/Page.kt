@@ -24,14 +24,14 @@ data class Page<T>(
  *  launch({EvidenceSubscribe.getEvidenceListApi(hashMapOf(
  *              "evidenceType" to evidenceType,
  *              "type" to "1",
- *              "current" to paging.page,
+ *              "current" to page,
  *"             limit" to Constants.PAGE_LIMIT).params())
  *  }, {
- *      paging.totalCount = it?.total.orZero
+ *      setTotalCount(it?.total)
  *      evidenceData.postValue(it)//先回调赋值刷新适配器
- *      reset(it?.hasNextPage.orFalse)
+ *      reset(hasNextPage)
  *  }, {
- *      recyclerView?.setState(paging.currentCount.orZero)
+ *      recyclerView?.setState(currentCount)
  *  }, isShowDialog = false)
  * }
  *
@@ -64,7 +64,7 @@ class Paging {
     }
 
     //是否需要加载更多
-    private fun hasNextPage(): Boolean {
+    fun hasNextPage(): Boolean {
         return currentCount < totalCount
     }
 

@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import androidx.annotation.ColorRes
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
@@ -14,11 +16,16 @@ import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.ItemDecorationProps
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.common.widget.xrecyclerview.refresh.init
+import com.example.common.widget.xrecyclerview.refresh.setFooterDragListener
+import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
+import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
+import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.initLinearHorizontal
+import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
 import com.example.framework.widget.DataRecyclerView
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
@@ -34,8 +41,8 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
  * onFinishInflate方法只有在布局文件中加载view实例会回调，如果直接new一个view的话是不会回调的。
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-    private var emptyType = 0//是否具有空布局（0无-1有）
-    private var refreshType = 0//页面类型(0无刷新-1带刷新)
+    private var emptyEnum = 0//是否具有空布局（0无-1有）
+    private var refreshEnum = 0//页面类型(0无刷新-1带刷新)
     private var onRefresh: (() -> Unit)? = null//空布局点击
 //    val layout: RefreshLayout get() { return refresh as RefreshLayout }//刷新控件
     var recycler: DataRecyclerView? = null//数据列表
@@ -46,45 +53,44 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         private set
 
     init {
-        val typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
-        refreshType = typedArray.getInt(R.styleable.XRecyclerView_refresh, 0)
-        emptyType = typedArray.getInt(R.styleable.XRecyclerView_empty, 0)
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
+        refreshEnum = typedArray.getInt(R.styleable.XRecyclerView_xrv_refresh_enum, 0)
+        emptyEnum = typedArray.getInt(R.styleable.XRecyclerView_xrv_empty_enum, 0)
         typedArray.recycle()
     }
 
     override fun onInflateView() {
-        if (isInflate()) initRefreshType(refreshType)
+        if (isInflate()) initInflate()
     }
 
-    private fun initRefreshType(refreshType: Int) {
+    private fun initInflate() {
         var view: View? = null
-        when (refreshType) {
+        when (refreshEnum) {
             0 -> {
-                view = context.inflate(R.layout.view_xrecyclerview)
+                view = context.inflate(R.layout.view_xrecycler)
                 recycler = view.findViewById(R.id.rv_list)
-                if (0 != emptyType) {
+                if (0 != emptyEnum) {
                     empty = EmptyLayout(context)
                     recycler?.setEmptyView(empty?.setListView(recycler))
-                    recycler?.setHasFixedSize(true)
-                    recycler?.cancelItemAnimator()
                     empty?.setEmptyRefreshListener { onRefresh?.invoke() }
                 }
             }
             1 -> {
-                view = context.inflate(R.layout.view_xrecyclerview_refresh)
+                view = context.inflate(R.layout.view_xrecycler_refresh)
                 empty = view.findViewById(R.id.empty)
                 refresh = view.findViewById(R.id.refresh)
                 recycler = view.findViewById(R.id.rv_list)
-                recycler?.setHasFixedSize(true)
-                recycler?.cancelItemAnimator()
-                if (0 != emptyType) {
+                if (0 != emptyEnum) {
                     empty?.setEmptyRefreshListener { onRefresh?.invoke() }
                 } else {
                     empty?.gone()
                 }
             }
         }
+        recycler?.setHasFixedSize(true)
+        recycler?.cancelItemAnimator()
         addView(view)
+        view?.size(MATCH_PARENT, MATCH_PARENT)
     }
 
     /**
@@ -137,6 +143,25 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
+     * 刷新的一些操作
+     */
+    fun setHeaderMaxDragRate() {
+        refresh?.setHeaderMaxDragRate()
+    }
+
+    fun setProgressTint(@ColorRes color: Int) {
+        refresh?.setProgressTint(color)
+    }
+
+    fun setHeaderDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
+        refresh?.setHeaderDragListener(listener)
+    }
+
+    fun setFooterDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
+        refresh?.setFooterDragListener(listener)
+    }
+
+    /**
      * 自动触发刷新
      */
     fun autoRefresh() {
@@ -148,7 +173,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * noMoreData是否有更多数据
      */
     fun finishRefreshing(noMoreData: Boolean? = true) {
-        if (refreshType == 1) refresh?.finishRefreshing(noMoreData)
+        refresh?.finishRefreshing(noMoreData)
     }
 
     /**
@@ -167,21 +192,21 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 当数据正在加载的时候显示
      */
     fun loading() {
-        if (0 != emptyType) empty?.loading()
+        empty?.loading()
     }
 
     /**
      * 当数据为空时(显示需要显示的图片，以及内容字)
      */
     fun empty(imgInt: Int = -1, text: String? = null) {
-        if (0 != emptyType) empty?.empty(imgInt, text)
+        empty?.empty(imgInt, text)
     }
 
     /**
      * 当数据异常时
      */
     fun error(imgInt: Int = -1, text: String? = null) {
-        if (0 != emptyType) empty?.error(imgInt, text)
+        empty?.error(imgInt, text)
     }
 
 }

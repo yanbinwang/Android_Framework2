@@ -2,12 +2,11 @@ package com.example.framework.utils.builder
 
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.viewpager2.widget.ViewPager2
-import com.example.framework.utils.function.value.safeGet
-import com.example.framework.utils.function.value.toSafeInt
+import com.example.framework.R
+import com.example.framework.utils.enterAnimation
 import com.example.framework.utils.function.view.vibrate
-import com.example.framework.utils.scaleShown
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -17,18 +16,23 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *  导航栏帮助类,支持viewpage2绑定，fragment绑定
  */
 class NavigationBuilder(private val navigationView: BottomNavigationView, private val ids: List<Int>, private val animation: Boolean = true) {
-    var flipper: ViewPager2? = null
-    var builder: FragmentBuilder? = null
-    var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
+    private var flipper: ViewPager2? = null
+    private var builder: FragmentBuilder? = null
+    private var onItemSelectedListener: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
+    private val menuView
+        get() = navigationView.getChildAt(0) as? BottomNavigationMenuView
 
     /**
      * 初始化
      */
     init {
         //去除长按的toast提示
-        for (position in ids.indices) {
-            (navigationView.getChildAt(0) as? ViewGroup)?.getChildAt(position)?.findViewById<View>(ids.safeGet(position).toSafeInt())?.setOnLongClickListener { true }
+        ids.indices.forEachIndexed { index, i ->
+            menuView?.getChildAt(index)?.findViewById<View>(i)?.setOnLongClickListener { true }
         }
+//        for (position in ids.indices) {
+//            menuView?.getChildAt(position)?.findViewById<View>(ids.safeGet(position).toSafeInt())?.setOnLongClickListener { true }
+//        }
         //最多配置5个tab，需要注意
         navigationView.setOnItemSelectedListener { item ->
             //返回第一个符合条件的元素的下标，没有就返回-1
@@ -39,13 +43,24 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
             if (!isCurrent) {
                 if (isPager) flipper?.setCurrentItem(index, false) else builder?.selectTab(index)
                 if (animation) getItemView(index)?.getChildAt(0)?.apply {
-                    startAnimation(context.scaleShown())
+                    startAnimation(context.enterAnimation())
                     vibrate(50)
                 }
             }
-            onItemSelected?.invoke(index, isCurrent)
+            onItemSelectedListener?.invoke(index, isCurrent)
             true
         }
+    }
+
+    /**
+     * 绑定方法
+     */
+    fun bind(flipper: ViewPager2) {
+        this.flipper = flipper
+    }
+
+    fun bind(builder: FragmentBuilder) {
+        this.builder = builder
     }
 
     /**
@@ -56,7 +71,12 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
     /**
      * 获取下标item
      */
-    fun getItemView(index: Int) = (navigationView.getChildAt(0) as? BottomNavigationMenuView)?.getChildAt(index) as? BottomNavigationItemView
+    fun getItemView(index: Int) = menuView?.getChildAt(index) as? BottomNavigationItemView
+
+    /**
+     * 获取当前选中的图片
+     */
+    fun getItemImage(index: Int = 0) = getItemView(index)?.findViewById(R.id.navigation_bar_item_icon_view) as? ImageView
 
     /**
      * 获取当前选中的下标
@@ -93,15 +113,20 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
      *
      * </LinearLayout>
      */
-    fun setTips(resource: Int, index: Int = 0) {
-        //获取整个的NavigationView
-        val menuView = navigationView.getChildAt(0) as? BottomNavigationMenuView
-        //这里就是获取所添加的每一个Tab(或者叫menu)
-        val tab = menuView?.getChildAt(index) as? BottomNavigationItemView
+    fun addView(resource: Int, index: Int = 0): View {
         //加载我们的角标View，新创建的一个布局
         val badge = LayoutInflater.from(navigationView.context).inflate(resource, menuView, false)
         //添加到Tab上
-        tab?.addView(badge)
+        getItemView(index)?.addView(badge)
+        //返回我们添加的view整体
+        return badge
+    }
+
+    /**
+     * 设置点击事件
+     */
+    fun setOnItemClickListener(onItemSelectedListener: ((index: Int, isCurrent: Boolean?) -> Unit)) {
+        this.onItemSelectedListener = onItemSelectedListener
     }
 
 }

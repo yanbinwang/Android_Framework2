@@ -21,14 +21,14 @@ class ViewfinderView @JvmOverloads constructor(context: Context, attrs: Attribut
     private val cornerWidth = 1.pt //四个边角的粗细
     private val paint by lazy { Paint() } //画笔对象
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         val frame = Rect(0, 0, width, height)
         //画笔颜色
         val maskColor = Color.GREEN
         paint.color = maskColor
         //画扫描框边上的角，总共8个部分
         paint.color = Color.YELLOW
-        canvas?.apply {
+        canvas.apply {
             drawRect(frame.left.toSafeFloat(), frame.top.toSafeFloat(), (frame.left + screenRate).toSafeFloat(), (frame.top + cornerWidth).toSafeFloat(), paint)
             drawRect(frame.left.toSafeFloat(), frame.top.toSafeFloat(), (frame.left + cornerWidth).toSafeFloat(), (frame.top + screenRate).toSafeFloat(), paint)
             drawRect((frame.right - screenRate).toSafeFloat(), frame.top.toSafeFloat(), frame.right.toSafeFloat(), (frame.top + cornerWidth).toSafeFloat(), paint)

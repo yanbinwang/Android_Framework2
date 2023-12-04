@@ -10,7 +10,7 @@ import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.TitleBuilder
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.toNewList
-import com.example.framework.utils.scaleShown
+import com.example.framework.utils.enterAnimation
 import com.example.home.R
 import com.example.home.databinding.ActivityScaleBinding
 import com.example.home.widget.scale.ScaleAdapter
@@ -23,7 +23,7 @@ import com.example.home.widget.scale.ScaleImageView
 @Route(path = ARouterPath.ScaleActivity)
 class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
     private val titleBuilder by lazy { TitleBuilder(this, binding.titleContainer) }
-    private val list by lazy { intentSerializable(Extra.BUNDLE_LIST) as? ArrayList<String> }
+    private val list by lazy { intentSerializable<ArrayList<String>>(Extra.BUNDLE_LIST) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +43,7 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
         }
         super.initView()
         initImmersionBar(false)
-        titleBuilder.setLeft(tintColor = R.color.white) { finish() }
+        titleBuilder.setLeft(tintColor = R.color.bgWhite)
     }
 
     override fun initData() {
@@ -52,7 +52,7 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
         binding.vpPage.apply {
             adapter = ScaleAdapter(imgList)
             currentItem = 0
-            animation = scaleShown()
+            animation = enterAnimation()
         }
     }
 

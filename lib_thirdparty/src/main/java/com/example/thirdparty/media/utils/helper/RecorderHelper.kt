@@ -4,8 +4,8 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
-import com.example.thirdparty.media.utils.MediaType.AUDIO
-import com.example.thirdparty.media.utils.MultimediaUtil
+import com.example.thirdparty.media.utils.MediaUtil.MediaType.AUDIO
+import com.example.thirdparty.media.utils.MediaUtil
 
 /**
  * @description 录音帮助类（熄屏后无声音，并可能会导致后续声音也录制不了）
@@ -14,20 +14,21 @@ import com.example.thirdparty.media.utils.MultimediaUtil
 class RecorderHelper {
     private val player by lazy { MediaPlayer() }
     private var recorder: MediaRecorder? = null
+    private var onRecorderListener: OnRecorderListener? = null
 
-    companion object {
-        internal var onRecorderListener: OnRecorderListener? = null
-
-        fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
-            Companion.onRecorderListener = onRecorderListener
-        }
-    }
+//    companion object {
+//        internal var onRecorderListener: OnRecorderListener? = null
+//
+//        fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
+//            this.onRecorderListener = onRecorderListener
+//        }
+//    }
 
     /**
      * 开始录音
      */
     fun startRecord(context: Context) {
-        val recordFile = MultimediaUtil.getOutputFile(AUDIO)
+        val recordFile = MediaUtil.getOutputFile(AUDIO)
         val sourcePath = recordFile?.absolutePath
         try {
             recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
@@ -116,14 +117,19 @@ class RecorderHelper {
         }
     }
 
-}
+    /**
+     * 录音监听
+     */
+    fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
+        this.onRecorderListener = onRecorderListener
+    }
 
-interface OnRecorderListener {
+    interface OnRecorderListener {
+        fun onStart(sourcePath: String?)
 
-    fun onStart(sourcePath: String?)
+        fun onShutter()
 
-    fun onShutter()
-
-    fun onStop()
+        fun onStop()
+    }
 
 }

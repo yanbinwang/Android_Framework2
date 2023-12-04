@@ -4,7 +4,6 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
@@ -22,6 +21,7 @@ import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.annotation.ColorRes
+import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
@@ -31,6 +31,7 @@ import androidx.core.content.ContextCompat
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.parseColor
 import com.google.android.material.appbar.AppBarLayout
 import kotlin.math.abs
 
@@ -140,6 +141,14 @@ fun View?.disable() {
 }
 
 /**
+ * 获取resources中的drawable
+ */
+fun View?.dimen(@DimenRes res: Int): Float {
+    this ?: return 0f
+    return context.resources.getDimension(res)
+}
+
+/**
  * 背景
  */
 fun View?.background(@DrawableRes bg: Int) {
@@ -155,7 +164,7 @@ fun View?.background(@DrawableRes bg: Int) {
 fun View?.background(colorString: String, radius: Float) {
     if (this == null) return
     this.background = GradientDrawable().apply {
-        setColor(Color.parseColor(colorString))
+        setColor(colorString.parseColor())
         cornerRadius = radius
     }
 }
@@ -303,8 +312,9 @@ fun <T : View> T?.doOnceAfterLayout(listener: (T) -> Unit) {
  * 开启软键盘
  */
 fun View?.openDecor() {
+    if (this == null) return
     focus()
-    val inputMethodManager = this?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
     inputMethodManager.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
 }
 
@@ -312,7 +322,8 @@ fun View?.openDecor() {
  * 关闭软键盘
  */
 fun View?.closeDecor() {
-    val inputMethodManager = this?.context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+    if (this == null) return
+    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
     inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
 }
 
@@ -347,7 +358,6 @@ fun View?.fade(time: Long = 500, cancelAnim: Boolean = true) {
             return
         }
     }
-
     val anim = AlphaAnimation(1f, 0f)
     anim.fillAfter = false // 设置保持动画最后的状态
     anim.duration = time // 设置动画时间
@@ -356,7 +366,6 @@ fun View?.fade(time: Long = 500, cancelAnim: Boolean = true) {
         override fun onAnimationEnd(animation: Animation?) {
             gone()
         }
-
         override fun onAnimationStart(animation: Animation?) {}
         override fun onAnimationRepeat(animation: Animation?) {}
     })
@@ -379,14 +388,14 @@ fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)?
     anim.interpolator = AccelerateInterpolator() // 设置插入器3
     anim.setAnimationListener(object : Animation.AnimationListener {
         override fun onAnimationEnd(animation: Animation?) {
-            endListener?.invoke() ?: { if (to == 0f) gone() }
+            endListener?.invoke() ?: if (to == 0f) {
+                gone()
+            } else {
+                visible()
+            }
         }
-
-        override fun onAnimationStart(animation: Animation?) {
-        }
-
-        override fun onAnimationRepeat(animation: Animation?) {
-        }
+        override fun onAnimationStart(animation: Animation?) {}
+        override fun onAnimationRepeat(animation: Animation?) {}
     })
     startAnimation(anim)
 }
@@ -417,7 +426,6 @@ fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
         override fun onAnimationEnd(animation: Animation?) {
             visible()
         }
-
         override fun onAnimationStart(animation: Animation?) {}
         override fun onAnimationRepeat(animation: Animation?) {}
     })
@@ -436,10 +444,27 @@ fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
             return
         }
     }
-    val refresh = AnimatorSet()
-    refresh.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f))
-    refresh.duration = time
-    refresh.start()
+    val anim = AnimatorSet()
+    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f))
+    anim.duration = time
+    anim.start()
+}
+
+/**
+ * 展开页面按钮的动画，传入是否是展开状态
+ */
+fun View?.rotate(isOpen: Boolean = false): Boolean {
+    if (this == null) return isOpen
+    if (animation != null) {
+        if (animation.hasStarted() && !animation.hasEnded()) return isOpen
+    }
+    val startRot = if (isOpen) 180f else 0f
+    val endRot = if (isOpen) 0f else 180f
+    val anim = AnimatorSet()
+    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
+    anim.duration = 500
+    anim.start()
+    return !isOpen
 }
 
 /**
@@ -473,13 +498,10 @@ fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long,
             override fun onAnimationEnd(animation: Animation?) {
                 onEnd?.invoke()
             }
-
             override fun onAnimationStart(animation: Animation?) {
                 onStart?.invoke()
             }
-
-            override fun onAnimationRepeat(animation: Animation?) {
-            }
+            override fun onAnimationRepeat(animation: Animation?) {}
         })
     }
     startAnimation(anim)
@@ -514,13 +536,23 @@ fun View?.stopHardwareAccelerate() {
 }
 
 /**
+ * 在viewgroup中插入一个xml引用的view，需设置这个view的root目录撑满
+ * 可调用该方法
+ */
+fun View?.layoutParamsMatch() {
+    if (this == null) return
+    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+}
+
+/**
  * 控件获取焦点
  */
 fun View?.focus() {
-    this?.isFocusable = true //设置输入框可聚集
-    this?.isFocusableInTouchMode = true //设置触摸聚焦
-    this?.requestFocus() //请求焦点
-    this?.findFocus() //获取焦点
+    if (this == null) return
+    isFocusable = true //设置输入框可聚集
+    isFocusableInTouchMode = true //设置触摸聚焦
+    requestFocus() //请求焦点
+    findFocus() //获取焦点
 }
 
 /**
@@ -633,11 +665,11 @@ fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
 /**
  * appbar监听
  */
-fun AppBarLayout?.stateChanged(onStateChanged: (state: AppBarStateChangeListener.State?) -> Unit?) {
+fun AppBarLayout?.stateChanged(func: (state: AppBarStateChangeListener.State?) -> Unit?) {
     this ?: return
     addOnOffsetChangedListener(object : AppBarStateChangeListener() {
         override fun onStateChanged(appBarLayout: AppBarLayout?, state: State?) {
-            onStateChanged.invoke(state)
+            func.invoke(state)
         }
     })
 }

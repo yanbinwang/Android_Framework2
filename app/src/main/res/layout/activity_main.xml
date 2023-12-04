@@ -81,7 +81,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12pt"
                             android:text="Total assets converted(USDT)"
-                            android:textColor="@color/grey_a8a5a5"
+                            android:textColor="@color/textSecondary"
                             android:textSize="12pt" />
 
                         <TextView
@@ -89,7 +89,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2pt"
                             android:text="232,232,212.00"
-                            android:textColor="@color/grey_333333"
+                            android:textColor="@color/textSecondary"
                             android:textSize="28pt" />
 
                         <TextView
@@ -97,7 +97,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="3pt"
                             android:text="≈ ₹0.00"
-                            android:textColor="@color/grey_a8a5a5"
+                            android:textColor="@color/textSecondary"
                             android:textSize="15pt" />
 
                         <View
@@ -105,7 +105,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="38pt"
                             android:layout_marginTop="15pt"
-                            android:background="@color/blue_1566ec" />
+                            android:background="@color/appTheme" />
 
                     </LinearLayout>
 
@@ -118,10 +118,37 @@
                             text="@{`sadasdsadasdasdas`}"
                             android:layout_width="match_parent"
                             android:layout_height="800pt"
-                            android:background="@color/blue_2e60df"
+                            android:background="@color/appTheme"
                             android:gravity="center"
-                            android:textColor="@color/white"
-                            android:textSize="29pt" />
+                            android:textColor="@color/textWhite"
+                            android:textSize="29pt"
+                            android:visibility="gone" />
+
+                        <com.example.common.widget.XImageView
+                            android:id="@+id/iv_bg"
+                            android:layout_width="match_parent"
+                            android:layout_height="108pt"
+                            android:visibility="gone" />
+
+                        <ImageView
+                            android:id="@+id/iv_arrow"
+                            android:layout_width="24pt"
+                            android:layout_height="10pt"
+                            android:layout_gravity="center"
+                            android:src="@mipmap/ic_arrow_down" />
+
+                        <TextView
+                            android:id="@+id/tv_test"
+                            android:layout_width="match_parent"
+                            android:layout_height="400pt"
+                            android:gravity="center"
+                            android:textColor="@color/textSecondary"
+                            android:textSize="@dimen/textSize20" />
+
+                        <com.example.common.widget.SwitchView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center" />
 
                     </FrameLayout>
 

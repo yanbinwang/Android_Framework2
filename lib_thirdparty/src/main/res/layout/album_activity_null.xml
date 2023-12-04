@@ -26,8 +26,8 @@
             android:id="@+id/toolbar"
             style="@style/Album.Toolbar.Dark"
             app:navigationIcon="@drawable/album_ic_back_white"
-            app:subtitleTextColor="@color/white_00ffffff"
-            app:titleTextColor="@color/white_00ffffff">
+            app:subtitleTextColor="@color/textAlbum"
+            app:titleTextColor="@color/textAlbum">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -36,8 +36,8 @@
                 android:ellipsize="end"
                 android:lines="1"
                 android:scrollHorizontally="true"
-                android:text="@string/album_title"
-                android:textColor="@color/white_00ffffff"
+                android:text="@string/albumTitle"
+                android:textColor="@color/textAlbum"
                 android:textSize="20sp" />
 
         </androidx.appcompat.widget.Toolbar>

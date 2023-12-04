@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingConstraints">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <FrameLayout
         android:layout_width="90pt"
         android:layout_height="90pt">
 
@@ -12,28 +9,11 @@
             android:id="@+id/pb_process"
             android:layout_width="40pt"
             android:layout_height="40pt"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center"
             android:indeterminate="false"
             android:indeterminateDrawable="@drawable/layer_list_loading"
-            android:indeterminateOnly="false"
-            app:layout_constraintBottom_toTopOf="@+id/tv_msg"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:indeterminateOnly="false" />
 
-        <TextView
-            android:id="@+id/tv_msg"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5pt"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:paddingHorizontal="5pt"
-            android:text="@string/loading"
-            android:textColor="@color/white"
-            android:textSize="@dimen/textSize12"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
 
 </layout>

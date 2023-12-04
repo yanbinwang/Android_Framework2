@@ -48,7 +48,7 @@ android {
         versionName build_versions.versionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         //减少语言支持
-        resConfigs "zh"
+        resourceConfigurations += ['zh']
         //dex突破65535的限制
         multiDexEnabled true
         //arouter编译
@@ -67,10 +67,6 @@ android {
 
     buildFeatures {
         dataBinding true
-    }
-
-    lintOptions {
-        disable 'GoogleAppIndexingWarning'
     }
 
     compileOptions {
@@ -123,6 +119,9 @@ android {
             }
         }
     }
+    lint {
+        disable 'GoogleAppIndexingWarning'
+    }
 }
 
 dependencies {
@@ -132,7 +131,6 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //基础库
     implementation project(':module_home')
-    implementation 'com.dinuscxj:circleprogressbar:1.3.6'
     //页面路由
     implementation deps.alibaba.arouter
     kapt deps.alibaba.arouter_compiler

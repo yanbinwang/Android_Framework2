@@ -16,8 +16,8 @@ import com.example.common.R
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.logE
-import com.example.framework.utils.scaleHidden
-import com.example.framework.utils.scaleShown
+import com.example.framework.utils.exitAnimation
+import com.example.framework.utils.enterAnimation
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -44,23 +44,23 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
                 dialogView = binding.root
             } catch (_: Exception) {
             }
-            window?.let {
-                val lp = it.attributes
-                lp.width = if (dialogWidth < 0) dialogWidth else dialogWidth.pt
-                lp.height = if (dialogHeight < 0) dialogHeight else dialogHeight.pt
-                it.attributes = lp
-                it.setGravity(gravity)
-            }
-            if (animation) {
-                //当布局show出来的时候执行开始动画
-                setOnShowListener { dialogView?.startAnimation(context.scaleShown()) }
-                //当布局销毁时执行结束动画
-                setOnDismissListener { dialogView?.startAnimation(context.scaleHidden()) }
-            }
-            if (close) {
-                setOnKeyListener { _: DialogInterface?, _: Int, _: KeyEvent? -> true }
-                setCancelable(false)
-            }
+        }
+        window?.let {
+            val lp = it.attributes
+            lp.width = if (dialogWidth < 0) dialogWidth else dialogWidth.pt
+            lp.height = if (dialogHeight < 0) dialogHeight else dialogHeight.pt
+            it.attributes = lp
+            it.setGravity(gravity)
+        }
+        if (animation) {
+            //当布局show出来的时候执行开始动画
+            setOnShowListener { dialogView?.startAnimation(context.enterAnimation()) }
+            //当布局销毁时执行结束动画
+            setOnDismissListener { dialogView?.startAnimation(context.exitAnimation()) }
+        }
+        if (close) {
+            setOnKeyListener { _: DialogInterface?, _: Int, _: KeyEvent? -> true }
+            setCancelable(false)
         }
     }
 

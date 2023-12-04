@@ -2,7 +2,9 @@ package com.example.framework.utils
 
 import android.os.CountDownTimer
 import android.os.Looper
-import java.util.*
+import com.example.framework.utils.function.value.second
+import java.util.Timer
+import java.util.TimerTask
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -10,6 +12,8 @@ import java.util.concurrent.ConcurrentHashMap
  *  定时器工具类
  */
 object TimerUtil {
+    private const val TIMER_DEFAULT_TAG = "TIMER_DEFAULT"
+    private const val COUNT_DOWN_DEFAULT_TAG = "COUNT_DOWN_DEFAULT"
     private val handler by lazy { WeakHandler(Looper.getMainLooper()) }
     private val timerMap by lazy { ConcurrentHashMap<String, Pair<Timer?, TimerTask?>>() }
     private val countDownMap by lazy { ConcurrentHashMap<String, CountDownTimer?>() }
@@ -17,24 +21,22 @@ object TimerUtil {
     /**
      * 延时任务-容易造成内存泄漏
      */
-    fun schedule(run: (() -> Unit)?, millisecond: Long = 1000) {
+    fun schedule(run: (() -> Unit), millisecond: Long = 1000) {
         handler.postDelayed({
-            run?.invoke()
+            run.invoke()
         }, millisecond)
     }
 
     /**
      * 计时(累加)-开始
      */
-    fun startTask(tag: String = "TIMER_DEFAULT", run: (() -> Unit)?, millisecond: Long = 1000) {
+    fun startTask(tag: String = TIMER_DEFAULT_TAG, run: (() -> Unit), millisecond: Long = 1000) {
         if (timerMap[tag] == null) {
-            val timer = Timer()
-            val timerTask = object : TimerTask() {
+            timerMap[tag] = Timer() to object : TimerTask() {
                 override fun run() {
-                    handler.post { run?.invoke() }
+                    handler.post { run.invoke() }
                 }
             }
-            timerMap[tag] = timer to timerTask
         }
         timerMap[tag]?.apply { first?.schedule(second, 0, millisecond) }
     }
@@ -42,7 +44,7 @@ object TimerUtil {
     /**
      * 计时（累加）-结束
      */
-    fun stopTask(tag: String = "TIMER_DEFAULT") {
+    fun stopTask(tag: String = TIMER_DEFAULT_TAG) {
         timerMap[tag]?.apply {
             first?.cancel()
             second?.cancel()
@@ -58,19 +60,18 @@ object TimerUtil {
      * 倒计时-开始
      * second-秒
      */
-    fun startCountDown(tag: String = "COUNT_DOWN_DEFAULT", onTick: ((second: Long) -> Unit)?, onFinish: (() -> Unit)?, second: Long = 1) {
+    fun startCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG, onTick: ((second: Long) -> Unit), onFinish: (() -> Unit), second: Int = 1) {
         if (countDownMap[tag] == null) {
-            val countDownTimer = object : CountDownTimer(second * 1000, 1000) {
+            countDownMap[tag] = object : CountDownTimer(second.second, 1.second) {
                 override fun onTick(millisUntilFinished: Long) {
-                    onTick?.invoke((millisUntilFinished / 1000))
+                    onTick.invoke((millisUntilFinished / 1000L))
                 }
 
                 override fun onFinish() {
                     stopCountDown(tag)
-                    onFinish?.invoke()
+                    onFinish.invoke()
                 }
             }
-            countDownMap[tag] = countDownTimer
         }
         countDownMap[tag]?.start()
     }
@@ -78,7 +79,7 @@ object TimerUtil {
     /**
      * 倒计时-结束
      */
-    fun stopCountDown(tag: String = "COUNT_DOWN_DEFAULT") {
+    fun stopCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG) {
         countDownMap[tag]?.cancel()
         countDownMap.remove(tag)
     }

@@ -25,6 +25,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -228,15 +229,13 @@ fun Activity.intentDouble(key: String, default: Double = 0.0) = intent.getDouble
 
 fun Activity.intentFloat(key: String, default: Float = 0f) = intent.getFloatExtra(key, default)
 
-fun <T> Activity.intentSerializable(key: String) = intent.getSerializableExtra(key) as? T
-
-fun <T> Activity.intentSerializable(key: String, default: T) = intent.getSerializableExtra(key) as? T ?: default
-
 fun Activity.intentBoolean(key: String, default: Boolean = false) = intent.getBooleanExtra(key, default)
 
-fun Activity.intentParcelable(key: String): Parcelable? {
-    return intent.getParcelableExtra(key)
-}
+fun <T : Serializable> Activity.intentSerializable(key: String) = intent.getSerializableExtra(key) as? T
+
+//fun <T : Serializable> Activity.intentSerializable(key: String, default: T) = intent.getSerializableExtra(key) as? T ?: default
+
+fun <T : Parcelable> Activity.intentParcelable(key: String) = intent.getParcelableExtra(key) as? T
 
 fun Fragment.intentString(key: String, default: String = "") = arguments?.getString(key) ?: default
 
@@ -248,15 +247,13 @@ fun Fragment.intentDouble(key: String, default: Double = 0.0) = arguments?.getDo
 
 fun Fragment.intentFloat(key: String, default: Float = 0f) = arguments?.getFloat(key, default)
 
-fun <T> Fragment.intentSerializable(key: String) = arguments?.getSerializable(key) as? T
-
-fun <T> Fragment.intentSerializable(key: String, default: T) = arguments?.getSerializable(key) as? T ?: default
-
 fun Fragment.intentBoolean(key: String, default: Boolean = false) = arguments?.getBoolean(key, default)
 
-fun Fragment.intentParcelable(key: String): Parcelable? {
-    return arguments?.getParcelable(key)
-}
+fun <T : Serializable> Fragment.intentSerializable(key: String) = arguments?.getSerializable(key) as? T
+
+//fun <T : Serializable> Fragment.intentSerializable(key: String, default: T) = arguments?.getSerializable(key) as? T ?: default
+
+fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParcelable(key) as? T
 
 /**
  * 可在协程类里传入AppComActivity，然后init{}方法里调取，销毁内部的job
@@ -281,3 +278,5 @@ fun AppCompatActivity?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDest
 fun Fragment?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
 
 fun LifecycleOwner?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
+
+fun ViewDataBinding?.doOnDestroy(func: () -> Unit) = this?.lifecycleOwner?.doOnDestroy(func)

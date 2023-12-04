@@ -4,14 +4,14 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/blue_3d81f2">
+        android:background="@color/bgBlue">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="我是启动页"
-            android:textColor="@color/white"
+            android:textColor="@color/textWhite"
             android:textSize="36pt" />
 
     </RelativeLayout>

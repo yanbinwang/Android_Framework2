@@ -74,7 +74,7 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
             when {
                 value is Parcelable -> postcard.withParcelable(key, value)
                 value is Serializable -> postcard.withSerializable(key, value)
-                cls == String::class.java -> postcard.withString(key, (value as? String).orEmpty())
+                cls == String::class.java -> postcard.withString(key, value as? String)
                 cls == Int::class.javaPrimitiveType -> postcard.withInt(key, (value as? Int).orZero)
                 cls == Long::class.javaPrimitiveType -> postcard.withLong(key, (value as? Long).orZero)
                 cls == Boolean::class.javaPrimitiveType -> postcard.withBoolean(key, (value as? Boolean).orFalse)
@@ -107,4 +107,8 @@ fun Postcard.getPostcardClass(mContext: Context): Class<*>? {
     } catch (_: NoRouteFoundException) {
         null
     }
+}
+
+fun Context.getPostcardClass(path: String): Class<*>? {
+    return ARouter.getInstance().build(path).getPostcardClass(this)
 }

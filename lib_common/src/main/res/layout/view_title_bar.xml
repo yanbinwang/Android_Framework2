@@ -25,18 +25,17 @@
         <TextView
             android:id="@+id/tv_left"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0pt"
             android:gravity="center"
             android:lines="1"
             android:paddingHorizontal="15pt"
-            android:paddingVertical="6pt"
             android:textSize="@dimen/textSize14"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/iv_left"
             app:layout_constraintStart_toEndOf="@+id/iv_left"
             app:layout_constraintTop_toTopOf="@+id/iv_left"
             tools:text="左侧文字"
-            tools:textColor="@color/textBlack"
+            tools:textColor="@color/textPrimary"
             tools:visibility="visible" />
 
         <TextView
@@ -52,23 +51,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/iv_left"
             tools:text="标题"
-            tools:textColor="@color/textBlack" />
+            tools:textColor="@color/textPrimary" />
 
         <TextView
             android:id="@+id/tv_right"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0pt"
             android:gravity="center"
             android:lines="1"
             android:paddingHorizontal="15pt"
-            android:paddingVertical="6pt"
             android:textSize="@dimen/textSize14"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/iv_left"
             app:layout_constraintEnd_toStartOf="@+id/iv_right"
             app:layout_constraintTop_toTopOf="@+id/iv_left"
             tools:text="右侧文字"
-            tools:textColor="@color/textBlack"
+            tools:textColor="@color/textPrimary"
             tools:visibility="visible" />
 
         <ImageView

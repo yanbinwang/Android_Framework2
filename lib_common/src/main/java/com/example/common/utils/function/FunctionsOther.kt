@@ -26,6 +26,7 @@ import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
@@ -113,13 +114,13 @@ fun String?.orNoData(): String {
     return if (isNullOrEmpty()) NO_DATA else this
 }
 
-//fun String?.orNoDollar(): String {
-//    return if (isNullOrEmpty()) NO_DATA_DOLLAR else this
-//}
-//
-//fun String?.orNoPercent(): String {
-//    return if (isNullOrEmpty()) NO_DATA_PERCENT else this
-//}
+/**
+ * 复制字符串
+ */
+fun String?.setPrimaryClip(label: String = "Label") {
+    if (this == null) return
+    BaseApplication.instance.setPrimaryClip(label, this)
+}
 
 /**
  * 对象转json
@@ -203,10 +204,10 @@ fun TextView?.setArguments(txt: String = "", colorRes: Int = R.color.appTheme, r
 /**
  * 联动滑动时某个控件显影，传入对应控件的高度（dp）
  */
-fun NestedScrollView?.addAlphaListener(menuHeight: Int, onAlphaChange: (alpha: Float) -> Unit?) {
+fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> Unit?) {
     this ?: return
     setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
-        onAlphaChange.invoke(if (scrollY <= menuHeight.pt / 2f) 0 + scrollY / (menuHeight.pt / 4f) else 1f)
+        func.invoke(if (scrollY <= menuHeight.pt / 2f) 0 + scrollY / (menuHeight.pt / 4f) else 1f)
     })
 }
 

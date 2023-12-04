@@ -21,6 +21,7 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.common.utils.function.pt
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.view.*
 import com.example.framework.widget.BaseViewGroup
 import java.util.*
@@ -73,10 +74,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private val triple by lazy {
         Triple(GradientDrawable().apply {
             shape = OVAL
-            setColor(Color.parseColor("#3d81f2"))
+            setColor("#3d81f2".parseColor())
         }, GradientDrawable().apply {
             shape = OVAL
-            setColor(Color.parseColor("#6e7ce2"))
+            setColor("#6e7ce2".parseColor())
         }, 10)
     }//3个资源路径->圆点选中时的背景ID second：圆点未选中时的背景ID third：圆点间距 （圆点容器可为空写0）
     private val advAdapter by lazy { AdvertisingAdapter() }//图片适配器
@@ -249,10 +250,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     /**
      * 绑定对应页面的生命周期-》对应回调重写对应方法
-     * @param lifecycleOwner
+     * @param observer
      */
-    fun addLifecycleObserver(lifecycleOwner: LifecycleOwner) {
-        lifecycleOwner.lifecycle.addObserver(this)
+    fun addObserver(observer: LifecycleOwner) {
+        observer.lifecycle.addObserver(this)
     }
 
     /**

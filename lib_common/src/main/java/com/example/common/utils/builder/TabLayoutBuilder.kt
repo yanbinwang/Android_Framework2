@@ -27,6 +27,14 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     protected val currentIndex get() = tab.selectedTabPosition
 
     /**
+     * 无特殊绑定的自定义头
+     */
+    fun bind(list: List<T>? = null) {
+        init(list)
+        addOnTabSelectedListener()
+    }
+
+    /**
      * 注入管理器
      */
     fun bind(builder: FragmentBuilder, list: List<T>? = null) {

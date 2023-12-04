@@ -4,14 +4,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="200pt"
-        android:background="@color/black">
+        android:background="@color/bgBlack">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="第二页"
-            android:textColor="@color/white"
+            android:textColor="@color/textWhite"
             android:textSize="@dimen/textSize24" />
     </LinearLayout>
 </layout>

@@ -2,10 +2,11 @@ package com.example.common.utils.helper
 
 import android.annotation.SuppressLint
 import android.app.ActivityManager
-import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import com.example.common.BaseApplication
+import com.example.framework.utils.function.value.toSafeLong
 
 /**
  *  Created by wangyanbin
@@ -15,11 +16,7 @@ import android.os.Build
  */
 @SuppressLint("StaticFieldLeak")
 object ConfigHelper {
-    private lateinit var context: Context
-
-    fun initialize(application: Application) {
-        context = application
-    }
+    private val context by lazy { BaseApplication.instance.applicationContext }
 
     // <editor-fold defaultstate="collapsed" desc="调取方法">
     /**
@@ -27,7 +24,7 @@ object ConfigHelper {
      * 100表示取的最大的任务数，info.topActivity表示当前正在运行的Activity，info.baseActivity表系统后台有此进程在运行
      */
     fun isAppOnForeground(): Boolean {
-        val processes = (context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).runningAppProcesses ?: return false
+        val processes = (context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.runningAppProcesses ?: return false
         for (process in processes) {
             if (process.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && process.processName.equals(context.packageName)) return true
         }
@@ -44,7 +41,7 @@ object ConfigHelper {
             appVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 packageInfo.longVersionCode
             } else {
-                packageInfo.versionCode.toLong()
+                packageInfo.versionCode.toSafeLong()
             }
         } catch (_: PackageManager.NameNotFoundException) {
         }

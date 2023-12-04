@@ -194,3 +194,27 @@ fun RecyclerView?.addOnScrollFirstVisibleItemPositionListener(onCurrent: ((manag
         }
     })
 }
+
+fun RecyclerView?.addOnScrollFirstVisibleItemPositionListener2(onCurrent: ((index: Int) -> Unit)?) {
+    if (this == null) return
+    addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            super.onScrollStateChanged(recyclerView, newState)
+            onCurrent?.invoke(getFirstVisibleItemPosition())
+        }
+
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+            onCurrent?.invoke(getFirstVisibleItemPosition())
+        }
+    })
+}
+
+fun RecyclerView?.getFirstVisibleItemPosition(): Int {
+    if (this == null) return 0
+    return when (val mLayoutManager = layoutManager) {
+        is LinearLayoutManager -> mLayoutManager.findFirstVisibleItemPosition().orZero
+        is GridLayoutManager -> mLayoutManager.findFirstVisibleItemPosition().orZero
+        else -> 0
+    }
+}

@@ -13,8 +13,8 @@ import com.example.framework.utils.logWTF
  * @description 输入框帮助类
  * @author yan
  */
-class NumberEditTextHelper(private val editText: EditText) {
-    private val numberEditTextHelper = object : NumberTextWatcher(editText) {
+class NumberHelper(private val editText: EditText) {
+    private val numberHelper = object : NumberTextWatcher(editText) {
         override fun onEmpty() {
             "值为空".logWTF
             editText.setText("")
@@ -26,7 +26,7 @@ class NumberEditTextHelper(private val editText: EditText) {
             editText.setSafeSelection(cursor.orZero)
         }
 
-        override fun onResult(text: String) {
+        override fun onChanged(text: String) {
             "输入合法".logWTF
         }
     }
@@ -35,14 +35,14 @@ class NumberEditTextHelper(private val editText: EditText) {
         //可在xml中实现输入限制
         EditTextUtil.setInputType(editText, 7)
         //添加监听
-        editText.addTextChangedListener(numberEditTextHelper)
+        editText.addTextChangedListener(numberHelper)
     }
 
     /**
      * 设置小数位数限制
      */
     fun setPrecision(precision: Int) {
-        numberEditTextHelper.setPrecision(precision)
+        numberHelper.precision = precision
     }
 
 }
@@ -54,11 +54,7 @@ class NumberEditTextHelper(private val editText: EditText) {
 private abstract class NumberTextWatcher constructor(private val editText: EditText) : TextWatcher {
     private var textBefore: String? = null//用于记录变化前的文字
     private var textCursor = 0//用于记录变化时光标的位置
-    private var precision = 0
-
-    fun setPrecision(precision: Int) {
-        this.precision = precision
-    }
+    var precision = 0
 
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         textBefore = s.toString()
@@ -82,14 +78,14 @@ private abstract class NumberTextWatcher constructor(private val editText: EditT
             editText.addTextChangedListener(this)
             return
         }
-        onResult(text)
+        onChanged(text)
     }
 
     abstract fun onEmpty()
 
     abstract fun onOutOfPrecision(before: String?, cursor: Int?)
 
-    abstract fun onResult(text: String)
+    abstract fun onChanged(text: String)
 
 }
 

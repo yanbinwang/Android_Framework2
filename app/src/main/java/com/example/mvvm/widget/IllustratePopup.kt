@@ -1,4 +1,4 @@
-package com.example.mvvm.widget.automatic
+package com.example.mvvm.widget
 
 import android.view.Gravity
 import android.view.View

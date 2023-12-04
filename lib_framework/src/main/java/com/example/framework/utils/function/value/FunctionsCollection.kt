@@ -1,8 +1,11 @@
 package com.example.framework.utils.function.value
 
 import android.os.Bundle
+import android.os.Parcelable
+import android.util.SparseArray
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.Serializable
 import kotlin.collections.set
 import kotlin.random.Random
 
@@ -214,7 +217,7 @@ fun <T> List<T>.toArrayList(): ArrayList<T> {
     return ArrayList(this)
 }
 
-fun <T>ArrayList<T>?.toRequestParams():String{
+fun <T> ArrayList<T>?.toRequestParams(): String {
     if (this == null) return ""
     var result = "["
     for (index in indices) {
@@ -225,6 +228,64 @@ fun <T>ArrayList<T>?.toRequestParams():String{
         }
     }
     return result
+}
+
+/**
+ * 将Collection转换为Bundle
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T> Collection<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
+    val bundle = Bundle()
+    forEach {
+        val pair = it.func()
+        val key = pair.first
+        val value = pair.second ?: return@forEach
+        when (value) {
+            is Char -> bundle.putChar(key, value)
+            is Byte -> bundle.putByte(key, value)
+            is Bundle -> bundle.putBundle(key, value)
+            is ByteArray -> bundle.putByteArray(key, value)
+            is CharArray -> bundle.putCharArray(key, value)
+            is CharSequence -> bundle.putCharSequence(key, value)
+            is Float -> bundle.putFloat(key, value)
+            is FloatArray -> bundle.putFloatArray(key, value)
+            is Int -> bundle.putInt(key, value)
+            is Parcelable -> bundle.putParcelable(key, value)
+            is Serializable -> bundle.putSerializable(key, value)
+            is Short -> bundle.putShort(key, value)
+            is ShortArray -> bundle.putShortArray(key, value)
+            is String -> bundle.putString(key, value)
+            is Boolean -> bundle.putBoolean(key, value)
+            is BooleanArray -> bundle.putBooleanArray(key, value)
+            is Double -> bundle.putDouble(key, value)
+            is DoubleArray -> bundle.putDoubleArray(key, value)
+            is IntArray -> bundle.putIntArray(key, value)
+            is Long -> bundle.putLong(key, value)
+            is LongArray -> bundle.putLongArray(key, value)
+            is SparseArray<*> -> if (value.size() != 0) when (value[0]) {
+                is Parcelable -> bundle.putSparseParcelableArray(key, value as SparseArray<out Parcelable>)
+            }
+            is Array<*> -> if (value.isNotEmpty()) when (value[0]) {
+                is CharSequence -> bundle.putCharSequenceArray(key, value as Array<out CharSequence>)
+                is Parcelable -> bundle.putParcelableArray(key, value as Array<out Parcelable>)
+                is String -> bundle.putStringArray(key, value as Array<out String>)
+            }
+            is List<*> -> if (value.isNotEmpty()) when (value[0]) {
+                is CharSequence -> bundle.putCharSequenceArrayList(key, value as ArrayList<CharSequence>)
+                is Int -> bundle.putIntegerArrayList(key, value as ArrayList<Int>)
+                is Parcelable -> bundle.putParcelableArrayList(key, value as ArrayList<out Parcelable>)
+                is String -> bundle.putStringArrayList(key, value as ArrayList<String>)
+            }
+        }
+    }
+    return bundle
+}
+
+/**
+ * 将Array转换为Bundle
+ */
+fun <T> Array<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
+    return this.toList().toBundle(func)
 }
 
 /**

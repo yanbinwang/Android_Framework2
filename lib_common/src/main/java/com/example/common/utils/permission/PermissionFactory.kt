@@ -69,10 +69,9 @@ class PermissionFactory(private val context: Context) {
         andDialog.apply {
             setParams(
                 string(R.string.hint),
-                string(R.string.permission_go_setting, rationale),
+                string(R.string.permissionGoSetting, rationale),
                 string(R.string.sure),
-                string(R.string.cancel)
-            )
+                string(R.string.cancel))
             setDialogListener({ XXPermissions.startPermissionActivity(context, permissions) })
             show()
         }
@@ -83,10 +82,10 @@ class PermissionFactory(private val context: Context) {
      */
     private fun rationale(index: Int): String? {
         return when (index) {
-            0 -> string(R.string.permission_location)
-            1 -> string(R.string.permission_camera)
-            2 -> string(R.string.permission_microphone)
-            3 -> string(R.string.permission_storage)
+            0 -> string(R.string.permissionLocation)
+            1 -> string(R.string.permissionCamera)
+            2 -> string(R.string.permissionMicrophone)
+            3 -> string(R.string.permissionStorage)
             else -> null
         }
     }

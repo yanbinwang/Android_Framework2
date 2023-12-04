@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.Context
-import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkRequest
@@ -21,16 +20,16 @@ import com.example.common.config.ARouterPath
 import com.example.common.config.ServerConfig
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
+import com.example.common.socket.utils.WebSocketProxy
 import com.example.common.utils.AppManager
-import com.example.common.utils.NotificationUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
-import com.example.common.utils.helper.ConfigHelper
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.isDebug
+import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
@@ -72,12 +71,8 @@ abstract class BaseApplication : Application() {
         initARouter()
         //腾讯读写mmkv初始化
         MMKV.initialize(this)
-        //基础配置初始化
-        ConfigHelper.initialize(this)
         //服务器地址类初始化
         ServerConfig.init()
-        //通知类初始化
-        NotificationUtil.init()
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
         //注册网络监听
@@ -88,6 +83,8 @@ abstract class BaseApplication : Application() {
         initSmartRefresh()
         //全局toast
         initToast()
+        //初始化socket
+        initSocket()
     }
 
     private fun initARouter() {
@@ -107,9 +104,10 @@ abstract class BaseApplication : Application() {
     }
 
     private fun initListener() {
-        BaseActivity.setOnFinishListener(object : OnFinishListener {
+        BaseActivity.onFinishListener = object : OnFinishListener {
             override fun onFinish(act: BaseActivity<*>) {
                 if (!needOpenHome) return
+                if (BaseActivity.isAnyActivityStarting) return
                 val clazzName = act.javaClass.simpleName.lowercase(Locale.getDefault())
                 if (clazzName == "homeactivity") return
                 if (clazzName == "splashactivity") return
@@ -119,7 +117,7 @@ abstract class BaseApplication : Application() {
                     ARouter.getInstance().build(ARouterPath.MainActivity).navigation()
                 }
             }
-        })
+        }
     }
 
     private fun initSmartRefresh() {
@@ -135,7 +133,7 @@ abstract class BaseApplication : Application() {
 
     private fun initToast() {
         val drawable = GradientDrawable().apply {
-            setColor(Color.parseColor("#cf111111"))
+            setColor("#cf111111".parseColor())
             cornerRadius = 7.ptFloat
         }
         ToastBuilder.setResToastBuilder { message, length ->
@@ -153,7 +151,7 @@ abstract class BaseApplication : Application() {
             view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
             view.gravity = Gravity.CENTER
             view.textSize(R.dimen.textSize14)
-            view.textColor(R.color.white)
+            view.textColor(R.color.textWhite)
             toast.view = view
             return@setResToastBuilder toast
         }
@@ -171,29 +169,29 @@ abstract class BaseApplication : Application() {
             view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
             view.gravity = Gravity.CENTER
             view.textSize(R.dimen.textSize14)
-            view.textColor(R.color.white)
+            view.textColor(R.color.textWhite)
             toast.view = view
             return@setStringToastBuilder toast
+        }
+    }
+
+    private fun initSocket() {
+        WebSocketProxy.setOnMessageListener{ url, data ->
+
         }
     }
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         System.gc()
-        try {
-            if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
-                ImageLoader.instance.clearMemoryCache(this)
-            }
-        } catch (ignore: Exception) {
+        if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
+            ImageLoader.instance.clearMemoryCache(this)
         }
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        try {
-            ImageLoader.instance.clearMemoryCache(this)
-        } catch (ignore: Exception) {
-        }
+        ImageLoader.instance.clearMemoryCache(this)
     }
 
 }
