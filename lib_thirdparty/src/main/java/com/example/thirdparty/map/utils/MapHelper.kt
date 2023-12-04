@@ -34,6 +34,7 @@ class MapHelper(lifecycleOwner: LifecycleOwner) : LifecycleEventObserver {
 
     init {
         lifecycleOwner.lifecycle.addObserver(this)
+        LocationFactory.instance.addObserver(lifecycleOwner)
     }
 
     /**
