@@ -82,9 +82,7 @@ fun Context.cleanApplicationData(vararg filepath: String) {
     cleanDatabases()
     cleanSharedPreference()
     cleanFiles()
-    filepath.forEach {
-        it.cleanCustomCache()
-    }
+    filepath.forEach { it.cleanCustomCache() }
 }
 
 /**

@@ -4,13 +4,13 @@
     <!-- 自定义XRecyclerView -->
     <declare-styleable name="XRecyclerView">
         <!-- recyclerview的类型 -->
-        <attr name="refresh">
-            <enum name="general" value="0" />
-            <enum name="possess" value="1" />
+        <attr name="xrv_refresh_enum" format="enum">
+            <enum name="General" value="0" />
+            <enum name="Possess" value="1" />
         </attr>
-        <attr name="empty">
-            <enum name="general" value="0" />
-            <enum name="possess" value="1" />
+        <attr name="xrv_empty_enum" format="enum">
+            <enum name="General" value="0" />
+            <enum name="Possess" value="1" />
         </attr>
     </declare-styleable>
 

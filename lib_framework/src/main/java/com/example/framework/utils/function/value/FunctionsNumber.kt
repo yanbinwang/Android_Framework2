@@ -370,12 +370,12 @@ fun BigDecimal?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
  * '0'->会补
  * '#'->不会补
  */
-fun Number.toFixed(fixed: Int = 1, replenish: Boolean = true): String {
+fun Number?.toFixed(fixed: Int = 1, replenish: Boolean = true): String {
     val format = StringBuffer("0.")
     for (i in 0 until fixed) {
         format.append(if(replenish) "0" else "#")
     }
-    return DecimalFormat(format.toString()).format(this) ?: "0"
+    return DecimalFormat(format.toString()).format((this.orZero).toString()) ?: "0"
 }
 
 ///**

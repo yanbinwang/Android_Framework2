@@ -6,8 +6,6 @@ import android.widget.ImageView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.framework.R
 import com.example.framework.utils.enterAnimation
-import com.example.framework.utils.function.value.safeGet
-import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.vibrate
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
@@ -20,7 +18,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 class NavigationBuilder(private val navigationView: BottomNavigationView, private val ids: List<Int>, private val animation: Boolean = true) {
     private var flipper: ViewPager2? = null
     private var builder: FragmentBuilder? = null
-    private var onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
+    private var onItemSelectedListener: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
     private val menuView
         get() = navigationView.getChildAt(0) as? BottomNavigationMenuView
 
@@ -29,9 +27,12 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
      */
     init {
         //去除长按的toast提示
-        for (position in ids.indices) {
-            menuView?.getChildAt(position)?.findViewById<View>(ids.safeGet(position).toSafeInt())?.setOnLongClickListener { true }
+        ids.indices.forEachIndexed { index, i ->
+            menuView?.getChildAt(index)?.findViewById<View>(i)?.setOnLongClickListener { true }
         }
+//        for (position in ids.indices) {
+//            menuView?.getChildAt(position)?.findViewById<View>(ids.safeGet(position).toSafeInt())?.setOnLongClickListener { true }
+//        }
         //最多配置5个tab，需要注意
         navigationView.setOnItemSelectedListener { item ->
             //返回第一个符合条件的元素的下标，没有就返回-1
@@ -46,7 +47,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
                     vibrate(50)
                 }
             }
-            onItemSelected?.invoke(index, isCurrent)
+            onItemSelectedListener?.invoke(index, isCurrent)
             true
         }
     }
@@ -124,8 +125,8 @@ class NavigationBuilder(private val navigationView: BottomNavigationView, privat
     /**
      * 设置点击事件
      */
-    fun setOnItemClickListener(onItemSelected: ((index: Int, isCurrent: Boolean?) -> Unit)) {
-        this.onItemSelected = onItemSelected
+    fun setOnItemClickListener(onItemSelectedListener: ((index: Int, isCurrent: Boolean?) -> Unit)) {
+        this.onItemSelectedListener = onItemSelectedListener
     }
 
 }

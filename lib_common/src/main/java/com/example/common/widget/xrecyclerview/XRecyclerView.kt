@@ -41,8 +41,8 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
  * onFinishInflate方法只有在布局文件中加载view实例会回调，如果直接new一个view的话是不会回调的。
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-    private var emptyType = 0//是否具有空布局（0无-1有）
-    private var refreshType = 0//页面类型(0无刷新-1带刷新)
+    private var emptyEnum = 0//是否具有空布局（0无-1有）
+    private var refreshEnum = 0//页面类型(0无刷新-1带刷新)
     private var onRefresh: (() -> Unit)? = null//空布局点击
 //    val layout: RefreshLayout get() { return refresh as RefreshLayout }//刷新控件
     var recycler: DataRecyclerView? = null//数据列表
@@ -54,26 +54,24 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
-        refreshType = typedArray.getInt(R.styleable.XRecyclerView_refresh, 0)
-        emptyType = typedArray.getInt(R.styleable.XRecyclerView_empty, 0)
+        refreshEnum = typedArray.getInt(R.styleable.XRecyclerView_xrv_refresh_enum, 0)
+        emptyEnum = typedArray.getInt(R.styleable.XRecyclerView_xrv_empty_enum, 0)
         typedArray.recycle()
     }
 
     override fun onInflateView() {
-        if (isInflate()) initRefreshType(refreshType)
+        if (isInflate()) init(refreshEnum)
     }
 
-    private fun initRefreshType(refreshType: Int) {
+    private fun init(refreshEnum: Int) {
         var view: View? = null
-        when (refreshType) {
+        when (refreshEnum) {
             0 -> {
                 view = context.inflate(R.layout.view_xrecyclerview)
                 recycler = view.findViewById(R.id.rv_list)
-                if (0 != emptyType) {
+                if (0 != emptyEnum) {
                     empty = EmptyLayout(context)
                     recycler?.setEmptyView(empty?.setListView(recycler))
-                    recycler?.setHasFixedSize(true)
-                    recycler?.cancelItemAnimator()
                     empty?.setEmptyRefreshListener { onRefresh?.invoke() }
                 }
             }
@@ -82,15 +80,15 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 empty = view.findViewById(R.id.empty)
                 refresh = view.findViewById(R.id.refresh)
                 recycler = view.findViewById(R.id.rv_list)
-                recycler?.setHasFixedSize(true)
-                recycler?.cancelItemAnimator()
-                if (0 != emptyType) {
+                if (0 != emptyEnum) {
                     empty?.setEmptyRefreshListener { onRefresh?.invoke() }
                 } else {
                     empty?.gone()
                 }
             }
         }
+        recycler?.setHasFixedSize(true)
+        recycler?.cancelItemAnimator()
         addView(view)
         view?.size(MATCH_PARENT, MATCH_PARENT)
     }
@@ -175,7 +173,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * noMoreData是否有更多数据
      */
     fun finishRefreshing(noMoreData: Boolean? = true) {
-        if (refreshType == 1) refresh?.finishRefreshing(noMoreData)
+        if (refreshEnum == 1) refresh?.finishRefreshing(noMoreData)
     }
 
     /**
@@ -194,21 +192,21 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 当数据正在加载的时候显示
      */
     fun loading() {
-        if (0 != emptyType) empty?.loading()
+        if (0 != emptyEnum) empty?.loading()
     }
 
     /**
      * 当数据为空时(显示需要显示的图片，以及内容字)
      */
     fun empty(imgInt: Int = -1, text: String? = null) {
-        if (0 != emptyType) empty?.empty(imgInt, text)
+        if (0 != emptyEnum) empty?.empty(imgInt, text)
     }
 
     /**
      * 当数据异常时
      */
     fun error(imgInt: Int = -1, text: String? = null) {
-        if (0 != emptyType) empty?.error(imgInt, text)
+        if (0 != emptyEnum) empty?.error(imgInt, text)
     }
 
 }
