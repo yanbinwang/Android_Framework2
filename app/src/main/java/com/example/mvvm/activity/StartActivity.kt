@@ -4,6 +4,7 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.framework.utils.WeakHandler
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
+import com.example.framework.utils.TimerUtil
 import com.example.mvvm.databinding.ActivityStartBinding
 
 /**

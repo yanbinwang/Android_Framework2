@@ -71,7 +71,7 @@ ext.deps = deps
 
 //全局版本配置
 def build_versions = [:]
-build_versions.compileSdkVersion = 33//构建版本号
+build_versions.compileSdkVersion = 34//构建版本号
 build_versions.minSdkVersion = 21//最低安装版本
 build_versions.targetSdkVersion = 32//最高安装版本
 build_versions.versionCode = 1//版本号
