@@ -67,7 +67,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         var view: View? = null
         when (refreshEnum) {
             0 -> {
-                view = context.inflate(R.layout.view_xrecyclerview)
+                view = context.inflate(R.layout.view_xrecycler)
                 recycler = view.findViewById(R.id.rv_list)
                 if (0 != emptyEnum) {
                     empty = EmptyLayout(context)
@@ -76,7 +76,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 }
             }
             1 -> {
-                view = context.inflate(R.layout.view_xrecyclerview_refresh)
+                view = context.inflate(R.layout.view_xrecycler_refresh)
                 empty = view.findViewById(R.id.empty)
                 refresh = view.findViewById(R.id.refresh)
                 recycler = view.findViewById(R.id.rv_list)
