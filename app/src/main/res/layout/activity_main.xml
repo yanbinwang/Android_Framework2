@@ -208,8 +208,8 @@
                         quick_adapter="@{adapter}"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        app:empty="possess"
-                        app:refresh="possess" />
+                        app:xrv_empty_enum="Possess"
+                        app:xrv_refresh_enum="Possess" />
 
                 </FrameLayout>
 
