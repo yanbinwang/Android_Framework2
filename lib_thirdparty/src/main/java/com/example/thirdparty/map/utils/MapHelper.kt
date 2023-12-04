@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.BitmapDescriptorFactory
@@ -26,14 +27,19 @@ import kotlin.math.roundToInt
  *  Created by wangyanbin
  *  高德地图工具类
  */
-class MapHelper(savedInstanceState: Bundle?, lifecycleOwner: LifecycleOwner, private val mapView: MapView, initialize: Boolean = true) : LifecycleEventObserver {
-    private var mapLatLng: LatLng? = null//默认地图经纬度
-    private var aMap = mapView.map
+class MapHelper(lifecycleOwner: LifecycleOwner) : LifecycleEventObserver {
+    private var mapView: MapView? = null
+    private var aMap: AMap? = null
+    private val mapLatLng by lazy { aMapLatlng.get().toObj(LatLng::class.java) }//默认地图经纬度-杭州
 
     init {
         lifecycleOwner.lifecycle.addObserver(this)
-        //默认地图经纬度-杭州
-        mapLatLng = aMapLatlng.get().toObj(LatLng::class.java)
+    }
+
+    /**
+     * 绑定地图
+     */
+    fun bind(savedInstanceState: Bundle?, mapView: MapView, initialize: Boolean = true) {
         //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)创建地图
         mapView.onCreate(savedInstanceState)
         //更改地图view设置
@@ -42,13 +48,15 @@ class MapHelper(savedInstanceState: Bundle?, lifecycleOwner: LifecycleOwner, pri
             val logo = child?.getChildAt(2)
             logo?.gone() //隐藏logo
         }
+        this.mapView = mapView
+        this.aMap = mapView.map
         aMap?.isTrafficEnabled = true //显示实时交通状况
         aMap?.uiSettings?.isRotateGesturesEnabled = false //屏蔽旋转
         aMap?.uiSettings?.isZoomControlsEnabled = false //隐藏缩放插件
         aMap?.uiSettings?.isTiltGesturesEnabled = false //屏蔽双手指上下滑动切换为3d地图
         aMap?.moveCamera(CameraUpdateFactory.zoomTo(18f))
         //初始化定位回调
-        LocationFactory.setOnLocationListener { location, flag ->
+        LocationFactory.instance.setOnLocationListener { location, flag ->
             if (flag) {
                 moveCamera(LatLng(location?.latitude.orZero, location?.longitude.orZero))
             } else {
@@ -167,21 +175,21 @@ class MapHelper(savedInstanceState: Bundle?, lifecycleOwner: LifecycleOwner, pri
     /**
      * 存储-保存地图当前的状态（对应页面调取）
      */
-    fun saveInstanceState(outState: Bundle) = mapView.onSaveInstanceState(outState)
+    fun saveInstanceState(outState: Bundle) = mapView?.onSaveInstanceState(outState)
 
     /**
      * 加载
      */
-    private fun onResume() = mapView.onResume()
+    private fun onResume() = mapView?.onResume()
 
     /**
      * 暂停
      */
-    private fun onPause() = mapView.onPause()
+    private fun onPause() = mapView?.onPause()
 
     /**
      * 销毁
      */
-    private fun onDestroy() = mapView.onDestroy()
+    private fun onDestroy() = mapView?.onDestroy()
 
 }
