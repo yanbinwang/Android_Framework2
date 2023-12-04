@@ -17,6 +17,7 @@ import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.PolygonOptions
 import com.example.common.utils.function.toObj
 import com.example.common.utils.permission.checkSelfLocation
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.gone
@@ -161,7 +162,7 @@ class MapHelper(lifecycleOwner: LifecycleOwner) : LifecycleEventObserver {
         val polygon = aMap?.addPolygon(options)
         val contains = polygon?.contains(point)
         polygon?.remove()
-        return contains ?: false
+        return contains.orFalse
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
