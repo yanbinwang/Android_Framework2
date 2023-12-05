@@ -12,6 +12,7 @@ import com.example.common.event.EventBus
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.MultiReqUtil
 import com.example.common.network.repository.request
+import com.example.common.network.repository.requestLayer
 import com.example.common.utils.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
@@ -175,6 +176,30 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         }
     }
 
+    protected fun <T> launchLayer(
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+        resp: (ApiResponse<T>?) -> Unit = {},
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+        end: () -> Unit = {},
+        isShowToast: Boolean = true,
+        isShowDialog: Boolean = true,
+        isClose: Boolean = true
+    ): Job {
+        if (isShowDialog) view?.showDialog()
+        return launch {
+            requestLayer(
+                { coroutineScope() },
+                { resp(it) },
+                { err(it) },
+                {
+                    if (isShowDialog || isClose) view?.hideDialog()
+                    end()
+                },
+                isShowToast
+            )
+        }
+    }
+
     /**
      * 不做回调，直接得到结果
      * 在不调用await（）方法时可以当一个参数写，调用了才会发起请求并拿到结果
@@ -202,6 +227,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
     ): Deferred<T?> {
         return async(Main, LAZY) { req.request({ coroutineScope() }, err) }
+    }
+
+    protected fun <T> asyncLayer(
+        req: MultiReqUtil,
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
+    ): Deferred<ApiResponse<T>?> {
+        return async(Main, LAZY) { req.requestLayer({ coroutineScope() }, err) }
     }
 
     override fun onCleared() {
