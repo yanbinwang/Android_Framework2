@@ -85,13 +85,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     /**
-     * 空布局监听
-     */
-    fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
-        emptyView?.setEmptyRefreshListener(onRefresh)
-    }
-
-    /**
      * 当前列表内的数据
      */
     fun setCurrentCount(currentCount: Int?) {
@@ -123,6 +116,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 当前是否是刷新
      */
     fun hasRefresh() = paging.hasRefresh
+
+    /**
+     * 空布局监听
+     */
+    fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
+        emptyView?.setEmptyRefreshListener(onRefresh)
+    }
 
     /**
      * empty布局操作
