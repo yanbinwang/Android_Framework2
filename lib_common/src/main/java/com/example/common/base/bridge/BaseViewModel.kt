@@ -53,9 +53,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val context: Context get() = activity
     protected val view: BaseView? get() = weakView?.get()
     //获取对应的控件/分页类
-    protected val emptyView get() = weakEmpty?.get()
-    protected val recyclerView get() = weakRecycler?.get()
-    protected val refreshLayout get() = weakRefresh?.get()
+    protected val empty get() = weakEmpty?.get()
+    protected val recycler get() = weakRecycler?.get()
+    protected val refresh get() = weakRefresh?.get()
     //分页参数
 //    protected val hasNextPage get() = paging.hasNextPage()
 //    protected val currentCount get() = paging.currentCount
@@ -126,22 +126,22 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 空布局监听
      */
     fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
-        emptyView?.setEmptyRefreshListener(onRefresh)
+        empty?.setEmptyRefreshListener(onRefresh)
     }
 
     /**
      * empty布局操作
      */
     fun loading() {
-        emptyView?.loading()
+        empty?.loading()
     }
 
     fun empty(resId: Int = -1, text: String? = null) {
-        emptyView?.empty(resId, text)
+        empty?.empty(resId, text)
     }
 
     fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
-        emptyView?.error(resId, text, refreshText)
+        empty?.error(resId, text, refreshText)
     }
 
     /**
@@ -149,9 +149,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * hasNextPage是否有下一页
      */
     fun reset(hasNextPage: Boolean? = true) {
-        if (null == recyclerView) refreshLayout?.finishRefreshing()
-        recyclerView?.finishRefreshing(hasNextPage.orTrue)
-        emptyView?.fade(300)
+        if (null == recycler) refresh?.finishRefreshing()
+        recycler?.finishRefreshing(hasNextPage.orTrue)
+        empty?.fade(300)
     }
 
     /**
