@@ -184,7 +184,7 @@ fun TextView?.setClickSpan(txt: String, keyword: String, colorRes: Int, listener
  * 代码中在设置了text后调取
  * 需要注意如果在list列表的话，数据不宜过多，会造成卡顿
  */
-fun TextView?.getEllipsisCount(listener: (ellipsisCount: Int) -> Unit = {}) {
+inline fun TextView?.getEllipsisCount(crossinline listener: (ellipsisCount: Int) -> Unit = {}) {
     if (this == null) {
         listener.invoke(0)
         return

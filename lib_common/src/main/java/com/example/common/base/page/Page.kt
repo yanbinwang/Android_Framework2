@@ -74,7 +74,7 @@ class Paging {
     var page = 1//当前页数
 
     //刷新清空
-    fun onRefresh(listener: () -> Unit = {}) {
+    inline fun onRefresh(crossinline listener: () -> Unit = {}) {
         hasRefresh = true
         page = 1
         currentCount = 0
@@ -83,7 +83,7 @@ class Paging {
     }
 
     //加载更多
-    fun onLoad(listener: (noMore: Boolean) -> Unit = {}) {
+    inline fun onLoad(crossinline listener: (noMore: Boolean) -> Unit = {}) {
         if (hasNextPage()) {
             hasRefresh = false
             ++page
