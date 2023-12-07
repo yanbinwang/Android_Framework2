@@ -14,7 +14,9 @@ import com.example.common.network.repository.MultiReqUtil
 import com.example.common.network.repository.request
 import com.example.common.network.repository.requestLayer
 import com.example.common.utils.AppManager
+import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.EmptyLayout
+import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.framework.utils.function.value.orTrue
@@ -55,10 +57,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val recyclerView get() = weakRecycler?.get()
     protected val refreshLayout get() = weakRefresh?.get()
     //分页参数
-    protected val hasNextPage get() = paging.hasNextPage()
-    protected val currentCount get() = paging.currentCount
-    protected val totalCount get() = paging.totalCount
+//    protected val hasNextPage get() = paging.hasNextPage()
+//    protected val currentCount get() = paging.currentCount
+//    protected val totalCount get() = paging.totalCount
     protected val page get() = paging.page.toString()
+    //弹框/获取权限
+    protected val dialog by lazy { AppDialog(context) }
+    protected val permission by lazy { PermissionHelper(context) }
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
