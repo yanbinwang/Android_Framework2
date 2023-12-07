@@ -106,9 +106,12 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     /**
      * 获取当前页数
      */
-    fun getCurrentPage(): String {
-        return paging.page.toString()
-    }
+    fun getCurrentPage() = paging.page.toString()
+
+    /**
+     * 当前是否是刷新
+     */
+    fun hasRefresh() = paging.hasRefresh
 
     /**
      * 刷新监听
@@ -123,11 +126,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     fun onLoad(listener: (noMore: Boolean) -> Unit = {}) {
         paging.onLoad(listener)
     }
-
-    /**
-     * 当前是否是刷新
-     */
-    fun hasRefresh() = paging.hasRefresh
 
     /**
      * 空布局监听
