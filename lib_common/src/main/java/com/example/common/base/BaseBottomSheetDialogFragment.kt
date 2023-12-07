@@ -64,6 +64,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 底部弹框使用的dialog
  */
+@Suppress("UNCHECKED_CAST")
 abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
     protected lateinit var binding: VDB
     protected var mContext: Context? = null

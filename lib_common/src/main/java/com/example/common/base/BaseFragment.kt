@@ -51,6 +51,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * Created by WangYanBin on 2020/6/4.
  */
+@Suppress("UNCHECKED_CAST")
 @SuppressLint("UseRequireInsteadOfGet")
 abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseView, CoroutineScope {
     protected lateinit var binding: VDB

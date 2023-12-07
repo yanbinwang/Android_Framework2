@@ -57,6 +57,7 @@ import kotlin.coroutines.CoroutineContext
  * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context
  * 無xml的界面，泛型括號裡傳ViewDataBinding
  */
+@Suppress("UNCHECKED_CAST")
 abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected lateinit var binding: VDB
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null

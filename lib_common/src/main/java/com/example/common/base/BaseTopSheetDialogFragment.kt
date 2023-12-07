@@ -58,6 +58,7 @@ import kotlin.coroutines.CoroutineContext
  * @author 顶部弹出的dialog
  * 可实现顶部弹出后，导航栏于弹框一致
  */
+@Suppress("UNCHECKED_CAST")
 abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
     protected lateinit var binding: VDB
     protected var mContext: Context? = null
