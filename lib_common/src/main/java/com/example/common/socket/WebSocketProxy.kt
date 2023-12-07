@@ -1,4 +1,4 @@
-package com.example.common.socket.utils
+package com.example.common.socket
 
 import cn.zhxu.okhttps.OkHttps
 import cn.zhxu.stomp.Header
