@@ -30,6 +30,8 @@ import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
+import com.example.common.utils.permission.PermissionHelper
+import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.currentTimeNano
@@ -58,10 +60,13 @@ import kotlin.coroutines.CoroutineContext
  * @author 顶部弹出的dialog
  * 可实现顶部弹出后，导航栏于弹框一致
  */
+@Suppress("UNCHECKED_CAST")
 abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
     protected lateinit var binding: VDB
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
+    protected val mDialog by lazy { AppDialog(mActivity) }
+    protected val mPermission by lazy { PermissionHelper(mActivity) }
     private var showTime = 0L
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving

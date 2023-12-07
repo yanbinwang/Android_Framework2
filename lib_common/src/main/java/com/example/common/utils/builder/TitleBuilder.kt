@@ -44,7 +44,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * bgColor->背景颜色
      * shade->标题底部是否带阴影
      */
-    fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgDefault, shade: Boolean = false): TitleBuilder {
+    fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, shade: Boolean = false): TitleBuilder {
         binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
         binding.tvTitle.setArguments(title, titleColor)
         binding.viewShade.apply { if (shade) visible() else gone() }
@@ -55,7 +55,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     /**
      * 部分页面不需要标题，只需要一个定制的返回按钮和特定背景，故而使用此方法
      */
-    fun setTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }, bgColor: Int = R.color.bgDefault): TitleBuilder {
+    fun setTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }, bgColor: Int = R.color.bgToolbar): TitleBuilder {
         binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
         setLeft(resId, tintColor, onClick)
         return this

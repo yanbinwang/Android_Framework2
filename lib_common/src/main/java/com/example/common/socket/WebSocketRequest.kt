@@ -1,4 +1,4 @@
-package com.example.common.socket.utils
+package com.example.common.socket
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver

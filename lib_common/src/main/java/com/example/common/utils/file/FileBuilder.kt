@@ -15,6 +15,9 @@ import com.example.common.subscribe.CommonSubscribe
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.function.loadBitmap
+import com.example.common.utils.function.loadLayout
+import com.example.common.utils.function.saveBit
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.logWTF
 import kotlinx.coroutines.CoroutineScope
@@ -28,13 +31,12 @@ import java.io.*
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import kotlin.collections.ArrayList
 import kotlin.coroutines.CoroutineContext
 
 /**
  * 工具类中，实现了对应文件流下载保存的方法，此处采用协程的方式引用
  */
-class FileHelper(lifecycleOwner: LifecycleOwner) : CoroutineScope {
+class FileBuilder(lifecycleOwner: LifecycleOwner) : CoroutineScope {
     private var picJob: Job? = null
     private var pdfJob: Job? = null
     private var viewJob: Job? = null

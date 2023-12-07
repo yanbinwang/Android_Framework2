@@ -12,8 +12,11 @@ import com.example.common.event.EventBus
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.MultiReqUtil
 import com.example.common.network.repository.request
+import com.example.common.network.repository.requestLayer
 import com.example.common.utils.AppManager
+import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.EmptyLayout
+import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.framework.utils.function.value.orTrue
@@ -46,18 +49,21 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     //分页
     private val paging by lazy { Paging() }
     //基础的注入参数
-    protected val activity: FragmentActivity get() = weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity()
-    protected val context: Context get() = activity
-    protected val view: BaseView? get() = weakView?.get()
+    protected val mActivity: FragmentActivity get() = weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity()
+    protected val mContext: Context get() = mActivity
+    protected val mView: BaseView? get() = weakView?.get()
     //获取对应的控件/分页类
-    protected val emptyView get() = weakEmpty?.get()
-    protected val recyclerView get() = weakRecycler?.get()
-    protected val refreshLayout get() = weakRefresh?.get()
-    //分页参数
-    protected val hasNextPage get() = paging.hasNextPage()
-    protected val currentCount get() = paging.currentCount
-    protected val totalCount get() = paging.totalCount
-    protected val page get() = paging.page.toString()
+    protected val mEmpty get() = weakEmpty?.get()
+    protected val mRecycler get() = weakRecycler?.get()
+    protected val mRefresh get() = weakRefresh?.get()
+    //弹框/获取权限
+    protected val mDialog by lazy { AppDialog(mContext) }
+    protected val mPermission by lazy { PermissionHelper(mContext) }
+//    //分页参数
+//    protected val hasNextPage get() = paging.hasNextPage()
+//    protected val currentCount get() = paging.currentCount
+//    protected val totalCount get() = paging.totalCount
+//    protected val page get() = paging.page.toString()
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
@@ -84,13 +90,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     /**
-     * 空布局监听
-     */
-    fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
-        emptyView?.setEmptyRefreshListener(onRefresh)
-    }
-
-    /**
      * 当前列表内的数据
      */
     fun setCurrentCount(currentCount: Int?) {
@@ -103,6 +102,16 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     fun setTotalCount(totalCount: Int?) {
         paging.totalCount = totalCount.orZero
     }
+
+    /**
+     * 获取当前页数
+     */
+    fun getCurrentPage() = paging.page.toString()
+
+    /**
+     * 当前是否是刷新
+     */
+    fun hasRefresh() = paging.hasRefresh
 
     /**
      * 刷新监听
@@ -119,23 +128,25 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     /**
-     * 当前是否是刷新
+     * 空布局监听
      */
-    fun hasRefresh() = paging.hasRefresh
+    fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
+        mEmpty?.setEmptyRefreshListener(onRefresh)
+    }
 
     /**
      * empty布局操作
      */
     fun loading() {
-        emptyView?.loading()
+        mEmpty?.loading()
     }
 
     fun empty(resId: Int = -1, text: String? = null) {
-        emptyView?.empty(resId, text)
+        mEmpty?.empty(resId, text)
     }
 
     fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
-        emptyView?.error(resId, text, refreshText)
+        mEmpty?.error(resId, text, refreshText)
     }
 
     /**
@@ -143,9 +154,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * hasNextPage是否有下一页
      */
     fun reset(hasNextPage: Boolean? = true) {
-        if (null == recyclerView) refreshLayout?.finishRefreshing()
-        recyclerView?.finishRefreshing(hasNextPage.orTrue)
-        emptyView?.fade(300)
+        if (null == mRecycler) mRefresh?.finishRefreshing()
+        mRecycler?.finishRefreshing(hasNextPage.orTrue)
+        mEmpty?.fade(300)
     }
 
     /**
@@ -160,14 +171,38 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         isShowDialog: Boolean = true,                                // 是否显示加载框
         isClose: Boolean = true                                      // 请求结束前是否关闭dialog
     ): Job {
-        if (isShowDialog) view?.showDialog()
+        if (isShowDialog) mView?.showDialog()
         return launch {
             request(
                 { coroutineScope() },
                 { resp(it) },
                 { err(it) },
                 {
-                    if (isShowDialog || isClose) view?.hideDialog()
+                    if (isShowDialog || isClose) mView?.hideDialog()
+                    end()
+                },
+                isShowToast
+            )
+        }
+    }
+
+    protected fun <T> launchLayer(
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+        resp: (ApiResponse<T>?) -> Unit = {},
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+        end: () -> Unit = {},
+        isShowToast: Boolean = true,
+        isShowDialog: Boolean = true,
+        isClose: Boolean = true
+    ): Job {
+        if (isShowDialog) mView?.showDialog()
+        return launch {
+            requestLayer(
+                { coroutineScope() },
+                { resp(it) },
+                { err(it) },
+                {
+                    if (isShowDialog || isClose) mView?.hideDialog()
                     end()
                 },
                 isShowToast
@@ -202,6 +237,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
     ): Deferred<T?> {
         return async(Main, LAZY) { req.request({ coroutineScope() }, err) }
+    }
+
+    protected fun <T> asyncLayer(
+        req: MultiReqUtil,
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
+    ): Deferred<ApiResponse<T>?> {
+        return async(Main, LAZY) { req.requestLayer({ coroutineScope() }, err) }
     }
 
     override fun onCleared() {

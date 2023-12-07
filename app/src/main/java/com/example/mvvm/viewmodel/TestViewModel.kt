@@ -23,7 +23,7 @@ class TestViewModel : BaseViewModel() {
     fun serialTask() {
         launch {
             //每个请求如果失败了都会回调当前的err监听
-            val req = MultiReqUtil(view, err = {
+            val req = MultiReqUtil(mView, err = {
 
             })
             val task1 = req.request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
@@ -45,7 +45,7 @@ class TestViewModel : BaseViewModel() {
 //            req.end()
 //            taskList.safeGet(0)
 //            taskList.safeGet(1)
-            val req = MultiReqUtil(view)
+            val req = MultiReqUtil(mView)
             val task1 = async(req, { CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
             val task2 = async(req, { CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
             val taskList = awaitAll(task1, task2)
