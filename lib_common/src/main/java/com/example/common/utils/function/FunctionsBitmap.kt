@@ -1,4 +1,4 @@
-package com.example.common.utils.file
+package com.example.common.utils.function
 
 import android.content.Context
 import android.graphics.*
@@ -15,6 +15,8 @@ import androidx.exifinterface.media.ExifInterface.*
 import com.example.common.BaseApplication
 import com.example.common.config.Constants
 import com.example.common.utils.ScreenUtil
+import com.example.common.utils.file.deleteDir
+import com.example.common.utils.file.isMkdirs
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.toSafeFloat
