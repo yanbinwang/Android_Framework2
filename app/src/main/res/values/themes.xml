@@ -43,4 +43,19 @@
         <item name="android:navigationBarColor">@color/appTheme</item>
     </style>
 
+<!-- https://cloud.tencent.com/developer/article/1946216?areaSource=102001.14&traceId=cOGlHQmuBlUqVJUXnEtT9 -->
+<!--    <style name="Theme.App.Starting" parent="Theme.SplashScreen">-->
+<!--        // Set the splash screen background, animated icon, and animation duration.-->
+<!--        <item name="windowSplashScreenBackground">@android:color/white</item>-->
+
+<!--        // Use windowSplashScreenAnimatedIcon to add either a drawable or an-->
+<!--        // animated drawable. One of these is required.-->
+<!--        <item name="windowSplashScreenAnimatedIcon">@drawable/anim_ai_loading</item>-->
+<!--        <item name="windowSplashScreenAnimationDuration">1000</item>  # Required for-->
+<!--        # animated icons-->
+
+<!--        // Set the theme of the Activity that directly follows your splash screen.-->
+<!--        <item name="postSplashScreenTheme">@style/AppTheme</item>  # Required.-->
+<!--    </style>-->
+
 </resources>
