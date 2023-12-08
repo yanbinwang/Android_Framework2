@@ -44,18 +44,15 @@
     </style>
 
 <!-- https://cloud.tencent.com/developer/article/1946216?areaSource=102001.14&traceId=cOGlHQmuBlUqVJUXnEtT9 -->
-<!--    <style name="Theme.App.Starting" parent="Theme.SplashScreen">-->
-<!--        // Set the splash screen background, animated icon, and animation duration.-->
-<!--        <item name="windowSplashScreenBackground">@android:color/white</item>-->
-
-<!--        // Use windowSplashScreenAnimatedIcon to add either a drawable or an-->
-<!--        // animated drawable. One of these is required.-->
-<!--        <item name="windowSplashScreenAnimatedIcon">@drawable/anim_ai_loading</item>-->
-<!--        <item name="windowSplashScreenAnimationDuration">1000</item>  # Required for-->
-<!--        # animated icons-->
-
-<!--        // Set the theme of the Activity that directly follows your splash screen.-->
-<!--        <item name="postSplashScreenTheme">@style/AppTheme</item>  # Required.-->
+<!--    <style name="SplashTheme" parent="Theme.SplashScreen">-->
+<!--        &lt;!&ndash; 设置启动画面的背景色 &ndash;&gt;-->
+<!--        <item name="windowSplashScreenBackground">@color/bgWhite</item>-->
+<!--        &lt;!&ndash; 启动图标。就是显示在启动界面中间的图片，也可以是动画 &ndash;&gt;-->
+<!--        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>-->
+<!--        &lt;!&ndash; 设置动画的长度。注意这里最大只能1000ms，如果需要动画时间更长，则需要通过代码的手段让启动画面在屏幕上显示更长时间 &ndash;&gt;-->
+<!--        <item name="windowSplashScreenAnimationDuration">1000</item>-->
+<!--        &lt;!&ndash; 直接在启动屏幕后面设置“应用”的主题 &ndash;&gt;-->
+<!--        <item name="postSplashScreenTheme">@style/AppTheme</item>-->
 <!--    </style>-->
 
 </resources>
