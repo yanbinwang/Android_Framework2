@@ -22,6 +22,7 @@ import com.example.framework.utils.TextSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.isBottom
@@ -117,7 +118,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     override fun initView() {
         super.initView()
 
-        binding.ivArrow.click { isOpen = it.rotate(isOpen) }
+        binding?.ivArrow.click { isOpen = it.rotate(isOpen) }
 
 //        adapter.refresh(ids)
 //        binding.rvTest.adapter = adapter
@@ -173,7 +174,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        binding.tvTest.movementMethod = LinkMovementMethod.getInstance()
 
 
-        binding.tvTest.text = TextSpan()
+        binding?.tvTest?.text = TextSpan()
             .add("在Cheezeebit交易，訂單賺取高達", SizeSpan(dimen(R.dimen.textSize14)))
             .add(
                 " 0.5% ",
@@ -250,25 +251,25 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
         //通过代码动态重置一下顶部的高度
         val bgHeight = 164.pt + getStatusBarHeight()
-        binding.ivFundsBg.size(height = bgHeight)
-        binding.llFunds.apply {
+        binding?.ivFundsBg.size(height = bgHeight)
+        binding?.llFunds.apply {
             size(height = bgHeight)
             padding(top = getStatusBarHeight())
         }
         //全屏的刷新，顶部需要空出导航栏的距离
-        binding.refresh.setHeaderMaxDragRate()
+        binding?.refresh.setHeaderMaxDragRate()
         //设置头部的滑动监听
-        binding.refresh.setHeaderDragListener { isDragging, percent, offset, height, maxDragHeight ->
+        binding?.refresh.setHeaderDragListener { isDragging, percent, offset, height, maxDragHeight ->
             changeBgHeight(offset)
         }
-        binding.viewContent.click {
+        binding?.viewContent.click {
 //            "dsfdsfdsfds".shortToast()
             testBottom.show(supportFragmentManager, "testBottom")
 //            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
         }
         launch {
             delay(2000)
-            binding.ivBg.load("https://images.91fafafa.com/upload/image/banner/banner.png")
+            binding?.ivBg?.load("https://images.91fafafa.com/upload/image/banner/banner.png")
         }
     }
 
@@ -276,12 +277,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
      * 滑动时改变对应的图片高度
      */
     private fun changeBgHeight(offset: Int) {
-        val imgBgHeight = binding.llFunds.measuredHeight
+        val imgBgHeight = binding?.llFunds?.measuredHeight.orZero
         if (imgBgHeight <= 0) return
         //设置视图围绕其旋转和缩放的点的 y 位置。默认情况下，枢轴点以对象为中心。设置此属性会禁用此行为并导致视图仅使用显式设置的 pivotX 和 pivotY 值。
-        binding.ivFundsBg.pivotY = 0f
+        binding?.ivFundsBg?.pivotY = 0f
         //设置视图围绕轴心点在 Y 轴上缩放的量，作为视图未缩放宽度的比例。值为 1 表示不应用缩放。
-        binding.ivFundsBg.scaleY = offset.toSafeFloat() / imgBgHeight.toSafeFloat() + 1f
+        binding?.ivFundsBg?.scaleY = offset.toSafeFloat() / imgBgHeight.toSafeFloat() + 1f
     }
 
 }

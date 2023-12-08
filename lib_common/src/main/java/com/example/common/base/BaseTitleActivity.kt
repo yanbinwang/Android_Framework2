@@ -17,7 +17,7 @@ abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun setContentView(view: View?) {
-        baseBinding.flBaseContainer.addView(binding.root)
+        baseBinding.flBaseContainer.addView(binding?.root)
         super.setContentView(baseBinding.root)
     }
 

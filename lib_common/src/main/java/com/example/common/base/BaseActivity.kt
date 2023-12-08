@@ -61,7 +61,7 @@ import kotlin.coroutines.CoroutineContext
  */
 @Suppress("UNCHECKED_CAST")
 abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
-    protected lateinit var binding: VDB
+    protected var binding: VDB? = null
     protected val mDialog by lazy { AppDialog(this) }
     protected val mPermission by lazy { PermissionHelper(this) }
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
@@ -127,11 +127,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
-                val vdbClass = type.actualTypeArguments[0] as Class<VDB>
-                val method = vdbClass.getDeclaredMethod("inflate", LayoutInflater::class.java)
-                binding = method.invoke(null, layoutInflater) as VDB
-                binding.lifecycleOwner = this
-                setContentView(binding.root)
+                val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
+                val method = vdbClass?.getDeclaredMethod("inflate", LayoutInflater::class.java)
+                binding = method?.invoke(null, layoutInflater) as? VDB
+                binding?.lifecycleOwner = this
+                setContentView(binding?.root)
             } catch (_: Exception) {
             }
         }
@@ -195,10 +195,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         super.onDestroy()
         AppManager.removeActivity(this)
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
-        try {
-            binding.unbind()
-        } catch (_: Exception) {
-        }
+        binding?.unbind()
         job.cancel()//之后再起的job无法工作
 //        coroutineContext.cancelChildren()//之后再起的可以工作
     }
