@@ -10,12 +10,12 @@ import com.example.mvvm.databinding.ItemImageBinding
  */
 class VideoAdapter : BaseQuickAdapter<Int, ItemImageBinding>() {
 
-    override fun convert(
+    override fun onConvert(
         holder: BaseViewDataBindingHolder,
         item: Int?,
         payloads: MutableList<Any>?
     ) {
-        super.convert(holder, item, payloads)
+        super.onConvert(holder, item, payloads)
 //        binding.root.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
 //        val index = holder.absoluteAdapterPosition.mod(list().safeSize)
 //        val bean = list().safeGet(index)

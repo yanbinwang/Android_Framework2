@@ -41,21 +41,21 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     private val layoutParams by lazy { window.attributes }
     private var popupView: View? = null
     protected val context get() = window.context
+    protected var binding: VDB? = null
     protected var measuredWidth = 0
         private set
     protected var measuredHeight = 0
         private set
-    protected lateinit var binding: VDB
 
     init {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
-                val vdbClass = type.actualTypeArguments[0] as Class<VDB>
-                val method = vdbClass.getMethod("inflate", LayoutInflater::class.java)
-                binding = method.invoke(null, window.layoutInflater) as VDB
-                contentView = binding.root
-                popupView = binding.root
+                val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
+                val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
+                binding = method?.invoke(null, window.layoutInflater) as? VDB
+                contentView = binding?.root
+                popupView = binding?.root
             } catch (_: Exception) {
             }
         }
@@ -164,10 +164,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         if (window.windowManager == null) return
         if (window.decorView.parent == null) return
         super.dismiss()
-        try {
-            binding.unbind()
-        } catch (_: Exception) {
-        }
+        binding?.unbind()
     }
 
     /**

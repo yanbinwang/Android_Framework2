@@ -15,14 +15,14 @@ import com.example.mvvm.databinding.ItemImageBinding
  * @author
  */
 class ImageAdapter : BaseQuickAdapter<Int, ItemImageBinding>() {
-    override fun convert(holder: BaseViewDataBindingHolder, item: Int?, payloads: MutableList<Any>?) {
-        super.convert(holder, item, payloads)
+    override fun onConvert(holder: BaseViewDataBindingHolder, item: Int?, payloads: MutableList<Any>?) {
+        super.onConvert(holder, item, payloads)
 //        holder.getItemView().layoutParams =
 //            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
-        binding.root.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        binding?.root?.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         val index = holder.absoluteAdapterPosition.mod(list().safeSize)
         val bean = list().safeGet(index)
-        binding.apply {
+        binding?.apply {
             viewTest.setBackgroundColor(color(bean.orZero))
         }
     }

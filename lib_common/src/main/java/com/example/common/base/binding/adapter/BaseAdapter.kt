@@ -81,29 +81,29 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
         val position = holder.absoluteAdapterPosition
         //注意判断当前适配器是否具有头部view
         holder.itemView.click { onItemClick?.invoke(data.safeGet(position), position) }
-        convert(holder, when (itemType) {
+        onConvert(holder, when (itemType) {
             LIST -> data.safeGet(position)
             BEAN -> t
         }, payloads)
     }
 
     /**
-     * 构建ViewBinding
-     */
-    protected fun <VDB : ViewDataBinding> onCreateViewBindingHolder(parent: ViewGroup, aClass: Class<VDB>): BaseViewDataBindingHolder {
-        lateinit var binding: VDB
-        try {
-            val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            binding = method.invoke(null, LayoutInflater.from(parent.context), parent, false) as VDB
-        } catch (_: Exception) {
-        }
-        return BaseViewDataBindingHolder(binding)
-    }
-
-    /**
      * 统一回调
      */
-    protected abstract fun convert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>? = null)
+    protected abstract fun onConvert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>? = null)
+
+    /**
+     * 构建ViewBinding
+     */
+    protected fun <VDB : ViewDataBinding> onCreateViewBindingHolder(parent: ViewGroup, aClass: Class<VDB>?): BaseViewDataBindingHolder {
+        var binding: VDB? = null
+        try {
+            val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
+            binding = method?.invoke(null, LayoutInflater.from(parent.context), parent, false) as? VDB
+        } catch (_: Exception) {
+        }
+        return BaseViewDataBindingHolder(parent, binding)
+    }
 
     /**
      * 刷新符合条件的item（数据在item内部更改）
