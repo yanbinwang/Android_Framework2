@@ -6,6 +6,7 @@ import android.util.SparseArray
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.example.common.BaseApplication
 import com.example.framework.utils.builder.FragmentBuilder
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
@@ -19,12 +20,12 @@ import com.google.android.material.tabs.TabLayoutMediator
  * 项目实际使用中，ui是肯定不会按照安卓原生的导航栏来实现对应的效果的
  * 故而提出一个接口类，需要实现对应效果的地方去实现
  */
-abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout, private var tabList: List<T>? = null) {
+abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
     private var builder: FragmentBuilder? = null
     private var mediator: TabLayoutMediator? = null
     private val tabViews by lazy { SparseArray<VDB>() }
-    protected val context: Context get() = tab.context
-    protected val currentIndex get() = tab.selectedTabPosition
+    protected val context: Context get() = tab?.context ?: BaseApplication.instance.applicationContext
+    protected val currentIndex get() = tab?.selectedTabPosition
 
     /**
      * 无特殊绑定的自定义头
@@ -58,18 +59,18 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     }
 
     private fun init(list: List<T>? = null) {
-        tab.removeAllTabs()
+        tab?.removeAllTabs()
         tabViews.clear()
         if (null != list) tabList = list
-        tabList?.forEach { _ -> tab.addTab(tab.newTab()) }
+        tabList?.forEach { _ -> tab?.addTab(tab.newTab()) }
     }
 
     /**
      * 这个方法需要放在setupWithViewPager()后面
      */
     private fun addOnTabSelectedListener() {
-        for (i in 0 until tab.tabCount) {
-            tab.getTabAt(i)?.apply {
+        for (i in 0 until tab?.tabCount.orZero) {
+            tab?.getTabAt(i)?.apply {
                 val binding = getBindView()
                 if (tabViews[i] == null) tabViews.put(i, binding)
                 customView = binding.root
@@ -78,7 +79,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
                 onBindView(binding, tabList.safeGet(i), i == 0, i)
             }
         }
-        tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+        tab?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 onTabBind(tab, true)
             }
