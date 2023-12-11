@@ -8,7 +8,7 @@ import com.example.common.config.CacheData.userBean
 import com.example.common.config.CacheData.userInfoBean
 import com.example.common.config.Constants
 import com.example.common.event.EventCode.EVENT_USER_INFO_REFRESH
-import com.example.common.socket.utils.WebSocketConnect
+import com.example.common.socket.WebSocketConnect
 import com.example.common.utils.AppManager
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.orFalse

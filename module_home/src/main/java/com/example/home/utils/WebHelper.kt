@@ -119,10 +119,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
                 webView?.removeJavascriptInterface("JSCallAndroid")
                 webView?.clear()
 //                webView = null
-                try {
-                    binding.unbind()
-                } catch (_: Exception) {
-                }
+                binding.unbind()
                 activity.lifecycle.removeObserver(this)
             }
             else -> {}

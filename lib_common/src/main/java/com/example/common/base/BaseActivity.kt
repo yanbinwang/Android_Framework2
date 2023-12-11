@@ -26,11 +26,13 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.socket.utils.WebSocketRequest
+import com.example.common.socket.WebSocketRequest
 import com.example.common.utils.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.permission.PermissionHelper
+import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.color
@@ -57,8 +59,11 @@ import kotlin.coroutines.CoroutineContext
  * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context
  * 無xml的界面，泛型括號裡傳ViewDataBinding
  */
+@Suppress("UNCHECKED_CAST")
 abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
-    protected lateinit var binding: VDB
+    protected var binding: VDB? = null
+    protected val mDialog by lazy { AppDialog(this) }
+    protected val mPermission by lazy { PermissionHelper(this) }
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
@@ -122,11 +127,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
-                val vdbClass = type.actualTypeArguments[0] as Class<VDB>
-                val method = vdbClass.getDeclaredMethod("inflate", LayoutInflater::class.java)
-                binding = method.invoke(null, layoutInflater) as VDB
-                binding.lifecycleOwner = this
-                setContentView(binding.root)
+                val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
+                val method = vdbClass?.getDeclaredMethod("inflate", LayoutInflater::class.java)
+                binding = method?.invoke(null, layoutInflater) as? VDB
+                binding?.lifecycleOwner = this
+                setContentView(binding?.root)
             } catch (_: Exception) {
             }
         }
@@ -190,10 +195,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         super.onDestroy()
         AppManager.removeActivity(this)
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
-        try {
-            binding.unbind()
-        } catch (_: Exception) {
-        }
+        binding?.unbind()
         job.cancel()//之后再起的job无法工作
 //        coroutineContext.cancelChildren()//之后再起的可以工作
     }

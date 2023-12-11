@@ -16,7 +16,7 @@ import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.file.FileHelper
+import com.example.common.utils.file.FileBuilder
 import com.example.common.utils.file.deleteFile
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.function.startService
@@ -36,7 +36,7 @@ import java.io.File
 class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObserver {
     private var isDestroy = false
     private val loadingDialog by lazy { LoadingDialog(activity) }
-    private val fileHelper by lazy { FileHelper(activity) }
+    private val fileBuilder by lazy { FileBuilder(activity) }
     private val shotList by lazy { ArrayList<String>() }
     private var onShutter: (filePath: String?, isZip: Boolean) -> Unit = { _, _ -> }
 
@@ -108,7 +108,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
                     //压缩包输出路径（会以录屏文件的命名方式来命名）
                     val zipPath = File(folderPath).name.replace("mp4", "zip")
                     //开始压包
-                    fileHelper.zipJob(shotList, zipPath, { showDialog() }, {
+                    fileBuilder.zipJob(shotList, zipPath, { showDialog() }, {
                         hideDialog()
                         folderPath.deleteFile()
                     })

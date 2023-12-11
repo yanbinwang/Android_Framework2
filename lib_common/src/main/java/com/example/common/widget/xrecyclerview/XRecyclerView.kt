@@ -64,14 +64,14 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     override fun onInflateView() {
-        if (isInflate()) init(refreshEnum)
+        if (isInflate()) initInflate()
     }
 
-    private fun init(refreshEnum: Int) {
+    private fun initInflate() {
         var view: View? = null
         when (refreshEnum) {
             0 -> {
-                view = context.inflate(R.layout.view_xrecyclerview)
+                view = context.inflate(R.layout.view_xrecycler)
                 recycler = view.findViewById(R.id.rv_list)
                 if (0 != emptyEnum) {
                     empty = EmptyLayout(context)
@@ -80,7 +80,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 }
             }
             1 -> {
-                view = context.inflate(R.layout.view_xrecyclerview_refresh)
+                view = context.inflate(R.layout.view_xrecycler_refresh)
                 empty = view.findViewById(R.id.empty)
                 refresh = view.findViewById(R.id.refresh)
                 recycler = view.findViewById(R.id.rv_list)
@@ -177,7 +177,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * noMoreData是否有更多数据
      */
     fun finishRefreshing(noMoreData: Boolean? = true) {
-        if (refreshEnum == 1) refresh?.finishRefreshing(noMoreData)
+        refresh?.finishRefreshing(noMoreData)
     }
 
     /**
@@ -196,21 +196,21 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 当数据正在加载的时候显示
      */
     fun loading() {
-        if (0 != emptyEnum) empty?.loading()
+        empty?.loading()
     }
 
     /**
      * 当数据为空时(显示需要显示的图片，以及内容字)
      */
     fun empty(imgInt: Int = -1, text: String? = null) {
-        if (0 != emptyEnum) empty?.empty(imgInt, text)
+        empty?.empty(imgInt, text)
     }
 
     /**
      * 当数据异常时
      */
     fun error(imgInt: Int = -1, text: String? = null) {
-        if (0 != emptyEnum) empty?.error(imgInt, text)
+        empty?.error(imgInt, text)
     }
 
 }

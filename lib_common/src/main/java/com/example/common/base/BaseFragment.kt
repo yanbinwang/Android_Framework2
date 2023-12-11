@@ -26,12 +26,14 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.socket.utils.WebSocketRequest
+import com.example.common.socket.WebSocketRequest
 import com.example.common.utils.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
+import com.example.common.utils.permission.PermissionHelper
+import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.isMainThread
@@ -51,12 +53,15 @@ import kotlin.coroutines.CoroutineContext
 /**
  * Created by WangYanBin on 2020/6/4.
  */
+@Suppress("UNCHECKED_CAST")
 @SuppressLint("UseRequireInsteadOfGet")
 abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseView, CoroutineScope {
-    protected lateinit var binding: VDB
+    protected var binding: VDB? = null
     protected var lazyData = false
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
+    protected val mDialog by lazy { AppDialog(mActivity) }
+    protected val mPermission by lazy { PermissionHelper(mActivity) }
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(mActivity) }
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
@@ -85,10 +90,10 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         }
         return try {
             val superclass = javaClass.genericSuperclass
-            val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>
-            val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            binding = method.invoke(null, layoutInflater, container, false) as VDB
-            binding.root
+            val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
+            val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
+            binding = method?.invoke(null, layoutInflater, container, false) as? VDB
+            binding?.root
         } catch (_: Exception) {
             null
         }
@@ -154,10 +159,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun onDetach() {
         super.onDetach()
-        try {
-            binding.unbind()
-        } catch (_: Exception) {
-        }
+        binding?.unbind()
         job.cancel()
     }
     // </editor-fold>

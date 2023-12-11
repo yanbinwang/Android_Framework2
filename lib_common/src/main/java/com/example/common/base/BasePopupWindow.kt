@@ -35,27 +35,27 @@ import java.lang.reflect.ParameterizedType
  * 可以使用BaseBottomSheetDialogFragment替代，也可以使用调整windos透明度的方法
  * 需要注意binding使用了lateinit，但是不可能会不给值（VDB），稳妥期间，引用到view的地方，使用popupView
  */
-@Suppress("LeakingThis")
+@Suppress("LeakingThis", "UNCHECKED_CAST")
 abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val light: Boolean = true) : PopupWindow() {
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
     private var popupView: View? = null
     protected val context get() = window.context
+    protected var binding: VDB? = null
     protected var measuredWidth = 0
         private set
     protected var measuredHeight = 0
         private set
-    protected lateinit var binding: VDB
 
     init {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
-                val vdbClass = type.actualTypeArguments[0] as Class<VDB>
-                val method = vdbClass.getMethod("inflate", LayoutInflater::class.java)
-                binding = method.invoke(null, window.layoutInflater) as VDB
-                contentView = binding.root
-                popupView = binding.root
+                val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
+                val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
+                binding = method?.invoke(null, window.layoutInflater) as? VDB
+                contentView = binding?.root
+                popupView = binding?.root
             } catch (_: Exception) {
             }
         }
@@ -164,10 +164,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         if (window.windowManager == null) return
         if (window.decorView.parent == null) return
         super.dismiss()
-        try {
-            binding.unbind()
-        } catch (_: Exception) {
-        }
+        binding?.unbind()
     }
 
     /**

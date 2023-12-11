@@ -36,6 +36,8 @@ import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
+import com.example.common.utils.permission.PermissionHelper
+import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.common.widget.textview.edittext.SpecialEditText
 import com.example.framework.utils.WeakHandler
@@ -64,10 +66,13 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 底部弹框使用的dialog
  */
+@Suppress("UNCHECKED_CAST")
 abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
-    protected lateinit var binding: VDB
+    protected var binding: VDB? = null
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
+    protected val mDialog by lazy { AppDialog(mActivity) }
+    protected val mPermission by lazy { PermissionHelper(mActivity) }
     private var showTime = 0L
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving
@@ -97,10 +102,10 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         }
         return try {
             val superclass = javaClass.genericSuperclass
-            val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>
-            val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            binding = method.invoke(null, layoutInflater, container, false) as VDB
-            binding.root
+            val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
+            val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
+            binding = method?.invoke(null, layoutInflater, container, false) as? VDB
+            binding?.root
         } catch (_: Exception) {
             null
         }
@@ -115,7 +120,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
             protected fun hideSoftKeyboard() {
                 val inputMethodManager = BaseApplication.instance.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.root.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+                inputMethodManager.hideSoftInputFromWindow(binding?.root?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
             }
 
             /**
@@ -291,10 +296,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     override fun onDetach() {
         super.onDetach()
-        try {
-            binding.unbind()
-        } catch (_: Exception) {
-        }
+        binding?.unbind()
     }
     // </editor-fold>
 
