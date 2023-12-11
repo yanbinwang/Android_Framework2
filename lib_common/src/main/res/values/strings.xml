@@ -14,6 +14,10 @@
     <string name="permissionCamera">相机权限,该权限用于拍摄照片</string>
     <string name="permissionMicrophone">麦克风权限,该权限用于录制音频</string>
     <string name="permissionStorage">存储空间权限,该权限用于文件存储</string>
+    <!-- 计时文本提示语句 -->
+    <string name="timerContent">发送验证码</string>
+    <string name="timerPressed">已发送{%1$s}S</string>
+    <string name="timerDisabled">重发验证码</string>
     <!-- app内的view显示字段 -->
     <string name="responseError">数据返回异常</string>
     <string name="responseNetError">请打开网络连接</string>
