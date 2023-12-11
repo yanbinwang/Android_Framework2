@@ -57,8 +57,8 @@ import kotlin.coroutines.CoroutineContext
 @Suppress("UNCHECKED_CAST")
 @SuppressLint("UseRequireInsteadOfGet")
 abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseView, CoroutineScope {
-    protected var binding: VDB? = null
     protected var lazyData = false
+    protected var mBinding: VDB? = null
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
     protected val mDialog by lazy { AppDialog(mActivity) }
@@ -93,8 +93,8 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
             val superclass = javaClass.genericSuperclass
             val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
             val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            binding = method?.invoke(null, layoutInflater, container, false) as? VDB
-            binding?.root
+            mBinding = method?.invoke(null, layoutInflater, container, false) as? VDB
+            mBinding?.root
         } catch (_: Exception) {
             null
         }
@@ -160,7 +160,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun onDetach() {
         super.onDetach()
-        binding?.unbind()
+        mBinding?.unbind()
         job.cancel()
     }
     // </editor-fold>

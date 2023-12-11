@@ -30,7 +30,7 @@ import java.lang.reflect.ParameterizedType
  */
 @Suppress("LeakingThis", "UNCHECKED_CAST")
 abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: Int = 320, dialogHeight: Int = WRAP_CONTENT, gravity: Int = CENTER, themeResId: Int = R.style.DialogStyle, animation: Boolean = true, close: Boolean = true) : Dialog(context, themeResId) {
-    protected var binding: VDB? = null
+    protected var mBinding: VDB? = null
     private var dialogView: View? = null
 
     init {
@@ -39,9 +39,9 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
             try {
                 val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
                 val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
-                binding = method?.invoke(null, layoutInflater) as? VDB
-                binding?.root?.let { setContentView(it) }
-                dialogView = binding?.root
+                mBinding = method?.invoke(null, layoutInflater) as? VDB
+                mBinding?.root?.let { setContentView(it) }
+                dialogView = mBinding?.root
             } catch (_: Exception) {
             }
         }
@@ -91,7 +91,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
         if (window?.decorView == null) return
         if (window?.decorView?.parent == null) return
         super.dismiss()
-        binding?.unbind()
+        mBinding?.unbind()
     }
 
     open fun shown(flag: Boolean = false) {

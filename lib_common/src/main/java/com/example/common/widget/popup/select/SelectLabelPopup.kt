@@ -17,7 +17,7 @@ class SelectLabelPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Str
     private var onCurrent: ((item: String, index: Int) -> Unit)? = null
 
     fun setParams(list: List<T>) {
-        binding?.apply {
+        mBinding?.apply {
             llItem.apply {
                 removeAllViews()
                 for (index in 0 until list.size.orZero) {

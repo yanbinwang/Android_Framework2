@@ -40,8 +40,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
     private var popupView: View? = null
-    protected val context get() = window.context
-    protected var binding: VDB? = null
+    protected val mContext get() = window.context
+    protected var mBinding: VDB? = null
     protected var measuredWidth = 0
         private set
     protected var measuredHeight = 0
@@ -53,9 +53,9 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
             try {
                 val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
                 val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
-                binding = method?.invoke(null, window.layoutInflater) as? VDB
-                contentView = binding?.root
-                popupView = binding?.root
+                mBinding = method?.invoke(null, window.layoutInflater) as? VDB
+                contentView = mBinding?.root
+                popupView = mBinding?.root
             } catch (_: Exception) {
             }
         }
@@ -140,8 +140,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
         if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if ((context as? Activity)?.isFinishing.orFalse) return
-        if ((context as? Activity)?.isDestroyed.orFalse) return
+        if ((mContext as? Activity)?.isFinishing.orFalse) return
+        if ((mContext as? Activity)?.isDestroyed.orFalse) return
         try {
             setAttributes()
             super.showAtLocation(parent, gravity, x, y)
@@ -158,13 +158,13 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     override fun dismiss() {
         if (!isShowing) return
-        if ((context as? Activity)?.isFinishing.orFalse) return
-        if ((context as? Activity)?.isDestroyed.orFalse) return
-        if ((context as? Activity)?.window?.windowManager == null) return
+        if ((mContext as? Activity)?.isFinishing.orFalse) return
+        if ((mContext as? Activity)?.isDestroyed.orFalse) return
+        if ((mContext as? Activity)?.window?.windowManager == null) return
         if (window.windowManager == null) return
         if (window.decorView.parent == null) return
         super.dismiss()
-        binding?.unbind()
+        mBinding?.unbind()
     }
 
     /**
