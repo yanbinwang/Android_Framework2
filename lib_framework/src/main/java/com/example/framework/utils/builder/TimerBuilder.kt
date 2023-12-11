@@ -23,6 +23,7 @@ class TimerBuilder(private val observer: LifecycleOwner) : LifecycleEventObserve
         /**
          * 延时任务-容易造成内存泄漏
          */
+        @JvmStatic
         fun schedule(run: (() -> Unit), millisecond: Long = 1000) {
             handler.postDelayed({
                 run.invoke()
