@@ -228,7 +228,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
-        if (second >= 0) {
+        if (second > 0) {
             WeakHandler(Looper.getMainLooper()).postDelayed({
                 hideDialog()
                 block.invoke()
