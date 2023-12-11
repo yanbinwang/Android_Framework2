@@ -89,14 +89,13 @@ fun Class<*>.getSimpleName(name: String? = null): String {
 /**
  * 获取android总运行内存大小(byte)
  */
-fun getTotalMemory(): Long {
+fun getMemInfo(): Long {
     //系统内存信息文件
     val infoStr: String
     val arrayOfString: Array<String>
     var memory = 0L
     try {
-        val localFileReader = FileReader("/proc/meminfo")
-        val localBufferedReader = BufferedReader(localFileReader, 8192)
+        val localBufferedReader = BufferedReader(FileReader("/proc/meminfo"), 8192)
         //读取meminfo第一行，系统总内存大小
         infoStr = localBufferedReader.readLine()
         arrayOfString = infoStr.split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
@@ -125,7 +124,7 @@ fun getCpuInfo(): String {
 /**
  * 是否Root-报错或获取失败都为未Root
  */
-fun isRoot(): Boolean {
+fun mobileIsRoot(): Boolean {
     var file: File
     val paths = arrayOf("/system/bin/", "/system/xbin/", "/system/sbin/", "/sbin/", "/vendor/bin/")
     try {

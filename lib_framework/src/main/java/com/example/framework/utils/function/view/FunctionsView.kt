@@ -298,7 +298,7 @@ var View?.layoutGravity: Int
 /**
  * 在layout完毕之后进行计算处理
  */
-fun <T : View> T?.doOnceAfterLayout(listener: (T) -> Unit) {
+inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
     if (this == null) return
     viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
         override fun onGlobalLayout() {

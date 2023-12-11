@@ -110,7 +110,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //    private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
 //    private val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
-    private val viewModel by lazy { TestViewModel() }
+    private val viewModel by lazy { createViewModel(TestViewModel::class.java) }
     private val bean by lazy { intentParcelable("bean") as? UserBean }
 
     private var isOpen = false
