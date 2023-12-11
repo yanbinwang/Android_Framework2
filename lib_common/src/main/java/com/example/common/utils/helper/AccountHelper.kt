@@ -20,7 +20,7 @@ import com.example.framework.utils.function.value.orFalse
  */
 object AccountHelper {
     //默认用户文件保存位置
-    val storage get() = "${Constants.APPLICATION_PATH}/手机文件/${getUserId()}/"
+    val storage get() = "${Constants.APPLICATION_PATH}/手机文件/${getUserId()}"
 
     // <editor-fold defaultstate="collapsed" desc="用户类方法">
     /**

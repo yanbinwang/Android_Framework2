@@ -13,10 +13,10 @@ import android.view.View
 import androidx.exifinterface.media.ExifInterface
 import androidx.exifinterface.media.ExifInterface.*
 import com.example.common.BaseApplication
-import com.example.common.config.Constants
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.file.deleteDir
 import com.example.common.utils.file.isMkdirs
+import com.example.common.utils.helper.AccountHelper.storage
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.toSafeFloat
@@ -110,7 +110,7 @@ fun Drawable.drawableToBitmap(): Bitmap {
  * format->图片类型
  * quality->压缩率
  */
-fun saveBit(bitmap: Bitmap, root: String = "${Constants.APPLICATION_PATH}/保存图片", fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
+fun saveBit(bitmap: Bitmap, root: String = "${storage}/保存图片", fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
     //存储目录文件
     val storeDir = File(root)
     //存储目录完整的手机路径
