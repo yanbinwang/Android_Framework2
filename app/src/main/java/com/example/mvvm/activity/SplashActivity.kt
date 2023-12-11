@@ -7,7 +7,7 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.fullScreen
-import com.example.framework.utils.TimerUtil
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import me.jessyan.autosize.internal.CancelAdapt
 
 /**
@@ -41,7 +41,7 @@ class SplashActivity : BaseActivity<ViewDataBinding>(), CancelAdapt {
         }
         window.fullScreen()
         super.onCreate(savedInstanceState)
-        TimerUtil.schedule({
+        schedule({
             navigation(ARouterPath.MainActivity).finish()
         }, 2000)
     }

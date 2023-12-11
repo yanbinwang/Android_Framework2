@@ -1,30 +1,33 @@
-package com.example.framework.utils
+package com.example.framework.utils.builder
 
 import android.os.CountDownTimer
 import android.os.Looper
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.second
 import java.util.Timer
 import java.util.TimerTask
 import java.util.concurrent.ConcurrentHashMap
 
-/**
- *  Created by wangyanbin
- *  定时器工具类
- */
-object TimerUtil {
-    private const val TIMER_DEFAULT_TAG = "TIMER_DEFAULT"
-    private const val COUNT_DOWN_DEFAULT_TAG = "COUNT_DOWN_DEFAULT"
-    private val handler by lazy { WeakHandler(Looper.getMainLooper()) }
+class TimerBuilder(private val observer: LifecycleOwner) : LifecycleEventObserver {
     private val timerMap by lazy { ConcurrentHashMap<String, Pair<Timer?, TimerTask?>>() }
     private val countDownMap by lazy { ConcurrentHashMap<String, CountDownTimer?>() }
 
-    /**
-     * 延时任务-容易造成内存泄漏
-     */
-    fun schedule(run: (() -> Unit), millisecond: Long = 1000) {
-        handler.postDelayed({
-            run.invoke()
-        }, millisecond)
+    companion object {
+        private const val TIMER_DEFAULT_TAG = "TIMER_DEFAULT"
+        private const val COUNT_DOWN_DEFAULT_TAG = "COUNT_DOWN_DEFAULT"
+        private val handler by lazy { WeakHandler(Looper.getMainLooper()) }
+
+        /**
+         * 延时任务-容易造成内存泄漏
+         */
+        fun schedule(run: (() -> Unit), millisecond: Long = 1000) {
+            handler.postDelayed({
+                run.invoke()
+            }, millisecond)
+        }
     }
 
     /**
@@ -88,10 +91,20 @@ object TimerUtil {
         tags.forEach { stopCountDown(it) }
     }
 
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_DESTROY -> {
+                destroy()
+                observer.lifecycle.removeObserver(this)
+            }
+            else -> {}
+        }
+    }
+
     /**
      * 完全销毁所有定时器
      */
-    fun destroy() {
+    private fun destroy() {
         for ((_, value) in timerMap) {
             value.apply {
                 first?.cancel()
