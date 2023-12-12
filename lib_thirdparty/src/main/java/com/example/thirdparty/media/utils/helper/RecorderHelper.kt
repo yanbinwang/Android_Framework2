@@ -1,43 +1,47 @@
 package com.example.thirdparty.media.utils.helper
 
-import android.content.Context
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
-import com.example.thirdparty.media.utils.MediaUtil.MediaType.AUDIO
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.example.thirdparty.media.utils.MediaUtil
+import com.example.thirdparty.media.utils.MediaUtil.MediaType.AUDIO
 
 /**
  * @description 录音帮助类（熄屏后无声音，并可能会导致后续声音也录制不了）
  * @author yan
  */
-class RecorderHelper {
-    private val player by lazy { MediaPlayer() }
-    private var recorder: MediaRecorder? = null
+class RecorderHelper(private val activity: FragmentActivity) : LifecycleEventObserver {
+    private var isDestroy = false
     private var onRecorderListener: OnRecorderListener? = null
+    private val recorder by lazy { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(activity) else MediaRecorder() }
+    private val player by lazy { MediaPlayer() }
 
-//    companion object {
-//        internal var onRecorderListener: OnRecorderListener? = null
-//
-//        fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
-//            this.onRecorderListener = onRecorderListener
-//        }
-//    }
+    init {
+        activity.lifecycle.addObserver(this)
+    }
 
     /**
      * 开始录音
      */
-    fun startRecord(context: Context) {
+    fun startRecord() {
+        isDestroy = false
         val recordFile = MediaUtil.getOutputFile(AUDIO)
         val sourcePath = recordFile?.absolutePath
         try {
-            recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
-            recorder?.apply {
+            recorder.apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)//设置麦克风
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                 //若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) setOutputFile(sourcePath) else setOutputFile(recordFile)
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    setOutputFile(sourcePath)
+                } else {
+                    setOutputFile(recordFile)
+                }
                 prepare()
                 start()
             }
@@ -50,16 +54,16 @@ class RecorderHelper {
      * 停止录音
      */
     fun stopRecord() {
-        onRecorderListener?.onShutter()
+        if (!isDestroy) onRecorderListener?.onShutter()
         try {
-            recorder?.apply {
+            recorder.apply {
                 stop()
                 reset()
                 release()
             }
         } catch (_: Exception) {
         }
-        onRecorderListener?.onStop()
+        if (!isDestroy) onRecorderListener?.onStop()
     }
 
     /**
@@ -104,20 +108,6 @@ class RecorderHelper {
     }
 
     /**
-     * 销毁-释放资源
-     */
-    fun release() {
-        try {
-            player.apply {
-                stop()
-                reset()
-                release()
-            }
-        } catch (_: Exception) {
-        }
-    }
-
-    /**
      * 录音监听
      */
     fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
@@ -130,6 +120,32 @@ class RecorderHelper {
         fun onShutter()
 
         fun onStop()
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_DESTROY -> {
+                isDestroy = true
+                stopRecord()
+                release()
+                activity.lifecycle.removeObserver(this)
+            }
+            else -> {}
+        }
+    }
+
+    /**
+     * 销毁-释放资源
+     */
+    private fun release() {
+        try {
+            player.apply {
+                stop()
+                reset()
+                release()
+            }
+        } catch (_: Exception) {
+        }
     }
 
 }
