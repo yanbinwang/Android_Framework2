@@ -54,6 +54,7 @@ import me.jessyan.autosize.AutoSizeConfig
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
+import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -218,6 +219,11 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
 
     open fun clearOnActivityResultListener() {
         onActivityResultListener = null
+    }
+
+    open fun show(manager: FragmentManager) {
+        val tag = javaClass.simpleName.toLowerCase(Locale.getDefault())
+        show(manager, tag)
     }
     // </editor-fold>
 
