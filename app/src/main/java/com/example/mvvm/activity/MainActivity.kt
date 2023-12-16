@@ -31,12 +31,14 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.rotate
 import com.example.framework.utils.function.view.size
 import com.example.mvvm.R
+import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.VideoSnapManager
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestTopDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
 
 /**
  *  <data>
@@ -271,6 +273,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             delay(2000)
             mBinding?.ivBg?.load("https://images.91fafafa.com/upload/image/banner/banner.png")
         }
+
     }
 
     /**
@@ -283,6 +286,31 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         mBinding?.ivFundsBg?.pivotY = 0f
         //设置视图围绕轴心点在 Y 轴上缩放的量，作为视图未缩放宽度的比例。值为 1 表示不应用缩放。
         mBinding?.ivFundsBg?.scaleY = offset.toSafeFloat() / imgBgHeight.toSafeFloat() + 1f
+    }
+
+    /**
+     * list1为服务器中数据
+     * list2为本地存储数据
+     * isDuplicate:是否返回重复的或不重复的数据
+     * 正向查为服务器新增数据
+     * 反向查为本地删除数据
+     */
+    private fun <T> List<T>?.filter(
+        list: List<T>,
+        isDuplicate: Boolean = false
+    ): ArrayList<T>? {
+        this ?: return null
+        val filterSet = HashSet<T>(this)//将List1转换为Set，去除重复元素
+        val duplicateSet = HashSet<T>()//重复的
+        val incompleteSet = HashSet<T>()//不重复的
+        list.forEach {
+            if (filterSet.contains(it)) {
+                duplicateSet.add(it)
+            } else {
+                incompleteSet.add(it)
+            }
+        }
+        return if (isDuplicate) ArrayList(duplicateSet) else ArrayList(incompleteSet)
     }
 
 }

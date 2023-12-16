@@ -16,11 +16,11 @@ import com.example.mvvm.databinding.ViewPopupIllustrateBinding
 class IllustratePopup(activity: FragmentActivity) : BasePopupWindow<ViewPopupIllustrateBinding>(activity, popupAnimStyle = ALPHA) {
 
     fun showUp(anchor: View?, text: String) {
-        mBinding.tvContent.text = text
+        mBinding?.tvContent?.text = text
         val location = IntArray(2)
         anchor?.getLocationOnScreen(location)
         val left = location[0]
-        mBinding.viewArrow.margin(start = left + (anchor?.measuredWidth.orZero / 2))
+        mBinding?.viewArrow.margin(start = left + (anchor?.measuredWidth.orZero / 2))
         showAtLocation(anchor, Gravity.NO_GRAVITY, 0, location[1] - measuredHeight - anchor?.measuredHeight.orZero)
     }
 
