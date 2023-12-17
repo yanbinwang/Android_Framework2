@@ -19,10 +19,10 @@ class ImageAdapter : BaseQuickAdapter<Int, ItemImageBinding>() {
         super.onConvert(holder, item, payloads)
 //        holder.getItemView().layoutParams =
 //            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
-        binding?.root?.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        mBinding?.root?.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         val index = holder.absoluteAdapterPosition.mod(list().safeSize)
         val bean = list().safeGet(index)
-        binding?.apply {
+        mBinding?.apply {
             viewTest.setBackgroundColor(color(bean.orZero))
         }
     }

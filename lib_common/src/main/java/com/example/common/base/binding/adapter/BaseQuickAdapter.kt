@@ -12,7 +12,7 @@ import java.lang.reflect.ParameterizedType
 @Suppress("UNCHECKED_CAST")
 abstract class BaseQuickAdapter<T, VDB : ViewDataBinding> : BaseAdapter<T> {
     protected var mContext: Context? = null
-    protected var binding: VDB? = null
+    protected var mBinding: VDB? = null
 
     constructor() : super(arrayListOf())
 
@@ -22,13 +22,15 @@ abstract class BaseQuickAdapter<T, VDB : ViewDataBinding> : BaseAdapter<T> {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewDataBindingHolder {
         mContext = parent.context
-        val superclass = javaClass.genericSuperclass
-        val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(1) as? Class<*>
+        val aClass = try {
+            (javaClass.genericSuperclass as? ParameterizedType)?.actualTypeArguments?.get(1) as? Class<*>
+        } catch (_: Exception) {
+        }
         return onCreateViewBindingHolder(parent, aClass as? Class<VDB>)
     }
 
     override fun onConvert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>?) {
-        binding = holder.getBinding()
+        mBinding = holder.getBinding()
     }
 
 }
