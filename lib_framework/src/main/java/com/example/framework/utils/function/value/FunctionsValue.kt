@@ -94,8 +94,7 @@ fun getMemInfo(): Long {
     try {
         val localBufferedReader = BufferedReader(FileReader("/proc/meminfo"), 8192)
         //系统内存信息文件,读取meminfo第一行，系统总内存大小
-        val infoStr = localBufferedReader.readLine()
-        val arrayOfString = infoStr.split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val arrayOfString = localBufferedReader.readLine().split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         //获得系统总内存，单位是KB
         val systemMemory = Integer.valueOf(arrayOfString[1]).toSafeInt()
         //int值乘以1024转换为long类型
@@ -110,24 +109,23 @@ fun getMemInfo(): Long {
  * 获取手机cpu信息-报错或获取失败显示""
  */
 fun getCpuInfo(): String {
-    try {
-        val result = BufferedReader(FileReader("/proc/cpuinfo")).readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
-        return if ("0" == result || result.isEmpty()) "" else result
+    return try {
+        val localBufferedReader = BufferedReader(FileReader("/proc/cpuinfo"))
+        val info = localBufferedReader.readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
+        localBufferedReader.close()
+        return if ("0" == info || info.isEmpty()) "" else info
     } catch (_: Exception) {
+        ""
     }
-    return ""
 }
 
 /**
  * 是否Root-报错或获取失败都为未Root
  */
 fun mobileIsRoot(): Boolean {
-    var file: File
-    val paths = arrayOf("/system/bin/", "/system/xbin/", "/system/sbin/", "/sbin/", "/vendor/bin/")
     try {
-        for (element in paths) {
-            file = File(element + "su")
-            if (file.exists()) return true
+        for (element in arrayOf("/system/bin/", "/system/xbin/", "/system/sbin/", "/sbin/", "/vendor/bin/")) {
+            if (File(element + "su").exists()) return true
         }
     } catch (_: Exception) {
     }
