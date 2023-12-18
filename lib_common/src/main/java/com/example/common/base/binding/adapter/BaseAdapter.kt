@@ -1,9 +1,6 @@
 package com.example.common.base.binding.adapter
 
 import android.annotation.SuppressLint
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.example.common.base.binding.adapter.BaseItemType.BEAN
 import com.example.common.base.binding.adapter.BaseItemType.LIST
@@ -15,7 +12,6 @@ import com.example.framework.utils.function.view.click
  * Created by WangYanBin on 2020/7/17.
  * 基础适配器，适用于定制页面，加头加尾，需要重写onCreateViewHolder
  */
-@Suppress("UNCHECKED_CAST")
 @SuppressLint("NotifyDataSetChanged")
 abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> {
     /**
@@ -91,19 +87,6 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 统一回调
      */
     protected abstract fun onConvert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>? = null)
-
-    /**
-     * 构建ViewBinding
-     */
-    protected fun <VDB : ViewDataBinding> onCreateViewBindingHolder(parent: ViewGroup, aClass: Class<VDB>?): BaseViewDataBindingHolder {
-        var binding: VDB? = null
-        try {
-            val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            binding = method?.invoke(null, LayoutInflater.from(parent.context), parent, false) as? VDB
-        } catch (_: Exception) {
-        }
-        return BaseViewDataBindingHolder(parent, binding)
-    }
 
     /**
      * 刷新符合条件的item（数据在item内部更改）

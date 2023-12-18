@@ -3,6 +3,7 @@ package com.example.common.base.binding.adapter
 import android.content.Context
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
+import com.example.common.base.binding.adapter.BaseViewDataBindingHolder.Companion.onCreateViewBindingHolder
 import java.lang.reflect.ParameterizedType
 
 /**
