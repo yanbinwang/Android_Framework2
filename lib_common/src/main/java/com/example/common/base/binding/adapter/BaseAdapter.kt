@@ -48,7 +48,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     constructor(bean: T?) {
         itemType = BEAN
-        if (t != null) t = bean
+        t = bean
     }
 
     /**
@@ -56,7 +56,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     constructor(list: ArrayList<T>?) {
         itemType = LIST
-        if (list != null) data = list
+        data = list.orEmpty().toArrayList()
     }
 
     override fun getItemCount(): Int {
