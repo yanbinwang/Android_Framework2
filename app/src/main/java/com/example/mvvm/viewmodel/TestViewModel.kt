@@ -1,5 +1,7 @@
 package com.example.mvvm.viewmodel
 
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.async
 import com.example.common.base.bridge.launch
@@ -15,6 +17,12 @@ import kotlinx.coroutines.awaitAll
  * 串行/并发是否需要dialog需要主动调取，单纯一次性发起不需要
  */
 class TestViewModel : BaseViewModel() {
+    private val tokenData by lazy { MutableLiveData<String?>() }
+
+    fun<T> MutableLiveData<T>?.observe(observer: Observer<in T>){
+        this?:return
+        observe(mActivity,observer)
+    }
 
     /**
      * 串行

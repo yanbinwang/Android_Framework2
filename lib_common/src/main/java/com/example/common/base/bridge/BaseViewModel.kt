@@ -247,6 +247,11 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         return async(Main, LAZY) { req.requestLayer({ coroutineScope() }, err) }
     }
 
+    open fun <T> MutableLiveData<T>?.observe(observer: Observer<in T>) {
+        this ?: return
+        observe(mActivity, observer)
+    }
+
     override fun onCleared() {
         super.onCleared()
         weakActivity?.clear()
