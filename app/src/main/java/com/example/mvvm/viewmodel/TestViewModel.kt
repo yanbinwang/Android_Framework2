@@ -17,12 +17,12 @@ import kotlinx.coroutines.awaitAll
  * 串行/并发是否需要dialog需要主动调取，单纯一次性发起不需要
  */
 class TestViewModel : BaseViewModel() {
-    private val tokenData by lazy { MutableLiveData<String?>() }
-
-    fun<T> MutableLiveData<T>?.observe(observer: Observer<in T>){
-        this?:return
-        observe(mActivity,observer)
-    }
+//    private val tokenData by lazy { MutableLiveData<String?>() }
+//
+//    fun<T> MutableLiveData<T>?.observe(observer: Observer<in T>){
+//        this?:return
+//        observe(mActivity,observer)
+//    }
 
     /**
      * 串行
