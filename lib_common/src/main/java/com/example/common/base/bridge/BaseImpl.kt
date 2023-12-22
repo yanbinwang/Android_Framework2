@@ -2,6 +2,7 @@ package com.example.common.base.bridge
 
 import android.view.View
 import com.example.common.R
+import com.example.framework.utils.function.value.GenericClass
 
 /**
  * Created by WangYanBin on 2020/6/11.
@@ -13,6 +14,12 @@ interface BaseImpl {
      * 构建viewmodel用作数据交互/网络请求
      */
     fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM
+
+    fun <VM : BaseViewModel> viewModel(): VM? {
+        val clazz = GenericClass<VM>().processGenericType()
+        clazz ?: return null
+        return createViewModel(clazz)
+    }
 
     /**
      * 初始化状态栏

@@ -3,12 +3,14 @@ package com.example.framework.utils.function.value
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Looper
+import android.view.LayoutInflater
 import androidx.annotation.ColorInt
 import com.example.framework.BuildConfig
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import java.io.IOException
+import java.lang.reflect.ParameterizedType
 import java.util.Locale
 
 //------------------------------------方法工具类------------------------------------
@@ -130,6 +132,25 @@ fun mobileIsRoot(): Boolean {
     } catch (_: Exception) {
     }
     return false
+}
+
+/**
+ * new一个对象，获取其中的clazz
+ */
+class GenericClass<T> {
+    private var clazz: Class<T>? = null
+
+    init {
+        val type = javaClass.genericSuperclass
+        if (type is ParameterizedType) {
+            try {
+                clazz = type.actualTypeArguments[0] as? Class<T>
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    fun processGenericType() = clazz
 }
 
 /**

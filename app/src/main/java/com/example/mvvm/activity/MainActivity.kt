@@ -115,6 +115,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private val viewModel by lazy { createViewModel(TestViewModel::class.java) }
     private val bean by lazy { intentParcelable("bean") as? UserBean }
 
+
+    private val viewModel2 by lazy { viewModel<TestViewModel>() }
+
     private var isOpen = false
 
     override fun initView() {
