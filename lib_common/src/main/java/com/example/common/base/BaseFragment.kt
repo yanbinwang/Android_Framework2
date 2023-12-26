@@ -10,9 +10,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.collection.ArrayMap
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.launcher.ARouter
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
@@ -66,6 +69,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(mActivity) }
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
+    private val dataManager by lazy { ArrayMap<MutableLiveData<*>, Observer<in Any?>>() }
     private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main + job
@@ -162,6 +166,9 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         super.onDetach()
         mBinding?.unbind()
         job.cancel()
+        for ((key, value) in dataManager) {
+            key.removeObserver(value ?: return)
+        }
     }
     // </editor-fold>
 
@@ -186,6 +193,11 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     protected open fun isEventBusEnabled(): Boolean {
         return false
+    }
+
+    protected open fun <T : Any> MutableLiveData<T>.observe(observer: Observer<in Any?>) {
+        dataManager[this] = observer
+        observe(this@BaseFragment, observer)
     }
     // </editor-fold>
 
