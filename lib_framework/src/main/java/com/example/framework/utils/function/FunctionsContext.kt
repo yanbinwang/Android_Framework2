@@ -258,7 +258,7 @@ fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParc
 /**
  * 可在协程类里传入AppComActivity，然后init{}方法里调取，销毁内部的job
  */
-fun Lifecycle?.doOnDestroy(func: () -> Unit) {
+inline fun Lifecycle?.doOnDestroy(crossinline func: () -> Unit) {
     this ?: return
     addObserver(object : LifecycleEventObserver {
         override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
@@ -273,10 +273,10 @@ fun Lifecycle?.doOnDestroy(func: () -> Unit) {
     })
 }
 
-fun AppCompatActivity?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
+inline fun AppCompatActivity?.doOnDestroy(crossinline func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
 
-fun Fragment?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
+inline fun Fragment?.doOnDestroy(crossinline func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
 
-fun LifecycleOwner?.doOnDestroy(func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
+inline fun LifecycleOwner?.doOnDestroy(crossinline func: () -> Unit) = this?.lifecycle?.doOnDestroy(func)
 
-fun ViewDataBinding?.doOnDestroy(func: () -> Unit) = this?.lifecycleOwner?.doOnDestroy(func)
+inline fun ViewDataBinding?.doOnDestroy(crossinline func: () -> Unit) = this?.lifecycleOwner?.doOnDestroy(func)

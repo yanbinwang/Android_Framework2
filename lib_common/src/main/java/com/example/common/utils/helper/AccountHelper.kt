@@ -8,7 +8,7 @@ import com.example.common.config.CacheData.userBean
 import com.example.common.config.CacheData.userInfoBean
 import com.example.common.config.Constants
 import com.example.common.event.EventCode.EVENT_USER_INFO_REFRESH
-import com.example.common.socket.utils.WebSocketConnect
+import com.example.common.socket.WebSocketConnect
 import com.example.common.utils.AppManager
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.orFalse
@@ -20,7 +20,7 @@ import com.example.framework.utils.function.value.orFalse
  */
 object AccountHelper {
     //默认用户文件保存位置
-    val storage get() = "${Constants.APPLICATION_PATH}/手机文件/${getUserId()}/"
+    val storage get() = "${Constants.APPLICATION_PATH}/手机文件/${getUserId()}"
 
     // <editor-fold defaultstate="collapsed" desc="用户类方法">
     /**

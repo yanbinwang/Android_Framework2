@@ -22,6 +22,7 @@ import com.example.framework.utils.TextSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.isBottom
@@ -30,12 +31,14 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.rotate
 import com.example.framework.utils.function.view.size
 import com.example.mvvm.R
+import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.VideoSnapManager
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestTopDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
 
 /**
  *  <data>
@@ -109,15 +112,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //    private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
 //    private val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
-    private val viewModel by lazy { TestViewModel() }
+    private val viewModel by lazy { createViewModel(TestViewModel::class.java) }
     private val bean by lazy { intentParcelable("bean") as? UserBean }
+
+
+    private val viewModel2 by lazy { viewModel<TestViewModel>() }
 
     private var isOpen = false
 
     override fun initView() {
         super.initView()
 
-        binding.ivArrow.click { isOpen = it.rotate(isOpen) }
+        mBinding?.ivArrow.click { isOpen = it.rotate(isOpen) }
 
 //        adapter.refresh(ids)
 //        binding.rvTest.adapter = adapter
@@ -173,7 +179,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        binding.tvTest.movementMethod = LinkMovementMethod.getInstance()
 
 
-        binding.tvTest.text = TextSpan()
+        mBinding?.tvTest?.text = TextSpan()
             .add("在Cheezeebit交易，訂單賺取高達", SizeSpan(dimen(R.dimen.textSize14)))
             .add(
                 " 0.5% ",
@@ -250,38 +256,64 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
         //通过代码动态重置一下顶部的高度
         val bgHeight = 164.pt + getStatusBarHeight()
-        binding.ivFundsBg.size(height = bgHeight)
-        binding.llFunds.apply {
+        mBinding?.ivFundsBg.size(height = bgHeight)
+        mBinding?.llFunds.apply {
             size(height = bgHeight)
             padding(top = getStatusBarHeight())
         }
         //全屏的刷新，顶部需要空出导航栏的距离
-        binding.refresh.setHeaderMaxDragRate()
+        mBinding?.refresh.setHeaderMaxDragRate()
         //设置头部的滑动监听
-        binding.refresh.setHeaderDragListener { isDragging, percent, offset, height, maxDragHeight ->
+        mBinding?.refresh.setHeaderDragListener { isDragging, percent, offset, height, maxDragHeight ->
             changeBgHeight(offset)
         }
-        binding.viewContent.click {
+        mBinding?.viewContent.click {
 //            "dsfdsfdsfds".shortToast()
             testBottom.show(supportFragmentManager, "testBottom")
 //            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
         }
         launch {
             delay(2000)
-            binding.ivBg.load("https://images.91fafafa.com/upload/image/banner/banner.png")
+            mBinding?.ivBg?.load("https://images.91fafafa.com/upload/image/banner/banner.png")
         }
+
     }
 
     /**
      * 滑动时改变对应的图片高度
      */
     private fun changeBgHeight(offset: Int) {
-        val imgBgHeight = binding.llFunds.measuredHeight
+        val imgBgHeight = mBinding?.llFunds?.measuredHeight.orZero
         if (imgBgHeight <= 0) return
         //设置视图围绕其旋转和缩放的点的 y 位置。默认情况下，枢轴点以对象为中心。设置此属性会禁用此行为并导致视图仅使用显式设置的 pivotX 和 pivotY 值。
-        binding.ivFundsBg.pivotY = 0f
+        mBinding?.ivFundsBg?.pivotY = 0f
         //设置视图围绕轴心点在 Y 轴上缩放的量，作为视图未缩放宽度的比例。值为 1 表示不应用缩放。
-        binding.ivFundsBg.scaleY = offset.toSafeFloat() / imgBgHeight.toSafeFloat() + 1f
+        mBinding?.ivFundsBg?.scaleY = offset.toSafeFloat() / imgBgHeight.toSafeFloat() + 1f
+    }
+
+    /**
+     * list1为服务器中数据
+     * list2为本地存储数据
+     * isDuplicate:是否返回重复的或不重复的数据
+     * 正向查为服务器新增数据
+     * 反向查为本地删除数据
+     */
+    private fun <T> List<T>?.filter(
+        list: List<T>,
+        isDuplicate: Boolean = false
+    ): ArrayList<T>? {
+        this ?: return null
+        val filterSet = HashSet<T>(this)//将List1转换为Set，去除重复元素
+        val duplicateSet = HashSet<T>()//重复的
+        val incompleteSet = HashSet<T>()//不重复的
+        list.forEach {
+            if (filterSet.contains(it)) {
+                duplicateSet.add(it)
+            } else {
+                incompleteSet.add(it)
+            }
+        }
+        return if (isDuplicate) ArrayList(duplicateSet) else ArrayList(incompleteSet)
     }
 
 }

@@ -28,20 +28,20 @@ import java.lang.reflect.ParameterizedType
  * window?.setWindowAnimations(R.style.pushRightAnimStyle)
  * window?.setGravity(Gravity.TOP xor Gravity.END)
  */
-@Suppress("LeakingThis")
+@Suppress("LeakingThis", "UNCHECKED_CAST")
 abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: Int = 320, dialogHeight: Int = WRAP_CONTENT, gravity: Int = CENTER, themeResId: Int = R.style.DialogStyle, animation: Boolean = true, close: Boolean = true) : Dialog(context, themeResId) {
-    protected lateinit var binding: VDB
+    protected var mBinding: VDB? = null
     private var dialogView: View? = null
 
     init {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
-                val vdbClass = type.actualTypeArguments[0] as Class<VDB>
-                val method = vdbClass.getMethod("inflate", LayoutInflater::class.java)
-                binding = method.invoke(null, layoutInflater) as VDB
-                setContentView(binding.root)
-                dialogView = binding.root
+                val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
+                val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
+                mBinding = method?.invoke(null, layoutInflater) as? VDB
+                mBinding?.root?.let { setContentView(it) }
+                dialogView = mBinding?.root
             } catch (_: Exception) {
             }
         }
@@ -91,10 +91,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
         if (window?.decorView == null) return
         if (window?.decorView?.parent == null) return
         super.dismiss()
-        try {
-            binding.unbind()
-        } catch (_: Exception) {
-        }
+        mBinding?.unbind()
     }
 
     open fun shown(flag: Boolean = false) {

@@ -1,5 +1,7 @@
 package com.example.common.base.page
 
+import com.example.framework.utils.function.value.orZero
+
 /**
  *  Created by wangyanbin
  *  项目中分页统一外层套该类(合并部分接口带有data部分带有list)
@@ -8,6 +10,32 @@ data class Page<T>(
     var total: Int? = null,//总记录数
     var list: MutableList<T>? = null
 )
+
+/**
+ * 提供两种转换思路，嵌套一层得到我们想要的page对象
+ */
+class PageList<T>(private val list: List<T>) : List<T> by list {
+    private var total = 0
+
+    fun setTotal(total: Int?) {
+        this.total = total.orZero
+    }
+
+    fun getPage(): Page<T> {
+        return Page<T>().also {
+            it.list = list as? MutableList<T>
+            it.total = total
+        }
+    }
+}
+
+fun <T> List<T>?.getPage(total: Int?): Page<T>? {
+    if (isNullOrEmpty()) return null
+    return Page<T>().also {
+        it.list = this as? MutableList<T>
+        it.total = total
+    }
+}
 
 /**
  * Created by WangYanBin on 2020/7/1.
@@ -46,7 +74,7 @@ class Paging {
     var page = 1//当前页数
 
     //刷新清空
-    fun onRefresh(listener: () -> Unit = {}) {
+    inline fun onRefresh(crossinline listener: () -> Unit = {}) {
         hasRefresh = true
         page = 1
         currentCount = 0
@@ -55,7 +83,7 @@ class Paging {
     }
 
     //加载更多
-    fun onLoad(listener: (noMore: Boolean) -> Unit = {}) {
+    inline fun onLoad(crossinline listener: (noMore: Boolean) -> Unit = {}) {
         if (hasNextPage()) {
             hasRefresh = false
             ++page

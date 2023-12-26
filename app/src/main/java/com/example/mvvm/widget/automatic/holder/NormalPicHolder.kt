@@ -10,18 +10,14 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.getFileFromUri
-import com.example.common.utils.permission.PermissionFactory
+import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.LoadingDialog
-import com.example.framework.utils.function.doOnDestroy
-import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.click
-import com.example.mvvm.R
 import com.example.mvvm.databinding.ViewNormalPicBinding
 import com.example.mvvm.widget.automatic.AutomaticBean
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 
@@ -33,7 +29,7 @@ class NormalPicHolder(private val activity: AppCompatActivity, private val bean:
 //    private val binding by lazy { ViewNormalPicBinding.bind(activity.inflate(R.layout.view_normal_edit)) }
     private val binding by lazy { ViewNormalPicBinding.inflate(activity.layoutInflater) }
     private val loadingDialog by lazy { LoadingDialog(activity) }
-    private val permission by lazy { PermissionFactory(activity) }
+    private val permission by lazy { PermissionHelper(activity) }
     private val activityResultValue = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
             it?.data ?: return@registerForActivityResult

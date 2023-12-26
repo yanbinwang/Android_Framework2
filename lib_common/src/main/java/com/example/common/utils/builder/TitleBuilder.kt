@@ -21,20 +21,20 @@ import com.example.framework.utils.function.view.visible
  * 顶部标题默认不具备任何颜色和显示的按钮
  * 格式->左右侧图片/文本，中间是大标题
  */
-class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding) {
-    val layout: ConstraintLayout
-        get() = binding.clContainer
-    val ivLeft: ImageView
-        get() = binding.ivLeft
-    val tvLeft: TextView
-        get() = binding.tvLeft
-    val ivRight: ImageView
-        get() = binding.ivRight
-    val tvRight: TextView
-        get() = binding.tvRight
+class TitleBuilder(private val activity: Activity, private val binding: ViewTitleBarBinding?) {
+    val layout: ConstraintLayout?
+        get() = binding?.clContainer
+    val ivLeft: ImageView?
+        get() = binding?.ivLeft
+    val tvLeft: TextView?
+        get() = binding?.tvLeft
+    val ivRight: ImageView?
+        get() = binding?.ivRight
+    val tvRight: TextView?
+        get() = binding?.tvRight
 
     init {
-        binding.clContainer.padding(top = getStatusBarHeight())
+        binding?.clContainer.padding(top = getStatusBarHeight())
     }
 
     /**
@@ -44,10 +44,10 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * bgColor->背景颜色
      * shade->标题底部是否带阴影
      */
-    fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgDefault, shade: Boolean = false): TitleBuilder {
-        binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
-        binding.tvTitle.setArguments(title, titleColor)
-        binding.viewShade.apply { if (shade) visible() else gone() }
+    fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, shade: Boolean = false): TitleBuilder {
+        binding?.clContainer?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
+        binding?.tvTitle?.setArguments(title, titleColor)
+        binding?.viewShade?.apply { if (shade) visible() else gone() }
         setLeft()
         return this
     }
@@ -55,8 +55,8 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     /**
      * 部分页面不需要标题，只需要一个定制的返回按钮和特定背景，故而使用此方法
      */
-    fun setTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }, bgColor: Int = R.color.bgDefault): TitleBuilder {
-        binding.clContainer.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
+    fun setTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }, bgColor: Int = R.color.bgToolbar): TitleBuilder {
+        binding?.clContainer?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
         setLeft(resId, tintColor, onClick)
         return this
     }
@@ -80,24 +80,24 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * onClick->点击事件
      */
     fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }): TitleBuilder {
-        binding.ivLeft.apply {
+        binding?.ivLeft?.apply {
             visible()
             setResource(resId)
             if (0 != tintColor) tint(tintColor)
             click { onClick.invoke() }
         }
-        binding.tvLeft.gone()
+        binding?.tvLeft.gone()
         return this
     }
 
     fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }): TitleBuilder {
-        binding.ivRight.apply {
+        binding?.ivRight?.apply {
             visible()
             setResource(resId)
             if (0 != tintColor) tint(tintColor)
             click { onClick.invoke() }
         }
-        binding.tvRight.gone()
+        binding?.tvRight.gone()
         return this
     }
 
@@ -108,22 +108,22 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * onClick->点击事件
      */
     fun setLeft(label: String, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = { activity.finish() }): TitleBuilder {
-        binding.tvLeft.apply {
+        binding?.tvLeft?.apply {
             visible()
             setArguments(label, labelColor)
             click { onClick.invoke() }
         }
-        binding.ivLeft.gone()
+        binding?.ivLeft.gone()
         return this
     }
 
     fun setRight(label: String, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = { activity.finish() }): TitleBuilder {
-        binding.tvRight.apply {
+        binding?.tvRight?.apply {
             visible()
             setArguments(label, labelColor)
             click { onClick.invoke() }
         }
-        binding.ivRight.gone()
+        binding?.ivRight.gone()
         return this
     }
 
@@ -131,7 +131,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * 整体隐藏
      */
     fun hideTitle() {
-        binding.clContainer.gone()
+        binding?.clContainer.gone()
     }
 
 }

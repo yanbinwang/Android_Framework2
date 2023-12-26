@@ -3,10 +3,10 @@ package com.example.thirdparty.album
 import android.app.Activity
 import android.graphics.Color
 import com.example.common.base.page.RequestCode.REQUEST_PHOTO
-import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.mb
 import com.example.common.utils.function.string
+import com.example.common.utils.helper.AccountHelper.storage
 import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
 import com.example.thirdparty.R
@@ -41,11 +41,11 @@ class AlbumHelper(activity: Activity) {
     /**
      * 跳转至相机-拍照
      */
-    fun takePicture(filePath: String, hasTailor: Boolean = false, onResult: (albumPath: String?) -> Unit = {}) {
+    fun takePicture(filePath: String, hasDurban: Boolean = false, onResult: (albumPath: String?) -> Unit = {}) {
         albumCamera
             .image()
             .filePath(filePath)
-            .onResult { if (hasTailor) toTailor(it) else onResult.invoke(it) }
+            .onResult { if (hasDurban) toDurban(it) else onResult.invoke(it) }
             .start()
     }
 
@@ -66,7 +66,7 @@ class AlbumHelper(activity: Activity) {
     /**
      * 选择图片
      */
-    fun imageSelection(hasCamera: Boolean = true, hasTailor: Boolean = false, megabyte: Long = 10, onResult: (albumPath: String?) -> Unit = {}) {
+    fun imageSelection(hasCamera: Boolean = true, hasDurban: Boolean = false, megabyte: Long = 10, onResult: (albumPath: String?) -> Unit = {}) {
         albumImage
             //多选模式为：multipleChoice,单选模式为：singleChoice()
             .singleChoice()
@@ -85,7 +85,7 @@ class AlbumHelper(activity: Activity) {
                         string(R.string.albumImageError, megabyte.mb.toString()).shortToast()
                         return@onResult
                     }
-                    if (hasTailor) toTailor(path) else onResult.invoke(path)
+                    if (hasDurban) toDurban(path) else onResult.invoke(path)
                 }
             }.start()
     }
@@ -120,7 +120,7 @@ class AlbumHelper(activity: Activity) {
     /**
      * 开始裁剪
      */
-    private fun toTailor(vararg imagePathArray: String) {
+    private fun toDurban(vararg imagePathArray: String) {
         albumDurban
             //裁剪界面的标题
             .title(" ")
@@ -131,7 +131,7 @@ class AlbumHelper(activity: Activity) {
             //图片路径list或者数组
             .inputImagePaths(*imagePathArray)
             //图片输出文件夹路径
-            .outputDirectory("${Constants.APPLICATION_PATH}/裁剪图片")
+            .outputDirectory("${storage}裁剪图片")
             //裁剪图片输出的最大宽高
             .maxWidthHeight(500, 500)
             //裁剪时的宽高比

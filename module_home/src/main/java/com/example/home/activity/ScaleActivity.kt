@@ -22,7 +22,7 @@ import com.example.home.widget.scale.ScaleImageView
  */
 @Route(path = ARouterPath.ScaleActivity)
 class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
-    private val titleBuilder by lazy { TitleBuilder(this, binding.titleContainer) }
+    private val titleBuilder by lazy { TitleBuilder(this, mBinding?.titleContainer) }
     private val list by lazy { intentSerializable<ArrayList<String>>(Extra.BUNDLE_LIST) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +49,7 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
     override fun initData() {
         super.initData()
         val imgList = list?.toNewList { ScaleImageView(this) to it }
-        binding.vpPage.apply {
+        mBinding?.vpPage?.apply {
             adapter = ScaleAdapter(imgList)
             currentItem = 0
             animation = enterAnimation()

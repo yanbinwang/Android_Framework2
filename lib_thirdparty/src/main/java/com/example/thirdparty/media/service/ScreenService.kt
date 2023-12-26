@@ -16,8 +16,8 @@ import androidx.core.app.NotificationCompat
 import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenDensity
 import com.example.framework.utils.function.value.orZero
-import com.example.thirdparty.media.utils.MediaUtil.MediaType
 import com.example.thirdparty.media.utils.MediaUtil
+import com.example.thirdparty.media.utils.MediaUtil.MediaType
 import com.example.thirdparty.media.utils.helper.ScreenHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.helper.ScreenHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick
@@ -34,8 +34,6 @@ import com.example.thirdparty.media.widget.TimerTick
  */
 class ScreenService : Service() {
     private var folderPath = ""
-    private var resultCode = 0
-    private var resultData: Intent? = null
     private var mediaProjection: MediaProjection? = null
     private var mediaRecorder: MediaRecorder? = null
     private var virtualDisplay: VirtualDisplay? = null
@@ -70,9 +68,9 @@ class ScreenService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         try {
-            resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1).orZero
-            resultData = intent?.getParcelableExtra(Extra.BUNDLE_BEAN)
-            mediaProjection = createMediaProjection()
+            val resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1).orZero
+            val resultData = intent?.getParcelableExtra(Extra.BUNDLE_BEAN) ?: Intent()
+            mediaProjection = createMediaProjection(resultCode, resultData)
             mediaRecorder = createMediaRecorder()
             virtualDisplay = createVirtualDisplay()
             mediaRecorder?.start()
@@ -81,14 +79,14 @@ class ScreenService : Service() {
         return START_STICKY
     }
 
-    private fun createMediaProjection(): MediaProjection? {
-        return (getSystemService(MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager)?.getMediaProjection(resultCode, resultData ?: Intent())
+    private fun createMediaProjection(resultCode: Int, resultData: Intent): MediaProjection? {
+        return (getSystemService(MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager)?.getMediaProjection(resultCode, resultData)
     }
 
     private fun createMediaRecorder(): MediaRecorder {
         val screenFile = MediaUtil.getOutputFile(MediaType.SCREEN)
         folderPath = screenFile?.absolutePath.orEmpty()
-        onShutter.invoke(folderPath,true)
+        onShutter.invoke(folderPath, true)
         return (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()).apply {
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
             setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -100,7 +98,11 @@ class ScreenService : Service() {
             setVideoFrameRate(60)
             try {
                 //若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) setOutputFile(screenFile?.absolutePath) else setOutputFile(screenFile)
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    setOutputFile(screenFile?.absolutePath)
+                } else {
+                    setOutputFile(screenFile)
+                }
                 prepare()
             } catch (_: Exception) {
             }
@@ -129,7 +131,7 @@ class ScreenService : Service() {
             mediaProjection = null
         } catch (_: Exception) {
         }
-        onShutter.invoke(folderPath,false)
+        onShutter.invoke(folderPath, false)
     }
 
 }
