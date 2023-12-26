@@ -169,6 +169,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         for ((key, value) in dataManager) {
             key.removeObserver(value ?: return)
         }
+        dataManager.clear()
     }
     // </editor-fold>
 

@@ -217,6 +217,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         for ((key, value) in dataManager) {
             key.removeObserver(value ?: return)
         }
+        dataManager.clear()
     }
     // </editor-fold>
 

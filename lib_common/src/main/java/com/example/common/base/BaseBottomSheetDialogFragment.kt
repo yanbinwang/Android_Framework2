@@ -307,6 +307,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         for ((key, value) in dataManager) {
             key.removeObserver(value ?: return)
         }
+        dataManager.clear()
     }
     // </editor-fold>
 

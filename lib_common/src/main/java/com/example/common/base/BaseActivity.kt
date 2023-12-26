@@ -206,6 +206,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         for ((key, value) in dataManager) {
             key.removeObserver(value ?: return)
         }
+        dataManager.clear()
     }
     // </editor-fold>
 
