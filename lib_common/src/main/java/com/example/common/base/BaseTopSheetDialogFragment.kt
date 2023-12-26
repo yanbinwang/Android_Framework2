@@ -212,12 +212,12 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
 
     override fun onDetach() {
         super.onDetach()
-        mBinding?.unbind()
-        job.cancel()
         for ((key, value) in dataManager) {
             key.removeObserver(value ?: return)
         }
         dataManager.clear()
+        mBinding?.unbind()
+        job.cancel()
     }
     // </editor-fold>
 
