@@ -65,11 +65,11 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
      * 继承BaseActivity，在xml中include对应标题布局
      * 把布局bind传入工具类，实现绑定后，调取对应方法
      */
-    fun setTransparentTitle(title: String = "", titleColor: Int = R.color.textPrimary): TitleBuilder {
+    fun setTransparent(title: String = "", titleColor: Int = R.color.textPrimary): TitleBuilder {
         return setTitle(title, titleColor, 0)
     }
 
-    fun setTransparentTitleSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }): TitleBuilder {
+    fun setTransparentSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }): TitleBuilder {
         return setTitleSecondary(resId, tintColor, onClick, 0)
     }
 
