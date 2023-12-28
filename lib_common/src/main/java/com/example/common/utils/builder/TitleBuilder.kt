@@ -55,7 +55,7 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
     /**
      * 部分页面不需要标题，只需要一个定制的返回按钮和特定背景，故而使用此方法
      */
-    fun setTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }, bgColor: Int = R.color.bgToolbar): TitleBuilder {
+    fun setTitleSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }, bgColor: Int = R.color.bgToolbar): TitleBuilder {
         binding?.clContainer?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else activity.color(bgColor))
         setLeft(resId, tintColor, onClick)
         return this
@@ -69,8 +69,8 @@ class TitleBuilder(private val activity: Activity, private val binding: ViewTitl
         return setTitle(title, titleColor, 0)
     }
 
-    fun setTransparentTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }): TitleBuilder {
-        return setTitle(resId, tintColor, onClick, 0)
+    fun setTransparentTitleSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity.finish() }): TitleBuilder {
+        return setTitleSecondary(resId, tintColor, onClick, 0)
     }
 
     /**
