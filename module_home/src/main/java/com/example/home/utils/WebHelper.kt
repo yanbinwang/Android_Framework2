@@ -31,9 +31,9 @@ import java.lang.ref.WeakReference
 class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
     //在此处获取跳转的值以及重新绑定对应的view
     private val bean by lazy { activity.intentSerializable<WebBundle>(Extra.BUNDLE_BEAN) }
-    private val binding by lazy { ActivityWebBinding.inflate(activity.layoutInflater) }
-    private val titleBuilder by lazy { TitleBuilder(activity, binding.titleContainer) }
-    private val webUtil by lazy { WebUtil(activity, binding.flWebRoot) }
+    private val mBinding by lazy { ActivityWebBinding.inflate(activity.layoutInflater) }
+    private val titleBuilder by lazy { TitleBuilder(activity, mBinding.titleContainer) }
+    private val webUtil by lazy { WebUtil(activity, mBinding.flWebRoot) }
     private val webView get() = webUtil.webView
 
     init {
@@ -58,7 +58,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
         webView?.settings?.loadWithOverviewMode = true
         //WebView与JS交互
         webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(activity)), "JSCallAndroid")
-        webView?.setClient(binding.pbWeb, {
+        webView?.setClient(mBinding.pbWeb, {
             //开始加载页面的操作...
         }, {
             //加载完成后的操作...(不传标题则使用web加载的标题)
@@ -119,7 +119,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
                 webView?.removeJavascriptInterface("JSCallAndroid")
                 webView?.clear()
 //                webView = null
-                binding.unbind()
+                mBinding.unbind()
                 activity.lifecycle.removeObserver(this)
             }
             else -> {}
