@@ -25,8 +25,6 @@
     <color name="bgWhite">#ffffff</color>
     <color name="bgBlack">#000000</color>
     <color name="bgBlue">#3d81f2</color>
-    <!--    <color name="textLightBlack">#525B65</color>-->
-    <!--    <color name="textDarkBlack">#666666</color>-->
     <color name="textBlack">#000000</color>
     <color name="textWhite">#ffffff</color>
     <color name="textRed">#E25728</color>
