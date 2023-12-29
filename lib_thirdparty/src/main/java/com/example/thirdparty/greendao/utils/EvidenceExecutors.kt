@@ -1,11 +1,13 @@
 package com.example.thirdparty.greendao.utils
 
 import androidx.lifecycle.LifecycleOwner
+import com.example.common.event.EventCode.EVENT_EVIDENCE_UPDATE
 import com.example.common.utils.file.FileUtil
 import com.example.common.utils.file.deleteFile
 import com.example.common.utils.file.getSizeFormat
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.framework.utils.function.doOnDestroy
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
 import com.example.thirdparty.greendao.bean.EvidenceDB
 import kotlinx.coroutines.CoroutineScope
@@ -18,12 +20,14 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
+import java.lang.ref.WeakReference
 import kotlin.coroutines.CoroutineContext
 
 /**
  * 放在MainActivity中addObserver，绑定全局的文件上传
  */
 object EvidenceExecutors : CoroutineScope {
+    private var evidenceImpl: WeakReference<EvidenceImpl>? = null
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
@@ -35,6 +39,14 @@ object EvidenceExecutors : CoroutineScope {
     @JvmStatic
     fun addObserver(observer: LifecycleOwner) {
         observer.doOnDestroy { job.cancel() }
+    }
+
+    /**
+     * 部分页面实现回调
+     */
+    @JvmStatic
+    fun bind(evidenceImpl: WeakReference<EvidenceImpl>) {
+        this.evidenceImpl = evidenceImpl
     }
 
     /**
@@ -79,7 +91,7 @@ object EvidenceExecutors : CoroutineScope {
             EvidenceHelper.insert(queryDB)
             //先将当前查询/创建的数据在未上传列表内刷出来，文件分片需要一些时间
             EvidenceHelper.update(sourcePath, true)
-//            LiveDataBus.instance.post(LiveDataEvent(Constants.APP_EVIDENCE_EXTRAS_UPDATE))
+            evidenceImpl?.get()?.onStart(baoquan_no)
             //开始分片，并获取分片信息
             val tmp = EvidenceHelper.split(queryDB)
             queryDB.filePointer = tmp.fileSize
@@ -111,7 +123,7 @@ object EvidenceExecutors : CoroutineScope {
                     //获取下一块分片,并且记录
                     val nextTmp = EvidenceHelper.split(fileDB)
                     fileDB.filePointer = nextTmp.fileSize
-//                    LiveDataBus.instance.post(LiveDataEvent(Constants.APP_EVIDENCE_EXTRAS_UPDATE))
+                    evidenceImpl?.get()?.onLoading(baoquan_no, (fileDB.index / queryDB.total).toSafeInt())
                     //再开启下一次传输
                     suspendingUpload(fileDB, nextTmp.filePath.orEmpty(), fileType, baoquan_no, isZip)
                 } else if (fileDB.index >= queryDB.total) {
@@ -122,7 +134,8 @@ object EvidenceExecutors : CoroutineScope {
 //                    queryDB.sourcePath.deleteFile()
 //                    EvidenceHelper.complete(queryDB.sourcePath, true)
 //                    EvidenceHelper.delete(queryDB.sourcePath)
-//                        LiveDataBus.instance.post(LiveDataEvent(Constants.APP_EVIDENCE_UPDATE, fileType), LiveDataEvent(Constants.APP_EVIDENCE_EXTRAS_UPDATE))
+//                    EVENT_EVIDENCE_UPDATE.post(fileType)
+//                    evidenceImpl?.get()?.onComplete(baoquan_no,true)
 //                    })
                 }
             }
@@ -140,7 +153,7 @@ object EvidenceExecutors : CoroutineScope {
     @JvmStatic
     fun upload(baoquan_no: String, sourcePath: String, fileType: String, isZip: Boolean = false) {
         EvidenceHelper.insert(query(baoquan_no, sourcePath))
-//        LiveDataBus.instance.post(LiveDataEvent(Constants.APP_EVIDENCE_EXTRAS_UPDATE))
+        evidenceImpl?.get()?.onStart(baoquan_no)
         val mediaType = when (fileType) {
             "1" -> "image"
             "2" -> "audio"
@@ -155,18 +168,34 @@ object EvidenceExecutors : CoroutineScope {
         sourcePath.deleteFile()
         EvidenceHelper.complete(baoquan_no, true)
         EvidenceHelper.delete(baoquan_no)
-//        LiveDataBus.instance.post(LiveDataEvent(Constants.APP_EVIDENCE_UPDATE, fileType))
+        EVENT_EVIDENCE_UPDATE.post(fileType)
+        evidenceImpl?.get()?.onComplete(baoquan_no, true)
         " \n————————————————————————文件上传————————————————————————\n文件路径：${baoquan_no}::${sourcePath}\n上传状态：成功\n————————————————————————文件上传————————————————————————".logWTF
         //失败
         EvidenceHelper.complete(baoquan_no)
+        evidenceImpl?.get()?.onComplete(baoquan_no, false)
         " \n————————————————————————文件上传————————————————————————\n文件路径:${baoquan_no}::${sourcePath}\n上传状态：失败\n失败原因：xxxx\n————————————————————————文件上传————————————————————————".logWTF
         //完成
-//        LiveDataBus.instance.post(LiveDataEvent(Constants.APP_EVIDENCE_EXTRAS_UPDATE))
+//        evidenceImpl?.get()?.onComplete(baoquan_no)
         " \n————————————————————————文件上传————————————————————————\n上传完毕:${baoquan_no}::${sourcePath}\n————————————————————————文件上传————————————————————————".logWTF
     }
 
     private fun query(baoquan_no: String, sourcePath: String): EvidenceDB {
-        return EvidenceHelper.query(baoquan_no) ?: EvidenceDB(baoquan_no, sourcePath, getUserId(), 0, 0, true, false)
+        return EvidenceHelper.query(baoquan_no) ?: EvidenceDB(
+            baoquan_no,
+            sourcePath,
+            getUserId(),
+            0,
+            0,
+            true,
+            false
+        )
     }
 
+}
+
+interface EvidenceImpl {
+    fun onStart(baoquan_no: String)//更新某个item的状态（开始上传）
+    fun onLoading(baoquan_no: String, progress: Int)//更新某个item的进度
+    fun onComplete(baoquan_no: String, success: Boolean)
 }

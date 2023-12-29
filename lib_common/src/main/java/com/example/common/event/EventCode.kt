@@ -21,4 +21,7 @@ object EventCode {
     //按下Home键,菜单键,电源键
     val EVENT_MENU_ACTION = Code<Any>()
 
+    //证据列表更新（返回fileType）
+    val EVENT_EVIDENCE_UPDATE = Code<String>()
+
 }

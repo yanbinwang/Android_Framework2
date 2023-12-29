@@ -1,10 +1,10 @@
 package com.example.thirdparty.greendao.utils
 
+import com.example.common.config.Constants.STORAGE
 import com.example.common.utils.file.FileUtil
 import com.example.common.utils.file.FileUtil.TmpInfo
 import com.example.common.utils.file.deleteFile
 import com.example.common.utils.helper.AccountHelper.getUserId
-import com.example.common.utils.helper.AccountHelper.storage
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.logE
@@ -81,7 +81,7 @@ object EvidenceHelper {
     //获取对应文件在手机内的路径
     @JvmStatic
     fun sourcePath(appType: String, title: String): String {
-        return "${storage}${
+        return "${STORAGE}/${
             when (appType) {
                 "1" -> "拍照"
                 "2" -> "录音"
