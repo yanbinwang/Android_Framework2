@@ -2,8 +2,10 @@ package com.example.thirdparty.media.utils
 
 import android.content.Context
 import android.media.MediaPlayer
-import com.example.common.utils.helper.AccountHelper.storage
+import com.example.common.config.Constants.STORAGE
 import com.example.framework.utils.function.value.convert
+import com.example.framework.utils.function.value.divide
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.getSdcardAvailableCapacity
 import com.example.framework.utils.hasSdcard
 import com.example.framework.utils.logE
@@ -60,16 +62,18 @@ object MediaUtil {
      */
     @JvmStatic
     fun getOutputRoute(mimeType: MediaType): String {
-        return when (mimeType) {
-            //拍照/抓拍
-            MediaType.IMAGE -> "${storage}拍照"
-            //录像
-            MediaType.VIDEO -> "${storage}录像"
-            //录音
-            MediaType.AUDIO -> "${storage}录音"
-            //录屏
-            MediaType.SCREEN -> "${storage}录屏"
-        }
+        return "${STORAGE}/${
+            when (mimeType) {
+                //拍照/抓拍
+                MediaType.IMAGE -> "拍照"
+                //录像
+                MediaType.VIDEO -> "录像"
+                //录音
+                MediaType.AUDIO -> "录音"
+                //录屏
+                MediaType.SCREEN -> "录屏"
+            }
+        }"
     }
 
 }
@@ -84,15 +88,28 @@ fun Context.scanDiskSpace(space: Long = 1024) = getSdcardAvailableCapacity() > s
  * 返回时长(音频，视频)->不支持在线音视频
  * 放在线程中读取，超时会导致卡顿或闪退
  */
-fun String?.getDuration(): Double {
-    if (isNullOrEmpty()) return 0.0
+//fun String?.getDuration(): Double {
+//    if (isNullOrEmpty()) return 0.0
+//    val file = File(this)
+//    if (!file.exists()) return 0.0
+//    val medialPlayer = MediaPlayer()
+//    medialPlayer.setDataSource(file.absolutePath)
+//    medialPlayer.prepare()
+//    val time = medialPlayer.duration//视频时长（毫秒）
+//    val duration = (time / 1000.0)
+//    "文件时长：${duration}秒".logE()
+//    return duration
+//}
+
+fun String?.mediaDuration(): Int {
+    if (isNullOrEmpty()) return 0
     val file = File(this)
-    if (!file.exists()) return 0.0
+    if (!file.exists()) return 0
     val medialPlayer = MediaPlayer()
     medialPlayer.setDataSource(file.absolutePath)
     medialPlayer.prepare()
-    val time = medialPlayer.duration//视频时长（毫秒）
-    val duration = (time / 1000.0)
+    val time = medialPlayer.duration.toString()//视频时长（毫秒）
+    val duration = time.divide("1000")
     "文件时长：${duration}秒".logE()
-    return duration
+    return duration.toSafeInt()
 }

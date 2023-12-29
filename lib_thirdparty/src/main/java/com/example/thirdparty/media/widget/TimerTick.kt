@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.utils.helper
+package com.example.thirdparty.media.widget
 
 import android.app.AlertDialog
 import android.content.Context
@@ -10,7 +10,7 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import com.example.common.utils.helper.ConfigHelper.isAppOnForeground
+import com.example.common.utils.helper.ConfigHelper.appIsOnForeground
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orFalse
@@ -25,7 +25,7 @@ import java.util.TimerTask
  * @author yan
  * @description 录屏小组件工具栏
  */
-class TimeTickHelper(context: Context, move: Boolean = true) {
+class TimerTick(context: Context, move: Boolean = true) {
     private val binding by lazy { ViewTimeTickBinding.bind(context.inflate(R.layout.view_time_tick)) }
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
@@ -105,7 +105,7 @@ class TimeTickHelper(context: Context, move: Boolean = true) {
                         timerCount++
                         //每秒做一次检测，当程序退到后台显示计时器
                         if (null != tickDialog) {
-                            if (!isAppOnForeground()) {
+                            if (!appIsOnForeground()) {
                                 if (!tickDialog?.isShowing.orFalse) tickDialog?.show()
                             } else {
                                 tickDialog?.dismiss()

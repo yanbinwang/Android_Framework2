@@ -47,11 +47,11 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      *  first：class名
      *  second：tag值，不传默认为class名
      */
-    fun bind(clazzPair: List<Pair<Class<*>, String>>) {
+    fun bind(clazzPair: List<Pair<Class<*>, String>>, defaultCurrentItem: Int = 0) {
         this.list.clear()
         this.arguments = false
         this.clazzPair = clazzPair
-        selectTab(0)
+        selectTab(defaultCurrentItem)
     }
 
     /**
@@ -60,11 +60,11 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      * second：pair对象 （first，fragment透传的key second，透传的值）
      * third：内存中存储的tag
      */
-    fun bindArguments(clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>) {
+    fun bindArguments(clazzTriple: List<Triple<Class<*>, Pair<String, String>, String>>, defaultCurrentItem: Int = 0) {
         this.list.clear()
         this.arguments = true
         this.clazzTriple = clazzTriple
-        selectTab(0)
+        selectTab(defaultCurrentItem)
     }
 
     /**

@@ -18,6 +18,7 @@ object ServerConfig {
      * master分支中serverType永远是0
      * develop或者release中可切换为别的地址编码
      */
+    @JvmStatic
     fun init() {
         serverType = 1
         servers = arrayListOf(
@@ -29,6 +30,7 @@ object ServerConfig {
     /**
      * 是否是测试地址
      */
+    @JvmStatic
     fun isTest(): Boolean {
         return serverType != 0
     }
@@ -36,6 +38,7 @@ object ServerConfig {
     /**
      * 包内默认配置的的服务器ServerBean
      */
+    @JvmStatic
     fun serverBean(): ServerBean {
         return servers[serverType]
     }
@@ -43,6 +46,7 @@ object ServerConfig {
     /**
      * 目前正在用的服务器地址
      */
+    @JvmStatic
     fun serverUrl(): String {
         return serverBean().getUrl()
     }
@@ -50,6 +54,7 @@ object ServerConfig {
     /**
      * 服务器名称
      */
+    @JvmStatic
     fun serverName(): String {
         return serverBean().name
     }
@@ -59,6 +64,13 @@ object ServerConfig {
      */
     fun serverType(): Int {
         return serverType
+    }
+
+    /**
+     * 目前正在用的socket服务器地址
+     */
+    fun socketUrl(): String {
+        return "wss://${serverBean().server}/api/ws_endpoint/websocket"
     }
 
 }

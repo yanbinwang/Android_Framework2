@@ -3,6 +3,7 @@ package com.example.common.base.binding.adapter
 import android.content.Context
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
+import com.example.common.base.binding.adapter.BaseViewDataBindingHolder.Companion.onCreateViewBindingHolder
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -12,9 +13,9 @@ import java.lang.reflect.ParameterizedType
 @Suppress("UNCHECKED_CAST")
 abstract class BaseQuickAdapter<T, VDB : ViewDataBinding> : BaseAdapter<T> {
     protected var mContext: Context? = null
-    protected lateinit var binding: VDB
+    protected var mBinding: VDB? = null
 
-    constructor() : super(ArrayList())
+    constructor() : super(arrayListOf())
 
     constructor(bean: T?) : super(bean)
 
@@ -22,13 +23,15 @@ abstract class BaseQuickAdapter<T, VDB : ViewDataBinding> : BaseAdapter<T> {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewDataBindingHolder {
         mContext = parent.context
-        val superclass = javaClass.genericSuperclass
-        val aClass = (superclass as ParameterizedType).actualTypeArguments[1] as Class<*>
-        return onCreateViewBindingHolder(parent, aClass as Class<VDB>)
+        val aClass = try {
+            (javaClass.genericSuperclass as? ParameterizedType)?.actualTypeArguments?.get(1) as? Class<*>
+        } catch (_: Exception) {
+        }
+        return onCreateViewBindingHolder(parent, aClass as? Class<VDB>)
     }
 
-    override fun convert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>?) {
-        binding = holder.getBinding()
+    override fun onConvert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>?) {
+        mBinding = holder.getBinding()
     }
 
 }

@@ -13,6 +13,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.launcher.ARouter
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
@@ -26,13 +28,17 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
+import com.example.common.socket.WebSocketRequest
 import com.example.common.utils.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
+import com.example.common.utils.permission.PermissionHelper
+import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.WeakHandler
+import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.view.*
 import com.gyf.immersionbar.ImmersionBar
@@ -45,36 +51,30 @@ import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 /**
  * Created by WangYanBin on 2020/6/4.
  */
+@Suppress("UNCHECKED_CAST")
 @SuppressLint("UseRequireInsteadOfGet")
 abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseView, CoroutineScope {
-    protected lateinit var binding: VDB
     protected var lazyData = false
+    protected var mBinding: VDB? = null
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
+    protected val mDialog by lazy { AppDialog(mActivity) }
+    protected val mPermission by lazy { PermissionHelper(mActivity) }
+    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(mActivity) }
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
+    private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main + job
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
-    companion object {
-        private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
-
-        fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
-            this.onActivityResultListener = onActivityResultListener
-        }
-
-        fun clearOnActivityResultListener() {
-            onActivityResultListener = null
-        }
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
@@ -82,6 +82,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WebSocketRequest.addObserver(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
     }
 
@@ -94,10 +95,10 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         }
         return try {
             val superclass = javaClass.genericSuperclass
-            val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>
-            val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            binding = method.invoke(null, layoutInflater, container, false) as VDB
-            binding.root
+            val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
+            val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
+            mBinding = method?.invoke(null, layoutInflater, container, false) as? VDB
+            mBinding?.root
         } catch (_: Exception) {
             null
         }
@@ -163,11 +164,22 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun onDetach() {
         super.onDetach()
-        try {
-            binding.unbind()
-        } catch (_: Exception) {
+        for ((key, value) in dataManager) {
+            key.removeObserver(value ?: return)
         }
+        dataManager.clear()
+        mBinding?.unbind()
         job.cancel()
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="页面管理方法">
+    open fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
+        this.onActivityResultListener = onActivityResultListener
+    }
+
+    open fun clearOnActivityResultListener() {
+        onActivityResultListener = null
     }
     // </editor-fold>
 
@@ -183,16 +195,27 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected open fun isEventBusEnabled(): Boolean {
         return false
     }
+
+    protected open fun <T> MutableLiveData<T>?.observe(block: T?.() -> Unit) {
+        this ?: return
+        val observer = Observer<Any?> { value -> block(value as? T) }
+        dataManager[this] = observer
+        observe(this@BaseFragment, observer)
+    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
-        if (second >= 0) {
-            WeakHandler(Looper.getMainLooper()).postDelayed({
+        if (second > 0) {
+            TimerBuilder.schedule({
                 hideDialog()
                 block.invoke()
             }, second)
+//            WeakHandler(Looper.getMainLooper()).postDelayed({
+//                hideDialog()
+//                block.invoke()
+//            }, second)
         }
     }
 

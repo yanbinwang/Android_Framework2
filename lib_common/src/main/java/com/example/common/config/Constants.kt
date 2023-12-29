@@ -4,6 +4,7 @@ import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.utils.DeviceIdUtil
 import com.example.common.utils.function.string
+import com.example.common.utils.helper.AccountHelper
 import com.example.common.utils.helper.ConfigHelper.getAppName
 import com.example.common.utils.helper.ConfigHelper.getAppVersionCode
 import com.example.common.utils.helper.ConfigHelper.getAppVersionName
@@ -27,18 +28,12 @@ object Constants {
     val APPLICATION_PATH get() = "${SDCARD_PATH}/${APPLICATION_NAME}"
     //sd卡的根路径/android/data/{包名}->访问这个目录不需要动态申请STORAGE权限
     val SDCARD_PATH get() = BaseApplication.instance.getExternalFilesDir(null)?.absolutePath
+    //默认用户文件保存位置
+    val STORAGE get() = "$APPLICATION_PATH/手机文件/${AccountHelper.getUserId()}"
     //设备id
     val DEVICE_ID get() = DeviceIdUtil.deviceId
     //无数据占位符
     val NO_DATA get() = string(R.string.unitNoData)
-//    //无数据占位符
-//    val NO_DATA_DOLLAR get() = string(R.string.unitNoDataDollar)
-//    //无数据占位符
-//    val NO_DATA_PERCENT get() = string(R.string.unitNoDataPercent)
-    //推送渠道id
-    val PUSH_CHANNEL_ID get() = string(R.string.notificationChannelId)
-    //推送渠道名
-    val PUSH_CHANNEL_NAME get() = string(R.string.notificationChannelName)
     //------app内接口的一些默认配置字段------
     const val PAGE_LIMIT = "10"//固定配置页数
 }

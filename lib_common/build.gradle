@@ -60,6 +60,7 @@ dependencies {
     api deps.smartrefresh
     api deps.guide
     api deps.circleprogressbar
+    api deps.stomp
     implementation deps.mmkv
     implementation deps.eventbus
     implementation deps.xxpermissions

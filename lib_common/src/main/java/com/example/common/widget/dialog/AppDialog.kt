@@ -17,8 +17,8 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context) {
     private var onConfirm: (() -> Unit)? = null
     private var onCancel: (() -> Unit)? = null
 
-    fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = "", gravity: Int = Gravity.CENTER) {
-        binding.apply {
+    fun setParams(title: String? = null, message: String? = null, positiveText: String? = null, negativeText: String? = null, gravity: Int = Gravity.CENTER): AppDialog {
+        mBinding?.apply {
             if (title.isNullOrEmpty()) {
                 tvTip.gone()
             } else {
@@ -49,11 +49,13 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context) {
                 }
             }
         }
+        return this
     }
 
-    fun setDialogListener(onConfirm: () -> Unit = {}, onCancel: () -> Unit = {}) {
+    fun setDialogListener(onConfirm: () -> Unit = {}, onCancel: () -> Unit = {}): AppDialog {
         this.onConfirm = onConfirm
         this.onCancel = onCancel
+        return this
     }
 
 }

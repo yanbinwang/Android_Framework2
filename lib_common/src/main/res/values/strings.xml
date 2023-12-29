@@ -1,7 +1,6 @@
 <resources>
-    <!-- 推送信息 -->
-    <string name="notificationChannelId">dataqin</string>
-    <string name="notificationChannelName">数秦科技</string>
+    <!-- app名称 -->
+    <string name="appName">Cheezeebit</string>
     <!-- app内的一些提示 -->
     <string name="hint">系统提示</string>
     <string name="sure">确定</string>
@@ -9,17 +8,16 @@
     <string name="refresh">刷新</string>
     <!-- app内的默认单位 -->
     <string name="unitNoData">--</string>
-<!--    <string name="unitNoDataDollar">$&#45;&#45;</string>-->
-<!--    <string name="unitNoDataPercent">&#45;&#45;%</string>-->
-<!--    <string name="unitDollar">\$%1$s</string>-->
-
     <!-- 权限库的的提示语句 -->
     <string name="permissionGoSetting">缺少\n%1$s请前往设置页面开启</string>
     <string name="permissionLocation">定位权限,该权限用于手机定位</string>
     <string name="permissionCamera">相机权限,该权限用于拍摄照片</string>
     <string name="permissionMicrophone">麦克风权限,该权限用于录制音频</string>
     <string name="permissionStorage">存储空间权限,该权限用于文件存储</string>
-
+    <!-- 计时文本提示语句 -->
+    <string name="timerContent">发送验证码</string>
+    <string name="timerPressed">已发送{%1$s}S</string>
+    <string name="timerDisabled">重发验证码</string>
     <!-- app内的view显示字段 -->
     <string name="responseError">数据返回异常</string>
     <string name="responseNetError">请打开网络连接</string>

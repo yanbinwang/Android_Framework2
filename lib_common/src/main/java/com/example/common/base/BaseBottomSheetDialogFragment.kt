@@ -18,6 +18,8 @@ import androidx.appcompat.widget.AppCompatEditText
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.listener.OnPageChangedListener
@@ -36,9 +38,12 @@ import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
+import com.example.common.utils.permission.PermissionHelper
+import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.common.widget.textview.edittext.SpecialEditText
 import com.example.framework.utils.WeakHandler
+import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orFalse
@@ -59,36 +64,31 @@ import me.jessyan.autosize.AutoSizeConfig
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
+import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 /**
  * 底部弹框使用的dialog
  */
+@Suppress("UNCHECKED_CAST")
 abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
-    protected lateinit var binding: VDB
+    protected var mBinding: VDB? = null
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
+    protected val mDialog by lazy { AppDialog(mActivity) }
+    protected val mPermission by lazy { PermissionHelper(mActivity) }
     private var showTime = 0L
+    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving
     private val immersionBar by lazy { ImmersionBar.with(mActivity) }
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
+    private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main + job
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
-    companion object {
-        private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
-
-        fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
-            this.onActivityResultListener = onActivityResultListener
-        }
-
-        fun clearOnActivityResultListener() {
-            onActivityResultListener = null
-        }
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
@@ -108,10 +108,10 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         }
         return try {
             val superclass = javaClass.genericSuperclass
-            val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>
-            val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            binding = method.invoke(null, layoutInflater, container, false) as VDB
-            binding.root
+            val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
+            val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
+            mBinding = method?.invoke(null, layoutInflater, container, false) as? VDB
+            mBinding?.root
         } catch (_: Exception) {
             null
         }
@@ -126,7 +126,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
             protected fun hideSoftKeyboard() {
                 val inputMethodManager = BaseApplication.instance.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(binding.root.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+                inputMethodManager.hideSoftInputFromWindow(mBinding?.root?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
             }
 
             /**
@@ -302,10 +302,27 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     override fun onDetach() {
         super.onDetach()
-        try {
-            binding.unbind()
-        } catch (_: Exception) {
+        for ((key, value) in dataManager) {
+            key.removeObserver(value ?: return)
         }
+        dataManager.clear()
+        mBinding?.unbind()
+        job.cancel()
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="页面管理方法">
+    open fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
+        this.onActivityResultListener = onActivityResultListener
+    }
+
+    open fun clearOnActivityResultListener() {
+        onActivityResultListener = null
+    }
+
+    open fun show(manager: FragmentManager) {
+        val tag = javaClass.simpleName.toLowerCase(Locale.getDefault())
+        show(manager, tag)
     }
     // </editor-fold>
 
@@ -321,16 +338,27 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     protected open fun isEventBusEnabled(): Boolean {
         return false
     }
+
+    protected open fun <T> MutableLiveData<T>?.observe(block: T?.() -> Unit) {
+        this ?: return
+        val observer = Observer<Any?> { value -> block(value as? T) }
+        dataManager[this] = observer
+        observe(this@BaseBottomSheetDialogFragment, observer)
+    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
-        if (second >= 0) {
-            WeakHandler(Looper.getMainLooper()).postDelayed({
+        if (second > 0) {
+            TimerBuilder.schedule({
                 hideDialog()
                 block.invoke()
             }, second)
+//            WeakHandler(Looper.getMainLooper()).postDelayed({
+//                hideDialog()
+//                block.invoke()
+//            }, second)
         }
     }
 

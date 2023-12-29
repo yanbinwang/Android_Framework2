@@ -2,7 +2,6 @@ package com.example.home.utils
 
 import android.view.View
 import android.webkit.WebChromeClient
-import android.webkit.WebView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -29,19 +28,19 @@ import java.lang.ref.WeakReference
 /**
  * 网页帮助类
  */
-class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
+class WebHelper(private val mActivity: WebActivity) : LifecycleEventObserver {
     //在此处获取跳转的值以及重新绑定对应的view
-    private val bean by lazy { activity.intentSerializable<WebBundle>(Extra.BUNDLE_BEAN) }
-    private val binding by lazy { ActivityWebBinding.inflate(activity.layoutInflater) }
-    private val titleBuilder by lazy { TitleBuilder(activity, binding.titleContainer) }
-    private val webUtil by lazy { WebUtil(activity, binding.flWebRoot) }
+    private val bean by lazy { mActivity.intentSerializable<WebBundle>(Extra.BUNDLE_BEAN) }
+    private val mBinding by lazy { ActivityWebBinding.inflate(mActivity.layoutInflater) }
+    private val titleBuilder by lazy { TitleBuilder(mActivity, mBinding.titleContainer) }
+    private val webUtil by lazy { WebUtil(mActivity, mBinding.flWebRoot) }
     private val webView get() = webUtil.webView
 
     init {
-        activity.lifecycle.addObserver(this)
-        if (!bean?.getLight().orTrue) activity.initImmersionBar(false)
+        mActivity.lifecycle.addObserver(this)
+        if (!bean?.getLight().orTrue) mActivity.initImmersionBar(false)
         addWebView()
-        FormActivityUtil.setAct(activity)
+        FormActivityUtil.setAct(mActivity)
     }
 
     private fun addWebView() {
@@ -58,8 +57,8 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
         webView?.settings?.useWideViewPort = true
         webView?.settings?.loadWithOverviewMode = true
         //WebView与JS交互
-        webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(activity)), "JSCallAndroid")
-        webView?.setClient(binding.pbWeb, {
+        webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(mActivity)), "JSCallAndroid")
+        webView?.setClient(mBinding.pbWeb, {
             //开始加载页面的操作...
         }, {
             //加载完成后的操作...(不传标题则使用web加载的标题)
@@ -105,7 +104,7 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
         if (webView?.canGoBack().orFalse) {
             webView?.goBack()
         } else {
-            activity.finish()
+            mActivity.finish()
         }
 //            }
 //        }
@@ -120,11 +119,8 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
                 webView?.removeJavascriptInterface("JSCallAndroid")
                 webView?.clear()
 //                webView = null
-                try {
-                    binding.unbind()
-                } catch (_: Exception) {
-                }
-                activity.lifecycle.removeObserver(this)
+                mBinding.unbind()
+                mActivity.lifecycle.removeObserver(this)
             }
             else -> {}
         }

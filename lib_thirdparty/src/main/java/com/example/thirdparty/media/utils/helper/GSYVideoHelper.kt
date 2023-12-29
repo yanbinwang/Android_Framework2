@@ -1,10 +1,11 @@
 package com.example.thirdparty.media.utils.helper
 
+import android.content.Context
+import android.widget.ImageView
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.framework.utils.TimerUtil
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.disable
@@ -23,6 +24,10 @@ import com.shuyu.gsyvideoplayer.player.PlayerFactory
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
 
@@ -30,36 +35,25 @@ import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
  * @description 播放器帮助类
  * @author yan
  */
-class GSYVideoHelper(private val activity: FragmentActivity, private val player: StandardGSYVideoPlayer, fullScreen: Boolean = false) : LifecycleEventObserver {
+class GSYVideoHelper(private val observer: LifecycleOwner) : LifecycleEventObserver {
     private var retryWithPlay = false
+    private var job: Job? = null
+    private var context: Context? = null
+    private var binding: ViewGsyvideoThumbBinding? = null
+    private var player: StandardGSYVideoPlayer? = null
     private var orientationUtils: OrientationUtils? = null
-    private val binding by lazy { ViewGsyvideoThumbBinding.bind(activity.inflate(R.layout.view_gsyvideo_thumb)) }
-    private val gSYSampleCallBack by lazy { object : GSYSampleCallBack() {
-        override fun onQuitFullscreen(url: String, vararg objects: Any) {
-            super.onQuitFullscreen(url, *objects)
-            orientationUtils?.backToProtVideo()
-        }
-
-        override fun onPlayError(url: String?, vararg objects: Any?) {
-            super.onPlayError(url, *objects)
-            if (!retryWithPlay) {
-                retryWithPlay = true
-                player.disable()
-                //允许硬件解码，装载IJK播放器内核
-//                GSYVideoType.enableMediaCodec()
-                GSYVideoType.enableMediaCodecTexture()
-                PlayerFactory.setPlayManager(IjkPlayerManager::class.java)
-                CacheFactory.setCacheManager(ProxyCacheManager::class.java)
-                TimerUtil.schedule({
-                    player.enable()
-                    player.startPlayLogic()
-                })
-            }
-        }
-    }}
 
     init {
-        activity.lifecycle.addObserver(this)
+        observer.lifecycle.addObserver(this)
+    }
+
+    /**
+     * 绑定页面
+     */
+    fun bind(activity: FragmentActivity, player: StandardGSYVideoPlayer, fullScreen: Boolean = false) {
+        this.context = activity
+        this.player = player
+        this.binding = ViewGsyvideoThumbBinding.bind(activity.inflate(R.layout.view_gsyvideo_thumb))
         //屏幕展示效果
         GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_DEFAULT)
         //设置底层渲染,关闭硬件解码
@@ -71,7 +65,7 @@ class GSYVideoHelper(private val activity: FragmentActivity, private val player:
         CacheFactory.setCacheManager(ExoPlayerCacheManager::class.java)
         player.titleTextView?.gone()
         player.backButton?.gone()
-        player.thumbImageView = binding.root
+        player.thumbImageView = binding?.root
         if (!fullScreen) {
             player.fullscreenButton?.gone()
         } else {
@@ -94,7 +88,7 @@ class GSYVideoHelper(private val activity: FragmentActivity, private val player:
     fun setUrl(url: String, autoPlay: Boolean = false) {
         retryWithPlay = false
         //加载图片
-        ImageLoader.instance.displayFrame(binding.ivThumb, url)
+        ImageLoader.instance.displayFrame(binding?.ivThumb ?: ImageView(context), url)
         GSYVideoOptionBuilder()
             .setIsTouchWiget(false)
             .setRotateViewAuto(false)
@@ -103,8 +97,32 @@ class GSYVideoHelper(private val activity: FragmentActivity, private val player:
             .setNeedLockFull(false)
             .setUrl(url)
             .setCacheWithPlay(false)
-            .setVideoAllCallBack(gSYSampleCallBack).build(player)
-        if (autoPlay) player.startPlayLogic()
+            .setVideoAllCallBack(object : GSYSampleCallBack() {
+                override fun onQuitFullscreen(url: String, vararg objects: Any) {
+                    super.onQuitFullscreen(url, *objects)
+                    orientationUtils?.backToProtVideo()
+                }
+
+                override fun onPlayError(url: String?, vararg objects: Any?) {
+                    super.onPlayError(url, *objects)
+                    if (!retryWithPlay) {
+                        retryWithPlay = true
+                        player.disable()
+                        //允许硬件解码，装载IJK播放器内核
+//                        GSYVideoType.enableMediaCodec()
+                        GSYVideoType.enableMediaCodecTexture()
+                        PlayerFactory.setPlayManager(IjkPlayerManager::class.java)
+                        CacheFactory.setCacheManager(ProxyCacheManager::class.java)
+                        job?.cancel()
+                        job = GlobalScope.launch {
+                            delay(1000)
+                            player.enable()
+                            player?.startPlayLogic()
+                        }
+                    }
+                }
+            }).build(player)
+        if (autoPlay) player?.startPlayLogic()
     }
 
     /**
@@ -112,7 +130,7 @@ class GSYVideoHelper(private val activity: FragmentActivity, private val player:
      */
     fun onBackPressed(): Boolean {
         orientationUtils?.backToProtVideo()
-        return GSYVideoManager.backFromWindowFull(activity)
+        return GSYVideoManager.backFromWindowFull(context)
     }
 
     /**
@@ -124,10 +142,12 @@ class GSYVideoHelper(private val activity: FragmentActivity, private val player:
             Lifecycle.Event.ON_PAUSE -> pause()
             Lifecycle.Event.ON_DESTROY -> {
                 pause()
-                player.currentPlayer?.release()
-                player.release()
+                job?.cancel()
                 orientationUtils?.releaseListener()
-                activity.lifecycle.removeObserver(this)
+                player?.currentPlayer?.release()
+                player?.release()
+                player = null
+                observer.lifecycle.removeObserver(this)
             }
             else -> {}
         }
@@ -136,11 +156,11 @@ class GSYVideoHelper(private val activity: FragmentActivity, private val player:
     /**
      * 写在系统的onPause之前
      */
-    private fun pause() = player.currentPlayer?.onVideoPause()
+    private fun pause() = player?.currentPlayer?.onVideoPause()
 
     /**
      * 写在系统的onResume之前
      */
-    private fun resume() = player.currentPlayer?.onVideoResume(false)
+    private fun resume() = player?.currentPlayer?.onVideoResume(false)
 
 }

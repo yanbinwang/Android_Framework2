@@ -16,11 +16,11 @@ import androidx.core.app.NotificationCompat
 import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenDensity
 import com.example.framework.utils.function.value.orZero
-import com.example.thirdparty.media.utils.MediaUtil.MediaType
 import com.example.thirdparty.media.utils.MediaUtil
+import com.example.thirdparty.media.utils.MediaUtil.MediaType
 import com.example.thirdparty.media.utils.helper.ScreenHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.helper.ScreenHelper.Companion.previewWidth
-import com.example.thirdparty.media.utils.helper.TimeTickHelper
+import com.example.thirdparty.media.widget.TimerTick
 
 /**
  *  Created by wangyanbin
@@ -33,12 +33,11 @@ import com.example.thirdparty.media.utils.helper.TimeTickHelper
  *      android:foregroundServiceType="mediaProjection"--》 Q开始后台服务需要配置，否则录制不正常  />
  */
 class ScreenService : Service() {
-    private var resultCode = 0
-    private var resultData: Intent? = null
+    private var folderPath = ""
     private var mediaProjection: MediaProjection? = null
     private var mediaRecorder: MediaRecorder? = null
     private var virtualDisplay: VirtualDisplay? = null
-    private val timerFactory by lazy { TimeTickHelper(this) }
+    private val timerTick by lazy { TimerTick(this) }
 
     companion object {
         internal var onShutter: (filePath: String?, recoding: Boolean) -> Unit = { _, _ -> }
@@ -64,14 +63,14 @@ class ScreenService : Service() {
             startForeground(1, builder.build())
         }
 //        stopForeground(true)//关闭录屏的图标-可注释
-        timerFactory.start()
+        timerTick.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         try {
-            resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1).orZero
-            resultData = intent?.getParcelableExtra(Extra.BUNDLE_BEAN)
-            mediaProjection = createMediaProjection()
+            val resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1).orZero
+            val resultData = intent?.getParcelableExtra(Extra.BUNDLE_BEAN) ?: Intent()
+            mediaProjection = createMediaProjection(resultCode, resultData)
             mediaRecorder = createMediaRecorder()
             virtualDisplay = createVirtualDisplay()
             mediaRecorder?.start()
@@ -80,13 +79,14 @@ class ScreenService : Service() {
         return START_STICKY
     }
 
-    private fun createMediaProjection(): MediaProjection? {
-        return (getSystemService(MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager)?.getMediaProjection(resultCode, resultData ?: Intent())
+    private fun createMediaProjection(resultCode: Int, resultData: Intent): MediaProjection? {
+        return (getSystemService(MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager)?.getMediaProjection(resultCode, resultData)
     }
 
     private fun createMediaRecorder(): MediaRecorder {
         val screenFile = MediaUtil.getOutputFile(MediaType.SCREEN)
-        onShutter.invoke(screenFile?.absolutePath,true)
+        folderPath = screenFile?.absolutePath.orEmpty()
+        onShutter.invoke(folderPath, true)
         return (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()).apply {
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
             setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -98,7 +98,11 @@ class ScreenService : Service() {
             setVideoFrameRate(60)
             try {
                 //若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) setOutputFile(screenFile?.absolutePath) else setOutputFile(screenFile)
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    setOutputFile(screenFile?.absolutePath)
+                } else {
+                    setOutputFile(screenFile)
+                }
                 prepare()
             } catch (_: Exception) {
             }
@@ -116,7 +120,7 @@ class ScreenService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         try {
-            timerFactory.destroy()
+            timerTick.destroy()
             virtualDisplay?.release()
             virtualDisplay = null
             mediaRecorder?.stop()
@@ -127,7 +131,7 @@ class ScreenService : Service() {
             mediaProjection = null
         } catch (_: Exception) {
         }
-        onShutter.invoke("",false)
+        onShutter.invoke(folderPath, false)
     }
 
 }
