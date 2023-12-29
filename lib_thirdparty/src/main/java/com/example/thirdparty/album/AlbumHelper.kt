@@ -3,10 +3,10 @@ package com.example.thirdparty.album
 import android.app.Activity
 import android.graphics.Color
 import com.example.common.base.page.RequestCode.REQUEST_PHOTO
+import com.example.common.config.Constants.STORAGE
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.mb
 import com.example.common.utils.function.string
-import com.example.common.utils.helper.AccountHelper.storage
 import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
 import com.example.thirdparty.R
@@ -131,7 +131,7 @@ class AlbumHelper(activity: Activity) {
             //图片路径list或者数组
             .inputImagePaths(*imagePathArray)
             //图片输出文件夹路径
-            .outputDirectory("${storage}裁剪图片")
+            .outputDirectory("${STORAGE}/裁剪图片")
             //裁剪图片输出的最大宽高
             .maxWidthHeight(500, 500)
             //裁剪时的宽高比

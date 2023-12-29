@@ -2,7 +2,7 @@ package com.example.thirdparty.media.utils
 
 import android.content.Context
 import android.media.MediaPlayer
-import com.example.common.utils.helper.AccountHelper.storage
+import com.example.common.config.Constants.STORAGE
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.toSafeInt
@@ -62,16 +62,18 @@ object MediaUtil {
      */
     @JvmStatic
     fun getOutputRoute(mimeType: MediaType): String {
-        return when (mimeType) {
-            //拍照/抓拍
-            MediaType.IMAGE -> "${storage}拍照"
-            //录像
-            MediaType.VIDEO -> "${storage}录像"
-            //录音
-            MediaType.AUDIO -> "${storage}录音"
-            //录屏
-            MediaType.SCREEN -> "${storage}录屏"
-        }
+        return "${STORAGE}/${
+            when (mimeType) {
+                //拍照/抓拍
+                MediaType.IMAGE -> "拍照"
+                //录像
+                MediaType.VIDEO -> "录像"
+                //录音
+                MediaType.AUDIO -> "录音"
+                //录屏
+                MediaType.SCREEN -> "录屏"
+            }
+        }"
     }
 
 }
