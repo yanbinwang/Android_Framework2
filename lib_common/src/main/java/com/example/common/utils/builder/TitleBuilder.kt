@@ -1,15 +1,16 @@
 package com.example.common.utils.builder
 
-import android.app.Activity
 import android.graphics.Color
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.setArguments
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.padding
@@ -21,7 +22,7 @@ import com.example.framework.utils.function.view.visible
  * 顶部标题默认不具备任何颜色和显示的按钮
  * 格式->左右侧图片/文本，中间是大标题
  */
-class TitleBuilder(private val mActivity: Activity, private val mBinding: ViewTitleBarBinding?) {
+class TitleBuilder(private val mActivity: FragmentActivity, private val mBinding: ViewTitleBarBinding?) {
     val layout: ConstraintLayout?
         get() = mBinding?.clContainer
     val ivLeft: ImageView?
@@ -34,6 +35,7 @@ class TitleBuilder(private val mActivity: Activity, private val mBinding: ViewTi
         get() = mBinding?.tvRight
 
     init {
+        mActivity.doOnDestroy { mBinding?.unbind() }
         mBinding?.clContainer.padding(top = getStatusBarHeight())
     }
 
