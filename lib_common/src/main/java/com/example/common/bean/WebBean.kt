@@ -8,6 +8,12 @@ import java.io.Serializable
  */
 data class WebBean(private val title: String = "", private val url: String = "", private val light: Boolean = true, private val titleRequired: Boolean = true) : WebBundle() {
 
+//    companion object {
+//        fun aboutAs(): WebBean {
+//            return WebBean()
+//        }
+//    }
+
     override fun getLight() = light
 
     override fun getTitleRequired() = titleRequired
