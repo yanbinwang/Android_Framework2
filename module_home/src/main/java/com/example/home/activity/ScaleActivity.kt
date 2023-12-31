@@ -22,7 +22,7 @@ import com.example.home.widget.scale.ScaleImageView
  */
 @Route(path = ARouterPath.ScaleActivity)
 class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
-    private val titleBuilder by lazy { TitleBuilder(this, mBinding?.titleContainer) }
+    private val titleBuilder by lazy { TitleBuilder(this, mBinding?.titleRoot) }
     private val list by lazy { intentSerializable<ArrayList<String>>(Extra.BUNDLE_LIST) }
 
     override fun onCreate(savedInstanceState: Bundle?) {

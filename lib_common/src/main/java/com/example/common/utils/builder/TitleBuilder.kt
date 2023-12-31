@@ -24,7 +24,7 @@ import com.example.framework.utils.function.view.visible
  */
 class TitleBuilder(private val mActivity: FragmentActivity, private val mBinding: ViewTitleBarBinding?) {
     val layout: ConstraintLayout?
-        get() = mBinding?.clContainer
+        get() = mBinding?.clRoot
     val ivLeft: ImageView?
         get() = mBinding?.ivLeft
     val tvLeft: TextView?
@@ -36,7 +36,7 @@ class TitleBuilder(private val mActivity: FragmentActivity, private val mBinding
 
     init {
         mActivity.doOnDestroy { mBinding?.unbind() }
-        mBinding?.clContainer.padding(top = getStatusBarHeight())
+        mBinding?.clRoot.padding(top = getStatusBarHeight())
     }
 
     /**
@@ -47,7 +47,7 @@ class TitleBuilder(private val mActivity: FragmentActivity, private val mBinding
      * shade->标题底部是否带阴影
      */
     fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, shade: Boolean = false): TitleBuilder {
-        mBinding?.clContainer?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
+        mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
         mBinding?.tvTitle?.setArguments(title, titleColor)
         mBinding?.viewShade?.apply { if (shade) visible() else gone() }
         setLeft()
@@ -58,7 +58,7 @@ class TitleBuilder(private val mActivity: FragmentActivity, private val mBinding
      * 部分页面不需要标题，只需要一个定制的返回按钮和特定背景，故而使用此方法
      */
     fun setTitleSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity.finish() }, bgColor: Int = R.color.bgToolbar): TitleBuilder {
-        mBinding?.clContainer?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
+        mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
         setLeft(resId, tintColor, onClick)
         return this
     }
@@ -133,7 +133,7 @@ class TitleBuilder(private val mActivity: FragmentActivity, private val mBinding
      * 整体隐藏
      */
     fun hideTitle() {
-        mBinding?.clContainer.gone()
+        mBinding?.clRoot.gone()
     }
 
 }
