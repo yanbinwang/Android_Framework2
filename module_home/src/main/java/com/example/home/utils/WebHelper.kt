@@ -40,11 +40,6 @@ class WebHelper(private val mActivity: WebActivity) : LifecycleEventObserver {
     init {
         mActivity.lifecycle.addObserver(this)
         if (!bean?.getLight().orTrue) mActivity.initImmersionBar(false)
-        addWebView()
-        FormActivityUtil.setAct(mActivity)
-    }
-
-    private fun addWebView() {
         //需要标题头并且值已经传输过来了则设置标题
         titleBuilder.apply {
             if (titleRequired) {
@@ -54,6 +49,11 @@ class WebHelper(private val mActivity: WebActivity) : LifecycleEventObserver {
                 hideTitle()
             }
         }
+        addWebView()
+        FormActivityUtil.setAct(mActivity)
+    }
+
+    private fun addWebView() {
         webView?.byHardwareAccelerate()
         webView?.background(R.color.bgWhite)
         webView?.settings?.useWideViewPort = true
