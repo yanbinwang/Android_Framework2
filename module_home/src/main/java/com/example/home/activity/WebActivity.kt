@@ -35,9 +35,9 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
 
     override fun initEvent() {
         super.initEvent()
-        webHelper.setOnPageFinishedListener {
+        webHelper.setClientListener({}, {
             if (titleRequired && bean?.getTitle().isNullOrEmpty() && !it.isNullOrEmpty()) titleBuilder.setTitle(it)
-        }
+        })
     }
 
     override fun initData() {

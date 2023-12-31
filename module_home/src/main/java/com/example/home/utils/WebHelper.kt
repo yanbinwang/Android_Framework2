@@ -29,6 +29,7 @@ class WebHelper(private val mActivity: WebActivity) : LifecycleEventObserver {
     private val webUtil by lazy { WebUtil(mActivity, mBinding.flRoot) }
     private val webView get() = webUtil.webView
     private var bean: WebBundle? = null
+    private var onPageStarted: (() -> Unit)? = null
     private var onPageFinished: ((title: String?) -> Unit)? = null
 
     init {
@@ -46,6 +47,7 @@ class WebHelper(private val mActivity: WebActivity) : LifecycleEventObserver {
         webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(mActivity)), "JSCallAndroid")
         webView?.setClient(mBinding.pbWeb, {
             //开始加载页面的操作...
+            onPageStarted?.invoke()
         }, {
             //加载完成后的操作...(不传标题则使用web加载的标题)
             onPageFinished?.invoke(webView?.title?.trim())
@@ -101,7 +103,8 @@ class WebHelper(private val mActivity: WebActivity) : LifecycleEventObserver {
     /**
      * 设置页面加载完毕后的监听
      */
-    fun setOnPageFinishedListener(onPageFinished: ((title: String?) -> Unit)) {
+    fun setClientListener(onPageStarted: (() -> Unit), onPageFinished: ((title: String?) -> Unit)) {
+        this.onPageStarted = onPageStarted
         this.onPageFinished = onPageFinished
     }
 
