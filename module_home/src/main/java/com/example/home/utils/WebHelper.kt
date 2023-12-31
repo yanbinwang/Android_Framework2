@@ -35,6 +35,7 @@ class WebHelper(private val mActivity: WebActivity) : LifecycleEventObserver {
     private val titleBuilder by lazy { TitleBuilder(mActivity, mBinding.titleContainer) }
     private val webUtil by lazy { WebUtil(mActivity, mBinding.flWebRoot) }
     private val webView get() = webUtil.webView
+    private val titleRequired get() = bean?.getTitleRequired().orTrue
 
     init {
         mActivity.lifecycle.addObserver(this)
@@ -45,11 +46,12 @@ class WebHelper(private val mActivity: WebActivity) : LifecycleEventObserver {
 
     private fun addWebView() {
         //需要标题头并且值已经传输过来了则设置标题
-        bean?.let {
-            if (it.getTitleRequired().orTrue) {
-                titleBuilder.setTitle(it.getTitle())
+        titleBuilder.apply {
+            if (titleRequired) {
+                setTitle(bean?.getTitle().orEmpty())
+                setRight(R.mipmap.ic_refresh) { refresh() }
             } else {
-                titleBuilder.hideTitle()
+                hideTitle()
             }
         }
         webView?.byHardwareAccelerate()
@@ -62,7 +64,7 @@ class WebHelper(private val mActivity: WebActivity) : LifecycleEventObserver {
             //开始加载页面的操作...
         }, {
             //加载完成后的操作...(不传标题则使用web加载的标题)
-            bean?.let { if (it.getTitleRequired().orFalse && it.getTitle().isEmpty()) titleBuilder.setTitle(webView?.title?.trim().orEmpty()) }
+            bean?.let { if (titleRequired && it.getTitle().isEmpty()) titleBuilder.setTitle(webView?.title?.trim().orEmpty()) }
 //            val url = webView?.url.orEmpty()
         }, object : OnWebChangedListener {
             override fun onShowCustomView(view: View?, callback: WebChromeClient.CustomViewCallback?) {
