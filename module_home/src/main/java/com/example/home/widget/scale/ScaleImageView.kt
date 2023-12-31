@@ -263,9 +263,9 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     fun getScrollPosition(): PointF? {
-        val drawable = drawable ?: return null
-        val drawableWidth = drawable.intrinsicWidth
-        val drawableHeight = drawable.intrinsicHeight
+        val mDrawable = drawable ?: return null
+        val drawableWidth = mDrawable.intrinsicWidth
+        val drawableHeight = mDrawable.intrinsicHeight
         val point = transformCoordTouchToBitmap(viewWidth / 2f, viewHeight / 2f, true)
         point.x /= drawableWidth.toSafeFloat()
         point.y /= drawableHeight.toSafeFloat()
@@ -312,13 +312,13 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     private fun getImageHeight() = matchViewHeight * normalizedScale
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val drawable = drawable
-        if (drawable == null || drawable.intrinsicWidth == 0 || drawable.intrinsicHeight == 0) {
+        val mDrawable = drawable
+        if (mDrawable == null || mDrawable.intrinsicWidth == 0 || mDrawable.intrinsicHeight == 0) {
             setMeasuredDimension(0, 0)
             return
         }
-        val drawableWidth = drawable.intrinsicWidth
-        val drawableHeight = drawable.intrinsicHeight
+        val drawableWidth = mDrawable.intrinsicWidth
+        val drawableHeight = mDrawable.intrinsicHeight
         val widthSize = MeasureSpec.getSize(widthMeasureSpec)
         val widthMode = MeasureSpec.getMode(widthMeasureSpec)
         val heightSize = MeasureSpec.getSize(heightMeasureSpec)
@@ -330,10 +330,10 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     private fun fitImageToView() {
-        val drawable = drawable
-        if (drawable == null || drawable.intrinsicWidth == 0 || drawable.intrinsicHeight == 0) return
-        val drawableWidth = drawable.intrinsicWidth
-        val drawableHeight = drawable.intrinsicHeight
+        val mDrawable = drawable
+        if (mDrawable == null || mDrawable.intrinsicWidth == 0 || mDrawable.intrinsicHeight == 0) return
+        val drawableWidth = mDrawable.intrinsicWidth
+        val drawableHeight = mDrawable.intrinsicHeight
         var scaleX = viewWidth.toSafeFloat() / drawableWidth
         var scaleY: Float = viewHeight.toSafeFloat() / drawableHeight
         when (mScaleType) {
@@ -420,7 +420,9 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
             false
         } else if (x >= -1 && direction < 0) {
             false
-        } else abs(x) + viewWidth + 1 < getImageWidth() || direction <= 0
+        } else {
+            abs(x) + viewWidth + 1 < getImageWidth() || direction <= 0
+        }
     }
 
     private class GestureListener(var view: ScaleImageView) : SimpleOnGestureListener() {
@@ -468,6 +470,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     private class PrivateOnTouchListener(var view: ScaleImageView) : OnTouchListener {
         private val last = PointF()
+
         override fun onTouch(v: View, event: MotionEvent): Boolean {
             mScaleDetector?.onTouchEvent(event)
             mGestureDetector?.onTouchEvent(event)
