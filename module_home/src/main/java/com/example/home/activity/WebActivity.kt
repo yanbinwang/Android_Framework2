@@ -17,14 +17,13 @@ import com.example.home.utils.WebImpl
 class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
     private val bean by lazy { intentSerializable<WebBundle>(Extra.BUNDLE_BEAN) }
     private val webHelper by lazy { WebHelper(this).apply { setBundle(bean) } }
-    private val titleRequired get() = bean?.getTitleRequired().orTrue
 
     override fun initView() {
         super.initView()
         if (!bean?.getLight().orTrue) initImmersionBar(false)
         //需要标题头并且值已经传输过来了则设置标题
         titleBuilder.apply {
-            if (titleRequired) {
+            if (bean?.getTitleRequired().orTrue) {
                 setTitle(bean?.getTitle().orEmpty())
                 setRight(R.mipmap.ic_refresh) { webHelper.refresh() }
             } else {
@@ -36,7 +35,7 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
     override fun initEvent() {
         super.initEvent()
         webHelper.setClientListener({}, {
-            if (titleRequired && bean?.getTitle().isNullOrEmpty() && !it.isNullOrEmpty()) titleBuilder.setTitle(it)
+            if (bean?.getTitle().isNullOrEmpty() && !it.isNullOrEmpty()) titleBuilder.setTitle(it)
         })
     }
 
