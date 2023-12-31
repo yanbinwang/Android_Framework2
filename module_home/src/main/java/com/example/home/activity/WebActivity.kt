@@ -7,6 +7,7 @@ import com.example.common.base.page.Extra
 import com.example.common.bean.WebBundle
 import com.example.common.config.ARouterPath
 import com.example.framework.utils.function.intentSerializable
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.home.R
 import com.example.home.databinding.ActivityWebBinding
@@ -35,7 +36,7 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
     override fun initEvent() {
         super.initEvent()
         webHelper.setClientListener({}, {
-            if (bean?.getTitle().isNullOrEmpty() && !it.isNullOrEmpty()) titleBuilder.setTitle(it)
+            if (bean?.isTitleRequired().orFalse && !it.isNullOrEmpty()) titleBuilder.setTitle(it)
         })
     }
 

@@ -1,5 +1,6 @@
 package com.example.common.bean
 
+import com.example.framework.utils.function.value.orFalse
 import java.io.Serializable
 
 /**
@@ -9,6 +10,9 @@ import java.io.Serializable
 data class WebBean(private val title: String = "", private val url: String = "", private val light: Boolean = true, private val titleRequired: Boolean = true) : WebBundle() {
 
 //    companion object {
+//        /**
+//         * navigation(ARouterPath.WebActivity,Extra.BUNDLE_BEAN to WebBean.aboutAs())
+//         */
 //        fun aboutAs(): WebBean {
 //            return WebBean()
 //        }
@@ -45,5 +49,12 @@ abstract class WebBundle : Serializable {
      *获取页面地址
      */
     abstract fun getUrl(): String
+
+    /**
+     * 如果需要标题头，并且未传默认标题
+     */
+    fun isTitleRequired(): Boolean {
+        return getTitleRequired().orFalse && getTitle().isEmpty()
+    }
 
 }
