@@ -25,12 +25,12 @@ import java.lang.ref.WeakReference
  * 网页帮助类
  */
 class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: ActivityWebBinding?) : LifecycleEventObserver {
-    private val webUtil by lazy { WebUtil(mActivity, mBinding?.flWebRoot) }
-    private val webView get() = webUtil.webView
     private var bean: WebBundle? = null
     private var webImpl: WebImpl? = null
     private var onPageStarted: (() -> Unit)? = null
     private var onPageFinished: ((title: String?) -> Unit)? = null
+    private val webUtil by lazy { WebUtil(mActivity, mBinding?.flWebRoot) }
+    private val webView get() = webUtil.webView
 
     init {
         mActivity.lifecycle.addObserver(this)
