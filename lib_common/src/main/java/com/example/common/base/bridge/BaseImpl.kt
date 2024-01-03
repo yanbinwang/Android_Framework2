@@ -2,7 +2,6 @@ package com.example.common.base.bridge
 
 import android.view.View
 import com.example.common.R
-import com.example.framework.utils.function.value.GenericClass
 
 /**
  * Created by WangYanBin on 2020/6/11.
@@ -15,11 +14,14 @@ interface BaseImpl {
      */
     fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM
 
-    fun <VM : BaseViewModel> viewModel(): VM? {
-        val clazz = GenericClass<VM>().processGenericType()
-        clazz ?: return null
-        return createViewModel(clazz)
-    }
+//    fun <VM : BaseViewModel> viewModel(): VM? {
+//        val superClass = javaClass.genericSuperclass
+//        val parameterizedType = superClass as? ParameterizedType
+//        val typeArguments = parameterizedType?.actualTypeArguments
+//        val clazz = typeArguments?.get(0) as? Class<VM>
+//        clazz ?: return null
+//        return createViewModel(clazz)
+//    }
 
     /**
      * 初始化状态栏
