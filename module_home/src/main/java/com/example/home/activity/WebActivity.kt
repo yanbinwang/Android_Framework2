@@ -17,7 +17,7 @@ import com.example.home.utils.WebImpl
 @Route(path = ARouterPath.WebActivity)
 class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
     private val bean by lazy { intentSerializable<WebBundle>(Extra.BUNDLE_BEAN) }
-    private val webHelper by lazy { WebHelper(this).apply { setBundle(bean) } }
+    private val webHelper by lazy { WebHelper(this, mBinding).apply { setBundle(bean) } }
 
     override fun initView() {
         super.initView()

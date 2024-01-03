@@ -24,9 +24,8 @@ import java.lang.ref.WeakReference
 /**
  * 网页帮助类
  */
-class WebHelper(private val mActivity: WebActivity) : LifecycleEventObserver {
-    private val mBinding by lazy { ActivityWebBinding.inflate(mActivity.layoutInflater) }
-    private val webUtil by lazy { WebUtil(mActivity, mBinding.flWebRoot) }
+class WebHelper(private val mActivity: WebActivity, private val mBinding: ActivityWebBinding?) : LifecycleEventObserver {
+    private val webUtil by lazy { WebUtil(mActivity, mBinding?.flWebRoot) }
     private val webView get() = webUtil.webView
     private var bean: WebBundle? = null
     private var onPageStarted: (() -> Unit)? = null
@@ -45,7 +44,7 @@ class WebHelper(private val mActivity: WebActivity) : LifecycleEventObserver {
         webView?.settings?.loadWithOverviewMode = true
         //WebView与JS交互
         webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(mActivity)), "JSCallAndroid")
-        webView?.setClient(mBinding.pbWeb, {
+        webView?.setClient(mBinding?.pbWeb, {
             //开始加载页面的操作...
             onPageStarted?.invoke()
         }, {
@@ -117,7 +116,7 @@ class WebHelper(private val mActivity: WebActivity) : LifecycleEventObserver {
                 webView?.removeJavascriptInterface("JSCallAndroid")
                 webView?.clear()
 //                webView = null
-                mBinding.unbind()
+                mBinding?.unbind()
                 mActivity.lifecycle.removeObserver(this)
             }
             else -> {}
