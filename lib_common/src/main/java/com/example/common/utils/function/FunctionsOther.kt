@@ -1,6 +1,5 @@
 package com.example.common.utils.function
 
-import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
@@ -8,10 +7,8 @@ import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
-import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -33,7 +30,6 @@ import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.textColor
@@ -150,23 +146,6 @@ fun <T> String?.toList(clazz: Class<T>): List<T>? {
 fun <T> String?.toObj(clazz: Class<T>): T? {
     if (this == null) return null
     return GsonUtil.jsonToObj(this, clazz)
-}
-
-/**
- * 屏蔽页面中的edit输入框的弹出
- */
-fun Activity?.inputHidden(vararg edits: EditText?): ArrayList<EditText?>? {
-    this ?: return null
-    val list = listOf(*edits)
-    //建立对应的绑定关系，让edittext不再弹出系统的输入框
-    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
-    try {
-        val setShowSoftInputOnFocus = EditText::class.java.getMethod("setShowSoftInputOnFocus", Boolean::class.javaPrimitiveType)
-        setShowSoftInputOnFocus.isAccessible = true
-        list.forEach { setShowSoftInputOnFocus.invoke(it, false) }
-    } catch (_: Exception) {
-    }
-    return list.toArrayList()
 }
 
 /**
