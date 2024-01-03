@@ -14,6 +14,10 @@ interface BaseImpl {
      */
     fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM
 
+    fun <VM : BaseViewModel> VM.create(): VM? {
+        return createViewModel(javaClass)
+    }
+
 //    fun <VM : BaseViewModel> viewModel(): VM? {
 //        val superClass = javaClass.genericSuperclass
 //        val parameterizedType = superClass as? ParameterizedType
