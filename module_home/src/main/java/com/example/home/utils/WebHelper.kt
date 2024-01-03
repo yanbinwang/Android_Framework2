@@ -2,6 +2,7 @@ package com.example.home.utils
 
 import android.view.View
 import android.webkit.WebChromeClient
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -17,17 +18,17 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.byHardwareAccelerate
 import com.example.home.R
-import com.example.home.activity.WebActivity
 import com.example.home.databinding.ActivityWebBinding
 import java.lang.ref.WeakReference
 
 /**
  * 网页帮助类
  */
-class WebHelper(private val mActivity: WebActivity, private val mBinding: ActivityWebBinding?) : LifecycleEventObserver {
+class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: ActivityWebBinding?) : LifecycleEventObserver {
     private val webUtil by lazy { WebUtil(mActivity, mBinding?.flWebRoot) }
     private val webView get() = webUtil.webView
     private var bean: WebBundle? = null
+    private var webImpl: WebImpl? = null
     private var onPageStarted: (() -> Unit)? = null
     private var onPageFinished: ((title: String?) -> Unit)? = null
 
@@ -43,7 +44,7 @@ class WebHelper(private val mActivity: WebActivity, private val mBinding: Activi
         webView?.settings?.useWideViewPort = true
         webView?.settings?.loadWithOverviewMode = true
         //WebView与JS交互
-        webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(mActivity)), "JSCallAndroid")
+        webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(webImpl)), "JSCallAndroid")
         webView?.setClient(mBinding?.pbWeb, {
             //开始加载页面的操作...
             onPageStarted?.invoke()
@@ -95,8 +96,9 @@ class WebHelper(private val mActivity: WebActivity, private val mBinding: Activi
     /**
      * 设置加载参数
      */
-    fun setBundle(bean: WebBundle?) {
+    fun setBundle(bean: WebBundle?, webImpl: WebImpl?) {
         this.bean = bean
+        this.webImpl = webImpl
     }
 
     /**
