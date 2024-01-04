@@ -31,7 +31,6 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.rotate
 import com.example.framework.utils.function.view.size
 import com.example.mvvm.R
-import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.VideoSnapManager
 import com.example.mvvm.viewmodel.TestViewModel
@@ -112,12 +111,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //    private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
 //    private val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
-    private val viewModel by lazy { createViewModel(TestViewModel::class.java) }
-    private val bean by lazy { intentParcelable("bean") as? UserBean }
-
-
-    private val viewModel2 by lazy { viewModel<TestViewModel>() }
-
+    private val viewModel by lazy { TestViewModel().create() }
+    private val bean by lazy { intentParcelable<UserBean>("bean") }
     private var isOpen = false
 
     override fun initView() {
