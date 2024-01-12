@@ -54,6 +54,10 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
         selectTab(defaultCurrentItem)
     }
 
+    fun bind(vararg clazzPair: Pair<Class<*>, String>) {
+        bind(listOf(*clazzPair))
+    }
+
     /**
      * EvidencePageFragment::class.java.getBind(Extras.REQUEST_ID to id, "EviPager${id}")
      * first：class名
@@ -65,6 +69,10 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
         this.arguments = true
         this.clazzTriple = clazzTriple
         selectTab(defaultCurrentItem)
+    }
+
+    fun bindArguments(vararg clazzTriple: Triple<Class<*>, Pair<String, String>, String>) {
+        bindArguments(listOf(*clazzTriple))
     }
 
     /**
