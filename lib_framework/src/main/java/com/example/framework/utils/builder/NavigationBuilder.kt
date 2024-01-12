@@ -66,6 +66,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
      * 选择对应页面
      */
     fun selectTab(index: Int) {
+        if (index == -1) return
         defaultTab = index
         //如果频繁点击相同的页面tab，不执行切换代码，只做结果返回
         if (!isCurrent(index)) {
@@ -83,6 +84,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
      */
     fun selectedItem(index: Int) {
         navigationView?.selectedItemId = navigationView?.menu?.getItem(index)?.itemId ?: 0
+        selectTab(index)
     }
 
     /**
