@@ -63,9 +63,16 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
     }
 
     /**
+     * 是否重复选择
+     */
+    private fun isCurrent(index: Int): Boolean {
+        return index == if (isPager) flipper?.currentItem else builder?.getCurrentIndex()
+    }
+
+    /**
      * 选择对应页面
      */
-    fun selectTab(index: Int) {
+    private fun selectTab(index: Int) {
         if (index == -1) return
         defaultTab = index
         //如果频繁点击相同的页面tab，不执行切换代码，只做结果返回
@@ -107,13 +114,6 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
             if (menuItem?.isChecked.orFalse) return ids.indexOfFirst { it == menuItem?.itemId }
         }
         return 0
-    }
-
-    /**
-     * 是否重复选择
-     */
-    fun isCurrent(index: Int): Boolean {
-        return index == if (isPager) flipper?.currentItem else builder?.getCurrentIndex()
     }
 
     /**
