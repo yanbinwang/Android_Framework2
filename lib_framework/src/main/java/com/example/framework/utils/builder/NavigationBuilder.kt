@@ -20,6 +20,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  */
 @SuppressLint("RestrictedApi")
 class NavigationBuilder(private val navigationView: BottomNavigationView?, private val ids: List<Int>, private val animation: Boolean = true) {
+    private var defaultTab = 0
     private var flipper: ViewPager2? = null
     private var builder: FragmentBuilder? = null
     private var onItemListener: ((index: Int, isCurrent: Boolean?) -> Unit)? = null
@@ -41,7 +42,11 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
             //返回第一个符合条件的元素的下标，没有就返回-1
             val index = ids.indexOfFirst { it == item.itemId }
             onItemListener?.invoke(index, isCurrent(index))
-            if (enableSelect) selectTab(index)
+            if (enableSelect) {
+                selectTab(index)
+            } else {
+                selectedItem(defaultTab)
+            }
             true
         }
     }
@@ -61,6 +66,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
      * 选择对应页面
      */
     fun selectTab(index: Int) {
+        defaultTab = index
         //如果频繁点击相同的页面tab，不执行切换代码，只做结果返回
         if (!isCurrent(index)) {
             if (isPager) flipper?.setCurrentItem(index, false) else builder?.selectTab(index)
