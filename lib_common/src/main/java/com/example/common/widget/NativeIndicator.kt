@@ -1,11 +1,13 @@
 package com.example.common.widget
 
+import android.widget.TextView
 import com.example.common.R
 import com.example.common.databinding.ItemTabBinding
 import com.example.common.utils.builder.TabLayoutBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.setArguments
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.bold
 import com.example.framework.utils.function.view.textSize
 import com.google.android.material.tabs.TabLayout
@@ -18,16 +20,30 @@ import com.google.android.material.tabs.TabLayout
 class NativeIndicator constructor(tab: TabLayout, tabTitle: List<String>) : TabLayoutBuilder<String, ItemTabBinding>(tab, tabTitle) {
     private var onBindView: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)? = null//如需自定義，重寫此監聽
 
+    companion object {
+        /**
+         * 全局默认样式
+         */
+        fun TextView?.setTab(text: String?, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15) {
+            setArguments(text.orEmpty(), if (selected) colorRes.first.orZero else colorRes.second.orZero,)
+            textSize(if (selected) sizeRes.first.orZero else sizeRes.second.orZero)
+            bold(selected)
+        }
+    }
+
     override fun getBindView() = ItemTabBinding.bind(context.inflate(R.layout.item_tab))
 
     override fun onBindView(binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) {
         if(null == onBindView) {
-            binding?.tvTitle.apply {
-                setArguments(item.orEmpty(), if (selected) R.color.appTheme else R.color.textHint)
-                textSize(if (selected) 16.pt else 14.pt)
-                bold(selected)
-            }
-        } else onBindView?.invoke(binding, item, selected, index)
+            binding?.tvTitle.setTab(item, selected)
+//            binding?.tvTitle.apply {
+//                setArguments(item.orEmpty(), if (selected) R.color.appTheme else R.color.textHint)
+//                textSize(if (selected) 16.pt else 14.pt)
+//                bold(selected)
+//            }
+        } else {
+            onBindView?.invoke(binding, item, selected, index)
+        }
     }
 
     /**
