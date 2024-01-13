@@ -124,6 +124,13 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     }
 
     /**
+     * 获取集合
+     */
+    fun getList(): List<Fragment> {
+        return list
+    }
+
+    /**
      * 获取对应的fragment
      */
     fun <T : Fragment> getFragment(index: Int): T? {
