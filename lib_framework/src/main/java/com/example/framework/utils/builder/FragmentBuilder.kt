@@ -92,7 +92,8 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
             val transaction = manager.beginTransaction()
             var fragment = manager.findFragmentByTag(it?.second)
             if (null == fragment) {
-                fragment = it?.first?.newInstance() as Fragment
+//                fragment = it?.first?.newInstance() as Fragment
+                fragment = it?.first?.getDeclaredConstructor()?.newInstance() as Fragment
                 transaction.add(containerViewId, fragment, it.second)
                 transaction.commitAllowingStateLoss()
                 list.add(fragment)
@@ -106,7 +107,8 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
             val transaction = manager.beginTransaction()
             var fragment = manager.findFragmentByTag(it?.third)
             if (null == fragment) {
-                fragment = it?.first?.newInstance() as Fragment
+//                fragment = it?.first?.newInstance() as Fragment
+                fragment = it?.first?.getDeclaredConstructor()?.newInstance() as Fragment
                 val bundle = Bundle()
                 bundle.putString(it.second.first, it.second.second)
                 fragment.arguments = bundle
