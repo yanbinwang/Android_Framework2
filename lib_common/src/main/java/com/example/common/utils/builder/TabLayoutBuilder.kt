@@ -3,6 +3,9 @@ package com.example.common.utils.builder
 import android.content.Context
 import android.os.Build
 import android.util.SparseArray
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -12,6 +15,7 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.bind
+import com.example.framework.utils.function.view.size
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -74,6 +78,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
                 val binding = getBindView()
                 if (tabViews[i] == null) tabViews.put(i, binding)
                 customView = binding.root
+                customView.size(WRAP_CONTENT, MATCH_PARENT)
                 view.isLongClickable = false
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) view.tooltipText = null
                 onBindView(binding, tabList.safeGet(i), i == 0, i)
