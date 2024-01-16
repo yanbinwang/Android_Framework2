@@ -12,10 +12,10 @@
             android:id="@+id/ll_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10pt"
             android:background="@drawable/layer_list_shadow"
             android:orientation="vertical"
-            tools:layout_height="200pt" />
+            tools:layout_height="200pt"
+            tools:layout_marginTop="10pt" />
 
         <View
             android:id="@+id/view_arrow"
