@@ -27,8 +27,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     private var builder: FragmentBuilder? = null
     private var mediator: TabLayoutMediator? = null
     private val tabViews by lazy { SparseArray<VDB>() }
-    protected val context: Context get() = tab?.context ?: BaseApplication.instance.applicationContext
-    protected val currentIndex get() = tab?.selectedTabPosition
+    protected val mContext: Context get() = tab?.context ?: BaseApplication.instance.applicationContext
+    protected val mCurrentIndex: Int get() = tab?.selectedTabPosition.orZero
 
     /**
      * 无特殊绑定的自定义头
@@ -74,13 +74,13 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     private fun addOnTabSelectedListener() {
         for (i in 0 until tab?.tabCount.orZero) {
             tab?.getTabAt(i)?.apply {
-                val binding = getBindView()
-                if (tabViews[i] == null) tabViews.put(i, binding)
-                customView = binding.root
+                val mBinding = getBindView()
+                if (tabViews[i] == null) tabViews.put(i, mBinding)
+                customView = mBinding.root
                 customView.size(WRAP_CONTENT, MATCH_PARENT)
                 view.isLongClickable = false
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) view.tooltipText = null
-                onBindView(binding, tabList.safeGet(i), i == 0, i)
+                onBindView(mBinding, tabList.safeGet(i), i == 0, i)
             }
         }
         tab?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -113,6 +113,6 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     /**
      * 设置数据
      */
-    protected abstract fun onBindView(binding: VDB?, item: T?, selected: Boolean, index: Int)
+    protected abstract fun onBindView(mBinding: VDB?, item: T?, selected: Boolean, index: Int)
 
 }
