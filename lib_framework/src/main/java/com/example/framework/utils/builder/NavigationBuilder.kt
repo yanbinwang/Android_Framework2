@@ -55,6 +55,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
             onItemSelectedListener?.invoke(index, currentItem)
             true
         }
+//        navigationView?.itemIconTintList = null//默认效果删除
     }
 
     /**

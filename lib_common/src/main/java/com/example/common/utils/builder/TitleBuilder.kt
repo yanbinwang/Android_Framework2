@@ -3,8 +3,8 @@ package com.example.common.utils.builder
 import android.graphics.Color
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.function.getStatusBarHeight
@@ -22,7 +22,7 @@ import com.example.framework.utils.function.view.visible
  * 顶部标题默认不具备任何颜色和显示的按钮
  * 格式->左右侧图片/文本，中间是大标题
  */
-class TitleBuilder(private val mActivity: FragmentActivity, private val mBinding: ViewTitleBarBinding?) {
+class TitleBuilder(private val mActivity: AppCompatActivity, private val mBinding: ViewTitleBarBinding?) {
     val layout: ConstraintLayout?
         get() = mBinding?.clRoot
     val ivLeft: ImageView?
@@ -46,10 +46,10 @@ class TitleBuilder(private val mActivity: FragmentActivity, private val mBinding
      * bgColor->背景颜色
      * shade->标题底部是否带阴影
      */
-    fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, shade: Boolean = false): TitleBuilder {
+    fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, isShade: Boolean = false): TitleBuilder {
         mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
         mBinding?.tvTitle?.setArguments(title, titleColor)
-        mBinding?.viewShade?.apply { if (shade) visible() else gone() }
+        mBinding?.viewShade?.apply { if (isShade) visible() else gone() }
         setLeft()
         return this
     }
