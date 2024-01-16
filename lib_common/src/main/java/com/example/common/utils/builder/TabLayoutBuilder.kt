@@ -3,7 +3,6 @@ package com.example.common.utils.builder
 import android.content.Context
 import android.os.Build
 import android.util.SparseArray
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.databinding.ViewDataBinding
