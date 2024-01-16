@@ -26,6 +26,21 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *  if (!builder.isRepeat(index)) builder.selected(index)
  *  }
  *  }
+ *
+ *  <com.google.android.material.bottomnavigation.BottomNavigationView
+ *  android:id="@+id/bnv_menu"
+ *  android:layout_width="match_parent"
+ *  android:layout_height="50pt"
+ *  android:layout_gravity="bottom"
+ *  android:background="@color/bgWhite"
+ *  app:itemBackground="@null"
+ *  app:itemIconSize="20pt"
+ *  app:itemIconTint="@drawable/selector_main"
+ *  app:itemTextAppearanceActive="@style/BottomActiveText"
+ *  app:itemTextAppearanceInactive="@style/BottomInactiveText"
+ *  app:itemTextColor="@drawable/selector_main_text"
+ *  app:labelVisibilityMode="labeled"
+ *  app:menu="@menu/menu_main_item" />
  */
 @SuppressLint("RestrictedApi")
 class NavigationBuilder(private val navigationView: BottomNavigationView?, private val ids: List<Int>, private val animation: Boolean = true) {
@@ -56,6 +71,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
             true
         }
 //        navigationView?.itemIconTintList = null//默认效果删除
+//        navigationView?.itemTextColor = null
     }
 
     /**
