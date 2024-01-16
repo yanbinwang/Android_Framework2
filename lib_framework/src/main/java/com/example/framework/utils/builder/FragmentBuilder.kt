@@ -36,9 +36,10 @@ import java.io.Serializable
  *  }
  *
  */
+@Suppress("UNCHECKED_CAST")
 class FragmentBuilder(private val manager: FragmentManager, private val containerViewId: Int) {
     private var isArguments = false
-    private var currentItem = 0
+    private var mCurrentItem = 0
     private var clazzList: List<Pair<Class<*>, String>>? = null
     private var clazzBundleList: List<Triple<Class<*>, String, Bundle>>? = null
     private var onTabShowListener: ((tab: Int) -> Unit)? = null
@@ -49,11 +50,11 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      *  first：class名
      *  second：tag值，不传默认为class名
      */
-    fun bind(clazzList: List<Pair<Class<*>, String>>, defaultCurrentItem: Int = 0) {
+    fun bind(clazzList: List<Pair<Class<*>, String>>, default: Int = 0) {
         this.list.clear()
         this.isArguments = false
         this.clazzList = clazzList
-        selectTab(defaultCurrentItem)
+        selectTab(default)
     }
 
     fun bind(vararg clazzPair: Pair<Class<*>, String>) {
@@ -66,11 +67,11 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      * second：pair对象 （first，fragment透传的key second，透传的值）
      * third：内存中存储的tag
      */
-    fun bindBundle(clazzBundleList: List<Triple<Class<*>, String, Bundle>>, defaultCurrentItem: Int = 0) {
+    fun bindBundle(clazzBundleList: List<Triple<Class<*>, String, Bundle>>, default: Int = 0) {
         this.list.clear()
         this.isArguments = true
         this.clazzBundleList = clazzBundleList
-        selectTab(defaultCurrentItem)
+        selectTab(default)
     }
 
     fun bindBundle(vararg clazzTriple: Triple<Class<*>, String, Bundle>) {
@@ -81,7 +82,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      * 切换选择
      */
     fun selectTab(tab: Int) {
-        currentItem = tab
+        mCurrentItem = tab
         val transaction = manager.beginTransaction()
         list.forEach { transaction.hide(it) }
         val fragment = if (isArguments) newInstanceArguments() else newInstance()
@@ -93,7 +94,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     }
 
     private fun newInstance(): Fragment? {
-        clazzList.safeGet(currentItem).let {
+        clazzList.safeGet(mCurrentItem).let {
             val transaction = manager.beginTransaction()
             var fragment = manager.findFragmentByTag(it?.second)
             if (null == fragment) {
@@ -108,7 +109,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     }
 
     private fun newInstanceArguments(): Fragment? {
-        clazzBundleList.safeGet(currentItem).let {
+        clazzBundleList.safeGet(mCurrentItem).let {
             val transaction = manager.beginTransaction()
             var fragment = manager.findFragmentByTag(it?.second)
             if (null == fragment) {
@@ -141,7 +142,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      * 获取当前选中的下标
      */
     fun getCurrentIndex(): Int {
-        return currentItem
+        return mCurrentItem
     }
 
     /**
