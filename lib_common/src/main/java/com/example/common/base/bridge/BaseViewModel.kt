@@ -109,6 +109,11 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     fun getCurrentPage() = paging.page.toString()
 
     /**
+     * 当前列表数额
+     */
+    fun currentCount() = paging.currentCount
+
+    /**
      * 当前是否是刷新
      */
     fun hasRefresh() = paging.hasRefresh
