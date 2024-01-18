@@ -1,5 +1,6 @@
 package com.example.glide
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -67,7 +68,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         }
     }
 
-    override fun displayFrame(view: ImageView, resourceId: Int) {
+    override fun displayFrameIdentifier(view: ImageView, resourceId: Drawable?) {
         try {
             Glide.with(view.context)
                 .setDefaultRequestOptions(RequestOptions().frame(1000000).centerCrop())
@@ -83,7 +84,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         Glide.with(view.context).asGif().load(string).into(view)
     }
 
-    override fun displayGif(view: ImageView, resourceId: Int) {
+    override fun displayGifIdentifier(view: ImageView, resourceId: Drawable?) {
         Glide.with(view.context).asGif().load(resourceId).into(view)
     }
 
@@ -105,7 +106,8 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun display(view: ImageView, string: String, placeholderId: Int, errorId: Int, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
+    @SuppressLint("UseCompatLoadingForDrawables")
+    override fun display(view: ImageView, string: String, placeholderId: Drawable?, errorId: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
 //        val factory = DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
 //        Glide.with(view.context)
 //            .load(string)
@@ -139,7 +141,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun display(view: ImageView, resourceId: Int, placeholderId: Int, errorId: Int, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
+    override fun displayIdentifier(view: ImageView, resourceId: Drawable?, placeholderId: Drawable?, errorId: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
         Glide.with(view.context)
             .load(resourceId)
             .placeholder(placeholderId)
@@ -157,7 +159,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayRound(view: ImageView, string: String, errorId: Int, radius: Int, overRide: BooleanArray) {
+    override fun displayRound(view: ImageView, string: String, errorId: Drawable?, radius: Int, overRide: BooleanArray) {
 //        Glide.with(view.context)
 //            .load(string)
 //            .apply(RequestOptions.bitmapTransform(RoundedCorners(roundingRadius)))
@@ -174,7 +176,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayRound(view: ImageView, resourceId: Int, errorId: Int, radius: Int, overRide: BooleanArray) {
+    override fun displayRoundIdentifier(view: ImageView, resourceId: Drawable?, errorId: Drawable?, radius: Int, overRide: BooleanArray) {
         Glide.with(view.context)
             .load(resourceId)
             .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, radius.toSafeFloat()).apply { setExceptCorner(overRide) }))
@@ -184,7 +186,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayCircle(view: ImageView, string: String, errorId: Int) {
+    override fun displayCircle(view: ImageView, string: String, errorId: Drawable?) {
         Glide.with(view.context)
             .load(string)
             .apply(RequestOptions.circleCropTransform())
@@ -194,7 +196,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayCircle(view: ImageView, resourceId: Int, errorId: Int) {
+    override fun displayCircleIdentifier(view: ImageView, resourceId: Drawable?, errorId: Drawable?) {
         Glide.with(view.context)
             .load(resourceId)
             .apply(RequestOptions.circleCropTransform())

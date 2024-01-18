@@ -36,7 +36,7 @@ object GlideBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["display_gif_resource"])
     fun bindingDisplayGifResource(view: ImageView, resource: String) {
-        ImageLoader.instance.displayGif(view, view.context.defTypeDrawable(resource))
+        ImageLoader.instance.displayGifIdentifier(view, view.context.defTypeDrawable(resource))
     }
 
     /**
@@ -51,7 +51,7 @@ object GlideBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["display_resource"])
     fun bindingDisplayResource(view: ImageView, resource: String) {
-        ImageLoader.instance.display(view, view.context.defTypeMipmap(resource), onStart = { view.disable() }, onComplete = { view.enable() })
+        ImageLoader.instance.displayIdentifier(view, view.context.defTypeMipmap(resource), onStart = { view.disable() }, onComplete = { view.enable() })
     }
 
     /**
@@ -60,13 +60,13 @@ object GlideBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["display_round", "round_radius"], requireAll = false)
     fun bindingDisplayRound(view: ImageView, url: String, roundRadius: Int?) {
-        ImageLoader.instance.displayRound(view, url, roundRadius.toSafeInt(5))
+        ImageLoader.instance.displayRound(view, url, radius = roundRadius.toSafeInt(5))
     }
 
     @JvmStatic
     @BindingAdapter(value = ["display_round_resource", "round_radius"], requireAll = false)
     fun bindingDisplayRoundResource(view: ImageView, resource: String, roundRadius: Int?) {
-        ImageLoader.instance.displayRound(view, view.context.defTypeMipmap(resource), roundRadius.toSafeInt(5))
+        ImageLoader.instance.displayRoundIdentifier(view, view.context.defTypeMipmap(resource), radius = roundRadius.toSafeInt(5))
     }
 
     /**
@@ -81,7 +81,7 @@ object GlideBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["display_circle_resource"])
     fun bindingDisplayCircleResource(view: ImageView, resource: String) {
-        ImageLoader.instance.displayCircle(view, view.context.defTypeMipmap(resource))
+        ImageLoader.instance.displayCircleIdentifier(view, view.context.defTypeMipmap(resource))
     }
     // </editor-fold>
 

@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
+import com.example.framework.utils.function.drawable
 import com.example.glide.R
 import java.io.File
 
@@ -17,25 +18,25 @@ interface GlideImpl {
 
     fun displayFrame(view: ImageView, string: String)//线上视频加载某一帧
 
-    fun displayFrame(view: ImageView, resourceId: Int)
+    fun displayFrameIdentifier(view: ImageView, resourceId: Drawable? = null)
 
     fun displayGif(view: ImageView, string: String)
 
-    fun displayGif(view: ImageView, resourceId: Int)//gif放入drawable中
+    fun displayGifIdentifier(view: ImageView, resourceId: Drawable? = null)//gif放入drawable中
 
     fun displayProgress(view: ImageView, string: String, onStart: () -> Unit = {}, onProgress: (progress: Int?) -> Unit = {}, onComplete: () -> Unit = {})
 
-    fun display(view: ImageView, string: String, placeholderId: Int = R.drawable.shape_glide_bg, errorId: Int = 0, onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
+    fun display(view: ImageView, string: String, placeholderId: Drawable? = view.context.drawable(R.drawable.shape_glide_bg), errorId: Drawable? = null, onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
 
-    fun display(view: ImageView, resourceId: Int, placeholderId: Int = R.drawable.shape_glide_bg, errorId: Int = 0, onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
+    fun displayIdentifier(view: ImageView, resourceId: Drawable? = null, placeholderId: Drawable? = view.context.drawable(R.drawable.shape_glide_bg), errorId: Drawable? = null, onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
 
-    fun displayRound(view: ImageView, string: String, errorId: Int = 0, radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun displayRound(view: ImageView, string: String, errorId: Drawable? = null, radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
-    fun displayRound(view: ImageView, resourceId: Int, errorId: Int = 0, radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun displayRoundIdentifier(view: ImageView, resourceId: Drawable? = null, errorId: Drawable? = null, radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
-    fun displayCircle(view: ImageView, string: String, errorId: Int = R.drawable.shape_glide_oval_bg)
+    fun displayCircle(view: ImageView, string: String, errorId: Drawable? = view.context.drawable(R.drawable.shape_glide_oval_bg))
 
-    fun displayCircle(view: ImageView, resourceId: Int, errorId: Int = R.drawable.shape_glide_oval_bg)
+    fun displayCircleIdentifier(view: ImageView, resourceId: Drawable? = null, errorId: Drawable? = view.context.drawable(R.drawable.shape_glide_oval_bg))
     //---------------------------------------------图片加载结束---------------------------------------------
 
     //---------------------------------------------图片库方法开始---------------------------------------------
