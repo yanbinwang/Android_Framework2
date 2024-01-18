@@ -18,7 +18,7 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context) {
     private var onCancel: (() -> Unit)? = null
 
     fun setParams(title: String? = null, message: String? = null, positiveText: String? = null, negativeText: String? = null, gravity: Int = Gravity.CENTER): AppDialog {
-        binding?.apply {
+        mBinding?.apply {
             if (title.isNullOrEmpty()) {
                 tvTip.gone()
             } else {

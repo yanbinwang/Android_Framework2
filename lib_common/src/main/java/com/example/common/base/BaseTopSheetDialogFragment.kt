@@ -13,6 +13,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.listener.OnPageChangedListener
@@ -34,6 +36,7 @@ import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.WeakHandler
+import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orFalse
@@ -53,6 +56,8 @@ import me.jessyan.autosize.AutoSizeConfig
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
+import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -62,7 +67,7 @@ import kotlin.coroutines.CoroutineContext
  */
 @Suppress("UNCHECKED_CAST")
 abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
-    protected var binding: VDB? = null
+    protected var mBinding: VDB? = null
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
     protected val mDialog by lazy { AppDialog(mActivity) }
@@ -72,6 +77,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
+    private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main + job
@@ -109,8 +115,8 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
             val superclass = javaClass.genericSuperclass
             val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
             val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            binding = method?.invoke(null, layoutInflater, container, false) as? VDB
-            binding?.root
+            mBinding = method?.invoke(null, layoutInflater, container, false) as? VDB
+            mBinding?.root
         } catch (_: Exception) {
             null
         }
@@ -148,8 +154,12 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         }
     }
 
-    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
+//    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
+//        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
+//    }
+
+    override fun <VM : BaseViewModel> VM.create(): VM? {
+        return javaClass.create(mActivity.lifecycle, this@BaseTopSheetDialogFragment).also { it.initialize(mActivity, this@BaseTopSheetDialogFragment) }
     }
 
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
@@ -206,7 +216,12 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
 
     override fun onDetach() {
         super.onDetach()
-        binding?.unbind()
+        for ((key, value) in dataManager) {
+            key.removeObserver(value ?: return)
+        }
+        dataManager.clear()
+        mBinding?.unbind()
+        job.cancel()
     }
     // </editor-fold>
 
@@ -217,6 +232,11 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
 
     open fun clearOnActivityResultListener() {
         onActivityResultListener = null
+    }
+
+    open fun show(manager: FragmentManager) {
+        val tag = javaClass.simpleName.toLowerCase(Locale.getDefault())
+        show(manager, tag)
     }
     // </editor-fold>
 
@@ -232,16 +252,27 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     protected open fun isEventBusEnabled(): Boolean {
         return false
     }
+
+    protected open fun <T> MutableLiveData<T>?.observe(block: T?.() -> Unit) {
+        this ?: return
+        val observer = Observer<Any?> { value -> block(value as? T) }
+        dataManager[this] = observer
+        observe(this@BaseTopSheetDialogFragment, observer)
+    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
-        if (second >= 0) {
-            WeakHandler(Looper.getMainLooper()).postDelayed({
+        if (second > 0) {
+            TimerBuilder.schedule({
                 hideDialog()
                 block.invoke()
             }, second)
+//            WeakHandler(Looper.getMainLooper()).postDelayed({
+//                hideDialog()
+//                block.invoke()
+//            }, second)
         }
     }
 

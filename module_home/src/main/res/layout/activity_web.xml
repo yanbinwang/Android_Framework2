@@ -8,16 +8,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include
-            android:id="@+id/title_container"
-            layout="@layout/view_title_bar" />
-
         <FrameLayout
-            android:id="@+id/fl_webRoot"
+            android:id="@+id/fl_web_root"
             android:layout_width="match_parent"
-            android:layout_height="0pt"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/title_container" />
+            android:layout_height="match_parent" />
 
         <ProgressBar
             android:id="@+id/pb_web"
@@ -26,7 +20,7 @@
             android:layout_height="3pt"
             android:progressDrawable="@drawable/layer_list_web_progress"
             android:visibility="gone"
-            app:layout_constraintTop_toTopOf="@+id/fl_webRoot" />
+            app:layout_constraintTop_toTopOf="@+id/fl_web_root" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

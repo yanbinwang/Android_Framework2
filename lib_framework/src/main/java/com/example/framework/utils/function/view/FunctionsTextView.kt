@@ -10,6 +10,7 @@ import android.text.method.PasswordTransformationMethod
 import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
+import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.CheckBox
@@ -431,6 +432,23 @@ fun EditText?.imeOptions(imeOptions: Int) {
 fun EditText?.charBlackList(characterAllowed: CharArray) {
     this ?: return
     EditTextUtil.setCharBlackList(this, characterAllowed)
+}
+
+/**
+ * 屏蔽页面中的edit输入框的弹出
+ */
+fun Activity?.inputHidden(vararg edits: EditText?): ArrayList<EditText?>? {
+    this ?: return null
+    val list = listOf(*edits)
+    //建立对应的绑定关系，让edittext不再弹出系统的输入框
+    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+    try {
+        val setShowSoftInputOnFocus = EditText::class.java.getMethod("setShowSoftInputOnFocus", Boolean::class.javaPrimitiveType)
+        setShowSoftInputOnFocus.isAccessible = true
+        list.forEach { setShowSoftInputOnFocus.invoke(it, false) }
+    } catch (_: Exception) {
+    }
+    return list.toArrayList()
 }
 
 /**

@@ -5,13 +5,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/bgDefault"
+        android:background="@color/appWindowBackground"
         android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/ll_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/bgDefault"
             android:orientation="vertical" />
 
         <TextView

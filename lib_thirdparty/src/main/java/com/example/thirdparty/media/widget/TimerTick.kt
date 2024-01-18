@@ -10,7 +10,7 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import com.example.common.utils.helper.ConfigHelper.isAppOnForeground
+import com.example.common.utils.helper.ConfigHelper.appIsOnForeground
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orFalse
@@ -105,7 +105,7 @@ class TimerTick(context: Context, move: Boolean = true) {
                         timerCount++
                         //每秒做一次检测，当程序退到后台显示计时器
                         if (null != tickDialog) {
-                            if (!isAppOnForeground()) {
+                            if (!appIsOnForeground()) {
                                 if (!tickDialog?.isShowing.orFalse) tickDialog?.show()
                             } else {
                                 tickDialog?.dismiss()

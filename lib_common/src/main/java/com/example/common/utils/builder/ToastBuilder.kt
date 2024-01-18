@@ -41,6 +41,7 @@ object ToastBuilder {
      */
     private var toast: WeakReference<Toast>? = null
 
+    @JvmStatic
     fun short(resId: Int, toastBuilder: ((resId: Int, length: Int) -> Toast) = resToastBuilder) {
         if (Looper.getMainLooper() != Looper.myLooper()) return
         if (resId == -1) return
@@ -51,6 +52,7 @@ object ToastBuilder {
         }
     }
 
+    @JvmStatic
     fun short(message: String, toastBuilder: ((message: String, length: Int) -> Toast) = this.toastBuilder) {
         if (Looper.getMainLooper() != Looper.myLooper()) return
         if (message.isEmpty()) return
@@ -61,6 +63,7 @@ object ToastBuilder {
         }
     }
 
+    @JvmStatic
     fun long(resId: Int, toastBuilder: ((resId: Int, length: Int) -> Toast) = resToastBuilder) {
         if (Looper.getMainLooper() != Looper.myLooper()) return
         if (resId == -1) return
@@ -71,6 +74,7 @@ object ToastBuilder {
         }
     }
 
+    @JvmStatic
     fun long(message: String, toastBuilder: ((message: String, length: Int) -> Toast) = this.toastBuilder) {
         if (Looper.getMainLooper() != Looper.myLooper()) return
         cancelToast()
@@ -80,6 +84,7 @@ object ToastBuilder {
         }
     }
 
+    @JvmStatic
     fun cancelToast() {
         toast?.get()?.cancel()
     }
@@ -88,10 +93,12 @@ object ToastBuilder {
      * application中初始化全局的toast
      * 部分手機定制導致顯示不全，樣式不統一，故而再重寫一次，統一樣式
      */
+    @JvmStatic
     fun setResToastBuilder(builder: (message: Int, length: Int) -> Toast) {
         resToastBuilder = builder
     }
 
+    @JvmStatic
     fun setStringToastBuilder(builder: (message: String, length: Int) -> Toast) {
         toastBuilder = builder
     }

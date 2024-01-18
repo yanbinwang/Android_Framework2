@@ -12,7 +12,7 @@
             android:layout_height="match_parent" />
 
         <include
-            android:id="@+id/title_container"
+            android:id="@+id/title_root"
             layout="@layout/view_title_bar" />
 
     </FrameLayout>

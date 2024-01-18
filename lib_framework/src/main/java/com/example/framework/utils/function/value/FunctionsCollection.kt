@@ -217,6 +217,31 @@ fun <T> List<T>.toArrayList(): ArrayList<T> {
     return ArrayList(this)
 }
 
+/**
+ * list1为服务器中数据
+ * list2为本地存储数据
+ * isDuplicate:是否返回重复的或不重复的数据
+ * 正向查为服务器新增数据
+ * 反向查为本地删除数据
+ */
+fun <T> List<T>?.toFilter(list: List<T>, isDuplicate: Boolean = false): ArrayList<T>? {
+    this ?: return null
+    val filterSet = HashSet<T>(this)//将list转换为set，去除重复元素
+    val duplicateSet = HashSet<T>()//重复的set
+    val incompleteSet = HashSet<T>()//不重复的set
+    list.forEach {
+        if (filterSet.contains(it)) {
+            duplicateSet.add(it)
+        } else {
+            incompleteSet.add(it)
+        }
+    }
+    return if (isDuplicate) ArrayList(duplicateSet) else ArrayList(incompleteSet)
+}
+
+/**
+ * 获取一串拼接的json
+ */
 fun <T> ArrayList<T>?.toRequestParams(): String {
     if (this == null) return ""
     var result = "["

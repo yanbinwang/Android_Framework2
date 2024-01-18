@@ -13,7 +13,7 @@ import android.view.View
 import androidx.exifinterface.media.ExifInterface
 import androidx.exifinterface.media.ExifInterface.*
 import com.example.common.BaseApplication
-import com.example.common.config.Constants
+import com.example.common.config.Constants.STORAGE
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.file.deleteDir
 import com.example.common.utils.file.isMkdirs
@@ -110,7 +110,7 @@ fun Drawable.drawableToBitmap(): Bitmap {
  * format->图片类型
  * quality->压缩率
  */
-fun saveBit(bitmap: Bitmap, root: String = "${Constants.APPLICATION_PATH}/保存图片", fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
+fun saveBit(bitmap: Bitmap, root: String = "${STORAGE}/保存图片", fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
     //存储目录文件
     val storeDir = File(root)
     //存储目录完整的手机路径
@@ -249,7 +249,7 @@ fun View.loadLayout(width: Int, height: Int) {
 }
 
 //如果不设置canvas画布为白色，则生成透明
-fun View.loadBitmap(): Bitmap? {
+fun View.loadBitmap(): Bitmap {
     val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
     canvas.drawColor(Color.WHITE)

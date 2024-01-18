@@ -8,7 +8,7 @@ import com.example.framework.utils.function.defTypeMipmap
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
-import com.example.framework.utils.function.view.setResource
+import com.example.framework.utils.function.view.setDrawable
 import com.example.glide.ImageLoader
 
 /**
@@ -30,7 +30,7 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         val bean = list.safeGet(position.mod(list.safeSize)).orEmpty()
         val image = holder.itemView as? ImageView ?: return
         if (localAsset) {
-            image.setResource(holder.itemView.context.defTypeMipmap(bean))
+            image.setDrawable(holder.itemView.context.defTypeMipmap(bean))
         } else {
             ImageLoader.instance.display(image, bean)
         }

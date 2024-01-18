@@ -23,7 +23,7 @@ object ConfigHelper {
      * 在进程中去寻找当前APP的信息，判断是否在运行
      * 100表示取的最大的任务数，info.topActivity表示当前正在运行的Activity，info.baseActivity表系统后台有此进程在运行
      */
-    fun isAppOnForeground(): Boolean {
+    fun appIsOnForeground(): Boolean {
         val processes = (context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.runningAppProcesses ?: return false
         for (process in processes) {
             if (process.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && process.processName.equals(context.packageName)) return true
@@ -62,13 +62,6 @@ object ConfigHelper {
     }
 
     /**
-     * 获取当前app 包名
-     */
-    fun getPackageName(): String {
-        return context.packageName
-    }
-
-    /**
      * 获取当前app 名称
      */
     @Synchronized
@@ -80,6 +73,13 @@ object ConfigHelper {
         } catch (_: Exception) {
         }
         return ""
+    }
+
+    /**
+     * 获取当前app 包名
+     */
+    fun getPackageName(): String {
+        return context.packageName
     }
     // </editor-fold>
 

@@ -1,6 +1,7 @@
 package com.example.thirdparty.media.utils.helper
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.MediaActionSound
@@ -22,6 +23,7 @@ import com.otaliastudios.cameraview.controls.Audio
 import com.otaliastudios.cameraview.controls.Engine
 import com.otaliastudios.cameraview.controls.Facing
 import com.otaliastudios.cameraview.controls.Flash
+import com.otaliastudios.cameraview.controls.Mode
 import com.otaliastudios.cameraview.controls.Preview
 import java.io.File
 
@@ -32,10 +34,12 @@ import java.io.File
  */
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
 class CameraHelper(private val observer: LifecycleOwner) : LifecycleEventObserver {
-    private var cvFinder: CameraView? = null
+    private var sourcePath = ""
     private var hasReceiver: Boolean? = null
+    private var cvFinder: CameraView? = null
     private var onTakePictureListener: OnTakePictureListener? = null
     private var onTakeVideoListener: OnTakeVideoListener? = null
+    private val mContext: Context? get() = cvFinder?.context
     private val actionSound by lazy { MediaActionSound() }
     private val eventReceiver by lazy { KeyEventReceiver() }
 
@@ -45,12 +49,34 @@ class CameraHelper(private val observer: LifecycleOwner) : LifecycleEventObserve
 
     /**
      * 绑定页面
+     *     <com.otaliastudios.cameraview.CameraView
+     *             android:id="@+id/camera"
+     *             android:layout_width="match_parent"
+     *             android:layout_height="match_parent"
+     *             app:cameraAutoFocusMarker="@string/cameraview_default_autofocus_marker"
+     *             app:cameraAutoFocusResetDelay="1"
+     *             app:cameraGestureLongTap="autoFocus"
+     *             app:cameraGesturePinch="zoom"
+     *             app:cameraGestureTap="autoFocus"
+     *             app:cameraMode="picture" />
+     *
+     *     <com.otaliastudios.cameraview.CameraView
+     *         android:id="@+id/camera"
+     *         android:layout_width="match_parent"
+     *         android:layout_height="match_parent"
+     *         app:cameraAutoFocusMarker="@string/cameraview_default_autofocus_marker"
+     *         app:cameraAutoFocusResetDelay="1"
+     *         app:cameraGestureLongTap="autoFocus"
+     *         app:cameraGesturePinch="zoom"
+     *         app:cameraGestureTap="autoFocus"
+     *         app:cameraMode="video"
+     *         app:cameraVideoCodec="h264" />
      */
     fun bind(cvFinder: CameraView, hasReceiver: Boolean = false) {
         this.cvFinder = cvFinder
         this.hasReceiver = hasReceiver
-        cvFinder.setLifecycleOwner(observer)
         cvFinder.apply {
+            setLifecycleOwner(observer)
             keepScreenOn = true//是否保持屏幕高亮
             playSounds = true//录像是否录制声音
             useDeviceOrientation = false//禁止掉换
@@ -59,11 +85,56 @@ class CameraHelper(private val observer: LifecycleOwner) : LifecycleEventObserve
             preview = Preview.GL_SURFACE//绘制相机的装载控件
             facing = Facing.BACK//打开时镜头默认后置
             flash = Flash.AUTO//闪光灯自动
+            if (mode == Mode.PICTURE) {
+                addCameraListener(object : CameraListener() {
+                    override fun onPictureShutter() {
+                        super.onPictureShutter()
+                        onTakePictureListener?.onShutter()
+                    }
+
+                    override fun onPictureTaken(result: PictureResult) {
+                        super.onPictureTaken(result)
+                        //在sd卡的Picture文件夹下创建对应的文件
+                        MediaUtil.getOutputFile(IMAGE).apply {
+                            if (null != this) {
+                                result.toFile(this) {
+                                    if (null != it) {
+                                        onTakePictureListener?.onSuccess(it)
+                                    } else {
+                                        onTakePictureListener?.onFailed()
+                                    }
+                                }
+                            } else {
+                                onTakePictureListener?.onFailed()
+                            }
+                        }
+                    }
+                })
+            } else {
+                addCameraListener(object : CameraListener() {
+                    override fun onVideoRecordingStart() {
+                        super.onVideoRecordingStart()
+                        onTakeVideoListener?.onRecording(sourcePath)
+                    }
+
+                    //stopVideo方法按下后会触发，此刻可能正在处理录制的文件，onVideoTaken并不会立刻调取
+                    override fun onVideoRecordingEnd() {
+                        super.onVideoRecordingEnd()
+                        onTakeVideoListener?.onShutter()
+                    }
+
+                    //正式完成录制的回调，获取路径
+                    override fun onVideoTaken(result: VideoResult) {
+                        super.onVideoTaken(result)
+                        onTakeVideoListener?.onResult(result.file.path)
+                    }
+                })
+            }
         }
         if (hasReceiver) {
             val intentFilter = IntentFilter()
             intentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
-            cvFinder.context?.registerReceiver(eventReceiver, intentFilter)
+            mContext?.registerReceiver(eventReceiver, intentFilter)
         }
     }
 
@@ -116,25 +187,11 @@ class CameraHelper(private val observer: LifecycleOwner) : LifecycleEventObserve
                 return
             }
             actionSound.play(MediaActionSound.SHUTTER_CLICK)
-            if (snapshot) takePictureSnapshot() else takePicture()
-            addCameraListener(object : CameraListener() {
-                override fun onPictureShutter() {
-                    super.onPictureShutter()
-                    onTakePictureListener?.onShutter()
-                }
-
-                override fun onPictureTaken(result: PictureResult) {
-                    super.onPictureTaken(result)
-                    //在sd卡的Picture文件夹下创建对应的文件
-                    MediaUtil.getOutputFile(IMAGE).apply {
-                        if (null != this) {
-                            result.toFile(this) { if (null != it) onTakePictureListener?.onSuccess(it) else onTakePictureListener?.onFailed() }
-                        } else {
-                            onTakePictureListener?.onFailed()
-                        }
-                    }
-                }
-            })
+            if (snapshot) {
+                takePictureSnapshot()
+            } else {
+                takePicture()
+            }
         }
     }
 
@@ -147,28 +204,18 @@ class CameraHelper(private val observer: LifecycleOwner) : LifecycleEventObserve
                 R.string.cameraVideoShutter.shortToast()
                 return
             }
-            val videoFile = MediaUtil.getOutputFile(VIDEO)
-            if (null != videoFile) {
-                if (snapshot) takeVideoSnapshot(videoFile) else takeVideo(videoFile)
-                addCameraListener(object : CameraListener() {
-                    override fun onVideoRecordingStart() {
-                        super.onVideoRecordingStart()
-                        onTakeVideoListener?.onRecording(videoFile.absolutePath)
+            MediaUtil.getOutputFile(VIDEO).apply {
+                if (null != this) {
+                    sourcePath = absolutePath
+                    if (snapshot) {
+                        takeVideoSnapshot(this)
+                    } else {
+                        takeVideo(this)
                     }
-
-                    //stopVideo方法按下后会触发，此刻可能正在处理录制的文件，onVideoTaken并不会立刻调取
-                    override fun onVideoRecordingEnd() {
-                        super.onVideoRecordingEnd()
-                        onTakeVideoListener?.onShutter()
-                    }
-
-                    //正式完成录制的回调，获取路径
-                    override fun onVideoTaken(result: VideoResult) {
-                        super.onVideoTaken(result)
-                        onTakeVideoListener?.onResult(result.file.path)
-                    }
-                })
-            } else onTakeVideoListener?.onResult(null)
+                } else {
+                    onTakeVideoListener?.onResult(null)
+                }
+            }
         }
     }
 
@@ -214,7 +261,7 @@ class CameraHelper(private val observer: LifecycleOwner) : LifecycleEventObserve
         when (event) {
             Lifecycle.Event.ON_PAUSE -> closeFlash()
             Lifecycle.Event.ON_DESTROY -> {
-                if (hasReceiver.orFalse) cvFinder?.context?.unregisterReceiver(eventReceiver)
+                if (hasReceiver.orFalse) mContext?.unregisterReceiver(eventReceiver)
                 cvFinder = null
                 observer.lifecycle.removeObserver(this)
             }
