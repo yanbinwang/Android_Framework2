@@ -114,6 +114,11 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     fun hasRefresh() = paging.hasRefresh
 
     /**
+     * 是否有下一页
+     */
+    fun hasNextPage() = paging.hasNextPage()
+
+    /**
      * 刷新监听
      */
     fun onRefresh(listener: () -> Unit = {}) {
