@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Paint
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.VibrationEffect
@@ -713,6 +714,11 @@ fun ImageView?.tint(@ColorRes res: Int) {
 /**
  * 图片src资源
  */
+fun ImageView?.setDrawable(resId: Drawable?) {
+    this ?: return
+    setImageDrawable(resId)
+}
+
 fun ImageView?.setResource(@DrawableRes resId: Int) {
     this ?: return
     setImageResource(resId)
