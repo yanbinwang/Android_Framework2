@@ -35,12 +35,24 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *  android:background="@color/bgWhite"
  *  app:itemBackground="@null"
  *  app:itemIconSize="20pt"
- *  app:itemIconTint="@drawable/selector_main"
  *  app:itemTextAppearanceActive="@style/BottomActiveText"
  *  app:itemTextAppearanceInactive="@style/BottomInactiveText"
- *  app:itemTextColor="@drawable/selector_main_text"
  *  app:labelVisibilityMode="labeled"
  *  app:menu="@menu/menu_main_item" />
+ *
+ *  <!--没有选中的样式-->
+ *  <style name="BottomInactiveText">
+ *  <item name="android:textColor">@color/homeTextUnselected</item>
+ *  <item name="android:textStyle">bold</item>
+ *  <item name="android:textSize">@dimen/textSize10</item>
+ *  </style>
+ *
+ *  <!--选中的样式-->
+ *  <style name="BottomActiveText">
+ *  <item name="android:textColor">@color/homeTextSelected</item>
+ *  <item name="android:textStyle">bold</item>
+ *  <item name="android:textSize">@dimen/textSize10</item>
+ *  </style>
  */
 @SuppressLint("RestrictedApi")
 class NavigationBuilder(private val navigationView: BottomNavigationView?, private val ids: List<Int>, private val animation: Boolean = true) {
@@ -70,8 +82,9 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
             onItemSelectedListener?.invoke(index, currentItem)
             true
         }
-//        navigationView?.itemIconTintList = null//默认效果删除
-//        navigationView?.itemTextColor = null
+        //默认效果删除
+        navigationView?.itemIconTintList = null
+        navigationView?.itemTextColor = null
     }
 
     /**
