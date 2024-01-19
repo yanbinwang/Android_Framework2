@@ -1,7 +1,5 @@
 package com.example.thirdparty.media.utils.helper
 
-import android.content.Context
-import android.widget.ImageView
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -35,25 +33,22 @@ import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
  * @description 播放器帮助类
  * @author yan
  */
-class GSYVideoHelper(private val observer: LifecycleOwner) : LifecycleEventObserver {
+class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var retryWithPlay = false
     private var job: Job? = null
-    private var context: Context? = null
-    private var binding: ViewGsyvideoThumbBinding? = null
     private var player: StandardGSYVideoPlayer? = null
     private var orientationUtils: OrientationUtils? = null
+    private val mBinding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
 
     init {
-        observer.lifecycle.addObserver(this)
+        mActivity.lifecycle.addObserver(this)
     }
 
     /**
      * 绑定页面
      */
-    fun bind(activity: FragmentActivity, player: StandardGSYVideoPlayer, fullScreen: Boolean = false) {
-        this.context = activity
+    fun bind(player: StandardGSYVideoPlayer, fullScreen: Boolean = false) {
         this.player = player
-        this.binding = ViewGsyvideoThumbBinding.bind(activity.inflate(R.layout.view_gsyvideo_thumb))
         //屏幕展示效果
         GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_DEFAULT)
         //设置底层渲染,关闭硬件解码
@@ -65,19 +60,19 @@ class GSYVideoHelper(private val observer: LifecycleOwner) : LifecycleEventObser
         CacheFactory.setCacheManager(ExoPlayerCacheManager::class.java)
         player.titleTextView?.gone()
         player.backButton?.gone()
-        player.thumbImageView = binding?.root
+        player.thumbImageView = mBinding.root
         if (!fullScreen) {
             player.fullscreenButton?.gone()
         } else {
             //外部辅助的旋转，帮助全屏
-            orientationUtils = OrientationUtils(activity, player)
+            orientationUtils = OrientationUtils(mActivity, player)
             //初始化不打开外部的旋转
             orientationUtils?.isEnable = false
             //直接横屏
             player.fullscreenButton?.click {
                 orientationUtils?.resolveByClick()
                 //第一个true是否需要隐藏actionbar，第二个true是否需要隐藏statusbar
-                player.startWindowFullscreen(activity, true, true)
+                player.startWindowFullscreen(mActivity, true, true)
             }
         }
     }
@@ -88,7 +83,7 @@ class GSYVideoHelper(private val observer: LifecycleOwner) : LifecycleEventObser
     fun setUrl(url: String, autoPlay: Boolean = false) {
         retryWithPlay = false
         //加载图片
-        ImageLoader.instance.displayFrame(binding?.ivThumb ?: ImageView(context), url)
+        ImageLoader.instance.displayFrame(mBinding.ivThumb, url)
         GSYVideoOptionBuilder()
             .setIsTouchWiget(false)
             .setRotateViewAuto(false)
@@ -130,7 +125,7 @@ class GSYVideoHelper(private val observer: LifecycleOwner) : LifecycleEventObser
      */
     fun onBackPressed(): Boolean {
         orientationUtils?.backToProtVideo()
-        return GSYVideoManager.backFromWindowFull(context)
+        return GSYVideoManager.backFromWindowFull(mActivity)
     }
 
     /**
@@ -147,7 +142,7 @@ class GSYVideoHelper(private val observer: LifecycleOwner) : LifecycleEventObser
                 player?.currentPlayer?.release()
                 player?.release()
                 player = null
-                observer.lifecycle.removeObserver(this)
+                mActivity.lifecycle.removeObserver(this)
             }
             else -> {}
         }
