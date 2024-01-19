@@ -33,22 +33,22 @@ import java.io.File
  * @description 录屏工具类
  * @author yan
  */
-class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObserver {
+class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var isDestroy = false
-    private val loadingDialog by lazy { LoadingDialog(activity) }
-    private val fileBuilder by lazy { FileBuilder(activity) }
+    private val loadingDialog by lazy { LoadingDialog(mActivity) }
+    private val fileBuilder by lazy { FileBuilder(mActivity) }
     private val shotList by lazy { ArrayList<String>() }
     private var onShutter: (filePath: String?, isZip: Boolean) -> Unit = { _, _ -> }
 
     /**
      * 处理录屏的回调
      */
-    private val activityResultValue = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+    private val activityResultValue = mActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         shotList.clear()
         if (it.resultCode == RESULT_OK) {
             R.string.screenStart.shortToast()
             isRecording = true
-            activity.apply {
+            mActivity.apply {
                 startService(ScreenService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
                 moveTaskToBack(true)
             }
@@ -65,17 +65,17 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
     }
 
     init {
-        activity.lifecycle.addObserver(this)
+        mActivity.lifecycle.addObserver(this)
         //获取录屏屏幕宽高，高版本进行修正
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             var destroy = false
-            if (activity.isFinishing.orFalse) destroy = true
-            if (activity.isDestroyed.orFalse) destroy = true
-            if (activity.windowManager == null) destroy = true
-            if (activity.window?.decorView == null) destroy = true
-            if (activity.window?.decorView?.parent == null) destroy = true
+            if (mActivity.isFinishing.orFalse) destroy = true
+            if (mActivity.isDestroyed.orFalse) destroy = true
+            if (mActivity.windowManager == null) destroy = true
+            if (mActivity.window?.decorView == null) destroy = true
+            if (mActivity.window?.decorView?.parent == null) destroy = true
             if (!destroy) {
-                val decorView = activity.window.decorView
+                val decorView = mActivity.window.decorView
                 decorView.post {
                     val displayCutout = decorView.rootWindowInsets.displayCutout
                     val rectLists = displayCutout?.boundingRects
@@ -130,7 +130,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
      * 开始录屏
      * 尝试唤起手机录屏弹窗，会在onActivityResult中回调结果
      */
-    fun startScreen() = activity.execute {
+    fun startScreen() = mActivity.execute {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
             R.string.screenGranted.shortToast()
             val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
@@ -146,7 +146,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
     /**
      * 结束录屏
      */
-    fun stopScreen() = activity.execute {
+    fun stopScreen() = mActivity.execute {
         isRecording = false
         stopService(ScreenService::class.java)
     }
@@ -169,7 +169,7 @@ class ScreenHelper(private val activity: FragmentActivity) : LifecycleEventObser
                 hideDialog()
                 stopScreen()
                 ShotObserver.instance.unregister()
-                activity.lifecycle.removeObserver(this)
+                mActivity.lifecycle.removeObserver(this)
             }
             else -> {}
         }

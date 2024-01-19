@@ -39,9 +39,9 @@ class CameraHelper(private val observer: LifecycleOwner) : LifecycleEventObserve
     private var cvFinder: CameraView? = null
     private var onTakePictureListener: OnTakePictureListener? = null
     private var onTakeVideoListener: OnTakeVideoListener? = null
-    private val mContext: Context? get() = cvFinder?.context
     private val actionSound by lazy { MediaActionSound() }
     private val eventReceiver by lazy { KeyEventReceiver() }
+    private val mContext: Context? get() = cvFinder?.context
 
     init {
         observer.lifecycle.addObserver(this)
