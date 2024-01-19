@@ -148,6 +148,10 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         binding.etClear.gravity = gravity
     }
 
+    fun setInputType(type: Int) {
+        binding.etClear.inputType = type
+    }
+
     fun setImageResource(@DrawableRes res: Int) {
         binding.ivClear.setImageResource(res)
     }
