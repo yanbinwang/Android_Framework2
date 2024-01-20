@@ -3,6 +3,7 @@ package com.example.framework.utils.function.value
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.SparseArray
+import androidx.fragment.app.Fragment
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.Serializable
@@ -43,6 +44,10 @@ fun <T : MutableList<K>, K> T?.safeSet(position: Int, value: K) {
         set(position, value)
     } catch (_: Exception) {
     }
+}
+
+fun <T : Fragment> List<Fragment>.safeGet(index: Int): T? {
+    return safeGet(index) as? T
 }
 
 /**
