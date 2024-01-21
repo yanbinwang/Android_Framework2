@@ -15,6 +15,8 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
@@ -460,6 +462,22 @@ fun CheckBox?.checked() {
 }
 
 fun CheckBox?.checked(checked: Boolean) {
+    this ?: return
+    isChecked = checked
+}
+
+/**
+ * 获取RadioButton
+ */
+fun RadioGroup.button(index: Int): RadioButton? {
+    return getChildAt(index) as? RadioButton
+}
+
+fun RadioGroup.checked(index: Int, checked: Boolean) {
+    button(index).checked(checked)
+}
+
+fun RadioButton?.checked(checked: Boolean) {
     this ?: return
     isChecked = checked
 }
