@@ -485,6 +485,18 @@ fun RadioButton?.checked(checked: Boolean) {
     isChecked = checked
 }
 
+fun RadioGroup?.checkedIndex(): Int {
+    this ?: return 0
+    var ids = 0
+    for (index in 0 until childCount.orZero) {
+        if (button(index)?.isChecked.orFalse) {
+            ids = index
+            break
+        }
+    }
+    return ids
+}
+
 /**
  * 由于RadioGroup继承的是线性布局，故而是不能自动换行的
  * 所以如果碰到单选需要换行的选项界面，采用约束布局绘制，获取其中的child进行强转换
@@ -500,6 +512,28 @@ fun ConstraintLayout?.checked(index: Int, checked: Boolean) {
         button(position).checked(false)
     }
     button(index).checked(checked)
+}
+
+fun ConstraintLayout?.checkedIndex(): Int {
+    this ?: return 0
+    var ids = 0
+    for (index in 0 until childCount.orZero) {
+        if (button(index)?.isChecked.orFalse) {
+            ids = index
+            break
+        }
+    }
+    return ids
+}
+
+fun ConstraintLayout?.setOnCheckedChangeListener(listener: (index: Int) -> Unit = {}) {
+    this ?: return
+    for (index in 0 until childCount.orZero) {
+        button(index)?.click {
+            checked(index, true)
+            listener.invoke(index)
+        }
+    }
 }
 
 /**
