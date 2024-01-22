@@ -19,17 +19,6 @@ import com.google.android.material.tabs.TabLayout
 class NativeIndicator constructor(tab: TabLayout?, tabTitle: List<String>?) : TabLayoutBuilder<String, ItemTabBinding>(tab, tabTitle) {
     private var redraw: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)? = null//如需自定義，重寫此監聽
 
-    companion object {
-        /**
-         * 全局默认样式
-         */
-        fun TextView?.setTabTheme(text: String?, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15) {
-            setArguments(text.orEmpty(), if (selected) colorRes.first.orZero else colorRes.second.orZero,)
-            textSize(if (selected) sizeRes.first.orZero else sizeRes.second.orZero)
-            bold(selected)
-        }
-    }
-
     override fun getBindView() = ItemTabBinding.bind(mContext.inflate(R.layout.item_tab))
 
     override fun onBindView(mBinding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) {
@@ -53,4 +42,13 @@ class NativeIndicator constructor(tab: TabLayout?, tabTitle: List<String>?) : Ta
         this.redraw = redraw
     }
 
+}
+
+/**
+ * 全局默认样式
+ */
+fun TextView?.setTabTheme(text: String?, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15) {
+    setArguments(text.orEmpty(), if (selected) colorRes.first.orZero else colorRes.second.orZero,)
+    textSize(if (selected) sizeRes.first.orZero else sizeRes.second.orZero)
+    bold(selected)
 }
