@@ -2,6 +2,7 @@ package com.example.common.base.binding
 
 import android.annotation.SuppressLint
 import android.text.InputType
+import android.text.Spannable
 import android.view.View
 import android.webkit.WebView
 import android.widget.EditText
@@ -13,6 +14,7 @@ import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
+import com.example.common.config.Constants
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
 import com.example.common.utils.function.orNoData
@@ -199,23 +201,33 @@ object BaseBindingAdapter {
         }
     }
 
+//    /**
+//     * 高亮文本
+//     * text:文本
+//     * key_text：高亮文本
+//     * key_color：高亮文本颜色
+//     * is_match：文字是否撑满宽度（textview本身有一定的padding且会根据内容自动换行）
+//     */
+//    @JvmStatic
+//    @BindingAdapter(value = ["span_text", "key_text", "key_color", "is_all", "is_match"], requireAll = false)
+//    fun bindingTextViewSpan(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isAll: Boolean?, isMatch: Boolean?) {
+//        if (!text.isNullOrEmpty() && !keyText.isNullOrEmpty()) {
+//            if (isAll.orFalse) {
+//                textview.setSpanAll(text, keyText, keyColor.toSafeInt(R.color.textOrange))
+//            } else {
+//                textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.textOrange))
+//            }
+//        }
+//        if (isMatch.orFalse) textview.setMatchText()
+//    }
+
     /**
      * 高亮文本
-     * text:文本
-     * key_text：高亮文本
-     * key_color：高亮文本颜色
-     * is_match：文字是否撑满宽度（textview本身有一定的padding且会根据内容自动换行）
      */
     @JvmStatic
-    @BindingAdapter(value = ["span_text", "key_text", "key_color", "is_all", "is_match"], requireAll = false)
-    fun bindingTextViewSpan(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isAll: Boolean?, isMatch: Boolean?) {
-        if (!text.isNullOrEmpty() && !keyText.isNullOrEmpty()) {
-            if (isAll.orFalse) {
-                textview.setSpanAll(text, keyText, keyColor.toSafeInt(R.color.appTheme))
-            } else {
-                textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.appTheme))
-            }
-        }
+    @BindingAdapter(value = ["span_text", "is_match"], requireAll = false)
+    fun bindingTextViewSpan(textview: TextView, span: Spannable?, isMatch: Boolean?) {
+        textview.text = span ?: Constants.NO_DATA
         if (isMatch.orFalse) textview.setMatchText()
     }
 
