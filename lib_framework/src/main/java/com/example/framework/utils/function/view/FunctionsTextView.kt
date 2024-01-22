@@ -20,6 +20,7 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.example.framework.utils.DecimalInputFilter
 import com.example.framework.utils.EditTextUtil
@@ -469,17 +470,36 @@ fun CheckBox?.checked(checked: Boolean) {
 /**
  * 获取RadioButton
  */
-fun RadioGroup.button(index: Int): RadioButton? {
+fun RadioGroup?.button(index: Int): RadioButton? {
+    this ?: return null
     return getChildAt(index) as? RadioButton
 }
 
-fun RadioGroup.checked(index: Int, checked: Boolean) {
+fun RadioGroup?.checked(index: Int, checked: Boolean) {
+    this ?: return
     button(index).checked(checked)
 }
 
 fun RadioButton?.checked(checked: Boolean) {
     this ?: return
     isChecked = checked
+}
+
+/**
+ * 由于RadioGroup继承的是线性布局，故而是不能自动换行的
+ * 所以如果碰到单选需要换行的选项界面，采用约束布局绘制，或者其中的child进行强转换
+ */
+fun ConstraintLayout?.button(index: Int): RadioButton? {
+    this ?: return null
+    return getChildAt(index) as? RadioButton
+}
+
+fun ConstraintLayout?.checked(index: Int, checked: Boolean) {
+    this ?: return
+    for (position in 0 until childCount) {
+        button(position).checked(false)
+    }
+    button(index).checked(checked)
 }
 
 /**
