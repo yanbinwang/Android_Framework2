@@ -487,7 +487,7 @@ fun RadioButton?.checked(checked: Boolean) {
 
 /**
  * 由于RadioGroup继承的是线性布局，故而是不能自动换行的
- * 所以如果碰到单选需要换行的选项界面，采用约束布局绘制，或者其中的child进行强转换
+ * 所以如果碰到单选需要换行的选项界面，采用约束布局绘制，获取其中的child进行强转换
  */
 fun ConstraintLayout?.button(index: Int): RadioButton? {
     this ?: return null
