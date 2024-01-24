@@ -126,18 +126,18 @@ object ScreenUtil {
     }
 
     private fun getAppUsableScreenSize(context: Context): Point {
-        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val display = windowManager.defaultDisplay
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
+        val display = windowManager?.defaultDisplay
         val size = Point()
-        display.getSize(size)
+        display?.getSize(size)
         return size
     }
 
     private fun getRealScreenSize(context: Context): Point {
-        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val display = windowManager.defaultDisplay
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
+        val display = windowManager?.defaultDisplay
         val size = Point()
-        display.getRealSize(size)
+        display?.getRealSize(size)
         return size
     }
 
@@ -147,9 +147,21 @@ object ScreenUtil {
  * 全屏展示
  */
 fun Window.fullScreen() {
-    decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+    val uiOptions = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            or View.SYSTEM_UI_FLAG_FULLSCREEN
+            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+    decorView.systemUiVisibility = uiOptions
+//    decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         val lp = attributes
+        /**
+         * LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT 全屏模式，内容下移，非全屏不受影响
+         * LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES 允许内容区域延伸到刘海区
+         * LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER 不允许内容延伸进刘海区
+         */
         lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         attributes = lp
     }

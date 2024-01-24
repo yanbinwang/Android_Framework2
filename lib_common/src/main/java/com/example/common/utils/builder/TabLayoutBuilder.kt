@@ -26,6 +26,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
     private var builder: FragmentBuilder? = null
     private var mediator: TabLayoutMediator? = null
+    private var listener: OnTabChangeListener? = null
     private val tabViews by lazy { SparseArray<VDB>() }
     protected val mContext: Context get() = tab?.context ?: BaseApplication.instance.applicationContext
     protected val mCurrentIndex: Int get() = tab?.selectedTabPosition.orZero
@@ -52,8 +53,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * userInputEnabled:是否左右滑动
      * pageLimit：是否预加载数据（懒加载为false）
      */
-    fun bind(pager: ViewPager2, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false) {
-        pager.adapter = null
+    fun bind(pager: ViewPager2?, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false) {
+        pager?.adapter = null
         mediator?.detach()
         init(list)
         pager.adapter(adapter, orientation, userInputEnabled, pageLimit)
@@ -86,13 +87,16 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
         tab?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 onTabBind(tab, true)
+                listener?.onSelected(tab?.position.orZero)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
                 onTabBind(tab, false)
+                listener?.onUnselected(tab?.position.orZero)
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) {
+                listener?.onReselected(tab?.position.orZero)
             }
 
             private fun onTabBind(tab: TabLayout.Tab?, selected: Boolean) {
@@ -114,5 +118,25 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * 设置数据
      */
     protected abstract fun onBindView(mBinding: VDB?, item: T?, selected: Boolean, index: Int)
+
+    /**
+     * 设置监听
+     */
+    fun setOnTabChangeListener(listener: OnTabChangeListener) {
+        this.listener = listener
+    }
+
+    /**
+     * 监听
+     */
+    interface OnTabChangeListener {
+
+        fun onReselected(position: Int)
+
+        fun onSelected(position: Int)
+
+        fun onUnselected(position: Int)
+
+    }
 
 }

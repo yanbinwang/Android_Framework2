@@ -10,6 +10,8 @@ import com.example.framework.R
 import com.example.framework.utils.enterAnimation
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.safeGet
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.vibrate
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
@@ -69,8 +71,11 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
      */
     init {
         //去除长按的toast提示
-        ids.indices.forEachIndexed { index, i ->
-            menuView?.getChildAt(index)?.findViewById<View>(i)?.setOnLongClickListener { true }
+//        ids.indices.forEachIndexed { index, i ->
+//            menuView?.getChildAt(index)?.findViewById<View>(i)?.setOnLongClickListener { true }
+//        }
+        for (position in ids.indices) {
+            menuView?.getChildAt(position)?.findViewById<View>(ids.safeGet(position).toSafeInt())?.setOnLongClickListener { true }
         }
         //最多配置5个tab，需要注意
         navigationView?.setOnItemSelectedListener { item ->
