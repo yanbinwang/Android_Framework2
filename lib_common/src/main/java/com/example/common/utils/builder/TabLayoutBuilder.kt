@@ -22,6 +22,12 @@ import com.google.android.material.tabs.TabLayoutMediator
  * @author yan
  * 项目实际使用中，ui是肯定不会按照安卓原生的导航栏来实现对应的效果的
  * 故而提出一个接口类，需要实现对应效果的地方去实现
+ * 对应的样式属性，提出一个style（TabLayoutStyle）系统会有部分属性不响应，故而每次用到xml中都要配置部分属性
+ * app:tabPaddingStart="0dp"
+ * app:tabPaddingTop="0dp"
+ * app:tabPaddingEnd="0dp"
+ * app:tabPaddingBottom="0dp"
+ * app:tabMinWidth="0dp"
  */
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
     private var builder: FragmentBuilder? = null
