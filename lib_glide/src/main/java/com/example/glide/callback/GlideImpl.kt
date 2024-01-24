@@ -22,7 +22,7 @@ interface GlideImpl {
 
     fun displayGif(view: ImageView, string: String)
 
-    fun displayGifIdentifier(view: ImageView, resourceId: Drawable? = null)//gif放入drawable中
+    fun displayGifIdentifier(view: ImageView, resourceId: Int? = null)//gif放入drawable中
 
     fun displayProgress(view: ImageView, string: String, onStart: () -> Unit = {}, onProgress: (progress: Int?) -> Unit = {}, onComplete: () -> Unit = {})
 

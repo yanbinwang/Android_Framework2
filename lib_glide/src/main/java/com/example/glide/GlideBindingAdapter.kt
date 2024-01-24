@@ -2,7 +2,6 @@ package com.example.glide
 
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
-import com.example.framework.utils.function.defTypeDrawable
 import com.example.framework.utils.function.defTypeMipmap
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.disable
@@ -31,12 +30,6 @@ object GlideBindingAdapter {
     @BindingAdapter(value = ["display_gif"])
     fun bindingDisplayGif(view: ImageView, url: String) {
         ImageLoader.instance.displayGif(view, url)
-    }
-
-    @JvmStatic
-    @BindingAdapter(value = ["display_gif_resource"])
-    fun bindingDisplayGifResource(view: ImageView, resource: String) {
-        ImageLoader.instance.displayGifIdentifier(view, view.context.defTypeDrawable(resource))
     }
 
     /**
