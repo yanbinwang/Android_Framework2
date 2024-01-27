@@ -42,7 +42,7 @@ interface BaseView {
      *  show方法直接显示引导层，如果不想马上显示可以使用build方法返回一个Controller对象，完成构建。需要显示得时候再次调用Controller对象的show方法进行显示。
      *  setOnLayoutInflatedListener可操作插入view的坐标和显示位置
      */
-    fun showGuide(label: String, vararg pages: GuidePage, guideListener: OnGuideChangedListener? = null, pageListener: OnPageChangedListener? = null)
+    fun showGuide(label: String, isOnly: Boolean = true, vararg pages: GuidePage, guideListener: OnGuideChangedListener? = null, pageListener: OnPageChangedListener? = null)
 
     /**
      * 路由跳转

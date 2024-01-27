@@ -51,21 +51,21 @@ interface BaseImpl {
     /**
      * 控件不可操作
      */
-    fun ENABLED(vararg views: View?, second: Long = 1000)
+    fun enabled(vararg views: View?, second: Long = 1000)
 
     /**
      * 控件显示
      */
-    fun VISIBLE(vararg views: View?)
+    fun visible(vararg views: View?)
 
     /**
      * 控件隐藏（占位）
      */
-    fun INVISIBLE(vararg views: View?)
+    fun invisible(vararg views: View?)
 
     /**
      * 控件隐藏（不占位）
      */
-    fun GONE(vararg views: View?)
+    fun gone(vararg views: View?)
 
 }
