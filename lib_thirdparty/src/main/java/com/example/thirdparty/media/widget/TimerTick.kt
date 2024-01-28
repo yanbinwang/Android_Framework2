@@ -26,7 +26,7 @@ import java.util.TimerTask
  * @description 录屏小组件工具栏
  */
 class TimerTick(context: Context, move: Boolean = true) {
-    private val binding by lazy { ViewTimeTickBinding.bind(context.inflate(R.layout.view_time_tick)) }
+    private val mBinding by lazy { ViewTimeTickBinding.bind(context.inflate(R.layout.view_time_tick)) }
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
     private var tickDialog: AlertDialog? = null
@@ -44,24 +44,24 @@ class TimerTick(context: Context, move: Boolean = true) {
         if (null == tickDialog) {
             //设置一个自定义的弹框
             val builder = AlertDialog.Builder(context, R.style.AndDialogStyle)
-            builder.setView(binding.root)
+            builder.setView(mBinding.root)
             tickDialog = builder.create()
             tickDialog?.apply {
                 window?.setType(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
                 window?.decorView?.setPadding(0, 0, 0, 0)
                 window?.decorView?.background = ColorDrawable(Color.TRANSPARENT)
                 setCancelable(false)
-                binding.root.post {
+                mBinding.root.post {
                     val params = window?.attributes
                     params?.gravity = Gravity.TOP or Gravity.END
                     params?.verticalMargin = 0f
                     params?.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                    params?.height = binding.root.measuredHeight
+                    params?.height = mBinding.root.measuredHeight
                     window?.attributes = params
                     window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))//透明
                     //配置移动，只支持上下
                     if (null != params && move) {
-                        binding.root.setOnTouchListener(object : View.OnTouchListener {
+                        mBinding.root.setOnTouchListener(object : View.OnTouchListener {
                             private var lastX = 0
                             private var lastY = 0
                             private var paramX = 0
@@ -111,7 +111,7 @@ class TimerTick(context: Context, move: Boolean = true) {
                                 tickDialog?.dismiss()
                             }
                         }
-                        binding.tvTimer.text = (timerCount - 1).timer()
+                        mBinding.tvTimer.text = (timerCount - 1).timer()
                     }
                 }
             }
