@@ -12,22 +12,17 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
-import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.config.Constants
+import com.example.common.config.Constants.NO_DATA
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
-import com.example.common.utils.function.orNoData
 import com.example.common.utils.function.ptFloat
-import com.example.common.utils.function.setSpanAll
-import com.example.common.utils.function.setSpanFirst
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.enterAnimation
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
-import com.example.framework.utils.function.value.removeEndZero
-import com.example.framework.utils.function.value.thousandsFormat
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.adapter
@@ -186,19 +181,12 @@ object BaseBindingAdapter {
     /**
      * 特殊文本显示文本
      * text:文本
-     * text_type：
-     * 0：默认
-     * 1：金额(100.00会变为100，抹去多余的0，大于等于1000会有逗号千分位分隔)
      */
     @JvmStatic
-    @BindingAdapter(value = ["text", "text_type"], requireAll = false)
-    fun bindingTextViewText(textview: TextView, text: String?, textType: Int?) {
-        val type = textType.toSafeInt()
-        if (!text.isNullOrEmpty()) {
-            textview.text = if(1 == type) text.removeEndZero().thousandsFormat() else text
-        } else {
-            textview.text = text.orNoData()
-        }
+    @BindingAdapter(value = ["text", "is_match"], requireAll = false)
+    fun bindingTextViewText(textview: TextView, text: String?, isMatch: Boolean?) {
+        textview.text = text ?: NO_DATA
+        if (isMatch.orFalse) textview.setMatchText()
     }
 
 //    /**
@@ -227,7 +215,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["span_text", "is_match"], requireAll = false)
     fun bindingTextViewSpan(textview: TextView, span: Spannable?, isMatch: Boolean?) {
-        textview.text = span ?: Constants.NO_DATA
+        textview.text = span ?: NO_DATA
         if (isMatch.orFalse) textview.setMatchText()
     }
 
