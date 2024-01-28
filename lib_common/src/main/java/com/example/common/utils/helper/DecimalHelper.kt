@@ -31,6 +31,7 @@ class DecimalHelper(private val editText: EditText) {
 
             override fun onChanged(text: String) {
                 "输入合法".logWTF
+                listener?.invoke(text)
             }
         }
     }
