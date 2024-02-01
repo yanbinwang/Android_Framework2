@@ -47,4 +47,12 @@
     <color name="bgProgressStart">#2e60df</color>
     <color name="bgProgressEnd">#3259e1</color>
     <color name="bgProgress">#3e78f1</color>
+    <!--首页-->
+    <color name="homeTabSelected">#FFAF0E</color>
+    <color name="homeTabUnselected">#A8A5A5</color>
+    <color name="homeTextSelected">#333333</color>
+    <color name="homeTextUnselected">#A8A5A5</color>
+    <!--全局选项-->
+    <color name="tabSelected">#FFAF0E</color>
+    <color name="tabUnselected">#999EA4</color>
 </resources>

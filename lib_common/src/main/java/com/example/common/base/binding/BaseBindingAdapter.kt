@@ -2,6 +2,7 @@ package com.example.common.base.binding
 
 import android.annotation.SuppressLint
 import android.text.InputType
+import android.text.Spannable
 import android.view.View
 import android.webkit.WebView
 import android.widget.EditText
@@ -11,21 +12,17 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
-import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
+import com.example.common.config.Constants
+import com.example.common.config.Constants.NO_DATA
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
-import com.example.common.utils.function.orNoData
 import com.example.common.utils.function.ptFloat
-import com.example.common.utils.function.setSpanAll
-import com.example.common.utils.function.setSpanFirst
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.enterAnimation
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
-import com.example.framework.utils.function.value.removeEndZero
-import com.example.framework.utils.function.value.thousandsFormat
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.adapter
@@ -184,38 +181,41 @@ object BaseBindingAdapter {
     /**
      * 特殊文本显示文本
      * text:文本
-     * text_type：
-     * 0：默认
-     * 1：金额(100.00会变为100，抹去多余的0，大于等于1000会有逗号千分位分隔)
      */
     @JvmStatic
-    @BindingAdapter(value = ["text", "text_type"], requireAll = false)
-    fun bindingTextViewText(textview: TextView, text: String?, textType: Int?) {
-        val type = textType.toSafeInt()
-        if (!text.isNullOrEmpty()) {
-            textview.text = if(1 == type) text.removeEndZero().thousandsFormat() else text
-        } else {
-            textview.text = text.orNoData()
-        }
+    @BindingAdapter(value = ["text", "is_match"], requireAll = false)
+    fun bindingTextViewText(textview: TextView, text: String?, isMatch: Boolean?) {
+        textview.text = text ?: NO_DATA
+        if (isMatch.orFalse) textview.setMatchText()
     }
+
+//    /**
+//     * 高亮文本
+//     * text:文本
+//     * key_text：高亮文本
+//     * key_color：高亮文本颜色
+//     * is_match：文字是否撑满宽度（textview本身有一定的padding且会根据内容自动换行）
+//     */
+//    @JvmStatic
+//    @BindingAdapter(value = ["span_text", "key_text", "key_color", "is_all", "is_match"], requireAll = false)
+//    fun bindingTextViewSpan(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isAll: Boolean?, isMatch: Boolean?) {
+//        if (!text.isNullOrEmpty() && !keyText.isNullOrEmpty()) {
+//            if (isAll.orFalse) {
+//                textview.setSpanAll(text, keyText, keyColor.toSafeInt(R.color.textOrange))
+//            } else {
+//                textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.textOrange))
+//            }
+//        }
+//        if (isMatch.orFalse) textview.setMatchText()
+//    }
 
     /**
      * 高亮文本
-     * text:文本
-     * key_text：高亮文本
-     * key_color：高亮文本颜色
-     * is_match：文字是否撑满宽度（textview本身有一定的padding且会根据内容自动换行）
      */
     @JvmStatic
-    @BindingAdapter(value = ["span_text", "key_text", "key_color", "is_all", "is_match"], requireAll = false)
-    fun bindingTextViewSpan(textview: TextView, text: String?, keyText: String?, keyColor: Int?, isAll: Boolean?, isMatch: Boolean?) {
-        if (!text.isNullOrEmpty() && !keyText.isNullOrEmpty()) {
-            if (isAll.orFalse) {
-                textview.setSpanAll(text, keyText, keyColor.toSafeInt(R.color.appTheme))
-            } else {
-                textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.appTheme))
-            }
-        }
+    @BindingAdapter(value = ["span_text", "is_match"], requireAll = false)
+    fun bindingTextViewSpan(textview: TextView, span: Spannable?, isMatch: Boolean?) {
+        textview.text = span ?: NO_DATA
         if (isMatch.orFalse) textview.setMatchText()
     }
 

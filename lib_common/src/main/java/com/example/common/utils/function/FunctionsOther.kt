@@ -7,6 +7,8 @@ import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -144,6 +146,27 @@ fun <T> String?.toList(clazz: Class<T>): List<T>? {
 fun <T> String?.toObj(clazz: Class<T>): T? {
     if (this == null) return null
     return GsonUtil.jsonToObj(this, clazz)
+}
+
+/**
+ * 自定义反向动画
+ */
+fun Context.translateAnimation(onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}, isShown: Boolean = true): Animation {
+    return AnimationUtils.loadAnimation(this, if (isShown) R.anim.set_translate_bottom_in else R.anim.set_translate_bottom_out).apply {
+        setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(animation: Animation?) {
+                onStart.invoke()
+            }
+
+            override fun onAnimationEnd(animation: Animation?) {
+                onEnd.invoke()
+            }
+
+            override fun onAnimationRepeat(animation: Animation?) {
+                onRepeat.invoke()
+            }
+        })
+    }
 }
 
 /**

@@ -259,7 +259,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 设置广告监听
      */
-    fun setAdvertisingListener(onPagerClick: (index: Int) -> Unit = {}, onPagerCurrent: (index: Int) -> Unit = {}) {
+    fun setAdvertisingListener(onPagerClick: (index: Int) -> Unit, onPagerCurrent: (index: Int) -> Unit) {
         this.onPagerClick = onPagerClick
         this.onPagerCurrent = onPagerCurrent
     }
