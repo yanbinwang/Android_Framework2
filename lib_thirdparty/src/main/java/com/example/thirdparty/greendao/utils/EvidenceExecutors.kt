@@ -41,15 +41,20 @@ object EvidenceExecutors : CoroutineScope {
      */
     @JvmStatic
     fun addObserver(observer: LifecycleOwner) {
-        observer.doOnDestroy { job.cancel() }
+        observer.doOnDestroy {
+            implMap.clear()
+            job.cancel()
+        }
     }
 
     /**
      * 部分页面实现回调
+     * className: String
+     * impl: WeakReference<EvidenceImpl>
      */
     @JvmStatic
-    fun bind(className: String, impl: WeakReference<EvidenceImpl>) {
-        implMap[className] = impl
+    fun bind(pair: Pair<String, WeakReference<EvidenceImpl>>) {
+        implMap[pair.first] = pair.second
     }
 
     /**
