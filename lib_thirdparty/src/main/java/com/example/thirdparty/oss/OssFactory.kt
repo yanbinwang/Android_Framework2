@@ -244,7 +244,6 @@ class OssFactory private constructor() : CoroutineScope {
             OssHelper.insert(query)
         }
         OssHelper.updateUpload(baoquan, isUpload)
-//        EVENT_EVIDENCE_UPLOAD_HAND.post()
         post(0, baoquan)
         return query
     }
