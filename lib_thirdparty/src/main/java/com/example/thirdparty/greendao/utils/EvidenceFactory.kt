@@ -28,18 +28,22 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 放在MainActivity中addObserver，绑定全局的文件上传
  */
-object EvidenceExecutors : CoroutineScope {
+class EvidenceFactory private constructor() : CoroutineScope {
     private var lastRefreshTime = 0L
     private val implMap by lazy { ConcurrentHashMap<String, WeakReference<EvidenceImpl>>() }//传入页面的classname以及页面实现EvidenceImpl
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
+    companion object {
+        @JvmStatic
+        val instance by lazy { EvidenceFactory() }
+    }
+
     /**
      * 绑定对应页面的生命周期-》对应回调重写对应方法
      * @param observer
      */
-    @JvmStatic
     fun addObserver(observer: LifecycleOwner) {
         observer.doOnDestroy {
             implMap.clear()
@@ -52,7 +56,6 @@ object EvidenceExecutors : CoroutineScope {
      * className: String
      * impl: WeakReference<EvidenceImpl>
      */
-    @JvmStatic
     fun bind(pair: Pair<String, WeakReference<EvidenceImpl>>) {
         implMap[pair.first] = pair.second
     }
@@ -60,7 +63,6 @@ object EvidenceExecutors : CoroutineScope {
     /**
      * 解绑
      */
-    @JvmStatic
     fun unbind(className: String) {
         implMap.remove(className)
     }
@@ -71,7 +73,6 @@ object EvidenceExecutors : CoroutineScope {
      * fileType--文件类型
      * isZip--是否是压缩包
      */
-    @JvmStatic
     fun submit(baoquan_no: String, sourcePath: String, fileType: String, isZip: Boolean = false) {
         if (!EvidenceHelper.isUpload(baoquan_no)) {
             " \n————————————————————————文件上传————————————————————————\n开始上传:${baoquan_no}::${sourcePath}\n————————————————————————文件上传————————————————————————".logWTF
@@ -90,7 +91,6 @@ object EvidenceExecutors : CoroutineScope {
         }
     }
 
-    @JvmStatic
     private fun partUpload(baoquan_no: String, sourcePath: String, fileType: String, isZip: Boolean = false) {
         launch {
             suspendingSplit(baoquan_no, sourcePath).apply {
@@ -99,7 +99,6 @@ object EvidenceExecutors : CoroutineScope {
         }
     }
 
-    @JvmStatic
     private suspend fun suspendingSplit(baoquan_no: String, sourcePath: String): Pair<EvidenceDB, FileUtil.TmpInfo> {
         return withContext(IO) {
             //查询/创建一条用于存表的数据，并重新插入一次
@@ -115,7 +114,6 @@ object EvidenceExecutors : CoroutineScope {
         }
     }
 
-    @JvmStatic
     private suspend fun suspendingUpload(queryDB: EvidenceDB, tmpPath: String, fileType: String, baoquan_no: String, isZip: Boolean = false) {
         withContext(IO) {
             val paramsFile = File(tmpPath)
@@ -170,7 +168,6 @@ object EvidenceExecutors : CoroutineScope {
         }
     }
 
-    @JvmStatic
     fun upload(baoquan_no: String, sourcePath: String, fileType: String, isZip: Boolean = false) {
         EvidenceHelper.insert(query(baoquan_no, sourcePath))
         post(0, baoquan_no)
@@ -208,7 +205,7 @@ object EvidenceExecutors : CoroutineScope {
     }
 
     /**
-     * 接口回调
+     * 接口回调方法
      */
     private fun post(type: Int, baoquan_no: String, progress: Int = 0, success: Boolean = true) {
         for ((_, value) in implMap) {
@@ -222,10 +219,24 @@ object EvidenceExecutors : CoroutineScope {
         }
     }
 
-}
+    /**
+     * 回调接口
+     */
+    interface EvidenceImpl {
+        /**
+         * 更新某个item的状态（开始上传）
+         */
+        fun onStart(baoquan_no: String)
 
-interface EvidenceImpl {
-    fun onStart(baoquan_no: String)//更新某个item的状态（开始上传）
-    fun onLoading(baoquan_no: String, progress: Int)//更新某个item的进度
-    fun onComplete(baoquan_no: String, success: Boolean)
+        /**
+         * 更新某个item的进度
+         */
+        fun onLoading(baoquan_no: String, progress: Int)
+
+        /**
+         * 更新某个item的状态（完成）
+         */
+        fun onComplete(baoquan_no: String, success: Boolean)
+    }
+
 }
