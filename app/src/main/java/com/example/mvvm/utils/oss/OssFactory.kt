@@ -29,6 +29,7 @@ import kotlin.coroutines.CoroutineContext
  * 阿里oss文件上传
  */
 class OssFactory private constructor() : CoroutineScope {
+    private var isAuthorize = false
     private var oss: OSS? = null
     private var job: Job? = null
     private var bean: OssSts? = null
@@ -43,26 +44,31 @@ class OssFactory private constructor() : CoroutineScope {
 
     /**
      * oss初始化
+     * 1.服务器将过期时间调成最大，
+     * 2.app启动时初始化，保证app启动期间获取的授权时间是最长的
+     * 3.接口失败或者上传失败时再次调取initialize（）
      */
     @Synchronized
     fun initialize() {
+        isAuthorize = false
         job?.cancel()
         job = launch(Dispatchers.IO) {
             oss = OSSClient(BaseApplication.instance.applicationContext, "https://oss-cn-shenzhen.aliyuncs.com", object : OSSFederationCredentialProvider() {
                 override fun getFederationToken(): OSSFederationToken? {
-                    try {
+                    return try {
+                        isAuthorize = true
                         val stsUrl = URL("swallow/sts/aliyun/oss".byServerUrl)
                         val conn = stsUrl.openConnection() as HttpURLConnection
                         val input = conn.inputStream
                         val json = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME)
 //                        log("暂无", "服务器json:\n${jsonText}")
                         Gson().fromJson<ApiResponse<OssSts>>(json, object : TypeToken<ApiResponse<OssSts>>() {}.type).apply { bean = if(successful()) data else null }
-                        return OSSFederationToken(bean?.accessKeyId.orEmpty(), bean?.accessKeySecret.orEmpty(), bean?.securityToken.orEmpty(), bean?.expiration.orEmpty())
+                        OSSFederationToken(bean?.accessKeyId.orEmpty(), bean?.accessKeySecret.orEmpty(), bean?.securityToken.orEmpty(), bean?.expiration.orEmpty())
                     } catch (e: Exception) {
-                        //失败置空
-                        oss = null
+                        //失败为空
+                        isAuthorize = false
+                        null
                     }
-                    return null
                     //配置类如果不设置，会有默认配置
                 }}, ClientConfiguration().apply {
                 connectionTimeout = 3600 * 1000//连接超时，默认15秒。
@@ -78,6 +84,7 @@ class OssFactory private constructor() : CoroutineScope {
      * mainactivity中调取
      */
     fun onClear() {
+        isAuthorize = false
         val iterator = ossMap.iterator()
         while (iterator.hasNext()) {
             try {
