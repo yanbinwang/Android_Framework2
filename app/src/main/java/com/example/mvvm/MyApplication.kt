@@ -6,6 +6,7 @@ import com.example.thirdparty.album.GlideLoader
 import com.example.common.BaseApplication
 import com.example.framework.utils.function.value.isDebug
 import com.example.mvvm.activity.MainActivity
+import com.example.thirdparty.oss.OssFactory
 import com.example.thirdparty.greendao.dao.DaoMaster
 import com.example.thirdparty.greendao.utils.EvidenceHelper
 import com.yanzhenjie.album.Album
@@ -64,6 +65,18 @@ class MyApplication : BaseApplication() {
             .build())
         //数据库初始化
         EvidenceHelper.init(DaoMaster(DaoMaster.DevOpenHelper(this, "lpevidence.db", null).readableDb).newSession().evidenceDBDao)
+        //初始化oss
+        initOss()
+        //初始化进程监听
+        onStateChangedListener = {
+            if (it) {
+                initOss()
+            }
+        }
+    }
+
+    private fun initOss() {
+        OssFactory.instance.initialize()
     }
 
 }

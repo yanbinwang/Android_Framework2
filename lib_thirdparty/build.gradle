@@ -57,4 +57,6 @@ dependencies {
     implementation 'com.yanzhenjie:durban:1.0.1'
     //数据库
     api 'org.greenrobot:greendao:3.3.0'
+    //oss文件传输
+    implementation 'com.aliyun.dpa:oss-android-sdk:2.9.5'
 }

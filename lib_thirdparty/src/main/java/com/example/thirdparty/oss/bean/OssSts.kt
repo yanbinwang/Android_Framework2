@@ -1,10 +1,9 @@
-package com.example.mvvm.utils.oss
+package com.example.thirdparty.oss.bean
 
 import com.example.common.utils.helper.AccountHelper
 import com.example.framework.utils.function.value.DateFormat
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.isDebug
-import java.io.File
 import java.util.UUID
 
 /**
@@ -36,12 +35,12 @@ data class OssSts(
         return if (isDebug) "test-eagle" else "baoquan-v1"
     }
 
-    fun objectNameByFile(localFilepath: String): String {
-        val date = DateFormat.EN_YMDHMS.convert(System.currentTimeMillis())
-        return "app/file/android/${AccountHelper.getUserId()}_${date}_${UUID.randomUUID()}_${File(localFilepath).name}"
-    }
-
-    fun bucketNameByFile(privately: Boolean): String {
-        return if (isDebug) "test-eagle" else { if (!privately) "baoquan-p1" else "baoquan-v1" }
-    }
+//    fun objectNameByFile(localFilepath: String): String {
+//        val date = DateFormat.EN_YMDHMS.convert(System.currentTimeMillis())
+//        return "app/file/android/${AccountHelper.getUserId()}_${date}_${UUID.randomUUID()}_${File(localFilepath).name}"
+//    }
+//
+//    fun bucketNameByFile(privately: Boolean): String {
+//        return if (isDebug) "test-eagle" else { if (!privately) "baoquan-p1" else "baoquan-v1" }
+//    }
 }
