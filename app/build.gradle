@@ -131,6 +131,8 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //基础库
     implementation project(':module_home')
+    //oss文件传输
+    implementation 'com.aliyun.dpa:oss-android-sdk:2.9.5'
     //页面路由
     implementation deps.alibaba.arouter
     kapt deps.alibaba.arouter_compiler
