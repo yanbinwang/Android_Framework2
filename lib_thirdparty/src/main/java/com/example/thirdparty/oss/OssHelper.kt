@@ -26,11 +26,7 @@ object OssHelper {
     @JvmStatic
     fun query(): MutableList<OssDB>? {
         return try {
-            dao?.queryBuilder()?.where(
-                OssDBDao.Properties.UserId.eq(
-                    getUserId()
-                )
-            )?.list()
+            dao?.queryBuilder()?.where(OssDBDao.Properties.UserId.eq(getUserId()))?.list()
         } catch (e: Exception) {
             null
         }
@@ -42,10 +38,7 @@ object OssHelper {
     @JvmStatic
     fun query(baoquan: String): OssDB? {
         return try {
-            dao?.queryBuilder()?.where(
-                OssDBDao.Properties.Baoquan.eq(baoquan),
-                OssDBDao.Properties.UserId.eq(getUserId())
-            )?.unique()
+            dao?.queryBuilder()?.where(OssDBDao.Properties.Baoquan.eq(baoquan), OssDBDao.Properties.UserId.eq(getUserId()))?.unique()
         } catch (e: Exception) {
             null
         }
@@ -61,7 +54,7 @@ object OssHelper {
     }
 
     /**
-     * 删除对应sourcePath数据
+     * 删除对应baoquan数据
      */
     @JvmStatic
     fun delete(baoquan: String) {
@@ -128,7 +121,9 @@ object OssHelper {
      */
     @JvmStatic
     fun updateUpload(isUpload: Boolean = false) {
-        query()?.forEach { updateUpload(it.baoquan, isUpload) }
+        val list = query()
+        list ?: return
+        list.forEach { updateUpload(it.baoquan, isUpload) }
     }
 
     /**
@@ -162,4 +157,5 @@ object OssHelper {
         return bean.state == 2
     }
     // </editor-fold>
+
 }
