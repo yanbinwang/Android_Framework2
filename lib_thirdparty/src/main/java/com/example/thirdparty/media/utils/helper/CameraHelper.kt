@@ -33,9 +33,8 @@ import java.io.File
  *  https://github.com/natario1/CameraView
  */
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
-class CameraHelper(private val observer: LifecycleOwner) : LifecycleEventObserver {
+class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver: Boolean = false) : LifecycleEventObserver {
     private var sourcePath = ""
-    private var hasReceiver: Boolean? = null
     private var cvFinder: CameraView? = null
     private var onTakePictureListener: OnTakePictureListener? = null
     private var onTakeVideoListener: OnTakeVideoListener? = null
@@ -72,9 +71,8 @@ class CameraHelper(private val observer: LifecycleOwner) : LifecycleEventObserve
      *         app:cameraMode="video"
      *         app:cameraVideoCodec="h264" />
      */
-    fun bind(cvFinder: CameraView, hasReceiver: Boolean = false) {
+    fun bind(cvFinder: CameraView) {
         this.cvFinder = cvFinder
-        this.hasReceiver = hasReceiver
         cvFinder.apply {
             setLifecycleOwner(observer)
             keepScreenOn = true//是否保持屏幕高亮
