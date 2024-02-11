@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10pt"
-            android:background="@drawable/selector_r5_pressed"
+            android:background="@drawable/selector_r5_blue"
             android:gravity="center"
             android:minWidth="164pt"
             android:paddingHorizontal="14pt"
