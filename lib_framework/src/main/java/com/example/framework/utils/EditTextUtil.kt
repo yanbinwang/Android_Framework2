@@ -17,6 +17,7 @@ import com.example.framework.utils.function.value.numberCompareTo
 import com.example.framework.utils.function.value.numberDigits
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.addFilter
+import com.example.framework.utils.function.view.decimalFilter
 import com.example.framework.utils.function.view.setSafeSelection
 import com.example.framework.utils.function.view.text
 import java.util.regex.Pattern
@@ -574,12 +575,12 @@ class DecimalInputFilter : InputFilter {
  * 用于输入框失去焦点时
  * 自动根据输入框内的值吸附最大最小值(处在范围内的值不会改变)
  */
-class RangeHelper(private val editText: EditText) {
+class RangeHelper(private val editText: EditText?) {
     private var min = ""
     private var max = ""
 
     init {
-        editText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+        editText?.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 getText()
             }
@@ -589,9 +590,13 @@ class RangeHelper(private val editText: EditText) {
     /**
      * 传入字符串避免小数位数比较的误差
      */
-    fun setRange(min: String = "0", max: String = "0") {
+    fun setRange(min: String = "0", max: String = "0", digits: Int? = -1) {
         this.min = min
         this.max = max
+        if (digits != -1) {
+            editText?.filters = null
+            editText?.decimalFilter(digits.orZero)
+        }
     }
 
     /**
@@ -605,7 +610,7 @@ class RangeHelper(private val editText: EditText) {
         if (text.numberCompareTo(max) == 1) {
             text = max
         }
-        if (text != editText.text()) editText.setText(text)
+        if (text != editText.text()) editText?.setText(text)
         return text
     }
 
