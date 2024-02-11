@@ -535,7 +535,7 @@ class DecimalInputFilter : InputFilter {
         val destText = dest.toString()
         //验证删除等按键
         if (sourceText.isEmpty()) return ""
-        val matcher = mPattern.matcher(source)
+        val matcher = mPattern.matcher(source ?: "")
         //已经输入小数点的情况下，只能输入数字
         if (destText.contains(point)) {
             if (!matcher.matches()) {
