@@ -20,6 +20,7 @@ import com.example.framework.utils.function.view.addFilter
 import com.example.framework.utils.function.view.decimalFilter
 import com.example.framework.utils.function.view.setSafeSelection
 import com.example.framework.utils.function.view.text
+import java.lang.ref.WeakReference
 import java.util.regex.Pattern
 
 // <editor-fold defaultstate="collapsed" desc="工具类方法">
@@ -575,9 +576,10 @@ class DecimalInputFilter : InputFilter {
  * 用于输入框失去焦点时
  * 自动根据输入框内的值吸附最大最小值(处在范围内的值不会改变)
  */
-class RangeHelper(private val editText: EditText?) {
+class RangeHelper(private val view: WeakReference<EditText>?) {
     private var min = ""
     private var max = ""
+    private val editText get() = view?.get()
 
     init {
         editText?.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
@@ -593,10 +595,7 @@ class RangeHelper(private val editText: EditText?) {
     fun setRange(min: String = "0", max: String = "0", digits: Int? = -1) {
         this.min = min
         this.max = max
-        if (digits != -1) {
-            editText?.filters = null
-            editText?.decimalFilter(digits.orZero)
-        }
+        if (digits != -1) editText?.decimalFilter(digits.orZero)
     }
 
     /**
