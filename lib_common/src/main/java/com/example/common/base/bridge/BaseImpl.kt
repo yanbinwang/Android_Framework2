@@ -31,7 +31,7 @@ interface BaseImpl {
     /**
      * 初始化状态栏
      */
-    fun initImmersionBar(titleDark: Boolean = true, naviTrans: Boolean = true, navigationBarColor: Int = R.color.bgWhite)
+    fun initImmersionBar(titleDark: Boolean = true, naviTrans: Boolean = true, navigationBarColor: Int = R.color.appPrimaryDark)
 
     /**
      * 初始化控件
