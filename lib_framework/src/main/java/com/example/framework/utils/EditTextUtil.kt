@@ -202,7 +202,7 @@ object EditTextUtil {
     /**
      * 设置输出格式
      */
-    fun setInputType(target: EditText, inputType: Int) = target.execute {
+    fun setInputType(target: EditText?, inputType: Int) = target?.execute {
         when (inputType) {
             //text
             0 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL)
@@ -620,18 +620,18 @@ class RangeHelper(private val view: WeakReference<EditText>?) {
  * 用于限制输入框在输入时候的小数位数
  * 禁止用户在打入小数后超过设定的位数，会自动回滚之前的值
  */
-class DecimalHelper(private val editText: EditText) {
+class DecimalHelper(private val view: WeakReference<EditText>?) {
     private var listener: ((text: String) -> Unit)? = null
-
-    private val watcher by lazy { object : DecimalTextWatcher(editText) {
+    private val editText get() = view?.get()
+    private val watcher by lazy { object : DecimalTextWatcher(view) {
         override fun onEmpty() {
             "值为空".logWTF
-            editText.setText("")
+            editText?.setText("")
         }
 
         override fun onOverstep(before: String?, cursor: Int?) {
             "值超过小数位".logWTF
-            editText.setText(before.orEmpty())
+            editText?.setText(before.orEmpty())
             editText.setSafeSelection(cursor.orZero)
         }
 
@@ -645,14 +645,14 @@ class DecimalHelper(private val editText: EditText) {
         //可在xml中实现输入限制
         EditTextUtil.setInputType(editText, 7)
         //添加监听
-        editText.addTextChangedListener(watcher)
+        editText?.addTextChangedListener(watcher)
     }
 
     /**
      * 设置小数位数限制
      */
     fun setDigits(digits: Int) {
-        watcher.digits = digits
+        watcher.setDigits(digits)
     }
 
     /**
@@ -668,10 +668,11 @@ class DecimalHelper(private val editText: EditText) {
  * 对应输入框限制输入的监听
  * 注：如果是输入范围限制，只能做最大值的限制
  */
-private abstract class DecimalTextWatcher(private val editText: EditText) : TextWatcher {
-    private var textBefore: String? = null//用于记录变化前的文字
+private abstract class DecimalTextWatcher(private val view: WeakReference<EditText>?) : TextWatcher {
+    private var digits = 0
     private var textCursor = 0//用于记录变化时光标的位置
-    var digits = 0
+    private var textBefore: String? = null//用于记录变化前的文字
+    private val editText get() = view?.get()
 
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         textBefore = s.toString()
@@ -684,18 +685,25 @@ private abstract class DecimalTextWatcher(private val editText: EditText) : Text
     override fun afterTextChanged(s: Editable?) {
         val text = s.toString()
         if (text.isEmpty()) {
-            editText.removeTextChangedListener(this)
+            editText?.removeTextChangedListener(this)
             onEmpty()
-            editText.addTextChangedListener(this)
+            editText?.addTextChangedListener(this)
             return
         }
         if (text.numberDigits() > digits) {
-            editText.removeTextChangedListener(this)
+            editText?.removeTextChangedListener(this)
             onOverstep(textBefore, textCursor)
-            editText.addTextChangedListener(this)
+            editText?.addTextChangedListener(this)
             return
         }
         onChanged(text)
+    }
+
+    /**
+     * 设置小数位数限制
+     */
+    fun setDigits(digits: Int) {
+        this.digits = digits
     }
 
     abstract fun onEmpty()
