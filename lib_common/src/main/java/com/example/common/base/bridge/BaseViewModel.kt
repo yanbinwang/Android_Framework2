@@ -59,11 +59,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     //弹框/获取权限
     protected val mDialog by lazy { AppDialog(mContext) }
     protected val mPermission by lazy { PermissionHelper(mContext) }
-//    //分页参数
-//    protected val hasNextPage get() = paging.hasNextPage()
-//    protected val currentCount get() = paging.currentCount
-//    protected val totalCount get() = paging.totalCount
-//    protected val page get() = paging.page.toString()
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
