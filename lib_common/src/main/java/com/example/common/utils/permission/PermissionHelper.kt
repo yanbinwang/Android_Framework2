@@ -67,11 +67,7 @@ class PermissionHelper(private val context: Context) {
             }
         }
         andDialog.apply {
-            setParams(
-                string(R.string.hint),
-                string(R.string.permissionGoSetting, reason),
-                string(R.string.sure),
-                string(R.string.cancel))
+            setParams(message = string(R.string.permissionGoSetting, reason))
             setDialogListener({ XXPermissions.startPermissionActivity(context, permissions) })
             show()
         }
