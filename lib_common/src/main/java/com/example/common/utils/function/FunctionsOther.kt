@@ -20,7 +20,6 @@ import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.config.Constants.NO_DATA
 import com.example.common.config.ServerConfig
-import com.example.common.utils.GsonUtil
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.ScreenUtil.getRealSize
 import com.example.common.utils.ScreenUtil.getRealSizeFloat
@@ -122,30 +121,6 @@ fun String?.orNoData(): String {
 fun String?.setPrimaryClip(label: String = "Label") {
     if (this == null) return
     BaseApplication.instance.setPrimaryClip(label, this)
-}
-
-/**
- * 对象转json
- */
-fun Any?.toJsonString(): String {
-    if (this == null) return ""
-    return GsonUtil.objToJson(this).orEmpty()
-}
-
-/**
- * 后端请求如果data是JsonArray的话，使用该方法得到一个集合
- */
-fun <T> String?.toList(clazz: Class<T>): List<T>? {
-    if (this == null) return emptyList()
-    return GsonUtil.jsonToList(this, clazz)
-}
-
-/**
- * 将json转换为对象
- */
-fun <T> String?.toObj(clazz: Class<T>): T? {
-    if (this == null) return null
-    return GsonUtil.jsonToObj(this, clazz)
 }
 
 /**
