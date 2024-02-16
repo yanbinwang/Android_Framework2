@@ -36,7 +36,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 工具类中，实现了对应文件流下载保存的方法，此处采用协程的方式引用
  */
-class FileBuilder(lifecycleOwner: LifecycleOwner) : CoroutineScope {
+class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
     private var picJob: Job? = null
     private var pdfJob: Job? = null
     private var viewJob: Job? = null
@@ -47,7 +47,14 @@ class FileBuilder(lifecycleOwner: LifecycleOwner) : CoroutineScope {
         get() = Main + job
 
     init {
-        lifecycleOwner.doOnDestroy { job.cancel() }
+        observer.doOnDestroy {
+            picJob?.cancel()
+            pdfJob?.cancel()
+            viewJob?.cancel()
+            zipJob?.cancel()
+            downloadJob?.cancel()
+            job.cancel()
+        }
     }
 
     /**
