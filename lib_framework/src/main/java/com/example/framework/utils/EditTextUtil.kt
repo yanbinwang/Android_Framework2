@@ -603,6 +603,7 @@ class RangeHelper(private val view: WeakReference<EditText>?) {
      */
     fun getText(): String {
         var text = editText.text()
+        if (text.isEmpty()) return ""
         if (text.numberCompareTo(min) == -1) {
             text = min
         }
