@@ -98,25 +98,27 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 查找到符合条件的对象，改变为新的对象并刷新对应item
      */
-    fun changed(func: ((T) -> Boolean), bean: T) {
+    fun changed(func: ((T) -> Boolean), bean: T?) {
         changed(data.findIndexOf(func), bean)
     }
 
     /**
      * 传入要改变的对象和对象下标，直接刷新对应item
      */
-    fun changed(index: Int, bean: T) {
+    fun changed(index: Int?, bean: T?) {
+        if(index == null || bean == null) return
         if (index != -1 && data.safeGet(index) != null) {
             data.safeSet(index, bean)
             notifyItemChanged(index)
         }
     }
 
-    fun changed(func: ((T) -> Boolean), payloads: MutableList<Any>, bean: T) {
+    fun changed(func: ((T) -> Boolean), payloads: MutableList<Any>?, bean: T?) {
         changed(data.findIndexOf(func), payloads, bean)
     }
 
-    fun changed(index: Int, payloads: MutableList<Any>, bean: T) {
+    fun changed(index: Int?, payloads: MutableList<Any>?, bean: T?) {
+        if(index == null || bean == null) return
         if (index != -1 && data.safeGet(index) != null) {
             data.safeSet(index, bean)
             notifyItemChanged(index, payloads)
@@ -131,7 +133,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
         data.findAndRemove(func)
     }
 
-    fun removed(index: Int) {
+    fun removed(index: Int?) {
+        if(index == null) return
         if (index != -1 && data.safeGet(index) != null) {
             data.removeAt(index)
             notifyItemRemoved(index)
@@ -179,7 +182,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 根据下标获取对象
      */
-    fun item(position: Int): T? {
+    fun item(position: Int?): T? {
+        if(position == null) return null
         return data.safeGet(position)
     }
 
@@ -207,7 +211,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 刷新集合
      */
-    fun refresh(list: List<T>) {
+    fun refresh(list: List<T>?) {
+        if(null == list) return
         data.clear()
         data.addAll(list)
         notifyDataSetChanged()
@@ -216,7 +221,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 刷新对象
      */
-    fun refresh(bean: T) {
+    fun refresh(bean: T?) {
+        if(null == bean) return
         t = bean
         notifyDataSetChanged()
     }
@@ -224,7 +230,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 插入集合
      */
-    fun insert(list: List<T>) {
+    fun insert(list: List<T>?) {
+        if(null == list) return
         val positionStart = size()
         data.addAll(list)
         notifyItemRangeInserted(positionStart, list.safeSize)
@@ -233,7 +240,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 对应下标插入集合
      */
-    fun insert(position: Int, list: List<T>) {
+    fun insert(position: Int?, list: List<T>?) {
+        if(null == position || null == list) return
         data.addAll(position, list)
         notifyDataSetChanged()
     }
@@ -241,7 +249,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 对应下标插入对象
      */
-    fun insert(position: Int, item: T) {
+    fun insert(position: Int?, item: T?) {
+        if(null == position || null == item) return
         if (position !in data.indices) return
         data.add(position, item)
         notifyItemInserted(position)
@@ -250,7 +259,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 集合末尾揣入对象
      */
-    fun insert(item: T) {
+    fun insert(item: T?) {
+        if(null == item) return
         data.add(item)
         notifyItemInserted(data.safeSize - 1)
     }
