@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Parcelable
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
@@ -17,6 +18,7 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.getFileFromUri
 import com.example.common.utils.permission.checkSelfStorage
 import java.io.File
+import java.io.Serializable
 
 /**
  * 跳转系统默认相册
@@ -182,4 +184,30 @@ private fun isExists(file: File): Boolean {
         return false
     }
     return true
+}
+
+/**
+ * 获取对应对象->方法已经淘汰，扩展写下
+ */
+fun <T : Serializable> Intent?.getExtra(name: String, clazz: Class<T>): T? {
+    this ?: return null
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getSerializableExtra(name, clazz)
+    } else {
+        getSerializableExtra(name) as? T
+    }
+}
+
+fun <T : Parcelable> Intent?.getExtra(name: String, clazz: Class<T>): T? {
+    this ?: return null
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelableExtra(name, clazz)
+    } else {
+        getParcelableExtra(name) as? T
+    }
+}
+
+fun <T> Intent?.getExtra(name: String): ArrayList<T>? {
+    this ?: return null
+    return getSerializableExtra(name) as? ArrayList<T>
 }
