@@ -39,13 +39,14 @@ fun Activity.pullUpAlbum() {
 fun FragmentActivity?.pullUpAlbum(func: ((path: String?) -> Unit)) {
     this ?: return
     if (checkSelfStorage()) {
-        val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == Activity.RESULT_OK) {
-                it?.data ?: return@registerForActivityResult
-                val uri = it.data?.data
-                func.invoke(uri.getFileFromUri()?.absolutePath)
+        val activityResultValue =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (it.resultCode == Activity.RESULT_OK) {
+                    it?.data ?: return@registerForActivityResult
+                    val uri = it.data?.data
+                    func.invoke(uri.getFileFromUri()?.absolutePath)
+                }
             }
-        }
         val intent = Intent(Intent.ACTION_PICK, null)
         intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
         activityResultValue.launch(intent)
@@ -145,7 +146,7 @@ fun Context.openSetupApk(filePath: String) = openFile(filePath, "application/vnd
  */
 fun Context.openFile(filePath: String, type: String) {
     val file = File(filePath)
-    if (isExists(file)) {
+    if (file.fileValidation()) {
         startActivity(Intent(Intent.ACTION_VIEW).apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -164,7 +165,7 @@ fun Context.openFile(filePath: String, type: String) {
  */
 fun Context.sendFile(filePath: String, fileType: String? = "*/*", title: String? = "分享文件") {
     val file = File(filePath)
-    if (isExists(file)) {
+    if (file.fileValidation()) {
         startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this@sendFile, "${Constants.APPLICATION_ID}.fileProvider", file))
@@ -178,12 +179,17 @@ fun Context.sendFile(filePath: String, fileType: String? = "*/*", title: String?
     }
 }
 
-private fun isExists(file: File): Boolean {
-    if (!file.exists()) {
+/**
+ * 文件校验方法
+ */
+private fun File?.fileValidation(): Boolean {
+    this ?: return false
+    return if (!exists()) {
         R.string.sourcePathError.shortToast()
-        return false
+        false
+    } else {
+        true
     }
-    return true
 }
 
 /**
@@ -207,7 +213,24 @@ fun <T : Parcelable> Intent?.getExtra(name: String, clazz: Class<T>): T? {
     }
 }
 
-fun <T> Intent?.getExtra(name: String): ArrayList<T>? {
+/**
+ * Serializable未提供集合的方法，需要强转：
+ * putSerializable(Extra.BUNDLE_LIST, list as? Serializable)
+ * 然后getArrayListExtra取值后再强转
+ * 故而使用putParcelableArrayListExtra来传输集合
+ * putParcelableArrayListExtra(Extra.BUNDLE_LIST, list) })
+ * list--->ArrayList<T>
+ */
+fun <T : Parcelable> Intent?.getArrayListExtra(name: String, clazz: Class<T>): ArrayList<T>? {
+    this ?: return null
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelableArrayListExtra(name, clazz)
+    } else {
+        getParcelableArrayListExtra(name)
+    }
+}
+
+fun <T> Intent?.getArrayListExtra(name: String): ArrayList<T>? {
     this ?: return null
     return getSerializableExtra(name) as? ArrayList<T>
 }

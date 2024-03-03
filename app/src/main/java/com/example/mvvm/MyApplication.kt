@@ -5,7 +5,6 @@ import android.util.Log
 import com.example.common.BaseApplication
 import com.example.framework.utils.function.value.isDebug
 import com.example.mvvm.activity.MainActivity
-import com.example.mvvm.utils.oss.OssFactory
 import com.example.thirdparty.album.GlideLoader
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
@@ -61,18 +60,14 @@ class MyApplication : BaseApplication() {
                 .setAlbumLoader(GlideLoader()) //设置Album加载器。
                 .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
                 .build())
-        //初始化oss
-        initOss()
-        //初始化进程监听
-        onStateChangedListener = {
-            if (it) {
-                initOss()
-            }
-        }
-    }
-
-    private fun initOss() {
-        OssFactory.instance.initialize()
+//        //初始化oss
+//        initOss()
+//        //初始化进程监听
+//        onStateChangedListener = {
+//            if (it) {
+//                initOss()
+//            }
+//        }
     }
 
 }
