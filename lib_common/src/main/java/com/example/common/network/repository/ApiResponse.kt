@@ -12,8 +12,9 @@ data class ApiResponse<T>(
 ) {
     /**
      * 判断此次请求是否成功
+     * 数据是否为空
      */
-    val results get() = successful()
+    val results get() = successful() && data != null
 }
 
 /**
