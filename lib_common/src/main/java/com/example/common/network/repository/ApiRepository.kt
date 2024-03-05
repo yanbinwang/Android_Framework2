@@ -61,9 +61,9 @@ class MultiReqUtil(
     suspend fun <T> requestResults(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
-    ): Pair<Boolean, ApiResponse<T>?> {
+    ): Pair<Boolean, T?> {
         val response = requestLayer(coroutineScope, err)
-        return response.successful() to response
+        return response.successful() to response?.data
     }
 
     /**
