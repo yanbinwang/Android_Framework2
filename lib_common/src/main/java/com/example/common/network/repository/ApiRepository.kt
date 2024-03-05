@@ -58,14 +58,6 @@ class MultiReqUtil(
         return response
     }
 
-    suspend fun <T> requestResults(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
-    ): Pair<Boolean, T?> {
-        val response = requestLayer(coroutineScope, err)
-        return response.successful() to response?.data
-    }
-
     /**
      * 请求结束主动调取
      */
@@ -85,7 +77,8 @@ class MultiReqUtil(
  * map扩展，如果只需传入map则使用
  * hashMapOf("" to "")不需要写此扩展
  */
-fun <K, V> HashMap<K, V>?.requestBody() = this?.toJsonString().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
+fun <K, V> HashMap<K, V>?.requestBody() =
+    this?.toJsonString().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
 
 fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
     val map = hashMapOf<String, Any>()
@@ -100,9 +93,10 @@ fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
 /**
  * 提示方法，根据接口返回的msg提示
  */
-fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.responseNetError) else {
-    if (isNullOrEmpty()) resString(R.string.responseError) else this
-}).shortToast()
+fun String?.responseToast() =
+    (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.responseNetError) else {
+        if (isNullOrEmpty()) resString(R.string.responseError) else this
+    }).shortToast()
 
 /**
  * 网络请求协程扩展-并行请求
