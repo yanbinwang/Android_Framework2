@@ -31,6 +31,7 @@ class MultiReqUtil(
     private val isShowDialog: Boolean = true,
     private val err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
 ) {
+    var results = false//一旦有请求失败，就会为true
     private var loadingStarted = false//是否开始加载
 
     /**
@@ -55,6 +56,7 @@ class MultiReqUtil(
         requestLayer({ coroutineScope() }, {
             response = it
         }, err, isShowToast = false)
+        if (!response.successful()) results = true
         return response
     }
 
@@ -67,6 +69,7 @@ class MultiReqUtil(
             loadingStarted = false
         }
         view = null
+        results = false
     }
 
 }
