@@ -58,6 +58,14 @@ class MultiReqUtil(
         return response
     }
 
+    suspend fun <T> requestResults(
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+    ): Pair<Boolean, ApiResponse<T>?> {
+        val response = requestLayer(coroutineScope, err)
+        return response.successful() to response
+    }
+
     /**
      * 请求结束主动调取
      */
