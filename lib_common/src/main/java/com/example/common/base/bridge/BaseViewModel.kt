@@ -143,14 +143,17 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * empty布局操作
      */
     fun loading() {
+        finishRefreshing()
         mEmpty?.loading()
     }
 
     fun empty(resId: Int = -1, text: String? = null) {
+        finishRefreshing()
         mEmpty?.empty(resId, text)
     }
 
     fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
+        finishRefreshing()
         mEmpty?.error(resId, text, refreshText)
     }
 
@@ -159,9 +162,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * hasNextPage是否有下一页
      */
     fun reset(hasNextPage: Boolean? = true) {
+        finishRefreshing(hasNextPage)
+        mEmpty?.fade(300)
+    }
+
+    private fun finishRefreshing(hasNextPage: Boolean? = true) {
         if (null == mRecycler) mRefresh?.finishRefreshing()
         mRecycler?.finishRefreshing(hasNextPage.orTrue)
-        mEmpty?.fade(300)
     }
 
     /**
