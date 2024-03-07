@@ -575,16 +575,18 @@ class DecimalInputFilter : InputFilter {
 /**
  * 用于输入框失去焦点时
  * 自动根据输入框内的值吸附最大最小值(处在范围内的值不会改变)
+ * 默认大小和小数位数不做限制
  */
-class RangeHelper(private val view: WeakReference<EditText>?) {
-    private var min = ""
-    private var max = ""
+class RangeHelper(private val view: WeakReference<EditText>?, hasAuto: Boolean = true) {
+    private var min: String? = null
+    private var max: String? = null
     private val editText get() = view?.get()
 
     init {
+        editText?.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
         editText?.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                getText()
+                if (hasAuto) getText()
             }
         }
     }
@@ -592,30 +594,46 @@ class RangeHelper(private val view: WeakReference<EditText>?) {
     /**
      * 传入字符串避免小数位数比较的误差
      */
-    fun setRange(min: String = "0", max: String = "0", digits: Int? = -1) {
+    fun setRange(min: String? = null, max: String? = null, digits: Int? = -1) {
         this.min = min
         this.max = max
         if (digits != -1) editText?.decimalFilter(digits.orZero)
     }
 
     /**
-     * 服务器取值使用此方法
+     * 获取比较结果
+     */
+    fun getRange(isMax: Boolean = true): Boolean {
+        val text = editText.text()
+        return if (isMax) {
+            text.numberCompareTo(max.orEmpty()) != 1
+        } else {
+            text.numberCompareTo(min.orEmpty()) != -1
+        }
+    }
+
+    /**
+     * 取值使用此方法
      */
     fun getText(): String {
         var text = editText.text()
         if (text.isEmpty()) return ""
-        if (text.numberCompareTo(min) == -1) {
-            text = min
+        if (!min.isNullOrEmpty()) {
+            if (text.numberCompareTo(min.orEmpty()) == -1) {
+                text = min.orEmpty()
+            }
         }
-        if (text.numberCompareTo(max) == 1) {
-            text = max
+        if (!max.isNullOrEmpty()) {
+            if (text.numberCompareTo(max.orEmpty()) == 1) {
+                text = max.orEmpty()
+            }
         }
+        //比较一下大小值有无改变
         if (text != editText.text()) editText?.setText(text)
         return text
     }
 
 }
-
 
 /**
  * 用于限制输入框在输入时候的小数位数
