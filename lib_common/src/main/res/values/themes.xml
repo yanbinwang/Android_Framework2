@@ -207,7 +207,7 @@
      -->
     <style name="CheckBoxStyle" parent="@android:style/Widget.CompoundButton.CheckBox">
         <item name="android:button">@null</item>
-        <item name="android:background">@drawable/selector_check_box</item>
+        <item name="android:background">@drawable/selector_check_thumb</item>
         <item name="android:layout_width">20pt</item>
         <item name="android:layout_height">20pt</item>
     </style>

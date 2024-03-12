@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
  * 基础复用的ViewHolder，传入对应的ViewBinding拿取布局Binding
  */
 @Suppress("UNCHECKED_CAST")
-class BaseViewDataBindingHolder(parent: ViewGroup, private val binding: ViewDataBinding?) : RecyclerView.ViewHolder(binding?.root ?: View(parent.context)) {
+open class BaseViewDataBindingHolder(parent: ViewGroup, private val binding: ViewDataBinding?) : RecyclerView.ViewHolder(binding?.root ?: View(parent.context)) {
 
     companion object {
         /**

@@ -107,9 +107,9 @@ object FileUtil {
     /**
      * 开始创建并写入tmp文件
      * @param filePath  分割文件地址
-     * @param fileSize 分割文件大小
+     * @param filePointer 分割文件大小
      */
-    class TmpInfo(var filePath: String? = null, var fileSize: Long = 0)
+    class TmpInfo(var filePath: String? = null, var filePointer: Long = 0)
 
     /**
      * 文件分割
@@ -136,7 +136,7 @@ object FileUtil {
                 val begin = offSet
                 val end = (i + 1) * maxSize
                 val tmpInfo = write(targetFile.absolutePath, i, begin, end)
-                offSet = tmpInfo.fileSize
+                offSet = tmpInfo.filePointer
                 splitList.add(tmpInfo.filePath.orEmpty())
             }
             if (length - offSet > 0) splitList.add(write(targetFile.absolutePath, count - 1, offSet, length).filePath.orEmpty())
@@ -181,10 +181,10 @@ object FileUtil {
                 outAccessFile.write(b, 0, n)
             }
             //关闭输入输出流,赋值
-            info.fileSize = inAccessFile.filePointer
+            info.filePath = tmpFile.absolutePath
+            info.filePointer = inAccessFile.filePointer
             inAccessFile.close()
             outAccessFile.close()
-            info.filePath = tmpFile.absolutePath
         } catch (_: Exception) {
         }
         return info

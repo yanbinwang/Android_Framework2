@@ -53,7 +53,9 @@ object MediaUtil {
                 "创建文件目录失败".logE()
                 return null
             }
-        } else "文件目录已创建\n地址:${storageDir.path}".logE()
+        } else {
+            "文件目录已创建\n地址:${storageDir.path}".logE()
+        }
         return File("${storageDir.path}/${"yyyyMMdd_HHmmss".convert(Date())}.${storageInfo.second}")
     }
 

@@ -40,7 +40,7 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
 
     private fun addWebView() {
         webView?.byHardwareAccelerate()
-        webView?.background(R.color.bgWhite)
+        webView?.background(R.color.bgDefault)
         webView?.settings?.useWideViewPort = true
         webView?.settings?.loadWithOverviewMode = true
         //WebView与JS交互

@@ -233,6 +233,7 @@ fun EditText?.passwordDevelopment(): Boolean {
  */
 fun EditText?.decimalFilter(decimalPoint: Int = 2) {
     if (this == null) return
+    removeFilter { it is DecimalInputFilter }
     val decimalInputFilter = DecimalInputFilter()
     decimalInputFilter.decimalPoint = decimalPoint
     addFilter(decimalInputFilter)
@@ -265,6 +266,15 @@ fun EditText?.addFilter(vararg filterList: InputFilter) {
 fun EditText?.removeFilter(vararg filterList: InputFilter) {
     if (this == null) return
     filters = arrayOf<InputFilter>().plus(filters.filter { !filterList.contains(it) })
+}
+
+internal fun EditText?.removeFilter(func: (InputFilter) -> Boolean) {
+    if (this == null) return
+    val filterList = filters.toNewList { it }
+    filterList.forEach {
+        if (func(it)) filterList.remove(it)
+    }
+    filters = filterList.toTypedArray()
 }
 
 /**

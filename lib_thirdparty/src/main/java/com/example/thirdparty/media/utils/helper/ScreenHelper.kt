@@ -35,16 +35,16 @@ import java.io.File
  */
 class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var isDestroy = false
-    private val loadingDialog by lazy { LoadingDialog(mActivity) }
-    private val fileBuilder by lazy { FileBuilder(mActivity) }
-    private val shotList by lazy { ArrayList<String>() }
-    private var onShutter: (filePath: String?, isZip: Boolean) -> Unit = { _, _ -> }
+    private val list by lazy { ArrayList<String>() }
+    private val builder by lazy { FileBuilder(mActivity) }
+    private val loading by lazy { LoadingDialog(mActivity) }
+    private var listener: (filePath: String?, isZip: Boolean) -> Unit = { _, _ -> }
 
     /**
      * 处理录屏的回调
      */
     private val activityResultValue = mActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        shotList.clear()
+        list.clear()
         if (it.resultCode == RESULT_OK) {
             R.string.screenStart.shortToast()
             isRecording = true
@@ -91,7 +91,7 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
             it ?: return@setOnScreenShotListener
             if (isRecording) {
                 if (!File(it).exists()) return@setOnScreenShotListener
-                shotList.add(it)
+                list.add(it)
             }
         }
         //录屏文件创建/停止录屏时（exists=false）都会回调
@@ -100,30 +100,30 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
             if (!recoding) {
                 folderPath ?: return@setOnScreenListener
                 //说明未截图
-                if (shotList.safeSize == 0) {
-                    onShutter.invoke(folderPath, false)
+                if (list.safeSize == 0) {
+                    listener.invoke(folderPath, false)
                 } else {
                     //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
-                    shotList.add(folderPath)
+                    list.add(folderPath)
                     //压缩包输出路径（会以录屏文件的命名方式来命名）
                     val zipPath = File(folderPath).name.replace("mp4", "zip")
                     //开始压包
-                    fileBuilder.zipJob(shotList, zipPath, { showDialog() }, {
+                    builder.zipJob(list, zipPath, { showDialog() }, {
                         hideDialog()
                         folderPath.deleteFile()
                     })
-                    onShutter.invoke(zipPath, true)
+                    listener.invoke(zipPath, true)
                 }
             }
         }
     }
 
     private fun showDialog() {
-        loadingDialog.shown(false)
+        loading.shown(false)
     }
 
     private fun hideDialog() {
-        loadingDialog.hidden()
+        loading.hidden()
     }
 
     /**
@@ -154,8 +154,8 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
     /**
      * isZip->true是zip文件夹，可能包含录制时的截图
      */
-    fun setOnScreenListener(onShutter: (filePath: String?, isZip: Boolean) -> Unit) {
-        this.onShutter = onShutter
+    fun setOnScreenListener(listener: (filePath: String?, isZip: Boolean) -> Unit) {
+        this.listener = listener
     }
 
     /**

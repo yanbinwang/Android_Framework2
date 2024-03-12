@@ -31,6 +31,7 @@ class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         isDestroy = false
         val recordFile = MediaUtil.getOutputFile(AUDIO)
         val sourcePath = recordFile?.absolutePath
+        onRecorderListener?.onStart(sourcePath)
         try {
             recorder.apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)//设置麦克风
@@ -47,7 +48,6 @@ class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             }
         } catch (_: Exception) {
         }
-        onRecorderListener?.onStart(sourcePath)
     }
 
     /**
@@ -67,6 +67,21 @@ class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     }
 
     /**
+     * 录音监听
+     */
+    fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
+        this.onRecorderListener = onRecorderListener
+    }
+
+    interface OnRecorderListener {
+        fun onStart(sourcePath: String?)
+
+        fun onShutter()
+
+        fun onStop()
+    }
+
+    /**
      * 设置播放的音频地址
      */
     fun setDataSource(sourcePath: String, looping: Boolean = true) {
@@ -79,11 +94,6 @@ class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         } catch (_: Exception) {
         }
     }
-
-    /**
-     * 当前音频是否正在播放
-     */
-    fun isPlaying() = player.isPlaying
 
     /**
      * 开始播放
@@ -108,30 +118,10 @@ class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     }
 
     /**
-     * 录音监听
+     * 当前音频是否正在播放
      */
-    fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
-        this.onRecorderListener = onRecorderListener
-    }
-
-    interface OnRecorderListener {
-        fun onStart(sourcePath: String?)
-
-        fun onShutter()
-
-        fun onStop()
-    }
-
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        when (event) {
-            Lifecycle.Event.ON_DESTROY -> {
-                isDestroy = true
-                stopRecord()
-                release()
-                mActivity.lifecycle.removeObserver(this)
-            }
-            else -> {}
-        }
+    fun isPlaying(): Boolean {
+        return player.isPlaying
     }
 
     /**
@@ -145,6 +135,18 @@ class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                 release()
             }
         } catch (_: Exception) {
+        }
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_DESTROY -> {
+                isDestroy = true
+                stopRecord()
+                release()
+                mActivity.lifecycle.removeObserver(this)
+            }
+            else -> {}
         }
     }
 

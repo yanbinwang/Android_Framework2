@@ -59,11 +59,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     //弹框/获取权限
     protected val mDialog by lazy { AppDialog(mContext) }
     protected val mPermission by lazy { PermissionHelper(mContext) }
-//    //分页参数
-//    protected val hasNextPage get() = paging.hasNextPage()
-//    protected val currentCount get() = paging.currentCount
-//    protected val totalCount get() = paging.totalCount
-//    protected val page get() = paging.page.toString()
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
@@ -141,21 +136,24 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 空布局监听
      */
     fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
-        mEmpty?.setEmptyRefreshListener(onRefresh)
+        mEmpty?.setOnEmptyRefreshListener(onRefresh)
     }
 
     /**
      * empty布局操作
      */
     fun loading() {
+        finishRefreshing()
         mEmpty?.loading()
     }
 
     fun empty(resId: Int = -1, text: String? = null) {
+        finishRefreshing()
         mEmpty?.empty(resId, text)
     }
 
     fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
+        finishRefreshing()
         mEmpty?.error(resId, text, refreshText)
     }
 
@@ -164,9 +162,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * hasNextPage是否有下一页
      */
     fun reset(hasNextPage: Boolean? = true) {
+        finishRefreshing(hasNextPage)
+        mEmpty?.fade(300)
+    }
+
+    private fun finishRefreshing(hasNextPage: Boolean? = true) {
         if (null == mRecycler) mRefresh?.finishRefreshing()
         mRecycler?.finishRefreshing(hasNextPage.orTrue)
-        mEmpty?.fade(300)
     }
 
     /**
