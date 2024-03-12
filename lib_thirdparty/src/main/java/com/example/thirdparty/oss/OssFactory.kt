@@ -27,8 +27,8 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.deleteDir
 import com.example.common.utils.file.deleteFile
 import com.example.common.utils.function.byServerUrl
-import com.example.common.utils.function.toJsonString
 import com.example.common.utils.helper.AccountHelper.getUserId
+import com.example.common.utils.toJsonString
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
@@ -59,6 +59,20 @@ class OssFactory private constructor() : CoroutineScope {
     private var oss: OSS? = null
     private val ossMap by lazy { ConcurrentHashMap<String, OSSAsyncTask<ResumableUploadResult?>?>() }
     private val implMap by lazy { ConcurrentHashMap<String, WeakReference<OssImpl>>() }//传入页面的classname以及页面实现OssImpl
+    /**
+     * 校验oss是否初始化
+     */
+    private val launch get() = run {
+        if (!isAuthorize) {
+            if (!isRequest) {
+                "oss初始化失败，请稍后再试".shortToast()
+                initialize()
+            }
+            false
+        } else {
+            true
+        }
+    }
     override val coroutineContext: CoroutineContext
         get() = (Dispatchers.Main)
 
@@ -124,10 +138,20 @@ class OssFactory private constructor() : CoroutineScope {
     }
 
     /**
-     * 销毁方法
-     * mainactivity中调取
+     * 绑定对应页面的生命周期-》对应回调重写对应方法
+     * @param observer
      */
-    private fun onClear() {
+    fun addObserver(observer: LifecycleOwner) {
+        observer.doOnDestroy {
+            cancel()
+            job?.cancel()
+        }
+    }
+
+    /**
+     * 销毁方法
+     */
+    private fun cancel() {
         val iterator = ossMap.iterator()
         while (iterator.hasNext()) {
             try {
@@ -139,31 +163,6 @@ class OssFactory private constructor() : CoroutineScope {
         }
         ossMap.clear()
         coroutineContext.cancel()
-    }
-
-    /**
-     * 校验oss是否初始化
-     */
-    private fun isLaunch(): Boolean {
-        if (!isAuthorize) {
-            if (!isRequest) {
-                "oss初始化失败，请稍后再试".shortToast()
-                initialize()
-            }
-            return false
-        }
-        return true
-    }
-
-    /**
-     * 绑定对应页面的生命周期-》对应回调重写对应方法
-     * @param observer
-     */
-    fun addObserver(observer: LifecycleOwner) {
-        observer.doOnDestroy {
-            onClear()
-            job?.cancel()
-        }
     }
 
     /**
@@ -182,6 +181,7 @@ class OssFactory private constructor() : CoroutineScope {
         implMap.remove(className)
     }
 
+
     /**
      * 断点续传
      * sourcePath->本地文件完整路径，例如/storage/emulated/0/oss/examplefile.txt(调取OssHelper可获取)
@@ -192,7 +192,7 @@ class OssFactory private constructor() : CoroutineScope {
      * objectName->Object完整路径，例如exampledir/exampleobject.txt。Object完整路径中不能包含Bucket名称
      */
     fun asyncResumableUpload(sourcePath: String, baoquan: String, fileType: String) {
-        if (isLaunch()) {
+        if (launch) {
             //设置对应文件的断点文件存放路径
             val file = File(sourcePath)
             val fileName = file.name.split(".")[0]
@@ -337,7 +337,7 @@ class OssFactory private constructor() : CoroutineScope {
      * 直接执行文件上传
      */
     fun asyncResumableUpload(sourcePath: String, onStart: () -> Unit = {}, onSuccess: (objectKey: String?) -> Unit = {}, onLoading: (progress: Int?) -> Unit = {}, onFailed: (result: String?) -> Unit = {}, onComplete: () -> Unit = {}, privately: Boolean = false) {
-        if (isLaunch()) {
+        if (launch) {
             onStart.invoke()
             //设置对应文件的断点文件存放路径
             val file = File(sourcePath)

@@ -45,20 +45,21 @@ import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
 import me.jessyan.autosize.AutoSizeConfig
 import me.jessyan.autosize.unit.Subunits
-import java.util.*
+import java.util.Locale
 
 /**
  * Created by WangYanBin on 2020/8/14.
  */
-@SuppressLint("MissingPermission")
+@SuppressLint("MissingPermission", "UnspecifiedRegisterReceiverFlag")
 abstract class BaseApplication : Application() {
-    protected var onStateChangedListener: (isForeground: Boolean) -> Unit = {}
+    private var onStateChangedListener: (isForeground: Boolean) -> Unit = {}
 
     companion object {
         //当前app进程是否处于前台
         var isForeground = true
         //是否需要回首頁
         var needOpenHome = false
+        //单列
         lateinit var instance: BaseApplication
     }
 
@@ -214,6 +215,7 @@ abstract class BaseApplication : Application() {
                             timeNano = System.nanoTime()
                         }
                     }
+
                     Lifecycle.Event.ON_STOP -> {
                         //判断本程序process中是否有在任意前台
                         val isAnyProcessForeground = try {
@@ -229,6 +231,7 @@ abstract class BaseApplication : Application() {
                             timeNano = System.nanoTime()
                         }
                     }
+
                     else -> {}
                 }
             }
@@ -236,9 +239,13 @@ abstract class BaseApplication : Application() {
     }
 
     private fun initSocket() {
-        WebSocketProxy.setOnMessageListener{ url, data ->
+        WebSocketProxy.setOnMessageListener { url, data ->
 
         }
+    }
+
+    protected fun setOnStateChangedListener(onStateChangedListener: (isForeground: Boolean) -> Unit) {
+        this.onStateChangedListener = onStateChangedListener
     }
 
     override fun onTrimMemory(level: Int) {
