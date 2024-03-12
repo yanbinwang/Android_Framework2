@@ -43,7 +43,7 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private var emptyEnum = 0//是否具有空布局（0无-1有）
     private var refreshEnum = 0//页面类型(0无刷新-1带刷新)
-    private var onRefresh: (() -> Unit)? = null//空布局点击
+    private var listener: (() -> Unit)? = null//空布局点击
 //    val layout: RefreshLayout get() { return refresh as RefreshLayout }//刷新控件
     var recycler: DataRecyclerView? = null//数据列表
         private set
@@ -72,7 +72,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 if (0 != emptyEnum) {
                     empty = EmptyLayout(context)
                     recycler?.setEmptyView(empty?.setListView(recycler))
-                    empty?.setEmptyRefreshListener { onRefresh?.invoke() }
+                    empty?.setOnEmptyRefreshListener { listener?.invoke() }
                 }
             }
             1 -> {
@@ -81,7 +81,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 refresh = view.findViewById(R.id.refresh)
                 recycler = view.findViewById(R.id.rv_list)
                 if (0 != emptyEnum) {
-                    empty?.setEmptyRefreshListener { onRefresh?.invoke() }
+                    empty?.setOnEmptyRefreshListener { listener?.invoke() }
                 } else {
                     empty?.gone()
                 }
@@ -179,8 +179,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 设置空布局点击
      */
-    fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
-        this.onRefresh = onRefresh
+    fun setOnEmptyRefreshListener(listener: (() -> Unit)) {
+        this.listener = listener
     }
 
     /**

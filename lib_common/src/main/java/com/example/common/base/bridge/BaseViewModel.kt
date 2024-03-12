@@ -136,7 +136,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 空布局监听
      */
     fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
-        mEmpty?.setEmptyRefreshListener(onRefresh)
+        mEmpty?.setOnEmptyRefreshListener(onRefresh)
     }
 
     /**

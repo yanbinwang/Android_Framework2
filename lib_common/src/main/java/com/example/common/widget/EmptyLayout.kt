@@ -27,7 +27,7 @@ import com.example.framework.widget.BaseViewGroup
 @SuppressLint("InflateParams")
 class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private val mBinding by lazy { ViewEmptyBinding.bind(context.inflate(R.layout.view_empty)) }
-    private var onRefresh: (() -> Unit)? = null
+    private var listener: (() -> Unit)? = null
 
     init {
 //        binding.root.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT) //设置LayoutParams
@@ -36,7 +36,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         mBinding.tvRefresh.click {
             //进入加载中
             loading()
-            onRefresh?.invoke()
+            listener?.invoke()
         }
         mBinding.root.click(null)
         loading()
@@ -44,6 +44,13 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     override fun onInflateView() {
         if (isInflate()) addView(mBinding.root)
+    }
+
+    /**
+     * 设置背景颜色
+     */
+    override fun setBackgroundColor(color: Int) {
+        mBinding.root.setBackgroundColor(color)
     }
 
     /**
@@ -95,15 +102,8 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 设置刷新监听
      */
-    fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
-        this.onRefresh = onRefresh
-    }
-
-    /**
-     * 设置背景颜色
-     */
-    override fun setBackgroundColor(color: Int) {
-        mBinding.root.setBackgroundColor(color)
+    fun setOnEmptyRefreshListener(listener: (() -> Unit)) {
+        this.listener = listener
     }
 
 }
