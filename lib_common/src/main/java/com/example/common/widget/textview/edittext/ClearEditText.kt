@@ -19,6 +19,7 @@ import com.example.common.databinding.ViewClearEditBinding
 import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.emojiLimit
@@ -44,6 +45,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     val editText get() = mBinding.etClear
 
     init {
+//        mBinding.root.background(R.drawable.shape_input)
         mBinding.etClear.apply {
             emojiLimit()
             addTextChangedListener {
@@ -52,6 +54,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
                 onTextChanged?.invoke(it)
             }
             onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+//                mBinding.root.background(if (hasFocus) R.drawable.shape_input_focused else R.drawable.shape_input)
                 onFocusChange?.invoke(v, hasFocus)
             }
         }
@@ -222,6 +225,10 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     fun showBtn() {
         isShowBtn = true
         mBinding.etClear.apply { if (text.isNotEmpty()) visible() }
+    }
+
+    fun error() {
+        mBinding.root.background(R.drawable.shape_input_error)
     }
 
     fun addTextChangedListener(onTextChanged: ((s: Editable?) -> Unit)) {

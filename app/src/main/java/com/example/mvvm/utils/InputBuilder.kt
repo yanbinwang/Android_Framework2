@@ -28,7 +28,7 @@ class InputBuilder(observer: LifecycleOwner) {
     //所有输入框
     private var editList: ArrayList<View?>? = null
     //正常/选中/报错
-    private val colorRes by lazy { Triple(drawable(R.color.inputNormal), drawable(R.color.inputSelection), drawable(R.color.inputError)) }
+    private val colorRes by lazy { Triple(drawable(R.color.inputNormal), drawable(R.color.inputFocused), drawable(R.color.inputError)) }
 
     init {
         observer.doOnDestroy {
