@@ -77,12 +77,12 @@ class WXPayEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
     /**
      * 统一处理
      */
-    private fun results(resId: Int, type: Int) {
+    private fun results(resId: Int, type: Int = -1) {
         resId.shortToast()
         when (type) {
             0 -> EVENT_PAY_SUCCESS.post()
             1 -> EVENT_PAY_CANCEL.post()
-            else -> EVENT_PAY_FAILURE.post()
+            2 -> EVENT_PAY_FAILURE.post()
         }
     }
 

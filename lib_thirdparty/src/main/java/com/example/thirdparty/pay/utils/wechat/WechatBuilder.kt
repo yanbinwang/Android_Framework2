@@ -37,19 +37,18 @@ class WechatBuilder(mActivity: FragmentActivity) {
             return
         }
         //发起支付
-        R.string.payInitiate.shortToast()
-        wxApi.sendReq(req).apply {
-            "支付状态:$this".logWTF
-            if (!this) results(R.string.payCancel)
-        }
+        results(R.string.payInitiate, false)
+        val result = wxApi.sendReq(req)
+        "支付状态:${result}".logWTF
+        if (!result) results(R.string.payCancel)
     }
 
     /**
      * 统一处理
      */
-    private fun results(resId: Int) {
+    private fun results(resId: Int, isPost: Boolean = true) {
         resId.shortToast()
-        EVENT_PAY_FAILURE.post()
+        if (isPost) EVENT_PAY_FAILURE.post()
     }
 
 }
