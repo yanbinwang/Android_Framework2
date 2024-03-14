@@ -36,4 +36,5 @@ object Constants {
     val NO_DATA get() = string(R.string.unitNoData)
     //------app内接口的一些默认配置字段------
     const val PAGE_LIMIT = "10"//固定配置页数
+    const val WX_APP_ID = "wxcedfca787269f739" //微信的appId
 }
