@@ -1,18 +1,16 @@
 <resources>
     <!-- app名称 -->
     <string name="appName">Cheezeebit</string>
+    <!-- app内的默认单位 -->
+    <string name="unitNoData">--</string>
     <!-- app内的一些提示 -->
     <string name="hint">系统提示</string>
     <string name="sure">确定</string>
     <string name="cancel">取消</string>
     <string name="refresh">刷新</string>
-    <!-- app内的默认单位 -->
-    <string name="unitNoData">--</string>
     <!-- 权限库的的提示语句 -->
     <string name="permissionGoSetting">缺少\n%1$s请前往设置页面开启</string>
-    <string name="permissionLocation">定位权限,该权限用于手机定位</string>
     <string name="permissionCamera">相机权限,该权限用于拍摄照片</string>
-    <string name="permissionMicrophone">麦克风权限,该权限用于录制音频</string>
     <string name="permissionStorage">存储空间权限,该权限用于文件存储</string>
     <!-- 计时文本提示语句 -->
     <string name="timerContent">发送验证码</string>
@@ -28,4 +26,22 @@
     <string name="dataNetError">网络未连接，请检查网络设置</string>
     <string name="linkInvalidError">链接地址不合法</string>
     <string name="sourcePathError">文件路径错误</string>
+    <!-- 用户提示字段 -->
+    <string name="emailHint">请输入邮箱</string>
+    <string name="emailEmpty">邮箱不能为空</string>
+    <string name="emailError">邮箱格式错误</string>
+    <string name="passwordHint">请输入密码</string>
+    <string name="passwordEmpty">密码不能为空</string>
+    <string name="passwordError">密码由6~20位的字母和数字組成</string>
+    <string name="phoneHint">请输入手机号</string>
+    <string name="phoneEmpty">手机号不能为空</string>
+    <string name="phoneError">手机号格式错误</string>
+    <string name="verifySmsHint">请输入验证码</string>
+    <string name="verifySmsEmpty">验证码不能为空</string>
+    <string name="verifySmsError">请输入6位數字验证码</string>
+    <!-- 首页字段 -->
+    <string name="mainHome">首頁</string>
+    <string name="mainMarket">市場</string>
+    <string name="mainBalance">資金</string>
+    <string name="mainUser">我的</string>
 </resources>

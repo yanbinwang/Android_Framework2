@@ -46,9 +46,9 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
      * bgColor->背景颜色
      * shade->标题底部是否带阴影
      */
-    fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, isShade: Boolean = false): TitleBuilder {
+    fun setTitle(resTitle: Int = -1, titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, isShade: Boolean = false): TitleBuilder {
         mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
-        mBinding?.tvTitle?.setArguments(title, titleColor)
+        mBinding?.tvTitle?.setArguments(resTitle, titleColor)
         mBinding?.viewShade?.apply { if (isShade) visible() else gone() }
         setLeft()
         return this
@@ -67,8 +67,8 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
      * 继承BaseActivity，在xml中include对应标题布局
      * 把布局bind传入工具类，实现绑定后，调取对应方法
      */
-    fun setTransparent(title: String = "", titleColor: Int = R.color.textPrimary): TitleBuilder {
-        return setTitle(title, titleColor, 0)
+    fun setTransparent(resTitle: Int = -1, titleColor: Int = R.color.textPrimary): TitleBuilder {
+        return setTitle(resTitle, titleColor, 0)
     }
 
     fun setTransparentSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
@@ -109,20 +109,20 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
      * labelColor->文案颜色
      * onClick->点击事件
      */
-    fun setLeft(label: String, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+    fun setI18nLeft(resLabel: Int, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
         mBinding?.tvLeft?.apply {
             visible()
-            setArguments(label, labelColor)
+            setArguments(resLabel, labelColor)
             click { onClick.invoke() }
         }
         mBinding?.ivLeft.gone()
         return this
     }
 
-    fun setRight(label: String, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+    fun setI18nRight(resLabel: Int, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
         mBinding?.tvRight?.apply {
             visible()
-            setArguments(label, labelColor)
+            setArguments(resLabel, labelColor)
             click { onClick.invoke() }
         }
         mBinding?.ivRight.gone()
