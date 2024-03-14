@@ -26,6 +26,7 @@ import com.example.common.utils.ScreenUtil.getRealSizeFloat
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.common.utils.i18n.string
+import com.example.common.widget.i18n.I18nTextView
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.setPrimaryClip
@@ -170,6 +171,13 @@ fun TextView?.setSpanAll(@StringRes res: Int, @StringRes resKeyword: Int, colorR
 fun TextView?.setArguments(txt: String = "", colorRes: Int = R.color.appTheme, resId: Int = -1) {
     this ?: return
     text = txt
+    textColor(colorRes)
+    if (-1 != resId) background(resId)
+}
+
+fun I18nTextView?.setArguments(resText: Int = -1, colorRes: Int = R.color.appTheme, resId: Int = -1) {
+    this ?: return
+    setI18nRes(resText)
     textColor(colorRes)
     if (-1 != resId) background(resId)
 }

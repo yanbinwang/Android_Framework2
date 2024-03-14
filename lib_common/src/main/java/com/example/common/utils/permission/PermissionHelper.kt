@@ -3,10 +3,8 @@ package com.example.common.utils.permission
 import android.content.Context
 import android.os.Build
 import com.example.common.R
-import com.example.common.utils.function.string
+import com.example.common.utils.i18n.string
 import com.example.common.utils.permission.XXPermissionsGroup.CAMERA
-import com.example.common.utils.permission.XXPermissionsGroup.LOCATION
-import com.example.common.utils.permission.XXPermissionsGroup.MICROPHONE
 import com.example.common.utils.permission.XXPermissionsGroup.STORAGE
 import com.example.common.widget.dialog.AndDialog
 import com.hjq.permissions.OnPermissionCallback
@@ -21,9 +19,7 @@ import com.hjq.permissions.XXPermissions
 class PermissionHelper(private val context: Context) {
     private val andDialog by lazy { AndDialog(context) }
     private val permsGroup = arrayOf(
-        LOCATION,//定位
         CAMERA,//拍摄照片，录制视频
-        MICROPHONE,//录制音频(腾讯x5)
         STORAGE)//访问照片。媒体。内容和文件
 
     /**
@@ -78,10 +74,8 @@ class PermissionHelper(private val context: Context) {
      */
     private fun onReason(index: Int): String? {
         return when (index) {
-            0 -> string(R.string.permissionLocation)
-            1 -> string(R.string.permissionCamera)
-            2 -> string(R.string.permissionMicrophone)
-            3 -> string(R.string.permissionStorage)
+            0 -> string(R.string.permissionCamera)
+            1 -> string(R.string.permissionStorage)
             else -> null
         }
     }

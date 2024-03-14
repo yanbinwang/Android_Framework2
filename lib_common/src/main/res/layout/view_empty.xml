@@ -36,7 +36,8 @@
             android:paddingHorizontal="14pt"
             android:paddingVertical="11pt"
             android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize15" />
+            android:textSize="@dimen/textSize15"
+            tools:text="@string/refresh" />
 
     </LinearLayout>
 

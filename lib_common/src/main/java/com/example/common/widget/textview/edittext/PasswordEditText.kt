@@ -14,6 +14,7 @@ import androidx.annotation.StringRes
 import androidx.core.widget.addTextChangedListener
 import com.example.common.R
 import com.example.common.databinding.ViewPasswordEditBinding
+import com.example.common.widget.textview.SpecialEditText
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.background
@@ -97,7 +98,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun setText(@StringRes resid: Int) {
-        mBinding.etClear.setText(resid)
+        mBinding.etClear.setI18nRes(resid)
     }
 
     fun setText(text: String) {

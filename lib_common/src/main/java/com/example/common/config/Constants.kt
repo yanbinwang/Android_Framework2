@@ -3,12 +3,12 @@ package com.example.common.config
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.utils.DeviceIdUtil
-import com.example.common.utils.function.string
 import com.example.common.utils.helper.AccountHelper
 import com.example.common.utils.helper.ConfigHelper.getAppName
 import com.example.common.utils.helper.ConfigHelper.getAppVersionCode
 import com.example.common.utils.helper.ConfigHelper.getAppVersionName
 import com.example.common.utils.helper.ConfigHelper.getPackageName
+import com.example.common.utils.i18n.string
 
 /**
  * Created by wyb on 2017/3/7.

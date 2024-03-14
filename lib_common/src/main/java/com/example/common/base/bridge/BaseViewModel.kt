@@ -5,6 +5,7 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
+import com.example.common.R
 import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
@@ -147,14 +148,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         mEmpty?.loading()
     }
 
-    fun empty(resId: Int = -1, text: String? = null) {
+    fun empty(resId: Int = -1, resText: Int = -1) {
         finishRefreshing()
-        mEmpty?.empty(resId, text)
+        mEmpty?.empty(resId, resText)
     }
 
-    fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
+    fun error(resId: Int = -1, resText: Int = -1, resRefreshText: Int = R.string.refresh) {
         finishRefreshing()
-        mEmpty?.error(resId, text, refreshText)
+        mEmpty?.error(resId, resText, resRefreshText)
     }
 
     /**
@@ -177,7 +178,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launch(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, // 请求
         resp: (T?) -> Unit = {},                                     // 响应
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},   // 错误处理
+        err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},   // 错误处理
         end: () -> Unit = {},                                        // 最后执行方法
         isShowToast: Boolean = true,                                 // 是否toast
         isShowDialog: Boolean = true,                                // 是否显示加载框
@@ -201,7 +202,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launchLayer(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
         resp: (ApiResponse<T>?) -> Unit = {},
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+        err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},
         end: () -> Unit = {},
         isShowToast: Boolean = true,
         isShowDialog: Boolean = true,
@@ -246,7 +247,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> async(
         req: MultiReqUtil,
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
+        err: (e: Triple<String?, String?, Exception?>?) -> Unit = {}
     ): Deferred<T?> {
         return async(Main, LAZY) { req.request({ coroutineScope() }, err) }
     }
@@ -254,7 +255,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> asyncLayer(
         req: MultiReqUtil,
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
+        err: (e: Triple<String?, String?, Exception?>?) -> Unit = {}
     ): Deferred<ApiResponse<T>?> {
         return async(Main, LAZY) { req.requestLayer({ coroutineScope() }, err) }
     }

@@ -1,4 +1,4 @@
-package com.example.common.widget.textview
+package com.example.common.widget.textview.edittext
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -17,6 +17,7 @@ import androidx.core.widget.addTextChangedListener
 import com.example.common.R
 import com.example.common.databinding.ViewClearEditBinding
 import com.example.common.utils.function.ptFloat
+import com.example.common.widget.textview.SpecialEditText
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.background
@@ -152,7 +153,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun setText(@StringRes resid: Int) {
-        mBinding.etClear.setText(resid)
+        mBinding.etClear.setI18nRes(resid)
     }
 
     fun setText(text: String) {
@@ -220,7 +221,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun showBtn() {
         isShowBtn = true
-        mBinding.etClear.apply { if (text.isNotEmpty()) visible() }
+        mBinding.etClear.apply { if (text.toString().isNotEmpty()) visible() }
     }
 
     fun error() {

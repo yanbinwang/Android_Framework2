@@ -9,7 +9,14 @@ import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.view.*
+import com.example.framework.utils.function.view.appear
+import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.color
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.layoutParamsMatch
+import com.example.framework.utils.function.view.setResource
+import com.example.framework.utils.function.view.string
+import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 
 /**
@@ -68,17 +75,17 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     fun loading() {
         appear(300)
         mBinding.ivEmpty.setResource(R.mipmap.bg_data_loading)
-        mBinding.tvEmpty.text = string(R.string.dataLoading)
+        mBinding.tvEmpty.setI18nRes(R.string.dataLoading)
         mBinding.tvRefresh.gone()
     }
 
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun empty(resId: Int = -1, text: String? = null) {
+    fun empty(resId: Int = -1, resText: Int = -1) {
         appear(300)
         mBinding.ivEmpty.setResource(if (-1 == resId) R.mipmap.bg_data_empty else resId)
-        mBinding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataEmpty) else text
+        mBinding.tvEmpty.setI18nRes(if (-1 == resText) R.string.dataEmpty else resText)
         mBinding.tvRefresh.gone()
     }
 
@@ -86,16 +93,16 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
+    fun error(resId: Int = -1, resText: Int = -1, resRefreshText: Int = R.string.refresh) {
         appear(300)
         if (!isNetworkAvailable()) {
             mBinding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
-            mBinding.tvEmpty.text = string(R.string.dataNetError)
+            mBinding.tvEmpty.setI18nRes(R.string.dataNetError)
         } else {
             mBinding.ivEmpty.setResource(if (-1 == resId) R.mipmap.bg_data_error else resId)
-            mBinding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataError) else text
+            mBinding.tvEmpty.setI18nRes(if (-1 == resText) R.string.dataError else resText)
         }
-        if (!refreshText.isNullOrEmpty()) mBinding.tvRefresh.text = refreshText
+        mBinding.tvRefresh.setI18nRes(if (-1 == resRefreshText) R.string.refresh else resRefreshText)
         mBinding.tvRefresh.visible()
     }
 

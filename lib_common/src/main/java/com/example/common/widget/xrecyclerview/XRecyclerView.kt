@@ -198,15 +198,15 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 当数据为空时(显示需要显示的图片，以及内容字)
      */
-    fun empty(imgInt: Int = -1, text: String? = null) {
-        empty?.empty(imgInt, text)
+    fun empty(imgInt: Int = -1, resText: Int = -1) {
+        empty?.empty(imgInt, resText)
     }
 
     /**
      * 当数据异常时
      */
-    fun error(imgInt: Int = -1, text: String? = null) {
-        empty?.error(imgInt, text)
+    fun error(imgInt: Int = -1, resText: Int = -1) {
+        empty?.error(imgInt, resText)
     }
 
 }
