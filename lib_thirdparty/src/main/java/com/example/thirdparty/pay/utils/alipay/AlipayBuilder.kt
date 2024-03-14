@@ -42,7 +42,7 @@ class AlipayBuilder(private val mActivity: FragmentActivity) : CoroutineScope {
     fun pay(payInfo: String) {
         //未安装
         if (!mActivity.isAvailable("com.eg.android.AlipayGphone")) {
-            results(R.string.alipayUnInstalled)
+            results(R.string.alipayUnInstalled, 2)
             return
         }
         R.string.payInitiate.shortToast()
@@ -56,7 +56,7 @@ class AlipayBuilder(private val mActivity: FragmentActivity) : CoroutineScope {
             }
             "支付结果:\n$result".logWTF
             if (result.isNullOrEmpty()) {
-                results(R.string.payFailure)
+                results(R.string.payFailure, 2)
             } else {
                 /**
                  * 同步返回的结果必须放置到服务端进行验证（验证的规则请看https://doc.open.alipay.com/docs/doc.htm?
@@ -72,7 +72,7 @@ class AlipayBuilder(private val mActivity: FragmentActivity) : CoroutineScope {
                         results(R.string.payCancel, 1)
                         //正在处理中，支付结果未知（有可能已经支付成功），请查询商户订单列表中订单的支付状态
                     } else {
-                        results(R.string.payFailure)
+                        results(R.string.payFailure, 2)
                     }
                 }
             }
@@ -82,7 +82,7 @@ class AlipayBuilder(private val mActivity: FragmentActivity) : CoroutineScope {
     /**
      * 统一处理
      */
-    private fun results(resId: Int, type: Int = 2) {
+    private fun results(resId: Int, type: Int) {
         resId.shortToast()
         when (type) {
             0 -> EVENT_PAY_SUCCESS.post()
