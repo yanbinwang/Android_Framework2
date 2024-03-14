@@ -66,14 +66,10 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             val text = typedArray.getResourceId(R.styleable.ClearEditText_text, -1)
             if (text != -1) setText(text)
             //文字大小
-            val textSize = typedArray.getDimension(
-                R.styleable.ClearEditText_textSize,
-                context.dimen(R.dimen.textSize14)
-            )
+            val textSize = typedArray.getDimension(R.styleable.ClearEditText_textSize, context.dimen(R.dimen.textSize14))
             setTextSize(textSize)
             //文字颜色
-            val textColor =
-                typedArray.getColor(R.styleable.ClearEditText_textColor, color(R.color.textPrimary))
+            val textColor = typedArray.getColor(R.styleable.ClearEditText_textColor, color(R.color.textPrimary))
             setTextColor(textColor)
             //无内容显示的文本内容
             val hint = typedArray.getResourceId(R.styleable.ClearEditText_hint, -1)
