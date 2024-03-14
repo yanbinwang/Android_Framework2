@@ -42,7 +42,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     val editText get() = mBinding.etClear
 
     init {
-//        mBinding.root.background(R.drawable.shape_input)
+        mBinding.root.background(R.drawable.shape_input)
         mBinding.etClear.emojiLimit()
         mBinding.etClear.apply {
             setOnKeyListener { _, keyCode, _ ->
@@ -53,7 +53,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
                 onTextChanged?.invoke(it)
             }
             onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
-//                mBinding.root.background(if (hasFocus) R.drawable.shape_input_focused else R.drawable.shape_input)
+                mBinding.root.background(if (hasFocus) R.drawable.shape_input_focused else R.drawable.shape_input)
                 onFocusChange?.invoke(v, hasFocus)
             }
         }
