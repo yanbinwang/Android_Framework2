@@ -40,24 +40,9 @@ object FileUtil {
     }
 
     /**
-     * 获取整个目录的文件大小
-     */
-    fun getFileSize(file: File): Long {
-        var size: Long = 0
-        for (mFile in file.listFiles().orEmpty()) {
-            size = if (mFile.isDirectory) {
-                size + getFileSize(mFile)
-            } else {
-                size + mFile.length()
-            }
-        }
-        return size
-    }
-
-    /**
      * 获取文件base64位地址
      */
-    fun fileToBase64(file: File): String {
+    fun base64WithFile(file: File): String {
         var base64: String? = null
         var inputStream: InputStream? = null
         try {
@@ -78,11 +63,53 @@ object FileUtil {
     }
 
     /**
+     * 获取文件哈希值
+     * 满足64位哈希，不足则前位补0
+     */
+    fun hashWithFile(file: File): String {
+        var hash = ""
+        try {
+            val inputStream = FileInputStream(file)
+            val digest = MessageDigest.getInstance("SHA-256")
+            val array = ByteArray(1024)
+            var len: Int
+            while (inputStream.read(array, 0, 1024).also { len = it } != -1) {
+                digest.update(array, 0, len)
+            }
+            inputStream.close()
+            val bigInt = BigInteger(1, digest.digest())
+            hash = bigInt.toString(16)
+            if (hash.length < 64) {
+                for (i in 0 until 64 - hash.length) {
+                    hash = "0$hash"
+                }
+            }
+        } catch (_: Exception) {
+        }
+        return hash
+    }
+
+    /**
+     * 获取整个目录的文件大小
+     */
+    fun totalSizeWithFile(file: File): Long {
+        var size: Long = 0
+        for (mFile in file.listFiles().orEmpty()) {
+            size = if (mFile.isDirectory) {
+                size + totalSizeWithFile(mFile)
+            } else {
+                size + mFile.length()
+            }
+        }
+        return size
+    }
+
+    /**
      * 开始创建并写入tmp文件
      * @param filePath  分割文件地址
-     * @param fileSize 分割文件大小
+     * @param filePointer 分割文件大小
      */
-    class TmpInfo(var filePath: String? = null, var fileSize: Long = 0)
+    class TmpInfo(var filePath: String? = null, var filePointer: Long = 0)
 
     /**
      * 文件分割
@@ -108,11 +135,11 @@ object FileUtil {
             for (i in 0 until count - 1) {
                 val begin = offSet
                 val end = (i + 1) * maxSize
-                val tmpInfo = getWrite(targetFile.absolutePath, i, begin, end)
-                offSet = tmpInfo.fileSize
+                val tmpInfo = write(targetFile.absolutePath, i, begin, end)
+                offSet = tmpInfo.filePointer
                 splitList.add(tmpInfo.filePath.orEmpty())
             }
-            if (length - offSet > 0) splitList.add(getWrite(targetFile.absolutePath, count - 1, offSet, length).filePath.orEmpty())
+            if (length - offSet > 0) splitList.add(write(targetFile.absolutePath, count - 1, offSet, length).filePath.orEmpty())
             accessFile.close()
         } catch (_: Exception) {
         } finally {
@@ -133,7 +160,7 @@ object FileUtil {
      * @param begin 开始指针的位置
      * @param end   结束指针的位置
      */
-    private fun getWrite(filePath: String, index: Int, begin: Long, end: Long): TmpInfo {
+    private fun write(filePath: String, index: Int, begin: Long, end: Long): TmpInfo {
         val info = TmpInfo()
         try {
             //源文件
@@ -154,40 +181,13 @@ object FileUtil {
                 outAccessFile.write(b, 0, n)
             }
             //关闭输入输出流,赋值
-            info.fileSize = inAccessFile.filePointer
+            info.filePath = tmpFile.absolutePath
+            info.filePointer = inAccessFile.filePointer
             inAccessFile.close()
             outAccessFile.close()
-            info.filePath = tmpFile.absolutePath
         } catch (_: Exception) {
         }
         return info
-    }
-
-    /**
-     * 获取文件哈希值
-     * 满足64位哈希，不足则前位补0
-     */
-    fun getSignature(file: File): String {
-        var hash = ""
-        try {
-            val inputStream = FileInputStream(file)
-            val digest = MessageDigest.getInstance("SHA-256")
-            val array = ByteArray(1024)
-            var len: Int
-            while (inputStream.read(array, 0, 1024).also { len = it } != -1) {
-                digest.update(array, 0, len)
-            }
-            inputStream.close()
-            val bigInt = BigInteger(1, digest.digest())
-            hash = bigInt.toString(16)
-            if (hash.length < 64) {
-                for (i in 0 until 64 - hash.length) {
-                    hash = "0$hash"
-                }
-            }
-        } catch (_: Exception) {
-        }
-        return hash
     }
 
 }
@@ -271,14 +271,19 @@ fun String?.deleteDir() {
  * kt中对File类做了readText扩展，但是实现相当于将每行文本塞入list集合，再从集合中读取
  * 此项操作比较吃内存，官方注释也不推荐读取2G以上的文件，所以使用java的方法
  */
-fun String?.readTxt(): String {
+fun String?.read(): String {
     this ?: return ""
     val file = File(this)
-    if (file.exists()) {
+    return file.read()
+}
+
+fun File?.read(): String {
+    this ?: return ""
+    if (exists()) {
         try {
             val stringBuilder = StringBuilder()
             var str: String?
-            val bufferedReader = BufferedReader(InputStreamReader(FileInputStream(file)))
+            val bufferedReader = BufferedReader(InputStreamReader(FileInputStream(this)))
             while (bufferedReader.readLine().also { str = it } != null) stringBuilder.append(str)
             return stringBuilder.toString()
         } catch (_: Exception) {
@@ -291,7 +296,7 @@ fun String?.readTxt(): String {
  * 将当前文件拷贝一份到目标路径
  */
 @Throws(IOException::class)
-fun File.copyFile(destFile: File) {
+fun File.copy(destFile: File) {
     if (!destFile.exists()) destFile.createNewFile()
     FileInputStream(this).channel.use { source ->
         FileOutputStream(destFile).channel.use { destination ->
@@ -303,17 +308,25 @@ fun File.copyFile(destFile: File) {
 /**
  * 获取文件采用base64形式
  */
-fun File?.fileToBase64(): String {
+fun File?.getBase64(): String {
     this ?: return ""
-    return FileUtil.fileToBase64(this)
+    return FileUtil.base64WithFile(this)
+}
+
+/**
+ * 获取文件hash值（放在io线程）
+ */
+fun File?.getHash(): String {
+    this ?: return ""
+    return FileUtil.hashWithFile(this)
 }
 
 /**
  * 文件本身的整体大小
  */
-fun File?.totalSize(): Long {
+fun File?.getTotalSize(): Long {
     this ?: return 0
-    return FileUtil.getFileSize(this)
+    return FileUtil.totalSizeWithFile(this)
 }
 
 /**

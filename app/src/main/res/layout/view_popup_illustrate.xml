@@ -14,7 +14,7 @@
             android:layout_marginHorizontal="10pt"
             android:background="@drawable/layer_list_shadow"
             android:padding="10pt"
-            android:textColor="@color/textBlack"
+            android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize28"
             tools:text="213213213213213213123123213213" />
 

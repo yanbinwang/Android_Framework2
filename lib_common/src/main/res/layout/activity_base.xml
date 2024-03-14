@@ -7,11 +7,11 @@
         android:orientation="vertical">
 
         <include
-            android:id="@+id/title_container"
+            android:id="@+id/title_root"
             layout="@layout/view_title_bar" />
 
         <FrameLayout
-            android:id="@+id/fl_base_container"
+            android:id="@+id/fl_base_root"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

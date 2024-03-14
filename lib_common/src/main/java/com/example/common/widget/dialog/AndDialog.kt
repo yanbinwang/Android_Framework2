@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.DialogInterface
 import androidx.appcompat.app.AlertDialog
 import com.example.common.R
+import com.example.common.utils.function.string
 
 /**
  * author: wyb
@@ -14,16 +15,22 @@ class AndDialog(context: Context) : AlertDialog.Builder(context, R.style.AndDial
     private var onConfirm: (() -> Unit)? = null
     private var onCancel: (() -> Unit)? = null
 
-    fun setParams(title: String? = "", message: String? = "", positiveText: String? = "", negativeText: String? = "") {
+    fun setPositive(title: String? = string(R.string.hint), message: String? = null, positiveText: String? = string(R.string.sure)): AndDialog {
+        return setParams(title, message, positiveText, "")
+    }
+
+    fun setParams(title: String? = string(R.string.hint), message: String? = null, positiveText: String? = string(R.string.sure), negativeText: String? = string(R.string.cancel)): AndDialog {
         if (!title.isNullOrEmpty()) setTitle(title)
         setMessage(message)
         setPositiveButton(positiveText) { _: DialogInterface?, _: Int -> onConfirm?.invoke() }
         if (!negativeText.isNullOrEmpty()) setNegativeButton(negativeText) { _: DialogInterface?, _: Int -> onCancel?.invoke() }
+        return this
     }
 
-    fun setDialogListener(onConfirm: () -> Unit = {}, onCancel: () -> Unit = {}) {
+    fun setDialogListener(onConfirm: () -> Unit = {}, onCancel: () -> Unit = {}): AndDialog {
         this.onConfirm = onConfirm
         this.onCancel = onCancel
+        return this
     }
 
 }

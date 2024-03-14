@@ -1,65 +1,84 @@
 package com.example.thirdparty.media.utils.helper
 
-import android.content.Context
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
-import com.example.thirdparty.media.utils.MediaType.AUDIO
-import com.example.thirdparty.media.utils.MultimediaUtil
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import com.example.thirdparty.media.utils.MediaUtil
+import com.example.thirdparty.media.utils.MediaUtil.MediaType.AUDIO
 
 /**
  * @description 录音帮助类（熄屏后无声音，并可能会导致后续声音也录制不了）
  * @author yan
  */
-class RecorderHelper {
-    private val player by lazy { MediaPlayer() }
-    private var recorder: MediaRecorder? = null
+class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
+    private var isDestroy = false
     private var onRecorderListener: OnRecorderListener? = null
+    private val player by lazy { MediaPlayer() }
+    private val recorder by lazy { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(mActivity) else MediaRecorder() }
 
-//    companion object {
-//        internal var onRecorderListener: OnRecorderListener? = null
-//
-//        fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
-//            this.onRecorderListener = onRecorderListener
-//        }
-//    }
+    init {
+        mActivity.lifecycle.addObserver(this)
+    }
 
     /**
      * 开始录音
      */
-    fun startRecord(context: Context) {
-        val recordFile = MultimediaUtil.getOutputFile(AUDIO)
+    fun startRecord() {
+        isDestroy = false
+        val recordFile = MediaUtil.getOutputFile(AUDIO)
         val sourcePath = recordFile?.absolutePath
+        onRecorderListener?.onStart(sourcePath)
         try {
-            recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
-            recorder?.apply {
+            recorder.apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)//设置麦克风
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                 //若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) setOutputFile(sourcePath) else setOutputFile(recordFile)
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    setOutputFile(sourcePath)
+                } else {
+                    setOutputFile(recordFile)
+                }
                 prepare()
                 start()
             }
         } catch (_: Exception) {
         }
-        onRecorderListener?.onStart(sourcePath)
     }
 
     /**
      * 停止录音
      */
     fun stopRecord() {
-        onRecorderListener?.onShutter()
+        if (!isDestroy) onRecorderListener?.onShutter()
         try {
-            recorder?.apply {
+            recorder.apply {
                 stop()
                 reset()
                 release()
             }
         } catch (_: Exception) {
         }
-        onRecorderListener?.onStop()
+        if (!isDestroy) onRecorderListener?.onStop()
+    }
+
+    /**
+     * 录音监听
+     */
+    fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
+        this.onRecorderListener = onRecorderListener
+    }
+
+    interface OnRecorderListener {
+        fun onStart(sourcePath: String?)
+
+        fun onShutter()
+
+        fun onStop()
     }
 
     /**
@@ -75,11 +94,6 @@ class RecorderHelper {
         } catch (_: Exception) {
         }
     }
-
-    /**
-     * 当前音频是否正在播放
-     */
-    fun isPlaying() = player.isPlaying
 
     /**
      * 开始播放
@@ -104,9 +118,16 @@ class RecorderHelper {
     }
 
     /**
+     * 当前音频是否正在播放
+     */
+    fun isPlaying(): Boolean {
+        return player.isPlaying
+    }
+
+    /**
      * 销毁-释放资源
      */
-    fun release() {
+    private fun release() {
         try {
             player.apply {
                 stop()
@@ -117,19 +138,16 @@ class RecorderHelper {
         }
     }
 
-    /**
-     * 录音监听
-     */
-    fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
-        this.onRecorderListener = onRecorderListener
-    }
-
-    interface OnRecorderListener {
-        fun onStart(sourcePath: String?)
-
-        fun onShutter()
-
-        fun onStop()
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_DESTROY -> {
+                isDestroy = true
+                stopRecord()
+                release()
+                mActivity.lifecycle.removeObserver(this)
+            }
+            else -> {}
+        }
     }
 
 }

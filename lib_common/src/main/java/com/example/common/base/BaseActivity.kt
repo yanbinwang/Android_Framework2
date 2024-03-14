@@ -1,6 +1,9 @@
 package com.example.common.base
 
 import android.app.Activity
+import android.app.Application
+import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
 import android.os.Looper
@@ -10,6 +13,8 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.ViewDataBinding
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.launcher.ARouter
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
@@ -23,13 +28,18 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
+import com.example.common.socket.WebSocketRequest
 import com.example.common.utils.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.permission.PermissionHelper
+import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.WeakHandler
+import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
@@ -40,11 +50,11 @@ import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancelChildren
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import org.greenrobot.eventbus.Subscribe
 import java.lang.reflect.ParameterizedType
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -53,39 +63,45 @@ import kotlin.coroutines.CoroutineContext
  * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context
  * 無xml的界面，泛型括號裡傳ViewDataBinding
  */
+@Suppress("UNCHECKED_CAST")
 abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
-    protected lateinit var binding: VDB
+    protected var mBinding: VDB? = null
+    protected val mDialog by lazy { AppDialog(this) }
+    protected val mPermission by lazy { PermissionHelper(this) }
+    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
+    private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }
     private val job = SupervisorJob()//https://blog.csdn.net/chuyouyinghe/article/details/123057776
     override val coroutineContext: CoroutineContext get() = Main + job//加上SupervisorJob，提升协程作用域
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     companion object {
-        private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
-        private var onFinishListener: OnFinishListener? = null
+        var onCreateListener: OnCreateListener? = null
+        var onFinishListener: OnFinishListener? = null
+        var isAnyActivityStarting = false
 
-        fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
-            this.onActivityResultListener = onActivityResultListener
+        fun Context.startActivity(cls: Class<out Activity>, vararg pairs: Pair<String, Any?>) {
+            startActivity(getIntent(cls, *pairs).apply {
+                if (this@startActivity is Application) {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            })
+            if (BaseActivity::class.java.isAssignableFrom(cls)) isAnyActivityStarting = true
         }
 
-        fun setOnFinishListener(onFinishListener: OnFinishListener) {
-            this.onFinishListener = onFinishListener
-        }
-
-        fun clearOnActivityResultListener() {
-            onActivityResultListener = null
-        }
-
-        fun clearOnFinishListener() {
-            onFinishListener = null
+        fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, vararg pairs: Pair<String, Any?>) {
+            startActivityForResult(getIntent(cls, *pairs), requestCode)
+            if (BaseActivity::class.java.isAssignableFrom(cls)) isAnyActivityStarting = true
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        onCreateListener?.onCreate(this)
         super.onCreate(savedInstanceState)
         AppManager.addActivity(this)
+        WebSocketRequest.addObserver(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
         if (isImmersionBarEnabled()) initImmersionBar()
         initView()
@@ -97,8 +113,12 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         return true
     }
 
-    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-        return vmClass.create(lifecycle, this).also { it.initialize(this, this) }
+    //    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
+//        return vmClass.create(lifecycle, this).also { it.initialize(this, this) }
+//    }
+
+    override fun <VM : BaseViewModel> VM.create(): VM? {
+        return javaClass.create(lifecycle, this@BaseActivity).also { it.initialize(this@BaseActivity, this@BaseActivity) }
     }
 
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
@@ -116,11 +136,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
-                val vdbClass = type.actualTypeArguments[0] as Class<VDB>
-                val method = vdbClass.getDeclaredMethod("inflate", LayoutInflater::class.java)
-                binding = method.invoke(null, layoutInflater) as VDB
-                binding.lifecycleOwner = this
-                setContentView(binding.root)
+                val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
+                val method = vdbClass?.getDeclaredMethod("inflate", LayoutInflater::class.java)
+                mBinding = method?.invoke(null, layoutInflater) as? VDB
+                mBinding?.lifecycleOwner = this
+                setContentView(mBinding?.root)
             } catch (_: Exception) {
             }
         }
@@ -133,7 +153,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun initData() {
     }
 
-    override fun ENABLED(vararg views: View?, second: Long) {
+    override fun enabled(vararg views: View?, second: Long) {
         views.forEach {
             if (it != null) {
                 it.disable()
@@ -142,15 +162,15 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
     }
 
-    override fun VISIBLE(vararg views: View?) {
+    override fun visible(vararg views: View?) {
         views.forEach { it?.visible() }
     }
 
-    override fun INVISIBLE(vararg views: View?) {
+    override fun invisible(vararg views: View?) {
         views.forEach { it?.invisible() }
     }
 
-    override fun GONE(vararg views: View?) {
+    override fun gone(vararg views: View?) {
         views.forEach { it?.gone() }
     }
 
@@ -184,12 +204,23 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         super.onDestroy()
         AppManager.removeActivity(this)
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
-        try {
-            binding.unbind()
-        } catch (_: Exception) {
+        for ((key, value) in dataManager) {
+            key.removeObserver(value ?: return)
         }
+        dataManager.clear()
+        mBinding?.unbind()
         job.cancel()//之后再起的job无法工作
 //        coroutineContext.cancelChildren()//之后再起的可以工作
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="页面管理方法">
+    open fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
+        this.onActivityResultListener = onActivityResultListener
+    }
+
+    open fun clearOnActivityResultListener() {
+        onActivityResultListener = null
     }
     // </editor-fold>
 
@@ -205,16 +236,27 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     protected open fun isEventBusEnabled(): Boolean {
         return false
     }
+
+    protected open fun <T> MutableLiveData<T>?.observe(block: T?.() -> Unit) {
+        this ?: return
+        val observer = Observer<Any?> { value -> block(value as? T) }
+        dataManager[this] = observer
+        observe(this@BaseActivity, observer)
+    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
-        if (second >= 0) {
-            WeakHandler(Looper.getMainLooper()).postDelayed({
+        if (second > 0) {
+            TimerBuilder.schedule({
                 hideDialog()
                 block.invoke()
             }, second)
+//            WeakHandler(Looper.getMainLooper()).postDelayed({
+//                hideDialog()
+//                block.invoke()
+//            }, second)
         }
     }
 
@@ -222,10 +264,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         loadingDialog.hidden()
     }
 
-    override fun showGuide(label: String, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
+    override fun showGuide(label: String, isOnly: Boolean, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
         val labelTag = DataBooleanCacheUtil(label)
         if (!labelTag.get()) {
-            labelTag.set(true)
+            if (isOnly) labelTag.set(true)
             val builder = NewbieGuide.with(this)//传入activity
                 .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
                 .setOnGuideChangedListener(guideListener)
@@ -249,4 +291,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
 interface OnFinishListener {
     fun onFinish(act: BaseActivity<*>)
+}
+
+interface OnCreateListener {
+    fun onCreate(act: BaseActivity<*>)
 }

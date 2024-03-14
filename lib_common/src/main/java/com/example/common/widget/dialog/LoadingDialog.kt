@@ -13,12 +13,12 @@ class LoadingDialog(context: Context) : BaseDialog<ViewDialogLoadingBinding>(con
 
     override fun shown(flag: Boolean) {
         super.shown(flag)
-        binding.pbProcess.isIndeterminate = true
+        mBinding?.pbProcess?.isIndeterminate = true
     }
 
     override fun hidden() {
         super.hidden()
-        binding.pbProcess.isIndeterminate = false
+        mBinding?.pbProcess?.isIndeterminate = false
     }
 
 }

@@ -4,8 +4,6 @@ import androidx.fragment.app.FragmentActivity
 import com.example.common.base.BasePopupWindow
 import com.example.common.base.PopupAnimType.TRANSLATE
 import com.example.common.databinding.ViewPopupSelectLabelBinding
-import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.view.click
 
 /**
@@ -17,19 +15,21 @@ class SelectLabelPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Str
     private var onCurrent: ((item: String, index: Int) -> Unit)? = null
 
     fun setParams(list: List<T>) {
-        binding.llItem.apply {
-            removeAllViews()
-            for (index in 0 until list.size.orZero) {
-                addView(SelectItemHolder(binding.llItem, Pair(formatter(list.safeGet(index)).orEmpty(), index)).let {
+        mBinding?.apply {
+            llItem.apply {
+                removeAllViews()
+                list.forEachIndexed { index, t ->
+                    addView(SelectItemHolder(llItem, Pair(formatter(t).orEmpty(), index)).let {
                         it.onItemClick = { item, index ->
                             hidden()
                             onCurrent?.invoke(item.orEmpty(), index)
                         }
-                        it.binding.root
-                })
+                        it.mBinding.root
+                    })
+                }
             }
+            tvCancel.click { hidden() }
         }
-        binding.tvCancel.click { hidden() }
     }
 
     fun setOnItemClickListener(onCurrent: ((item: String, index: Int) -> Unit)) {

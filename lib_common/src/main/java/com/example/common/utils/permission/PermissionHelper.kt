@@ -3,7 +3,10 @@ package com.example.common.utils.permission
 import android.content.Context
 import android.os.Build
 import com.example.common.R
-import com.example.common.utils.i18n.string
+import com.example.common.utils.function.string
+import com.example.common.utils.permission.XXPermissionsGroup.CAMERA
+import com.example.common.utils.permission.XXPermissionsGroup.LOCATION
+import com.example.common.utils.permission.XXPermissionsGroup.MICROPHONE
 import com.example.common.utils.permission.XXPermissionsGroup.STORAGE
 import com.example.common.widget.dialog.AndDialog
 import com.hjq.permissions.OnPermissionCallback
@@ -15,9 +18,13 @@ import com.hjq.permissions.XXPermissions
  * 获取选项工具类
  * 根据项目需求哪取需要的权限组
  */
-class PermissionFactory(private val context: Context) {
+class PermissionHelper(private val context: Context) {
     private val andDialog by lazy { AndDialog(context) }
-    private val permsGroup = arrayOf(STORAGE)//访问照片。媒体。内容和文件
+    private val permsGroup = arrayOf(
+        LOCATION,//定位
+        CAMERA,//拍摄照片，录制视频
+        MICROPHONE,//录制音频(腾讯x5)
+        STORAGE)//访问照片。媒体。内容和文件
 
     /**
      * 检测权限(默认拿全部，可单独拿某个权限组)
@@ -41,7 +48,7 @@ class PermissionFactory(private val context: Context) {
                         super.onDenied(permissions, never)
                         //never->被永久拒绝授权，请手动授予
                         listener.invoke(false)
-                        if (force) description(permissions)
+                        if (force) onDenied(permissions)
                     }
                 })
         } else listener.invoke(true)
@@ -50,22 +57,17 @@ class PermissionFactory(private val context: Context) {
     /**
      * 彈出授權彈框
      */
-    private fun description(permissions: MutableList<String>?) {
+    private fun onDenied(permissions: MutableList<String>?) {
         if (permissions.isNullOrEmpty()) return
         //拼接用戶拒絕後的提示参数
-        var rationale = ""
+        var reason = ""
         for (index in permsGroup.indices) {
             if (listOf(*permsGroup[index]).contains(permissions[0])) {
-                rationale += "*${rationale(index)};\n"
+                reason += "*${onReason(index)};\n"
             }
         }
         andDialog.apply {
-            setParams(
-                string(R.string.hint),
-                string(R.string.permission_go_setting, rationale),
-                string(R.string.sure),
-                string(R.string.cancel)
-            )
+            setParams(message = string(R.string.permissionGoSetting, reason))
             setDialogListener({ XXPermissions.startPermissionActivity(context, permissions) })
             show()
         }
@@ -74,9 +76,12 @@ class PermissionFactory(private val context: Context) {
     /**
      * 获取提示文案
      */
-    private fun rationale(index: Int): String? {
+    private fun onReason(index: Int): String? {
         return when (index) {
-            0 -> string(R.string.permission_storage)
+            0 -> string(R.string.permissionLocation)
+            1 -> string(R.string.permissionCamera)
+            2 -> string(R.string.permissionMicrophone)
+            3 -> string(R.string.permissionStorage)
             else -> null
         }
     }

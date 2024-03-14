@@ -19,6 +19,6 @@ object EventCode {
     val EVENT_USER_LOGIN_OUT = Code<Any>()
 
     //用户个人信息刷新
-    val EVENT_USER_INFO_REFRESH = Code<UserInfoBean>()
+    val EVENT_USER_INFO_REFRESH = Code<UserInfoBean?>()
 
 }

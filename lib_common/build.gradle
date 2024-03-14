@@ -9,6 +9,15 @@ android {
     namespace 'com.example.common'
     compileSdkVersion build_versions.compileSdkVersion
 
+    sourceSets {
+        main {
+            res {
+                srcDirs "src/main/res"
+                srcDirs "src/main/res-loading"
+            }
+        }
+    }
+
     defaultConfig {
         minSdk build_versions.minSdkVersion
         targetSdk build_versions.targetSdkVersion
@@ -60,8 +69,9 @@ dependencies {
     api deps.smartrefresh
     api deps.guide
     api deps.circleprogressbar
-    api deps.eventbus
+    api deps.stomp
     implementation deps.mmkv
+    implementation deps.eventbus
     implementation deps.xxpermissions
     implementation deps.immersionbar
     //页面路由

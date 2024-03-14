@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Recycler
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.framework.utils.function.value.orZero
 
 /**
  * author: wyb
@@ -12,7 +13,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
  */
 class FullyStaggeredGridLayoutManager(spanCount: Int = 0, orientation: Int = 0) : StaggeredGridLayoutManager(spanCount, orientation) {
     //尺寸的数组，[0]是宽，[1]是高
-    private val measuredDimension = IntArray(2)
+    private val measuredDimension by lazy { IntArray(2) }
 
     override fun onMeasure(recycler: RecyclerView.Recycler, state: RecyclerView.State, widthSpec: Int, heightSpec: Int) {
         //宽的mode+size
@@ -64,14 +65,14 @@ class FullyStaggeredGridLayoutManager(spanCount: Int = 0, orientation: Int = 0) 
         if (position < itemCount) {
             try {
                 val view = recycler.getViewForPosition(position) //fix 动态添加时报IndexOutOfBoundsException
-                val lp = view.layoutParams as RecyclerView.LayoutParams
-                val childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec, paddingLeft + paddingRight, lp.width)
-                val childHeightSpec = ViewGroup.getChildMeasureSpec(heightSpec, paddingTop + paddingBottom, lp.height)
+                val lp = view.layoutParams as? RecyclerView.LayoutParams
+                val childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec, paddingLeft + paddingRight, lp?.width.orZero)
+                val childHeightSpec = ViewGroup.getChildMeasureSpec(heightSpec, paddingTop + paddingBottom, lp?.height.orZero)
                 //子view进行测量，然后可以通过getMeasuredWidth()获得测量的宽，高类似
                 view.measure(childWidthSpec, childHeightSpec)
                 //将item的宽高放入数组中
-                measuredDimension[0] = view.measuredWidth + lp.leftMargin + lp.rightMargin
-                measuredDimension[1] = view.measuredHeight + lp.topMargin + lp.bottomMargin
+                measuredDimension[0] = view.measuredWidth + lp?.leftMargin.orZero + lp?.rightMargin.orZero
+                measuredDimension[1] = view.measuredHeight + lp?.topMargin.orZero + lp?.bottomMargin.orZero
                 recycler.recycleView(view)
             } catch (_: Exception) {
             }

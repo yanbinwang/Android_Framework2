@@ -1,19 +1,20 @@
 package com.example.thirdparty.media.utils.helper
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.MediaActionSound
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.shortToast
+import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
 import com.example.thirdparty.media.service.KeyEventReceiver
-import com.example.thirdparty.media.utils.MediaType.IMAGE
-import com.example.thirdparty.media.utils.MediaType.VIDEO
-import com.example.thirdparty.media.utils.MultimediaUtil
+import com.example.thirdparty.media.utils.MediaUtil
+import com.example.thirdparty.media.utils.MediaUtil.MediaType.IMAGE
+import com.example.thirdparty.media.utils.MediaUtil.MediaType.VIDEO
 import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.CameraView
 import com.otaliastudios.cameraview.PictureResult
@@ -22,6 +23,7 @@ import com.otaliastudios.cameraview.controls.Audio
 import com.otaliastudios.cameraview.controls.Engine
 import com.otaliastudios.cameraview.controls.Facing
 import com.otaliastudios.cameraview.controls.Flash
+import com.otaliastudios.cameraview.controls.Mode
 import com.otaliastudios.cameraview.controls.Preview
 import java.io.File
 
@@ -31,16 +33,48 @@ import java.io.File
  *  https://github.com/natario1/CameraView
  */
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
-class CameraHelper(private val activity: FragmentActivity, private val cvFinder: CameraView, private val hasReceiver: Boolean = false) : LifecycleEventObserver {
+class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver: Boolean = false) : LifecycleEventObserver {
+    private var sourcePath = ""
+    private var cvFinder: CameraView? = null
     private var onTakePictureListener: OnTakePictureListener? = null
     private var onTakeVideoListener: OnTakeVideoListener? = null
-    private val sound by lazy { MediaActionSound() }
-    private val keyEventReceiver by lazy { KeyEventReceiver() }
+    private val actionSound by lazy { MediaActionSound() }
+    private val eventReceiver by lazy { KeyEventReceiver() }
+    private val mContext: Context? get() = cvFinder?.context
 
     init {
-        activity.lifecycle.addObserver(this)
-        cvFinder.setLifecycleOwner(activity)
+        observer.lifecycle.addObserver(this)
+    }
+
+    /**
+     * 绑定页面
+     *     <com.otaliastudios.cameraview.CameraView
+     *             android:id="@+id/camera"
+     *             android:layout_width="match_parent"
+     *             android:layout_height="match_parent"
+     *             app:cameraAutoFocusMarker="@string/cameraview_default_autofocus_marker"
+     *             app:cameraAutoFocusResetDelay="1"
+     *             app:cameraGestureLongTap="autoFocus"
+     *             app:cameraGesturePinch="zoom"
+     *             app:cameraGestureTap="autoFocus"
+     *             app:cameraMode="picture" />
+     *
+     *     <com.otaliastudios.cameraview.CameraView
+     *         android:id="@+id/camera"
+     *         android:layout_width="match_parent"
+     *         android:layout_height="match_parent"
+     *         app:cameraAutoFocusMarker="@string/cameraview_default_autofocus_marker"
+     *         app:cameraAutoFocusResetDelay="1"
+     *         app:cameraGestureLongTap="autoFocus"
+     *         app:cameraGesturePinch="zoom"
+     *         app:cameraGestureTap="autoFocus"
+     *         app:cameraMode="video"
+     *         app:cameraVideoCodec="h264" />
+     */
+    fun bind(cvFinder: CameraView) {
+        this.cvFinder = cvFinder
         cvFinder.apply {
+            setLifecycleOwner(observer)
             keepScreenOn = true//是否保持屏幕高亮
             playSounds = true//录像是否录制声音
             useDeviceOrientation = false//禁止掉换
@@ -49,99 +83,36 @@ class CameraHelper(private val activity: FragmentActivity, private val cvFinder:
             preview = Preview.GL_SURFACE//绘制相机的装载控件
             facing = Facing.BACK//打开时镜头默认后置
             flash = Flash.AUTO//闪光灯自动
-        }
-        if (hasReceiver) {
-            val intentFilter = IntentFilter()
-            intentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
-            activity.registerReceiver(keyEventReceiver, intentFilter)
-        }
-    }
+            if (mode == Mode.PICTURE) {
+                addCameraListener(object : CameraListener() {
+                    override fun onPictureShutter() {
+                        super.onPictureShutter()
+                        onTakePictureListener?.onShutter()
+                    }
 
-    /**
-     * 镜头复位
-     */
-    fun reset() = run { cvFinder.zoom = 0f }
-
-    /**
-     * 镜头翻转
-     */
-    fun toggleFacing() {
-        closeFlash()
-        cvFinder.toggleFacing()
-    }
-
-    /**
-     * 开关闪光灯
-     */
-    fun flash() {
-        if (cvFinder.facing == Facing.FRONT) {
-            R.string.camera_flash_error.shortToast()
-        } else {
-            cvFinder.apply { flash = if (flash == Flash.TORCH) Flash.OFF else Flash.TORCH }
-            onTakePictureListener?.onFlash(cvFinder.flash == Flash.TORCH)
-            onTakeVideoListener?.onFlash(cvFinder.flash == Flash.TORCH)
-        }
-    }
-
-    /**
-     * 关灯
-     */
-    fun closeFlash() {
-        if (cvFinder.facing == Facing.BACK) {
-            cvFinder.flash = Flash.OFF
-            onTakePictureListener?.onFlash(false)
-            onTakeVideoListener?.onFlash(false)
-        }
-    }
-
-    /**
-     * 拍照
-     */
-    fun takePicture(snapshot: Boolean = true) {
-        cvFinder.apply {
-            if (isTakingPicture) {
-                R.string.camera_picture_shutter.shortToast()
-                return
-            }
-            sound.play(MediaActionSound.SHUTTER_CLICK)
-            if (snapshot) takePictureSnapshot() else takePicture()
-            addCameraListener(object : CameraListener() {
-                override fun onPictureShutter() {
-                    super.onPictureShutter()
-                    onTakePictureListener?.onShutter()
-                }
-
-                override fun onPictureTaken(result: PictureResult) {
-                    super.onPictureTaken(result)
-                    //在sd卡的Picture文件夹下创建对应的文件
-                    MultimediaUtil.getOutputFile(IMAGE).apply {
-                        if (null != this) {
-                            result.toFile(this) { if (null != it) onTakePictureListener?.onSuccess(it) else onTakePictureListener?.onFailed() }
-                        } else {
-                            onTakePictureListener?.onFailed()
+                    override fun onPictureTaken(result: PictureResult) {
+                        super.onPictureTaken(result)
+                        //在sd卡的Picture文件夹下创建对应的文件
+                        MediaUtil.getOutputFile(IMAGE).apply {
+                            if (null != this) {
+                                result.toFile(this) {
+                                    if (null != it) {
+                                        onTakePictureListener?.onSuccess(it)
+                                    } else {
+                                        onTakePictureListener?.onFailed()
+                                    }
+                                }
+                            } else {
+                                onTakePictureListener?.onFailed()
+                            }
                         }
                     }
-                }
-            })
-        }
-    }
-
-    /**
-     * 开始录像
-     */
-    fun takeVideo(snapshot: Boolean = true) {
-        cvFinder.apply {
-            if (isTakingVideo) {
-                R.string.camera_video_shutter.shortToast()
-                return
-            }
-            val videoFile = MultimediaUtil.getOutputFile(VIDEO)
-            if (null != videoFile) {
-                if (snapshot) takeVideoSnapshot(videoFile) else takeVideo(videoFile)
+                })
+            } else {
                 addCameraListener(object : CameraListener() {
                     override fun onVideoRecordingStart() {
                         super.onVideoRecordingStart()
-                        onTakeVideoListener?.onRecording(videoFile.absolutePath)
+                        onTakeVideoListener?.onRecording(sourcePath)
                     }
 
                     //stopVideo方法按下后会触发，此刻可能正在处理录制的文件，onVideoTaken并不会立刻调取
@@ -156,7 +127,93 @@ class CameraHelper(private val activity: FragmentActivity, private val cvFinder:
                         onTakeVideoListener?.onResult(result.file.path)
                     }
                 })
-            } else onTakeVideoListener?.onResult(null)
+            }
+        }
+        if (hasReceiver) {
+            val intentFilter = IntentFilter()
+            intentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
+            mContext?.registerReceiver(eventReceiver, intentFilter)
+        }
+    }
+
+    /**
+     * 镜头复位
+     */
+    fun reset() {
+        cvFinder?.zoom = 0f
+    }
+
+    /**
+     * 镜头翻转
+     */
+    fun toggleFacing() {
+        closeFlash()
+        cvFinder?.toggleFacing()
+    }
+
+    /**
+     * 开关闪光灯
+     */
+    fun flash() {
+        if (cvFinder?.facing == Facing.FRONT) {
+            R.string.cameraFlashError.shortToast()
+        } else {
+            cvFinder?.apply { flash = if (flash == Flash.TORCH) Flash.OFF else Flash.TORCH }
+            onTakePictureListener?.onFlash(cvFinder?.flash == Flash.TORCH)
+            onTakeVideoListener?.onFlash(cvFinder?.flash == Flash.TORCH)
+        }
+    }
+
+    /**
+     * 关灯
+     */
+    fun closeFlash() {
+        if (cvFinder?.facing == Facing.BACK) {
+            cvFinder?.flash = Flash.OFF
+            onTakePictureListener?.onFlash(false)
+            onTakeVideoListener?.onFlash(false)
+        }
+    }
+
+    /**
+     * 拍照
+     */
+    fun takePicture(snapshot: Boolean = true) {
+        cvFinder?.apply {
+            if (isTakingPicture) {
+                R.string.cameraPictureShutter.shortToast()
+                return
+            }
+            actionSound.play(MediaActionSound.SHUTTER_CLICK)
+            if (snapshot) {
+                takePictureSnapshot()
+            } else {
+                takePicture()
+            }
+        }
+    }
+
+    /**
+     * 开始录像
+     */
+    fun takeVideo(snapshot: Boolean = true) {
+        cvFinder?.apply {
+            if (isTakingVideo) {
+                R.string.cameraVideoShutter.shortToast()
+                return
+            }
+            MediaUtil.getOutputFile(VIDEO).apply {
+                if (null != this) {
+                    sourcePath = absolutePath
+                    if (snapshot) {
+                        takeVideoSnapshot(this)
+                    } else {
+                        takeVideo(this)
+                    }
+                } else {
+                    onTakeVideoListener?.onResult(null)
+                }
+            }
         }
     }
 
@@ -164,7 +221,7 @@ class CameraHelper(private val activity: FragmentActivity, private val cvFinder:
      * 停止录像
      */
     fun stopVideo() {
-        cvFinder.stopVideo()
+        cvFinder?.stopVideo()
     }
 
     /**
@@ -202,8 +259,9 @@ class CameraHelper(private val activity: FragmentActivity, private val cvFinder:
         when (event) {
             Lifecycle.Event.ON_PAUSE -> closeFlash()
             Lifecycle.Event.ON_DESTROY -> {
-                if (hasReceiver) activity.unregisterReceiver(keyEventReceiver)
-                activity.lifecycle.removeObserver(this)
+                if (hasReceiver.orFalse) mContext?.unregisterReceiver(eventReceiver)
+                cvFinder = null
+                observer.lifecycle.removeObserver(this)
             }
             else -> {}
         }

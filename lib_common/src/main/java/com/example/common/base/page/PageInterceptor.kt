@@ -7,7 +7,6 @@ import com.alibaba.android.arouter.facade.callback.InterceptorCallback
 import com.alibaba.android.arouter.facade.template.IInterceptor
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.config.ARouterPath
-import com.example.common.config.Constants
 import com.example.common.utils.helper.AccountHelper
 import com.example.framework.utils.logE
 
@@ -23,11 +22,15 @@ import com.example.framework.utils.logE
 class PageInterceptor : IInterceptor {
     private val TAG = "PageInterceptor"
 
+    companion object {
+        const val INTERCEPTOR_LOGIN_CODE = 1 //阿里路由登录全局拦截器编号
+    }
+
     override fun process(postcard: Postcard, callback: InterceptorCallback) {
         "PageInterceptor 开始执行".logE(TAG)
         //给需要跳转的页面添加值为Constants.LOGIN_INTERCEPTOR_CODE的extra参数，用来标记是否需要用户先登录才可以访问该页面
         //先判断需不需要
-        if (postcard.extra == Constants.INTERCEPTOR_LOGIN_CODE) {
+        if (postcard.extra == INTERCEPTOR_LOGIN_CODE) {
             //判断用户的登录情况，可以把值保存在sp中
             if (AccountHelper.isLogin()) {
                 callback.onContinue(postcard)

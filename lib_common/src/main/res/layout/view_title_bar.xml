@@ -5,7 +5,7 @@
     tools:ignore="MissingConstraints">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_container"
+        android:id="@+id/cl_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -13,6 +13,7 @@
             android:id="@+id/iv_left"
             android:layout_width="44pt"
             android:layout_height="44pt"
+            android:layout_marginStart="5pt"
             android:padding="10pt"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/view_shade"
@@ -35,7 +36,7 @@
             app:layout_constraintStart_toEndOf="@+id/iv_left"
             app:layout_constraintTop_toTopOf="@+id/iv_left"
             tools:text="左侧文字"
-            tools:textColor="@color/textBlack"
+            tools:textColor="@color/textPrimary"
             tools:visibility="visible" />
 
         <com.example.common.widget.i18n.I18nTextView
@@ -51,7 +52,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/iv_left"
             tools:text="标题"
-            tools:textColor="@color/textBlack" />
+            tools:textColor="@color/textPrimary" />
 
         <com.example.common.widget.i18n.I18nTextView
             android:id="@+id/tv_right"
@@ -66,13 +67,14 @@
             app:layout_constraintEnd_toStartOf="@+id/iv_right"
             app:layout_constraintTop_toTopOf="@+id/iv_left"
             tools:text="右侧文字"
-            tools:textColor="@color/textBlack"
+            tools:textColor="@color/textPrimary"
             tools:visibility="visible" />
 
         <ImageView
             android:id="@+id/iv_right"
             android:layout_width="44pt"
             android:layout_height="44pt"
+            android:layout_marginEnd="5pt"
             android:padding="10pt"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/iv_left"

@@ -12,12 +12,26 @@ interface BaseImpl {
     /**
      * 构建viewmodel用作数据交互/网络请求
      */
-    fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM
+    fun <VM : BaseViewModel> VM.create(): VM?
+//    fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM
+//
+//    fun <VM : BaseViewModel> VM.create(): VM? {
+//        return createViewModel(javaClass)
+//    }
+//
+//    fun <VM : BaseViewModel> viewModel(): VM? {
+//        val superClass = javaClass.genericSuperclass
+//        val parameterizedType = superClass as? ParameterizedType
+//        val typeArguments = parameterizedType?.actualTypeArguments
+//        val clazz = typeArguments?.get(0) as? Class<VM>
+//        clazz ?: return null
+//        return createViewModel(clazz)
+//    }
 
     /**
      * 初始化状态栏
      */
-    fun initImmersionBar(titleDark: Boolean = true, naviTrans: Boolean = true, navigationBarColor: Int = R.color.bgWhite)
+    fun initImmersionBar(titleDark: Boolean = true, naviTrans: Boolean = true, navigationBarColor: Int = R.color.appPrimaryDark)
 
     /**
      * 初始化控件
@@ -37,21 +51,21 @@ interface BaseImpl {
     /**
      * 控件不可操作
      */
-    fun ENABLED(vararg views: View?, second: Long = 1000)
+    fun enabled(vararg views: View?, second: Long = 1000)
 
     /**
      * 控件显示
      */
-    fun VISIBLE(vararg views: View?)
+    fun visible(vararg views: View?)
 
     /**
      * 控件隐藏（占位）
      */
-    fun INVISIBLE(vararg views: View?)
+    fun invisible(vararg views: View?)
 
     /**
      * 控件隐藏（不占位）
      */
-    fun GONE(vararg views: View?)
+    fun gone(vararg views: View?)
 
 }

@@ -24,6 +24,8 @@ import android.widget.ImageView
 import android.widget.OverScroller
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.toSafeDouble
+import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import kotlin.math.abs
 
@@ -149,9 +151,9 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     fun getZoomedRect(): RectF {
         if (mScaleType == ScaleType.FIT_XY) throw UnsupportedOperationException("getZoomedRect() not supported with FIT_XY")
         val topLeft = transformCoordTouchToBitmap(0f, 0f, true)
-        val bottomRight = transformCoordTouchToBitmap(viewWidth.toFloat(), viewHeight.toFloat(), true)
-        val w = drawable.intrinsicWidth.toFloat()
-        val h = drawable.intrinsicHeight.toFloat()
+        val bottomRight = transformCoordTouchToBitmap(viewWidth.toSafeFloat(), viewHeight.toSafeFloat(), true)
+        val w = drawable.intrinsicWidth.toSafeFloat()
+        val h = drawable.intrinsicHeight.toSafeFloat()
         return RectF(topLeft.x / w, topLeft.y / h, bottomRight.x / w, bottomRight.y / h)
     }
 
@@ -197,7 +199,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         super.onRestoreInstanceState(state)
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         onDrawReady = true
         imageRenderedAtLeastOnce = true
         if (delayedZoomVariables != null) {
@@ -246,7 +248,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         }
         if (scaleType != mScaleType) setScaleType(scaleType)
         resetZoom()
-        scaleImage(scale.toDouble(), viewWidth / 2f, viewHeight / 2f, true)
+        scaleImage(scale.toSafeDouble(), viewWidth / 2f, viewHeight / 2f, true)
         matrixs.getValues(m)
         m[Matrix.MTRANS_X] = -(focusX * getImageWidth() - viewWidth * 0.5f)
         m[Matrix.MTRANS_Y] = -(focusY * getImageHeight() - viewHeight * 0.5f)
@@ -261,12 +263,12 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     fun getScrollPosition(): PointF? {
-        val drawable = drawable ?: return null
-        val drawableWidth = drawable.intrinsicWidth
-        val drawableHeight = drawable.intrinsicHeight
+        val mDrawable = drawable ?: return null
+        val drawableWidth = mDrawable.intrinsicWidth
+        val drawableHeight = mDrawable.intrinsicHeight
         val point = transformCoordTouchToBitmap(viewWidth / 2f, viewHeight / 2f, true)
-        point.x /= drawableWidth.toFloat()
-        point.y /= drawableHeight.toFloat()
+        point.x /= drawableWidth.toSafeFloat()
+        point.y /= drawableHeight.toSafeFloat()
         return point
     }
 
@@ -278,8 +280,8 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         matrixs.getValues(m)
         val transX = m[Matrix.MTRANS_X]
         val transY = m[Matrix.MTRANS_Y]
-        val fixTransX = getFixTrans(transX, viewWidth.toFloat(), getImageWidth())
-        val fixTransY = getFixTrans(transY, viewHeight.toFloat(), getImageHeight())
+        val fixTransX = getFixTrans(transX, viewWidth.toSafeFloat(), getImageWidth())
+        val fixTransY = getFixTrans(transY, viewHeight.toSafeFloat(), getImageHeight())
         if (fixTransX != 0f || fixTransY != 0f) matrixs.postTranslate(fixTransX, fixTransY)
     }
 
@@ -310,13 +312,13 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     private fun getImageHeight() = matchViewHeight * normalizedScale
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val drawable = drawable
-        if (drawable == null || drawable.intrinsicWidth == 0 || drawable.intrinsicHeight == 0) {
+        val mDrawable = drawable
+        if (mDrawable == null || mDrawable.intrinsicWidth == 0 || mDrawable.intrinsicHeight == 0) {
             setMeasuredDimension(0, 0)
             return
         }
-        val drawableWidth = drawable.intrinsicWidth
-        val drawableHeight = drawable.intrinsicHeight
+        val drawableWidth = mDrawable.intrinsicWidth
+        val drawableHeight = mDrawable.intrinsicHeight
         val widthSize = MeasureSpec.getSize(widthMeasureSpec)
         val widthMode = MeasureSpec.getMode(widthMeasureSpec)
         val heightSize = MeasureSpec.getSize(heightMeasureSpec)
@@ -328,12 +330,12 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     private fun fitImageToView() {
-        val drawable = drawable
-        if (drawable == null || drawable.intrinsicWidth == 0 || drawable.intrinsicHeight == 0) return
-        val drawableWidth = drawable.intrinsicWidth
-        val drawableHeight = drawable.intrinsicHeight
-        var scaleX = viewWidth.toFloat() / drawableWidth
-        var scaleY: Float = viewHeight.toFloat() / drawableHeight
+        val mDrawable = drawable
+        if (mDrawable == null || mDrawable.intrinsicWidth == 0 || mDrawable.intrinsicHeight == 0) return
+        val drawableWidth = mDrawable.intrinsicWidth
+        val drawableHeight = mDrawable.intrinsicHeight
+        var scaleX = viewWidth.toSafeFloat() / drawableWidth
+        var scaleY: Float = viewHeight.toSafeFloat() / drawableHeight
         when (mScaleType) {
             ScaleType.CENTER -> {
                 scaleY = 1f
@@ -418,7 +420,9 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
             false
         } else if (x >= -1 && direction < 0) {
             false
-        } else abs(x) + viewWidth + 1 < getImageWidth() || direction <= 0
+        } else {
+            abs(x) + viewWidth + 1 < getImageWidth() || direction <= 0
+        }
     }
 
     private class GestureListener(var view: ScaleImageView) : SimpleOnGestureListener() {
@@ -434,7 +438,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
             view.performLongClick()
         }
 
-        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             if (fling != null) fling?.cancelFling()
             fling = Fling(view, velocityX.toSafeInt(), velocityY.toSafeInt())
             compatPostOnAnimation(view, fling)
@@ -466,6 +470,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     private class PrivateOnTouchListener(var view: ScaleImageView) : OnTouchListener {
         private val last = PointF()
+
         override fun onTouch(v: View, event: MotionEvent): Boolean {
             mScaleDetector?.onTouchEvent(event)
             mGestureDetector?.onTouchEvent(event)
@@ -480,8 +485,8 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
                     MotionEvent.ACTION_MOVE -> if (view.state == State.DRAG) {
                         val deltaX = curr.x - last.x
                         val deltaY = curr.y - last.y
-                        val fixTransX = getFixDragTrans(deltaX, viewWidth.toFloat(), view.getImageWidth())
-                        val fixTransY = getFixDragTrans(deltaY, viewHeight.toFloat(), view.getImageHeight())
+                        val fixTransX = getFixDragTrans(deltaX, viewWidth.toSafeFloat(), view.getImageWidth())
+                        val fixTransY = getFixDragTrans(deltaY, viewHeight.toSafeFloat(), view.getImageHeight())
                         matrixs.postTranslate(fixTransX, fixTransY)
                         view.fixTrans()
                         last[curr.x] = curr.y
@@ -503,7 +508,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         }
 
         override fun onScale(detector: ScaleGestureDetector): Boolean {
-            view.scaleImage(detector.scaleFactor.toDouble(), detector.focusX, detector.focusY, true)
+            view.scaleImage(detector.scaleFactor.toSafeDouble(), detector.focusX, detector.focusY, true)
             if (touchImageViewListener != null) {
                 touchImageViewListener?.onMove()
             }
@@ -541,15 +546,15 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
             upperScale = maxScale
         }
         val origScale = normalizedScale
-        normalizedScale *= deltaScale.toFloat()
+        normalizedScale *= deltaScale.toSafeFloat()
         if (normalizedScale > upperScale) {
             normalizedScale = upperScale
-            deltaScale = (upperScale / origScale).toDouble()
+            deltaScale = (upperScale / origScale).toSafeDouble()
         } else if (normalizedScale < lowerScale) {
             normalizedScale = lowerScale
-            deltaScale = (lowerScale / origScale).toDouble()
+            deltaScale = (lowerScale / origScale).toSafeDouble()
         }
-        matrixs.postScale(deltaScale.toFloat(), deltaScale.toFloat(), focusX, focusY)
+        matrixs.postScale(deltaScale.toSafeFloat(), deltaScale.toSafeFloat(), focusX, focusY)
         fixScaleTrans()
     }
 
@@ -613,15 +618,15 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         }
 
         private fun calculateDeltaScale(t: Float): Double {
-            val zoom = (startZoom + t * (targetZoom - startZoom)).toDouble()
+            val zoom = (startZoom + t * (targetZoom - startZoom)).toSafeDouble()
             return zoom / normalizedScale
         }
     }
 
     private fun transformCoordTouchToBitmap(x: Float, y: Float, clipToBitmap: Boolean): PointF {
         matrixs.getValues(m)
-        val origW = drawable.intrinsicWidth.toFloat()
-        val origH = drawable.intrinsicHeight.toFloat()
+        val origW = drawable.intrinsicWidth.toSafeFloat()
+        val origH = drawable.intrinsicHeight.toSafeFloat()
         val transX = m[Matrix.MTRANS_X]
         val transY = m[Matrix.MTRANS_Y]
         var finalX = (x - transX) * origW / getImageWidth()
@@ -635,8 +640,8 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     private fun transformCoordBitmapToTouch(bx: Float, by: Float): PointF {
         matrixs.getValues(m)
-        val origW = drawable.intrinsicWidth.toFloat()
-        val origH = drawable.intrinsicHeight.toFloat()
+        val origW = drawable.intrinsicWidth.toSafeFloat()
+        val origH = drawable.intrinsicHeight.toSafeFloat()
         val px = bx / origW
         val py = by / origH
         val finalX = m[Matrix.MTRANS_X] + getImageWidth() * px
@@ -653,8 +658,8 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
             view.state = State.FLING
             scroller = CompatScroller(view.context)
             matrixs.getValues(view.m)
-            val startX = view.m[Matrix.MTRANS_X] as? Int
-            val startY = view.m[Matrix.MTRANS_Y] as? Int
+            val startX = view.m[Matrix.MTRANS_X].toSafeInt()
+            val startY = view.m[Matrix.MTRANS_Y].toSafeInt()
             val minX: Int
             val maxX: Int
             val minY: Int
@@ -700,7 +705,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
                 val transY = newY - currY
                 currX = newX
                 currY = newY
-                matrixs.postTranslate(transX.toFloat(), transY.toFloat())
+                matrixs.postTranslate(transX.toSafeFloat(), transY.toSafeFloat())
                 view.fixTrans()
                 view.imageMatrix = matrixs
                 compatPostOnAnimation(view, this)
@@ -737,7 +742,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         }
     }
 
-    private class ZoomVariables(var scale: Float?, var focusX: Float?, var focusY: Float?, var scaleType: ScaleType?)
+    private data class ZoomVariables(var scale: Float?, var focusX: Float?, var focusY: Float?, var scaleType: ScaleType?)
 
     private enum class State {
         NONE, DRAG, ZOOM, FLING, ANIMATE_ZOOM

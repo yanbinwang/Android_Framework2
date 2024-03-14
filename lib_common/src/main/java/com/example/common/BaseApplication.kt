@@ -1,6 +1,7 @@
 package com.example.common
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.Context
@@ -10,6 +11,10 @@ import android.net.NetworkRequest
 import android.view.Gravity
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.BaseActivity
 import com.example.common.base.OnFinishListener
@@ -20,8 +25,8 @@ import com.example.common.config.ARouterPath
 import com.example.common.config.ServerConfig
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
+import com.example.common.socket.WebSocketProxy
 import com.example.common.utils.AppManager
-import com.example.common.utils.NotificationUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
@@ -33,6 +38,8 @@ import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.isDebug
+import com.example.framework.utils.function.value.minute
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
@@ -49,8 +56,11 @@ import java.util.Locale
  */
 @SuppressLint("MissingPermission", "UnspecifiedRegisterReceiverFlag")
 abstract class BaseApplication : Application() {
+    protected var onStateChangedListener: (isForeground: Boolean) -> Unit = {}
 
     companion object {
+        //当前app进程是否处于前台
+        var isForeground = true
         //是否需要回首頁
         var needOpenHome = false
         lateinit var instance: BaseApplication
@@ -77,8 +87,6 @@ abstract class BaseApplication : Application() {
         MMKV.initialize(this)
         //服务器地址类初始化
         ServerConfig.init()
-        //通知类初始化
-        NotificationUtil.init()
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
         //語言包初始化
@@ -91,6 +99,10 @@ abstract class BaseApplication : Application() {
         initSmartRefresh()
         //全局toast
         initToast()
+        //全局进程
+        initLifecycle()
+        //初始化socket
+        initSocket()
     }
 
     private fun initARouter() {
@@ -127,9 +139,10 @@ abstract class BaseApplication : Application() {
     }
 
     private fun initListener() {
-        BaseActivity.setOnFinishListener(object : OnFinishListener {
+        BaseActivity.onFinishListener = object : OnFinishListener {
             override fun onFinish(act: BaseActivity<*>) {
                 if (!needOpenHome) return
+                if (BaseActivity.isAnyActivityStarting) return
                 val clazzName = act.javaClass.simpleName.lowercase(Locale.getDefault())
                 if (clazzName == "homeactivity") return
                 if (clazzName == "splashactivity") return
@@ -139,7 +152,7 @@ abstract class BaseApplication : Application() {
                     ARouter.getInstance().build(ARouterPath.MainActivity).navigation()
                 }
             }
-        })
+        }
     }
 
     private fun initSmartRefresh() {
@@ -194,6 +207,60 @@ abstract class BaseApplication : Application() {
             view.textColor(R.color.textWhite)
             toast.view = view
             return@setStringToastBuilder toast
+        }
+    }
+
+    /**
+     * 监听切换到前台，超过5分钟部分第三方重新获取
+     */
+    private fun initLifecycle() {
+        ProcessLifecycleOwner.get().lifecycle.addObserver(object : LifecycleEventObserver {
+            private var isFirst = true
+            private var timeStamp = System.currentTimeMillis()
+            private var timeNano = System.nanoTime()
+
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                when (event) {
+                    Lifecycle.Event.ON_RESUME -> {
+                        isForeground = true
+//                        EventCode.EVENT_FOREGROUND.post()
+                        if (isFirst) {
+                            isFirst = false
+                        } else {
+                            val stampTimeDiff = System.currentTimeMillis() - timeStamp
+                            val nanoTimeDiff = (System.nanoTime() - timeNano) / 1000000L
+                            //此处多个第三方可重新初始化(超过5分钟就重新初始化，避免过期)
+                            if (stampTimeDiff - nanoTimeDiff > 5.minute) {
+                                onStateChangedListener.invoke(true)
+                            }
+                            timeStamp = System.currentTimeMillis()
+                            timeNano = System.nanoTime()
+                        }
+                    }
+                    Lifecycle.Event.ON_STOP -> {
+                        //判断本程序process中是否有在任意前台
+                        val isAnyProcessForeground = try {
+                            (getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.runningAppProcesses?.any { it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND }
+                        } catch (e: Exception) {
+                            false
+                        }
+                        if (!isAnyProcessForeground.orFalse) {
+                            isForeground = false
+//                            EventCode.EVENT_BACKGROUND.post()
+                            onStateChangedListener.invoke(false)
+                            timeStamp = System.currentTimeMillis()
+                            timeNano = System.nanoTime()
+                        }
+                    }
+                    else -> {}
+                }
+            }
+        })
+    }
+
+    private fun initSocket() {
+        WebSocketProxy.setOnMessageListener{ url, data ->
+
         }
     }
 

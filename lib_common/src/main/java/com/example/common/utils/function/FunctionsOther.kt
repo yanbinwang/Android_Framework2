@@ -7,6 +7,8 @@ import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -18,7 +20,6 @@ import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.config.Constants.NO_DATA
 import com.example.common.config.ServerConfig
-import com.example.common.utils.GsonUtil
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.ScreenUtil.getRealSize
 import com.example.common.utils.ScreenUtil.getRealSizeFloat
@@ -27,6 +28,7 @@ import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.common.utils.i18n.string
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.textColor
@@ -89,27 +91,32 @@ fun String?.orNoData(): String {
 }
 
 /**
- * 对象转json
+ * 复制字符串
  */
-fun Any?.toJsonString(): String {
-    if (this == null) return ""
-    return GsonUtil.objToJson(this).orEmpty()
+fun String?.setPrimaryClip(label: String = "Label") {
+    if (this == null) return
+    BaseApplication.instance.setPrimaryClip(label, this)
 }
 
 /**
- * 后端请求如果data是JsonArray的话，使用该方法得到一个集合
+ * 自定义反向动画
  */
-fun <T> String?.toList(clazz: Class<T>): List<T>? {
-    if (this == null) return emptyList()
-    return GsonUtil.jsonToList(this, clazz)
-}
+fun Context.translateAnimation(onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}, isShown: Boolean = true): Animation {
+    return AnimationUtils.loadAnimation(this, if (isShown) R.anim.set_translate_bottom_in else R.anim.set_translate_bottom_out).apply {
+        setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(animation: Animation?) {
+                onStart.invoke()
+            }
 
-/**
- * 将json转换为对象
- */
-fun <T> String?.toObj(clazz: Class<T>): T? {
-    if (this == null) return null
-    return GsonUtil.jsonToObj(this, clazz)
+            override fun onAnimationEnd(animation: Animation?) {
+                onEnd.invoke()
+            }
+
+            override fun onAnimationRepeat(animation: Animation?) {
+                onRepeat.invoke()
+            }
+        })
+    }
 }
 
 /**

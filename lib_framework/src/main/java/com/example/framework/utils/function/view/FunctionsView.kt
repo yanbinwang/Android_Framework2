@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Paint
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.VibrationEffect
@@ -14,13 +15,16 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.annotation.AnimRes
 import androidx.annotation.ColorRes
+import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
@@ -31,6 +35,7 @@ import com.example.framework.utils.function.color
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.parseColor
+import com.example.framework.utils.logE
 import com.google.android.material.appbar.AppBarLayout
 import kotlin.math.abs
 
@@ -137,6 +142,14 @@ fun View?.disable() {
     if (this == null) return
     if (!isEnabled) return
     isEnabled = false
+}
+
+/**
+ * 获取resources中的drawable
+ */
+fun View?.dimen(@DimenRes res: Int): Float {
+    this ?: return 0f
+    return context.resources.getDimension(res)
 }
 
 /**
@@ -289,7 +302,7 @@ var View?.layoutGravity: Int
 /**
  * 在layout完毕之后进行计算处理
  */
-fun <T : View> T?.doOnceAfterLayout(listener: (T) -> Unit) {
+inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
     if (this == null) return
     viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
         override fun onGlobalLayout() {
@@ -379,7 +392,11 @@ fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)?
     anim.interpolator = AccelerateInterpolator() // 设置插入器3
     anim.setAnimationListener(object : Animation.AnimationListener {
         override fun onAnimationEnd(animation: Animation?) {
-            endListener?.invoke() ?: { if (to == 0f) gone() }
+            endListener?.invoke() ?: if (to == 0f) {
+                gone()
+            } else {
+                visible()
+            }
         }
         override fun onAnimationStart(animation: Animation?) {}
         override fun onAnimationRepeat(animation: Animation?) {}
@@ -504,6 +521,67 @@ fun View?.cancelAnim() {
     animate()?.setUpdateListener(null)
     animate()?.setListener(null)
     animate()?.cancel()
+}
+
+/**
+ * 动画循环
+ */
+fun View?.loopAnimation(anim: Animation) {
+    this ?: return
+    try {
+        clearAnimation()
+        anim.apply {
+            repeatMode = Animation.RESTART
+            repeatCount = Animation.INFINITE
+        }
+        startAnimation(anim)
+        animation?.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(animation: Animation?) {
+            }
+
+            override fun onAnimationEnd(animation: Animation?) {
+                startAnimation(anim)
+            }
+
+            override fun onAnimationRepeat(animation: Animation?) {
+            }
+        })
+    } catch (e: Exception) {
+        e.logE
+    }
+}
+
+/**
+ * 动画循环
+ */
+fun View?.loopAnimation(ctx: Context?, @AnimRes animRes: Int) {
+    this ?: return
+    ctx ?: return
+    val anim = AnimationUtils.loadAnimation(ctx, animRes)
+    loopAnimation(anim)
+}
+
+/**
+ * 动画循环
+ */
+fun View?.startAnimation(@AnimRes animRes: Int) {
+    this ?: return
+    val anim = AnimationUtils.loadAnimation(context, animRes)
+    clearAnimation()
+    startAnimation(anim)
+}
+
+/**
+ * 动画停止
+ */
+fun View?.cancelAnimation() {
+    this ?: return
+    try {
+        animation?.setAnimationListener(null)
+        animation?.cancel()
+    } catch (e: Exception) {
+        e.logE
+    }
 }
 
 /**
@@ -636,6 +714,11 @@ fun ImageView?.tint(@ColorRes res: Int) {
 /**
  * 图片src资源
  */
+fun ImageView?.setDrawable(resId: Drawable?) {
+    this ?: return
+    setImageDrawable(resId)
+}
+
 fun ImageView?.setResource(@DrawableRes resId: Int) {
     this ?: return
     setImageResource(resId)

@@ -13,6 +13,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.listener.OnPageChangedListener
@@ -30,8 +32,11 @@ import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
+import com.example.common.utils.permission.PermissionHelper
+import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.WeakHandler
+import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orFalse
@@ -51,6 +56,8 @@ import me.jessyan.autosize.AutoSizeConfig
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
+import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -58,31 +65,24 @@ import kotlin.coroutines.CoroutineContext
  * @author 顶部弹出的dialog
  * 可实现顶部弹出后，导航栏于弹框一致
  */
+@Suppress("UNCHECKED_CAST")
 abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
-    protected lateinit var binding: VDB
+    protected var mBinding: VDB? = null
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
+    protected val mDialog by lazy { AppDialog(mActivity) }
+    protected val mPermission by lazy { PermissionHelper(mActivity) }
     private var showTime = 0L
+    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
+    private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main + job
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
-    companion object {
-        private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
-
-        fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
-            this.onActivityResultListener = onActivityResultListener
-        }
-
-        fun clearOnActivityResultListener() {
-            onActivityResultListener = null
-        }
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
@@ -100,7 +100,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
             //如果当前设备支持状态栏字体变色，会设置状态栏字体为黑色
             //如果当前设备不支持状态栏字体变色，会使当前状态栏加上透明度，否则不执行透明度
             statusBarDarkFont(true, 0.2f)
-            navigationBarColor(R.color.bgWhite)?.navigationBarDarkIcon(true, 0.2f)
+            navigationBarColor(R.color.appPrimaryDark)?.navigationBarDarkIcon(true, 0.2f)
             init()
         }
         //设置软键盘不自动弹出
@@ -113,10 +113,10 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         }
         return try {
             val superclass = javaClass.genericSuperclass
-            val aClass = (superclass as ParameterizedType).actualTypeArguments[0] as Class<*>
-            val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            binding = method.invoke(null, layoutInflater, container, false) as VDB
-            binding.root
+            val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
+            val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
+            mBinding = method?.invoke(null, layoutInflater, container, false) as? VDB
+            mBinding?.root
         } catch (_: Exception) {
             null
         }
@@ -154,8 +154,12 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         }
     }
 
-    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
+//    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
+//        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
+//    }
+
+    override fun <VM : BaseViewModel> VM.create(): VM? {
+        return javaClass.create(mActivity.lifecycle, this@BaseTopSheetDialogFragment).also { it.initialize(mActivity, this@BaseTopSheetDialogFragment) }
     }
 
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
@@ -178,7 +182,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     override fun initData() {
     }
 
-    override fun ENABLED(vararg views: View?, second: Long) {
+    override fun enabled(vararg views: View?, second: Long) {
         views.forEach {
             if (it != null) {
                 it.disable()
@@ -187,15 +191,15 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         }
     }
 
-    override fun VISIBLE(vararg views: View?) {
+    override fun visible(vararg views: View?) {
         views.forEach { it?.visible() }
     }
 
-    override fun INVISIBLE(vararg views: View?) {
+    override fun invisible(vararg views: View?) {
         views.forEach { it?.invisible() }
     }
 
-    override fun GONE(vararg views: View?) {
+    override fun gone(vararg views: View?) {
         views.forEach { it?.gone() }
     }
 
@@ -212,10 +216,27 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
 
     override fun onDetach() {
         super.onDetach()
-        try {
-            binding.unbind()
-        } catch (_: Exception) {
+        for ((key, value) in dataManager) {
+            key.removeObserver(value ?: return)
         }
+        dataManager.clear()
+        mBinding?.unbind()
+        job.cancel()
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="页面管理方法">
+    open fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
+        this.onActivityResultListener = onActivityResultListener
+    }
+
+    open fun clearOnActivityResultListener() {
+        onActivityResultListener = null
+    }
+
+    open fun show(manager: FragmentManager) {
+        val tag = javaClass.simpleName.toLowerCase(Locale.getDefault())
+        show(manager, tag)
     }
     // </editor-fold>
 
@@ -231,16 +252,27 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     protected open fun isEventBusEnabled(): Boolean {
         return false
     }
+
+    protected open fun <T> MutableLiveData<T>?.observe(block: T?.() -> Unit) {
+        this ?: return
+        val observer = Observer<Any?> { value -> block(value as? T) }
+        dataManager[this] = observer
+        observe(this@BaseTopSheetDialogFragment, observer)
+    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
-        if (second >= 0) {
-            WeakHandler(Looper.getMainLooper()).postDelayed({
+        if (second > 0) {
+            TimerBuilder.schedule({
                 hideDialog()
                 block.invoke()
             }, second)
+//            WeakHandler(Looper.getMainLooper()).postDelayed({
+//                hideDialog()
+//                block.invoke()
+//            }, second)
         }
     }
 
@@ -248,10 +280,10 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         loadingDialog.hidden()
     }
 
-    override fun showGuide(label: String, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
+    override fun showGuide(label: String, isOnly: Boolean, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
         val labelTag = DataBooleanCacheUtil(label)
         if (!labelTag.get()) {
-            labelTag.set(true)
+            if (isOnly) labelTag.set(true)
             val builder = NewbieGuide.with(this)//传入activity
                 .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
                 .setOnGuideChangedListener(guideListener)

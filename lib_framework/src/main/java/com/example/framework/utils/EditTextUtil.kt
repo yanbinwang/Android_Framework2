@@ -1,12 +1,24 @@
 package com.example.framework.utils
 
-import android.text.*
+import android.text.Editable
+import android.text.InputFilter
+import android.text.InputType
+import android.text.Selection
+import android.text.Spanned
+import android.text.TextUtils
+import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.fitRange
+import com.example.framework.utils.function.value.numberCompareTo
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.addFilter
+import com.example.framework.utils.function.view.decimalFilter
+import com.example.framework.utils.function.view.text
+import java.lang.ref.WeakReference
 import java.util.regex.Pattern
 
 // <editor-fold defaultstate="collapsed" desc="工具类方法">
@@ -188,7 +200,7 @@ object EditTextUtil {
     /**
      * 设置输出格式
      */
-    fun setInputType(target: EditText, inputType: Int) = target.execute {
+    fun setInputType(target: EditText?, inputType: Int) = target?.execute {
         when (inputType) {
             //text
             0 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL)
@@ -521,7 +533,7 @@ class DecimalInputFilter : InputFilter {
         val destText = dest.toString()
         //验证删除等按键
         if (sourceText.isEmpty()) return ""
-        val matcher = mPattern.matcher(source)
+        val matcher = mPattern.matcher(source ?: "")
         //已经输入小数点的情况下，只能输入数字
         if (destText.contains(point)) {
             if (!matcher.matches()) {
@@ -557,4 +569,170 @@ class DecimalInputFilter : InputFilter {
         return dest?.subSequence(dstart, dend).toString() + sourceText
     }
 }
+
+/**
+ * 用于输入框失去焦点时
+ * 自动根据输入框内的值吸附最大最小值(处在范围内的值不会改变)
+ * 默认大小和小数位数不做限制
+ */
+class RangeHelper(private val view: WeakReference<EditText>?, hasAuto: Boolean = true) {
+    private var min: String? = null
+    private var max: String? = null
+    private val editText get() = view?.get()
+
+    init {
+        editText?.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+        editText?.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                if (hasAuto) getText()
+            }
+        }
+    }
+
+    /**
+     * 传入字符串避免小数位数比较的误差
+     */
+    fun setRange(min: String? = null, max: String? = null, digits: Int? = -1) {
+        this.min = min
+        this.max = max
+        if (digits != -1) editText?.decimalFilter(digits.orZero)
+    }
+
+    /**
+     * -1,表示小于最小值
+     * 0,表示正常
+     * 1,表示大于最大值
+     */
+    fun getRange(): Int {
+        var range = 0
+        val text = editText.text()
+        if (!min.isNullOrEmpty()) {
+            if (text.numberCompareTo(min.orEmpty()) == -1) {
+                range = -1
+            }
+        }
+        if (!max.isNullOrEmpty()) {
+            if (text.numberCompareTo(max.orEmpty()) == 1) {
+                range = 1
+            }
+        }
+        return range
+    }
+
+    /**
+     * 取值使用此方法
+     */
+    fun getText(): String {
+        val range = getRange()
+        var text = editText.text()
+        if (-1 == range) {
+            text = min.orEmpty()
+        }
+        if (1 == range) {
+            text = max.orEmpty()
+        }
+        //比较一下大小值有无改变
+        if (text != editText.text()) editText?.setText(text)
+        return text
+    }
+
+}
+
+///**
+// * 用于限制输入框在输入时候的小数位数
+// * 禁止用户在打入小数后超过设定的位数，会自动回滚之前的值
+// */
+//class DecimalHelper(private val view: WeakReference<EditText>?) {
+//    private var listener: ((text: String) -> Unit)? = null
+//    private val editText get() = view?.get()
+//    private val watcher by lazy { object : DecimalTextWatcher(view) {
+//        override fun onEmpty() {
+//            "值为空".logWTF
+//            editText?.setText("")
+//        }
+//
+//        override fun onOverstep(before: String?, cursor: Int?) {
+//            "值超过小数位".logWTF
+//            editText?.setText(before.orEmpty())
+//            editText.setSafeSelection(cursor.orZero)
+//        }
+//
+//        override fun onChanged(text: String) {
+//            "输入合法".logWTF
+//            listener?.invoke(text)
+//        }
+//    }}
+//
+//    init {
+//        //可在xml中实现输入限制
+//        EditTextUtil.setInputType(editText, 7)
+//        //添加监听
+//        editText?.addTextChangedListener(watcher)
+//    }
+//
+//    /**
+//     * 设置小数位数限制
+//     */
+//    fun setDigits(digits: Int) {
+//        watcher.setDigits(digits)
+//    }
+//
+//    /**
+//     * 设置回调监听
+//     */
+//    fun setOnChangedListener(listener: ((text: String) -> Unit)) {
+//        this.listener = listener
+//    }
+//
+//}
+//
+///**
+// * 对应输入框限制输入的监听
+// * 注：如果是输入范围限制，只能做最大值的限制
+// */
+//private abstract class DecimalTextWatcher(private val view: WeakReference<EditText>?) : TextWatcher {
+//    private var digits = 0
+//    private var textCursor = 0//用于记录变化时光标的位置
+//    private var textBefore: String? = null//用于记录变化前的文字
+//    private val editText get() = view?.get()
+//
+//    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+//        textBefore = s.toString()
+//        textCursor = start
+//    }
+//
+//    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+//    }
+//
+//    override fun afterTextChanged(s: Editable?) {
+//        val text = s.toString()
+//        if (text.isEmpty()) {
+//            editText?.removeTextChangedListener(this)
+//            onEmpty()
+//            editText?.addTextChangedListener(this)
+//            return
+//        }
+//        if (text.numberDigits() > digits) {
+//            editText?.removeTextChangedListener(this)
+//            onOverstep(textBefore, textCursor)
+//            editText?.addTextChangedListener(this)
+//            return
+//        }
+//        onChanged(text)
+//    }
+//
+//    /**
+//     * 设置小数位数限制
+//     */
+//    fun setDigits(digits: Int) {
+//        this.digits = digits
+//    }
+//
+//    abstract fun onEmpty()
+//
+//    abstract fun onOverstep(before: String?, cursor: Int?)
+//
+//    abstract fun onChanged(text: String)
+//
+//}
 // </editor-fold>

@@ -12,12 +12,12 @@ import com.example.common.utils.builder.TitleBuilder
  */
 abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
     private val baseBinding by lazy { ActivityBaseBinding.inflate(layoutInflater) }
-    protected val titleBuilder by lazy { TitleBuilder(this, baseBinding.titleContainer) } //标题栏
-    protected val viewGroup get() = baseBinding.flBaseContainer//标题页面的父容器，用于添加empty，如果不需要标题头的baseactivity，则在外层绘制一个FrameLayout
+    protected val titleBuilder by lazy { TitleBuilder(this, baseBinding.titleRoot) } //标题栏
+    protected val viewGroup get() = baseBinding.flBaseRoot//标题页面的父容器，用于添加empty，如果不需要标题头的baseactivity，则在外层绘制一个FrameLayout
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun setContentView(view: View?) {
-        baseBinding.flBaseContainer.addView(binding.root)
+        baseBinding.flBaseRoot.addView(mBinding?.root)
         super.setContentView(baseBinding.root)
     }
 

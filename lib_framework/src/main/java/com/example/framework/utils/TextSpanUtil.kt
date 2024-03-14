@@ -208,8 +208,8 @@ class RadiusBackgroundSpan(private val mColor: Int, private val mRadius: Int, pr
  *  .add("在Cheezeebit交易，訂單賺取高達", SizeSpan(dimen(R.dimen.textSize14)))
  *  .add(" 0.5% ", SizeSpan(dimen(R.dimen.textSize14)), ColorSpan(color(R.color.grey_cccccc)))
  *  .add("的訂單獎勵", SizeSpan(dimen(R.dimen.textSize14)))
- *  .add("★", BitmapSpan(ImageSpan(drawable(R.mipmap.ic_rank)?.toBitmapOrNull(), 18.pt, 18.pt)))
- *  .build().setRankSpan(18.pt)
+ *  .add("★", BitmapSpan(ImageSpan(drawable(R.mipmap.ic_rank)?.toBitmapOrNull(), 18.pt)))
+ *  .build()
  */
 class BitmapSpan(private val imageSpan: ImageSpan) : SpanType {
     override fun setSpan(spannable: Spannable, start: Int, end: Int) {
