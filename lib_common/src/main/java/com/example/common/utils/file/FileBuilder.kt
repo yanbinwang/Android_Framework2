@@ -40,6 +40,7 @@ import kotlin.coroutines.CoroutineContext
  */
 class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
     private var picJob: Job? = null
+    private var copyJob: Job? = null
     private var pdfJob: Job? = null
     private var viewJob: Job? = null
     private var zipJob: Job? = null
@@ -48,23 +49,10 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Main + job
 
-    companion object {
-        /**
-         * 1.使用第三方glide直接下载,图片默认为glide保存缓存位置
-         * 2.下载完成后自动通知手机相册刷新
-         */
-        @JvmStatic
-        fun download(mContext: Context, string: String, onStart: () -> Unit, onComplete: (file: File?) -> Unit) {
-            ImageLoader.instance.download(mContext, string, onStart) {
-                mContext.insertImageResolver(it)
-                onComplete.invoke(it)
-            }
-        }
-    }
-
     init {
         observer.doOnDestroy {
             picJob?.cancel()
+            copyJob?.cancel()
             pdfJob?.cancel()
             viewJob?.cancel()
             zipJob?.cancel()
@@ -86,6 +74,33 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
 
     private suspend fun suspendingSavePic(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, listener: (filePath: String?) -> Unit = {}) {
         listener(withContext(IO) { saveBit(bitmap, root, fileName, deleteDir, format) })
+    }
+
+    /**
+     * 存储图片协程(下载url)
+     */
+    fun copyPicJob(mContext: Context, string: String, root: String, deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+        copyJob?.cancel()
+        copyJob = launch {
+            onStart()
+            //存储目录文件
+            val storeDir = File(root)
+            //存储目录完整的手机路径
+            val storeDirRoot = storeDir.absolutePath
+            //先判断是否需要清空目录，再判断是否存在（不存在则创建）
+            if (deleteDir) storeDirRoot.deleteDir()
+            storeDirRoot.isMkdirs()
+            //下载的文件/文件名
+            var file: File? = null
+            var fileName: String? = null
+            ImageLoader.instance.download(mContext, string) {
+                file = it
+                fileName = it?.name//此处会包含glide下载图片的后缀（png,jpg,webp等）
+            }
+            //下载的文件从缓存目录拷贝到指定目录
+            withContext(IO) { file?.copy(storeDir) }
+            onResult.invoke(File("${storeDir}/${fileName}").absolutePath)
+        }
     }
 
     /**
