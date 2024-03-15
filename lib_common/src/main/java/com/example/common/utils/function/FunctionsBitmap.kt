@@ -240,10 +240,14 @@ fun Bitmap?.resizeBitmap(w: Int, h: Int): Bitmap? {
 fun View.loadLayout(width: Int, height: Int) {
     //整个View的大小 参数是左上角 和右下角的坐标
     layout(0, 0, width, height)
-    val measuredWidth = View.MeasureSpec.makeMeasureSpec(ScreenUtil.screenWidth, View.MeasureSpec.EXACTLY)
-    val measuredHeight = View.MeasureSpec.makeMeasureSpec(ScreenUtil.screenHeight, View.MeasureSpec.EXACTLY)
+//    val measuredWidth = View.MeasureSpec.makeMeasureSpec(ScreenUtil.screenWidth, View.MeasureSpec.EXACTLY)
+//    val measuredHeight = View.MeasureSpec.makeMeasureSpec(ScreenUtil.screenHeight, View.MeasureSpec.EXACTLY)
+//    measure(measuredWidth, measuredHeight)
+//    layout(0, 0, measuredWidth, measuredHeight)
+    val measuredWidth = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+    val measuredHeight = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
     measure(measuredWidth, measuredHeight)
-    layout(0, 0, measuredWidth, measuredHeight)
+    layout(0, 0, getMeasuredWidth(), getMeasuredHeight())
 }
 
 //如果不设置canvas画布为白色，则生成透明
