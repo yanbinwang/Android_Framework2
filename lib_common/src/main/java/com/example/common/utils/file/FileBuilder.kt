@@ -12,6 +12,7 @@ import android.util.Patterns
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
+import com.example.common.config.Constants.STORAGE
 import com.example.common.subscribe.CommonSubscribe
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
@@ -240,27 +241,24 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
     /**
      * 存储图片协程(下载url)
      */
-    fun downloadPicJob(mContext: Context, string: String, root: String, deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+    fun downloadPicJob(mContext: Context, string: String, root: String = "${STORAGE}/保存图片", deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
         downloadPicJob?.cancel()
         downloadPicJob = launch {
             onStart()
             //存储目录文件
             val storeDir = File(root)
-            //存储目录完整的手机路径
-            val storeDirRoot = storeDir.absolutePath
             //先判断是否需要清空目录，再判断是否存在（不存在则创建）
-            if (deleteDir) storeDirRoot.deleteDir()
-            storeDirRoot.isMkdirs()
+            if (deleteDir) root.deleteDir()
+            root.isMkdirs()
             //下载的文件/文件名
             var file: File? = null
-            var fileName: String? = null
-            ImageLoader.instance.download(mContext, string) {
-                file = it
-                fileName = it?.name//此处会包含glide下载图片的后缀（png,jpg,webp等）
-            }
             //下载的文件从缓存目录拷贝到指定目录
-            withContext(IO) { file?.copy(storeDir) }
-            onResult.invoke(File("${storeDir}/${fileName}").absolutePath)
+            withContext(IO) {
+                ImageLoader.instance.download(mContext, string) { file = it }
+                file?.copy(storeDir)
+            }
+            //此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
+            onResult.invoke(File("${storeDir}/${file?.name}").absolutePath)
         }
     }
 

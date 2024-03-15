@@ -113,11 +113,9 @@ fun Drawable.drawableToBitmap(): Bitmap {
 fun saveBit(bitmap: Bitmap, root: String = "${STORAGE}/保存图片", fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
     //存储目录文件
     val storeDir = File(root)
-    //存储目录完整的手机路径
-    val storeDirRoot = storeDir.absolutePath
     //先判断是否需要清空目录，再判断是否存在（不存在则创建）
-    if (deleteDir) storeDirRoot.deleteDir()
-    storeDirRoot.isMkdirs()
+    if (deleteDir) root.deleteDir()
+    root.isMkdirs()
     //在目录文件夹下生成一个新的图片
     val file = File(storeDir, "${fileName}${format.getSuffix()}")
     var fileOutputStream : FileOutputStream? = null

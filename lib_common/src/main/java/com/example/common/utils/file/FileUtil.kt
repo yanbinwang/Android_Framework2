@@ -30,6 +30,7 @@ object FileUtil {
     /**
      * 递归完全删除对应文件夹下的所有文件
      */
+    @JvmStatic
     fun deleteDirWithFile(dir: File?) {
         if (dir == null || !dir.exists() || !dir.isDirectory) return
         for (file in dir.listFiles().orEmpty()) {
@@ -42,6 +43,7 @@ object FileUtil {
     /**
      * 获取文件base64位地址
      */
+    @JvmStatic
     fun base64WithFile(file: File): String {
         var base64: String? = null
         var inputStream: InputStream? = null
@@ -66,6 +68,7 @@ object FileUtil {
      * 获取文件哈希值
      * 满足64位哈希，不足则前位补0
      */
+    @JvmStatic
     fun hashWithFile(file: File): String {
         var hash = ""
         try {
@@ -92,6 +95,7 @@ object FileUtil {
     /**
      * 获取整个目录的文件大小
      */
+    @JvmStatic
     fun totalSizeWithFile(file: File): Long {
         var size: Long = 0
         for (mFile in file.listFiles().orEmpty()) {
@@ -117,6 +121,7 @@ object FileUtil {
      * @param targetFile 分割的文件
      * @param cutSize    分割文件的大小
      */
+    @JvmStatic
     fun split(targetFile: File, cutSize: Long): MutableList<String> {
         val splitList = ArrayList<String>()
         try {
