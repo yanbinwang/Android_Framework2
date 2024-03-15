@@ -135,9 +135,11 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
     }
 
     private suspend fun suspendingSaveView(view: View, width: Int = screenWidth, height: Int = screenHeight, listener: (bitmap: Bitmap?) -> Unit = {}) {
-        view.loadLayout(width, height)
         try {
-            listener(withContext(IO) { view.loadBitmap() })
+            listener(withContext(IO) {
+                view.loadLayout(width, height)
+                view.loadBitmap()
+            })
         } catch (_: Exception) {
             listener(null)
         }
