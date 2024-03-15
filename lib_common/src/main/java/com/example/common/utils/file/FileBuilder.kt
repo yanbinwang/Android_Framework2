@@ -125,23 +125,36 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
 
     /**
      * 构建图片
+     * 需要注意，如果直接写100而不是100.pt的话，是会直接100像素写死的，但是内部字体宽度大小也是像素，整体兼容性上会不是很好，而写成100.pt后，会根据手机宽高做一定的转化
+     * val view = ViewTestBinding.bind(inflate(R.layout.view_test)).root
+     * builder.saveViewJob(view, 100, 100, {
+     * showDialog()
+     * }, {
+     * hideDialog()
+     * insertImageResolver(File(it.orEmpty()))
+     * })
      */
-    fun saveViewJob(view: View, width: Int = screenWidth, height: Int = screenHeight, onStart: () -> Unit = {}, onResult: (bitmap: Bitmap?) -> Unit = {}) {
+    fun saveViewJob(view: View, width: Int = screenWidth, height: Int = screenHeight, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
         viewJob?.cancel()
         viewJob = launch {
             onStart()
-            suspendingSaveView(view, width, height, onResult)
+            var filePath: String? = null
+            suspendingSaveView(view, width, height).apply {
+                this ?: return@apply
+                filePath = saveBit(this)
+            }
+            onResult.invoke(filePath)
         }
     }
 
-    private suspend fun suspendingSaveView(view: View, width: Int = screenWidth, height: Int = screenHeight, listener: (bitmap: Bitmap?) -> Unit = {}) {
-        try {
-            listener(withContext(IO) {
+    private suspend fun suspendingSaveView(view: View, width: Int = screenWidth, height: Int = screenHeight): Bitmap? {
+        return try {
+            withContext(IO) {
                 view.loadLayout(width, height)
                 view.loadBitmap()
-            })
+            }
         } catch (_: Exception) {
-            listener(null)
+            null
         }
     }
 
