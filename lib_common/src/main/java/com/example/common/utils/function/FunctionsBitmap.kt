@@ -13,9 +13,9 @@ import android.view.View
 import androidx.exifinterface.media.ExifInterface
 import androidx.exifinterface.media.ExifInterface.*
 import com.example.common.BaseApplication
-import com.example.common.config.Constants.STORAGE
 import com.example.common.utils.file.deleteDir
 import com.example.common.utils.file.isMkdirs
+import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.toSafeFloat

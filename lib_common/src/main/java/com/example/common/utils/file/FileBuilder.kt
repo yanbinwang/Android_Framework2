@@ -13,13 +13,13 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
-import com.example.common.config.Constants.STORAGE
 import com.example.common.subscribe.CommonSubscribe
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.saveBit
+import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.logWTF
 import com.example.glide.ImageLoader
