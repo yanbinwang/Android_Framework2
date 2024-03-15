@@ -80,7 +80,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         pdfJob?.cancel()
         pdfJob = launch {
             onStart()
-            suspendingSavePDF(file, index, onResult)
+            onResult.invoke(suspendingSavePDF(file, index))
         }
     }
 
@@ -94,14 +94,14 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             val list = ArrayList<String?>()
             val pageCount = withContext(IO) { PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).pageCount }
             for (index in 0 until pageCount) {
-                suspendingSavePDF(file, index) { list.add(it) }
+                list.add(suspendingSavePDF(file, index))
             }
             onResult.invoke(list)
         }
     }
 
-    private suspend fun suspendingSavePDF(file: File, index: Int = 0, listener: (filePath: String?) -> Unit = {}) {
-        listener(withContext(IO) {
+    private suspend fun suspendingSavePDF(file: File, index: Int = 0): String? {
+        return withContext(IO) {
             val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
             val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
             val width = page.width
@@ -115,7 +115,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             page.close()
             renderer.close()
             saveBit(bitmap)
-        })
+        }
     }
 
     /**
@@ -159,8 +159,9 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             withContext(IO) { zipFolder(folderList, File(zipPath).absolutePath) }
         } catch (e: Exception) {
             "打包图片生成压缩文件异常: $e".logWTF
+        } finally {
+            listener(zipPath.isMkdirs())
         }
-        listener(zipPath.isMkdirs())
     }
 
     @Throws(Exception::class)
