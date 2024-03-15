@@ -56,9 +56,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         @JvmStatic
         fun download(mContext: Context, string: String, onStart: () -> Unit, onComplete: (file: File?) -> Unit) {
             ImageLoader.instance.download(mContext, string, onStart) {
-                if (null != it) {
-                    mContext.insertImageResolver(it)
-                }
+                mContext.insertImageResolver(it)
                 onComplete.invoke(it)
             }
         }

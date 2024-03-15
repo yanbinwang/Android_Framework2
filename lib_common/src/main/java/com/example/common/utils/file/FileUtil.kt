@@ -216,7 +216,8 @@ fun Context.isAvailable(packageName: String): Boolean {
 /**
  * 发送广播通知更新数据库
  */
-fun Context.insertImageResolver(file: File) {
+fun Context.insertImageResolver(file: File?) {
+    file ?: return
     MediaStore.Images.Media.insertImage(contentResolver, file.absolutePath, file.name, null)
     sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://${file.path}")))
 }
