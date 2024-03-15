@@ -14,7 +14,6 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.exifinterface.media.ExifInterface.*
 import com.example.common.BaseApplication
 import com.example.common.config.Constants.STORAGE
-import com.example.common.utils.ScreenUtil
 import com.example.common.utils.file.deleteDir
 import com.example.common.utils.file.isMkdirs
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
@@ -240,10 +239,6 @@ fun Bitmap?.resizeBitmap(w: Int, h: Int): Bitmap? {
 fun View.loadLayout(width: Int, height: Int) {
     //整个View的大小 参数是左上角 和右下角的坐标
     layout(0, 0, width, height)
-//    val measuredWidth = View.MeasureSpec.makeMeasureSpec(ScreenUtil.screenWidth, View.MeasureSpec.EXACTLY)
-//    val measuredHeight = View.MeasureSpec.makeMeasureSpec(ScreenUtil.screenHeight, View.MeasureSpec.EXACTLY)
-//    measure(measuredWidth, measuredHeight)
-//    layout(0, 0, measuredWidth, measuredHeight)
     val measuredWidth = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
     val measuredHeight = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
     measure(measuredWidth, measuredHeight)

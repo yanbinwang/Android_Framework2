@@ -10,6 +10,8 @@ import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import android.util.Patterns
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
 import com.example.common.config.Constants.STORAGE
@@ -127,6 +129,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
      * 构建图片
      * 需要注意，如果直接写100而不是100.pt的话，是会直接100像素写死的，但是内部字体宽度大小也是像素，整体兼容性上会不是很好，而写成100.pt后，会根据手机宽高做一定的转化
      * val view = ViewTestBinding.bind(inflate(R.layout.view_test)).root
+     * view.measure(WRAP_CONTENT, WRAP_CONTENT)//不传height的时候要加，高改为view.measuredHeight
      * builder.saveViewJob(view, 100, 100, {
      * showDialog()
      * }, {
@@ -134,7 +137,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
      * insertImageResolver(File(it.orEmpty()))
      * })
      */
-    fun saveViewJob(view: View, width: Int = screenWidth, height: Int = screenHeight, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+    fun saveViewJob(view: View, width: Int = screenWidth, height: Int = WRAP_CONTENT, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
         viewJob?.cancel()
         viewJob = launch {
             onStart()
@@ -147,10 +150,17 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         }
     }
 
-    private suspend fun suspendingSaveView(view: View, width: Int = screenWidth, height: Int = screenHeight): Bitmap? {
+    private suspend fun suspendingSaveView(view: View, width: Int = screenWidth, height: Int = WRAP_CONTENT): Bitmap? {
         return try {
             withContext(IO) {
-                view.loadLayout(width, height)
+                //对传入的高做一个修正，如果是自适应需要先做一次测绘
+                val mHeight = if (height < 0) {
+                    view.measure(WRAP_CONTENT, WRAP_CONTENT)
+                    view.measuredHeight
+                } else {
+                    height
+                }
+                view.loadLayout(width, mHeight)
                 view.loadBitmap()
             }
         } catch (_: Exception) {

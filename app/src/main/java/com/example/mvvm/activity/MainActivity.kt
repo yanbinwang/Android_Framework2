@@ -1,6 +1,8 @@
 package com.example.mvvm.activity
 
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -8,6 +10,7 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
+import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.FileBuilder
 import com.example.common.utils.file.insertImageResolver
 import com.example.common.utils.function.drawable
@@ -28,6 +31,7 @@ import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.isBottom
 import com.example.framework.utils.function.view.isTop
 import com.example.framework.utils.function.view.padding
@@ -274,12 +278,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
 
             val view = ViewTestBinding.bind(inflate(R.layout.view_test)).root
-            builder.saveViewJob(view, 100, 100, {
-                showDialog()
-            }, {
-                hideDialog()
-                insertImageResolver(File(it.orEmpty()))
-            })
+                builder.saveViewJob(view, 100 , onResult ={
+                    "更新相册${it}".shortToast()
+                    insertImageResolver(File(it.orEmpty()))
+                })
         }
         launch {
             delay(2000)
