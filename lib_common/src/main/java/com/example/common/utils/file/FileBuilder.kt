@@ -10,13 +10,11 @@ import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import android.util.Patterns
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
 import com.example.common.config.Constants.STORAGE
 import com.example.common.subscribe.CommonSubscribe
-import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.loadBitmap
@@ -71,12 +69,12 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         picJob?.cancel()
         picJob = launch {
             onStart()
-            suspendingSavePic(bitmap, root, fileName, deleteDir, format, onResult)
+            onResult.invoke(suspendingSavePic(bitmap, root, fileName, deleteDir, format))
         }
     }
 
-    private suspend fun suspendingSavePic(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, listener: (filePath: String?) -> Unit = {}) {
-        listener(withContext(IO) { saveBit(bitmap, root, fileName, deleteDir, format) })
+    private suspend fun suspendingSavePic(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG): String? {
+        return withContext(IO) { saveBit(bitmap, root, fileName, deleteDir, format) }
     }
 
     /**
@@ -180,20 +178,20 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         zipJob?.cancel()
         zipJob = launch {
             onStart()
-            suspendingZip(folderList, zipPath, onResult)
+            onResult.invoke(suspendingZip(folderList, zipPath))
         }
     }
 
-    private suspend fun suspendingZip(folderList: MutableList<String>, zipPath: String, listener: (filePath: String?) -> Unit = {}) {
-        try {
+    private suspend fun suspendingZip(folderList: MutableList<String>, zipPath: String): String? {
+        return try {
             withContext(IO) {
                 zipPath.isMkdirs()
                 zipFolder(folderList, zipPath)
             }
+            zipPath
         } catch (e: Exception) {
             "打包图片生成压缩文件异常: $e".logWTF
-        } finally {
-            listener(zipPath)
+            null
         }
     }
 
@@ -278,15 +276,22 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             //先判断是否需要清空目录，再判断是否存在（不存在则创建）
             if (deleteDir) root.deleteDir()
             root.isMkdirs()
-            //下载的文件/文件名
-            var file: File? = null
             //下载的文件从缓存目录拷贝到指定目录
-            withContext(IO) {
-                ImageLoader.instance.download(mContext, string) { file = it }
-                file?.copy(storeDir)
+            onResult.invoke(suspendingDownloadPic(mContext, string, storeDir))
+        }
+    }
+
+    private suspend fun suspendingDownloadPic(mContext: Context, string: String, storeDir: File): String? {
+        return withContext(IO) {
+            var file: File? = null
+            var filePath: String? = null
+            ImageLoader.instance.download(mContext, string) {
+                file = it
+                filePath = "${storeDir.absolutePath}/${it?.name}"//此处`it?.name`会包含glide下载图片的后缀（png,jpg,webp等）
             }
-            //此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
-            onResult.invoke(File("${storeDir}/${file?.name}").absolutePath)
+            file?.copy(storeDir)
+            file?.delete()
+            filePath
         }
     }
 
