@@ -1,5 +1,6 @@
 package com.example.common.utils.file
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.Canvas
@@ -20,6 +21,7 @@ import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.saveBit
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.logWTF
+import com.example.glide.ImageLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -45,6 +47,22 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = Main + job
+
+    companion object {
+        /**
+         * 1.使用第三方glide直接下载,图片默认为glide保存缓存位置
+         * 2.下载完成后自动通知手机相册刷新
+         */
+        @JvmStatic
+        fun download(mContext: Context, string: String, onStart: () -> Unit, onComplete: (file: File) -> Unit) {
+            ImageLoader.instance.download(mContext, string, onStart) {
+                if (null != it) {
+                    mContext.insertImageResolver(it)
+                    onComplete.invoke(it)
+                }
+            }
+        }
+    }
 
     init {
         observer.doOnDestroy {
