@@ -186,11 +186,14 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
 
     private suspend fun suspendingZip(folderList: MutableList<String>, zipPath: String, listener: (filePath: String?) -> Unit = {}) {
         try {
-            withContext(IO) { zipFolder(folderList, File(zipPath).absolutePath) }
+            withContext(IO) {
+                zipPath.isMkdirs()
+                zipFolder(folderList, zipPath)
+            }
         } catch (e: Exception) {
             "打包图片生成压缩文件异常: $e".logWTF
         } finally {
-            listener(zipPath.isMkdirs())
+            listener(zipPath)
         }
     }
 
