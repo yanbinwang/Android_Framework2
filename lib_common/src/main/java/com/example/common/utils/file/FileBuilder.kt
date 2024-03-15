@@ -54,12 +54,12 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 2.下载完成后自动通知手机相册刷新
          */
         @JvmStatic
-        fun download(mContext: Context, string: String, onStart: () -> Unit, onComplete: (file: File) -> Unit) {
+        fun download(mContext: Context, string: String, onStart: () -> Unit, onComplete: (file: File?) -> Unit) {
             ImageLoader.instance.download(mContext, string, onStart) {
                 if (null != it) {
                     mContext.insertImageResolver(it)
-                    onComplete.invoke(it)
                 }
+                onComplete.invoke(it)
             }
         }
     }
