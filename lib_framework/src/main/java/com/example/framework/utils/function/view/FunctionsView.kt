@@ -313,13 +313,22 @@ inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
 }
 
 /**
+ * 列表频繁刷新时除外层重写equals和hashcode方法外，内部赋值再嵌套一层做比较
+ */
+inline fun <T> View?.setItem(any: Any?, crossinline listener: (View, T?) -> Unit) {
+    if (this == null) return
+    if (null == tag) tag = any
+    listener.invoke(this, tag as? T)
+}
+
+/**
  * 开启软键盘
  */
 fun View?.openDecor() {
     if (this == null) return
     focus()
-    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
-    inputMethodManager.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
+    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as? InputMethodManager
+    inputMethodManager?.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
 }
 
 /**
@@ -327,8 +336,8 @@ fun View?.openDecor() {
  */
 fun View?.closeDecor() {
     if (this == null) return
-    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
-    inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as? InputMethodManager
+    inputMethodManager?.hideSoftInputFromWindow(windowToken, 0)
 }
 
 /**
@@ -337,11 +346,11 @@ fun View?.closeDecor() {
 @SuppressLint("MissingPermission")
 fun View?.vibrate(milliseconds: Long) {
     if (this == null) return
-    val vibrator = (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
+    val vibrator = (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator)
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-        vibrator.vibrate(milliseconds)
+        vibrator?.vibrate(milliseconds)
     } else {
-        vibrator.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE))
+        vibrator?.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE))
     }
 }
 
