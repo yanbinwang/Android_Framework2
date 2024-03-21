@@ -12,6 +12,19 @@ import androidx.recyclerview.widget.RecyclerView
  */
 class DataRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RecyclerView(context, attrs, defStyleAttr) {
     private var emptyView: View? = null//adapter没有数据的时候显示,类似于listView的emptyView
+    private val observer by lazy { object : AdapterDataObserver() {
+        override fun onChanged() {
+            isEmpty()
+        }
+
+        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+            isEmpty()
+        }
+
+        override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+            isEmpty()
+        }
+    }}
 
     /**
      * 设置数据为空时候显示的view
@@ -32,20 +45,6 @@ class DataRecyclerView @JvmOverloads constructor(context: Context, attrs: Attrib
         super.setAdapter(adapter)
         adapter?.registerAdapterDataObserver(observer)
         isEmpty()
-    }
-
-    private val observer: AdapterDataObserver = object : AdapterDataObserver() {
-        override fun onChanged() {
-            isEmpty()
-        }
-
-        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-            isEmpty()
-        }
-
-        override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
-            isEmpty()
-        }
     }
 
     /**
