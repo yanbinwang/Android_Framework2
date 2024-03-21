@@ -16,28 +16,40 @@ import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.value.safeSubList
 import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.view.cancelItemAnimator
+import com.example.framework.utils.function.view.click
 import com.example.mvvm.R
 import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ItemVicinityBodyBinding
 import com.example.mvvm.databinding.ItemVicinityHeaderBinding
 
 class VicinityAdapter : BaseAdapter<TestBean?>() {
-    private var onItemClick: ((t: TestBean?) -> Unit)? = null
-    private val headerList by lazy { ArrayList<TestBean>() }
-    private val TYPE_HEADER = 1
-    private val TYPE_BODY = 2
+    private var listener: ((t: TestBean?) -> Unit)? = null
+    private val list by lazy { ArrayList<TestBean>() }
+
+    companion object {
+        private const val TYPE_HEADER = 1
+        private const val TYPE_BODY = 2
+    }
 
     override fun onConvert(holder: BaseViewDataBindingHolder, item: TestBean?, payloads: MutableList<Any>?) {
         if (holder is CurrencyHeaderViewHolder) {
             holder.getBinding<ItemVicinityHeaderBinding>()?.apply {
-                val first = headerList.safeGet(0)
-                var second = headerList.safeGet(1)
-
+                val first = list.safeGet(0)
+                val second = list.safeGet(1)
+                tvTips.click {
+                    listener?.invoke(first)
+                }
+                tvTips2.click {
+                    listener?.invoke(second)
+                }
             }
         } else {
             holder.getBinding<ItemVicinityBodyBinding>()?.apply {
                 val absolutePosition = holder.absoluteAdapterPosition - 1
                 val bean = item(absolutePosition)
+                tvRoot.click {
+                    listener?.invoke(bean)
+                }
 //                setVariable(BR.bean, bean)
 //                flRoot.click { listener?.onBody(bean?.currency.orEmpty()) }
             }
@@ -83,9 +95,10 @@ class VicinityAdapter : BaseAdapter<TestBean?>() {
 
     /**
      * 配置默认参数
+     * setRefresh之前调取
      */
-    fun setConfiguration(recycler: RecyclerView) {
-        //试图适配
+    fun init(recycler: RecyclerView) {
+        //视图适配
         recycler.cancelItemAnimator()
         recycler.setHasFixedSize(true)
         recycler.adapter = this
@@ -111,17 +124,17 @@ class VicinityAdapter : BaseAdapter<TestBean?>() {
      * 数据刷新
      * 将集合的0,1下标单独抠出，作为头部数据，余下的作为底部数据
      */
-    fun setRefresh(list: List<TestBean>?) {
-        headerList.clear()
-        headerList.addAll(list.safeSubList(0, 2).toArrayList())
-        refresh(list.safeSubList(2, list.safeSize).toArrayList())
+    fun notify(mList: List<TestBean>?) {
+        list.clear()
+        list.addAll(mList.safeSubList(0, 2).toArrayList())
+        refresh(mList.safeSubList(2, mList.safeSize).toArrayList())
     }
 
     /**
      * 回调监听
      */
-    fun setOnItemClickListener(onItemClick: ((t: TestBean?) -> Unit)) {
-        this.onItemClick = onItemClick
+    fun setOnItemClickListener(listener: ((t: TestBean?) -> Unit)) {
+        this.listener = listener
     }
 
 }
