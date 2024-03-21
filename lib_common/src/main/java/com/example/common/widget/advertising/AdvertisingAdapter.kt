@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.common.utils.function.pt
 import com.example.framework.utils.function.defTypeMipmap
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
@@ -31,9 +32,9 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         val image = holder.itemView as? ImageView ?: return
         if (localAsset) {
 //            image.setDrawable(holder.itemView.context.defTypeMipmap(bean))
-            ImageLoader.instance.displayRoundIdentifier(image, holder.itemView.context.defTypeMipmap(bean), radius = radius)
+            ImageLoader.instance.displayRoundIdentifier(image, holder.itemView.context.defTypeMipmap(bean), radius = radius.pt)
         } else {
-            ImageLoader.instance.displayRound(image, bean, radius = radius)
+            ImageLoader.instance.displayRound(image, bean, radius = radius.pt)
         }
     }
 
