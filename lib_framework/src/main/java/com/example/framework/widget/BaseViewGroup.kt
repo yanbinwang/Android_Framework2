@@ -11,7 +11,6 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
     //检测布局绘制
     protected val isInflate get() = childCount <= 0
 
-
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         for (i in 0 until childCount) {
