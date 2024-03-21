@@ -42,14 +42,6 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         return if (list.size < 2) list.safeSize else Int.MAX_VALUE
     }
 
-    class ViewHolder(itemView: ImageView) : RecyclerView.ViewHolder(itemView) {
-        init {
-            //设置缩放方式
-            itemView.scaleType = ImageView.ScaleType.FIT_XY
-            itemView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.MATCH_PARENT)
-        }
-    }
-
     fun refresh(list: List<String>) {
         this.list.clear()
         this.list.addAll(list)
@@ -63,6 +55,14 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
 
     fun setOnItemClickListener(onItemClick: ((position: Int) -> Unit)) {
         this.onItemClick = onItemClick
+    }
+
+    class ViewHolder(itemView: ImageView) : RecyclerView.ViewHolder(itemView) {
+        init {
+            //设置缩放方式
+            itemView.scaleType = ImageView.ScaleType.FIT_XY
+            itemView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.MATCH_PARENT)
+        }
     }
 
 }
