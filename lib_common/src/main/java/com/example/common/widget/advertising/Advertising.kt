@@ -156,11 +156,8 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="实现方法">
-    override fun start(uriList: ArrayList<String>, radius: Int, localAsset: Boolean, ovalList: Triple<Drawable, Drawable, Int>?, ovalLayout: LinearLayout?) {
+    override fun start(uriList: ArrayList<String>) {
         this.list = uriList
-        this.ovalLayout = ovalLayout
-        this.advAdapter.setParams(radius, localAsset)
-        if (ovalList != null) this.triple = ovalList
         //设置数据
         initData()
     }
@@ -209,11 +206,13 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     /**
-     * 放在start之前
+     * 放在start方法之前调取，不然会走默认
      */
-    override fun setAutoScroll(scroll: Boolean) {
+    override fun setConfiguration(radius: Int, localAsset: Boolean, scroll: Boolean, ovalList: Triple<Drawable, Drawable, Int>?, ovalLayout: LinearLayout?) {
         this.autoScroll = scroll
-        stopRoll()
+        this.ovalLayout = ovalLayout
+        this.advAdapter.setParams(radius, localAsset)
+        if (ovalList != null) this.triple = ovalList
     }
 
     override fun setOrientation(orientation: Int) {
