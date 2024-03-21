@@ -58,7 +58,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun setListView(listView: View?): View {
         removeView(mBinding.root)
-        (listView?.parent as ViewGroup).addView(mBinding.root) //添加到当前的View hierarchy
+        (listView?.parent as? ViewGroup)?.addView(mBinding.root) //添加到当前的View hierarchy
         return mBinding.root
     }
 

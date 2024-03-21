@@ -70,7 +70,10 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 view = context.inflate(R.layout.view_xrecycler)
                 recycler = view.findViewById(R.id.rv_list)
                 if (0 != emptyEnum) {
-                    empty = EmptyLayout(context)
+                    empty = EmptyLayout(context).apply {
+                        onInflate()
+                        loading()
+                    }
                     recycler?.setEmptyView(empty?.setListView(recycler))
                     empty?.setOnEmptyRefreshListener { listener?.invoke() }
                 }
