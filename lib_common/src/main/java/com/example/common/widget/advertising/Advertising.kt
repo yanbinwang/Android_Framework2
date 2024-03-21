@@ -2,6 +2,8 @@ package com.example.common.widget.advertising
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.GradientDrawable.OVAL
 import android.os.Looper
@@ -10,13 +12,16 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.annotation.ColorRes
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.example.common.utils.function.color
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.parseColor
@@ -68,24 +73,27 @@ import java.util.TimerTask
  */
 @SuppressLint("ClickableViewAccessibility")
 class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), AdvertisingImpl, LifecycleEventObserver {
-    private var list = ArrayList<String>()//图片路径数组
-    private var allowScroll = true//是否允许滑动
-    private var autoScroll = true//是否自动滚动
-    private var timer: Timer? = null//自动滚动的定时器
-    private var banner: ViewPager2? = null//广告容器
-    private var ovalLayout: LinearLayout? = null//圆点容器
-    private val halfPosition by lazy { Int.MAX_VALUE / 2 }//设定一个中心值下标
-    private val triple by lazy {
-        Triple(GradientDrawable().apply {
-            shape = OVAL
-            setColor("#3d81f2".parseColor())
-        }, GradientDrawable().apply {
-            shape = OVAL
-            setColor("#6e7ce2".parseColor())
-        }, 10)
-    }//3个资源路径->圆点选中时的背景ID second：圆点未选中时的背景ID third：圆点间距 （圆点容器可为空写0）
-    private val advAdapter by lazy { AdvertisingAdapter() }//图片适配器
-    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }//切线程
+    //图片路径数组
+    private var list = ArrayList<String>()
+    //是否允许滑动
+    private var allowScroll = true
+    //是否自动滚动
+    private var autoScroll = true
+    //3个资源路径->圆点选中时的背景ID second：圆点未选中时的背景ID third：圆点间距 （圆点容器可为空写0）
+    private var triple = Triple(drawable("#3d81f2"), drawable("#6e7ce2"), 10)
+    //自动滚动的定时器
+    private var timer: Timer? = null
+    //广告容器
+    private var banner: ViewPager2? = null
+    //圆点容器
+    private var ovalLayout: LinearLayout? = null
+    //设定一个中心值下标
+    private val halfPosition by lazy { Int.MAX_VALUE / 2 }
+    //图片适配器
+    private val advAdapter by lazy { AdvertisingAdapter() }
+    //切线程
+    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+    //回调方法
     private var onPagerClick: ((index: Int) -> Unit)? = null
     private var onPagerCurrent: ((index: Int) -> Unit)? = null
 
@@ -149,10 +157,11 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="实现方法">
-    override fun start(uriList: ArrayList<String>, ovalLayout: LinearLayout?, radius: Int, localAsset: Boolean) {
+    override fun start(uriList: ArrayList<String>, radius: Int, localAsset: Boolean, ovalList: Triple<Drawable, Drawable, Int>?, ovalLayout: LinearLayout?) {
         this.list = uriList
         this.ovalLayout = ovalLayout
         this.advAdapter.setParams(radius, localAsset)
+        if (ovalList != null) this.triple = ovalList
         //设置数据
         initData()
     }
@@ -168,6 +177,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             } else {
                 ovalLayout?.gravity = Gravity.CENTER
                 ovalLayout?.visible()
+                ovalLayout?.removeAllViews()
                 ovalLayout?.doOnceAfterLayout {
                     //如果true代表垂直，否则水平
                     val direction = it.layoutParams?.height.orZero > it.layoutParams?.width.orZero
@@ -213,6 +223,16 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     override fun setPageTransformer(marginPx: Int) {
         banner?.setPageTransformer(MarginPageTransformer(marginPx.pt))
+    }
+
+    /**
+     * 默认图片资源
+     */
+    private fun drawable(colorString:String): Drawable {
+        return GradientDrawable().apply {
+            shape = OVAL
+            setColor(colorString.parseColor())
+        }
     }
 
     /**
