@@ -17,6 +17,7 @@ import com.example.glide.ImageLoader
  */
 @SuppressLint("NotifyDataSetChanged")
 class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>() {
+    private var radius = 0
     private var localAsset = false
     private var list = ArrayList<String>()
     private var onItemClick: ((position: Int) -> Unit)? = null
@@ -32,7 +33,7 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         if (localAsset) {
             image.setDrawable(holder.itemView.context.defTypeMipmap(bean))
         } else {
-            ImageLoader.instance.display(image, bean)
+            ImageLoader.instance.displayRound(image, bean, radius = radius)
         }
     }
 
@@ -48,11 +49,15 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         }
     }
 
-    fun refresh(list: List<String>, localAsset: Boolean) {
-        this.localAsset = localAsset
+    fun refresh(list: List<String>) {
         this.list.clear()
         this.list.addAll(list)
         notifyDataSetChanged()
+    }
+
+    fun setParams(radius: Int = 0, localAsset: Boolean) {
+        this.radius = radius
+        this.localAsset = localAsset
     }
 
     fun setOnItemClickListener(onItemClick: ((position: Int) -> Unit)) {

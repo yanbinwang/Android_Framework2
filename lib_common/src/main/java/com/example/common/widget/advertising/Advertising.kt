@@ -2,13 +2,11 @@ package com.example.common.widget.advertising
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.GradientDrawable.OVAL
 import android.os.Looper
 import android.util.AttributeSet
 import android.view.Gravity
-import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -22,9 +20,16 @@ import com.example.common.utils.function.pt
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.parseColor
-import com.example.framework.utils.function.view.*
+import com.example.framework.utils.function.view.adapter
+import com.example.framework.utils.function.view.doOnceAfterLayout
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.function.view.reduceSensitivity
+import com.example.framework.utils.function.view.size
+import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
-import java.util.*
+import java.util.Timer
+import java.util.TimerTask
 
 /**
  * Created by wangyanbin
@@ -64,7 +69,6 @@ import java.util.*
 @SuppressLint("ClickableViewAccessibility")
 class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), AdvertisingImpl, LifecycleEventObserver {
     private var list = ArrayList<String>()//图片路径数组
-    private var localAsset = false//是否是本地图片
     private var allowScroll = true//是否允许滑动
     private var autoScroll = true//是否自动滚动
     private var timer: Timer? = null//自动滚动的定时器
@@ -145,10 +149,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="实现方法">
-    override fun start(uriList: ArrayList<String>, ovalLayout: LinearLayout?, localAsset: Boolean) {
+    override fun start(uriList: ArrayList<String>, ovalLayout: LinearLayout?, radius: Int, localAsset: Boolean) {
         this.list = uriList
         this.ovalLayout = ovalLayout
-        this.localAsset = localAsset
+        this.advAdapter.setParams(radius, localAsset)
         //设置数据
         initData()
     }
@@ -189,7 +193,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             }
         }
         //设置图片数据
-        advAdapter.refresh(list, localAsset)
+        advAdapter.refresh(list)
         advAdapter.setOnItemClickListener { onPagerClick?.invoke(it) }
         //设置默认选中的起始位置
         banner?.setCurrentItem(if (list.size > 1) halfPosition - halfPosition % list.size else 0, false)
