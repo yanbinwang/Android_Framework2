@@ -112,8 +112,8 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         }
     }
 
-    override fun onInflateView() {
-        if (isInflate()) addView(mBinding.root)
+    override fun onInflate() {
+        if (isInflate) addView(mBinding.root)
     }
 
     override fun setEnabled(enabled: Boolean) {

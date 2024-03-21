@@ -135,8 +135,8 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
     }
 
-    override fun onInflateView() {
-        if (isInflate()) addView(banner)
+    override fun onInflate() {
+        if (isInflate) addView(banner)
     }
 
     override fun onDetachedFromWindow() {

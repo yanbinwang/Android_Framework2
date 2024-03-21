@@ -44,16 +44,16 @@ fun XRecyclerView?.setState(length: Int = 0, imgRes: Int = -1, text: String? = n
  */
 fun ViewGroup?.getEmptyView(index: Int = 1): EmptyLayout? {
     this ?: return null
-    val emptyLayout: EmptyLayout?
-    if (childCount <= 1) {
-        emptyLayout = EmptyLayout(context)
-        emptyLayout.apply {
-            onInflateView()
+    return if (childCount <= 1) {
+        val empty = EmptyLayout(context).apply {
+            onInflate()
             loading()
         }
-        addView(emptyLayout)
-    } else emptyLayout = getChildAt(index) as? EmptyLayout
-    return emptyLayout
+        addView(empty)
+        empty
+    } else {
+        getChildAt(index) as? EmptyLayout
+    }
 }
 
 /**

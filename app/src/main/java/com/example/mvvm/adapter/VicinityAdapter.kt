@@ -99,8 +99,8 @@ class VicinityAdapter : BaseAdapter<TestBean?>() {
      */
     fun init(recycler: RecyclerView) {
         //视图适配
-        recycler.cancelItemAnimator()
         recycler.setHasFixedSize(true)
+        recycler.cancelItemAnimator()
         recycler.adapter = this
         recycler.layoutManager = GridLayoutManager(recycler.context, 3).apply {
             spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {

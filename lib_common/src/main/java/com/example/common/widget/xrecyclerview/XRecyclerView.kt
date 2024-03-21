@@ -59,8 +59,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         typedArray.recycle()
     }
 
-    override fun onInflateView() {
-        if (isInflate()) initInflate()
+    override fun onInflate() {
+        if (isInflate) initInflate()
     }
 
     private fun initInflate() {
