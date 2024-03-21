@@ -2,7 +2,6 @@ package com.example.common.widget.advertising
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.GradientDrawable.OVAL
@@ -12,19 +11,17 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
-import androidx.annotation.ColorRes
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.example.common.utils.function.color
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.parseColor
+import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.gone
@@ -96,6 +93,8 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     //回调方法
     private var onPagerClick: ((index: Int) -> Unit)? = null
     private var onPagerCurrent: ((index: Int) -> Unit)? = null
+    //获取当前下标
+    private val absolutePosition get() = halfPosition - halfPosition % list.size
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     init {
@@ -206,7 +205,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         advAdapter.refresh(list)
         advAdapter.setOnItemClickListener { onPagerClick?.invoke(it) }
         //设置默认选中的起始位置
-        banner?.setCurrentItem(if (list.size > 1) halfPosition - halfPosition % list.size else 0, false)
+        banner?.setCurrentItem(if (list.safeSize > 1) absolutePosition else 0, false)
     }
 
     /**
@@ -248,8 +247,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                             if (allowScroll) {
                                 weakHandler.post {
                                     val current = banner?.currentItem.orZero
-                                    var position = current + 1
-                                    if (current == 0 || current == Int.MAX_VALUE) position = halfPosition - halfPosition % list.size
+                                    val position = if (current == 0 || current == Int.MAX_VALUE) absolutePosition else current + 1
                                     banner?.currentItem = position
                                 }
                             }
