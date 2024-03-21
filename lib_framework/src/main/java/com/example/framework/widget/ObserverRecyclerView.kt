@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
  * date: 2017/8/25.
  * 带检测数据是否为空的recyclerview
  */
-class DataRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RecyclerView(context, attrs, defStyleAttr) {
-    private var emptyView: View? = null//adapter没有数据的时候显示,类似于listView的emptyView
+class ObserverRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RecyclerView(context, attrs, defStyleAttr) {
+    private var empty: View? = null//adapter没有数据的时候显示,类似于listView的emptyView
     private val observer by lazy { object : AdapterDataObserver() {
         override fun onChanged() {
             isEmpty()
@@ -25,15 +25,6 @@ class DataRecyclerView @JvmOverloads constructor(context: Context, attrs: Attrib
             isEmpty()
         }
     }}
-
-    /**
-     * 设置数据为空时候显示的view
-     * @param emptyView
-     */
-    fun setEmptyView(emptyView: View?) {
-        this.emptyView = emptyView
-        isEmpty()
-    }
 
     /**
      * 当给与recyclerview内容时做检测
@@ -51,11 +42,20 @@ class DataRecyclerView @JvmOverloads constructor(context: Context, attrs: Attrib
      * 检测内容是否为空
      */
     private fun isEmpty() {
-        if (emptyView != null && adapter != null) {
+        if (empty != null && adapter != null) {
             val emptyViewVisible = adapter?.itemCount == 0
-            emptyView?.visibility = if (emptyViewVisible) VISIBLE else GONE
+            empty?.visibility = if (emptyViewVisible) VISIBLE else GONE
             visibility = if (emptyViewVisible) GONE else VISIBLE
         }
+    }
+
+    /**
+     * 设置数据为空时候显示的view
+     * @param empty
+     */
+    fun setEmptyView(empty: View?) {
+        this.empty = empty
+        isEmpty()
     }
 
 }
