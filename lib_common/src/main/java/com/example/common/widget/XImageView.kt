@@ -68,8 +68,8 @@ class XImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         }
     }
 
-    override fun onInflateView() {
-        if (isInflate()) addView(root)
+    override fun onInflate() {
+        if (isInflate) addView(root)
     }
 
     fun load(url: String) {

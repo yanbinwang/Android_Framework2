@@ -1,11 +1,17 @@
 package com.example.framework.widget
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
-import androidx.core.view.*
+import androidx.core.view.MotionEventCompat
+import androidx.core.view.NestedScrollingChild
+import androidx.core.view.NestedScrollingChildHelper
+import androidx.core.view.NestedScrollingParent
+import androidx.core.view.NestedScrollingParentHelper
+import androidx.core.view.ViewCompat
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.toSafeInt
 
@@ -13,66 +19,65 @@ import com.example.framework.utils.function.value.toSafeInt
  * @description 屏蔽滑动手势，处理CoordinatorLayout和AppBarLayout嵌套使用滑动问题
  * @author yan
  */
+@SuppressLint("ClickableViewAccessibility")
 class SupportNestedFrameLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr), NestedScrollingChild, NestedScrollingParent {
     private var mLastY = 0
-    private var mParentHelper: NestedScrollingParentHelper? = null
-    private var mChildHelper: NestedScrollingChildHelper? = null
     private val mScrollOffset by lazy { IntArray(2) }
     private val mScrollConsumed by lazy { IntArray(2) }
+    private val mParentHelper by lazy { NestedScrollingParentHelper(this) }
+    private val mChildHelper by lazy { NestedScrollingChildHelper(this) }
 
     init {
-        mParentHelper = NestedScrollingParentHelper(this)
-        mChildHelper = NestedScrollingChildHelper(this)
         isNestedScrollingEnabled = true
     }
 
     override fun setNestedScrollingEnabled(enabled: Boolean) {
-        mChildHelper?.isNestedScrollingEnabled = enabled
+        mChildHelper.isNestedScrollingEnabled = enabled
     }
 
     override fun isNestedScrollingEnabled(): Boolean {
-        return mChildHelper?.isNestedScrollingEnabled.orFalse
+        return mChildHelper.isNestedScrollingEnabled.orFalse
     }
 
     override fun startNestedScroll(axes: Int): Boolean {
-        return mChildHelper?.startNestedScroll(axes).orFalse
+        return mChildHelper.startNestedScroll(axes).orFalse
     }
 
     override fun stopNestedScroll() {
-        mChildHelper?.stopNestedScroll()
+        mChildHelper.stopNestedScroll()
     }
 
     override fun hasNestedScrollingParent(): Boolean {
-        return mChildHelper?.hasNestedScrollingParent().orFalse
+        return mChildHelper.hasNestedScrollingParent().orFalse
     }
 
     override fun dispatchNestedScroll(dxConsumed: Int, dyConsumed: Int, dxUnconsumed: Int, dyUnconsumed: Int, offsetInWindow: IntArray?): Boolean {
-        return if (mChildHelper?.isNestedScrollingEnabled.orFalse) {
-            mChildHelper?.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow).orFalse
+        return if (mChildHelper.isNestedScrollingEnabled.orFalse) {
+            mChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow).orFalse
         } else {
             false
         }
     }
 
     override fun dispatchNestedPreScroll(dx: Int, dy: Int, consumed: IntArray?, offsetInWindow: IntArray?): Boolean {
-        return if (mChildHelper?.isNestedScrollingEnabled.orFalse) {
-            mChildHelper?.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow).orFalse
+        return if (mChildHelper.isNestedScrollingEnabled.orFalse) {
+            mChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow).orFalse
         } else {
             false
         }
     }
 
     override fun dispatchNestedFling(velocityX: Float, velocityY: Float, consumed: Boolean): Boolean {
-        return if (mChildHelper?.isNestedScrollingEnabled.orFalse) {
-            mChildHelper?.dispatchNestedFling(velocityX, velocityY, consumed).orFalse
+        return if (mChildHelper.isNestedScrollingEnabled.orFalse) {
+            mChildHelper.dispatchNestedFling(velocityX, velocityY, consumed).orFalse
         } else {
             false
         }
     }
 
     override fun dispatchNestedPreFling(velocityX: Float, velocityY: Float): Boolean {
-        return if (mChildHelper?.isNestedScrollingEnabled.orFalse) {
-            mChildHelper?.dispatchNestedPreFling(velocityX, velocityY).orFalse
+        return if (mChildHelper.isNestedScrollingEnabled.orFalse) {
+            mChildHelper.dispatchNestedPreFling(velocityX, velocityY).orFalse
         } else {
             false
         }
@@ -112,12 +117,12 @@ class SupportNestedFrameLayout @JvmOverloads constructor(context: Context, attrs
     }
 
     override fun onNestedScrollAccepted(child: View, target: View, axes: Int) {
-        mParentHelper?.onNestedScrollAccepted(child, target, nestedScrollAxes)
+        mParentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes)
         startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL) //父布局处理
     }
 
     override fun onStopNestedScroll(child: View) {
-        mParentHelper?.onStopNestedScroll(child)
+        mParentHelper.onStopNestedScroll(child)
         stopNestedScroll()
     }
 

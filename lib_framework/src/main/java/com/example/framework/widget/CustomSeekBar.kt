@@ -10,7 +10,7 @@ import android.widget.SeekBar
  * 禁止拖动的seekbar
  */
 @SuppressLint("AppCompatCustomView", "ClickableViewAccessibility")
-class SeekBarCustom @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SeekBar(context, attrs, defStyleAttr) {
+class CustomSeekBar @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SeekBar(context, attrs, defStyleAttr) {
 
     override fun onTouchEvent(event: MotionEvent?) = false
 

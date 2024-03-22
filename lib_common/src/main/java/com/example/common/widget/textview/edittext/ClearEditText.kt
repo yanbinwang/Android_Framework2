@@ -46,7 +46,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     val editText get() = mBinding.etClear
 
     init {
-//        mBinding.root.background(R.drawable.shape_input)
+        mBinding.root.background(R.drawable.shape_input)
         mBinding.etClear.apply {
             emojiLimit()
             addTextChangedListener {
@@ -55,7 +55,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
                 onTextChanged?.invoke(it)
             }
             onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
-//                mBinding.root.background(if (hasFocus) R.drawable.shape_input_focused else R.drawable.shape_input)
+                mBinding.root.background(if (hasFocus) R.drawable.shape_input_focused else R.drawable.shape_input)
                 onFocusChange?.invoke(v, hasFocus)
             }
         }
@@ -113,8 +113,8 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         }
     }
 
-    override fun onInflateView() {
-        if (isInflate()) addView(mBinding.root)
+    override fun onInflate() {
+        if (isInflate) addView(mBinding.root)
     }
 
     override fun setEnabled(enabled: Boolean) {

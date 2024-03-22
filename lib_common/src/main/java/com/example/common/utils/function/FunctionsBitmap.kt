@@ -13,10 +13,9 @@ import android.view.View
 import androidx.exifinterface.media.ExifInterface
 import androidx.exifinterface.media.ExifInterface.*
 import com.example.common.BaseApplication
-import com.example.common.config.Constants.STORAGE
-import com.example.common.utils.ScreenUtil
 import com.example.common.utils.file.deleteDir
 import com.example.common.utils.file.isMkdirs
+import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.toSafeFloat
@@ -113,11 +112,9 @@ fun Drawable.drawableToBitmap(): Bitmap {
 fun saveBit(bitmap: Bitmap, root: String = "${STORAGE}/保存图片", fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
     //存储目录文件
     val storeDir = File(root)
-    //存储目录完整的手机路径
-    val storeDirRoot = storeDir.absolutePath
     //先判断是否需要清空目录，再判断是否存在（不存在则创建）
-    if (deleteDir) storeDirRoot.deleteDir()
-    storeDirRoot.isMkdirs()
+    if (deleteDir) root.deleteDir()
+    root.isMkdirs()
     //在目录文件夹下生成一个新的图片
     val file = File(storeDir, "${fileName}${format.getSuffix()}")
     var fileOutputStream : FileOutputStream? = null
@@ -242,10 +239,10 @@ fun Bitmap?.resizeBitmap(w: Int, h: Int): Bitmap? {
 fun View.loadLayout(width: Int, height: Int) {
     //整个View的大小 参数是左上角 和右下角的坐标
     layout(0, 0, width, height)
-    val measuredWidth = View.MeasureSpec.makeMeasureSpec(ScreenUtil.screenWidth, View.MeasureSpec.EXACTLY)
-    val measuredHeight = View.MeasureSpec.makeMeasureSpec(ScreenUtil.screenHeight, View.MeasureSpec.EXACTLY)
+    val measuredWidth = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+    val measuredHeight = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
     measure(measuredWidth, measuredHeight)
-    layout(0, 0, measuredWidth, measuredHeight)
+    layout(0, 0, getMeasuredWidth(), getMeasuredHeight())
 }
 
 //如果不设置canvas画布为白色，则生成透明

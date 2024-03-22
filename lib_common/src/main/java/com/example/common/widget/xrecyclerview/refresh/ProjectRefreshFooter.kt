@@ -44,8 +44,8 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
         mBinding.ivProgress.tint(color)
     }
 
-    override fun onInflateView() {
-        if (isInflate()) addView(mBinding.root)
+    override fun onInflate() {
+        if (isInflate) addView(mBinding.root)
     }
 
     override fun onStateChanged(refreshLayout: RefreshLayout, oldState: RefreshState, newState: RefreshState) {

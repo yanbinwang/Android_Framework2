@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout
 import androidx.annotation.ColorRes
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.common.R
@@ -27,7 +28,7 @@ import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
-import com.example.framework.widget.DataRecyclerView
+import com.example.framework.widget.ObserverRecyclerView
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener
@@ -44,8 +45,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var emptyEnum = 0//是否具有空布局（0无-1有）
     private var refreshEnum = 0//页面类型(0无刷新-1带刷新)
     private var listener: (() -> Unit)? = null//空布局点击
-//    val layout: RefreshLayout get() { return refresh as RefreshLayout }//刷新控件
-    var recycler: DataRecyclerView? = null//数据列表
+    var recycler: ObserverRecyclerView? = null//数据列表
         private set
     var refresh: SmartRefreshLayout? = null//刷新控件 类型1才有
         private set
@@ -59,8 +59,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         typedArray.recycle()
     }
 
-    override fun onInflateView() {
-        if (isInflate()) initInflate()
+    override fun onInflate() {
+        if (isInflate) initInflate()
     }
 
     private fun initInflate() {
@@ -70,7 +70,10 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 view = context.inflate(R.layout.view_xrecycler)
                 recycler = view.findViewById(R.id.rv_list)
                 if (0 != emptyEnum) {
-                    empty = EmptyLayout(context)
+                    empty = EmptyLayout(context).apply {
+                        onInflate()
+                        loading()
+                    }
                     recycler?.setEmptyView(empty?.setListView(recycler))
                     empty?.setOnEmptyRefreshListener { listener?.invoke() }
                 }
@@ -84,6 +87,9 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                     empty?.setOnEmptyRefreshListener { listener?.invoke() }
                 } else {
                     empty?.gone()
+                    view.findViewById<FrameLayout>(R.id.fl_root).apply {
+                        if(getChildAt(1) is EmptyLayout) removeViewAt(1)
+                    }
                 }
             }
         }
