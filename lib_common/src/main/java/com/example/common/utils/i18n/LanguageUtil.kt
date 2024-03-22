@@ -53,9 +53,9 @@ object LanguageUtil {
      */
     fun getLanguageLocalAsset(language: String? = getLanguage()): String {
         return when (language) {
-            in_ID -> in_ID_PACK
             zh_TW -> zh_TW_PACK
             en_US -> en_US_PACK
+            in_ID -> in_ID_PACK
             else -> en_US_PACK
         }
     }
@@ -65,9 +65,9 @@ object LanguageUtil {
      */
     fun resetLanguage() {
         when (Locale.getDefault().language.lowercase()) {
-            "in" -> language.set(in_ID)
             "zh" -> language.set(zh_TW)
             "en" -> language.set(en_US)
+            "in" -> language.set(in_ID)
             else -> language.set(en_US)
         }
     }

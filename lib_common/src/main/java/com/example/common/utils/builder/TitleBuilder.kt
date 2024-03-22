@@ -54,6 +54,14 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
         return this
     }
 
+    fun setTitle(title: String, titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, isShade: Boolean = false): TitleBuilder {
+        mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
+        mBinding?.tvTitle?.setArguments(title, titleColor)
+        mBinding?.viewShade?.apply { if (isShade) visible() else gone() }
+        setLeft()
+        return this
+    }
+
     /**
      * 部分页面不需要标题，只需要一个定制的返回按钮和特定背景，故而使用此方法
      */

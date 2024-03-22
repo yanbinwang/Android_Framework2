@@ -21,5 +21,5 @@ data class ServerLanguage(
     var language: String? = null,
     var name: String? = null,
     var path: String? = null,
-    var version: Int? = null,
+    var version: String? = null,
 ): Parcelable

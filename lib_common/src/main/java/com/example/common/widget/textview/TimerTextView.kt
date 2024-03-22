@@ -7,7 +7,7 @@ import android.view.Gravity
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
-import com.example.common.utils.function.string
+import com.example.common.utils.i18n.string
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable

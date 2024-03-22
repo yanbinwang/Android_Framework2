@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.DialogInterface
 import androidx.appcompat.app.AlertDialog
 import com.example.common.R
-import com.example.common.utils.function.string
+import com.example.common.utils.i18n.string
 
 /**
  * author: wyb

@@ -5,7 +5,7 @@ import android.view.Gravity
 import com.example.common.R
 import com.example.common.base.BaseDialog
 import com.example.common.databinding.ViewDialogBinding
-import com.example.common.utils.function.string
+import com.example.common.utils.i18n.string
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.visible
