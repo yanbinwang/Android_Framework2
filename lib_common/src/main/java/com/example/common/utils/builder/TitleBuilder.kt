@@ -47,16 +47,17 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
      * shade->标题底部是否带阴影
      */
     fun setTitle(resTitle: Int = -1, titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, isShade: Boolean = false): TitleBuilder {
-        mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
         mBinding?.tvTitle?.setArguments(resTitle, titleColor)
-        mBinding?.viewShade?.apply { if (isShade) visible() else gone() }
-        setLeft()
-        return this
+        return setRoot(bgColor, isShade)
     }
 
     fun setTitle(title: String, titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, isShade: Boolean = false): TitleBuilder {
-        mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
         mBinding?.tvTitle?.setArguments(title, titleColor)
+        return setRoot(bgColor, isShade)
+    }
+
+    private fun setRoot(bgColor: Int = R.color.bgToolbar, isShade: Boolean = false): TitleBuilder {
+        mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
         mBinding?.viewShade?.apply { if (isShade) visible() else gone() }
         setLeft()
         return this

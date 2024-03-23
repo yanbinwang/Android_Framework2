@@ -143,6 +143,13 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     }
 
     /**
+     * 设置选中下标
+     */
+    fun setSelect(index:Int){
+        tab?.getTabAt(index)?.select()
+    }
+
+    /**
      * 监听
      */
     interface OnTabChangeListener {
