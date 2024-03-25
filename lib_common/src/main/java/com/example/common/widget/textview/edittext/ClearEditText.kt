@@ -59,7 +59,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
                 onFocusChange?.invoke(v, hasFocus)
             }
         }
-        mBinding.ivClear.click { mBinding.etClear.setText("") }
+        mBinding.ivClear.click { mBinding.etClear.setTextString("") }
         //以下属性在xml中前缀使用app:调取
         if (attrs != null) {
             val typedArray = context.obtainStyledAttributes(attrs, R.styleable.ClearEditText)
@@ -153,11 +153,17 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun setText(@StringRes resid: Int) {
-        mBinding.etClear.setI18nRes(resid)
+        if (isInEditMode) {
+            mBinding.etClear.setText(resid)
+        } else {
+            mBinding.etClear.setI18nRes(resid)
+        }
+//        mBinding.etClear.setI18nRes(resid)
     }
 
-    fun setText(text: String) {
-        mBinding.etClear.setText(text)
+    fun setTextString(text: String) {
+        mBinding.etClear.setTextString(text)
+//        mBinding.etClear.setText(text)
     }
 
     fun getText(): String {
@@ -177,11 +183,21 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun setHint(@StringRes resid: Int) {
-        mBinding.etClear.setHint(resid)
+        if (isInEditMode) {
+            mBinding.etClear.setHint(resid)
+        } else {
+            mBinding.etClear.setI18nHintRes(resid)
+        }
+//        mBinding.etClear.setHint(resid)
     }
 
-    fun setHint(text: String) {
-        mBinding.etClear.hint = text
+    fun setHintString(text: String) {
+        if (isInEditMode) {
+            mBinding.etClear.setHint(text)
+        } else {
+            mBinding.etClear.setHintString(text)
+        }
+//        mBinding.etClear.hint = text
     }
 
     fun setHintTextColor(@ColorInt color: Int) {

@@ -227,22 +227,22 @@ interface EditTextImpl {
 
     fun ClearEditText?.add(number: String) {
         this ?: return
-        setText(getNumber().add(number))
+        setTextString(getNumber().add(number))
     }
 
     fun ClearEditText?.subtract(number: String) {
         this ?: return
-        setText(getNumber().subtract(number))
+        setTextString(getNumber().subtract(number))
     }
 
     fun ClearEditText?.multiply(number: String) {
         this ?: return
-        setText(getNumber().multiply(number))
+        setTextString(getNumber().multiply(number))
     }
 
     fun ClearEditText?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
         this ?: return
-        setText(getNumber().divide(number, scale, mode))
+        setTextString(getNumber().divide(number, scale, mode))
     }
 
     fun ClearEditText?.isZero(): Boolean {

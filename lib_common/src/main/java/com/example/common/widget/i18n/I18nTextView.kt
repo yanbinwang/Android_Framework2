@@ -27,7 +27,7 @@ import java.lang.ref.WeakReference
  * @author yan
  */
 @SuppressLint("CustomViewStyleable")
-class I18nTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatTextView(context, attrs, defStyleAttr), I18nImpl {
+open class I18nTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatTextView(context, attrs, defStyleAttr), I18nImpl {
     //本地res路径
     private var i18nTextRes: Int = -1
     private var contents: Array<out String>? = null

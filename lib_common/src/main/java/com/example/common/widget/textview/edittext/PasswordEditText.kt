@@ -98,11 +98,17 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun setText(@StringRes resid: Int) {
-        mBinding.etClear.setI18nRes(resid)
+        if (isInEditMode) {
+            mBinding.etClear.setText(resid)
+        } else {
+            mBinding.etClear.setI18nRes(resid)
+        }
+//        mBinding.etClear.setI18nRes(resid)
     }
 
-    fun setText(text: String) {
-        mBinding.etClear.setText(text)
+    fun setTextString(text: String) {
+        mBinding.etClear.setTextString(text)
+//        mBinding.etClear.setText(text)
     }
 
     fun getText(): String {
@@ -122,11 +128,21 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun setHint(@StringRes resid: Int) {
-        mBinding.etClear.setHint(resid)
+        if (isInEditMode) {
+            mBinding.etClear.setHint(resid)
+        } else {
+            mBinding.etClear.setI18nHintRes(resid)
+        }
+//        mBinding.etClear.setHint(resid)
     }
 
-    fun setHint(text: String) {
-        mBinding.etClear.hint = text
+    fun setHintString(text: String) {
+        if (isInEditMode) {
+            mBinding.etClear.setHint(text)
+        } else {
+            mBinding.etClear.setHintString(text)
+        }
+//        mBinding.etClear.hint = text
     }
 
     fun setHintTextColor(@ColorInt color: Int) {

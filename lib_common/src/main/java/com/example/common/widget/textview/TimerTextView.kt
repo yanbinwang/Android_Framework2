@@ -4,10 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.Gravity
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
 import com.example.common.utils.i18n.string
+import com.example.common.widget.i18n.I18nTextView
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
@@ -19,12 +19,12 @@ import com.example.framework.utils.function.view.textSize
  * 倒计时textview
  */
 @SuppressLint("SetTextI18n")
-class TimerTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatTextView(context, attrs, defStyleAttr) {
+class TimerTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : I18nTextView(context, attrs, defStyleAttr) {
     private var timerTag = javaClass.simpleName
     private var timerBuilder: TimerBuilder? = null
 
     init {
-        text = string(R.string.timerContent)
+        setI18nRes(R.string.timerContent)
         gravity = Gravity.CENTER
         textColor(R.color.appTheme)
         textSize(R.dimen.textSize14)
