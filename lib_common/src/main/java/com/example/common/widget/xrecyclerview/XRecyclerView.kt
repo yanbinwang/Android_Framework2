@@ -8,6 +8,7 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
@@ -25,6 +26,7 @@ import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.initConcat
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
@@ -107,6 +109,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         recycler?.layoutManager = GridLayoutManager(context, spanCount)
         recycler?.adapter = adapter
         addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
+    }
+
+    /**
+     * 设置复杂的多个adapter直接拼接成一个
+     */
+    fun <T : BaseQuickAdapter<*, *>> setConcatAdapter(vararg adapters: T) {
+        recycler?.initConcat(*adapters)
     }
 
     /**
