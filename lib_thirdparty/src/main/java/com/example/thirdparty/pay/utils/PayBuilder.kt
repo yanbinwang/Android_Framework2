@@ -47,7 +47,7 @@ class PayBuilder(private val mActivity: FragmentActivity) : CoroutineScope {
      */
     private fun pay(bean: PayBean, type: Int = 0) {
         when (type) {
-            0 -> alipay.pay(bean.sign.orEmpty())
+            0 -> alipay.pay(bean.mSign.orEmpty())
             1 -> wechat.pay(bean.wxPayReq)
         }
     }
