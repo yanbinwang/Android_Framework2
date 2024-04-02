@@ -32,7 +32,11 @@ class WechatBuilder(mActivity: FragmentActivity) {
             return
         }
         //版本不支持
-        if (!wxApi.isWXAppSupportAPI) {
+        if (!(try {
+                wxApi?.wxAppSupportAPI != 0
+            } catch (e: Exception) {
+                false
+            })) {
             results(R.string.wechatSupportError)
             return
         }
