@@ -106,7 +106,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initView()
+        initView(savedInstanceState)
         initEvent()
         if (!lazyData) initData()
     }
@@ -130,7 +130,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         }
     }
 
-    override fun initView() {
+    override fun initView(savedInstanceState: Bundle?) {
         ARouter.getInstance().inject(this)
     }
 

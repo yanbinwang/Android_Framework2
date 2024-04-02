@@ -124,7 +124,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initView()
+        initView(savedInstanceState)
         initEvent()
         initData()
     }
@@ -173,7 +173,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         }
     }
 
-    override fun initView() {
+    override fun initView(savedInstanceState: Bundle?) {
     }
 
     override fun initEvent() {

@@ -208,7 +208,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initView()
+        initView(savedInstanceState)
         initEvent()
         initData()
     }
@@ -257,7 +257,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         }
     }
 
-    override fun initView() {
+    override fun initView(savedInstanceState: Bundle?) {
     }
 
     override fun initEvent() {

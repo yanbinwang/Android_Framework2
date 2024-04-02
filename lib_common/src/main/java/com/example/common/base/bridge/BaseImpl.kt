@@ -1,5 +1,6 @@
 package com.example.common.base.bridge
 
+import android.os.Bundle
 import android.view.View
 import com.example.common.R
 
@@ -36,7 +37,7 @@ interface BaseImpl {
     /**
      * 初始化控件
      */
-    fun initView()
+    fun initView(savedInstanceState: Bundle?)
 
     /**
      * 初始化事件

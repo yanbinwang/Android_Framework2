@@ -104,7 +104,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         WebSocketRequest.addObserver(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
         if (isImmersionBarEnabled()) initImmersionBar()
-        initView()
+        initView(savedInstanceState)
         initEvent()
         initData()
     }
@@ -132,7 +132,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
     }
 
-    override fun initView() {
+    override fun initView(savedInstanceState: Bundle?) {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
