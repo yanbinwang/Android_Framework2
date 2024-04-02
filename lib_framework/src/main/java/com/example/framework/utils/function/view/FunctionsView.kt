@@ -521,6 +521,16 @@ fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long,
 }
 
 /**
+ * 平移动画
+ * 参数：0f, ScreenUtils.getScreenW(context).toFloat()
+ * .doOnEnd->动画结束后
+ */
+fun View?.translationX(vararg values: Float): ObjectAnimator? {
+    this ?: return null
+    return ObjectAnimator.ofFloat(this, "translationX", *values)
+}
+
+/**
  * 取消View的动画
  */
 fun View?.cancelAnim() {

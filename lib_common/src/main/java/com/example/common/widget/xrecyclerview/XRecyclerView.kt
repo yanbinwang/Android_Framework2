@@ -213,15 +213,15 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 当数据为空时(显示需要显示的图片，以及内容字)
      */
-    fun empty(imgInt: Int = -1, text: String? = null) {
-        empty?.empty(imgInt, text)
+    fun empty(resId: Int? = null, text: String? = null, width: Int? = null, height: Int? = null) {
+        empty?.empty(resId, text, width, height)
     }
 
     /**
      * 当数据异常时
      */
-    fun error(imgInt: Int = -1, text: String? = null) {
-        empty?.error(imgInt, text)
+    fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+        empty?.error(resId, text, refreshText, width, height)
     }
 
 }
