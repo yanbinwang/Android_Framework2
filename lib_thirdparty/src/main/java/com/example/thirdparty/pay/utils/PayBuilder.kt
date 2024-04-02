@@ -2,12 +2,10 @@ package com.example.thirdparty.pay.utils
 
 import androidx.fragment.app.FragmentActivity
 import com.example.common.base.bridge.BaseView
-import com.example.common.config.Constants
 import com.example.framework.utils.function.doOnDestroy
 import com.example.thirdparty.pay.bean.PayBean
 import com.example.thirdparty.pay.utils.alipay.AlipayBuilder
 import com.example.thirdparty.pay.utils.wechat.WechatBuilder
-import com.tencent.mm.opensdk.modelpay.PayReq
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -50,15 +48,7 @@ class PayBuilder(private val mActivity: FragmentActivity) : CoroutineScope {
     private fun pay(bean: PayBean, type: Int = 0) {
         when (type) {
             0 -> alipay.pay(bean.sign.orEmpty())
-            1 -> wechat.pay(PayReq().apply {
-                appId = Constants.WX_APP_ID
-                partnerId = bean.partnerid
-                prepayId = bean.prepayid
-                packageValue = "Sign=WXPay"
-                nonceStr = bean.noncestr
-                timeStamp = bean.timestamp
-                sign = bean.sign
-            })
+            1 -> wechat.pay(bean.wxPayReq)
         }
     }
 
