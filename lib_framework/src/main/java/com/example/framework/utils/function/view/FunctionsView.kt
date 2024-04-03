@@ -321,24 +321,25 @@ inline fun <T> View?.setItem(any: Any?, crossinline listener: (View, T?) -> Unit
     listener.invoke(this, tag as? T)
 }
 
-///**
-// * 开启软键盘
-// */
-//fun View?.openDecor() {
-//    if (this == null) return
-//    focus()
-//    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as? InputMethodManager
-//    inputMethodManager?.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
-//}
-//
-///**
-// * 关闭软键盘
-// */
-//fun View?.closeDecor() {
-//    if (this == null) return
-//    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as? InputMethodManager
-//    inputMethodManager?.hideSoftInputFromWindow(windowToken, 0)
-//}
+/**
+ * 开启软键盘
+ * 某些页面底部需要有留言版
+ */
+fun View?.openDecor() {
+    if (this == null) return
+    focus()
+    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as? InputMethodManager
+    inputMethodManager?.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
+}
+
+/**
+ * 关闭软键盘
+ */
+fun View?.closeDecor() {
+    if (this == null) return
+    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as? InputMethodManager
+    inputMethodManager?.hideSoftInputFromWindow(windowToken, 0)
+}
 
 /**
  * 震动
