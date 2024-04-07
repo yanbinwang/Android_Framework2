@@ -26,13 +26,13 @@ interface GlideImpl {
 
     fun displayProgress(view: ImageView, string: String, onStart: () -> Unit = {}, onProgress: (progress: Int?) -> Unit = {}, onComplete: () -> Unit = {})
 
-    fun display(view: ImageView, string: String, placeholderId: Drawable? = view.context.drawable(R.drawable.shape_glide_bg), errorId: Drawable? = null, onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
+    fun display(view: ImageView, string: String, errorId: Drawable? = view.context.drawable(R.drawable.shape_glide_bg), onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
 
-    fun displayIdentifier(view: ImageView, resourceId: Drawable? = null, placeholderId: Drawable? = view.context.drawable(R.drawable.shape_glide_bg), errorId: Drawable? = null, onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
+    fun displayIdentifier(view: ImageView, resourceId: Drawable? = null, errorId: Drawable? = view.context.drawable(R.drawable.shape_glide_bg), onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
 
-    fun displayRound(view: ImageView, string: String, errorId: Drawable? = null, radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun displayRound(view: ImageView, string: String, errorId: Drawable? = view.context.drawable(R.drawable.shape_glide_bg), radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
-    fun displayRoundIdentifier(view: ImageView, resourceId: Drawable? = null, errorId: Drawable? = null, radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun displayRoundIdentifier(view: ImageView, resourceId: Drawable? = null, errorId: Drawable? = view.context.drawable(R.drawable.shape_glide_bg), radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
     fun displayCircle(view: ImageView, string: String, errorId: Drawable? = view.context.drawable(R.drawable.shape_glide_oval_bg))
 

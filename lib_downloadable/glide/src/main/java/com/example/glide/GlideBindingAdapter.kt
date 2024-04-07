@@ -3,6 +3,7 @@ package com.example.glide
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.example.framework.utils.function.defTypeMipmap
+import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
@@ -36,9 +37,9 @@ object GlideBindingAdapter {
      * 加载图片
      */
     @JvmStatic
-    @BindingAdapter(value = ["display"])
-    fun bindingDisplay(view: ImageView, url: String) {
-        ImageLoader.instance.display(view, url, onStart = { view.disable() }, onComplete = { view.enable() })
+    @BindingAdapter(value = ["display", "display_error"], requireAll = false)
+    fun bindingDisplay(view: ImageView, url: String, error: String?) {
+        ImageLoader.instance.display(view, url, if (error.isNullOrEmpty()) view.context.drawable(R.drawable.shape_glide_bg) else view.context.defTypeMipmap(error), { view.disable() }, onComplete = { view.enable() })
     }
 
     @JvmStatic
@@ -51,9 +52,9 @@ object GlideBindingAdapter {
      * 加载图片（带圆角）
      */
     @JvmStatic
-    @BindingAdapter(value = ["display_round", "round_radius"], requireAll = false)
-    fun bindingDisplayRound(view: ImageView, url: String, roundRadius: Int?) {
-        ImageLoader.instance.displayRound(view, url, radius = roundRadius.toSafeInt(5))
+    @BindingAdapter(value = ["display_round", "round_radius", "display_round_error"], requireAll = false)
+    fun bindingDisplayRound(view: ImageView, url: String, roundRadius: Int?, roundError: String?) {
+        ImageLoader.instance.displayRound(view, url, if (roundError.isNullOrEmpty()) view.context.drawable(R.drawable.shape_glide_bg) else view.context.defTypeMipmap(roundError), roundRadius.toSafeInt(5))
     }
 
     @JvmStatic
@@ -72,9 +73,9 @@ object GlideBindingAdapter {
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["display_circle_resource"])
-    fun bindingDisplayCircleResource(view: ImageView, resource: String) {
-        ImageLoader.instance.displayCircleIdentifier(view, view.context.defTypeMipmap(resource))
+    @BindingAdapter(value = ["display_circle_resource", "display_circle_error"], requireAll = false)
+    fun bindingDisplayCircleResource(view: ImageView, resource: String, circleError: String?) {
+        ImageLoader.instance.displayCircleIdentifier(view, view.context.defTypeMipmap(resource), if (circleError.isNullOrEmpty()) view.context.drawable(R.drawable.shape_glide_oval_bg) else view.context.defTypeMipmap(circleError))
     }
     // </editor-fold>
 

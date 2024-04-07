@@ -107,7 +107,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    override fun display(view: ImageView, string: String, placeholderId: Drawable?, errorId: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
+    override fun display(view: ImageView, string: String, errorId: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
 //        val factory = DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
 //        Glide.with(view.context)
 //            .load(string)
@@ -126,7 +126,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
 //            .into(view)
         Glide.with(view.context)
             .load(string)
-            .placeholder(placeholderId)
+            .placeholder(R.drawable.shape_glide_bg)
             .error(errorId)
             .dontAnimate()
             .listener(object : GlideRequestListener<Drawable?>() {
@@ -141,10 +141,10 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayIdentifier(view: ImageView, resourceId: Drawable?, placeholderId: Drawable?, errorId: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
+    override fun displayIdentifier(view: ImageView, resourceId: Drawable?, errorId: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
         Glide.with(view.context)
             .load(resourceId)
-            .placeholder(placeholderId)
+            .placeholder(R.drawable.shape_glide_bg)
             .error(errorId)
             .dontAnimate()
             .listener(object : GlideRequestListener<Drawable?>() {
