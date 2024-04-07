@@ -68,18 +68,6 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         }
     }
 
-    override fun displayFrameIdentifier(view: ImageView, resourceId: Drawable?) {
-        try {
-            Glide.with(view.context)
-                .setDefaultRequestOptions(RequestOptions().frame(1000000).centerCrop())
-                .load(resourceId)
-                .dontAnimate()
-                .into(view)
-        } catch (_: Exception) {
-            view.background = maskDrawable
-        }
-    }
-
     override fun displayGif(view: ImageView, string: String) {
         Glide.with(view.context).asGif().load(string).into(view)
     }

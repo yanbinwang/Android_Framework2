@@ -18,8 +18,6 @@ interface GlideImpl {
 
     fun displayFrame(view: ImageView, string: String)//线上视频加载某一帧
 
-    fun displayFrameIdentifier(view: ImageView, resourceId: Drawable? = null)
-
     fun displayGif(view: ImageView, string: String)
 
     fun displayGifIdentifier(view: ImageView, resourceId: Int? = null)//gif放入drawable中
