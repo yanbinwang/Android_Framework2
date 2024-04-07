@@ -8,15 +8,12 @@ import android.net.Uri
 import android.os.Build
 import android.os.Parcelable
 import android.provider.MediaStore
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.FileProvider
-import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.file.getFileFromUri
-import com.example.common.utils.permission.checkSelfStorage
 import java.io.File
 import java.io.Serializable
 
@@ -34,23 +31,36 @@ fun Activity.pullUpAlbum() {
 }
 
 /**
- * 需要读写权限
+ * 1.需要读写权限
+ * 2.注册方法不允许by lazy，直接变量里这么写
+ *  val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+ *      if (it.resultCode == Activity.RESULT_OK) {
+ *          it?.data ?: return@registerForActivityResult
+ *          val uri = it.data?.data
+ *          func.invoke(uri.getFileFromUri()?.absolutePath)
+ *     }
+ * }
  */
-fun FragmentActivity?.pullUpAlbum(func: ((path: String?) -> Unit)) {
+//fun FragmentActivity?.pullUpAlbum(func: ((path: String?) -> Unit)) {
+//    this ?: return
+//    if (checkSelfStorage()) {
+//        val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+//            if (it.resultCode == Activity.RESULT_OK) {
+//                it?.data ?: return@registerForActivityResult
+//                val uri = it.data?.data
+//                func.invoke(uri.getFileFromUri()?.absolutePath)
+//            }
+//        }
+//        val intent = Intent(Intent.ACTION_PICK, null)
+//        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+//        activityResultValue.launch(intent)
+//    } else string(R.string.dataError).shortToast()
+//}
+fun ActivityResultLauncher<Intent>?.pullUpAlbum() {
     this ?: return
-    if (checkSelfStorage()) {
-        val activityResultValue =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                if (it.resultCode == Activity.RESULT_OK) {
-                    it?.data ?: return@registerForActivityResult
-                    val uri = it.data?.data
-                    func.invoke(uri.getFileFromUri()?.absolutePath)
-                }
-            }
-        val intent = Intent(Intent.ACTION_PICK, null)
-        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
-        activityResultValue.launch(intent)
-    } else string(R.string.dataError).shortToast()
+    val intent = Intent(Intent.ACTION_PICK, null)
+    intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+    launch(intent)
 }
 
 /**
