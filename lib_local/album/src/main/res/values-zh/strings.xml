@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2017 Yan Zhenjie.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources>
+    <string name="album_loading">加载中&#8230;</string>
+    <string name="album_converting">加载中&#8230;</string>
+    <string name="album_thumbnail">正在创建缩略图&#8230;</string>
+
+    <string name="album_not_found_image">没有发现图片文件</string>
+    <string name="album_not_found_video">没有发现视频文件</string>
+    <string name="album_not_found_album">没有发现媒体文件</string>
+
+    <string name="album_camera_image_capture">拍照片</string>
+    <string name="album_camera_video_capture">录视频</string>
+
+    <string name="album_title">媒体专辑</string>
+    <string name="album_all_images">所有图片</string>
+    <string name="album_all_videos">所有视频</string>
+    <string name="album_all_images_videos">所有图片/视频</string>
+
+    <string name="album_ok">好的</string>
+    <string name="album_confirm">确定</string>
+    <string name="album_cancel">取消</string>
+
+    <string name="album_check_image_little">请选择一个图片文件</string>
+    <string name="album_check_video_little">请选择一个视频文件</string>
+    <string name="album_check_album_little">请选择一个媒体文件</string>
+    <string name="album_menu_finish">完成</string>
+    <string name="album_check">选择</string>
+
+    <string name="album_title_permission_failed">没有权限</string>
+    <string name="album_permission_storage_failed_hint">没有存储权限，请在使用之前授权。</string>
+    <string name="album_permission_camera_image_failed_hint">没有相机或者存储权限，请在使用前授权。</string>
+    <string name="album_permission_camera_video_failed_hint">没有相机、存储或者录音权限，请在使用前授权。</string>
+
+    <plurals name="album_check_image_limit">
+        <item quantity="other">您只能选择%1$d个图片文件</item>
+    </plurals>
+
+    <plurals name="album_check_image_limit_camera">
+        <item quantity="other">您只能选择%1$d个图片文件，不能使用相机</item>
+    </plurals>
+    <plurals name="album_check_video_limit">
+        <item quantity="other">您只能选择%1$d个视频文件</item>
+    </plurals>
+
+    <plurals name="album_check_video_limit_camera">
+        <item quantity="other">您只能选择%1$d个视频文件，不能使用相机</item>
+    </plurals>
+    <plurals name="album_check_album_limit">
+        <item quantity="other">您只能选择%1$d个媒体文件</item>
+    </plurals>
+
+    <plurals name="album_check_album_limit_camera">
+        <item quantity="other">您只能选择%1$d个媒体文件，不能使用相机</item>
+    </plurals>
+
+    <string name="album_item_unavailable">不可用</string>
+    <string name="album_take_file_unavailable">不可用的文件，请重试</string>
+</resources>

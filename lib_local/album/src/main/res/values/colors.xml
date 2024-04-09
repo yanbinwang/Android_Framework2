@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2017 Yan Zhenjie.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources>
+    <color name="albumColorPrimary">#2196F3</color>
+    <color name="albumColorPrimaryDark">#1E88E5</color>
+    <color name="albumColorPrimaryBlack">#2B2B2B</color>
+
+    <color name="albumPageLight">#FFF</color>
+    <color name="albumTransparent">#0000</color>
+
+    <color name="albumFontHint">#808080</color>
+    <color name="albumFontLight">#FFF</color>
+    <color name="albumFontDark">#333</color>
+
+    <color name="albumIconDark">#333</color>
+    <color name="albumLoadingDark">#333</color>
+    <color name="albumSelectorNormal">#E0E0E0</color>
+
+    <color name="albumSheetBottom">#992B2B2B</color>
+    <color name="albumSheetLayer">#EE2B2B2B</color>
+</resources>
