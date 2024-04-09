@@ -119,8 +119,22 @@ class AlbumHelper(mActivity: Activity) {
 
     /**
      * 开始裁剪
+     * @Override
+     * protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+     *     switch (requestCode) {
+     *         case 200: {
+     *             // Analyze the list of paths after cropping.
+     *             if (resultCode != RESULT_OK) {
+     *                 ArrayList<String> mImageList = Durban.parseResult(data);
+     *             } else {
+     *                 // TODO other...
+     *             }
+     *             break;
+     *         }
+     *     }
+     * }
      */
-    private fun toDurban(vararg imagePathArray: String) {
+    fun toDurban(vararg imagePathArray: String) {
         mDurban
             //裁剪界面的标题
             .title(" ")
