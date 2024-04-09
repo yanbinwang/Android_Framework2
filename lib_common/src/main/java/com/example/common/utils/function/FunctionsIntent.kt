@@ -9,11 +9,15 @@ import android.os.Build
 import android.os.Parcelable
 import android.provider.MediaStore
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
+import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.file.getFileFromUri
+import com.example.common.utils.file.mb
 import java.io.File
 import java.io.Serializable
 
@@ -56,11 +60,36 @@ fun Activity.pullUpAlbum() {
 //        activityResultValue.launch(intent)
 //    } else string(R.string.dataError).shortToast()
 //}
+fun FragmentActivity?.registerForPullUpAlbum(megabyte: Long = 10, func: ((path: String?) -> Unit)): ActivityResultLauncher<Intent>? {
+    this ?: return null
+    return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            it?.data ?: return@registerForActivityResult
+            val uri = it.data?.data
+            val filePath = uri.getFileFromUri()?.absolutePath
+            if (File(filePath.orEmpty()).length() > megabyte.mb) {
+                "请选择${megabyte.mb}M以内的图片".shortToast()
+            } else {
+                func.invoke(uri.getFileFromUri()?.absolutePath)
+            }
+        }
+    }
+}
+
+/**
+ * private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+ *     if (it.resultCode == Activity.RESULT_OK) {
+ *         it?.data ?: return@registerForActivityResult
+ *         val uri = it.data?.data
+ *        "${uri.getFileFromUri()?.absolutePath}".shortToast()
+ *     }
+ * }
+ *
+ * activityResultValue.pullUpAlbum()
+ */
 fun ActivityResultLauncher<Intent>?.pullUpAlbum() {
     this ?: return
-    val intent = Intent(Intent.ACTION_PICK, null)
-    intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
-    launch(intent)
+    launch(Intent(Intent.ACTION_PICK, null).apply { setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*") })
 }
 
 /**
