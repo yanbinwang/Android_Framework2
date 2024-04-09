@@ -10,7 +10,7 @@ import okio.buffer
  *  Created by wangyanbin
  *  拦截器窗体
  */
-class ProgressResponseBody(url: String, var responseBody: ResponseBody) : ResponseBody() {
+class ProgressResponseBody(url: String, private var responseBody: ResponseBody) : ResponseBody() {
     private val bufferedSource by lazy { ProgressSource(responseBody, listener).buffer() }
     private val listener by lazy { ProgressInterceptor.listenerMap[url] }
 
