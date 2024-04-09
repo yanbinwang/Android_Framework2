@@ -1,5 +1,6 @@
 package com.example.mvvm.activity
 
+import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -43,6 +44,7 @@ import com.example.mvvm.databinding.ViewTestBinding
 import com.example.mvvm.utils.VideoSnapManager
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestTopDialog
+import com.example.thirdparty.album.AlbumHelper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -125,8 +127,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private var isOpen = false
     private val builder by lazy { FileBuilder(this) }
 
-    override fun initView() {
-        super.initView()
+
+    private val album by lazy { AlbumHelper(this) }
+
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
 
         mBinding?.ivArrow.click { isOpen = it.rotate(isOpen) }
 
@@ -273,15 +278,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             changeBgHeight(offset)
         }
         mBinding?.viewContent.click {
+            album.imageSelection(hasDurban = true) {
+
+            }
 //            "dsfdsfdsfds".shortToast()
 //            testBottom.show(supportFragmentManager, "testBottom")
 //            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
 
-            val view = ViewTestBinding.bind(inflate(R.layout.view_test)).root
-                builder.saveViewJob(view, 100 , onResult ={
-                    "更新相册${it}".shortToast()
-                    insertImageResolver(File(it.orEmpty()))
-                })
+//            val view = ViewTestBinding.bind(inflate(R.layout.view_test)).root
+//                builder.saveViewJob(view, 100 , onResult ={
+//                    "更新相册${it}".shortToast()
+//                    insertImageResolver(File(it.orEmpty()))
+//                })
+
         }
         launch {
             delay(2000)
