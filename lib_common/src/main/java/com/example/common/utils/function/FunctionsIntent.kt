@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Parcelable
 import android.provider.MediaStore
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
@@ -16,10 +17,36 @@ import com.example.common.R
 import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.file.getFileFromUri
-import com.example.common.utils.file.mb
 import java.io.File
 import java.io.Serializable
+
+/**
+ * 当前页面注册一个activity的result，获取resultCode
+ * 1.拉起相册/视频库/录屏皆可
+ * 2.需要读写权限
+ * 3.注册方法不允许by lazy，直接变量里这么写
+ *  val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+ *      if (it.resultCode == Activity.RESULT_OK) {
+ *          it?.data ?: return@registerForActivityResult
+ *          val uri = it.data?.data
+ *          func.invoke(uri.getFileFromUri()?.absolutePath)
+ *     }
+ * }
+ */
+fun FragmentActivity?.registerResult(func: ((it: ActivityResult) -> Unit)): ActivityResultLauncher<Intent>? {
+    this ?: return null
+    return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        func.invoke(it)
+    }
+}
+
+/**
+ * 拉起系统默认相机
+ */
+fun ActivityResultLauncher<Intent>?.pullUpAlbum() {
+    this ?: return
+    launch(Intent(Intent.ACTION_PICK, null).apply { setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*") })
+}
 
 /**
  * 跳转系统默认相册
@@ -32,64 +59,6 @@ fun Activity.pullUpAlbum() {
     val intent = Intent(Intent.ACTION_PICK, null)
     intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
     startActivityForResult(intent, REQUEST_PHOTO)
-}
-
-/**
- * 1.需要读写权限
- * 2.注册方法不允许by lazy，直接变量里这么写
- *  val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
- *      if (it.resultCode == Activity.RESULT_OK) {
- *          it?.data ?: return@registerForActivityResult
- *          val uri = it.data?.data
- *          func.invoke(uri.getFileFromUri()?.absolutePath)
- *     }
- * }
- */
-//fun FragmentActivity?.pullUpAlbum(func: ((path: String?) -> Unit)) {
-//    this ?: return
-//    if (checkSelfStorage()) {
-//        val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-//            if (it.resultCode == Activity.RESULT_OK) {
-//                it?.data ?: return@registerForActivityResult
-//                val uri = it.data?.data
-//                func.invoke(uri.getFileFromUri()?.absolutePath)
-//            }
-//        }
-//        val intent = Intent(Intent.ACTION_PICK, null)
-//        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
-//        activityResultValue.launch(intent)
-//    } else string(R.string.dataError).shortToast()
-//}
-fun FragmentActivity?.registerForPullUpAlbum(megabyte: Long = 10, func: ((path: String?) -> Unit)): ActivityResultLauncher<Intent>? {
-    this ?: return null
-    return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == Activity.RESULT_OK) {
-            it?.data ?: return@registerForActivityResult
-            val uri = it.data?.data
-            val filePath = uri.getFileFromUri()?.absolutePath
-            if (File(filePath.orEmpty()).length() > megabyte.mb) {
-                "请选择${megabyte.mb}M以内的图片".shortToast()
-            } else {
-                func.invoke(uri.getFileFromUri()?.absolutePath)
-            }
-        }
-    }
-}
-
-/**
- * private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
- *     if (it.resultCode == Activity.RESULT_OK) {
- *         it?.data ?: return@registerForActivityResult
- *         val uri = it.data?.data
- *        "${uri.getFileFromUri()?.absolutePath}".shortToast()
- *     }
- * }
- *
- * activityResultValue.pullUpAlbum()
- */
-fun ActivityResultLauncher<Intent>?.pullUpAlbum() {
-    this ?: return
-    launch(Intent(Intent.ACTION_PICK, null).apply { setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*") })
 }
 
 /**
