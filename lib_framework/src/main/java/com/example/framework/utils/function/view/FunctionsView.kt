@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Paint
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.VibrationEffect
@@ -14,12 +15,14 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.annotation.AnimRes
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
@@ -32,6 +35,7 @@ import com.example.framework.utils.function.color
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.parseColor
+import com.example.framework.utils.logE
 import com.google.android.material.appbar.AppBarLayout
 import kotlin.math.abs
 
@@ -309,13 +313,23 @@ inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
 }
 
 /**
+ * 列表频繁刷新时除外层重写equals和hashcode方法外，内部赋值再嵌套一层做比较
+ */
+inline fun <T> View?.setItem(any: Any?, crossinline listener: (View, T?) -> Unit) {
+    if (this == null) return
+    if (null == tag) tag = any
+    listener.invoke(this, tag as? T)
+}
+
+/**
  * 开启软键盘
+ * 某些页面底部需要有留言版
  */
 fun View?.openDecor() {
     if (this == null) return
     focus()
-    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
-    inputMethodManager.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
+    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as? InputMethodManager
+    inputMethodManager?.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
 }
 
 /**
@@ -323,8 +337,8 @@ fun View?.openDecor() {
  */
 fun View?.closeDecor() {
     if (this == null) return
-    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
-    inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+    val inputMethodManager = context?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as? InputMethodManager
+    inputMethodManager?.hideSoftInputFromWindow(windowToken, 0)
 }
 
 /**
@@ -333,11 +347,11 @@ fun View?.closeDecor() {
 @SuppressLint("MissingPermission")
 fun View?.vibrate(milliseconds: Long) {
     if (this == null) return
-    val vibrator = (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
+    val vibrator = (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator)
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-        vibrator.vibrate(milliseconds)
+        vibrator?.vibrate(milliseconds)
     } else {
-        vibrator.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE))
+        vibrator?.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE))
     }
 }
 
@@ -508,6 +522,16 @@ fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long,
 }
 
 /**
+ * 平移动画
+ * 参数：0f, ScreenUtils.getScreenW(context).toFloat()
+ * .doOnEnd->动画结束后
+ */
+fun View?.translationX(vararg values: Float): ObjectAnimator? {
+    this ?: return null
+    return ObjectAnimator.ofFloat(this, "translationX", *values)
+}
+
+/**
  * 取消View的动画
  */
 fun View?.cancelAnim() {
@@ -517,6 +541,67 @@ fun View?.cancelAnim() {
     animate()?.setUpdateListener(null)
     animate()?.setListener(null)
     animate()?.cancel()
+}
+
+/**
+ * 动画循环
+ */
+fun View?.loopAnimation(anim: Animation) {
+    this ?: return
+    try {
+        clearAnimation()
+        anim.apply {
+            repeatMode = Animation.RESTART
+            repeatCount = Animation.INFINITE
+        }
+        startAnimation(anim)
+        animation?.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(animation: Animation?) {
+            }
+
+            override fun onAnimationEnd(animation: Animation?) {
+                startAnimation(anim)
+            }
+
+            override fun onAnimationRepeat(animation: Animation?) {
+            }
+        })
+    } catch (e: Exception) {
+        e.logE
+    }
+}
+
+/**
+ * 动画循环
+ */
+fun View?.loopAnimation(ctx: Context?, @AnimRes animRes: Int) {
+    this ?: return
+    ctx ?: return
+    val anim = AnimationUtils.loadAnimation(ctx, animRes)
+    loopAnimation(anim)
+}
+
+/**
+ * 动画循环
+ */
+fun View?.startAnimation(@AnimRes animRes: Int) {
+    this ?: return
+    val anim = AnimationUtils.loadAnimation(context, animRes)
+    clearAnimation()
+    startAnimation(anim)
+}
+
+/**
+ * 动画停止
+ */
+fun View?.cancelAnimation() {
+    this ?: return
+    try {
+        animation?.setAnimationListener(null)
+        animation?.cancel()
+    } catch (e: Exception) {
+        e.logE
+    }
 }
 
 /**
@@ -649,6 +734,11 @@ fun ImageView?.tint(@ColorRes res: Int) {
 /**
  * 图片src资源
  */
+fun ImageView?.setDrawable(resId: Drawable?) {
+    this ?: return
+    setImageDrawable(resId)
+}
+
 fun ImageView?.setResource(@DrawableRes resId: Int) {
     this ?: return
     setImageResource(resId)

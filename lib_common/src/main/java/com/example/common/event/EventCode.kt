@@ -21,4 +21,13 @@ object EventCode {
     //按下Home键,菜单键,电源键
     val EVENT_MENU_ACTION = Code<Any>()
 
+    //支付成功
+    val EVENT_PAY_SUCCESS = Code<Any>()
+
+    //支付取消
+    val EVENT_PAY_CANCEL = Code<Any>()
+
+    //支付失败
+    val EVENT_PAY_FAILURE = Code<Any>()
+
 }

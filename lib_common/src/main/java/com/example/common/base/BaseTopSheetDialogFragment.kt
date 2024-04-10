@@ -100,7 +100,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
             //如果当前设备支持状态栏字体变色，会设置状态栏字体为黑色
             //如果当前设备不支持状态栏字体变色，会使当前状态栏加上透明度，否则不执行透明度
             statusBarDarkFont(true, 0.2f)
-            navigationBarColor(R.color.bgWhite)?.navigationBarDarkIcon(true, 0.2f)
+            navigationBarColor(R.color.appPrimaryDark)?.navigationBarDarkIcon(true, 0.2f)
             init()
         }
         //设置软键盘不自动弹出
@@ -124,7 +124,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initView()
+        initView(savedInstanceState)
         initEvent()
         initData()
     }
@@ -154,8 +154,12 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         }
     }
 
-    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
+//    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
+//        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
+//    }
+
+    override fun <VM : BaseViewModel> VM.create(): VM? {
+        return javaClass.create(mActivity.lifecycle, this@BaseTopSheetDialogFragment).also { it.initialize(mActivity, this@BaseTopSheetDialogFragment) }
     }
 
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
@@ -169,7 +173,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         }
     }
 
-    override fun initView() {
+    override fun initView(savedInstanceState: Bundle?) {
     }
 
     override fun initEvent() {
@@ -178,7 +182,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     override fun initData() {
     }
 
-    override fun ENABLED(vararg views: View?, second: Long) {
+    override fun enabled(vararg views: View?, second: Long) {
         views.forEach {
             if (it != null) {
                 it.disable()
@@ -187,15 +191,15 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         }
     }
 
-    override fun VISIBLE(vararg views: View?) {
+    override fun visible(vararg views: View?) {
         views.forEach { it?.visible() }
     }
 
-    override fun INVISIBLE(vararg views: View?) {
+    override fun invisible(vararg views: View?) {
         views.forEach { it?.invisible() }
     }
 
-    override fun GONE(vararg views: View?) {
+    override fun gone(vararg views: View?) {
         views.forEach { it?.gone() }
     }
 
@@ -276,10 +280,10 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         loadingDialog.hidden()
     }
 
-    override fun showGuide(label: String, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
+    override fun showGuide(label: String, isOnly: Boolean, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
         val labelTag = DataBooleanCacheUtil(label)
         if (!labelTag.get()) {
-            labelTag.set(true)
+            if (isOnly) labelTag.set(true)
             val builder = NewbieGuide.with(this)//传入activity
                 .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
                 .setOnGuideChangedListener(guideListener)

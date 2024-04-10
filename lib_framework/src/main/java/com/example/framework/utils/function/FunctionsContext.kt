@@ -9,6 +9,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
@@ -73,24 +74,38 @@ fun Context.string(@StringRes res: Int): String {
  * 通过字符串获取drawable下的xml文件
  */
 @SuppressLint("DiscouragedApi")
-fun Context.defTypeDrawable(name: String): Int {
-    return try {
+//fun Context.defTypeDrawable(name: String): Int {
+//    return try {
+//        resources.getIdentifier(name, "drawable", packageName)
+//    } catch (_: Exception) {
+//        0
+//    }
+//}
+fun Context.defTypeDrawable(name: String): Drawable? {
+    return drawable(try {
         resources.getIdentifier(name, "drawable", packageName)
     } catch (_: Exception) {
         0
-    }
+    })
 }
 
 /**
  * 通过字符串获取mipmap下的图片文件
  */
 @SuppressLint("DiscouragedApi")
-fun Context.defTypeMipmap(name: String): Int {
-    return try {
+//fun Context.defTypeMipmap(name: String): Int {
+//    return try {
+//        resources.getIdentifier(name, "mipmap", packageName)
+//    } catch (_: Exception) {
+//        0
+//    }
+//}
+fun Context.defTypeMipmap(name: String): Drawable? {
+    return drawable(try {
         resources.getIdentifier(name, "mipmap", packageName)
     } catch (_: Exception) {
         0
-    }
+    })
 }
 
 /**

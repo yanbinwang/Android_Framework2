@@ -8,8 +8,8 @@ import com.example.common.network.repository.ApiCode.TOKEN_EXPIRED
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.resString
-import com.example.common.utils.function.toJsonString
 import com.example.common.utils.helper.AccountHelper
+import com.example.common.utils.toJsonString
 import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -31,6 +31,7 @@ class MultiReqUtil(
     private val isShowDialog: Boolean = true,
     private val err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
 ) {
+    var results = false//一旦有请求失败，就会为true
     private var loadingStarted = false//是否开始加载
 
     /**
@@ -55,6 +56,7 @@ class MultiReqUtil(
         requestLayer({ coroutineScope() }, {
             response = it
         }, err, isShowToast = false)
+        if (!response.successful()) results = true
         return response
     }
 
@@ -67,6 +69,7 @@ class MultiReqUtil(
             loadingStarted = false
         }
         view = null
+        results = false
     }
 
 }
@@ -77,7 +80,8 @@ class MultiReqUtil(
  * map扩展，如果只需传入map则使用
  * hashMapOf("" to "")不需要写此扩展
  */
-fun <K, V> HashMap<K, V>?.requestBody() = this?.toJsonString().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
+fun <K, V> HashMap<K, V>?.requestBody() =
+    this?.toJsonString().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
 
 fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
     val map = hashMapOf<String, Any>()
@@ -92,9 +96,10 @@ fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
 /**
  * 提示方法，根据接口返回的msg提示
  */
-fun String?.responseToast() = (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.responseNetError) else {
-    if (isNullOrEmpty()) resString(R.string.responseError) else this
-}).shortToast()
+fun String?.responseToast() =
+    (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.responseNetError) else {
+        if (isNullOrEmpty()) resString(R.string.responseError) else this
+    }).shortToast()
 
 /**
  * 网络请求协程扩展-并行请求
@@ -113,7 +118,7 @@ suspend fun <T> request(
 //        resp.invoke(it?.data)
         //如果接口是成功的，但是body为空或者后台偷懒没给，我们在写Api时，给一个对象，让结果能够返回
         resp.invoke(result?.data.let {
-            if (it is EmptyBean?) {
+            if (it is EmptyBean) {
                 EmptyBean()
             } else {
                 it

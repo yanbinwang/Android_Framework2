@@ -1,17 +1,22 @@
 package com.example.common.widget.textview.edittext
 
 import android.content.Context
+import android.text.Editable
 import android.text.InputFilter
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.KeyEvent
+import android.view.View
+import android.view.View.OnFocusChangeListener
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
+import androidx.core.widget.addTextChangedListener
 import com.example.common.R
 import com.example.common.databinding.ViewPasswordEditBinding
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.emojiLimit
@@ -28,19 +33,31 @@ import java.util.Arrays
  * @author yan
  */
 class PasswordEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
-    private var isShowBtn = true
     private var hideRes = -1
     private var showRes = -1
-    private val binding by lazy { ViewPasswordEditBinding.bind(context.inflate(R.layout.view_password_edit)) }
-    val editText get() = binding.etClear
+    private var isShowBtn = true
+    private var onTextChanged: ((s: Editable?) -> Unit)? = null
+    private var onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)? = null
+    private val mBinding by lazy { ViewPasswordEditBinding.bind(context.inflate(R.layout.view_password_edit)) }
+    val editText get() = mBinding.etClear
 
     init {
-        binding.etClear.emojiLimit()
-        binding.etClear.setOnKeyListener { _, keyCode, _ ->
-            if (keyCode == KeyEvent.KEYCODE_DEL) binding.etClear.setText("")
-            false
+        normal()
+        mBinding.etClear.emojiLimit()
+        mBinding.etClear.apply {
+            setOnKeyListener { _, keyCode, _ ->
+                if (keyCode == KeyEvent.KEYCODE_DEL) mBinding.etClear.setText("")
+                false
+            }
+            addTextChangedListener {
+                onTextChanged?.invoke(it)
+            }
+            onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+                if (hasFocus) focused() else normal()
+                onFocusChange?.invoke(v, hasFocus)
+            }
         }
-        binding.ivShow.apply { click { setResource(Triple(binding.etClear.passwordDevelopment(), showRes, hideRes)) }}
+        mBinding.ivShow.apply { click { setResource(Triple(mBinding.etClear.passwordDevelopment(), showRes, hideRes)) }}
         //以下属性在xml中前缀使用app:调取
         if (attrs != null) {
             val typedArray = context.obtainStyledAttributes(attrs, R.styleable.PasswordEditText)
@@ -70,25 +87,25 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
             if (maxLength != -1) setMaxLength(maxLength)
             //配置输入法右下角按钮的样式
             val imeOptions = typedArray.getInt(R.styleable.PasswordEditText_imeOptions, 0)
-            binding.etClear.imeOptions(imeOptions)
+            mBinding.etClear.imeOptions(imeOptions)
             typedArray.recycle()
         }
     }
 
-    override fun onInflateView() {
-        if (isInflate()) addView(binding.root)
+    override fun onInflate() {
+        if (isInflate) addView(mBinding.root)
     }
 
     fun setText(@StringRes resid: Int) {
-        binding.etClear.setText(resid)
+        mBinding.etClear.setText(resid)
     }
 
     fun setText(text: String) {
-        binding.etClear.setText(text)
+        mBinding.etClear.setText(text)
     }
 
     fun getText(): String {
-        return binding.etClear.let { if (it.text == null) "" else it.text.toString() }
+        return mBinding.etClear.let { if (it.text == null) "" else it.text.toString() }
     }
 
     fun setTextSize(size: Float) {
@@ -96,37 +113,31 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun setTextSize(size: Float, unit: Int) {
-        binding.etClear.setTextSize(unit, size)
+        mBinding.etClear.setTextSize(unit, size)
     }
 
     fun setTextColor(@ColorInt color: Int) {
-        binding.etClear.setTextColor(color)
+        mBinding.etClear.setTextColor(color)
     }
 
     fun setHint(@StringRes resid: Int) {
-        binding.etClear.setHint(resid)
+        mBinding.etClear.setHint(resid)
     }
 
     fun setHint(text: String) {
-        binding.etClear.hint = text
+        mBinding.etClear.hint = text
     }
 
     fun setHintTextColor(@ColorInt color: Int) {
-        binding.etClear.setHintTextColor(color)
+        mBinding.etClear.setHintTextColor(color)
     }
 
     fun setSelection(mCursor: Int) {
-        binding.etClear.setSelection(mCursor)
-    }
-
-    fun addFilter(filter: InputFilter) {
-        val filters = Arrays.copyOf(binding.etClear.filters, binding.etClear.filters.size + 1)
-        filters[filters.size - 1] = filter
-        binding.etClear.filters = filters
+        mBinding.etClear.setSelection(mCursor)
     }
 
     fun setGravity(gravity: Int) {
-        binding.etClear.gravity = gravity
+        mBinding.etClear.gravity = gravity
     }
 
     fun setMaxLength(maxLength: Int) {
@@ -135,12 +146,38 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
 
     fun hideBtn() {
         isShowBtn = false
-        binding.ivShow.gone()
+        mBinding.ivShow.gone()
     }
 
     fun showBtn() {
         isShowBtn = true
-        binding.ivShow.visible()
+        mBinding.ivShow.visible()
+    }
+
+    fun normal() {
+//        mBinding.root.background(R.drawable.shape_input)
+    }
+
+    fun focused() {
+//        mBinding.root.background(R.drawable.shape_input_focused)
+    }
+
+    fun error() {
+//        mBinding.root.background(R.drawable.shape_input_error)
+    }
+
+    fun addFilter(filter: InputFilter) {
+        val filters = Arrays.copyOf(mBinding.etClear.filters, mBinding.etClear.filters.size + 1)
+        filters[filters.size - 1] = filter
+        mBinding.etClear.filters = filters
+    }
+
+    fun addTextChangedListener(onTextChanged: ((s: Editable?) -> Unit)) {
+        this.onTextChanged = onTextChanged
+    }
+
+    fun setOnFocusChangeListener(onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)) {
+        this.onFocusChange = onFocusChange
     }
 
 }

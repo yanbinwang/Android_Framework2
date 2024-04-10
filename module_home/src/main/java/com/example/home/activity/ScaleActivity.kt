@@ -22,7 +22,7 @@ import com.example.home.widget.scale.ScaleImageView
  */
 @Route(path = ARouterPath.ScaleActivity)
 class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
-    private val titleBuilder by lazy { TitleBuilder(this, mBinding?.titleContainer) }
+    private val titleBuilder by lazy { TitleBuilder(this, mBinding?.titleRoot) }
     private val list by lazy { intentSerializable<ArrayList<String>>(Extra.BUNDLE_LIST) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,13 +35,13 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
         overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_in)
     }
 
-    override fun initView() {
+    override fun initView(savedInstanceState: Bundle?) {
         requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-        super.initView()
+        super.initView(savedInstanceState)
         initImmersionBar(false)
         titleBuilder.setLeft(tintColor = R.color.bgWhite)
     }

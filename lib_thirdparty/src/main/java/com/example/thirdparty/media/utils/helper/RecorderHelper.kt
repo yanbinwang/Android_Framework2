@@ -14,14 +14,14 @@ import com.example.thirdparty.media.utils.MediaUtil.MediaType.AUDIO
  * @description 录音帮助类（熄屏后无声音，并可能会导致后续声音也录制不了）
  * @author yan
  */
-class RecorderHelper(private val activity: FragmentActivity) : LifecycleEventObserver {
+class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var isDestroy = false
-    private var onRecorderListener: OnRecorderListener? = null
-    private val recorder by lazy { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(activity) else MediaRecorder() }
+    private var listener: OnRecorderListener? = null
     private val player by lazy { MediaPlayer() }
+    private val recorder by lazy { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(mActivity) else MediaRecorder() }
 
     init {
-        activity.lifecycle.addObserver(this)
+        mActivity.lifecycle.addObserver(this)
     }
 
     /**
@@ -31,6 +31,7 @@ class RecorderHelper(private val activity: FragmentActivity) : LifecycleEventObs
         isDestroy = false
         val recordFile = MediaUtil.getOutputFile(AUDIO)
         val sourcePath = recordFile?.absolutePath
+        listener?.onStart(sourcePath)
         try {
             recorder.apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)//设置麦克风
@@ -47,14 +48,13 @@ class RecorderHelper(private val activity: FragmentActivity) : LifecycleEventObs
             }
         } catch (_: Exception) {
         }
-        onRecorderListener?.onStart(sourcePath)
     }
 
     /**
      * 停止录音
      */
     fun stopRecord() {
-        if (!isDestroy) onRecorderListener?.onShutter()
+        if (!isDestroy) listener?.onShutter()
         try {
             recorder.apply {
                 stop()
@@ -63,7 +63,22 @@ class RecorderHelper(private val activity: FragmentActivity) : LifecycleEventObs
             }
         } catch (_: Exception) {
         }
-        if (!isDestroy) onRecorderListener?.onStop()
+        if (!isDestroy) listener?.onStop()
+    }
+
+    /**
+     * 录音监听
+     */
+    fun setOnRecorderListener(listener: OnRecorderListener) {
+        this.listener = listener
+    }
+
+    interface OnRecorderListener {
+        fun onStart(sourcePath: String?)
+
+        fun onShutter()
+
+        fun onStop()
     }
 
     /**
@@ -79,11 +94,6 @@ class RecorderHelper(private val activity: FragmentActivity) : LifecycleEventObs
         } catch (_: Exception) {
         }
     }
-
-    /**
-     * 当前音频是否正在播放
-     */
-    fun isPlaying() = player.isPlaying
 
     /**
      * 开始播放
@@ -108,30 +118,10 @@ class RecorderHelper(private val activity: FragmentActivity) : LifecycleEventObs
     }
 
     /**
-     * 录音监听
+     * 当前音频是否正在播放
      */
-    fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
-        this.onRecorderListener = onRecorderListener
-    }
-
-    interface OnRecorderListener {
-        fun onStart(sourcePath: String?)
-
-        fun onShutter()
-
-        fun onStop()
-    }
-
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        when (event) {
-            Lifecycle.Event.ON_DESTROY -> {
-                isDestroy = true
-                stopRecord()
-                release()
-                activity.lifecycle.removeObserver(this)
-            }
-            else -> {}
-        }
+    fun isPlaying(): Boolean {
+        return player.isPlaying
     }
 
     /**
@@ -145,6 +135,18 @@ class RecorderHelper(private val activity: FragmentActivity) : LifecycleEventObs
                 release()
             }
         } catch (_: Exception) {
+        }
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_DESTROY -> {
+                isDestroy = true
+                stopRecord()
+                release()
+                mActivity.lifecycle.removeObserver(this)
+            }
+            else -> {}
         }
     }
 

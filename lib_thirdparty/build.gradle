@@ -50,4 +50,8 @@ dependencies {
     implementation 'com.yanzhenjie:durban:1.0.1'
     //高德地图
     api files('libs/AMap3DMap_9.6.2_AMapSearch_9.5.0_AMapLocation_6.3.0_20230424.jar')
+    api 'com.yanzhenjie:durban:1.0.1'
+    //支付宝/微信
+    api 'com.alipay.sdk:alipaysdk-android:15.8.17@aar'
+    api 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0'
 }

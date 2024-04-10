@@ -208,7 +208,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initView()
+        initView(savedInstanceState)
         initEvent()
         initData()
     }
@@ -238,8 +238,12 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         }
     }
 
-    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
+//    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
+//        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
+//    }
+
+    override fun <VM : BaseViewModel> VM.create(): VM? {
+        return javaClass.create(mActivity.lifecycle, this@BaseBottomSheetDialogFragment).also { it.initialize(mActivity, this@BaseBottomSheetDialogFragment) }
     }
 
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
@@ -253,7 +257,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         }
     }
 
-    override fun initView() {
+    override fun initView(savedInstanceState: Bundle?) {
     }
 
     override fun initEvent() {
@@ -262,7 +266,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     override fun initData() {
     }
 
-    override fun ENABLED(vararg views: View?, second: Long) {
+    override fun enabled(vararg views: View?, second: Long) {
         views.forEach {
             if (it != null) {
                 it.disable()
@@ -271,15 +275,15 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         }
     }
 
-    override fun VISIBLE(vararg views: View?) {
+    override fun visible(vararg views: View?) {
         views.forEach { it?.visible() }
     }
 
-    override fun INVISIBLE(vararg views: View?) {
+    override fun invisible(vararg views: View?) {
         views.forEach { it?.invisible() }
     }
 
-    override fun GONE(vararg views: View?) {
+    override fun gone(vararg views: View?) {
         views.forEach { it?.gone() }
     }
 
@@ -366,10 +370,10 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         loadingDialog.hidden()
     }
 
-    override fun showGuide(label: String, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
+    override fun showGuide(label: String, isOnly: Boolean, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
         val labelTag = DataBooleanCacheUtil(label)
         if (!labelTag.get()) {
-            labelTag.set(true)
+            if (isOnly) labelTag.set(true)
             val builder = NewbieGuide.with(this)//传入activity
                 .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
                 .setOnGuideChangedListener(guideListener)

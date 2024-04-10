@@ -15,7 +15,11 @@ import com.example.mvvm.databinding.ItemImageBinding
  * @author
  */
 class ImageAdapter : BaseQuickAdapter<Int, ItemImageBinding>() {
-    override fun onConvert(holder: BaseViewDataBindingHolder, item: Int?, payloads: MutableList<Any>?) {
+    override fun onConvert(
+        holder: BaseViewDataBindingHolder,
+        item: Int?,
+        payloads: MutableList<Any>?
+    ) {
         super.onConvert(holder, item, payloads)
 //        holder.getItemView().layoutParams =
 //            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)

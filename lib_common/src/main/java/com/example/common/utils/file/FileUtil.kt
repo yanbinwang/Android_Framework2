@@ -30,6 +30,7 @@ object FileUtil {
     /**
      * 递归完全删除对应文件夹下的所有文件
      */
+    @JvmStatic
     fun deleteDirWithFile(dir: File?) {
         if (dir == null || !dir.exists() || !dir.isDirectory) return
         for (file in dir.listFiles().orEmpty()) {
@@ -42,6 +43,7 @@ object FileUtil {
     /**
      * 获取文件base64位地址
      */
+    @JvmStatic
     fun base64WithFile(file: File): String {
         var base64: String? = null
         var inputStream: InputStream? = null
@@ -66,6 +68,7 @@ object FileUtil {
      * 获取文件哈希值
      * 满足64位哈希，不足则前位补0
      */
+    @JvmStatic
     fun hashWithFile(file: File): String {
         var hash = ""
         try {
@@ -92,6 +95,7 @@ object FileUtil {
     /**
      * 获取整个目录的文件大小
      */
+    @JvmStatic
     fun totalSizeWithFile(file: File): Long {
         var size: Long = 0
         for (mFile in file.listFiles().orEmpty()) {
@@ -107,9 +111,9 @@ object FileUtil {
     /**
      * 开始创建并写入tmp文件
      * @param filePath  分割文件地址
-     * @param fileSize 分割文件大小
+     * @param filePointer 分割文件大小
      */
-    class TmpInfo(var filePath: String? = null, var fileSize: Long = 0)
+    class TmpInfo(var filePath: String? = null, var filePointer: Long = 0)
 
     /**
      * 文件分割
@@ -117,6 +121,7 @@ object FileUtil {
      * @param targetFile 分割的文件
      * @param cutSize    分割文件的大小
      */
+    @JvmStatic
     fun split(targetFile: File, cutSize: Long): MutableList<String> {
         val splitList = ArrayList<String>()
         try {
@@ -136,7 +141,7 @@ object FileUtil {
                 val begin = offSet
                 val end = (i + 1) * maxSize
                 val tmpInfo = write(targetFile.absolutePath, i, begin, end)
-                offSet = tmpInfo.fileSize
+                offSet = tmpInfo.filePointer
                 splitList.add(tmpInfo.filePath.orEmpty())
             }
             if (length - offSet > 0) splitList.add(write(targetFile.absolutePath, count - 1, offSet, length).filePath.orEmpty())
@@ -181,10 +186,10 @@ object FileUtil {
                 outAccessFile.write(b, 0, n)
             }
             //关闭输入输出流,赋值
-            info.fileSize = inAccessFile.filePointer
+            info.filePath = tmpFile.absolutePath
+            info.filePointer = inAccessFile.filePointer
             inAccessFile.close()
             outAccessFile.close()
-            info.filePath = tmpFile.absolutePath
         } catch (_: Exception) {
         }
         return info
@@ -216,7 +221,8 @@ fun Context.isAvailable(packageName: String): Boolean {
 /**
  * 发送广播通知更新数据库
  */
-fun Context.insertImageResolver(file: File) {
+fun Context.insertImageResolver(file: File?) {
+    file ?: return
     MediaStore.Images.Media.insertImage(contentResolver, file.absolutePath, file.name, null)
     sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://${file.path}")))
 }

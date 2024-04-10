@@ -2,67 +2,55 @@ package com.example.home.utils
 
 import android.view.View
 import android.webkit.WebChromeClient
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.base.page.Extra
 import com.example.common.bean.WebBundle
 import com.example.common.utils.FormActivityUtil
 import com.example.common.utils.WebUtil
-import com.example.common.utils.builder.TitleBuilder
 import com.example.common.utils.function.OnWebChangedListener
 import com.example.common.utils.function.clear
 import com.example.common.utils.function.load
 import com.example.common.utils.function.refresh
 import com.example.common.utils.function.setClient
-import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.byHardwareAccelerate
 import com.example.home.R
-import com.example.home.activity.WebActivity
 import com.example.home.databinding.ActivityWebBinding
 import java.lang.ref.WeakReference
 
 /**
  * 网页帮助类
  */
-class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
-    //在此处获取跳转的值以及重新绑定对应的view
-    private val bean by lazy { activity.intentSerializable<WebBundle>(Extra.BUNDLE_BEAN) }
-    private val binding by lazy { ActivityWebBinding.inflate(activity.layoutInflater) }
-    private val titleBuilder by lazy { TitleBuilder(activity, binding.titleContainer) }
-    private val webUtil by lazy { WebUtil(activity, binding.flWebRoot) }
+class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: ActivityWebBinding?) : LifecycleEventObserver {
+    private var bean: WebBundle? = null
+    private var webImpl: WebImpl? = null
+    private var onPageStarted: (() -> Unit)? = null
+    private var onPageFinished: ((title: String?) -> Unit)? = null
+    private val webUtil by lazy { WebUtil(mActivity, mBinding?.flWebRoot) }
     private val webView get() = webUtil.webView
 
     init {
-        activity.lifecycle.addObserver(this)
-        if (!bean?.getLight().orTrue) activity.initImmersionBar(false)
+        mActivity.lifecycle.addObserver(this)
         addWebView()
-        FormActivityUtil.setAct(activity)
+        FormActivityUtil.setAct(mActivity)
     }
 
     private fun addWebView() {
-        //需要标题头并且值已经传输过来了则设置标题
-        bean?.let {
-            if (it.getTitleRequired().orTrue) {
-                titleBuilder.setTitle(it.getTitle())
-            } else {
-                titleBuilder.hideTitle()
-            }
-        }
         webView?.byHardwareAccelerate()
-        webView?.background(R.color.bgWhite)
+        webView?.background(R.color.bgDefault)
         webView?.settings?.useWideViewPort = true
         webView?.settings?.loadWithOverviewMode = true
         //WebView与JS交互
-        webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(activity)), "JSCallAndroid")
-        webView?.setClient(binding.pbWeb, {
+        webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(webImpl)), "JSCallAndroid")
+        webView?.setClient(mBinding?.pbWeb, {
             //开始加载页面的操作...
+            onPageStarted?.invoke()
         }, {
             //加载完成后的操作...(不传标题则使用web加载的标题)
-            bean?.let { if (it.getTitleRequired().orFalse && it.getTitle().isEmpty()) titleBuilder.setTitle(webView?.title?.trim().orEmpty()) }
+            onPageFinished?.invoke(webView?.title?.trim())
 //            val url = webView?.url.orEmpty()
         }, object : OnWebChangedListener {
             override fun onShowCustomView(view: View?, callback: WebChromeClient.CustomViewCallback?) {
@@ -81,17 +69,12 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
     /**
      * 加载页面
      */
-    fun load() = webView.load(getUrl(), true)
+    fun load() = webView.load(bean?.getUrl().orEmpty(), true)
 
     /**
      * 刷新页面
      */
     fun refresh() = webView.refresh()
-
-    /**
-     * 获取加载的url
-     */
-    fun getUrl() = bean?.getUrl().orEmpty()
 
     /**
      * 返回点击
@@ -104,10 +87,26 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
         if (webView?.canGoBack().orFalse) {
             webView?.goBack()
         } else {
-            activity.finish()
+            mActivity.finish()
         }
 //            }
 //        }
+    }
+
+    /**
+     * 设置加载参数
+     */
+    fun setBundle(bean: WebBundle?, webImpl: WebImpl?) {
+        this.bean = bean
+        this.webImpl = webImpl
+    }
+
+    /**
+     * 设置页面加载完毕后的监听
+     */
+    fun setClientListener(onPageStarted: (() -> Unit), onPageFinished: ((title: String?) -> Unit)) {
+        this.onPageStarted = onPageStarted
+        this.onPageFinished = onPageFinished
     }
 
     /**
@@ -119,8 +118,8 @@ class WebHelper(private val activity: WebActivity) : LifecycleEventObserver {
                 webView?.removeJavascriptInterface("JSCallAndroid")
                 webView?.clear()
 //                webView = null
-                binding.unbind()
-                activity.lifecycle.removeObserver(this)
+                mBinding?.unbind()
+                mActivity.lifecycle.removeObserver(this)
             }
             else -> {}
         }

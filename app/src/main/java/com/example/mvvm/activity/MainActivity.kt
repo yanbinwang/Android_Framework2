@@ -1,6 +1,9 @@
 package com.example.mvvm.activity
 
+import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -8,6 +11,9 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
+import com.example.common.utils.builder.shortToast
+import com.example.common.utils.file.FileBuilder
+import com.example.common.utils.file.insertImageResolver
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
@@ -21,23 +27,27 @@ import com.example.framework.utils.SizeSpan
 import com.example.framework.utils.TextSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
+import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.isBottom
 import com.example.framework.utils.function.view.isTop
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.rotate
 import com.example.framework.utils.function.view.size
 import com.example.mvvm.R
-import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ActivityMainBinding
+import com.example.mvvm.databinding.ViewTestBinding
 import com.example.mvvm.utils.VideoSnapManager
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestTopDialog
+import com.example.thirdparty.album.AlbumHelper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.File
 
 
 /**
@@ -112,16 +122,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //    private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
 //    private val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
-    private val viewModel by lazy { createViewModel(TestViewModel::class.java) }
-    private val bean by lazy { intentParcelable("bean") as? UserBean }
-
-
-    private val viewModel2 by lazy { viewModel<TestViewModel>() }
-
+    private val viewModel by lazy { TestViewModel().create() }
+    private val bean by lazy { intentParcelable<UserBean>("bean") }
     private var isOpen = false
+    private val builder by lazy { FileBuilder(this) }
 
-    override fun initView() {
-        super.initView()
+
+    private val album by lazy { AlbumHelper(this) }
+
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
 
         mBinding?.ivArrow.click { isOpen = it.rotate(isOpen) }
 
@@ -268,9 +278,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             changeBgHeight(offset)
         }
         mBinding?.viewContent.click {
+            album.imageSelection(hasDurban = true) {
+
+            }
 //            "dsfdsfdsfds".shortToast()
-            testBottom.show(supportFragmentManager, "testBottom")
+//            testBottom.show(supportFragmentManager, "testBottom")
 //            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
+
+//            val view = ViewTestBinding.bind(inflate(R.layout.view_test)).root
+//                builder.saveViewJob(view, 100 , onResult ={
+//                    "更新相册${it}".shortToast()
+//                    insertImageResolver(File(it.orEmpty()))
+//                })
+
         }
         launch {
             delay(2000)

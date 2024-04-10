@@ -4,6 +4,7 @@ import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.utils.DeviceIdUtil
 import com.example.common.utils.function.string
+import com.example.common.utils.helper.AccountHelper
 import com.example.common.utils.helper.ConfigHelper.getAppName
 import com.example.common.utils.helper.ConfigHelper.getAppVersionCode
 import com.example.common.utils.helper.ConfigHelper.getAppVersionName
@@ -16,21 +17,30 @@ import com.example.common.utils.helper.ConfigHelper.getPackageName
 object Constants {
     //------app内的一些默认值------
     //版本号
+    @JvmStatic
     val VERSION_CODE get() = getAppVersionCode()
     //版本名
+    @JvmStatic
     val VERSION_NAME get() = getAppVersionName()
     //包名
+    @JvmStatic
     val APPLICATION_ID get() = getPackageName()
     //应用名
+    @JvmStatic
     val APPLICATION_NAME get() = getAppName()
     //默认文件保存路径，sd卡下的应用名文件夹
+    @JvmStatic
     val APPLICATION_PATH get() = "${SDCARD_PATH}/${APPLICATION_NAME}"
     //sd卡的根路径/android/data/{包名}->访问这个目录不需要动态申请STORAGE权限
+    @JvmStatic
     val SDCARD_PATH get() = BaseApplication.instance.getExternalFilesDir(null)?.absolutePath
     //设备id
+    @JvmStatic
     val DEVICE_ID get() = DeviceIdUtil.deviceId
     //无数据占位符
+    @JvmStatic
     val NO_DATA get() = string(R.string.unitNoData)
     //------app内接口的一些默认配置字段------
     const val PAGE_LIMIT = "10"//固定配置页数
+    const val WX_APP_ID = "wxcedfca787269f739" //微信的appId
 }

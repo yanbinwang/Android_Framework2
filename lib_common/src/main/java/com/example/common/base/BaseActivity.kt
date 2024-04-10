@@ -104,7 +104,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         WebSocketRequest.addObserver(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
         if (isImmersionBarEnabled()) initImmersionBar()
-        initView()
+        initView(savedInstanceState)
         initEvent()
         initData()
     }
@@ -113,8 +113,12 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         return true
     }
 
-    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-        return vmClass.create(lifecycle, this).also { it.initialize(this, this) }
+    //    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
+//        return vmClass.create(lifecycle, this).also { it.initialize(this, this) }
+//    }
+
+    override fun <VM : BaseViewModel> VM.create(): VM? {
+        return javaClass.create(lifecycle, this@BaseActivity).also { it.initialize(this@BaseActivity, this@BaseActivity) }
     }
 
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
@@ -128,7 +132,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
     }
 
-    override fun initView() {
+    override fun initView(savedInstanceState: Bundle?) {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
@@ -149,7 +153,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun initData() {
     }
 
-    override fun ENABLED(vararg views: View?, second: Long) {
+    override fun enabled(vararg views: View?, second: Long) {
         views.forEach {
             if (it != null) {
                 it.disable()
@@ -158,15 +162,15 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
     }
 
-    override fun VISIBLE(vararg views: View?) {
+    override fun visible(vararg views: View?) {
         views.forEach { it?.visible() }
     }
 
-    override fun INVISIBLE(vararg views: View?) {
+    override fun invisible(vararg views: View?) {
         views.forEach { it?.invisible() }
     }
 
-    override fun GONE(vararg views: View?) {
+    override fun gone(vararg views: View?) {
         views.forEach { it?.gone() }
     }
 
@@ -260,10 +264,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         loadingDialog.hidden()
     }
 
-    override fun showGuide(label: String, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
+    override fun showGuide(label: String, isOnly: Boolean, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
         val labelTag = DataBooleanCacheUtil(label)
         if (!labelTag.get()) {
-            labelTag.set(true)
+            if (isOnly) labelTag.set(true)
             val builder = NewbieGuide.with(this)//传入activity
                 .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
                 .setOnGuideChangedListener(guideListener)

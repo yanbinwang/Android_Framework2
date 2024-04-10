@@ -23,4 +23,12 @@
     <color name="notificationDefaultColor">#ffffff</color>
     <string name="notificationChannelId">dataqin</string>
     <string name="notificationChannelName">数秦科技</string>
+    <!-- 支付 -->
+    <string name="payInitiate">正在发起支付,请稍后&#8230;</string>
+    <string name="paySuccess">支付成功</string>
+    <string name="payFailure">支付失败</string>
+    <string name="payCancel">支付取消</string>
+    <string name="wechatUnInstalled">您尚未安装微信</string>
+    <string name="wechatSupportError">当前微信版本不支持</string>
+    <string name="alipayUnInstalled">您尚未安装支付宝</string>
 </resources>

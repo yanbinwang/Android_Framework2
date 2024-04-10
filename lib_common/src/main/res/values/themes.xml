@@ -141,7 +141,7 @@
     <!-- 数据请求的动画样式 -->
     <style name="LoadingStyle" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowFrame">@null</item>
-        <item name="android:windowBackground">@drawable/shape_loading_bg</item>
+        <item name="android:windowBackground">@drawable/shape_loading</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowContentOverlay">@null</item>
@@ -207,7 +207,7 @@
      -->
     <style name="CheckBoxStyle" parent="@android:style/Widget.CompoundButton.CheckBox">
         <item name="android:button">@null</item>
-        <item name="android:background">@drawable/selector_check_box</item>
+        <item name="android:background">@drawable/selector_check_thumb</item>
         <item name="android:layout_width">20pt</item>
         <item name="android:layout_height">20pt</item>
     </style>

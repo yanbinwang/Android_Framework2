@@ -63,15 +63,11 @@ class PermissionHelper(private val context: Context) {
         var reason = ""
         for (index in permsGroup.indices) {
             if (listOf(*permsGroup[index]).contains(permissions[0])) {
-                reason += "*${onReason(index)};\n"
+                reason += "${onReason(index)}\n"
             }
         }
         andDialog.apply {
-            setParams(
-                string(R.string.hint),
-                string(R.string.permissionGoSetting, reason),
-                string(R.string.sure),
-                string(R.string.cancel))
+            setParams(message = string(R.string.permissionGoSetting, reason))
             setDialogListener({ XXPermissions.startPermissionActivity(context, permissions) })
             show()
         }

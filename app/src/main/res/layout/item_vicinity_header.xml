@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingConstraints">
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="10pt"
+        android:paddingTop="10pt">
+
+        <TextView
+            android:id="@+id/tv_tips"
+            android:layout_width="0pt"
+            android:layout_height="80pt"
+            android:background="@color/bgBlack"
+            android:gravity="center"
+            android:text="我的1"
+            android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize14"
+            app:layout_constraintEnd_toStartOf="@id/tv_tips2"
+            app:layout_constraintHorizontal_weight="2"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_tips2"
+            android:layout_width="0pt"
+            android:layout_height="80pt"
+            android:layout_marginStart="10pt"
+            android:background="@color/bgBlue"
+            android:gravity="center"
+            android:text="我的2"
+            android:textColor="@color/textPrimary"
+            android:textSize="@dimen/textSize14"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@id/tv_tips" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -5,8 +5,10 @@ import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout
 import androidx.annotation.ColorRes
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
@@ -24,10 +26,12 @@ import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.initConcat
+import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
-import com.example.framework.widget.DataRecyclerView
+import com.example.framework.widget.ObserverRecyclerView
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener
@@ -43,9 +47,8 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private var emptyEnum = 0//是否具有空布局（0无-1有）
     private var refreshEnum = 0//页面类型(0无刷新-1带刷新)
-    private var onRefresh: (() -> Unit)? = null//空布局点击
-//    val layout: RefreshLayout get() { return refresh as RefreshLayout }//刷新控件
-    var recycler: DataRecyclerView? = null//数据列表
+    private var listener: (() -> Unit)? = null//空布局点击
+    var recycler: ObserverRecyclerView? = null//数据列表
         private set
     var refresh: SmartRefreshLayout? = null//刷新控件 类型1才有
         private set
@@ -59,8 +62,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         typedArray.recycle()
     }
 
-    override fun onInflateView() {
-        if (isInflate()) initInflate()
+    override fun onInflate() {
+        if (isInflate) initInflate()
     }
 
     private fun initInflate() {
@@ -70,9 +73,19 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 view = context.inflate(R.layout.view_xrecycler)
                 recycler = view.findViewById(R.id.rv_list)
                 if (0 != emptyEnum) {
-                    empty = EmptyLayout(context)
-                    recycler?.setEmptyView(empty?.setListView(recycler))
-                    empty?.setEmptyRefreshListener { onRefresh?.invoke() }
+                    view = context.inflate(R.layout.view_xrecycler)
+                    recycler = view.findViewById(R.id.rv_list)
+                    if (0 != emptyEnum) {
+                        empty = EmptyLayout(context)
+                        recycler?.setEmptyView(empty?.setListView(recycler).apply {
+                            if (minimumHeight > 0) {
+                                size(height = minimumHeight)
+                            } else {
+                                size(MATCH_PARENT, MATCH_PARENT)
+                            }
+                        })
+                        empty?.setOnEmptyRefreshListener { listener?.invoke() }
+                    }
                 }
             }
             1 -> {
@@ -81,9 +94,12 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 refresh = view.findViewById(R.id.refresh)
                 recycler = view.findViewById(R.id.rv_list)
                 if (0 != emptyEnum) {
-                    empty?.setEmptyRefreshListener { onRefresh?.invoke() }
+                    empty?.setOnEmptyRefreshListener { listener?.invoke() }
                 } else {
                     empty?.gone()
+                    view.findViewById<FrameLayout>(R.id.fl_root).apply {
+                        if(getChildAt(1) is EmptyLayout) removeViewAt(1)
+                    }
                 }
             }
         }
@@ -98,9 +114,17 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 默认一行一个，线样式可自画可调整
      */
     fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
-        recycler?.layoutManager = GridLayoutManager(context, spanCount)
-        recycler?.adapter = adapter
+//        recycler?.layoutManager = GridLayoutManager(context, spanCount)
+//        recycler?.adapter = adapter
+        recycler.initGridHorizontal(adapter, spanCount)
         addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
+    }
+
+    /**
+     * 设置复杂的多个adapter直接拼接成一个
+     */
+    fun <T : BaseQuickAdapter<*, *>> setConcatAdapter(vararg adapters: T) {
+        recycler?.initConcat(*adapters)
     }
 
     /**
@@ -179,8 +203,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 设置空布局点击
      */
-    fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
-        this.onRefresh = onRefresh
+    fun setOnEmptyRefreshListener(listener: (() -> Unit)) {
+        this.listener = listener
     }
 
     /**
@@ -198,15 +222,15 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 当数据为空时(显示需要显示的图片，以及内容字)
      */
-    fun empty(imgInt: Int = -1, text: String? = null) {
-        empty?.empty(imgInt, text)
+    fun empty(resId: Int? = null, text: String? = null, width: Int? = null, height: Int? = null) {
+        empty?.empty(resId, text, width, height)
     }
 
     /**
      * 当数据异常时
      */
-    fun error(imgInt: Int = -1, text: String? = null) {
-        empty?.error(imgInt, text)
+    fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+        empty?.error(resId, text, refreshText, width, height)
     }
 
 }

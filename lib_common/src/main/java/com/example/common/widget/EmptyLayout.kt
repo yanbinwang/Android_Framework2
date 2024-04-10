@@ -5,8 +5,6 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.LinearLayout.LayoutParams.MATCH_PARENT
 import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
@@ -28,33 +26,40 @@ import com.example.framework.widget.BaseViewGroup
  */
 @SuppressLint("InflateParams")
 class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-    private val binding by lazy { ViewEmptyBinding.bind(context.inflate(R.layout.view_empty)) }
-    private var onRefresh: (() -> Unit)? = null
+    private val mBinding by lazy { ViewEmptyBinding.bind(context.inflate(R.layout.view_empty)) }
+    private var listener: (() -> Unit)? = null
 
     init {
 //        binding.root.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT) //设置LayoutParams
-        binding.root.layoutParamsMatch()
-        binding.root.setBackgroundColor(color(R.color.bgDefault))
-        binding.tvRefresh.click {
+        mBinding.root.layoutParamsMatch()
+        mBinding.root.setBackgroundColor(color(R.color.bgDefault))
+        mBinding.tvRefresh.click {
             //进入加载中
             loading()
-            onRefresh?.invoke()
+            listener?.invoke()
         }
-        binding.root.click(null)
+        mBinding.root.click(null)
         loading()
     }
 
-    override fun onInflateView() {
-        if (isInflate()) addView(binding.root)
+    override fun onInflate() {
+        if (isInflate) addView(mBinding.root)
+    }
+
+    /**
+     * 设置背景颜色
+     */
+    override fun setBackgroundColor(color: Int) {
+        mBinding.root.setBackgroundColor(color)
     }
 
     /**
      * 设置列表所需的emptyview
      */
     fun setListView(listView: View?): View {
-        removeView(binding.root)
-        (listView?.parent as ViewGroup).addView(binding.root) //添加到当前的View hierarchy
-        return binding.root
+        removeView(mBinding.root)
+        (listView?.parent as? ViewGroup)?.addView(mBinding.root) //添加到当前的View hierarchy
+        return mBinding.root
     }
 
     /**
@@ -62,50 +67,45 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun loading() {
         appear(300)
-        binding.ivEmpty.setResource(R.mipmap.bg_data_loading)
-        binding.tvEmpty.text = string(R.string.dataLoading)
-        binding.tvRefresh.gone()
+        mBinding.ivEmpty.setResource(R.mipmap.bg_data_loading)
+        mBinding.tvEmpty.text = string(R.string.dataLoading)
+        mBinding.tvRefresh.gone()
     }
 
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun empty(resId: Int = -1, text: String? = null) {
+    fun empty(resId: Int? = null, text: String? = null, width: Int? = null, height: Int? = null) {
         appear(300)
-        binding.ivEmpty.setResource(if (-1 == resId) R.mipmap.bg_data_empty else resId)
-        binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataEmpty) else text
-        binding.tvRefresh.gone()
+        if (null != width && null != height) mBinding.ivEmpty.size(width, height)
+        mBinding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_empty)
+        mBinding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataEmpty) else text
+        mBinding.tvRefresh.gone()
     }
 
     /**
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
+    fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
         appear(300)
+        if (null != width && null != height) mBinding.ivEmpty.size(width, height)
         if (!isNetworkAvailable()) {
-            binding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
-            binding.tvEmpty.text = string(R.string.dataNetError)
+            mBinding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
+            mBinding.tvEmpty.text = string(R.string.dataNetError)
         } else {
-            binding.ivEmpty.setResource(if (-1 == resId) R.mipmap.bg_data_error else resId)
-            binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataError) else text
+            mBinding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_error)
+            mBinding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataError) else text
         }
-        if (!refreshText.isNullOrEmpty()) binding.tvRefresh.text = refreshText
-        binding.tvRefresh.visible()
+        if (!refreshText.isNullOrEmpty()) mBinding.tvRefresh.text = refreshText
+        mBinding.tvRefresh.visible()
     }
 
     /**
      * 设置刷新监听
      */
-    fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
-        this.onRefresh = onRefresh
-    }
-
-    /**
-     * 设置背景颜色
-     */
-    override fun setBackgroundColor(color: Int) {
-        binding.root.setBackgroundColor(color)
+    fun setOnEmptyRefreshListener(listener: (() -> Unit)) {
+        this.listener = listener
     }
 
 }

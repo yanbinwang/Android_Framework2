@@ -10,19 +10,24 @@ import android.text.method.PasswordTransformationMethod
 import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
+import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.example.framework.utils.DecimalInputFilter
 import com.example.framework.utils.EditTextUtil
 import com.example.framework.utils.function.value.*
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
+import com.example.framework.utils.function.view.ExtraTextViewFunctions.showSoftKeyboard
 import java.math.BigDecimal
 import java.util.*
 
@@ -229,6 +234,7 @@ fun EditText?.passwordDevelopment(): Boolean {
  */
 fun EditText?.decimalFilter(decimalPoint: Int = 2) {
     if (this == null) return
+    removeFilter { it is DecimalInputFilter }
     val decimalInputFilter = DecimalInputFilter()
     decimalInputFilter.decimalPoint = decimalPoint
     addFilter(decimalInputFilter)
@@ -263,6 +269,15 @@ fun EditText?.removeFilter(vararg filterList: InputFilter) {
     filters = arrayOf<InputFilter>().plus(filters.filter { !filterList.contains(it) })
 }
 
+internal fun EditText?.removeFilter(func: (InputFilter) -> Boolean) {
+    if (this == null) return
+    val filterList = filters.toNewList { it }
+    filterList.forEach {
+        if (func(it)) filterList.remove(it)
+    }
+    filters = filterList.toTypedArray()
+}
+
 /**
  * 添加回车时的处理
  */
@@ -278,14 +293,14 @@ fun EditText?.onDone(listener: () -> Unit) {
     }
 }
 
-/**
- * 弹出软键盘并获取焦点
- */
-fun EditText?.showInput() {
-    if (this == null) return
-    focus()
-    openDecor()
-}
+///**
+// * 弹出软键盘并获取焦点
+// */
+//fun EditText?.showInput() {
+//    if (this == null) return
+//    focus()
+//    openDecor()
+//}
 
 /**
  * 弹出软键盘
@@ -293,8 +308,9 @@ fun EditText?.showInput() {
 fun EditText?.doInput() {
     if (this == null) return
     requestFocus()
-    val inputManager = this.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    inputManager.showSoftInput(this, 0)
+    showSoftKeyboard(context, this)
+//    val inputManager = this.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//    inputManager.showSoftInput(this, 0)
 }
 
 /**
@@ -434,6 +450,23 @@ fun EditText?.charBlackList(characterAllowed: CharArray) {
 }
 
 /**
+ * 屏蔽页面中的edit输入框的弹出
+ */
+fun Activity?.inputHidden(vararg edits: EditText?): ArrayList<EditText?>? {
+    this ?: return null
+    val list = listOf(*edits)
+    //建立对应的绑定关系，让edittext不再弹出系统的输入框
+    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+    try {
+        val setShowSoftInputOnFocus = EditText::class.java.getMethod("setShowSoftInputOnFocus", Boolean::class.javaPrimitiveType)
+        setShowSoftInputOnFocus.isAccessible = true
+        list.forEach { setShowSoftInputOnFocus.invoke(it, false) }
+    } catch (_: Exception) {
+    }
+    return list.toArrayList()
+}
+
+/**
  * 单选框状态改变
  */
 fun CheckBox?.checked() {
@@ -447,6 +480,75 @@ fun CheckBox?.checked(checked: Boolean) {
 }
 
 /**
+ * 获取RadioButton
+ */
+fun RadioGroup?.button(index: Int): RadioButton? {
+    this ?: return null
+    return getChildAt(index) as? RadioButton
+}
+
+fun RadioGroup?.checked(index: Int, checked: Boolean) {
+    this ?: return
+    button(index).checked(checked)
+}
+
+fun RadioButton?.checked(checked: Boolean) {
+    this ?: return
+    isChecked = checked
+}
+
+fun RadioGroup?.checkedIndex(): Int {
+    this ?: return 0
+    var ids = 0
+    for (index in 0 until childCount.orZero) {
+        if (button(index)?.isChecked.orFalse) {
+            ids = index
+            break
+        }
+    }
+    return ids
+}
+
+/**
+ * 由于RadioGroup继承的是线性布局，故而是不能自动换行的
+ * 所以如果碰到单选需要换行的选项界面，采用约束布局绘制，获取其中的child进行强转换
+ */
+fun ConstraintLayout?.button(index: Int): RadioButton? {
+    this ?: return null
+    return getChildAt(index) as? RadioButton
+}
+
+fun ConstraintLayout?.checked(index: Int, checked: Boolean) {
+    this ?: return
+    for (position in 0 until childCount) {
+        button(position).checked(false)
+    }
+    button(index).checked(checked)
+}
+
+fun ConstraintLayout?.checkedIndex(): Int {
+    this ?: return 0
+    var ids = 0
+    for (index in 0 until childCount.orZero) {
+        if (button(index)?.isChecked.orFalse) {
+            ids = index
+            break
+        }
+    }
+    return ids
+}
+
+fun ConstraintLayout?.setOnCheckedChangeListener(listener: (index: Int) -> Unit = {}) {
+    this ?: return
+    for (index in 0 until childCount.orZero) {
+        button(index)?.click {
+            checked(index, true)
+            listener.invoke(index)
+        }
+    }
+}
+
+/**
  * 简易Edittext监听
  */
 fun OnMultiTextWatcher.textWatcher(vararg views: EditText) {
@@ -456,12 +558,21 @@ fun OnMultiTextWatcher.textWatcher(vararg views: EditText) {
 }
 
 object ExtraTextViewFunctions {
+
+    /**
+     * 弹出软键盘
+     */
+    fun showSoftKeyboard(context: Context, view: View) {
+        val inputManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        inputManager?.showSoftInput(view, 0)
+    }
+
     /**
      * 隐藏软键盘(可用于Activity，Fragment)
      */
     fun hideSoftKeyboard(context: Context, view: View) {
-        val inputMethodManager: InputMethodManager = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+        val inputMethodManager = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager
+        inputMethodManager?.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
     /**

@@ -18,9 +18,9 @@ import java.io.File
  */
 class ShotObserver private constructor(): ContentObserver(null) {
     private var filePath = ""//存储上一次捕获到的文件地址
-    private val context by lazy { BaseApplication.instance.applicationContext }
+    private var listener: (filePath: String?) -> Unit = { _ -> }
+    private val mContext by lazy { BaseApplication.instance.applicationContext }
     private val TAG = "ScreenShotObserver"
-    private var onShutter: (filePath: String?) -> Unit = { _ -> }
 
     companion object {
         @JvmStatic
@@ -40,7 +40,7 @@ class ShotObserver private constructor(): ContentObserver(null) {
             MediaStore.Images.Media.SIZE)
         var cursor: Cursor? = null
         try {
-            cursor = context.contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null, MediaStore.MediaColumns.DATE_MODIFIED + " desc")
+            cursor = mContext.contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null, MediaStore.MediaColumns.DATE_MODIFIED + " desc")
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
 //                    val contentUri = ContentUris.withAppendedId(
@@ -50,10 +50,12 @@ class ShotObserver private constructor(): ContentObserver(null) {
                     //获取监听的路径
 //                    val queryPath = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA))
                     val queryPath = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        val sdPath = context.getExternalFilesDir(null)?.absolutePath.orEmpty()
+                        val sdPath = mContext.getExternalFilesDir(null)?.absolutePath.orEmpty()
                         "${sdPath.split("Android")[0]}${getQueryResult(cursor, columns[1])}${getQueryResult(cursor, columns[3])}"
 //                        "/storage/emulated/0/${getQueryResult(cursor, columns[1])}${getQueryResult(cursor, columns[3])}"
-                    } else getQueryResult(cursor, columns[1])
+                    } else {
+                        getQueryResult(cursor, columns[1])
+                    }
                     if (filePath != queryPath) {
                         filePath = queryPath
                         //inJustDecodeBounds=true不会把图片放入内存，只会获取宽高，判断当前路径是否为图片，是的话捕获文件路径
@@ -63,7 +65,7 @@ class ShotObserver private constructor(): ContentObserver(null) {
                         if (options.outWidth != -1) {
                             val file = File(queryPath)
                             " \n生成图片的路径:$queryPath\n手机截屏的路径：${file.parent}".logE(TAG)
-                            onShutter.invoke(queryPath)
+                            listener.invoke(queryPath)
                         }
                     }
                 }
@@ -82,18 +84,18 @@ class ShotObserver private constructor(): ContentObserver(null) {
     /**
      * 注册监听
      */
-    fun register() = context.contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, this)
+    fun register() = mContext.contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, this)
 
     /**
      * 注销监听
      */
-    fun unregister() = context.contentResolver.unregisterContentObserver(this)
+    fun unregister() = mContext.contentResolver.unregisterContentObserver(this)
 
     /**
      * exists->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
      */
-    fun setOnScreenShotListener(onShutter: (filePath: String?) -> Unit) {
-        this.onShutter = onShutter
+    fun setOnScreenShotListener(listener: (filePath: String?) -> Unit) {
+        this.listener = listener
     }
 
 }

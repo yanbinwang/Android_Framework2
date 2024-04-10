@@ -8,6 +8,8 @@ import android.view.ViewGroup
  * 自定义控件继承viewgroup需要清除边距，使用当前类做处理
  */
 abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ViewGroup(context, attrs, defStyleAttr) {
+    //检测布局绘制
+    protected val isInflate get() = childCount <= 0
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -24,17 +26,12 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        if (isInflate()) onInflateView()
+        if (isInflate) onInflate()
     }
-
-    /**
-     * 检测布局绘制
-     */
-    protected fun isInflate() = childCount <= 0
 
     /**
      * 容器在new的时候不会走onFinishInflate方法，需要手动调取
      */
-    abstract fun onInflateView()
+    abstract fun onInflate()
 
 }

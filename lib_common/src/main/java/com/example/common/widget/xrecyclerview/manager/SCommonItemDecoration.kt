@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 
 /**
@@ -29,18 +30,18 @@ class SCommonItemDecoration(private val mPropMap: SparseArray<ItemDecorationProp
         var spanCount = 1
         var orientation = OrientationHelper.VERTICAL
         if (parent.layoutManager is GridLayoutManager) {
-            val lp = view.layoutParams as GridLayoutManager.LayoutParams
-            spanIndex = lp.spanIndex
-            spanSize = lp.spanSize
-            val layoutManager = parent.layoutManager as GridLayoutManager?
+            val lp = view.layoutParams as? GridLayoutManager.LayoutParams
+            spanIndex = lp?.spanIndex.orZero
+            spanSize = lp?.spanSize.orZero
+            val layoutManager = parent.layoutManager as? GridLayoutManager
             spanCount = layoutManager?.spanCount.orZero // Assume that there're spanCount items in this row/column.
             orientation = layoutManager?.orientation.orZero
         } else if (parent.layoutManager is StaggeredGridLayoutManager) {
-            val lp = view.layoutParams as StaggeredGridLayoutManager.LayoutParams
-            spanIndex = lp.spanIndex
-            val layoutManager = parent.layoutManager as StaggeredGridLayoutManager?
+            val lp = view.layoutParams as? StaggeredGridLayoutManager.LayoutParams
+            spanIndex = lp?.spanIndex.orZero
+            val layoutManager = parent.layoutManager as? StaggeredGridLayoutManager
             spanCount = layoutManager?.spanCount.orZero // Assume that there're spanCount items in this row/column.
-            spanSize = if (lp.isFullSpan) spanCount else 1
+            spanSize = if (lp?.isFullSpan.orFalse) spanCount else 1
             orientation = layoutManager?.orientation.orZero
         }
 

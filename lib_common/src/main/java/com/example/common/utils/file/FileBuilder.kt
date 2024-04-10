@@ -1,5 +1,6 @@
 package com.example.common.utils.file
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.Canvas
@@ -9,17 +10,19 @@ import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import android.util.Patterns
 import android.view.View
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
 import com.example.common.subscribe.CommonSubscribe
-import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.saveBit
+import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.logWTF
+import com.example.glide.ImageLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -36,18 +39,27 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 工具类中，实现了对应文件流下载保存的方法，此处采用协程的方式引用
  */
-class FileBuilder(lifecycleOwner: LifecycleOwner) : CoroutineScope {
+class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
     private var picJob: Job? = null
     private var pdfJob: Job? = null
     private var viewJob: Job? = null
     private var zipJob: Job? = null
     private var downloadJob: Job? = null
+    private var downloadPicJob: Job? = null
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = Main + job
 
     init {
-        lifecycleOwner.doOnDestroy { job.cancel() }
+        observer.doOnDestroy {
+            picJob?.cancel()
+            downloadPicJob?.cancel()
+            pdfJob?.cancel()
+            viewJob?.cancel()
+            zipJob?.cancel()
+            downloadJob?.cancel()
+            job.cancel()
+        }
     }
 
     /**
@@ -57,12 +69,12 @@ class FileBuilder(lifecycleOwner: LifecycleOwner) : CoroutineScope {
         picJob?.cancel()
         picJob = launch {
             onStart()
-            suspendingSavePic(bitmap, root, fileName, deleteDir, format, onResult)
+            onResult.invoke(suspendingSavePic(bitmap, root, fileName, deleteDir, format))
         }
     }
 
-    private suspend fun suspendingSavePic(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, listener: (filePath: String?) -> Unit = {}) {
-        listener(withContext(IO) { saveBit(bitmap, root, fileName, deleteDir, format) })
+    private suspend fun suspendingSavePic(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG): String? {
+        return withContext(IO) { saveBit(bitmap, root, fileName, deleteDir, format) }
     }
 
     /**
@@ -73,7 +85,7 @@ class FileBuilder(lifecycleOwner: LifecycleOwner) : CoroutineScope {
         pdfJob?.cancel()
         pdfJob = launch {
             onStart()
-            suspendingSavePDF(file, index, onResult)
+            onResult.invoke(suspendingSavePDF(file, index))
         }
     }
 
@@ -87,14 +99,14 @@ class FileBuilder(lifecycleOwner: LifecycleOwner) : CoroutineScope {
             val list = ArrayList<String?>()
             val pageCount = withContext(IO) { PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).pageCount }
             for (index in 0 until pageCount) {
-                suspendingSavePDF(file, index) { list.add(it) }
+                list.add(suspendingSavePDF(file, index))
             }
             onResult.invoke(list)
         }
     }
 
-    private suspend fun suspendingSavePDF(file: File, index: Int = 0, listener: (filePath: String?) -> Unit = {}) {
-        listener(withContext(IO) {
+    private suspend fun suspendingSavePDF(file: File, index: Int = 0): String? {
+        return withContext(IO) {
             val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
             val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
             val width = page.width
@@ -108,26 +120,49 @@ class FileBuilder(lifecycleOwner: LifecycleOwner) : CoroutineScope {
             page.close()
             renderer.close()
             saveBit(bitmap)
-        })
+        }
     }
 
     /**
      * 构建图片
+     * 需要注意，如果直接写100而不是100.pt的话，是会直接100像素写死的，但是内部字体宽度大小也是像素，整体兼容性上会不是很好，而写成100.pt后，会根据手机宽高做一定的转化
+     * val view = ViewTestBinding.bind(inflate(R.layout.view_test)).root
+     * view.measure(WRAP_CONTENT, WRAP_CONTENT)//不传height的时候要加，高改为view.measuredHeight
+     * builder.saveViewJob(view, 100, 100, {
+     * showDialog()
+     * }, {
+     * hideDialog()
+     * insertImageResolver(File(it.orEmpty()))
+     * })
      */
-    fun saveViewJob(view: View, width: Int = screenWidth, height: Int = screenHeight, onStart: () -> Unit = {}, onResult: (bitmap: Bitmap?) -> Unit = {}) {
+    fun saveViewJob(view: View, width: Int = screenWidth, height: Int = WRAP_CONTENT, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
         viewJob?.cancel()
         viewJob = launch {
             onStart()
-            suspendingSaveView(view, width, height, onResult)
+            var filePath: String? = null
+            suspendingSaveView(view, width, height).apply {
+                this ?: return@apply
+                filePath = saveBit(this)
+            }
+            onResult.invoke(filePath)
         }
     }
 
-    private suspend fun suspendingSaveView(view: View, width: Int = screenWidth, height: Int = screenHeight, listener: (bitmap: Bitmap?) -> Unit = {}) {
-        view.loadLayout(width, height)
-        try {
-            listener(withContext(IO) { view.loadBitmap() })
+    private suspend fun suspendingSaveView(view: View, width: Int = screenWidth, height: Int = WRAP_CONTENT): Bitmap? {
+        return try {
+            withContext(IO) {
+                //对传入的高做一个修正，如果是自适应需要先做一次测绘
+                val mHeight = if (height < 0) {
+                    view.measure(WRAP_CONTENT, WRAP_CONTENT)
+                    view.measuredHeight
+                } else {
+                    height
+                }
+                view.loadLayout(width, mHeight)
+                view.loadBitmap()
+            }
         } catch (_: Exception) {
-            listener(null)
+            null
         }
     }
 
@@ -143,17 +178,21 @@ class FileBuilder(lifecycleOwner: LifecycleOwner) : CoroutineScope {
         zipJob?.cancel()
         zipJob = launch {
             onStart()
-            suspendingZip(folderList, zipPath, onResult)
+            onResult.invoke(suspendingZip(folderList, zipPath))
         }
     }
 
-    private suspend fun suspendingZip(folderList: MutableList<String>, zipPath: String, listener: (filePath: String?) -> Unit = {}) {
-        try {
-            withContext(IO) { zipFolder(folderList, File(zipPath).absolutePath) }
+    private suspend fun suspendingZip(folderList: MutableList<String>, zipPath: String): String? {
+        return try {
+            withContext(IO) {
+                zipPath.isMkdirs()
+                zipFolder(folderList, zipPath)
+            }
+            zipPath
         } catch (e: Exception) {
             "打包图片生成压缩文件异常: $e".logWTF
+            null
         }
-        listener(zipPath.isMkdirs())
     }
 
     @Throws(Exception::class)
@@ -222,6 +261,37 @@ class FileBuilder(lifecycleOwner: LifecycleOwner) : CoroutineScope {
                 fileOutputStream?.close()
                 withContext(Main) { onComplete() }
             }
+        }
+    }
+
+    /**
+     * 存储图片协程(下载url)
+     */
+    fun downloadPicJob(mContext: Context, string: String, root: String = "${STORAGE}/保存图片", deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+        downloadPicJob?.cancel()
+        downloadPicJob = launch {
+            onStart()
+            //存储目录文件
+            val storeDir = File(root)
+            //先判断是否需要清空目录，再判断是否存在（不存在则创建）
+            if (deleteDir) root.deleteDir()
+            root.isMkdirs()
+            //下载的文件从缓存目录拷贝到指定目录
+            onResult.invoke(suspendingDownloadPic(mContext, string, storeDir))
+        }
+    }
+
+    private suspend fun suspendingDownloadPic(mContext: Context, string: String, storeDir: File): String? {
+        return withContext(IO) {
+            var file: File? = null
+            var filePath: String? = null
+            ImageLoader.instance.download(mContext, string) {
+                file = it
+                filePath = "${storeDir.absolutePath}/${it?.name}"//此处`it?.name`会包含glide下载图片的后缀（png,jpg,webp等）
+            }
+            file?.copy(storeDir)
+            file?.delete()
+            filePath
         }
     }
 

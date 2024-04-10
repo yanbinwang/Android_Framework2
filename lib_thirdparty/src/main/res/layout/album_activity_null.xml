@@ -38,7 +38,7 @@
                 android:scrollHorizontally="true"
                 android:text="@string/albumTitle"
                 android:textColor="@color/textAlbum"
-                android:textSize="20sp" />
+                android:textSize="@dimen/album_sp_18" />
 
         </androidx.appcompat.widget.Toolbar>
 

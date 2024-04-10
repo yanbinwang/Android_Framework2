@@ -7,7 +7,9 @@ import com.example.common.config.ARouterPath
 import com.example.common.config.CacheData.userBean
 import com.example.common.config.CacheData.userInfoBean
 import com.example.common.config.Constants
+import com.example.common.event.EventCode
 import com.example.common.event.EventCode.EVENT_USER_INFO_REFRESH
+import com.example.common.event.EventCode.EVENT_USER_LOGIN_OUT
 import com.example.common.socket.WebSocketConnect
 import com.example.common.utils.AppManager
 import com.example.framework.utils.function.value.add
@@ -20,7 +22,7 @@ import com.example.framework.utils.function.value.orFalse
  */
 object AccountHelper {
     //默认用户文件保存位置
-    val storage get() = "${Constants.APPLICATION_PATH}/手机文件/${getUserId()}"
+    val STORAGE get() = "${Constants.APPLICATION_PATH}/手机文件/${getUserId()}"
 
     // <editor-fold defaultstate="collapsed" desc="用户类方法">
     /**
@@ -34,29 +36,29 @@ object AccountHelper {
     /**
      * 获取用户对象
      */
-    fun getUser(): UserBean? {
-        return userBean.get()
+    fun getUser(): UserBean {
+        return userBean.get() ?: UserBean()
     }
 
     /**
      * 获取userid
      */
     fun getUserId(): String {
-        return getUser()?.userId.orEmpty()
+        return getUser().userId.orEmpty()
     }
 
     /**
      * 获取token
      */
     fun getToken(): String {
-        return getUser()?.token.orEmpty()
+        return getUser().token.orEmpty()
     }
 
     /**
      * 是否通过实名认证
      */
     fun getIsReal(): Boolean {
-        return getUser()?.isReal.orFalse
+        return getUser().isReal.orFalse
     }
 
     /**
@@ -64,7 +66,7 @@ object AccountHelper {
      */
     fun setPhoneNumber(newPhoneNumber: String?) {
         newPhoneNumber ?: return
-        getUser()?.let {
+        getUser().let {
             it.phoneNumber = newPhoneNumber
             setUser(it)
         }
@@ -74,7 +76,7 @@ object AccountHelper {
      * 获取手机号
      */
     fun getPhoneNumber(): String {
-        return getUser()?.phoneNumber.orEmpty()
+        return getUser().phoneNumber.orEmpty()
     }
     // </editor-fold>
 
@@ -84,14 +86,15 @@ object AccountHelper {
      */
     private fun setUserInfo(bean: UserInfoBean?) {
         bean ?: return
+        if (getUserInfo() == bean) return//重写equals和hashcode
         userInfoBean.set(bean)
     }
 
     /**
      * 获取用户信息对象
      */
-    private fun getUserInfo(): UserInfoBean? {
-        return userInfoBean.get()
+    fun getUserInfo(): UserInfoBean {
+        return userInfoBean.get() ?: UserInfoBean()
     }
 
     /**
@@ -100,7 +103,7 @@ object AccountHelper {
      */
     fun setStatus(newStatus: Int?) {
         newStatus ?: return
-        getUserInfo()?.let {
+        getUserInfo().let {
             it.status = newStatus
             setUserInfo(it)
         }
@@ -110,9 +113,9 @@ object AccountHelper {
      * 获取余额->balance+sendBalance
      */
     fun getLumpSum(): String {
-        return getUserInfo()?.let {
+        return getUserInfo().let {
             it.balance.add(it.sendBalance.orEmpty())
-        }.orEmpty()
+        }
     }
     // </editor-fold>
 
@@ -132,8 +135,7 @@ object AccountHelper {
      */
     fun isLogin(): Boolean {
         return getUser().let {
-            it ?: false
-            !it?.token.isNullOrEmpty()
+            !it.token.isNullOrEmpty()
         }
     }
 
@@ -147,13 +149,19 @@ object AccountHelper {
 
     /**
      * 用户注销操作（清除信息,清除用户凭证，第三方库注销）
+     * MainActivity中注册EVENT_USER_LOGIN_OUT广播，关闭除其外的所有activity
+     * 如果需要跳转别的页面再调取ARouter，默认会拉起登录
      */
-    fun signOut() {
+    fun signOut(isNavigation: Boolean = true) {
         userBean.del()
         userInfoBean.del()
-        WebSocketConnect.disconnect()
+//        WebSocketConnect.disconnect()
+//        EVENT_USER_LOGIN_OUT.post()
         AppManager.finishAll()
-        ARouter.getInstance().build(ARouterPath.StartActivity).navigation()
+//        ARouter.getInstance().build(ARouterPath.StartActivity).navigation()
+        if (isNavigation) {
+            ARouter.getInstance().build(ARouterPath.LoginActivity).navigation()
+        }
     }
     // </editor-fold>
 
