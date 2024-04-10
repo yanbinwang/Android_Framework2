@@ -16,7 +16,7 @@ import com.example.thirdparty.media.utils.MediaUtil.MediaType.AUDIO
  */
 class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var isDestroy = false
-    private var onRecorderListener: OnRecorderListener? = null
+    private var listener: OnRecorderListener? = null
     private val player by lazy { MediaPlayer() }
     private val recorder by lazy { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(mActivity) else MediaRecorder() }
 
@@ -31,7 +31,7 @@ class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         isDestroy = false
         val recordFile = MediaUtil.getOutputFile(AUDIO)
         val sourcePath = recordFile?.absolutePath
-        onRecorderListener?.onStart(sourcePath)
+        listener?.onStart(sourcePath)
         try {
             recorder.apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)//设置麦克风
@@ -54,7 +54,7 @@ class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
      * 停止录音
      */
     fun stopRecord() {
-        if (!isDestroy) onRecorderListener?.onShutter()
+        if (!isDestroy) listener?.onShutter()
         try {
             recorder.apply {
                 stop()
@@ -63,14 +63,14 @@ class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             }
         } catch (_: Exception) {
         }
-        if (!isDestroy) onRecorderListener?.onStop()
+        if (!isDestroy) listener?.onStop()
     }
 
     /**
      * 录音监听
      */
-    fun setOnRecorderListener(onRecorderListener: OnRecorderListener) {
-        this.onRecorderListener = onRecorderListener
+    fun setOnRecorderListener(listener: OnRecorderListener) {
+        this.listener = listener
     }
 
     interface OnRecorderListener {

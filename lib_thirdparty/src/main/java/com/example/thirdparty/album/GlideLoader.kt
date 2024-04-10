@@ -18,7 +18,6 @@ class GlideLoader : AlbumLoader {
 
     override fun load(imageView: ImageView, url: String) {
         ImageLoader.instance.display(imageView, url)
-//        Glide.with(imageView.context).load(url).placeholder(R.drawable.shape_glide_bg).error(R.drawable.shape_glide_bg).dontAnimate().into(imageView)
     }
 
 }
