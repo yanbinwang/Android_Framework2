@@ -1,4 +1,4 @@
-package com.example.thirdparty.amap.utils
+package com.example.amap.utils
 
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.LatLngBounds
