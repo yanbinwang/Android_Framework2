@@ -4,13 +4,16 @@ import android.app.Activity
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
+import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
 import android.os.Parcelable
 import android.provider.MediaStore
+import android.provider.Settings
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
@@ -41,6 +44,15 @@ fun FragmentActivity?.registerResult(func: ((it: ActivityResult) -> Unit)): Acti
 }
 
 /**
+ * 拉起屏幕录制
+ */
+fun ActivityResultLauncher<Intent>?.pullUpScreen(mActivity: Activity?) {
+    this ?: return
+    val mediaProjectionManager = mActivity?.getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
+    launch(mediaProjectionManager?.createScreenCaptureIntent())
+}
+
+/**
  * 拉起系统默认相机
  */
 fun ActivityResultLauncher<Intent>?.pullUpAlbum() {
@@ -59,6 +71,20 @@ fun Activity.pullUpAlbum() {
     val intent = Intent(Intent.ACTION_PICK, null)
     intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
     startActivityForResult(intent, REQUEST_PHOTO)
+}
+
+/**
+ * 高版本后台服务有浮层需要允许当前设置
+ */
+fun Activity.pullUpOverlay(): Boolean {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+        intent.data = Uri.parse("package:${packageName}")
+        startActivity(intent)
+        false
+    } else {
+        true
+    }
 }
 
 /**
