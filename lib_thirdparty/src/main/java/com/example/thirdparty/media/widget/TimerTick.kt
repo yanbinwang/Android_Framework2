@@ -26,11 +26,11 @@ import java.util.TimerTask
  * @description 录屏小组件工具栏
  */
 class TimerTick(context: Context, move: Boolean = true) {
-    private val mBinding by lazy { ViewTimeTickBinding.bind(context.inflate(R.layout.view_time_tick)) }
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
     private var tickDialog: AlertDialog? = null
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+    private val mBinding by lazy { ViewTimeTickBinding.bind(context.inflate(R.layout.view_time_tick)) }
 
     companion object {
         @Volatile
