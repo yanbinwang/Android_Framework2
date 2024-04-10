@@ -1,4 +1,4 @@
-package com.example.thirdparty.map.utils
+package com.example.thirdparty.amap.utils
 
 import android.graphics.Color
 import android.graphics.Point
@@ -15,13 +15,13 @@ import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.PolygonOptions
-import com.example.common.utils.function.toObj
 import com.example.common.utils.permission.checkSelfLocation
+import com.example.common.utils.toObj
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.gone
-import com.example.thirdparty.map.utils.LocationFactory.Companion.aMapLatlng
+import com.example.thirdparty.amap.utils.LocationFactory.Companion.aMapLatlng
 import kotlin.math.roundToInt
 
 /**

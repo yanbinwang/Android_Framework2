@@ -1,4 +1,4 @@
-package com.example.thirdparty.map.utils
+package com.example.thirdparty.amap.utils
 
 import android.app.Activity
 import android.app.Notification
@@ -24,7 +24,7 @@ import com.example.common.BaseApplication
 import com.example.common.config.Constants
 import com.example.common.utils.DataStringCacheUtil
 import com.example.common.utils.function.string
-import com.example.common.utils.function.toJsonString
+import com.example.common.utils.toJsonString
 import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orFalse
