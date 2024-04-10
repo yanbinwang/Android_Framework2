@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">PLDroidMediaStreamingDemo</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="start">Start</string>
+
+    <string name="hw_codec_camera_streaming_txt">HW Codec Camera Streaming</string>
+    <string name="sw_codec_camera_streaming_txt">SW Codec Camera Streaming</string>
+    <string name="pure_audio_streaming_txt">Audio Streaming</string>
+    <string name="screen_recorder_streaming_txt">Screen Recorder Streaming</string>
+    <string name="ext_cap_streaming_txt">Ext Capture Streaming</string>
+
+    <string name="string_state_ready">READY</string>
+    <string name="string_state_preparing">PREPARING</string>
+    <string name="string_state_connecting">CONNECTING</string>
+    <string name="string_state_streaming">STREAMING</string>
+    <string name="string_state_netblocking">NETBLOCKING, STOPPING</string>
+    <string name="string_state_con_timeout">CONNECTION TIMEOUT</string>
+    <string name="title_activity_audio_streaming">AudioStreamingActivity</string>
+
+    <string name="invisible_control_view">隐藏控件</string>
+    <string name="visible_control_view">显示控件</string>
+    <string name="preview_mirror">预览镜像</string>
+    <string name="encoding_mirror">编码镜像</string>
+    <string name="mute_audio">静音</string>
+    <string name="unmute_audio">取消静音</string>
+    <string name="face_beauty_on">打开美颜</string>
+    <string name="face_beauty_off">关闭美颜</string>
+    <string name="audio_mix_panel">混音面板</string>
+    <string name="picture_streaming">图片推流</string>
+    <string name="port_orientation_streaming">竖屏推流</string>
+    <string name="land_orientation_streaming">横屏推流</string>
+    <string name="capture_frame">截帧</string>
+    <string name="add_overlay">添加贴纸</string>
+    <string name="send_sei">发送 SEI</string>
+    <string name="flash_light_on">打开闪光灯</string>
+    <string name="flash_light_off">关闭闪光灯</string>
+</resources>

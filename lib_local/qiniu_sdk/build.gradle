@@ -1,0 +1,51 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+}
+
+android {
+    namespace 'com.example.qiniu'
+    compileSdkVersion build_versions.compileSdkVersion
+
+    defaultConfig {
+        minSdk build_versions.minSdkVersion
+        targetSdk build_versions.targetSdkVersion
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        dataBinding true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    testImplementation "junit:junit:$build_versions.junit"
+    androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
+    //七牛云jar包
+    api files('libs/pldroid-media-streaming-3.1.6.jar')
+    //框架库
+    implementation project(':lib_framework')
+    // dns 相关 jar 包，必须依赖
+    implementation 'com.qiniu:happy-dns:1.0.1'
+    // 监听应用生命周期，必须依赖
+    implementation 'android.arch.lifecycle:extensions:1.1.1'
+}
