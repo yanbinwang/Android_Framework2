@@ -151,6 +151,7 @@ fun Context.openSetupApk(filePath: String) = openFile(filePath, "application/vnd
 
 /**
  * 统一开启文件
+ * https://zhuanlan.zhihu.com/p/260340912
  */
 fun Context.openFile(filePath: String, type: String) {
     val file = File(filePath)
