@@ -25,63 +25,6 @@ class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     }
 
     /**
-     * 开始录音
-     */
-    fun startRecord() {
-        isDestroy = false
-        val recordFile = MediaUtil.getOutputFile(AUDIO)
-        val sourcePath = recordFile?.absolutePath
-        listener?.onStart(sourcePath)
-        try {
-            recorder.apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)//设置麦克风
-                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                //若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                    setOutputFile(sourcePath)
-                } else {
-                    setOutputFile(recordFile)
-                }
-                prepare()
-                start()
-            }
-        } catch (_: Exception) {
-        }
-    }
-
-    /**
-     * 停止录音
-     */
-    fun stopRecord() {
-        if (!isDestroy) listener?.onShutter()
-        try {
-            recorder.apply {
-                stop()
-                reset()
-                release()
-            }
-        } catch (_: Exception) {
-        }
-        if (!isDestroy) listener?.onStop()
-    }
-
-    /**
-     * 录音监听
-     */
-    fun setOnRecorderListener(listener: OnRecorderListener) {
-        this.listener = listener
-    }
-
-    interface OnRecorderListener {
-        fun onStart(sourcePath: String?)
-
-        fun onShutter()
-
-        fun onStop()
-    }
-
-    /**
      * 设置播放的音频地址
      */
     fun setDataSource(sourcePath: String, looping: Boolean = true) {
@@ -138,6 +81,69 @@ class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         }
     }
 
+    /**
+     * 开始录音
+     */
+    fun startRecord() {
+        isDestroy = false
+        val recordFile = MediaUtil.getOutputFile(AUDIO)
+        val sourcePath = recordFile?.absolutePath
+        listener?.onStart(sourcePath)
+        try {
+            recorder.apply {
+                setAudioSource(MediaRecorder.AudioSource.MIC)//设置麦克风
+                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                //若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    setOutputFile(sourcePath)
+                } else {
+                    setOutputFile(recordFile)
+                }
+                prepare()
+                start()
+            }
+        } catch (_: Exception) {
+        }
+    }
+
+    /**
+     * 停止录音
+     */
+    fun stopRecord() {
+        if (!isDestroy) listener?.onShutter()
+        try {
+            recorder.apply {
+                stop()
+                reset()
+                release()
+            }
+        } catch (_: Exception) {
+        }
+        if (!isDestroy) listener?.onStop()
+    }
+
+    /**
+     * 录音监听
+     */
+    fun setOnRecorderListener(listener: OnRecorderListener) {
+        this.listener = listener
+    }
+
+    /**
+     * 回调监听
+     */
+    interface OnRecorderListener {
+        fun onStart(sourcePath: String?)
+
+        fun onShutter()
+
+        fun onStop()
+    }
+
+    /**
+     * 生命周期管控
+     */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
             Lifecycle.Event.ON_DESTROY -> {
