@@ -32,11 +32,11 @@ import com.yanzhenjie.durban.Durban
  * android:configChanges="orientation|keyboardHidden|screenSize"
  */
 class AlbumHelper {
-    private var mCamera: Camera<ImageCameraWrapper, VideoCameraWrapper>? = null
-    private var mVideo: Choice<VideoMultipleWrapper, VideoSingleWrapper>? = null
-    private var mImage: Choice<ImageMultipleWrapper, ImageSingleWrapper>? = null
-    private var mDurban: Durban? = null
-    private val mWidget by lazy {
+    private var imageCamera: Camera<ImageCameraWrapper, VideoCameraWrapper>? = null
+    private var videoMultiple: Choice<VideoMultipleWrapper, VideoSingleWrapper>? = null
+    private var imageMultiple: Choice<ImageMultipleWrapper, ImageSingleWrapper>? = null
+    private var durban: Durban? = null
+    private val widget by lazy {
         Widget.newDarkBuilder(BaseApplication.instance)
             //标题 ---标题颜色只有黑色白色
             .title(" ")
@@ -48,25 +48,28 @@ class AlbumHelper {
     }
     private val mColor by lazy { Color.BLACK }
 
+    /**
+     * activity和fragment在裁剪或者onactivityresult时是必须指明的，不然返回会错误
+     */
     constructor(mActivity: Activity) {
-        mCamera = Album.camera(mActivity)
-        mVideo = Album.video(mActivity)
-        mImage = Album.image(mActivity)
-        mDurban = Durban.with(mActivity)
+        imageCamera = Album.camera(mActivity)
+        videoMultiple = Album.video(mActivity)
+        imageMultiple = Album.image(mActivity)
+        durban = Durban.with(mActivity)
     }
 
     constructor(fragment: Fragment) {
-        mCamera = Album.camera(fragment)
-        mVideo = Album.video(fragment)
-        mImage = Album.image(fragment)
-        mDurban = Durban.with(fragment)
+        imageCamera = Album.camera(fragment)
+        videoMultiple = Album.video(fragment)
+        imageMultiple = Album.image(fragment)
+        durban = Durban.with(fragment)
     }
 
     /**
      * 跳转至相机-拍照
      */
     fun takePicture(filePath: String, hasDurban: Boolean = false, onResult: (albumPath: String?) -> Unit = {}) {
-        mCamera?.image()
+        imageCamera?.image()
             ?.filePath(filePath)
             ?.onResult { if (hasDurban) toDurban(it) else onResult.invoke(it) }
             ?.start()
@@ -76,7 +79,7 @@ class AlbumHelper {
      * 跳转至相机-录像(时间不一定能指定，大多数手机不兼容)
      */
     fun recordVideo(filePath: String, duration: Long = 1.hour, onResult: (albumPath: String?) -> Unit = {}) {
-        mCamera?.video()
+        imageCamera?.video()
             ?.filePath(filePath)
             ?.quality(1)//视频质量, [0, 1].
             ?.limitDuration(duration)//视频的最长持续时间以毫秒为单位
@@ -89,11 +92,11 @@ class AlbumHelper {
      * 选择图片
      */
     fun imageSelection(hasCamera: Boolean = true, hasDurban: Boolean = false, megabyte: Long = 10, onResult: (albumPath: String?) -> Unit = {}) {
-        mImage
+        imageMultiple
             //多选模式为：multipleChoice,单选模式为：singleChoice()
             ?.singleChoice()
             //状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
-            ?.widget(mWidget)
+            ?.widget(widget)
             //是否具备相机
             ?.camera(hasCamera)
             //页面列表的列数
@@ -116,11 +119,11 @@ class AlbumHelper {
      * 选择视频
      */
     fun videoSelection(megabyte: Long = 100, onResult: (albumPath: String?) -> Unit = {}) {
-        mVideo
+        videoMultiple
             //多选模式为：multipleChoice,单选模式为：singleChoice()
             ?.singleChoice()
             //状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
-            ?.widget(mWidget)
+            ?.widget(widget)
             //是否具备相机
             ?.camera(true)
             //页面列表的列数
@@ -157,7 +160,7 @@ class AlbumHelper {
      * }
      */
     fun toDurban(vararg imagePathArray: String?) {
-        mDurban
+        durban
             //裁剪界面的标题
             ?.title(" ")
             //状态栏颜色
