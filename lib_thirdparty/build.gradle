@@ -43,7 +43,7 @@ dependencies {
     //框架库
     implementation project(':lib_common')
     //相机/播放器
-    api 'com.github.CarGuo.GSYVideoPlayer:GSYVideoPlayer:v8.5.0-release-jitpack'
+    api 'com.github.CarGuo.GSYVideoPlayer:GSYVideoPlayer:v8.6.0-release-jitpack'
     api 'com.otaliastudios:cameraview:2.7.2'
     //相册/裁剪
     api 'com.yanzhenjie:album:2.1.3'
