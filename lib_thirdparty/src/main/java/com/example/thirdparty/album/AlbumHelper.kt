@@ -1,9 +1,9 @@
 package com.example.thirdparty.album
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.Color
 import androidx.fragment.app.Fragment
-import com.example.common.BaseApplication
 import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.mb
@@ -32,29 +32,21 @@ import com.yanzhenjie.durban.Durban
  * android:configChanges="orientation|keyboardHidden|screenSize"
  */
 class AlbumHelper {
-    private var imageCamera: Camera<ImageCameraWrapper, VideoCameraWrapper>? = null
-    private var videoMultiple: Choice<VideoMultipleWrapper, VideoSingleWrapper>? = null
-    private var imageMultiple: Choice<ImageMultipleWrapper, ImageSingleWrapper>? = null
+    private var widget: Widget? = null
     private var durban: Durban? = null
-    private val widget by lazy {
-        Widget.newDarkBuilder(BaseApplication.instance)
-            //标题 ---标题颜色只有黑色白色
-            .title(" ")
-            //状态栏颜色
-            .statusBarColor(Color.BLACK)
-            //Toolbar颜色
-            .toolBarColor(Color.BLACK)
-            .build()
-    }
+    private var imageCamera: Camera<ImageCameraWrapper, VideoCameraWrapper>? = null
+    private var imageMultiple: Choice<ImageMultipleWrapper, ImageSingleWrapper>? = null
+    private var videoMultiple: Choice<VideoMultipleWrapper, VideoSingleWrapper>? = null
 
     /**
-     * activity和fragment在裁剪或者onactivityresult时是必须指明的，不然返回会错误
+     * activity和fragment在裁剪或者OnActivityResult时是必须指明的，不然返回会错误
      */
     constructor(mActivity: Activity) {
         imageCamera = Album.camera(mActivity)
         videoMultiple = Album.video(mActivity)
         imageMultiple = Album.image(mActivity)
         durban = Durban.with(mActivity)
+        widget = getWidget(mActivity)
     }
 
     constructor(fragment: Fragment) {
@@ -62,6 +54,21 @@ class AlbumHelper {
         videoMultiple = Album.video(fragment)
         imageMultiple = Album.image(fragment)
         durban = Durban.with(fragment)
+        widget = getWidget(fragment.context)
+    }
+
+    /**
+     * 创建一个widget
+     */
+    private fun getWidget(mContext: Context?): Widget {
+        return Widget.newDarkBuilder(mContext)
+            //标题 ---标题颜色只有黑色白色
+            .title(" ")
+            //状态栏颜色
+            .statusBarColor(Color.BLACK)
+            //Toolbar颜色
+            .toolBarColor(Color.BLACK)
+            .build()
     }
 
     /**
