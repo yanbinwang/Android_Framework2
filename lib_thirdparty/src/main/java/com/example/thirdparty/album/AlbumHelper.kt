@@ -41,12 +41,11 @@ class AlbumHelper {
             //标题 ---标题颜色只有黑色白色
             .title(" ")
             //状态栏颜色
-            .statusBarColor(mColor)
+            .statusBarColor(Color.BLACK)
             //Toolbar颜色
-            .toolBarColor(mColor)
+            .toolBarColor(Color.BLACK)
             .build()
     }
-    private val mColor by lazy { Color.BLACK }
 
     /**
      * activity和fragment在裁剪或者onactivityresult时是必须指明的，不然返回会错误
@@ -164,9 +163,9 @@ class AlbumHelper {
             //裁剪界面的标题
             ?.title(" ")
             //状态栏颜色
-            ?.statusBarColor(mColor)
+            ?.statusBarColor(Color.BLACK)
             //Toolbar颜色
-            ?.toolBarColor(mColor)
+            ?.toolBarColor(Color.BLACK)
             //图片路径list或者数组
             ?.inputImagePaths(*imagePathArray)
             //图片输出文件夹路径
