@@ -13,6 +13,7 @@ import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.LifecycleService
 import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenDensity
 import com.example.framework.utils.function.value.orZero
@@ -32,7 +33,7 @@ import com.example.thirdparty.media.widget.TimerTick
  *      android:exported="false"
  *      android:foregroundServiceType="mediaProjection"--》 Q开始后台服务需要配置，否则录制不正常  />
  */
-class ScreenService : Service() {
+class ScreenService : LifecycleService() {
     private var folderPath: String? = null
     private var mediaProjection: MediaProjection? = null
     private var mediaRecorder: MediaRecorder? = null
@@ -63,7 +64,7 @@ class ScreenService : Service() {
             startForeground(1, builder.build())
         }
 //        stopForeground(true)//关闭录屏的图标-可注释
-        timerTick.start()
+        timerTick.start(lifecycle)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -76,7 +77,8 @@ class ScreenService : Service() {
             mediaRecorder?.start()
         } catch (_: Exception) {
         }
-        return START_STICKY
+//        return START_STICKY
+        return super.onStartCommand(intent, flags, startId)
     }
 
     private fun createMediaProjection(resultCode: Int, resultData: Intent): MediaProjection? {
@@ -113,14 +115,14 @@ class ScreenService : Service() {
         return mediaProjection?.createVirtualDisplay("mediaProjection", previewWidth, previewHeight, screenDensity, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mediaRecorder?.surface, null, null)
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
+//    override fun onBind(intent: Intent?): IBinder? {
+//        return null
+//    }
 
     override fun onDestroy() {
         super.onDestroy()
         try {
-            timerTick.destroy()
+//            timerTick.destroy()
             virtualDisplay?.release()
             virtualDisplay = null
             mediaRecorder?.stop()

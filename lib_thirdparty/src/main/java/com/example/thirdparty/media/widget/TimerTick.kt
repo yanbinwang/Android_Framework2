@@ -10,8 +10,11 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.helper.ConfigHelper.appIsOnForeground
 import com.example.framework.utils.WeakHandler
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.timer
@@ -96,7 +99,7 @@ class TimerTick(mContext: Context, move: Boolean = true) {
     /**
      * 开启定时器计时按秒累加，毫秒级的操作不能被获取
      */
-    fun start() {
+    fun start(observer: Lifecycle? = null) {
         timerCount = 0
         if (timer == null) {
             timer = Timer()
@@ -118,6 +121,7 @@ class TimerTick(mContext: Context, move: Boolean = true) {
             }
             timer?.schedule(timerTask, 0, 1000)
         }
+        observer.doOnDestroy { destroy() }
     }
 
     /**
