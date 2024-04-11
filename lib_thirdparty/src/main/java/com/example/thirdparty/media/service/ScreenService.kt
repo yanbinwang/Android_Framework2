@@ -40,13 +40,13 @@ class ScreenService : LifecycleService() {
     private val timerTick by lazy { TimerTick(this) }
 
     companion object {
-        internal var listener: (filePath: String?, isRecoding: Boolean) -> Unit = { _, _ -> }
+        internal var listener: (folderPath: String?, isRecoding: Boolean) -> Unit = { _, _ -> }
 
         /**
          * filePath->开始录制时，会返回源文件存储地址(此时记录一下)停止录制时一定为空，此时做ui操作
          * recoding->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
          */
-        fun setOnScreenListener(listener: (filePath: String?, isRecoding: Boolean) -> Unit) {
+        fun setOnScreenListener(listener: (folderPath: String?, isRecoding: Boolean) -> Unit) {
             this.listener = listener
         }
     }
