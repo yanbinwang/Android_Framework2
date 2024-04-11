@@ -33,21 +33,21 @@ import com.example.thirdparty.media.widget.TimerTick
  *      android:foregroundServiceType="mediaProjection"--》 Q开始后台服务需要配置，否则录制不正常  />
  */
 class ScreenService : Service() {
-    private var folderPath = ""
+    private var folderPath: String? = null
     private var mediaProjection: MediaProjection? = null
     private var mediaRecorder: MediaRecorder? = null
     private var virtualDisplay: VirtualDisplay? = null
     private val timerTick by lazy { TimerTick(this) }
 
     companion object {
-        internal var onShutter: (filePath: String?, recoding: Boolean) -> Unit = { _, _ -> }
+        internal var listener: (filePath: String?, isRecoding: Boolean) -> Unit = { _, _ -> }
 
         /**
          * filePath->开始录制时，会返回源文件存储地址(此时记录一下)停止录制时一定为空，此时做ui操作
          * recoding->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
          */
-        fun setOnScreenListener(onShutter: (filePath: String?, recoding: Boolean) -> Unit) {
-            this.onShutter = onShutter
+        fun setOnScreenListener(listener: (filePath: String?, isRecoding: Boolean) -> Unit) {
+            this.listener = listener
         }
     }
 
@@ -85,8 +85,7 @@ class ScreenService : Service() {
 
     private fun createMediaRecorder(): MediaRecorder {
         val screenFile = MediaUtil.getOutputFile(MediaType.SCREEN)
-        folderPath = screenFile?.absolutePath.orEmpty()
-        onShutter.invoke(folderPath, true)
+        folderPath = screenFile?.absolutePath
         return (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()).apply {
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
             setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -106,6 +105,7 @@ class ScreenService : Service() {
                 prepare()
             } catch (_: Exception) {
             }
+            listener.invoke(folderPath, true)
         }
     }
 
@@ -131,7 +131,7 @@ class ScreenService : Service() {
             mediaProjection = null
         } catch (_: Exception) {
         }
-        onShutter.invoke(folderPath, false)
+        listener.invoke(folderPath, false)
     }
 
 }

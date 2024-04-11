@@ -25,12 +25,12 @@ import java.util.TimerTask
  * @author yan
  * @description 录屏小组件工具栏
  */
-class TimerTick(context: Context, move: Boolean = true) {
+class TimerTick(mContext: Context, move: Boolean = true) {
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
     private var tickDialog: AlertDialog? = null
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
-    private val mBinding by lazy { ViewTimeTickBinding.bind(context.inflate(R.layout.view_time_tick)) }
+    private val mBinding by lazy { ViewTimeTickBinding.bind(mContext.inflate(R.layout.view_time_tick)) }
 
     companion object {
         @Volatile
@@ -43,7 +43,7 @@ class TimerTick(context: Context, move: Boolean = true) {
     init {
         if (null == tickDialog) {
             //设置一个自定义的弹框
-            val builder = AlertDialog.Builder(context, R.style.AndDialogStyle)
+            val builder = AlertDialog.Builder(mContext, R.style.AndDialogStyle)
             builder.setView(mBinding.root)
             tickDialog = builder.create()
             tickDialog?.apply {
@@ -60,7 +60,8 @@ class TimerTick(context: Context, move: Boolean = true) {
                     window?.attributes = params
                     window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))//透明
                     //配置移动，只支持上下
-                    if (null != params && move) {
+                    if (move) {
+                        params ?: return@post
                         mBinding.root.setOnTouchListener(object : View.OnTouchListener {
                             private var lastX = 0
                             private var lastY = 0
