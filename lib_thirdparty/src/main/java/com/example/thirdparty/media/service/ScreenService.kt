@@ -3,7 +3,6 @@ package com.example.thirdparty.media.service
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.Service
 import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
@@ -11,11 +10,11 @@ import android.media.MediaRecorder
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
-import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenDensity
+import com.example.common.utils.function.getExtra
 import com.example.framework.utils.function.value.orZero
 import com.example.thirdparty.media.utils.MediaUtil
 import com.example.thirdparty.media.utils.MediaUtil.MediaType
@@ -69,8 +68,9 @@ class ScreenService : LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         try {
-            val resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1).orZero
-            val resultData = intent?.getParcelableExtra(Extra.BUNDLE_BEAN) ?: Intent()
+            val resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1)
+//            val resultData = intent?.getParcelableExtra(Extra.BUNDLE_BEAN) ?: Intent()
+            val resultData = intent?.getExtra(Extra.BUNDLE_BEAN, Intent::class.java)
             mediaProjection = createMediaProjection(resultCode, resultData)
             mediaRecorder = createMediaRecorder()
             virtualDisplay = createVirtualDisplay()
@@ -81,8 +81,9 @@ class ScreenService : LifecycleService() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun createMediaProjection(resultCode: Int, resultData: Intent): MediaProjection? {
-        return (getSystemService(MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager)?.getMediaProjection(resultCode, resultData)
+    private fun createMediaProjection(resultCode: Int?, resultData: Intent?): MediaProjection? {
+        resultData ?: return null
+        return (getSystemService(MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager)?.getMediaProjection(resultCode.orZero, resultData)
     }
 
     private fun createMediaRecorder(): MediaRecorder {
