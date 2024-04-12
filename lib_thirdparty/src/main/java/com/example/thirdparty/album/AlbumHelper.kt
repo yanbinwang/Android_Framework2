@@ -165,7 +165,7 @@ class AlbumHelper {
      *     }
      * }
      */
-    fun toDurban(vararg imagePathArray: String?, width: Int = 500, height: Int = 500, quality: Int = 90) {
+    fun toDurban(vararg imagePathArray: String?, width: Int = 500, height: Int = 500, quality: Int = 80) {
         durban
             //裁剪界面的标题
             ?.title(" ")
