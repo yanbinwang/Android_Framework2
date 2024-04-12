@@ -27,6 +27,22 @@ import java.io.InputStream
 import java.util.*
 
 /**
+ * 获取路径图片的宽高
+ * 当我们选择了一个图片，要等边裁剪时可使用当前方法获取对应宽高
+ */
+fun String?.decodeDimensions(): IntArray? {
+    this ?: return null
+    val options = BitmapFactory.Options()
+    // 下面两行配置是关键，不会加载图片到内存，只是获取图片的尺寸信息
+    options.inJustDecodeBounds = true
+    BitmapFactory.decodeFile(this, options)
+    // options.outWidth 和 options.outHeight 就包含了图片的宽度和高度
+    val width = options.outWidth
+    val height = options.outHeight
+    return intArrayOf(width, height)
+}
+
+/**
  * 获取asset下的图片
  * "share/img_order_share_logo.webp".decodeAsset()
  */
