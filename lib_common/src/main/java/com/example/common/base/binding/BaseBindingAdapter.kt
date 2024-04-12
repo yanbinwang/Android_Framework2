@@ -13,7 +13,6 @@ import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import com.example.common.base.binding.adapter.BaseQuickAdapter
-import com.example.common.config.Constants
 import com.example.common.config.Constants.NO_DATA
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
@@ -27,15 +26,10 @@ import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.background
-import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.charBlackList
 import com.example.framework.utils.function.view.charLimit
 import com.example.framework.utils.function.view.decimalFilter
 import com.example.framework.utils.function.view.emojiLimit
-import com.example.framework.utils.function.view.initGridHorizontal
-import com.example.framework.utils.function.view.initGridVertical
-import com.example.framework.utils.function.view.initLinearHorizontal
-import com.example.framework.utils.function.view.initLinearVertical
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.setMatchText
@@ -56,12 +50,6 @@ object BaseBindingAdapter {
     /**
      * 约束布局等高线设置
      */
-//    @JvmStatic
-//    @BindingAdapter(value = ["statusBar_margin"])
-//    fun bindingGuidelineStatusBar(guideline: Guideline, statusBarMargin: Boolean?) {
-//        if (statusBarMargin.orFalse) guideline.setGuidelineBegin(getStatusBarHeight())
-//    }
-
     @JvmStatic
     @BindingAdapter(value = ["statusBar_margin"])
     fun bindingStatusBarMargin(view: View, statusBarMargin: Boolean?) {
@@ -105,43 +93,6 @@ object BaseBindingAdapter {
     @BindingAdapter(value = ["pager2_adapter", "orientation", "user_input_enabled", "page_limit"], requireAll = false)
     fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, pager2Adapter: T, orientation: Int?, userInputEnabled: Boolean?, pageLimit: Boolean?) {
         flipper.adapter(pager2Adapter, orientation.toSafeInt(ViewPager2.ORIENTATION_HORIZONTAL), userInputEnabled.orTrue, pageLimit.orFalse)
-    }
-
-//    /**
-//     * ConcatAdapter为recyclerview支持的多适配器拼接的适配器，可用于绘制复杂界面拼接
-//     */
-//    @BindingAdapter(value = ["concat_adapter"])
-//    fun bindingRecyclerViewConcatAdapter(rec: RecyclerView, adapter: ConcatAdapter) {
-//        rec.layoutManager = LinearLayoutManager(rec.context)
-//        rec.adapter = adapter
-//    }
-
-    /**
-     * 给recyclerview绑定一个适配器
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["linear_adapter", "linear_orientation"], requireAll = false)
-    fun <T : RecyclerView.Adapter<*>> bindingRecyclerViewLinearLayoutManager(rec: RecyclerView, linearAdapter: T, @RecyclerView.Orientation linearOrientation: Int?) {
-        rec.cancelItemAnimator()
-        if (linearOrientation.toSafeInt(RecyclerView.VERTICAL) == RecyclerView.VERTICAL) {
-            rec.initLinearVertical(linearAdapter)
-        } else {
-            rec.initLinearHorizontal(linearAdapter)
-        }
-    }
-
-    /**
-     * 给recyclerview绑定一个适配器
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["grid_adapter", "grid_orientation", "grid_columns"], requireAll = false)
-    fun <T : RecyclerView.Adapter<*>> bindingRecyclerViewGridLayoutManager(rec: RecyclerView, gridAdapter: T, @RecyclerView.Orientation gridOrientation: Int?, gridColumns: Int?) {
-        rec.cancelItemAnimator()
-        if (gridOrientation.toSafeInt(RecyclerView.VERTICAL) == RecyclerView.VERTICAL) {
-            rec.initGridVertical(gridAdapter, gridColumns.toSafeInt(1))
-        } else {
-            rec.initGridHorizontal(gridAdapter, gridColumns.toSafeInt(1))
-        }
     }
 
     /**

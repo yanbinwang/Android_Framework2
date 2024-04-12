@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?><!-- 不带刷新的recyclerview -->
-<com.example.framework.widget.DataRecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rv_list"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:overScrollMode="never"
-    android:scrollbars="none" />
+    android:layout_height="match_parent">
+
+    <com.example.framework.widget.ObserverRecyclerView
+        android:id="@+id/rv_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        android:scrollbars="none" />
+
+</FrameLayout>

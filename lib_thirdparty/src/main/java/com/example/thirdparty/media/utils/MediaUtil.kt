@@ -2,7 +2,7 @@ package com.example.thirdparty.media.utils
 
 import android.content.Context
 import android.media.MediaPlayer
-import com.example.common.config.Constants.STORAGE
+import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.toSafeInt

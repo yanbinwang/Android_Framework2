@@ -147,14 +147,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         mEmpty?.loading()
     }
 
-    fun empty(resId: Int = -1, text: String? = null) {
+    fun empty(resId: Int? = null, text: String? = null, width: Int? = null, height: Int? = null) {
         finishRefreshing()
-        mEmpty?.empty(resId, text)
+        mEmpty?.empty(resId, text, width, height)
     }
 
-    fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
+    fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
         finishRefreshing()
-        mEmpty?.error(resId, text, refreshText)
+        mEmpty?.error(resId, text, refreshText, width, height)
     }
 
     /**

@@ -22,8 +22,8 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
         super.onViewCreated(view, savedInstanceState)
     }
 
-    override fun initView() {
-        super.initView()
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
         if (needFragmentOwner) onHiddenChanged(false)
     }
 

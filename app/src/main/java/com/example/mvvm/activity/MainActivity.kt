@@ -1,5 +1,6 @@
 package com.example.mvvm.activity
 
+import android.os.Bundle
 import android.view.View
 import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.recyclerview.widget.OrientationHelper
@@ -8,9 +9,12 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
+import com.example.common.utils.file.FileBuilder
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.pullUpAlbum
+import com.example.common.utils.function.registerResult
 import com.example.common.widget.textview.edittext.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
@@ -35,6 +39,7 @@ import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.VideoSnapManager
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestTopDialog
+import com.example.thirdparty.album.AlbumHelper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -114,9 +119,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private val viewModel by lazy { TestViewModel().create() }
     private val bean by lazy { intentParcelable<UserBean>("bean") }
     private var isOpen = false
+    private val builder by lazy { FileBuilder(this) }
 
-    override fun initView() {
-        super.initView()
+    private val result = registerResult{
+
+    }
+
+
+    private val album by lazy { AlbumHelper(this) }
+
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
 
         mBinding?.ivArrow.click { isOpen = it.rotate(isOpen) }
 
@@ -263,9 +276,22 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             changeBgHeight(offset)
         }
         mBinding?.viewContent.click {
+            mPermission.requestPermissions {
+                result.pullUpAlbum()
+            }
+//            album.imageSelection(hasDurban = true) {
+//
+//            }
 //            "dsfdsfdsfds".shortToast()
-            testBottom.show(supportFragmentManager, "testBottom")
+//            testBottom.show(supportFragmentManager, "testBottom")
 //            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
+
+//            val view = ViewTestBinding.bind(inflate(R.layout.view_test)).root
+//                builder.saveViewJob(view, 100 , onResult ={
+//                    "更新相册${it}".shortToast()
+//                    insertImageResolver(File(it.orEmpty()))
+//                })
+
         }
         launch {
             delay(2000)

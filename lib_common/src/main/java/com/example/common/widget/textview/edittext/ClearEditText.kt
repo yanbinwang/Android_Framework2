@@ -2,12 +2,14 @@ package com.example.common.widget.textview.edittext
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.text.Editable
 import android.text.InputFilter
 import android.text.InputFilter.LengthFilter
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
+import android.view.View.OnFocusChangeListener
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -17,9 +19,17 @@ import com.example.common.databinding.ViewClearEditBinding
 import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.view.*
+import com.example.framework.utils.function.view.background
+import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.color
+import com.example.framework.utils.function.view.emojiLimit
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.imeOptions
+import com.example.framework.utils.function.view.inputType
+import com.example.framework.utils.function.view.textColor
+import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
-import java.util.*
+import java.util.Arrays
 
 /**
  * @description 带删除按钮的输入框
@@ -29,15 +39,23 @@ import java.util.*
 class ClearEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
     private var isDisabled = false//是否不可操作
     private var isShowBtn = true//是否显示清除按钮
+    private var onTextChanged: ((s: Editable?) -> Unit)? = null
+    private var onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)? = null
     private val mBinding by lazy { ViewClearEditBinding.bind(context.inflate(R.layout.view_clear_edit)) }
     val editText get() = mBinding.etClear
 
     init {
+        normal()
         mBinding.etClear.apply {
             emojiLimit()
             addTextChangedListener {
                 if (isDisabled || !isShowBtn) return@addTextChangedListener
-                mBinding.ivClear.visibility = if(it.toString().isEmpty()) View.GONE else View.VISIBLE
+                mBinding.ivClear.visibility = if (it.toString().isEmpty()) View.GONE else View.VISIBLE
+                onTextChanged?.invoke(it)
+            }
+            onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+                if (hasFocus) focused() else normal()
+                onFocusChange?.invoke(v, hasFocus)
             }
         }
         mBinding.ivClear.click { mBinding.etClear.setText("") }
@@ -94,8 +112,43 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         }
     }
 
-    override fun onInflateView() {
-        if (isInflate()) addView(mBinding.root)
+    override fun onInflate() {
+        if (isInflate) addView(mBinding.root)
+    }
+
+    override fun setEnabled(enabled: Boolean) {
+        super.setEnabled(enabled)
+        if (enabled) {
+            setEnabled()
+        } else {
+            setDisabled()
+        }
+    }
+
+    private fun setDisabled() {
+        isDisabled = true
+        isShowBtn = false
+        mBinding.etClear.apply {
+            isCursorVisible = false
+            isFocusable = false
+            isEnabled = false
+            isFocusableInTouchMode = false
+            textColor(R.color.textDisabled)
+        }
+        mBinding.ivClear.gone()
+    }
+
+    private fun setEnabled() {
+        isDisabled = false
+        isShowBtn = false
+        mBinding.etClear.apply {
+            isCursorVisible = true
+            isFocusable = true
+            isEnabled = true
+            isFocusableInTouchMode = true
+            textColor(R.color.textPrimary)
+        }
+        mBinding.ivClear.visible()
     }
 
     fun setText(@StringRes resid: Int) {
@@ -138,12 +191,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         mBinding.etClear.setSelection(mCursor)
     }
 
-    fun addFilter(filter: InputFilter) {
-        val filters = Arrays.copyOf(mBinding.etClear.filters, mBinding.etClear.filters.size + 1)
-        filters[filters.size - 1] = filter
-        mBinding.etClear.filters = filters
-    }
-
     fun setGravity(gravity: Int) {
         mBinding.etClear.gravity = gravity
     }
@@ -160,41 +207,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         addFilter(LengthFilter(maxLength))
     }
 
-    override fun setEnabled(enabled: Boolean) {
-        super.setEnabled(enabled)
-        if (enabled) {
-            setEnabled()
-        } else {
-            setDisabled()
-        }
-    }
-
-    private fun setDisabled() {
-        isDisabled = true
-        isShowBtn = false
-        mBinding.etClear.apply {
-            isCursorVisible = false
-            isFocusable = false
-            isEnabled = false
-            isFocusableInTouchMode = false
-            textColor(R.color.textDisabled)
-        }
-        mBinding.ivClear.gone()
-    }
-
-    private fun setEnabled() {
-        isDisabled = false
-        isShowBtn = false
-        mBinding.etClear.apply {
-            isCursorVisible = true
-            isFocusable = true
-            isEnabled = true
-            isFocusableInTouchMode = true
-            textColor(R.color.textPrimary)
-        }
-        mBinding.ivClear.visible()
-    }
-
     fun hideBtn() {
         isShowBtn = false
         mBinding.ivClear.gone()
@@ -203,6 +215,32 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     fun showBtn() {
         isShowBtn = true
         mBinding.etClear.apply { if (text.isNotEmpty()) visible() }
+    }
+
+    fun normal() {
+//        mBinding.root.background(R.drawable.shape_input)
+    }
+
+    fun focused() {
+//        mBinding.root.background(R.drawable.shape_input_focused)
+    }
+
+    fun error() {
+//        mBinding.root.background(R.drawable.shape_input_error)
+    }
+
+    fun addFilter(filter: InputFilter) {
+        val filters = Arrays.copyOf(mBinding.etClear.filters, mBinding.etClear.filters.size + 1)
+        filters[filters.size - 1] = filter
+        mBinding.etClear.filters = filters
+    }
+
+    fun addTextChangedListener(onTextChanged: ((s: Editable?) -> Unit)) {
+        this.onTextChanged = onTextChanged
+    }
+
+    fun setOnFocusChangeListener(onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)) {
+        this.onFocusChange = onFocusChange
     }
 
 }

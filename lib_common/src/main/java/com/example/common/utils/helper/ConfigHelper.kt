@@ -16,7 +16,7 @@ import com.example.framework.utils.function.value.toSafeLong
  */
 @SuppressLint("StaticFieldLeak")
 object ConfigHelper {
-    private val context by lazy { BaseApplication.instance.applicationContext }
+    private val mContext by lazy { BaseApplication.instance.applicationContext }
 
     // <editor-fold defaultstate="collapsed" desc="调取方法">
     /**
@@ -24,9 +24,9 @@ object ConfigHelper {
      * 100表示取的最大的任务数，info.topActivity表示当前正在运行的Activity，info.baseActivity表系统后台有此进程在运行
      */
     fun appIsOnForeground(): Boolean {
-        val processes = (context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.runningAppProcesses ?: return false
+        val processes = (mContext.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.runningAppProcesses ?: return false
         for (process in processes) {
-            if (process.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && process.processName.equals(context.packageName)) return true
+            if (process.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && process.processName.equals(mContext.packageName)) return true
         }
         return false
     }
@@ -37,7 +37,7 @@ object ConfigHelper {
     fun getAppVersionCode(): Long {
         var appVersionCode: Long = 0
         try {
-            val packageInfo = context.applicationContext.packageManager.getPackageInfo(context.packageName, 0)
+            val packageInfo = mContext.applicationContext.packageManager.getPackageInfo(mContext.packageName, 0)
             appVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 packageInfo.longVersionCode
             } else {
@@ -54,7 +54,7 @@ object ConfigHelper {
     fun getAppVersionName(): String {
         var appVersionName = ""
         try {
-            val packageInfo = context.applicationContext.packageManager.getPackageInfo(context.packageName, 0)
+            val packageInfo = mContext.applicationContext.packageManager.getPackageInfo(mContext.packageName, 0)
             appVersionName = packageInfo.versionName
         } catch (_: PackageManager.NameNotFoundException) {
         }
@@ -64,12 +64,11 @@ object ConfigHelper {
     /**
      * 获取当前app 名称
      */
-    @Synchronized
     fun getAppName(): String {
         try {
-            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            val packageInfo = mContext.packageManager.getPackageInfo(mContext.packageName, 0)
             val labelRes = packageInfo.applicationInfo.labelRes
-            return context.resources.getString(labelRes)
+            return mContext.resources.getString(labelRes)
         } catch (_: Exception) {
         }
         return ""
@@ -79,7 +78,7 @@ object ConfigHelper {
      * 获取当前app 包名
      */
     fun getPackageName(): String {
-        return context.packageName
+        return mContext.packageName
     }
     // </editor-fold>
 

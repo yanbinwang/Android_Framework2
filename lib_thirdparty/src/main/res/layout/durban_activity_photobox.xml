@@ -32,7 +32,7 @@
             android:scrollHorizontally="true"
             android:text="@string/cropTitle"
             android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize18" />
+            android:textSize="@dimen/album_sp_18" />
 
     </androidx.appcompat.widget.Toolbar>
 
@@ -117,7 +117,7 @@
             android:layout_width="@dimen/durban_dp_200"
             android:layout_height="@dimen/durban_dp_200"
             android:layout_gravity="center"
-            app:srcCompat="@drawable/shape_album_bg"
+            app:srcCompat="@drawable/shape_durban_bg"
             tools:ignore="MissingPrefix" />
 
         <com.yanzhenjie.durban.view.CropView

@@ -42,8 +42,8 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         loading()
     }
 
-    override fun onInflateView() {
-        if (isInflate()) addView(mBinding.root)
+    override fun onInflate() {
+        if (isInflate) addView(mBinding.root)
     }
 
     /**
@@ -58,7 +58,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun setListView(listView: View?): View {
         removeView(mBinding.root)
-        (listView?.parent as ViewGroup).addView(mBinding.root) //添加到当前的View hierarchy
+        (listView?.parent as? ViewGroup)?.addView(mBinding.root) //添加到当前的View hierarchy
         return mBinding.root
     }
 
@@ -75,9 +75,10 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun empty(resId: Int = -1, text: String? = null) {
+    fun empty(resId: Int? = null, text: String? = null, width: Int? = null, height: Int? = null) {
         appear(300)
-        mBinding.ivEmpty.setResource(if (-1 == resId) R.mipmap.bg_data_empty else resId)
+        if (null != width && null != height) mBinding.ivEmpty.size(width, height)
+        mBinding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_empty)
         mBinding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataEmpty) else text
         mBinding.tvRefresh.gone()
     }
@@ -86,13 +87,14 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun error(resId: Int = -1, text: String? = null, refreshText: String? = null) {
+    fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
         appear(300)
+        if (null != width && null != height) mBinding.ivEmpty.size(width, height)
         if (!isNetworkAvailable()) {
             mBinding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
             mBinding.tvEmpty.text = string(R.string.dataNetError)
         } else {
-            mBinding.ivEmpty.setResource(if (-1 == resId) R.mipmap.bg_data_error else resId)
+            mBinding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_error)
             mBinding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataError) else text
         }
         if (!refreshText.isNullOrEmpty()) mBinding.tvRefresh.text = refreshText

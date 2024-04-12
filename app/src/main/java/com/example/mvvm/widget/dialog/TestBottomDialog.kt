@@ -1,5 +1,6 @@
 package com.example.mvvm.widget.dialog
 
+import android.os.Bundle
 import com.example.common.base.BaseBottomSheetDialogFragment
 import com.example.mvvm.databinding.ViewDialogTestBottomBinding
 
@@ -9,8 +10,8 @@ import com.example.mvvm.databinding.ViewDialogTestBottomBinding
  */
 class TestBottomDialog : BaseBottomSheetDialogFragment<ViewDialogTestBottomBinding>() {
 
-    override fun initView() {
-        super.initView()
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
         initImmersionBar(false,false)
     }
 

@@ -4,11 +4,11 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.common.utils.function.pt
 import com.example.framework.utils.function.defTypeMipmap
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
-import com.example.framework.utils.function.view.setDrawable
 import com.example.glide.ImageLoader
 
 /**
@@ -17,6 +17,7 @@ import com.example.glide.ImageLoader
  */
 @SuppressLint("NotifyDataSetChanged")
 class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>() {
+    private var radius = 0
     private var localAsset = false
     private var list = ArrayList<String>()
     private var onItemClick: ((position: Int) -> Unit)? = null
@@ -30,14 +31,30 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         val bean = list.safeGet(position.mod(list.safeSize)).orEmpty()
         val image = holder.itemView as? ImageView ?: return
         if (localAsset) {
-            image.setDrawable(holder.itemView.context.defTypeMipmap(bean))
+//            image.setDrawable(holder.itemView.context.defTypeMipmap(bean))
+            ImageLoader.instance.displayRound(image, holder.itemView.context.defTypeMipmap(bean), radius = radius.pt)
         } else {
-            ImageLoader.instance.display(image, bean)
+            ImageLoader.instance.displayRound(image, bean, radius = radius.pt)
         }
     }
 
     override fun getItemCount(): Int {
         return if (list.size < 2) list.safeSize else Int.MAX_VALUE
+    }
+
+    fun refresh(list: List<String>) {
+        this.list.clear()
+        this.list.addAll(list)
+        notifyDataSetChanged()
+    }
+
+    fun setParams(radius: Int = 0, localAsset: Boolean) {
+        this.radius = radius
+        this.localAsset = localAsset
+    }
+
+    fun setOnItemClickListener(onItemClick: ((position: Int) -> Unit)) {
+        this.onItemClick = onItemClick
     }
 
     class ViewHolder(itemView: ImageView) : RecyclerView.ViewHolder(itemView) {
@@ -46,17 +63,6 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
             itemView.scaleType = ImageView.ScaleType.FIT_XY
             itemView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.MATCH_PARENT)
         }
-    }
-
-    fun refresh(list: List<String>, localAsset: Boolean) {
-        this.localAsset = localAsset
-        this.list.clear()
-        this.list.addAll(list)
-        notifyDataSetChanged()
-    }
-
-    fun setOnItemClickListener(onItemClick: ((position: Int) -> Unit)) {
-        this.onItemClick = onItemClick
     }
 
 }

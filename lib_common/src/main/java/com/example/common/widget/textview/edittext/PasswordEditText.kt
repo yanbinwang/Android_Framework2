@@ -1,17 +1,22 @@
 package com.example.common.widget.textview.edittext
 
 import android.content.Context
+import android.text.Editable
 import android.text.InputFilter
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.KeyEvent
+import android.view.View
+import android.view.View.OnFocusChangeListener
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
+import androidx.core.widget.addTextChangedListener
 import com.example.common.R
 import com.example.common.databinding.ViewPasswordEditBinding
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.emojiLimit
@@ -28,17 +33,29 @@ import java.util.Arrays
  * @author yan
  */
 class PasswordEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
-    private var isShowBtn = true
     private var hideRes = -1
     private var showRes = -1
+    private var isShowBtn = true
+    private var onTextChanged: ((s: Editable?) -> Unit)? = null
+    private var onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)? = null
     private val mBinding by lazy { ViewPasswordEditBinding.bind(context.inflate(R.layout.view_password_edit)) }
     val editText get() = mBinding.etClear
 
     init {
+        normal()
         mBinding.etClear.emojiLimit()
-        mBinding.etClear.setOnKeyListener { _, keyCode, _ ->
-            if (keyCode == KeyEvent.KEYCODE_DEL) mBinding.etClear.setText("")
-            false
+        mBinding.etClear.apply {
+            setOnKeyListener { _, keyCode, _ ->
+                if (keyCode == KeyEvent.KEYCODE_DEL) mBinding.etClear.setText("")
+                false
+            }
+            addTextChangedListener {
+                onTextChanged?.invoke(it)
+            }
+            onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+                if (hasFocus) focused() else normal()
+                onFocusChange?.invoke(v, hasFocus)
+            }
         }
         mBinding.ivShow.apply { click { setResource(Triple(mBinding.etClear.passwordDevelopment(), showRes, hideRes)) }}
         //以下属性在xml中前缀使用app:调取
@@ -75,8 +92,8 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
         }
     }
 
-    override fun onInflateView() {
-        if (isInflate()) addView(mBinding.root)
+    override fun onInflate() {
+        if (isInflate) addView(mBinding.root)
     }
 
     fun setText(@StringRes resid: Int) {
@@ -119,12 +136,6 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
         mBinding.etClear.setSelection(mCursor)
     }
 
-    fun addFilter(filter: InputFilter) {
-        val filters = Arrays.copyOf(mBinding.etClear.filters, mBinding.etClear.filters.size + 1)
-        filters[filters.size - 1] = filter
-        mBinding.etClear.filters = filters
-    }
-
     fun setGravity(gravity: Int) {
         mBinding.etClear.gravity = gravity
     }
@@ -141,6 +152,32 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     fun showBtn() {
         isShowBtn = true
         mBinding.ivShow.visible()
+    }
+
+    fun normal() {
+//        mBinding.root.background(R.drawable.shape_input)
+    }
+
+    fun focused() {
+//        mBinding.root.background(R.drawable.shape_input_focused)
+    }
+
+    fun error() {
+//        mBinding.root.background(R.drawable.shape_input_error)
+    }
+
+    fun addFilter(filter: InputFilter) {
+        val filters = Arrays.copyOf(mBinding.etClear.filters, mBinding.etClear.filters.size + 1)
+        filters[filters.size - 1] = filter
+        mBinding.etClear.filters = filters
+    }
+
+    fun addTextChangedListener(onTextChanged: ((s: Editable?) -> Unit)) {
+        this.onTextChanged = onTextChanged
+    }
+
+    fun setOnFocusChangeListener(onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)) {
+        this.onFocusChange = onFocusChange
     }
 
 }

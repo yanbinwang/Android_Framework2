@@ -24,4 +24,13 @@ object EventCode {
     //证据列表更新（返回fileType）
     val EVENT_EVIDENCE_UPDATE = Code<String>()
 
+    //支付成功
+    val EVENT_PAY_SUCCESS = Code<Any>()
+
+    //支付取消
+    val EVENT_PAY_CANCEL = Code<Any>()
+
+    //支付失败
+    val EVENT_PAY_FAILURE = Code<Any>()
+
 }
