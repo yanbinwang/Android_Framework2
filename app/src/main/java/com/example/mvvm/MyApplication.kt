@@ -57,12 +57,7 @@ class MyApplication : BaseApplication() {
             }
         }
         //初始化图片库类
-        Album.initialize(AlbumConfig.newBuilder(this)
-            .setAlbumLoader(GlideLoader()) //设置Album加载器。
-            .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
-            .build())
-//        //数据库初始化
-//        EvidenceHelper.init(DaoMaster(DaoMaster.DevOpenHelper(this, "${VERSION_NAME}.db", null).readableDb).newSession().evidenceDBDao)
+        initAlbum()
         //初始化oss
         initOss()
         //初始化进程监听
@@ -71,6 +66,13 @@ class MyApplication : BaseApplication() {
                 initOss()
             }
         }
+    }
+
+    private fun initAlbum() {
+        Album.initialize(AlbumConfig.newBuilder(this)
+            .setAlbumLoader(GlideLoader()) //设置Album加载器。
+            .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
+            .build())
     }
 
     private fun initOss() {
