@@ -1,4 +1,4 @@
-package com.example.thirdparty.oss
+package com.example.thirdparty.oss.utils
 
 import androidx.lifecycle.LifecycleOwner
 import com.alibaba.sdk.android.oss.ClientConfiguration

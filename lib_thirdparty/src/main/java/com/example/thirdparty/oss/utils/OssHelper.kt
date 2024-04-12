@@ -1,4 +1,4 @@
-package com.example.thirdparty.oss
+package com.example.thirdparty.oss.utils
 
 import com.example.common.BaseApplication
 import com.example.common.utils.file.deleteFile
