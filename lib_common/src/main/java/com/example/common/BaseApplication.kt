@@ -22,10 +22,10 @@ import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
 import com.example.common.base.proxy.NetworkCallbackImpl
 import com.example.common.base.proxy.NetworkReceiver
 import com.example.common.config.ARouterPath
+import com.example.common.config.Constants.VERSION_NAME
 import com.example.common.config.ServerConfig
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
-import com.example.common.socket.WebSocketProxy
 import com.example.common.utils.AppManager
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
@@ -41,6 +41,8 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
 import com.example.glide.ImageLoader
+import com.example.greendao.dao.DaoMaster
+import com.example.greendao.dao.DaoSession
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
 import me.jessyan.autosize.AutoSizeConfig
@@ -59,6 +61,8 @@ abstract class BaseApplication : Application() {
         var isForeground = true
         //是否需要回首頁
         var needOpenHome = false
+        //数据库整体
+        var daoSession: DaoSession? = null
         //单列
         lateinit var instance: BaseApplication
     }
@@ -96,8 +100,8 @@ abstract class BaseApplication : Application() {
         initToast()
         //全局进程
         initLifecycle()
-        //初始化socket
-        initSocket()
+        //数据库初始化
+        initDao()
     }
 
     private fun initARouter() {
@@ -238,10 +242,8 @@ abstract class BaseApplication : Application() {
         })
     }
 
-    private fun initSocket() {
-        WebSocketProxy.setOnMessageListener { url, data ->
-
-        }
+    private fun initDao() {
+        daoSession = DaoMaster(DaoMaster.DevOpenHelper(this, "${VERSION_NAME}.db", null).readableDb).newSession()
     }
 
     protected fun setOnStateChangedListener(onStateChangedListener: (isForeground: Boolean) -> Unit) {

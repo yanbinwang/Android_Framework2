@@ -1,25 +1,20 @@
 package com.example.thirdparty.oss
 
-import com.example.common.config.Constants.STORAGE
+import com.example.common.BaseApplication
 import com.example.common.utils.file.deleteFile
+import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.common.utils.helper.AccountHelper.getUserId
-import com.example.thirdparty.greendao.dao.OssDBDao
-import com.example.thirdparty.oss.bean.OssDB
+import com.example.greendao.bean.OssDB
+import com.example.greendao.dao.OssDBDao
+
 
 /**
  * OSS帮助类
  */
 object OssHelper {
-    private var dao: OssDBDao? = null
+    private val dao by lazy { BaseApplication.daoSession?.ossDBDao }
 
     // <editor-fold defaultstate="collapsed" desc="数据库基础增删改查">
-    /**
-     * application中调取
-     */
-    fun init(dao: OssDBDao) {
-        this.dao = dao
-    }
-
     /**
      * 查询当前用户本机数据库存储的所有集合
      */

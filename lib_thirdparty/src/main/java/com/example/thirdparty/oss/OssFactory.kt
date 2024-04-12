@@ -16,7 +16,6 @@ import com.alibaba.sdk.android.oss.internal.OSSAsyncTask
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult
 import com.example.common.BaseApplication
-import com.example.common.config.Constants.STORAGE
 import com.example.common.event.EventCode.EVENT_EVIDENCE_UPDATE
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.reqBodyOf
@@ -27,12 +26,13 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.deleteDir
 import com.example.common.utils.file.deleteFile
 import com.example.common.utils.function.byServerUrl
+import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.common.utils.toJsonString
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
-import com.example.thirdparty.oss.bean.OssDB
+import com.example.greendao.bean.OssDB
 import com.example.thirdparty.oss.bean.OssSts
 import com.example.thirdparty.oss.bean.OssSts.Companion.bucketName
 import com.example.thirdparty.oss.bean.OssSts.Companion.objectName

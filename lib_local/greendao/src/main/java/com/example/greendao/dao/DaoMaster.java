@@ -1,4 +1,4 @@
-package com.example.thirdparty.greendao.dao;
+package com.example.greendao.dao;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

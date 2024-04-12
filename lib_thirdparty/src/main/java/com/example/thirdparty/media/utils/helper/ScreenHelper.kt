@@ -33,14 +33,14 @@ import java.io.File
 class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var isDestroy = false
     private var listener: (filePath: String?, isZip: Boolean) -> Unit = { _, _ -> }
-    private val list by lazy { ArrayList<String>() }
-    private val builder by lazy { FileBuilder(mActivity) }
+//    private val list by lazy { ArrayList<String>() }
+//    private val builder by lazy { FileBuilder(mActivity) }
     private val loading by lazy { LoadingDialog(mActivity) }
     /**
      * 处理录屏的回调
      */
     private val result = mActivity.registerResult {
-        list.clear()
+//        list.clear()
         if (it.resultCode == RESULT_OK) {
             R.string.screenStart.shortToast()
             isRecording = true
@@ -82,34 +82,34 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
                 }
             }
         }
-        //只要在录屏中，截一张图就copy一张到目标目录，但是需要及时清空
-        ShotObserver.instance.setOnScreenShotListener {
-            it ?: return@setOnScreenShotListener
-            if (isRecording) {
-                if (!File(it).exists()) return@setOnScreenShotListener
-                list.add(it)
-            }
-        }
+//        //只要在录屏中，截一张图就copy一张到目标目录，但是需要及时清空
+//        ShotObserver.instance.setOnScreenShotListener {
+//            it ?: return@setOnScreenShotListener
+//            if (isRecording) {
+//                if (!File(it).exists()) return@setOnScreenShotListener
+//                list.add(it)
+//            }
+//        }
         //录屏文件创建/停止录屏时（exists=false）都会回调
         ScreenService.setOnScreenListener { folderPath, isRecoding ->
             if(isDestroy) return@setOnScreenListener
             if (!isRecoding) {
                 folderPath ?: return@setOnScreenListener
-                //说明未截图
-                if (list.safeSize == 0) {
+//                //说明未截图
+//                if (list.safeSize == 0) {
                     listener.invoke(folderPath, false)
-                } else {
-                    //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
-                    list.add(folderPath)
-                    //压缩包输出路径（会以录屏文件的命名方式来命名）
-                    val zipPath = File(folderPath).name.replace("mp4", "zip")
-                    //开始压包
-                    builder.zipJob(list, zipPath, { showDialog() }, {
-                        hideDialog()
-                        folderPath.deleteFile()
-                    })
-                    listener.invoke(zipPath, true)
-                }
+//                } else {
+//                    //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
+//                    list.add(folderPath)
+//                    //压缩包输出路径（会以录屏文件的命名方式来命名）
+//                    val zipPath = File(folderPath).name.replace("mp4", "zip")
+//                    //开始压包
+//                    builder.zipJob(list, zipPath, { showDialog() }, {
+//                        hideDialog()
+//                        folderPath.deleteFile()
+//                    })
+//                    listener.invoke(zipPath, true)
+//                }
             }
         }
     }
@@ -154,12 +154,12 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
      */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_CREATE -> ShotObserver.instance.register()
+//            Lifecycle.Event.ON_CREATE -> ShotObserver.instance.register()
             Lifecycle.Event.ON_DESTROY -> {
                 isDestroy = true
                 hideDialog()
                 stopScreen()
-                ShotObserver.instance.unregister()
+//                ShotObserver.instance.unregister()
                 mActivity.lifecycle.removeObserver(this)
             }
             else -> {}
