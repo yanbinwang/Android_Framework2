@@ -59,7 +59,7 @@ class PermissionHelper(private val context: Context) {
         var reason = ""
         for (index in permsGroup.indices) {
             if (listOf(*permsGroup[index]).contains(permissions[0])) {
-                reason += "*${onReason(index)};\n"
+                reason += "${onReason(index)}\n"
             }
         }
         andDialog.apply {

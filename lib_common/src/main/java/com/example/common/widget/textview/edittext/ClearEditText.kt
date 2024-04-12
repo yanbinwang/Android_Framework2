@@ -46,7 +46,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     val editText get() = mBinding.etClear
 
     init {
-        mBinding.root.background(R.drawable.shape_input)
+        normal()
         mBinding.etClear.apply {
             emojiLimit()
             addTextChangedListener {
@@ -55,7 +55,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
                 onTextChanged?.invoke(it)
             }
             onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
-                mBinding.root.background(if (hasFocus) R.drawable.shape_input_focused else R.drawable.shape_input)
+                if (hasFocus) focused() else normal()
                 onFocusChange?.invoke(v, hasFocus)
             }
         }
@@ -208,12 +208,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         mBinding.etClear.setSelection(mCursor)
     }
 
-    fun addFilter(filter: InputFilter) {
-        val filters = Arrays.copyOf(mBinding.etClear.filters, mBinding.etClear.filters.size + 1)
-        filters[filters.size - 1] = filter
-        mBinding.etClear.filters = filters
-    }
-
     fun setGravity(gravity: Int) {
         mBinding.etClear.gravity = gravity
     }
@@ -240,8 +234,22 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         mBinding.etClear.apply { if (text.toString().isNotEmpty()) visible() }
     }
 
+    fun normal() {
+//        mBinding.root.background(R.drawable.shape_input)
+    }
+
+    fun focused() {
+//        mBinding.root.background(R.drawable.shape_input_focused)
+    }
+
     fun error() {
-        mBinding.root.background(R.drawable.shape_input_error)
+//        mBinding.root.background(R.drawable.shape_input_error)
+    }
+
+    fun addFilter(filter: InputFilter) {
+        val filters = Arrays.copyOf(mBinding.etClear.filters, mBinding.etClear.filters.size + 1)
+        filters[filters.size - 1] = filter
+        mBinding.etClear.filters = filters
     }
 
     fun addTextChangedListener(onTextChanged: ((s: Editable?) -> Unit)) {

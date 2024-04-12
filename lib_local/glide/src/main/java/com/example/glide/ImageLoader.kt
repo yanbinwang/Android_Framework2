@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
 import android.os.Looper
 import android.widget.ImageView
 import com.bumptech.glide.Glide
@@ -12,7 +11,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.isMainThread
-import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.glide.callback.GlideImpl
 import com.example.glide.callback.GlideModule
@@ -31,18 +29,18 @@ import java.io.File
  */
 class ImageLoader private constructor() : GlideModule(), GlideImpl {
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
-    private val maskDrawable by lazy { GradientDrawable().apply { setColor("#000000".parseColor()) } }
 
     companion object {
         @JvmStatic
         val instance by lazy { ImageLoader() }
     }
 
-    override fun displayZoom(view: ImageView, string: String, onStart: () -> Unit, onComplete: (bitmap: Bitmap?) -> Unit) {
+    override fun displayZoom(view: ImageView?, string: String?, onStart: () -> Unit, onComplete: (bitmap: Bitmap?) -> Unit) {
+        view ?: return
         Glide.with(view.context)
             .asBitmap()
             .load(string)
-            .placeholder(maskDrawable)
+            .placeholder(R.drawable.shape_glide_mask_bg)
             .dontAnimate()
             .listener(object : GlideRequestListener<Bitmap?>() {
                 override fun onStart() {
@@ -56,7 +54,8 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(ZoomTransform(view))
     }
 
-    override fun displayFrame(view: ImageView, string: String) {
+    override fun displayFrame(view: ImageView?, string: String?) {
+        view ?: return
         try {
             Glide.with(view.context)
                 .setDefaultRequestOptions(RequestOptions().frame(1000000).centerCrop())
@@ -64,31 +63,23 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
                 .dontAnimate()
                 .into(view)
         } catch (_: Exception) {
-            view.background = maskDrawable
+            view.setBackgroundResource(R.drawable.shape_glide_mask_bg)
         }
     }
 
-    override fun displayFrameIdentifier(view: ImageView, resourceId: Drawable?) {
-        try {
-            Glide.with(view.context)
-                .setDefaultRequestOptions(RequestOptions().frame(1000000).centerCrop())
-                .load(resourceId)
-                .dontAnimate()
-                .into(view)
-        } catch (_: Exception) {
-            view.background = maskDrawable
-        }
-    }
-
-    override fun displayGif(view: ImageView, string: String) {
+    override fun displayGif(view: ImageView?, string: String?) {
+        view ?: return
         Glide.with(view.context).asGif().load(string).into(view)
     }
 
-    override fun displayGifIdentifier(view: ImageView, resourceId: Int?) {
+    override fun displayGif(view: ImageView?, resourceId: Int?) {
+        view ?: return
         Glide.with(view.context).asGif().load(resourceId).into(view)
     }
 
-    override fun displayProgress(view: ImageView, string: String, onStart: () -> Unit, onProgress: (progress: Int?) -> Unit, onComplete: () -> Unit) {
+    override fun displayProgress(view: ImageView?, string: String?, onStart: () -> Unit, onProgress: (progress: Int?) -> Unit, onComplete: () -> Unit) {
+        view ?: return
+        string ?: return
         Glide.with(view.context)
             .load(string)
             .apply(RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE))
@@ -107,7 +98,8 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    override fun display(view: ImageView, string: String, placeholderId: Drawable?, errorId: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
+    override fun display(view: ImageView?, string: String?, errorId: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
+        view ?: return
 //        val factory = DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
 //        Glide.with(view.context)
 //            .load(string)
@@ -126,7 +118,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
 //            .into(view)
         Glide.with(view.context)
             .load(string)
-            .placeholder(placeholderId)
+            .placeholder(R.drawable.shape_glide_bg)
             .error(errorId)
             .dontAnimate()
             .listener(object : GlideRequestListener<Drawable?>() {
@@ -141,10 +133,11 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayIdentifier(view: ImageView, resourceId: Drawable?, placeholderId: Drawable?, errorId: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
+    override fun display(view: ImageView?, resourceId: Drawable?, errorId: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
+        view ?: return
         Glide.with(view.context)
             .load(resourceId)
-            .placeholder(placeholderId)
+            .placeholder(R.drawable.shape_glide_bg)
             .error(errorId)
             .dontAnimate()
             .listener(object : GlideRequestListener<Drawable?>() {
@@ -159,7 +152,8 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayRound(view: ImageView, string: String, errorId: Drawable?, radius: Int, overRide: BooleanArray) {
+    override fun displayRound(view: ImageView?, string: String?, errorId: Drawable?, radius: Int, overRide: BooleanArray) {
+        view ?: return
 //        Glide.with(view.context)
 //            .load(string)
 //            .apply(RequestOptions.bitmapTransform(RoundedCorners(roundingRadius)))
@@ -176,7 +170,8 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayRoundIdentifier(view: ImageView, resourceId: Drawable?, errorId: Drawable?, radius: Int, overRide: BooleanArray) {
+    override fun displayRound(view: ImageView?, resourceId: Drawable?, errorId: Drawable?, radius: Int, overRide: BooleanArray) {
+        view ?: return
         Glide.with(view.context)
             .load(resourceId)
             .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, radius.toSafeFloat()).apply { setExceptCorner(overRide) }))
@@ -186,7 +181,8 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayCircle(view: ImageView, string: String, errorId: Drawable?) {
+    override fun displayCircle(view: ImageView?, string: String?, errorId: Drawable?) {
+        view ?: return
         Glide.with(view.context)
             .load(string)
             .apply(RequestOptions.circleCropTransform())
@@ -196,7 +192,8 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayCircleIdentifier(view: ImageView, resourceId: Drawable?, errorId: Drawable?) {
+    override fun displayCircle(view: ImageView?, resourceId: Drawable?, errorId: Drawable?) {
+        view ?: return
         Glide.with(view.context)
             .load(resourceId)
             .apply(RequestOptions.circleCropTransform())
@@ -206,7 +203,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun download(context: Context, string: String, onStart: () -> Unit, onComplete: (file: File?) -> Unit) {
+    override fun download(context: Context, string: String?, onStart: () -> Unit, onComplete: (file: File?) -> Unit) {
 //        //创建保存的文件目录
 //        val destFile = File(FileUtil.isMkdirs(Constants.APPLICATION_FILE_PATH + "/图片"))
 //        //下载对应的图片文件

@@ -129,9 +129,9 @@
                 始终显示软键盘。
                 adjustUnspecified
                 默认状态，没有任何特定的调整设置。
-                adjustResize
+                adjustResize*
                 当软键盘出现时，调整窗口大小以便在屏幕上显示所有内容。
-                adjustPan
+                adjustPan*
                 调整当前活动的内容，以便用户可以看到当前获得焦点的视图。
         -->
 
@@ -140,7 +140,7 @@
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustUnspecified" />
+            android:windowSoftInputMode="stateHidden|adjustPan" />
 
         <activity
             android:name=".activity.TestActivity"

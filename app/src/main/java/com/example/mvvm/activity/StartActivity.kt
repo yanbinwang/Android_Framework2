@@ -1,5 +1,6 @@
 package com.example.mvvm.activity
 
+import android.os.Bundle
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
@@ -21,8 +22,8 @@ class StartActivity : BaseActivity<ActivityStartBinding>() {
         }
     }
 
-    override fun initView() {
-        super.initView()
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
         weakHandler.sendEmptyMessageDelayed(0, 2000)
     }
 

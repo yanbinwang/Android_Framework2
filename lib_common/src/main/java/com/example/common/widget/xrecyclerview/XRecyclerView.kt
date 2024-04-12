@@ -104,8 +104,9 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 默认一行一个，线样式可自画可调整
      */
     fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
-        recycler?.layoutManager = GridLayoutManager(context, spanCount)
-        recycler?.adapter = adapter
+//        recycler?.layoutManager = GridLayoutManager(context, spanCount)
+//        recycler?.adapter = adapter
+        recycler.initGridHorizontal(adapter, spanCount)
         addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
     }
 
@@ -204,15 +205,15 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 当数据为空时(显示需要显示的图片，以及内容字)
      */
-    fun empty(imgInt: Int = -1, resText: Int = -1) {
-        empty?.empty(imgInt, resText)
+    fun empty(imgInt: Int = -1, resText: Int = -1, width: Int? = null, height: Int? = null) {
+        empty?.empty(imgInt, resText, width, height)
     }
 
     /**
      * 当数据异常时
      */
-    fun error(imgInt: Int = -1, resText: Int = -1) {
-        empty?.error(imgInt, resText)
+    fun error(imgInt: Int = -1, resText: Int = -1, width: Int? = null, height: Int? = null) {
+        empty?.error(imgInt, resText, width, height)
     }
 
 }

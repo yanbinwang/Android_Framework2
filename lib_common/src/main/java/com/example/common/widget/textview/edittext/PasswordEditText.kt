@@ -43,7 +43,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     val editText get() = mBinding.etClear
 
     init {
-        mBinding.root.background(R.drawable.shape_input)
+        normal()
         mBinding.etClear.emojiLimit()
         mBinding.etClear.apply {
             setOnKeyListener { _, keyCode, _ ->
@@ -54,7 +54,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
                 onTextChanged?.invoke(it)
             }
             onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
-                mBinding.root.background(if (hasFocus) R.drawable.shape_input_focused else R.drawable.shape_input)
+                if (hasFocus) focused() else normal()
                 onFocusChange?.invoke(v, hasFocus)
             }
         }
@@ -153,12 +153,6 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
         mBinding.etClear.setSelection(mCursor)
     }
 
-    fun addFilter(filter: InputFilter) {
-        val filters = Arrays.copyOf(mBinding.etClear.filters, mBinding.etClear.filters.size + 1)
-        filters[filters.size - 1] = filter
-        mBinding.etClear.filters = filters
-    }
-
     fun setGravity(gravity: Int) {
         mBinding.etClear.gravity = gravity
     }
@@ -177,8 +171,22 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
         mBinding.ivShow.visible()
     }
 
+    fun normal() {
+//        mBinding.root.background(R.drawable.shape_input)
+    }
+
+    fun focused() {
+//        mBinding.root.background(R.drawable.shape_input_focused)
+    }
+
     fun error() {
-        mBinding.root.background(R.drawable.shape_input_error)
+//        mBinding.root.background(R.drawable.shape_input_error)
+    }
+
+    fun addFilter(filter: InputFilter) {
+        val filters = Arrays.copyOf(mBinding.etClear.filters, mBinding.etClear.filters.size + 1)
+        filters[filters.size - 1] = filter
+        mBinding.etClear.filters = filters
     }
 
     fun addTextChangedListener(onTextChanged: ((s: Editable?) -> Unit)) {

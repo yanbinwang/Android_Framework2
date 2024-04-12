@@ -4,22 +4,61 @@ import android.app.Activity
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
+import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
 import android.os.Parcelable
 import android.provider.MediaStore
+import android.provider.Settings
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.file.getFileFromUri
-import com.example.common.utils.permission.checkSelfStorage
-import com.example.framework.utils.function.string
 import java.io.File
 import java.io.Serializable
+
+/**
+ * 当前页面注册一个activity的result，获取resultCode
+ * 1.拉起相册/视频库/录屏皆可
+ * 2.需要读写权限
+ * 3.注册方法不允许by lazy，直接变量里这么写
+ *  val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+ *      if (it.resultCode == Activity.RESULT_OK) {
+ *          it?.data ?: return@registerForActivityResult
+ *          val uri = it.data?.data
+ *          func.invoke(uri.getFileFromUri()?.absolutePath)
+ *     }
+ * }
+ */
+fun FragmentActivity?.registerResult(func: ((it: ActivityResult) -> Unit)): ActivityResultLauncher<Intent>? {
+    this ?: return null
+    return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        func.invoke(it)
+    }
+}
+
+/**
+ * 拉起屏幕录制
+ */
+fun ActivityResultLauncher<Intent>?.pullUpScreen(mActivity: Activity?) {
+    this ?: return
+    val mediaProjectionManager = mActivity?.getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
+    launch(mediaProjectionManager?.createScreenCaptureIntent())
+}
+
+/**
+ * 拉起系统默认相机
+ */
+fun ActivityResultLauncher<Intent>?.pullUpAlbum() {
+    this ?: return
+    launch(Intent(Intent.ACTION_PICK, null).apply { setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*") })
+}
 
 /**
  * 跳转系统默认相册
@@ -35,23 +74,17 @@ fun Activity.pullUpAlbum() {
 }
 
 /**
- * 需要读写权限
+ * 高版本后台服务有浮层需要允许当前设置
  */
-fun FragmentActivity?.pullUpAlbum(func: ((path: String?) -> Unit)) {
-    this ?: return
-    if (checkSelfStorage()) {
-        val activityResultValue =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                if (it.resultCode == Activity.RESULT_OK) {
-                    it?.data ?: return@registerForActivityResult
-                    val uri = it.data?.data
-                    func.invoke(uri.getFileFromUri()?.absolutePath)
-                }
-            }
-        val intent = Intent(Intent.ACTION_PICK, null)
-        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
-        activityResultValue.launch(intent)
-    } else string(R.string.dataError).shortToast()
+fun Activity.pullUpOverlay(): Boolean {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+        intent.data = Uri.parse("package:${packageName}")
+        startActivity(intent)
+        false
+    } else {
+        true
+    }
 }
 
 /**
@@ -144,6 +177,7 @@ fun Context.openSetupApk(filePath: String) = openFile(filePath, "application/vnd
 
 /**
  * 统一开启文件
+ * https://zhuanlan.zhihu.com/p/260340912
  */
 fun Context.openFile(filePath: String, type: String) {
     val file = File(filePath)

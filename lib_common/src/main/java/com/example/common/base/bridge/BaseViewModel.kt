@@ -5,7 +5,6 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
-import com.example.common.R
 import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
@@ -148,14 +147,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         mEmpty?.loading()
     }
 
-    fun empty(resId: Int = -1, resText: Int = -1) {
+    fun empty(resId: Int = -1, resText: Int = -1, width: Int? = null, height: Int? = null) {
         finishRefreshing()
-        mEmpty?.empty(resId, resText)
+        mEmpty?.empty(resId, resText, width, height)
     }
 
-    fun error(resId: Int = -1, resText: Int = -1, resRefreshText: Int = R.string.refresh) {
+    fun error(resId: Int = -1, resText: Int = -1, resRefreshText: Int = R.string.refresh, width: Int? = null, height: Int? = null) {
         finishRefreshing()
-        mEmpty?.error(resId, resText, resRefreshText)
+        mEmpty?.error(resId, resText, resRefreshText, width, height)
     }
 
     /**

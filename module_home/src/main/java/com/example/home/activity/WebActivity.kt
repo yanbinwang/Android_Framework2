@@ -1,5 +1,6 @@
 package com.example.home.activity
 
+import android.os.Bundle
 import android.view.KeyEvent
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseTitleActivity
@@ -19,8 +20,8 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
     private val bean by lazy { intentSerializable<WebBundle>(Extra.BUNDLE_BEAN) }
     private val webHelper by lazy { WebHelper(this, mBinding).apply { setBundle(bean, this@WebActivity) } }
 
-    override fun initView() {
-        super.initView()
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
         if (!bean?.getLight().orTrue) initImmersionBar(false)
         //需要标题头并且值已经传输过来了则设置标题
         titleBuilder.apply {

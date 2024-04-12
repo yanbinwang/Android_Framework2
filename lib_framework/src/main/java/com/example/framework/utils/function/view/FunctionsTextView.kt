@@ -27,6 +27,7 @@ import com.example.framework.utils.EditTextUtil
 import com.example.framework.utils.function.value.*
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
+import com.example.framework.utils.function.view.ExtraTextViewFunctions.showSoftKeyboard
 import java.math.BigDecimal
 import java.util.*
 
@@ -292,14 +293,14 @@ fun EditText?.onDone(listener: () -> Unit) {
     }
 }
 
-/**
- * 弹出软键盘并获取焦点
- */
-fun EditText?.showInput() {
-    if (this == null) return
-    focus()
-    openDecor()
-}
+///**
+// * 弹出软键盘并获取焦点
+// */
+//fun EditText?.showInput() {
+//    if (this == null) return
+//    focus()
+//    openDecor()
+//}
 
 /**
  * 弹出软键盘
@@ -307,8 +308,9 @@ fun EditText?.showInput() {
 fun EditText?.doInput() {
     if (this == null) return
     requestFocus()
-    val inputManager = this.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    inputManager.showSoftInput(this, 0)
+    showSoftKeyboard(context, this)
+//    val inputManager = this.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//    inputManager.showSoftInput(this, 0)
 }
 
 /**
@@ -556,12 +558,21 @@ fun OnMultiTextWatcher.textWatcher(vararg views: EditText) {
 }
 
 object ExtraTextViewFunctions {
+
+    /**
+     * 弹出软键盘
+     */
+    fun showSoftKeyboard(context: Context, view: View) {
+        val inputManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        inputManager?.showSoftInput(view, 0)
+    }
+
     /**
      * 隐藏软键盘(可用于Activity，Fragment)
      */
     fun hideSoftKeyboard(context: Context, view: View) {
-        val inputMethodManager: InputMethodManager = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+        val inputMethodManager = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager
+        inputMethodManager?.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
     /**

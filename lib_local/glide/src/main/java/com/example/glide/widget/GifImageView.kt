@@ -15,7 +15,7 @@ class GifImageView @JvmOverloads constructor(context: Context, attrs: AttributeS
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.GifImageView)
         val res = typedArray.getResourceId(R.styleable.GifImageView_android_src, -1)
-        if (res != -1) ImageLoader.instance.displayGifIdentifier(this, res)
+        if (res != -1) ImageLoader.instance.displayGif(this, res)
         typedArray.recycle()
     }
 

@@ -164,6 +164,15 @@ fun RecyclerView?.initGridVertical(adapter: RecyclerView.Adapter<*>, columns: In
 }
 
 /**
+ * 设置复杂的多个adapter直接拼接成一个
+ */
+fun RecyclerView?.initConcat(vararg adapters: RecyclerView.Adapter<*>) {
+    this ?: return
+    layoutManager = LinearLayoutManager(context)
+    adapter = ConcatAdapter(ConcatAdapter.Config.Builder().setIsolateViewTypes(true).build(), *adapters)
+}
+
+/**
  * 获取holder
  */
 fun <K : RecyclerView.ViewHolder> RecyclerView?.getHolder(position: Int): K? {

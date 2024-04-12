@@ -17,6 +17,7 @@ class ProgressInterceptor : Interceptor {
         /**
          * 注册下载监听
          */
+        @JvmStatic
         fun addListener(url: String, onProgress: ((progress: Int) -> Unit)) {
             listenerMap[url] = onProgress
         }
@@ -24,6 +25,7 @@ class ProgressInterceptor : Interceptor {
         /**
          * 取消注册下载监听
          */
+        @JvmStatic
         fun removeListener(url: String) {
             listenerMap.remove(url)
         }

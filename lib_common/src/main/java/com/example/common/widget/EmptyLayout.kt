@@ -82,8 +82,9 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun empty(resId: Int = -1, resText: Int = -1) {
+    fun empty(resId: Int = -1, resText: Int = -1, width: Int? = null, height: Int? = null) {
         appear(300)
+        if (null != width && null != height) mBinding.ivEmpty.size(width, height)
         mBinding.ivEmpty.setResource(if (-1 == resId) R.mipmap.bg_data_empty else resId)
         mBinding.tvEmpty.setI18nRes(if (-1 == resText) R.string.dataEmpty else resText)
         mBinding.tvRefresh.gone()
@@ -93,8 +94,9 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun error(resId: Int = -1, resText: Int = -1, resRefreshText: Int = R.string.refresh) {
+    fun error(resId: Int = -1, resText: Int = -1, resRefreshText: Int = R.string.refresh, width: Int? = null, height: Int? = null) {
         appear(300)
+        if (null != width && null != height) mBinding.ivEmpty.size(width, height)
         if (!isNetworkAvailable()) {
             mBinding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
             mBinding.tvEmpty.setI18nRes(R.string.dataNetError)

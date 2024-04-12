@@ -57,8 +57,9 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //框架库
     api project(':lib_framework')
-    api project(':lib_glide')
-    api project(':lib_topsheet')
+    //不依赖于common的库统一放在lib_local里
+    api project(':lib_local:glide')
+    api project(':lib_local:topsheet')
     //网络请求
     api deps.retrofit2.retrofit
     api deps.retrofit2.converter_gson

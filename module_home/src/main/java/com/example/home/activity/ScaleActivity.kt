@@ -35,13 +35,13 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
         overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_in)
     }
 
-    override fun initView() {
+    override fun initView(savedInstanceState: Bundle?) {
         requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-        super.initView()
+        super.initView(savedInstanceState)
         initImmersionBar(false)
         titleBuilder.setLeft(tintColor = R.color.bgWhite)
     }

@@ -323,6 +323,7 @@ inline fun <T> View?.setItem(any: Any?, crossinline listener: (View, T?) -> Unit
 
 /**
  * 开启软键盘
+ * 某些页面底部需要有留言版
  */
 fun View?.openDecor() {
     if (this == null) return
@@ -518,6 +519,16 @@ fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long,
         })
     }
     startAnimation(anim)
+}
+
+/**
+ * 平移动画
+ * 参数：0f, ScreenUtils.getScreenW(context).toFloat()
+ * .doOnEnd->动画结束后
+ */
+fun View?.translationX(vararg values: Float): ObjectAnimator? {
+    this ?: return null
+    return ObjectAnimator.ofFloat(this, "translationX", *values)
 }
 
 /**
