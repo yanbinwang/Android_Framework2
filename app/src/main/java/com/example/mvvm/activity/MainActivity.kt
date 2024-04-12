@@ -1,5 +1,6 @@
 package com.example.mvvm.activity
 
+import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
 import com.alibaba.android.arouter.facade.annotation.Route
@@ -24,8 +25,8 @@ import kotlinx.coroutines.launch
 class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
     private val indicator by lazy { MainIndicator(mBinding?.tbIndicator) }
 
-    override fun initView() {
-        super.initView()
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
         mBinding?.tvTw.margin(top = getStatusBarHeight() + 10.pt)
         indicator.init()
     }

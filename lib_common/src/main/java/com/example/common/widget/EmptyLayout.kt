@@ -15,7 +15,7 @@ import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.layoutParamsMatch
 import com.example.framework.utils.function.view.setResource
-import com.example.framework.utils.function.view.string
+import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 
@@ -37,7 +37,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private var listener: (() -> Unit)? = null
 
     init {
-//        binding.root.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT) //设置LayoutParams
+//        mBinding.root.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT) //设置LayoutParams
         mBinding.root.layoutParamsMatch()
         mBinding.root.setBackgroundColor(color(R.color.bgDefault))
         mBinding.tvRefresh.click {
@@ -82,11 +82,11 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun empty(resId: Int = -1, resText: Int = -1, width: Int? = null, height: Int? = null) {
+    fun empty(resId: Int? = null, resText: Int? = null, width: Int? = null, height: Int? = null) {
         appear(300)
         if (null != width && null != height) mBinding.ivEmpty.size(width, height)
-        mBinding.ivEmpty.setResource(if (-1 == resId) R.mipmap.bg_data_empty else resId)
-        mBinding.tvEmpty.setI18nRes(if (-1 == resText) R.string.dataEmpty else resText)
+        mBinding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_empty)
+        mBinding.tvEmpty.setI18nRes(resText ?: R.string.dataEmpty)
         mBinding.tvRefresh.gone()
     }
 
@@ -94,17 +94,17 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun error(resId: Int = -1, resText: Int = -1, resRefreshText: Int = R.string.refresh, width: Int? = null, height: Int? = null) {
+    fun error(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
         appear(300)
         if (null != width && null != height) mBinding.ivEmpty.size(width, height)
         if (!isNetworkAvailable()) {
             mBinding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
             mBinding.tvEmpty.setI18nRes(R.string.dataNetError)
         } else {
-            mBinding.ivEmpty.setResource(if (-1 == resId) R.mipmap.bg_data_error else resId)
-            mBinding.tvEmpty.setI18nRes(if (-1 == resText) R.string.dataError else resText)
+            mBinding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_error)
+            mBinding.tvEmpty.setI18nRes(resText ?: R.string.dataError)
         }
-        mBinding.tvRefresh.setI18nRes(if (-1 == resRefreshText) R.string.refresh else resRefreshText)
+        mBinding.tvRefresh.setI18nRes(resRefreshText ?: R.string.refresh)
         mBinding.tvRefresh.visible()
     }
 

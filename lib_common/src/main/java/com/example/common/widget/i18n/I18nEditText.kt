@@ -35,6 +35,8 @@ class I18nEditText @JvmOverloads constructor(context: Context, attrs: AttributeS
             setI18nHintRes(typedArray.getResourceId(R.styleable.I18n_android_hint, -1))
         }
         typedArray.recycle()
+        isFocusable = true //设置输入框可聚集
+        isFocusableInTouchMode = true //设置触摸聚焦
     }
 
     /**

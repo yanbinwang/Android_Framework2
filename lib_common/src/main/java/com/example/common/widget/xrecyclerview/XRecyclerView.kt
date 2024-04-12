@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
-import androidx.recyclerview.widget.GridLayoutManager
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
@@ -25,6 +24,7 @@ import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
@@ -205,15 +205,15 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 当数据为空时(显示需要显示的图片，以及内容字)
      */
-    fun empty(imgInt: Int = -1, resText: Int = -1, width: Int? = null, height: Int? = null) {
-        empty?.empty(imgInt, resText, width, height)
+    fun empty(resId: Int? = null, resText: Int? = null, width: Int? = null, height: Int? = null) {
+        empty?.empty(resId, resText, width, height)
     }
 
     /**
      * 当数据异常时
      */
-    fun error(imgInt: Int = -1, resText: Int = -1, width: Int? = null, height: Int? = null) {
-        empty?.error(imgInt, resText, width, height)
+    fun error(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
+        empty?.error(resId, resText, resRefreshText, width, height)
     }
 
 }
