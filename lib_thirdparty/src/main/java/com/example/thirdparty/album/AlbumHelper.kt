@@ -165,7 +165,7 @@ class AlbumHelper {
      *     }
      * }
      */
-    fun toDurban(vararg imagePathArray: String?, width: Int = 500, height: Int = 500) {
+    fun toDurban(vararg imagePathArray: String?, width: Int = 500, height: Int = 500, quality: Int = 90) {
         durban
             //裁剪界面的标题
             ?.title(" ")
@@ -184,7 +184,7 @@ class AlbumHelper {
             //图片压缩格式：JPEG、PNG
             ?.compressFormat(Durban.COMPRESS_JPEG)
             //图片压缩质量，请参考：Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
-            ?.compressQuality(90)
+            ?.compressQuality(quality)
             //裁剪时的手势支持：ROTATE, SCALE, ALL, NONE.
             ?.gesture(Durban.GESTURE_SCALE)
             ?.controller(Controller.newBuilder()

@@ -18,7 +18,7 @@ import java.io.File
 object CompressUtil {
 
     @JvmStatic
-    suspend fun compressFile(file: File?, megabyte: Long = 10, resWidth: Int = 1000, resHeight: Int = 1000): File? {
+    suspend fun compressFile(file: File?, megabyte: Long = 10, resWidth: Int = 1000, resHeight: Int = 1000, quality: Int = 80): File? {
         return try {
             file ?: throw Exception()
             if (file.length() > megabyte.mb) {
@@ -27,7 +27,7 @@ object CompressUtil {
             }
             Compressor.compress(BaseApplication.instance, file) {
                 resolution(resWidth, resHeight)
-                quality(80)
+                quality(quality)
                 format(Bitmap.CompressFormat.JPEG)
             }
         } catch (e: Exception) {
