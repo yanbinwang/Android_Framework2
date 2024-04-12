@@ -23,7 +23,7 @@ class WechatBuilder(mActivity: FragmentActivity) {
     /**
      * 发起支付时都将app注册一下，页面关闭时再注销
      */
-    fun pay(req: PayReq) {
+    fun pay(req: PayReq?) {
         //将应用的appId注册到微信
         wxApi.registerApp(Constants.WX_APP_ID)
         //未安装

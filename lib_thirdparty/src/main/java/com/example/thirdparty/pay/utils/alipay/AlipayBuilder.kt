@@ -39,7 +39,7 @@ class AlipayBuilder(private val mActivity: FragmentActivity) : CoroutineScope {
     /**
      * 发起支付时需要传入服务器真理好的payInfo
      */
-    fun pay(payInfo: String) {
+    fun pay(payInfo: String?) {
         //未安装
         if (!mActivity.isAvailable("com.eg.android.AlipayGphone")) {
             results(R.string.alipayUnInstalled, 2)
