@@ -33,6 +33,7 @@ import com.example.common.utils.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.function.registerResult
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
@@ -68,11 +69,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     protected var mBinding: VDB? = null
     protected val mDialog by lazy { AppDialog(this) }
     protected val mPermission by lazy { PermissionHelper(this) }
+    protected val mActivityResult = registerResult { onActivityResultListener?.invoke(it) }
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
-    private val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onActivityResultListener?.invoke(it) }
     private val job = SupervisorJob()//https://blog.csdn.net/chuyouyinghe/article/details/123057776
     override val coroutineContext: CoroutineContext get() = Main + job//加上SupervisorJob，提升协程作用域
 
@@ -282,7 +283,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity {
-        navigation(path, params = params, activityResultValue = activityResultValue)
+        navigation(path, params = params, activityResultValue = mActivityResult)
         return this
     }
     // </editor-fold>

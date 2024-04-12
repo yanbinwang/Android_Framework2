@@ -1,13 +1,7 @@
 package com.example.thirdparty.media.utils.helper
 
 import android.app.Activity.RESULT_OK
-import android.content.Intent
-import android.media.projection.MediaProjectionManager
-import android.net.Uri
 import android.os.Build
-import android.provider.Settings
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -18,6 +12,9 @@ import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.FileBuilder
 import com.example.common.utils.file.deleteFile
+import com.example.common.utils.function.pullUpOverlay
+import com.example.common.utils.function.pullUpScreen
+import com.example.common.utils.function.registerResult
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.function.startService
 import com.example.framework.utils.function.stopService
@@ -35,15 +32,14 @@ import java.io.File
  */
 class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var isDestroy = false
+    private var listener: (filePath: String?, isZip: Boolean) -> Unit = { _, _ -> }
     private val list by lazy { ArrayList<String>() }
     private val builder by lazy { FileBuilder(mActivity) }
     private val loading by lazy { LoadingDialog(mActivity) }
-    private var listener: (filePath: String?, isZip: Boolean) -> Unit = { _, _ -> }
-
     /**
      * 处理录屏的回调
      */
-    private val activityResultValue = mActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+    private val result = mActivity.registerResult {
         list.clear()
         if (it.resultCode == RESULT_OK) {
             R.string.screenStart.shortToast()
@@ -95,9 +91,9 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
             }
         }
         //录屏文件创建/停止录屏时（exists=false）都会回调
-        ScreenService.setOnScreenListener { folderPath, recoding ->
+        ScreenService.setOnScreenListener { folderPath, isRecoding ->
             if(isDestroy) return@setOnScreenListener
-            if (!recoding) {
+            if (!isRecoding) {
                 folderPath ?: return@setOnScreenListener
                 //说明未截图
                 if (list.safeSize == 0) {
@@ -131,15 +127,10 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
      * 尝试唤起手机录屏弹窗，会在onActivityResult中回调结果
      */
     fun startScreen() = mActivity.execute {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-            R.string.screenGranted.shortToast()
-            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
-            intent.data = Uri.parse("package:${packageName}")
-            startActivity(intent)
+        if (pullUpOverlay()) {
+            result.pullUpScreen(this)
         } else {
-            val mediaProjectionManager = getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
-            val permissionIntent = mediaProjectionManager?.createScreenCaptureIntent()
-            activityResultValue.launch(permissionIntent)
+            R.string.screenGranted.shortToast()
         }
     }
 

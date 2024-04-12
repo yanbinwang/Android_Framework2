@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
 import androidx.recyclerview.widget.GridLayoutManager
@@ -106,7 +107,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         recycler?.setHasFixedSize(true)
         recycler?.cancelItemAnimator()
         addView(view)
-        view?.size(MATCH_PARENT, MATCH_PARENT)
+//        view?.size(MATCH_PARENT, MATCH_PARENT)
+        view?.size(MATCH_PARENT, WRAP_CONTENT)
     }
 
     /**
@@ -114,14 +116,23 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 默认一行一个，线样式可自画可调整
      */
     fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
-//        recycler?.layoutManager = GridLayoutManager(context, spanCount)
-//        recycler?.adapter = adapter
         recycler.initGridHorizontal(adapter, spanCount)
         addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
     }
 
     /**
      * 设置复杂的多个adapter直接拼接成一个
+     * recycler.layoutManager = GridLayoutManager(recycler.context, 3).apply {
+     *     spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+     *         override fun getSpanSize(position: Int): Int {
+     *             return when (getItemViewType(position)) {
+     *                 TYPE_HEADER -> 3
+     *                 TYPE_BODY -> 3
+     *                 else -> 1
+     *             }
+     *          }
+     *     }
+     * }
      */
     fun <T : BaseQuickAdapter<*, *>> setConcatAdapter(vararg adapters: T) {
         recycler?.initConcat(*adapters)
