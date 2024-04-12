@@ -2,7 +2,9 @@ package com.example.amap.utils
 
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.LatLngBounds
+import com.example.framework.utils.function.value.toSafeDouble
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.Random
 import kotlin.math.abs
 import kotlin.math.acos
@@ -33,6 +35,7 @@ object CoordinateTransUtil {
      * @param r   半径（米）
      * @return double[4] 南侧经度，北侧经度，西侧纬度，东侧纬度
      */
+    @JvmStatic
     fun getRange(lon: Double, lat: Double, r: Int): DoubleArray {
         val range = DoubleArray(4)
         //角度转换为弧度
@@ -61,6 +64,7 @@ object CoordinateTransUtil {
     /**
      * 获取一组经纬度的相对中心点
      */
+    @JvmStatic
     fun getCenterPoint(latLngList: MutableList<LatLng>): LatLng {
         val total = latLngList.size
         var calculationX = 0.0
@@ -91,6 +95,7 @@ object CoordinateTransUtil {
     /**
      * 设置东南和西北角，构筑一个矩形范围
      */
+    @JvmStatic
     fun createBounds(latA: Double, lngA: Double, latB: Double, lngB: Double): LatLngBounds {
         val topLat: Double
         val topLng: Double
@@ -118,17 +123,21 @@ object CoordinateTransUtil {
      * @param MinLon：最小经度  MaxLon： 最大经度   MinLat：最小纬度   MaxLat：最大纬度
      * @return LatLng
      */
-    fun randomLatLng(MinLon: Double, MaxLon: Double, MinLat: Double, MaxLat: Double): LatLng {
-        var bigDecimal = BigDecimal(Math.random() * (MaxLon - MinLon) + MinLon)
-        val lon = bigDecimal.setScale(6, BigDecimal.ROUND_HALF_UP).toDouble() //小数后6位
-        bigDecimal = BigDecimal(Math.random() * (MaxLat - MinLat) + MinLat)
-        val lat = bigDecimal.setScale(6, BigDecimal.ROUND_HALF_UP).toDouble()
+    @JvmStatic
+    fun randomLatLng(minLon: Double, maxLon: Double, minLat: Double, maxLat: Double): LatLng {
+        var bigDecimal = BigDecimal(Math.random() * (maxLon - minLon) + minLon)
+//        val lon = bigDecimal.setScale(6, BigDecimal.ROUND_HALF_UP).toDouble() //小数后6位
+        val lon = bigDecimal.setScale(6, RoundingMode.HALF_UP).toSafeDouble() //小数后6位
+        bigDecimal = BigDecimal(Math.random() * (maxLat - minLat) + minLat)
+//        val lat = bigDecimal.setScale(6, BigDecimal.ROUND_HALF_UP).toDouble()
+        val lat = bigDecimal.setScale(6, RoundingMode.HALF_UP).toSafeDouble()
         return LatLng(lat, lon)
     }
 
     /**
      * 生成以中心点附近指定radius内的坐标数组
      */
+    @JvmStatic
     fun randomGenerateLatLng(startLatLng: LatLng, endLatLng: LatLng): MutableList<LatLng> {
         val latLng = ArrayList<LatLng>()
         latLng.add(startLatLng)
@@ -159,6 +168,7 @@ object CoordinateTransUtil {
      * @param lat 百度纬度
      * @return GCJ02 坐标：[经度，纬度]
      */
+    @JvmStatic
     fun transformBD09ToGCJ02(lng: Double, lat: Double): DoubleArray {
         val x = lng - 0.0065
         val y = lat - 0.006
@@ -176,6 +186,7 @@ object CoordinateTransUtil {
      * @param lat GCJ02 纬度
      * @return 百度坐标：[经度，纬度]
      */
+    @JvmStatic
     fun transformGCJ02ToBD09(lng: Double, lat: Double): DoubleArray {
         val z = sqrt(lng * lng + lat * lat) + 0.00002 * sin(lat * X_PI)
         val theta = atan2(lat, lng) + 0.000003 * cos(lng * X_PI)
@@ -191,6 +202,7 @@ object CoordinateTransUtil {
      * @param lat 纬度
      * @return WGS84坐标：[经度，纬度]
      */
+    @JvmStatic
     fun transformGCJ02ToWGS84(lng: Double, lat: Double): DoubleArray {
         return if (outOfChina(lng, lat)) {
             doubleArrayOf(lng, lat)
@@ -243,6 +255,7 @@ object CoordinateTransUtil {
      * @param lat 纬度
      * @return WGS84 坐标：[经度，纬度]
      */
+    @JvmStatic
     fun transformBD09ToWGS84(lng: Double, lat: Double): DoubleArray {
         val lngLat = transformBD09ToGCJ02(lng, lat)
         return transformGCJ02ToWGS84(lngLat[0], lngLat[1])
