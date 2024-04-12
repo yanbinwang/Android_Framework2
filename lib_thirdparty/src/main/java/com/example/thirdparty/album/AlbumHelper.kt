@@ -74,30 +74,30 @@ class AlbumHelper {
     /**
      * 跳转至相机-拍照
      */
-    fun takePicture(filePath: String, hasDurban: Boolean = false, onResult: (albumPath: String?) -> Unit = {}) {
+    fun takePicture(filePath: String, hasDurban: Boolean = false, listener: (albumPath: String?) -> Unit = {}) {
         imageCamera?.image()
             ?.filePath(filePath)
-            ?.onResult { if (hasDurban) toDurban(it) else onResult.invoke(it) }
+            ?.onResult { if (hasDurban) toDurban(it) else listener.invoke(it) }
             ?.start()
     }
 
     /**
      * 跳转至相机-录像(时间不一定能指定，大多数手机不兼容)
      */
-    fun recordVideo(filePath: String, duration: Long = 1.hour, onResult: (albumPath: String?) -> Unit = {}) {
+    fun recordVideo(filePath: String, duration: Long = 1.hour, listener: (albumPath: String?) -> Unit = {}) {
         imageCamera?.video()
             ?.filePath(filePath)
             ?.quality(1)//视频质量, [0, 1].
             ?.limitDuration(duration)//视频的最长持续时间以毫秒为单位
 //                           .limitBytes(Long.MAX_VALUE)//视频的最大大小，以字节为单位
-            ?.onResult { onResult.invoke(it) }
+            ?.onResult { listener.invoke(it) }
             ?.start()
     }
 
     /**
      * 选择图片
      */
-    fun imageSelection(hasCamera: Boolean = true, hasDurban: Boolean = false, megabyte: Long = 10, onResult: (albumPath: String?) -> Unit = {}) {
+    fun imageSelection(hasCamera: Boolean = true, hasDurban: Boolean = false, megabyte: Long = 10, listener: (albumPath: String?) -> Unit = {}) {
         imageMultiple
             //多选模式为：multipleChoice,单选模式为：singleChoice()
             ?.singleChoice()
@@ -116,7 +116,7 @@ class AlbumHelper {
                         string(R.string.albumImageError, megabyte.mb.toString()).shortToast()
                         return@onResult
                     }
-                    if (hasDurban) toDurban(path) else onResult.invoke(path)
+                    if (hasDurban) toDurban(path) else listener.invoke(path)
                 }
             }?.start()
     }
@@ -124,7 +124,7 @@ class AlbumHelper {
     /**
      * 选择视频
      */
-    fun videoSelection(megabyte: Long = 100, onResult: (albumPath: String?) -> Unit = {}) {
+    fun videoSelection(megabyte: Long = 100, listener: (albumPath: String?) -> Unit = {}) {
         videoMultiple
             //多选模式为：multipleChoice,单选模式为：singleChoice()
             ?.singleChoice()
@@ -143,7 +143,7 @@ class AlbumHelper {
                         string(R.string.albumVideoError, megabyte.mb.toString()).shortToast()
                         return@onResult
                     }
-                    onResult.invoke(path)
+                    listener.invoke(path)
                 }
             }?.start()
     }
@@ -165,7 +165,7 @@ class AlbumHelper {
      *     }
      * }
      */
-    fun toDurban(vararg imagePathArray: String?) {
+    fun toDurban(vararg imagePathArray: String?, width: Int = 500, height: Int = 500) {
         durban
             //裁剪界面的标题
             ?.title(" ")
@@ -178,7 +178,7 @@ class AlbumHelper {
             //图片输出文件夹路径
             ?.outputDirectory("${STORAGE}/裁剪图片")
             //裁剪图片输出的最大宽高
-            ?.maxWidthHeight(500, 500)
+            ?.maxWidthHeight(width, height)
             //裁剪时的宽高比
             ?.aspectRatio(1f, 1f)
             //图片压缩格式：JPEG、PNG
@@ -187,8 +187,7 @@ class AlbumHelper {
             ?.compressQuality(90)
             //裁剪时的手势支持：ROTATE, SCALE, ALL, NONE.
             ?.gesture(Durban.GESTURE_SCALE)
-            ?.controller(
-                Controller.newBuilder()
+            ?.controller(Controller.newBuilder()
                     //是否开启控制面板
                     .enable(false)
                     //是否有旋转按钮
@@ -199,8 +198,7 @@ class AlbumHelper {
                     .scale(true)
                     //缩放控制按钮上面的标题
                     .scaleTitle(true)
-                    .build()
-            )
+                    .build())
             //创建控制面板配置
             ?.requestCode(REQUEST_PHOTO)?.start()
     }

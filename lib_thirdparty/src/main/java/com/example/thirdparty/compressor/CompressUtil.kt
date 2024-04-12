@@ -16,16 +16,9 @@ import java.io.File
  * 图片压缩库
  */
 object CompressUtil {
-    private var resWidth = 1000
-    private var resHeight = 1000
 
     @JvmStatic
-    suspend fun compressFile(filePath: String?, megabyte: Long = 10): File? {
-        return compressFile(File(filePath.orEmpty()), megabyte)
-    }
-
-    @JvmStatic
-    suspend fun compressFile(file: File?, megabyte: Long = 10): File? {
+    suspend fun compressFile(file: File?, megabyte: Long = 10, resWidth: Int = 1000, resHeight: Int = 1000): File? {
         return try {
             file ?: throw Exception()
             if (file.length() > megabyte.mb) {
