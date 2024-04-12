@@ -276,14 +276,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             changeBgHeight(offset)
         }
         mBinding?.viewContent.click {
-            mPermission.requestPermissions {
-                result.pullUpAlbum()
-            }
+//            mPermission.requestPermissions {
+//                result.pullUpAlbum()
+//            }
 //            album.imageSelection(hasDurban = true) {
 //
 //            }
 //            "dsfdsfdsfds".shortToast()
-//            testBottom.show(supportFragmentManager, "testBottom")
+            testBottom.show(supportFragmentManager)
 //            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
 
 //            val view = ViewTestBinding.bind(inflate(R.layout.view_test)).root
