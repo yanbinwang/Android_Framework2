@@ -308,9 +308,10 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     override fun onDetach() {
         super.onDetach()
         for ((key, value) in dataManager) {
-            key.removeObserver(value ?: return)
+            key.removeObserver(value)
         }
         dataManager.clear()
+        mActivityResult?.unregister()
         mBinding?.unbind()
         job.cancel()
     }

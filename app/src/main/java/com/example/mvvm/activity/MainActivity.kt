@@ -112,7 +112,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     //    private val illustratePopup by lazy { IllustratePopup(this) }
     private val testBottom by lazy { TestTopDialog() }
     private val input by lazy { InputPopup() }
-
     //    private val ids = listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
 //    private val adapter by lazy { ImageAdapter() }
 //    private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
@@ -122,12 +121,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private val bean by lazy { intentParcelable<UserBean>("bean") }
     private var isOpen = false
     private val builder by lazy { FileBuilder(this) }
-
-    private val result = registerResult{
-
-    }
-
-
     private val album by lazy { AlbumHelper(this) }
 
     override fun initView(savedInstanceState: Bundle?) {
