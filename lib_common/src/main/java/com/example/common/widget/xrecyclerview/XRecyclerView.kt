@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
@@ -24,6 +26,7 @@ import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.initConcat
 import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.size
@@ -70,12 +73,19 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 view = context.inflate(R.layout.view_xrecycler)
                 recycler = view.findViewById(R.id.rv_list)
                 if (0 != emptyEnum) {
-                    empty = EmptyLayout(context).apply {
-                        onInflate()
-                        loading()
+                    view = context.inflate(R.layout.view_xrecycler)
+                    recycler = view.findViewById(R.id.rv_list)
+                    if (0 != emptyEnum) {
+                        empty = EmptyLayout(context)
+                        recycler?.setEmptyView(empty?.setListView(recycler).apply {
+                            if (minimumHeight > 0) {
+                                size(height = minimumHeight)
+                            } else {
+                                size(MATCH_PARENT, MATCH_PARENT)
+                            }
+                        })
+                        empty?.setOnEmptyRefreshListener { listener?.invoke() }
                     }
-                    recycler?.setEmptyView(empty?.setListView(recycler))
-                    empty?.setOnEmptyRefreshListener { listener?.invoke() }
                 }
             }
             1 -> {
@@ -96,7 +106,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         recycler?.setHasFixedSize(true)
         recycler?.cancelItemAnimator()
         addView(view)
-        view?.size(MATCH_PARENT, MATCH_PARENT)
+        view?.size(MATCH_PARENT, WRAP_CONTENT)
     }
 
     /**
@@ -104,10 +114,26 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 默认一行一个，线样式可自画可调整
      */
     fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
-//        recycler?.layoutManager = GridLayoutManager(context, spanCount)
-//        recycler?.adapter = adapter
-        recycler.initGridHorizontal(adapter, spanCount)
+        recycler.initGridVertical(adapter, spanCount)
         addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
+    }
+
+    /**
+     * 设置复杂的多个adapter直接拼接成一个
+     * recycler.layoutManager = GridLayoutManager(recycler.context, 3).apply {
+     *     spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+     *         override fun getSpanSize(position: Int): Int {
+     *             return when (getItemViewType(position)) {
+     *                 TYPE_HEADER -> 3
+     *                 TYPE_BODY -> 3
+     *                 else -> 1
+     *             }
+     *          }
+     *     }
+     * }
+     */
+    fun <T : BaseQuickAdapter<*, *>> setConcatAdapter(vararg adapters: T) {
+        recycler?.initConcat(*adapters)
     }
 
     /**

@@ -9,14 +9,7 @@ import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.view.appear
-import com.example.framework.utils.function.view.click
-import com.example.framework.utils.function.view.color
-import com.example.framework.utils.function.view.gone
-import com.example.framework.utils.function.view.layoutParamsMatch
-import com.example.framework.utils.function.view.setResource
-import com.example.framework.utils.function.view.size
-import com.example.framework.utils.function.view.visible
+import com.example.framework.utils.function.view.*
 import com.example.framework.widget.BaseViewGroup
 
 /**
@@ -37,7 +30,6 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private var listener: (() -> Unit)? = null
 
     init {
-//        mBinding.root.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT) //设置LayoutParams
         mBinding.root.layoutParamsMatch()
         mBinding.root.setBackgroundColor(color(R.color.bgDefault))
         mBinding.tvRefresh.click {
