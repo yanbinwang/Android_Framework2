@@ -1,35 +1,28 @@
 package com.example.thirdparty.pay.bean
 
 import com.example.common.config.Constants
-import com.google.gson.annotations.SerializedName
 import com.tencent.mm.opensdk.modelpay.PayReq
 
 data class PayBean(
     //用于微信
-    @SerializedName("appid")
-    var mAppId: String? = null,
-    @SerializedName("partnerid")
-    var mPartnerId: String? = null,
-    @SerializedName("prepayid")
-    var mPrepayId: String? = null,
-    @SerializedName("noncestr")
-    var mNonceStr: String? = null,
-    @SerializedName("timestamp")
-    var mTimestamp: String? = null,
+    var appid: String? = null,
+    var partnerid: String? = null,
+    var prepayid: String? = null,
+    var noncestr: String? = null,
+    var timestamp: String? = null,
     //支付宝，微信共用
-    @SerializedName("sign")
-    var mSign: String? = null
+    var sign: String? = null
 ) {
     /**
      * 获取微信支付的对象
      */
-    val wxPayReq get() = PayReq().apply {
-        appId = Constants.WX_APP_ID
-        partnerId = mPartnerId
-        prepayId = mPrepayId
-        packageValue = "Sign=WXPay"
-        nonceStr = mNonceStr
-        timeStamp = mTimestamp
-        sign = mSign
+    val wxPayReq get() = PayReq().also {
+        it.appId = Constants.WX_APP_ID
+        it.partnerId = partnerid
+        it.prepayId = prepayid
+        it.packageValue = "Sign=WXPay"
+        it.nonceStr = noncestr
+        it.timeStamp = timestamp
+        it.sign = sign
     }
 }

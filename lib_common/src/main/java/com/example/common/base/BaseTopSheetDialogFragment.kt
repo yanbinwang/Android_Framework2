@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
@@ -73,7 +72,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
     protected val mDialog by lazy { AppDialog(mActivity) }
     protected val mPermission by lazy { PermissionHelper(mActivity) }
-    protected val mActivityResult = mActivity.registerResult { onActivityResultListener?.invoke(it) }
+    protected val mActivityResult = activity.registerResult { onActivityResultListener?.invoke(it) }
     private var showTime = 0L
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving
@@ -218,9 +217,10 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     override fun onDetach() {
         super.onDetach()
         for ((key, value) in dataManager) {
-            key.removeObserver(value ?: return)
+            key.removeObserver(value)
         }
         dataManager.clear()
+        mActivityResult?.unregister()
         mBinding?.unbind()
         job.cancel()
     }

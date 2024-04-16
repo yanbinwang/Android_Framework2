@@ -206,9 +206,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         AppManager.removeActivity(this)
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
         for ((key, value) in dataManager) {
-            key.removeObserver(value ?: return)
+            key.removeObserver(value)
         }
         dataManager.clear()
+        mActivityResult?.unregister()
         mBinding?.unbind()
         job.cancel()//之后再起的job无法工作
 //        coroutineContext.cancelChildren()//之后再起的可以工作
