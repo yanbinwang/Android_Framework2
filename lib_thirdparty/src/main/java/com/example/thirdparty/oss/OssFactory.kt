@@ -16,7 +16,6 @@ import com.alibaba.sdk.android.oss.internal.OSSAsyncTask
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult
 import com.example.common.BaseApplication
-import com.example.common.config.Constants.STORAGE
 import com.example.common.event.EventCode.EVENT_EVIDENCE_UPDATE
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.reqBodyOf
@@ -27,6 +26,7 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.deleteDir
 import com.example.common.utils.file.deleteFile
 import com.example.common.utils.function.byServerUrl
+import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.common.utils.toJsonString
 import com.example.framework.utils.function.doOnDestroy
@@ -42,6 +42,7 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.File
@@ -55,14 +56,13 @@ import kotlin.coroutines.CoroutineContext
  * 阿里oss文件上传
  */
 class OssFactory private constructor() : CoroutineScope {
-    private var job: Job? = null
     private var oss: OSS? = null
     private val ossMap by lazy { ConcurrentHashMap<String, OSSAsyncTask<ResumableUploadResult?>?>() }
     private val implMap by lazy { ConcurrentHashMap<String, WeakReference<OssImpl>>() }//传入页面的classname以及页面实现OssImpl
     /**
      * 校验oss是否初始化
      */
-    private val launch get() = run {
+    private val isInit get() = run {
         if (!isAuthorize) {
             if (!isRequest) {
                 "oss初始化失败，请稍后再试".shortToast()
@@ -73,8 +73,11 @@ class OssFactory private constructor() : CoroutineScope {
             true
         }
     }
+    //协程
+    private var initJob: Job? = null
+    private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
-        get() = (Dispatchers.Main)
+        get() = Dispatchers.Main + job
 
     companion object {
         @JvmStatic
@@ -105,8 +108,8 @@ class OssFactory private constructor() : CoroutineScope {
     @Synchronized
     fun initialize() {
         statePair = true to false
-        job?.cancel()
-        job = launch(Dispatchers.IO) {
+        initJob?.cancel()
+        initJob = launch(Dispatchers.IO) {
             oss = OSSClient(BaseApplication.instance.applicationContext, "https://oss-cn-shenzhen.aliyuncs.com", object : OSSFederationCredentialProvider() {
                 override fun getFederationToken(): OSSFederationToken? {
                     return try {
@@ -144,7 +147,8 @@ class OssFactory private constructor() : CoroutineScope {
     fun addObserver(observer: LifecycleOwner) {
         observer.doOnDestroy {
             cancel()
-            job?.cancel()
+            initJob?.cancel()
+            job.cancel()
         }
     }
 
@@ -192,7 +196,7 @@ class OssFactory private constructor() : CoroutineScope {
      * objectName->Object完整路径，例如exampledir/exampleobject.txt。Object完整路径中不能包含Bucket名称
      */
     fun asyncResumableUpload(sourcePath: String, baoquan: String, fileType: String) {
-        if (launch) {
+        if (isInit) {
             //设置对应文件的断点文件存放路径
             val file = File(sourcePath)
             val fileName = file.name.split(".")[0]
@@ -337,7 +341,7 @@ class OssFactory private constructor() : CoroutineScope {
      * 直接执行文件上传
      */
     fun asyncResumableUpload(sourcePath: String, onStart: () -> Unit = {}, onSuccess: (objectKey: String?) -> Unit = {}, onLoading: (progress: Int?) -> Unit = {}, onFailed: (result: String?) -> Unit = {}, onComplete: () -> Unit = {}, privately: Boolean = false) {
-        if (launch) {
+        if (isInit) {
             onStart.invoke()
             //设置对应文件的断点文件存放路径
             val file = File(sourcePath)
