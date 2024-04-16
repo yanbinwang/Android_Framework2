@@ -277,37 +277,39 @@ class OssFactory private constructor() : CoroutineScope {
      * 完成时候的回调
      */
     private fun response(isSuccess: Boolean, query: OssDB, fileType: String, recordDirectory: String?, percentage: Int = 0, errorMessage: String? = "") {
-        val baoquan = query.baoquan
-        if (isSuccess) {
-            //全部传完停止服务器
-            if (percentage == 100) {
-                //优先保证本地数据库记录成功
-                OssHelper.updateComplete(baoquan, true)
-                success(query, fileType, recordDirectory.orEmpty())
+        query.baoquan.apply {
+            if (isSuccess) {
+                //全部传完停止服务器
+                if (percentage == 100) {
+                    //优先保证本地数据库记录成功
+                    OssHelper.updateComplete(this, true)
+                    success(query, fileType, recordDirectory.orEmpty())
+                }
+            } else {
+                //即刻停止当前请求，刷新列表，并通知服务器错误信息
+                val value = ossMap[this]
+                (value as? OSSAsyncTask<*>?)?.cancel()
+                failure(this, errorMessage.orEmpty())
             }
-        } else {
-            //即刻停止当前请求，刷新列表，并通知服务器错误信息
-            val value = ossMap[baoquan]
-            (value as? OSSAsyncTask<*>?)?.cancel()
-            failure(baoquan, errorMessage.orEmpty())
+            ossMap.remove(this)
         }
-        ossMap.remove(baoquan)
     }
 
     /**
      * 告知服务器此次成功的链接地址
      */
     private fun success(query: OssDB, fileType: String, recordDirectory: String) {
-        val baoquan = query.baoquan
-        launch {
-            request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query.objectKey)) }, {
-                //删除对应断点续传的文件夹和源文件
-                query.sourcePath.deleteDir()
-                recordDirectory.deleteFile()
-                OssHelper.delete(query)
-                callback(2, baoquan, success = true)
-                EVENT_EVIDENCE_UPDATE.post(fileType)
-            }, { failure(baoquan, it?.second.orEmpty()) })
+        query.baoquan.apply {
+            launch {
+                request({ OssSubscribe.getOssEditApi(this@apply, reqBodyOf("fileUrl" to query.objectKey)) }, {
+                    //删除对应断点续传的文件夹和源文件
+                    query.sourcePath.deleteDir()
+                    recordDirectory.deleteFile()
+                    OssHelper.delete(query)
+                    callback(2, this@apply, success = true)
+                    EVENT_EVIDENCE_UPDATE.post(fileType)
+                }, { failure(this@apply, it?.second.orEmpty()) })
+            }
         }
     }
 
