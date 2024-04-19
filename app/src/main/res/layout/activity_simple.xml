@@ -3,16 +3,16 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/bgBlue"
+        android:layout_height="match_parent"
         android:padding="10pt">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <Button
+            android:id="@+id/btn_recognition"
+            statusBar_margin="@{true}"
+            android:layout_width="match_parent"
+            android:layout_height="48pt"
             android:background="@color/bgBlack"
-            android:padding="5pt"
-            android:text="我是测试文案"
+            android:text="开始指纹识别"
             android:textColor="@color/textWhite"
             android:textSize="@dimen/textSize14" />
 

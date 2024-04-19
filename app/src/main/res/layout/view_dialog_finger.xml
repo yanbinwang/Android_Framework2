@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="320pt"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/shape_r10_default"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="10pt">
+
+        <ImageView
+            android:id="@+id/iv_finger"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:src="@mipmap/ic_finger" />
+
+        <TextView
+            android:id="@+id/tv_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10pt"
+            android:gravity="center"
+            android:text="请将手机放置在指纹传感器上"
+            android:textColor="@color/textPrimary"
+            android:textSize="@dimen/textSize14" />
+
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="48pt"
+            android:background="@color/bgBlack"
+            android:text="取消"
+            android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize14" />
+
+    </LinearLayout>
+
+</layout>
