@@ -83,7 +83,8 @@ object ServerLogRequest : LifecycleEventObserver {
      * 要捕获记录的时候添加
      */
     @JvmStatic
-    fun LifecycleOwner.record(type: Int?) {
+    fun LifecycleOwner?.record(type: Int?) {
+        this ?: return
         proxy(this)?.record(type)
     }
 
