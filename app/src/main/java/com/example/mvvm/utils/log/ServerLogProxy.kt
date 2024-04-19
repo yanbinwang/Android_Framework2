@@ -1,8 +1,5 @@
 package com.example.mvvm.utils.log
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.EmptyBean
 import com.example.common.subscribe.CommonSubscribe
@@ -15,7 +12,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
@@ -23,7 +19,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 服务器日志提交
  */
-class ServerLogProxy(observer: LifecycleOwner) : CoroutineScope, LifecycleEventObserver {
+class ServerLogProxy : CoroutineScope {
     private var postJob: Job? = null
     private var serverLogId = 0
         get() = ++field
@@ -31,10 +27,6 @@ class ServerLogProxy(observer: LifecycleOwner) : CoroutineScope, LifecycleEventO
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
-
-    init {
-        observer.lifecycle.addObserver(this)
-    }
 
     /**
      * 记录操作，间隔小于10秒不做提交，只做操作记录
@@ -69,19 +61,12 @@ class ServerLogProxy(observer: LifecycleOwner) : CoroutineScope, LifecycleEventO
     }
 
     /**
-     * 生命周期回调
+     * 销毁回调
      */
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        when (event) {
-            Lifecycle.Event.ON_PAUSE -> push()
-            Lifecycle.Event.ON_DESTROY -> {
-                push()
-                postJob?.cancel()
-                job.cancel()
-                source.lifecycle.removeObserver(this)
-            }
-            else -> {}
-        }
+    fun destroy() {
+        push()
+        postJob?.cancel()
+        job.cancel()
     }
 
 }
