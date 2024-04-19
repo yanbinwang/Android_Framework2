@@ -40,7 +40,6 @@ object ServerLogRequest : LifecycleEventObserver {
     @JvmStatic
     private fun remove(owner: LifecycleOwner) {
         if (!owner.isLogRequest) return
-        push(owner)
         destroy(owner)
         list.removeAll { it.second.get() == owner }
         owner.lifecycle.removeObserver(this)

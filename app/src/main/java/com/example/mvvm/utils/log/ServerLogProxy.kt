@@ -5,7 +5,7 @@ import com.example.common.network.repository.EmptyBean
 import com.example.common.subscribe.CommonSubscribe
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.toNewList
-import com.example.mvvm.utils.ServerLogHelper
+import com.example.framework.utils.logWTF
 import com.example.mvvm.utils.log.bean.ServerLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -73,7 +73,7 @@ class ServerLogProxy : CoroutineScope {
      * 再次做一次判断，是否有提交的日志
      */
     fun destroy() {
-        push()
+        if (serverLogMap.isNotEmpty()) "存在未被提交的日志".logWTF
         pushJob?.cancel()
         job.cancel()
     }
