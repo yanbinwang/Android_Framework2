@@ -47,11 +47,13 @@ object ServerLogRequest : LifecycleEventObserver {
     }
 
     @JvmStatic
+    @Synchronized
     private fun push(owner: LifecycleOwner) {
         proxy(owner)?.push()
     }
 
     @JvmStatic
+    @Synchronized
     private fun destroy(owner: LifecycleOwner) {
         proxy(owner)?.destroy()
     }
@@ -83,6 +85,7 @@ object ServerLogRequest : LifecycleEventObserver {
      * 要捕获记录的时候添加
      */
     @JvmStatic
+    @Synchronized
     fun LifecycleOwner?.record(type: Int?) {
         this ?: return
         proxy(this)?.record(type)
