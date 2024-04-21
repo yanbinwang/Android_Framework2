@@ -13,7 +13,7 @@ import java.lang.ref.WeakReference
  * 需要记录日志的activity和fragment加上isLogRequest注解
  */
 object ServerLogRequest : LifecycleEventObserver {
-    private val list by lazy { ArrayList<Pair<ServerLogProxy, WeakReference<LifecycleOwner>>>() }
+    private val list by lazy { ArrayList<Pair<WeakReference<ServerLogProxy>, WeakReference<LifecycleOwner>>>() }
 
     // <editor-fold defaultstate="collapsed" desc="订阅相关">
     /**
@@ -30,7 +30,7 @@ object ServerLogRequest : LifecycleEventObserver {
     @JvmStatic
     private fun add(owner: LifecycleOwner) {
         if (!owner.isLogRequest) return
-        list.add(ServerLogProxy() to WeakReference(owner))
+        list.add(WeakReference(ServerLogProxy()) to WeakReference(owner))
         owner.lifecycle.addObserver(this)
     }
 
@@ -62,7 +62,7 @@ object ServerLogRequest : LifecycleEventObserver {
      */
     @JvmStatic
     private fun proxy(owner: LifecycleOwner): ServerLogProxy? {
-        return list.filter { it.second.get() == owner }.safeGet(0)?.first
+        return list.filter { it.second.get() == owner }.safeGet(0)?.first?.get()
     }
 
     /**
