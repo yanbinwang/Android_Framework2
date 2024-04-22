@@ -551,9 +551,23 @@ fun ConstraintLayout?.setOnCheckedChangeListener(listener: (index: Int) -> Unit 
 /**
  * 简易Edittext监听
  */
-fun OnMultiTextWatcher.textWatcher(vararg views: EditText) {
+fun OnMultiTextWatcher.textWatchers(vararg views: EditText) {
     for (view in views) {
         view.addTextChangedListener(this)
+    }
+}
+
+/**
+ * 简易的输入监听
+ */
+interface OnMultiTextWatcher : TextWatcher {
+    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+    }
+
+    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+    }
+
+    override fun afterTextChanged(s: Editable) {
     }
 }
 
@@ -589,19 +603,5 @@ object ExtraTextViewFunctions {
         } else {
             edit.append(text)
         }
-    }
-}
-
-/**
- * 简易的输入监听
- */
-interface OnMultiTextWatcher : TextWatcher {
-    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-    }
-
-    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-    }
-
-    override fun afterTextChanged(s: Editable) {
     }
 }
