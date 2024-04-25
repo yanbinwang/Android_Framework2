@@ -32,7 +32,7 @@ import com.example.common.utils.toJsonString
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
-import com.example.thirdparty.oss.bean.OssDB
+import com.example.greendao.bean.OssDB
 import com.example.thirdparty.oss.bean.OssSts
 import com.example.thirdparty.oss.bean.OssSts.Companion.bucketName
 import com.example.thirdparty.oss.bean.OssSts.Companion.objectName
@@ -195,15 +195,12 @@ class OssFactory private constructor() : CoroutineScope {
      * bucketName->Bucket名称，例如examplebucket
      * objectName->Object完整路径，例如exampledir/exampleobject.txt。Object完整路径中不能包含Bucket名称
      */
+    @Synchronized
     fun asyncResumableUpload(sourcePath: String, baoquan: String, fileType: String) {
         if (isInit) {
-            //设置对应文件的断点文件存放路径
-            val file = File(sourcePath)
-            val fileName = file.name.split(".")[0]
-            //本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
-            val recordDirectory = "${file.parent}/${fileName}_record"
-            //查询或获取存储的值
-            val query = query(sourcePath, baoquan, fileType)
+            val data = init(sourcePath, baoquan, fileType)
+            val query = data.first
+            val recordDirectory = data.second
             if (OssHelper.isComplete(baoquan)) {
                 success(query, fileType, recordDirectory)
             } else {
@@ -249,7 +246,23 @@ class OssFactory private constructor() : CoroutineScope {
 //                resumableTask?.waitUntilFinished()
                 ossMap[baoquan] = resumableTask
             }
+        } else {
+            init(sourcePath, baoquan, fileType)
+            failure(baoquan, "oss初始化失败")
         }
+    }
+
+    /**
+     * 初始化相关参数
+     */
+    fun init(sourcePath: String, baoquan: String, fileType: String): Pair<OssDB, String> {
+        //设置对应文件的断点文件存放路径
+        val file = File(sourcePath)
+        val fileName = file.name.split(".")[0]
+        //本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
+        val recordDirectory = "${file.parent}/${fileName}_record"
+        //查询或获取存储的值
+        return query(sourcePath, baoquan, fileType) to recordDirectory
     }
 
     /**
@@ -342,6 +355,7 @@ class OssFactory private constructor() : CoroutineScope {
     /**
      * 直接执行文件上传
      */
+    @Synchronized
     fun asyncResumableUpload(sourcePath: String, onStart: () -> Unit = {}, onSuccess: (objectKey: String?) -> Unit = {}, onLoading: (progress: Int?) -> Unit = {}, onFailed: (result: String?) -> Unit = {}, onComplete: () -> Unit = {}, privately: Boolean = false) {
         if (isInit) {
             onStart.invoke()

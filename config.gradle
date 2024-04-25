@@ -93,6 +93,6 @@ ext.build_config = build_config
 //数据库参数配置
 def build_database = [:]
 build_database.schemaVersion = 1 // 数据库版本号（可同步app版本号）-写死不做改动！
-build_database.daoPackage = "com.example.thirdparty.greendao.dao" //设置DaoMaster、DaoSession、Dao所在的包名
+build_database.daoPackage = "com.example.greendao.dao" //设置DaoMaster、DaoSession、Dao所在的包名
 build_database.targetGenDir = "src/main/java" //设置DaoMaster、DaoSession、Dao所在的目录
 ext.build_database = build_database

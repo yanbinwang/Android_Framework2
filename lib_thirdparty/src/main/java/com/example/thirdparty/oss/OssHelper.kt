@@ -1,10 +1,10 @@
 package com.example.thirdparty.oss
 
-import com.example.common.config.Constants.STORAGE
 import com.example.common.utils.file.deleteFile
+import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.common.utils.helper.AccountHelper.getUserId
-import com.example.thirdparty.greendao.dao.OssDBDao
-import com.example.thirdparty.oss.bean.OssDB
+import com.example.greendao.bean.OssDB
+import com.example.greendao.dao.OssDBDao
 
 /**
  * OSS帮助类

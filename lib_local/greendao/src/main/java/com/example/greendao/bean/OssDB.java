@@ -1,4 +1,4 @@
-package com.example.thirdparty.oss.bean;
+package com.example.greendao.bean;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
@@ -50,18 +50,6 @@ public class OssDB {
     public void setSourcePath(String sourcePath) {
         this.sourcePath = sourcePath;
     }
-    public int getState() {
-        return this.state;
-    }
-    public void setState(int state) {
-        this.state = state;
-    }
-    public String getExtras() {
-        return this.extras;
-    }
-    public void setExtras(String extras) {
-        this.extras = extras;
-    }
     public String getObjectName() {
         return this.objectName;
     }
@@ -73,6 +61,18 @@ public class OssDB {
     }
     public void setObjectKey(String objectKey) {
         this.objectKey = objectKey;
+    }
+    public int getState() {
+        return this.state;
+    }
+    public void setState(int state) {
+        this.state = state;
+    }
+    public String getExtras() {
+        return this.extras;
+    }
+    public void setExtras(String extras) {
+        this.extras = extras;
     }
 
 }
