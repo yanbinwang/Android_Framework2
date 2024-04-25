@@ -127,11 +127,11 @@ fun String?.thousandsFormat(): String {
     this ?: return "0"
     if (numberCompareTo("1000") == -1) return this
     val list = split(".")
-    val text = if (list.size > 1) list.safeGet(0) else this
+    val text = if (list.safeSize > 1) list.safeGet(0) else this
     val tmp = StringBuffer().append(text).reverse()
     val retNum = Pattern.compile("(\\d{3})(?=\\d)").matcher(tmp.toString()).replaceAll("$1,")
     val value = StringBuffer().append(retNum).reverse().toString()
-    return if (list.size > 1) "${value}.${list.safeGet(1)}" else value
+    return if (list.safeSize > 1) "${value}.${list.safeGet(1)}" else value
 }
 
 /**
@@ -181,7 +181,9 @@ fun String?.hidePhoneNumber(): String {
                 value += ch[index]
             }
         }
-    } else value = this
+    } else {
+        value = this
+    }
     return value
 }
 

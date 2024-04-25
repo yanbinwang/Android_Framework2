@@ -21,6 +21,7 @@ import kotlin.coroutines.CoroutineContext
 
 /**
  * 服务器行为统计
+ * 淘汰
  */
 object ServerLogHelper: CoroutineScope, LifecycleEventObserver {
     private var postJob: Job? = null

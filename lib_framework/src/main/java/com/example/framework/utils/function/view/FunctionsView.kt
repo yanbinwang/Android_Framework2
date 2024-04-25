@@ -60,25 +60,25 @@ fun View?.click(click: ((v: View) -> Unit)?) {
     }
 }
 
-fun ((View) -> Unit).clicks(vararg v: View, time: Long = 500L) {
+fun ((View) -> Unit).clicks(vararg v: View?, time: Long = 500L) {
     val listener = object : OnMultiClickListener(time) {
         override fun onMultiClick(v: View) {
             this@clicks(v)
         }
     }
     v.forEach {
-        it.setOnClickListener(listener)
+        it?.setOnClickListener(listener)
     }
 }
 
-fun View.OnClickListener.clicks(vararg v: View, time: Long = 500L) {
+fun View.OnClickListener.clicks(vararg v: View?, time: Long = 500L) {
     val listener = object : OnMultiClickListener(time) {
         override fun onMultiClick(v: View) {
             this@clicks.onClick(v)
         }
     }
     v.forEach {
-        it.setOnClickListener(listener)
+        it?.setOnClickListener(listener)
     }
 }
 
