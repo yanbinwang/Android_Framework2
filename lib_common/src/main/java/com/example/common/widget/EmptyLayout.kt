@@ -29,7 +29,7 @@ import com.example.framework.widget.BaseViewGroup
  * 情况如下：
  * <p>
  * 1.加载中-无按钮
- * 2.空数据-无按钮
+ * 2.空数据-无按钮(特殊情况可显示按钮，回调跳转时可做配置)
  * 3.加载错误(无网络，服务器错误)-有按钮
  */
 @SuppressLint("InflateParams")
@@ -42,8 +42,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         mBinding.root.layoutParamsMatch()
         mBinding.root.setBackgroundColor(color(R.color.bgDefault))
         mBinding.tvRefresh.click {
-            //进入加载中
-            if (state != 1) loading()
+            if (!isEmpty()) loading()
             listener?.invoke()
         }
         mBinding.root.click(null)
@@ -90,7 +89,6 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         if (null != width && null != height) mBinding.ivEmpty.size(width, height)
         mBinding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_empty)
         mBinding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataEmpty) else text
-//        mBinding.tvRefresh.gone()
         if (!refreshText.isNullOrEmpty()) {
             mBinding.tvRefresh.visible()
             mBinding.tvRefresh.text = refreshText
@@ -119,20 +117,25 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     /**
+     * 获取当前状态
+     */
+    fun isLoading(): Boolean {
+        return state == 0
+    }
+
+    fun isEmpty(): Boolean {
+        return state == 1
+    }
+
+    fun isError(): Boolean {
+        return state == 2
+    }
+
+    /**
      * 设置刷新监听
      */
     fun setOnEmptyRefreshListener(listener: (() -> Unit)) {
         this.listener = listener
-    }
-
-    /**
-     * 获取状态
-     * 0->加载中
-     * 1->数据为空
-     * 2->数据错误
-     */
-    fun getState(): Int {
-        return state
     }
 
 }
