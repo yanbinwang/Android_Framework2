@@ -1,10 +1,7 @@
 package com.example.common.utils.builder
 
 import android.graphics.Color
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.function.getStatusBarHeight
@@ -15,24 +12,15 @@ import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.setResource
+import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.tint
 import com.example.framework.utils.function.view.visible
 
 /**
  * 顶部标题默认不具备任何颜色和显示的按钮
- * 格式->左右侧图片/文本，中间是大标题
+ * 格式->左右侧图片/文本，中间大标题，左右侧间距默认文本大小都应固定，图片可定制
  */
 class TitleBuilder(private val mActivity: AppCompatActivity, private val mBinding: ViewTitleBarBinding?) {
-    val layout: ConstraintLayout?
-        get() = mBinding?.clRoot
-    val ivLeft: ImageView?
-        get() = mBinding?.ivLeft
-    val tvLeft: TextView?
-        get() = mBinding?.tvLeft
-    val ivRight: ImageView?
-        get() = mBinding?.ivRight
-    val tvRight: TextView?
-        get() = mBinding?.tvRight
 
     init {
         mActivity.doOnDestroy { mBinding?.unbind() }
@@ -59,7 +47,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
      */
     fun setTitleSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity.finish() }, bgColor: Int = R.color.bgToolbar): TitleBuilder {
         mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
-        setLeft(resId, tintColor, onClick)
+        setLeft(resId, tintColor, onClick = onClick)
         return this
     }
 
@@ -81,22 +69,24 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
      * tintColor->图片覆盖色（存在相同图片颜色不同的情况，直接传覆盖色即可）
      * onClick->点击事件
      */
-    fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+    fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int? = null, height: Int? = null, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
         mBinding?.ivLeft?.apply {
             visible()
             setResource(resId)
             if (0 != tintColor) tint(tintColor)
+            if (null != width && null != height) size(width, height)
             click { onClick.invoke() }
         }
         mBinding?.tvLeft.gone()
         return this
     }
 
-    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int? = null, height: Int? = null, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
         mBinding?.ivRight?.apply {
             visible()
             setResource(resId)
             if (0 != tintColor) tint(tintColor)
+            if (null != width && null != height) size(width, height)
             click { onClick.invoke() }
         }
         mBinding?.tvRight.gone()

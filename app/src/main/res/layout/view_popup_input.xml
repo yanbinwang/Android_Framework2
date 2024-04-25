@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="60pt"
+        android:layout_gravity="bottom"
+        android:background="@color/bgWhite"
+        android:paddingHorizontal="15pt"
+        android:paddingVertical="10pt">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@drawable/shape_r20_grey"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/et_input"
+                android:layout_width="0pt"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@null"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:hint="请输入"
+                android:inputType="text"
+                android:paddingHorizontal="16pt"
+                android:textColor="@color/textPrimary"
+                android:textColorHint="@color/textHint"
+                android:textSize="@dimen/textSize15" />
+
+            <TextView
+                android:id="@+id/tv_send"
+                android:layout_width="wrap_content"
+                android:layout_height="36pt"
+                android:background="@drawable/shape_r20_blue"
+                android:gravity="center"
+                android:paddingHorizontal="26pt"
+                android:text="发送"
+                android:textColor="@color/textWhite"
+                android:textSize="@dimen/textSize14" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</layout>

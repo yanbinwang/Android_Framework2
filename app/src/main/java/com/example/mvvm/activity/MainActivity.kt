@@ -38,6 +38,7 @@ import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.VideoSnapManager
 import com.example.mvvm.viewmodel.TestViewModel
+import com.example.mvvm.widget.InputPopup
 import com.example.mvvm.widget.dialog.TestTopDialog
 import com.example.thirdparty.album.AlbumHelper
 import kotlinx.coroutines.delay
@@ -110,7 +111,7 @@ import kotlinx.coroutines.launch
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     //    private val illustratePopup by lazy { IllustratePopup(this) }
     private val testBottom by lazy { TestTopDialog() }
-
+    private val input by lazy { InputPopup() }
     //    private val ids = listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
 //    private val adapter by lazy { ImageAdapter() }
 //    private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
@@ -120,12 +121,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private val bean by lazy { intentParcelable<UserBean>("bean") }
     private var isOpen = false
     private val builder by lazy { FileBuilder(this) }
-
-    private val result = registerResult{
-
-    }
-
-
     private val album by lazy { AlbumHelper(this) }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -276,14 +271,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             changeBgHeight(offset)
         }
         mBinding?.viewContent.click {
-            mPermission.requestPermissions {
-                result.pullUpAlbum()
-            }
+            input.showInput(supportFragmentManager,"")
+//            mPermission.requestPermissions {
+//                result.pullUpAlbum()
+//            }
 //            album.imageSelection(hasDurban = true) {
 //
 //            }
 //            "dsfdsfdsfds".shortToast()
-//            testBottom.show(supportFragmentManager, "testBottom")
+//            testBottom.show(supportFragmentManager)
 //            illustratePopup.showUp(it, "测试文本测试文本测试文本测试文本测试文本测试文本测文本测试文本测试文本测试本测试文本测试文本测试文本本测试文本测试文本测试文本")
 
 //            val view = ViewTestBinding.bind(inflate(R.layout.view_test)).root

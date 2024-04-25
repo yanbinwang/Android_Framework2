@@ -8,8 +8,6 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
@@ -28,7 +26,7 @@ import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.initConcat
-import com.example.framework.utils.function.view.initGridHorizontal
+import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
@@ -107,7 +105,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         recycler?.setHasFixedSize(true)
         recycler?.cancelItemAnimator()
         addView(view)
-//        view?.size(MATCH_PARENT, MATCH_PARENT)
         view?.size(MATCH_PARENT, WRAP_CONTENT)
     }
 
@@ -116,7 +113,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 默认一行一个，线样式可自画可调整
      */
     fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
-        recycler.initGridHorizontal(adapter, spanCount)
+        recycler.initGridVertical(adapter, spanCount)
         addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
     }
 

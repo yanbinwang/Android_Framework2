@@ -1,5 +1,7 @@
 package com.example.common.widget.textview.edittext
 
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
@@ -12,7 +14,6 @@ import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.multiply
 import com.example.framework.utils.function.value.regCheck
 import com.example.framework.utils.function.value.subtract
-import com.example.framework.utils.function.view.OnMultiTextWatcher
 import com.example.framework.utils.function.view.getNumber
 import com.example.framework.utils.function.view.onDone
 import java.math.BigDecimal
@@ -267,17 +268,15 @@ interface EditTextImpl {
         editText.onDone(listener)
     }
 
-    fun ClearEditText?.textWatcher(watcher: OnMultiTextWatcher) {
-        if (this == null) return
-        this.editText.addTextChangedListener(watcher)
+    fun View?.textWatcher(watcher: OnMultiTextWatcher) {
+        when (this) {
+            is EditText -> this.addTextChangedListener(watcher)
+            is ClearEditText -> this.editText.addTextChangedListener(watcher)
+            is PasswordEditText -> this.editText.addTextChangedListener(watcher)
+        }
     }
 
-    fun PasswordEditText?.textWatcher(watcher: OnMultiTextWatcher) {
-        if (this == null) return
-        this.editText.addTextChangedListener(watcher)
-    }
-
-    fun OnMultiTextWatcher.textWatcher(vararg views: View) {
+    fun OnMultiTextWatcher.textWatchers(vararg views: View) {
         for (view in views) {
             when (view) {
                 is EditText -> view.addTextChangedListener(this)
@@ -296,3 +295,17 @@ interface EditTextImpl {
  * @author yan
  */
 interface SpecialEditText
+
+/**
+ * 简易的输入监听
+ */
+interface OnMultiTextWatcher : TextWatcher {
+    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+    }
+
+    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+    }
+
+    override fun afterTextChanged(s: Editable) {
+    }
+}
