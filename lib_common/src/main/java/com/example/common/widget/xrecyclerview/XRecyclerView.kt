@@ -22,6 +22,7 @@ import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.gone
@@ -46,7 +47,7 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private var emptyEnum = 0//是否具有空布局（0无-1有）
     private var refreshEnum = 0//页面类型(0无刷新-1带刷新)
-    private var listener: (() -> Unit)? = null//空布局点击
+    private var listener: ((result: Boolean) -> Unit)? = null//空布局点击
     var recycler: ObserverRecyclerView? = null//数据列表
         private set
     var refresh: SmartRefreshLayout? = null//刷新控件 类型1才有
@@ -83,7 +84,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                                 size(MATCH_PARENT, MATCH_PARENT)
                             }
                         })
-                        empty?.setOnEmptyRefreshListener { listener?.invoke() }
+                        empty?.setOnEmptyRefreshListener { listener?.invoke(it) }
                     }
                 }
             }
@@ -93,7 +94,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 refresh = view.findViewById(R.id.refresh)
                 recycler = view.findViewById(R.id.rv_list)
                 if (0 != emptyEnum) {
-                    empty?.setOnEmptyRefreshListener { listener?.invoke() }
+                    empty?.setOnEmptyRefreshListener { listener?.invoke(it) }
                 } else {
                     empty?.gone()
                     view.findViewById<FrameLayout>(R.id.fl_root).apply {
@@ -211,7 +212,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 设置空布局点击
      */
-    fun setOnEmptyRefreshListener(listener: (() -> Unit)) {
+    fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
         this.listener = listener
     }
 

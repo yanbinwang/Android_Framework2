@@ -36,14 +36,14 @@ import com.example.framework.widget.BaseViewGroup
 class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private val mBinding by lazy { ViewEmptyBinding.bind(context.inflate(R.layout.view_empty)) }
     private var state = -1
-    private var listener: (() -> Unit)? = null
+    private var listener: ((result: Boolean) -> Unit)? = null
 
     init {
         mBinding.root.layoutParamsMatch()
         mBinding.root.setBackgroundColor(color(R.color.bgDefault))
         mBinding.tvRefresh.click {
             if (!isEmpty()) loading()
-            listener?.invoke()
+            listener?.invoke(isEmpty())
         }
         mBinding.root.click(null)
         loading()
@@ -134,7 +134,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 设置刷新监听
      */
-    fun setOnEmptyRefreshListener(listener: (() -> Unit)) {
+    fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
         this.listener = listener
     }
 
