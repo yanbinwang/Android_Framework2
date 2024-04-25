@@ -207,8 +207,8 @@ abstract class BaseApplication : Application() {
                         } else {
                             val stampTimeDiff = System.currentTimeMillis() - timeStamp
                             val nanoTimeDiff = (System.nanoTime() - timeNano) / 1000000L
-                            //此处多个第三方可重新初始化(超过20分钟就重新初始化，避免过期)
-                            if (stampTimeDiff - nanoTimeDiff > 20.minute) {
+                            //此处多个第三方可重新初始化(超过120分钟就重新初始化，避免过期)
+                            if (stampTimeDiff - nanoTimeDiff > 120.minute) {
                                 onStateChangedListener.invoke(true)
                             }
                             timeStamp = System.currentTimeMillis()
@@ -231,7 +231,6 @@ abstract class BaseApplication : Application() {
                             timeNano = System.nanoTime()
                         }
                     }
-
                     else -> {}
                 }
             }

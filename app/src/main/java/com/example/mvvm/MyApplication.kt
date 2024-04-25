@@ -2,14 +2,14 @@ package com.example.mvvm
 
 import android.os.Looper
 import android.util.Log
-import com.example.thirdparty.album.GlideLoader
 import com.example.common.BaseApplication
 import com.example.common.config.Constants.VERSION_NAME
 import com.example.framework.utils.function.value.isDebug
+import com.example.greendao.dao.DaoMaster
 import com.example.mvvm.activity.MainActivity
+import com.example.thirdparty.album.GlideLoader
 import com.example.thirdparty.oss.OssFactory
-import com.example.thirdparty.greendao.dao.DaoMaster
-import com.example.thirdparty.greendao.utils.EvidenceHelper
+import com.example.thirdparty.oss.OssHelper
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import com.zxy.recovery.core.Recovery
@@ -65,14 +65,12 @@ class MyApplication : BaseApplication() {
             .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
             .build())
         //数据库初始化
-        EvidenceHelper.init(DaoMaster(DaoMaster.DevOpenHelper(this, "${VERSION_NAME}.db", null).readableDb).newSession().evidenceDBDao)
+        OssHelper.init(DaoMaster(DaoMaster.DevOpenHelper(this, "${VERSION_NAME}.db", null).readableDb).newSession().ossDBDao)
         //初始化oss
         initOss()
         //初始化进程监听
         setOnStateChangedListener {
-            if (it) {
-                initOss()
-            }
+            if (it) initOss()
         }
     }
 
