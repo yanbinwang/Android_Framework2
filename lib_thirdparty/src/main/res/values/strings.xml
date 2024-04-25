@@ -12,6 +12,17 @@
     <string name="albumVideoError">请选择%1$sM以内的视频</string>
     <string name="albumTitle">相册</string>
     <string name="cropTitle">图片裁剪</string>
+    <!-- 地图字段 -->
+    <string name="mapAMap">高德地图</string>
+    <string name="mapBMap">百度地图</string>
+    <string name="mapLocationLoading">正在定位…</string>
+    <string name="mapLocationError">未获取到地址</string>
+    <string name="mapGps">获取地址信息失败，开启定位服务可以提高定位精确度</string>
+    <string name="mapGpsGoSetting">去开启</string>
+    <!-- 推送 -->
+    <color name="notificationDefaultColor">#ffffff</color>
+    <string name="notificationChannelId">dataqin</string>
+    <string name="notificationChannelName">数秦科技</string>
     <!-- 支付 -->
     <string name="payInitiate">正在发起支付,请稍后&#8230;</string>
     <string name="paySuccess">支付成功</string>
