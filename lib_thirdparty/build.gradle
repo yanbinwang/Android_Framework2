@@ -62,4 +62,7 @@ dependencies {
     api project(':lib_local:greendao')
     //oss文件传输
     implementation 'com.aliyun.dpa:oss-android-sdk:2.9.5'
+    //支付宝/微信
+    api 'com.alipay.sdk:alipaysdk-android:15.8.17@aar'
+    api 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0'
 }
