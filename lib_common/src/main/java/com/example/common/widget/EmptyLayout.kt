@@ -29,21 +29,21 @@ import com.example.framework.widget.BaseViewGroup
  * 情况如下：
  * <p>
  * 1.加载中-无按钮
- * 2.空数据-无按钮
+ * 2.空数据-无按钮(特殊情况可显示按钮，回调跳转时可做配置)
  * 3.加载错误(无网络，服务器错误)-有按钮
  */
 @SuppressLint("InflateParams")
 class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private val mBinding by lazy { ViewEmptyBinding.bind(context.inflate(R.layout.view_empty)) }
-    private var listener: (() -> Unit)? = null
+    private var state = -1
+    private var listener: ((result: Boolean) -> Unit)? = null
 
     init {
         mBinding.root.layoutParamsMatch()
         mBinding.root.setBackgroundColor(color(R.color.bgDefault))
         mBinding.tvRefresh.click {
-            //进入加载中
-            loading()
-            listener?.invoke()
+            if (!isEmpty()) loading()
+            listener?.invoke(isEmpty())
         }
         mBinding.root.click(null)
         loading()
@@ -74,6 +74,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun loading() {
         appear(300)
+        state = 0
         mBinding.ivEmpty.setResource(R.mipmap.bg_data_loading)
         mBinding.tvEmpty.text = string(R.string.dataLoading)
         mBinding.tvRefresh.gone()
@@ -82,12 +83,18 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun empty(resId: Int? = null, text: String? = null, width: Int? = null, height: Int? = null) {
+    fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
         appear(300)
+        state = 1
         if (null != width && null != height) mBinding.ivEmpty.size(width, height)
         mBinding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_empty)
         mBinding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataEmpty) else text
-        mBinding.tvRefresh.gone()
+        if (!refreshText.isNullOrEmpty()) {
+            mBinding.tvRefresh.visible()
+            mBinding.tvRefresh.text = refreshText
+        } else {
+            mBinding.tvRefresh.gone()
+        }
     }
 
     /**
@@ -96,6 +103,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
         appear(300)
+        state = 2
         if (null != width && null != height) mBinding.ivEmpty.size(width, height)
         if (!isNetworkAvailable()) {
             mBinding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
@@ -109,9 +117,24 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     /**
+     * 获取当前状态
+     */
+    fun isLoading(): Boolean {
+        return state == 0
+    }
+
+    fun isEmpty(): Boolean {
+        return state == 1
+    }
+
+    fun isError(): Boolean {
+        return state == 2
+    }
+
+    /**
      * 设置刷新监听
      */
-    fun setOnEmptyRefreshListener(listener: (() -> Unit)) {
+    fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
         this.listener = listener
     }
 

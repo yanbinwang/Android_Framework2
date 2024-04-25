@@ -4,7 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.*
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewModelScope
 import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
@@ -19,13 +25,19 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.CoroutineStart.LAZY
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import kotlin.coroutines.CoroutineContext
@@ -135,8 +147,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     /**
      * 空布局监听
      */
-    fun setEmptyRefreshListener(onRefresh: (() -> Unit)) {
-        mEmpty?.setOnEmptyRefreshListener(onRefresh)
+    fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
+        mEmpty?.setOnEmptyRefreshListener { listener.invoke(it) }
     }
 
     /**
@@ -147,9 +159,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         mEmpty?.loading()
     }
 
-    fun empty(resId: Int? = null, text: String? = null, width: Int? = null, height: Int? = null) {
+    fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
         finishRefreshing()
-        mEmpty?.empty(resId, text, width, height)
+        mEmpty?.empty(resId, text, refreshText, width, height)
     }
 
     fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
