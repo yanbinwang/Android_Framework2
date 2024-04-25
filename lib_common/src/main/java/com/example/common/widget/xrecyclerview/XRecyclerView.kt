@@ -22,7 +22,6 @@ import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.gone
@@ -240,21 +239,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
         empty?.error(resId, text, refreshText, width, height)
-    }
-
-    /**
-     * 获取当前状态
-     */
-    fun isLoading(): Boolean {
-        return empty?.isLoading().orFalse
-    }
-
-    fun isEmpty(): Boolean {
-        return empty?.isEmpty().orFalse
-    }
-
-    fun isError(): Boolean {
-        return empty?.isError().orFalse
     }
 
 }
