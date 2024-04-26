@@ -10,7 +10,6 @@ import android.graphics.Color
 import android.location.LocationManager
 import android.os.Build
 import android.provider.Settings
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -20,9 +19,9 @@ import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.location.AMapLocationListener
 import com.amap.api.maps.model.LatLng
-import com.example.common.BaseApplication
 import com.example.common.config.Constants
 import com.example.common.utils.DataStringCacheUtil
+import com.example.common.utils.function.registerResult
 import com.example.common.utils.function.string
 import com.example.common.utils.toJsonString
 import com.example.common.widget.dialog.AppDialog
@@ -38,44 +37,41 @@ import com.example.thirdparty.R
  *  2.key文件一定要校准
  *  3.选择3d地图定位套件
  */
-class LocationFactory private constructor() : AMapLocationListener, LifecycleEventObserver {
-    private val context get() = BaseApplication.instance.applicationContext
+class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationListener, LifecycleEventObserver {
     private var locationClient: AMapLocationClient? = null
-    private var onShutter: (location: AMapLocation?, flag: Boolean) -> Unit = { _, _ -> }//回调监听
+    private var listener: OnLocationListener? = null
+    private val mDialog by lazy { AppDialog(mActivity) }
+    private val result = mActivity.registerResult {
+        if (it.resultCode == Activity.RESULT_OK) {
+            listener?.onGpsSetting(true)
+        }
+    }
+
+    /**
+     * 跳转设置gps
+     */
+    fun settingGps(): Boolean {
+        val locationManager = mActivity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+        //判断GPS模块是否开启，如果没有则开启
+        return if (!locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER).orFalse) {
+            mDialog
+                .setParams(
+                    string(R.string.hint),
+                    string(R.string.mapGps),
+                    string(R.string.mapGpsGoSetting),
+                    string(R.string.cancel))
+                .setDialogListener({ result?.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) })
+                .show()
+            false
+        } else {
+            true
+        }
+    }
 
     companion object {
-        //单例->定位的类不需要每次都重新初始化
-        val instance by lazy { LocationFactory() }
-
         //经纬度json->默认杭州
         private const val AMAP_LATLNG = "map_latlng"
         internal val aMapLatlng = DataStringCacheUtil(AMAP_LATLNG, "{latitude:30.2780010000,longitude:120.1680690000}")
-
-        /**
-         * 跳转设置gps
-         */
-        fun FragmentActivity.settingGps(listener: (flag: Boolean) -> Unit = {}): Boolean {
-            val locationManager = getSystemService(Context.LOCATION_SERVICE) as? LocationManager
-            //判断GPS模块是否开启，如果没有则开启
-            return if (!locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER).orFalse) {
-                AppDialog(this).apply {
-                    setDialogListener({
-                        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                            if (it.resultCode == Activity.RESULT_OK) {
-                                listener.invoke(true)
-                            }
-                        }.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                    })
-                    setParams(
-                        string(R.string.hint),
-                        string(R.string.mapGps),
-                        string(R.string.mapGpsGoSetting),
-                        string(R.string.cancel))
-                    show()
-                }
-                false
-            } else true
-        }
 
         /**
          * 高德内部构建定位通知
@@ -84,8 +80,13 @@ class LocationFactory private constructor() : AMapLocationListener, LifecycleEve
             val builder: Notification.Builder?
             //Android O上对Notification进行了修改，如果设置的targetSDKVersion>=26建议使用此种方式创建通知栏
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
-                val notificationChannel = NotificationChannel(string(R.string.notificationChannelId), string(R.string.notificationChannelName), NotificationManager.IMPORTANCE_DEFAULT)
+                val notificationManager =
+                    getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+                val notificationChannel = NotificationChannel(
+                    string(R.string.notificationChannelId),
+                    string(R.string.notificationChannelName),
+                    NotificationManager.IMPORTANCE_DEFAULT
+                )
                 notificationChannel.apply {
                     enableLights(true) //是否在桌面icon右上角展示小圆点
                     lightColor = Color.BLUE //小圆点颜色
@@ -103,8 +104,9 @@ class LocationFactory private constructor() : AMapLocationListener, LifecycleEve
     }
 
     init {
+        mActivity.lifecycle.addObserver(this)
         //初始化定位
-        locationClient = AMapLocationClient(context)
+        locationClient = AMapLocationClient(mActivity)
         //初始化定位参数
         val aMapLocationClientOption = AMapLocationClientOption()
         //设置定位监听
@@ -130,7 +132,7 @@ class LocationFactory private constructor() : AMapLocationListener, LifecycleEve
         //设置定位参数
         locationClient?.setLocationOption(aMapLocationClientOption)
         //启动后台定位，第一个参数为通知栏ID，建议整个APP使用一个
-        locationClient?.enableBackgroundLocation(2001, context.buildNotification())
+        locationClient?.enableBackgroundLocation(2001, mActivity.buildNotification())
     }
 
     override fun onLocationChanged(aMapLocation: AMapLocation?) {
@@ -138,9 +140,9 @@ class LocationFactory private constructor() : AMapLocationListener, LifecycleEve
             aMapLatlng.set(LatLng(aMapLocation.latitude, aMapLocation.longitude).toJsonString())
             //部分地区可能地址取到为空，直接赋值一个未获取地址的默认显示文案
             if (aMapLocation.address.isNullOrEmpty()) aMapLocation.address = string(R.string.mapLocationError)
-            onShutter.invoke(aMapLocation, true)
+            listener?.onLocationChanged(aMapLocation, true)
         } else {
-            onShutter.invoke(null, false)
+            listener?.onLocationChanged(null, false)
         }
         stop()
     }
@@ -153,7 +155,7 @@ class LocationFactory private constructor() : AMapLocationListener, LifecycleEve
         try {
             locationClient?.startLocation()
         } catch (_: Exception) {
-            onShutter.invoke(null, false)
+            listener?.onLocationChanged(null, false)
         }
     }
 
@@ -180,26 +182,32 @@ class LocationFactory private constructor() : AMapLocationListener, LifecycleEve
     /**
      * flag->true表示定位成功，当不一定有定位对象，false表示定位失败，一定不会有定位对象
      */
-    fun setOnLocationListener(onShutter: (location: AMapLocation?, flag: Boolean) -> Unit) {
-        this.onShutter = onShutter
+    fun setOnLocationListener(listener: OnLocationListener) {
+        this.listener = listener
     }
 
     /**
-     * 绑定对应页面的生命周期-》对应回调重写对应方法
-     * @param observer
+     * 生命周期管理
      */
-    fun addObserver(observer: LifecycleOwner) {
-        observer.lifecycle.addObserver(this)
-    }
-
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
+            Lifecycle.Event.ON_PAUSE -> stop()
             Lifecycle.Event.ON_DESTROY -> {
                 stop()
+                destroy()
                 source.lifecycle.removeObserver(this)
             }
             else -> {}
         }
+    }
+
+    /**
+     * 回调监听
+     */
+    interface OnLocationListener {
+        fun onLocationChanged(aMapLocation: AMapLocation?, flag: Boolean)
+
+        fun onGpsSetting(flag: Boolean)
     }
 
 }

@@ -5,9 +5,11 @@ import android.graphics.Point
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.amap.api.location.AMapLocation
 import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.MapView
@@ -15,27 +17,28 @@ import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.PolygonOptions
+import com.example.amap.utils.CoordinateTransUtil
 import com.example.common.utils.permission.checkSelfLocation
 import com.example.common.utils.toObj
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.gone
-import com.example.thirdparty.amap.utils.LocationFactory.Companion.aMapLatlng
+import com.example.thirdparty.amap.utils.LocationHelper.Companion.aMapLatlng
 import kotlin.math.roundToInt
 
 /**
  *  Created by wangyanbin
  *  高德地图工具类
  */
-class MapHelper(lifecycleOwner: LifecycleOwner) : LifecycleEventObserver {
+class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var mapView: MapView? = null
     private var aMap: AMap? = null
+    private val location by lazy { LocationHelper(mActivity) }
     private val mapLatLng by lazy { aMapLatlng.get().toObj(LatLng::class.java) }//默认地图经纬度-杭州
 
     init {
-        lifecycleOwner.lifecycle.addObserver(this)
-        LocationFactory.instance.addObserver(lifecycleOwner)
+        mActivity.lifecycle.addObserver(this)
     }
 
     /**
@@ -58,13 +61,18 @@ class MapHelper(lifecycleOwner: LifecycleOwner) : LifecycleEventObserver {
         aMap?.uiSettings?.isTiltGesturesEnabled = false //屏蔽双手指上下滑动切换为3d地图
         aMap?.moveCamera(CameraUpdateFactory.zoomTo(18f))
         //初始化定位回调
-        LocationFactory.instance.setOnLocationListener { location, flag ->
-            if (flag) {
-                moveCamera(LatLng(location?.latitude.orZero, location?.longitude.orZero))
-            } else {
-                moveCamera()
+        location.setOnLocationListener(object : LocationHelper.OnLocationListener {
+            override fun onLocationChanged(aMapLocation: AMapLocation?, flag: Boolean) {
+                if (flag) {
+                    moveCamera(LatLng(aMapLocation?.latitude.orZero, aMapLocation?.longitude.orZero))
+                } else {
+                    moveCamera()
+                }
             }
-        }
+
+            override fun onGpsSetting(flag: Boolean) {
+            }
+        })
         //是否需要在网络发生改变时，移动地图
         if (initialize) {
             //地图加载完成，定位一次，让地图移动到坐标点
@@ -80,7 +88,7 @@ class MapHelper(lifecycleOwner: LifecycleOwner) : LifecycleEventObserver {
      * 地图定位
      */
     fun location() {
-        LocationFactory.instance.start()
+        location.start()
     }
 
     /**
@@ -165,11 +173,17 @@ class MapHelper(lifecycleOwner: LifecycleOwner) : LifecycleEventObserver {
         return contains.orFalse
     }
 
+    /**
+     * 生命周期管控
+     */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_RESUME -> onResume()
-            Lifecycle.Event.ON_PAUSE -> onPause()
-            Lifecycle.Event.ON_DESTROY -> onDestroy()
+            Lifecycle.Event.ON_RESUME -> resume()
+            Lifecycle.Event.ON_PAUSE -> pause()
+            Lifecycle.Event.ON_DESTROY -> {
+                destroy()
+                source.lifecycle.removeObserver(this)
+            }
             else -> {}
         }
     }
@@ -182,16 +196,16 @@ class MapHelper(lifecycleOwner: LifecycleOwner) : LifecycleEventObserver {
     /**
      * 加载
      */
-    private fun onResume() = mapView?.onResume()
+    private fun resume() = mapView?.onResume()
 
     /**
      * 暂停
      */
-    private fun onPause() = mapView?.onPause()
+    private fun pause() = mapView?.onPause()
 
     /**
      * 销毁
      */
-    private fun onDestroy() = mapView?.onDestroy()
+    private fun destroy() = mapView?.onDestroy()
 
 }
