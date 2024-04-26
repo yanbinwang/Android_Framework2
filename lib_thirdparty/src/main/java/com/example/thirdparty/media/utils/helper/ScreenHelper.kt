@@ -160,6 +160,7 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
                 hideDialog()
                 stopScreen()
                 ShotObserver.instance.unregister()
+                result?.unregister()
                 mActivity.lifecycle.removeObserver(this)
             }
             else -> {}

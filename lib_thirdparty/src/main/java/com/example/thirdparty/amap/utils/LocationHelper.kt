@@ -195,6 +195,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
             Lifecycle.Event.ON_DESTROY -> {
                 stop()
                 destroy()
+                result?.unregister()
                 source.lifecycle.removeObserver(this)
             }
             else -> {}
