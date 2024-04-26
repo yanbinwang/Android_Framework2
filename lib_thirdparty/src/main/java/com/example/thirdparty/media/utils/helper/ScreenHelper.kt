@@ -18,6 +18,7 @@ import com.example.common.utils.function.registerResult
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.function.startService
 import com.example.framework.utils.function.stopService
+import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.safeSize
@@ -32,7 +33,8 @@ import java.io.File
  */
 class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var isDestroy = false
-    private var listener: (filePath: String?, isZip: Boolean) -> Unit = { _, _ -> }
+    private var lastRefreshTime = 0L
+    private var listener: OnScreenListener? = null
     private val list by lazy { ArrayList<String>() }
     private val builder by lazy { FileBuilder(mActivity) }
     private val loading by lazy { LoadingDialog(mActivity) }
@@ -42,6 +44,7 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
     private val result = mActivity.registerResult {
         list.clear()
         if (it.resultCode == RESULT_OK) {
+            waitingTime = currentTimeNano - lastRefreshTime
             R.string.screenStart.shortToast()
             isRecording = true
             mActivity.apply {
@@ -55,8 +58,19 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
     }
 
     companion object {
+        /**
+         * 用于计算系统弹出弹框到正式开始录屏花费了多少时间（毫秒）
+         */
+        var waitingTime = 0L
+        /**
+         * 安全区间内的屏幕录制宽高
+         */
         var previewWidth = screenWidth
         var previewHeight = screenHeight
+
+        /**
+         * 是否正在进行录制，便于区分截图捕获到的图片路径
+         */
         var isRecording = false
     }
 
@@ -97,7 +111,7 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
                 folderPath ?: return@setOnScreenListener
                 //说明未截图
                 if (list.safeSize == 0) {
-                    listener.invoke(folderPath, false)
+                    listener?.onResult(folderPath, false)
                 } else {
                     //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
                     list.add(folderPath)
@@ -108,8 +122,10 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
                         hideDialog()
                         folderPath.deleteFile()
                     })
-                    listener.invoke(zipPath, true)
+                    listener?.onResult(zipPath, true)
                 }
+            } else {
+                listener?.onStart(folderPath)
             }
         }
     }
@@ -143,10 +159,24 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
     }
 
     /**
-     * isZip->true是zip文件夹，可能包含录制时的截图
+     * 录屏监听
      */
-    fun setOnScreenListener(listener: (filePath: String?, isZip: Boolean) -> Unit) {
+    fun setOnScreenListener(listener: OnScreenListener) {
         this.listener = listener
+    }
+
+    /**
+     * 回调监听
+     */
+    interface OnScreenListener {
+        /**
+         * 正式开始录屏
+         */
+        fun onStart(filePath: String?)
+        /**
+         * isZip->true是zip文件夹，可能包含录制时的截图
+         */
+        fun onResult(filePath: String?, isZip: Boolean)
     }
 
     /**
