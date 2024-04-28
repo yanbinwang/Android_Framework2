@@ -127,16 +127,6 @@ object OssHelper {
     }
 
     /**
-     * 文件是否正在上传
-     */
-    @JvmStatic
-    fun isUpload(baoquan: String): Boolean {
-        val bean = query(baoquan)
-        bean ?: return false
-        return bean.state == 0
-    }
-
-    /**
      * 完成上传，通常此时这条数据已经被删除不存在了
      */
     @JvmStatic
@@ -145,6 +135,24 @@ object OssHelper {
         bean ?: return
         bean.state = if (isComplete) 2 else 1
         dao?.update(bean)
+    }
+
+    /**
+     * 更新数据库中所有数据的上传状态
+     */
+    @JvmStatic
+    fun updateAll(isUpload: Boolean = false) {
+        dao?.loadAll()?.forEach { updateUpload(it.baoquan, isUpload) }
+    }
+
+    /**
+     * 文件是否正在上传
+     */
+    @JvmStatic
+    fun isUpload(baoquan: String): Boolean {
+        val bean = query(baoquan)
+        bean ?: return false
+        return bean.state == 0
     }
 
     /**
