@@ -48,7 +48,7 @@ class WebSocketTopic(private val url: String) {
         //未登录不订阅
         if (!isLogin()) return
         list.clear()
-        destinations.forEach { list.add(it) }
+        list.addAll(destinations.toList())
         proxy.connect()
     }
 
