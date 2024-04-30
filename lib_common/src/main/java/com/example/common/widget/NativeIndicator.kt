@@ -17,8 +17,23 @@ import com.google.android.material.tabs.TabLayout
  * @description 菜单头工具类
  * 掏空系统tablayout，全部自定义
  * @author yan
+ *      <com.google.android.material.tabs.TabLayout
+ *             android:id="@+id/tb_menu"
+ *             android:layout_width="match_parent"
+ *             android:layout_height="44pt"
+ *             android:background="@color/bgWhite"
+ *             android:clipChildren="true"
+ *             android:clipToPadding="false"
+ *             android:theme="@style/TabLayoutStyle"
+ *             app:tabIndicator="@drawable/layer_list_tab_line"
+ *             app:tabMinWidth="0dp"
+ *             app:tabMode="scrollable"
+ *             app:tabPaddingBottom="0dp"
+ *             app:tabPaddingEnd="0dp"
+ *             app:tabPaddingStart="0dp"
+ *             app:tabPaddingTop="0dp" />
  */
-class NativeIndicator(tab: TabLayout?, tabTitle: List<String>?) : TabLayoutBuilder<String, ItemTabBinding>(tab, tabTitle) {
+class NativeIndicator(tab: TabLayout?, tabTitle: List<String>? = null) : TabLayoutBuilder<String, ItemTabBinding>(tab, tabTitle) {
     private var redraw: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)? = null//如需自定義，重寫此監聽
 
     override fun getBindView() = ItemTabBinding.bind(mContext.inflate(R.layout.item_tab))
