@@ -15,6 +15,7 @@ import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.multiply
 import com.example.framework.utils.function.value.regCheck
 import com.example.framework.utils.function.value.subtract
+import com.example.framework.utils.function.view.clear
 import com.example.framework.utils.function.view.doInput
 import com.example.framework.utils.function.view.getNumber
 import com.example.framework.utils.function.view.hideKeyboard
@@ -259,6 +260,16 @@ interface EditTextImpl {
     fun PasswordEditText?.text(): String {
         this ?: return ""
         return getText()
+    }
+
+    fun ClearEditText?.clear() {
+        if (this == null) return
+        editText.clear()
+    }
+
+    fun PasswordEditText?.clear() {
+        if (this == null) return
+        editText.clear()
     }
 
     fun ClearEditText?.doInput() {
