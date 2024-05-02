@@ -4,6 +4,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
+import android.widget.TextView
 import androidx.annotation.StringRes
 import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.value.ELFormat.EMAIL
@@ -14,7 +15,9 @@ import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.multiply
 import com.example.framework.utils.function.value.regCheck
 import com.example.framework.utils.function.value.subtract
+import com.example.framework.utils.function.view.doInput
 import com.example.framework.utils.function.view.getNumber
+import com.example.framework.utils.function.view.hideKeyboard
 import com.example.framework.utils.function.view.onDone
 import java.math.BigDecimal
 import java.util.regex.Pattern
@@ -258,6 +261,26 @@ interface EditTextImpl {
         return getText()
     }
 
+    fun ClearEditText?.doInput() {
+        if (this == null) return
+        editText.doInput()
+    }
+
+    fun PasswordEditText?.doInput() {
+        if (this == null) return
+        editText.doInput()
+    }
+
+    fun ClearEditText?.hideKeyboard() {
+        if (this == null) return
+        editText.hideKeyboard()
+    }
+
+    fun PasswordEditText?.hideKeyboard() {
+        if (this == null) return
+        editText.hideKeyboard()
+    }
+
     fun ClearEditText?.onDone(listener: () -> Unit) {
         if (this == null) return
         editText.onDone(listener)
@@ -266,6 +289,16 @@ interface EditTextImpl {
     fun PasswordEditText?.onDone(listener: () -> Unit) {
         if (this == null) return
         editText.onDone(listener)
+    }
+
+    fun ClearEditText?.setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
+        if (this == null) return
+        editText.setOnEditorActionListener(listener)
+    }
+
+    fun PasswordEditText?.setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
+        if (this == null) return
+        editText.hideKeyboard()
     }
 
     fun View?.textWatcher(watcher: OnMultiTextWatcher) {
