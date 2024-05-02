@@ -153,8 +153,10 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
         if (size() == 0) onEmpty.invoke()
     }
 
-    fun <VM : BaseViewModel> notify(list: List<T>?, viewModel: VM?) {
-        viewModel?.apply { notify(list, hasRefresh()) { empty() } }
+    fun <VM : BaseViewModel> notify(list: List<T>?, viewModel: VM?, resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+        viewModel?.apply {
+            notify(list, hasRefresh()) { empty(resId, text, refreshText, width, height) }
+        }
     }
 
     /**
