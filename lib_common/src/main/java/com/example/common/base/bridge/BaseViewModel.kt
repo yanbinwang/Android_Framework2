@@ -95,15 +95,15 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.weakEmpty = WeakReference(empty)
     }
 
+    //传入外层下拉刷新的控件
+    fun setExtraView(refresh: SmartRefreshLayout?) {
+        this.weakRefresh = WeakReference(refresh)
+    }
+
     //传入用于刷新的empty
     fun setExtraView(recycler: XRecyclerView?) {
         this.weakEmpty = WeakReference(recycler?.empty)
         this.weakRecycler = WeakReference(recycler)
-    }
-
-    //传入外层下拉刷新的控件
-    fun setExtraView(refresh: SmartRefreshLayout?) {
-        this.weakRefresh = WeakReference(refresh)
     }
 
     /**
