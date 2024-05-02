@@ -85,19 +85,23 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 //    fun setExtraView(viewGroup: ViewGroup?, index: Int = 1) {
 //        this.weakEmpty = WeakReference(viewGroup.getEmptyView(index))
 //    }
+    //BaseTitleActivity传入容器viewGroup
     fun setExtraView(viewGroup: ViewGroup?) {
         this.weakEmpty = WeakReference(viewGroup.getEmptyView(1))
     }
 
+    //直接界面上绘制好empty
     fun setExtraView(empty: EmptyLayout?) {
         this.weakEmpty = WeakReference(empty)
     }
 
+    //传入用于刷新的empty
     fun setExtraView(recycler: XRecyclerView?) {
         this.weakEmpty = WeakReference(recycler?.empty)
         this.weakRecycler = WeakReference(recycler)
     }
 
+    //传入外层下拉刷新的控件
     fun setExtraView(refresh: SmartRefreshLayout?) {
         this.weakRefresh = WeakReference(refresh)
     }
