@@ -77,8 +77,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 view = context.inflate(R.layout.view_xrecycler)
                 recycler = view.findViewById(R.id.rv_list)
                 if (emptyEnable) {
-                    view = context.inflate(R.layout.view_xrecycler)
-                    recycler = view.findViewById(R.id.rv_list)
                     empty = EmptyLayout(context)
                     recycler?.setEmptyView(empty?.setListView(recycler).apply {
                         if (minimumHeight > 0) {
