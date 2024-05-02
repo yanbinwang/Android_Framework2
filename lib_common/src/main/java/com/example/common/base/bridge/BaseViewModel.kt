@@ -112,6 +112,11 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.weakRefresh = WeakReference(refresh)
     }
 
+    fun setExtraView(viewGroup: ViewGroup?, refresh: SmartRefreshLayout?) {
+        this.weakEmpty = WeakReference(viewGroup.getEmptyView(1))
+        this.weakRefresh = WeakReference(refresh)
+    }
+
     /**
      * 当前列表内的数据
      */
