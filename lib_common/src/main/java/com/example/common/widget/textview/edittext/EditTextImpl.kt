@@ -4,7 +4,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
-import android.widget.TextView
 import androidx.annotation.StringRes
 import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.value.ELFormat.EMAIL
@@ -300,16 +299,6 @@ interface EditTextImpl {
     fun PasswordEditText?.onDone(listener: () -> Unit) {
         if (this == null) return
         editText.onDone(listener)
-    }
-
-    fun ClearEditText?.setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
-        if (this == null) return
-        editText.setOnEditorActionListener(listener)
-    }
-
-    fun PasswordEditText?.setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
-        if (this == null) return
-        editText.hideKeyboard()
     }
 
     fun View?.textWatcher(watcher: OnMultiTextWatcher) {
