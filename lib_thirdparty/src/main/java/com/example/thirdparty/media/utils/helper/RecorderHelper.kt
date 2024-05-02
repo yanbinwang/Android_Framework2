@@ -14,14 +14,14 @@ import com.example.thirdparty.media.utils.MediaUtil.MediaType.AUDIO
  * @description 录音帮助类（熄屏后无声音，并可能会导致后续声音也录制不了）
  * @author yan
  */
-class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
+class RecorderHelper(private val mActivity: FragmentActivity? = null) : LifecycleEventObserver {
     private var isDestroy = false
     private var listener: OnRecorderListener? = null
     private val player by lazy { MediaPlayer() }
-    private val recorder by lazy { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(mActivity) else MediaRecorder() }
+    private val recorder by lazy { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && null != mActivity) MediaRecorder(mActivity) else MediaRecorder() }
 
     init {
-        mActivity.lifecycle.addObserver(this)
+        mActivity?.lifecycle?.addObserver(this)
     }
 
     /**
@@ -68,9 +68,16 @@ class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     }
 
     /**
+     * 获取多媒体
+     */
+    fun getMediaPlayer(): MediaPlayer {
+        return player
+    }
+
+    /**
      * 销毁-释放资源
      */
-    private fun release() {
+    fun release() {
         try {
             player.apply {
                 stop()
@@ -150,7 +157,7 @@ class RecorderHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                 isDestroy = true
                 stopRecord()
                 release()
-                mActivity.lifecycle.removeObserver(this)
+                mActivity?.lifecycle?.removeObserver(this)
             }
             else -> {}
         }
