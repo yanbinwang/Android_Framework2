@@ -106,6 +106,12 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         this.weakRecycler = WeakReference(recycler)
     }
 
+    //部分首页加载时需要使用empty，完成后需要使用下拉刷新（只有下拉），故而直接传入两层view
+    fun setExtraView(empty: EmptyLayout?, refresh: SmartRefreshLayout?) {
+        this.weakEmpty = WeakReference(empty)
+        this.weakRefresh = WeakReference(refresh)
+    }
+
     /**
      * 当前列表内的数据
      */
