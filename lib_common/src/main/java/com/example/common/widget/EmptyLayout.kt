@@ -46,7 +46,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
 //        mBinding.root.layoutParamsMatch()
         //是否是全屏
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.EmptyLayout)
-        fullScreen = typedArray.getBoolean(R.styleable.EmptyLayout_fullScreen, false)
+        fullScreen = typedArray.getBoolean(R.styleable.EmptyLayout_elEnableFullScreen, false)
         typedArray.recycle()
         //绘制大小撑到最大/默认背景
         mBinding.root.size(MATCH_PARENT, MATCH_PARENT)

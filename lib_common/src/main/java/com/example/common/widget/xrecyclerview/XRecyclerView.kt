@@ -45,8 +45,10 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
  * onFinishInflate方法只有在布局文件中加载view实例会回调，如果直接new一个view的话是不会回调的。
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-    private var emptyEnum = 0//是否具有空布局（0无-1有）
-    private var refreshEnum = 0//页面类型(0无刷新-1带刷新)
+//    private var emptyEnum = 0//是否具有空布局（0无-1有）
+//    private var refreshEnum = 0//页面类型(0无刷新-1带刷新)
+    private var refreshEnable = false//是否具有刷新
+    private var emptyEnable = false//是否具有空布局
     private var listener: ((result: Boolean) -> Unit)? = null//空布局点击
     var recycler: ObserverRecyclerView? = null//数据列表
         private set
@@ -57,8 +59,10 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
-        refreshEnum = typedArray.getInt(R.styleable.XRecyclerView_xrv_refresh_enum, 0)
-        emptyEnum = typedArray.getInt(R.styleable.XRecyclerView_xrv_empty_enum, 0)
+//        refreshEnum = typedArray.getInt(R.styleable.XRecyclerView_xrv_refresh_enum, 0)
+//        emptyEnum = typedArray.getInt(R.styleable.XRecyclerView_xrv_empty_enum, 0)
+        refreshEnable = typedArray.getBoolean(R.styleable.XRecyclerView_xrvEnableRefresh,false)
+        emptyEnable = typedArray.getBoolean(R.styleable.XRecyclerView_xrvEnableEmpty,false)
         typedArray.recycle()
     }
 
@@ -68,32 +72,30 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     private fun initInflate() {
         var view: View? = null
-        when (refreshEnum) {
-            0 -> {
+        when (refreshEnable) {
+            true -> {
                 view = context.inflate(R.layout.view_xrecycler)
                 recycler = view.findViewById(R.id.rv_list)
-                if (0 != emptyEnum) {
+                if (emptyEnable) {
                     view = context.inflate(R.layout.view_xrecycler)
                     recycler = view.findViewById(R.id.rv_list)
-                    if (0 != emptyEnum) {
-                        empty = EmptyLayout(context)
-                        recycler?.setEmptyView(empty?.setListView(recycler).apply {
-                            if (minimumHeight > 0) {
-                                size(height = minimumHeight)
-                            } else {
-                                size(MATCH_PARENT, MATCH_PARENT)
-                            }
-                        })
-                        empty?.setOnEmptyRefreshListener { listener?.invoke(it) }
-                    }
+                    empty = EmptyLayout(context)
+                    recycler?.setEmptyView(empty?.setListView(recycler).apply {
+                        if (minimumHeight > 0) {
+                            size(height = minimumHeight)
+                        } else {
+                            size(MATCH_PARENT, MATCH_PARENT)
+                        }
+                    })
+                    empty?.setOnEmptyRefreshListener { listener?.invoke(it) }
                 }
             }
-            1 -> {
+            false -> {
                 view = context.inflate(R.layout.view_xrecycler_refresh)
                 empty = view.findViewById(R.id.empty)
                 refresh = view.findViewById(R.id.refresh)
                 recycler = view.findViewById(R.id.rv_list)
-                if (0 != emptyEnum) {
+                if (emptyEnable) {
                     empty?.setOnEmptyRefreshListener { listener?.invoke(it) }
                 } else {
                     empty?.gone()
@@ -106,7 +108,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         recycler?.setHasFixedSize(true)
         recycler?.cancelItemAnimator()
         addView(view)
-        view?.size(MATCH_PARENT, WRAP_CONTENT)
+        view.size(MATCH_PARENT, WRAP_CONTENT)
     }
 
     /**
