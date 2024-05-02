@@ -7,6 +7,7 @@ import com.example.common.base.binding.adapter.BaseItemType.LIST
 import com.example.common.base.bridge.BaseViewModel
 import com.example.framework.utils.function.value.findAndRemove
 import com.example.framework.utils.function.value.findIndexOf
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSet
 import com.example.framework.utils.function.value.safeSize
@@ -206,9 +207,9 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * hasRefresh：指定此次的数据是否是刷新的数据（由外层刷新控件或手动指定）
      * onEmpty：当前适配器的集合为空时才会回调
      */
-    fun notify(list: List<T>?, hasRefresh: Boolean = true, onEmpty: () -> Unit = {}) {
+    fun notify(list: List<T>?, hasRefresh: Boolean? = true, onEmpty: () -> Unit = {}) {
         list ?: return
-        if (hasRefresh) refresh(list) else insert(list)
+        if (hasRefresh.orFalse) refresh(list) else insert(list)
         if (size() == 0) onEmpty.invoke()
     }
 
