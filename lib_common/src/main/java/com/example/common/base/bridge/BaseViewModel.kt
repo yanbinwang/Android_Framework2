@@ -25,7 +25,6 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
-import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
@@ -83,8 +82,15 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 继承BaseTitleActivity的页面传父类的ViewGroup
      * 其余页面外层写FrameLayout，套上要使用的布局后再initView中调用该方法
      */
-    fun setExtraView(viewGroup: ViewGroup?, index: Int = 1) {
-        this.weakEmpty = WeakReference(viewGroup.getEmptyView(index))
+//    fun setExtraView(viewGroup: ViewGroup?, index: Int = 1) {
+//        this.weakEmpty = WeakReference(viewGroup.getEmptyView(index))
+//    }
+    fun setExtraView(viewGroup: ViewGroup?) {
+        this.weakEmpty = WeakReference(viewGroup.getEmptyView(1))
+    }
+
+    fun setExtraView(empty: EmptyLayout?) {
+        this.weakEmpty = WeakReference(empty)
     }
 
     fun setExtraView(recycler: XRecyclerView?) {

@@ -1,28 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?><!-- 当列表为空或者没有网络时显示 -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingConstraints">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/iv_left"
+            statusBar_margin="@{true}"
+            android:layout_width="44pt"
+            android:layout_height="44pt"
+            android:layout_marginStart="5pt"
+            android:padding="10pt"
+            android:src="@mipmap/ic_btn_back"
+            android:visibility="invisible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
 
         <ImageView
             android:id="@+id/iv_empty"
             android:layout_width="120pt"
             android:layout_height="112pt"
-            android:layout_marginBottom="2pt"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:src="@mipmap/bg_data_error" />
 
         <TextView
             android:id="@+id/tv_empty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="2pt"
             android:gravity="center"
             android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize15"
             android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_empty"
             tools:text="页面加载失败，请重试" />
 
         <TextView
@@ -37,8 +57,50 @@
             android:paddingVertical="11pt"
             android:text="@string/refresh"
             android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize15" />
+            android:textSize="@dimen/textSize15"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_empty" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!--    <LinearLayout-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:gravity="center"-->
+    <!--        android:orientation="vertical">-->
+
+    <!--        <ImageView-->
+    <!--            android:id="@+id/iv_empty"-->
+    <!--            android:layout_width="120pt"-->
+    <!--            android:layout_height="112pt"-->
+    <!--            android:layout_marginBottom="2pt"-->
+    <!--            tools:src="@mipmap/bg_data_error" />-->
+
+    <!--        <TextView-->
+    <!--            android:id="@+id/tv_empty"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:gravity="center"-->
+    <!--            android:textColor="@color/textPrimary"-->
+    <!--            android:textSize="@dimen/textSize15"-->
+    <!--            android:textStyle="bold"-->
+    <!--            tools:text="页面加载失败，请重试" />-->
+
+    <!--        <TextView-->
+    <!--            android:id="@+id/tv_refresh"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_marginTop="10pt"-->
+    <!--            android:background="@drawable/selector_r5_blue"-->
+    <!--            android:gravity="center"-->
+    <!--            android:minWidth="164pt"-->
+    <!--            android:paddingHorizontal="14pt"-->
+    <!--            android:paddingVertical="11pt"-->
+    <!--            android:text="@string/refresh"-->
+    <!--            android:textColor="@color/textWhite"-->
+    <!--            android:textSize="@dimen/textSize15" />-->
+
+    <!--    </LinearLayout>-->
 
 </layout>

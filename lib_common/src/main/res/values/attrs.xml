@@ -14,6 +14,11 @@
         </attr>
     </declare-styleable>
 
+    <!-- 自定义EmptyLayout -->
+    <declare-styleable name="EmptyLayout">
+        <attr name="fullScreen" format="boolean" />
+    </declare-styleable>
+
     <!-- 删除按钮edittext -->
     <declare-styleable name="ClearEditText">
         <attr name="android:minHeight" />
