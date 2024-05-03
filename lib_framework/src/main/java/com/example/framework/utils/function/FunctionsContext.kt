@@ -9,6 +9,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
@@ -162,6 +163,20 @@ fun Context.sampleMemory(): Long {
  * 判断手机是否开启开发者模式
  */
 fun Context.isAdbEnabled() = (Settings.Secure.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) > 0)
+
+/**
+ * 是否安装了XXX应用
+ */
+fun Context.isAvailable(packageName: String): Boolean {
+    return run {
+        try {
+            packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }.orFalse
+}
 
 /**
  * 开启服务

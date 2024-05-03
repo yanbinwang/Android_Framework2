@@ -7,8 +7,8 @@ import com.example.common.event.EventCode.EVENT_PAY_CANCEL
 import com.example.common.event.EventCode.EVENT_PAY_FAILURE
 import com.example.common.event.EventCode.EVENT_PAY_SUCCESS
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.file.isAvailable
 import com.example.framework.utils.function.doOnDestroy
+import com.example.framework.utils.function.isAvailable
 import com.example.framework.utils.logWTF
 import com.example.thirdparty.R
 import kotlinx.coroutines.CoroutineScope
