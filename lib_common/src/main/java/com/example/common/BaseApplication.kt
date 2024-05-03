@@ -30,6 +30,7 @@ import com.example.common.utils.AppManager
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
+import com.example.common.utils.helper.ConfigHelper
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.framework.utils.function.string
@@ -53,6 +54,7 @@ import java.util.Locale
 @SuppressLint("MissingPermission", "UnspecifiedRegisterReceiverFlag")
 abstract class BaseApplication : Application() {
     private var onStateChangedListener: (isForeground: Boolean) -> Unit = {}
+    private var onPrivacyAgreedListener: (agreed: Boolean) -> Unit = {}
 
     companion object {
         //当前app进程是否处于前台
@@ -94,10 +96,12 @@ abstract class BaseApplication : Application() {
         initSmartRefresh()
         //全局toast
         initToast()
-        //全局进程
-        initLifecycle()
         //初始化socket
         initSocket()
+        //全局进程
+        initLifecycle()
+        //初始化友盟/人脸识别->延后
+        initPrivacyAgreed()
     }
 
     private fun initARouter() {
@@ -188,6 +192,12 @@ abstract class BaseApplication : Application() {
         }
     }
 
+    private fun initSocket() {
+        WebSocketProxy.setOnMessageListener { url, data ->
+
+        }
+    }
+
     /**
      * 监听切换到前台，超过5分钟部分第三方重新获取
      */
@@ -237,14 +247,24 @@ abstract class BaseApplication : Application() {
         })
     }
 
-    private fun initSocket() {
-        WebSocketProxy.setOnMessageListener { url, data ->
+    protected fun setOnStateChangedListener(onStateChangedListener: (isForeground: Boolean) -> Unit) {
+        this.onStateChangedListener = onStateChangedListener
+    }
 
+    fun initPrivacyAgreed() {
+        if (ConfigHelper.getPrivacyAgreed()) {
+//            //友盟日志收集
+//            initUM()
+//            //支付宝人脸识别
+//            initVerify()
+            onPrivacyAgreedListener.invoke(true)
+        } else {
+            onPrivacyAgreedListener.invoke(false)
         }
     }
 
-    protected fun setOnStateChangedListener(onStateChangedListener: (isForeground: Boolean) -> Unit) {
-        this.onStateChangedListener = onStateChangedListener
+    protected fun setOnPrivacyAgreedListener(onPrivacyAgreedListener: (agreed: Boolean) -> Unit) {
+        this.onPrivacyAgreedListener = onPrivacyAgreedListener
     }
 
     override fun onTrimMemory(level: Int) {

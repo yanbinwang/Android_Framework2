@@ -54,10 +54,9 @@ dependencies {
     api 'com.otaliastudios:cameraview:2.7.2'
     //相册/裁剪
     api 'com.yanzhenjie:album:2.1.3'
-    implementation 'com.yanzhenjie:durban:1.0.1'
+    api 'com.yanzhenjie:durban:1.0.1'
     //高德三方扩展
     api project(':lib_local:amap_sdk')
-    api 'com.yanzhenjie:durban:1.0.1'
     //数据库
     api project(':lib_local:greendao')
     //oss文件传输
