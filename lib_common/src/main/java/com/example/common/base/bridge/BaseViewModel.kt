@@ -2,7 +2,8 @@ package com.example.common.base.bridge
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.view.ViewGroup
+import android.view.View
+import android.widget.FrameLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -82,39 +83,72 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 继承BaseTitleActivity的页面传父类的ViewGroup
      * 其余页面外层写FrameLayout，套上要使用的布局后再initView中调用该方法
      */
-//    fun setExtraView(viewGroup: ViewGroup?, index: Int = 1) {
-//        this.weakEmpty = WeakReference(viewGroup.getEmptyView(index))
+//    //BaseTitleActivity传入容器viewGroup
+//    fun setExtraView(viewGroup: ViewGroup?) {
+//        this.weakEmpty = WeakReference(viewGroup.getEmptyView(1))
 //    }
-    //BaseTitleActivity传入容器viewGroup
-    fun setExtraView(viewGroup: ViewGroup?) {
-        this.weakEmpty = WeakReference(viewGroup.getEmptyView(1))
-    }
-
-    //直接界面上绘制好empty
-    fun setExtraView(empty: EmptyLayout?) {
-        this.weakEmpty = WeakReference(empty)
-    }
-
-    //传入外层下拉刷新的控件
-    fun setExtraView(refresh: SmartRefreshLayout?) {
-        this.weakRefresh = WeakReference(refresh)
-    }
-
-    //传入用于刷新的empty
-    fun setExtraView(recycler: XRecyclerView?) {
-        this.weakEmpty = WeakReference(recycler?.empty)
-        this.weakRecycler = WeakReference(recycler)
+//
+//    //直接界面上绘制好empty
+//    fun setExtraView(empty: EmptyLayout?) {
+//        this.weakEmpty = WeakReference(empty)
+//    }
+//
+//    //传入外层下拉刷新的控件
+//    fun setExtraView(refresh: SmartRefreshLayout?) {
+//        this.weakRefresh = WeakReference(refresh)
+//    }
+//
+//    //传入用于刷新的empty
+//    fun setExtraView(recycler: XRecyclerView?) {
+//        this.weakEmpty = WeakReference(recycler?.empty)
+//        this.weakRecycler = WeakReference(recycler)
+//    }
+    fun setExtraView(view: View?) {
+        when (view) {
+            //传入BaseTitleActivity中写好的容器viewGroup
+            is FrameLayout -> this.weakEmpty = WeakReference(view.getEmptyView(1))
+            //界面上绘制好empty
+            is EmptyLayout -> this.weakEmpty = WeakReference(view)
+            //外层下拉刷新的控件
+            is SmartRefreshLayout -> this.weakRefresh = WeakReference(view)
+            //传入用于刷新的empty
+            is XRecyclerView -> {
+                this.weakEmpty = WeakReference(view.empty)
+                this.weakRecycler = WeakReference(view)
+            }
+        }
     }
 
     //部分首页加载时需要使用empty，完成后需要使用下拉刷新（只有下拉），故而直接传入两层view
-    fun setExtraView(empty: EmptyLayout?, refresh: SmartRefreshLayout?) {
-        this.weakEmpty = WeakReference(empty)
-        this.weakRefresh = WeakReference(refresh)
-    }
-
-    fun setExtraView(viewGroup: ViewGroup?, refresh: SmartRefreshLayout?) {
-        this.weakEmpty = WeakReference(viewGroup.getEmptyView(1))
-        this.weakRefresh = WeakReference(refresh)
+//    fun setExtraView(empty: EmptyLayout?, refresh: SmartRefreshLayout?) {
+//        this.weakEmpty = WeakReference(empty)
+//        this.weakRefresh = WeakReference(refresh)
+//    }
+//
+//    fun setExtraView(viewGroup: ViewGroup?, refresh: SmartRefreshLayout?) {
+//        this.weakEmpty = WeakReference(viewGroup.getEmptyView(1))
+//        this.weakRefresh = WeakReference(refresh)
+//    }
+//
+//    fun setExtraView(recycler: XRecyclerView?, refresh: SmartRefreshLayout?) {
+//        this.weakEmpty = WeakReference(recycler?.empty)
+//        this.weakRefresh = WeakReference(refresh)
+//    }
+    fun setExtraView(view: View?, refresh: SmartRefreshLayout?) {
+        when (view) {
+            is FrameLayout -> {
+                this.weakEmpty = WeakReference(view.getEmptyView(1))
+                this.weakRefresh = WeakReference(refresh)
+            }
+            is EmptyLayout -> {
+                this.weakEmpty = WeakReference(view)
+                this.weakRefresh = WeakReference(refresh)
+            }
+            is XRecyclerView -> {
+                this.weakEmpty = WeakReference(view.empty)
+                this.weakRefresh = WeakReference(refresh)
+            }
+        }
     }
 
     /**
