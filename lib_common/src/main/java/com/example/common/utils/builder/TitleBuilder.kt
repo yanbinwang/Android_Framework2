@@ -1,7 +1,6 @@
 package com.example.common.utils.builder
 
 import android.graphics.Color
-import android.view.Gravity
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.common.R
@@ -105,14 +104,12 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
     /**
      * 部分页面UI需要更深度的定制
      */
-    fun setLeftSecondary(label: String, labelColor: Int = R.color.textPrimary, resId: Int = R.mipmap.ic_btn_back, width: Int? = null, height: Int? = null, start: Int? = null, end: Int? = null, gravity: Int = Gravity.CENTER, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+    fun setLeftSecondary(label: String, labelColor: Int = R.color.textPrimary, resId: Int = R.mipmap.ic_btn_back, width: Int? = null, height: Int? = null, onClick: (textView: TextView) -> Unit = { mActivity.finish() }): TitleBuilder {
         mBinding?.tvLeft?.apply {
             visible()
             setArguments(label, labelColor, resId)
             if (null != width && null != height) size(width, height)
-            padding(start = start, end = end)
-            setGravity(gravity)
-            click { onClick.invoke() }
+            click { onClick.invoke(this) }
         }
         mBinding?.ivLeft.gone()
         return this
@@ -140,14 +137,12 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
         return this
     }
 
-    fun setRightSecondary(label: String, labelColor: Int = R.color.textPrimary, resId: Int = R.mipmap.ic_btn_back, width: Int? = null, height: Int? = null, start: Int? = null, end: Int? = null, gravity: Int = Gravity.CENTER, onClick: () -> Unit = {}): TitleBuilder {
+    fun setRightSecondary(label: String, labelColor: Int = R.color.textPrimary, resId: Int = R.mipmap.ic_btn_back, width: Int? = null, height: Int? = null, onClick: (textView: TextView) -> Unit = {}): TitleBuilder {
         mBinding?.tvRight?.apply {
             visible()
             setArguments(label, labelColor, resId)
             if (null != width && null != height) size(width, height)
-            padding(start = start, end = end)
-            setGravity(gravity)
-            click { onClick.invoke() }
+            click { onClick.invoke(this) }
         }
         mBinding?.tvRight.gone()
         return this
