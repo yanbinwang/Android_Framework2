@@ -1,7 +1,7 @@
 package com.example.common.utils.builder
 
 import android.graphics.Color
-import android.widget.ImageView
+import android.view.Gravity
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.common.R
@@ -102,6 +102,21 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
         return this
     }
 
+    /**
+     * 部分页面UI需要更深度的定制
+     */
+    fun setLeftSecondary(label: String, labelColor: Int = R.color.textPrimary, resId: Int = R.mipmap.ic_btn_back, width: Int? = null, height: Int? = null, start: Int? = null, end: Int? = null, gravity: Int = Gravity.CENTER, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+        mBinding?.tvLeft?.apply {
+            visible()
+            setArguments(label, labelColor, resId)
+            if (null != width && null != height) size(width, height)
+            padding(start = start, end = end)
+            setGravity(gravity)
+            click { onClick.invoke() }
+        }
+        return this
+    }
+
     fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int? = null, height: Int? = null, onClick: () -> Unit = {}): TitleBuilder {
         mBinding?.ivRight?.apply {
             visible()
@@ -124,21 +139,16 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
         return this
     }
 
-    /**
-     * 部分页面UI需要更深度的定制
-     */
-    fun getLeft(): TextView? {
-        return mBinding?.tvLeft.let {
-            it.visible()
-            it
+    fun setRightSecondary(label: String, labelColor: Int = R.color.textPrimary, resId: Int = R.mipmap.ic_btn_back, width: Int? = null, height: Int? = null, start: Int? = null, end: Int? = null, gravity: Int = Gravity.CENTER, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+        mBinding?.tvRight?.apply {
+            visible()
+            setArguments(label, labelColor, resId)
+            if (null != width && null != height) size(width, height)
+            padding(start = start, end = end)
+            setGravity(gravity)
+            click { onClick.invoke() }
         }
-    }
-
-    fun getRight(): TextView? {
-        return mBinding?.tvRight.let {
-            it.visible()
-            it
-        }
+        return this
     }
 
     /**
