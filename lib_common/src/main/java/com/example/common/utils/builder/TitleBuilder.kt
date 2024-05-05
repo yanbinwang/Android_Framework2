@@ -114,6 +114,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
             setGravity(gravity)
             click { onClick.invoke() }
         }
+        mBinding?.ivLeft.gone()
         return this
     }
 
@@ -148,6 +149,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
             setGravity(gravity)
             click { onClick.invoke() }
         }
+        mBinding?.tvRight.gone()
         return this
     }
 
