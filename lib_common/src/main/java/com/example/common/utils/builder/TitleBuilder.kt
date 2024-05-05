@@ -140,7 +140,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
         return this
     }
 
-    fun setRightSecondary(label: String, labelColor: Int = R.color.textPrimary, resId: Int = R.mipmap.ic_btn_back, width: Int? = null, height: Int? = null, start: Int? = null, end: Int? = null, gravity: Int = Gravity.CENTER, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+    fun setRightSecondary(label: String, labelColor: Int = R.color.textPrimary, resId: Int = R.mipmap.ic_btn_back, width: Int? = null, height: Int? = null, start: Int? = null, end: Int? = null, gravity: Int = Gravity.CENTER, onClick: () -> Unit = {}): TitleBuilder {
         mBinding?.tvRight?.apply {
             visible()
             setArguments(label, labelColor, resId)
