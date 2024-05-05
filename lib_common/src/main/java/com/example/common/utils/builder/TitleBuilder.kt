@@ -1,6 +1,8 @@
 package com.example.common.utils.builder
 
 import android.graphics.Color
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
@@ -18,7 +20,10 @@ import com.example.framework.utils.function.view.visible
 
 /**
  * 顶部标题默认不具备任何颜色和显示的按钮
- * 格式->左右侧图片/文本，中间大标题，左右侧间距默认文本大小都应固定，图片可定制
+ * 格式：
+ * 1.左右侧图片/文本
+ * 2.中间大标题
+ * 3.左右侧间距默认，文本大小固定，图片可定制
  */
 class TitleBuilder(private val mActivity: AppCompatActivity, private val mBinding: ViewTitleBarBinding?) {
 
@@ -32,7 +37,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
      * title->标题
      * titleColor->标题颜色
      * bgColor->背景颜色
-     * shade->标题底部是否带阴影
+     * isShade->标题底部是否带阴影
      */
     fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, isShade: Boolean = false): TitleBuilder {
         mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
@@ -43,7 +48,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
     }
 
     /**
-     * 部分页面不需要标题，只需要一个定制的返回按钮和特定背景，故而使用此方法
+     * 页面不需要标题，只需要定制的返回按钮及特定背景
      */
     fun setTitleSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity.finish() }, bgColor: Int = R.color.bgToolbar): TitleBuilder {
         mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
@@ -52,8 +57,8 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
     }
 
     /**
-     * 继承BaseActivity，在xml中include对应标题布局
-     * 把布局bind传入工具类，实现绑定后，调取对应方法
+     * 1.继承BaseActivity，在xml中include对应标题布局
+     * 2.把布局bind传入工具类，实现绑定后，调取对应方法（private val titleBuilder by lazy { TitleBuilder(this, mBinding?.titleRoot) }）
      */
     fun setTransparent(title: String = "", titleColor: Int = R.color.textPrimary): TitleBuilder {
         return setTitle(title, titleColor, 0)
@@ -81,18 +86,6 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
         return this
     }
 
-    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int? = null, height: Int? = null, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
-        mBinding?.ivRight?.apply {
-            visible()
-            setResource(resId)
-            if (0 != tintColor) tint(tintColor)
-            if (null != width && null != height) size(width, height)
-            click { onClick.invoke() }
-        }
-        mBinding?.tvRight.gone()
-        return this
-    }
-
     /**
      * 设置左/右侧文字
      * label->文案
@@ -109,7 +102,19 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
         return this
     }
 
-    fun setRight(label: String, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int? = null, height: Int? = null, onClick: () -> Unit = {}): TitleBuilder {
+        mBinding?.ivRight?.apply {
+            visible()
+            setResource(resId)
+            if (0 != tintColor) tint(tintColor)
+            if (null != width && null != height) size(width, height)
+            click { onClick.invoke() }
+        }
+        mBinding?.tvRight.gone()
+        return this
+    }
+
+    fun setRight(label: String, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = {}): TitleBuilder {
         mBinding?.tvRight?.apply {
             visible()
             setArguments(label, labelColor)
@@ -117,6 +122,23 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
         }
         mBinding?.ivRight.gone()
         return this
+    }
+
+    /**
+     * 部分页面UI需要更深度的定制
+     */
+    fun getLeft(): TextView? {
+        return mBinding?.tvLeft.let {
+            it.visible()
+            it
+        }
+    }
+
+    fun getRight(): TextView? {
+        return mBinding?.tvRight.let {
+            it.visible()
+            it
+        }
     }
 
     /**
