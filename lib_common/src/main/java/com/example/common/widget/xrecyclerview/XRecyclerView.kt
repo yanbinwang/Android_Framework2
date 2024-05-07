@@ -8,6 +8,7 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
+import androidx.databinding.ViewDataBinding
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
@@ -161,6 +162,10 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     fun <K : BaseViewDataBindingHolder> getHolder(position: Int): K? {
         return recycler?.getHolder(position)
+    }
+
+    fun <VDB : ViewDataBinding> getViewHolder(position: Int): VDB? {
+        return getHolder<BaseViewDataBindingHolder>(position)?.getBinding() as? VDB
     }
 
     /**
