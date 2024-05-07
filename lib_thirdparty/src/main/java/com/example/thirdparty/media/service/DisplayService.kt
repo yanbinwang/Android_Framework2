@@ -18,8 +18,8 @@ import com.example.common.utils.function.getExtra
 import com.example.framework.utils.function.value.orZero
 import com.example.thirdparty.media.utils.MediaUtil
 import com.example.thirdparty.media.utils.MediaUtil.MediaType
-import com.example.thirdparty.media.utils.helper.ScreenHelper.Companion.previewHeight
-import com.example.thirdparty.media.utils.helper.ScreenHelper.Companion.previewWidth
+import com.example.thirdparty.media.utils.helper.DisplayHelper.Companion.previewHeight
+import com.example.thirdparty.media.utils.helper.DisplayHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick
 
 /**
@@ -27,12 +27,12 @@ import com.example.thirdparty.media.widget.TimerTick
  *  录屏服务
  *  <!-- 屏幕录制 -->
  *  <service
- *      android:name="com.sqkj.home.service.ScreenService"
+ *      android:name="com.sqkj.home.service.DisplayService"
  *      android:enabled="true"
  *      android:exported="false"
  *      android:foregroundServiceType="mediaProjection"--》 Q开始后台服务需要配置，否则录制不正常  />
  */
-class ScreenService : LifecycleService() {
+class DisplayService : LifecycleService() {
     private var folderPath: String? = null
     private var mediaProjection: MediaProjection? = null
     private var mediaRecorder: MediaRecorder? = null
@@ -46,7 +46,7 @@ class ScreenService : LifecycleService() {
          * filePath->开始录制时，会返回源文件存储地址(此时记录一下)停止录制时一定为空，此时做ui操作
          * recoding->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
          */
-        fun setOnScreenListener(listener: (folderPath: String?, isRecoding: Boolean) -> Unit) {
+        fun setOnDisplayListener(listener: (folderPath: String?, isRecoding: Boolean) -> Unit) {
             this.listener = listener
         }
     }

@@ -1,7 +1,6 @@
 package com.example.thirdparty.media.utils.helper
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.MediaActionSound
@@ -40,7 +39,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
     private var onTakeVideoListener: OnTakeVideoListener? = null
     private val actionSound by lazy { MediaActionSound() }
     private val eventReceiver by lazy { KeyEventReceiver() }
-    private val mContext: Context? get() = cvFinder?.context
+    private val mContext get() = cvFinder?.context
 
     init {
         observer.lifecycle.addObserver(this)

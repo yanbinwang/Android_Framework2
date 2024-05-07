@@ -14,16 +14,25 @@ import com.example.thirdparty.media.utils.MediaUtil.MediaType.AUDIO
  * @description 录音帮助类（熄屏后无声音，并可能会导致后续声音也录制不了）
  * @author yan
  */
-class RecorderHelper(private val mActivity: FragmentActivity? = null) : LifecycleEventObserver {
+class MediaHelper : LifecycleEventObserver {
     private var isDestroy = false
+    private var recorder: MediaRecorder? = null
     private var listener: OnRecorderListener? = null
     private val player by lazy { MediaPlayer() }
-    private val recorder by lazy { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && null != mActivity) MediaRecorder(mActivity) else MediaRecorder() }
 
-    init {
+    // <editor-fold defaultstate="collapsed" desc="初始化相关">
+    constructor(mActivity: FragmentActivity?) {
+        recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && null != mActivity) MediaRecorder(mActivity) else MediaRecorder()
         mActivity?.lifecycle?.addObserver(this)
     }
 
+    constructor(observer: LifecycleOwner?) {
+        recorder = MediaRecorder()
+        observer?.lifecycle?.addObserver(this)
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="播放相关">
     /**
      * 设置播放的音频地址
      */
@@ -87,7 +96,9 @@ class RecorderHelper(private val mActivity: FragmentActivity? = null) : Lifecycl
         } catch (_: Exception) {
         }
     }
+    // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="录音相关">
     /**
      * 开始录音
      */
@@ -97,7 +108,7 @@ class RecorderHelper(private val mActivity: FragmentActivity? = null) : Lifecycl
         val sourcePath = recordFile?.absolutePath
         listener?.onStart(sourcePath)
         try {
-            recorder.apply {
+            recorder?.apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)//设置麦克风
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
@@ -120,7 +131,7 @@ class RecorderHelper(private val mActivity: FragmentActivity? = null) : Lifecycl
     fun stopRecord() {
         if (!isDestroy) listener?.onShutter()
         try {
-            recorder.apply {
+            recorder?.apply {
                 stop()
                 reset()
                 release()
@@ -147,6 +158,7 @@ class RecorderHelper(private val mActivity: FragmentActivity? = null) : Lifecycl
 
         fun onStop()
     }
+    // </editor-fold>
 
     /**
      * 生命周期管控
@@ -157,7 +169,7 @@ class RecorderHelper(private val mActivity: FragmentActivity? = null) : Lifecycl
                 isDestroy = true
                 stopRecord()
                 release()
-                mActivity?.lifecycle?.removeObserver(this)
+                source.lifecycle.removeObserver(this)
             }
             else -> {}
         }

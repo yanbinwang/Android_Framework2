@@ -23,7 +23,7 @@ import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.safeSize
 import com.example.thirdparty.R
-import com.example.thirdparty.media.service.ScreenService
+import com.example.thirdparty.media.service.DisplayService
 import com.example.thirdparty.media.service.ShotObserver
 import java.io.File
 
@@ -31,7 +31,7 @@ import java.io.File
  * @description 录屏工具类
  * @author yan
  */
-class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
+class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var isDestroy = false
     private var lastRefreshTime = 0L
     private var listener: OnScreenListener? = null
@@ -48,7 +48,7 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
             R.string.screenStart.shortToast()
             isRecording = true
             mActivity.apply {
-                startService(ScreenService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
+                startService(DisplayService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
                 moveTaskToBack(true)
             }
         } else {
@@ -105,10 +105,10 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
             }
         }
         //录屏文件创建/停止录屏时（exists=false）都会回调
-        ScreenService.setOnScreenListener { folderPath, isRecoding ->
-            if(isDestroy) return@setOnScreenListener
+        DisplayService.setOnDisplayListener { folderPath, isRecoding ->
+            if(isDestroy) return@setOnDisplayListener
             if (!isRecoding) {
-                folderPath ?: return@setOnScreenListener
+                folderPath ?: return@setOnDisplayListener
                 //说明未截图
                 if (list.safeSize == 0) {
                     listener?.onResult(folderPath, false)
@@ -155,7 +155,7 @@ class ScreenHelper(private val mActivity: FragmentActivity) : LifecycleEventObse
      */
     fun stopScreen() = mActivity.execute {
         isRecording = false
-        stopService(ScreenService::class.java)
+        stopService(DisplayService::class.java)
     }
 
     /**

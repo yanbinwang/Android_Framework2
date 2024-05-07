@@ -49,6 +49,8 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //框架库
     implementation project(':lib_common')
+    //oss文件传输
+    implementation 'com.aliyun.dpa:oss-android-sdk:2.9.5'
     //相机/播放器
     api 'com.github.CarGuo.GSYVideoPlayer:GSYVideoPlayer:v8.6.0-release-jitpack'
     api 'com.otaliastudios:cameraview:2.7.2'
@@ -59,8 +61,6 @@ dependencies {
     api project(':lib_local:amap_sdk')
     //数据库
     api project(':lib_local:greendao')
-    //oss文件传输
-    implementation 'com.aliyun.dpa:oss-android-sdk:2.9.5'
     //支付宝/微信
     api 'com.alipay.sdk:alipaysdk-android:15.8.17@aar'
     api 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0'
