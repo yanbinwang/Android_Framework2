@@ -8,6 +8,9 @@ import com.example.common.config.ARouterPath
 import com.example.framework.utils.logWTF
 import com.example.mvvm.databinding.ActivityTestBinding
 
+/**
+ * https://blog.csdn.net/YllP_1230/article/details/130317459
+ */
 @Route(path = ARouterPath.TestActivity)
 class TestActivity : BaseActivity<ActivityTestBinding>() {
 
