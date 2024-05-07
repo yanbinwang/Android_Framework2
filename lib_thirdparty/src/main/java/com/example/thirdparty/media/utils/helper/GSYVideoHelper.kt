@@ -58,9 +58,11 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         //默认采用exo内核，播放报错则切ijk内核
         PlayerFactory.setPlayManager(Exo2PlayerManager::class.java)
         CacheFactory.setCacheManager(ExoPlayerCacheManager::class.java)
+        //配置适配遮罩，加载一层EmptyView
+        player.thumbImageView = mBinding.root
+        //隐藏默认的顶部菜单的返回和标题view
         player.titleTextView?.gone()
         player.backButton?.gone()
-        player.thumbImageView = mBinding.root
         if (!fullScreen) {
             player.fullscreenButton?.gone()
         } else {

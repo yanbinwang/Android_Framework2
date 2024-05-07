@@ -16,7 +16,7 @@ import com.example.framework.utils.function.value.toSafeInt
  *  .placeholder(R.drawable.placeholder)
  *  .into(new TransformationUtils(target));
  */
-class ZoomTransform(var target: ImageView) : ImageViewTarget<Bitmap>(target) {
+class ZoomTransform(private var target: ImageView) : ImageViewTarget<Bitmap>(target) {
 
     override fun setResource(resource: Bitmap?) {
         view.setImageBitmap(resource)
