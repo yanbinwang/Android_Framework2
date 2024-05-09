@@ -97,10 +97,10 @@ class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObs
             }
         }
         //只要在录屏中，截一张图就copy一张到目标目录，但是需要及时清空
-        ShotObserver.instance.setOnScreenShotListener {
-            it ?: return@setOnScreenShotListener
+        ShotObserver.instance.setOnShotListener {
+            it ?: return@setOnShotListener
             if (isRecording) {
-                if (!File(it).exists()) return@setOnScreenShotListener
+                if (!File(it).exists()) return@setOnShotListener
                 list.add(it)
             }
         }
