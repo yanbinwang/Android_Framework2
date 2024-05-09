@@ -16,12 +16,12 @@ import java.util.Date
  * @description 多媒体工具类
  * @author yan
  */
-object MediaUtil {
+object StorageUtil {
 
     /**
      * 定义传入的枚举类型
      */
-    enum class MediaType {
+    enum class StorageType {
         IMAGE, VIDEO, AUDIO, SCREEN
     }
 
@@ -29,22 +29,13 @@ object MediaUtil {
      * 获取对应文件类型的存储地址
      */
     @JvmStatic
-    fun getOutputFile(mimeType: MediaType): File? {
+    fun getOutputFile(mimeType: StorageType): File? {
         if (!hasSdcard()) {
             "未找到手机sd卡".logE()
             return null
         }
         //根据类型在sd卡picture目录下建立对应app名称的对应类型文件
-        val storageInfo = when (mimeType) {
-            //拍照/抓拍
-            MediaType.IMAGE -> getOutputRoute(mimeType) to "jpg"
-            //录像
-            MediaType.VIDEO -> getOutputRoute(mimeType) to "mp4"
-            //录音
-            MediaType.AUDIO -> getOutputRoute(mimeType) to "wav"
-            //录屏
-            MediaType.SCREEN -> getOutputRoute(mimeType) to "mp4"
-        }
+        val storageInfo = getOutputRoute(mimeType)
         //先在包名目录下建立对应类型的文件夹，构建失败直接返回null
         val storageDir = File(storageInfo.first)
         if (!storageDir.exists()) {
@@ -63,19 +54,17 @@ object MediaUtil {
      * 获取输出文件的路径
      */
     @JvmStatic
-    fun getOutputRoute(mimeType: MediaType): String {
-        return "${STORAGE}/${
-            when (mimeType) {
-                //拍照/抓拍
-                MediaType.IMAGE -> "拍照"
-                //录像
-                MediaType.VIDEO -> "录像"
-                //录音
-                MediaType.AUDIO -> "录音"
-                //录屏
-                MediaType.SCREEN -> "录屏"
-            }
-        }"
+    fun getOutputRoute(mimeType: StorageType): Pair<String, String> {
+        return when (mimeType) {
+            //拍照/抓拍
+            StorageType.IMAGE -> "${STORAGE}/拍照" to "jpg"
+            //录像
+            StorageType.VIDEO -> "${STORAGE}/录像" to "mp4"
+            //录音
+            StorageType.AUDIO -> "${STORAGE}/录音" to "wav"
+            //录屏
+            StorageType.SCREEN -> "${STORAGE}/录屏" to "mp4"
+        }
     }
 
 }
@@ -84,7 +73,7 @@ object MediaUtil {
  * 传入指定大小的文件长度，扫描sd卡空间是否足够
  * 需有1G的默认大小的空间
  */
-fun Context.scanDiskSpace(space: Long = 1024) = getSdcardAvailableCapacity() > space
+fun Context.scanDisk(space: Long = 1024) = getSdcardAvailableCapacity() > space
 
 /**
  * 返回时长(音频，视频)->不支持在线音视频

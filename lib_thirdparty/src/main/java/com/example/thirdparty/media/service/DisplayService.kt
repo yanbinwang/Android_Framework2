@@ -16,8 +16,8 @@ import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenDensity
 import com.example.common.utils.function.getExtra
 import com.example.framework.utils.function.value.orZero
-import com.example.thirdparty.media.utils.MediaUtil
-import com.example.thirdparty.media.utils.MediaUtil.MediaType
+import com.example.thirdparty.media.utils.StorageUtil
+import com.example.thirdparty.media.utils.StorageUtil.StorageType
 import com.example.thirdparty.media.utils.helper.DisplayHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.helper.DisplayHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick
@@ -87,7 +87,7 @@ class DisplayService : LifecycleService() {
     }
 
     private fun createMediaRecorder(): MediaRecorder {
-        val screenFile = MediaUtil.getOutputFile(MediaType.SCREEN)
+        val screenFile = StorageUtil.getOutputFile(StorageType.SCREEN)
         folderPath = screenFile?.absolutePath
         return (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()).apply {
             setVideoSource(MediaRecorder.VideoSource.SURFACE)

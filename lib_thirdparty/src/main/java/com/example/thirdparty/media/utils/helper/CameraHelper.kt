@@ -11,9 +11,9 @@ import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
 import com.example.thirdparty.media.service.KeyEventReceiver
-import com.example.thirdparty.media.utils.MediaUtil
-import com.example.thirdparty.media.utils.MediaUtil.MediaType.IMAGE
-import com.example.thirdparty.media.utils.MediaUtil.MediaType.VIDEO
+import com.example.thirdparty.media.utils.StorageUtil
+import com.example.thirdparty.media.utils.StorageUtil.StorageType.IMAGE
+import com.example.thirdparty.media.utils.StorageUtil.StorageType.VIDEO
 import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.CameraView
 import com.otaliastudios.cameraview.PictureResult
@@ -92,7 +92,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
                     override fun onPictureTaken(result: PictureResult) {
                         super.onPictureTaken(result)
                         //在sd卡的Picture文件夹下创建对应的文件
-                        MediaUtil.getOutputFile(IMAGE).apply {
+                        StorageUtil.getOutputFile(IMAGE).apply {
                             if (null != this) {
                                 result.toFile(this) {
                                     if (null != it) {
@@ -201,7 +201,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
                 R.string.cameraVideoShutter.shortToast()
                 return
             }
-            MediaUtil.getOutputFile(VIDEO).apply {
+            StorageUtil.getOutputFile(VIDEO).apply {
                 if (null != this) {
                     sourcePath = absolutePath
                     if (snapshot) {
