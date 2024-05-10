@@ -68,7 +68,6 @@ class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObs
          */
         var previewWidth = screenWidth
         var previewHeight = screenHeight
-
         /**
          * 是否正在进行录制，便于区分截图捕获到的图片路径
          */
