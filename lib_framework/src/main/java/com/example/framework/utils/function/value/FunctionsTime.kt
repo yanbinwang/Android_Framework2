@@ -23,14 +23,11 @@ val Int.day get() = this * 1000L * 60L * 60L * 24L
 val Int.week get() = this * 1000L * 60L * 60L * 24L * 7L
 
 /**
- * 假定服务器给的日期格式为：yyyy-MM-dd HH:mm:ss，通常使用US或者China，本身为零时区
- * 此时应减去手机获取到的时区，从而得到转换后的时区
- * @param this 日期(2022-12-11 22:22:22)
+ * 转换日期如果为空，则new一个当前手机的日期类返回
  */
-fun String?.convertServerTime(format: String = EN_YMDHMS): Long? {
-    if (isNullOrEmpty()) return null
-    val date = SimpleDateFormat(format, Locale.US).parse(this, ParsePosition(0)) ?: return null
-    return date.time - date.timezoneOffset * 60000
+fun Date?.toSafeDate(): Date {
+    this ?: return Date()
+    return this
 }
 
 /**
@@ -44,11 +41,14 @@ private fun String.getDateFormat(): SimpleDateFormat {
 }
 
 /**
- * 转换日期如果为空，则new一个当前手机的日期类返回
+ * 假定服务器给的日期格式为：yyyy-MM-dd HH:mm:ss，通常使用US或者China，本身为零时区
+ * 此时应减去手机获取到的时区，从而得到转换后的时区
+ * @param this 日期(2022-12-11 22:22:22)
  */
-fun Date?.toSafeDate(): Date {
-    this ?: return Date()
-    return this
+fun String?.convertServerTime(format: String = EN_YMDHMS): Long? {
+    if (isNullOrEmpty()) return null
+    val date = SimpleDateFormat(format, Locale.US).parse(this, ParsePosition(0)) ?: return null
+    return date.time - date.timezoneOffset * 60000
 }
 
 /**
@@ -113,6 +113,32 @@ fun String?.compare(source: String, format: String = EN_YMD): Int {
         0
     }
 }
+
+/**
+ * 处理时间
+ * @param this 时间戳
+ */
+@Synchronized
+fun Long.timer(): String {
+    val hour: Long
+    val second: Long
+    var minute: Long
+    return if (this <= 0) "00:00" else {
+        minute = this / 60
+        if (minute < 60) {
+            second = this % 60
+            "${minute.timerUnit()}:${second.timerUnit()}"
+        } else {
+            hour = minute / 60
+            if (hour > 99) return "99:59:59"
+            minute %= 60
+            second = this - hour * 3600 - minute * 60
+            "${hour.timerUnit()}:${minute.timerUnit()}:${second.timerUnit()}"
+        }
+    }
+}
+
+private fun Long.timerUnit() = if (this in 0..9) "0$this" else this.toString()
 
 /**
  * 获取日期的当月的第几周
@@ -191,32 +217,6 @@ fun Date.isToday(): Boolean {
     }
     return flag
 }
-
-/**
- * 处理时间
- * @param this 时间戳
- */
-@Synchronized
-fun Long.timer(): String {
-    val hour: Long
-    val second: Long
-    var minute: Long
-    return if (this <= 0) "00:00" else {
-        minute = this / 60
-        if (minute < 60) {
-            second = this % 60
-            "${minute.timerUnit()}:${second.timerUnit()}"
-        } else {
-            hour = minute / 60
-            if (hour > 99) return "99:59:59"
-            minute %= 60
-            second = this - hour * 3600 - minute * 60
-            "${hour.timerUnit()}:${minute.timerUnit()}:${second.timerUnit()}"
-        }
-    }
-}
-
-private fun Long.timerUnit() = if (this in 0..9) "0$this" else this.toString()
 
 // <editor-fold defaultstate="collapsed" desc="常用的日期格式">
 object DateFormat {

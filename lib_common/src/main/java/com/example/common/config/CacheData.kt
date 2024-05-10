@@ -1,6 +1,5 @@
 package com.example.common.config
 
-import com.example.common.bean.LanguageBean
 import com.example.common.bean.UserBean
 import com.example.common.bean.UserInfoBean
 import com.example.common.utils.DataCacheUtil
@@ -22,6 +21,10 @@ object CacheData {
     //语言类
     private const val LANGUAGE_BEAN = "language_bean"
     internal val languageBean = DataCacheUtil(LANGUAGE_BEAN, LanguageBean::class.java)
+
+    //是否同意告知书
+    private const val PRIVACY_AGREED = "privacy_agreed"
+    internal val privacyAgreed = DataBooleanCacheUtil(PRIVACY_AGREED)
 
     //用户类
     private const val USER_BEAN = "user_bean"

@@ -32,7 +32,7 @@ class MultiReqUtil(
     private val isShowDialog: Boolean = true,
     private val err: (e: Triple<String?, String?, Exception?>?) -> Unit = {}
 ) {
-    var results = false//一旦有请求失败，就会为true
+    private var results = false//一旦有请求失败，就会为true
     private var loadingStarted = false//是否开始加载
 
     /**
@@ -59,6 +59,14 @@ class MultiReqUtil(
         }, err, isShowToast = false)
         if (!response.successful()) results = true
         return response
+    }
+
+    /**
+     * 当串行请求多个接口的时候，如果开发需要知道这多个串行请求是否都成功
+     * 在end()被调取之前，可通过当前方法判断
+     */
+    fun successful(): Boolean {
+        return !results
     }
 
     /**

@@ -60,14 +60,14 @@ fun View?.click(click: ((v: View) -> Unit)?) {
     }
 }
 
-fun ((View) -> Unit).clicks(vararg v: View, time: Long = 500L) {
+fun ((View) -> Unit).clicks(vararg v: View?, time: Long = 500L) {
     val listener = object : OnMultiClickListener(time) {
         override fun onMultiClick(v: View) {
             this@clicks(v)
         }
     }
     v.forEach {
-        it.setOnClickListener(listener)
+        it?.setOnClickListener(listener)
     }
 }
 
@@ -620,14 +620,14 @@ fun View?.stopHardwareAccelerate() {
     setLayerType(View.LAYER_TYPE_SOFTWARE, Paint())
 }
 
-/**
- * 在viewgroup中插入一个xml引用的view，需设置这个view的root目录撑满
- * 可调用该方法
- */
-fun View?.layoutParamsMatch() {
-    if (this == null) return
-    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
-}
+///**
+// * 在viewgroup中插入一个xml引用的view，需设置这个view的root目录撑满
+// * 可调用该方法
+// */
+//fun View?.layoutParamsMatch() {
+//    if (this == null) return
+//    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+//}
 
 /**
  * 控件获取焦点

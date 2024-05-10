@@ -1,0 +1,54 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'org.greenrobot.greendao'
+}
+
+android {
+    namespace 'com.example.greendao'
+    compileSdkVersion build_versions.compileSdkVersion
+
+    defaultConfig {
+        minSdk build_versions.minSdkVersion
+        targetSdk build_versions.targetSdkVersion
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    greendao {
+        schemaVersion build_database.schemaVersion
+        daoPackage build_database.daoPackage
+        targetGenDir build_database.targetGenDir
+    }
+
+    buildFeatures {
+        dataBinding true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    testImplementation "junit:junit:$build_versions.junit"
+    androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
+//    //框架库
+//    implementation project(':lib_framework')
+    //数据库
+    api 'org.greenrobot:greendao:3.3.0'
+}

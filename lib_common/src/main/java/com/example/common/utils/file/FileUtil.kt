@@ -2,7 +2,6 @@ package com.example.common.utils.file
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.*
 import android.net.Uri
 import android.provider.DocumentsContract
@@ -165,7 +164,7 @@ object FileUtil {
      * @param begin 开始指针的位置
      * @param end   结束指针的位置
      */
-    private fun write(filePath: String, index: Int, begin: Long, end: Long): TmpInfo {
+    fun write(filePath: String, index: Int, begin: Long, end: Long): TmpInfo {
         val info = TmpInfo()
         try {
             //源文件
@@ -203,20 +202,6 @@ object FileUtil {
 val Number.mb get() = this.toSafeLong() * 1024L * 1024L
 val Number.gb get() = this.toSafeLong() * 1024L * 1024L * 1024L
 val Number.tb get() = this.toSafeLong() * 1024L * 1024L * 1024L * 1024L
-
-/**
- * 是否安装了XXX应用
- */
-fun Context.isAvailable(packageName: String): Boolean {
-    return run {
-        try {
-            packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }.orFalse
-}
 
 /**
  * 发送广播通知更新数据库

@@ -164,7 +164,7 @@ fun Class<*>.getBind(name: String? = null): Pair<Class<*>, String> {
 /**
  * 默认返回自身和自身class名小写以及请求的id
  */
-fun Class<*>.getBind(name: String? = null, vararg pairs: Pair<String, Any?>): Triple<Class<*>, String, Bundle> {
+fun Class<*>.getBindBundle(name: String? = null, vararg pairs: Pair<String, Any?>): Triple<Class<*>, String, Bundle> {
     val bundle = Bundle()
     pairs.forEach {
         val key = it.first

@@ -9,6 +9,7 @@ import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
 import android.view.View.OnFocusChangeListener
+import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.core.widget.addTextChangedListener
@@ -195,6 +196,10 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
 
     fun setOnFocusChangeListener(onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)) {
         this.onFocusChange = onFocusChange
+    }
+
+    fun setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
+        editText.setOnEditorActionListener(listener)
     }
 
 }

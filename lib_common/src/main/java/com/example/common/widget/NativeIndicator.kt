@@ -1,11 +1,11 @@
 package com.example.common.widget
 
+import android.widget.TextView
 import com.example.common.R
 import com.example.common.databinding.ItemTabBinding
 import com.example.common.utils.builder.TabLayoutBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.setArguments
-import com.example.common.widget.i18n.I18nTextView
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.bold

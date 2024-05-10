@@ -2,27 +2,33 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical">
+        >
 
         <ImageView
             android:id="@+id/iv_empty"
             android:layout_width="120pt"
             android:layout_height="112pt"
-            android:layout_marginBottom="2pt"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:src="@mipmap/bg_data_error" />
 
         <com.example.common.widget.i18n.I18nTextView
             android:id="@+id/tv_empty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="2pt"
             android:gravity="center"
             android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize15"
             android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_empty"
             tools:text="页面加载失败，请重试" />
 
         <com.example.common.widget.i18n.I18nTextView
@@ -35,10 +41,13 @@
             android:minWidth="164pt"
             android:paddingHorizontal="14pt"
             android:paddingVertical="11pt"
+            android:text="@string/refresh"
             android:textColor="@color/textWhite"
             android:textSize="@dimen/textSize15"
-            tools:text="@string/refresh" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_empty" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

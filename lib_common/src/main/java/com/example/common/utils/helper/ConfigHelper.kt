@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import com.example.common.BaseApplication
+import com.example.common.config.CacheData
+import com.example.common.config.CacheData.privacyAgreed
 import com.example.framework.utils.function.value.toSafeLong
 
 /**
@@ -19,6 +21,17 @@ object ConfigHelper {
     private val mContext by lazy { BaseApplication.instance.applicationContext }
 
     // <editor-fold defaultstate="collapsed" desc="调取方法">
+    /**
+     * 存储是否已经同意告知书
+     */
+    fun setPrivacyAgreed(value: Boolean) {
+        privacyAgreed.set(value)
+    }
+
+    fun getPrivacyAgreed(): Boolean {
+        return privacyAgreed.get()
+    }
+
     /**
      * 在进程中去寻找当前APP的信息，判断是否在运行
      * 100表示取的最大的任务数，info.topActivity表示当前正在运行的Activity，info.baseActivity表系统后台有此进程在运行

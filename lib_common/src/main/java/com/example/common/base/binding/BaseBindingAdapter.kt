@@ -17,6 +17,7 @@ import com.example.common.config.Constants.NO_DATA
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
 import com.example.common.utils.function.ptFloat
+import com.example.common.utils.function.setSpanFirst
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.enterAnimation
@@ -132,11 +133,16 @@ object BaseBindingAdapter {
     /**
      * 特殊文本显示文本
      * text:文本
+     * key_text:高亮文字
      */
     @JvmStatic
-    @BindingAdapter(value = ["text", "is_match"], requireAll = false)
-    fun bindingTextViewText(textview: TextView, text: String?, isMatch: Boolean?) {
-        textview.text = text ?: NO_DATA
+    @BindingAdapter(value = ["text", "key_text", "is_match"], requireAll = false)
+    fun bindingTextViewText(textview: TextView, text: String?, keyText: String?, isMatch: Boolean?) {
+        if (!keyText.isNullOrEmpty()) {
+            textview.setSpanFirst((text ?: NO_DATA), keyText)
+        } else {
+            textview.text = text ?: NO_DATA
+        }
         if (isMatch.orFalse) textview.setMatchText()
     }
 

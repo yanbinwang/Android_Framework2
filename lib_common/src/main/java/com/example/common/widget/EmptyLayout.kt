@@ -9,7 +9,15 @@ import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.view.*
+import com.example.framework.utils.function.view.appear
+import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.color
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.layoutParamsMatch
+import com.example.framework.utils.function.view.setResource
+import com.example.framework.utils.function.view.size
+import com.example.framework.utils.function.view.string
+import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 
 /**
@@ -21,21 +29,29 @@ import com.example.framework.widget.BaseViewGroup
  * 情况如下：
  * <p>
  * 1.加载中-无按钮
- * 2.空数据-无按钮
+ * 2.空数据-无按钮(特殊情况可显示按钮，回调跳转时可做配置)
  * 3.加载错误(无网络，服务器错误)-有按钮
  */
 @SuppressLint("InflateParams")
 class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private val mBinding by lazy { ViewEmptyBinding.bind(context.inflate(R.layout.view_empty)) }
-    private var listener: (() -> Unit)? = null
+    private var state = -1
+    private var fullScreen = false
+    private var listener: ((result: Boolean) -> Unit)? = null
 
     init {
-        mBinding.root.layoutParamsMatch()
+//        mBinding.root.layoutParamsMatch()
+        //是否是全屏
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.EmptyLayout)
+        fullScreen = typedArray.getBoolean(R.styleable.EmptyLayout_elEnableFullScreen, false)
+        typedArray.recycle()
+        //绘制大小撑到最大/默认背景
+        mBinding.root.size(MATCH_PARENT, MATCH_PARENT)
         mBinding.root.setBackgroundColor(color(R.color.bgDefault))
+        //点击事件/默认状态
         mBinding.tvRefresh.click {
-            //进入加载中
-            loading()
-            listener?.invoke()
+            if (!isEmpty()) loading()
+            listener?.invoke(isEmpty())
         }
         mBinding.root.click(null)
         loading()
@@ -62,10 +78,26 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     /**
+     * 特殊用法，部分页面需要全屏的empty，带一个返回按钮
+     * 1.只需关闭页面直接调setBack（this）
+     * 2.返回按钮点击后做别的操作setBack（onClick = {}）->不需要传activity
+     */
+    fun setBack(mActivity: FragmentActivity? = null, resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int? = null, height: Int? = null, onClick: () -> Unit = { mActivity?.finish() }) {
+        mBinding.ivLeft.apply {
+            setResource(resId)
+            if (0 != tintColor) tint(tintColor)
+            if (null != width && null != height) size(width, height)
+            click { onClick.invoke() }
+        }
+    }
+
+    /**
      * 数据加载中
      */
     fun loading() {
         appear(300)
+        state = 0
+        if (fullScreen) mBinding.ivLeft.visible() else mBinding.ivLeft.invisible()
         mBinding.ivEmpty.setResource(R.mipmap.bg_data_loading)
         mBinding.tvEmpty.setI18nRes(R.string.dataLoading)
         mBinding.tvRefresh.gone()
@@ -74,12 +106,20 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun empty(resId: Int? = null, resText: Int? = null, width: Int? = null, height: Int? = null) {
+    fun empty(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
         appear(300)
+        state = 1
+        if (fullScreen) mBinding.ivLeft.visible() else mBinding.ivLeft.invisible()
         if (null != width && null != height) mBinding.ivEmpty.size(width, height)
         mBinding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_empty)
-        mBinding.tvEmpty.setI18nRes(resText ?: R.string.dataEmpty)
+        mBinding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataEmpty) else text
         mBinding.tvRefresh.gone()
+        if (null != resRefreshText) {
+            mBinding.tvRefresh.visible()
+            mBinding.tvRefresh.setI18nRes(resRefreshText)
+        } else {
+            mBinding.tvRefresh.gone()
+        }
     }
 
     /**
@@ -88,6 +128,8 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun error(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
         appear(300)
+        state = 2
+        if (fullScreen) mBinding.ivLeft.visible() else mBinding.ivLeft.invisible()
         if (null != width && null != height) mBinding.ivEmpty.size(width, height)
         if (!isNetworkAvailable()) {
             mBinding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
@@ -101,9 +143,24 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     /**
+     * 获取当前状态
+     */
+    fun isLoading(): Boolean {
+        return state == 0
+    }
+
+    fun isEmpty(): Boolean {
+        return state == 1
+    }
+
+    fun isError(): Boolean {
+        return state == 2
+    }
+
+    /**
      * 设置刷新监听
      */
-    fun setOnEmptyRefreshListener(listener: (() -> Unit)) {
+    fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
         this.listener = listener
     }
 

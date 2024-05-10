@@ -10,6 +10,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.View.OnFocusChangeListener
+import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -258,6 +259,10 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun setOnFocusChangeListener(onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)) {
         this.onFocusChange = onFocusChange
+    }
+
+    fun setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
+        editText.setOnEditorActionListener(listener)
     }
 
 }
