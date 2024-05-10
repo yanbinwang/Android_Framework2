@@ -38,6 +38,7 @@ class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObs
     private val list by lazy { ArrayList<String>() }
     private val builder by lazy { FileBuilder(mActivity) }
     private val loading by lazy { LoadingDialog(mActivity) }
+    private val observer by lazy { ShotObserver(mActivity) }
     /**
      * 处理录屏的回调
      */
@@ -97,7 +98,7 @@ class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObs
             }
         }
         //只要在录屏中，截一张图就copy一张到目标目录，但是需要及时清空
-        ShotObserver.instance.setOnShotListener {
+        observer.setOnShotListener {
             it ?: return@setOnShotListener
             if (isRecording) {
                 if (!File(it).exists()) return@setOnShotListener
@@ -184,12 +185,10 @@ class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObs
      */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_CREATE -> ShotObserver.instance.register()
             Lifecycle.Event.ON_DESTROY -> {
                 isDestroy = true
                 hideDialog()
                 stopScreen()
-                ShotObserver.instance.unregister()
                 result?.unregister()
                 mActivity.lifecycle.removeObserver(this)
             }
