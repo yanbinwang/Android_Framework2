@@ -55,6 +55,7 @@ class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObs
         } else {
             R.string.screenCancel.shortToast()
             isRecording = false
+            listener?.onCancel()
         }
     }
 
@@ -173,6 +174,10 @@ class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObs
          * 正式开始录屏
          */
         fun onStart(filePath: String?)
+        /**
+         * 取消
+         */
+        fun onCancel()
         /**
          * isZip->true是zip文件夹，可能包含录制时的截图
          */
