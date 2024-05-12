@@ -34,7 +34,7 @@ import java.io.File
 class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var isDestroy = false
     private var lastRefreshTime = 0L
-    private var listener: OnScreenListener? = null
+    private var listener: OnDisplayListener? = null
     private val list by lazy { ArrayList<String>() }
     private val builder by lazy { FileBuilder(mActivity) }
     private val loading by lazy { LoadingDialog(mActivity) }
@@ -161,14 +161,14 @@ class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObs
     /**
      * 录屏监听
      */
-    fun setOnScreenListener(listener: OnScreenListener) {
+    fun setOnDisplayListener(listener: OnDisplayListener) {
         this.listener = listener
     }
 
     /**
      * 回调监听
      */
-    interface OnScreenListener {
+    interface OnDisplayListener {
         /**
          * 正式开始录屏
          */
