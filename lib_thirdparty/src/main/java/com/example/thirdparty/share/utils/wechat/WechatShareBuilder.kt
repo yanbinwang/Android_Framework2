@@ -81,12 +81,8 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
         val imgObj = WXImageObject(bmp)
         val msg = WXMediaMessage()
         msg.mediaObject = imgObj
-        //像素大小
-        val THUMB_SIZE = 100
         //设置缩略图
-        val thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true)
-        bmp.recycle()
-        msg.thumbData = bmpToByteArray(thumbBmp, true)
+        msg.thumbData = buildThumb(bmp)
         //构造一个Req
         val req = SendMessageToWX.Req()
         req.transaction = buildTransaction("img")
@@ -97,6 +93,8 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
     }
 
     private fun shareVideo(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
+        val bmp = result?.bmp?.get()
+        bmp ?: return
         //初始化一个WXVideoObject，填写url
         val video = WXVideoObject()
         video.videoUrl = result?.videoUrl
@@ -104,8 +102,8 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
         val msg = WXMediaMessage(video)
         msg.title = result?.title
         msg.description = result?.description
-        val thumbBmp = result?.bmp?.get()
-        msg.thumbData = bmpToByteArray(thumbBmp, true)
+        //设置缩略图
+        msg.thumbData = buildThumb(bmp)
         //构造一个Req
         val req = SendMessageToWX.Req()
         req.transaction = buildTransaction("video")
@@ -116,6 +114,8 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
     }
 
     private fun shareWebPage(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
+        val bmp = result?.bmp?.get()
+        bmp ?: return
         //初始化一个WXWebpageObject，填写url
         val webpage = WXWebpageObject()
         webpage.webpageUrl = result?.webpageUrl
@@ -123,8 +123,8 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
         val msg = WXMediaMessage(webpage)
         msg.title = result?.title
         msg.description = result?.description
-        val thumbBmp = result?.bmp?.get()
-        msg.thumbData = bmpToByteArray(thumbBmp, true)
+        //设置缩略图
+        msg.thumbData = buildThumb(bmp)
         //构造一个Req
         val req = SendMessageToWX.Req()
         req.transaction = buildTransaction("webpage")
@@ -135,6 +135,8 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
     }
 
     private fun shareMiniProgram() {
+        val bmp = result?.bmp?.get()
+        bmp ?: return
         val miniProgramObj = WXMiniProgramObject()
         miniProgramObj.webpageUrl = result?.webpageUrl//兼容低版本的网页链接
         miniProgramObj.miniprogramType = result?.miniprogramType.orZero // 正式版:0，测试版:1，体验版:2
@@ -144,8 +146,7 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
         msg.title = result?.title//小程序消息title
         msg.description = result?.description// 小程序消息desc
         // 小程序消息封面图片，小于128k
-        val thumbBmp = result?.bmp?.get()
-        msg.thumbData = bmpToByteArray(thumbBmp, true)
+        msg.thumbData = buildThumb(bmp)
         //构造一个Req
         val req = SendMessageToWX.Req()
         req.transaction = buildTransaction("miniProgram")
@@ -156,6 +157,8 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
     }
 
     private fun shareMusic(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
+        val bmp = result?.bmp?.get()
+        bmp ?: return
         val musicVideo = WXMusicVideoObject()
         musicVideo.musicUrl = result?.musicUrl // 音乐url
         musicVideo.musicDataUrl = result?.musicDataUrl // 音乐音频url
@@ -174,8 +177,7 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
         msg.description = result?.description // 选填，建议与歌手名字段 singerName 保持一致
         msg.messageExt = "额外信息" // 微信跳回应用时会带上
         // 音乐卡片缩略图，不超过64KB
-        val thumbBmp = result?.bmp?.get()
-        msg.thumbData = bmpToByteArray(thumbBmp, true)
+        msg.thumbData = buildThumb(bmp)
         //构造一个Req
         val req = SendMessageToWX.Req()
         req.transaction = buildTransaction("musicVideo")
@@ -183,6 +185,13 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
         req.scene = mTargetScene // 支持会话、朋友圈、收藏
         //调用api接口，发送数据到微信
         wxApi.sendReq(req)
+    }
+
+    private fun buildThumb(bmp: Bitmap, THUMB_SIZE: Int = 100): ByteArray {
+        //设置缩略图
+        val thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true)
+        bmp.recycle()
+        return bmpToByteArray(thumbBmp, true)
     }
 
     private fun buildTransaction(text: String): String {
