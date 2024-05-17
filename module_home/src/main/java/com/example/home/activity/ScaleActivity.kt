@@ -19,6 +19,11 @@ import com.example.home.widget.scale.ScaleImageView
 /**
  * @description 大图伸缩
  * @author yan
+ *         <activity
+ *             android:name="com.example.home.activity.ScaleActivity"
+ *             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+ *             android:theme="@style/TransparentTheme"
+ *             android:windowSoftInputMode="stateHidden|adjustPan" />
  */
 @Route(path = ARouterPath.ScaleActivity)
 class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
