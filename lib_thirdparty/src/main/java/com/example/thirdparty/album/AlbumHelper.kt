@@ -46,7 +46,7 @@ class AlbumHelper {
         videoMultiple = Album.video(activity)
         imageMultiple = Album.image(activity)
         durban = Durban.with(activity)
-        widget = activity.getWidget()
+        widget = activity.getAlbumWidget()
     }
 
     constructor(fragment: Fragment) {
@@ -54,21 +54,21 @@ class AlbumHelper {
         videoMultiple = Album.video(fragment)
         imageMultiple = Album.image(fragment)
         durban = Durban.with(fragment)
-        widget = fragment.context.getWidget()
+        widget = fragment.context.getAlbumWidget()
     }
 
     /**
      * 创建一个widget
      */
-    private fun Context?.getWidget(): Widget? {
+    private fun Context?.getAlbumWidget(color: Int = Color.BLACK): Widget? {
         this ?: return null
         return Widget.newDarkBuilder(this)
             //标题 ---标题颜色只有黑色白色
             .title(" ")
             //状态栏颜色
-            .statusBarColor(Color.BLACK)
+            .statusBarColor(color)
             //Toolbar颜色
-            .toolBarColor(Color.BLACK)
+            .toolBarColor(color)
             .build()
     }
 
