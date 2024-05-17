@@ -22,23 +22,29 @@ import com.shuyu.gsyvideoplayer.player.PlayerFactory
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
+import kotlin.coroutines.CoroutineContext
 
 /**
  * @description 播放器帮助类
  * @author yan
  */
-class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
+class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, LifecycleEventObserver {
     private var retryWithPlay = false
-    private var job: Job? = null
+    private var restartJob: Job? = null
     private var player: StandardGSYVideoPlayer? = null
     private var orientationUtils: OrientationUtils? = null
     private val mBinding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
+    private val job = SupervisorJob()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 
     init {
         mActivity.lifecycle.addObserver(this)
@@ -110,8 +116,8 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                         GSYVideoType.enableMediaCodecTexture()
                         PlayerFactory.setPlayManager(IjkPlayerManager::class.java)
                         CacheFactory.setCacheManager(ProxyCacheManager::class.java)
-                        job?.cancel()
-                        job = GlobalScope.launch {
+                        restartJob?.cancel()
+                        restartJob = launch {
                             delay(1000)
                             player.enable()
                             player?.startPlayLogic()
@@ -139,7 +145,8 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             Lifecycle.Event.ON_PAUSE -> pause()
             Lifecycle.Event.ON_DESTROY -> {
                 pause()
-                job?.cancel()
+                restartJob?.cancel()
+                job.cancel()
                 orientationUtils?.releaseListener()
                 player?.currentPlayer?.release()
                 player?.release()
