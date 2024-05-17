@@ -44,6 +44,8 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
     private val result = mActivity.registerResult {
         if (it.resultCode == Activity.RESULT_OK) {
             listener?.onGpsSetting(true)
+        } else {
+            listener?.onGpsSetting(false)
         }
     }
 
@@ -80,13 +82,8 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
             val builder: Notification.Builder?
             //Android O上对Notification进行了修改，如果设置的targetSDKVersion>=26建议使用此种方式创建通知栏
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val notificationManager =
-                    getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
-                val notificationChannel = NotificationChannel(
-                    string(R.string.notificationChannelId),
-                    string(R.string.notificationChannelName),
-                    NotificationManager.IMPORTANCE_DEFAULT
-                )
+                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+                val notificationChannel = NotificationChannel(string(R.string.notificationChannelId), string(R.string.notificationChannelName), NotificationManager.IMPORTANCE_DEFAULT)
                 notificationChannel.apply {
                     enableLights(true) //是否在桌面icon右上角展示小圆点
                     lightColor = Color.BLUE //小圆点颜色
@@ -193,7 +190,6 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
         when (event) {
             Lifecycle.Event.ON_PAUSE -> stop()
             Lifecycle.Event.ON_DESTROY -> {
-                stop()
                 destroy()
                 result?.unregister()
                 source.lifecycle.removeObserver(this)
@@ -206,8 +202,14 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
      * 回调监听
      */
     interface OnLocationListener {
+        /**
+         * 定位详细信息，是否成功
+         */
         fun onLocationChanged(aMapLocation: AMapLocation?, flag: Boolean)
 
+        /**
+         * gps开启信息，是否开启
+         */
         fun onGpsSetting(flag: Boolean)
     }
 

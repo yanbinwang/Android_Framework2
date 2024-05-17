@@ -44,17 +44,20 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
     /**
      * 绑定地图
      */
-    fun bind(savedInstanceState: Bundle?, mapView: MapView, initialize: Boolean = true) {
+    fun bind(savedInstanceState: Bundle?, mapView: MapView, initLoaded: Boolean = true) {
+        this.mapView = mapView
+        this.aMap = mapView.map
         //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)创建地图
         mapView.onCreate(savedInstanceState)
         //更改地图view设置
         mapView.viewTreeObserver.addOnGlobalLayoutListener {
-            val child = mapView.getChildAt(0) as? ViewGroup //地图框架
-            val logo = child?.getChildAt(2)
-            logo?.gone() //隐藏logo
+            try {
+                val child = mapView.getChildAt(0) as? ViewGroup //地图框架
+                val logo = child?.getChildAt(2)
+                logo?.gone() //隐藏logo
+            } catch (_: Exception) {
+            }
         }
-        this.mapView = mapView
-        this.aMap = mapView.map
         aMap?.isTrafficEnabled = true //显示实时交通状况
         aMap?.uiSettings?.isRotateGesturesEnabled = false //屏蔽旋转
         aMap?.uiSettings?.isZoomControlsEnabled = false //隐藏缩放插件
@@ -74,7 +77,7 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
             }
         })
         //是否需要在网络发生改变时，移动地图
-        if (initialize) {
+        if (initLoaded) {
             //地图加载完成，定位一次，让地图移动到坐标点
             aMap?.setOnMapLoadedListener {
                 //先移动到默认点再检测权限定位
