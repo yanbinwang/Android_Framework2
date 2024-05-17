@@ -19,19 +19,19 @@ import com.example.framework.utils.logE
  */
 @SuppressLint("MissingPermission")
 object NetWorkUtil {
-    private val context by lazy { BaseApplication.instance.applicationContext }
-    private val manager by lazy { context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager }
+    private val mContext by lazy { BaseApplication.instance.applicationContext }
+    private val manager by lazy { mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager }
 
     /**
      * 验证是否联网,保证连接正常建立
      */
     fun isNetworkAvailable(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            val networkInfo = manager.activeNetworkInfo
+            val networkInfo = manager?.activeNetworkInfo
             if (networkInfo != null && networkInfo.isConnected) return networkInfo.state == NetworkInfo.State.CONNECTED
         } else {
-            val network = manager.activeNetwork ?: return false
-            val capabilities = manager.getNetworkCapabilities(network) ?: return false
+            val network = manager?.activeNetwork ?: return false
+            val capabilities = manager?.getNetworkCapabilities(network) ?: return false
             if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) return true
         }
         return false
@@ -42,10 +42,10 @@ object NetWorkUtil {
      */
     fun isWifiConnected(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return manager.activeNetworkInfo?.type == ConnectivityManager.TYPE_WIFI
+            return manager?.activeNetworkInfo?.type == ConnectivityManager.TYPE_WIFI
         } else {
-            val network = manager.activeNetwork ?: return false
-            val capabilities = manager.getNetworkCapabilities(network) ?: return false
+            val network = manager?.activeNetwork ?: return false
+            val capabilities = manager?.getNetworkCapabilities(network) ?: return false
             if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) return true
         }
         return false
@@ -56,10 +56,10 @@ object NetWorkUtil {
      */
     fun isMobileConnected(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return manager.activeNetworkInfo?.type == ConnectivityManager.TYPE_MOBILE
+            return manager?.activeNetworkInfo?.type == ConnectivityManager.TYPE_MOBILE
         } else {
-            val network = manager.activeNetwork ?: return false
-            val capabilities = manager.getNetworkCapabilities(network) ?: return false
+            val network = manager?.activeNetwork ?: return false
+            val capabilities = manager?.getNetworkCapabilities(network) ?: return false
             if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) return true
         }
         return false
@@ -75,10 +75,10 @@ object NetWorkUtil {
      */
     fun isMountVpn(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return manager.activeNetworkInfo?.type == ConnectivityManager.TYPE_VPN
+            return manager?.activeNetworkInfo?.type == ConnectivityManager.TYPE_VPN
         } else {
-            val network = manager.activeNetwork ?: return false
-            val capabilities = manager.getNetworkCapabilities(network) ?: return false
+            val network = manager?.activeNetwork ?: return false
+            val capabilities = manager?.getNetworkCapabilities(network) ?: return false
             if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) return true
         }
         return false
@@ -95,7 +95,7 @@ object NetWorkUtil {
     fun getWifiSecurity(): String {
         var result = "NONE"
         if (isWifiConnected()) {
-            val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as? WifiManager ?: return result
+            val wifiManager = mContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager ?: return result
             val connectionInfo = wifiManager.connectionInfo
             for (scanResult in wifiManager.scanResults) {
                 val capabilities = scanResult.capabilities
