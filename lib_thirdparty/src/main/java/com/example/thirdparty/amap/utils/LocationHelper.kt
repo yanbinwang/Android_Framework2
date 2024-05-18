@@ -40,6 +40,7 @@ import com.example.thirdparty.R
 class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationListener, LifecycleEventObserver {
     private var locationClient: AMapLocationClient? = null
     private var listener: OnLocationListener? = null
+    private val manager by lazy { mActivity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager }
     private val mDialog by lazy { AppDialog(mActivity) }
     private val result = mActivity.registerResult {
         if (it.resultCode == Activity.RESULT_OK) {
@@ -53,9 +54,8 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
      * 跳转设置gps
      */
     fun settingGps(): Boolean {
-        val locationManager = mActivity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
         //判断GPS模块是否开启，如果没有则开启
-        return if (!locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER).orFalse) {
+        return if (!manager?.isProviderEnabled(LocationManager.GPS_PROVIDER).orFalse) {
             mDialog
                 .setParams(
                     string(R.string.hint),
