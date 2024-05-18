@@ -33,9 +33,9 @@ import kotlin.math.roundToInt
  */
 class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var mapView: MapView? = null
-    private var aMap: AMap? = null
     private val location by lazy { LocationHelper(mActivity) }
     private val mapLatLng by lazy { aMapLatlng.get().toObj(LatLng::class.java) }//默认地图经纬度-杭州
+    var aMap: AMap? = null
 
     init {
         mActivity.lifecycle.addObserver(this)
@@ -177,6 +177,11 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
     }
 
     /**
+     * 存储-保存地图当前的状态（对应页面调取）
+     */
+    fun saveInstanceState(outState: Bundle) = mapView?.onSaveInstanceState(outState)
+
+    /**
      * 生命周期管控
      */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
@@ -190,11 +195,6 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
             else -> {}
         }
     }
-
-    /**
-     * 存储-保存地图当前的状态（对应页面调取）
-     */
-    fun saveInstanceState(outState: Bundle) = mapView?.onSaveInstanceState(outState)
 
     /**
      * 加载
