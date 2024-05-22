@@ -11,7 +11,6 @@ object ARouterPath {
     const val StartActivity = "/app/StartActivity"
     const val MainActivity = "/app/MainActivity"
     const val LoginActivity = "/app/LoginActivity"
-    const val TestActivity = "/app/TestActivity"
     //home模块
     const val WebActivity = "/home/WebActivity"
     const val ScaleActivity = "/home/ScaleActivity"

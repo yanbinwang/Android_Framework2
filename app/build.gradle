@@ -134,4 +134,6 @@ dependencies {
     //页面路由
     implementation deps.alibaba.arouter
     kapt deps.alibaba.arouter_compiler
+    //usb服务
+    implementation 'com.github.mik3y:usb-serial-for-android:3.7.2'
 }
