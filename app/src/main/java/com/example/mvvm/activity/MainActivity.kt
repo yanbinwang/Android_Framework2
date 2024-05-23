@@ -30,8 +30,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
         super.initEvent()
         usbTransfer.setOnUSBDateReceiveListener(object :
             USBTransfer.OnUSBDateReceiveListener {
-            override fun onReceive(data_str: String?) {
-                mBinding?.tvReceive?.append("receive: $data_str\r\n")
+            override fun onConnect(flag: Boolean, reason: String?) {
+            }
+
+            override fun onDisconnect() {
+            }
+
+            override fun onReceive(reason: String?) {
+                mBinding?.tvReceive?.append("receive: $reason\r\n")
             }
         })
     }

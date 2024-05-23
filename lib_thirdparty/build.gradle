@@ -15,12 +15,6 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-//    greendao {
-//        schemaVersion build_database.schemaVersion
-//        daoPackage build_database.daoPackage
-//        targetGenDir build_database.targetGenDir
-//    }
-
     buildFeatures {
         dataBinding true
     }
