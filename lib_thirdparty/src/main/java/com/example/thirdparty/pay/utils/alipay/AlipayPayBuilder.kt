@@ -23,7 +23,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 支付宝支付
  */
-class AlipayBuilder(private val mActivity: FragmentActivity) : CoroutineScope {
+class AlipayPayBuilder(private val mActivity: FragmentActivity) : CoroutineScope {
     private var payJob: Job? = null
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext

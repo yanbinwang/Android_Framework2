@@ -10,7 +10,7 @@ import com.example.thirdparty.R
 import com.tencent.mm.opensdk.modelpay.PayReq
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
 
-class WechatBuilder(mActivity: FragmentActivity) {
+class WechatPayBuilder(mActivity: FragmentActivity) {
     //通过WXAPIFactory工厂，获取IWXAPI的实例
     private val wxApi by lazy { WXAPIFactory.createWXAPI(mActivity, Constants.WX_APP_ID, true) }
 

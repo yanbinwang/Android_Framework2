@@ -4,8 +4,8 @@ import androidx.fragment.app.FragmentActivity
 import com.example.common.base.bridge.BaseView
 import com.example.framework.utils.function.doOnDestroy
 import com.example.thirdparty.pay.bean.PayBean
-import com.example.thirdparty.pay.utils.alipay.AlipayBuilder
-import com.example.thirdparty.pay.utils.wechat.WechatBuilder
+import com.example.thirdparty.pay.utils.alipay.AlipayPayBuilder
+import com.example.thirdparty.pay.utils.wechat.WechatPayBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -17,8 +17,8 @@ import kotlin.coroutines.CoroutineContext
  * 支付类
  */
 class PayBuilder(private val mActivity: FragmentActivity) : CoroutineScope {
-    private val alipay by lazy { AlipayBuilder(mActivity) }
-    private val wechat by lazy { WechatBuilder(mActivity) }
+    private val alipay by lazy { AlipayPayBuilder(mActivity) }
+    private val wechat by lazy { WechatPayBuilder(mActivity) }
     private var payJob: Job? = null
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext

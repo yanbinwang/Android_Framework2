@@ -49,11 +49,11 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
      */
     fun shareToWx(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
         when (result?.obj) {
-            WechatObject.TEXT -> shareText(mTargetScene)
-            WechatObject.IMAGE -> shareImage(mTargetScene)
-            WechatObject.VIDEO -> shareVideo(mTargetScene)
-            WechatObject.WEB_PAGE -> shareWebPage(mTargetScene)
-            WechatObject.MINI_PROGRAM -> shareMiniProgram()
+            ShareResult.Obj.TEXT -> shareText(mTargetScene)
+            ShareResult.Obj.IMAGE -> shareImage(mTargetScene)
+            ShareResult.Obj.VIDEO -> shareVideo(mTargetScene)
+            ShareResult.Obj.WEB_PAGE -> shareWebPage(mTargetScene)
+            ShareResult.Obj.MINI_PROGRAM -> shareMiniProgram()
             else -> shareMusic(mTargetScene)
         }
     }
