@@ -102,8 +102,8 @@ class WebUtil : DefaultLifecycleObserver {
             }
             mXCustomView = view
             mXCustomViewCallback = callback
-            val decor = window.decorView as FrameLayout
-            decor.addView(view)
+            val decor = window.decorView as? FrameLayout
+            decor?.addView(view)
             mXCustomView.visible()
         }
     }
@@ -164,18 +164,4 @@ class WebUtil : DefaultLifecycleObserver {
         mActivity = null
     }
 
-}
-
-fun WebView?.clearAllCache() {
-    this ?: return
-    try {
-        settings.cacheMode = WebSettings.LOAD_NO_CACHE
-        context.deleteDatabase("webviewCache.db")
-        context.deleteDatabase("webview.db")
-        clearCache(true)
-        clearHistory()
-        clearFormData()
-    } catch (e: Exception) {
-        e.logE
-    }
 }
