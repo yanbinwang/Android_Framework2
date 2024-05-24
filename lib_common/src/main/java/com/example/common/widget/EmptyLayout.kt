@@ -15,9 +15,10 @@ import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.invisible
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.size
-import com.example.framework.utils.function.view.string
+import com.example.framework.utils.function.view.tint
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 
@@ -107,19 +108,13 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun empty(
-        resId: Int? = null,
-        resText: Int? = null,
-        resRefreshText: Int? = null,
-        width: Int? = null,
-        height: Int? = null
-    ) {
+    fun empty(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
         appear(300)
         state = 1
         if (fullScreen) mBinding.ivLeft.visible() else mBinding.ivLeft.invisible()
         if (null != width && null != height) mBinding.ivEmpty.size(width, height)
         mBinding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_empty)
-        mBinding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataEmpty) else text
+        mBinding.tvEmpty.setI18nRes(resText ?: R.string.dataEmpty)
         mBinding.tvRefresh.gone()
         if (null != resRefreshText) {
             mBinding.tvRefresh.visible()
@@ -133,13 +128,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun error(
-        resId: Int? = null,
-        resText: Int? = null,
-        resRefreshText: Int? = null,
-        width: Int? = null,
-        height: Int? = null
-    ) {
+    fun error(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
         appear(300)
         state = 2
         if (fullScreen) mBinding.ivLeft.visible() else mBinding.ivLeft.invisible()
