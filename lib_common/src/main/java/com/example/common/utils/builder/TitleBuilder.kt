@@ -29,10 +29,10 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
 
     /**
      * 默认二级页面标题配置
-     * title->标题
+     * resTitle->标题res路径
      * titleColor->标题颜色
      * bgColor->背景颜色
-     * shade->标题底部是否带阴影
+     * isShade->标题底部是否带阴影
      */
     fun setTitle(resTitle: Int = -1, titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, isShade: Boolean = false): TitleBuilder {
         mBinding?.tvTitle?.setArguments(resTitle, titleColor)
@@ -61,11 +61,15 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
     }
 
     /**
-     * 继承BaseActivity，在xml中include对应标题布局
-     * 把布局bind传入工具类，实现绑定后，调取对应方法
+     * 1.继承BaseActivity，在xml中include对应标题布局
+     * 2.把布局bind传入工具类，实现绑定后，调取对应方法（private val titleBuilder by lazy { TitleBuilder(this, mBinding?.titleRoot) }）
      */
     fun setTransparent(resTitle: Int = -1, titleColor: Int = R.color.textPrimary): TitleBuilder {
         return setTitle(resTitle, titleColor, 0)
+    }
+
+    fun setTransparent(title: String, titleColor: Int = R.color.textPrimary): TitleBuilder {
+        return setTitle(title, titleColor, 0)
     }
 
     fun setTransparentSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
@@ -90,7 +94,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
         return this
     }
 
-    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int? = null, height: Int? = null, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int? = null, height: Int? = null, onClick: () -> Unit = { }): TitleBuilder {
         mBinding?.ivRight?.apply {
             visible()
             setResource(resId)
@@ -104,7 +108,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
 
     /**
      * 设置左/右侧文字
-     * label->文案
+     * resLabel->文案res
      * labelColor->文案颜色
      * onClick->点击事件
      */
@@ -118,7 +122,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
         return this
     }
 
-    fun setI18nRight(resLabel: Int, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+    fun setI18nRight(resLabel: Int, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = { }): TitleBuilder {
         mBinding?.tvRight?.apply {
             visible()
             setArguments(resLabel, labelColor)

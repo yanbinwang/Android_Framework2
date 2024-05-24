@@ -5,6 +5,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
@@ -13,7 +15,6 @@ import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.gone
-import com.example.framework.utils.function.view.layoutParamsMatch
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.string
@@ -106,7 +107,13 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun empty(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
+    fun empty(
+        resId: Int? = null,
+        resText: Int? = null,
+        resRefreshText: Int? = null,
+        width: Int? = null,
+        height: Int? = null
+    ) {
         appear(300)
         state = 1
         if (fullScreen) mBinding.ivLeft.visible() else mBinding.ivLeft.invisible()
@@ -126,7 +133,13 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun error(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
+    fun error(
+        resId: Int? = null,
+        resText: Int? = null,
+        resRefreshText: Int? = null,
+        width: Int? = null,
+        height: Int? = null
+    ) {
         appear(300)
         state = 2
         if (fullScreen) mBinding.ivLeft.visible() else mBinding.ivLeft.invisible()
