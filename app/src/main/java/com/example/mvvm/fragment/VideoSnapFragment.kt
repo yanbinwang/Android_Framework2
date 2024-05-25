@@ -14,7 +14,7 @@ import com.example.thirdparty.media.utils.helper.GSYVideoHelper
 
 @SuppressLint("SetTextI18n")
 class VideoSnapFragment : BaseLazyFragment<FragmentVideoSnapBinding>(), VideoSnapImpl {
-    private val helper by lazy { GSYVideoHelper(mActivity) }
+    private val helper by lazy { GSYVideoHelper(activity) }
     private val bundle by lazy { intentParcelable<VideoSnapBean>(Extra.BUNDLE_BEAN) }
 
     override fun initView(savedInstanceState: Bundle?) {
