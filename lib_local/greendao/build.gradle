@@ -1,7 +1,5 @@
 plugins {
     id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
     id 'org.greenrobot.greendao'
 }
 
@@ -21,17 +19,9 @@ android {
         targetGenDir build_database.targetGenDir
     }
 
-    buildFeatures {
-        dataBinding true
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = '17'
     }
 
     buildTypes {
@@ -47,8 +37,8 @@ dependencies {
     testImplementation "junit:junit:$build_versions.junit"
     androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
-//    //框架库
-//    implementation project(':lib_framework')
+    //框架库
+    implementation project(':lib_framework')
     //数据库
     api 'org.greenrobot:greendao:3.3.0'
 }
