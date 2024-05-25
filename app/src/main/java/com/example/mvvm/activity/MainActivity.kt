@@ -3,8 +3,6 @@ package com.example.mvvm.activity
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.OrientationHelper
-import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
@@ -18,7 +16,6 @@ import com.example.framework.utils.logWTF
 import com.example.mvvm.adapter.VideoSnapPageAdapter
 import com.example.mvvm.bean.VideoSnap
 import com.example.mvvm.databinding.ActivityMainBinding
-import com.example.mvvm.databinding.FragmentVideoSnapBinding
 import com.example.mvvm.fragment.VideoSnapFragment
 import com.example.mvvm.utils.VideoSnapImpl
 import com.example.mvvm.utils.VideoSnapManager
@@ -46,9 +43,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         //所有管理方法的集合(一定要写明注入的是接口)
         val managerList: ArrayList<VideoSnapImpl> = list.toNewList { it }
         //绑定适配器/添加管理器
-        mBinding?.vpPage.adapter(VideoSnapPageAdapter(this).apply { refresh(list) }, ViewPager2.ORIENTATION_VERTICAL)
+        mBinding?.vpPage.adapter(VideoSnapPageAdapter(this).apply { refresh(list) })
         val videoSnapManager = VideoSnapManager(this, OrientationHelper.VERTICAL, false)
-//        recycler.adapter
         videoSnapManager.setOnViewPagerListener(object : VideoSnapManager.OnViewPagerListener {
             override fun onPageRelease(isNest: Boolean, itemView: View, position: Int) {
                 "onPageRelease：选中的下标：${position}".logWTF
