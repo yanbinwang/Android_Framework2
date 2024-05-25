@@ -24,11 +24,6 @@ class VideoSnapFragment : BaseLazyFragment<FragmentVideoSnapBinding>(), VideoSna
         helper.setUrl("https://txmov2.a.yximgs.com/upic/2021/04/25/21/BMjAyMTA0MjUyMTE5NTZfMjExMjA0ODM0NF80ODQ1MzY1OTE5Ml8xXzM=_b_B8ad92744b489ba4e164a12802e2e37d4.mp4")
     }
 
-    override fun onResume() {
-        super.onResume()
-        helper.resume()
-    }
-
     override fun releaseVideo(bean: VideoSnapBean?) {
         "当前bundle:${bundle.toJsonString()}".logWTF
         if (bean?.id == bundle?.id) {

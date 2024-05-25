@@ -89,10 +89,10 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
     /**
      * 设置播放路径
      */
-    fun setUrl(url: String, autoPlay: Boolean = false) {
+    fun setUrl(url: String, thumbUrl: String? = null, autoPlay: Boolean = false) {
         retryWithPlay = false
         //加载图片
-        ImageLoader.instance.displayFrame(mBinding?.ivThumb, url)
+        ImageLoader.instance.displayFrame(mBinding?.ivThumb, thumbUrl ?: url)
         GSYVideoOptionBuilder()
             .setIsTouchWiget(false)
             .setRotateViewAuto(false)
