@@ -48,7 +48,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         //绑定适配器/添加管理器
         mBinding?.vpPage.adapter(VideoSnapPageAdapter(this).apply { refresh(list) }, ViewPager2.ORIENTATION_VERTICAL)
         val videoSnapManager = VideoSnapManager(this, OrientationHelper.VERTICAL, false)
-        mBinding?.vpPage.getRecyclerView()?.layoutManager = videoSnapManager
 //        recycler.adapter
         videoSnapManager.setOnViewPagerListener(object : VideoSnapManager.OnViewPagerListener {
             override fun onPageRelease(isNest: Boolean, itemView: View, position: Int) {
@@ -64,6 +63,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                playVideo(itemView)
             }
         })
+        mBinding?.vpPage.getRecyclerView()?.layoutManager = videoSnapManager
 //        recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 //            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
 //                //当前处于停止滑动
