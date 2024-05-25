@@ -66,8 +66,8 @@ class VideoSnapManager : LinearLayoutManager, RecyclerView.OnChildAttachStateCha
     }
 
     interface OnViewPagerListener {
-        fun onPageRelease(isNest: Boolean, position: View)
+        fun onPageRelease(isNest: Boolean, itemView: View)
 
-        fun onPageSelected(isBottom: Boolean, position: View)
+        fun onPageSelected(isBottom: Boolean, itemView: View)
     }
 }
