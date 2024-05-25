@@ -143,10 +143,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
         when (event) {
             Lifecycle.Event.ON_RESUME -> resume()
             Lifecycle.Event.ON_PAUSE -> pause()
-            Lifecycle.Event.ON_DESTROY -> {
-                destroy()
-                mActivity.lifecycle.removeObserver(this)
-            }
+            Lifecycle.Event.ON_DESTROY -> destroy()
             else -> {}
         }
     }
@@ -176,6 +173,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
         player?.currentPlayer?.release()
         player?.release()
         player = null
+        mActivity.lifecycle.removeObserver(this)
     }
 
 }
