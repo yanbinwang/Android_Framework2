@@ -53,7 +53,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
     /**
      * 绑定页面
      */
-    fun bind(player: StandardGSYVideoPlayer, fullScreen: Boolean = false) {
+    fun bind(player: StandardGSYVideoPlayer?, fullScreen: Boolean = false) {
         this.player = player
         //屏幕展示效果
         GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_DEFAULT)
@@ -65,19 +65,19 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
         PlayerFactory.setPlayManager(Exo2PlayerManager::class.java)
         CacheFactory.setCacheManager(ExoPlayerCacheManager::class.java)
         //配置适配遮罩，加载一层EmptyView
-        player.thumbImageView = mBinding.root
+        player?.thumbImageView = mBinding.root
         //隐藏默认的顶部菜单的返回和标题view
-        player.titleTextView?.gone()
-        player.backButton?.gone()
+        player?.titleTextView?.gone()
+        player?.backButton?.gone()
         if (!fullScreen) {
-            player.fullscreenButton?.gone()
+            player?.fullscreenButton?.gone()
         } else {
             //外部辅助的旋转，帮助全屏
             orientationUtils = OrientationUtils(mActivity, player)
             //初始化不打开外部的旋转
             orientationUtils?.isEnable = false
             //直接横屏
-            player.fullscreenButton?.click {
+            player?.fullscreenButton?.click {
                 orientationUtils?.resolveByClick()
                 //第一个true是否需要隐藏actionbar，第二个true是否需要隐藏statusbar
                 player.startWindowFullscreen(mActivity, true, true)
@@ -125,7 +125,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
                     }
                 }
             }).build(player)
-        if (autoPlay) player?.startPlayLogic()
+        if (autoPlay) start()
     }
 
     /**
@@ -144,7 +144,6 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
             Lifecycle.Event.ON_RESUME -> resume()
             Lifecycle.Event.ON_PAUSE -> pause()
             Lifecycle.Event.ON_DESTROY -> {
-                pause()
                 restartJob?.cancel()
                 job.cancel()
                 orientationUtils?.releaseListener()
@@ -158,13 +157,18 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
     }
 
     /**
-     * 写在系统的onPause之前
+     * 播放
      */
-    private fun pause() = player?.currentPlayer?.onVideoPause()
+    fun start() = player?.startPlayLogic()
 
     /**
-     * 写在系统的onResume之前
+     * 暂停
      */
-    private fun resume() = player?.currentPlayer?.onVideoResume(false)
+    fun pause() = player?.currentPlayer?.onVideoPause()
+
+    /**
+     * 加载
+     */
+    fun resume() = player?.currentPlayer?.onVideoResume(false)
 
 }
