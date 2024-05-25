@@ -125,7 +125,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
                     }
                 }
             }).build(player)
-        if (autoPlay) player?.startPlayLogic()
+        if (autoPlay) start()
     }
 
     /**
@@ -158,13 +158,18 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
     }
 
     /**
-     * 写在系统的onPause之前
+     * 播放
      */
-    private fun pause() = player?.currentPlayer?.onVideoPause()
+    fun start() = player?.startPlayLogic()
 
     /**
-     * 写在系统的onResume之前
+     * 暂停
      */
-    private fun resume() = player?.currentPlayer?.onVideoResume(false)
+    fun pause() = player?.currentPlayer?.onVideoPause()
+
+    /**
+     * 加载
+     */
+    fun resume() = player?.currentPlayer?.onVideoResume(false)
 
 }
