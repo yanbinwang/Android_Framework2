@@ -6,13 +6,10 @@
         android:layout_height="match_parent"
         android:background="@color/bgBlue">
 
-        <TextView
+        <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
+            android:id="@+id/pv_video"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="我是子页"
-            android:textColor="@color/textWhite"
-            android:textSize="36pt" />
+            android:layout_height="match_parent" />
 
     </FrameLayout>
 

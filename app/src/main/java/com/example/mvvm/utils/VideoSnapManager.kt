@@ -17,7 +17,7 @@ class VideoSnapManager : LinearLayoutManager, RecyclerView.OnChildAttachStateCha
 
     constructor(context: Context?) : super(context)
 
-    constructor(context: Context?, orientation: Int = 0, reverseLayout: Boolean = false) : super(context, orientation,reverseLayout)
+    constructor(context: Context?, orientation: Int = 0, reverseLayout: Boolean = false) : super(context, orientation, reverseLayout)
 
     override fun onAttachedToWindow(view: RecyclerView?) {
         view?.addOnChildAttachStateChangeListener(this)
@@ -31,22 +31,24 @@ class VideoSnapManager : LinearLayoutManager, RecyclerView.OnChildAttachStateCha
     }
 
     override fun onChildViewAttachedToWindow(view: View) {
+        val position = getPosition(view)
         if (mDrift > 0) {
             //向上滑
-            if (abs(mDrift) == view.height) onViewPagerListener?.onPageSelected(false, view)
+            if (abs(mDrift) == view.height) onViewPagerListener?.onPageSelected(false, view, position)
         } else {
             //向下滑
-            if (abs(mDrift) == view.height) onViewPagerListener?.onPageSelected(true, view)
+            if (abs(mDrift) == view.height) onViewPagerListener?.onPageSelected(true, view, position)
         }
     }
 
     override fun onChildViewDetachedFromWindow(view: View) {
+        val position = getPosition(view)
         if (mDrift >= 0) {
             //向上滑
-            onViewPagerListener?.onPageRelease(true, view)
+            onViewPagerListener?.onPageRelease(true, view, position)
         } else {
             //向下滑
-            onViewPagerListener?.onPageRelease(false, view)
+            onViewPagerListener?.onPageRelease(false, view, position)
         }
     }
 
@@ -55,7 +57,7 @@ class VideoSnapManager : LinearLayoutManager, RecyclerView.OnChildAttachStateCha
             //当前显示的item
             RecyclerView.SCROLL_STATE_IDLE -> {
                 val snapView = pagerSnapHelper.findSnapView(this) ?: return
-                onViewPagerListener?.onPageSelected(false, snapView)
+                onViewPagerListener?.onPageSelected(false, snapView, getPosition(snapView))
             }
         }
         super.onScrollStateChanged(state)
@@ -66,8 +68,8 @@ class VideoSnapManager : LinearLayoutManager, RecyclerView.OnChildAttachStateCha
     }
 
     interface OnViewPagerListener {
-        fun onPageRelease(isNest: Boolean, itemView: View)
+        fun onPageRelease(isNest: Boolean, itemView: View, position: Int)
 
-        fun onPageSelected(isBottom: Boolean, itemView: View)
+        fun onPageSelected(isBottom: Boolean, itemView: View, position: Int)
     }
 }
