@@ -21,14 +21,16 @@ class VideoSnapFragment : BaseLazyFragment<FragmentVideoSnapBinding>(), VideoSna
     }
 
     override fun releaseVideo(bean: VideoSnap?) {
+        "当前bundle:${bundle.toJsonString()}".logWTF
         if (bean?.id == bundle?.id) {
-            "释放:${bean.toJsonString()}".logWTF
+            "满足释放条件，传入的bean:${bean.toJsonString()}".logWTF
         }
     }
 
     override fun playVideo(bean: VideoSnap?) {
+        "当前bundle:${bundle.toJsonString()}".logWTF
         if (bean?.id == bundle?.id) {
-            "播放:${bean.toJsonString()}".logWTF
+            "满足播放条件，传入的bean:${bean.toJsonString()}".logWTF
         }
     }
 }
