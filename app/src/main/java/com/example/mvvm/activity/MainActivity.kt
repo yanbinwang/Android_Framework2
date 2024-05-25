@@ -31,9 +31,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        doOnDestroy {
-            mBinding?.vpPage?.unregisterOnPageChangeCallback(listener)
-        }
         //所有页面的集合
         val list = ArrayList<VideoSnapFragment>()
         for (i in 0 until 10) {
@@ -49,6 +46,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         //绑定适配器/添加监听
         mBinding?.vpPage.adapter(VideoSnapPageAdapter(this).apply { refresh(list) }, ViewPager2.ORIENTATION_VERTICAL, true)
         mBinding?.vpPage?.registerOnPageChangeCallback(listener)
+    }
+
+    override fun onDestroy() {
+        mBinding?.vpPage?.unregisterOnPageChangeCallback(listener)
+        super.onDestroy()
     }
 
     private val listener = object : ViewPager2.OnPageChangeCallback() {
