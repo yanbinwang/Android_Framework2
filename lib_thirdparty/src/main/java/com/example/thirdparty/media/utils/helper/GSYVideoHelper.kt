@@ -144,12 +144,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
             Lifecycle.Event.ON_RESUME -> resume()
             Lifecycle.Event.ON_PAUSE -> pause()
             Lifecycle.Event.ON_DESTROY -> {
-                restartJob?.cancel()
-                job.cancel()
-                orientationUtils?.releaseListener()
-                player?.currentPlayer?.release()
-                player?.release()
-                player = null
+                destroy()
                 mActivity.lifecycle.removeObserver(this)
             }
             else -> {}
@@ -170,5 +165,17 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
      * 加载
      */
     fun resume() = player?.currentPlayer?.onVideoResume(false)
+
+    /**
+     * 销毁
+     */
+    fun destroy() {
+        restartJob?.cancel()
+        job.cancel()
+        orientationUtils?.releaseListener()
+        player?.currentPlayer?.release()
+        player?.release()
+        player = null
+    }
 
 }
