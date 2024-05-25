@@ -1,7 +1,6 @@
 package com.example.mvvm.adapter
 
 import android.annotation.SuppressLint
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.framework.utils.function.value.safeGet
@@ -14,8 +13,8 @@ class VideoSnapPageAdapter(mActivity: FragmentActivity) : FragmentStateAdapter(m
 
     override fun getItemCount() = mData.safeSize
 
-    override fun createFragment(position: Int): Fragment {
-        return mData.safeGet(position) ?: Fragment()
+    override fun createFragment(position: Int): VideoSnapFragment {
+        return mData.safeGet(position) ?: VideoSnapFragment()
     }
 
     fun refresh(list: List<VideoSnapFragment>) {
@@ -23,4 +22,5 @@ class VideoSnapPageAdapter(mActivity: FragmentActivity) : FragmentStateAdapter(m
         mData.addAll(list)
         notifyDataSetChanged()
     }
+
 }

@@ -7,7 +7,7 @@ import kotlinx.parcelize.Parcelize
  * 滑动视频的数据bean
  */
 @Parcelize
-data class VideoSnap(
+data class VideoSnapBean(
     var id: String? = null,
     var videoUrl: String? = null,
 ) : Parcelable

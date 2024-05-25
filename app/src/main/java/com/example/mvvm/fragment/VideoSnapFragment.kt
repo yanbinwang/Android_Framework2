@@ -1,32 +1,33 @@
 package com.example.mvvm.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import com.example.common.base.BaseLazyFragment
 import com.example.common.base.page.Extra
 import com.example.common.utils.toJsonString
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.logWTF
-import com.example.mvvm.bean.VideoSnap
+import com.example.mvvm.bean.VideoSnapBean
 import com.example.mvvm.databinding.FragmentVideoSnapBinding
 import com.example.mvvm.utils.VideoSnapImpl
-import com.example.thirdparty.media.utils.helper.GSYVideoHelper
 
+@SuppressLint("SetTextI18n")
 class VideoSnapFragment : BaseLazyFragment<FragmentVideoSnapBinding>(), VideoSnapImpl {
-    private val bundle by lazy { intentParcelable<VideoSnap>(Extra.BUNDLE_BEAN) }
+    private val bundle by lazy { intentParcelable<VideoSnapBean>(Extra.BUNDLE_BEAN) }
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         mBinding?.tvLabel?.text = "我是${bundle?.id}"
     }
 
-    override fun releaseVideo(bean: VideoSnap?) {
+    override fun releaseVideo(bean: VideoSnapBean?) {
         "当前bundle:${bundle.toJsonString()}".logWTF
         if (bean?.id == bundle?.id) {
             "满足释放条件，传入的bean:${bean.toJsonString()}".logWTF
         }
     }
 
-    override fun playVideo(bean: VideoSnap?) {
+    override fun playVideo(bean: VideoSnapBean?) {
         "当前bundle:${bundle.toJsonString()}".logWTF
         if (bean?.id == bundle?.id) {
             "满足播放条件，传入的bean:${bean.toJsonString()}".logWTF
