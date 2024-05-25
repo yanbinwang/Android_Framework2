@@ -105,6 +105,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
             .setAutoFullWithSize(true)
             .setShowFullAnimation(false)
             .setNeedLockFull(false)
+//            .setSetUpLazy(autoPlay)
             .setUrl(url)
             .setCacheWithPlay(false)
             .setVideoAllCallBack(object : GSYSampleCallBack() {
