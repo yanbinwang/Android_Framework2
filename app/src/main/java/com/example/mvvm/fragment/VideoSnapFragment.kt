@@ -13,11 +13,10 @@ import com.example.thirdparty.media.utils.helper.GSYVideoHelper
 
 class VideoSnapFragment : BaseLazyFragment<FragmentVideoSnapBinding>(), VideoSnapImpl {
     private val bundle by lazy { intentParcelable<VideoSnap>(Extra.BUNDLE_BEAN) }
-    private val helper by lazy { GSYVideoHelper(mActivity) }
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        helper.bind(mBinding?.pvVideo)
+        mBinding?.tvLabel?.text = "我是${bundle?.id}"
     }
 
     override fun releaseVideo(bean: VideoSnap?) {

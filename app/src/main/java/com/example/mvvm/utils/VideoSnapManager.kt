@@ -5,15 +5,15 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import kotlin.math.abs
+
 
 /**
  * 仿抖音上下滑动
  */
 class VideoSnapManager : LinearLayoutManager, RecyclerView.OnChildAttachStateChangeListener {
     private var mDrift = 0//判断是否上滑还是下滑
-    private var onViewPagerListener: OnViewPagerListener? = null
-    private val pagerSnapHelper by lazy { PagerSnapHelper() }//吸顶，吸底
+    private val pagerSnap: PagerSnapHelper? = null
+    private var listener: OnViewPagerListener? = null
 
     constructor(context: Context?) : super(context)
 
@@ -21,7 +21,6 @@ class VideoSnapManager : LinearLayoutManager, RecyclerView.OnChildAttachStateCha
 
     override fun onAttachedToWindow(view: RecyclerView?) {
         view?.addOnChildAttachStateChangeListener(this)
-        pagerSnapHelper.attachToRecyclerView(view)
         super.onAttachedToWindow(view)
     }
 
@@ -30,14 +29,18 @@ class VideoSnapManager : LinearLayoutManager, RecyclerView.OnChildAttachStateCha
         return super.scrollVerticallyBy(dy, recycler, state)
     }
 
+    override fun canScrollVertically(): Boolean {
+        return true
+    }
+
     override fun onChildViewAttachedToWindow(view: View) {
         val position = getPosition(view)
         if (mDrift > 0) {
             //向上滑
-            if (abs(mDrift) == view.height) onViewPagerListener?.onPageSelected(false, view, position)
+            listener?.onPageSelected(false, view, position)
         } else {
             //向下滑
-            if (abs(mDrift) == view.height) onViewPagerListener?.onPageSelected(true, view, position)
+            listener?.onPageSelected(true, view, position)
         }
     }
 
@@ -45,26 +48,15 @@ class VideoSnapManager : LinearLayoutManager, RecyclerView.OnChildAttachStateCha
         val position = getPosition(view)
         if (mDrift >= 0) {
             //向上滑
-            onViewPagerListener?.onPageRelease(true, view, position)
+            listener?.onPageRelease(true, view, position)
         } else {
             //向下滑
-            onViewPagerListener?.onPageRelease(false, view, position)
+            listener?.onPageRelease(false, view, position)
         }
-    }
-
-    override fun onScrollStateChanged(state: Int) {
-        when (state) {
-            //当前显示的item
-            RecyclerView.SCROLL_STATE_IDLE -> {
-                val snapView = pagerSnapHelper.findSnapView(this) ?: return
-                onViewPagerListener?.onPageSelected(false, snapView, getPosition(snapView))
-            }
-        }
-        super.onScrollStateChanged(state)
     }
 
     fun setOnViewPagerListener(listener: OnViewPagerListener) {
-        this.onViewPagerListener = listener
+        this.listener = listener
     }
 
     interface OnViewPagerListener {
