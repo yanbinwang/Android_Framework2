@@ -35,19 +35,20 @@ import kotlin.coroutines.CoroutineContext
 /**
  * @description 播放器帮助类
  * @author yan
+ * BaseLazyFragment中，判断lifecycle的生命周期是没有意义的，因为重写了
  */
-class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, LifecycleEventObserver {
+class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : CoroutineScope, LifecycleEventObserver {
     private var retryWithPlay = false
     private var restartJob: Job? = null
     private var player: StandardGSYVideoPlayer? = null
     private var orientationUtils: OrientationUtils? = null
-    private val mBinding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
+    private val mBinding by lazy { mActivity?.inflate(R.layout.view_gsyvideo_thumb)?.let { ViewGsyvideoThumbBinding.bind(it) } }
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
     init {
-        mActivity.lifecycle.addObserver(this)
+        mActivity?.lifecycle?.addObserver(this)
     }
 
     /**
@@ -65,7 +66,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
         PlayerFactory.setPlayManager(Exo2PlayerManager::class.java)
         CacheFactory.setCacheManager(ExoPlayerCacheManager::class.java)
         //配置适配遮罩，加载一层EmptyView
-        player?.thumbImageView = mBinding.root
+        player?.thumbImageView = mBinding?.root
         //隐藏默认的顶部菜单的返回和标题view
         player?.titleTextView?.gone()
         player?.backButton?.gone()
@@ -88,10 +89,10 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
     /**
      * 设置播放路径
      */
-    fun setUrl(url: String, autoPlay: Boolean = false) {
+    fun setUrl(url: String, thumbUrl: String? = null, autoPlay: Boolean = false) {
         retryWithPlay = false
         //加载图片
-        ImageLoader.instance.displayFrame(mBinding.ivThumb, url)
+        ImageLoader.instance.displayFrame(mBinding?.ivThumb, thumbUrl ?: url)
         GSYVideoOptionBuilder()
             .setIsTouchWiget(false)
             .setRotateViewAuto(false)
@@ -173,7 +174,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
         player?.currentPlayer?.release()
         player?.release()
         player = null
-        mActivity.lifecycle.removeObserver(this)
+        mActivity?.lifecycle?.removeObserver(this)
     }
 
 }
