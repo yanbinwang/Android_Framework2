@@ -222,12 +222,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         recycler.layoutManager = videoSnapManager
 //        recycler.adapter
         videoSnapManager.setOnViewPagerListener(object : VideoSnapManager.OnViewPagerListener {
-            override fun onPageRelease(isNest: Boolean, position: View) {
-//                releaseVideo(position)
+            override fun onPageRelease(isNest: Boolean, itemView: View) {
+//                releaseVideo(itemView)
             }
 
-            override fun onPageSelected(isBottom: Boolean, position: View) {
-//                playVideo(position)
+            override fun onPageSelected(isBottom: Boolean, itemView: View) {
+//                playVideo(itemView)
             }
         })
         recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
