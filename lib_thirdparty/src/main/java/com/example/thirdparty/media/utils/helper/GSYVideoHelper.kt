@@ -37,9 +37,8 @@ import kotlin.coroutines.CoroutineContext
 /**
  * @description 播放器帮助类
  * @author yan
- * 使用FragmentManager来管理fragment的时候，其如果继承BaseLazyFragment，
- * 此时页面判断lifecycle的生命周期是没有意义的，因为重写了onHiddenChanged，并且其添加了FragmentOwner注解
- * 碰到此类需要有视频播放的情况，不传activity
+ * 使用FragmentManager来管理fragment的时候，其如果继承BaseLazyFragment，此时页面判断lifecycle的生命周期是没有意义的
+ * 因为重写了onHiddenChanged，并且其添加了FragmentOwner注解，碰到此类需要有视频播放的情况，不传activity
  */
 class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : CoroutineScope, LifecycleEventObserver {
     private var retryWithPlay = false
@@ -56,11 +55,11 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
     }
 
     /**
-     * 绑定页面
+     * 绑定页面-设置基础配资
      */
     fun bind(player: StandardGSYVideoPlayer?, fullScreen: Boolean = false) {
         this.player = player
-        //屏幕展示效果
+        //屏幕展示效果->采用基础配资
         GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_DEFAULT)
         //设置底层渲染,关闭硬件解码
         GSYVideoType.setRenderType(GSYVideoType.GLSURFACE)
@@ -93,12 +92,15 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
     }
 
     /**
-     * 设置播放路径
+     * 设置播放路径，缩略图，是否自动开始播放
      */
     fun setUrl(url: String, thumbUrl: String? = null, autoPlay: Boolean = false) {
-        retryWithPlay = false
         //加载图片
-        ImageLoader.instance.displayFrame(mBinding?.ivThumb, thumbUrl ?: url)
+        if (thumbUrl.isNullOrEmpty()) {
+            ImageLoader.instance.displayFrame(mBinding?.ivThumb, url)
+        } else {
+            ImageLoader.instance.display(mBinding?.ivThumb, thumbUrl)
+        }
         GSYVideoOptionBuilder()
             .setIsTouchWiget(false)
             .setRotateViewAuto(false)
@@ -157,9 +159,12 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
     }
 
     /**
-     * 播放
+     * 播放-默认一次切内核的重试机会
      */
-    fun start() = player?.startPlayLogic()
+    fun start() {
+        retryWithPlay = false
+        player?.startPlayLogic()
+    }
 
     /**
      * 暂停
