@@ -46,8 +46,6 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
  * onFinishInflate方法只有在布局文件中加载view实例会回调，如果直接new一个view的话是不会回调的。
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-//    private var emptyEnum = 0//是否具有空布局（0无-1有）
-//    private var refreshEnum = 0//页面类型(0无刷新-1带刷新)
     private var refreshEnable = false//是否具有刷新
     private var emptyEnable = false//是否具有空布局
     private var listener: ((result: Boolean) -> Unit)? = null//空布局点击
@@ -60,8 +58,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
-//        refreshEnum = typedArray.getInt(R.styleable.XRecyclerView_xrv_refresh_enum, 0)
-//        emptyEnum = typedArray.getInt(R.styleable.XRecyclerView_xrv_empty_enum, 0)
         refreshEnable = typedArray.getBoolean(R.styleable.XRecyclerView_xrvEnableRefresh,false)
         emptyEnable = typedArray.getBoolean(R.styleable.XRecyclerView_xrvEnableEmpty,false)
         typedArray.recycle()

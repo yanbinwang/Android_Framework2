@@ -7,6 +7,8 @@ import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
 import com.example.common.config.ARouterPath
 import com.example.common.widget.textview.edittext.EditTextImpl
+import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
+import com.example.common.widget.xrecyclerview.refresh.init
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toNewList
@@ -16,6 +18,8 @@ import com.example.mvvm.bean.VideoSnapBean
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.fragment.VideoSnapFragment
 import com.example.mvvm.utils.VideoSnapImpl
+import com.scwang.smart.refresh.layout.api.RefreshLayout
+import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
 
 
 /**
@@ -23,7 +27,7 @@ import com.example.mvvm.utils.VideoSnapImpl
  * https://blog.csdn.net/hongxue8888/article/details/104109232/
  */
 @Route(path = ARouterPath.MainActivity)
-class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
+class MainActivity : BaseActivity<ActivityMainBinding>(), OnRefreshLoadMoreListener {
     //所有页面数据集合(服务器下发)
     private val dataList = ArrayList<VideoSnapBean>()
     //所有管理方法的集合(一定要写明注入的是接口)
@@ -46,6 +50,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         //绑定适配器/添加监听
         mBinding?.vpPage.adapter(VideoSnapPageAdapter(this).apply { refresh(list) }, ViewPager2.ORIENTATION_VERTICAL, true)
         mBinding?.vpPage?.registerOnPageChangeCallback(listener)
+    }
+
+    override fun initEvent() {
+        super.initEvent()
+        mBinding?.refresh.init(this)
+    }
+
+    override fun onRefresh(refreshLayout: RefreshLayout) {
+        mBinding?.refresh.finishRefreshing()
+    }
+
+    override fun onLoadMore(refreshLayout: RefreshLayout) {
+        mBinding?.refresh.finishRefreshing()
     }
 
     override fun onDestroy() {
