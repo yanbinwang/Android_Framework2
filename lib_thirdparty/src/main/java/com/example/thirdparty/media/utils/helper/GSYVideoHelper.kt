@@ -70,9 +70,8 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
         CacheFactory.setCacheManager(ExoPlayerCacheManager::class.java)
         //开启硬件加速
         player.byHardwareAccelerate()
-        //配置适配遮罩，加载一层EmptyView
+        //配置适配遮罩，隐藏默认的顶部菜单的返回/标题
         player?.thumbImageView = mBinding?.root
-        //隐藏默认的顶部菜单的返回和标题view
         player?.titleTextView?.gone()
         player?.backButton?.gone()
         if (!fullScreen) {
