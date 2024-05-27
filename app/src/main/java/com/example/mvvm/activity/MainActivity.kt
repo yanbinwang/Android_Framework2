@@ -40,8 +40,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnRefreshLoadMoreListe
         for (i in 0 until 10) {
             val bean = VideoSnapBean(i.toString(), "选中的是：${i}")
             dataList.add(bean)
-            val bundle = Bundle()
-            bundle.putParcelable(Extra.BUNDLE_BEAN, bean)
+            val bundle = Bundle().apply { putParcelable(Extra.BUNDLE_BEAN, bean) }
             val fragment = VideoSnapFragment().apply { arguments = bundle }
             list.add(fragment)
         }
