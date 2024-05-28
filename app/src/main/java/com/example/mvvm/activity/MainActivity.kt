@@ -49,6 +49,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnRefreshLoadMoreListe
         //绑定适配器/添加监听
         mBinding?.vpPage.adapter(VideoSnapPageAdapter(this).apply { refresh(list) }, ViewPager2.ORIENTATION_VERTICAL, true)
         mBinding?.vpPage?.registerOnPageChangeCallback(listener)
+
+        mBinding?.refresh?.setEnableHeaderTranslationContent(false)//是否下拉Header的时候向下平移列表或者内容
+        mBinding?.refresh?.setEnableFooterTranslationContent(false)//是否上拉Footer的时候向上平移列表或者内容
     }
 
     override fun initEvent() {
