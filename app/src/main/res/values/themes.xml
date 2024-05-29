@@ -43,6 +43,16 @@
         <item name="android:navigationBarColor">@color/appTheme</item>
     </style>
 
+    <style name="InputDialogStyle" parent="android:Theme.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
+<!--    <style name="InputDialogStyle" parent="DialogStyle">-->
+<!--        <item name="android:windowBackground">@android:color/transparent</item>-->
+<!--    </style>-->
+
 <!-- https://cloud.tencent.com/developer/article/1946216?areaSource=102001.14&traceId=cOGlHQmuBlUqVJUXnEtT9 -->
 <!--    <style name="SplashTheme" parent="Theme.SplashScreen">-->
 <!--        &lt;!&ndash; 设置启动画面的背景色 &ndash;&gt;-->
