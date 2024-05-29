@@ -305,14 +305,14 @@ fun EditText?.showInput() {
     }, 200)
 }
 
-/**
- * 弹出软键盘
- */
-fun EditText?.doInput() {
-    if (this == null) return
-    requestFocus()
-    showSoftKeyboard(context, this)
-}
+///**
+// * 弹出软键盘
+// */
+//fun EditText?.doInput() {
+//    if (this == null) return
+//    requestFocus()
+//    showSoftKeyboard(context, this)
+//}
 
 /**
  * 隐藏软键盘
