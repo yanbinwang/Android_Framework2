@@ -13,8 +13,6 @@ import com.example.common.utils.file.FileBuilder
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.pullUpAlbum
-import com.example.common.utils.function.registerResult
 import com.example.common.widget.textview.edittext.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
@@ -38,7 +36,6 @@ import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.VideoSnapManager
 import com.example.mvvm.viewmodel.TestViewModel
-import com.example.mvvm.widget.InputPopup
 import com.example.mvvm.widget.dialog.TestTopDialog
 import com.example.thirdparty.album.AlbumHelper
 import kotlinx.coroutines.delay
@@ -111,7 +108,6 @@ import kotlinx.coroutines.launch
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     //    private val illustratePopup by lazy { IllustratePopup(this) }
     private val testBottom by lazy { TestTopDialog() }
-    private val input by lazy { InputPopup() }
     //    private val ids = listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
 //    private val adapter by lazy { ImageAdapter() }
 //    private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
@@ -271,7 +267,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             changeBgHeight(offset)
         }
         mBinding?.viewContent.click {
-            input.showInput(supportFragmentManager,"")
 //            mPermission.requestPermissions {
 //                result.pullUpAlbum()
 //            }
