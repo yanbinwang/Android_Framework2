@@ -47,6 +47,8 @@
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowAnimationStyle">@null</item>
+        <!-- 完全透明加入下面这句 -->
+        <item name="android:backgroundDimEnabled">false</item>
     </style>
 
 <!--    <style name="InputDialogStyle" parent="DialogStyle">-->
