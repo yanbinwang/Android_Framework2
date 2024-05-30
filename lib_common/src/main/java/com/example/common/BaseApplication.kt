@@ -81,14 +81,14 @@ abstract class BaseApplication : Application() {
             .setSupportDP(false)
             .setSupportSP(false)
             .supportSubunits = Subunits.PT
-        //解决androidP 第一次打开程序出现莫名弹窗-弹窗内容“detected problems with api ”
-        closeAndroidPDialog()
         //腾讯读写mmkv初始化
         MMKV.initialize(this)
         //服务器地址类初始化
         ServerConfig.init()
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
+        //解决androidP 第一次打开程序出现莫名弹窗-弹窗内容“detected problems with api ”
+        closeAndroidPDialog()
         //阿里路由跳转初始化
         initARouter()
         //注册网络监听
