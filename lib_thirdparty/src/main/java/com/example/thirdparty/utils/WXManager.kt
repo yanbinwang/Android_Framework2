@@ -6,7 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.config.Constants.WX_APP_ID
+import com.example.framework.utils.function.doOnDestroy
 import com.example.thirdparty.pay.utils.wechat.WechatPayBuilder
 import com.example.thirdparty.share.utils.wechat.ShareResult
 import com.example.thirdparty.share.utils.wechat.WechatShareBuilder
@@ -19,16 +21,12 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
 class WXManager private constructor() {
     private var mContext: Context? = null
-
     //WXAPI 是第三方app和微信通信的openApi接口
     private var api: IWXAPI? = null
-
     //支付
     private val pay by lazy { WechatPayBuilder() }
-
     //分享
     private val share by lazy { WechatShareBuilder() }
-
     //动态监听微信启动广播进行注册到微信
     private val broadcastReceiver by lazy { WXBroadcastReceiver(api) }
 
@@ -42,28 +40,25 @@ class WXManager private constructor() {
      */
     fun init(mContext: Context) {
         this.mContext = mContext.applicationContext
-        regToWx()
     }
 
     /**
      * 注册到微信
      */
-    private fun regToWx() {
-        // 通过WXAPIFactory工厂，获取IWXAPI的实例
+    fun regToWx(owner: LifecycleOwner? = null): IWXAPI? {
+        //通过WXAPIFactory工厂，获取IWXAPI的实例
         api = WXAPIFactory.createWXAPI(mContext, WX_APP_ID, true)
         //将应用的appId注册到微信
         api?.registerApp(WX_APP_ID)
         //动态监听微信启动广播进行注册到微信
         val intentFilter = IntentFilter(ConstantsAPI.ACTION_REFRESH_WXAPP)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            mContext?.registerReceiver(
-                broadcastReceiver,
-                intentFilter,
-                Context.RECEIVER_NOT_EXPORTED
-            )
+            mContext?.registerReceiver(broadcastReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED)
         } else {
             mContext?.registerReceiver(broadcastReceiver, intentFilter)
         }
+        owner?.doOnDestroy { unRegToWx() }
+        return api
     }
 
     /**
@@ -74,13 +69,6 @@ class WXManager private constructor() {
         mContext?.unregisterReceiver(broadcastReceiver)
         api = null
         mContext = null
-    }
-
-    /**
-     * 获取微信openApi接口
-     */
-    fun getWXAPI(): IWXAPI? {
-        return api
     }
 
     /**
