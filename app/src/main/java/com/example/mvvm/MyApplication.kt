@@ -67,8 +67,6 @@ class MyApplication : BaseApplication() {
         initOssDao()
         //初始化oss
         initOss()
-        //初始化微信
-        WXManager.instance.init(this)
         //初始化进程监听
         setOnStateChangedListener { if (it) initOss() }
         //授权初始化
