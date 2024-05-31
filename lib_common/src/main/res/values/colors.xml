@@ -15,6 +15,7 @@
     <color name="textDisabled">#aaa</color><!-- 不可用控件字体颜色 -->
     <!-- 弹框/遮罩/默认线条背景 -->
     <color name="bgLine">#f6f8ff</color><!-- 线条颜色 -->
+    <color name="bgToast">#cf111111</color><!-- 语句提示框背景 -->
     <color name="bgDialog">#33000000</color><!-- 弹框背景 -->
     <color name="bgAppDialog">#00ffffff</color><!-- 提示背景 -->
     <color name="bgToolbar">#ffffff</color><!-- 标题背景 -->

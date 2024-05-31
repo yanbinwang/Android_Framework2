@@ -11,6 +11,7 @@ import com.example.mvvm.activity.MainActivity
 import com.example.thirdparty.album.GlideLoader
 import com.example.thirdparty.oss.OssFactory
 import com.example.thirdparty.oss.OssHelper
+import com.example.thirdparty.utils.WXManager
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import com.zxy.recovery.core.Recovery
@@ -66,6 +67,8 @@ class MyApplication : BaseApplication() {
         initOssDao()
         //初始化oss
         initOss()
+        //初始化微信
+        WXManager.instance.init(this)
         //初始化进程监听
         setOnStateChangedListener { if (it) initOss() }
         //授权初始化
@@ -91,6 +94,14 @@ class MyApplication : BaseApplication() {
         //高德地图隐私政策合规
         ServiceSettings.updatePrivacyShow(applicationContext, true, true)
         ServiceSettings.updatePrivacyAgree(applicationContext, true)
+    }
+
+    /**
+     * 程序被销毁时会调用，不保证100%调取
+     */
+    override fun onTerminate() {
+        super.onTerminate()
+        WXManager.instance.unRegToWx()
     }
 
 }
