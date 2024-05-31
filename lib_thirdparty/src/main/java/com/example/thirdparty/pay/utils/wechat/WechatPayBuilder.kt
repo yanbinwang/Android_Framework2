@@ -1,5 +1,6 @@
 package com.example.thirdparty.pay.utils.wechat
 
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.config.Constants
 import com.example.common.event.EventCode.EVENT_PAY_FAILURE
 import com.example.common.utils.builder.shortToast
@@ -9,9 +10,9 @@ import com.example.thirdparty.R
 import com.example.thirdparty.utils.WXManager
 import com.tencent.mm.opensdk.modelpay.PayReq
 
-class WechatPayBuilder {
+class WechatPayBuilder(owner: LifecycleOwner? = null) {
     //通过WXAPIFactory工厂，获取IWXAPI的实例
-    private val wxApi by lazy { WXManager.instance.getWXAPI() }
+    private val wxApi by lazy { WXManager.instance.regToWx(owner) }
 
     /**
      * 发起支付时都将app注册一下，页面关闭时再注销

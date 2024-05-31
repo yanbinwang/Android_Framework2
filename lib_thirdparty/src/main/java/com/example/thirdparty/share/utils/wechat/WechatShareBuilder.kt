@@ -1,6 +1,7 @@
 package com.example.thirdparty.share.utils.wechat
 
 import android.graphics.Bitmap
+import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.orZero
 import com.example.thirdparty.share.utils.wechat.ShareUtil.bmpToByteArray
@@ -17,11 +18,11 @@ import com.tencent.mm.opensdk.modelmsg.WXWebpageObject
 /**
  * 微信分享构建
  */
-class WechatShareBuilder {
+class WechatShareBuilder(owner: LifecycleOwner? = null) {
     //分享信息
     private var result: ShareResult? = null
     //通过WXAPIFactory工厂，获取IWXAPI的实例
-    private val wxApi by lazy { WXManager.instance.getWXAPI() }
+    private val wxApi by lazy { WXManager.instance.regToWx(owner) }
 
     /**
      * 设置分享信息
