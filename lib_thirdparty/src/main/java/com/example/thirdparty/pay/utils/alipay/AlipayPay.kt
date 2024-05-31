@@ -1,6 +1,5 @@
 package com.example.thirdparty.pay.utils.alipay
 
-import android.text.TextUtils
 import androidx.fragment.app.FragmentActivity
 import com.alipay.sdk.app.PayTask
 import com.example.common.event.EventCode.EVENT_PAY_CANCEL
@@ -23,7 +22,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 支付宝支付
  */
-class AlipayPayBuilder(private val mActivity: FragmentActivity) : CoroutineScope {
+class AlipayPay(private val mActivity: FragmentActivity) : CoroutineScope {
     private var payJob: Job? = null
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
@@ -62,13 +61,13 @@ class AlipayPayBuilder(private val mActivity: FragmentActivity) : CoroutineScope
                  * 同步返回的结果必须放置到服务端进行验证（验证的规则请看https://doc.open.alipay.com/docs/doc.htm?
                  * spm=a219a.7629140.0.0.M0HfOm&treeId=59&articleId=103671&docType=1) 建议商户依赖异步通知
                  */
-                val resultStatus = PayResult(result).resultStatus
+                val resultStatus = AlipayPayResult(result).resultStatus
                 //判断resultStatus 为“9000”则代表支付成功，具体状态码代表含义可参考接口文档
-                if (TextUtils.equals(resultStatus, "9000")) {
+                if (resultStatus == "9000") {
                     results(R.string.paySuccess, 0)
                 } else {
                     //用户中途取消
-                    if (TextUtils.equals(resultStatus, "6001")) {
+                    if (resultStatus == "6001") {
                         results(R.string.payCancel, 1)
                         //正在处理中，支付结果未知（有可能已经支付成功），请查询商户订单列表中订单的支付状态
                     } else {

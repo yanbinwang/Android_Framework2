@@ -11,7 +11,6 @@ import com.example.mvvm.activity.MainActivity
 import com.example.thirdparty.album.GlideLoader
 import com.example.thirdparty.oss.OssFactory
 import com.example.thirdparty.oss.OssHelper
-import com.example.thirdparty.utils.WXManager
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import com.zxy.recovery.core.Recovery

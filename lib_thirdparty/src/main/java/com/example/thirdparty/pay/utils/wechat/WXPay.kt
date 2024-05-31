@@ -7,10 +7,10 @@ import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.logWTF
 import com.example.thirdparty.R
-import com.example.thirdparty.utils.WXManager
+import com.example.thirdparty.utils.wechat.WXManager
 import com.tencent.mm.opensdk.modelpay.PayReq
 
-class WechatPayBuilder(owner: LifecycleOwner? = null) {
+class WXPay(owner: LifecycleOwner? = null) {
     //通过WXAPIFactory工厂，获取IWXAPI的实例
     private val wxApi by lazy { WXManager.instance.regToWx(owner) }
 

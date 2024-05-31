@@ -20,7 +20,7 @@ import java.net.URL
 /**
  * 微信工具类
  */
-object ShareUtil {
+object WXShareUtil {
     private const val TAG = "SDK_Sample.Util"
     private const val MAX_DECODE_PICTURE_SIZE = 1920 * 1440
 

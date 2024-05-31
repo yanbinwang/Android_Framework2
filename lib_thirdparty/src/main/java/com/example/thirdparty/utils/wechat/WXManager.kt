@@ -1,15 +1,14 @@
-package com.example.thirdparty.utils
+package com.example.thirdparty.utils.wechat
 
 import android.annotation.SuppressLint
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.BaseApplication
-import com.example.common.config.Constants.WX_APP_ID
+import com.example.common.config.Constants
 import com.example.framework.utils.function.doOnDestroy
+import com.example.thirdparty.utils.wechat.service.WXReceiver
 import com.tencent.mm.opensdk.constants.ConstantsAPI
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
@@ -19,7 +18,7 @@ class WXManager private constructor() {
     //WXAPI 是第三方app和微信通信的openApi接口
     private var api: IWXAPI? = null
     //动态监听微信启动广播进行注册到微信
-    private val wxReceiver by lazy { WXBroadcastReceiver(api) }
+    private val wxReceiver by lazy { WXReceiver(api) }
     //上下文
     private val mContext by lazy { BaseApplication.instance.applicationContext }
 
@@ -33,9 +32,9 @@ class WXManager private constructor() {
      */
     fun regToWx(owner: LifecycleOwner? = null): IWXAPI? {
         //通过WXAPIFactory工厂，获取IWXAPI的实例
-        api = WXAPIFactory.createWXAPI(mContext, WX_APP_ID, true)
+        api = WXAPIFactory.createWXAPI(mContext, Constants.WX_APP_ID, true)
         //将应用的appId注册到微信
-        api?.registerApp(WX_APP_ID)
+        api?.registerApp(Constants.WX_APP_ID)
         //动态监听微信启动广播进行注册到微信
         val intentFilter = IntentFilter(ConstantsAPI.ACTION_REFRESH_WXAPP)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -56,14 +55,4 @@ class WXManager private constructor() {
         api = null
     }
 
-}
-
-/**
- * 微信动态注册广播
- */
-private class WXBroadcastReceiver(private val api: IWXAPI?) : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
-        //将该app注册到微信
-        api?.registerApp(WX_APP_ID)
-    }
 }
