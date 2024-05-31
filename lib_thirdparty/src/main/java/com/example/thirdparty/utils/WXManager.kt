@@ -10,12 +10,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.BaseApplication
 import com.example.common.config.Constants.WX_APP_ID
 import com.example.framework.utils.function.doOnDestroy
-import com.example.thirdparty.pay.utils.wechat.WechatPayBuilder
-import com.example.thirdparty.share.utils.wechat.ShareResult
-import com.example.thirdparty.share.utils.wechat.WechatShareBuilder
 import com.tencent.mm.opensdk.constants.ConstantsAPI
-import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
-import com.tencent.mm.opensdk.modelpay.PayReq
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
 
@@ -23,10 +18,6 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory
 class WXManager private constructor() {
     //WXAPI 是第三方app和微信通信的openApi接口
     private var api: IWXAPI? = null
-    //支付
-    private val pay by lazy { WechatPayBuilder() }
-    //分享
-    private val share by lazy { WechatShareBuilder() }
     //动态监听微信启动广播进行注册到微信
     private val wxReceiver by lazy { WXBroadcastReceiver(api) }
     //上下文
@@ -63,21 +54,6 @@ class WXManager private constructor() {
         api?.unregisterApp()
         mContext?.unregisterReceiver(wxReceiver)
         api = null
-    }
-
-    /**
-     * 发起支付
-     */
-    fun pay(req: PayReq?) {
-        pay.pay(req)
-    }
-
-    /**
-     * 分享
-     */
-    fun share(result: ShareResult?, mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
-        share.setResult(result)
-        share.shareToWx(mTargetScene)
     }
 
 }
