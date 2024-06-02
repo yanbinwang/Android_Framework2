@@ -3,9 +3,17 @@ package com.example.mvvm
 import android.os.Looper
 import android.util.Log
 import com.example.common.BaseApplication
+import com.example.common.utils.helper.ConfigHelper
+import com.example.common.utils.toJsonString
 import com.example.framework.utils.function.value.isDebug
+import com.example.framework.utils.function.value.toArray
+import com.example.framework.utils.logE
+import com.example.framework.utils.logWTF
+import com.example.home.activity.LinkActivity
 import com.example.mvvm.activity.MainActivity
 import com.zxy.recovery.core.Recovery
+import com.example.thirdparty.firebase.FireBaseUtil
+import com.example.thirdparty.firebase.NotificationUtil
 
 /**
  * Created by WangYanBin on 2020/8/14.
@@ -50,6 +58,10 @@ class MyApplication : BaseApplication() {
                     println("AppCatch -${Log.getStackTraceString(e)}")
                 }
             }
+            //初始化系统通知
+            initNotification()
+            //初始化firebase
+            initFireBase()
         }
 //        //初始化图片库类
 //        initAlbum()
@@ -61,6 +73,23 @@ class MyApplication : BaseApplication() {
 //        setOnStateChangedListener { if (it) initOss() }
 //        //授权初始化
 //        setOnPrivacyAgreedListener { if (it) { initAMap() } }
+    }
+
+    private fun initNotification() {
+        NotificationUtil.init()
+    }
+
+    private fun initFireBase() {
+        FireBaseUtil.notificationIntentGenerator = { _, map ->
+            " \n收到firebase\nmap:${map.toJsonString()}".logWTF
+            LinkActivity.byPush(instance, *map.toArray { it.key to it.value })
+        }
+        FireBaseUtil.tokenRefreshListener = {
+            ConfigHelper.setDeviceToken(it)
+            "firebase token $it".logE
+        }
+        FireBaseUtil.refreshToken()
+        FireBaseUtil.initTestReport()
     }
 
 //    private fun initAlbum() {

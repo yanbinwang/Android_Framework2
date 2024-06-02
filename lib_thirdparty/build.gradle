@@ -2,27 +2,22 @@ plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
+    id 'kotlin-parcelize'
 }
 
 android {
-    namespace 'com.example.account'
+    namespace 'com.example.thirdparty'
     compileSdkVersion build_versions.compileSdkVersion
 
     defaultConfig {
         minSdk build_versions.minSdkVersion
         targetSdk build_versions.targetSdkVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        //arouter编译
-        kapt {
-            arguments {
-                arg("AROUTER_MODULE_NAME", project.getName())
-            }
-        }
     }
 
-    buildFeatures {
-        dataBinding true
-    }
+//    buildFeatures {
+//        dataBinding true
+//    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -47,9 +42,15 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //框架库
-//    api project(':lib_common')
-    api project(':lib_thirdparty')
-    //页面路由
-    implementation deps.alibaba.arouter
-    kapt deps.alibaba.arouter_compiler
+    api project(':lib_common')
+    //文件压缩
+    implementation 'id.zelory:compressor:3.0.1'
+    //谷歌三方登錄
+    implementation 'com.google.android.gms:play-services-auth:20.4.1'
+    //谷歌异常捕获
+    implementation platform('com.google.firebase:firebase-bom:31.3.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-dynamic-links-ktx'
 }

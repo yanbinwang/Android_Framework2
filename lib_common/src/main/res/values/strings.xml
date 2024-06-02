@@ -26,6 +26,13 @@
     <string name="dataNetError">网络未连接，请检查网络设置</string>
     <string name="linkInvalidError">链接地址不合法</string>
     <string name="sourcePathError">文件路径错误</string>
+    <!-- 登录提示 -->
+    <string name="authCancel">操作被取消</string>
+    <string name="authError">登錄失敗，請嘗試其它方式</string>
+    <string name="authOpenIdError">三方帳號信息獲取失敗</string>
+    <string name="authNetworkFail">網絡連接失敗</string>
+    <!-- 图片压缩提示 -->
+    <string name="albumError">請上傳10M以內的圖片</string>
     <!-- 用户提示字段 -->
     <string name="emailHint">请输入邮箱</string>
     <string name="emailEmpty">邮箱不能为空</string>

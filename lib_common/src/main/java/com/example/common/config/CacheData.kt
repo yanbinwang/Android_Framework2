@@ -1,7 +1,9 @@
 package com.example.common.config
 
+import com.example.common.bean.LanguageBean
 import com.example.common.bean.UserBean
 import com.example.common.bean.UserInfoBean
+import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.DataCacheUtil
 import com.example.common.utils.DataStringCacheUtil
 
@@ -13,6 +15,10 @@ object CacheData {
     //设备id
     private const val DEVICE_ID = "device_id"
     internal val deviceId = DataStringCacheUtil(DEVICE_ID)
+
+    //推送token
+    private const val DEVICE_TOKEN = "device_token"
+    internal val deviceToken = DataStringCacheUtil(DEVICE_TOKEN)
 
     //当前选择语言
     private const val LANGUAGE = "language"

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "503708557075",
+    "project_id": "cheezeebit-9f2a6",
+    "storage_bucket": "cheezeebit-9f2a6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:503708557075:android:8645455ecc1a61833784e6",
+        "android_client_info": {
+          "package_name": "com.cheezeebit.trading"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "503708557075-jjp550fvh0a2lgddr7n17bjrlqghrp1k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmWXjWAgqi3NJi9dATEFChc1NlDoNepmA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "503708557075-jjp550fvh0a2lgddr7n17bjrlqghrp1k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

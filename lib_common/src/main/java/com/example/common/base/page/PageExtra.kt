@@ -16,7 +16,7 @@ object Extra {
     //跳转集合
     const val BUNDLE_LIST = "bundleList"
     //透傳信息
-    const val PAYLOAD = "payload"
+    const val SOURCE = "source"
     //请求id
     const val ID = "id"
     //手机号

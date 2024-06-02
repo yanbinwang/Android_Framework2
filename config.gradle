@@ -88,4 +88,5 @@ def build_config = [:]
 build_config.applicationId = "com.example.mvvm"//主appId（包名）
 build_config.DESIGN_WIDTH = "375"
 build_config.DESIGN_HEIGHT = "667"
+build_config.GOOGLE_AUTH_API = "503708557075-jjp550fvh0a2lgddr7n17bjrlqghrp1k.apps.googleusercontent.com"
 ext.build_config = build_config

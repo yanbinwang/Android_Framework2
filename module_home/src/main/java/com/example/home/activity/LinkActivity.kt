@@ -1,11 +1,16 @@
 package com.example.home.activity
 
+import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import androidx.databinding.ViewDataBinding
+import com.example.common.BaseApplication
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
+import com.example.common.utils.ScreenUtil
+import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
 import com.example.home.R
 import kotlinx.coroutines.Job
@@ -22,8 +27,22 @@ import kotlinx.coroutines.launch
  * @author yan
  */
 class LinkActivity : BaseActivity<ViewDataBinding>() {
-    private val payload by lazy { intentString(Extra.PAYLOAD) }
+    private val source by lazy { intentString(Extra.SOURCE) }
     private var timeOutJob: Job? = null
+
+    companion object {
+        //push信息用的intent
+        fun byPush(context: Context, vararg pairs: Pair<String, Any>): Intent {
+            (context as? BaseActivity<*>)?.overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+            return context.getIntent(LinkActivity::class.java, Extra.SOURCE to "push", *pairs)
+        }
+
+        //正常启动
+        fun start(context: Context, vararg pairs: Pair<String, Any>) {
+            (context as? BaseActivity<*>)?.overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+            context.startActivity(LinkActivity::class.java, Extra.SOURCE to "normal", *pairs)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
@@ -37,6 +56,8 @@ class LinkActivity : BaseActivity<ViewDataBinding>() {
         setTimeOut()
         //處理推送透傳信息
         onLink()
+        ScreenUtil.screenWidth
+        ScreenUtil.screenHeight
     }
 
     override fun finish() {
@@ -45,7 +66,17 @@ class LinkActivity : BaseActivity<ViewDataBinding>() {
     }
 
     private fun onLink() {
-
+        BaseApplication.needOpenHome = true
+        when (source) {
+//            //推送消息
+//            "push" -> {
+//                if (!handlePush(this)) navigation(ARouterPath.MainActivity)
+//                finish()
+//            }
+            //其他情况统一走firebase处理
+//            else -> handleDeepLink(this) { finish() }
+            else -> finish()
+        }
     }
 
     private fun setTimeOut() {

@@ -59,9 +59,10 @@ android {
         }
         //Manifest配置引用
         manifestPlaceholders = [
-                PACKAGE_NAME : build_config.applicationId,
-                DESIGN_WIDTH : build_config.DESIGN_WIDTH,
-                DESIGN_HEIGHT: build_config.DESIGN_HEIGHT
+                PACKAGE_NAME   : build_config.applicationId,
+                DESIGN_WIDTH   : build_config.DESIGN_WIDTH,
+                DESIGN_HEIGHT  : build_config.DESIGN_HEIGHT,
+                GOOGLE_AUTH_API: build_config.GOOGLE_AUTH_API
         ]
     }
 
@@ -131,6 +132,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //基础库
     implementation project(':module_home')
+    implementation project(':module_account')
     //页面路由
     implementation deps.alibaba.arouter
     kapt deps.alibaba.arouter_compiler

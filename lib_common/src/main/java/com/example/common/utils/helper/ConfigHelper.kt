@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import com.example.common.BaseApplication
 import com.example.common.config.CacheData
+import com.example.common.config.CacheData.deviceToken
 import com.example.common.config.CacheData.privacyAgreed
 import com.example.framework.utils.function.value.toSafeLong
 
@@ -30,6 +31,17 @@ object ConfigHelper {
 
     fun getPrivacyAgreed(): Boolean {
         return privacyAgreed.get()
+    }
+
+    /**
+     * firebase的设备token
+     */
+    fun setDeviceToken(value: String) {
+        deviceToken.set(value)
+    }
+
+    fun getDeviceToken(): String {
+        return deviceToken.get()
     }
 
     /**

@@ -1,0 +1,6 @@
+<resources>
+    <!-- firebase推送 -->
+    <color name="notificationDefaultColor">#ffffff</color>
+    <string name="notificationChannelId">cbMsg</string>
+    <string name="notificationChannelName">东合信息科技有限公司</string>
+</resources>
