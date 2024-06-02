@@ -2,10 +2,19 @@ package com.example.mvvm
 
 import android.os.Looper
 import android.util.Log
+import com.amap.api.services.core.ServiceSettings
 import com.example.common.BaseApplication
+import com.example.common.config.Constants.VERSION_NAME
 import com.example.framework.utils.function.value.isDebug
+import com.example.greendao.dao.DaoMaster
 import com.example.mvvm.activity.MainActivity
+import com.example.thirdparty.album.GlideLoader
+import com.example.thirdparty.oss.OssFactory
+import com.example.thirdparty.oss.OssHelper
+import com.yanzhenjie.album.Album
+import com.yanzhenjie.album.AlbumConfig
 import com.zxy.recovery.core.Recovery
+import java.util.Locale
 
 /**
  * Created by WangYanBin on 2020/8/14.

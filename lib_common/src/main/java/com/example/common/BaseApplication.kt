@@ -30,10 +30,6 @@ import com.example.common.utils.AppManager
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
-import com.example.common.utils.i18n.I18nUtil.getPackVersion
-import com.example.common.utils.i18n.LanguageUtil.checkLanguageVersion
-import com.example.common.utils.i18n.LanguageUtil.resetLanguage
-import com.example.common.utils.i18n.LanguageUtil.setLocalLanguage
 import com.example.common.utils.helper.ConfigHelper
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
@@ -55,7 +51,7 @@ import java.util.Locale
 /**
  * Created by WangYanBin on 2020/8/14.
  */
-@SuppressLint("MissingPermission", "UnspecifiedRegisterReceiverFlag")
+@SuppressLint("MissingPermission", "UnspecifiedRegisterReceiverFlag", "PrivateApi", "DiscouragedPrivateApi", "SoonBlockedPrivateApi")
 abstract class BaseApplication : Application() {
     private var onStateChangedListener: (isForeground: Boolean) -> Unit = {}
     private var onPrivacyAgreedListener: (agreed: Boolean) -> Unit = {}
@@ -84,8 +80,6 @@ abstract class BaseApplication : Application() {
             .setSupportDP(false)
             .setSupportSP(false)
             .supportSubunits = Subunits.PT
-        //阿里路由跳转初始化
-        initARouter()
         //腾讯读写mmkv初始化
         MMKV.initialize(this)
         //服务器地址类初始化
@@ -94,6 +88,10 @@ abstract class BaseApplication : Application() {
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
         //語言包初始化
         initLanguage()
+        //解决androidP 第一次打开程序出现莫名弹窗-弹窗内容“detected problems with api ”
+        closeAndroidPDialog()
+        //阿里路由跳转初始化
+        initARouter()
         //注册网络监听
         initReceiver()
         //部分推送打開的頁面，需要在關閉時回首頁,實現一個透明的activity，跳轉到對應push的activity之前，讓needOpenHome=true
@@ -108,6 +106,29 @@ abstract class BaseApplication : Application() {
         initLifecycle()
         //初始化友盟/人脸识别->延后
         initPrivacyAgreed()
+    }
+
+    private fun closeAndroidPDialog() {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            try {
+                val aClass = Class.forName("android.content.pm.PackageParser\$Package")
+                val declaredConstructor = aClass.getDeclaredConstructor(String::class.java)
+                declaredConstructor.setAccessible(true)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            try {
+                val cls = Class.forName("android.app.ActivityThread")
+                val declaredMethod = cls.getDeclaredMethod("currentActivityThread")
+                declaredMethod.isAccessible = true
+                val activityThread = declaredMethod.invoke(null)
+                val mHiddenApiWarningShown = cls.getDeclaredField("mHiddenApiWarningShown")
+                mHiddenApiWarningShown.isAccessible = true
+                mHiddenApiWarningShown.setBoolean(activityThread, true)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun initARouter() {
@@ -273,6 +294,10 @@ abstract class BaseApplication : Application() {
         this.onStateChangedListener = onStateChangedListener
     }
 
+    protected fun setOnPrivacyAgreedListener(onPrivacyAgreedListener: (agreed: Boolean) -> Unit) {
+        this.onPrivacyAgreedListener = onPrivacyAgreedListener
+    }
+
     fun initPrivacyAgreed() {
         if (ConfigHelper.getPrivacyAgreed()) {
 //            //友盟日志收集
@@ -283,10 +308,6 @@ abstract class BaseApplication : Application() {
         } else {
             onPrivacyAgreedListener.invoke(false)
         }
-    }
-
-    protected fun setOnPrivacyAgreedListener(onPrivacyAgreedListener: (agreed: Boolean) -> Unit) {
-        this.onPrivacyAgreedListener = onPrivacyAgreedListener
     }
 
     override fun onTrimMemory(level: Int) {

@@ -51,6 +51,7 @@ import me.jessyan.autosize.AutoSizeConfig
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
+import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
@@ -67,6 +68,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected val mDialog by lazy { AppDialog(mActivity) }
     protected val mPermission by lazy { PermissionHelper(mActivity) }
     protected val mActivityResult = activity.registerResult { onActivityResultListener?.invoke(it) }
+    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(mActivity) }
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画

@@ -80,6 +80,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     protected val mDialog by lazy { AppDialog(mActivity) }
     protected val mPermission by lazy { PermissionHelper(mActivity) }
     protected val mActivityResult = activity.registerResult { onActivityResultListener?.invoke(it) }
+    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     private var showTime = 0L
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving

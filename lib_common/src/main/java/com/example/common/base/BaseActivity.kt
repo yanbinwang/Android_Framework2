@@ -55,6 +55,7 @@ import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import org.greenrobot.eventbus.Subscribe
 import java.lang.reflect.ParameterizedType
+import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
@@ -70,6 +71,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     protected val mDialog by lazy { AppDialog(this) }
     protected val mPermission by lazy { PermissionHelper(this) }
     protected val mActivityResult = registerResult { onActivityResultListener?.invoke(it) }
+    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画

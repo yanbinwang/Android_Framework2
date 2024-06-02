@@ -16,6 +16,14 @@ abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
     protected val viewGroup get() = baseBinding.flBaseRoot//标题页面的父容器，用于添加empty，如果不需要标题头的baseactivity，则在外层绘制一个FrameLayout
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
+    protected fun setBackgroundResource(resid: Int) {
+        baseBinding.llRoot.setBackgroundResource(resid)
+    }
+
+    protected fun setBackgroundColor(color: Int) {
+        baseBinding.llRoot.setBackgroundColor(color)
+    }
+
     override fun setContentView(view: View?) {
         baseBinding.flBaseRoot.addView(mBinding?.root)
         super.setContentView(baseBinding.root)

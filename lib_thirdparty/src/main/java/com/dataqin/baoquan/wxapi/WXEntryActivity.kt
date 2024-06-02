@@ -4,12 +4,10 @@ import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.common.config.Constants
 import com.example.thirdparty.R
 import com.tencent.mm.opensdk.modelbase.BaseReq
 import com.tencent.mm.opensdk.modelbase.BaseResp
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler
-import com.tencent.mm.opensdk.openapi.WXAPIFactory
 
 /**
  *  Created by wangyanbin
@@ -26,7 +24,7 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory
  * android:windowSoftInputMode="stateHidden|adjustPan" />
  */
 class WXEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
-    private val wxApi by lazy { WXAPIFactory.createWXAPI(this, Constants.WX_APP_ID) }// IWXAPI 是第三方app和微信通信的openapi接口
+    private val wxApi by lazy { WXManager.instance.regToWx(this) }// IWXAPI 是第三方app和微信通信的openapi接口
 
     override fun onCreate(savedInstanceState: Bundle?) {
         wxApi?.handleIntent(intent, this)
@@ -53,11 +51,6 @@ class WXEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
      * getType为1，分享为0
      */
     override fun onResp(resp: BaseResp?) {
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        wxApi.unregisterApp()
     }
 
 }
