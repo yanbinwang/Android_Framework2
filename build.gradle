@@ -1,10 +1,10 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     apply from: 'config.gradle'
-    ext.greendao_version = '3.3.1'
-    dependencies {
-        classpath "org.greenrobot:greendao-gradle-plugin:$greendao_version"
-    }
+//    ext.greendao_version = '3.3.1'
+//    dependencies {
+//        classpath "org.greenrobot:greendao-gradle-plugin:$greendao_version"
+//    }
 }
 
 plugins {

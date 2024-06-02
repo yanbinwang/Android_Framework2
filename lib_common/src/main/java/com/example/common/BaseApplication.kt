@@ -8,6 +8,7 @@ import android.content.Context
 import android.graphics.drawable.GradientDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkRequest
+import android.os.Build
 import android.view.Gravity
 import android.widget.TextView
 import android.widget.Toast
@@ -31,6 +32,10 @@ import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.common.utils.helper.ConfigHelper
+import com.example.common.utils.i18n.I18nUtil.getPackVersion
+import com.example.common.utils.i18n.LanguageUtil.checkLanguageVersion
+import com.example.common.utils.i18n.LanguageUtil.resetLanguage
+import com.example.common.utils.i18n.LanguageUtil.setLocalLanguage
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.framework.utils.function.string
