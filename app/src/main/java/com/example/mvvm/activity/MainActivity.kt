@@ -41,7 +41,6 @@ import com.example.thirdparty.album.AlbumHelper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
 /**
  *  <data>
  *
@@ -103,6 +102,23 @@ import kotlinx.coroutines.launch
  *  需要注意的是，这个方法是基于比较对象的引用，
  *  也就是比较两个对象是否为同一内存地址而不是比较对象内容。
  *  如果您想要比较对象的内容，请确保在对象类中实现 equals() 和 hashCode() 方法，并在比较时使用它们。
+ *
+ *  data class Book(val title: String, val author: String, val genre: String)
+ *
+ *  val books = listOf(
+ *         Book("The Fellowship of the Ring", "J.R.R. Tolkien", "Fantasy"),
+ *         Book("The Two Towers", "J.R.R. Tolkien", "Fantasy"),
+ *         Book("The Catcher in the Rye", "J.D. Salinger", "Fiction"),
+ *         Book("To Kill a Mockingbird", "Harper Lee", "Fiction")
+ *     )
+ *
+ *     val booksByGenre = books.groupBy { it.genre }
+ *     booksByGenre.forEach { (genre, books) ->
+ *         println("$genre: ${books.map { it.title }}")
+ *     }
+ * 这段代码片段将图书按流派组织为一个map，其中键是类型，值是属于这些类型的图书列表。然后，它按类型打印出分组的书籍的标题，让人一眼就可以看到组织结构。
+ *
+ * https://blog.csdn.net/chuyouyinghe/article/details/137119441
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
