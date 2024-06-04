@@ -135,10 +135,30 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private val builder by lazy { FileBuilder(this) }
     private val album by lazy { AlbumHelper(this) }
 
+    data class Book(val title: String, val author: String, val genre: String)
+
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
 
         mBinding?.ivArrow.click { isOpen = it.rotate(isOpen) }
+
+        val books = listOf(
+            Book("The Fellowship of the Ring", "J.R.R. Tolkien", "Fantasy"),
+            Book("The Two Towers", "J.R.R. Tolkien", "Fantasy"),
+            Book("The Catcher in the Rye", "J.D. Salinger", "Fiction"),
+            Book("To Kill a Mockingbird", "Harper Lee", "Fiction")
+        )
+
+        val booksByGenre = books.groupBy { it.genre }
+        booksByGenre.forEach { (genre, books) ->
+            println("$genre: ${books.map { it.title }}")
+        }
+
+//        val numbers = listOf(1, 2, 3, 4, 5)
+//        val squares = numbers.map { it * it }
+//        println(squares) // 输出：[1, 4, 9, 16, 25]
+//        在这个例子中，我们有一个整数列表numbers，我们使用map函数来计算每个数字的平方。it * it是一个lambda表达式，它定义了对每个元素执行的操作。
+
 
 //        adapter.refresh(ids)
 //        binding.rvTest.adapter = adapter
