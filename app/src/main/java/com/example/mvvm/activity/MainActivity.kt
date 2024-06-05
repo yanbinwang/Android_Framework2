@@ -21,6 +21,9 @@ import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.MainIndicator
 import kotlinx.coroutines.launch
 
+/**
+ * 首页
+ */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
     private val indicator by lazy { MainIndicator(mBinding?.tbIndicator) }
