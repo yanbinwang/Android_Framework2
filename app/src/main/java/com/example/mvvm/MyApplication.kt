@@ -10,7 +10,7 @@ import com.example.greendao.dao.DaoMaster
 import com.example.mvvm.activity.MainActivity
 import com.example.thirdparty.album.GlideLoader
 import com.example.thirdparty.oss.OssFactory
-import com.example.thirdparty.oss.OssHelper
+import com.example.thirdparty.oss.OssDBHelper
 import com.example.thirdparty.utils.wechat.WXManager
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
@@ -81,7 +81,7 @@ class MyApplication : BaseApplication() {
     }
 
     private fun initOssDao() {
-        OssHelper.init(DaoMaster(DaoMaster.DevOpenHelper(this, "${VERSION_NAME}.db", null).readableDb).newSession().ossDBDao)
+        OssDBHelper.init(DaoMaster(DaoMaster.DevOpenHelper(this, "${VERSION_NAME}.db", null).readableDb).newSession().ossDBDao)
     }
 
     private fun initOss() {
