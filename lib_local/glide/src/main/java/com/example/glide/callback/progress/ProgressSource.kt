@@ -13,7 +13,7 @@ import okio.ForwardingSource
  */
 class ProgressSource(private var responseBody: ResponseBody, private var onProgress: ((progress: Int) -> Unit)?) : ForwardingSource(responseBody.source()) {
     private var currentProgress = 0
-    private var totalBytesRead: Long = 0
+    private var totalBytesRead = 0L
 
     override fun read(sink: Buffer, byteCount: Long): Long {
         val bytesRead = super.read(sink, byteCount)

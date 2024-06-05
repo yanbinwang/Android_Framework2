@@ -7,8 +7,13 @@ import com.example.glide.ImageLoader
 import com.example.glide.R
 
 /**
- * @description 加载动图
+ * @description 加载gif动图
  * @author yan
+ *   <com.example.glide.widget.GifImageView
+ *    android:id="@+id/gf_quick"
+ *    android:layout_width="46pt"
+ *    android:layout_height="46pt"
+ *    android:src="@drawable/bg_quick_pass"/>
  */
 class GifImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatImageView(context, attrs, defStyleAttr) {
 
