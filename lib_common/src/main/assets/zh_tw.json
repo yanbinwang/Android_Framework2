@@ -8,7 +8,7 @@
     "permissionGoSetting":"缺少\n%1$s請前往設置頁面開啟",
     "permissionCamera":"相機權限,該權限用於拍攝照片",
     "permissionStorage":"存儲權限,該權限用於上傳保存文件",
-    "timerContent":"發生驗證碼",
+    "timerContent":"發送驗證碼",
     "timerPressed":"已發送{%1$s}S",
     "timerDisabled":"重發驗證碼",
     "responseError":"數據返回異常",
