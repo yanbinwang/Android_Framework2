@@ -31,7 +31,7 @@ object I18nMap {
         R.string.authError to "authError",
         R.string.authOpenIdError to "authOpenIdError",
         R.string.authNetworkFail to "authNetworkFail",
-        R.string.albumError to "albumError",
+        R.string.compressError to "compressError",
         R.string.emailHint to "emailHint",
         R.string.emailEmpty to "emailEmpty",
         R.string.emailError to "emailError",

@@ -23,7 +23,7 @@ import java.io.File
         return try {
             file ?: throw Exception()
             if (file.length() > 10 * 1024 * 1024) {
-                string(R.string.albumError).shortToast()
+                string(R.string.compressError).shortToast()
                 return null
             }
             Compressor.compress(BaseApplication.instance, file) {

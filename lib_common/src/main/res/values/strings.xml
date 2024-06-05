@@ -32,7 +32,7 @@
     <string name="authOpenIdError">三方帳號信息獲取失敗</string>
     <string name="authNetworkFail">網絡連接失敗</string>
     <!-- 图片压缩提示 -->
-    <string name="albumError">請上傳10M以內的圖片</string>
+    <string name="compressError">請上傳10M以內的圖片</string>
     <!-- 用户提示字段 -->
     <string name="emailHint">請輸入郵箱</string>
     <string name="emailEmpty">郵箱不能為空</string>

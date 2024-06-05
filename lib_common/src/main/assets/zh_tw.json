@@ -24,7 +24,7 @@
     "authError":"登錄失敗，請嘗試其它方式",
     "authOpenIdError":"三方帳號信息獲取失敗",
     "authNetworkFail":"網絡連接失敗",
-    "albumError":"請上傳10M以內的圖片",
+    "compressError":"請上傳10M以內的圖片",
     "emailHint":"請輸入郵箱",
     "emailEmpty":"郵箱不能為空",
     "emailError":"郵箱格式錯誤",
