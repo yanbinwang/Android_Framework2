@@ -5,7 +5,6 @@ import android.app.ActivityManager
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.Context
-import android.graphics.drawable.GradientDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkRequest
 import android.os.Build
@@ -30,7 +29,6 @@ import com.example.common.socket.WebSocketProxy
 import com.example.common.utils.AppManager
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.ptFloat
 import com.example.common.utils.helper.ConfigHelper
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
@@ -38,7 +36,6 @@ import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.function.value.minute
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
@@ -175,10 +172,6 @@ abstract class BaseApplication : Application() {
     }
 
     private fun initToast() {
-        val drawable = GradientDrawable().apply {
-            setColor("#cf111111".parseColor())
-            cornerRadius = 7.ptFloat
-        }
         ToastBuilder.setResToastBuilder { message, length ->
             val toast = Toast(instance)
             //设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位，
@@ -187,8 +180,8 @@ abstract class BaseApplication : Application() {
             toast.duration = length
             val view = TextView(instance)
             view.text = string(message)
-//            view.setBackgroundResource(R.drawable.shape_toast_bg)
-            view.background = drawable
+            view.setBackgroundResource(R.drawable.shape_toast)
+//            view.background = drawable
             view.minHeight = 40.pt
             view.minWidth = 190.pt
             view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
@@ -206,7 +199,7 @@ abstract class BaseApplication : Application() {
             toast.duration = length
             val view = TextView(instance)
             view.text = message
-            view.background = drawable
+            view.setBackgroundResource(R.drawable.shape_toast)
             view.minHeight = 40.pt
             view.minWidth = 190.pt
             view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)

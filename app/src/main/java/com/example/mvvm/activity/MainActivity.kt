@@ -6,6 +6,7 @@ import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.example.common.BaseApplication
 import com.example.common.base.BaseActivity
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
@@ -139,6 +140,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
+//        BaseApplication.instance.initPrivacyAgreed()
 
         mBinding?.ivArrow.click { isOpen = it.rotate(isOpen) }
 
