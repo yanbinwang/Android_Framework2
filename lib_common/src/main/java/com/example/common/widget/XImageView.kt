@@ -16,6 +16,7 @@ import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.parseColor
+import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
@@ -76,12 +77,14 @@ class XImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet
             root.disable()
             cover.visible()
             progressBar.progress = 0
+            iv.click {}
         }, {
             progressBar.progress = it.orZero
         }, {
             root.enable()
             cover.gone()
             progressBar.gone()
+            if(!it) iv.click { load(url) }
         })
     }
 
