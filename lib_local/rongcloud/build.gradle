@@ -1,0 +1,53 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+}
+
+android {
+    namespace 'com.example.rongcloud'
+    compileSdkVersion build_versions.compileSdkVersion
+
+    defaultConfig {
+        minSdk build_versions.minSdkVersion
+        targetSdk build_versions.targetSdkVersion
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        dataBinding true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    testImplementation "junit:junit:$build_versions.junit"
+    androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
+    //框架库
+    implementation project(':lib_framework')
+    //环信-》https://www.rongcloud.cn/devcenter?type=sdk
+    implementation 'cn.rongcloud.sdk:im_lib:5.8.1' // 即时通讯基础能力库
+    implementation 'cn.rongcloud.sdk:call_lib:5.8.0' // 音视频呼叫能力库（内含 rtc_lib)
+//    implementation 'cn.rongcloud.sdk:im_kit:5.8.1' // 即时通讯 UI 基础组件
+//    implementation 'cn.rongcloud.sdk:call_kit:5.8.0' // 音视频通话能力 UI 组件
+//    implementation 'cn.rongcloud.sdk:face_beautifier:5.7.0' // 美颜扩展库（可选）
+//    implementation 'cn.rongcloud.sdk:player:5.7.0' // CDN 扩展库（可选）
+//    implementation 'cn.rongcloud.sdk:voice_beautifier:5.7.0' // 音效扩展库（可选）
+}

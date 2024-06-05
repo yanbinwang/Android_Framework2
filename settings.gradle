@@ -10,6 +10,7 @@ dependencyResolutionManagement {
     repositories {
         maven { url 'https://jitpack.io' }
         maven { url "https://maven.aliyun.com/repository/public" }
+        maven { url "https://maven.rongcloud.cn/repository/maven-releases/" }
         google()
         mavenCentral()
     }
@@ -28,3 +29,4 @@ include ':lib_framework'
 include ':lib_thirdparty'
 include ':lib_local:glide'
 include ':lib_local:topsheet'
+include ':lib_local:rongcloud'
