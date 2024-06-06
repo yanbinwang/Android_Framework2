@@ -40,6 +40,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
     private val actionSound by lazy { MediaActionSound() }
     private val eventReceiver by lazy { KeyEventReceiver() }
     private val mContext get() = cvFinder?.context
+    private val isTaking get() = isTakingPicture || isTakingVideo
     val isTakingPicture get() = cvFinder?.isTakingPicture.orFalse
     val isTakingVideo get() = cvFinder?.isTakingVideo.orFalse
 
@@ -148,6 +149,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      * 镜头翻转
      */
     fun toggleFacing() {
+        if (isTaking) return
         closeFlash()
         cvFinder?.toggleFacing()
     }
@@ -156,6 +158,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      * 开关闪光灯
      */
     fun flash() {
+        if (isTaking) return
         if (cvFinder?.facing == Facing.FRONT) {
             R.string.cameraFlashError.shortToast()
         } else {
@@ -169,6 +172,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      * 关灯
      */
     fun closeFlash() {
+        if (isTaking) return
         if (cvFinder?.facing == Facing.BACK) {
             cvFinder?.flash = Flash.OFF
             onTakePictureListener?.onFlash(false)
@@ -264,6 +268,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
                 cvFinder = null
                 observer.lifecycle.removeObserver(this)
             }
+
             else -> {}
         }
     }
