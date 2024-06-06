@@ -267,7 +267,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
     /**
      * 存储图片协程(下载url)
      */
-    fun downloadPicJob(mContext: Context, string: String, root: String = "${STORAGE}/保存图片", deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+    fun downloadPicJob(mContext: Context, string: String, root: String = "${STORAGE}/Saved Images", deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
         downloadPicJob?.cancel()
         downloadPicJob = launch {
             onStart()

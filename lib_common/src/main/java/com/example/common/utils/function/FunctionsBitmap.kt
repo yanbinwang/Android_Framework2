@@ -125,7 +125,7 @@ fun Drawable.drawableToBitmap(): Bitmap {
  * format->图片类型
  * quality->压缩率
  */
-fun saveBit(bitmap: Bitmap, root: String = "${STORAGE}/保存图片", fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
+fun saveBit(bitmap: Bitmap, root: String = "${STORAGE}/Saved Images", fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
     //存储目录文件
     val storeDir = File(root)
     //先判断是否需要清空目录，再判断是否存在（不存在则创建）
