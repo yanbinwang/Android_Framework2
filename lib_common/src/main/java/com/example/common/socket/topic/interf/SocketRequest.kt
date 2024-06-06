@@ -1,3 +1,3 @@
-package com.example.common.socket.interf
+package com.example.common.socket.topic.interf
 
 annotation class SocketRequest(vararg val value: String)

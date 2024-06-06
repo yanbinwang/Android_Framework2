@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference
  * socket生命周期管理，适用于多个界面多个wss订阅
  * 写在baseactivity中OnCreate-》WebSocketRequest.addObserver(this)
  */
-object WebSocketTopicRequest : LifecycleEventObserver {
+object WebSocketRequest : LifecycleEventObserver {
     private val list by lazy { ArrayList<WeakReference<LifecycleOwner>>() }
 
     @JvmStatic

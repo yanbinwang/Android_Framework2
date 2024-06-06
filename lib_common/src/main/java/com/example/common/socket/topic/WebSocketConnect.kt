@@ -1,16 +1,14 @@
-package com.example.common.socket
+package com.example.common.socket.topic
 
 import com.example.common.config.ServerConfig
 
 /**
  * socket连接helper
+ * 整体连接的订阅和关闭
+ * 登出时记得调取WebSocketConnect.disconnect()
  */
 object WebSocketConnect {
-    private val proxy by lazy { WebSocketProxy(ServerConfig.socketUrl()) }
-
-//    fun connect(topicUrl: String) {
-//        proxy.connect(topicUrl)
-//    }
+    private val proxy by lazy { WebSocketTopic(ServerConfig.socketUrl()) }
 
     @JvmStatic
     fun topic(vararg destinations:  String) {

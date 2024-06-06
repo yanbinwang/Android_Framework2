@@ -192,7 +192,7 @@ fun TextView?.setSpanAll(@StringRes res: Int, @StringRes resKeyword: Int, colorR
 /**
  * 设置显示内容和对应文本颜色
  */
-fun TextView?.setArguments(txt: String = "", colorRes: Int = R.color.appTheme, resId: Int = -1) {
+fun TextView?.setTheme(txt: String = "", colorRes: Int = R.color.appTheme, resId: Int = -1) {
     this ?: return
     text = txt
     textColor(colorRes)
