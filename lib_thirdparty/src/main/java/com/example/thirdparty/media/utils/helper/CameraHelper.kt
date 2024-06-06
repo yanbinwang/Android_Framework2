@@ -40,6 +40,8 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
     private val actionSound by lazy { MediaActionSound() }
     private val eventReceiver by lazy { KeyEventReceiver() }
     private val mContext get() = cvFinder?.context
+    val isTakingPicture get() = cvFinder?.isTakingPicture.orFalse
+    val isTakingVideo get() = cvFinder?.isTakingVideo.orFalse
 
     init {
         observer.lifecycle.addObserver(this)
@@ -178,16 +180,16 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      * 拍照
      */
     fun takePicture(snapshot: Boolean = true) {
-        cvFinder?.apply {
-            if (isTakingPicture) {
-                R.string.cameraPictureShutter.shortToast()
-                return
-            }
+        if (isTakingPicture) {
+            R.string.cameraPictureShutter.shortToast()
+            return
+        }
+        cvFinder?.let {
             actionSound.play(MediaActionSound.SHUTTER_CLICK)
             if (snapshot) {
-                takePictureSnapshot()
+                it.takePictureSnapshot()
             } else {
-                takePicture()
+                it.takePicture()
             }
         }
     }
@@ -196,18 +198,18 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      * 开始录像
      */
     fun takeVideo(snapshot: Boolean = true) {
-        cvFinder?.apply {
-            if (isTakingVideo) {
-                R.string.cameraVideoShutter.shortToast()
-                return
-            }
+        if (isTakingVideo) {
+            R.string.cameraVideoShutter.shortToast()
+            return
+        }
+        cvFinder?.let {
             StorageUtil.getOutputFile(VIDEO).apply {
                 if (null != this) {
                     sourcePath = absolutePath
                     if (snapshot) {
-                        takeVideoSnapshot(this)
+                        it.takeVideoSnapshot(this)
                     } else {
-                        takeVideo(this)
+                        it.takeVideo(this)
                     }
                 } else {
                     onTakeVideoListener?.onResult(null)

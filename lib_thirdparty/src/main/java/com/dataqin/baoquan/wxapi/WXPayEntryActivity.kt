@@ -10,6 +10,7 @@ import com.example.common.event.EventCode.EVENT_PAY_FAILURE
 import com.example.common.event.EventCode.EVENT_PAY_SUCCESS
 import com.example.common.utils.builder.shortToast
 import com.example.thirdparty.R
+import com.example.thirdparty.utils.wechat.WXManager
 import com.tencent.mm.opensdk.modelbase.BaseReq
 import com.tencent.mm.opensdk.modelbase.BaseResp
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler
