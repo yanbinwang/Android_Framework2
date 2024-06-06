@@ -150,22 +150,35 @@ fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color
     text = txt.setSpanFirst(keyword, ColorSpan(context.color(colorRes)))
 }
 
+fun TextView?.setSpanFirst(@StringRes res: Int, @StringRes resKeyword: Int, colorRes: Int = R.color.appTheme) {
+    this ?: return
+    setSpanFirst(string(res), string(resKeyword), colorRes)
+}
+
 fun TextView?.setSpanAll(txt: String, keyword: String, colorRes: Int = R.color.appTheme) {
     this ?: return
     text = txt.setSpanAll(keyword, ColorSpan(context.color(colorRes)))
 }
 
+fun TextView?.setSpanAll(@StringRes res: Int, @StringRes resKeyword: Int, colorRes: Int = R.color.appTheme) {
+    this ?: return
+    setSpanAll(string(res), string(resKeyword), colorRes)
+}
+
 /**
  * 设置显示内容和对应文本颜色
  */
-fun TextView?.setArguments(txt: String = "", colorRes: Int = R.color.appTheme, resId: Int = -1) {
+fun TextView?.setTheme(txt: String = "", colorRes: Int = R.color.appTheme, resId: Int = -1) {
     this ?: return
     text = txt
     textColor(colorRes)
     if (-1 != resId) background(resId)
 }
 
-fun I18nTextView?.setArguments(resText: Int = -1, colorRes: Int = R.color.appTheme, resId: Int = -1) {
+/**
+ * 國際化文本操作
+ */
+fun I18nTextView?.setI18nTheme(resText: Int = -1, colorRes: Int = R.color.appTheme, resId: Int = -1) {
     this ?: return
     setI18nRes(resText)
     textColor(colorRes)

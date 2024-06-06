@@ -5,7 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.function.getStatusBarHeight
-import com.example.common.utils.function.setArguments
+import com.example.common.utils.function.setI18nTheme
+import com.example.common.utils.function.setTheme
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.click
@@ -35,12 +36,12 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
      * isShade->标题底部是否带阴影
      */
     fun setTitle(resTitle: Int = -1, titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, isShade: Boolean = false): TitleBuilder {
-        mBinding?.tvTitle?.setArguments(resTitle, titleColor)
+        mBinding?.tvTitle?.setI18nTheme(resTitle, titleColor)
         return setRoot(bgColor, isShade)
     }
 
     fun setTitle(title: String, titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, isShade: Boolean = false): TitleBuilder {
-        mBinding?.tvTitle?.setArguments(title, titleColor)
+        mBinding?.tvTitle?.setTheme(title, titleColor)
         return setRoot(bgColor, isShade)
     }
 
@@ -115,7 +116,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
     fun setI18nLeft(resLabel: Int, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
         mBinding?.tvLeft?.apply {
             visible()
-            setArguments(resLabel, labelColor)
+            setI18nTheme(resLabel, labelColor)
             click { onClick.invoke() }
         }
         mBinding?.ivLeft.gone()
@@ -125,7 +126,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
     fun setI18nRight(resLabel: Int, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = { }): TitleBuilder {
         mBinding?.tvRight?.apply {
             visible()
-            setArguments(resLabel, labelColor)
+            setI18nTheme(resLabel, labelColor)
             click { onClick.invoke() }
         }
         mBinding?.ivRight.gone()

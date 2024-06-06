@@ -4,7 +4,7 @@ import com.example.common.R
 import com.example.common.databinding.ItemTabBinding
 import com.example.common.utils.builder.TabLayoutBuilder
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.setArguments
+import com.example.common.utils.function.setI18nTheme
 import com.example.common.widget.i18n.I18nTextView
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orZero
@@ -25,7 +25,7 @@ class NativeIndicator(tab: TabLayout?, tabTitle: List<Int>?) : TabLayoutBuilder<
 
     override fun onBindView(mBinding: ItemTabBinding?, item: Int?, selected: Boolean, index: Int) {
         if(null == redraw) {
-            mBinding?.tvTitle.setTabTheme(item.orZero, selected)
+            mBinding?.tvTitle.setI18nTabTheme(item.orZero, selected)
         } else {
             redraw?.invoke(mBinding, item, selected, index)
         }
@@ -44,8 +44,8 @@ class NativeIndicator(tab: TabLayout?, tabTitle: List<Int>?) : TabLayoutBuilder<
 /**
  * 全局默认样式
  */
-fun I18nTextView?.setTabTheme(resText: Int = -1, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15, padding: Pair<Int, Int> = 6.pt to 6.pt) {
-    setArguments(resText, if (selected) colorRes.first.orZero else colorRes.second.orZero,)
+fun I18nTextView?.setI18nTabTheme(resText: Int = -1, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15, padding: Pair<Int, Int> = 6.pt to 6.pt) {
+    setI18nTheme(resText, if (selected) colorRes.first.orZero else colorRes.second.orZero,)
     textSize(if (selected) sizeRes.first.orZero else sizeRes.second.orZero)
     padding(start = padding.first, end = padding.second)
     bold(selected)
