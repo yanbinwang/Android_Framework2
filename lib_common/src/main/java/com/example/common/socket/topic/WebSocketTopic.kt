@@ -1,10 +1,10 @@
-package com.example.mvvm.utils.socket.topic
+package com.example.common.socket.topic
 
 import cn.zhxu.okhttps.WebSocket
 import cn.zhxu.stomp.Message
 import cn.zhxu.stomp.Stomp
+import com.example.common.socket.WebSocketProxy
 import com.example.common.utils.helper.AccountHelper.isLogin
-import com.example.mvvm.utils.socket.WebSocketProxy
 
 /**
  * 如果页面是需要订阅多个地址的，实现当前页面

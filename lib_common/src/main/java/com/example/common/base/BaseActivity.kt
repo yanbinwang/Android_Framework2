@@ -10,7 +10,6 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.MutableLiveData
@@ -28,7 +27,7 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.socket.WebSocketRequest
+import com.example.common.socket.topic.WebSocketRequest
 import com.example.common.utils.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
