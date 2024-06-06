@@ -9,8 +9,8 @@ import com.example.mvvm.utils.socket.WebSocketProxy
 /**
  * 如果页面是需要订阅多个地址的，实现当前页面
  */
-class WebSocketTopic(private val url: String) {
-    private val proxy by lazy { WebSocketProxy(url) }
+class WebSocketTopic(private val socketUrl: String) {
+    private val proxy by lazy { WebSocketProxy(socketUrl) }
     private val list by lazy { ArrayList<String>() }
 
     companion object {
@@ -27,7 +27,7 @@ class WebSocketTopic(private val url: String) {
     init {
         proxy.setOnWebSocketProxyListener(object : WebSocketProxy.OnWebSocketProxyListener {
             override fun onConnected(onConnected: Stomp) {
-                topic()
+                topicNow()
             }
 
             override fun onDisconnected(onConnected: WebSocket.Close) {
@@ -47,15 +47,19 @@ class WebSocketTopic(private val url: String) {
     fun topic(vararg destinations: String) {
         //未登录不订阅
         if (!isLogin()) return
-        list.clear()
-        list.addAll(destinations.toList())
-        proxy.connect()
+        if (!proxy.isConnected()) {
+            list.clear()
+            list.addAll(destinations.toList())
+            proxy.connect()
+            return
+        }
+        topicNow()
     }
 
     /**
      *  订阅服务提供的topic
      */
-    private fun topic() {
+    private fun topicNow() {
         list.forEach { destination ->
             proxy.topic(destination) { _: String?, data: Message? ->
                 listener(destination, data)

@@ -11,11 +11,11 @@ import com.example.framework.utils.logWTF
 /**
  * 非订阅长连接类
  */
-class WebSocketProxy(private val url: String) {
+class WebSocketProxy(private val socketUrl: String) {
     //回调监听
     private var listener: OnWebSocketProxyListener? = null
     //socket服务器，同时设置心跳间隔为 10 秒
-    private val stompClient by lazy { Stomp.over(OkHttps.webSocket(url).heatbeat(5, 10)) }
+    private val stompClient by lazy { Stomp.over(OkHttps.webSocket(socketUrl).heatbeat(5, 10)) }
     //默认头部内容配置
     private val headers by lazy { mutableListOf(Header("Client-Type", "mobile"), Header("timeZone", "GMT+8")) }
 
