@@ -3,8 +3,8 @@ package com.example.common.socket.topic
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.common.socket.topic.interf.SocketRequest
 import com.example.framework.utils.function.value.hasAnnotation
-import com.example.mvvm.utils.socket.topic.interf.SocketRequest
 import java.lang.ref.WeakReference
 
 /**

@@ -25,7 +25,7 @@ import com.example.common.config.ARouterPath
 import com.example.common.config.ServerConfig
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
-import com.example.common.socket.WebSocketProxy
+import com.example.common.socket.topic.WebSocketTopic
 import com.example.common.utils.AppManager
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
@@ -212,7 +212,7 @@ abstract class BaseApplication : Application() {
     }
 
     private fun initSocket() {
-        WebSocketProxy.setOnMessageListener { url, data ->
+        WebSocketTopic.setOnMessageListener { url, data ->
 
         }
     }
