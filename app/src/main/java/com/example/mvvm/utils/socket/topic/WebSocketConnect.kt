@@ -7,7 +7,7 @@ import com.example.common.config.ServerConfig
  * 整体连接的订阅和关闭
  * 登出时记得调取WebSocketConnect.disconnect()
  */
-object WebSocketTopicConnect {
+object WebSocketConnect {
     private val proxy by lazy { WebSocketTopic(ServerConfig.socketUrl()) }
 
     @JvmStatic

@@ -38,8 +38,8 @@ object WebSocketTopicRequest : LifecycleEventObserver {
         if (null != clazz) {
             val topicUrl = clazz.value
             when (event) {
-                Lifecycle.Event.ON_RESUME -> WebSocketTopicConnect.topic(*topicUrl)
-                Lifecycle.Event.ON_PAUSE -> WebSocketTopicConnect.untopic(*topicUrl)
+                Lifecycle.Event.ON_RESUME -> WebSocketConnect.topic(*topicUrl)
+                Lifecycle.Event.ON_PAUSE -> WebSocketConnect.untopic(*topicUrl)
                 Lifecycle.Event.ON_DESTROY -> remove(source)
                 else -> {}
             }
