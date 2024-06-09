@@ -65,7 +65,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
     }
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
-    protected fun setType() {
+    open fun setType() {
         window?.setType(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
     }
     // </editor-fold>
