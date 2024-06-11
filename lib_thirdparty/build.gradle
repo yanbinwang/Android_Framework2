@@ -2,7 +2,6 @@ plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
-//    id 'org.greenrobot.greendao'
 }
 
 android {
@@ -14,12 +13,6 @@ android {
         targetSdk build_versions.targetSdkVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
-//    greendao {
-//        schemaVersion build_database.schemaVersion
-//        daoPackage build_database.daoPackage
-//        targetGenDir build_database.targetGenDir
-//    }
 
     buildFeatures {
         dataBinding true

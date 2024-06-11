@@ -43,7 +43,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.ref.WeakReference
@@ -138,10 +138,10 @@ class OssFactory private constructor() : CoroutineScope {
                     }
                     //配置类如果不设置，会有默认配置
                 }}, ClientConfiguration().apply {
-                    connectionTimeout = 3600 * 1000//连接超时，默认15秒。
-                    socketTimeout = 3600 * 1000//socket超时，默认15秒。
-                    maxConcurrentRequest = Int.MAX_VALUE//最大并发请求数，默认5个。
-                    maxErrorRetry = 0 })//失败后最大重试次数，默认2次。
+                connectionTimeout = 3600 * 1000//连接超时，默认15秒。
+                socketTimeout = 3600 * 1000//socket超时，默认15秒。
+                maxConcurrentRequest = Int.MAX_VALUE//最大并发请求数，默认5个。
+                maxErrorRetry = 0 })//失败后最大重试次数，默认2次。
         }
     }
 
@@ -150,17 +150,14 @@ class OssFactory private constructor() : CoroutineScope {
      * @param observer
      */
     fun addObserver(observer: LifecycleOwner) {
-        observer.doOnDestroy {
-            cancel()
-            initJob?.cancel()
-            job.cancel()
-        }
+        observer.doOnDestroy { cancel() }
     }
 
     /**
      * 销毁方法
      */
     private fun cancel() {
+        //取消所有oss异步
         val iterator = ossMap.iterator()
         while (iterator.hasNext()) {
             try {
@@ -171,7 +168,10 @@ class OssFactory private constructor() : CoroutineScope {
             }
         }
         ossMap.clear()
-        coroutineContext.cancel()
+        //取消页面协程
+        initJob?.cancel()
+//        job.cancel()
+        coroutineContext.cancelChildren()
     }
 
     /**
@@ -206,7 +206,7 @@ class OssFactory private constructor() : CoroutineScope {
             val dbPair = init(sourcePath, baoquan, fileType)
             val query = dbPair.first
             val recordDirectory = dbPair.second
-            if (OssHelper.isComplete(baoquan)) {
+            if (OssDBHelper.isComplete(baoquan)) {
                 success(query, fileType, recordDirectory)
             } else {
                 val recordDir = File(recordDirectory)
@@ -275,7 +275,7 @@ class OssFactory private constructor() : CoroutineScope {
      */
     private fun query(sourcePath: String, baoquan: String, fileType: String): OssDB {
         //查询本地存储的数据，不存在则添加一条
-        var query = OssHelper.query(sourcePath)
+        var query = OssDBHelper.query(sourcePath)
         if (null == query) {
             query = OssDB().also {
                 it.sourcePath = sourcePath
@@ -284,9 +284,9 @@ class OssFactory private constructor() : CoroutineScope {
                 it.objectName = objectName(fileType)
                 it.extras = ""
             }
-            OssHelper.insert(query)
+            OssDBHelper.insert(query)
         }
-        OssHelper.updateUpload(baoquan, true)
+        OssDBHelper.updateUpload(baoquan, true)
         results(0, baoquan)
         return query
     }
@@ -300,7 +300,7 @@ class OssFactory private constructor() : CoroutineScope {
                 //全部传完停止服务器
                 if (percentage == 100) {
                     //优先保证本地数据库记录成功
-                    OssHelper.updateComplete(this, true)
+                    OssDBHelper.updateComplete(this, true)
                     success(query, fileType, recordDirectory.orEmpty())
                 }
             } else {
@@ -323,7 +323,7 @@ class OssFactory private constructor() : CoroutineScope {
                     //删除对应断点续传的文件夹和源文件
                     query.sourcePath.deleteDir()
                     recordDirectory.deleteFile()
-                    OssHelper.delete(query)
+                    OssDBHelper.delete(query)
                     results(2, this@apply, success = true)
                     EVENT_EVIDENCE_UPDATE.post(fileType)
                 }, { failure(this@apply, it?.second.orEmpty()) })
@@ -335,7 +335,7 @@ class OssFactory private constructor() : CoroutineScope {
      * 告知服务器此次失败的链接地址-》只做通知
      */
     private fun failure(baoquan: String, errorMessage: String) {
-        OssHelper.updateUpload(baoquan, false)
+        OssDBHelper.updateUpload(baoquan, false)
         results(2, baoquan, success = false)
         launch {
             request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)) })

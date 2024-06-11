@@ -3,7 +3,7 @@ package com.example.thirdparty.pay.utils.alipay
 /**
  * 阿里支付绘制
  */
-class PayResult(rawResult: String?) {
+class AlipayPayResult(rawResult: String?) {
     var resultStatus: String? = null
     var result: String? = null
     var memo: String? = null

@@ -14,8 +14,9 @@ import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.multiply
 import com.example.framework.utils.function.value.regCheck
 import com.example.framework.utils.function.value.subtract
+import com.example.framework.utils.function.view.OnMultiTextWatcher
 import com.example.framework.utils.function.view.clear
-import com.example.framework.utils.function.view.doInput
+import com.example.framework.utils.function.view.showInput
 import com.example.framework.utils.function.view.getNumber
 import com.example.framework.utils.function.view.hideKeyboard
 import com.example.framework.utils.function.view.onDone
@@ -271,14 +272,14 @@ interface EditTextImpl {
         editText.clear()
     }
 
-    fun ClearEditText?.doInput() {
+    fun ClearEditText?.showInput() {
         if (this == null) return
-        editText.doInput()
+        editText.showInput()
     }
 
-    fun PasswordEditText?.doInput() {
+    fun PasswordEditText?.showInput() {
         if (this == null) return
-        editText.doInput()
+        editText.showInput()
     }
 
     fun ClearEditText?.hideKeyboard() {
@@ -329,16 +330,16 @@ interface EditTextImpl {
  */
 interface SpecialEditText
 
-/**
- * 简易的输入监听
- */
-interface OnMultiTextWatcher : TextWatcher {
-    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-    }
-
-    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-    }
-
-    override fun afterTextChanged(s: Editable) {
-    }
-}
+///**
+// * 简易的输入监听
+// */
+//interface OnMultiTextWatcher : TextWatcher {
+//    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+//    }
+//
+//    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+//    }
+//
+//    override fun afterTextChanged(s: Editable) {
+//    }
+//}

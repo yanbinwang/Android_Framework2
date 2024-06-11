@@ -60,6 +60,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
     //分页
     private val paging by lazy { Paging() }
+    //全局倒计时时间点
+    protected var lastRefreshTime = 0L
     //基础的注入参数
     protected val mActivity: FragmentActivity get() = weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity()
     protected val mContext: Context get() = mActivity
@@ -83,26 +85,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 继承BaseTitleActivity的页面传父类的ViewGroup
      * 其余页面外层写FrameLayout，套上要使用的布局后再initView中调用该方法
      */
-//    //BaseTitleActivity传入容器viewGroup
-//    fun setExtraView(viewGroup: ViewGroup?) {
-//        this.weakEmpty = WeakReference(viewGroup.getEmptyView(1))
-//    }
-//
-//    //直接界面上绘制好empty
-//    fun setExtraView(empty: EmptyLayout?) {
-//        this.weakEmpty = WeakReference(empty)
-//    }
-//
-//    //传入外层下拉刷新的控件
-//    fun setExtraView(refresh: SmartRefreshLayout?) {
-//        this.weakRefresh = WeakReference(refresh)
-//    }
-//
-//    //传入用于刷新的empty
-//    fun setExtraView(recycler: XRecyclerView?) {
-//        this.weakEmpty = WeakReference(recycler?.empty)
-//        this.weakRecycler = WeakReference(recycler)
-//    }
     fun setExtraView(view: View?) {
         when (view) {
             //传入BaseTitleActivity中写好的容器viewGroup
@@ -120,20 +102,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     //部分首页加载时需要使用empty，完成后需要使用下拉刷新（只有下拉），故而直接传入两层view
-//    fun setExtraView(empty: EmptyLayout?, refresh: SmartRefreshLayout?) {
-//        this.weakEmpty = WeakReference(empty)
-//        this.weakRefresh = WeakReference(refresh)
-//    }
-//
-//    fun setExtraView(viewGroup: ViewGroup?, refresh: SmartRefreshLayout?) {
-//        this.weakEmpty = WeakReference(viewGroup.getEmptyView(1))
-//        this.weakRefresh = WeakReference(refresh)
-//    }
-//
-//    fun setExtraView(recycler: XRecyclerView?, refresh: SmartRefreshLayout?) {
-//        this.weakEmpty = WeakReference(recycler?.empty)
-//        this.weakRefresh = WeakReference(refresh)
-//    }
     fun setExtraView(view: View?, refresh: SmartRefreshLayout?) {
         when (view) {
             is FrameLayout -> {

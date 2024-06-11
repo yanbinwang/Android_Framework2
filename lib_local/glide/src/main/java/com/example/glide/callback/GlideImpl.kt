@@ -22,7 +22,7 @@ interface GlideImpl {
 
     fun displayGif(view: ImageView?, resourceId: Int? = null)//gif放入drawable中
 
-    fun displayProgress(view: ImageView?, string: String? = null, onStart: () -> Unit = {}, onProgress: (progress: Int?) -> Unit = {}, onComplete: () -> Unit = {})
+    fun displayProgress(view: ImageView?, string: String? = null, onStart: () -> Unit = {}, onProgress: (progress: Int?) -> Unit = {}, onComplete: (result: Boolean) -> Unit = {})
 
     fun display(view: ImageView?, string: String? = null, errorId: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
 

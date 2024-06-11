@@ -1,15 +1,15 @@
-package com.example.common.socket
+package com.example.common.socket.topic
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.common.socket.topic.interf.SocketRequest
 import com.example.framework.utils.function.value.hasAnnotation
-import com.example.common.socket.interf.SocketRequest
 import java.lang.ref.WeakReference
 
 /**
- * @description socket生命周期管理
- * @author yan
+ * socket生命周期管理，适用于多个界面多个wss订阅
+ * 写在baseactivity中OnCreate-》WebSocketRequest.addObserver(this)
  */
 object WebSocketRequest : LifecycleEventObserver {
     private val list by lazy { ArrayList<WeakReference<LifecycleOwner>>() }
