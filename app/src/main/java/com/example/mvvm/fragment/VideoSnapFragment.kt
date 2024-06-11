@@ -19,7 +19,6 @@ class VideoSnapFragment : BaseLazyFragment<FragmentVideoSnapBinding>(), VideoSna
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        mBinding?.tvLabel?.text = "我是${bundle?.id}"
         helper.bind(mBinding?.player)
         helper.setUrl("https://txmov2.a.yximgs.com/upic/2021/04/25/21/BMjAyMTA0MjUyMTE5NTZfMjExMjA0ODM0NF80ODQ1MzY1OTE5Ml8xXzM=_b_B8ad92744b489ba4e164a12802e2e37d4.mp4")
     }

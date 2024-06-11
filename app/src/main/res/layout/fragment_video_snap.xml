@@ -3,21 +3,12 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/bgBlue">
+        android:layout_height="match_parent">
 
-        <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
+        <com.example.thirdparty.media.widget.NormalGSYVideoPlayer
             android:id="@+id/player"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
-        <TextView
-            android:id="@+id/tv_label"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:textColor="@color/textWhite"
-            android:textSize="36pt" />
 
     </FrameLayout>
 
