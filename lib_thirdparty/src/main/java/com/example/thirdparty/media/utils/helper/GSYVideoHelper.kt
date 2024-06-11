@@ -5,12 +5,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.view.byHardwareAccelerate
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.gone
-import com.example.framework.utils.function.view.stopHardwareAccelerate
 import com.example.glide.ImageLoader
 import com.example.thirdparty.R
 import com.example.thirdparty.databinding.ViewGsyvideoThumbBinding
@@ -68,8 +66,6 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
         //默认采用exo内核，播放报错则切ijk内核
         PlayerFactory.setPlayManager(Exo2PlayerManager::class.java)
         CacheFactory.setCacheManager(ExoPlayerCacheManager::class.java)
-        //开启硬件加速
-        player.byHardwareAccelerate()
         //配置适配遮罩，隐藏默认的顶部菜单的返回/标题
         player?.thumbImageView = mBinding?.root
         player?.titleTextView?.gone()
@@ -182,7 +178,6 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
         restartJob?.cancel()
         job.cancel()
         orientationUtils?.releaseListener()
-        player?.stopHardwareAccelerate()
         player?.currentPlayer?.release()
         player?.release()
         player = null
