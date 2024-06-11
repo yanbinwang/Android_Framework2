@@ -1,12 +1,8 @@
 package com.example.mvvm.activity
 
 import android.os.Bundle
-import android.view.View
 import androidx.core.graphics.drawable.toBitmapOrNull
-import androidx.recyclerview.widget.OrientationHelper
-import androidx.recyclerview.widget.RecyclerView
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.example.common.BaseApplication
 import com.example.common.base.BaseActivity
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
@@ -28,14 +24,11 @@ import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
-import com.example.framework.utils.function.view.isBottom
-import com.example.framework.utils.function.view.isTop
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.rotate
 import com.example.framework.utils.function.view.size
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
-import com.example.mvvm.utils.VideoSnapManager
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestTopDialog
 import com.example.thirdparty.album.AlbumHelper
@@ -250,37 +243,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            .build()
         //判断是全角字符  \u0020为半角空格，\u3000为全角空格
 //        "${"是".regCheck("[^\\x00-\\xff]")}".logWTF
-
-        val recycler = RecyclerView(this)
-        val videoSnapManager = VideoSnapManager(this, OrientationHelper.VERTICAL, false)
-        recycler.layoutManager = videoSnapManager
-//        recycler.adapter
-        videoSnapManager.setOnViewPagerListener(object : VideoSnapManager.OnViewPagerListener {
-            override fun onPageRelease(isNest: Boolean, itemView: View) {
-//                releaseVideo(itemView)
-            }
-
-            override fun onPageSelected(isBottom: Boolean, itemView: View) {
-//                playVideo(itemView)
-            }
-        })
-        recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                //当前处于停止滑动
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-//                    if (list.safeSize()<2) return
-                    if (recyclerView.isTop()) {
-
-                        return
-                    }
-                    if (recyclerView.isBottom()) {
-
-                        return
-                    }
-                }
-                super.onScrollStateChanged(recyclerView, newState)
-            }
-        })
     }
 
 //    class TestBean(
