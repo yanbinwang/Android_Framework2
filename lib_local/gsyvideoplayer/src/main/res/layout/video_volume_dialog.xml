@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center_vertical"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <RelativeLayout
+    <FrameLayout
         android:layout_width="90dp"
         android:layout_height="160dp"
-        android:gravity="center">
+        android:layout_gravity="center_vertical">
 
         <LinearLayout
             android:id="@+id/content"
             android:layout_width="40dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:background="@drawable/video_dialog_progress_bg"
             android:orientation="vertical">
 
@@ -33,8 +32,9 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:src="@drawable/video_volume_icon" />
+
         </LinearLayout>
 
-    </RelativeLayout>
+    </FrameLayout>
 
-</LinearLayout>
+</FrameLayout>

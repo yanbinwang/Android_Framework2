@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
+    <!-- 播放器容器 -->
     <RelativeLayout
         android:id="@+id/surface_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center" />
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- 播放器UI整体容器 -->
     <RelativeLayout
         android:id="@+id/widget_container"
         android:layout_width="match_parent"
@@ -37,14 +45,6 @@
             android:layout_alignParentBottom="true"
             android:max="100"
             android:progressDrawable="@drawable/video_progress" />
-
-        <ImageView
-            android:id="@+id/back_tiny"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginLeft="6dp"
-            android:layout_marginTop="6dp"
-            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/layout_top"
@@ -111,15 +111,16 @@
 
     </RelativeLayout>
 
+    <!-- 底部菜单 -->
     <LinearLayout
         android:id="@+id/layout_bottom"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_alignParentBottom="true"
         android:background="@color/bottom_container_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:visibility="invisible">
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <TextView
             android:id="@+id/current"
@@ -162,11 +163,11 @@
 
     </LinearLayout>
 
+    <!-- 跳过按钮 -->
     <TextView
         android:id="@+id/jump_ad"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_marginTop="20dp"
         android:layout_marginRight="20dp"
         android:background="@drawable/video_jump_btn_bg"
@@ -176,13 +177,16 @@
         android:paddingBottom="4dp"
         android:text="@string/jump_ad"
         android:textColor="#FFFFFF"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
 
+    <!-- 倒计时 -->
     <TextView
         android:id="@+id/ad_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/video_jump_btn_bg"
@@ -192,6 +196,9 @@
         android:paddingBottom="4dp"
         android:text="00"
         android:textColor="#FFFFFF"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
