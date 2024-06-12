@@ -12,7 +12,6 @@ import com.shuyu.gsyvideoplayer.GSYVideoManager
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import kotlin.math.max
 
-
 /**
  * @description 播放器帮助类
  * @author yan
