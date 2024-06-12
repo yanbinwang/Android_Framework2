@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:gravity="center">
 
     <RelativeLayout
         android:layout_width="152dp"
@@ -45,6 +44,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="#ffffffff"
                     android:textSize="14.0sp" />
+
             </LinearLayout>
 
             <ProgressBar
@@ -59,6 +59,7 @@
                 android:layout_marginBottom="16dp"
                 android:max="100"
                 android:progressDrawable="@drawable/video_dialog_progress" />
+
         </LinearLayout>
 
     </RelativeLayout>

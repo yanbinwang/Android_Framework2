@@ -32,5 +32,7 @@
             android:text="50%"
             android:textColor="@android:color/white"
             android:textSize="16dp" />
+
     </RelativeLayout>
+
 </LinearLayout>
