@@ -1,5 +1,6 @@
 package com.example.gsyvideoplayer.utils
 
+import android.view.View
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -31,6 +32,7 @@ import kotlinx.coroutines.launch
 import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
 import kotlin.coroutines.CoroutineContext
+
 
 /**
  * @description 播放器帮助类
@@ -81,9 +83,36 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
             player?.fullscreenButton?.click {
                 orientationUtils?.resolveByClick()
                 //第一个true是否需要隐藏actionbar，第二个true是否需要隐藏statusbar
-                player.startWindowFullscreen(mActivity, true, true)
+                player.startWindowFullscreen(player.context, true, true)
             }
         }
+    }
+
+    /**
+     * 绑定列表
+     * https://github.com/CarGuo/GSYVideoPlayer/blob/master/doc/USE.md
+     */
+    fun bind(player: StandardGSYVideoPlayer?, url: String, position: Int) {
+        player?.setUpLazy(url, true, null, null, "这是title")
+        //隐藏title
+        player?.titleTextView?.visibility = View.GONE
+        //设置返回键
+        player?.backButton?.setVisibility(View.GONE)
+        //设置全屏按键功能
+        player?.fullscreenButton?.setOnClickListener {
+            player.startWindowFullscreen(player.context, false, true)
+        }
+        //防止错位设置
+        player?.playTag = "${url}::${position}"
+        player?.playPosition = position
+        //是否根据视频尺寸，自动选择竖屏全屏或者横屏全屏
+        player?.isAutoFullWithSize = true
+        //音频焦点冲突时是否释放
+        player?.isReleaseWhenLossAudio = false
+        //全屏动画
+        player?.isShowFullAnimation = true
+        //小屏时不触摸滑动
+        player?.setIsTouchWiget(false)
     }
 
     /**

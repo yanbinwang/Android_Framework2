@@ -5,7 +5,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.example.thirdparty.media.widget.NormalGSYVideoPlayer
+<!--        <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer-->
+<!--            android:id="@+id/player"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent" />-->
+
+        <com.example.gsyvideoplayer.video.StandardGSYVideoPlayer
             android:id="@+id/player"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

@@ -7,10 +7,10 @@ import com.example.common.base.page.Extra
 import com.example.common.utils.toJsonString
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.logWTF
+import com.example.gsyvideoplayer.utils.GSYVideoHelper
 import com.example.mvvm.bean.VideoSnapBean
 import com.example.mvvm.databinding.FragmentVideoSnapBinding
 import com.example.mvvm.utils.VideoSnapImpl
-import com.example.thirdparty.media.utils.helper.GSYVideoHelper
 
 @SuppressLint("SetTextI18n")
 class VideoSnapFragment : BaseLazyFragment<FragmentVideoSnapBinding>(), VideoSnapImpl {
