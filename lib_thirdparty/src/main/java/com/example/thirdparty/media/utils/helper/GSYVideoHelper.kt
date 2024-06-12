@@ -1,6 +1,6 @@
 package com.example.thirdparty.media.utils.helper
 
-import android.view.View
+import android.content.res.Configuration
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -33,14 +33,23 @@ import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
 import kotlin.coroutines.CoroutineContext
 
-
 /**
  * @description 播放器帮助类
  * @author yan
+ *
+ * https://github.com/CarGuo/GSYVideoPlayer/blob/master/doc/USE.md
+ *
  * 使用FragmentManager来管理fragment的时候，其如果继承BaseLazyFragment，此时页面判断lifecycle的生命周期是没有意义的
  * 因为重写了onHiddenChanged，并且其添加了FragmentOwner注解，碰到此类需要有视频播放的情况，不传activity
+ *
+ * <activity
+ *     android:name=".xxxxx"
+ *     android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+ *     android:screenOrientation="portrait" />
  */
 class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : CoroutineScope, LifecycleEventObserver {
+    private var isPause = false
+    private var isPlay = false
     private var retryWithPlay = false
     private var restartJob: Job? = null
     private var player: StandardGSYVideoPlayer? = null
@@ -89,33 +98,6 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
     }
 
     /**
-     * 绑定列表
-     * https://github.com/CarGuo/GSYVideoPlayer/blob/master/doc/USE.md
-     */
-    fun bind(player: StandardGSYVideoPlayer?, url: String, position: Int) {
-        player?.setUpLazy(url, true, null, null, "这是title")
-        //隐藏title
-        player?.titleTextView?.visibility = View.GONE
-        //设置返回键
-        player?.backButton?.setVisibility(View.GONE)
-        //设置全屏按键功能
-        player?.fullscreenButton?.setOnClickListener {
-            player.startWindowFullscreen(player.context, false, true)
-        }
-        //防止错位设置
-        player?.playTag = "${url}::${position}"
-        player?.playPosition = position
-        //是否根据视频尺寸，自动选择竖屏全屏或者横屏全屏
-        player?.isAutoFullWithSize = true
-        //音频焦点冲突时是否释放
-        player?.isReleaseWhenLossAudio = false
-        //全屏动画
-        player?.isShowFullAnimation = true
-        //小屏时不触摸滑动
-        player?.setIsTouchWiget(false)
-    }
-
-    /**
      * 设置播放路径，缩略图，是否自动开始播放
      */
     fun setUrl(url: String, thumbUrl: String? = null, autoPlay: Boolean = false) {
@@ -135,6 +117,13 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
             .setUrl(url)
             .setCacheWithPlay(false)
             .setVideoAllCallBack(object : GSYSampleCallBack() {
+                override fun onPrepared(url: String?, vararg objects: Any?) {
+                    super.onPrepared(url, *objects)
+                    //开始播放了才能旋转和全屏
+                    isPlay = true
+                    orientationUtils?.setEnable(true)
+                }
+
                 override fun onQuitFullscreen(url: String, vararg objects: Any) {
                     super.onQuitFullscreen(url, *objects)
                     orientationUtils?.backToProtVideo()
@@ -158,16 +147,42 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
                         }
                     }
                 }
-            }).build(player)
+            })
+//            .setLockClickListener { _, lock ->
+//                //配合下方的onConfigurationChanged
+//                orientationUtils?.setEnable(!lock)
+//            }
+            .build(player)
         if (autoPlay) start()
     }
 
     /**
      * 全屏时写，写在系统的onBackPressed之前
+     *  @Override
+     *  public void onBackPressed() {
+     *     if (GSYVideoManager.backFromWindowFull(this)) {
+     *         return;
+     *     }
+     *     super.onBackPressed();
+     *  }
      */
     fun onBackPressed(): Boolean {
         orientationUtils?.backToProtVideo()
         return GSYVideoManager.backFromWindowFull(mActivity)
+    }
+
+    /**
+     * 如果旋转了就全屏
+     * @Override
+     * public void onConfigurationChanged(Configuration newConfig) {
+     *     super.onConfigurationChanged(newConfig);
+     *     if (isPlay && !isPause) {
+     *         detailPlayer.onConfigurationChanged(this, newConfig, orientationUtils, true, true);
+     *     }
+     * }
+     */
+    fun onConfigurationChanged(newConfig: Configuration) {
+        if (isPlay && !isPause) player?.onConfigurationChanged(mActivity, newConfig, orientationUtils, true, true)
     }
 
     /**
@@ -186,6 +201,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
      * 播放-默认一次切内核的重试机会
      */
     fun start() {
+        isPlay = false
         retryWithPlay = false
         player?.startPlayLogic()
     }
@@ -193,12 +209,18 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
     /**
      * 暂停
      */
-    fun pause() = player?.currentPlayer?.onVideoPause()
+    fun pause() {
+        isPause = true
+        player?.currentPlayer?.onVideoPause()
+    }
 
     /**
      * 加载
      */
-    fun resume() = player?.currentPlayer?.onVideoResume(false)
+    fun resume() {
+        isPause = false
+        player?.currentPlayer?.onVideoResume(false)
+    }
 
     /**
      * 销毁
