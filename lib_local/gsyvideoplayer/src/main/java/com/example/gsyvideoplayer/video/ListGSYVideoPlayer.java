@@ -22,11 +22,9 @@ import moe.codeest.enviews.ENDownloadView;
  * 列表播放支持
  * Created by shuyu on 2016/12/20.
  */
-
 public class ListGSYVideoPlayer extends StandardGSYVideoPlayer {
-
-    protected List<GSYVideoModel> mUriList = new ArrayList<>();
     protected int mPlayPosition;
+    protected List<GSYVideoModel> mUriList = new ArrayList<>();
 
     /**
      * 1.5.0开始加入，如果需要不同布局区分功能，需要重载
@@ -42,7 +40,6 @@ public class ListGSYVideoPlayer extends StandardGSYVideoPlayer {
     public ListGSYVideoPlayer(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
-
 
     /**
      * 设置播放URL
@@ -100,12 +97,11 @@ public class ListGSYVideoPlayer extends StandardGSYVideoPlayer {
         mMapHeadData = mapHeadData;
         GSYVideoModel gsyVideoModel = url.get(position);
         boolean set = setUp(gsyVideoModel.getUrl(), cacheWithPlay, cachePath, gsyVideoModel.getTitle(), changeState);
-        if (!TextUtils.isEmpty(gsyVideoModel.getTitle()) && mTitleTextView != null ) {
+        if (!TextUtils.isEmpty(gsyVideoModel.getTitle()) && mTitleTextView != null) {
             mTitleTextView.setText(gsyVideoModel.getTitle());
         }
         return set;
     }
-
 
     @Override
     protected void cloneParams(GSYBaseVideoPlayer from, GSYBaseVideoPlayer to) {
@@ -132,7 +128,6 @@ public class ListGSYVideoPlayer extends StandardGSYVideoPlayer {
     @Override
     protected void resolveNormalVideoShow(View oldF, ViewGroup vp, GSYVideoPlayer gsyVideoPlayer) {
         if (gsyVideoPlayer != null) {
-            ListGSYVideoPlayer listGSYVideoPlayer = (ListGSYVideoPlayer) gsyVideoPlayer;
             GSYVideoModel gsyVideoModel = mUriList.get(mPlayPosition);
             if (!TextUtils.isEmpty(gsyVideoModel.getTitle()) && mTitleTextView != null) {
                 mTitleTextView.setText(gsyVideoModel.getTitle());
@@ -179,7 +174,6 @@ public class ListGSYVideoPlayer extends StandardGSYVideoPlayer {
         }
     }
 
-
     @Override
     public void onPrepared() {
         super.onPrepared();
@@ -221,4 +215,5 @@ public class ListGSYVideoPlayer extends StandardGSYVideoPlayer {
         }
         return false;
     }
+
 }

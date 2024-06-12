@@ -1,5 +1,6 @@
 package com.example.gsyvideoplayer.video;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
@@ -16,17 +17,13 @@ import com.shuyu.gsyvideoplayer.utils.CommonUtil;
 import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoViewBridge;
 
-
 /**
  * Created by guoshuyu on 2018/2/1.
  */
-
+@SuppressLint("SetTextI18n")
 public class GSYADVideoPlayer extends StandardGSYVideoPlayer {
-
     protected View mJumpAd;
-
     protected TextView mADTime;
-
     protected boolean isFirstPrepared;
 
     public GSYADVideoPlayer(Context context, Boolean fullFlag) {
@@ -45,14 +42,11 @@ public class GSYADVideoPlayer extends StandardGSYVideoPlayer {
     protected void init(Context context) {
         super.init(context);
         mJumpAd = findViewById(R.id.jump_ad);
-        mADTime = (TextView) findViewById(R.id.ad_time);
+        mADTime = findViewById(R.id.ad_time);
         if (mJumpAd != null) {
-            mJumpAd.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (getGSYVideoManager().listener() != null) {
-                        getGSYVideoManager().listener().onAutoCompletion();
-                    }
+            mJumpAd.setOnClickListener(v -> {
+                if (getGSYVideoManager().listener() != null) {
+                    getGSYVideoManager().listener().onAutoCompletion();
                 }
             });
         }
@@ -110,8 +104,7 @@ public class GSYADVideoPlayer extends StandardGSYVideoPlayer {
     @Override
     protected void updateStartImage() {
         if (mStartButton != null) {
-            if (mStartButton instanceof ImageView) {
-                ImageView imageView = (ImageView) mStartButton;
+            if (mStartButton instanceof ImageView imageView) {
                 if (mCurrentState == CURRENT_STATE_PLAYING) {
                     imageView.setImageResource(R.drawable.empty_drawable);
                 } else if (mCurrentState == CURRENT_STATE_ERROR) {
@@ -122,7 +115,6 @@ public class GSYADVideoPlayer extends StandardGSYVideoPlayer {
             }
         }
     }
-
 
     /**
      * 广告期间不需要双击
@@ -168,9 +160,7 @@ public class GSYADVideoPlayer extends StandardGSYVideoPlayer {
             return;
         }
         super.touchSurfaceUp();
-
     }
-
 
     @Override
     protected void hideAllWidget() {
@@ -237,7 +227,7 @@ public class GSYADVideoPlayer extends StandardGSYVideoPlayer {
      * 移除广告播放的全屏
      */
     public void removeFullWindowViewOnly() {
-        ViewGroup vp = (ViewGroup) (CommonUtil.scanForActivity(getContext())).findViewById(Window.ID_ANDROID_CONTENT);
+        ViewGroup vp = (CommonUtil.scanForActivity(getContext())).findViewById(Window.ID_ANDROID_CONTENT);
         View old = vp.findViewById(getFullId());
         if (old != null) {
             if (old.getParent() != null) {

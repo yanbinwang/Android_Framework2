@@ -1,9 +1,9 @@
 package com.example.gsyvideoplayer.video;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -34,48 +34,33 @@ import moe.codeest.enviews.ENPlayView;
  * 标准播放器，继承之后实现一些ui显示效果，如显示／隐藏ui，播放按键等
  * Created by shuyu on 2016/11/11.
  */
-
+@SuppressLint("SetTextI18n")
 public class StandardGSYVideoPlayer extends GSYVideoPlayer {
-
     //亮度dialog
     protected Dialog mBrightnessDialog;
-
     //音量dialog
     protected Dialog mVolumeDialog;
-
     //触摸进度dialog
     protected Dialog mProgressDialog;
-
     //触摸进度条的progress
     protected ProgressBar mDialogProgressBar;
-
     //音量进度条的progress
     protected ProgressBar mDialogVolumeProgressBar;
-
     //亮度文本
     protected TextView mBrightnessDialogTv;
-
     //触摸移动显示文本
     protected TextView mDialogSeekTime;
-
     //触摸移动显示全部时间
     protected TextView mDialogTotalTime;
-
     //触摸移动方向icon
     protected ImageView mDialogIcon;
-
+    //控件图片/颜色资源设置
     protected Drawable mBottomProgressDrawable;
-
     protected Drawable mBottomShowProgressDrawable;
-
     protected Drawable mBottomShowProgressThumbDrawable;
-
     protected Drawable mVolumeProgressDrawable;
-
     protected Drawable mDialogProgressBarDrawable;
-
     protected int mDialogProgressHighLightColor = -11;
-
     protected int mDialogProgressNormalColor = -11;
 
     /**
@@ -96,22 +81,16 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
     @Override
     protected void init(Context context) {
         super.init(context);
-
-
         //增加自定义ui
-
         if (mBottomProgressDrawable != null) {
             mBottomProgressBar.setProgressDrawable(mBottomProgressDrawable);
         }
-
         if (mBottomShowProgressDrawable != null) {
             mProgressBar.setProgressDrawable(mBottomProgressDrawable);
         }
-
         if (mBottomShowProgressThumbDrawable != null) {
             mProgressBar.setThumb(mBottomShowProgressThumbDrawable);
         }
-
     }
 
     /**
@@ -149,19 +128,11 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivityContext());
         builder.setMessage(getResources().getString(R.string.tips_not_wifi));
-        builder.setPositiveButton(getResources().getString(R.string.tips_not_wifi_confirm), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                startPlayLogic();
-            }
+        builder.setPositiveButton(getResources().getString(R.string.tips_not_wifi_confirm), (dialog, which) -> {
+            dialog.dismiss();
+            startPlayLogic();
         });
-        builder.setNegativeButton(getResources().getString(R.string.tips_not_wifi_cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        builder.setNegativeButton(getResources().getString(R.string.tips_not_wifi_cancel), (dialog, which) -> dialog.dismiss());
         builder.create().show();
     }
 
@@ -174,19 +145,19 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         if (mProgressDialog == null) {
             View localView = LayoutInflater.from(getActivityContext()).inflate(getProgressDialogLayoutId(), null);
             if (localView.findViewById(getProgressDialogProgressId()) instanceof ProgressBar) {
-                mDialogProgressBar = ((ProgressBar) localView.findViewById(getProgressDialogProgressId()));
+                mDialogProgressBar = localView.findViewById(getProgressDialogProgressId());
                 if (mDialogProgressBarDrawable != null) {
                     mDialogProgressBar.setProgressDrawable(mDialogProgressBarDrawable);
                 }
             }
             if (localView.findViewById(getProgressDialogCurrentDurationTextId()) instanceof TextView) {
-                mDialogSeekTime = ((TextView) localView.findViewById(getProgressDialogCurrentDurationTextId()));
+                mDialogSeekTime = localView.findViewById(getProgressDialogCurrentDurationTextId());
             }
             if (localView.findViewById(getProgressDialogAllDurationTextId()) instanceof TextView) {
-                mDialogTotalTime = ((TextView) localView.findViewById(getProgressDialogAllDurationTextId()));
+                mDialogTotalTime = localView.findViewById(getProgressDialogAllDurationTextId());
             }
             if (localView.findViewById(getProgressDialogImageId()) instanceof ImageView) {
-                mDialogIcon = ((ImageView) localView.findViewById(getProgressDialogImageId()));
+                mDialogIcon = localView.findViewById(getProgressDialogImageId());
             }
             mProgressDialog = new Dialog(getActivityContext(), R.style.video_style_dialog_progress);
             mProgressDialog.setContentView(localView);
@@ -204,7 +175,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
             localLayoutParams.gravity = Gravity.TOP;
             localLayoutParams.width = getWidth();
             localLayoutParams.height = getHeight();
-            int location[] = new int[2];
+            int[] location = new int[2];
             getLocationOnScreen(location);
             localLayoutParams.x = location[0];
             localLayoutParams.y = location[1];
@@ -221,7 +192,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         }
         if (totalTimeDuration > 0)
             if (mDialogProgressBar != null) {
-                mDialogProgressBar.setProgress((int)(seekTimePosition * 100 / totalTimeDuration));
+                mDialogProgressBar.setProgress((int) (seekTimePosition * 100 / totalTimeDuration));
             }
         if (deltaX > 0) {
             if (mDialogIcon != null) {
@@ -232,7 +203,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
                 mDialogIcon.setBackgroundResource(R.drawable.video_backward_icon);
             }
         }
-
     }
 
     @Override
@@ -251,7 +221,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         if (mVolumeDialog == null) {
             View localView = LayoutInflater.from(getActivityContext()).inflate(getVolumeLayoutId(), null);
             if (localView.findViewById(getVolumeProgressId()) instanceof ProgressBar) {
-                mDialogVolumeProgressBar = ((ProgressBar) localView.findViewById(getVolumeProgressId()));
+                mDialogVolumeProgressBar = localView.findViewById(getVolumeProgressId());
                 if (mVolumeProgressDrawable != null && mDialogVolumeProgressBar != null) {
                     mDialogVolumeProgressBar.setProgressDrawable(mVolumeProgressDrawable);
                 }
@@ -266,7 +236,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
             localLayoutParams.gravity = Gravity.TOP | Gravity.START;
             localLayoutParams.width = getWidth();
             localLayoutParams.height = getHeight();
-            int location[] = new int[2];
+            int[] location = new int[2];
             getLocationOnScreen(location);
             localLayoutParams.x = location[0];
             localLayoutParams.y = location[1];
@@ -288,7 +258,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         }
     }
 
-
     /**
      * 触摸亮度dialog，如需要自定义继承重写即可，记得重写dismissBrightnessDialog
      */
@@ -297,7 +266,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         if (mBrightnessDialog == null) {
             View localView = LayoutInflater.from(getActivityContext()).inflate(getBrightnessLayoutId(), null);
             if (localView.findViewById(getBrightnessTextId()) instanceof TextView) {
-                mBrightnessDialogTv = (TextView) localView.findViewById(getBrightnessTextId());
+                mBrightnessDialogTv = localView.findViewById(getBrightnessTextId());
             }
             mBrightnessDialog = new Dialog(getActivityContext(), R.style.video_style_dialog_progress);
             mBrightnessDialog.setContentView(localView);
@@ -310,7 +279,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
             localLayoutParams.gravity = Gravity.TOP | Gravity.END;
             localLayoutParams.width = getWidth();
             localLayoutParams.height = getHeight();
-            int location[] = new int[2];
+            int[] location = new int[2];
             getLocationOnScreen(location);
             localLayoutParams.x = location[0];
             localLayoutParams.y = location[1];
@@ -322,7 +291,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         if (mBrightnessDialogTv != null)
             mBrightnessDialogTv.setText((int) (percent * 100) + "%");
     }
-
 
     @Override
     protected void dismissBrightnessDialog() {
@@ -381,7 +349,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
             setViewShowState(mLockScreen, VISIBLE);
             return;
         }
-
         if (mIfCurrentIsFullscreen && !mSurfaceErrorPlay && mCurrentState == CURRENT_STATE_ERROR) {
             if (mBottomContainer != null) {
                 if (mBottomContainer.getVisibility() == View.VISIBLE) {
@@ -441,11 +408,9 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mStartButton, INVISIBLE);
     }
 
-
     @Override
     protected void changeUiToNormal() {
         Debuger.printfLog("changeUiToNormal");
-
         setViewShowState(mTopContainer, VISIBLE);
         setViewShowState(mBottomContainer, INVISIBLE);
         setViewShowState(mStartButton, VISIBLE);
@@ -453,7 +418,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mThumbImageViewLayout, VISIBLE);
         setViewShowState(mBottomProgressBar, INVISIBLE);
         setViewShowState(mLockScreen, (mIfCurrentIsFullscreen && mNeedLockFull) ? VISIBLE : GONE);
-
         updateStartImage();
         if (mLoadingProgressBar instanceof ENDownloadView) {
             ((ENDownloadView) mLoadingProgressBar).reset();
@@ -463,7 +427,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
     @Override
     protected void changeUiToPreparingShow() {
         Debuger.printfLog("changeUiToPreparingShow");
-
         setViewShowState(mTopContainer, VISIBLE);
         setViewShowState(mBottomContainer, VISIBLE);
         setViewShowState(mStartButton, INVISIBLE);
@@ -471,9 +434,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mThumbImageViewLayout, INVISIBLE);
         setViewShowState(mBottomProgressBar, INVISIBLE);
         setViewShowState(mLockScreen, GONE);
-
-        if (mLoadingProgressBar instanceof ENDownloadView) {
-            ENDownloadView enDownloadView = (ENDownloadView) mLoadingProgressBar;
+        if (mLoadingProgressBar instanceof ENDownloadView enDownloadView) {
             if (enDownloadView.getCurrentState() == ENDownloadView.STATE_PRE) {
                 ((ENDownloadView) mLoadingProgressBar).start();
             }
@@ -483,12 +444,10 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
     @Override
     protected void changeUiToPlayingShow() {
         Debuger.printfLog("changeUiToPlayingShow");
-
         if (mLockCurScreen && mNeedLockFull) {
             setViewShowState(mLockScreen, VISIBLE);
             return;
         }
-
         setViewShowState(mTopContainer, VISIBLE);
         setViewShowState(mBottomContainer, VISIBLE);
         setViewShowState(mStartButton, VISIBLE);
@@ -496,7 +455,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mThumbImageViewLayout, INVISIBLE);
         setViewShowState(mBottomProgressBar, INVISIBLE);
         setViewShowState(mLockScreen, (mIfCurrentIsFullscreen && mNeedLockFull) ? VISIBLE : GONE);
-
         if (mLoadingProgressBar instanceof ENDownloadView) {
             ((ENDownloadView) mLoadingProgressBar).reset();
         }
@@ -517,7 +475,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mThumbImageViewLayout, INVISIBLE);
         setViewShowState(mBottomProgressBar, INVISIBLE);
         setViewShowState(mLockScreen, (mIfCurrentIsFullscreen && mNeedLockFull) ? VISIBLE : GONE);
-
         if (mLoadingProgressBar instanceof ENDownloadView) {
             ((ENDownloadView) mLoadingProgressBar).reset();
         }
@@ -528,7 +485,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
     @Override
     protected void changeUiToPlayingBufferingShow() {
         Debuger.printfLog("changeUiToPlayingBufferingShow");
-
         setViewShowState(mTopContainer, VISIBLE);
         setViewShowState(mBottomContainer, VISIBLE);
         setViewShowState(mStartButton, INVISIBLE);
@@ -536,9 +492,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mThumbImageViewLayout, INVISIBLE);
         setViewShowState(mBottomProgressBar, INVISIBLE);
         setViewShowState(mLockScreen, GONE);
-
-        if (mLoadingProgressBar instanceof ENDownloadView) {
-            ENDownloadView enDownloadView = (ENDownloadView) mLoadingProgressBar;
+        if (mLoadingProgressBar instanceof ENDownloadView enDownloadView) {
             if (enDownloadView.getCurrentState() == ENDownloadView.STATE_PRE) {
                 ((ENDownloadView) mLoadingProgressBar).start();
             }
@@ -548,7 +502,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
     @Override
     protected void changeUiToCompleteShow() {
         Debuger.printfLog("changeUiToCompleteShow");
-
         setViewShowState(mTopContainer, VISIBLE);
         setViewShowState(mBottomContainer, VISIBLE);
         setViewShowState(mStartButton, VISIBLE);
@@ -556,7 +509,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mThumbImageViewLayout, VISIBLE);
         setViewShowState(mBottomProgressBar, INVISIBLE);
         setViewShowState(mLockScreen, (mIfCurrentIsFullscreen && mNeedLockFull) ? VISIBLE : GONE);
-
         if (mLoadingProgressBar instanceof ENDownloadView) {
             ((ENDownloadView) mLoadingProgressBar).reset();
         }
@@ -566,7 +518,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
     @Override
     protected void changeUiToError() {
         Debuger.printfLog("changeUiToError");
-
         setViewShowState(mTopContainer, INVISIBLE);
         setViewShowState(mBottomContainer, INVISIBLE);
         setViewShowState(mStartButton, VISIBLE);
@@ -574,7 +525,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mThumbImageViewLayout, INVISIBLE);
         setViewShowState(mBottomProgressBar, INVISIBLE);
         setViewShowState(mLockScreen, (mIfCurrentIsFullscreen && mNeedLockFull) ? VISIBLE : GONE);
-
         if (mLoadingProgressBar instanceof ENDownloadView) {
             ((ENDownloadView) mLoadingProgressBar).reset();
         }
@@ -586,7 +536,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         super.onDetachedFromWindow();
         dismissVolumeDialog();
         dismissBrightnessDialog();
-
     }
 
     /**
@@ -652,7 +601,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         return R.id.volume_progressbar;
     }
 
-
     /**
      * 亮度dialog的layoutId
      * 继承后重写可返回自定义
@@ -673,7 +621,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
 
     protected void changeUiToPrepareingClear() {
         Debuger.printfLog("changeUiToPrepareingClear");
-
         setViewShowState(mTopContainer, INVISIBLE);
         setViewShowState(mBottomContainer, INVISIBLE);
         setViewShowState(mStartButton, INVISIBLE);
@@ -681,7 +628,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mThumbImageViewLayout, INVISIBLE);
         setViewShowState(mBottomProgressBar, INVISIBLE);
         setViewShowState(mLockScreen, GONE);
-
         if (mLoadingProgressBar instanceof ENDownloadView) {
             ((ENDownloadView) mLoadingProgressBar).reset();
         }
@@ -702,7 +648,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
 
     protected void changeUiToPlayingBufferingClear() {
         Debuger.printfLog("changeUiToPlayingBufferingClear");
-
         setViewShowState(mTopContainer, INVISIBLE);
         setViewShowState(mBottomContainer, INVISIBLE);
         setViewShowState(mStartButton, INVISIBLE);
@@ -710,9 +655,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mThumbImageViewLayout, INVISIBLE);
         setViewShowState(mBottomProgressBar, VISIBLE);
         setViewShowState(mLockScreen, GONE);
-
-        if (mLoadingProgressBar instanceof ENDownloadView) {
-            ENDownloadView enDownloadView = (ENDownloadView) mLoadingProgressBar;
+        if (mLoadingProgressBar instanceof ENDownloadView enDownloadView) {
             if (enDownloadView.getCurrentState() == ENDownloadView.STATE_PRE) {
                 ((ENDownloadView) mLoadingProgressBar).start();
             }
@@ -722,7 +665,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
 
     protected void changeUiToClear() {
         Debuger.printfLog("changeUiToClear");
-
         setViewShowState(mTopContainer, INVISIBLE);
         setViewShowState(mBottomContainer, INVISIBLE);
         setViewShowState(mStartButton, INVISIBLE);
@@ -730,7 +672,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mThumbImageViewLayout, INVISIBLE);
         setViewShowState(mBottomProgressBar, INVISIBLE);
         setViewShowState(mLockScreen, GONE);
-
         if (mLoadingProgressBar instanceof ENDownloadView) {
             ((ENDownloadView) mLoadingProgressBar).reset();
         }
@@ -738,7 +679,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
 
     protected void changeUiToCompleteClear() {
         Debuger.printfLog("changeUiToCompleteClear");
-
         setViewShowState(mTopContainer, INVISIBLE);
         setViewShowState(mBottomContainer, INVISIBLE);
         setViewShowState(mStartButton, VISIBLE);
@@ -746,7 +686,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mThumbImageViewLayout, VISIBLE);
         setViewShowState(mBottomProgressBar, VISIBLE);
         setViewShowState(mLockScreen, (mIfCurrentIsFullscreen && mNeedLockFull) ? VISIBLE : GONE);
-
         if (mLoadingProgressBar instanceof ENDownloadView) {
             ((ENDownloadView) mLoadingProgressBar).reset();
         }
@@ -757,8 +696,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      * 定义开始按键显示
      */
     protected void updateStartImage() {
-        if (mStartButton instanceof ENPlayView) {
-            ENPlayView enPlayView = (ENPlayView) mStartButton;
+        if (mStartButton instanceof ENPlayView enPlayView) {
             enPlayView.setDuration(500);
             if (mCurrentState == CURRENT_STATE_PLAYING) {
                 enPlayView.play();
@@ -767,8 +705,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
             } else {
                 enPlayView.pause();
             }
-        } else if (mStartButton instanceof ImageView) {
-            ImageView imageView = (ImageView) mStartButton;
+        } else if (mStartButton instanceof ImageView imageView) {
             if (mCurrentState == CURRENT_STATE_PLAYING) {
                 imageView.setImageResource(R.drawable.video_click_pause_selector);
             } else if (mCurrentState == CURRENT_STATE_ERROR) {
@@ -783,24 +720,18 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      * 全屏的UI逻辑
      */
     private void initFullUI(StandardGSYVideoPlayer standardGSYVideoPlayer) {
-
         if (mBottomProgressDrawable != null) {
             standardGSYVideoPlayer.setBottomProgressBarDrawable(mBottomProgressDrawable);
         }
-
         if (mBottomShowProgressDrawable != null && mBottomShowProgressThumbDrawable != null) {
-            standardGSYVideoPlayer.setBottomShowProgressBarDrawable(mBottomShowProgressDrawable,
-                mBottomShowProgressThumbDrawable);
+            standardGSYVideoPlayer.setBottomShowProgressBarDrawable(mBottomShowProgressDrawable, mBottomShowProgressThumbDrawable);
         }
-
         if (mVolumeProgressDrawable != null) {
             standardGSYVideoPlayer.setDialogVolumeProgressBar(mVolumeProgressDrawable);
         }
-
         if (mDialogProgressBarDrawable != null) {
             standardGSYVideoPlayer.setDialogProgressBar(mDialogProgressBarDrawable);
         }
-
         if (mDialogProgressHighLightColor != -11 && mDialogProgressNormalColor != -11) {
             standardGSYVideoPlayer.setDialogProgressColor(mDialogProgressHighLightColor, mDialogProgressNormalColor);
         }
@@ -835,7 +766,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         mVolumeProgressDrawable = drawable;
     }
 
-
     /**
      * 中间进度条
      */
@@ -850,7 +780,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         mDialogProgressHighLightColor = highLightColor;
         mDialogProgressNormalColor = normalColor;
     }
-
 
     /************************************* 关于截图的 ****************************************/
 
@@ -899,4 +828,5 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         startProgressTimer();
         startDismissControlViewTimer();
     }
+
 }

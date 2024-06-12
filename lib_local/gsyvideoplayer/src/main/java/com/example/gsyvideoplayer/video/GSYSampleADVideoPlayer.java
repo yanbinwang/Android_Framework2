@@ -1,5 +1,6 @@
 package com.example.gsyvideoplayer.video;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
@@ -25,17 +26,12 @@ import java.util.Map;
  * 其实就是根据实体，判断播放列表中哪个是广告，哪个不是，从而处理不同的UI显示效果
  * Created by guoshuyu on 2018/1/26.
  */
-
+@SuppressLint("SetTextI18n")
 public class GSYSampleADVideoPlayer extends ListGSYVideoPlayer {
-
     protected View mJumpAd;
-
     protected ViewGroup mWidgetContainer;
-
     protected TextView mADTime;
-
     protected boolean isAdModel = false;
-
     protected boolean isFirstPrepared = false;
 
     public GSYSampleADVideoPlayer(Context context, Boolean fullFlag) {
@@ -54,17 +50,11 @@ public class GSYSampleADVideoPlayer extends ListGSYVideoPlayer {
     protected void init(Context context) {
         super.init(context);
         mJumpAd = findViewById(R.id.jump_ad);
-        mADTime = (TextView) findViewById(R.id.ad_time);
-        mWidgetContainer = (ViewGroup) findViewById(R.id.widget_container);
+        mADTime = findViewById(R.id.ad_time);
+        mWidgetContainer = findViewById(R.id.widget_container);
         if (mJumpAd != null) {
-            mJumpAd.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    playNext();
-                }
-            });
+            mJumpAd.setOnClickListener(v -> playNext());
         }
-
     }
 
     @Override
@@ -128,8 +118,7 @@ public class GSYSampleADVideoPlayer extends ListGSYVideoPlayer {
     @Override
     protected boolean setUp(List<GSYVideoModel> url, boolean cacheWithPlay, int position, File cachePath, Map<String, String> mapHeadData, boolean changeState) {
         GSYVideoModel gsyVideoModel = url.get(position);
-        if (gsyVideoModel instanceof GSYADVideoModel) {
-            GSYADVideoModel gsyadVideoModel = (GSYADVideoModel) gsyVideoModel;
+        if (gsyVideoModel instanceof GSYADVideoModel gsyadVideoModel) {
             if (gsyadVideoModel.isSkip() && position < (url.size() - 1)) {
                 return setUp(url, cacheWithPlay, position + 1, cachePath, mapHeadData, changeState);
             }
@@ -149,8 +138,7 @@ public class GSYSampleADVideoPlayer extends ListGSYVideoPlayer {
     @Override
     protected void updateStartImage() {
         if (mStartButton != null) {
-            if (mStartButton instanceof ImageView) {
-                ImageView imageView = (ImageView) mStartButton;
+            if (mStartButton instanceof ImageView imageView) {
                 if (mCurrentState == CURRENT_STATE_PLAYING) {
                     imageView.setImageResource(R.drawable.video_click_pause_selector);
                 } else if (mCurrentState == CURRENT_STATE_ERROR) {
@@ -179,7 +167,6 @@ public class GSYSampleADVideoPlayer extends ListGSYVideoPlayer {
     @Override
     protected void touchSurfaceMove(float deltaX, float deltaY, float y) {
         if (mChangePosition && isAdModel) {
-            return;
         } else {
             super.touchSurfaceMove(deltaX, deltaY, y);
         }
@@ -211,9 +198,7 @@ public class GSYSampleADVideoPlayer extends ListGSYVideoPlayer {
             return;
         }
         super.touchSurfaceUp();
-
     }
-
 
     @Override
     protected void hideAllWidget() {
@@ -243,7 +228,6 @@ public class GSYSampleADVideoPlayer extends ListGSYVideoPlayer {
         st.changeAdUIState();
     }
 
-
     /**
      * 根据是否广告url修改ui显示状态
      */
@@ -272,7 +256,6 @@ public class GSYSampleADVideoPlayer extends ListGSYVideoPlayer {
             mProgressBar.setEnabled(!(isFirstPrepared && isAdModel));
         }
     }
-
 
     /******************对外接口*******************/
 
@@ -372,5 +355,7 @@ public class GSYSampleADVideoPlayer extends ListGSYVideoPlayer {
         public void setSkip(boolean skip) {
             isSkip = skip;
         }
+
     }
+
 }

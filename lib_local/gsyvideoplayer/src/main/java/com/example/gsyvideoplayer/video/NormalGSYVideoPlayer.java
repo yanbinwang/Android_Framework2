@@ -10,7 +10,6 @@ import com.shuyu.gsyvideoplayer.R;
  * Created by guoshuyu on 2017/4/1.
  * 使用正常播放按键和loading的播放器
  */
-
 public class NormalGSYVideoPlayer extends StandardGSYVideoPlayer {
 
     public NormalGSYVideoPlayer(Context context, Boolean fullFlag) {
@@ -32,8 +31,7 @@ public class NormalGSYVideoPlayer extends StandardGSYVideoPlayer {
 
     @Override
     protected void updateStartImage() {
-        if(mStartButton instanceof ImageView) {
-            ImageView imageView = (ImageView) mStartButton;
+        if (mStartButton instanceof ImageView imageView) {
             if (mCurrentState == CURRENT_STATE_PLAYING) {
                 imageView.setImageResource(R.drawable.video_click_pause_selector);
             } else if (mCurrentState == CURRENT_STATE_ERROR) {
@@ -43,4 +41,5 @@ public class NormalGSYVideoPlayer extends StandardGSYVideoPlayer {
             }
         }
     }
+
 }
