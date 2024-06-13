@@ -93,7 +93,9 @@ class Paging {
             hasRefresh = false
             ++page
             listener(false)
-        } else listener(true)
+        } else {
+            listener(true)
+        }
     }
 
     /**
