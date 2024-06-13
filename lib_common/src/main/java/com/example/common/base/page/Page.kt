@@ -59,6 +59,7 @@ fun <T> List<T>?.getPage(total: Int?): Page<T>? {
  *      evidenceData.postValue(it)//先回调赋值刷新适配器
  *      reset(hasNextPage)
  *  }, {
+ *      onError()
  *      recyclerView?.setState(currentCount)
  *  }, isShowDialog = false)
  * }
@@ -73,7 +74,9 @@ class Paging {
     var totalCount = 0//服务器列表数据总数
     var page = 1//当前页数
 
-    //刷新清空
+    /**
+     * 刷新清空
+     */
     inline fun onRefresh(crossinline listener: () -> Unit = {}) {
         hasRefresh = true
         page = 1
@@ -82,7 +85,9 @@ class Paging {
         listener.invoke()
     }
 
-    //加载更多
+    /**
+     * 加载更多
+     */
     inline fun onLoad(crossinline listener: (noMore: Boolean) -> Unit = {}) {
         if (hasNextPage()) {
             hasRefresh = false
@@ -91,7 +96,17 @@ class Paging {
         } else listener(true)
     }
 
-    //是否需要加载更多
+    /**
+     * 此次请求失败
+     */
+    fun onError() {
+        page--
+        if (page <= 0) page = 1
+    }
+
+    /**
+     * 是否需要加载更多
+     */
     fun hasNextPage(): Boolean {
         return currentCount < totalCount
     }
