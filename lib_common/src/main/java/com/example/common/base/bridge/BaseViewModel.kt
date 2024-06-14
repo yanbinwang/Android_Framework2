@@ -168,6 +168,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     /**
+     * 此次请求失败
+     */
+    fun onError() {
+        paging.onError()
+    }
+
+    /**
      * 空布局监听
      */
     fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
