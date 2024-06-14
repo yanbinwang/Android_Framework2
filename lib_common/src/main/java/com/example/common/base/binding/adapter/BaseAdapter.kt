@@ -215,7 +215,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
 
     fun <VM : BaseViewModel> notify(list: List<T>?, viewModel: VM?, resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
         viewModel?.apply {
-            notify(list, hasRefresh()) { empty(resId, resText, resRefreshText, width, height) }
+            notify(list, hasRefresh()) { empty(resId, text, refreshText, width, height) }
+            setCurrentCount(size())
         }
     }
 

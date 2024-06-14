@@ -77,7 +77,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         Glide.with(view.context).asGif().load(resourceId).into(view)
     }
 
-    override fun displayProgress(view: ImageView?, string: String?, onStart: () -> Unit, onProgress: (progress: Int?) -> Unit, onComplete: (result: Boolean) -> Unit) {
+    override fun displayProgress(view: ImageView?, string: String?, onStart: () -> Unit, onProgress: (progress: Int?) -> Unit, onComplete: (result: Boolean) -> Unit)  {
         view ?: return
         string ?: return
         Glide.with(view.context)

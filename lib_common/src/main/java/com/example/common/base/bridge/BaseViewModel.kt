@@ -2,9 +2,16 @@ package com.example.common.base.bridge
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.view.ViewGroup
+import android.view.View
+import android.widget.FrameLayout
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.*
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewModelScope
 import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
@@ -23,9 +30,14 @@ import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.CoroutineStart.LAZY
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import kotlin.coroutines.CoroutineContext
@@ -73,17 +85,38 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 继承BaseTitleActivity的页面传父类的ViewGroup
      * 其余页面外层写FrameLayout，套上要使用的布局后再initView中调用该方法
      */
-    fun setExtraView(viewGroup: ViewGroup?, index: Int = 1) {
-        this.weakEmpty = WeakReference(viewGroup.getEmptyView(index))
+    fun setExtraView(view: View?) {
+        when (view) {
+            //传入BaseTitleActivity中写好的容器viewGroup
+            is FrameLayout -> this.weakEmpty = WeakReference(view.getEmptyView(1))
+            //界面上绘制好empty
+            is EmptyLayout -> this.weakEmpty = WeakReference(view)
+            //外层下拉刷新的控件
+            is SmartRefreshLayout -> this.weakRefresh = WeakReference(view)
+            //传入用于刷新的empty
+            is XRecyclerView -> {
+                this.weakEmpty = WeakReference(view.empty)
+                this.weakRecycler = WeakReference(view)
+            }
+        }
     }
 
-    fun setExtraView(recycler: XRecyclerView?) {
-        this.weakEmpty = WeakReference(recycler?.empty)
-        this.weakRecycler = WeakReference(recycler)
-    }
-
-    fun setExtraView(refresh: SmartRefreshLayout?) {
-        this.weakRefresh = WeakReference(refresh)
+    //部分首页加载时需要使用empty，完成后需要使用下拉刷新（只有下拉），故而直接传入两层view
+    fun setExtraView(view: View?, refresh: SmartRefreshLayout?) {
+        when (view) {
+            is FrameLayout -> {
+                this.weakEmpty = WeakReference(view.getEmptyView(1))
+                this.weakRefresh = WeakReference(refresh)
+            }
+            is EmptyLayout -> {
+                this.weakEmpty = WeakReference(view)
+                this.weakRefresh = WeakReference(refresh)
+            }
+            is XRecyclerView -> {
+                this.weakEmpty = WeakReference(view.empty)
+                this.weakRefresh = WeakReference(refresh)
+            }
+        }
     }
 
     /**
@@ -137,8 +170,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     /**
      * 空布局监听
      */
-    fun setEmptyRefreshListener(onRefresh: ((result: Boolean) -> Unit)) {
-        mEmpty?.setOnEmptyRefreshListener(onRefresh)
+    fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
+        mEmpty?.setOnEmptyRefreshListener { listener.invoke(it) }
     }
 
     /**

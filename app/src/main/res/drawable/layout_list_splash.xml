@@ -3,10 +3,7 @@
 
     <item android:drawable="@color/bgBlue" />
 
-    <item
-        android:layout_width="280dp"
-        android:layout_height="60dp"
-        android:top="215dp">
+    <item android:top="215dp">
         <bitmap
             android:antialias="true"
             android:gravity="top|center_horizontal"
@@ -15,12 +12,8 @@
             android:tileMode="disabled" />
     </item>
 
-
     <!-- 底部空出一定的距离，进app后会隐藏导航栏和状态栏 -->
-    <item
-        android:layout_width="184dp"
-        android:layout_height="78dp"
-        android:bottom="60dp">
+    <item android:bottom="30dp">
         <bitmap
             android:antialias="true"
             android:gravity="bottom|center_horizontal"
