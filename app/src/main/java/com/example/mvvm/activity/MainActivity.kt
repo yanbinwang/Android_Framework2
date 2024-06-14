@@ -113,6 +113,10 @@ import kotlinx.coroutines.launch
  * 这段代码片段将图书按流派组织为一个map，其中键是类型，值是属于这些类型的图书列表。然后，它按类型打印出分组的书籍的标题，让人一眼就可以看到组织结构。
  *
  * https://blog.csdn.net/chuyouyinghe/article/details/137119441
+ *
+ * https://blog.csdn.net/mqdxiaoxiao/article/details/135101003
+ * https://gitee.com/tryohang/EdgeTranslucent
+ * com.ulive.common.widget.EdgeTransparentView
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {

@@ -11,7 +11,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.helper.ConfigHelper.appIsOnForeground
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.doOnDestroy
