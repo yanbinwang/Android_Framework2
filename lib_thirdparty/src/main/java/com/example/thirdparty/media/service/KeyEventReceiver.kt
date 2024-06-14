@@ -3,6 +3,8 @@ package com.example.thirdparty.media.service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.view.KeyEvent
+import com.example.common.event.EventCode.EVENT_MEDIA_ACTION
 import com.example.common.event.EventCode.EVENT_MENU_ACTION
 
 /**
@@ -21,6 +23,11 @@ class KeyEventReceiver : BroadcastReceiver() {
             }
             //电源键
             Intent.ACTION_SCREEN_OFF, Intent.ACTION_SCREEN_ON -> EVENT_MENU_ACTION.post()
+            //检测是否调用录屏（并不准确）
+            Intent.ACTION_MEDIA_BUTTON -> {
+                val keyEvent = intent.extras?.get(Intent.EXTRA_KEY_EVENT) as? KeyEvent
+                if (keyEvent?.keyCode == KeyEvent.KEYCODE_MEDIA_RECORD) EVENT_MEDIA_ACTION.post()
+            }
         }
     }
 }
