@@ -25,13 +25,7 @@ class TelephonyObserver(private val mActivity: FragmentActivity) : LifecycleEven
     companion object {
         private var listener: OnTelephonyListener? = null
 
-        /**
-         * 设置回调监听
-         */
-        fun setOnTelephonyListener(listener: OnTelephonyListener) {
-            this.listener = listener
-        }
-
+        @JvmStatic
         private fun onChanged(state: Int) {
             when (state) {
                 //手机状态：空闲状态
@@ -87,6 +81,13 @@ class TelephonyObserver(private val mActivity: FragmentActivity) : LifecycleEven
             super.onCallStateChanged(state, phoneNumber)
             onChanged(state)
         }
+    }
+
+    /**
+     * 设置回调监听
+     */
+    fun setOnTelephonyListener(mListener: OnTelephonyListener) {
+        listener = mListener
     }
 
     /**
