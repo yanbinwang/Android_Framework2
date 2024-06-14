@@ -37,10 +37,23 @@ import com.example.mvvm.R
  *         .startSwitch(2500);
  */
 class NoticesSwitcher(context: Context, attrs: AttributeSet? = null) : TextSwitcher(context, attrs), ViewSwitcher.ViewFactory {
-    private var mCurrentIndex = 0
-    private var mTimeInterval = 0L
-    private var curNotice: Notice? = null
-    private var mData: List<Notice>? = null
+    private var timeInterval = 0L
+    private var currentIndex = 0
+    private var currentBean: Notice? = null
+    private var data: List<Notice>? = null
+    private var listener: ((bean: Notice?) -> Unit)? = null
+    private val switchHandler by lazy { object : Handler(Looper.getMainLooper()) {
+        override fun dispatchMessage(msg: Message) {
+            super.dispatchMessage(msg)
+            val index = currentIndex % data?.size.orZero
+            currentBean = data.safeGet(index)
+            setText(data.safeGet(index)?.title)
+            currentIndex++
+            if (data?.size.orZero > 1) {
+                sendEmptyMessageDelayed(0, timeInterval)
+            }
+        }
+    }}
 
     init {
         setFactory(this)
@@ -51,12 +64,30 @@ class NoticesSwitcher(context: Context, attrs: AttributeSet? = null) : TextSwitc
     override fun makeView(): View {
         val view = context.inflate(R.layout.item_notice_switcher)
         val tvLabel = view.findViewById<TextView>(R.id.tv_label)
-        tvLabel.click {
-            if (curNotice != null) {
-                //跳转详情
-            }
-        }
+        tvLabel.click { listener?.invoke(currentBean) }
         return view
+    }
+
+    /**
+     * 通知/公告数据绑定
+     */
+    fun bindData(owner: LifecycleOwner, data: List<Notice>): NoticesSwitcher {
+        owner.doOnDestroy { switchHandler.removeCallbacksAndMessages(null) }
+        this.data = data
+        return this
+    }
+
+    /**
+     * 开启滚动/默认1秒
+     */
+    fun startSwitch(timeInterval: Long = 1000L) {
+        this.timeInterval = timeInterval
+        switchHandler.removeMessages(0)
+        if (data?.size.orZero > 0) {
+            switchHandler.sendEmptyMessage(0)
+        } else {
+            throw RuntimeException("data is empty")
+        }
     }
 
     /**
@@ -78,41 +109,10 @@ class NoticesSwitcher(context: Context, attrs: AttributeSet? = null) : TextSwitc
     }
 
     /**
-     * 通知/公告数据绑定
+     * 设置监听
      */
-    fun bindData(owner: LifecycleOwner, data: List<Notice>): NoticesSwitcher {
-        owner.doOnDestroy { mSwitchHandler.removeCallbacksAndMessages(null) }
-        this.mData = data
-        return this
+    fun setOnItemClickListener(listener: ((bean: Notice?) -> Unit)) {
+        this.listener = listener
     }
-
-    /**
-     * 开启滚动/默认1秒
-     */
-    fun startSwitch(timeInterval: Long = 1000L) {
-        this.mTimeInterval = timeInterval
-        mSwitchHandler.removeMessages(0)
-        if (mData?.size.orZero > 0) {
-            mSwitchHandler.sendEmptyMessage(0)
-        } else {
-            throw RuntimeException("data is empty")
-        }
-    }
-
-    /**
-     * ui管控
-     */
-    private val mSwitchHandler by lazy { object : Handler(Looper.getMainLooper()) {
-        override fun dispatchMessage(msg: Message) {
-            super.dispatchMessage(msg)
-            val index = mCurrentIndex % mData?.size.orZero
-            curNotice = mData.safeGet(index)
-            setText(mData.safeGet(index)?.title)
-            mCurrentIndex++
-            if (mData?.size.orZero > 1) {
-                sendEmptyMessageDelayed(0, mTimeInterval)
-            }
-        }
-    }}
 
 }
