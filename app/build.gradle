@@ -86,10 +86,10 @@ android {
         }
 
         release {
-            //架构支持
-            ndk {
-                abiFilter "armeabi"
-            }
+//            //架构支持
+//            ndk {
+//                abiFilter "armeabi"
+//            }
 
             //移除无用资源
             splits {
