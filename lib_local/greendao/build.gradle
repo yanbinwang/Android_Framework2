@@ -38,7 +38,7 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //框架库
-    implementation project(':lib_framework')
+//    implementation project(':lib_framework')
     //数据库
     api 'org.greenrobot:greendao:3.3.0'
 }

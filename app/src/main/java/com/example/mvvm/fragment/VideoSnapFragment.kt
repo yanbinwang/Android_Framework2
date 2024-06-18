@@ -20,7 +20,7 @@ class VideoSnapFragment : BaseLazyFragment<FragmentVideoSnapBinding>(), VideoSna
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         helper.bind(mBinding?.player)
-        helper.setUrl("https://txmov2.a.yximgs.com/upic/2021/04/25/21/BMjAyMTA0MjUyMTE5NTZfMjExMjA0ODM0NF80ODQ1MzY1OTE5Ml8xXzM=_b_B8ad92744b489ba4e164a12802e2e37d4.mp4")
+        helper.setUrl("https://txmov2.a.yximgs.com/upic/2021/04/25/21/BMjAyMTA0MjUyMTE5NTZfMjExMjA0ODM0NF80ODQ1MzY1OTE5Ml8xXzM=_b_B8ad92744b489ba4e164a12802e2e37d4.mp4","https://inews.gtimg.com/news_bt/OWvBqEB-jc6Q1r2UhKaeRr-uG6t39aEkVUds-OC0VNv4oAA/641")
     }
 
     override fun releaseVideo(bean: VideoSnapBean?) {
