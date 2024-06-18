@@ -32,7 +32,7 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
         signOut()
     }
 
-    fun signIn(success: (account: GoogleInfoBean) -> Unit, cancel: () -> Unit, failed: () -> Unit, ) {
+    fun signIn(success: (bean: GoogleInfoBean) -> Unit, cancel: () -> Unit, failed: () -> Unit) {
         val account = GoogleSignIn.getLastSignedInAccount(mActivity)
         when {
             account != null -> {
@@ -46,7 +46,7 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
         }
     }
 
-    private fun callSignIn(success: (account: GoogleInfoBean) -> Unit, cancel: () -> Unit, failed: () -> Unit, ) {
+    private fun callSignIn(success: (bean: GoogleInfoBean) -> Unit, cancel: () -> Unit, failed: () -> Unit) {
         mActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
             handleSignInResult(task, success, cancel, failed)
