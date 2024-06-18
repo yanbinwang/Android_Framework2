@@ -40,6 +40,8 @@
     "mainHome":"Depan",
     "mainMarket":"Pasar",
     "mainBalance":"Dana",
-    "mainUser":"Akun Saya"
+    "mainUser":"Akun Saya",
+    "albumImageError":"Silakan mengunggah gambar hingga %1$sMB dalam ukuran",
+    "albumVideoError":"Silakan mengunggah video hingga %1$sMB dalam ukuran"
   }
 }

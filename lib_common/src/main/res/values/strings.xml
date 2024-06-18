@@ -51,4 +51,7 @@
     <string name="mainMarket">市場</string>
     <string name="mainBalance">資金</string>
     <string name="mainUser">我的</string>
+    <!-- 相册 -->
+    <string name="albumImageError">請上傳%1$sM以內的圖片</string>
+    <string name="albumVideoError">請上傳%1$sM以內的視頻</string>
 </resources>

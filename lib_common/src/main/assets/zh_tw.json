@@ -40,6 +40,8 @@
     "mainHome":"首頁",
     "mainMarket":"市場",
     "mainBalance":"資金",
-    "mainUser":"我的"
+    "mainUser":"我的",
+    "albumImageError":"請上傳%1$sM以內的圖片",
+    "albumVideoError":"請上傳%1$sM以內的視頻"
   }
 }

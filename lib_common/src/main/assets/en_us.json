@@ -40,6 +40,8 @@
     "mainHome":"Home",
     "mainMarket":"Market",
     "mainBalance":"Balance",
-    "mainUser":"My"
+    "mainUser":"My",
+    "albumImageError":"Please upload images up to %1$sM in size",
+    "albumVideoError":"Please upload videos up to %1$sM in size"
   }
 }

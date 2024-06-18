@@ -16,6 +16,7 @@ import com.example.common.utils.i18n.I18nUtil.getLocalLanguageBean
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.margin
+import com.example.gallery.utils.AlbumHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.MainIndicator
@@ -26,6 +27,7 @@ import kotlinx.coroutines.launch
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
+    private val album by lazy { AlbumHelper(this) }
     private val indicator by lazy { MainIndicator(mBinding?.tbIndicator) }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -36,7 +38,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
 
     override fun initEvent() {
         super.initEvent()
-        clicks(mBinding?.tvTw, mBinding?.tvUs, mBinding?.tvId)
+        clicks(mBinding?.tvTw, mBinding?.tvUs, mBinding?.tvId, mBinding?.tvPhoto)
     }
 
     override fun onClick(v: View?) {
@@ -44,6 +46,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
             R.id.tv_tw -> getLanguageMap(LANGUAGE_LIST.safeGet(0))
             R.id.tv_us -> getLanguageMap(LANGUAGE_LIST.safeGet(1))
             R.id.tv_id -> getLanguageMap(LANGUAGE_LIST.safeGet(2))
+            R.id.tv_photo -> mPermission.requestPermissions { hasPermissions ->
+                if (hasPermissions) {
+                    album.imageSelection(hasDurban = true) {
+                        it.shortToast()
+                    }
+                }
+            }
         }
     }
 

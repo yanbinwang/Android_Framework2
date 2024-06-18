@@ -9,6 +9,7 @@ import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.function.value.toArray
 import com.example.framework.utils.logE
 import com.example.framework.utils.logWTF
+import com.example.gallery.utils.GlideLoader
 import com.example.home.activity.LinkActivity
 import com.example.mvvm.activity.MainActivity
 import com.zxy.recovery.core.Recovery
@@ -66,8 +67,8 @@ class MyApplication : BaseApplication() {
             //初始化firebase
             initFireBase()
         }
-//        //初始化图片库类
-//        initAlbum()
+        //初始化图片库类
+        initAlbum()
 //        //数据库初始化
 //        initOssDao()
 //        //初始化oss

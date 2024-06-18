@@ -48,5 +48,7 @@ object I18nMap {
         R.string.mainMarket to "mainMarket",
         R.string.mainBalance to "mainBalance",
         R.string.mainUser to "mainUser",
+        R.string.albumImageError to "albumImageError",
+        R.string.albumVideoError to "albumVideoError",
     )
 }
