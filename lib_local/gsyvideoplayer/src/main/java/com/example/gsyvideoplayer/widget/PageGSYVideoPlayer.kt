@@ -1,11 +1,10 @@
 package com.example.gsyvideoplayer.widget
 
-import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
+import com.example.common.widget.dialog.AndDialog
 import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.fade
 import com.example.gsyvideoplayer.R
@@ -18,6 +17,7 @@ import com.shuyu.gsyvideoplayer.utils.NetworkUtils
  * 2.video文件夹下的播放器不要做改动
  */
 class PageGSYVideoPlayer : StandardGSYVideoPlayer {
+    private val dialog by lazy { AndDialog(mContext) }
 
     constructor(context: Context) : super(context)
 
@@ -66,14 +66,9 @@ class PageGSYVideoPlayer : StandardGSYVideoPlayer {
             startPlayLogic()
             return
         }
-        val builder = AlertDialog.Builder(activityContext)
-        builder.setMessage(resources.getString(R.string.tips_not_wifi))
-        builder.setPositiveButton(resources.getString(R.string.tips_not_wifi_confirm)) { dialog: DialogInterface, _: Int ->
-            dialog.dismiss()
-            startPlayLogic()
-        }
-        builder.setNegativeButton(resources.getString(R.string.tips_not_wifi_cancel)) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-        builder.create().show()
+        dialog.setParams(message = resources.getString(R.string.tips_not_wifi), positiveText = resources.getString(R.string.tips_not_wifi_confirm), negativeText = resources.getString(R.string.tips_not_wifi_cancel))
+            .setDialogListener({ startPlayLogic() })
+            .show()
     }
 
     /**

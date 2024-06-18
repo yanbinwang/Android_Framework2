@@ -22,8 +22,16 @@ class AndDialog(context: Context) : AlertDialog.Builder(context, R.style.AndDial
     fun setParams(title: String? = string(R.string.hint), message: String? = null, positiveText: String? = string(R.string.sure), negativeText: String? = string(R.string.cancel)): AndDialog {
         if (!title.isNullOrEmpty()) setTitle(title)
         setMessage(message)
-        setPositiveButton(positiveText) { _: DialogInterface?, _: Int -> onConfirm?.invoke() }
-        if (!negativeText.isNullOrEmpty()) setNegativeButton(negativeText) { _: DialogInterface?, _: Int -> onCancel?.invoke() }
+        setPositiveButton(positiveText) { dialog: DialogInterface?, _: Int ->
+            dialog?.dismiss()
+            onConfirm?.invoke()
+        }
+        if (!negativeText.isNullOrEmpty()) {
+            setNegativeButton(negativeText) { dialog: DialogInterface?, _: Int ->
+                dialog?.dismiss()
+                onCancel?.invoke()
+            }
+        }
         return this
     }
 

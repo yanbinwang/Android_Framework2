@@ -10,12 +10,12 @@
     <item name="ad_small_id" type="id"/>
     <item name="full_id" type="id"/>
     <item name="small_id" type="id"/>
-    <string name="jump_ad">跳过</string>
-    <string name="no_net">当前找不到网络</string>
-    <string name="no_url">播放地址无效</string>
-    <string name="tips_not_wifi">您当前正在使用移动网络，继续播放将消耗流量</string>
-    <string name="tips_not_wifi_cancel">停止播放</string>
-    <string name="tips_not_wifi_confirm">继续播放</string>
+<!--    <string name="jump_ad">跳过</string>-->
+<!--    <string name="no_net">当前找不到网络</string>-->
+<!--    <string name="no_url">播放地址无效</string>-->
+<!--    <string name="tips_not_wifi">您当前正在使用移动网络，继续播放将消耗流量</string>-->
+<!--    <string name="tips_not_wifi_cancel">停止播放</string>-->
+<!--    <string name="tips_not_wifi_confirm">继续播放</string>-->
     <style name="video_popup_toast_anim" parent="@android:style/Animation">
         <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
