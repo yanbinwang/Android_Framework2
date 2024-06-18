@@ -8,6 +8,15 @@ android {
     namespace 'com.example.gsyvideoplayer'
     compileSdkVersion build_versions.compileSdkVersion
 
+    sourceSets {
+        main {
+            res {
+                srcDirs "src/main/res"
+                srcDirs "src/main/res-custom"
+            }
+        }
+    }
+
     defaultConfig {
         minSdk build_versions.minSdkVersion
         targetSdk build_versions.targetSdkVersion

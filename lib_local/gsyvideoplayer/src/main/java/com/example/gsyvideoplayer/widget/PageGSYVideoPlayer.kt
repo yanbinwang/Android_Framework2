@@ -1,6 +1,8 @@
 package com.example.gsyvideoplayer.widget
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
@@ -8,6 +10,7 @@ import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.fade
 import com.example.gsyvideoplayer.R
 import com.example.gsyvideoplayer.video.StandardGSYVideoPlayer
+import com.shuyu.gsyvideoplayer.utils.NetworkUtils
 
 /**
  * 自定义列表播放器
@@ -53,6 +56,24 @@ class PageGSYVideoPlayer : StandardGSYVideoPlayer {
     override fun changeUiToPlayingBufferingShow() {
         super.changeUiToPlayingBufferingShow()
         setViewShowState(mBottomContainer, INVISIBLE)
+    }
+
+    /**
+     * wifi弹框
+     */
+    override fun showWifiDialog() {
+        if (!NetworkUtils.isAvailable(mContext)) {
+            startPlayLogic()
+            return
+        }
+        val builder = AlertDialog.Builder(activityContext)
+        builder.setMessage(resources.getString(R.string.tips_not_wifi))
+        builder.setPositiveButton(resources.getString(R.string.tips_not_wifi_confirm)) { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+            startPlayLogic()
+        }
+        builder.setNegativeButton(resources.getString(R.string.tips_not_wifi_cancel)) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+        builder.create().show()
     }
 
     /**
