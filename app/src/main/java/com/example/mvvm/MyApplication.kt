@@ -14,6 +14,9 @@ import com.example.mvvm.activity.MainActivity
 import com.zxy.recovery.core.Recovery
 import com.example.thirdparty.firebase.FireBaseUtil
 import com.example.thirdparty.firebase.NotificationUtil
+import com.yanzhenjie.album.Album
+import com.yanzhenjie.album.AlbumConfig
+import java.util.Locale
 
 /**
  * Created by WangYanBin on 2020/8/14.
@@ -92,12 +95,12 @@ class MyApplication : BaseApplication() {
         FireBaseUtil.initTestReport()
     }
 
-//    private fun initAlbum() {
-//        Album.initialize(AlbumConfig.newBuilder(this)
-//            .setAlbumLoader(GlideLoader()) //设置Album加载器。
+    private fun initAlbum() {
+        Album.initialize(AlbumConfig.newBuilder(this)
+            .setAlbumLoader(GlideLoader()) //设置Album加载器。
 //            .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
-//            .build())
-//    }
+            .build())
+    }
 //
 //    private fun initOssDao() {
 //        OssHelper.init(DaoMaster(DaoMaster.DevOpenHelper(this, "${VERSION_NAME}.db", null).readableDb).newSession().ossDBDao)
