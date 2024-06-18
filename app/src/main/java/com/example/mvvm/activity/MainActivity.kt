@@ -1,10 +1,12 @@
 package com.example.mvvm.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
+import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.bean.ServerLanguage
 import com.example.common.config.ARouterPath
 import com.example.common.config.Constants.LANGUAGE_LIST
@@ -20,6 +22,7 @@ import com.example.gallery.utils.AlbumHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.MainIndicator
+import com.yanzhenjie.durban.Durban
 import kotlinx.coroutines.launch
 
 /**
@@ -66,6 +69,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
                 I18nUtil.setLanguagePack(language, result)
                 "语言切换成功".shortToast()
             }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == REQUEST_PHOTO) {
+            data?:return
+            val mImageList = Durban.parseResult(data)
+            mImageList.safeGet(0).shortToast()
         }
     }
 
