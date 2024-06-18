@@ -204,87 +204,87 @@ public final class Album {
         return new GalleryAlbumWrapper(activity);
     }
 
-    /**
-     * Open the camera from the activity.
-     */
-    public static Camera<ImageCameraWrapper, VideoCameraWrapper> camera(Fragment fragment) {
-        return new AlbumCamera(fragment.getActivity());
-    }
-
-    /**
-     * Select images.
-     */
-    public static Choice<ImageMultipleWrapper, ImageSingleWrapper> image(Fragment fragment) {
-        return new ImageChoice(fragment.getActivity());
-    }
-
-    /**
-     * Select videos.
-     */
-    public static Choice<VideoMultipleWrapper, VideoSingleWrapper> video(Fragment fragment) {
-        return new VideoChoice(fragment.getActivity());
-    }
-
-    /**
-     * Select images and videos.
-     */
-    public static Choice<AlbumMultipleWrapper, AlbumSingleWrapper> album(Fragment fragment) {
-        return new AlbumChoice(fragment.getActivity());
-    }
-
-    /**
-     * Preview picture.
-     */
-    public static BasicGalleryWrapper<GalleryWrapper, String, String, String> gallery(Fragment fragment) {
-        return new GalleryWrapper(fragment.getActivity());
-    }
-
-    /**
-     * Preview Album.
-     */
-    public static BasicGalleryWrapper<GalleryAlbumWrapper, AlbumFile, String, AlbumFile> galleryAlbum(Fragment fragment) {
-        return new GalleryAlbumWrapper(fragment.getActivity());
-    }
-
 //    /**
 //     * Open the camera from the activity.
 //     */
 //    public static Camera<ImageCameraWrapper, VideoCameraWrapper> camera(Fragment fragment) {
-//        return new AlbumCamera(fragment.getContext());
+//        return new AlbumCamera(fragment.getActivity());
 //    }
 //
 //    /**
 //     * Select images.
 //     */
 //    public static Choice<ImageMultipleWrapper, ImageSingleWrapper> image(Fragment fragment) {
-//        return new ImageChoice(fragment.getContext());
+//        return new ImageChoice(fragment.getActivity());
 //    }
 //
 //    /**
 //     * Select videos.
 //     */
 //    public static Choice<VideoMultipleWrapper, VideoSingleWrapper> video(Fragment fragment) {
-//        return new VideoChoice(fragment.getContext());
+//        return new VideoChoice(fragment.getActivity());
 //    }
 //
 //    /**
 //     * Select images and videos.
 //     */
 //    public static Choice<AlbumMultipleWrapper, AlbumSingleWrapper> album(Fragment fragment) {
-//        return new AlbumChoice(fragment.getContext());
+//        return new AlbumChoice(fragment.getActivity());
 //    }
 //
 //    /**
 //     * Preview picture.
 //     */
 //    public static BasicGalleryWrapper<GalleryWrapper, String, String, String> gallery(Fragment fragment) {
-//        return new GalleryWrapper(fragment.getContext());
+//        return new GalleryWrapper(fragment.getActivity());
 //    }
 //
 //    /**
 //     * Preview Album.
 //     */
 //    public static BasicGalleryWrapper<GalleryAlbumWrapper, AlbumFile, String, AlbumFile> galleryAlbum(Fragment fragment) {
-//        return new GalleryAlbumWrapper(fragment.getContext());
+//        return new GalleryAlbumWrapper(fragment.getActivity());
 //    }
+
+    /**
+     * Open the camera from the activity.
+     */
+    public static Camera<ImageCameraWrapper, VideoCameraWrapper> camera(Fragment fragment) {
+        return new AlbumCamera(fragment.getContext());
+    }
+
+    /**
+     * Select images.
+     */
+    public static Choice<ImageMultipleWrapper, ImageSingleWrapper> image(Fragment fragment) {
+        return new ImageChoice(fragment.getContext());
+    }
+
+    /**
+     * Select videos.
+     */
+    public static Choice<VideoMultipleWrapper, VideoSingleWrapper> video(Fragment fragment) {
+        return new VideoChoice(fragment.getContext());
+    }
+
+    /**
+     * Select images and videos.
+     */
+    public static Choice<AlbumMultipleWrapper, AlbumSingleWrapper> album(Fragment fragment) {
+        return new AlbumChoice(fragment.getContext());
+    }
+
+    /**
+     * Preview picture.
+     */
+    public static BasicGalleryWrapper<GalleryWrapper, String, String, String> gallery(Fragment fragment) {
+        return new GalleryWrapper(fragment.getContext());
+    }
+
+    /**
+     * Preview Album.
+     */
+    public static BasicGalleryWrapper<GalleryAlbumWrapper, AlbumFile, String, AlbumFile> galleryAlbum(Fragment fragment) {
+        return new GalleryAlbumWrapper(fragment.getContext());
+    }
 }
