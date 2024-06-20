@@ -4,7 +4,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
-import com.example.common.widget.dialog.AndDialog
+import com.example.common.utils.function.string
+import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.fade
 import com.example.gsyvideoplayer.R
@@ -12,12 +13,13 @@ import com.example.gsyvideoplayer.video.StandardGSYVideoPlayer
 import com.shuyu.gsyvideoplayer.utils.NetworkUtils
 
 /**
- * 自定义列表播放器
+ * 使用正常播放按键和loading的播放器
+ * 适用于viewpager2上下滑动的列表播放器
  * 1.项目主要修改的是gsy播放器的容器
- * 2.video文件夹下的播放器不要做改动
+ * 2.部分改动资源可以本地覆写
  */
 class PageGSYVideoPlayer : StandardGSYVideoPlayer {
-    private val dialog by lazy { AndDialog(mContext) }
+    private val dialog by lazy { AppDialog(mContext) }
 
     constructor(context: Context) : super(context)
 
@@ -59,14 +61,14 @@ class PageGSYVideoPlayer : StandardGSYVideoPlayer {
     }
 
     /**
-     * wifi弹框
+     * wifi弹框自定义
      */
     override fun showWifiDialog() {
         if (!NetworkUtils.isAvailable(mContext)) {
             startPlayLogic()
             return
         }
-        dialog.setParams(message = resources.getString(R.string.tips_not_wifi), positiveText = resources.getString(R.string.tips_not_wifi_confirm), negativeText = resources.getString(R.string.tips_not_wifi_cancel))
+        dialog.setParams(message = string(R.string.gsyNotWifiTips), positiveText = string(R.string.gsyNotWifiConfirm), negativeText = string(R.string.gsyNotWifiCancel))
             .setDialogListener({ startPlayLogic() })
             .show()
     }
