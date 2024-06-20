@@ -17,7 +17,7 @@ import com.shuyu.gsyvideoplayer.utils.NetworkUtils
  * 适用于viewpager2上下滑动的列表播放器
  * 1.项目主要修改的是gsy播放器的容器
  * 2.部分改动资源可以本地覆写
- * 3.和本体项目中自定义的播放器有个区分
+ * 3.和依赖项目中自定义的播放器有个区分（为便于修改，故而依赖项目的播放器文件放置于video目录下）
  */
 class PageGSYVideoPlayer : StandardGSYVideoPlayer {
     private val dialog by lazy { AppDialog(mContext) }

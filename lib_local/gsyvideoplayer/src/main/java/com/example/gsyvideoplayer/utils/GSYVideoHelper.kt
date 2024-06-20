@@ -108,14 +108,22 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
             ImageLoader.instance.display(mBinding?.ivThumb, thumbUrl)
         }
         GSYVideoOptionBuilder()
+            //是否可以滑动界面改变进度，声音等
             .setIsTouchWiget(false)
+            //是否开启自动旋转
             .setRotateViewAuto(false)
+            //是否根据视频尺寸，自动选择竖屏全屏或者横屏全屏，注意，这时候默认旋转无效
             .setAutoFullWithSize(true)
+            //全屏动画
             .setShowFullAnimation(false)
+            //是否需要全屏锁定屏幕功能 如果单独使用请设置setIfCurrentIsFullscreen为true
             .setNeedLockFull(false)
 //            .setSetUpLazy(setUpLazy)
+            //播放url
             .setUrl(url)
+            //是否边缓存，m3u8等无效
             .setCacheWithPlay(false)
+            //设置播放过程中的回调
             .setVideoAllCallBack(object : GSYSampleCallBack() {
                 override fun onPrepared(url: String?, vararg objects: Any?) {
                     super.onPrepared(url, *objects)
