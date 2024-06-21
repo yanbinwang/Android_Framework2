@@ -45,6 +45,9 @@ class FixedLengthLinkedList<T>(private val maxSize: Int = 0) {
         return deque.removeLast()
     }
 
+    /**
+     * 获取当前集合
+     */
     fun getList(): MutableList<T> {
         return deque.toMutableList()
     }
