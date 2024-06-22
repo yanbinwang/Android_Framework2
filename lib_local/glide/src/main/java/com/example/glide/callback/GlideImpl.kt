@@ -44,27 +44,27 @@ interface GlideImpl {
      */
     fun display(view: ImageView?, string: String?, errorId: Int? = R.drawable.shape_glide_bg, onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
 
-    fun display(view: ImageView?, string: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
-
     fun display(view: ImageView?, resourceId: Int?, errorId: Int? = R.drawable.shape_glide_bg, onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
 
-    fun display(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
+    fun displayDefType(view: ImageView?, string: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
+
+    fun displayDefType(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
 
     fun displayRound(view: ImageView?, string: String?, errorId: Int? = R.drawable.shape_glide_bg, radius: Int, overRide: BooleanArray)
 
-    fun displayRound(view: ImageView?, string: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
-
     fun displayRound(view: ImageView?, resourceId: Int?, errorId: Int? = R.drawable.shape_glide_bg, radius: Int, overRide: BooleanArray)
 
-    fun displayRound(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun displayRoundDefType(view: ImageView?, string: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
+
+    fun displayRoundDefType(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
     fun displayCircle(view: ImageView?, string: String?, errorId: Int? = R.drawable.shape_glide_oval_bg)
 
-    fun displayCircle(view: ImageView?, string: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_oval_bg))
-
     fun displayCircle(view: ImageView?, resourceId: Int?, errorId: Int? = R.drawable.shape_glide_oval_bg)
 
-    fun displayCircle(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_oval_bg))
+    fun displayCircleDefType(view: ImageView?, string: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_oval_bg))
+
+    fun displayCircleDefType(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_oval_bg))
     //---------------------------------------------图片加载结束---------------------------------------------
 
     //---------------------------------------------图片库方法开始---------------------------------------------

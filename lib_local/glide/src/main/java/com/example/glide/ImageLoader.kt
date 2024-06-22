@@ -98,10 +98,14 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun display(view: ImageView?, string: String?, errorId: Int?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
-        display(view, string, view?.context?.drawable(errorId.orZero), onStart, onComplete)
+        displayDefType(view, string, view?.context?.drawable(errorId.orZero), onStart, onComplete)
     }
 
-    override fun display(view: ImageView?, string: String?, errorDrawable: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
+    override fun display(view: ImageView?, resourceId: Int?, errorId: Int?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
+        displayDefType(view, view?.context?.drawable(resourceId.orZero), view?.context?.drawable(errorId.orZero), onStart, onComplete)
+    }
+
+    override fun displayDefType(view: ImageView?, string: String?, errorDrawable: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
         view ?: return
         Glide.with(view.context)
             .load(string)
@@ -120,11 +124,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun display(view: ImageView?, resourceId: Int?, errorId: Int?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
-        display(view, view?.context?.drawable(resourceId.orZero), view?.context?.drawable(errorId.orZero), onStart, onComplete)
-    }
-
-    override fun display(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
+    override fun displayDefType(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
         view ?: return
         Glide.with(view.context)
             .load(resourceDrawable)
@@ -144,10 +144,14 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun displayRound(view: ImageView?, string: String?, errorId: Int?, radius: Int, overRide: BooleanArray) {
-        displayRound(view, string, view?.context?.drawable(errorId.orZero), radius, overRide)
+        displayRoundDefType(view, string, view?.context?.drawable(errorId.orZero), radius, overRide)
     }
 
-    override fun displayRound(view: ImageView?, string: String?, errorDrawable: Drawable?, radius: Int, overRide: BooleanArray) {
+    override fun displayRound(view: ImageView?, resourceId: Int?, errorId: Int?, radius: Int, overRide: BooleanArray) {
+        displayRoundDefType(view, view?.context?.drawable(resourceId.orZero), view?.context?.drawable(errorId.orZero), radius, overRide)
+    }
+
+    override fun displayRoundDefType(view: ImageView?, string: String?, errorDrawable: Drawable?, radius: Int, overRide: BooleanArray) {
         view ?: return
         Glide.with(view.context)
             .load(string)
@@ -158,11 +162,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayRound(view: ImageView?, resourceId: Int?, errorId: Int?, radius: Int, overRide: BooleanArray) {
-        displayRound(view, view?.context?.drawable(resourceId.orZero), view?.context?.drawable(errorId.orZero), radius, overRide)
-    }
-
-    override fun displayRound(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable?, radius: Int, overRide: BooleanArray) {
+    override fun displayRoundDefType(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable?, radius: Int, overRide: BooleanArray) {
         view ?: return
         Glide.with(view.context)
             .load(resourceDrawable)
@@ -174,10 +174,14 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     }
 
     override fun displayCircle(view: ImageView?, string: String?, errorId: Int?) {
-        displayCircle(view, string, view?.context?.drawable(errorId.orZero))
+        displayCircleDefType(view, string, view?.context?.drawable(errorId.orZero))
     }
 
-    override fun displayCircle(view: ImageView?, string: String?, errorDrawable: Drawable?) {
+    override fun displayCircle(view: ImageView?, resourceId: Int?, errorId: Int?) {
+        displayCircleDefType(view, view?.context?.drawable(resourceId.orZero), view?.context?.drawable(errorId.orZero))
+    }
+
+    override fun displayCircleDefType(view: ImageView?, string: String?, errorDrawable: Drawable?) {
         view ?: return
         Glide.with(view.context)
             .load(string)
@@ -188,11 +192,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayCircle(view: ImageView?, resourceId: Int?, errorId: Int?) {
-        displayCircle(view, view?.context?.drawable(resourceId.orZero), view?.context?.drawable(errorId.orZero))
-    }
-
-    override fun displayCircle(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable?) {
+    override fun displayCircleDefType(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable?) {
         view ?: return
         Glide.with(view.context)
             .load(resourceDrawable)
