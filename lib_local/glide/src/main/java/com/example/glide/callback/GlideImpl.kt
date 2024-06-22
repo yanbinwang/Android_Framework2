@@ -42,15 +42,27 @@ interface GlideImpl {
     /**
      * 加载图片的几种展示实现
      */
+    fun display(view: ImageView?, string: String?, errorId: Int?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit)
+
     fun display(view: ImageView?, string: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
+
+    fun display(view: ImageView?, resourceId: Int?, errorId: Int?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit)
 
     fun display(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
 
+    fun displayRound(view: ImageView?, string: String?, errorId: Int?, radius: Int, overRide: BooleanArray)
+
     fun displayRound(view: ImageView?, string: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
+
+    fun displayRound(view: ImageView?, resourceId: Int?, errorId: Int?, radius: Int, overRide: BooleanArray)
 
     fun displayRound(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
+    fun displayCircle(view: ImageView?, string: String?, errorId: Int?)
+
     fun displayCircle(view: ImageView?, string: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_oval_bg))
+
+    fun displayCircle(view: ImageView?, resourceId: Int?, errorId: Int?)
 
     fun displayCircle(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_oval_bg))
     //---------------------------------------------图片加载结束---------------------------------------------
