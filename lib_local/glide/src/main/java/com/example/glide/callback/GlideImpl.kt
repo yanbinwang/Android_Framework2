@@ -14,27 +14,45 @@ import java.io.File
 interface GlideImpl {
 
     //---------------------------------------------图片加载开始---------------------------------------------
-    fun displayZoom(view: ImageView?, string: String? = null, onStart: () -> Unit = {}, onComplete: (bitmap: Bitmap?) -> Unit = {})
+    /**
+     * 图片会根据设置的宽度等比例拉伸高度
+     */
+    fun displayZoom(view: ImageView?, string: String?, onStart: () -> Unit = {}, onComplete: (bitmap: Bitmap?) -> Unit = {})
 
-    fun displayFrame(view: ImageView?, string: String? = null)//线上视频加载某一帧
+    /**
+     * 线上视频加载某一帧
+     */
+    fun displayFrame(view: ImageView?, string: String?)
 
-    fun displayGif(view: ImageView?, string: String? = null)
+    /**
+     * 加载gif图片
+     */
+    fun displayGif(view: ImageView?, string: String?)
 
-    fun displayGif(view: ImageView?, resourceId: Int? = null)//gif放入drawable中
+    /**
+     * 加载本地gif图片/将gif图片放入drawable中
+     */
+    fun displayGif(view: ImageView?, resourceId: Int?)
 
-    fun displayProgress(view: ImageView?, string: String? = null, onStart: () -> Unit = {}, onProgress: (progress: Int?) -> Unit = {}, onComplete: (result: Boolean) -> Unit = {})
+    /**
+     * 加载图片，捕获加载进度，路径不能为空
+     */
+    fun displayProgress(view: ImageView?, string: String, onStart: () -> Unit = {}, onProgress: (progress: Int?) -> Unit = {}, onComplete: (result: Boolean) -> Unit = {})
 
-    fun display(view: ImageView?, string: String? = null, errorId: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
+    /**
+     * 加载图片的几种展示实现
+     */
+    fun display(view: ImageView?, string: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
 
-    fun display(view: ImageView?, resourceId: Drawable? = null, errorId: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
+    fun display(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), onStart: () -> Unit = {}, onComplete: (drawable: Drawable?) -> Unit = {})
 
-    fun displayRound(view: ImageView?, string: String? = null, errorId: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun displayRound(view: ImageView?, string: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
-    fun displayRound(view: ImageView?, resourceId: Drawable? = null, errorId: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun displayRound(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), radius: Int = 5, overRide: BooleanArray = booleanArrayOf(false, false, false, false))
 
-    fun displayCircle(view: ImageView?, string: String? = null, errorId: Drawable? = view?.context?.drawable(R.drawable.shape_glide_oval_bg))
+    fun displayCircle(view: ImageView?, string: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_oval_bg))
 
-    fun displayCircle(view: ImageView?, resourceId: Drawable? = null, errorId: Drawable? = view?.context?.drawable(R.drawable.shape_glide_oval_bg))
+    fun displayCircle(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_oval_bg))
     //---------------------------------------------图片加载结束---------------------------------------------
 
     //---------------------------------------------图片库方法开始---------------------------------------------
