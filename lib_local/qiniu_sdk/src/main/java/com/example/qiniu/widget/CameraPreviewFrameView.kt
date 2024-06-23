@@ -9,6 +9,9 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import com.example.framework.utils.function.value.orFalse
 
+/**
+ * 直播容器
+ */
 @SuppressLint("ClickableViewAccessibility")
 class CameraPreviewFrameView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : GLSurfaceView(context, attrs) {
     private var mScaleDetector: ScaleGestureDetector? = null
