@@ -28,8 +28,8 @@ public class DurbanConfig {
     /**
      * Create a new builder.
      */
-    public static Builder newBuilder(Context context) {
-        return new Builder(context);
+    public static Builder newBuilder() {
+        return new Builder();
     }
 
     private Locale mLocale;
@@ -51,7 +51,7 @@ public class DurbanConfig {
 
         private Locale mLocale;
 
-        private Builder(Context context) {
+        private Builder() {
         }
 
         /**

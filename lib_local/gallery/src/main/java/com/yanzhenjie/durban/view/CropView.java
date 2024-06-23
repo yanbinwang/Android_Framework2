@@ -32,7 +32,6 @@ import com.yanzhenjie.durban.callback.OverlayViewChangeListener;
  * Update by Yan Zhenjie on 2017/5/23.
  */
 public class CropView extends FrameLayout {
-
     private GestureCropImageView mGestureCropImageView;
     private final OverlayView mViewOverlay;
 
@@ -42,32 +41,19 @@ public class CropView extends FrameLayout {
 
     public CropView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
         LayoutInflater.from(context).inflate(R.layout.durban_crop_view, this, true);
         mGestureCropImageView = findViewById(R.id.image_view_crop);
         mViewOverlay = findViewById(R.id.view_overlay);
-
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.durban_CropView);
         mViewOverlay.processStyledAttributes(a);
         mGestureCropImageView.processStyledAttributes(a);
         a.recycle();
-
         setListenersToViews();
     }
 
     private void setListenersToViews() {
-        mGestureCropImageView.setCropBoundsChangeListener(new CropBoundsChangeListener() {
-            @Override
-            public void onCropAspectRatioChanged(float cropRatio) {
-                mViewOverlay.setTargetAspectRatio(cropRatio);
-            }
-        });
-        mViewOverlay.setOverlayViewChangeListener(new OverlayViewChangeListener() {
-            @Override
-            public void onCropRectUpdated(RectF cropRect) {
-                mGestureCropImageView.setCropRect(cropRect);
-            }
-        });
+        mGestureCropImageView.setCropBoundsChangeListener(cropRatio -> mViewOverlay.setTargetAspectRatio(cropRatio));
+        mViewOverlay.setOverlayViewChangeListener(cropRect -> mGestureCropImageView.setCropRect(cropRect));
     }
 
     @Override
@@ -84,4 +70,5 @@ public class CropView extends FrameLayout {
     public OverlayView getOverlayView() {
         return mViewOverlay;
     }
+
 }

@@ -27,4 +27,5 @@ public class StorageError extends Exception {
     public StorageError(Throwable cause) {
         super(cause);
     }
+
 }

@@ -54,40 +54,30 @@ import java.util.Locale;
  * Update by Yan Zhenjie on 2017/5/23.
  */
 public class DurbanActivity extends AppCompatActivity {
-
-    private static final int PERMISSION_CODE_STORAGE = 1;
-
     private int mStatusColor;
     private int mNavigationColor;
     private int mToolbarColor;
-    private String mTitle;
-
     private int mGesture;
+    private int mCompressQuality;
     private float[] mAspectRatio;
     private int[] mMaxWidthHeight;
-
-    private Bitmap.CompressFormat mCompressFormat;
-    private int mCompressQuality;
-
+    private String mTitle;
     private String mOutputDirectory;
     private ArrayList<String> mInputPathList;
-
     private Controller mController;
-
     private CropView mCropView;
     private GestureCropImageView mCropImageView;
-
+    private Bitmap.CompressFormat mCompressFormat;
     private ArrayList<String> mOutputPathList;
+    private static final int PERMISSION_CODE_STORAGE = 1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Locale locale = Durban.getDurbanConfig().getLocale();
         DurbanUtils.applyLanguageForContext(this, locale);
-
         setContentView(R.layout.durban_activity_photobox);
         final Intent intent = getIntent();
-
         initArgument(intent);
         initFrameViews();
         initContentViews();
@@ -105,31 +95,25 @@ public class DurbanActivity extends AppCompatActivity {
         mStatusColor = ContextCompat.getColor(this, R.color.durban_ColorPrimaryDark);
         mToolbarColor = ContextCompat.getColor(this, R.color.durban_ColorPrimary);
         mNavigationColor = ContextCompat.getColor(this, R.color.durban_ColorPrimaryBlack);
-
         mStatusColor = intent.getIntExtra(Durban.KEY_INPUT_STATUS_COLOR, mStatusColor);
         mToolbarColor = intent.getIntExtra(Durban.KEY_INPUT_TOOLBAR_COLOR, mToolbarColor);
         mNavigationColor = intent.getIntExtra(Durban.KEY_INPUT_NAVIGATION_COLOR, mNavigationColor);
         mTitle = intent.getStringExtra(Durban.KEY_INPUT_TITLE);
         if (TextUtils.isEmpty(mTitle)) mTitle = getString(R.string.durban_title_crop);
-
         mGesture = intent.getIntExtra(Durban.KEY_INPUT_GESTURE, Durban.GESTURE_ALL);
         mAspectRatio = intent.getFloatArrayExtra(Durban.KEY_INPUT_ASPECT_RATIO);
         if (mAspectRatio == null) mAspectRatio = new float[]{0, 0};
         mMaxWidthHeight = intent.getIntArrayExtra(Durban.KEY_INPUT_MAX_WIDTH_HEIGHT);
         if (mMaxWidthHeight == null) mMaxWidthHeight = new int[]{500, 500};
-
         //noinspection JavacQuirks
         int compressFormat = intent.getIntExtra(Durban.KEY_INPUT_COMPRESS_FORMAT, 0);
         mCompressFormat = compressFormat == Durban.COMPRESS_PNG ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG;
         mCompressQuality = intent.getIntExtra(Durban.KEY_INPUT_COMPRESS_QUALITY, 90);
-
         mOutputDirectory = intent.getStringExtra(Durban.KEY_INPUT_DIRECTORY);
         if (TextUtils.isEmpty(mOutputDirectory)) mOutputDirectory = getFilesDir().getAbsolutePath();
         mInputPathList = intent.getStringArrayListExtra(Durban.KEY_INPUT_PATH_ARRAY);
-
         mController = intent.getParcelableExtra(Durban.KEY_INPUT_CONTROLLER);
         if (mController == null) mController = Controller.newBuilder().build();
-
         mOutputPathList = new ArrayList<>();
     }
 
@@ -143,11 +127,9 @@ public class DurbanActivity extends AppCompatActivity {
                 window.setNavigationBarColor(mNavigationColor);
             }
         }
-
         final Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(mToolbarColor);
         setSupportActionBar(toolbar);
-
         final ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
         actionBar.setDefaultDisplayHomeAsUpEnabled(true);
@@ -165,7 +147,6 @@ public class DurbanActivity extends AppCompatActivity {
         mCropImageView.setMaxBitmapSize(GestureCropImageView.DEFAULT_MAX_BITMAP_SIZE);
         mCropImageView.setMaxScaleMultiplier(GestureCropImageView.DEFAULT_MAX_SCALE_MULTIPLIER);
         mCropImageView.setImageToWrapCropBoundsAnimDuration(GestureCropImageView.DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION);
-
         // Overlay view options
         OverlayView overlayView = mCropView.getOverlayView();
         overlayView.setFreestyleCropMode(OverlayView.FREESTYLE_CROP_MODE_DISABLE);
@@ -179,12 +160,10 @@ public class DurbanActivity extends AppCompatActivity {
         overlayView.setCropGridColumnCount(2);
         overlayView.setCropGridColor(ContextCompat.getColor(this, R.color.durban_CropGridLine));
         overlayView.setCropGridStrokeWidth(getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
-
         // Aspect ratio options
         if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0)
             mCropImageView.setTargetAspectRatio(mAspectRatio[0] / mAspectRatio[1]);
         else mCropImageView.setTargetAspectRatio(GestureCropImageView.SOURCE_IMAGE_ASPECT_RATIO);
-
         // Result exception max size options
         if (mMaxWidthHeight[0] > 0 && mMaxWidthHeight[1] > 0) {
             mCropImageView.setMaxResultImageSizeX(mMaxWidthHeight[0]);
@@ -203,10 +182,7 @@ public class DurbanActivity extends AppCompatActivity {
 
         @Override
         public void onLoadComplete() {
-            ViewCompat.animate(mCropView)
-                    .alpha(1)
-                    .setDuration(300)
-                    .setInterpolator(new AccelerateInterpolator());
+            ViewCompat.animate(mCropView).alpha(1).setDuration(300).setInterpolator(new AccelerateInterpolator());
         }
 
         @Override
@@ -217,30 +193,25 @@ public class DurbanActivity extends AppCompatActivity {
 
     private void initControllerViews() {
         View controllerRoot = findViewById(R.id.iv_controller_root);
-
         View rotationTitle = findViewById(R.id.tv_controller_title_rotation);
         View rotationLeft = findViewById(R.id.layout_controller_rotation_left);
         View rotationRight = findViewById(R.id.layout_controller_rotation_right);
         View scaleTitle = findViewById(R.id.tv_controller_title_scale);
         View scaleBig = findViewById(R.id.layout_controller_scale_big);
         View scaleSmall = findViewById(R.id.layout_controller_scale_small);
-
         controllerRoot.setVisibility(mController.isEnable() ? View.VISIBLE : View.GONE);
-
         rotationTitle.setVisibility(mController.isRotationTitle() ? View.VISIBLE : View.INVISIBLE);
         rotationLeft.setVisibility(mController.isRotation() ? View.VISIBLE : View.GONE);
         rotationRight.setVisibility(mController.isRotation() ? View.VISIBLE : View.GONE);
         scaleTitle.setVisibility(mController.isScaleTitle() ? View.VISIBLE : View.INVISIBLE);
         scaleBig.setVisibility(mController.isScale() ? View.VISIBLE : View.GONE);
         scaleSmall.setVisibility(mController.isScale() ? View.VISIBLE : View.GONE);
-
         if (!mController.isRotationTitle() && !mController.isScaleTitle())
             findViewById(R.id.layout_controller_title_root).setVisibility(View.GONE);
         if (!mController.isRotation())
             rotationTitle.setVisibility(View.GONE);
         if (!mController.isScale())
             scaleTitle.setVisibility(View.GONE);
-
         rotationLeft.setOnClickListener(mControllerClick);
         rotationRight.setOnClickListener(mControllerClick);
         scaleBig.setOnClickListener(mControllerClick);
@@ -258,12 +229,10 @@ public class DurbanActivity extends AppCompatActivity {
                 mCropImageView.postRotate(90);
                 mCropImageView.setImageToWrapCropBounds();
             } else if (id == R.id.layout_controller_scale_big) {
-                mCropImageView.zoomOutImage(mCropImageView.getCurrentScale()
-                        + ((mCropImageView.getMaxScale() - mCropImageView.getMinScale()) / 10));
+                mCropImageView.zoomOutImage(mCropImageView.getCurrentScale() + ((mCropImageView.getMaxScale() - mCropImageView.getMinScale()) / 10));
                 mCropImageView.setImageToWrapCropBounds();
             } else if (id == R.id.layout_controller_scale_small) {
-                mCropImageView.zoomInImage(mCropImageView.getCurrentScale()
-                        - ((mCropImageView.getMaxScale() - mCropImageView.getMinScale()) / 10));
+                mCropImageView.zoomInImage(mCropImageView.getCurrentScale() - ((mCropImageView.getMaxScale() - mCropImageView.getMinScale()) / 10));
                 mCropImageView.setImageToWrapCropBounds();
             }
         }
@@ -289,21 +258,12 @@ public class DurbanActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int permissionResult = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
             if (permissionResult == PackageManager.PERMISSION_GRANTED) {
-                onRequestPermissionsResult(
-                        requestCode,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        new int[]{PackageManager.PERMISSION_GRANTED});
+                onRequestPermissionsResult(requestCode, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, new int[]{PackageManager.PERMISSION_GRANTED});
             } else {
-                ActivityCompat.requestPermissions(
-                        this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
-                        requestCode);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, requestCode);
             }
         } else {
-            onRequestPermissionsResult(
-                    requestCode,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    new int[]{PackageManager.PERMISSION_GRANTED});
+            onRequestPermissionsResult(requestCode, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, new int[]{PackageManager.PERMISSION_GRANTED});
         }
     }
 

@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
  * Update by Yan Zhenjie on 2017/5/23.
  */
 public class AspectRatio implements Parcelable {
-
     @Nullable
     private final String mAspectRatioTitle;
     private final float mAspectRatioX;
@@ -54,7 +53,7 @@ public class AspectRatio implements Parcelable {
         return 0;
     }
 
-    public static final Creator<AspectRatio> CREATOR = new Creator<AspectRatio>() {
+    public static final Creator<AspectRatio> CREATOR = new Creator<>() {
         @Override
         public AspectRatio createFromParcel(Parcel in) {
             return new AspectRatio(in);

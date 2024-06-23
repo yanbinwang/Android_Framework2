@@ -35,7 +35,6 @@ import java.util.Random;
  * Create by Yan Zhenjie on 2017/5/23.
  */
 public class FileUtils {
-
     private static Random random = new Random();
 
     private FileUtils() {

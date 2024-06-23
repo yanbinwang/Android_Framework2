@@ -23,6 +23,19 @@ import android.os.Parcelable;
  * Created by Yan Zhenjie on 2017/5/30.
  */
 public class Controller implements Parcelable {
+    private boolean enable;
+    private boolean rotation;
+    private boolean rotationTitle;
+    private boolean scale;
+    private boolean scaleTitle;
+
+    private Controller(Builder builder) {
+        this.enable = builder.enable;
+        this.rotation = builder.rotation;
+        this.rotationTitle = builder.rotationTitle;
+        this.scale = builder.scale;
+        this.scaleTitle = builder.scaleTitle;
+    }
 
     private Controller(Parcel in) {
         this.enable = in.readByte() != 0;
@@ -46,7 +59,7 @@ public class Controller implements Parcelable {
         return 0;
     }
 
-    public static final Creator<Controller> CREATOR = new Creator<Controller>() {
+    public static final Creator<Controller> CREATOR = new Creator<>() {
         @Override
         public Controller createFromParcel(Parcel in) {
             return new Controller(in);
@@ -57,29 +70,6 @@ public class Controller implements Parcelable {
             return new Controller[size];
         }
     };
-
-    /**
-     * Create a Builder.
-     */
-    public static Builder newBuilder() {
-        return new Builder();
-    }
-
-    private boolean enable;
-
-    private boolean rotation;
-    private boolean rotationTitle;
-
-    private boolean scale;
-    private boolean scaleTitle;
-
-    private Controller(Builder builder) {
-        this.enable = builder.enable;
-        this.rotation = builder.rotation;
-        this.rotationTitle = builder.rotationTitle;
-        this.scale = builder.scale;
-        this.scaleTitle = builder.scaleTitle;
-    }
 
     public boolean isEnable() {
         return enable;
@@ -101,13 +91,17 @@ public class Controller implements Parcelable {
         return scaleTitle;
     }
 
+    /**
+     * Create a Builder.
+     */
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
     public static final class Builder {
-
         private boolean enable = true;
-
         private boolean rotation = true;
         private boolean rotationTitle = true;
-
         private boolean scale = true;
         private boolean scaleTitle = true;
 

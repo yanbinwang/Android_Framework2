@@ -39,28 +39,20 @@ import java.util.Locale;
  * Create by Yan Zhenjie on 2017/5/23.
  */
 public class Durban {
-
     private static final String KEY_PREFIX = "AlbumCrop";
-
     static final String KEY_INPUT_STATUS_COLOR = KEY_PREFIX + ".KEY_INPUT_STATUS_COLOR";
     static final String KEY_INPUT_TOOLBAR_COLOR = KEY_PREFIX + ".KEY_INPUT_TOOLBAR_COLOR";
     static final String KEY_INPUT_NAVIGATION_COLOR = KEY_PREFIX + ".KEY_INPUT_NAVIGATION_COLOR";
     static final String KEY_INPUT_TITLE = KEY_PREFIX + ".KEY_INPUT_TITLE";
-
     static final String KEY_INPUT_GESTURE = KEY_PREFIX + ".KEY_INPUT_GESTURE";
     static final String KEY_INPUT_ASPECT_RATIO = KEY_PREFIX + ".KEY_INPUT_ASPECT_RATIO";
     static final String KEY_INPUT_MAX_WIDTH_HEIGHT = KEY_PREFIX + ".KEY_INPUT_MAX_WIDTH_HEIGHT";
-
     static final String KEY_INPUT_COMPRESS_FORMAT = KEY_PREFIX + ".KEY_INPUT_COMPRESS_FORMAT";
     static final String KEY_INPUT_COMPRESS_QUALITY = KEY_PREFIX + ".KEY_INPUT_COMPRESS_QUALITY";
-
     static final String KEY_INPUT_DIRECTORY = KEY_PREFIX + ".KEY_INPUT_DIRECTORY";
     static final String KEY_INPUT_PATH_ARRAY = KEY_PREFIX + ".KEY_INPUT_PATH_ARRAY";
-
     static final String KEY_INPUT_CONTROLLER = KEY_PREFIX + ".KEY_INPUT_CONTROLLER";
-
     static final String KEY_OUTPUT_IMAGE_LIST = KEY_PREFIX + ".KEY_OUTPUT_IMAGE_LIST";
-
     /**
      * Do not allow any gestures.
      */
@@ -82,7 +74,6 @@ public class Durban {
     @Retention(RetentionPolicy.SOURCE)
     public @interface GestureTypes {
     }
-
     /**
      * JPEG format.
      */
@@ -115,14 +106,10 @@ public class Durban {
      */
     public static DurbanConfig getDurbanConfig() {
         if (sDurbanConfig == null) {
-            initialize(DurbanConfig.newBuilder(null)
-                    .setLocale(Locale.getDefault())
-                    .build()
-            );
+            initialize(DurbanConfig.newBuilder().setLocale(Locale.getDefault()).build());
         }
         return sDurbanConfig;
     }
-
 
     private Object o;
     private Intent mCropIntent;

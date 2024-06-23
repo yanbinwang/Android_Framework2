@@ -21,31 +21,21 @@ import android.graphics.Bitmap;
  * Update by Yan Zhenjie on 2017/5/23.
  */
 public class CropParameters {
-
     private int mMaxResultImageSizeX, mMaxResultImageSizeY;
-
-    private Bitmap.CompressFormat mCompressFormat;
     private int mCompressQuality;
     private String mImagePath;
     private String mImageOutputPath;
+    private Bitmap.CompressFormat mCompressFormat;
     private ExifInfo mExifInfo;
 
-
-    public CropParameters(
-            int maxResultImageSizeX,
-            int maxResultImageSizeY,
-            Bitmap.CompressFormat compressFormat,
-            int compressQuality,
-            String imagePath,
-            String imageOutputPath,
-            ExifInfo exifInfo) {
-        mMaxResultImageSizeX = maxResultImageSizeX;
-        mMaxResultImageSizeY = maxResultImageSizeY;
-        mCompressFormat = compressFormat;
-        mCompressQuality = compressQuality;
+    public CropParameters(int maxResultImageSizeX, int maxResultImageSizeY, Bitmap.CompressFormat compressFormat, int compressQuality, String imagePath, String imageOutputPath, ExifInfo exifInfo) {
+        this.mMaxResultImageSizeX = maxResultImageSizeX;
+        this.mMaxResultImageSizeY = maxResultImageSizeY;
+        this.mCompressFormat = compressFormat;
+        this.mCompressQuality = compressQuality;
         this.mImagePath = imagePath;
-        mImageOutputPath = imageOutputPath;
-        mExifInfo = exifInfo;
+        this.mImageOutputPath = imageOutputPath;
+        this.mExifInfo = exifInfo;
     }
 
     public int getMaxResultImageSizeX() {
