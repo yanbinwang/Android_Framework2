@@ -27,7 +27,7 @@
     <!-- 启动页，直接背景是一张启动页图，点开app就是引导页的展示 -->
     <style name="SplashTheme" parent="TransitionTheme">
         <item name="colorPrimaryDark">@color/appTheme</item>
-        <item name="android:navigationBarColor">@color/appTheme</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowBackground">@drawable/layout_list_splash</item>
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowLightStatusBar">false</item>

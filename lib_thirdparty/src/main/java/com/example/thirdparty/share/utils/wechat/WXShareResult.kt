@@ -9,7 +9,7 @@ import java.lang.ref.SoftReference
 /**
  * 微信分享类
  */
-class ShareResult(
+class WXShareResult(
     var text: String? = null,//文字分享文案
     var videoUrl: String? = null,//视频url
     var title: String? = null,//消息标题——>限制长度不超过 512Bytes
@@ -38,48 +38,48 @@ class ShareResult(
          * 文字类型分享
          */
         @JvmStatic
-        fun text(text: String?, title: String?): ShareResult {
-            return ShareResult(text = text, title = title, obj = Obj.TEXT)
+        fun text(text: String?, title: String?): WXShareResult {
+            return WXShareResult(text = text, title = title, obj = Obj.TEXT)
         }
 
         /**
          * 图片类型分享
          */
         @JvmStatic
-        fun image(bmp: Bitmap? = BaseApplication.instance.decodeResource(R.mipmap.ic_share)): ShareResult {
-            return ShareResult(bmp = SoftReference(bmp), obj = Obj.IMAGE)
+        fun image(bmp: Bitmap? = BaseApplication.instance.decodeResource(R.mipmap.ic_share)): WXShareResult {
+            return WXShareResult(bmp = SoftReference(bmp), obj = Obj.IMAGE)
         }
 
         /**
          * 视频类型分享
          */
         @JvmStatic
-        fun video(videoUrl: String?, title: String?, description: String?, bmp: Bitmap? = BaseApplication.instance.decodeResource(R.mipmap.ic_share)): ShareResult {
-            return ShareResult(videoUrl = videoUrl, title = title, description = description, bmp = SoftReference(bmp), obj = Obj.VIDEO)
+        fun video(videoUrl: String?, title: String?, description: String?, bmp: Bitmap? = BaseApplication.instance.decodeResource(R.mipmap.ic_share)): WXShareResult {
+            return WXShareResult(videoUrl = videoUrl, title = title, description = description, bmp = SoftReference(bmp), obj = Obj.VIDEO)
         }
 
         /**
          * 网页类型分享
          */
         @JvmStatic
-        fun webPage(webpageUrl: String?, title: String?, description: String?, bmp: Bitmap? = BaseApplication.instance.decodeResource(R.mipmap.ic_share)): ShareResult {
-            return ShareResult(webpageUrl = webpageUrl, title = title, description = description, bmp = SoftReference(bmp), obj = Obj.WEB_PAGE)
+        fun webPage(webpageUrl: String?, title: String?, description: String?, bmp: Bitmap? = BaseApplication.instance.decodeResource(R.mipmap.ic_share)): WXShareResult {
+            return WXShareResult(webpageUrl = webpageUrl, title = title, description = description, bmp = SoftReference(bmp), obj = Obj.WEB_PAGE)
         }
 
         /**
          * 小程序类型分享
          */
         @JvmStatic
-        fun miniProgram(webpageUrl: String?, miniprogramType: Int?, userName: String?, path: String?, title: String?, description: String?, bmp: Bitmap? = BaseApplication.instance.decodeResource(R.mipmap.ic_share)): ShareResult {
-            return ShareResult(webpageUrl = webpageUrl, miniprogramType = miniprogramType, userName = userName, path = path, title = title, description = description, bmp = SoftReference(bmp), obj = Obj.MINI_PROGRAM)
+        fun miniProgram(webpageUrl: String?, miniprogramType: Int?, userName: String?, path: String?, title: String?, description: String?, bmp: Bitmap? = BaseApplication.instance.decodeResource(R.mipmap.ic_share)): WXShareResult {
+            return WXShareResult(webpageUrl = webpageUrl, miniprogramType = miniprogramType, userName = userName, path = path, title = title, description = description, bmp = SoftReference(bmp), obj = Obj.MINI_PROGRAM)
         }
 
         /**
          * 音乐视频类型分享
          */
         @JvmStatic
-        fun music(musicUrl: String?, musicDataUrl: String?, title: String?, description: String?, bmp: Bitmap? = BaseApplication.instance.decodeResource(R.mipmap.ic_share)): ShareResult {
-            return ShareResult(musicUrl = musicUrl, musicDataUrl = musicDataUrl, title = title, description = description, bmp = SoftReference(bmp), obj = Obj.MUSIC)
+        fun music(musicUrl: String?, musicDataUrl: String?, title: String?, description: String?, bmp: Bitmap? = BaseApplication.instance.decodeResource(R.mipmap.ic_share)): WXShareResult {
+            return WXShareResult(musicUrl = musicUrl, musicDataUrl = musicDataUrl, title = title, description = description, bmp = SoftReference(bmp), obj = Obj.MUSIC)
         }
     }
 

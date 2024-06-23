@@ -1,12 +1,11 @@
 package com.example.thirdparty.share.utils.wechat
 
 import android.graphics.Bitmap
-import androidx.fragment.app.FragmentActivity
-import com.example.common.config.Constants
-import com.example.framework.utils.function.doOnDestroy
+import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.orZero
-import com.example.thirdparty.share.utils.wechat.ShareUtil.bmpToByteArray
+import com.example.thirdparty.share.utils.wechat.WXShareUtil.bmpToByteArray
+import com.example.thirdparty.utils.wechat.WXManager
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
 import com.tencent.mm.opensdk.modelmsg.WXImageObject
 import com.tencent.mm.opensdk.modelmsg.WXMediaMessage
@@ -15,27 +14,20 @@ import com.tencent.mm.opensdk.modelmsg.WXMusicVideoObject
 import com.tencent.mm.opensdk.modelmsg.WXTextObject
 import com.tencent.mm.opensdk.modelmsg.WXVideoObject
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject
-import com.tencent.mm.opensdk.openapi.WXAPIFactory
 
 /**
  * 微信分享构建
  */
-class WechatShareBuilder(mActivity: FragmentActivity) {
+class WXShare(owner: LifecycleOwner? = null) {
     //分享信息
-    private var result: ShareResult? = null
+    private var result: WXShareResult? = null
     //通过WXAPIFactory工厂，获取IWXAPI的实例
-    private val wxApi by lazy { WXAPIFactory.createWXAPI(mActivity, Constants.WX_APP_ID, true) }
-
-    init {
-        mActivity.doOnDestroy {
-            wxApi.unregisterApp()
-        }
-    }
+    private val wxApi by lazy { WXManager.instance.regToWx(owner) }
 
     /**
      * 设置分享信息
      */
-    fun setResult(result: ShareResult?) {
+    fun setResult(result: WXShareResult?) {
         this.result = result
     }
 
@@ -49,11 +41,11 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
      */
     fun shareToWx(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
         when (result?.obj) {
-            ShareResult.Obj.TEXT -> shareText(mTargetScene)
-            ShareResult.Obj.IMAGE -> shareImage(mTargetScene)
-            ShareResult.Obj.VIDEO -> shareVideo(mTargetScene)
-            ShareResult.Obj.WEB_PAGE -> shareWebPage(mTargetScene)
-            ShareResult.Obj.MINI_PROGRAM -> shareMiniProgram()
+            WXShareResult.Obj.TEXT -> shareText(mTargetScene)
+            WXShareResult.Obj.IMAGE -> shareImage(mTargetScene)
+            WXShareResult.Obj.VIDEO -> shareVideo(mTargetScene)
+            WXShareResult.Obj.WEB_PAGE -> shareWebPage(mTargetScene)
+            WXShareResult.Obj.MINI_PROGRAM -> shareMiniProgram()
             else -> shareMusic(mTargetScene)
         }
     }
@@ -71,7 +63,7 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
         req.message = msg
         req.scene = mTargetScene
         //调用api接口，发送数据到微信
-        wxApi.sendReq(req)
+        wxApi?.sendReq(req)
     }
 
     private fun shareImage(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
@@ -89,7 +81,7 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
         req.message = msg
         req.scene = mTargetScene
         //调用api接口，发送数据到微信
-        wxApi.sendReq(req)
+        wxApi?.sendReq(req)
     }
 
     private fun shareVideo(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
@@ -110,7 +102,7 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
         req.message = msg
         req.scene = mTargetScene
         //调用api接口，发送数据到微信
-        wxApi.sendReq(req)
+        wxApi?.sendReq(req)
     }
 
     private fun shareWebPage(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
@@ -131,7 +123,7 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
         req.message = msg
         req.scene = mTargetScene
         //调用api接口，发送数据到微信
-        wxApi.sendReq(req)
+        wxApi?.sendReq(req)
     }
 
     private fun shareMiniProgram() {
@@ -153,7 +145,7 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
         req.message = msg
         req.scene = SendMessageToWX.Req.WXSceneSession // 目前只支持会话
         //调用api接口，发送数据到微信
-        wxApi.sendReq(req)
+        wxApi?.sendReq(req)
     }
 
     private fun shareMusic(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
@@ -184,7 +176,7 @@ class WechatShareBuilder(mActivity: FragmentActivity) {
         req.message = msg
         req.scene = mTargetScene // 支持会话、朋友圈、收藏
         //调用api接口，发送数据到微信
-        wxApi.sendReq(req)
+        wxApi?.sendReq(req)
     }
 
     private fun buildThumb(bmp: Bitmap, THUMB_SIZE: Int = 100): ByteArray {

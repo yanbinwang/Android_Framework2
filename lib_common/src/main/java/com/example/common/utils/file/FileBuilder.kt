@@ -73,7 +73,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         }
     }
 
-    private suspend fun suspendingSavePic(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG): String? {
+    suspend fun suspendingSavePic(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG): String? {
         return withContext(IO) { saveBit(bitmap, root, fileName, deleteDir, format) }
     }
 
@@ -105,7 +105,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         }
     }
 
-    private suspend fun suspendingSavePDF(file: File, index: Int = 0): String? {
+    suspend fun suspendingSavePDF(file: File, index: Int = 0): String? {
         return withContext(IO) {
             val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
             val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
@@ -182,7 +182,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         }
     }
 
-    private suspend fun suspendingZip(folderList: MutableList<String>, zipPath: String): String? {
+    suspend fun suspendingZip(folderList: MutableList<String>, zipPath: String): String? {
         return try {
             withContext(IO) {
                 zipPath.isMkdirs()
@@ -229,7 +229,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         }
     }
 
-    private suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: String, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
+    suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: String, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
         //清除目录下的所有文件
         filePath.deleteDir()
         //创建一个安装的文件，开启io协程写入
@@ -281,7 +281,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         }
     }
 
-    private suspend fun suspendingDownloadPic(mContext: Context, string: String, storeDir: File): String? {
+    suspend fun suspendingDownloadPic(mContext: Context, string: String, storeDir: File): String? {
         return withContext(IO) {
             var file: File? = null
             var filePath: String? = null

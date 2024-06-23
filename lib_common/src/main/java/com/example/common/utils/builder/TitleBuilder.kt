@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.function.getStatusBarHeight
-import com.example.common.utils.function.setArguments
+import com.example.common.utils.function.setTheme
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.click
@@ -40,7 +40,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
      */
     fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, isShade: Boolean = false): TitleBuilder {
         mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
-        mBinding?.tvTitle?.setArguments(title, titleColor)
+        mBinding?.tvTitle?.setTheme(title, titleColor)
         mBinding?.viewShade?.apply { if (isShade) visible() else gone() }
         setLeft()
         return this
@@ -94,7 +94,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
     fun setLeft(label: String, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
         mBinding?.tvLeft?.apply {
             visible()
-            setArguments(label, labelColor)
+            setTheme(label, labelColor)
             click { onClick.invoke() }
         }
         mBinding?.ivLeft.gone()
@@ -107,7 +107,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
     fun setLeftSecondary(label: String, labelColor: Int = R.color.textPrimary, resId: Int = R.mipmap.ic_btn_back, width: Int? = null, height: Int? = null, onClick: (textView: TextView) -> Unit = { mActivity.finish() }): TitleBuilder {
         mBinding?.tvLeft?.apply {
             visible()
-            setArguments(label, labelColor, resId)
+            setTheme(label, labelColor, resId)
             if (null != width && null != height) size(width, height)
             click { onClick.invoke(this) }
         }
@@ -130,7 +130,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
     fun setRight(label: String, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = {}): TitleBuilder {
         mBinding?.tvRight?.apply {
             visible()
-            setArguments(label, labelColor)
+            setTheme(label, labelColor)
             click { onClick.invoke() }
         }
         mBinding?.ivRight.gone()
@@ -140,7 +140,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
     fun setRightSecondary(label: String, labelColor: Int = R.color.textPrimary, resId: Int = R.mipmap.ic_btn_back, width: Int? = null, height: Int? = null, onClick: (textView: TextView) -> Unit = {}): TitleBuilder {
         mBinding?.tvRight?.apply {
             visible()
-            setArguments(label, labelColor, resId)
+            setTheme(label, labelColor, resId)
             if (null != width && null != height) size(width, height)
             click { onClick.invoke(this) }
         }

@@ -24,7 +24,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.example.framework.utils.DecimalInputFilter
 import com.example.framework.utils.EditTextUtil
-import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.*
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
@@ -312,6 +311,8 @@ fun EditText?.showInput() {
 //    if (this == null) return
 //    requestFocus()
 //    showSoftKeyboard(context, this)
+////    val inputManager = this.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+////    inputManager.showSoftInput(this, 0)
 //}
 
 /**

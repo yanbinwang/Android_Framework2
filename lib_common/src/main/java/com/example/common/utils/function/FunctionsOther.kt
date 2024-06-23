@@ -155,15 +155,16 @@ fun getManifestString(name: String): String? {
  * 获取顶栏高度
  */
 fun getStatusBarHeight(): Int {
-    return ExtraNumber.getInternalDimensionSize(BaseApplication.instance, "status_bar_height")
+    return ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
 }
 
 /**
  * 获取底栏高度
  */
-fun getNavigationBarHeight(context: Context): Int {
-    if (!ScreenUtil.hasNavigationBar(context)) return 0
-    return ExtraNumber.getInternalDimensionSize(context, "navigation_bar_height")
+fun getNavigationBarHeight(): Int {
+    val mContext = BaseApplication.instance.applicationContext
+    if (!ScreenUtil.hasNavigationBar(mContext)) return 0
+    return ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
 }
 
 /**
@@ -192,7 +193,7 @@ fun TextView?.setSpanAll(@StringRes res: Int, @StringRes resKeyword: Int, colorR
 /**
  * 设置显示内容和对应文本颜色
  */
-fun TextView?.setArguments(txt: String = "", colorRes: Int = R.color.appTheme, resId: Int = -1) {
+fun TextView?.setTheme(txt: String = "", colorRes: Int = R.color.appTheme, resId: Int = -1) {
     this ?: return
     text = txt
     textColor(colorRes)

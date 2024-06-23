@@ -9,7 +9,7 @@ import com.example.greendao.dao.OssDBDao
 /**
  * OSS帮助类
  */
-object OssHelper {
+object OssDBHelper {
     private var dao: OssDBDao? = null
 
     // <editor-fold defaultstate="collapsed" desc="数据库基础增删改查">
