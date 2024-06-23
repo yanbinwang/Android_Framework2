@@ -4,12 +4,10 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.qiniu.widget.CameraPreviewFrameView
 import com.qiniu.qmedia.component.player.QMediaModelBuilder
 import com.qiniu.qmedia.component.player.QPlayerSetting
 import com.qiniu.qmedia.component.player.QURLType
 import com.qiniu.qmedia.ui.QSurfacePlayerView
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * 七牛云播放器帮助类
@@ -20,10 +18,10 @@ import kotlinx.coroutines.CoroutineScope
  * android:layout_width="match_parent"
  * android:layout_height="match_parent">
  * </com.qiniu.qmedia.ui.QSurfacePlayerView>
- *  调取bind方法，开启直播
+ *  调取bind方法，开启播放
  */
-class QMediaHelper (private val mActivity: FragmentActivity) : LifecycleEventObserver {
-    private var mQSurfacePlayerView:QSurfacePlayerView?=null
+class QMediaHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
+    private var mQSurfacePlayerView: QSurfacePlayerView? = null
 
     init {
         mActivity.lifecycle.addObserver(this)
@@ -50,7 +48,6 @@ class QMediaHelper (private val mActivity: FragmentActivity) : LifecycleEventObs
         val builder = QMediaModelBuilder()
         builder.addElement("", QURLType.QAUDIO_AND_VIDEO, 0, url, true)
         mQSurfacePlayerView?.playerControlHandler?.playMediaModel(builder.build(false), 0)
-        mQSurfacePlayerView?.playerControlHandler?.stop()
     }
 
     /**
@@ -60,6 +57,7 @@ class QMediaHelper (private val mActivity: FragmentActivity) : LifecycleEventObs
         when (event) {
             Lifecycle.Event.ON_RESUME -> resume()
             Lifecycle.Event.ON_PAUSE -> pause()
+            Lifecycle.Event.ON_STOP -> stop()
             Lifecycle.Event.ON_DESTROY -> destroy()
             else -> {}
         }
@@ -77,6 +75,13 @@ class QMediaHelper (private val mActivity: FragmentActivity) : LifecycleEventObs
      */
     private fun pause() {
         mQSurfacePlayerView?.playerControlHandler?.pauseRender()
+    }
+
+    /**
+     * 停止当前视频播放
+     */
+    private fun stop() {
+        mQSurfacePlayerView?.playerControlHandler?.stop()
     }
 
     /**
