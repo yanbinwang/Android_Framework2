@@ -13,134 +13,114 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yanzhenjie.durban;
+package com.yanzhenjie.durban
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Parcel
+import android.os.Parcelable
+import android.os.Parcelable.Creator
 
 /**
  * <p>Control panel configuration.</p>
  * Created by Yan Zhenjie on 2017/5/30.
  */
-public class Controller implements Parcelable {
+class Controller : Parcelable {
+    var enable: Boolean = false
+        private set
+    var rotation: Boolean = false
+        private set
+    var rotationTitle: Boolean = false
+        private set
+    var scale: Boolean = false
+        private set
+    var scaleTitle: Boolean = false
+        private set
 
-    private Controller(Parcel in) {
-        this.enable = in.readByte() != 0;
-        this.rotation = in.readByte() != 0;
-        this.rotationTitle = in.readByte() != 0;
-        this.scale = in.readByte() != 0;
-        this.scaleTitle = in.readByte() != 0;
-    }
+    companion object CREATOR : Creator<Controller> {
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte((byte) (enable ? 1 : 0));
-        dest.writeByte((byte) (rotation ? 1 : 0));
-        dest.writeByte((byte) (rotationTitle ? 1 : 0));
-        dest.writeByte((byte) (scale ? 1 : 0));
-        dest.writeByte((byte) (scaleTitle ? 1 : 0));
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<Controller> CREATOR = new Creator<Controller>() {
-        @Override
-        public Controller createFromParcel(Parcel in) {
-            return new Controller(in);
+        override fun createFromParcel(parcel: Parcel): Controller {
+            return Controller(parcel)
         }
 
-        @Override
-        public Controller[] newArray(int size) {
-            return new Controller[size];
-        }
-    };
-
-    /**
-     * Create a Builder.
-     */
-    public static Builder newBuilder() {
-        return new Builder();
-    }
-
-    private boolean enable;
-
-    private boolean rotation;
-    private boolean rotationTitle;
-
-    private boolean scale;
-    private boolean scaleTitle;
-
-    private Controller(Builder builder) {
-        this.enable = builder.enable;
-        this.rotation = builder.rotation;
-        this.rotationTitle = builder.rotationTitle;
-        this.scale = builder.scale;
-        this.scaleTitle = builder.scaleTitle;
-    }
-
-    public boolean isEnable() {
-        return enable;
-    }
-
-    public boolean isRotation() {
-        return rotation;
-    }
-
-    public boolean isRotationTitle() {
-        return rotationTitle;
-    }
-
-    public boolean isScale() {
-        return scale;
-    }
-
-    public boolean isScaleTitle() {
-        return scaleTitle;
-    }
-
-    public static final class Builder {
-
-        private boolean enable = true;
-
-        private boolean rotation = true;
-        private boolean rotationTitle = true;
-
-        private boolean scale = true;
-        private boolean scaleTitle = true;
-
-        private Builder() {
+        override fun newArray(size: Int): Array<Controller?> {
+            return arrayOfNulls(size)
         }
 
-        public Builder enable(boolean enable) {
-            this.enable = enable;
-            return this;
+        /**
+         * Create a Builder.
+         */
+        @JvmStatic
+        fun newBuilder(): Builder {
+            return Builder()
+        }
+    }
+
+    private constructor(builder: Builder) {
+        this.enable = builder.enable
+        this.rotation = builder.rotation
+        this.rotationTitle = builder.rotationTitle
+        this.scale = builder.scale
+        this.scaleTitle = builder.scaleTitle
+    }
+
+    constructor(parcel: Parcel) {
+        this.enable = parcel.readByte().toInt() != 0
+        this.rotation = parcel.readByte().toInt() != 0
+        this.rotationTitle = parcel.readByte().toInt() != 0
+        this.scale = parcel.readByte().toInt() != 0
+        this.scaleTitle = parcel.readByte().toInt() != 0
+    }
+
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeByte((if (enable) 1 else 0).toByte())
+        dest.writeByte((if (rotation) 1 else 0).toByte())
+        dest.writeByte((if (rotationTitle) 1 else 0).toByte())
+        dest.writeByte((if (scale) 1 else 0).toByte())
+        dest.writeByte((if (scaleTitle) 1 else 0).toByte())
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    class Builder internal constructor() {
+        var enable = true
+            private set
+        var rotation = true
+            private set
+        var rotationTitle = true
+            private set
+        var scale = true
+            private set
+        var scaleTitle = true
+            private set
+
+        fun enable(enable: Boolean): Builder {
+            this.enable = enable
+            return this
         }
 
-        public Builder rotation(boolean rotation) {
-            this.rotation = rotation;
-            return this;
+        fun rotation(rotation: Boolean): Builder {
+            this.rotation = rotation
+            return this
         }
 
-        public Builder rotationTitle(boolean rotationTitle) {
-            this.rotationTitle = rotationTitle;
-            return this;
+        fun rotationTitle(rotationTitle: Boolean): Builder {
+            this.rotationTitle = rotationTitle
+            return this
         }
 
-        public Builder scale(boolean scale) {
-            this.scale = scale;
-            return this;
+        fun scale(scale: Boolean): Builder {
+            this.scale = scale
+            return this
         }
 
-        public Builder scaleTitle(boolean scaleTitle) {
-            this.scaleTitle = scaleTitle;
-            return this;
+        fun scaleTitle(scaleTitle: Boolean): Builder {
+            this.scaleTitle = scaleTitle
+            return this
         }
 
-        public Controller build() {
-            return new Controller(this);
+        fun build(): Controller {
+            return Controller(this)
         }
     }
 

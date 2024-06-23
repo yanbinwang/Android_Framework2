@@ -29,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 
-import com.yanzhenjie.durban.callback.BitmapLoadCallback;
 import com.yanzhenjie.durban.model.ExifInfo;
 import com.yanzhenjie.durban.task.BitmapLoadTask;
 import com.yanzhenjie.durban.util.BitmapLoadUtils;

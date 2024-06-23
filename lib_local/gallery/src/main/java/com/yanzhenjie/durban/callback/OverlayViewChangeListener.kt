@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yanzhenjie.durban.callback;
+package com.yanzhenjie.durban.callback
 
-import android.graphics.RectF;
+import android.graphics.RectF
 
 /**
  * Update by Yan Zhenjie on 2017/5/23.
  */
-public interface OverlayViewChangeListener {
-
-    void onCropRectUpdated(RectF cropRect);
-
+interface OverlayViewChangeListener {
+    fun onCropRectUpdated(cropRect: RectF?)
 }

@@ -23,7 +23,6 @@ import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 
-import com.yanzhenjie.durban.callback.BitmapLoadCallback;
 import com.yanzhenjie.durban.model.ExifInfo;
 import com.yanzhenjie.durban.util.BitmapLoadUtils;
 import com.yanzhenjie.loading.dialog.LoadingDialog;

@@ -13,18 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yanzhenjie.durban.error;
+package com.yanzhenjie.durban.error
 
 /**
  * Created by Yan Zhenjie on 2017/5/23.
  */
-public class StorageError extends Exception {
-    
-    public StorageError(String message) {
-        super(message);
-    }
+class StorageError : Exception {
+    constructor(message: String) : super(message)
 
-    public StorageError(Throwable cause) {
-        super(cause);
-    }
+    constructor(cause: Throwable) : super(cause)
 }

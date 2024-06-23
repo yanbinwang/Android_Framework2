@@ -25,8 +25,6 @@ import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.yanzhenjie.durban.callback.BitmapCropCallback;
-import com.yanzhenjie.durban.error.StorageError;
 import com.yanzhenjie.durban.model.CropParameters;
 import com.yanzhenjie.durban.model.ImageState;
 import com.yanzhenjie.durban.util.FileUtils;

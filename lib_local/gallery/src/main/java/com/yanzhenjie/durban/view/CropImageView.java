@@ -28,8 +28,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.gallery.R;
-import com.yanzhenjie.durban.callback.BitmapCropCallback;
-import com.yanzhenjie.durban.callback.CropBoundsChangeListener;
 import com.yanzhenjie.durban.model.CropParameters;
 import com.yanzhenjie.durban.model.ImageState;
 import com.yanzhenjie.durban.task.BitmapCropTask;

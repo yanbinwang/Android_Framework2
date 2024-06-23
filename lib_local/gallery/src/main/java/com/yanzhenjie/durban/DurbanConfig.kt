@@ -13,65 +13,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yanzhenjie.durban;
+package com.yanzhenjie.durban
 
-import android.content.Context;
-
-import java.util.Locale;
+import java.util.Locale
 
 /**
  * <p>Durban config.</p>
  * Created by Yan Zhenjie on 2017/5/30.
  */
-public class DurbanConfig {
+class DurbanConfig(build: Builder) {
+    var mLocale: Locale? = null
+        private set
 
-    /**
-     * Create a new builder.
-     */
-    public static Builder newBuilder(Context context) {
-        return new Builder(context);
+    init {
+        this.mLocale = build.mLocale
     }
 
-    private Locale mLocale;
-
-    private DurbanConfig(Builder build) {
-        this.mLocale = build.mLocale;
-    }
-
-    /**
-     * Get {@link Locale}.
-     *
-     * @return {@link Locale}.
-     */
-    public Locale getLocale() {
-        return mLocale;
-    }
-
-    public static final class Builder {
-
-        private Locale mLocale;
-
-        private Builder(Context context) {
+    companion object {
+        /**
+         * Create a new builder.
+         */
+        @JvmStatic
+        fun newBuilder(): Builder {
+            return Builder()
         }
+    }
+
+    class Builder internal constructor() {
+        var mLocale: Locale? = null
+            private set
 
         /**
          * Set locale for language.
          *
-         * @param locale {@link Locale}.
-         * @return {@link Builder}.
+         * @param locale [Locale].
+         * @return [Builder].
          */
-        public Builder setLocale(Locale locale) {
-            this.mLocale = locale;
-            return this;
+        fun setLocale(locale: Locale): Builder {
+            this.mLocale = locale
+            return this
         }
 
         /**
          * Create AlbumConfig.
          *
-         * @return {@link DurbanConfig}.
+         * @return [DurbanConfig].
          */
-        public DurbanConfig build() {
-            return new DurbanConfig(this);
+        fun build(): DurbanConfig {
+            return DurbanConfig(this)
         }
     }
 

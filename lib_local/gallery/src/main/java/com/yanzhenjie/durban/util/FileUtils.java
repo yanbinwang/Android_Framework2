@@ -19,8 +19,6 @@ import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
 
-import com.yanzhenjie.durban.error.StorageError;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;

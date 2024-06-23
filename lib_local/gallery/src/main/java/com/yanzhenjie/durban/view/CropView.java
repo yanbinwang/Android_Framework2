@@ -25,8 +25,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 
 import com.example.gallery.R;
-import com.yanzhenjie.durban.callback.CropBoundsChangeListener;
-import com.yanzhenjie.durban.callback.OverlayViewChangeListener;
 
 /**
  * Update by Yan Zhenjie on 2017/5/23.

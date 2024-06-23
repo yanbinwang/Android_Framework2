@@ -40,7 +40,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 
 import com.example.gallery.R;
-import com.yanzhenjie.durban.callback.BitmapCropCallback;
 import com.yanzhenjie.durban.util.DurbanUtils;
 import com.yanzhenjie.durban.view.CropView;
 import com.yanzhenjie.durban.view.GestureCropImageView;

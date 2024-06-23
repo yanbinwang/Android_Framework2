@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yanzhenjie.durban.callback;
+package com.yanzhenjie.durban.callback
 
-import android.graphics.Bitmap;
-
-import androidx.annotation.NonNull;
-
-import com.yanzhenjie.durban.model.ExifInfo;
+import android.graphics.Bitmap
+import com.yanzhenjie.durban.model.ExifInfo
 
 /**
  * Update by Yan Zhenjie on 2017/5/23.
  */
-public interface BitmapLoadCallback {
+interface BitmapLoadCallback {
+    fun onSuccessfully(bitmap: Bitmap, exifInfo: ExifInfo)
 
-    void onSuccessfully(@NonNull Bitmap bitmap, @NonNull ExifInfo exifInfo);
-
-    void onFailure();
-
+    fun onFailure()
 }

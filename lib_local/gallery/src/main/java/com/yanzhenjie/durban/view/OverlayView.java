@@ -34,7 +34,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.example.gallery.R;
-import com.yanzhenjie.durban.callback.OverlayViewChangeListener;
 import com.yanzhenjie.durban.util.RectUtils;
 
 import java.lang.annotation.Retention;
