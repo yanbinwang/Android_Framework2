@@ -32,7 +32,7 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         val image = holder.itemView as? ImageView ?: return
         if (localAsset) {
 //            image.setDrawable(holder.itemView.context.defTypeMipmap(bean))
-            ImageLoader.instance.displayRound(image, holder.itemView.context.defTypeMipmap(bean), radius = radius.pt)
+            ImageLoader.instance.displayRoundDefType(image, holder.itemView.context.defTypeMipmap(bean), radius = radius.pt)
         } else {
             ImageLoader.instance.displayRound(image, bean, radius = radius.pt)
         }

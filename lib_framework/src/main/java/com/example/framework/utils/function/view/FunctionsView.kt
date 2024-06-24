@@ -447,6 +447,37 @@ fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
 }
 
 /**
+ * 展开页面按钮的动画，传入是否是展开状态
+ */
+//fun View?.rotate(isOpen: Boolean = false): Boolean {
+//    if (this == null) return isOpen
+//    if (animation != null) {
+//        if (animation.hasStarted() && !animation.hasEnded()) return isOpen
+//    }
+//    val startRot = if (isOpen) 180f else 0f
+//    val endRot = if (isOpen) 0f else 180f
+//    val anim = AnimatorSet()
+//    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
+//    anim.duration = 500
+//    anim.start()
+//    return !isOpen
+//}
+fun View?.rotate() {
+    if (this == null) return
+    if (animation != null) {
+        if (animation.hasStarted() && !animation.hasEnded()) return
+    }
+    val isRotate = tag as? Boolean ?: false
+    val startRot = if (isRotate) 180f else 0f
+    val endRot = if (isRotate) 0f else 180f
+    tag = !isRotate
+    val anim = AnimatorSet()
+    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
+    anim.duration = 500
+    anim.start()
+}
+
+/**
  * 旋轉
  */
 fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
@@ -462,23 +493,6 @@ fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
     anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f))
     anim.duration = time
     anim.start()
-}
-
-/**
- * 展开页面按钮的动画，传入是否是展开状态
- */
-fun View?.rotate(isOpen: Boolean = false): Boolean {
-    if (this == null) return isOpen
-    if (animation != null) {
-        if (animation.hasStarted() && !animation.hasEnded()) return isOpen
-    }
-    val startRot = if (isOpen) 180f else 0f
-    val endRot = if (isOpen) 0f else 180f
-    val anim = AnimatorSet()
-    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
-    anim.duration = 500
-    anim.start()
-    return !isOpen
 }
 
 /**

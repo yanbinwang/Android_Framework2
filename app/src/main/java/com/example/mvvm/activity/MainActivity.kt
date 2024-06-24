@@ -129,7 +129,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
     private val viewModel by lazy { TestViewModel().create() }
     private val bean by lazy { intentParcelable<UserBean>("bean") }
-    private var isOpen = false
     private val builder by lazy { FileBuilder(this) }
     private val album by lazy { AlbumHelper(this) }
 
@@ -139,7 +138,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         super.initView(savedInstanceState)
 //        BaseApplication.instance.initPrivacyAgreed()
 
-        mBinding?.ivArrow.click { isOpen = it.rotate(isOpen) }
+        mBinding?.ivArrow.click {
+            it.rotate()
+        }
 
         val books = listOf(
             Book("The Fellowship of the Ring", "J.R.R. Tolkien", "Fantasy"),
