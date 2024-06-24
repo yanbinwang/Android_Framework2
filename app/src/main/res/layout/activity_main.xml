@@ -148,6 +148,7 @@
                         <com.example.common.widget.SwitchView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:visibility="gone"
                             android:layout_gravity="center" />
 
                     </FrameLayout>
@@ -157,6 +158,11 @@
             </androidx.core.widget.NestedScrollView>
 
         </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+
+        <com.example.thirdparty.media.widget.ViewfinderView
+            android:id="@+id/finder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </FrameLayout>
 

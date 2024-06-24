@@ -139,7 +139,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        BaseApplication.instance.initPrivacyAgreed()
 
         mBinding?.ivArrow.click {
-            it.rotate()
+//            it.rotate()
+            mBinding?.finder?.onShutter()
         }
 
         val books = listOf(
