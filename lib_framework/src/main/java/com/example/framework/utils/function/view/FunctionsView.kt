@@ -26,9 +26,11 @@ import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
+import android.widget.BaseExpandableListAdapter
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ExpandableListView
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -779,6 +781,16 @@ fun AppBarLayout?.stateChanged(func: (state: AppBarStateChangeListener.State?) -
             func.invoke(state)
         }
     })
+}
+
+/**
+ * 可折叠list初始化
+ */
+fun ExpandableListView?.init(adapter: BaseExpandableListAdapter) {
+    this ?: return
+    setGroupIndicator(null)//去除右侧箭头
+    setOnGroupClickListener { _, _, _, _ -> true }//使列表不能点击收缩
+    setAdapter(adapter)
 }
 
 /**
