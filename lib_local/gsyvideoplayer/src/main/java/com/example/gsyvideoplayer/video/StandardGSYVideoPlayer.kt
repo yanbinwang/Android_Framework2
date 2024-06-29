@@ -1,95 +1,88 @@
-package com.example.gsyvideoplayer.video;
+package com.example.gsyvideoplayer.video
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.util.AttributeSet;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
-import com.shuyu.gsyvideoplayer.R;
-import com.shuyu.gsyvideoplayer.listener.GSYVideoShotListener;
-import com.shuyu.gsyvideoplayer.listener.GSYVideoShotSaveListener;
-import com.shuyu.gsyvideoplayer.utils.Debuger;
-import com.shuyu.gsyvideoplayer.utils.NetworkUtils;
-import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
-import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
-
-import java.io.File;
-
-import moe.codeest.enviews.ENDownloadView;
-import moe.codeest.enviews.ENPlayView;
+import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.app.Dialog
+import android.content.Context
+import android.content.DialogInterface
+import android.graphics.drawable.Drawable
+import android.util.AttributeSet
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.Window
+import android.view.WindowManager
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.TextView
+import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orZero
+import com.shuyu.gsyvideoplayer.R
+import com.shuyu.gsyvideoplayer.listener.GSYVideoShotListener
+import com.shuyu.gsyvideoplayer.listener.GSYVideoShotSaveListener
+import com.shuyu.gsyvideoplayer.utils.Debuger
+import com.shuyu.gsyvideoplayer.utils.NetworkUtils
+import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer
+import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer
+import moe.codeest.enviews.ENDownloadView
+import moe.codeest.enviews.ENPlayView
+import java.io.File
 
 /**
  * 标准播放器，继承之后实现一些ui显示效果，如显示／隐藏ui，播放按键等
  * Created by shuyu on 2016/11/11.
  */
 @SuppressLint("SetTextI18n")
-public class StandardGSYVideoPlayer extends GSYVideoPlayer {
+open class StandardGSYVideoPlayer : GSYVideoPlayer {
     //亮度dialog
-    protected Dialog mBrightnessDialog;
+    protected var mBrightnessDialog: Dialog? = null
     //音量dialog
-    protected Dialog mVolumeDialog;
+    protected var mVolumeDialog: Dialog? = null
     //触摸进度dialog
-    protected Dialog mProgressDialog;
+    protected var mProgressDialog: Dialog? = null
     //触摸进度条的progress
-    protected ProgressBar mDialogProgressBar;
+    protected var mDialogProgressBar: ProgressBar? = null
     //音量进度条的progress
-    protected ProgressBar mDialogVolumeProgressBar;
+    protected var mDialogVolumeProgressBar: ProgressBar? = null
     //亮度文本
-    protected TextView mBrightnessDialogTv;
+    protected var mBrightnessDialogTv: TextView? = null
     //触摸移动显示文本
-    protected TextView mDialogSeekTime;
+    protected var mDialogSeekTime: TextView? = null
     //触摸移动显示全部时间
-    protected TextView mDialogTotalTime;
+    protected var mDialogTotalTime: TextView? = null
     //触摸移动方向icon
-    protected ImageView mDialogIcon;
+    protected var mDialogIcon: ImageView? = null
     //控件图片/颜色资源设置
-    protected Drawable mBottomProgressDrawable;
-    protected Drawable mBottomShowProgressDrawable;
-    protected Drawable mBottomShowProgressThumbDrawable;
-    protected Drawable mVolumeProgressDrawable;
-    protected Drawable mDialogProgressBarDrawable;
-    protected int mDialogProgressHighLightColor = -11;
-    protected int mDialogProgressNormalColor = -11;
+    protected var mBottomProgressDrawable: Drawable? = null
+    protected var mBottomShowProgressDrawable: Drawable? = null
+    protected var mBottomShowProgressThumbDrawable: Drawable? = null
+    protected var mVolumeProgressDrawable: Drawable? = null
+    protected var mDialogProgressBarDrawable: Drawable? = null
+    protected var mDialogProgressHighLightColor = -11
+    protected var mDialogProgressNormalColor = -11
 
     /**
      * 1.5.0开始加入，如果需要不同布局区分功能，需要重载
      */
-    public StandardGSYVideoPlayer(Context context, Boolean fullFlag) {
-        super(context, fullFlag);
-    }
+    constructor(context: Context) : super(context)
 
-    public StandardGSYVideoPlayer(Context context) {
-        super(context);
-    }
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
-    public StandardGSYVideoPlayer(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+    constructor(context: Context, fullFlag: Boolean) : super(context, fullFlag)
 
-    @Override
-    protected void init(Context context) {
-        super.init(context);
+    override fun init(context: Context?) {
+        super.init(context)
         //增加自定义ui
         if (mBottomProgressDrawable != null) {
-            mBottomProgressBar.setProgressDrawable(mBottomProgressDrawable);
+            mBottomProgressBar.progressDrawable = mBottomProgressDrawable
         }
         if (mBottomShowProgressDrawable != null) {
-            mProgressBar.setProgressDrawable(mBottomProgressDrawable);
+            mProgressBar.progressDrawable = mBottomProgressDrawable
         }
         if (mBottomShowProgressThumbDrawable != null) {
-            mProgressBar.setThumb(mBottomShowProgressThumbDrawable);
+            mProgressBar.thumb = mBottomShowProgressThumbDrawable
         }
     }
 
@@ -98,222 +91,211 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      *
      * @return
      */
-    @Override
-    public int getLayoutId() {
-        return R.layout.video_layout_standard;
+    override fun getLayoutId(): Int {
+        return R.layout.video_layout_standard
     }
 
     /**
      * 开始播放
      */
-    @Override
-    public void startPlayLogic() {
+    override fun startPlayLogic() {
         if (mVideoAllCallBack != null) {
-            Debuger.printfLog("onClickStartThumb");
-            mVideoAllCallBack.onClickStartThumb(mOriginUrl, mTitle, StandardGSYVideoPlayer.this);
+            Debuger.printfLog("onClickStartThumb")
+            mVideoAllCallBack.onClickStartThumb(mOriginUrl, mTitle, this@StandardGSYVideoPlayer)
         }
-        prepareVideo();
-        startDismissControlViewTimer();
+        prepareVideo()
+        startDismissControlViewTimer()
     }
 
     /**
      * 显示wifi确定框，如需要自定义继承重写即可
      */
-    @Override
-    protected void showWifiDialog() {
+    override fun showWifiDialog() {
         if (!NetworkUtils.isAvailable(mContext)) {
             //Toast.makeText(mContext, getResources().getString(R.string.no_net), Toast.LENGTH_LONG).show();
-            startPlayLogic();
-            return;
+            startPlayLogic()
+            return
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivityContext());
-        builder.setMessage(getResources().getString(R.string.tips_not_wifi));
-        builder.setPositiveButton(getResources().getString(R.string.tips_not_wifi_confirm), (dialog, which) -> {
-            dialog.dismiss();
-            startPlayLogic();
-        });
-        builder.setNegativeButton(getResources().getString(R.string.tips_not_wifi_cancel), (dialog, which) -> dialog.dismiss());
-        builder.create().show();
+        val builder = AlertDialog.Builder(activityContext)
+        builder.setMessage(resources.getString(R.string.tips_not_wifi))
+        builder.setPositiveButton(resources.getString(R.string.tips_not_wifi_confirm)) { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+            startPlayLogic()
+        }
+        builder.setNegativeButton(resources.getString(R.string.tips_not_wifi_cancel)) { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+        }
+        builder.create().show()
     }
 
     /**
      * 触摸显示滑动进度dialog，如需要自定义继承重写即可，记得重写dismissProgressDialog
      */
-    @Override
-    @SuppressWarnings("ResourceType")
-    protected void showProgressDialog(float deltaX, String seekTime, long seekTimePosition, String totalTime, long totalTimeDuration) {
+    override fun showProgressDialog(deltaX: Float, seekTime: String?, seekTimePosition: Long, totalTime: String?, totalTimeDuration: Long) {
         if (mProgressDialog == null) {
-            View localView = LayoutInflater.from(getActivityContext()).inflate(getProgressDialogLayoutId(), null);
-            if (localView.findViewById(getProgressDialogProgressId()) instanceof ProgressBar) {
-                mDialogProgressBar = localView.findViewById(getProgressDialogProgressId());
+            val localView = LayoutInflater.from(activityContext).inflate(getProgressDialogLayoutId(), null)
+            if (localView.findViewById<View>(getProgressDialogProgressId()) is ProgressBar) {
+                mDialogProgressBar = localView.findViewById(getProgressDialogProgressId())
                 if (mDialogProgressBarDrawable != null) {
-                    mDialogProgressBar.setProgressDrawable(mDialogProgressBarDrawable);
+                    mDialogProgressBar?.progressDrawable = mDialogProgressBarDrawable
                 }
             }
-            if (localView.findViewById(getProgressDialogCurrentDurationTextId()) instanceof TextView) {
-                mDialogSeekTime = localView.findViewById(getProgressDialogCurrentDurationTextId());
+            if (localView.findViewById<View>(getProgressDialogCurrentDurationTextId()) is TextView) {
+                mDialogSeekTime = localView.findViewById(getProgressDialogCurrentDurationTextId())
             }
-            if (localView.findViewById(getProgressDialogAllDurationTextId()) instanceof TextView) {
-                mDialogTotalTime = localView.findViewById(getProgressDialogAllDurationTextId());
+            if (localView.findViewById<View>(getProgressDialogAllDurationTextId()) is TextView) {
+                mDialogTotalTime = localView.findViewById(getProgressDialogAllDurationTextId())
             }
-            if (localView.findViewById(getProgressDialogImageId()) instanceof ImageView) {
-                mDialogIcon = localView.findViewById(getProgressDialogImageId());
+            if (localView.findViewById<View>(getProgressDialogImageId()) is ImageView) {
+                mDialogIcon = localView.findViewById(getProgressDialogImageId())
             }
-            mProgressDialog = new Dialog(getActivityContext(), R.style.video_style_dialog_progress);
-            mProgressDialog.setContentView(localView);
-            mProgressDialog.getWindow().addFlags(Window.FEATURE_ACTION_BAR);
-            mProgressDialog.getWindow().addFlags(32);
-            mProgressDialog.getWindow().addFlags(16);
-            mProgressDialog.getWindow().setLayout(getWidth(), getHeight());
+            mProgressDialog = Dialog(activityContext, R.style.video_style_dialog_progress)
+            mProgressDialog?.setContentView(localView)
+            mProgressDialog?.window?.addFlags(Window.FEATURE_ACTION_BAR)
+            mProgressDialog?.window?.addFlags(32)
+            mProgressDialog?.window?.addFlags(16)
+            mProgressDialog?.window?.setLayout(width, height)
             if (mDialogProgressNormalColor != -11 && mDialogTotalTime != null) {
-                mDialogTotalTime.setTextColor(mDialogProgressNormalColor);
+                mDialogTotalTime?.setTextColor(mDialogProgressNormalColor)
             }
             if (mDialogProgressHighLightColor != -11 && mDialogSeekTime != null) {
-                mDialogSeekTime.setTextColor(mDialogProgressHighLightColor);
+                mDialogSeekTime?.setTextColor(mDialogProgressHighLightColor)
             }
-            WindowManager.LayoutParams localLayoutParams = mProgressDialog.getWindow().getAttributes();
-            localLayoutParams.gravity = Gravity.TOP;
-            localLayoutParams.width = getWidth();
-            localLayoutParams.height = getHeight();
-            int[] location = new int[2];
-            getLocationOnScreen(location);
-            localLayoutParams.x = location[0];
-            localLayoutParams.y = location[1];
-            mProgressDialog.getWindow().setAttributes(localLayoutParams);
+            val localLayoutParams = mProgressDialog?.window?.attributes
+            localLayoutParams?.gravity = Gravity.TOP
+            localLayoutParams?.width = width
+            localLayoutParams?.height = height
+            val location = IntArray(2)
+            getLocationOnScreen(location)
+            localLayoutParams?.x = location[0]
+            localLayoutParams?.y = location[1]
+            mProgressDialog?.window?.attributes = localLayoutParams
         }
-        if (!mProgressDialog.isShowing()) {
-            mProgressDialog.show();
+        if (!mProgressDialog?.isShowing.orFalse) {
+            mProgressDialog?.show()
         }
         if (mDialogSeekTime != null) {
-            mDialogSeekTime.setText(seekTime);
+            mDialogSeekTime?.text = seekTime
         }
         if (mDialogTotalTime != null) {
-            mDialogTotalTime.setText(" / " + totalTime);
+            mDialogTotalTime?.text = " / $totalTime"
         }
-        if (totalTimeDuration > 0)
-            if (mDialogProgressBar != null) {
-                mDialogProgressBar.setProgress((int) (seekTimePosition * 100 / totalTimeDuration));
-            }
+        if (totalTimeDuration > 0) if (mDialogProgressBar != null) {
+            mDialogProgressBar?.progress = (seekTimePosition * 100 / totalTimeDuration).toInt()
+        }
         if (deltaX > 0) {
             if (mDialogIcon != null) {
-                mDialogIcon.setBackgroundResource(R.drawable.video_forward_icon);
+                mDialogIcon?.setBackgroundResource(R.drawable.video_forward_icon)
             }
         } else {
             if (mDialogIcon != null) {
-                mDialogIcon.setBackgroundResource(R.drawable.video_backward_icon);
+                mDialogIcon?.setBackgroundResource(R.drawable.video_backward_icon)
             }
         }
     }
 
-    @Override
-    protected void dismissProgressDialog() {
+    override fun dismissProgressDialog() {
         if (mProgressDialog != null) {
-            mProgressDialog.dismiss();
-            mProgressDialog = null;
+            mProgressDialog?.dismiss()
+            mProgressDialog = null
         }
     }
 
     /**
      * 触摸音量dialog，如需要自定义继承重写即可，记得重写dismissVolumeDialog
      */
-    @Override
-    protected void showVolumeDialog(float deltaY, int volumePercent) {
+    override fun showVolumeDialog(deltaY: Float, volumePercent: Int) {
         if (mVolumeDialog == null) {
-            View localView = LayoutInflater.from(getActivityContext()).inflate(getVolumeLayoutId(), null);
-            if (localView.findViewById(getVolumeProgressId()) instanceof ProgressBar) {
-                mDialogVolumeProgressBar = localView.findViewById(getVolumeProgressId());
+            val localView = LayoutInflater.from(activityContext).inflate(getVolumeLayoutId(), null)
+            if (localView.findViewById<View>(getVolumeProgressId()) is ProgressBar) {
+                mDialogVolumeProgressBar = localView.findViewById(getVolumeProgressId())
                 if (mVolumeProgressDrawable != null && mDialogVolumeProgressBar != null) {
-                    mDialogVolumeProgressBar.setProgressDrawable(mVolumeProgressDrawable);
+                    mDialogVolumeProgressBar?.progressDrawable = mVolumeProgressDrawable
                 }
             }
-            mVolumeDialog = new Dialog(getActivityContext(), R.style.video_style_dialog_progress);
-            mVolumeDialog.setContentView(localView);
-            mVolumeDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-            mVolumeDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
-            mVolumeDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            mVolumeDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            WindowManager.LayoutParams localLayoutParams = mVolumeDialog.getWindow().getAttributes();
-            localLayoutParams.gravity = Gravity.TOP | Gravity.START;
-            localLayoutParams.width = getWidth();
-            localLayoutParams.height = getHeight();
-            int[] location = new int[2];
-            getLocationOnScreen(location);
-            localLayoutParams.x = location[0];
-            localLayoutParams.y = location[1];
-            mVolumeDialog.getWindow().setAttributes(localLayoutParams);
+            mVolumeDialog = Dialog(activityContext, R.style.video_style_dialog_progress)
+            mVolumeDialog?.setContentView(localView)
+            mVolumeDialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+            mVolumeDialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL)
+            mVolumeDialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            mVolumeDialog?.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            val localLayoutParams = mVolumeDialog?.window?.attributes
+            localLayoutParams?.gravity = Gravity.TOP or Gravity.START
+            localLayoutParams?.width = width
+            localLayoutParams?.height = height
+            val location = IntArray(2)
+            getLocationOnScreen(location)
+            localLayoutParams?.x = location[0]
+            localLayoutParams?.y = location[1]
+            mVolumeDialog?.window?.attributes = localLayoutParams
         }
-        if (!mVolumeDialog.isShowing()) {
-            mVolumeDialog.show();
+        if (!mVolumeDialog?.isShowing.orFalse) {
+            mVolumeDialog?.show()
         }
         if (mDialogVolumeProgressBar != null) {
-            mDialogVolumeProgressBar.setProgress(volumePercent);
+            mDialogVolumeProgressBar?.progress = volumePercent
         }
     }
 
-    @Override
-    protected void dismissVolumeDialog() {
+    override fun dismissVolumeDialog() {
         if (mVolumeDialog != null) {
-            mVolumeDialog.dismiss();
-            mVolumeDialog = null;
+            mVolumeDialog?.dismiss()
+            mVolumeDialog = null
         }
     }
 
     /**
      * 触摸亮度dialog，如需要自定义继承重写即可，记得重写dismissBrightnessDialog
      */
-    @Override
-    protected void showBrightnessDialog(float percent) {
+    override fun showBrightnessDialog(percent: Float) {
         if (mBrightnessDialog == null) {
-            View localView = LayoutInflater.from(getActivityContext()).inflate(getBrightnessLayoutId(), null);
-            if (localView.findViewById(getBrightnessTextId()) instanceof TextView) {
-                mBrightnessDialogTv = localView.findViewById(getBrightnessTextId());
+            val localView = LayoutInflater.from(activityContext).inflate(getBrightnessLayoutId(), null)
+            if (localView.findViewById<View>(getBrightnessTextId()) is TextView) {
+                mBrightnessDialogTv = localView.findViewById(getBrightnessTextId())
             }
-            mBrightnessDialog = new Dialog(getActivityContext(), R.style.video_style_dialog_progress);
-            mBrightnessDialog.setContentView(localView);
-            mBrightnessDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-            mBrightnessDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
-            mBrightnessDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            mBrightnessDialog.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-            mBrightnessDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            WindowManager.LayoutParams localLayoutParams = mBrightnessDialog.getWindow().getAttributes();
-            localLayoutParams.gravity = Gravity.TOP | Gravity.END;
-            localLayoutParams.width = getWidth();
-            localLayoutParams.height = getHeight();
-            int[] location = new int[2];
-            getLocationOnScreen(location);
-            localLayoutParams.x = location[0];
-            localLayoutParams.y = location[1];
-            mBrightnessDialog.getWindow().setAttributes(localLayoutParams);
+            mBrightnessDialog = Dialog(activityContext, R.style.video_style_dialog_progress)
+            mBrightnessDialog?.setContentView(localView)
+            mBrightnessDialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+            mBrightnessDialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL)
+            mBrightnessDialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            mBrightnessDialog?.window?.decorView?.systemUiVisibility = SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            mBrightnessDialog?.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            val localLayoutParams = mBrightnessDialog?.window?.attributes
+            localLayoutParams?.gravity = Gravity.TOP or Gravity.END
+            localLayoutParams?.width = width
+            localLayoutParams?.height = height
+            val location = IntArray(2)
+            getLocationOnScreen(location)
+            localLayoutParams?.x = location[0]
+            localLayoutParams?.y = location[1]
+            mBrightnessDialog?.window?.attributes = localLayoutParams
         }
-        if (!mBrightnessDialog.isShowing()) {
-            mBrightnessDialog.show();
+        if (!mBrightnessDialog?.isShowing.orFalse) {
+            mBrightnessDialog?.show()
         }
-        if (mBrightnessDialogTv != null)
-            mBrightnessDialogTv.setText((int) (percent * 100) + "%");
+        if (mBrightnessDialogTv != null) mBrightnessDialogTv?.text = "${(percent * 100).toInt()}%"
     }
 
-    @Override
-    protected void dismissBrightnessDialog() {
+    override fun dismissBrightnessDialog() {
         if (mBrightnessDialog != null) {
-            mBrightnessDialog.dismiss();
-            mBrightnessDialog = null;
+            mBrightnessDialog?.dismiss()
+            mBrightnessDialog = null
         }
     }
 
-    @Override
-    protected void cloneParams(GSYBaseVideoPlayer from, GSYBaseVideoPlayer to) {
-        super.cloneParams(from, to);
-        StandardGSYVideoPlayer sf = (StandardGSYVideoPlayer) from;
-        StandardGSYVideoPlayer st = (StandardGSYVideoPlayer) to;
-        if (st.mProgressBar != null && sf.mProgressBar != null) {
-            st.mProgressBar.setProgress(sf.mProgressBar.getProgress());
-            st.mProgressBar.setSecondaryProgress(sf.mProgressBar.getSecondaryProgress());
+    override fun cloneParams(from: GSYBaseVideoPlayer?, to: GSYBaseVideoPlayer?) {
+        super.cloneParams(from, to)
+        val sf = from as? StandardGSYVideoPlayer
+        val st = to as? StandardGSYVideoPlayer
+        if (st?.mProgressBar != null && sf?.mProgressBar != null) {
+            st.mProgressBar.progress = sf.mProgressBar.progress
+            st.mProgressBar.secondaryProgress = sf.mProgressBar.secondaryProgress
         }
-        if (st.mTotalTimeTextView != null && sf.mTotalTimeTextView != null) {
-            st.mTotalTimeTextView.setText(sf.mTotalTimeTextView.getText());
+        if (st?.mTotalTimeTextView != null && sf?.mTotalTimeTextView != null) {
+            st.mTotalTimeTextView.text = sf.mTotalTimeTextView.text
         }
-        if (st.mCurrentTimeTextView != null && sf.mCurrentTimeTextView != null) {
-            st.mCurrentTimeTextView.setText(sf.mCurrentTimeTextView.getText());
+        if (st?.mCurrentTimeTextView != null && sf?.mCurrentTimeTextView != null) {
+            st.mCurrentTimeTextView.text = sf.mCurrentTimeTextView.text
         }
     }
 
@@ -325,17 +307,16 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      * @param statusBar 是否有状态bar，有的话需要隐藏
      * @return
      */
-    @Override
-    public GSYBaseVideoPlayer startWindowFullscreen(Context context, boolean actionBar, boolean statusBar) {
-        GSYBaseVideoPlayer gsyBaseVideoPlayer = super.startWindowFullscreen(context, actionBar, statusBar);
+    override fun startWindowFullscreen(context: Context?, actionBar: Boolean, statusBar: Boolean): GSYBaseVideoPlayer? {
+        val gsyBaseVideoPlayer = super.startWindowFullscreen(context, actionBar, statusBar)
         if (gsyBaseVideoPlayer != null) {
-            StandardGSYVideoPlayer gsyVideoPlayer = (StandardGSYVideoPlayer) gsyBaseVideoPlayer;
-            gsyVideoPlayer.setLockClickListener(mLockClickListener);
-            gsyVideoPlayer.setNeedLockFull(isNeedLockFull());
-            initFullUI(gsyVideoPlayer);
+            val gsyVideoPlayer = gsyBaseVideoPlayer as? StandardGSYVideoPlayer
+            gsyVideoPlayer?.setLockClickListener(mLockClickListener)
+            gsyVideoPlayer?.isNeedLockFull = isNeedLockFull
+            initFullUI(gsyVideoPlayer)
             //比如你自定义了返回案件，但是因为返回按键底层已经设置了返回事件，所以你需要在这里重新增加的逻辑
         }
-        return gsyBaseVideoPlayer;
+        return gsyBaseVideoPlayer
     }
 
     /********************************各类UI的状态显示*********************************************/
@@ -343,199 +324,191 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
     /**
      * 点击触摸显示和隐藏逻辑
      */
-    @Override
-    protected void onClickUiToggle(MotionEvent e) {
+    override fun onClickUiToggle(e: MotionEvent?) {
         if (mIfCurrentIsFullscreen && mLockCurScreen && mNeedLockFull) {
-            setViewShowState(mLockScreen, VISIBLE);
-            return;
+            setViewShowState(mLockScreen, VISIBLE)
+            return
         }
         if (mIfCurrentIsFullscreen && !mSurfaceErrorPlay && mCurrentState == CURRENT_STATE_ERROR) {
             if (mBottomContainer != null) {
-                if (mBottomContainer.getVisibility() == View.VISIBLE) {
-                    changeUiToPlayingClear();
+                if (mBottomContainer.visibility == VISIBLE) {
+                    changeUiToPlayingClear()
                 } else {
-                    changeUiToPlayingShow();
+                    changeUiToPlayingShow()
                 }
             }
         } else if (mCurrentState == CURRENT_STATE_PREPAREING) {
             if (mBottomContainer != null) {
-                if (mBottomContainer.getVisibility() == View.VISIBLE) {
-                    changeUiToPrepareingClear();
+                if (mBottomContainer.visibility == VISIBLE) {
+                    changeUiToPrepareingClear()
                 } else {
-                    changeUiToPreparingShow();
+                    changeUiToPreparingShow()
                 }
             }
         } else if (mCurrentState == CURRENT_STATE_PLAYING) {
             if (mBottomContainer != null) {
-                if (mBottomContainer.getVisibility() == View.VISIBLE) {
-                    changeUiToPlayingClear();
+                if (mBottomContainer.visibility == VISIBLE) {
+                    changeUiToPlayingClear()
                 } else {
-                    changeUiToPlayingShow();
+                    changeUiToPlayingShow()
                 }
             }
         } else if (mCurrentState == CURRENT_STATE_PAUSE) {
             if (mBottomContainer != null) {
-                if (mBottomContainer.getVisibility() == View.VISIBLE) {
-                    changeUiToPauseClear();
+                if (mBottomContainer.visibility == VISIBLE) {
+                    changeUiToPauseClear()
                 } else {
-                    changeUiToPauseShow();
+                    changeUiToPauseShow()
                 }
             }
         } else if (mCurrentState == CURRENT_STATE_AUTO_COMPLETE) {
             if (mBottomContainer != null) {
-                if (mBottomContainer.getVisibility() == View.VISIBLE) {
-                    changeUiToCompleteClear();
+                if (mBottomContainer.visibility == VISIBLE) {
+                    changeUiToCompleteClear()
                 } else {
-                    changeUiToCompleteShow();
+                    changeUiToCompleteShow()
                 }
             }
         } else if (mCurrentState == CURRENT_STATE_PLAYING_BUFFERING_START) {
             if (mBottomContainer != null) {
-                if (mBottomContainer.getVisibility() == View.VISIBLE) {
-                    changeUiToPlayingBufferingClear();
+                if (mBottomContainer.visibility == VISIBLE) {
+                    changeUiToPlayingBufferingClear()
                 } else {
-                    changeUiToPlayingBufferingShow();
+                    changeUiToPlayingBufferingShow()
                 }
             }
         }
     }
 
-    @Override
-    protected void hideAllWidget() {
-        setViewShowState(mBottomContainer, INVISIBLE);
-        setViewShowState(mTopContainer, INVISIBLE);
-        setViewShowState(mBottomProgressBar, VISIBLE);
-        setViewShowState(mStartButton, INVISIBLE);
+    override fun hideAllWidget() {
+        setViewShowState(mBottomContainer, INVISIBLE)
+        setViewShowState(mTopContainer, INVISIBLE)
+        setViewShowState(mBottomProgressBar, VISIBLE)
+        setViewShowState(mStartButton, INVISIBLE)
     }
 
-    @Override
-    protected void changeUiToNormal() {
-        Debuger.printfLog("changeUiToNormal");
-        setViewShowState(mTopContainer, VISIBLE);
-        setViewShowState(mBottomContainer, INVISIBLE);
-        setViewShowState(mStartButton, VISIBLE);
-        setViewShowState(mLoadingProgressBar, INVISIBLE);
-        setViewShowState(mThumbImageViewLayout, VISIBLE);
-        setViewShowState(mBottomProgressBar, INVISIBLE);
-        setViewShowState(mLockScreen, (mIfCurrentIsFullscreen && mNeedLockFull) ? VISIBLE : GONE);
-        updateStartImage();
-        if (mLoadingProgressBar instanceof ENDownloadView) {
-            ((ENDownloadView) mLoadingProgressBar).reset();
+    override fun changeUiToNormal() {
+        Debuger.printfLog("changeUiToNormal")
+        setViewShowState(mTopContainer, VISIBLE)
+        setViewShowState(mBottomContainer, INVISIBLE)
+        setViewShowState(mStartButton, VISIBLE)
+        setViewShowState(mLoadingProgressBar, INVISIBLE)
+        setViewShowState(mThumbImageViewLayout, VISIBLE)
+        setViewShowState(mBottomProgressBar, INVISIBLE)
+        setViewShowState(mLockScreen, if ((mIfCurrentIsFullscreen && mNeedLockFull)) VISIBLE else GONE)
+        updateStartImage()
+        if (mLoadingProgressBar is ENDownloadView) {
+            (mLoadingProgressBar as? ENDownloadView)?.reset()
         }
     }
 
-    @Override
-    protected void changeUiToPreparingShow() {
-        Debuger.printfLog("changeUiToPreparingShow");
-        setViewShowState(mTopContainer, VISIBLE);
-        setViewShowState(mBottomContainer, VISIBLE);
-        setViewShowState(mStartButton, INVISIBLE);
-        setViewShowState(mLoadingProgressBar, VISIBLE);
-        setViewShowState(mThumbImageViewLayout, INVISIBLE);
-        setViewShowState(mBottomProgressBar, INVISIBLE);
-        setViewShowState(mLockScreen, GONE);
-        if (mLoadingProgressBar instanceof ENDownloadView enDownloadView) {
-            if (enDownloadView.getCurrentState() == ENDownloadView.STATE_PRE) {
-                ((ENDownloadView) mLoadingProgressBar).start();
+    override fun changeUiToPreparingShow() {
+        Debuger.printfLog("changeUiToPreparingShow")
+        setViewShowState(mTopContainer, VISIBLE)
+        setViewShowState(mBottomContainer, VISIBLE)
+        setViewShowState(mStartButton, INVISIBLE)
+        setViewShowState(mLoadingProgressBar, VISIBLE)
+        setViewShowState(mThumbImageViewLayout, INVISIBLE)
+        setViewShowState(mBottomProgressBar, INVISIBLE)
+        setViewShowState(mLockScreen, GONE)
+        if (mLoadingProgressBar is ENDownloadView) {
+            val progressBar = mLoadingProgressBar as? ENDownloadView
+            if (progressBar?.currentState == ENDownloadView.STATE_PRE) {
+                progressBar.start()
             }
         }
     }
 
-    @Override
-    protected void changeUiToPlayingShow() {
-        Debuger.printfLog("changeUiToPlayingShow");
+    override fun changeUiToPlayingShow() {
+        Debuger.printfLog("changeUiToPlayingShow")
         if (mLockCurScreen && mNeedLockFull) {
-            setViewShowState(mLockScreen, VISIBLE);
-            return;
+            setViewShowState(mLockScreen, VISIBLE)
+            return
         }
-        setViewShowState(mTopContainer, VISIBLE);
-        setViewShowState(mBottomContainer, VISIBLE);
-        setViewShowState(mStartButton, VISIBLE);
-        setViewShowState(mLoadingProgressBar, INVISIBLE);
-        setViewShowState(mThumbImageViewLayout, INVISIBLE);
-        setViewShowState(mBottomProgressBar, INVISIBLE);
-        setViewShowState(mLockScreen, (mIfCurrentIsFullscreen && mNeedLockFull) ? VISIBLE : GONE);
-        if (mLoadingProgressBar instanceof ENDownloadView) {
-            ((ENDownloadView) mLoadingProgressBar).reset();
+        setViewShowState(mTopContainer, VISIBLE)
+        setViewShowState(mBottomContainer, VISIBLE)
+        setViewShowState(mStartButton, VISIBLE)
+        setViewShowState(mLoadingProgressBar, INVISIBLE)
+        setViewShowState(mThumbImageViewLayout, INVISIBLE)
+        setViewShowState(mBottomProgressBar, INVISIBLE)
+        setViewShowState(mLockScreen, if ((mIfCurrentIsFullscreen && mNeedLockFull)) VISIBLE else GONE)
+        if (mLoadingProgressBar is ENDownloadView) {
+            (mLoadingProgressBar as? ENDownloadView)?.reset()
         }
-        updateStartImage();
+        updateStartImage()
     }
 
-    @Override
-    protected void changeUiToPauseShow() {
-        Debuger.printfLog("changeUiToPauseShow");
+    override fun changeUiToPauseShow() {
+        Debuger.printfLog("changeUiToPauseShow")
         if (mLockCurScreen && mNeedLockFull) {
-            setViewShowState(mLockScreen, VISIBLE);
-            return;
+            setViewShowState(mLockScreen, VISIBLE)
+            return
         }
-        setViewShowState(mTopContainer, VISIBLE);
-        setViewShowState(mBottomContainer, VISIBLE);
-        setViewShowState(mStartButton, VISIBLE);
-        setViewShowState(mLoadingProgressBar, INVISIBLE);
-        setViewShowState(mThumbImageViewLayout, INVISIBLE);
-        setViewShowState(mBottomProgressBar, INVISIBLE);
-        setViewShowState(mLockScreen, (mIfCurrentIsFullscreen && mNeedLockFull) ? VISIBLE : GONE);
-        if (mLoadingProgressBar instanceof ENDownloadView) {
-            ((ENDownloadView) mLoadingProgressBar).reset();
+        setViewShowState(mTopContainer, VISIBLE)
+        setViewShowState(mBottomContainer, VISIBLE)
+        setViewShowState(mStartButton, VISIBLE)
+        setViewShowState(mLoadingProgressBar, INVISIBLE)
+        setViewShowState(mThumbImageViewLayout, INVISIBLE)
+        setViewShowState(mBottomProgressBar, INVISIBLE)
+        setViewShowState(mLockScreen, if ((mIfCurrentIsFullscreen && mNeedLockFull)) VISIBLE else GONE)
+        if (mLoadingProgressBar is ENDownloadView) {
+            (mLoadingProgressBar as? ENDownloadView)?.reset()
         }
-        updateStartImage();
-        updatePauseCover();
+        updateStartImage()
+        updatePauseCover()
     }
 
-    @Override
-    protected void changeUiToPlayingBufferingShow() {
-        Debuger.printfLog("changeUiToPlayingBufferingShow");
-        setViewShowState(mTopContainer, VISIBLE);
-        setViewShowState(mBottomContainer, VISIBLE);
-        setViewShowState(mStartButton, INVISIBLE);
-        setViewShowState(mLoadingProgressBar, VISIBLE);
-        setViewShowState(mThumbImageViewLayout, INVISIBLE);
-        setViewShowState(mBottomProgressBar, INVISIBLE);
-        setViewShowState(mLockScreen, GONE);
-        if (mLoadingProgressBar instanceof ENDownloadView enDownloadView) {
-            if (enDownloadView.getCurrentState() == ENDownloadView.STATE_PRE) {
-                ((ENDownloadView) mLoadingProgressBar).start();
+    override fun changeUiToPlayingBufferingShow() {
+        Debuger.printfLog("changeUiToPlayingBufferingShow")
+        setViewShowState(mTopContainer, VISIBLE)
+        setViewShowState(mBottomContainer, VISIBLE)
+        setViewShowState(mStartButton, INVISIBLE)
+        setViewShowState(mLoadingProgressBar, VISIBLE)
+        setViewShowState(mThumbImageViewLayout, INVISIBLE)
+        setViewShowState(mBottomProgressBar, INVISIBLE)
+        setViewShowState(mLockScreen, GONE)
+        if (mLoadingProgressBar is ENDownloadView) {
+            val progressBar = mLoadingProgressBar as? ENDownloadView
+            if (progressBar?.currentState == ENDownloadView.STATE_PRE) {
+                progressBar.start()
             }
         }
     }
 
-    @Override
-    protected void changeUiToCompleteShow() {
-        Debuger.printfLog("changeUiToCompleteShow");
-        setViewShowState(mTopContainer, VISIBLE);
-        setViewShowState(mBottomContainer, VISIBLE);
-        setViewShowState(mStartButton, VISIBLE);
-        setViewShowState(mLoadingProgressBar, INVISIBLE);
-        setViewShowState(mThumbImageViewLayout, VISIBLE);
-        setViewShowState(mBottomProgressBar, INVISIBLE);
-        setViewShowState(mLockScreen, (mIfCurrentIsFullscreen && mNeedLockFull) ? VISIBLE : GONE);
-        if (mLoadingProgressBar instanceof ENDownloadView) {
-            ((ENDownloadView) mLoadingProgressBar).reset();
+    override fun changeUiToCompleteShow() {
+        Debuger.printfLog("changeUiToCompleteShow")
+        setViewShowState(mTopContainer, VISIBLE)
+        setViewShowState(mBottomContainer, VISIBLE)
+        setViewShowState(mStartButton, VISIBLE)
+        setViewShowState(mLoadingProgressBar, INVISIBLE)
+        setViewShowState(mThumbImageViewLayout, VISIBLE)
+        setViewShowState(mBottomProgressBar, INVISIBLE)
+        setViewShowState(mLockScreen, if ((mIfCurrentIsFullscreen && mNeedLockFull)) VISIBLE else GONE)
+        if (mLoadingProgressBar is ENDownloadView) {
+            (mLoadingProgressBar as? ENDownloadView)?.reset()
         }
-        updateStartImage();
+        updateStartImage()
     }
 
-    @Override
-    protected void changeUiToError() {
-        Debuger.printfLog("changeUiToError");
-        setViewShowState(mTopContainer, INVISIBLE);
-        setViewShowState(mBottomContainer, INVISIBLE);
-        setViewShowState(mStartButton, VISIBLE);
-        setViewShowState(mLoadingProgressBar, INVISIBLE);
-        setViewShowState(mThumbImageViewLayout, INVISIBLE);
-        setViewShowState(mBottomProgressBar, INVISIBLE);
-        setViewShowState(mLockScreen, (mIfCurrentIsFullscreen && mNeedLockFull) ? VISIBLE : GONE);
-        if (mLoadingProgressBar instanceof ENDownloadView) {
-            ((ENDownloadView) mLoadingProgressBar).reset();
+    override fun changeUiToError() {
+        Debuger.printfLog("changeUiToError")
+        setViewShowState(mTopContainer, INVISIBLE)
+        setViewShowState(mBottomContainer, INVISIBLE)
+        setViewShowState(mStartButton, VISIBLE)
+        setViewShowState(mLoadingProgressBar, INVISIBLE)
+        setViewShowState(mThumbImageViewLayout, INVISIBLE)
+        setViewShowState(mBottomProgressBar, INVISIBLE)
+        setViewShowState(mLockScreen, if ((mIfCurrentIsFullscreen && mNeedLockFull)) VISIBLE else GONE)
+        if (mLoadingProgressBar is ENDownloadView) {
+            (mLoadingProgressBar as? ENDownloadView)?.reset()
         }
-        updateStartImage();
+        updateStartImage()
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        dismissVolumeDialog();
-        dismissBrightnessDialog();
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        dismissVolumeDialog()
+        dismissBrightnessDialog()
     }
 
     /**
@@ -543,8 +516,8 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      * 继承后重写可返回自定义
      * 有自定义的实现逻辑可重载showProgressDialog方法
      */
-    protected int getProgressDialogLayoutId() {
-        return R.layout.video_progress_dialog;
+    protected open fun getProgressDialogLayoutId(): Int {
+        return R.layout.video_progress_dialog
     }
 
     /**
@@ -552,8 +525,8 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      * 继承后重写可返回自定义，如果没有可返回空
      * 有自定义的实现逻辑可重载showProgressDialog方法
      */
-    protected int getProgressDialogProgressId() {
-        return R.id.duration_progressbar;
+    protected open fun getProgressDialogProgressId(): Int {
+        return R.id.duration_progressbar
     }
 
     /**
@@ -561,8 +534,8 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      * 继承后重写可返回自定义，如果没有可返回空
      * 有自定义的实现逻辑可重载showProgressDialog方法
      */
-    protected int getProgressDialogCurrentDurationTextId() {
-        return R.id.tv_current;
+    protected open fun getProgressDialogCurrentDurationTextId(): Int {
+        return R.id.tv_current
     }
 
     /**
@@ -570,8 +543,8 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      * 继承后重写可返回自定义，如果没有可返回空
      * 有自定义的实现逻辑可重载showProgressDialog方法
      */
-    protected int getProgressDialogAllDurationTextId() {
-        return R.id.tv_duration;
+    protected open fun getProgressDialogAllDurationTextId(): Int {
+        return R.id.tv_duration
     }
 
     /**
@@ -579,8 +552,8 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      * 继承后重写可返回自定义，如果没有可返回空
      * 有自定义的实现逻辑可重载showProgressDialog方法
      */
-    protected int getProgressDialogImageId() {
-        return R.id.duration_image_tip;
+    protected open fun getProgressDialogImageId(): Int {
+        return R.id.duration_image_tip
     }
 
     /**
@@ -588,8 +561,8 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      * 继承后重写可返回自定义
      * 有自定义的实现逻辑可重载showVolumeDialog方法
      */
-    protected int getVolumeLayoutId() {
-        return R.layout.video_volume_dialog;
+    protected open fun getVolumeLayoutId(): Int {
+        return R.layout.video_volume_dialog
     }
 
     /**
@@ -597,8 +570,8 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      * 继承后重写可返回自定义，如果没有可返回空
      * 有自定义的实现逻辑可重载showVolumeDialog方法
      */
-    protected int getVolumeProgressId() {
-        return R.id.volume_progressbar;
+    protected open fun getVolumeProgressId(): Int {
+        return R.id.volume_progressbar
     }
 
     /**
@@ -606,8 +579,8 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      * 继承后重写可返回自定义
      * 有自定义的实现逻辑可重载showBrightnessDialog方法
      */
-    protected int getBrightnessLayoutId() {
-        return R.layout.video_brightness;
+    protected open fun getBrightnessLayoutId(): Int {
+        return R.layout.video_brightness
     }
 
     /**
@@ -615,103 +588,102 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      * 继承后重写可返回自定义，如果没有可返回空
      * 有自定义的实现逻辑可重载showBrightnessDialog方法
      */
-    protected int getBrightnessTextId() {
-        return R.id.app_video_brightness;
+    protected open fun getBrightnessTextId(): Int {
+        return R.id.app_video_brightness
     }
 
-    protected void changeUiToPrepareingClear() {
-        Debuger.printfLog("changeUiToPrepareingClear");
-        setViewShowState(mTopContainer, INVISIBLE);
-        setViewShowState(mBottomContainer, INVISIBLE);
-        setViewShowState(mStartButton, INVISIBLE);
-        setViewShowState(mLoadingProgressBar, INVISIBLE);
-        setViewShowState(mThumbImageViewLayout, INVISIBLE);
-        setViewShowState(mBottomProgressBar, INVISIBLE);
-        setViewShowState(mLockScreen, GONE);
-        if (mLoadingProgressBar instanceof ENDownloadView) {
-            ((ENDownloadView) mLoadingProgressBar).reset();
+    protected open fun changeUiToPrepareingClear() {
+        Debuger.printfLog("changeUiToPrepareingClear")
+        setViewShowState(mTopContainer, INVISIBLE)
+        setViewShowState(mBottomContainer, INVISIBLE)
+        setViewShowState(mStartButton, INVISIBLE)
+        setViewShowState(mLoadingProgressBar, INVISIBLE)
+        setViewShowState(mThumbImageViewLayout, INVISIBLE)
+        setViewShowState(mBottomProgressBar, INVISIBLE)
+        setViewShowState(mLockScreen, GONE)
+        if (mLoadingProgressBar is ENDownloadView) {
+            (mLoadingProgressBar as? ENDownloadView)?.reset()
         }
     }
 
-    protected void changeUiToPlayingClear() {
-        Debuger.printfLog("changeUiToPlayingClear");
-        changeUiToClear();
-        setViewShowState(mBottomProgressBar, VISIBLE);
+    protected open fun changeUiToPlayingClear() {
+        Debuger.printfLog("changeUiToPlayingClear")
+        changeUiToClear()
+        setViewShowState(mBottomProgressBar, VISIBLE)
     }
 
-    protected void changeUiToPauseClear() {
-        Debuger.printfLog("changeUiToPauseClear");
-        changeUiToClear();
-        setViewShowState(mBottomProgressBar, VISIBLE);
-        updatePauseCover();
+    protected open fun changeUiToPauseClear() {
+        Debuger.printfLog("changeUiToPauseClear")
+        changeUiToClear()
+        setViewShowState(mBottomProgressBar, VISIBLE)
+        updatePauseCover()
     }
 
-    protected void changeUiToPlayingBufferingClear() {
-        Debuger.printfLog("changeUiToPlayingBufferingClear");
-        setViewShowState(mTopContainer, INVISIBLE);
-        setViewShowState(mBottomContainer, INVISIBLE);
-        setViewShowState(mStartButton, INVISIBLE);
-        setViewShowState(mLoadingProgressBar, VISIBLE);
-        setViewShowState(mThumbImageViewLayout, INVISIBLE);
-        setViewShowState(mBottomProgressBar, VISIBLE);
-        setViewShowState(mLockScreen, GONE);
-        if (mLoadingProgressBar instanceof ENDownloadView enDownloadView) {
-            if (enDownloadView.getCurrentState() == ENDownloadView.STATE_PRE) {
-                ((ENDownloadView) mLoadingProgressBar).start();
+    protected open fun changeUiToPlayingBufferingClear() {
+        Debuger.printfLog("changeUiToPlayingBufferingClear")
+        setViewShowState(mTopContainer, INVISIBLE)
+        setViewShowState(mBottomContainer, INVISIBLE)
+        setViewShowState(mStartButton, INVISIBLE)
+        setViewShowState(mLoadingProgressBar, VISIBLE)
+        setViewShowState(mThumbImageViewLayout, INVISIBLE)
+        setViewShowState(mBottomProgressBar, VISIBLE)
+        setViewShowState(mLockScreen, GONE)
+        if (mLoadingProgressBar is ENDownloadView) {
+            val progressBar = mLoadingProgressBar as? ENDownloadView
+            if (progressBar?.currentState == ENDownloadView.STATE_PRE) {
+                progressBar.start()
             }
         }
-        updateStartImage();
+        updateStartImage()
     }
 
-    protected void changeUiToClear() {
-        Debuger.printfLog("changeUiToClear");
-        setViewShowState(mTopContainer, INVISIBLE);
-        setViewShowState(mBottomContainer, INVISIBLE);
-        setViewShowState(mStartButton, INVISIBLE);
-        setViewShowState(mLoadingProgressBar, INVISIBLE);
-        setViewShowState(mThumbImageViewLayout, INVISIBLE);
-        setViewShowState(mBottomProgressBar, INVISIBLE);
-        setViewShowState(mLockScreen, GONE);
-        if (mLoadingProgressBar instanceof ENDownloadView) {
-            ((ENDownloadView) mLoadingProgressBar).reset();
+    protected open fun changeUiToClear() {
+        Debuger.printfLog("changeUiToClear")
+        setViewShowState(mTopContainer, INVISIBLE)
+        setViewShowState(mBottomContainer, INVISIBLE)
+        setViewShowState(mStartButton, INVISIBLE)
+        setViewShowState(mLoadingProgressBar, INVISIBLE)
+        setViewShowState(mThumbImageViewLayout, INVISIBLE)
+        setViewShowState(mBottomProgressBar, INVISIBLE)
+        setViewShowState(mLockScreen, GONE)
+        if (mLoadingProgressBar is ENDownloadView) {
+            (mLoadingProgressBar as? ENDownloadView)?.reset()
         }
     }
 
-    protected void changeUiToCompleteClear() {
-        Debuger.printfLog("changeUiToCompleteClear");
-        setViewShowState(mTopContainer, INVISIBLE);
-        setViewShowState(mBottomContainer, INVISIBLE);
-        setViewShowState(mStartButton, VISIBLE);
-        setViewShowState(mLoadingProgressBar, INVISIBLE);
-        setViewShowState(mThumbImageViewLayout, VISIBLE);
-        setViewShowState(mBottomProgressBar, VISIBLE);
-        setViewShowState(mLockScreen, (mIfCurrentIsFullscreen && mNeedLockFull) ? VISIBLE : GONE);
-        if (mLoadingProgressBar instanceof ENDownloadView) {
-            ((ENDownloadView) mLoadingProgressBar).reset();
+    protected open fun changeUiToCompleteClear() {
+        Debuger.printfLog("changeUiToCompleteClear")
+        setViewShowState(mTopContainer, INVISIBLE)
+        setViewShowState(mBottomContainer, INVISIBLE)
+        setViewShowState(mStartButton, VISIBLE)
+        setViewShowState(mLoadingProgressBar, INVISIBLE)
+        setViewShowState(mThumbImageViewLayout, VISIBLE)
+        setViewShowState(mBottomProgressBar, VISIBLE)
+        setViewShowState(mLockScreen, if ((mIfCurrentIsFullscreen && mNeedLockFull)) VISIBLE else GONE)
+        if (mLoadingProgressBar is ENDownloadView) {
+            (mLoadingProgressBar as? ENDownloadView)?.reset()
         }
-        updateStartImage();
+        updateStartImage()
     }
 
     /**
      * 定义开始按键显示
      */
-    protected void updateStartImage() {
-        if (mStartButton instanceof ENPlayView enPlayView) {
-            enPlayView.setDuration(500);
-            if (mCurrentState == CURRENT_STATE_PLAYING) {
-                enPlayView.play();
-            } else if (mCurrentState == CURRENT_STATE_ERROR) {
-                enPlayView.pause();
-            } else {
-                enPlayView.pause();
+    protected open fun updateStartImage() {
+        if (mStartButton is ENPlayView) {
+            val button = mStartButton as? ENPlayView
+            button?.setDuration(500)
+            when (mCurrentState) {
+                CURRENT_STATE_PLAYING -> button?.play()
+                CURRENT_STATE_ERROR -> button?.pause()
+                else -> button?.pause()
             }
-        } else if (mStartButton instanceof ImageView imageView) {
-            if (mCurrentState == CURRENT_STATE_PLAYING) {
-                imageView.setImageResource(R.drawable.video_click_pause_selector);
-            } else if (mCurrentState == CURRENT_STATE_ERROR) {
-                imageView.setImageResource(R.drawable.video_click_error_selector);
-            } else {
-                imageView.setImageResource(R.drawable.video_click_play_selector);
+        } else if (mStartButton is ImageView) {
+            val image = mStartButton as? ImageView
+            when (mCurrentState) {
+                CURRENT_STATE_PLAYING -> image?.setImageResource(R.drawable.video_click_pause_selector)
+                CURRENT_STATE_ERROR -> image?.setImageResource(R.drawable.video_click_error_selector)
+                else -> image?.setImageResource(R.drawable.video_click_play_selector)
             }
         }
     }
@@ -719,66 +691,66 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
     /**
      * 全屏的UI逻辑
      */
-    private void initFullUI(StandardGSYVideoPlayer standardGSYVideoPlayer) {
+    private fun initFullUI(standardGSYVideoPlayer: StandardGSYVideoPlayer?) {
         if (mBottomProgressDrawable != null) {
-            standardGSYVideoPlayer.setBottomProgressBarDrawable(mBottomProgressDrawable);
+            standardGSYVideoPlayer?.setBottomProgressBarDrawable(mBottomProgressDrawable)
         }
         if (mBottomShowProgressDrawable != null && mBottomShowProgressThumbDrawable != null) {
-            standardGSYVideoPlayer.setBottomShowProgressBarDrawable(mBottomShowProgressDrawable, mBottomShowProgressThumbDrawable);
+            standardGSYVideoPlayer?.setBottomShowProgressBarDrawable(mBottomShowProgressDrawable, mBottomShowProgressThumbDrawable)
         }
         if (mVolumeProgressDrawable != null) {
-            standardGSYVideoPlayer.setDialogVolumeProgressBar(mVolumeProgressDrawable);
+            standardGSYVideoPlayer?.setDialogVolumeProgressBar(mVolumeProgressDrawable)
         }
         if (mDialogProgressBarDrawable != null) {
-            standardGSYVideoPlayer.setDialogProgressBar(mDialogProgressBarDrawable);
+            standardGSYVideoPlayer?.setDialogProgressBar(mDialogProgressBarDrawable)
         }
         if (mDialogProgressHighLightColor != -11 && mDialogProgressNormalColor != -11) {
-            standardGSYVideoPlayer.setDialogProgressColor(mDialogProgressHighLightColor, mDialogProgressNormalColor);
+            standardGSYVideoPlayer?.setDialogProgressColor(mDialogProgressHighLightColor, mDialogProgressNormalColor)
         }
     }
 
     /**
      * 底部进度条-弹出的
      */
-    public void setBottomShowProgressBarDrawable(Drawable drawable, Drawable thumb) {
-        mBottomShowProgressDrawable = drawable;
-        mBottomShowProgressThumbDrawable = thumb;
+    fun setBottomShowProgressBarDrawable(drawable: Drawable?, thumb: Drawable?) {
+        mBottomShowProgressDrawable = drawable
+        mBottomShowProgressThumbDrawable = thumb
         if (mProgressBar != null) {
-            mProgressBar.setProgressDrawable(drawable);
-            mProgressBar.setThumb(thumb);
+            mProgressBar.progressDrawable = drawable
+            mProgressBar.thumb = thumb
         }
     }
 
     /**
      * 底部进度条-非弹出
      */
-    public void setBottomProgressBarDrawable(Drawable drawable) {
-        mBottomProgressDrawable = drawable;
+    fun setBottomProgressBarDrawable(drawable: Drawable?) {
+        mBottomProgressDrawable = drawable
         if (mBottomProgressBar != null) {
-            mBottomProgressBar.setProgressDrawable(drawable);
+            mBottomProgressBar.progressDrawable = drawable
         }
     }
 
     /**
      * 声音进度条
      */
-    public void setDialogVolumeProgressBar(Drawable drawable) {
-        mVolumeProgressDrawable = drawable;
+    fun setDialogVolumeProgressBar(drawable: Drawable?) {
+        mVolumeProgressDrawable = drawable
     }
 
     /**
      * 中间进度条
      */
-    public void setDialogProgressBar(Drawable drawable) {
-        mDialogProgressBarDrawable = drawable;
+    fun setDialogProgressBar(drawable: Drawable?) {
+        mDialogProgressBarDrawable = drawable
     }
 
     /**
      * 中间进度条字体颜色
      */
-    public void setDialogProgressColor(int highLightColor, int normalColor) {
-        mDialogProgressHighLightColor = highLightColor;
-        mDialogProgressNormalColor = normalColor;
+    fun setDialogProgressColor(highLightColor: Int?, normalColor: Int?) {
+        mDialogProgressHighLightColor = highLightColor.orZero
+        mDialogProgressNormalColor = normalColor.orZero
     }
 
     /************************************* 关于截图的 ****************************************/
@@ -786,8 +758,8 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
     /**
      * 获取截图
      */
-    public void taskShotPic(GSYVideoShotListener gsyVideoShotListener) {
-        this.taskShotPic(gsyVideoShotListener, false);
+    fun taskShotPic(gsyVideoShotListener: GSYVideoShotListener?) {
+        this.taskShotPic(gsyVideoShotListener, false)
     }
 
     /**
@@ -795,17 +767,17 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      *
      * @param high 是否需要高清的
      */
-    public void taskShotPic(GSYVideoShotListener gsyVideoShotListener, boolean high) {
-        if (getCurrentPlayer().getRenderProxy() != null) {
-            getCurrentPlayer().getRenderProxy().taskShotPic(gsyVideoShotListener, high);
+    fun taskShotPic(gsyVideoShotListener: GSYVideoShotListener?, high: Boolean) {
+        if (currentPlayer.renderProxy != null) {
+            currentPlayer.renderProxy.taskShotPic(gsyVideoShotListener, high)
         }
     }
 
     /**
      * 保存截图
      */
-    public void saveFrame(final File file, GSYVideoShotSaveListener gsyVideoShotSaveListener) {
-        saveFrame(file, false, gsyVideoShotSaveListener);
+    fun saveFrame(file: File?, gsyVideoShotSaveListener: GSYVideoShotSaveListener?) {
+        saveFrame(file, false, gsyVideoShotSaveListener)
     }
 
     /**
@@ -813,9 +785,9 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      *
      * @param high 是否需要高清的
      */
-    public void saveFrame(final File file, final boolean high, final GSYVideoShotSaveListener gsyVideoShotSaveListener) {
-        if (getCurrentPlayer().getRenderProxy() != null) {
-            getCurrentPlayer().getRenderProxy().saveFrame(file, high, gsyVideoShotSaveListener);
+    fun saveFrame(file: File?, high: Boolean, gsyVideoShotSaveListener: GSYVideoShotSaveListener?) {
+        if (currentPlayer.renderProxy != null) {
+            currentPlayer.renderProxy.saveFrame(file, high, gsyVideoShotSaveListener)
         }
     }
 
@@ -824,9 +796,9 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      * 用于解决GSYVideoHelper中通过removeview方式做全屏切换导致的定时任务停止的问题
      * GSYVideoControlView   onDetachedFromWindow（）
      */
-    public void restartTimerTask() {
-        startProgressTimer();
-        startDismissControlViewTimer();
+    fun restartTimerTask() {
+        startProgressTimer()
+        startDismissControlViewTimer()
     }
 
 }

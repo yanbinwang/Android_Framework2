@@ -1,152 +1,133 @@
-package com.example.gsyvideoplayer.video;
+package com.example.gsyvideoplayer.video
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.graphics.Color;
-import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.shuyu.gsyvideoplayer.GSYVideoADManager;
-import com.shuyu.gsyvideoplayer.R;
-import com.shuyu.gsyvideoplayer.utils.CommonUtil;
-import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
-import com.shuyu.gsyvideoplayer.video.base.GSYVideoViewBridge;
+import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Color
+import android.util.AttributeSet
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.Window
+import android.widget.ImageView
+import android.widget.TextView
+import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.view.click
+import com.shuyu.gsyvideoplayer.GSYVideoADManager
+import com.shuyu.gsyvideoplayer.R
+import com.shuyu.gsyvideoplayer.utils.CommonUtil
+import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer
+import com.shuyu.gsyvideoplayer.video.base.GSYVideoViewBridge
+import kotlin.math.abs
 
 /**
  * Created by guoshuyu on 2018/2/1.
  */
 @SuppressLint("SetTextI18n")
-public class GSYADVideoPlayer extends StandardGSYVideoPlayer {
-    protected View mJumpAd;
-    protected TextView mADTime;
-    protected boolean isFirstPrepared;
+class GSYADVideoPlayer : StandardGSYVideoPlayer {
+    protected var mJumpAd: View? = null
+    protected var mADTime: TextView? = null
+    protected var isFirstPrepared: Boolean = false
 
-    public GSYADVideoPlayer(Context context, Boolean fullFlag) {
-        super(context, fullFlag);
-    }
+    constructor(context: Context) : super(context)
 
-    public GSYADVideoPlayer(Context context) {
-        super(context);
-    }
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
-    public GSYADVideoPlayer(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+    constructor(context: Context, fullFlag: Boolean) : super(context, fullFlag)
 
-    @Override
-    protected void init(Context context) {
-        super.init(context);
-        mJumpAd = findViewById(R.id.jump_ad);
-        mADTime = findViewById(R.id.ad_time);
+    override fun init(context: Context?) {
+        super.init(context)
+        mJumpAd = findViewById(R.id.jump_ad)
+        mADTime = findViewById(R.id.ad_time)
         if (mJumpAd != null) {
-            mJumpAd.setOnClickListener(v -> {
-                if (getGSYVideoManager().listener() != null) {
-                    getGSYVideoManager().listener().onAutoCompletion();
+            mJumpAd?.click {
+                if (gsyVideoManager.listener() != null) {
+                    gsyVideoManager.listener().onAutoCompletion()
                 }
-            });
+            }
         }
     }
 
-    @Override
-    public int getLayoutId() {
-        return R.layout.video_layout_ad;
+    override fun getLayoutId(): Int {
+        return R.layout.video_layout_ad
     }
 
-    @Override
-    public GSYVideoViewBridge getGSYVideoManager() {
-        GSYVideoADManager.instance().initContext(getContext().getApplicationContext());
-        return GSYVideoADManager.instance();
+    override fun getGSYVideoManager(): GSYVideoViewBridge {
+        GSYVideoADManager.instance().initContext(context.applicationContext)
+        return GSYVideoADManager.instance()
     }
 
-    @Override
-    protected boolean backFromFull(Context context) {
-        return GSYVideoADManager.backFromWindowFull(context);
+    override fun backFromFull(context: Context?): Boolean {
+        return GSYVideoADManager.backFromWindowFull(context)
     }
 
-    @Override
-    protected void releaseVideos() {
-        GSYVideoADManager.releaseAllVideos();
+    override fun releaseVideos() {
+        GSYVideoADManager.releaseAllVideos()
     }
 
-    @Override
-    protected int getFullId() {
-        return GSYVideoADManager.FULLSCREEN_ID;
+    override fun getFullId(): Int {
+        return GSYVideoADManager.FULLSCREEN_ID
     }
 
-    @Override
-    protected int getSmallId() {
-        return GSYVideoADManager.SMALL_ID;
+    override fun getSmallId(): Int {
+        return GSYVideoADManager.SMALL_ID
     }
 
-    @Override
-    public void onPrepared() {
-        super.onPrepared();
-        isFirstPrepared = true;
-        changeAdUIState();
+    override fun onPrepared() {
+        super.onPrepared()
+        isFirstPrepared = true
+        changeAdUIState()
     }
 
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.start) {
+    override fun onClick(v: View?) {
+        if (v?.id == R.id.start) {
             if (mCurrentState == CURRENT_STATE_ERROR) {
-                clickStartIcon();
+                clickStartIcon()
             }
         } else {
-            super.onClick(v);
+            super.onClick(v)
         }
     }
 
-    @Override
-    protected void updateStartImage() {
-        if (mStartButton != null) {
-            if (mStartButton instanceof ImageView imageView) {
-                if (mCurrentState == CURRENT_STATE_PLAYING) {
-                    imageView.setImageResource(R.drawable.empty_drawable);
-                } else if (mCurrentState == CURRENT_STATE_ERROR) {
-                    imageView.setImageResource(R.drawable.video_click_error_selector);
-                } else {
-                    imageView.setImageResource(R.drawable.empty_drawable);
+    override fun updateStartImage() {
+        if (mStartButton is ImageView) {
+            (mStartButton as? ImageView)?.setImageResource(
+                when (mCurrentState) {
+                    CURRENT_STATE_PLAYING -> R.drawable.empty_drawable
+                    CURRENT_STATE_ERROR -> R.drawable.video_click_error_selector
+                    else -> R.drawable.empty_drawable
                 }
-            }
+            )
         }
     }
 
     /**
      * 广告期间不需要双击
      */
-    @Override
-    protected void touchDoubleUp(MotionEvent e) {
+    override fun touchDoubleUp(e: MotionEvent?) {
     }
 
     /**
      * 广告期间不需要触摸
      */
-    @Override
-    protected void touchSurfaceMove(float deltaX, float deltaY, float y) {
+    override fun touchSurfaceMove(deltaX: Float, deltaY: Float, y: Float) {
         if (mChangePosition) {
         } else {
-            super.touchSurfaceMove(deltaX, deltaY, y);
+            super.touchSurfaceMove(deltaX, deltaY, y)
         }
     }
 
     /**
      * 广告期间不需要触摸
      */
-    @Override
-    protected void touchSurfaceMoveFullLogic(float absDeltaX, float absDeltaY) {
+    override fun touchSurfaceMoveFullLogic(absDeltaX: Float, absDeltaY: Float) {
         if ((absDeltaX > mThreshold || absDeltaY > mThreshold)) {
-            int screenWidth = CommonUtil.getScreenWidth(getContext());
-            if (absDeltaX >= mThreshold && Math.abs(screenWidth - mDownX) > mSeekEndOffset) {
+            val screenWidth = CommonUtil.getScreenWidth(context)
+            if (absDeltaX >= mThreshold && abs((screenWidth - mDownX).toDouble()) > mSeekEndOffset) {
                 //防止全屏虚拟按键
-                mChangePosition = true;
-                mDownPosition = getCurrentPositionWhenPlaying();
+                mChangePosition = true
+                mDownPosition = currentPositionWhenPlaying
             } else {
-                super.touchSurfaceMoveFullLogic(absDeltaX, absDeltaY);
+                super.touchSurfaceMoveFullLogic(absDeltaX, absDeltaY)
             }
         }
     }
@@ -154,88 +135,83 @@ public class GSYADVideoPlayer extends StandardGSYVideoPlayer {
     /**
      * 广告期间不需要触摸
      */
-    @Override
-    protected void touchSurfaceUp() {
+    override fun touchSurfaceUp() {
         if (mChangePosition) {
-            return;
+            return
         }
-        super.touchSurfaceUp();
+        super.touchSurfaceUp()
     }
 
-    @Override
-    protected void hideAllWidget() {
+    override fun hideAllWidget() {
         if (isFirstPrepared) {
-            return;
+            return
         }
-        super.hideAllWidget();
+        super.hideAllWidget()
     }
 
-    @Override
-    protected void setProgressAndTime(long progress, long secProgress, long currentTime, long totalTime, boolean forceChange) {
-        super.setProgressAndTime(progress, secProgress, currentTime, totalTime, forceChange);
+    override fun setProgressAndTime(progress: Long, secProgress: Long, currentTime: Long, totalTime: Long, forceChange: Boolean) {
+        super.setProgressAndTime(progress, secProgress, currentTime, totalTime, forceChange)
         if (mADTime != null && currentTime > 0) {
-            long totalSeconds = totalTime / 1000;
-            long currentSeconds = currentTime / 1000;
-            mADTime.setText("" + (totalSeconds - currentSeconds));
+            val totalSeconds = totalTime / 1000
+            val currentSeconds = currentTime / 1000
+            mADTime?.text = "${(totalSeconds - currentSeconds)}"
         }
     }
 
-    @Override
-    protected void cloneParams(GSYBaseVideoPlayer from, GSYBaseVideoPlayer to) {
-        super.cloneParams(from, to);
-        GSYADVideoPlayer sf = (GSYADVideoPlayer) from;
-        GSYADVideoPlayer st = (GSYADVideoPlayer) to;
-        st.isFirstPrepared = sf.isFirstPrepared;
-        st.changeAdUIState();
+    override fun cloneParams(from: GSYBaseVideoPlayer?, to: GSYBaseVideoPlayer?) {
+        super.cloneParams(from, to)
+        val sf = from as? GSYADVideoPlayer
+        val st = to as? GSYADVideoPlayer
+        st?.isFirstPrepared = sf?.isFirstPrepared.orFalse
+        st?.changeAdUIState()
     }
 
-    @Override
-    public void release() {
-        super.release();
+    override fun release() {
+        super.release()
         if (mADTime != null) {
-            mADTime.setVisibility(GONE);
+            mADTime?.visibility = GONE
         }
     }
 
     /**
      * 根据是否广告url修改ui显示状态
      */
-    protected void changeAdUIState() {
+    protected fun changeAdUIState() {
         if (mJumpAd != null) {
-            mJumpAd.setVisibility((isFirstPrepared) ? VISIBLE : GONE);
+            mJumpAd?.visibility = if ((isFirstPrepared)) VISIBLE else GONE
         }
         if (mADTime != null) {
-            mADTime.setVisibility((isFirstPrepared) ? VISIBLE : GONE);
+            mADTime?.visibility = if ((isFirstPrepared)) VISIBLE else GONE
         }
         if (mBottomContainer != null) {
-            int color = (isFirstPrepared) ? Color.TRANSPARENT : getContext().getResources().getColor(R.color.bottom_container_bg);
-            mBottomContainer.setBackgroundColor(color);
+            val color = if ((isFirstPrepared)) Color.TRANSPARENT else context.resources.getColor(R.color.bottom_container_bg)
+            mBottomContainer.setBackgroundColor(color)
         }
         if (mCurrentTimeTextView != null) {
-            mCurrentTimeTextView.setVisibility((isFirstPrepared) ? INVISIBLE : VISIBLE);
+            mCurrentTimeTextView.visibility = if ((isFirstPrepared)) INVISIBLE else VISIBLE
         }
         if (mTotalTimeTextView != null) {
-            mTotalTimeTextView.setVisibility((isFirstPrepared) ? INVISIBLE : VISIBLE);
+            mTotalTimeTextView.visibility = if ((isFirstPrepared)) INVISIBLE else VISIBLE
         }
         if (mProgressBar != null) {
-            mProgressBar.setVisibility((isFirstPrepared) ? INVISIBLE : VISIBLE);
-            mProgressBar.setEnabled(!(isFirstPrepared));
+            mProgressBar.visibility = if ((isFirstPrepared)) INVISIBLE else VISIBLE
+            mProgressBar.isEnabled = !(isFirstPrepared)
         }
     }
 
     /**
      * 移除广告播放的全屏
      */
-    public void removeFullWindowViewOnly() {
-        ViewGroup vp = (CommonUtil.scanForActivity(getContext())).findViewById(Window.ID_ANDROID_CONTENT);
-        View old = vp.findViewById(getFullId());
+    fun removeFullWindowViewOnly() {
+        val vp = CommonUtil.scanForActivity(context).findViewById<ViewGroup>(Window.ID_ANDROID_CONTENT)
+        val old = vp.findViewById<View>(fullId)
         if (old != null) {
-            if (old.getParent() != null) {
-                ViewGroup viewGroup = (ViewGroup) old.getParent();
-                vp.removeView(viewGroup);
+            if (old.parent != null) {
+                val viewGroup = old.parent as? ViewGroup
+                vp.removeView(viewGroup)
             }
         }
-        mIfCurrentIsFullscreen = false;
+        mIfCurrentIsFullscreen = false
     }
 
 }

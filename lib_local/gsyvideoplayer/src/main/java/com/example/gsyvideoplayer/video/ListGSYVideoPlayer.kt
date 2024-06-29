@@ -1,45 +1,32 @@
-package com.example.gsyvideoplayer.video;
+package com.example.gsyvideoplayer.video
 
-import android.content.Context;
-import android.text.TextUtils;
-import android.util.AttributeSet;
-import android.view.View;
-import android.view.ViewGroup;
-
-import com.shuyu.gsyvideoplayer.model.GSYVideoModel;
-import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
-import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import moe.codeest.enviews.ENDownloadView;
+import android.content.Context
+import android.text.TextUtils
+import android.util.AttributeSet
+import android.view.View
+import android.view.ViewGroup
+import com.example.framework.utils.function.value.orZero
+import com.shuyu.gsyvideoplayer.model.GSYVideoModel
+import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer
+import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer
+import moe.codeest.enviews.ENDownloadView
+import java.io.File
 
 /**
  * 列表播放支持
  * Created by shuyu on 2016/12/20.
  */
-public class ListGSYVideoPlayer extends StandardGSYVideoPlayer {
-    protected int mPlayPosition;
-    protected List<GSYVideoModel> mUriList = new ArrayList<>();
+open class ListGSYVideoPlayer : StandardGSYVideoPlayer {
+    protected var mUriList: List<GSYVideoModel> = ArrayList()
 
     /**
      * 1.5.0开始加入，如果需要不同布局区分功能，需要重载
      */
-    public ListGSYVideoPlayer(Context context, Boolean fullFlag) {
-        super(context, fullFlag);
-    }
+    constructor(context: Context) : super(context)
 
-    public ListGSYVideoPlayer(Context context) {
-        super(context);
-    }
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
-    public ListGSYVideoPlayer(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+    constructor(context: Context, fullFlag: Boolean) : super(context, fullFlag)
 
     /**
      * 设置播放URL
@@ -49,8 +36,8 @@ public class ListGSYVideoPlayer extends StandardGSYVideoPlayer {
      * @param cacheWithPlay 是否边播边缓存
      * @return
      */
-    public boolean setUp(List<GSYVideoModel> url, boolean cacheWithPlay, int position) {
-        return setUp(url, cacheWithPlay, position, null, new HashMap<String, String>());
+    protected open fun setUp(url: List<GSYVideoModel>, cacheWithPlay: Boolean, position: Int): Boolean {
+        return setUp(url, cacheWithPlay, position, null, HashMap())
     }
 
     /**
@@ -62,8 +49,8 @@ public class ListGSYVideoPlayer extends StandardGSYVideoPlayer {
      * @param cachePath     缓存路径，如果是M3U8或者HLS，请设置为false
      * @return
      */
-    public boolean setUp(List<GSYVideoModel> url, boolean cacheWithPlay, int position, File cachePath) {
-        return setUp(url, cacheWithPlay, position, cachePath, new HashMap<String, String>());
+    protected open fun setUp(url: List<GSYVideoModel>, cacheWithPlay: Boolean, position: Int, cachePath: File?): Boolean {
+        return setUp(url, cacheWithPlay, position, cachePath, HashMap())
     }
 
     /**
@@ -76,8 +63,8 @@ public class ListGSYVideoPlayer extends StandardGSYVideoPlayer {
      * @param mapHeadData   http header
      * @return
      */
-    public boolean setUp(List<GSYVideoModel> url, boolean cacheWithPlay, int position, File cachePath, Map<String, String> mapHeadData) {
-        return setUp(url, cacheWithPlay, position, cachePath, mapHeadData, true);
+    protected open fun setUp(url: List<GSYVideoModel>, cacheWithPlay: Boolean, position: Int, cachePath: File?, mapHeadData: Map<String, String>): Boolean {
+        return setUp(url, cacheWithPlay, position, cachePath, mapHeadData, true)
     }
 
     /**
@@ -91,107 +78,98 @@ public class ListGSYVideoPlayer extends StandardGSYVideoPlayer {
      * @param changeState   切换的时候释放surface
      * @return
      */
-    protected boolean setUp(List<GSYVideoModel> url, boolean cacheWithPlay, int position, File cachePath, Map<String, String> mapHeadData, boolean changeState) {
-        mUriList = url;
-        mPlayPosition = position;
-        mMapHeadData = mapHeadData;
-        GSYVideoModel gsyVideoModel = url.get(position);
-        boolean set = setUp(gsyVideoModel.getUrl(), cacheWithPlay, cachePath, gsyVideoModel.getTitle(), changeState);
-        if (!TextUtils.isEmpty(gsyVideoModel.getTitle()) && mTitleTextView != null) {
-            mTitleTextView.setText(gsyVideoModel.getTitle());
+    protected open fun setUp(url: List<GSYVideoModel>, cacheWithPlay: Boolean, position: Int, cachePath: File?, mapHeadData: Map<String, String>, changeState: Boolean): Boolean {
+        mUriList = url
+        mPlayPosition = position
+        mMapHeadData = mapHeadData
+        val gsyVideoModel = url[position]
+        val set = setUp(gsyVideoModel.url, cacheWithPlay, cachePath, gsyVideoModel.title, changeState)
+        if (!TextUtils.isEmpty(gsyVideoModel.title) && mTitleTextView != null) {
+            mTitleTextView.text = gsyVideoModel.title
         }
-        return set;
+        return set
     }
 
-    @Override
-    protected void cloneParams(GSYBaseVideoPlayer from, GSYBaseVideoPlayer to) {
-        super.cloneParams(from, to);
-        ListGSYVideoPlayer sf = (ListGSYVideoPlayer) from;
-        ListGSYVideoPlayer st = (ListGSYVideoPlayer) to;
-        st.mPlayPosition = sf.mPlayPosition;
-        st.mUriList = sf.mUriList;
+    override fun cloneParams(from: GSYBaseVideoPlayer?, to: GSYBaseVideoPlayer?) {
+        super.cloneParams(from, to)
+        val sf = from as? ListGSYVideoPlayer
+        val st = to as? ListGSYVideoPlayer
+        st?.mPlayPosition = sf?.mPlayPosition.orZero
+        st?.mUriList = sf?.mUriList.orEmpty()
     }
 
-    @Override
-    public GSYBaseVideoPlayer startWindowFullscreen(Context context, boolean actionBar, boolean statusBar) {
-        GSYBaseVideoPlayer gsyBaseVideoPlayer = super.startWindowFullscreen(context, actionBar, statusBar);
+    override fun startWindowFullscreen(context: Context?, actionBar: Boolean, statusBar: Boolean): GSYBaseVideoPlayer? {
+        val gsyBaseVideoPlayer = super.startWindowFullscreen(context, actionBar, statusBar)
         if (gsyBaseVideoPlayer != null) {
-            ListGSYVideoPlayer listGSYVideoPlayer = (ListGSYVideoPlayer) gsyBaseVideoPlayer;
-            GSYVideoModel gsyVideoModel = mUriList.get(mPlayPosition);
-            if (!TextUtils.isEmpty(gsyVideoModel.getTitle()) && mTitleTextView != null) {
-                listGSYVideoPlayer.mTitleTextView.setText(gsyVideoModel.getTitle());
+            val listGSYVideoPlayer = gsyBaseVideoPlayer as? ListGSYVideoPlayer
+            val gsyVideoModel = mUriList[mPlayPosition]
+            if (!TextUtils.isEmpty(gsyVideoModel.title) && mTitleTextView != null) {
+                listGSYVideoPlayer?.mTitleTextView?.text = gsyVideoModel.title
             }
         }
-        return gsyBaseVideoPlayer;
+        return gsyBaseVideoPlayer
     }
 
-    @Override
-    protected void resolveNormalVideoShow(View oldF, ViewGroup vp, GSYVideoPlayer gsyVideoPlayer) {
+    override fun resolveNormalVideoShow(oldF: View?, vp: ViewGroup?, gsyVideoPlayer: GSYVideoPlayer?) {
         if (gsyVideoPlayer != null) {
-            GSYVideoModel gsyVideoModel = mUriList.get(mPlayPosition);
-            if (!TextUtils.isEmpty(gsyVideoModel.getTitle()) && mTitleTextView != null) {
-                mTitleTextView.setText(gsyVideoModel.getTitle());
+            val gsyVideoModel = mUriList[mPlayPosition]
+            if (!TextUtils.isEmpty(gsyVideoModel.title) && mTitleTextView != null) {
+                mTitleTextView.text = gsyVideoModel.title
             }
         }
-        super.resolveNormalVideoShow(oldF, vp, gsyVideoPlayer);
+        super.resolveNormalVideoShow(oldF, vp, gsyVideoPlayer)
     }
 
-    @Override
-    public void onCompletion() {
-        releaseNetWorkState();
-        if (mPlayPosition < (mUriList.size())) {
-            return;
+    override fun onCompletion() {
+        releaseNetWorkState()
+        if (mPlayPosition < (mUriList.size)) {
+            return
         }
-        super.onCompletion();
+        super.onCompletion()
     }
 
-    @Override
-    public void onAutoCompletion() {
+    override fun onAutoCompletion() {
         if (playNext()) {
-            return;
+            return
         }
-        super.onAutoCompletion();
+        super.onAutoCompletion()
     }
 
-    @Override
-    protected void releaseVideos() {
+    override fun releaseVideos() {
         /// fix https://github.com/CarGuo/GSYVideoPlayer/issues/3892
-        super.onCompletion();
-        super.releaseVideos();
+        super.onCompletion()
+        super.releaseVideos()
     }
 
     /**
      * 开始状态视频播放，prepare时不执行  addTextureView();
      */
-    @Override
-    protected void prepareVideo() {
-        super.prepareVideo();
-        if (mHadPlay && mPlayPosition < (mUriList.size())) {
-            setViewShowState(mLoadingProgressBar, VISIBLE);
-            if (mLoadingProgressBar instanceof ENDownloadView) {
-                ((ENDownloadView) mLoadingProgressBar).start();
+    override fun prepareVideo() {
+        super.prepareVideo()
+        if (mHadPlay && mPlayPosition < (mUriList.size)) {
+            setViewShowState(mLoadingProgressBar, VISIBLE)
+            if (mLoadingProgressBar is ENDownloadView) {
+                (mLoadingProgressBar as? ENDownloadView)?.start()
             }
         }
     }
 
-    @Override
-    public void onPrepared() {
-        super.onPrepared();
+    override fun onPrepared() {
+        super.onPrepared()
     }
 
-    @Override
-    protected void changeUiToNormal() {
-        super.changeUiToNormal();
-        if (mHadPlay && mPlayPosition < (mUriList.size())) {
-            setViewShowState(mThumbImageViewLayout, GONE);
-            setViewShowState(mTopContainer, INVISIBLE);
-            setViewShowState(mBottomContainer, INVISIBLE);
-            setViewShowState(mStartButton, GONE);
-            setViewShowState(mLoadingProgressBar, VISIBLE);
-            setViewShowState(mBottomProgressBar, INVISIBLE);
-            setViewShowState(mLockScreen, GONE);
-            if (mLoadingProgressBar instanceof ENDownloadView) {
-                ((ENDownloadView) mLoadingProgressBar).start();
+    override fun changeUiToNormal() {
+        super.changeUiToNormal()
+        if (mHadPlay && mPlayPosition < (mUriList.size)) {
+            setViewShowState(mThumbImageViewLayout, GONE)
+            setViewShowState(mTopContainer, INVISIBLE)
+            setViewShowState(mBottomContainer, INVISIBLE)
+            setViewShowState(mStartButton, GONE)
+            setViewShowState(mLoadingProgressBar, VISIBLE)
+            setViewShowState(mBottomProgressBar, INVISIBLE)
+            setViewShowState(mLockScreen, GONE)
+            if (mLoadingProgressBar is ENDownloadView) {
+                (mLoadingProgressBar as? ENDownloadView)?.start()
             }
         }
     }
@@ -201,19 +179,19 @@ public class ListGSYVideoPlayer extends StandardGSYVideoPlayer {
      *
      * @return true表示还有下一集
      */
-    public boolean playNext() {
-        if (mPlayPosition < (mUriList.size() - 1)) {
-            mPlayPosition += 1;
-            GSYVideoModel gsyVideoModel = mUriList.get(mPlayPosition);
-            mSaveChangeViewTIme = 0;
-            setUp(mUriList, mCache, mPlayPosition, null, mMapHeadData, false);
-            if (!TextUtils.isEmpty(gsyVideoModel.getTitle()) && mTitleTextView != null) {
-                mTitleTextView.setText(gsyVideoModel.getTitle());
+    fun playNext(): Boolean {
+        if (mPlayPosition < (mUriList.size - 1)) {
+            mPlayPosition += 1
+            val gsyVideoModel = mUriList[mPlayPosition]
+            mSaveChangeViewTIme = 0
+            setUp(mUriList, mCache, mPlayPosition, null, mMapHeadData, false)
+            if (!TextUtils.isEmpty(gsyVideoModel.title) && mTitleTextView != null) {
+                mTitleTextView.text = gsyVideoModel.title
             }
-            startPlayLogic();
-            return true;
+            startPlayLogic()
+            return true
         }
-        return false;
+        return false
     }
 
 }

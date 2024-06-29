@@ -1,44 +1,35 @@
-package com.example.gsyvideoplayer.video;
+package com.example.gsyvideoplayer.video
 
-import android.content.Context;
-import android.util.AttributeSet;
-import android.widget.ImageView;
-
-import com.shuyu.gsyvideoplayer.R;
+import android.content.Context
+import android.util.AttributeSet
+import android.widget.ImageView
+import com.shuyu.gsyvideoplayer.R
 
 /**
  * Created by guoshuyu on 2017/4/1.
  * 使用正常播放按键和loading的播放器
  */
-public class NormalGSYVideoPlayer extends StandardGSYVideoPlayer {
+class NormalGSYVideoPlayer : StandardGSYVideoPlayer {
 
-    public NormalGSYVideoPlayer(Context context, Boolean fullFlag) {
-        super(context, fullFlag);
+    constructor(context: Context) : super(context)
+
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+
+    constructor(context: Context, fullFlag: Boolean) : super(context, fullFlag)
+
+    override fun getLayoutId(): Int {
+        return R.layout.video_layout_normal
     }
 
-    public NormalGSYVideoPlayer(Context context) {
-        super(context);
-    }
-
-    public NormalGSYVideoPlayer(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    @Override
-    public int getLayoutId() {
-        return R.layout.video_layout_normal;
-    }
-
-    @Override
-    protected void updateStartImage() {
-        if (mStartButton instanceof ImageView imageView) {
-            if (mCurrentState == CURRENT_STATE_PLAYING) {
-                imageView.setImageResource(R.drawable.video_click_pause_selector);
-            } else if (mCurrentState == CURRENT_STATE_ERROR) {
-                imageView.setImageResource(R.drawable.video_click_play_selector);
-            } else {
-                imageView.setImageResource(R.drawable.video_click_play_selector);
-            }
+    override fun updateStartImage() {
+        if (mStartButton is ImageView) {
+            (mStartButton as? ImageView)?.setImageResource(
+                when (mCurrentState) {
+                    CURRENT_STATE_PLAYING -> R.drawable.video_click_pause_selector
+                    CURRENT_STATE_ERROR -> R.drawable.video_click_play_selector
+                    else -> R.drawable.video_click_play_selector
+                }
+            )
         }
     }
 
