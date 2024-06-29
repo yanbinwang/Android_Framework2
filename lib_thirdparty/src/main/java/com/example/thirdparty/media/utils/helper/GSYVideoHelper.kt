@@ -100,7 +100,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
     /**
      * 设置播放路径，缩略图，是否自动开始播放
      */
-    fun setUrl(url: String, thumbUrl: String? = null, autoPlay: Boolean = false) {
+    fun setUrl(url: String, thumbUrl: String? = null, setUpLazy: Boolean = false) {
         //加载图片
         if (thumbUrl.isNullOrEmpty()) {
             ImageLoader.instance.displayFrame(mBinding?.ivThumb, url)
@@ -113,7 +113,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
             .setAutoFullWithSize(true)
             .setShowFullAnimation(false)
             .setNeedLockFull(false)
-//            .setSetUpLazy(autoPlay)
+//            .setSetUpLazy(setUpLazy)
             .setUrl(url)
             .setCacheWithPlay(false)
             .setVideoAllCallBack(object : GSYSampleCallBack() {
@@ -153,7 +153,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
 //                orientationUtils?.setEnable(!lock)
 //            }
             .build(player)
-        if (autoPlay) start()
+        if (setUpLazy) start()
     }
 
     /**

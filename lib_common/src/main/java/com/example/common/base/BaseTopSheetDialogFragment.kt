@@ -70,10 +70,10 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
+    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
+    protected val mActivityResult = activity.registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { AppDialog(mActivity) }
     protected val mPermission by lazy { PermissionHelper(mActivity) }
-    protected val mActivityResult = activity.registerResult { onActivityResultListener?.invoke(it) }
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     private var showTime = 0L
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving
