@@ -40,7 +40,7 @@ import kotlin.coroutines.CoroutineContext
  * https://github.com/CarGuo/GSYVideoPlayer/blob/master/doc/USE.md
  *
  * 使用FragmentManager来管理fragment的时候，其如果继承BaseLazyFragment，此时页面判断lifecycle的生命周期是没有意义的
- * 因为重写了onHiddenChanged，并且其添加了FragmentOwner注解，碰到此类需要有视频播放的情况，不传activity
+ * 因为重写了onHiddenChanged，并且其添加了FragmentOwner注解，碰到此类需要有视频播放的情况，不传activity，手动在对应生命周期内写播放器生命周期管控
  *
  * <activity
  *     android:name=".xxxxx"
@@ -81,7 +81,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
         player?.thumbImageView = mBinding?.root
         player?.titleTextView?.gone()
         player?.backButton?.gone()
-        if (!fullScreen) {
+        if (!fullScreen || null == mActivity) {
             player?.fullscreenButton?.gone()
         } else {
             //外部辅助的旋转，帮助全屏
