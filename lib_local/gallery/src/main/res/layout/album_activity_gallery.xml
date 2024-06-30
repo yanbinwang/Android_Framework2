@@ -32,6 +32,7 @@
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 style="@style/Album.Toolbar.Dark" />
+
         </com.google.android.material.appbar.AppBarLayout>
 
         <FrameLayout
@@ -68,6 +69,7 @@
                     android:text="@string/album_check"
                     android:textColor="@color/albumFontLight"
                     android:textSize="@dimen/album_sp_16" />
+
             </RelativeLayout>
 
             <FrameLayout
@@ -81,8 +83,11 @@
                     android:text="@string/album_item_unavailable"
                     android:textColor="@color/albumFontLight"
                     android:textSize="@dimen/album_sp_18" />
+
             </FrameLayout>
+
         </FrameLayout>
+
     </RelativeLayout>
 
 </FrameLayout>

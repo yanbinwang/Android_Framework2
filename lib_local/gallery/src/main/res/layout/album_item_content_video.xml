@@ -33,6 +33,7 @@
             <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/check_box"
                 style="@style/Album.CheckBox.WrapContent" />
+
         </com.yanzhenjie.album.widget.TransferLayout>
 
         <TextView
@@ -65,4 +66,5 @@
             android:textSize="@dimen/album_sp_16" />
 
     </FrameLayout>
+
 </com.yanzhenjie.album.widget.SquareCardView>

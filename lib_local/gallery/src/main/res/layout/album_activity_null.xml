@@ -61,4 +61,5 @@
             android:textColor="@color/albumFontLight" />
 
     </LinearLayout>
+
 </RelativeLayout>
