@@ -24,7 +24,6 @@ import com.yanzhenjie.album.api.ImageSingleWrapper;
  * Created by YanZhenjie on 2017/8/16.
  */
 public final class ImageChoice implements Choice<ImageMultipleWrapper, ImageSingleWrapper> {
-
     private Context mContext;
 
     public ImageChoice(Context context) {

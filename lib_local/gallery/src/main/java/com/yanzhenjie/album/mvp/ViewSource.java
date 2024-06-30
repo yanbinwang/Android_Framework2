@@ -36,7 +36,6 @@ import com.example.gallery.R;
  * Created by YanZhenjie on 2017/12/8.
  */
 class ViewSource extends Source<View> {
-
     private Toolbar mActionBar;
     private Drawable mActionBarIcon;
     private MenuClickListener mMenuItemSelectedListener;
@@ -154,4 +153,5 @@ class ViewSource extends Source<View> {
             }
         }
     }
+
 }

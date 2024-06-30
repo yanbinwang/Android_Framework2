@@ -97,9 +97,8 @@ class MyApplication : BaseApplication() {
     }
 
     private fun initAlbum() {
-        Album.initialize(AlbumConfig.newBuilder(this)
+        Album.initialize(AlbumConfig.newBuilder()
             .setAlbumLoader(GlideLoader()) //设置Album加载器。
-//            .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
             .build())
     }
 //

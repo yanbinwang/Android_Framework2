@@ -48,37 +48,30 @@ import java.lang.annotation.RetentionPolicy;
  * Created by Yan Zhenjie on 2016/10/23.
  */
 public final class Album {
-
     // All.
     public static final String KEY_INPUT_WIDGET = "KEY_INPUT_WIDGET";
     public static final String KEY_INPUT_CHECKED_LIST = "KEY_INPUT_CHECKED_LIST";
-
     // Album.
-    public static final String KEY_INPUT_FUNCTION = "KEY_INPUT_FUNCTION";
     public static final int FUNCTION_CHOICE_IMAGE = 0;
     public static final int FUNCTION_CHOICE_VIDEO = 1;
     public static final int FUNCTION_CHOICE_ALBUM = 2;
-
     public static final int FUNCTION_CAMERA_IMAGE = 0;
     public static final int FUNCTION_CAMERA_VIDEO = 1;
-
-    public static final String KEY_INPUT_CHOICE_MODE = "KEY_INPUT_CHOICE_MODE";
     public static final int MODE_MULTIPLE = 1;
     public static final int MODE_SINGLE = 2;
+    public static final String KEY_INPUT_FUNCTION = "KEY_INPUT_FUNCTION";
+    public static final String KEY_INPUT_CHOICE_MODE = "KEY_INPUT_CHOICE_MODE";
     public static final String KEY_INPUT_COLUMN_COUNT = "KEY_INPUT_COLUMN_COUNT";
     public static final String KEY_INPUT_ALLOW_CAMERA = "KEY_INPUT_ALLOW_CAMERA";
     public static final String KEY_INPUT_LIMIT_COUNT = "KEY_INPUT_LIMIT_COUNT";
-
     // Gallery.
     public static final String KEY_INPUT_CURRENT_POSITION = "KEY_INPUT_CURRENT_POSITION";
     public static final String KEY_INPUT_GALLERY_CHECKABLE = "KEY_INPUT_GALLERY_CHECKABLE";
-
     // Camera.
     public static final String KEY_INPUT_FILE_PATH = "KEY_INPUT_FILE_PATH";
     public static final String KEY_INPUT_CAMERA_QUALITY = "KEY_INPUT_CAMERA_QUALITY";
     public static final String KEY_INPUT_CAMERA_DURATION = "KEY_INPUT_CAMERA_DURATION";
     public static final String KEY_INPUT_CAMERA_BYTES = "KEY_INPUT_CAMERA_BYTES";
-
     // Filter.
     public static final String KEY_INPUT_FILTER_VISIBILITY = "KEY_INPUT_FILTER_VISIBILITY";
 
@@ -115,7 +108,7 @@ public final class Album {
      */
     public static AlbumConfig getAlbumConfig() {
         if (sAlbumConfig == null) {
-            sAlbumConfig = AlbumConfig.newBuilder(null).build();
+            sAlbumConfig = AlbumConfig.newBuilder().build();
         }
         return sAlbumConfig;
     }
@@ -287,4 +280,5 @@ public final class Album {
     public static BasicGalleryWrapper<GalleryAlbumWrapper, AlbumFile, String, AlbumFile> galleryAlbum(Fragment fragment) {
         return new GalleryAlbumWrapper(fragment.getContext());
     }
+
 }

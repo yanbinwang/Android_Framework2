@@ -27,7 +27,6 @@ import java.lang.annotation.RetentionPolicy;
  * Created by YanZhenjie on 2017/8/15.
  */
 public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
-
     public static final int TYPE_IMAGE = 1;
     public static final int TYPE_VIDEO = 2;
 

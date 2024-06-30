@@ -40,4 +40,5 @@ public class ImageCameraWrapper extends BasicCameraWrapper<ImageCameraWrapper> {
         intent.putExtra(Album.KEY_INPUT_FILE_PATH, mFilePath);
         mContext.startActivity(intent);
     }
+
 }

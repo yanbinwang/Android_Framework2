@@ -30,7 +30,6 @@ import java.util.ArrayList;
  * Created by YanZhenjie on 2017/8/16.
  */
 public final class ImageMultipleWrapper extends BasicChoiceWrapper<ImageMultipleWrapper, ArrayList<AlbumFile>, String, ArrayList<AlbumFile>> {
-
     @IntRange(from = 1, to = Integer.MAX_VALUE)
     private int mLimitCount = Integer.MAX_VALUE;
 
@@ -43,7 +42,7 @@ public final class ImageMultipleWrapper extends BasicChoiceWrapper<ImageMultiple
      *
      * @param checked the data list.
      */
-    public final ImageMultipleWrapper checkedList(ArrayList<AlbumFile> checked) {
+    public ImageMultipleWrapper checkedList(ArrayList<AlbumFile> checked) {
         this.mChecked = checked;
         return this;
     }
@@ -67,7 +66,6 @@ public final class ImageMultipleWrapper extends BasicChoiceWrapper<ImageMultiple
         Intent intent = new Intent(mContext, AlbumActivity.class);
         intent.putExtra(Album.KEY_INPUT_WIDGET, mWidget);
         intent.putParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST, mChecked);
-
         intent.putExtra(Album.KEY_INPUT_FUNCTION, Album.FUNCTION_CHOICE_IMAGE);
         intent.putExtra(Album.KEY_INPUT_CHOICE_MODE, Album.MODE_MULTIPLE);
         intent.putExtra(Album.KEY_INPUT_COLUMN_COUNT, mColumnCount);
@@ -76,4 +74,5 @@ public final class ImageMultipleWrapper extends BasicChoiceWrapper<ImageMultiple
         intent.putExtra(Album.KEY_INPUT_FILTER_VISIBILITY, mFilterVisibility);
         mContext.startActivity(intent);
     }
+
 }

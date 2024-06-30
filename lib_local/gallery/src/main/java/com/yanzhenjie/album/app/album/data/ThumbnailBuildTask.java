@@ -43,7 +43,6 @@ public class ThumbnailBuildTask extends AsyncTask<Void, Void, ArrayList<AlbumFil
 
     private ArrayList<AlbumFile> mAlbumFiles;
     private Callback mCallback;
-
     private ThumbnailBuilder mThumbnailBuilder;
 
     public ThumbnailBuildTask(Context context, ArrayList<AlbumFile> albumFiles, Callback callback) {
@@ -74,4 +73,5 @@ public class ThumbnailBuildTask extends AsyncTask<Void, Void, ArrayList<AlbumFil
     protected void onPostExecute(ArrayList<AlbumFile> albumFiles) {
         mCallback.onThumbnailCallback(albumFiles);
     }
+
 }

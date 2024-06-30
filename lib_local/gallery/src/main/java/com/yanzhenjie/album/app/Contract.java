@@ -39,12 +39,10 @@ public final class Contract {
          * Click the folder switch.
          */
         void clickFolderSwitch();
-
         /**
          * Click camera.
          */
         void clickCamera(View v);
-
         /**
          * Try to check item.
          *
@@ -52,7 +50,6 @@ public final class Contract {
          * @param position position of item.
          */
         void tryCheckItem(CompoundButton button, int position);
-
         /**
          * Try to preview item.
          *
@@ -64,7 +61,6 @@ public final class Contract {
          * Preview the checked items.
          */
         void tryPreviewChecked();
-
         /**
          * Complete.
          */
@@ -150,6 +146,7 @@ public final class Contract {
          * Take a video.
          */
         void takeVideo();
+
     }
 
     public static abstract class NullView extends BaseView<NullPresenter> {
@@ -207,6 +204,7 @@ public final class Contract {
          * Complete.
          */
         void complete();
+
     }
 
     public static abstract class GalleryView<Data> extends BaseView<GalleryPresenter> {
@@ -278,6 +276,7 @@ public final class Contract {
          * @param text text.
          */
         public abstract void setCompleteText(String text);
+
     }
 
 }

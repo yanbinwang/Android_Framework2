@@ -24,7 +24,6 @@ import com.yanzhenjie.album.api.AlbumSingleWrapper;
  * Created by YanZhenjie on 2017/8/16.
  */
 public final class AlbumChoice implements Choice<AlbumMultipleWrapper, AlbumSingleWrapper> {
-
     private Context mContext;
 
     public AlbumChoice(Context context) {
@@ -40,4 +39,5 @@ public final class AlbumChoice implements Choice<AlbumMultipleWrapper, AlbumSing
     public AlbumSingleWrapper singleChoice() {
         return new AlbumSingleWrapper(mContext);
     }
+
 }

@@ -24,4 +24,5 @@ public interface Bye {
      * Finish.
      */
     void bye();
+
 }

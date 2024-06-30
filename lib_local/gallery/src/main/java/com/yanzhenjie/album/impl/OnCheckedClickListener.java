@@ -29,4 +29,5 @@ public interface OnCheckedClickListener {
      * @param position the position in the list.
      */
     void onCheckedClick(CompoundButton button, int position);
+
 }

@@ -60,4 +60,5 @@ public class PathConvertTask extends AsyncTask<String, Void, AlbumFile> {
     protected void onPostExecute(AlbumFile file) {
         mCallback.onConvertCallback(file);
     }
+
 }

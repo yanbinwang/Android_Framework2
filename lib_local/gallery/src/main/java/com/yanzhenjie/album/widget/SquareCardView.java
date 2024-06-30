@@ -27,7 +27,6 @@ import androidx.cardview.widget.CardView;
  * Created by YanZhenjie on 2018/4/18.
  */
 public class SquareCardView extends CardView {
-
     private Configuration mConfig;
 
     public SquareCardView(@NonNull Context context) {
@@ -60,4 +59,5 @@ public class SquareCardView extends CardView {
             }
         }
     }
+
 }

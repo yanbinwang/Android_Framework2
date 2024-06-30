@@ -42,4 +42,5 @@ public class FixViewPager extends ViewPager {
             return false;
         }
     }
+
 }

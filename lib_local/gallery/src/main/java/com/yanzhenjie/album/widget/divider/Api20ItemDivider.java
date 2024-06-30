@@ -30,7 +30,6 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
  * Created by YanZhenjie on 2017/8/14.
  */
 public class Api20ItemDivider extends Divider {
-
     private final int mWidth;
     private final int mHeight;
     private final Drawer mDrawer;
@@ -61,7 +60,6 @@ public class Api20ItemDivider extends Divider {
             int position = parent.getChildLayoutPosition(view);
             int spanCount = getSpanCount(layoutManager);
             int childCount = layoutManager.getItemCount();
-
             if (orientation == RecyclerView.VERTICAL) {
                 offsetVertical(outRect, position, spanCount, childCount);
             } else {
@@ -77,7 +75,6 @@ public class Api20ItemDivider extends Divider {
         boolean lastRaw = isLastRaw(RecyclerView.HORIZONTAL, position, spanCount, childCount);
         boolean firstColumn = isFirstColumn(RecyclerView.HORIZONTAL, position, spanCount, childCount);
         boolean lastColumn = isLastColumn(RecyclerView.HORIZONTAL, position, spanCount, childCount);
-
         if (spanCount == 1) {
             if (firstColumn && lastColumn) { // xxxx
                 outRect.set(0, 0, 0, 0);
@@ -116,7 +113,6 @@ public class Api20ItemDivider extends Divider {
         boolean lastRaw = isLastRaw(RecyclerView.VERTICAL, position, spanCount, childCount);
         boolean firstColumn = isFirstColumn(RecyclerView.VERTICAL, position, spanCount, childCount);
         boolean lastColumn = isLastColumn(RecyclerView.VERTICAL, position, spanCount, childCount);
-
         if (spanCount == 1) {
             if (firstRaw && lastRaw) { // xxxx
                 outRect.set(0, 0, 0, 0);
@@ -270,7 +266,6 @@ public class Api20ItemDivider extends Divider {
         boolean lastRaw = isLastRaw(RecyclerView.HORIZONTAL, position, spanCount, childCount);
         boolean firstColumn = isFirstColumn(RecyclerView.HORIZONTAL, position, spanCount, childCount);
         boolean lastColumn = isLastColumn(RecyclerView.HORIZONTAL, position, spanCount, childCount);
-
         if (spanCount == 1) {
             if (firstRaw && lastColumn) { // xxxx
                 // Nothing.
@@ -325,7 +320,6 @@ public class Api20ItemDivider extends Divider {
         boolean lastRaw = isLastRaw(RecyclerView.VERTICAL, position, spanCount, childCount);
         boolean firstColumn = isFirstColumn(RecyclerView.VERTICAL, position, spanCount, childCount);
         boolean lastColumn = isLastColumn(RecyclerView.VERTICAL, position, spanCount, childCount);
-
         if (spanCount == 1) {
             if (firstRaw && lastRaw) { // xxxx
                 // Nothing.
@@ -384,4 +378,5 @@ public class Api20ItemDivider extends Divider {
     public int getWidth() {
         return mWidth;
     }
+
 }

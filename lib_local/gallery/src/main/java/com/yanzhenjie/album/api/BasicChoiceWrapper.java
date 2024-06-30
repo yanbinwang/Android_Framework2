@@ -25,14 +25,11 @@ import com.yanzhenjie.album.Filter;
  * Created by YanZhenjie on 2017/8/16.
  */
 public abstract class BasicChoiceWrapper<Returner extends BasicChoiceWrapper, Result, Cancel, Checked> extends BasicAlbumWrapper<Returner, Result, Cancel, Checked> {
-
-    boolean mHasCamera = true;
     int mColumnCount = 2;
-
+    boolean mHasCamera = true;
+    boolean mFilterVisibility = true;
     Filter<Long> mSizeFilter;
     Filter<String> mMimeTypeFilter;
-
-    boolean mFilterVisibility = true;
 
     BasicChoiceWrapper(Context context) {
         super(context);

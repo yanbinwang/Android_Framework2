@@ -24,7 +24,6 @@ import android.widget.ImageView;
 
 
 public interface IPhotoView {
-
     float DEFAULT_MAX_SCALE = 3.0f;
     float DEFAULT_MID_SCALE = 1.75f;
     float DEFAULT_MIN_SCALE = 1.0f;
@@ -266,4 +265,5 @@ public interface IPhotoView {
      * @param onSingleFlingListener OnSingleFlingListener instance
      */
     void setOnSingleFlingListener(PhotoViewAttacher.OnSingleFlingListener onSingleFlingListener);
+
 }

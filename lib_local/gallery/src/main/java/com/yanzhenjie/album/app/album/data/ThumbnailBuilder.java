@@ -40,11 +40,9 @@ import java.util.HashMap;
  * Created by YanZhenjie on 2017/10/15.
  */
 public class ThumbnailBuilder {
-
+    private File mCacheDir;
     private static final int THUMBNAIL_SIZE = 360;
     private static final int THUMBNAIL_QUALITY = 80;
-
-    private File mCacheDir;
 
     public ThumbnailBuilder(Context context) {
         this.mCacheDir = AlbumUtils.getAlbumRootPath(context);
@@ -62,23 +60,17 @@ public class ThumbnailBuilder {
     @Nullable
     public String createThumbnailForImage(String imagePath) {
         if (TextUtils.isEmpty(imagePath)) return null;
-
         File inFile = new File(imagePath);
         if (!inFile.exists()) return null;
-
         File thumbnailFile = randomPath(imagePath);
         if (thumbnailFile.exists()) return thumbnailFile.getAbsolutePath();
-
         Bitmap inBitmap = readImageFromPath(imagePath, THUMBNAIL_SIZE, THUMBNAIL_SIZE);
         if (inBitmap == null) return null;
-
         ByteArrayOutputStream compressStream = new ByteArrayOutputStream();
         inBitmap.compress(Bitmap.CompressFormat.JPEG, THUMBNAIL_QUALITY, compressStream);
-
         try {
             compressStream.close();
             thumbnailFile.createNewFile();
-
             FileOutputStream writeStream = new FileOutputStream(thumbnailFile);
             writeStream.write(compressStream.toByteArray());
             writeStream.flush();
@@ -99,14 +91,12 @@ public class ThumbnailBuilder {
     @Nullable
     public String createThumbnailForVideo(String videoPath) {
         if (TextUtils.isEmpty(videoPath)) return null;
-
         File thumbnailFile = randomPath(videoPath);
         if (thumbnailFile.exists()) return thumbnailFile.getAbsolutePath();
-
         try {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             if (URLUtil.isNetworkUrl(videoPath)) {
-                retriever.setDataSource(videoPath, new HashMap<String, String>());
+                retriever.setDataSource(videoPath, new HashMap<>());
             } else {
                 retriever.setDataSource(videoPath);
             }
@@ -140,10 +130,8 @@ public class ThumbnailBuilder {
                 options.inJustDecodeBounds = true;
                 BitmapFactory.decodeStream(inputStream, null, options);
                 inputStream.close();
-
                 options.inJustDecodeBounds = false;
                 options.inSampleSize = computeSampleSize(options, width, height);
-
                 Bitmap sampledBitmap = null;
                 boolean attemptSuccess = false;
                 while (!attemptSuccess) {
@@ -156,7 +144,6 @@ public class ThumbnailBuilder {
                     }
                     inputStream.close();
                 }
-
                 String lowerPath = imagePath.toLowerCase();
                 if (lowerPath.endsWith(".jpg") || lowerPath.endsWith(".jpeg")) {
                     int degrees = computeDegree(imagePath);
@@ -209,4 +196,5 @@ public class ThumbnailBuilder {
             return 0;
         }
     }
+
 }

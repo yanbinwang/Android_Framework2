@@ -35,20 +35,15 @@ import java.util.Map;
  * Created by YanZhenjie on 2017/8/16.
  */
 public class GalleryActivity extends BaseActivity implements Contract.GalleryPresenter {
-
     public static Action<ArrayList<String>> sResult;
     public static Action<String> sCancel;
-
     public static ItemAction<String> sClick;
     public static ItemAction<String> sLongClick;
-
-    private Widget mWidget;
-    private ArrayList<String> mPathList;
     private int mCurrentPosition;
     private boolean mCheckable;
-
+    private ArrayList<String> mPathList;
     private Map<String, Boolean> mCheckedMap;
-
+    private Widget mWidget;
     private Contract.GalleryView<String> mView;
 
     @Override
@@ -56,24 +51,20 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_activity_gallery);
         mView = new GalleryView<>(this, this);
-
         Bundle argument = getIntent().getExtras();
         assert argument != null;
         mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
         mPathList = argument.getStringArrayList(Album.KEY_INPUT_CHECKED_LIST);
         mCurrentPosition = argument.getInt(Album.KEY_INPUT_CURRENT_POSITION);
         mCheckable = argument.getBoolean(Album.KEY_INPUT_GALLERY_CHECKABLE);
-
         mCheckedMap = new HashMap<>();
         for (String path : mPathList) mCheckedMap.put(path, true);
-
         mView.setTitle(mWidget.getTitle());
         mView.setupViews(mWidget, mCheckable);
         if (!mCheckable) mView.setBottomDisplay(false);
         mView.setLayerDisplay(false);
         mView.setDurationDisplay(false);
         mView.bindData(mPathList);
-
         if (mCurrentPosition == 0) {
             onCurrentChanged(mCurrentPosition);
         } else {
@@ -87,7 +78,6 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         for (Map.Entry<String, Boolean> entry : mCheckedMap.entrySet()) {
             if (entry.getValue()) checkedCount += 1;
         }
-
         String completeText = getString(R.string.album_menu_finish);
         completeText += "(" + checkedCount + " / " + mPathList.size() + ")";
         mView.setCompleteText(completeText);
@@ -111,7 +101,6 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     public void onCurrentChanged(int position) {
         mCurrentPosition = position;
         mView.setSubTitle(position + 1 + " / " + mPathList.size());
-
         if (mCheckable) mView.setChecked(mCheckedMap.get(mPathList.get(position)));
     }
 
@@ -119,7 +108,6 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     public void onCheckedChanged() {
         String path = mPathList.get(mCurrentPosition);
         mCheckedMap.put(path, !mCheckedMap.get(path));
-
         setCheckedCount();
     }
 
@@ -149,4 +137,5 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         sLongClick = null;
         super.finish();
     }
+
 }

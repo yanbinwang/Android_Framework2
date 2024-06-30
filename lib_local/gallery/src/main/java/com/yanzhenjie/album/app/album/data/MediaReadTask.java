@@ -101,4 +101,5 @@ public class MediaReadTask extends AsyncTask<Void, Void, MediaReadTask.ResultWra
     protected void onPostExecute(ResultWrapper wrapper) {
         mCallback.onScanCallback(wrapper.mAlbumFolders, wrapper.mAlbumFiles);
     }
+
 }

@@ -31,7 +31,6 @@ import java.util.ArrayList;
  * Created by YanZhenjie on 2017/8/16.
  */
 public final class VideoMultipleWrapper extends BasicChoiceVideoWrapper<VideoMultipleWrapper, ArrayList<AlbumFile>, String, ArrayList<AlbumFile>> {
-
     private int mLimitCount = Integer.MAX_VALUE;
     private Filter<Long> mDurationFilter;
 
@@ -44,7 +43,7 @@ public final class VideoMultipleWrapper extends BasicChoiceVideoWrapper<VideoMul
      *
      * @param checked the data list.
      */
-    public final VideoMultipleWrapper checkedList(ArrayList<AlbumFile> checked) {
+    public VideoMultipleWrapper checkedList(ArrayList<AlbumFile> checked) {
         this.mChecked = checked;
         return this;
     }
@@ -79,7 +78,6 @@ public final class VideoMultipleWrapper extends BasicChoiceVideoWrapper<VideoMul
         Intent intent = new Intent(mContext, AlbumActivity.class);
         intent.putExtra(Album.KEY_INPUT_WIDGET, mWidget);
         intent.putParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST, mChecked);
-
         intent.putExtra(Album.KEY_INPUT_FUNCTION, Album.FUNCTION_CHOICE_VIDEO);
         intent.putExtra(Album.KEY_INPUT_CHOICE_MODE, Album.MODE_MULTIPLE);
         intent.putExtra(Album.KEY_INPUT_COLUMN_COUNT, mColumnCount);
@@ -91,4 +89,5 @@ public final class VideoMultipleWrapper extends BasicChoiceVideoWrapper<VideoMul
         intent.putExtra(Album.KEY_INPUT_CAMERA_BYTES, mLimitBytes);
         mContext.startActivity(intent);
     }
+
 }

@@ -51,4 +51,5 @@ public class ColorProgressBar extends ProgressBar {
         drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
         setIndeterminateDrawable(drawable);
     }
+
 }

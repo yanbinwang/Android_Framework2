@@ -27,11 +27,10 @@ import java.util.ArrayList;
  * Created by YanZhenjie on 2017/8/19.
  */
 public abstract class BasicGalleryWrapper<Returner extends BasicGalleryWrapper, Result, Cancel, Checked> extends BasicAlbumWrapper<Returner, ArrayList<Result>, Cancel, ArrayList<Checked>> {
-
-    ItemAction<Checked> mItemClick;
-    ItemAction<Checked> mItemLongClick;
     int mCurrentPosition;
     boolean mCheckable;
+    ItemAction<Checked> mItemClick;
+    ItemAction<Checked> mItemLongClick;
 
     public BasicGalleryWrapper(Context context) {
         super(context);
@@ -86,4 +85,5 @@ public abstract class BasicGalleryWrapper<Returner extends BasicGalleryWrapper, 
         this.mCheckable = checkable;
         return (Returner) this;
     }
+
 }

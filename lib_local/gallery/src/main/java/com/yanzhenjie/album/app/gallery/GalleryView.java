@@ -43,11 +43,8 @@ import java.util.List;
  * Created by YanZhenjie on 2018/4/9.
  */
 public class GalleryView<Data> extends Contract.GalleryView<Data> implements View.OnClickListener {
-
     private Activity mActivity;
-
     private MenuItem mCompleteMenu;
-
     private ViewPager mViewPager;
     private RelativeLayout mLayoutBottom;
     private TextView mTvDuration;
@@ -62,7 +59,6 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
         this.mTvDuration = activity.findViewById(R.id.tv_duration);
         this.mCheckBox = activity.findViewById(R.id.check_box);
         this.mLayoutLayer = activity.findViewById(R.id.layout_layer);
-
         this.mCheckBox.setOnClickListener(this);
         this.mLayoutLayer.setOnClickListener(this);
     }
@@ -88,7 +84,6 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
         SystemBar.invasionNavigationBar(mActivity);
         SystemBar.setStatusBarColor(mActivity, Color.TRANSPARENT);
         SystemBar.setNavigationBarColor(mActivity, getColor(R.color.albumSheetBottom));
-
         setHomeAsUpIndicator(R.drawable.album_ic_back_white);
         if (!checkable) {
             mCompleteMenu.setVisible(false);
@@ -98,7 +93,6 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
             mCheckBox.setSupportButtonTintList(itemSelector);
             mCheckBox.setTextColor(itemSelector);
         }
-
         mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
@@ -109,28 +103,18 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
 
     @Override
     public void bindData(List<Data> dataList) {
-        PreviewAdapter<Data> adapter = new PreviewAdapter<Data>(getContext(), dataList) {
+        PreviewAdapter<Data> adapter = new PreviewAdapter<>(getContext(), dataList) {
             @Override
             protected void loadPreview(ImageView imageView, Data item, int position) {
                 if (item instanceof String) {
-                    Album.getAlbumConfig().getAlbumLoader().load(imageView, (String)item);
+                    Album.getAlbumConfig().getAlbumLoader().load(imageView, (String) item);
                 } else if (item instanceof AlbumFile) {
-                    Album.getAlbumConfig().getAlbumLoader().load(imageView, (AlbumFile)item);
+                    Album.getAlbumConfig().getAlbumLoader().load(imageView, (AlbumFile) item);
                 }
             }
         };
-        adapter.setItemClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getPresenter().clickItem(mViewPager.getCurrentItem());
-            }
-        });
-        adapter.setItemLongClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getPresenter().longClickItem(mViewPager.getCurrentItem());
-            }
-        });
+        adapter.setItemClickListener(v -> getPresenter().clickItem(mViewPager.getCurrentItem()));
+        adapter.setItemLongClickListener(v -> getPresenter().longClickItem(mViewPager.getCurrentItem()));
         if (adapter.getCount() > 3) {
             mViewPager.setOffscreenPageLimit(3);
         } else if (adapter.getCount() > 2) {
@@ -182,4 +166,5 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
             // Intercept click events.
         }
     }
+
 }

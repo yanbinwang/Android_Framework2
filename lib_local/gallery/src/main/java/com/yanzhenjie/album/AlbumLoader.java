@@ -22,7 +22,6 @@ import android.widget.ImageView;
  * Created by Yan Zhenjie on 2017/3/31.
  */
 public interface AlbumLoader {
-
     AlbumLoader DEFAULT = new AlbumLoader() {
         @Override
         public void load(ImageView imageView, AlbumFile albumFile) {

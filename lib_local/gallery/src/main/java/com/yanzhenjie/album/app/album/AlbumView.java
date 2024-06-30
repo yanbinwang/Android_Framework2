@@ -44,35 +44,26 @@ import com.yanzhenjie.album.widget.divider.Api21ItemDivider;
  * Created by YanZhenjie on 2018/4/7.
  */
 class AlbumView extends Contract.AlbumView implements View.OnClickListener {
-
     private Activity mActivity;
-
     private Toolbar mToolbar;
     private MenuItem mCompleteMenu;
-
     private RecyclerView mRecyclerView;
     private GridLayoutManager mLayoutManager;
     private AlbumAdapter mAdapter;
-
     private Button mBtnPreview;
     private Button mBtnSwitchFolder;
-
     private LinearLayout mLayoutLoading;
     private ColorProgressBar mProgressBar;
 
     public AlbumView(Activity activity, Contract.AlbumPresenter presenter) {
         super(activity, presenter);
         this.mActivity = activity;
-
         this.mToolbar = activity.findViewById(R.id.toolbar);
         this.mRecyclerView = activity.findViewById(R.id.recycler_view);
-
         this.mBtnSwitchFolder = activity.findViewById(R.id.btn_switch_dir);
         this.mBtnPreview = activity.findViewById(R.id.btn_preview);
-
         this.mLayoutLoading = activity.findViewById(R.id.layout_loading);
         this.mProgressBar = activity.findViewById(R.id.progress_bar);
-
         this.mToolbar.setOnClickListener(new DoubleClickWrapper(this));
         this.mBtnSwitchFolder.setOnClickListener(this);
         this.mBtnPreview.setOnClickListener(this);
@@ -95,7 +86,6 @@ class AlbumView extends Contract.AlbumView implements View.OnClickListener {
     @Override
     public void setupViews(Widget widget, int column, boolean hasCamera, int choiceMode) {
         SystemBar.setNavigationBarColor(mActivity, widget.getNavigationBarColor());
-
         int statusBarColor = widget.getStatusBarColor();
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
             if (SystemBar.setStatusBarDarkFont(mActivity, true)) {
@@ -103,13 +93,10 @@ class AlbumView extends Contract.AlbumView implements View.OnClickListener {
             } else {
                 SystemBar.setStatusBarColor(mActivity, getColor(R.color.albumColorPrimaryBlack));
             }
-
             mProgressBar.setColorFilter(getColor(R.color.albumLoadingDark));
-
             Drawable navigationIcon = getDrawable(R.drawable.album_ic_back_white);
             AlbumUtils.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
             setHomeAsUpIndicator(navigationIcon);
-
             Drawable completeIcon = mCompleteMenu.getIcon();
             AlbumUtils.setDrawableTint(completeIcon, getColor(R.color.albumIconDark));
             mCompleteMenu.setIcon(completeIcon);
@@ -119,7 +106,6 @@ class AlbumView extends Contract.AlbumView implements View.OnClickListener {
             setHomeAsUpIndicator(R.drawable.album_ic_back_white);
         }
         mToolbar.setBackgroundColor(widget.getToolBarColor());
-
         Configuration config = mActivity.getResources().getConfiguration();
         mLayoutManager = new GridLayoutManager(getContext(), column, getOrientation(config), false);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -168,7 +154,6 @@ class AlbumView extends Contract.AlbumView implements View.OnClickListener {
     @Override
     public void bindAlbumFolder(AlbumFolder albumFolder) {
         mBtnSwitchFolder.setText(albumFolder.getName());
-
         mAdapter.setAlbumFiles(albumFolder.getAlbumFiles());
         mAdapter.notifyDataSetChanged();
         mRecyclerView.scrollToPosition(0);
@@ -199,4 +184,5 @@ class AlbumView extends Contract.AlbumView implements View.OnClickListener {
             getPresenter().tryPreviewChecked();
         }
     }
+
 }

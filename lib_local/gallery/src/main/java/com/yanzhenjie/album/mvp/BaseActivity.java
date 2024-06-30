@@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.util.AlbumUtils;
 
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ import java.util.Locale;
  * Created by YanZhenjie on 2018/4/6.
  */
 public class BaseActivity extends AppCompatActivity implements Bye {
-
     public static final String[] PERMISSION_TAKE_PICTURE = {"android.permission.CAMERA", "android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE"};
     public static final String[] PERMISSION_TAKE_VIDEO = {"android.permission.CAMERA", "android.permission.RECORD_AUDIO", "android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE"};
     public static final String[] PERMISSION_STORAGE = {"android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE"};
@@ -44,7 +42,7 @@ public class BaseActivity extends AppCompatActivity implements Bye {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Locale locale = Album.getAlbumConfig().getLocale();
+        Locale locale = Locale.CHINA;
         AlbumUtils.applyLanguageForContext(this, locale);
     }
 
@@ -100,4 +98,5 @@ public class BaseActivity extends AppCompatActivity implements Bye {
         }
         return true;
     }
+
 }

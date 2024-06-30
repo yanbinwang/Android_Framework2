@@ -22,6 +22,7 @@ import android.content.Context;
  * Created by YanZhenjie on 2018/4/17.
  */
 public interface ItemAction<T> {
+
     /**
      * When the action responds.
      *
@@ -29,4 +30,5 @@ public interface ItemAction<T> {
      * @param item    item.
      */
     void onAction(Context context, T item);
+
 }

@@ -45,4 +45,5 @@ public class GalleryAlbumWrapper extends BasicGalleryWrapper<GalleryAlbumWrapper
         intent.putExtra(Album.KEY_INPUT_GALLERY_CHECKABLE, mCheckable);
         mContext.startActivity(intent);
     }
+
 }

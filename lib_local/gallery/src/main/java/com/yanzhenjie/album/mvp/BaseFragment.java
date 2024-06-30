@@ -29,6 +29,7 @@ import androidx.fragment.app.Fragment;
  * Created by YanZhenjie on 2018/4/7.
  */
 public class BaseFragment extends Fragment implements Bye {
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -49,4 +50,5 @@ public class BaseFragment extends Fragment implements Bye {
         Activity activity = getActivity();
         if (activity != null) activity.finish();
     }
+
 }

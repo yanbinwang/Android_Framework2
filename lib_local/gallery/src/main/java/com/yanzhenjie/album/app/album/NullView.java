@@ -35,9 +35,7 @@ import com.yanzhenjie.album.util.SystemBar;
  * Created by YanZhenjie on 2018/4/7.
  */
 class NullView extends Contract.NullView implements View.OnClickListener {
-
     private Activity mActivity;
-
     private Toolbar mToolbar;
     private TextView mTvMessage;
     private AppCompatButton mBtnTakeImage;
@@ -50,7 +48,6 @@ class NullView extends Contract.NullView implements View.OnClickListener {
         this.mTvMessage = activity.findViewById(R.id.tv_message);
         this.mBtnTakeImage = activity.findViewById(R.id.btn_camera_image);
         this.mBtnTakeVideo = activity.findViewById(R.id.btn_camera_video);
-
         this.mBtnTakeImage.setOnClickListener(this);
         this.mBtnTakeVideo.setOnClickListener(this);
     }
@@ -59,7 +56,6 @@ class NullView extends Contract.NullView implements View.OnClickListener {
     @Override
     public void setupViews(Widget widget) {
         mToolbar.setBackgroundColor(widget.getToolBarColor());
-
         int statusBarColor = widget.getStatusBarColor();
         Drawable navigationIcon = getDrawable(R.drawable.album_ic_back_white);
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
@@ -68,7 +64,6 @@ class NullView extends Contract.NullView implements View.OnClickListener {
             } else {
                 SystemBar.setStatusBarColor(mActivity, getColor(R.color.albumColorPrimaryBlack));
             }
-
             AlbumUtils.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
             setHomeAsUpIndicator(navigationIcon);
         } else {
@@ -76,7 +71,6 @@ class NullView extends Contract.NullView implements View.OnClickListener {
             setHomeAsUpIndicator(navigationIcon);
         }
         SystemBar.setNavigationBarColor(mActivity, widget.getNavigationBarColor());
-
         Widget.ButtonStyle buttonStyle = widget.getButtonStyle();
         ColorStateList buttonSelector = buttonStyle.getButtonSelector();
         mBtnTakeImage.setSupportBackgroundTintList(buttonSelector);
@@ -85,7 +79,6 @@ class NullView extends Contract.NullView implements View.OnClickListener {
             Drawable drawable = mBtnTakeImage.getCompoundDrawables()[0];
             AlbumUtils.setDrawableTint(drawable, getColor(R.color.albumIconDark));
             mBtnTakeImage.setCompoundDrawables(drawable, null, null, null);
-
             drawable = mBtnTakeVideo.getCompoundDrawables()[0];
             AlbumUtils.setDrawableTint(drawable, getColor(R.color.albumIconDark));
             mBtnTakeVideo.setCompoundDrawables(drawable, null, null, null);
@@ -118,4 +111,5 @@ class NullView extends Contract.NullView implements View.OnClickListener {
             getPresenter().takeVideo();
         }
     }
+
 }

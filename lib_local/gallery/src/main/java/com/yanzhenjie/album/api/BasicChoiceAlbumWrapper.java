@@ -23,14 +23,13 @@ import androidx.annotation.IntRange;
  * Created by YanZhenjie on 2017/11/8.
  */
 public abstract class BasicChoiceAlbumWrapper<Returner extends BasicChoiceAlbumWrapper, Result, Cancel, Checked> extends BasicChoiceWrapper<Returner, Result, Cancel, Checked> {
+    int mQuality = 1;
+    long mLimitDuration = Integer.MAX_VALUE;
+    long mLimitBytes = Integer.MAX_VALUE;
 
     BasicChoiceAlbumWrapper(Context context) {
         super(context);
     }
-
-    int mQuality = 1;
-    long mLimitDuration = Integer.MAX_VALUE;
-    long mLimitBytes = Integer.MAX_VALUE;
 
     /**
      * Set the quality when taking video, should be 0 or 1. Currently value 0 means low quality, and value 1 means high quality.
@@ -61,4 +60,5 @@ public abstract class BasicChoiceAlbumWrapper<Returner extends BasicChoiceAlbumW
         this.mLimitBytes = bytes;
         return (Returner) this;
     }
+
 }

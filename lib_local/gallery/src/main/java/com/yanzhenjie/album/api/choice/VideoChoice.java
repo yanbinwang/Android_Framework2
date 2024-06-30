@@ -24,7 +24,6 @@ import com.yanzhenjie.album.api.VideoSingleWrapper;
  * Created by YanZhenjie on 2017/8/16.
  */
 public final class VideoChoice implements Choice<VideoMultipleWrapper, VideoSingleWrapper> {
-
     private Context mContext;
 
     public VideoChoice(Context context) {

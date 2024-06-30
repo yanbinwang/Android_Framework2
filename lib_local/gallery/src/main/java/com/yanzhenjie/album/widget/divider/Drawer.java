@@ -23,7 +23,6 @@ import android.view.View;
  * Created by YanZhenjie on 2018/4/20.
  */
 class Drawer {
-
     private final Drawable mDivider;
     private final int mWidth;
     private final int mHeight;
@@ -81,4 +80,5 @@ class Drawer {
         mDivider.setBounds(left, top, right, bottom);
         mDivider.draw(c);
     }
+
 }

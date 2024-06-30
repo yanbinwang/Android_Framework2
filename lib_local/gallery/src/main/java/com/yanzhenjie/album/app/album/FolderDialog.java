@@ -40,12 +40,10 @@ import java.util.List;
  * Created by Yan Zhenjie on 2016/10/18.
  */
 public class FolderDialog extends BottomSheetDialog {
-
+    private int mCurrentPosition = 0;
     private Widget mWidget;
     private FolderAdapter mFolderAdapter;
     private List<AlbumFolder> mAlbumFolders;
-
-    private int mCurrentPosition = 0;
     private OnItemClickListener mItemClickListener;
 
     public FolderDialog(Context context, Widget widget, List<AlbumFolder> albumFolders, OnItemClickListener itemClickListener) {
@@ -54,29 +52,22 @@ public class FolderDialog extends BottomSheetDialog {
         this.mWidget = widget;
         this.mAlbumFolders = albumFolders;
         this.mItemClickListener = itemClickListener;
-
         RecyclerView recyclerView = getDelegate().findViewById(R.id.rv_content_list);
         assert recyclerView != null;
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
         mFolderAdapter = new FolderAdapter(context, mAlbumFolders, widget.getBucketItemCheckSelector());
-        mFolderAdapter.setItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(final View view, final int position) {
-                if (mCurrentPosition != position) {
-                    mAlbumFolders.get(mCurrentPosition).setChecked(false);
-                    mFolderAdapter.notifyItemChanged(mCurrentPosition);
-
-                    mCurrentPosition = position;
-                    mAlbumFolders.get(mCurrentPosition).setChecked(true);
-                    mFolderAdapter.notifyItemChanged(mCurrentPosition);
-
-                    if (mItemClickListener != null) {
-                        mItemClickListener.onItemClick(view, position);
-                    }
+        mFolderAdapter.setItemClickListener((view, position) -> {
+            if (mCurrentPosition != position) {
+                mAlbumFolders.get(mCurrentPosition).setChecked(false);
+                mFolderAdapter.notifyItemChanged(mCurrentPosition);
+                mCurrentPosition = position;
+                mAlbumFolders.get(mCurrentPosition).setChecked(true);
+                mFolderAdapter.notifyItemChanged(mCurrentPosition);
+                if (mItemClickListener != null) {
+                    mItemClickListener.onItemClick(view, position);
                 }
-                dismiss();
             }
+            dismiss();
         });
         recyclerView.setAdapter(mFolderAdapter);
     }
@@ -98,4 +89,5 @@ public class FolderDialog extends BottomSheetDialog {
             }
         }
     }
+
 }

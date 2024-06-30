@@ -19,7 +19,6 @@ import android.content.Context;
 import android.widget.Scroller;
 
 public class PreGingerScroller extends ScrollerProxy {
-
     private final Scroller mScroller;
 
     public PreGingerScroller(Context context) {
@@ -55,4 +54,5 @@ public class PreGingerScroller extends ScrollerProxy {
     public int getCurrY() {
         return mScroller.getCurrY();
     }
+
 }

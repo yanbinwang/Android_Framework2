@@ -25,7 +25,6 @@ import com.yanzhenjie.album.Action;
  * Created by YanZhenjie on 2017/8/18.
  */
 public abstract class BasicCameraWrapper<Returner extends BasicCameraWrapper> {
-
     Context mContext;
     Action<String> mResult;
     Action<String> mCancel;

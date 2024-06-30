@@ -31,7 +31,6 @@ import java.io.File;
  * Created by YanZhenjie on 2017/10/18.
  */
 public class PathConversion {
-
     private Filter<Long> mSizeFilter;
     private Filter<String> mMimeFilter;
     private Filter<Long> mDurationFilter;
@@ -46,13 +45,10 @@ public class PathConversion {
     @NonNull
     public AlbumFile convert(String filePath) {
         File file = new File(filePath);
-
         AlbumFile albumFile = new AlbumFile();
         albumFile.setPath(filePath);
-
         File parentFile = file.getParentFile();
         albumFile.setBucketName(parentFile.getName());
-
         String mimeType = AlbumUtils.getMimeType(filePath);
         albumFile.setMimeType(mimeType);
         long nowTime = System.currentTimeMillis();
@@ -66,14 +62,12 @@ public class PathConversion {
                 mediaType = AlbumFile.TYPE_IMAGE;
         }
         albumFile.setMediaType(mediaType);
-
         if (mSizeFilter != null && mSizeFilter.filter(file.length())) {
             albumFile.setDisable(true);
         }
         if (mMimeFilter != null && mMimeFilter.filter(mimeType)) {
             albumFile.setDisable(true);
         }
-
         if (mediaType == AlbumFile.TYPE_VIDEO) {
             MediaPlayer player = new MediaPlayer();
             try {
@@ -84,7 +78,6 @@ public class PathConversion {
             } finally {
                 player.release();
             }
-
             if (mDurationFilter != null && mDurationFilter.filter(albumFile.getDuration())) {
                 albumFile.setDisable(true);
             }

@@ -25,7 +25,6 @@ import java.util.ArrayList;
  * Created by Yan Zhenjie on 2016/10/14.
  */
 public class AlbumFolder implements Parcelable {
-
     /**
      * Folder name.
      */
@@ -95,4 +94,5 @@ public class AlbumFolder implements Parcelable {
             return new AlbumFolder[size];
         }
     };
+
 }

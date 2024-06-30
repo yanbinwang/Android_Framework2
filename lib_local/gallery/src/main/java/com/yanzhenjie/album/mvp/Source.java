@@ -30,7 +30,6 @@ import androidx.appcompat.widget.Toolbar;
  * Created by YanZhenjie on 2017/12/8.
  */
 abstract class Source<Host> {
-
     private Host mHost;
 
     public Source(Host host) {

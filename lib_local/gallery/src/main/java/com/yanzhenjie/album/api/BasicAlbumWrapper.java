@@ -27,7 +27,6 @@ import com.yanzhenjie.album.api.widget.Widget;
  * Created by yanzhenjie on 17-3-29.
  */
 public abstract class BasicAlbumWrapper<Returner extends BasicAlbumWrapper, Result, Cancel, Checked> {
-
     final Context mContext;
     Action<Result> mResult;
     Action<Cancel> mCancel;
@@ -73,4 +72,5 @@ public abstract class BasicAlbumWrapper<Returner extends BasicAlbumWrapper, Resu
      * Start up.
      */
     public abstract void start();
+
 }

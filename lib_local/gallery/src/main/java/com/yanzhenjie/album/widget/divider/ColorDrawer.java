@@ -44,4 +44,5 @@ class ColorDrawer extends Drawer {
         int blue = Color.blue(color);
         return Color.argb(255, red, green, blue);
     }
+
 }

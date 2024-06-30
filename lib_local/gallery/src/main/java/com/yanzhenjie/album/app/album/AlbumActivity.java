@@ -54,47 +54,32 @@ import java.util.List;
  * <p>Responsible for controlling the album data and the overall logic.</p>
  * Created by Yan Zhenjie on 2016/10/17.
  */
-public class AlbumActivity extends BaseActivity implements
-        Contract.AlbumPresenter,
-        MediaReadTask.Callback,
-        GalleryActivity.Callback,
-        PathConvertTask.Callback,
-        ThumbnailBuildTask.Callback {
-
-    private static final int CODE_ACTIVITY_NULL = 1;
-    private static final int CODE_PERMISSION_STORAGE = 1;
-
+public class AlbumActivity extends BaseActivity implements Contract.AlbumPresenter, MediaReadTask.Callback, GalleryActivity.Callback, PathConvertTask.Callback, ThumbnailBuildTask.Callback {
     public static Filter<Long> sSizeFilter;
     public static Filter<String> sMimeFilter;
     public static Filter<Long> sDurationFilter;
-
     public static Action<ArrayList<AlbumFile>> sResult;
     public static Action<String> sCancel;
-
-    private List<AlbumFolder> mAlbumFolders;
+    private static final int CODE_ACTIVITY_NULL = 1;
+    private static final int CODE_PERMISSION_STORAGE = 1;
     private int mCurrentFolder;
-
-    private Widget mWidget;
     private int mFunction;
     private int mChoiceMode;
     private int mColumnCount;
-    private boolean mHasCamera;
     private int mLimitCount;
-
     private int mQuality;
     private long mLimitDuration;
     private long mLimitBytes;
-
+    private boolean mHasCamera;
     private boolean mFilterVisibility;
-
+    private List<AlbumFolder> mAlbumFolders;
     private ArrayList<AlbumFile> mCheckedList;
+    private Widget mWidget;
     private MediaScanner mMediaScanner;
-
     private Contract.AlbumView mView;
     private FolderDialog mFolderDialog;
     private PopupMenu mCameraPopupMenu;
     private LoadingDialog mLoadingDialog;
-
     private MediaReadTask mMediaReadTask;
 
     @Override
@@ -107,7 +92,6 @@ public class AlbumActivity extends BaseActivity implements
         mView.setTitle(mWidget.getTitle());
         mView.setCompleteDisplay(false);
         mView.setLoadingDisplay(true);
-
         requestPermission(PERMISSION_STORAGE, CODE_PERMISSION_STORAGE);
     }
 
@@ -186,11 +170,9 @@ public class AlbumActivity extends BaseActivity implements
                 throw new AssertionError("This should not be the case.");
             }
         }
-
         mView.setLoadingDisplay(false);
         mAlbumFolders = albumFolders;
         mCheckedList = checkedFiles;
-
         if (mAlbumFolders.get(0).getAlbumFiles().isEmpty()) {
             Intent intent = new Intent(this, NullActivity.class);
             intent.putExtras(getIntent());
@@ -220,12 +202,9 @@ public class AlbumActivity extends BaseActivity implements
     @Override
     public void clickFolderSwitch() {
         if (mFolderDialog == null) {
-            mFolderDialog = new FolderDialog(this, mWidget, mAlbumFolders, new OnItemClickListener() {
-                @Override
-                public void onItemClick(View view, int position) {
-                    mCurrentFolder = position;
-                    showFolderAlbumFiles(mCurrentFolder);
-                }
+            mFolderDialog = new FolderDialog(this, mWidget, mAlbumFolders, (view, position) -> {
+                mCurrentFolder = position;
+                showFolderAlbumFiles(mCurrentFolder);
             });
         }
         if (!mFolderDialog.isShowing()) mFolderDialog.show();
@@ -277,17 +256,14 @@ public class AlbumActivity extends BaseActivity implements
                     if (mCameraPopupMenu == null) {
                         mCameraPopupMenu = new PopupMenu(this, v);
                         mCameraPopupMenu.getMenuInflater().inflate(R.menu.album_menu_item_camera, mCameraPopupMenu.getMenu());
-                        mCameraPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(MenuItem item) {
-                                int id = item.getItemId();
-                                if (id == R.id.album_menu_camera_image) {
-                                    takePicture();
-                                } else if (id == R.id.album_menu_camera_video) {
-                                    takeVideo();
-                                }
-                                return true;
+                        mCameraPopupMenu.setOnMenuItemClickListener(item -> {
+                            int id = item.getItemId();
+                            if (id == R.id.album_menu_camera_image) {
+                                takePicture();
+                            } else if (id == R.id.album_menu_camera_video) {
+                                takeVideo();
                             }
+                            return true;
                         });
                     }
                     mCameraPopupMenu.show();
@@ -340,7 +316,6 @@ public class AlbumActivity extends BaseActivity implements
                 mMediaScanner = new MediaScanner(AlbumActivity.this);
             }
             mMediaScanner.scan(result);
-
             PathConversion conversion = new PathConversion(sSizeFilter, sMimeFilter, sDurationFilter);
             PathConvertTask task = new PathConvertTask(conversion, AlbumActivity.this);
             task.execute(result);
@@ -362,7 +337,6 @@ public class AlbumActivity extends BaseActivity implements
         } else {
             addFileToList(albumFile);
         }
-
         dismissLoadingDialog();
     }
 
@@ -372,7 +346,6 @@ public class AlbumActivity extends BaseActivity implements
             if (albumFiles.size() > 0) albumFiles.add(0, albumFile);
             else albumFiles.add(albumFile);
         }
-
         AlbumFolder albumFolder = mAlbumFolders.get(mCurrentFolder);
         List<AlbumFile> albumFiles = albumFolder.getAlbumFiles();
         if (albumFiles.isEmpty()) {
@@ -382,12 +355,10 @@ public class AlbumActivity extends BaseActivity implements
             albumFiles.add(0, albumFile);
             mView.notifyInsertItem(mHasCamera ? 1 : 0);
         }
-
         mCheckedList.add(albumFile);
         int count = mCheckedList.size();
         mView.setCheckedCount(count);
         mView.setSubTitle(count + "/" + mLimitCount);
-
         switch (mChoiceMode) {
             case Album.MODE_SINGLE: {
                 callbackResult();
@@ -499,7 +470,6 @@ public class AlbumActivity extends BaseActivity implements
         int position = albumFiles.indexOf(albumFile);
         int notifyPosition = mHasCamera ? position + 1 : position;
         mView.notifyItem(notifyPosition);
-
         if (albumFile.isChecked()) {
             if (!mCheckedList.contains(albumFile)) mCheckedList.add(albumFile);
         } else {
@@ -601,4 +571,5 @@ public class AlbumActivity extends BaseActivity implements
         sCancel = null;
         super.finish();
     }
+
 }

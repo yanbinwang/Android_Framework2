@@ -27,7 +27,6 @@ import androidx.annotation.Nullable;
  * Created by YanZhenjie on 2018/4/18.
  */
 public class SquareFrameLayout extends FrameLayout {
-
     private Configuration mConfig;
 
     public SquareFrameLayout(@NonNull Context context) {
@@ -60,4 +59,5 @@ public class SquareFrameLayout extends FrameLayout {
             }
         }
     }
+
 }

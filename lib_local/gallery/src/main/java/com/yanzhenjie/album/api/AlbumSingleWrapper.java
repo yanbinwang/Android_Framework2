@@ -30,7 +30,6 @@ import java.util.ArrayList;
  * Created by yanzhenjie on 17-3-29.
  */
 public class AlbumSingleWrapper extends BasicChoiceAlbumWrapper<AlbumSingleWrapper, ArrayList<AlbumFile>, String, AlbumFile> {
-
     private Filter<Long> mDurationFilter;
 
     public AlbumSingleWrapper(Context context) {
@@ -56,7 +55,6 @@ public class AlbumSingleWrapper extends BasicChoiceAlbumWrapper<AlbumSingleWrapp
         AlbumActivity.sCancel = mCancel;
         Intent intent = new Intent(mContext, AlbumActivity.class);
         intent.putExtra(Album.KEY_INPUT_WIDGET, mWidget);
-
         intent.putExtra(Album.KEY_INPUT_FUNCTION, Album.FUNCTION_CHOICE_ALBUM);
         intent.putExtra(Album.KEY_INPUT_CHOICE_MODE, Album.MODE_SINGLE);
         intent.putExtra(Album.KEY_INPUT_COLUMN_COUNT, mColumnCount);
@@ -68,4 +66,5 @@ public class AlbumSingleWrapper extends BasicChoiceAlbumWrapper<AlbumSingleWrapp
         intent.putExtra(Album.KEY_INPUT_CAMERA_BYTES, mLimitBytes);
         mContext.startActivity(intent);
     }
+
 }

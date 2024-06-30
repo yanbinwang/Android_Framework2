@@ -41,7 +41,6 @@ public final class ImageSingleWrapper extends BasicChoiceWrapper<ImageSingleWrap
         AlbumActivity.sCancel = mCancel;
         Intent intent = new Intent(mContext, AlbumActivity.class);
         intent.putExtra(Album.KEY_INPUT_WIDGET, mWidget);
-
         intent.putExtra(Album.KEY_INPUT_FUNCTION, Album.FUNCTION_CHOICE_IMAGE);
         intent.putExtra(Album.KEY_INPUT_CHOICE_MODE, Album.MODE_SINGLE);
         intent.putExtra(Album.KEY_INPUT_COLUMN_COUNT, mColumnCount);
@@ -50,4 +49,5 @@ public final class ImageSingleWrapper extends BasicChoiceWrapper<ImageSingleWrap
         intent.putExtra(Album.KEY_INPUT_FILTER_VISIBILITY, mFilterVisibility);
         mContext.startActivity(intent);
     }
+
 }

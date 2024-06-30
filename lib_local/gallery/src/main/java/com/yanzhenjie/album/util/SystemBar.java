@@ -80,9 +80,7 @@ public class SystemBar {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void invasionStatusBar(Window window) {
         View decorView = window.getDecorView();
-        decorView.setSystemUiVisibility(decorView.getSystemUiVisibility()
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         window.setStatusBarColor(Color.TRANSPARENT);
     }
 
@@ -100,9 +98,7 @@ public class SystemBar {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void invasionNavigationBar(Window window) {
         View decorView = window.getDecorView();
-        decorView.setSystemUiVisibility(decorView.getSystemUiVisibility()
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         window.setNavigationBarColor(Color.TRANSPARENT);
     }
 

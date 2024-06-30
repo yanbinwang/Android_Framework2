@@ -30,4 +30,5 @@ public interface OnItemClickListener {
      * @param position item position.
      */
     void onItemClick(View view, int position);
+
 }

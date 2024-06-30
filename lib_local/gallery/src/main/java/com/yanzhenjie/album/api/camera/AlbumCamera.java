@@ -24,7 +24,6 @@ import com.yanzhenjie.album.api.VideoCameraWrapper;
  * Created by YanZhenjie on 2017/8/18.
  */
 public class AlbumCamera implements Camera<ImageCameraWrapper, VideoCameraWrapper> {
-
     private Context mContext;
 
     public AlbumCamera(Context context) {

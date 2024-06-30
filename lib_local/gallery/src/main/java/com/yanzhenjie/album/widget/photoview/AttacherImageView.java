@@ -12,7 +12,6 @@ import androidx.appcompat.widget.AppCompatImageView;
  */
 
 public class AttacherImageView extends AppCompatImageView {
-
     private PhotoViewAttacher mAttacher;
 
     public AttacherImageView(Context context) {
@@ -38,4 +37,5 @@ public class AttacherImageView extends AppCompatImageView {
             mAttacher.update();
         }
     }
+
 }

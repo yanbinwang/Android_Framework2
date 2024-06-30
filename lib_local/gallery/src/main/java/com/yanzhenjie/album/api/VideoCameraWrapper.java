@@ -28,7 +28,6 @@ import com.yanzhenjie.album.app.camera.CameraActivity;
  * Created by Yan Zhenjie on 2017/4/18.
  */
 public class VideoCameraWrapper extends BasicCameraWrapper<VideoCameraWrapper> {
-
     private int mQuality = 1;
     private long mLimitDuration = Integer.MAX_VALUE;
     private long mLimitBytes = Integer.MAX_VALUE;
@@ -71,7 +70,6 @@ public class VideoCameraWrapper extends BasicCameraWrapper<VideoCameraWrapper> {
         CameraActivity.sResult = mResult;
         CameraActivity.sCancel = mCancel;
         Intent intent = new Intent(mContext, CameraActivity.class);
-
         intent.putExtra(Album.KEY_INPUT_FUNCTION, Album.FUNCTION_CAMERA_VIDEO);
         intent.putExtra(Album.KEY_INPUT_FILE_PATH, mFilePath);
         intent.putExtra(Album.KEY_INPUT_CAMERA_QUALITY, mQuality);
@@ -79,4 +77,5 @@ public class VideoCameraWrapper extends BasicCameraWrapper<VideoCameraWrapper> {
         intent.putExtra(Album.KEY_INPUT_CAMERA_BYTES, mLimitBytes);
         mContext.startActivity(intent);
     }
+
 }
