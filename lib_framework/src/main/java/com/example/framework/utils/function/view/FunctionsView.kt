@@ -10,7 +10,12 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.view.*
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.AlphaAnimation
@@ -21,7 +26,16 @@ import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.BaseExpandableListAdapter
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.ExpandableListView
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RadioButton
+import android.widget.TextView
 import androidx.annotation.AnimRes
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
@@ -447,6 +461,37 @@ fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
 }
 
 /**
+ * 展开页面按钮的动画，传入是否是展开状态
+ */
+//fun View?.rotate(isOpen: Boolean = false): Boolean {
+//    if (this == null) return isOpen
+//    if (animation != null) {
+//        if (animation.hasStarted() && !animation.hasEnded()) return isOpen
+//    }
+//    val startRot = if (isOpen) 180f else 0f
+//    val endRot = if (isOpen) 0f else 180f
+//    val anim = AnimatorSet()
+//    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
+//    anim.duration = 500
+//    anim.start()
+//    return !isOpen
+//}
+fun View?.rotate() {
+    if (this == null) return
+    if (animation != null) {
+        if (animation.hasStarted() && !animation.hasEnded()) return
+    }
+    val isRotate = tag as? Boolean ?: false
+    val startRot = if (isRotate) 180f else 0f
+    val endRot = if (isRotate) 0f else 180f
+    tag = !isRotate
+    val anim = AnimatorSet()
+    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
+    anim.duration = 500
+    anim.start()
+}
+
+/**
  * 旋轉
  */
 fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
@@ -462,23 +507,6 @@ fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
     anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f))
     anim.duration = time
     anim.start()
-}
-
-/**
- * 展开页面按钮的动画，传入是否是展开状态
- */
-fun View?.rotate(isOpen: Boolean = false): Boolean {
-    if (this == null) return isOpen
-    if (animation != null) {
-        if (animation.hasStarted() && !animation.hasEnded()) return isOpen
-    }
-    val startRot = if (isOpen) 180f else 0f
-    val endRot = if (isOpen) 0f else 180f
-    val anim = AnimatorSet()
-    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
-    anim.duration = 500
-    anim.start()
-    return !isOpen
 }
 
 /**
@@ -620,15 +648,6 @@ fun View?.stopHardwareAccelerate() {
     setLayerType(View.LAYER_TYPE_SOFTWARE, Paint())
 }
 
-///**
-// * 在viewgroup中插入一个xml引用的view，需设置这个view的root目录撑满
-// * 可调用该方法
-// */
-//fun View?.layoutParamsMatch() {
-//    if (this == null) return
-//    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
-//}
-
 /**
  * 控件获取焦点
  */
@@ -762,6 +781,16 @@ fun AppBarLayout?.stateChanged(func: (state: AppBarStateChangeListener.State?) -
             func.invoke(state)
         }
     })
+}
+
+/**
+ * 可折叠list初始化
+ */
+fun ExpandableListView?.init(adapter: BaseExpandableListAdapter) {
+    this ?: return
+    setGroupIndicator(null)//去除右侧箭头
+    setOnGroupClickListener { _, _, _, _ -> true }//使列表不能点击收缩
+    setAdapter(adapter)
 }
 
 /**
