@@ -13,62 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yanzhenjie.durban.model;
+package com.yanzhenjie.durban.model
+
+import com.example.framework.utils.function.value.orZero
 
 /**
  * Update by Yan Zhenjie on 2017/5/23.
  */
-public class ExifInfo {
-    private int mExifOrientation;
-    private int mExifDegrees;
-    private int mExifTranslation;
+data class ExifInfo(
+    var mExifOrientation: Int? = null,
+    var mExifDegrees: Int? = null,
+    var mExifTranslation: Int? = null
+) {
 
-    public ExifInfo(int exifOrientation, int exifDegrees, int exifTranslation) {
-        mExifOrientation = exifOrientation;
-        mExifDegrees = exifDegrees;
-        mExifTranslation = exifTranslation;
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val exifInfo = other as? ExifInfo
+        if (mExifOrientation != exifInfo?.mExifOrientation) return false
+        if (mExifDegrees != exifInfo?.mExifDegrees) return false
+        return mExifTranslation == exifInfo?.mExifTranslation
     }
 
-    public int getExifOrientation() {
-        return mExifOrientation;
-    }
-
-    public int getExifDegrees() {
-        return mExifDegrees;
-    }
-
-    public int getExifTranslation() {
-        return mExifTranslation;
-    }
-
-    public void setExifOrientation(int exifOrientation) {
-        mExifOrientation = exifOrientation;
-    }
-
-    public void setExifDegrees(int exifDegrees) {
-        mExifDegrees = exifDegrees;
-    }
-
-    public void setExifTranslation(int exifTranslation) {
-        mExifTranslation = exifTranslation;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ExifInfo exifInfo = (ExifInfo) o;
-        if (mExifOrientation != exifInfo.mExifOrientation) return false;
-        if (mExifDegrees != exifInfo.mExifDegrees) return false;
-        return mExifTranslation == exifInfo.mExifTranslation;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = mExifOrientation;
-        result = 31 * result + mExifDegrees;
-        result = 31 * result + mExifTranslation;
-        return result;
+    override fun hashCode(): Int {
+        var result = mExifOrientation.orZero
+        result = 31 * result + mExifDegrees.orZero
+        result = 31 * result + mExifTranslation.orZero
+        return result
     }
 
 }

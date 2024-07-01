@@ -68,16 +68,16 @@ public class BitmapCropTask extends AsyncTask<Void, Void, BitmapCropTask.PathWor
     public BitmapCropTask(@NonNull Context context, @Nullable Bitmap viewBitmap, @NonNull ImageState imageState, @NonNull CropParameters cropParameters, @Nullable BitmapCropCallback cropCallback) {
         mDialog = new LoadingDialog(context);
         mViewBitmap = viewBitmap;
-        mCropRect = imageState.getCropRect();
-        mCurrentImageRect = imageState.getCurrentImageRect();
-        mCurrentScale = imageState.getCurrentScale();
-        mCurrentAngle = imageState.getCurrentAngle();
-        mMaxResultImageSizeX = cropParameters.getMaxResultImageSizeX();
-        mMaxResultImageSizeY = cropParameters.getMaxResultImageSizeY();
-        mCompressFormat = cropParameters.getCompressFormat();
-        mCompressQuality = cropParameters.getCompressQuality();
-        mInputImagePath = cropParameters.getImagePath();
-        mOutputDirectory = cropParameters.getImageOutputPath();
+        mCropRect = imageState.getMCropRect();
+        mCurrentImageRect = imageState.getMCurrentImageRect();
+        mCurrentScale = imageState.getMCurrentScale();
+        mCurrentAngle = imageState.getMCurrentAngle();
+        mMaxResultImageSizeX = cropParameters.getMMaxResultImageSizeX();
+        mMaxResultImageSizeY = cropParameters.getMMaxResultImageSizeY();
+        mCompressFormat = cropParameters.getMCompressFormat();
+        mCompressQuality = cropParameters.getMCompressQuality();
+        mInputImagePath = cropParameters.getMImagePath();
+        mOutputDirectory = cropParameters.getMImageOutputPath();
         mCallback = cropCallback;
     }
 

@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yanzhenjie.durban.callback;
-
+package com.yanzhenjie.durban.callback
 
 /**
  * Update by Yan Zhenjie on 2017/5/23.
  */
-public interface CropBoundsChangeListener {
+interface CropBoundsChangeListener {
 
-    void onCropAspectRatioChanged(float cropRatio);
+    fun onCropAspectRatioChanged(cropRatio: Float)
 
 }

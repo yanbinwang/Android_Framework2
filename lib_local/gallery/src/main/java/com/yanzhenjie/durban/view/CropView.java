@@ -17,7 +17,6 @@ package com.yanzhenjie.durban.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
@@ -25,8 +24,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 
 import com.example.gallery.R;
-import com.yanzhenjie.durban.callback.CropBoundsChangeListener;
-import com.yanzhenjie.durban.callback.OverlayViewChangeListener;
 
 /**
  * Update by Yan Zhenjie on 2017/5/23.

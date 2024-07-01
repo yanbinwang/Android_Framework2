@@ -1,81 +1,46 @@
-/*
- * Copyright © Yan Zhenjie
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package com.yanzhenjie.durban.model;
+package com.yanzhenjie.durban.model
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Parcel
+import android.os.Parcelable
 
-import androidx.annotation.Nullable;
+class AspectRatio : Parcelable {
+    var mAspectRatioTitle: String? = null
+        private set
+    var mAspectRatioX: Float? = null
+        private set
+    var mAspectRatioY: Float? = null
+        private set
 
-/**
- * Update by Yan Zhenjie on 2017/5/23.
- */
-public class AspectRatio implements Parcelable {
-    @Nullable
-    private final String mAspectRatioTitle;
-    private final float mAspectRatioX;
-    private final float mAspectRatioY;
-
-    public AspectRatio(@Nullable String aspectRatioTitle, float aspectRatioX, float aspectRatioY) {
-        mAspectRatioTitle = aspectRatioTitle;
-        mAspectRatioX = aspectRatioX;
-        mAspectRatioY = aspectRatioY;
+    constructor(aspectRatioTitle: String?, aspectRatioX: Float?, aspectRatioY: Float?) {
+        mAspectRatioTitle = aspectRatioTitle
+        mAspectRatioX = aspectRatioX
+        mAspectRatioY = aspectRatioY
     }
 
-    protected AspectRatio(Parcel in) {
-        mAspectRatioTitle = in.readString();
-        mAspectRatioX = in.readFloat();
-        mAspectRatioY = in.readFloat();
+    constructor(parcel: Parcel) {
+        mAspectRatioTitle = parcel.readString()
+        mAspectRatioX = parcel.readValue(Float::class.java.classLoader) as? Float
+        mAspectRatioY = parcel.readValue(Float::class.java.classLoader) as? Float
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(mAspectRatioTitle);
-        dest.writeFloat(mAspectRatioX);
-        dest.writeFloat(mAspectRatioY);
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(mAspectRatioTitle)
+        parcel.writeValue(mAspectRatioX)
+        parcel.writeValue(mAspectRatioY)
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    override fun describeContents(): Int {
+        return 0
     }
 
-    public static final Creator<AspectRatio> CREATOR = new Creator<>() {
-        @Override
-        public AspectRatio createFromParcel(Parcel in) {
-            return new AspectRatio(in);
+    companion object CREATOR : Parcelable.Creator<AspectRatio> {
+        override fun createFromParcel(parcel: Parcel): AspectRatio {
+            return AspectRatio(parcel)
         }
 
-        @Override
-        public AspectRatio[] newArray(int size) {
-            return new AspectRatio[size];
+        override fun newArray(size: Int): Array<AspectRatio?> {
+            return arrayOfNulls(size)
         }
-    };
-
-    @Nullable
-    public String getAspectRatioTitle() {
-        return mAspectRatioTitle;
-    }
-
-    public float getAspectRatioX() {
-        return mAspectRatioX;
-    }
-
-    public float getAspectRatioY() {
-        return mAspectRatioY;
     }
 
 }

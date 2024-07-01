@@ -15,55 +15,17 @@
  */
 package com.yanzhenjie.durban.model;
 
-import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat
 
 /**
  * Update by Yan Zhenjie on 2017/5/23.
  */
-public class CropParameters {
-    private int mMaxResultImageSizeX, mMaxResultImageSizeY;
-    private int mCompressQuality;
-    private String mImagePath;
-    private String mImageOutputPath;
-    private Bitmap.CompressFormat mCompressFormat;
-    private ExifInfo mExifInfo;
-
-    public CropParameters(int maxResultImageSizeX, int maxResultImageSizeY, Bitmap.CompressFormat compressFormat, int compressQuality, String imagePath, String imageOutputPath, ExifInfo exifInfo) {
-        this.mMaxResultImageSizeX = maxResultImageSizeX;
-        this.mMaxResultImageSizeY = maxResultImageSizeY;
-        this.mCompressFormat = compressFormat;
-        this.mCompressQuality = compressQuality;
-        this.mImagePath = imagePath;
-        this.mImageOutputPath = imageOutputPath;
-        this.mExifInfo = exifInfo;
-    }
-
-    public int getMaxResultImageSizeX() {
-        return mMaxResultImageSizeX;
-    }
-
-    public int getMaxResultImageSizeY() {
-        return mMaxResultImageSizeY;
-    }
-
-    public Bitmap.CompressFormat getCompressFormat() {
-        return mCompressFormat;
-    }
-
-    public int getCompressQuality() {
-        return mCompressQuality;
-    }
-
-    public String getImagePath() {
-        return mImagePath;
-    }
-
-    public String getImageOutputPath() {
-        return mImageOutputPath;
-    }
-
-    public ExifInfo getExifInfo() {
-        return mExifInfo;
-    }
-
-}
+data class CropParameters(
+    val mMaxResultImageSizeX: Int? = null,
+    val mMaxResultImageSizeY: Int? = null,
+    val mCompressFormat: CompressFormat? = null,
+    val mCompressQuality: Int? = null,
+    val mImagePath: String? = null,
+    val mImageOutputPath: String? = null,
+    val mExifInfo: ExifInfo? = null
+)

@@ -18,14 +18,10 @@ package com.yanzhenjie.durban.error;
 /**
  * Created by Yan Zhenjie on 2017/5/23.
  */
-public class StorageError extends Exception {
-    
-    public StorageError(String message) {
-        super(message);
-    }
+class StorageError : Exception {
 
-    public StorageError(Throwable cause) {
-        super(cause);
-    }
+    constructor(message: String?) : super(message)
+
+    constructor(cause: Throwable?) : super(cause)
 
 }
