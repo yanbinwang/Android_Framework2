@@ -72,8 +72,9 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
 
     companion object {
         //经纬度json->默认杭州
+        private const val AMAP_JSON = "{latitude:30.2780010000,longitude:120.1680690000}"
         private const val AMAP_LATLNG = "map_latlng"
-        internal val aMapLatlng = DataStringCacheUtil(AMAP_LATLNG, "{latitude:30.2780010000,longitude:120.1680690000}")
+        internal val aMapLatlng = DataStringCacheUtil(AMAP_LATLNG, AMAP_JSON)
 
         /**
          * 高德内部构建定位通知
@@ -140,6 +141,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
             if (aMapLocation.address.isNullOrEmpty()) aMapLocation.address = string(R.string.mapLocationError)
             listener?.onLocationChanged(aMapLocation, true)
         } else {
+            aMapLatlng.set(AMAP_JSON)
             listener?.onLocationChanged(null, false)
         }
         stop()
