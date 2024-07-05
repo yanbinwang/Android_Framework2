@@ -140,8 +140,8 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
         if (retry) return
         try {
             retry = true
-            locationClient?.startLocation()
             WeakHandler(Looper.getMainLooper()).postDelayed({ retry = false }, retryTime)
+            locationClient?.startLocation()
         } catch (_: Exception) {
             listener?.onLocationChanged(null, false)
         }
