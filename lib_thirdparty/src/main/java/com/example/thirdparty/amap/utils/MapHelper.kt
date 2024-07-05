@@ -36,6 +36,7 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
     private val location by lazy { LocationHelper(mActivity) }
     private val mapLatLng by lazy { aMapLatLng.get().toObj(LatLng::class.java) }//默认地图经纬度-杭州
     var aMap: AMap? = null
+        private set
 
     init {
         mActivity.lifecycle.addObserver(this)
