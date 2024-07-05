@@ -61,13 +61,13 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
     /**
      * 绑定地图
      */
-    fun bind(savedInstanceState: Bundle?, mapView: MapView, initLoaded: Boolean = true) {
+    fun bind(savedInstanceState: Bundle?, mapView: MapView?, initLoaded: Boolean = true) {
         this.mapView = mapView
-        this.aMap = mapView.map
+        this.aMap = mapView?.map
         //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)创建地图
-        mapView.onCreate(savedInstanceState)
+        mapView?.onCreate(savedInstanceState)
         //更改地图view设置
-        mapView.viewTreeObserver.addOnGlobalLayoutListener {
+        mapView?.viewTreeObserver?.addOnGlobalLayoutListener {
             try {
                 val child = mapView.getChildAt(0) as? ViewGroup //地图框架
                 val logo = child?.getChildAt(2)
@@ -100,7 +100,7 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
             aMap?.setOnMapLoadedListener {
                 //先移动到默认点再检测权限定位
                 moveCamera()
-                if (mapView.context.checkSelfLocation()) location()
+                if (mapView?.context?.checkSelfLocation().orFalse) location()
             }
         }
     }
