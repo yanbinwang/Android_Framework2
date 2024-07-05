@@ -35,8 +35,24 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
     private var mapView: MapView? = null
     private val mapLatLng by lazy { aMapLatLng.get().toObj(LatLng::class.java) }//默认地图经纬度-杭州
     private val location by lazy { LocationHelper(mActivity) }
+    /**
+     * 地址控件
+     */
     var aMap: AMap? = null
         private set
+    /**
+     * 详细定位类
+     */
+    var aMapLocation: AMapLocation? = null
+        private set
+    /**
+     * 經緯度
+     */
+    val latLng get() = LatLng(aMapLocation?.latitude.orZero, aMapLocation?.longitude.orZero)
+    /**
+     * 是否定位成功
+     */
+    val isSuccessful get() = aMapLocation != null
 
     init {
         mActivity.lifecycle.addObserver(this)
@@ -67,8 +83,9 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
         //初始化定位回调
         location.setOnLocationListener(object : LocationHelper.OnLocationListener {
             override fun onLocationChanged(aMapLocation: AMapLocation?, flag: Boolean) {
+                this@MapHelper.aMapLocation = aMapLocation
                 if (flag) {
-                    moveCamera(LatLng(aMapLocation?.latitude.orZero, aMapLocation?.longitude.orZero))
+                    moveCamera(latLng)
                 } else {
                     moveCamera()
                 }
