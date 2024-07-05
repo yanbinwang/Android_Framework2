@@ -22,6 +22,7 @@ import com.amap.api.location.AMapLocationListener
 import com.amap.api.maps.model.LatLng
 import com.example.common.config.Constants
 import com.example.common.utils.DataStringCacheUtil
+import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.registerResult
 import com.example.common.utils.function.string
 import com.example.common.utils.toJsonString
@@ -137,7 +138,10 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
      * 必须具备定位权限,不区分安卓版本！用于打卡，签到，地图矫正
      */
     fun start() {
-        if (retry) return
+        if (retry) {
+            R.string.mapLocationProcessing.shortToast()
+            return
+        }
         try {
             retry = true
             WeakHandler(Looper.getMainLooper()).postDelayed({ retry = false }, retryTime)
