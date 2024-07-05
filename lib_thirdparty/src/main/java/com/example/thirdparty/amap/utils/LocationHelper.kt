@@ -21,6 +21,7 @@ import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.location.AMapLocationListener
 import com.amap.api.maps.model.LatLng
 import com.example.common.config.Constants
+import com.example.common.config.Constants.APPLICATION_NAME
 import com.example.common.utils.DataStringCacheUtil
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.registerResult
@@ -46,6 +47,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
     private var locationClient: AMapLocationClient? = null
     private var listener: OnLocationListener? = null
     private val retryTime = 8000L
+    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
     private val manager by lazy { mActivity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager }
     private val mDialog by lazy { AppDialog(mActivity) }
     private val result = mActivity.registerResult {
@@ -114,7 +116,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
             builder = Notification.Builder(this)
         }
         builder.setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle(Constants.APPLICATION_NAME)
+            .setContentTitle(APPLICATION_NAME)
             .setContentText(string(R.string.mapLocationLoading))
             .setWhen(System.currentTimeMillis())
         return builder.build()
@@ -142,11 +144,13 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
             R.string.mapLocationProcessing.shortToast()
             return
         }
+        retry = true
         try {
-            retry = true
-            WeakHandler(Looper.getMainLooper()).postDelayed({ retry = false }, retryTime)
+            weakHandler.postDelayed({ retry = false }, retryTime)
             locationClient?.startLocation()
         } catch (_: Exception) {
+            weakHandler.removeCallbacksAndMessages(null)
+            retry = false
             listener?.onLocationChanged(null, false)
         }
     }
