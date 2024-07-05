@@ -33,8 +33,8 @@ import kotlin.math.roundToInt
  */
 class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var mapView: MapView? = null
-    private val location by lazy { LocationHelper(mActivity) }
     private val mapLatLng by lazy { aMapLatLng.get().toObj(LatLng::class.java) }//默认地图经纬度-杭州
+    private val location by lazy { LocationHelper(mActivity) }
     var aMap: AMap? = null
         private set
 
