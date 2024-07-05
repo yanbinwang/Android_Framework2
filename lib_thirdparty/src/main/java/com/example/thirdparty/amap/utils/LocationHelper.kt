@@ -20,7 +20,6 @@ import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.location.AMapLocationListener
 import com.amap.api.maps.model.LatLng
-import com.example.common.config.Constants
 import com.example.common.config.Constants.APPLICATION_NAME
 import com.example.common.utils.DataStringCacheUtil
 import com.example.common.utils.builder.shortToast
@@ -31,7 +30,6 @@ import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.view.enable
 import com.example.thirdparty.R
 
 /**
@@ -47,7 +45,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
     private var locationClient: AMapLocationClient? = null
     private var listener: OnLocationListener? = null
     private val retryTime = 8000L
-    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+    private val handler by lazy { WeakHandler(Looper.getMainLooper()) }
     private val manager by lazy { mActivity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager }
     private val mDialog by lazy { AppDialog(mActivity) }
     private val result = mActivity.registerResult {
@@ -62,7 +60,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
         //经纬度json->默认杭州
         private const val AMAP_JSON = "{latitude:30.2780010000,longitude:120.1680690000}"
         private const val AMAP_LATLNG = "map_latlng"
-        internal val aMapLatlng = DataStringCacheUtil(AMAP_LATLNG, AMAP_JSON)
+        internal val aMapLatLng = DataStringCacheUtil(AMAP_LATLNG, AMAP_JSON)
     }
 
     init {
@@ -124,12 +122,12 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
 
     override fun onLocationChanged(aMapLocation: AMapLocation?) {
         if (aMapLocation != null && aMapLocation.errorCode == AMapLocation.LOCATION_SUCCESS) {
-            aMapLatlng.set(LatLng(aMapLocation.latitude, aMapLocation.longitude).toJsonString())
+            aMapLatLng.set(LatLng(aMapLocation.latitude, aMapLocation.longitude).toJsonString())
             //部分地区可能地址取到为空，直接赋值一个未获取地址的默认显示文案
             if (aMapLocation.address.isNullOrEmpty()) aMapLocation.address = string(R.string.mapLocationEmpty)
             listener?.onLocationChanged(aMapLocation, true)
         } else {
-            aMapLatlng.set(AMAP_JSON)
+            aMapLatLng.set(AMAP_JSON)
             listener?.onLocationChanged(null, false)
         }
         stop()
@@ -145,13 +143,12 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
             return
         }
         retry = true
+        handler.postDelayed({ retry = false }, retryTime)
         try {
-            weakHandler.postDelayed({ retry = false }, retryTime)
             locationClient?.startLocation()
         } catch (_: Exception) {
-            weakHandler.removeCallbacksAndMessages(null)
-            retry = false
             listener?.onLocationChanged(null, false)
+            clear()
         }
     }
 
@@ -163,6 +160,16 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
         locationClient?.disableBackgroundLocation(true)
         //结束定位(高德的isStart取到的不是实时的值,直接调取开始或停止内部api会做判断)
         locationClient?.stopLocation()
+        //清空消息
+        clear()
+    }
+
+    /**
+     * 清除消息队列
+     */
+    private fun clear() {
+        retry = false
+        handler.removeCallbacksAndMessages(null)
     }
 
     /**

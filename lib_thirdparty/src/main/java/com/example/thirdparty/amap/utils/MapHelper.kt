@@ -24,7 +24,7 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.gone
-import com.example.thirdparty.amap.utils.LocationHelper.Companion.aMapLatlng
+import com.example.thirdparty.amap.utils.LocationHelper.Companion.aMapLatLng
 import kotlin.math.roundToInt
 
 /**
@@ -34,7 +34,7 @@ import kotlin.math.roundToInt
 class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var mapView: MapView? = null
     private val location by lazy { LocationHelper(mActivity) }
-    private val mapLatLng by lazy { aMapLatlng.get().toObj(LatLng::class.java) }//默认地图经纬度-杭州
+    private val mapLatLng by lazy { aMapLatLng.get().toObj(LatLng::class.java) }//默认地图经纬度-杭州
     var aMap: AMap? = null
 
     init {
