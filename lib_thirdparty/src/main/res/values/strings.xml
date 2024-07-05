@@ -16,7 +16,7 @@
     <string name="mapAMap">高德地图</string>
     <string name="mapBMap">百度地图</string>
     <string name="mapLocationLoading">正在定位…</string>
-    <string name="mapLocationError">未获取到地址</string>
+    <string name="mapLocationEmpty">未获取到地址</string>
     <string name="mapGps">获取地址信息失败，开启定位服务可以提高定位精确度</string>
     <string name="mapGpsGoSetting">去开启</string>
     <!-- 推送 -->

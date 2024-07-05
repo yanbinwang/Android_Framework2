@@ -138,7 +138,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
         if (aMapLocation != null && aMapLocation.errorCode == AMapLocation.LOCATION_SUCCESS) {
             aMapLatlng.set(LatLng(aMapLocation.latitude, aMapLocation.longitude).toJsonString())
             //部分地区可能地址取到为空，直接赋值一个未获取地址的默认显示文案
-            if (aMapLocation.address.isNullOrEmpty()) aMapLocation.address = string(R.string.mapLocationError)
+            if (aMapLocation.address.isNullOrEmpty()) aMapLocation.address = string(R.string.mapLocationEmpty)
             listener?.onLocationChanged(aMapLocation, true)
         } else {
             aMapLatlng.set(AMAP_JSON)
