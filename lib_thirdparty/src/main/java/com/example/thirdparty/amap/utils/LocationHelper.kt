@@ -82,16 +82,17 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
             val builder: Notification.Builder?
             //Android O上对Notification进行了修改，如果设置的targetSDKVersion>=26建议使用此种方式创建通知栏
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
                 val notificationChannel = NotificationChannel(string(R.string.notificationChannelId), string(R.string.notificationChannelName), NotificationManager.IMPORTANCE_DEFAULT)
                 notificationChannel.apply {
                     enableLights(true) //是否在桌面icon右上角展示小圆点
                     lightColor = Color.BLUE //小圆点颜色
                     setShowBadge(true) //是否在久按桌面图标时显示此渠道的通知
                 }
-                notificationManager?.createNotificationChannel(notificationChannel)
+                (getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)?.createNotificationChannel(notificationChannel)
                 builder = Notification.Builder(this, string(R.string.notificationChannelId))
-            } else builder = Notification.Builder(this)
+            } else {
+                builder = Notification.Builder(this)
+            }
             builder.setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(Constants.APPLICATION_NAME)
                 .setContentText(string(R.string.mapLocationLoading))
