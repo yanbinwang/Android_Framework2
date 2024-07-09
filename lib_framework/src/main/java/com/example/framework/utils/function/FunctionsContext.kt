@@ -289,15 +289,15 @@ fun <T : Serializable> Fragment.intentSerializable(key: String) = arguments?.get
 fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParcelable(key) as? T
 
 /**
- * 页面广播
+ * 页面广播-》（Context.RECEIVER_EXPORTED 表示可以接收应用外部广播，Context.RECEIVER_NOT_EXPORTED 应用内部广播(否则安卓14报错)）
  * mActivity.doOnReceiver(receiver, IntentFilter().apply {
  * addAction(RECEIVER_USB)
  * addAction(RECEIVER_USB_ATTACHED)
  * addAction(RECEIVER_USB_DETACHED)
  * })
  */
+@SuppressLint("UnspecifiedRegisterReceiverFlag")
 fun FragmentActivity.doOnReceiver(receiver: BroadcastReceiver, intentFilter: IntentFilter) {
-    //Context.RECEIVER_EXPORTED 表示可以接收应用外部广播，Context.RECEIVER_NOT_EXPORTED 应用内部广播(否则安卓14报错)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
         registerReceiver(receiver, intentFilter, Context.RECEIVER_EXPORTED)
     } else {
