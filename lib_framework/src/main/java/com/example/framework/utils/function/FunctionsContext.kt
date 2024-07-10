@@ -297,18 +297,23 @@ fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParc
  * })
  */
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
-fun FragmentActivity.doOnReceiver(receiver: BroadcastReceiver, intentFilter: IntentFilter) {
+fun Context.doOnReceiver(owner: LifecycleOwner, receiver: BroadcastReceiver, intentFilter: IntentFilter) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
         registerReceiver(receiver, intentFilter, Context.RECEIVER_EXPORTED)
     } else {
         registerReceiver(receiver, intentFilter)
     }
-    doOnDestroy {
+    owner.doOnDestroy {
         try {
             unregisterReceiver(receiver)
         } catch (_: Exception) {
         }
     }
+}
+
+@SuppressLint("UnspecifiedRegisterReceiverFlag")
+fun FragmentActivity.doOnReceiver(receiver: BroadcastReceiver, intentFilter: IntentFilter) {
+    doOnReceiver(this, receiver, intentFilter)
 }
 
 /**
