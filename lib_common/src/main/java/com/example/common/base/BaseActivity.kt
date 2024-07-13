@@ -105,12 +105,14 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     override fun onCreate(savedInstanceState: Bundle?) {
         onCreateListener?.onCreate(this)
-        if (needTransparentOwner) overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
         super.onCreate(savedInstanceState)
-        if (needTransparentOwner) requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        } else {
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        if (needTransparentOwner) {
+            overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
+            requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            } else {
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
         }
         AppManager.addActivity(this)
         WebSocketRequest.addObserver(this)
