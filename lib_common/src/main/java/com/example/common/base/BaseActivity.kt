@@ -25,6 +25,7 @@ import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
+import com.example.common.bean.interf.TransparentOwner
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.socket.topic.WebSocketRequest
@@ -40,6 +41,7 @@ import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.getIntent
+import com.example.framework.utils.function.value.hasAnnotation
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
@@ -102,6 +104,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun onCreate(savedInstanceState: Bundle?) {
         onCreateListener?.onCreate(this)
         super.onCreate(savedInstanceState)
+        if (needTransparentOwner) overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
         AppManager.addActivity(this)
         WebSocketRequest.addObserver(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
@@ -200,6 +203,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun finish() {
         onFinishListener?.onFinish(this)
         super.finish()
+        if (needTransparentOwner) overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_in)
     }
 
     override fun onDestroy() {
@@ -291,6 +295,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     // </editor-fold>
 
 }
+
+val BaseActivity<*>.needTransparentOwner get() = hasAnnotation(TransparentOwner::class.java)
 
 interface OnFinishListener {
     fun onFinish(act: BaseActivity<*>)
