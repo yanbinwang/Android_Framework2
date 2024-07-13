@@ -4,7 +4,9 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.view.LayoutInflater
@@ -103,8 +105,13 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     override fun onCreate(savedInstanceState: Bundle?) {
         onCreateListener?.onCreate(this)
-        super.onCreate(savedInstanceState)
         if (needTransparentOwner) overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
+        super.onCreate(savedInstanceState)
+        if (needTransparentOwner) requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
         AppManager.addActivity(this)
         WebSocketRequest.addObserver(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
