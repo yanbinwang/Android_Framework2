@@ -1,4 +1,4 @@
-package com.example.thirdparty.share.utils.wechat
+package com.example.thirdparty.share.wechat
 
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat
@@ -92,7 +92,9 @@ object WXShareUtil {
         if (mLen == -1) {
             mLen = file.length().toInt()
         }
-        "readFromFile : offset = $offset len = $mLen offset + len = ${(offset.orZero + mLen)}".logD(TAG)
+        "readFromFile : offset = $offset len = $mLen offset + len = ${(offset.orZero + mLen)}".logD(
+            TAG
+        )
         if (offset < 0) {
             "readFromFile invalid offset:$offset".logE(TAG)
             return null
@@ -154,7 +156,9 @@ object WXShareUtil {
                     }
                 }
                 options.inJustDecodeBounds = false
-                "bitmap required size=${newWidth}x${newHeight}, orig=${options.outWidth}x${options.outHeight}, sample=${options.inSampleSize}".logI(TAG)
+                "bitmap required size=${newWidth}x${newHeight}, orig=${options.outWidth}x${options.outHeight}, sample=${options.inSampleSize}".logI(
+                    TAG
+                )
                 var bm = BitmapFactory.decodeFile(path, options)
                 if (bm == null) {
                     "bitmap decode failed".logE(TAG)

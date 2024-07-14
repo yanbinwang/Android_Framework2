@@ -1,4 +1,4 @@
-package com.example.thirdparty.amap.utils
+package com.example.thirdparty.amap
 
 import android.graphics.Color
 import android.graphics.Point
@@ -24,7 +24,7 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.gone
-import com.example.thirdparty.amap.utils.LocationHelper.Companion.aMapLatLng
+import com.example.thirdparty.amap.LocationHelper.Companion.aMapLatLng
 import kotlin.math.roundToInt
 
 /**

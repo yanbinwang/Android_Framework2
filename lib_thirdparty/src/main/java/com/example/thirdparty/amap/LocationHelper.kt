@@ -1,4 +1,4 @@
-package com.example.thirdparty.amap.utils
+package com.example.thirdparty.amap
 
 import android.app.Activity
 import android.app.Notification

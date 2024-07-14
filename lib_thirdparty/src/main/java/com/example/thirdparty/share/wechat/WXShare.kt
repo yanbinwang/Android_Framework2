@@ -1,10 +1,10 @@
-package com.example.thirdparty.share.utils.wechat
+package com.example.thirdparty.share.wechat
 
 import android.graphics.Bitmap
 import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.orZero
-import com.example.thirdparty.share.utils.wechat.WXShareUtil.bmpToByteArray
+import com.example.thirdparty.share.wechat.WXShareUtil.bmpToByteArray
 import com.example.thirdparty.utils.wechat.WXManager
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
 import com.tencent.mm.opensdk.modelmsg.WXImageObject

@@ -3,5 +3,4 @@
     <!-- app内的一些颜色-->
     <color name="textAlbum">#00ffffff</color>
     <color name="bgDurban">#00ffffff</color>
-    <color name="bgTimeTick">#ef111111</color>
 </resources>
