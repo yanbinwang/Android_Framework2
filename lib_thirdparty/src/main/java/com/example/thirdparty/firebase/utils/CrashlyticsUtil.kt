@@ -1,4 +1,4 @@
-package com.example.thirdparty.firebase
+package com.example.thirdparty.firebase.utils
 
 import com.example.framework.utils.function.value.isDebug
 import com.google.firebase.crashlytics.FirebaseCrashlytics

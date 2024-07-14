@@ -11,9 +11,9 @@ import com.example.framework.utils.logE
 import com.example.framework.utils.logWTF
 import com.example.home.activity.LinkActivity
 import com.example.mvvm.activity.MainActivity
+import com.example.thirdparty.firebase.utils.FireBaseUtil
+import com.example.thirdparty.utils.NotificationUtil
 import com.zxy.recovery.core.Recovery
-import com.example.thirdparty.firebase.FireBaseUtil
-import com.example.thirdparty.firebase.NotificationUtil
 
 /**
  * Created by WangYanBin on 2020/8/14.

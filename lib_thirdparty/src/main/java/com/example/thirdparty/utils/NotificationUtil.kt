@@ -14,7 +14,7 @@ import androidx.core.app.NotificationCompat
 import com.example.common.BaseApplication
 import com.example.common.utils.function.color
 import com.example.common.utils.function.dp
-import com.example.common.utils.function.string
+import com.example.common.utils.i18n.string
 import com.example.glide.ImageLoader
 import com.example.thirdparty.R
 

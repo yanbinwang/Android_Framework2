@@ -33,10 +33,10 @@
 <!--    <color name="strokeBlue">#3d81f2</color>-->
 <!--    <color name="strokeGrey">#999EA4</color>-->
 <!--    <color name="strokeRed">#E25728</color>-->
-    <!-- 输入选框描边 -->
-    <color name="inputNormal">#E8E8E8</color>
-    <color name="inputFocused">#FFAF0E</color>
-    <color name="inputError">#E25728</color>
+<!--    &lt;!&ndash; 输入选框描边 &ndash;&gt;-->
+<!--    <color name="inputNormal">#E8E8E8</color>-->
+<!--    <color name="inputFocused">#FFAF0E</color>-->
+<!--    <color name="inputError">#E25728</color>-->
     <!-- 按钮 -->
     <color name="btnMain">#3d81f2</color>
     <color name="btnMainPressed">#3d81f2</color>

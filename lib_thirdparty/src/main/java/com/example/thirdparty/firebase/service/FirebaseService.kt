@@ -1,10 +1,10 @@
-package com.example.thirdparty.firebase
+package com.example.thirdparty.firebase.service
 
 import com.example.common.utils.toJsonString
 import com.example.framework.utils.logWTF
+import com.example.thirdparty.firebase.FireBaseUtil
 import com.example.thirdparty.firebase.FireBaseUtil.notificationHandler
 import com.example.thirdparty.firebase.FireBaseUtil.notificationIntentGenerator
-import com.example.thirdparty.firebase.NotificationUtil.showSimpleNotification
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 

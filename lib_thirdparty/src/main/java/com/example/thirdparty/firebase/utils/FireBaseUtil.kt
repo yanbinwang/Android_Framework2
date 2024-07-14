@@ -1,4 +1,4 @@
-package com.example.thirdparty.firebase
+package com.example.thirdparty.firebase.utils
 
 import android.app.Activity
 import android.app.Application

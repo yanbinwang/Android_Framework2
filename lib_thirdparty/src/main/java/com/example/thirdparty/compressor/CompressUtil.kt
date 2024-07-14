@@ -5,7 +5,7 @@ import com.example.common.BaseApplication
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.i18n.string
 import com.example.thirdparty.R
-import com.example.thirdparty.firebase.CrashlyticsUtil
+import com.example.thirdparty.firebase.utils.CrashlyticsUtil
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.format
 import id.zelory.compressor.constraint.quality

@@ -1,4 +1,4 @@
-package com.example.thirdparty.firebase
+package com.example.thirdparty.firebase.utils
 
 /**
  * 处理推送通知
