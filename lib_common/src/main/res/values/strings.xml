@@ -26,7 +26,7 @@
     <string name="dataNetError">網絡未連接，請檢查網絡設置</string>
     <string name="linkInvalidError">鏈接地址不合法</string>
     <string name="sourcePathError">文件路徑錯誤</string>
-    <!-- 登录提示 -->
+    <!-- 三方登录提示 -->
     <string name="authCancel">操作被取消</string>
     <string name="authError">登錄失敗，請嘗試其它方式</string>
     <string name="authOpenIdError">三方帳號信息獲取失敗</string>

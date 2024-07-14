@@ -131,7 +131,6 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
         } else {
             mBinding.etClear.setI18nHintRes(resid)
         }
-//        mBinding.etClear.setHint(resid)
     }
 
     fun setHintString(text: String) {
@@ -140,7 +139,6 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
         } else {
             mBinding.etClear.setHintString(text)
         }
-//        mBinding.etClear.hint = text
     }
 
     fun setHintTextColor(@ColorInt color: Int) {

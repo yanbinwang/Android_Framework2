@@ -186,7 +186,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         } else {
             mBinding.etClear.setI18nHintRes(resid)
         }
-//        mBinding.etClear.setHint(resid)
     }
 
     fun setHintString(text: String) {
@@ -195,7 +194,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         } else {
             mBinding.etClear.setHintString(text)
         }
-//        mBinding.etClear.hint = text
     }
 
     fun setHintTextColor(@ColorInt color: Int) {
