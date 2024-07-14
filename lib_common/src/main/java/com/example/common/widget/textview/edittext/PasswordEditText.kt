@@ -17,7 +17,6 @@ import com.example.common.R
 import com.example.common.databinding.ViewPasswordEditBinding
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.emojiLimit
@@ -43,7 +42,6 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     val editText get() = mBinding.etClear
 
     init {
-        normal()
         mBinding.etClear.emojiLimit()
         mBinding.etClear.apply {
             setOnKeyListener { _, keyCode, _ ->
@@ -54,7 +52,6 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
                 onTextChanged?.invoke(it)
             }
             onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
-                if (hasFocus) focused() else normal()
                 onFocusChange?.invoke(v, hasFocus)
             }
         }
@@ -153,18 +150,6 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     fun showBtn() {
         isShowBtn = true
         mBinding.ivShow.visible()
-    }
-
-    fun normal() {
-//        mBinding.root.background(R.drawable.shape_input)
-    }
-
-    fun focused() {
-//        mBinding.root.background(R.drawable.shape_input_focused)
-    }
-
-    fun error() {
-//        mBinding.root.background(R.drawable.shape_input_error)
     }
 
     fun addFilter(filter: InputFilter) {
