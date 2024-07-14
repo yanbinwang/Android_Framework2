@@ -4,7 +4,9 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.view.LayoutInflater
@@ -25,6 +27,7 @@ import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
+import com.example.common.bean.interf.TransparentOwner
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.socket.topic.WebSocketRequest
@@ -40,6 +43,7 @@ import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.getIntent
+import com.example.framework.utils.function.value.hasAnnotation
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
@@ -67,10 +71,10 @@ import kotlin.coroutines.CoroutineContext
 @Suppress("UNCHECKED_CAST")
 abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected var mBinding: VDB? = null
+    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
+    protected val mActivityResult = registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { AppDialog(this) }
     protected val mPermission by lazy { PermissionHelper(this) }
-    protected val mActivityResult = registerResult { onActivityResultListener?.invoke(it) }
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
@@ -102,6 +106,14 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun onCreate(savedInstanceState: Bundle?) {
         onCreateListener?.onCreate(this)
         super.onCreate(savedInstanceState)
+        if (needTransparentOwner) {
+            overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
+            requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            } else {
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+        }
         AppManager.addActivity(this)
         WebSocketRequest.addObserver(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
@@ -200,6 +212,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun finish() {
         onFinishListener?.onFinish(this)
         super.finish()
+        if (needTransparentOwner) overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_in)
     }
 
     override fun onDestroy() {
@@ -291,6 +304,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     // </editor-fold>
 
 }
+
+val BaseActivity<*>.needTransparentOwner get() = hasAnnotation(TransparentOwner::class.java)
 
 interface OnFinishListener {
     fun onFinish(act: BaseActivity<*>)

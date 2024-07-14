@@ -1,0 +1,7 @@
+<resources>
+    <!-- 相册/裁剪字段 -->
+    <string name="albumImageError">请选择%1$sM以内的图片</string>
+    <string name="albumVideoError">请选择%1$sM以内的视频</string>
+    <string name="albumTitle">相册</string>
+    <string name="cropTitle">图片裁剪</string>
+</resources>

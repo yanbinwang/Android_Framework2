@@ -70,4 +70,28 @@ class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context) {
         return this
     }
 
+    fun setTipTheme(colorRes: Int = R.color.textPrimary, sizeRes: Int = R.dimen.textSize14): AppDialog {
+        mBinding?.tvTip.textColor(colorRes)
+        mBinding?.tvTip?.textSize = context.dimen(sizeRes)
+        return this
+    }
+
+    fun setMessageTheme(colorRes: Int = R.color.textPrimary, sizeRes: Int = R.dimen.textSize14): AppDialog {
+        mBinding?.tvMessage.textColor(colorRes)
+        mBinding?.tvMessage?.textSize = context.dimen(sizeRes)
+        return this
+    }
+
+    fun setSureTheme(colorRes: Int = R.color.appTheme, sizeRes: Int = R.dimen.textSize14): AppDialog {
+        mBinding?.tvSure.textColor(colorRes)
+        mBinding?.tvSure?.textSize = context.dimen(sizeRes)
+        return this
+    }
+
+    fun setCancelTheme(colorRes: Int = R.color.appTheme, sizeRes: Int = R.dimen.textSize14): AppDialog {
+        mBinding?.tvCancel.textColor(colorRes)
+        mBinding?.tvCancel?.textSize = context.dimen(sizeRes)
+        return this
+    }
+
 }
