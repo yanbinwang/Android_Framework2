@@ -36,7 +36,7 @@ class WXPayEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
     override fun onCreate(savedInstanceState: Bundle?) {
         wxApi?.handleIntent(intent, this)
         super.onCreate(savedInstanceState)
-        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
+        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         } else {
@@ -46,7 +46,7 @@ class WXPayEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_in)
+        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
     }
 
     override fun onNewIntent(intent: Intent?) {

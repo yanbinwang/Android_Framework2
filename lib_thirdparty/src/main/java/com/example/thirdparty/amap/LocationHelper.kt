@@ -1,4 +1,4 @@
-package com.example.thirdparty.amap.utils
+package com.example.thirdparty.amap
 
 import android.app.Activity
 import android.app.Notification
@@ -9,6 +9,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.location.LocationManager
 import android.os.Build
+import android.os.Looper
 import android.provider.Settings
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
@@ -19,12 +20,14 @@ import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.location.AMapLocationListener
 import com.amap.api.maps.model.LatLng
-import com.example.common.config.Constants
+import com.example.common.config.Constants.APPLICATION_NAME
 import com.example.common.utils.DataStringCacheUtil
+import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.registerResult
 import com.example.common.utils.function.string
 import com.example.common.utils.toJsonString
 import com.example.common.widget.dialog.AppDialog
+import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
@@ -38,8 +41,11 @@ import com.example.thirdparty.R
  *  3.选择3d地图定位套件
  */
 class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationListener, LifecycleEventObserver {
+    private var retry = false
     private var locationClient: AMapLocationClient? = null
     private var listener: OnLocationListener? = null
+    private val retryTime = 8000L
+    private val handler by lazy { WeakHandler(Looper.getMainLooper()) }
     private val manager by lazy { mActivity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager }
     private val mDialog by lazy { AppDialog(mActivity) }
     private val result = mActivity.registerResult {
@@ -50,54 +56,11 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
         }
     }
 
-    /**
-     * 跳转设置gps
-     */
-    fun settingGps(): Boolean {
-        //判断GPS模块是否开启，如果没有则开启
-        return if (!manager?.isProviderEnabled(LocationManager.GPS_PROVIDER).orFalse) {
-            mDialog
-                .setParams(
-                    string(R.string.hint),
-                    string(R.string.mapGps),
-                    string(R.string.mapGpsGoSetting),
-                    string(R.string.cancel))
-                .setDialogListener({ result?.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) })
-                .show()
-            false
-        } else {
-            true
-        }
-    }
-
     companion object {
         //经纬度json->默认杭州
+        private const val AMAP_JSON = "{latitude:30.2780010000,longitude:120.1680690000}"
         private const val AMAP_LATLNG = "map_latlng"
-        internal val aMapLatlng = DataStringCacheUtil(AMAP_LATLNG, "{latitude:30.2780010000,longitude:120.1680690000}")
-
-        /**
-         * 高德内部构建定位通知
-         */
-        private fun Context.buildNotification(): Notification {
-            val builder: Notification.Builder?
-            //Android O上对Notification进行了修改，如果设置的targetSDKVersion>=26建议使用此种方式创建通知栏
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
-                val notificationChannel = NotificationChannel(string(R.string.notificationChannelId), string(R.string.notificationChannelName), NotificationManager.IMPORTANCE_DEFAULT)
-                notificationChannel.apply {
-                    enableLights(true) //是否在桌面icon右上角展示小圆点
-                    lightColor = Color.BLUE //小圆点颜色
-                    setShowBadge(true) //是否在久按桌面图标时显示此渠道的通知
-                }
-                notificationManager?.createNotificationChannel(notificationChannel)
-                builder = Notification.Builder(this, string(R.string.notificationChannelId))
-            } else builder = Notification.Builder(this)
-            builder.setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(Constants.APPLICATION_NAME)
-                .setContentText(string(R.string.mapLocationLoading))
-                .setWhen(System.currentTimeMillis())
-            return builder.build()
-        }
+        internal val aMapLatLng = DataStringCacheUtil(AMAP_LATLNG, AMAP_JSON)
     }
 
     init {
@@ -124,7 +87,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
             //启动定位时SDK会返回最近3s内精度最高的一次定位结果（+）
             isOnceLocationLatest = true
             //请求超时时间，单位是毫秒，默认30000毫秒，建议超时时间不要低于8000毫秒
-            httpTimeOut = 8000
+            httpTimeOut = retryTime
         }
         //设置定位参数
         locationClient?.setLocationOption(aMapLocationClientOption)
@@ -132,13 +95,39 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
         locationClient?.enableBackgroundLocation(2001, mActivity.buildNotification())
     }
 
+    /**
+     * 高德内部构建定位通知
+     */
+    private fun Context.buildNotification(): Notification {
+        val builder: Notification.Builder?
+        //Android O上对Notification进行了修改，如果设置的targetSDKVersion>=26建议使用此种方式创建通知栏
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationChannel = NotificationChannel(string(R.string.notificationChannelId), string(R.string.notificationChannelName), NotificationManager.IMPORTANCE_DEFAULT)
+            notificationChannel.apply {
+                enableLights(true) //是否在桌面icon右上角展示小圆点
+                lightColor = Color.BLUE //小圆点颜色
+                setShowBadge(true) //是否在久按桌面图标时显示此渠道的通知
+            }
+            (getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)?.createNotificationChannel(notificationChannel)
+            builder = Notification.Builder(this, string(R.string.notificationChannelId))
+        } else {
+            builder = Notification.Builder(this)
+        }
+        builder.setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle(APPLICATION_NAME)
+            .setContentText(string(R.string.mapLocationLoading))
+            .setWhen(System.currentTimeMillis())
+        return builder.build()
+    }
+
     override fun onLocationChanged(aMapLocation: AMapLocation?) {
         if (aMapLocation != null && aMapLocation.errorCode == AMapLocation.LOCATION_SUCCESS) {
-            aMapLatlng.set(LatLng(aMapLocation.latitude, aMapLocation.longitude).toJsonString())
+            aMapLatLng.set(LatLng(aMapLocation.latitude, aMapLocation.longitude).toJsonString())
             //部分地区可能地址取到为空，直接赋值一个未获取地址的默认显示文案
-            if (aMapLocation.address.isNullOrEmpty()) aMapLocation.address = string(R.string.mapLocationError)
+            if (aMapLocation.address.isNullOrEmpty()) aMapLocation.address = string(R.string.mapLocationEmpty)
             listener?.onLocationChanged(aMapLocation, true)
         } else {
+            aMapLatLng.set(AMAP_JSON)
             listener?.onLocationChanged(null, false)
         }
         stop()
@@ -149,10 +138,17 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
      * 必须具备定位权限,不区分安卓版本！用于打卡，签到，地图矫正
      */
     fun start() {
+        if (retry) {
+            R.string.mapLocationProcessing.shortToast()
+            return
+        }
+        retry = true
+        handler.postDelayed({ retry = false }, retryTime)
         try {
             locationClient?.startLocation()
         } catch (_: Exception) {
             listener?.onLocationChanged(null, false)
+            clear()
         }
     }
 
@@ -164,6 +160,16 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
         locationClient?.disableBackgroundLocation(true)
         //结束定位(高德的isStart取到的不是实时的值,直接调取开始或停止内部api会做判断)
         locationClient?.stopLocation()
+        //清空消息
+        clear()
+    }
+
+    /**
+     * 清除消息队列
+     */
+    private fun clear() {
+        retry = false
+        handler.removeCallbacksAndMessages(null)
     }
 
     /**
@@ -181,6 +187,26 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
      */
     fun setOnLocationListener(listener: OnLocationListener) {
         this.listener = listener
+    }
+
+    /**
+     * 跳转设置gps
+     */
+    fun settingGps(): Boolean {
+        //判断GPS模块是否开启，如果没有则开启
+        return if (!manager?.isProviderEnabled(LocationManager.GPS_PROVIDER).orFalse) {
+            mDialog
+                .setParams(
+                    string(R.string.hint),
+                    string(R.string.mapGps),
+                    string(R.string.mapGpsGoSetting),
+                    string(R.string.cancel))
+                .setDialogListener({ result?.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) })
+                .show()
+            false
+        } else {
+            true
+        }
     }
 
     /**

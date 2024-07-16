@@ -3,7 +3,7 @@ package com.example.common.base
 import android.os.Bundle
 import android.view.View
 import androidx.databinding.ViewDataBinding
-import com.example.common.bean.interf.FragmentOwner
+import com.example.common.bean.interf.LazyOwner
 import com.example.framework.utils.function.value.hasAnnotation
 
 /**
@@ -24,7 +24,7 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        if (needFragmentOwner) onHiddenChanged(false)
+        if (needLazyOwner) onHiddenChanged(false)
     }
 
     override fun onResume() {
@@ -40,7 +40,7 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        if (needFragmentOwner) {
+        if (needLazyOwner) {
             if (hidden) onPause() else onResume()
         }
     }
@@ -60,4 +60,4 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
 
 }
 
-val BaseLazyFragment<*>.needFragmentOwner get() = hasAnnotation(FragmentOwner::class.java)
+val BaseLazyFragment<*>.needLazyOwner get() = hasAnnotation(LazyOwner::class.java)
