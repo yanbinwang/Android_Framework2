@@ -5,10 +5,12 @@ import android.app.Activity
 import android.app.ActivityManager
 import android.app.Application
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -29,6 +31,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -284,6 +287,32 @@ fun <T : Serializable> Fragment.intentSerializable(key: String) = arguments?.get
 //fun <T : Serializable> Fragment.intentSerializable(key: String, default: T) = arguments?.getSerializable(key) as? T ?: default
 
 fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParcelable(key) as? T
+
+/**
+ * 页面广播-》（Context.RECEIVER_EXPORTED 表示可以接收应用外部广播，Context.RECEIVER_NOT_EXPORTED 应用内部广播(否则安卓14报错)）
+ * mActivity.doOnReceiver(receiver, IntentFilter().apply {
+ * addAction(RECEIVER_USB)
+ * addAction(RECEIVER_USB_ATTACHED)
+ * addAction(RECEIVER_USB_DETACHED)
+ * })
+ */
+@SuppressLint("UnspecifiedRegisterReceiverFlag")
+fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, intentFilter: IntentFilter) {
+    this ?: return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        registerReceiver(receiver, intentFilter, Context.RECEIVER_EXPORTED)
+    } else {
+        registerReceiver(receiver, intentFilter)
+    }
+    owner.doOnDestroy {
+        try {
+            unregisterReceiver(receiver)
+        } catch (_: Exception) {
+        }
+    }
+}
+
+fun FragmentActivity?.doOnReceiver(receiver: BroadcastReceiver, intentFilter: IntentFilter) = doOnReceiver(this, receiver, intentFilter)
 
 /**
  * 可在协程类里传入AppComActivity，然后init{}方法里调取，销毁内部的job

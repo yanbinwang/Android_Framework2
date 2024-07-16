@@ -111,7 +111,7 @@ class WeakHandler {
         mExec?.removeMessages(what, obj)
     }
 
-    fun removeCallbacksAndMessages(token: Any) {
+    fun removeCallbacksAndMessages(token: Any?) {
         mExec?.removeCallbacksAndMessages(token)
     }
 
