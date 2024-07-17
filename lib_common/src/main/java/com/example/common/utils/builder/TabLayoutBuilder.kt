@@ -38,8 +38,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     private var mediator: TabLayoutMediator? = null
     private var listener: OnTabChangeListener? = null
     private val tabViews by lazy { SparseArray<VDB>() }
-    protected val mContext: Context get() = tab?.context ?: BaseApplication.instance.applicationContext
-    protected val mCurrentIndex: Int get() = tab?.selectedTabPosition.orZero
+    protected val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext
+    protected val mCurrentIndex get() = tab?.selectedTabPosition.orZero
 
     /**
      * 无特殊绑定的自定义头
@@ -145,7 +145,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     /**
      * 设置选中下标
      */
-    fun setSelect(index:Int){
+    fun setSelect(index: Int) {
+        if (mCurrentIndex == index) return
         tab?.getTabAt(index)?.select()
     }
 
