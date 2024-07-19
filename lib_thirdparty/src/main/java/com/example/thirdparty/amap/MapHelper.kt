@@ -109,7 +109,7 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
      * 地图定位
      */
     fun location() {
-        if (mapView?.context?.checkSelfLocation().orFalse) location.start()
+        if (mActivity.checkSelfLocation().orFalse) location.start()
     }
 
     /**
