@@ -59,7 +59,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
     companion object {
         //经纬度json->默认杭州
         private const val AMAP_JSON = "{latitude:30.2780010000,longitude:120.1680690000}"
-        private const val AMAP_LATLNG = "map_latlng"
+        private const val AMAP_LATLNG = "amap_latlng"
         internal val aMapLatLng = DataStringCacheUtil(AMAP_LATLNG, AMAP_JSON)
     }
 
@@ -196,11 +196,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
         //判断GPS模块是否开启，如果没有则开启
         return if (!manager?.isProviderEnabled(LocationManager.GPS_PROVIDER).orFalse) {
             mDialog
-                .setParams(
-                    string(R.string.hint),
-                    string(R.string.mapGps),
-                    string(R.string.mapGpsGoSetting),
-                    string(R.string.cancel))
+                .setParams(string(R.string.hint), string(R.string.mapGps), string(R.string.mapGpsGoSetting), string(R.string.cancel))
                 .setDialogListener({ result?.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) })
                 .show()
             false
