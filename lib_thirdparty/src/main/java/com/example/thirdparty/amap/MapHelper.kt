@@ -100,7 +100,7 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
             aMap?.setOnMapLoadedListener {
                 //先移动到默认点再检测权限定位
                 moveCamera()
-                if (mapView?.context?.checkSelfLocation().orFalse) location()
+                location()
             }
         }
     }
@@ -109,7 +109,7 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
      * 地图定位
      */
     fun location() {
-        location.start()
+        if (mapView?.context?.checkSelfLocation().orFalse) location.start()
     }
 
     /**
