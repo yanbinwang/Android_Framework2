@@ -159,7 +159,8 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
             .draggable(false) //设置手势拖拽
         //给地图覆盖物加上额外的集合数据（点击时候取）
         val marker = aMap?.addMarker(markerOptions)
-        marker?.title = json
+//        marker?.title = json
+        marker?.snippet = json//使用摘录比title更规范些
         marker?.setFixingPointEnable(false) //去除拉近动画
         marker?.isInfoWindowEnable = false //禁止高德地图自己的弹出窗口
     }
