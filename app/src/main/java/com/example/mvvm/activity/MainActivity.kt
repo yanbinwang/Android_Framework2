@@ -116,6 +116,9 @@ import kotlinx.coroutines.launch
  * https://blog.csdn.net/mqdxiaoxiao/article/details/135101003
  * https://gitee.com/tryohang/EdgeTranslucent
  * com.ulive.common.widget.EdgeTransparentView
+ *
+ * kotlin的===等价于java的==
+ * kotlin的==等价于java的equals
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {

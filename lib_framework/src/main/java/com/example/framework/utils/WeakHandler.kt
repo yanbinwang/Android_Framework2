@@ -198,7 +198,7 @@ class WeakHandler {
             try {
                 var curr = next
                 while (curr != null) {
-                    if (curr.runnable == obj) return curr.remove()
+                    if (curr.runnable === obj) return curr.remove()
                     curr = curr.next
                 }
             } finally {
