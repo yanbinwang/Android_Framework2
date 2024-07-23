@@ -1,6 +1,0 @@
-<resources>
-    <!-- app内的一些提示 -->
-    <string name="gsyNotWifiTips">您当前正在使用移动网络，继续播放将消耗流量</string>
-    <string name="gsyNotWifiConfirm">继续播放</string>
-    <string name="gsyNotWifiCancel">停止播放</string>
-</resources>

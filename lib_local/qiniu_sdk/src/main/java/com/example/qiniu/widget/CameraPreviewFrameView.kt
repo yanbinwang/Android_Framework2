@@ -65,7 +65,7 @@ class CameraPreviewFrameView @JvmOverloads constructor(context: Context, attrs: 
     interface Listener {
         fun onSingleTapUp(e: MotionEvent): Boolean
 
-        fun onZoomValueChanged(factor: Float?): Boolean
+        fun onZoomValueChanged(factor: Float): Boolean
     }
 
 }
