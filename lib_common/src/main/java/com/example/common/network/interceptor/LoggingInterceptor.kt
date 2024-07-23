@@ -29,7 +29,7 @@ internal class LoggingInterceptor : Interceptor {
         var responseResult: String? = null
         //获取此次请求头部参数和请求地址
         val request = chain.request()
-        val headerValues = request.headers.toString()
+        val requestHeaders = request.headers
         val requestUrl = request.url.toString()
         //------对此次请求做处理------
         //不包含服务器地址的属于下载地址或图片加载地址，不做拦截
@@ -40,7 +40,7 @@ internal class LoggingInterceptor : Interceptor {
         } else {
             val requestBody = request.body
             val hasRequestBody = requestBody != null
-            if (hasRequestBody && !bodyEncoded(request.headers)) {
+            if (hasRequestBody && !bodyEncoded(requestHeaders)) {
                 val buffer = Buffer()
                 requestBody?.writeTo(buffer)
                 var charset = UTF8
@@ -65,12 +65,12 @@ internal class LoggingInterceptor : Interceptor {
             val contentType = responseBody?.contentType()
             if (contentType != null) charset = contentType.charset(UTF8)
             if (!isPlaintext(buffer)) {
-                log(headerValues, requestUrl, queryParams, null)
+                log(requestHeaders, requestUrl, queryParams, null)
                 return response
             }
             if (responseBody?.contentLength() != 0L) responseResult = buffer?.clone()?.readString(charset)
         }
-        log(headerValues, requestUrl, queryParams, responseResult)
+        log(requestHeaders, requestUrl, queryParams, responseResult)
         return response
     }
 
@@ -102,10 +102,10 @@ internal class LoggingInterceptor : Interceptor {
      * 打印获取到的信息
      * 量过大会只打印部分
      */
-    private fun log(headerValues: String, requestUrl: String, queryParams: String?, responseResult: String?) {
+    private fun log(headers: Headers, requestUrl: String, queryParams: String?, responseResult: String?) {
         LogUtil.e("LoggingInterceptor", " " +
                 "\n————————————————————————请求开始————————————————————————" +
-                "\n请求头:\n" + headerValues.trim { it <= ' ' } +
+                "\n请求头:\n" + headers.toString().trim { it <= ' ' } +
                 "\n请求地址:\n" + requestUrl +
                 "\n请求参数:\n" + queryParams +
                 "\n返回参数:\n" + decode(responseResult) +

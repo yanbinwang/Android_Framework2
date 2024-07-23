@@ -17,7 +17,7 @@ object OssDBHelper {
      * application中调取
      */
     fun init(dao: OssDBDao) {
-        this.dao = dao
+        OssDBHelper.dao = dao
     }
 
     /**

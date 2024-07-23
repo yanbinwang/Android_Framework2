@@ -1,4 +1,4 @@
-package com.example.thirdparty.amap.utils
+package com.example.thirdparty.amap
 
 import android.graphics.Color
 import android.graphics.Point
@@ -24,7 +24,7 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.gone
-import com.example.thirdparty.amap.utils.LocationHelper.Companion.aMapLatlng
+import com.example.thirdparty.amap.LocationHelper.Companion.aMapLatLng
 import kotlin.math.roundToInt
 
 /**
@@ -33,9 +33,26 @@ import kotlin.math.roundToInt
  */
 class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var mapView: MapView? = null
+    private val mapLatLng by lazy { aMapLatLng.get().toObj(LatLng::class.java) }//默认地图经纬度-杭州
     private val location by lazy { LocationHelper(mActivity) }
-    private val mapLatLng by lazy { aMapLatlng.get().toObj(LatLng::class.java) }//默认地图经纬度-杭州
+    /**
+     * 地址控件
+     */
     var aMap: AMap? = null
+        private set
+    /**
+     * 详细定位类
+     */
+    var aMapLocation: AMapLocation? = null
+        private set
+    /**
+     * 經緯度
+     */
+    val latLng get() = LatLng(aMapLocation?.latitude.orZero, aMapLocation?.longitude.orZero)
+    /**
+     * 是否定位成功
+     */
+    val isSuccessful get() = aMapLocation != null
 
     init {
         mActivity.lifecycle.addObserver(this)
@@ -44,13 +61,13 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
     /**
      * 绑定地图
      */
-    fun bind(savedInstanceState: Bundle?, mapView: MapView, initLoaded: Boolean = true) {
+    fun bind(savedInstanceState: Bundle?, mapView: MapView?, initLoaded: Boolean = true) {
         this.mapView = mapView
-        this.aMap = mapView.map
+        this.aMap = mapView?.map
         //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)创建地图
-        mapView.onCreate(savedInstanceState)
+        mapView?.onCreate(savedInstanceState)
         //更改地图view设置
-        mapView.viewTreeObserver.addOnGlobalLayoutListener {
+        mapView?.viewTreeObserver?.addOnGlobalLayoutListener {
             try {
                 val child = mapView.getChildAt(0) as? ViewGroup //地图框架
                 val logo = child?.getChildAt(2)
@@ -66,8 +83,9 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
         //初始化定位回调
         location.setOnLocationListener(object : LocationHelper.OnLocationListener {
             override fun onLocationChanged(aMapLocation: AMapLocation?, flag: Boolean) {
+                this@MapHelper.aMapLocation = aMapLocation
                 if (flag) {
-                    moveCamera(LatLng(aMapLocation?.latitude.orZero, aMapLocation?.longitude.orZero))
+                    moveCamera(latLng)
                 } else {
                     moveCamera()
                 }
@@ -82,7 +100,7 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
             aMap?.setOnMapLoadedListener {
                 //先移动到默认点再检测权限定位
                 moveCamera()
-                if (mapView.context.checkSelfLocation()) location()
+                location()
             }
         }
     }
@@ -91,7 +109,7 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
      * 地图定位
      */
     fun location() {
-        location.start()
+        if (mActivity.checkSelfLocation().orFalse) location.start()
     }
 
     /**
@@ -141,7 +159,8 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
             .draggable(false) //设置手势拖拽
         //给地图覆盖物加上额外的集合数据（点击时候取）
         val marker = aMap?.addMarker(markerOptions)
-        marker?.title = json
+//        marker?.title = json
+        marker?.snippet = json//使用摘录比title更规范些
         marker?.setFixingPointEnable(false) //去除拉近动画
         marker?.isInfoWindowEnable = false //禁止高德地图自己的弹出窗口
     }

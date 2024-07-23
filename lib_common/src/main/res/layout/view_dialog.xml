@@ -8,7 +8,7 @@
         android:layout_width="320pt"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/shape_r10_default">
+        android:background="@drawable/shape_default">
 
         <TextView
             android:id="@+id/tv_tip"

@@ -7,4 +7,4 @@ package com.example.common.bean.interf
  * @author yan
  * val clazz = source::class.java.getAnnotation(SocketRequest::class.java)
  */
-annotation class FragmentOwner
+annotation class LazyOwner
