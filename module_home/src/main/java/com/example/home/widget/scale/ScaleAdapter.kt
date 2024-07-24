@@ -13,10 +13,10 @@ import com.example.glide.ImageLoader
  * Created by wangyanbin
  * 伸缩图片适配器
  */
-class ScaleAdapter(private var data: List<Pair<ScaleImageView, String>>?) : PagerAdapter() {
+class ScaleAdapter(private val data: List<Pair<ScaleImageView, String>>) : PagerAdapter() {
 
     override fun getCount(): Int {
-        return data?.safeSize.orZero
+        return data.safeSize.orZero
     }
 
     override fun isViewFromObject(view: View, any: Any): Boolean {
