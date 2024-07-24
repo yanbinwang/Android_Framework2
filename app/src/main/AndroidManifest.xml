@@ -63,15 +63,16 @@
         <meta-data
             android:name="GOOGLE_AUTH_API"
             android:value="${GOOGLE_AUTH_API}" />
-        <!--更换推送icon-->
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@mipmap/ic_notification"
-            tools:replace="android:resource" />
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/notificationDefaultColor"
-            tools:replace="android:resource" />
+
+<!--        &lt;!&ndash;更换推送icon&ndash;&gt;-->
+<!--        <meta-data-->
+<!--            android:name="com.google.firebase.messaging.default_notification_icon"-->
+<!--            android:resource="@mipmap/ic_notification"-->
+<!--            tools:replace="android:resource" />-->
+<!--        <meta-data-->
+<!--            android:name="com.google.firebase.messaging.default_notification_color"-->
+<!--            android:resource="@color/notificationDefaultColor"-->
+<!--            tools:replace="android:resource" />-->
         <!-- ******************************************************基础全局配置****************************************************** -->
 
         <activity

@@ -1,4 +1,4 @@
-package com.example.thirdparty.google
+package com.example.thirdparty.auth.google
 
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity

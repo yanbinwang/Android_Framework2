@@ -1,4 +1,4 @@
-package com.example.thirdparty.google
+package com.example.thirdparty.auth.google
 
 import android.net.Uri
 import android.os.Parcelable
