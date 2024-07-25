@@ -9,6 +9,8 @@ import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.getSdcardAvailableCapacity
 import com.example.framework.utils.hasSdcard
 import com.example.framework.utils.logE
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Date
 
@@ -79,28 +81,16 @@ fun Context.scanDisk(space: Long = 1024) = getSdcardAvailableCapacity() > space
  * 返回时长(音频，视频)->不支持在线音视频
  * 放在线程中读取，超时会导致卡顿或闪退
  */
-//fun String?.getDuration(): Double {
-//    if (isNullOrEmpty()) return 0.0
-//    val file = File(this)
-//    if (!file.exists()) return 0.0
-//    val medialPlayer = MediaPlayer()
-//    medialPlayer.setDataSource(file.absolutePath)
-//    medialPlayer.prepare()
-//    val time = medialPlayer.duration//视频时长（毫秒）
-//    val duration = (time / 1000.0)
-//    "文件时长：${duration}秒".logE()
-//    return duration
-//}
-
-fun String?.mediaDuration(): Int {
-    if (isNullOrEmpty()) return 0
-    val file = File(this)
-    if (!file.exists()) return 0
-    val medialPlayer = MediaPlayer()
-    medialPlayer.setDataSource(file.absolutePath)
-    medialPlayer.prepare()
-    val time = medialPlayer.duration.toString()//视频时长（毫秒）
-    val duration = time.divide("1000")
-    "文件时长：${duration}秒".logE()
-    return duration.toSafeInt()
+suspend fun String?.mediaTime(): Int {
+    val sourcePath = this
+    if (null == sourcePath || !File(sourcePath).exists()) return 0
+    return withContext(IO) {
+        val medialPlayer = MediaPlayer()
+        medialPlayer.setDataSource(sourcePath)
+        medialPlayer.prepare()
+        val millisecond = medialPlayer.duration//视频时长（毫秒）
+        val second = (millisecond.toString()).divide("1000").toSafeInt()
+        "文件时长：${second}秒".logE()
+        second
+    }
 }
