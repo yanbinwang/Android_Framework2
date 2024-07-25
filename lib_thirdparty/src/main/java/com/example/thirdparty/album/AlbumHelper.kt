@@ -1,28 +1,17 @@
 package com.example.thirdparty.album
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import com.example.common.base.page.RequestCode.REQUEST_IMAGE
 import com.example.common.base.page.RequestCode.REQUEST_ALBUM
-import com.example.common.base.page.RequestCode.REQUEST_VIDEO
-import com.example.common.config.Constants
+import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.mb
 import com.example.common.utils.function.string
-import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
 import com.example.thirdparty.R
-import com.example.thirdparty.media.utils.StorageUtil.StorageType
-import com.example.thirdparty.media.utils.StorageUtil.getOutputFile
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.api.ImageCameraWrapper
 import com.yanzhenjie.album.api.ImageMultipleWrapper
@@ -35,7 +24,6 @@ import com.yanzhenjie.album.api.choice.Choice
 import com.yanzhenjie.album.api.widget.Widget
 import com.yanzhenjie.durban.Controller
 import com.yanzhenjie.durban.Durban
-import java.io.File
 
 /**
  * author: wyb
@@ -189,7 +177,7 @@ class AlbumHelper {
             //图片路径list或者数组
             ?.inputImagePaths(*imagePathArray)
             //图片输出文件夹路径
-            ?.outputDirectory("${STORAGE}/裁剪图片")
+            ?.outputDirectory(getStoragePath("裁剪图片"))
             //裁剪图片输出的最大宽高
             ?.maxWidthHeight(width, height)
             //裁剪时的宽高比
@@ -216,44 +204,4 @@ class AlbumHelper {
             ?.requestCode(REQUEST_ALBUM)?.start()
     }
 
-}
-
-/**
- * 打开手机相机-拍照
- * CAMERA, STORAGE
- */
-fun Activity?.pullUpImage() {
-    this ?: return
-    val file = getOutputFile(StorageType.IMAGE)
-    val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    getResult(file, intent, REQUEST_IMAGE)
-}
-
-/**
- * 打开手机相机-录像
- * CAMERA, MICROPHONE, STORAGE
- */
-fun Activity?.pullUpVideo(second: Int? = 50000, quality: Double? = 0.5) {
-    this ?: return
-    val file = getOutputFile(StorageType.VIDEO)
-    val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
-    intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, second)//设置视频录制的最长时间
-    intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, quality)
-    getResult(file, intent, REQUEST_VIDEO)
-}
-
-private fun Activity?.getResult(file: File?, intent: Intent, requestCode: Int) {
-    if (null == file || null == this) return
-    try {
-        val uri: Uri?
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-            uri = FileProvider.getUriForFile(this, "${Constants.APPLICATION_ID}.fileProvider", file)
-        } else {
-            uri = Uri.fromFile(file)
-        }
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
-        startActivityForResult(intent, requestCode)
-    } catch (_: Exception) {
-    }
 }

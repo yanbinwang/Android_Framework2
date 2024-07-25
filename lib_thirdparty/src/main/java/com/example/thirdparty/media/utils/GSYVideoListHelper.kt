@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.utils.helper
+package com.example.thirdparty.media.utils
 
 import android.view.View
 import androidx.fragment.app.FragmentActivity

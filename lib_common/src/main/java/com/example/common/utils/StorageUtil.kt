@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.utils
+package com.example.common.utils
 
 import android.content.Context
 import android.media.MediaPlayer
@@ -37,7 +37,7 @@ object StorageUtil {
             return null
         }
         //根据类型在sd卡picture目录下建立对应app名称的对应类型文件
-        val storageInfo = getOutputRoute(mimeType)
+        val storageInfo = getStorageInfo(mimeType)
         //先在包名目录下建立对应类型的文件夹，构建失败直接返回null
         val storageDir = File(storageInfo.first)
         if (!storageDir.exists()) {
@@ -56,7 +56,7 @@ object StorageUtil {
      * 获取输出文件的路径
      */
     @JvmStatic
-    fun getOutputRoute(mimeType: StorageType): Pair<String, String> {
+    fun getStorageInfo(mimeType: StorageType): Pair<String, String> {
         return when (mimeType) {
             //拍照/抓拍
             StorageType.IMAGE -> "${STORAGE}/拍照" to "jpg"
@@ -67,6 +67,15 @@ object StorageUtil {
             //录屏
             StorageType.SCREEN -> "${STORAGE}/录屏" to "mp4"
         }
+    }
+
+    /**
+     * 获取用户id命名的文件夹下的文件
+     * "${Constants.APPLICATION_PATH}/手机文件/${getUserId()}"
+     */
+    @JvmStatic
+    fun getStoragePath(fileName: String): String {
+        return "${STORAGE}/${fileName}"
     }
 
 }

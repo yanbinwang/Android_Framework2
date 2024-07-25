@@ -1,7 +1,6 @@
 package com.example.thirdparty.oss
 
 import com.example.common.utils.file.deleteFile
-import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.greendao.bean.OssDB
 import com.example.greendao.dao.OssDBDao
@@ -90,20 +89,20 @@ object OssDBHelper {
         }
     }
 
-    /**
-     * 获取对应文件在手机内的路径
-     */
-    @JvmStatic
-    fun sourcePath(appType: String, title: String): String {
-        return "${STORAGE}/${
-            when (appType) {
-                "1" -> "拍照"
-                "2" -> "录音"
-                "3" -> "录像"
-                else -> "录屏"
-            }
-        }/${title}"
-    }
+//    /**
+//     * 获取对应文件在手机内的路径
+//     */
+//    @JvmStatic
+//    fun sourcePath(appType: String, title: String): String {
+//        return "${STORAGE}/${
+//            when (appType) {
+//                "1" -> "拍照"
+//                "2" -> "录音"
+//                "3" -> "录像"
+//                else -> "录屏"
+//            }
+//        }/${title}"
+//    }
 
     /**
      * 开始上传文件

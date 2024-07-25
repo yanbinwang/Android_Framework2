@@ -22,11 +22,11 @@ import com.example.common.network.repository.reqBodyOf
 import com.example.common.network.repository.request
 import com.example.common.network.repository.successful
 import com.example.common.utils.NetWorkUtil
+import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.deleteDir
 import com.example.common.utils.file.deleteFile
 import com.example.common.utils.function.byServerUrl
-import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.common.utils.toJsonString
 import com.example.framework.utils.function.doOnDestroy
@@ -368,7 +368,7 @@ class OssFactory private constructor() : CoroutineScope {
             val file = File(sourcePath)
             val fileName = file.name.split(".")[0]
             //本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
-            val storeDir = File("${STORAGE}/选择的文件")
+            val storeDir = File(getStoragePath("选择的文件"))
             val recordDirectory = "${storeDir.parent}/${fileName}_record"
             val recordDir = File(recordDirectory)
             if (!recordDir.exists()) recordDir.mkdirs()

@@ -15,11 +15,11 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
 import com.example.common.subscribe.CommonSubscribe
 import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.saveBit
-import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.logWTF
 import com.example.glide.ImageLoader
@@ -267,7 +267,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
     /**
      * 存储图片协程(下载url)
      */
-    fun downloadPicJob(mContext: Context, string: String, root: String = "${STORAGE}/保存图片", deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+    fun downloadPicJob(mContext: Context, string: String, root: String = getStoragePath("保存图片"), deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
         downloadPicJob?.cancel()
         downloadPicJob = launch {
             onStart()
