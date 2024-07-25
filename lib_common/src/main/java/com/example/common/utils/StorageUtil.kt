@@ -1,16 +1,10 @@
 package com.example.common.utils
 
-import android.content.Context
-import android.media.MediaPlayer
-import com.example.common.utils.helper.AccountHelper.STORAGE
+import com.example.common.config.Constants
+import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.framework.utils.function.value.convert
-import com.example.framework.utils.function.value.divide
-import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.getSdcardAvailableCapacity
 import com.example.framework.utils.hasSdcard
 import com.example.framework.utils.logE
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Date
 
@@ -19,6 +13,10 @@ import java.util.Date
  * @author yan
  */
 object StorageUtil {
+    /**
+     * 默认用户文件保存位置
+     */
+    val STORAGE get() = "${Constants.APPLICATION_PATH}/手机文件/${getUserId()}"
 
     /**
      * 定义传入的枚举类型
@@ -59,13 +57,13 @@ object StorageUtil {
     fun getStorageInfo(mimeType: StorageType): Pair<String, String> {
         return when (mimeType) {
             //拍照/抓拍
-            StorageType.IMAGE -> "${STORAGE}/拍照" to "jpg"
+            StorageType.IMAGE -> getStoragePath("拍照") to "jpg"
             //录像
-            StorageType.VIDEO -> "${STORAGE}/录像" to "mp4"
+            StorageType.VIDEO -> getStoragePath("录像") to "mp4"
             //录音
-            StorageType.AUDIO -> "${STORAGE}/录音" to "wav"
+            StorageType.AUDIO -> getStoragePath("录音") to "wav"
             //录屏
-            StorageType.SCREEN -> "${STORAGE}/录屏" to "mp4"
+            StorageType.SCREEN -> getStoragePath("录屏") to "mp4"
         }
     }
 
@@ -78,28 +76,4 @@ object StorageUtil {
         return "${STORAGE}/${fileName}"
     }
 
-}
-
-/**
- * 传入指定大小的文件长度，扫描sd卡空间是否足够
- * 需有1G的默认大小的空间
- */
-fun Context.scanDisk(space: Long = 1024) = getSdcardAvailableCapacity() > space
-
-/**
- * 返回时长(音频，视频)->不支持在线音视频
- * 放在线程中读取，超时会导致卡顿或闪退
- */
-suspend fun String?.mediaTime(): Int {
-    val sourcePath = this
-    if (null == sourcePath || !File(sourcePath).exists()) return 0
-    return withContext(IO) {
-        val medialPlayer = MediaPlayer()
-        medialPlayer.setDataSource(sourcePath)
-        medialPlayer.prepare()
-        val millisecond = medialPlayer.duration//视频时长（毫秒）
-        val second = (millisecond.toString()).divide("1000").toSafeInt()
-        "文件时长：${second}秒".logE()
-        second
-    }
 }
