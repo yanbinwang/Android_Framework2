@@ -15,12 +15,14 @@ object Extra {
     const val BUNDLE_BEAN = "bundleBean"
     //跳转集合
     const val BUNDLE_LIST = "bundleList"
-    //透傳信息
-    const val PAYLOAD = "payload"
+    //跳转布尔
+    const val BUNDLE_BOOLEAN = "bundleBoolean"
     //请求id-应用内所有详情页需要id的都采用该字段
     const val ID = "id"
     //前一次首页选中下标-如果app被系统回收，首页获取历史选中下标采用该字段
     const val TAB_INDEX = "tabIndex"
+    //透傳信息
+    const val PAYLOAD = "payload"
 //    //手机号
 //    const val MOBILE = "mobile"
 //    //短信验证码
