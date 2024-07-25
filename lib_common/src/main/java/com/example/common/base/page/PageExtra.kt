@@ -17,12 +17,14 @@ object Extra {
     const val BUNDLE_LIST = "bundleList"
     //透傳信息
     const val PAYLOAD = "payload"
-    //请求id
+    //请求id-应用内所有详情页需要id的都采用该字段
     const val ID = "id"
-    //手机号
-    const val MOBILE = "mobile"
-    //短信验证码
-    const val VERIFY_SMS = "verifySms"
+    //前一次首页选中下标-如果app被系统回收，首页获取历史选中下标采用该字段
+    const val TAB_INDEX = "tabIndex"
+//    //手机号
+//    const val MOBILE = "mobile"
+//    //短信验证码
+//    const val VERIFY_SMS = "verifySms"
 }
 
 /**
