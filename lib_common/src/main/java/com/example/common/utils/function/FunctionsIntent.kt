@@ -20,6 +20,7 @@ import com.example.common.R
 import com.example.common.base.page.RequestCode.REQUEST_PHOTO
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
+import com.example.framework.utils.function.value.orZero
 import java.io.File
 import java.io.Serializable
 
@@ -46,9 +47,9 @@ fun FragmentActivity?.registerResult(func: ((it: ActivityResult) -> Unit)): Acti
 /**
  * 拉起屏幕录制
  */
-fun ActivityResultLauncher<Intent>?.pullUpScreen(mActivity: Activity?) {
+fun ActivityResultLauncher<Intent>?.pullUpScreen(mContext: Context?) {
     this ?: return
-    val mediaProjectionManager = mActivity?.getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
+    val mediaProjectionManager = mContext?.getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
     launch(mediaProjectionManager?.createScreenCaptureIntent())
 }
 
@@ -57,7 +58,9 @@ fun ActivityResultLauncher<Intent>?.pullUpScreen(mActivity: Activity?) {
  */
 fun ActivityResultLauncher<Intent>?.pullUpAlbum() {
     this ?: return
-    launch(Intent(Intent.ACTION_PICK, null).apply { setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*") })
+    launch(Intent(Intent.ACTION_PICK, null).apply {
+        setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+    })
 }
 
 /**
@@ -95,8 +98,8 @@ fun Activity.pullUpOverlay(): Boolean {
  * <package android:name="com.phonepe.app" />
  * </queries>
  */
-fun Context.pullUpPackage(packageName: String) {
-    if (packageName.isEmpty()) return
+fun Context.pullUpPackage(packageName: String?) {
+    packageName ?: return
     try {
         val intent = packageManager.getLaunchIntentForPackage(packageName)
         if (intent != null) {
@@ -110,7 +113,8 @@ fun Context.pullUpPackage(packageName: String) {
 /**
  * 从google搜索内容
  */
-fun Context.toGoogleSearch(searchText: String) {
+fun Context.toGoogleSearch(searchText: String?) {
+    searchText ?: return
     Intent().apply {
         action = Intent.ACTION_WEB_SEARCH
         putExtra(SearchManager.QUERY, searchText)
@@ -121,28 +125,31 @@ fun Context.toGoogleSearch(searchText: String) {
 /**
  * 浏览网页
  */
-fun Context.toBrowser(url: String) {
+fun Context.toBrowser(url: String?) {
+    url ?: return
     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
 }
 
 /**
  * 显示地图
  */
-fun Context.toMap(longitude: Float, latitude: Float) {
-    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("geo:$longitude,$latitude")))
+fun Context.toMap(longitude: Double?, latitude: Double?) {
+    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("geo:${longitude.orZero},${latitude.orZero}")))
 }
 
 /**
  * 拨打电话
  */
-fun Context.toPhone(tel: String) {
+fun Context.toPhone(tel: String?) {
+    tel ?: return
     startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$tel")))
 }
 
 /**
  * 调用发短信的程序
  */
-fun Context.toSMS(text: String) {
+fun Context.toSMS(text: String?) {
+    text ?: return
     Intent(Intent.ACTION_VIEW).apply {
         putExtra("sms_body", text)
         type = "vnd.android-dir/mms-sms"
@@ -153,7 +160,8 @@ fun Context.toSMS(text: String) {
 /**
  * 发短信
  */
-fun Context.toSMSApp(tel: String, text: String) {
+fun Context.toSMSApp(tel: String?, text: String?) {
+    if (tel == null || text == null) return
     Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$tel")).apply {
         putExtra("sms_body", text)
         startActivity(this)
