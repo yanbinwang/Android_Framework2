@@ -17,12 +17,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
+import com.example.common.base.page.RequestCode.REQUEST_IMAGE
 import com.example.common.base.page.RequestCode.REQUEST_PHOTO
+import com.example.common.base.page.RequestCode.REQUEST_VIDEO
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.helper.AccountHelper.STORAGE
+import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.hasSdcard
+import com.example.framework.utils.logE
 import java.io.File
 import java.io.Serializable
+import java.util.Date
 
 /**
  * 当前页面注册一个activity的result，获取resultCode
@@ -70,16 +77,77 @@ fun ActivityResultLauncher<Intent>?.pullUpAlbum() {
  * val oriFile = uri.getFileFromUri()
  * val albumPath = oriFile?.absolutePath
  */
-fun Activity.pullUpAlbum() {
+fun Activity?.pullUpAlbum() {
+    this ?: return
     val intent = Intent(Intent.ACTION_PICK, null)
     intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
     startActivityForResult(intent, REQUEST_PHOTO)
 }
 
 /**
+ * 打开手机相机-拍照
+ * CAMERA, STORAGE
+ */
+fun Activity?.pullUpImage() {
+    this ?: return
+    val file = getOutputFile("拍照", "jpg")
+    val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+    getResult(file, intent, REQUEST_IMAGE)
+}
+
+/**
+ * 打开手机相机-录像
+ * CAMERA, MICROPHONE, STORAGE
+ */
+fun Activity?.pullUpVideo(second: Int? = 50000, quality: Double? = 0.5) {
+    this ?: return
+    val file = getOutputFile("录像", "mp4")
+    val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+    intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, second)//设置视频录制的最长时间
+    intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, quality)
+    getResult(file, intent, REQUEST_VIDEO)
+}
+
+private fun getOutputFile(storageNam: String, format: String): File? {
+    if (!hasSdcard()) {
+        "未找到手机sd卡".logE()
+        return null
+    }
+    //根据类型在sd卡picture目录下建立对应app名称的对应类型文件
+    val storageDir = File("$STORAGE/${storageNam}")
+    if (!storageDir.exists()) {
+        "开始创建文件目录\n地址:${storageDir.path}".logE()
+        if (!storageDir.mkdirs()) {
+            "创建文件目录失败".logE()
+            return null
+        }
+    } else {
+        "文件目录已创建\n地址:${storageDir.path}".logE()
+    }
+    return File("${storageDir.path}/${"yyyyMMdd_HHmmss".convert(Date())}.${format}")
+}
+
+private fun Activity?.getResult(file: File?, intent: Intent, requestCode: Int) {
+    if (null == file || null == this) return
+    try {
+        val uri: Uri?
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            uri = FileProvider.getUriForFile(this, "${Constants.APPLICATION_ID}.fileProvider", file)
+        } else {
+            uri = Uri.fromFile(file)
+        }
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+        startActivityForResult(intent, requestCode)
+    } catch (_: Exception) {
+    }
+}
+
+/**
  * 高版本后台服务有浮层需要允许当前设置
  */
-fun Activity.pullUpOverlay(): Boolean {
+fun Activity?.pullUpOverlay(): Boolean {
+    this ?: return false
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
         val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
         intent.data = Uri.parse("package:${packageName}")
@@ -98,8 +166,8 @@ fun Activity.pullUpOverlay(): Boolean {
  * <package android:name="com.phonepe.app" />
  * </queries>
  */
-fun Context.pullUpPackage(packageName: String?) {
-    packageName ?: return
+fun Context?.pullUpPackage(packageName: String) {
+    this ?: return
     try {
         val intent = packageManager.getLaunchIntentForPackage(packageName)
         if (intent != null) {
@@ -113,8 +181,8 @@ fun Context.pullUpPackage(packageName: String?) {
 /**
  * 从google搜索内容
  */
-fun Context.toGoogleSearch(searchText: String?) {
-    searchText ?: return
+fun Context?.toGoogleSearch(searchText: String) {
+    this ?: return
     Intent().apply {
         action = Intent.ACTION_WEB_SEARCH
         putExtra(SearchManager.QUERY, searchText)
@@ -125,31 +193,32 @@ fun Context.toGoogleSearch(searchText: String?) {
 /**
  * 浏览网页
  */
-fun Context.toBrowser(url: String?) {
-    url ?: return
+fun Context?.toBrowser(url: String) {
+    this ?: return
     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
 }
 
 /**
  * 显示地图
  */
-fun Context.toMap(longitude: Double?, latitude: Double?) {
+fun Context?.toMap(longitude: Double, latitude: Double) {
+    this ?: return
     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("geo:${longitude.orZero},${latitude.orZero}")))
 }
 
 /**
  * 拨打电话
  */
-fun Context.toPhone(tel: String?) {
-    tel ?: return
+fun Context?.toPhone(tel: String) {
+    this ?: return
     startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$tel")))
 }
 
 /**
  * 调用发短信的程序
  */
-fun Context.toSMS(text: String?) {
-    text ?: return
+fun Context?.toSMS(text: String) {
+    this ?: return
     Intent(Intent.ACTION_VIEW).apply {
         putExtra("sms_body", text)
         type = "vnd.android-dir/mms-sms"
@@ -160,8 +229,8 @@ fun Context.toSMS(text: String?) {
 /**
  * 发短信
  */
-fun Context.toSMSApp(tel: String?, text: String?) {
-    if (tel == null || text == null) return
+fun Context?.toSMSApp(tel: String, text: String) {
+    this ?: return
     Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$tel")).apply {
         putExtra("sms_body", text)
         startActivity(this)
@@ -171,23 +240,25 @@ fun Context.toSMSApp(tel: String?, text: String?) {
 /**
  * 打开压缩包
  */
-fun Context.openZip(filePath: String) = openFile(filePath, "application/x-zip-compressed")
+fun Context?.openZip(filePath: String) = openFile(filePath, "application/x-zip-compressed")
 
 /**
  * 打开world
  */
-fun Context.openWorld(filePath: String) = openFile(filePath, "application/msword")
+fun Context?.openWorld(filePath: String) = openFile(filePath, "application/msword")
 
 /**
  * 打开安装包
  */
-fun Context.openSetupApk(filePath: String) = openFile(filePath, "application/vnd.android.package-archive")
+fun Context?.openSetupApk(filePath: String) =
+    openFile(filePath, "application/vnd.android.package-archive")
 
 /**
  * 统一开启文件
  * https://zhuanlan.zhihu.com/p/260340912
  */
-fun Context.openFile(filePath: String, type: String) {
+fun Context?.openFile(filePath: String, type: String) {
+    this ?: return
     val file = File(filePath)
     if (file.fileValidation()) {
         startActivity(Intent(Intent.ACTION_VIEW).apply {
@@ -206,7 +277,8 @@ fun Context.openFile(filePath: String, type: String) {
  * 发送文件
  * image -> 图片
  */
-fun Context.sendFile(filePath: String, fileType: String? = "*/*", title: String? = "分享文件") {
+fun Context?.sendFile(filePath: String, fileType: String? = "*/*", title: String? = "分享文件") {
+    this ?: return
     val file = File(filePath)
     if (file.fileValidation()) {
         startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {

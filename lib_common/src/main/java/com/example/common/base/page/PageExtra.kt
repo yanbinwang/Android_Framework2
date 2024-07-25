@@ -33,4 +33,8 @@ object RequestCode {
     const val REQUEST_FINISH = 10000
     //图片回调编码
     const val REQUEST_PHOTO = 10001
+    //拍照回调编码
+    const val REQUEST_IMAGE = 10002
+    //录像回调编码
+    const val REQUEST_VIDEO = 10003
 }
