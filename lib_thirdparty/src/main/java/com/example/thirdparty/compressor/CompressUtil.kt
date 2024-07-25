@@ -15,13 +15,19 @@ import java.io.File
 /**
  * yan
  */
- object CompressUtil {
+object CompressUtil {
     private var resWidth = 1000
     private var resHeight = 1000
 
+    suspend fun compressFile(fileName: String?): File? {
+        fileName ?: return null
+        return compressFile(File(fileName))
+    }
+
     suspend fun compressFile(file: File?): File? {
+        file ?: return null
         return try {
-            file ?: throw Exception()
+//            file ?: throw Exception()
             if (file.length() > 10 * 1024 * 1024) {
                 string(R.string.compressError).shortToast()
                 return null

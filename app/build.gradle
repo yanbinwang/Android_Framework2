@@ -66,6 +66,10 @@ android {
         ]
     }
 
+    lint {
+        disable 'GoogleAppIndexingWarning'
+    }
+
     buildFeatures {
         dataBinding true
     }
@@ -119,9 +123,6 @@ android {
                 }
             }
         }
-    }
-    lint {
-        disable 'GoogleAppIndexingWarning'
     }
 }
 
