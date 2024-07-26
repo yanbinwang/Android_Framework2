@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import com.example.common.base.page.RequestCode.REQUEST_ALBUM
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
@@ -42,6 +43,14 @@ class AlbumHelper {
      * activity和fragment在裁剪或者OnActivityResult时是必须指明的，不然返回会错误
      */
     constructor(activity: AppCompatActivity) {
+        imageCamera = Album.camera(activity)
+        videoMultiple = Album.video(activity)
+        imageMultiple = Album.image(activity)
+        durban = Durban.with(activity)
+        widget = activity.getAlbumWidget()
+    }
+
+    constructor(activity: FragmentActivity) {
         imageCamera = Album.camera(activity)
         videoMultiple = Album.video(activity)
         imageMultiple = Album.image(activity)
