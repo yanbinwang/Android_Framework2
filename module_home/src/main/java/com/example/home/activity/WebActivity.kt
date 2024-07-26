@@ -19,16 +19,16 @@ import com.example.home.utils.WebImpl
 
 @Route(path = ARouterPath.WebActivity)
 class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
-    private val bean by lazy { intentSerializable<WebBundle>(Extra.BUNDLE_BEAN) }
-    private val helper by lazy { WebHelper(this, mBinding).apply { setBundle(bean, this@WebActivity) } }
+    private val bundle by lazy { intentSerializable<WebBundle>(Extra.BUNDLE_BEAN) }
+    private val helper by lazy { WebHelper(this, mBinding).apply { setBundle(bundle, this@WebActivity) } }
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        if (!bean?.getLight().orTrue) initImmersionBar(false)
+        if (!bundle?.getLight().orTrue) initImmersionBar(false)
         //需要标题头并且值已经传输过来了则设置标题
         titleBuilder.apply {
-            if (bean?.getTitleRequired().orTrue) {
-                setTitle(bean?.getTitle().orEmpty())
+            if (bundle?.getTitleRequired().orTrue) {
+                setTitle(bundle?.getTitle().orEmpty())
             } else {
                 hideTitle()
             }
@@ -40,10 +40,10 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
         helper.setClientListener({
             titleBuilder.ivRight.gone()
         }, {
-            if (bean?.isTitleRequired().orFalse) {
+            if (bundle?.isTitleRequired().orFalse) {
                 titleBuilder
                     //当传输的title为空时，取一次网页自带的标题并且刷新按钮浮现
-                    .setTitle(bean?.getTitle() ?: it.orEmpty())
+                    .setTitle(bundle?.getTitle() ?: it.orEmpty())
                     .setRight(R.mipmap.ic_refresh, R.color.bgBlack, 60.pt, 60.pt) { helper.refresh() }
             }
         })
