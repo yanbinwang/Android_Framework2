@@ -22,6 +22,10 @@ import com.example.framework.utils.function.view.visible
  * 格式->左右侧图片/文本，中间大标题，左右侧间距默认文本大小都应固定，图片可定制
  */
 class TitleBuilder(private val mActivity: AppCompatActivity, private val mBinding: ViewTitleBarBinding?) {
+    /**
+     * 实际项目组右侧按钮可能是刷新，需要延后显示
+     */
+    val ivRight get() = mBinding?.ivRight
 
     init {
         mActivity.doOnDestroy { mBinding?.unbind() }
