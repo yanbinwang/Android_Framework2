@@ -44,9 +44,9 @@ class WXPay(owner: LifecycleOwner? = null) {
     /**
      * 统一处理
      */
-    private fun results(resId: Int, isPost: Boolean = true) {
+    private fun results(resId: Int, type: Boolean = true) {
         resId.shortToast()
-        if (isPost) EVENT_PAY_FAILURE.post()
+        if (type) EVENT_PAY_FAILURE.post()
     }
 
 }
