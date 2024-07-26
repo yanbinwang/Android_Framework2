@@ -10,7 +10,7 @@ import com.example.thirdparty.R
 import com.example.thirdparty.utils.wechat.WXManager
 import com.tencent.mm.opensdk.modelpay.PayReq
 
-class WXPay(owner: LifecycleOwner? = null) {
+class WXPay(owner: LifecycleOwner) {
     //通过WXAPIFactory工厂，获取IWXAPI的实例
     private val wxApi by lazy { WXManager.instance.regToWx(owner) }
 
