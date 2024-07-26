@@ -51,8 +51,11 @@ class WXManager private constructor() {
      */
     fun unRegToWx() {
         api?.unregisterApp()
-        mContext?.unregisterReceiver(wxReceiver)
         api = null
+        try {
+            mContext?.unregisterReceiver(wxReceiver)
+        } catch (_: Exception) {
+        }
     }
 
 }
