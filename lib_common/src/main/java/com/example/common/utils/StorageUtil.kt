@@ -16,7 +16,7 @@ object StorageUtil {
     /**
      * 默认用户文件保存位置
      */
-    val STORAGE get() = "${Constants.APPLICATION_PATH}/手机文件/${getUserId()}"
+    val STORAGE get() = "${Constants.APPLICATION_PATH}/Mobile Files/${getUserId()}"
 
     /**
      * 定义传入的枚举类型
@@ -57,13 +57,13 @@ object StorageUtil {
     fun getStorageInfo(mimeType: StorageType): Pair<String, String> {
         return when (mimeType) {
             //拍照/抓拍
-            StorageType.IMAGE -> getStoragePath("拍照") to "jpg"
+            StorageType.IMAGE -> getStoragePath("Image") to "jpg"
             //录像
-            StorageType.VIDEO -> getStoragePath("录像") to "mp4"
+            StorageType.VIDEO -> getStoragePath("Video") to "mp4"
             //录音
-            StorageType.AUDIO -> getStoragePath("录音") to "wav"
+            StorageType.AUDIO -> getStoragePath("Audio") to "wav"
             //录屏
-            StorageType.SCREEN -> getStoragePath("录屏") to "mp4"
+            StorageType.SCREEN -> getStoragePath("Screen") to "mp4"
         }
     }
 
