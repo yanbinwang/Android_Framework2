@@ -63,10 +63,10 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
 
     override fun getActivity() = this
 
-    override fun getToKolPage() {
+    override fun getGoBackJS(value: String?) {
     }
 
-    override fun getBack(value: String?) {
+    override fun getToKolJS() {
     }
 
 }

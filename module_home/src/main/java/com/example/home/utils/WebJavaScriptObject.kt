@@ -26,13 +26,13 @@ class WebJavaScriptObject(private val webImpl: WeakReference<WebImpl>) {
     @JavascriptInterface
     fun toKol(value: String?) = webImpl.get()?.execute {
         job?.cancel()
-        job = GlobalScope.launch(Main) { getToKolPage() }
+        job = GlobalScope.launch(Main) { getToKolJS() }
     }
 
     @JavascriptInterface
     fun goBack(value: String?) = webImpl.get()?.execute {
         job?.cancel()
-        job = GlobalScope.launch(Main) { getBack(value) }
+        job = GlobalScope.launch(Main) { getGoBackJS(value) }
     }
 
     @JavascriptInterface
@@ -50,7 +50,18 @@ class WebJavaScriptObject(private val webImpl: WeakReference<WebImpl>) {
 }
 
 interface WebImpl {
+    /**
+     * 获取父页面页面管理
+     */
     fun getActivity(): FragmentActivity
-    fun getToKolPage()
-    fun getBack(value: String?)
+
+    /**
+     * WEB调取关闭时候的回调
+     */
+    fun getGoBackJS(value: String?)
+
+    /**
+     * WEB调取跳转kol界面回调
+     */
+    fun getToKolJS()
 }
