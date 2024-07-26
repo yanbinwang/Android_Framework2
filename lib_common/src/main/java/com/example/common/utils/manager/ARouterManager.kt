@@ -1,30 +1,21 @@
 package com.example.common.utils.manager
 
-import android.util.Patterns
 import androidx.lifecycle.LifecycleOwner
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.BaseApplication
 import com.example.common.base.bridge.BaseView
-import com.example.common.base.page.Extra
-import com.example.common.bean.WebBean
-import com.example.common.config.ARouterPath
-import com.example.common.network.repository.request
-import com.example.common.subscribe.CommonSubscribe
-import com.example.common.utils.builder.shortToast
-import com.example.common.utils.helper.AccountHelper
 import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.function.doOnDestroy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 /**
  * 管理App中跳转
  */
-class ARouterManager : CoroutineScope {
+class ARouterManager(observer: LifecycleOwner) : CoroutineScope {
     private var mView: BaseView? = null
     private var reqJob: Job? = null
     private val job = SupervisorJob()
@@ -39,16 +30,7 @@ class ARouterManager : CoroutineScope {
         const val KOL_VERIFY = "kolVerify"
     }
 
-    /**
-     * 推送页面如果需要调取跳转，系统会拉起一个透明的activity，然后做网络请求，但是透明的页面存在时间不能超过3s，不然用户会觉得界面卡顿
-     * 故而这种情况下，就不去关联对应页面的job了，页面关闭后如果job不去cancel，让其在网络请求结束后跳转页面
-     */
-    constructor()
-
-    /**
-     * 正常页面点击某个按钮是需要订阅生命周期方便请求销毁的
-     */
-    constructor(observer: LifecycleOwner) {
+    init {
         observer.doOnDestroy {
             reqJob?.cancel()
             job.cancel()
