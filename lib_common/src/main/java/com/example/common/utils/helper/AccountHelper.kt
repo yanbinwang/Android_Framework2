@@ -18,8 +18,6 @@ import com.example.framework.utils.function.value.orFalse
  * 注意get值一定要有，否则xml中取值会报错
  */
 object AccountHelper {
-    //默认用户文件保存位置
-    val STORAGE get() = "${Constants.APPLICATION_PATH}/Mobile Files/${getUserId()}"
 
     // <editor-fold defaultstate="collapsed" desc="用户类方法">
     /**

@@ -65,3 +65,9 @@ fun Context.getSdcardAvailableCapacity(): Long {
  */
 fun Context.getSdcardUnavailableCapacity() = getSdcardTotalCapacity() - getSdcardAvailableCapacity()
 
+/**
+ * 传入指定大小的文件长度，扫描sd卡空间是否足够
+ * 需有1G的默认大小的空间
+ */
+fun Context.scanDisk(space: Long = 1024) = getSdcardAvailableCapacity() > space
+
