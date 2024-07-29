@@ -13,7 +13,6 @@ import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
@@ -33,7 +32,7 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.utils.AppManager
+import com.example.common.utils.manager.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
