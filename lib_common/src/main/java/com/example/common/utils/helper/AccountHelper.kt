@@ -109,7 +109,7 @@ object AccountHelper {
      */
     fun getLumpSum(): String {
         return getUserInfo().let {
-            it.balance.add(it.sendBalance.orEmpty())
+            it.balance.add(it.sendBalance)
         }
     }
     // </editor-fold>

@@ -228,22 +228,22 @@ interface EditTextImpl {
         return editText.getNumber()
     }
 
-    fun ClearEditText?.add(number: String) {
+    fun ClearEditText?.add(number: String?) {
         this ?: return
         setTextString(getNumber().add(number))
     }
 
-    fun ClearEditText?.subtract(number: String) {
+    fun ClearEditText?.subtract(number: String?) {
         this ?: return
         setTextString(getNumber().subtract(number))
     }
 
-    fun ClearEditText?.multiply(number: String) {
+    fun ClearEditText?.multiply(number: String?) {
         this ?: return
         setTextString(getNumber().multiply(number))
     }
 
-    fun ClearEditText?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
+    fun ClearEditText?.divide(number: String?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
         this ?: return
         setTextString(getNumber().divide(number, scale, mode))
     }
