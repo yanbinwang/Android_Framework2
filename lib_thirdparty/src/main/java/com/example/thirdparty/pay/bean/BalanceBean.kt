@@ -11,5 +11,5 @@ data class BalanceBean(
     /**
      * 获取实际余额
      */
-    val actualBalance get() = balance.add(sendBalance.orEmpty())
+    val actualBalance get() = balance.add(sendBalance)
 }
