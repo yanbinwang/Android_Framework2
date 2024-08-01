@@ -266,8 +266,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="48pt"
-            android:layout_marginHorizontal="10pt"
-            android:layout_marginBottom="5pt"
+            android:layout_margin="10pt"
             android:orientation="horizontal">
 
             <TextView
