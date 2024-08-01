@@ -20,7 +20,7 @@ import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.MultiReqUtil
 import com.example.common.network.repository.request
 import com.example.common.network.repository.requestLayer
-import com.example.common.utils.AppManager
+import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.dialog.AppDialog

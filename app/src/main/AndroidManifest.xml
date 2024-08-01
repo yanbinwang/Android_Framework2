@@ -16,7 +16,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-    <!-- 定位（额外） -->
+    <!-- 定位（额外-sdk需要） -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -25,7 +25,7 @@
     <uses-permission
         android:name="android.permission.CAMERA"
         tools:ignore="PermissionImpliesUnsupportedChromeOsHardware" />
-    <!-- 相机（额外） -->
+    <!-- 相机（额外-开关后背闪光灯） -->
     <uses-permission android:name="android.permission.FLASHLIGHT" />
     <!-- 麦克风（组） -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -80,6 +80,11 @@
         <meta-data
             android:name="design_height_in_dp"
             android:value="${DESIGN_HEIGHT}" />
+
+        <!-- 高德key -->
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="${AMAP_API_KEY}" />
         <!-- ******************************************************基础全局配置****************************************************** -->
 
         <activity
@@ -175,6 +180,17 @@
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:theme="@style/TransparentTheme"
             android:windowSoftInputMode="stateHidden|adjustPan" />
+        <!-- ******************************************************服务****************************************************** -->
+        <!-- 高德地图 -->
+        <service
+            android:name="com.amap.api.location.APSService"
+            android:foregroundServiceType="location" />
+        <!-- 屏幕录制 -->
+        <service
+            android:name="com.example.thirdparty.media.service.DisplayService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"

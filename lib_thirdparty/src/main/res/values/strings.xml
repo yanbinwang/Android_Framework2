@@ -1,6 +1,5 @@
 <resources>
     <!-- 推送 -->
-    <color name="notificationDefaultColor">#ffffff</color>
     <string name="notificationChannelId">dataqin</string>
     <string name="notificationChannelName">数秦科技</string>
     <!-- 三方应用 -->

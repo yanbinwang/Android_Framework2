@@ -607,12 +607,12 @@ class RangeHelper(private val view: WeakReference<EditText>?, hasAuto: Boolean =
         var range = 0
         val text = editText.text()
         if (!min.isNullOrEmpty()) {
-            if (text.numberCompareTo(min.orEmpty()) == -1) {
+            if (text.numberCompareTo(min) == -1) {
                 range = -1
             }
         }
         if (!max.isNullOrEmpty()) {
-            if (text.numberCompareTo(max.orEmpty()) == 1) {
+            if (text.numberCompareTo(max) == 1) {
                 range = 1
             }
         }

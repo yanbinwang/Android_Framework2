@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.utils.helper
+package com.example.thirdparty.media.utils
 
 import android.media.MediaPlayer
 import android.media.MediaRecorder
@@ -7,8 +7,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.thirdparty.media.utils.StorageUtil
-import com.example.thirdparty.media.utils.StorageUtil.StorageType.AUDIO
+import com.example.common.utils.StorageUtil
+import com.example.common.utils.StorageUtil.StorageType.AUDIO
 
 /**
  * @description 录音帮助类（熄屏后无声音，并可能会导致后续声音也录制不了）

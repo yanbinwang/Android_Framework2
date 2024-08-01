@@ -299,7 +299,7 @@ fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParc
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
 fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, intentFilter: IntentFilter) {
     this ?: return
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         registerReceiver(receiver, intentFilter, Context.RECEIVER_EXPORTED)
     } else {
         registerReceiver(receiver, intentFilter)

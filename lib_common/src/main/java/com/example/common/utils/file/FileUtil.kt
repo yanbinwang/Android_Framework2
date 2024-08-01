@@ -3,6 +3,7 @@ package com.example.common.utils.file
 import android.content.Context
 import android.content.Intent
 import android.graphics.*
+import android.media.MediaPlayer
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.MediaStore
@@ -10,10 +11,14 @@ import android.util.Base64
 import androidx.core.net.toUri
 import com.example.common.BaseApplication
 import com.example.common.config.Constants
+import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.safeGet
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.value.toSafeLong
 import com.example.framework.utils.logE
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.withContext
 import java.io.*
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -340,6 +345,24 @@ fun Number?.getSizeFormat(): String {
     if (gigaByteResult < 1) return "${BigDecimal(mByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}GB"
     val teraByteResult = BigDecimal(gigaByteResult)
     return "${teraByteResult.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}TB"
+}
+
+/**
+ * 返回时长(音频，视频)->不支持在线音视频
+ * 放在线程中读取，超时会导致卡顿或闪退
+ */
+suspend fun String?.mediaTime(): Int {
+    val sourcePath = this
+    if (null == sourcePath || !File(sourcePath).exists()) return 0
+    return withContext(IO) {
+        val medialPlayer = MediaPlayer()
+        medialPlayer.setDataSource(sourcePath)
+        medialPlayer.prepare()
+        val millisecond = medialPlayer.duration//视频时长（毫秒）
+        val second = (millisecond.toString()).divide("1000").toSafeInt()
+        "文件时长：${second}秒".logE()
+        second
+    }
 }
 
 /**
