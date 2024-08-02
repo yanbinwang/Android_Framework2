@@ -22,11 +22,11 @@
             android:layout_width="match_parent"
             android:layout_height="44pt"
             android:gravity="center"
-            android:text="@{`versionName: `+ConfigHelper.INSTANCE.appVersionName + ` versionCode: ` + ConfigHelper.INSTANCE.appVersionCode}"
+            android:text="@{`VersionName: `+ConfigHelper.INSTANCE.appVersionName + ` VersionCode: ` + ConfigHelper.INSTANCE.appVersionCode}"
             android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize18"
             android:textStyle="bold"
-            tools:text="versionName: 1.0.0 versionCode: 1" />
+            tools:text="VersionName: 1.0.0 VersionCode: 1" />
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
@@ -49,13 +49,13 @@
                     android:singleLine="true"
                     android:textColor="@color/textPrimary"
                     android:textColorHint="@color/textHint"
-                    android:textSize="@dimen/textSize14"
+                    android:textSize="@dimen/textSize12"
                     app:layout_constraintEnd_toStartOf="@id/tv_publish"
                     app:layout_constraintStart_toStartOf="parent" />
 
                 <TextView
                     android:id="@+id/tv_publish"
-                    android:layout_width="140pt"
+                    android:layout_width="120pt"
                     android:layout_height="48pt"
                     android:background="@drawable/selector_r5_blue"
                     android:gravity="center"
@@ -64,49 +64,40 @@
                     android:textSize="@dimen/textSize14"
                     app:layout_constraintEnd_toEndOf="parent" />
 
-                <View
-                    android:id="@+id/view_line"
-                    style="@style/LineWidth"
-                    android:layout_marginTop="5pt"
-                    app:layout_constraintTop_toBottomOf="@id/et_input_url" />
-
                 <TextView
                     android:id="@+id/tv_label"
-                    android:layout_width="180pt"
+                    android:layout_width="140pt"
                     android:layout_height="48pt"
                     android:layout_marginTop="5pt"
                     android:gravity="center_vertical"
                     android:text="Stream type:"
                     android:textColor="@color/textPrimary"
                     android:textSize="@dimen/textSize14"
-                    app:layout_constraintTop_toBottomOf="@id/view_line" />
+                    app:layout_constraintTop_toBottomOf="@id/et_input_url" />
 
                 <Spinner
                     android:id="@+id/sp_stream_types"
                     android:layout_width="0pt"
                     android:layout_height="48pt"
                     android:layout_marginStart="5pt"
+                    android:background="@drawable/shape_r5_grey"
+                    android:spinnerMode="dropdown"
+                    android:popupBackground="@color/bgGrey"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/tv_label"
                     app:layout_constraintTop_toTopOf="@id/tv_label" />
 
-                <View
-                    android:id="@+id/view_line2"
-                    style="@style/LineWidth"
-                    android:layout_marginTop="5pt"
-                    app:layout_constraintTop_toBottomOf="@id/tv_label" />
-
                 <RadioGroup
-                    android:id="@+id/rg_transfer_mode"
+                    android:id="@+id/rg_transfer"
                     android:layout_width="match_parent"
                     android:layout_height="48pt"
                     android:layout_marginTop="5pt"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    app:layout_constraintTop_toBottomOf="@id/view_line2">
+                    app:layout_constraintTop_toBottomOf="@id/tv_label">
 
                     <TextView
-                        android:layout_width="180pt"
+                        android:layout_width="140pt"
                         android:layout_height="match_parent"
                         android:gravity="center_vertical"
                         android:text="Transfer Mode:"
@@ -114,7 +105,7 @@
                         android:textSize="@dimen/textSize14" />
 
                     <RadioButton
-                        android:id="@+id/transfer_rtmp"
+                        android:id="@+id/rb_transfer_rtmp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_marginStart="5pt"
@@ -122,35 +113,29 @@
                         android:gravity="center_vertical"
                         android:text="RTMP"
                         android:textColor="@color/textPrimary"
-                        android:textSize="@dimen/textSize14" />
+                        android:textSize="@dimen/textSize12" />
 
                     <RadioButton
-                        android:id="@+id/transfer_quic"
+                        android:id="@+id/rb_transfer_quic"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:layout_marginStart="15pt"
+                        android:layout_marginStart="10pt"
                         android:gravity="center_vertical"
                         android:text="QUIC"
                         android:textColor="@color/textPrimary"
-                        android:textSize="@dimen/textSize14" />
+                        android:textSize="@dimen/textSize12" />
 
                     <RadioButton
-                        android:id="@+id/transfer_srt"
+                        android:id="@+id/rb_transfer_srt"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:layout_marginStart="15pt"
+                        android:layout_marginStart="10pt"
                         android:gravity="center_vertical"
                         android:text="SRT"
                         android:textColor="@color/textPrimary"
-                        android:textSize="@dimen/textSize14" />
+                        android:textSize="@dimen/textSize12" />
 
                 </RadioGroup>
-
-                <View
-                    android:id="@+id/view_line3"
-                    style="@style/LineWidth"
-                    android:layout_marginTop="5pt"
-                    app:layout_constraintTop_toBottomOf="@id/rg_transfer_mode" />
 
                 <CheckBox
                     android:id="@+id/ck_debug_mode"
@@ -163,7 +148,7 @@
                     android:textSize="@dimen/textSize14"
                     app:layout_constraintEnd_toStartOf="@+id/ck_audio_channel_stereo"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/view_line3" />
+                    app:layout_constraintTop_toBottomOf="@id/rg_transfer" />
 
                 <CheckBox
                     android:id="@+id/ck_audio_channel_stereo"
@@ -195,27 +180,19 @@
 
                 <CheckBox
                     android:id="@+id/ck_bluetooth_sco_on"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="48pt"
                     android:layout_marginTop="5pt"
                     android:checked="false"
                     android:text="蓝牙耳机支持"
                     android:textColor="@color/textPrimary"
                     android:textSize="@dimen/textSize14"
-                    app:layout_constraintEnd_toEndOf="@id/ck_debug_mode"
-                    app:layout_constraintStart_toStartOf="@id/ck_debug_mode"
                     app:layout_constraintTop_toBottomOf="@id/ck_debug_mode" />
-
-                <View
-                    android:id="@+id/view_line4"
-                    style="@style/LineWidth"
-                    android:layout_marginTop="5pt"
-                    app:layout_constraintTop_toBottomOf="@id/ck_bluetooth_sco_on" />
 
                 <!-- Encoding config panel -->
                 <TextView
                     android:id="@+id/tv_encoding"
-                    android:layout_width="250pt"
+                    android:layout_width="220pt"
                     android:layout_height="48pt"
                     android:layout_marginTop="5pt"
                     android:background="@drawable/selector_r5_blue"
@@ -223,25 +200,19 @@
                     android:text="Toggle encoding config panel"
                     android:textColor="@color/textWhite"
                     android:textSize="@dimen/textSize14"
-                    app:layout_constraintTop_toBottomOf="@+id/view_line4" />
+                    app:layout_constraintTop_toBottomOf="@+id/ck_bluetooth_sco_on" />
 
                 <fragment
                     android:id="@+id/fragment_encoding_config"
-                    android:name="com.example.mvvm.fragment.EncodingConfigFragment"
+                    android:name="com.example.live.fragment.EncodingConfigFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@+id/tv_encoding"
                     tools:layout="@layout/fragment_encoding_config" />
 
-                <View
-                    android:id="@+id/view_line5"
-                    style="@style/LineWidth"
-                    android:layout_marginTop="5pt"
-                    app:layout_constraintTop_toBottomOf="@id/fragment_encoding_config" />
-
                 <TextView
                     android:id="@+id/tv_camera"
-                    android:layout_width="250pt"
+                    android:layout_width="220pt"
                     android:layout_height="48pt"
                     android:layout_marginTop="5pt"
                     android:background="@drawable/selector_r5_blue"
@@ -249,11 +220,11 @@
                     android:text="Toggle camera config panel"
                     android:textColor="@color/textWhite"
                     android:textSize="@dimen/textSize14"
-                    app:layout_constraintTop_toBottomOf="@+id/view_line5" />
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_encoding_config" />
 
                 <fragment
                     android:id="@+id/fragment_camera_config"
-                    android:name="com.example.mvvm.fragment.CameraConfigFragment"
+                    android:name="com.example.live.fragment.CameraConfigFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@+id/tv_camera"
