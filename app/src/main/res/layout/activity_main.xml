@@ -70,7 +70,7 @@
                     android:layout_height="48pt"
                     android:layout_marginTop="5pt"
                     android:gravity="center_vertical"
-                    android:text="Stream type:"
+                    android:text="传输类型:"
                     android:textColor="@color/textPrimary"
                     android:textSize="@dimen/textSize14"
                     app:layout_constraintTop_toBottomOf="@id/et_input_url" />
@@ -82,7 +82,6 @@
                     android:layout_marginStart="5pt"
                     android:background="@drawable/shape_r5_grey"
                     android:spinnerMode="dropdown"
-                    android:popupBackground="@color/bgGrey"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/tv_label"
                     app:layout_constraintTop_toTopOf="@id/tv_label" />
@@ -100,7 +99,7 @@
                         android:layout_width="140pt"
                         android:layout_height="match_parent"
                         android:gravity="center_vertical"
-                        android:text="Transfer Mode:"
+                        android:text="传输协议:"
                         android:textColor="@color/textPrimary"
                         android:textSize="@dimen/textSize14" />
 

@@ -102,7 +102,48 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5pt"
             android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/rg_encode"></LinearLayout>
+            app:layout_constraintTop_toBottomOf="@id/rg_encode">
+
+            <RadioGroup
+                android:id="@+id/rg_video_quality"
+                android:layout_width="match_parent"
+                android:layout_height="48pt"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="140pt"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize14"
+                    android:text="Video quality config:" />
+
+                <RadioButton
+                    android:id="@+id/rb_video_quality_preset"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:checked="true"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize12"
+                    android:layout_marginStart="5pt"
+                    android:text="预设" />
+
+                <RadioButton
+                    android:id="@+id/rb_video_quality_custom"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize12"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10pt"
+                    android:text="自定义" />
+
+            </RadioGroup>
+
+
+
+        </LinearLayout>
 
         <RadioGroup
             android:id="@+id/rg_audio_quality"
@@ -121,23 +162,23 @@
                 android:textSize="@dimen/textSize14" />
 
             <RadioButton
-                android:id="@+id/audio_quality_preset"
+                android:id="@+id/rb_audio_quality_preset"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="5pt"
                 android:checked="true"
                 android:gravity="center_vertical"
-                android:text="Preset"
+                android:text="预设"
                 android:textColor="@color/textPrimary"
                 android:textSize="@dimen/textSize12" />
 
             <RadioButton
-                android:id="@+id/audio_quality_custom"
+                android:id="@+id/rb_audio_quality_custom"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="10pt"
                 android:gravity="center_vertical"
-                android:text="Custom"
+                android:text="自定义"
                 android:textColor="@color/textPrimary"
                 android:textSize="@dimen/textSize12" />
 
@@ -149,7 +190,6 @@
             android:layout_height="48pt"
             android:layout_marginTop="5pt"
             android:background="@drawable/shape_r5_grey"
-            android:popupBackground="@color/bgGrey"
             android:spinnerMode="dropdown"
             app:layout_constraintTop_toBottomOf="@id/rg_audio_quality" />
 
@@ -166,7 +206,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:text="Sample rate:"
+                android:text="采样率:"
                 android:textColor="@color/textPrimary"
                 android:textSize="@dimen/textSize14" />
 
@@ -187,7 +227,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="10pt"
                 android:gravity="center_vertical"
-                android:text="Bitrate:"
+                android:text="比特率:"
                 android:textColor="@color/textPrimary"
                 android:textSize="@dimen/textSize14" />
 
