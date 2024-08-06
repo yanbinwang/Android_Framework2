@@ -13,6 +13,7 @@ import com.example.common.BaseApplication
 import com.example.common.config.Constants
 import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.removeEndZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.value.toSafeLong
@@ -359,7 +360,7 @@ suspend fun String?.mediaTime(): Int {
         medialPlayer.setDataSource(sourcePath)
         medialPlayer.prepare()
         val millisecond = medialPlayer.duration//视频时长（毫秒）
-        val second = (millisecond.toString()).divide("1000").toSafeInt()
+        val second = (millisecond.toString()).divide("1000").removeEndZero().toSafeInt()
         "文件时长：${second}秒".logE()
         second
     }
