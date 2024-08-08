@@ -288,7 +288,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> async(
         req: MultiReqUtil,
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<String?, String?, Exception?>?) -> Unit = {}
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
     ): Deferred<T?> {
         return async(Main, LAZY) { req.request({ coroutineScope() }, err) }
     }
@@ -296,7 +296,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> asyncLayer(
         req: MultiReqUtil,
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<String?, String?, Exception?>?) -> Unit = {}
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
     ): Deferred<ApiResponse<T>?> {
         return async(Main, LAZY) { req.requestLayer({ coroutineScope() }, err) }
     }
