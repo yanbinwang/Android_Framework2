@@ -17,7 +17,6 @@ import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.repository.ApiResponse
-import com.example.common.network.repository.MultiReqUtil
 import com.example.common.network.repository.request
 import com.example.common.network.repository.requestLayer
 import com.example.common.utils.manager.AppManager
@@ -32,9 +31,6 @@ import com.example.framework.utils.function.view.fade
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.CoroutineStart.LAZY
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -262,43 +258,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 isShowToast
             )
         }
-    }
-
-    /**
-     * 不做回调，直接得到结果
-     * 在不调用await（）方法时可以当一个参数写，调用了才会发起请求并拿到结果
-     * //并发
-     * launch{
-     *   val task1 = async({ req.request(model.getUserData() })
-     *   val task2 = async({ req.request(model.getUserData() })
-     *   //单个请求主动发起，处理对象
-     *   task1.await()
-     *   task2.await()
-     *   //同时发起多个请求，list拿取对象
-     *   val taskList = awaitAll(task1, task2)
-     *   taskList.safeGet(0)
-     *   taskList.safeGet(1)
-     * }
-     * //串行
-     * launch{
-     *    val task1 = request({ model.getUserData() })
-     *    val task2 = request({ model.getUserData() })
-     * }
-     */
-    protected fun <T> async(
-        req: MultiReqUtil,
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
-    ): Deferred<T?> {
-        return async(Main, LAZY) { req.request({ coroutineScope() }, err) }
-    }
-
-    protected fun <T> asyncLayer(
-        req: MultiReqUtil,
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
-    ): Deferred<ApiResponse<T>?> {
-        return async(Main, LAZY) { req.requestLayer({ coroutineScope() }, err) }
     }
 
     override fun onCleared() {

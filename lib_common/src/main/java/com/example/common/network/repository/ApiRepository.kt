@@ -63,7 +63,7 @@ class MultiReqUtil(
 
     suspend fun <T> requestAffair(
         coroutineScope: suspend CoroutineScope.() -> T,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+        err: (e: Triple<String?, String?, Exception?>?) -> Unit = this.err
     ): T? {
         if (isShowDialog && !loadingStarted) {
             view?.showDialog()
@@ -190,7 +190,7 @@ suspend fun <T> requestLayer(
 suspend fun <T> requestAffair(
     coroutineScope: suspend CoroutineScope.() -> T,
     resp: (T?) -> Unit = {},
-    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+    err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
