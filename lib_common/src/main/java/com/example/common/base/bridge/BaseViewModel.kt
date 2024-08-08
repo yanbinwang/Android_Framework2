@@ -27,6 +27,7 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
@@ -403,5 +404,6 @@ fun <T> ViewModel.async(
 fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: ViewModelStoreOwner): VM {
     val viewModel = ViewModelProvider(owner)[this]
     lifecycle.addObserver(viewModel)
+    lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }
     return viewModel
 }
