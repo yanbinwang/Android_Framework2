@@ -18,6 +18,7 @@ import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.request
+import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.requestLayer
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
@@ -248,6 +249,30 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         if (isShowDialog) mView?.showDialog()
         return launch {
             requestLayer(
+                { coroutineScope() },
+                { resp(it) },
+                { err(it) },
+                {
+                    if (isShowDialog || isClose) mView?.hideDialog()
+                    end()
+                },
+                isShowToast
+            )
+        }
+    }
+
+    protected fun <T> launchAffair(
+        coroutineScope: suspend CoroutineScope.() -> T,
+        resp: (T?) -> Unit = {},
+        err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},
+        end: () -> Unit = {},
+        isShowToast: Boolean = true,
+        isShowDialog: Boolean = true,
+        isClose: Boolean = true
+    ): Job {
+        if (isShowDialog) mView?.showDialog()
+        return launch {
+            requestAffair(
                 { coroutineScope() },
                 { resp(it) },
                 { err(it) },
