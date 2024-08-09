@@ -214,7 +214,8 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         picJob?.cancel()
         picJob = launch {
             onStart()
-            onResult.invoke(suspendingSavePic(bitmap, root, fileName, deleteDir, format))
+            val filePath = suspendingSavePic(bitmap, root, fileName, deleteDir, format)
+            onResult.invoke(filePath)
         }
     }
 
@@ -226,7 +227,8 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         pdfJob?.cancel()
         pdfJob = launch {
             onStart()
-            onResult.invoke(suspendingSavePDF(file, index))
+            val filePath = suspendingSavePDF(file, index)
+            onResult.invoke(filePath)
         }
     }
 
@@ -240,7 +242,8 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             val list = ArrayList<String?>()
             val pageCount = withContext(IO) { PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).pageCount }
             for (index in 0 until pageCount) {
-                list.add(suspendingSavePDF(file, index))
+                val filePath = suspendingSavePDF(file, index)
+                list.add(filePath)
             }
             onResult.invoke(list)
         }
@@ -262,7 +265,8 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         viewJob?.cancel()
         viewJob = launch {
             onStart()
-            onResult.invoke(saveBit(suspendingSaveView(view, width, height)))
+            val filePath = saveBit(suspendingSaveView(view, width, height))
+            onResult.invoke(filePath)
         }
     }
 
@@ -278,13 +282,14 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         zipJob?.cancel()
         zipJob = launch {
             onStart()
-            onResult.invoke(suspendingZip(folderList, zipPath))
+            val filePath = suspendingZip(folderList, zipPath)
+            onResult.invoke(filePath)
         }
     }
 
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
         if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-            R.string.linkInvalidError.shortToast()
+            R.string.linkError.shortToast()
             return
         }
         downloadJob?.cancel()
@@ -307,7 +312,8 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             if (deleteDir) root.deleteDir()
             root.isMkdirs()
             //下载的文件从缓存目录拷贝到指定目录
-            onResult.invoke(suspendingDownloadPic(mContext, string, storeDir))
+            val filePath = suspendingDownloadPic(mContext, string, storeDir)
+            onResult.invoke(filePath)
         }
     }
 
