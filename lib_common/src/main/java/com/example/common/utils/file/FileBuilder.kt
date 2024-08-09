@@ -211,10 +211,11 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
      * 存储图片协程
      */
     fun savePicJob(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+        onStart()
         picJob?.cancel()
         picJob = launch {
-            onStart()
-            onResult.invoke(suspendingSavePic(bitmap, root, fileName, deleteDir, format))
+            val filePath = suspendingSavePic(bitmap, root, fileName, deleteDir, format)
+            onResult.invoke(filePath)
         }
     }
 
@@ -223,10 +224,11 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
      * 指定页数
      */
     fun savePDFJob(file: File, index: Int = 0, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+        onStart()
         pdfJob?.cancel()
         pdfJob = launch {
-            onStart()
-            onResult.invoke(suspendingSavePDF(file, index))
+            val filePath = suspendingSavePDF(file, index)
+            onResult.invoke(filePath)
         }
     }
 
@@ -234,9 +236,9 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
      * 全部保存下来，返回集合
      */
     fun savePDFJob(file: File, onStart: () -> Unit = {}, onResult: (list: MutableList<String?>?) -> Unit = {}) {
+        onStart()
         pdfJob?.cancel()
         pdfJob = launch {
-            onStart()
             val list = ArrayList<String?>()
             val pageCount = withContext(IO) { PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).pageCount }
             for (index in 0 until pageCount) {
@@ -259,14 +261,10 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
      * })
      */
     fun saveViewJob(view: View, width: Int = screenWidth, height: Int = WRAP_CONTENT, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+        onStart()
         viewJob?.cancel()
         viewJob = launch {
-            onStart()
-            var filePath: String? = null
-            suspendingSaveView(view, width, height).apply {
-                this ?: return@apply
-                filePath = saveBit(this)
-            }
+            val filePath = saveBit(suspendingSaveView(view, width, height))
             onResult.invoke(filePath)
         }
     }
@@ -280,10 +278,11 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
     }
 
     fun zipJob(folderList: MutableList<String>, zipPath: String, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+        onStart()
         zipJob?.cancel()
         zipJob = launch {
-            onStart()
-            onResult.invoke(suspendingZip(folderList, zipPath))
+            val filePath = suspendingZip(folderList, zipPath)
+            onResult.invoke(filePath)
         }
     }
 
@@ -292,9 +291,9 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             R.string.linkInvalidError.shortToast()
             return
         }
+        onStart()
         downloadJob?.cancel()
         downloadJob = launch {
-            onStart()
             suspendingDownload(downloadUrl, filePath, fileName, onSuccess, onLoading, onFailed, onComplete)
         }
     }
@@ -303,16 +302,17 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
      * 存储图片协程(下载url)
      */
     fun downloadPicJob(mContext: Context, string: String, root: String = getStoragePath("Saved Images"), deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+        onStart()
         downloadPicJob?.cancel()
         downloadPicJob = launch {
-            onStart()
             //存储目录文件
             val storeDir = File(root)
             //先判断是否需要清空目录，再判断是否存在（不存在则创建）
             if (deleteDir) root.deleteDir()
             root.isMkdirs()
             //下载的文件从缓存目录拷贝到指定目录
-            onResult.invoke(suspendingDownloadPic(mContext, string, storeDir))
+            val filePath = suspendingDownloadPic(mContext, string, storeDir)
+            onResult.invoke(filePath)
         }
     }
 
