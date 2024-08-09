@@ -290,50 +290,53 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         }
     }
 
-//    /**
-//     * 不做回调，直接得到结果
-//     * 在不调用await（）方法时可以当一个参数写，调用了才会发起请求并拿到结果
-//     * //并发
-//     * launch{
-//     *   val task1 = async({ req.request(model.getUserData() })
-//     *   val task2 = async({ req.request(model.getUserData() })
-//     *   //单个请求主动发起，处理对象
-//     *   task1.await()
-//     *   task2.await()
-//     *   //同时发起多个请求，list拿取对象
-//     *   val taskList = awaitAll(task1, task2)
-//     *   taskList.safeGet(0)
-//     *   taskList.safeGet(1)
-//     * }
-//     * //串行
-//     * launch{
-//     *    val task1 = request({ model.getUserData() })
-//     *    val task2 = request({ model.getUserData() })
-//     * }
-//     */
-//    protected fun <T> async(
-//        req: MultiReqUtil,
-//        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-//        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
-//    ): Deferred<T?> {
-//        return async(Main, LAZY) { req.request({ coroutineScope() }, err) }
-//    }
-//
-//    protected fun <T> asyncLayer(
-//        req: MultiReqUtil,
-//        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-//        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
-//    ): Deferred<ApiResponse<T>?> {
-//        return async(Main, LAZY) { req.requestLayer({ coroutineScope() }, err) }
-//    }
-//
-//    protected fun <T> asyncAffair(
-//        req: MultiReqUtil,
-//        coroutineScope: suspend CoroutineScope.() -> T,
-//        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
-//    ): Deferred<T?> {
-//        return async(Main, LAZY) { req.requestAffair({ coroutineScope() }, err) }
-//    }
+    /**
+     * 不做回调，直接得到结果
+     * 在不调用await（）方法时可以当一个参数写，调用了才会发起请求并拿到结果
+     * //并发
+     * launch{
+     *   val task1 = async({ req.request(model.getUserData() })
+     *   val task2 = async({ req.request(model.getUserData() })
+     *   //单个请求主动发起，处理对象
+     *   task1.await()
+     *   task2.await()
+     *   //同时发起多个请求，list拿取对象
+     *   val taskList = awaitAll(task1, task2)
+     *   taskList.safeGet(0)
+     *   taskList.safeGet(1)
+     * }
+     * //串行
+     * launch{
+     *    val task1 = request({ model.getUserData() })
+     *    val task2 = request({ model.getUserData() })
+     * }
+     *  private suspend fun getUserInfoAsync(req: MultiReqUtil): Deferred<UserInfoBean?> {
+     *     return async { req.request({ CommonSubscribe.getUserInfoApi(hashMapOf("id" to AccountHelper.getUserId())) }) }
+     *  }
+     */
+    protected fun <T> async(
+        req: MultiReqUtil,
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
+    ): Deferred<T?> {
+        return async(Main, LAZY) { req.request({ coroutineScope() }, err) }
+    }
+
+    protected fun <T> asyncLayer(
+        req: MultiReqUtil,
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
+    ): Deferred<ApiResponse<T>?> {
+        return async(Main, LAZY) { req.requestLayer({ coroutineScope() }, err) }
+    }
+
+    protected fun <T> asyncAffair(
+        req: MultiReqUtil,
+        coroutineScope: suspend CoroutineScope.() -> T,
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
+    ): Deferred<T?> {
+        return async(Main, LAZY) { req.requestAffair({ coroutineScope() }, err) }
+    }
 
     override fun onCleared() {
         super.onCleared()
