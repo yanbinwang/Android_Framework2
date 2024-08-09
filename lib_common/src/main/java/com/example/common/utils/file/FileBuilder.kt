@@ -262,12 +262,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         viewJob?.cancel()
         viewJob = launch {
             onStart()
-            var filePath: String? = null
-            suspendingSaveView(view, width, height).apply {
-                this ?: return@apply
-                filePath = saveBit(this)
-            }
-            onResult.invoke(filePath)
+            onResult.invoke(saveBit(suspendingSaveView(view, width, height)))
         }
     }
 
