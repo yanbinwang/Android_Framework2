@@ -18,7 +18,7 @@
     "dataNoMore":"No more",
     "dataError":"Server error, please try again later",
     "dataNetError":"The network is not connected, please check the network settings",
-    "linkInvalidError":"The link address is invalid",
+    "linkError":"The link address is invalid",
     "sourcePathError":"Wrong file path",
     "authCancel":"Operation canceled",
     "authError":"Login failed, please try another method",

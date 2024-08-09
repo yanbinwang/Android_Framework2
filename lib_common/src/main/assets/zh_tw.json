@@ -18,7 +18,7 @@
     "dataNoMore":"暫無更多數據",
     "dataError":"服務器出錯，請稍後重試",
     "dataNetError":"網絡未連接，請檢查網絡設置",
-    "linkInvalidError":"鏈接地址不合法",
+    "linkError":"鏈接地址不合法",
     "sourcePathError":"文件路徑錯誤",
     "authCancel":"操作被取消",
     "authError":"登錄失敗，請嘗試其它方式",

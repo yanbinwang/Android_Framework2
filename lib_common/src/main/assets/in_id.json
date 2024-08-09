@@ -18,7 +18,7 @@
     "dataNoMore":"Tidak lagi",
     "dataError":"Kesalahan server, harap coba lagi nanti",
     "dataNetError":"Jaringan tidak terhubung, silakan periksa pengaturan jaringan",
-    "linkInvalidError":"Alamat tautan tidak valid",
+    "linkError":"Alamat tautan tidak valid",
     "sourcePathError":"Jalur file yang salah",
     "authCancel":"Operasi dibatalkan",
     "authError":"Login gagal, silakan coba metode lain",

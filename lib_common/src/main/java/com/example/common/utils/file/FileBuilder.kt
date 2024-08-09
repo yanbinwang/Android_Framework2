@@ -288,7 +288,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
 
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
         if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-            R.string.linkInvalidError.shortToast()
+            R.string.linkError.shortToast()
             return
         }
         onStart()

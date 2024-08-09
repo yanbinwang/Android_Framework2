@@ -25,7 +25,7 @@ object I18nMap {
         R.string.dataNoMore to "dataNoMore",
         R.string.dataError to "dataError",
         R.string.dataNetError to "dataNetError",
-        R.string.linkInvalidError to "linkInvalidError",
+        R.string.linkError to "linkError",
         R.string.sourcePathError to "sourcePathError",
         R.string.authCancel to "authCancel",
         R.string.authError to "authError",

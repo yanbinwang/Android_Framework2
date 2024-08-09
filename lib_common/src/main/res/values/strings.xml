@@ -24,7 +24,7 @@
     <string name="dataNoMore">暫無更多數據</string>
     <string name="dataError">服務器出錯，請稍後重試</string>
     <string name="dataNetError">網絡未連接，請檢查網絡設置</string>
-    <string name="linkInvalidError">鏈接地址不合法</string>
+    <string name="linkError">鏈接地址不合法</string>
     <string name="sourcePathError">文件路徑錯誤</string>
     <!-- 三方登录提示 -->
     <string name="authCancel">操作被取消</string>
