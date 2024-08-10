@@ -29,6 +29,7 @@ import com.example.common.utils.file.deleteFile
 import com.example.common.utils.function.byServerUrl
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.common.utils.toJsonString
+import com.example.common.utils.toObj
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
@@ -119,11 +120,12 @@ class OssFactory private constructor() : CoroutineScope {
                 override fun getFederationToken(): OSSFederationToken? {
                     return try {
                         val stsUrl = URL("swallow/sts/aliyun/oss".byServerUrl)
-                        val conn = stsUrl.openConnection() as HttpURLConnection
-                        val input = conn.inputStream
+                        val conn = stsUrl.openConnection() as? HttpURLConnection
+                        val input = conn?.inputStream
                         val json = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME)
                         log("暂无", "服务器json:\n${json}")
-                        val bean = Gson().fromJson<ApiResponse<OssSts>>(json, object : TypeToken<ApiResponse<OssSts>>() {}.type).let { if (it.successful()) it.data else null }
+//                        val bean = Gson().fromJson<ApiResponse<OssSts>>(json, object : TypeToken<ApiResponse<OssSts>>() {}.type).let { if (it.successful()) it.data else null }
+                        val bean = json.toObj<ApiResponse<OssSts>>().let { if (it.successful()) it?.data else null }
                         if (null != bean) {
                             statePair = false to true
                             OSSFederationToken(bean.accessKeyId.orEmpty(), bean.accessKeySecret.orEmpty(), bean.securityToken.orEmpty(), bean.expiration.orEmpty())
@@ -150,13 +152,13 @@ class OssFactory private constructor() : CoroutineScope {
      * @param observer
      */
     fun addObserver(observer: LifecycleOwner) {
-        observer.doOnDestroy { cancel() }
+        observer.doOnDestroy { cancelAllWork() }
     }
 
     /**
      * 销毁方法
      */
-    private fun cancel() {
+    private fun cancelAllWork() {
         //取消所有oss异步
         val iterator = ossMap.iterator()
         while (iterator.hasNext()) {

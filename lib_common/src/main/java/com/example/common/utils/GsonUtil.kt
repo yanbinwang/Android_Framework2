@@ -1,10 +1,16 @@
 package com.example.common.utils
 
+import com.example.common.network.repository.ApiResponse
+import com.example.common.utils.GsonUtil.gson
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapter
+import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import java.io.IOException
+import java.io.StringReader
+import java.lang.reflect.Type
 
 /**
  * author:wyb
@@ -121,7 +127,17 @@ fun <T> String?.toList(clazz: Class<T>): List<T>? {
 /**
  * 将json转换为对象
  */
-fun <T> String?.toObj(clazz: Class<T>): T? {
+//fun <T> String?.toObj(clazz: Class<T>): T? {
+//    if (this == null) return null
+//    return GsonUtil.jsonToObj(this, clazz)
+//}
+
+fun <T> String?.toObj(): T? {
     if (this == null) return null
-    return GsonUtil.jsonToObj(this, clazz)
+    val reader = StringReader(this)
+    return  try {
+        Gson().fromJson<T>(reader, object : TypeToken<T>() {}.type)
+    } catch (_: Exception) {
+        null
+    }
 }
