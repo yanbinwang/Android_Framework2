@@ -28,7 +28,7 @@ import com.example.common.utils.file.deleteDir
 import com.example.common.utils.file.deleteFile
 import com.example.common.utils.function.byServerUrl
 import com.example.common.utils.helper.AccountHelper.getUserId
-import com.example.common.utils.toJsonString
+import com.example.common.utils.toJson
 import com.example.common.utils.toObj
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.toSafeInt
@@ -38,8 +38,8 @@ import com.example.thirdparty.oss.bean.OssSts
 import com.example.thirdparty.oss.bean.OssSts.Companion.bucketName
 import com.example.thirdparty.oss.bean.OssSts.Companion.objectName
 import com.example.thirdparty.oss.subscribe.OssSubscribe
+import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -124,8 +124,7 @@ class OssFactory private constructor() : CoroutineScope {
                         val input = conn?.inputStream
                         val json = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME)
                         log("暂无", "服务器json:\n${json}")
-//                        val bean = Gson().fromJson<ApiResponse<OssSts>>(json, object : TypeToken<ApiResponse<OssSts>>() {}.type).let { if (it.successful()) it.data else null }
-                        val bean = json.toObj<ApiResponse<OssSts>>().let { if (it.successful()) it?.data else null }
+                        val bean = Gson().fromJson<ApiResponse<OssSts>>(json, object : TypeToken<ApiResponse<OssSts>>() {}.type).let { if (it.successful()) it.data else null }
                         if (null != bean) {
                             statePair = false to true
                             OSSFederationToken(bean.accessKeyId.orEmpty(), bean.accessKeySecret.orEmpty(), bean.securityToken.orEmpty(), bean.expiration.orEmpty())
@@ -229,7 +228,7 @@ class OssFactory private constructor() : CoroutineScope {
                 val resumableTask = oss?.asyncResumableUpload(request, object : OSSCompletedCallback<ResumableUploadRequest?, ResumableUploadResult?> {
                     override fun onSuccess(request: ResumableUploadRequest?, result: ResumableUploadResult?) {
                         //此处每次一个片成功都会回调，所以在监听时写通知服务器
-                        log(sourcePath, "上传成功\n保全号：${baoquan}\n${result.toJsonString()}")
+                        log(sourcePath, "上传成功\n保全号：${baoquan}\n${result.toJson()}")
                         //记录oss的值
                         query.objectKey = result?.objectKey
                         response(true, query, fileType, recordDirectory, percentage)

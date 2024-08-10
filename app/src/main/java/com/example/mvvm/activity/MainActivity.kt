@@ -10,6 +10,9 @@ import com.example.common.utils.file.FileBuilder
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
+import com.example.common.utils.toJson
+import com.example.common.utils.toList
+import com.example.common.utils.toObj
 import com.example.common.widget.textview.edittext.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
@@ -22,10 +25,13 @@ import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.safeGet
+import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
+import com.example.framework.utils.logE
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.viewmodel.TestViewModel
@@ -156,6 +162,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         booksByGenre.forEach { (genre, books) ->
             println("$genre: ${books.map { it.title }}")
         }
+        //集合转json
+        "------------------------集合转json------------------------\n${books.toJson()}".logE
+        //json转集合
+        val testList = "[{\"author\":\"n11111\",\"genre\":\"11111\",\"title\":\"The Fng11111\"},{\"author\":\"J.D. Sa222\",\"genre\":\"Fn22222\",\"title\":\"Thye22222\"}]".toList(Book::class.java)
+        "------------------------json转集合------------------------\n${testList?.safeGet(0)?.author}".logE
+        //json转对象
+        val testBean = "{\"author\":\"啊啊啊啊\",\"genre\":\"2 2 2 2 2 2\",\"title\":\"十大大大大1111\"}".toObj(Book::class.java)
+        "------------------------json转对象------------------------\n${testBean?.title}".logE
 
 //        val numbers = listOf(1, 2, 3, 4, 5)
 //        val squares = numbers.map { it * it }

@@ -25,7 +25,7 @@ import com.example.common.utils.DataStringCacheUtil
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.registerResult
 import com.example.common.utils.function.string
-import com.example.common.utils.toJsonString
+import com.example.common.utils.toJson
 import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.string
@@ -122,7 +122,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
 
     override fun onLocationChanged(aMapLocation: AMapLocation?) {
         if (aMapLocation != null && aMapLocation.errorCode == AMapLocation.LOCATION_SUCCESS) {
-            aMapLatLng.set(LatLng(aMapLocation.latitude, aMapLocation.longitude).toJsonString())
+            aMapLatLng.set(LatLng(aMapLocation.latitude, aMapLocation.longitude).toJson().orEmpty())
             //部分地区可能地址取到为空，直接赋值一个未获取地址的默认显示文案
             if (aMapLocation.address.isNullOrEmpty()) aMapLocation.address = string(R.string.mapLocationEmpty)
             listener?.onLocationChanged(aMapLocation, true)
