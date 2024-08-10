@@ -13,6 +13,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 /**
@@ -43,6 +44,8 @@ class TestViewModel : BaseViewModel() {
              */
             suspendCoroutine {
 //                it.resume()
+                //加try/catch接受
+//                it.resumeWithException()
             }
         }
     }
