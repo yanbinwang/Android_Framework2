@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -35,18 +36,22 @@ class TestViewModel : BaseViewModel() {
             val task1 = req.request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
             val task2 = req.request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
             req.end()
-
-
-            /**
-             * 将一个监听回调的处理变为挂起函数的形式
-             * suspendCoroutine<T>---》T为返回的类型
-             * it.resume()---》回调的时候调取该方法，用于嵌套旧的一些api
-             */
-            suspendCoroutine {
-//                it.resume()
-                //加try/catch接受
-//                it.resumeWithException()
-            }
+//            /**
+//             * 将一个监听回调的处理变为挂起函数的形式
+//             * suspendCoroutine<T>---》T为返回的类型
+//             * it.resume()---》回调的时候调取该方法，用于嵌套旧的一些api
+//             */
+//            suspendCoroutine {
+////                it.resume()
+//                //加try/catch接受
+////                it.resumeWithException()
+//            }
+//            /**
+//             * 区别于suspendCoroutine，代表此次转换的挂机方法是能够被cancel的
+//             */
+//            suspendCancellableCoroutine {
+//
+//            }
         }
     }
 
