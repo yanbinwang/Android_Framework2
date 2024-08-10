@@ -12,6 +12,8 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * 串行/并发是否需要dialog需要主动调取，单纯一次性发起不需要
@@ -32,6 +34,16 @@ class TestViewModel : BaseViewModel() {
             val task1 = req.request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
             val task2 = req.request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
             req.end()
+
+
+            /**
+             * 将一个监听回调的处理变为挂起函数的形式
+             * suspendCoroutine<T>---》T为返回的类型
+             * it.resume()---》回调的时候调取该方法，用于嵌套旧的一些api
+             */
+            suspendCoroutine {
+//                it.resume()
+            }
         }
     }
 
