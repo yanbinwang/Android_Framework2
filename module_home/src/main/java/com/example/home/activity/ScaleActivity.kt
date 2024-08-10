@@ -40,7 +40,7 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
         super.initData()
         val imgList = list?.toNewList { ScaleImageView(this) to it }
         mBinding?.vpPage?.apply {
-            adapter = ScaleAdapter(imgList)
+            adapter = ScaleAdapter(imgList.orEmpty())
             currentItem = 0
             animation = enterAnimation()
         }

@@ -1,15 +1,12 @@
 package com.example.common.utils
 
-import com.example.common.network.repository.ApiResponse
-import com.example.common.utils.GsonUtil.gson
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapter
-import com.google.gson.reflect.TypeToken
+import com.google.gson.reflect.TypeToken.*
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import java.io.IOException
-import java.io.StringReader
+import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
 /**
@@ -24,58 +21,6 @@ object GsonUtil {
     }
 
     /**
-     * json字符串转对象
-     */
-    fun <T> jsonToObj(json: String, className: Class<T>): T? {
-        var ret: T? = null
-        try {
-            ret = gson.fromJson(json, className)
-        } catch (_: Exception) {
-        }
-        return ret
-    }
-
-    /**
-     * json字符串转集合
-     */
-    fun <T> jsonToList(json: String, clazz: Class<T>): List<T>? {
-        var ret: List<T>? = null
-        try {
-            ret = gson.fromJson<List<T>>(json, clazz)
-        } catch (_: Exception) {
-        }
-        return ret
-    }
-
-//    /**
-//     * JsonArray转集合
-//     * 由于类型擦除，解析器无法在运行时获取真实类型 T
-//     * 直接传T获取会报com.google.gson.internal.LinkedTreeMap cannot be cast to object
-//     * 故而直接把T的class传入，让解析器能够识别，并且重新转换成一个list
-//     */
-//    fun <T> jsonToList(array: JsonArray, clazz: Class<T>): List<T> {
-//        val ret = ArrayList<T>()
-//        try {
-//            array.forEach { ret.add(gson.fromJson(it, clazz)) }
-//        } catch (_: Exception) {
-//        }
-//        return ret
-//    }
-//
-//    /**
-//     * JsonArray转集合
-//     * 指定type->object : TypeToken<List<XXXX>>() {}.type
-//     */
-//    fun <T> jsonToList(array: JsonArray, type: Type): List<T>? {
-//        var ret: List<T>? = null
-//        try {
-//            ret = gson.fromJson<List<T>>(array, type)
-//        } catch (_: Exception) {
-//        }
-//        return ret
-//    }
-
-    /**
      * 对象转json字符串
      */
     fun objToJson(obj: Any): String? {
@@ -87,23 +32,77 @@ object GsonUtil {
         return ret
     }
 
-}
-
-class BooleanTypeAdapter : TypeAdapter<Boolean>() {
-
-    @Throws(IOException::class)
-    override fun write(writer: JsonWriter, value: Boolean?) {
-        writer.value(value.toString())
+    /**
+     * json字符串转对象
+     * val testBean = "{\"author\":\"啊啊啊啊\",\"genre\":\"2 2 2 2 2 2\",\"title\":\"十大大大大1111\"}".toObj(Book::class.java)
+     */
+    fun <T> jsonToObj(json: String, clazz: Class<T>): T? {
+        var ret: T? = null
+        try {
+            ret = gson.fromJson(json, clazz)
+        } catch (_: Exception) {
+        }
+        return ret
     }
 
-    @Throws(IOException::class)
-    override fun read(reader: JsonReader): Boolean? {
-        return try {
-            val value = reader.nextString()
-            "Y" == value || "1" == value || "true" == value
-        } catch (e: NullPointerException) {
-            false
+    /**
+     * json字符串转集合
+     * 由于类型擦除，解析器无法在运行时获取真实类型 T
+     * 直接传T获取会报com.google.gson.internal.LinkedTreeMap cannot be cast to object
+     * 故而直接把T的class传入，让解析器能够识别，并且重新转换成一个list
+     * val testList = "[{\"author\":\"n11111\",\"genre\":\"11111\",\"title\":\"The Fng11111\"},{\"author\":\"J.D. Sa222\",\"genre\":\"Fn22222\",\"title\":\"Thye22222\"}]".toList(Book::class.java)
+     */
+    fun <T> jsonToList(json: String, clazz: Class<T>): List<T>? {
+        var ret: List<T>? = null
+        try {
+            val type = getType(List::class.java, clazz)
+            ret = gson.fromJson(json, type)
+        } catch (_: Exception) {
         }
+        return ret
+    }
+
+    /**
+     * 获取type类型
+     * //List<String>的type为
+     *  val type = getType(List::class.java,String::class.java)
+     * //List<List<String>>的type为
+     *  val type = getType(List::class.java,getType(List::class.java,String::class.java))
+     * //Map<Int,String>的type为
+     * val type = getType(List::class.java,Int::class.java,String::class.java)
+     * //Map<String,List<String>>的类型为
+     * val type = getType(Map::class.java,String::class.java, getType(List::class.java,String::class.java))
+     */
+    private fun getType(raw: Class<*>, vararg args: Type) = object : ParameterizedType {
+
+        override fun getRawType(): Type = raw
+
+        override fun getActualTypeArguments(): Array<out Type> = args
+
+        override fun getOwnerType(): Type? = null
+
+    }
+
+    /**
+     * 定义服务器返回特定字段转为布尔
+     */
+    private class BooleanTypeAdapter : TypeAdapter<Boolean>() {
+
+        @Throws(IOException::class)
+        override fun write(writer: JsonWriter, value: Boolean?) {
+            writer.value(value.toString())
+        }
+
+        @Throws(IOException::class)
+        override fun read(reader: JsonReader): Boolean? {
+            return try {
+                val value = reader.nextString()
+                "Y" == value || "1" == value || "true" == value
+            } catch (e: NullPointerException) {
+                false
+            }
+        }
+
     }
 
 }
@@ -111,33 +110,23 @@ class BooleanTypeAdapter : TypeAdapter<Boolean>() {
 /**
  * 对象转json
  */
-fun Any?.toJsonString(): String {
-    if (this == null) return ""
-    return GsonUtil.objToJson(this).orEmpty()
+fun Any?.toJson(): String? {
+    if (this == null) return null
+    return GsonUtil.objToJson(this)
+}
+
+/**
+ * 将json转换为对象
+ */
+fun <T> String?.toObj(clazz: Class<T>): T? {
+    if (this == null) return null
+    return GsonUtil.jsonToObj(this, clazz)
 }
 
 /**
  * 后端请求如果data是JsonArray的话，使用该方法得到一个集合
  */
 fun <T> String?.toList(clazz: Class<T>): List<T>? {
-    if (this == null) return emptyList()
-    return GsonUtil.jsonToList(this, clazz)
-}
-
-/**
- * 将json转换为对象
- */
-//fun <T> String?.toObj(clazz: Class<T>): T? {
-//    if (this == null) return null
-//    return GsonUtil.jsonToObj(this, clazz)
-//}
-
-fun <T> String?.toObj(): T? {
     if (this == null) return null
-    val reader = StringReader(this)
-    return  try {
-        Gson().fromJson<T>(reader, object : TypeToken<T>() {}.type)
-    } catch (_: Exception) {
-        null
-    }
+    return GsonUtil.jsonToList(this, clazz)
 }
