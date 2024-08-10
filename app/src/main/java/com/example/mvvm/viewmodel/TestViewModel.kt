@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -53,6 +54,11 @@ class TestViewModel : BaseViewModel() {
 //
 //            }
         }
+        /**
+         * 区别于常规协程，不需要类实现CoroutineScope，并且会阻塞当前线程
+         * 在代码块中的逻辑执行完后才会执行接下来的代码
+         */
+        runBlocking {  }
     }
 
     /**
