@@ -16,7 +16,7 @@ object StorageUtil {
     /**
      * 默认用户文件保存位置
      */
-    val STORAGE get() = "${Constants.APPLICATION_PATH}/Mobile Files/${getUserId()}"
+    val STORAGE get() = "${Constants.APPLICATION_PATH}/Mobile Files"
 
     /**
      * 定义传入的枚举类型
@@ -69,11 +69,11 @@ object StorageUtil {
 
     /**
      * 获取用户id命名的文件夹下的文件
-     * "${Constants.APPLICATION_PATH}/手机文件/${getUserId()}"
+     * "${Constants.APPLICATION_PATH}/Mobile Files/${getUserId()}"
      */
     @JvmStatic
-    fun getStoragePath(fileName: String): String {
-        return "${STORAGE}/${fileName}"
+    fun getStoragePath(fileName: String, userStorage: Boolean = true): String {
+        return "${STORAGE}${if (userStorage) "/${getUserId()}" else ""}/${fileName}"
     }
 
 }
