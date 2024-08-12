@@ -23,6 +23,7 @@ object GsonUtil {
     /**
      * 对象转json字符串
      */
+    @JvmStatic
     fun objToJson(obj: Any): String? {
         var ret: String? = null
         try {
@@ -36,10 +37,25 @@ object GsonUtil {
      * json字符串转对象
      * val testBean = "{\"author\":\"啊啊啊啊\",\"genre\":\"2 2 2 2 2 2\",\"title\":\"十大大大大1111\"}".toObj(Book::class.java)
      */
+    @JvmStatic
     fun <T> jsonToObj(json: String, clazz: Class<T>): T? {
         var ret: T? = null
         try {
             ret = gson.fromJson(json, clazz)
+        } catch (_: Exception) {
+        }
+        return ret
+    }
+
+    /**
+     * 如果class内部运用了泛型，则传type，不然会被擦除
+     * val type = getType(List::class.java, List::class.java)
+     */
+    @JvmStatic
+    fun <T> jsonToObj(json: String, type: Type): T? {
+        var ret: T? = null
+        try {
+            ret = gson.fromJson(json, type)
         } catch (_: Exception) {
         }
         return ret
@@ -52,6 +68,7 @@ object GsonUtil {
      * 故而直接把T的class传入，让解析器能够识别，并且重新转换成一个list
      * val testList = "[{\"author\":\"n11111\",\"genre\":\"11111\",\"title\":\"The Fng11111\"},{\"author\":\"J.D. Sa222\",\"genre\":\"Fn22222\",\"title\":\"Thye22222\"}]".toList(Book::class.java)
      */
+    @JvmStatic
     fun <T> jsonToList(json: String, clazz: Class<T>): List<T>? {
         var ret: List<T>? = null
         try {
@@ -73,7 +90,8 @@ object GsonUtil {
      * //Map<String,List<String>>的类型为
      * val type = getType(Map::class.java,String::class.java, getType(List::class.java,String::class.java))
      */
-    private fun getType(raw: Class<*>, vararg args: Type) = object : ParameterizedType {
+    @JvmStatic
+    fun getType(raw: Class<*>, vararg args: Type) = object : ParameterizedType {
 
         override fun getRawType(): Type = raw
 
@@ -121,6 +139,11 @@ fun Any?.toJson(): String? {
 fun <T> String?.toObj(clazz: Class<T>): T? {
     if (this == null) return null
     return GsonUtil.jsonToObj(this, clazz)
+}
+
+fun <T> String?.toObj(type: Type): T? {
+    if (this == null) return null
+    return GsonUtil.jsonToObj(this, type)
 }
 
 /**

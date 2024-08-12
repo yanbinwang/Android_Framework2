@@ -21,6 +21,7 @@ import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.reqBodyOf
 import com.example.common.network.repository.request
 import com.example.common.network.repository.successful
+import com.example.common.utils.GsonUtil.getType
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
@@ -124,7 +125,8 @@ class OssFactory private constructor() : CoroutineScope {
                         val input = conn?.inputStream
                         val json = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME)
                         log("暂无", "服务器json:\n${json}")
-                        val bean = Gson().fromJson<ApiResponse<OssSts>>(json, object : TypeToken<ApiResponse<OssSts>>() {}.type).let { if (it.successful()) it.data else null }
+//                        val bean = Gson().fromJson<ApiResponse<OssSts>>(json, object : TypeToken<ApiResponse<OssSts>>() {}.type).let { if (it.successful()) it.data else null }
+                        val bean = json.toObj<ApiResponse<OssSts>>(getType(ApiResponse::class.java, OssSts::class.java)).let { if (it.successful()) it?.data else null }
                         if (null != bean) {
                             statePair = false to true
                             OSSFederationToken(bean.accessKeyId.orEmpty(), bean.accessKeySecret.orEmpty(), bean.securityToken.orEmpty(), bean.expiration.orEmpty())
