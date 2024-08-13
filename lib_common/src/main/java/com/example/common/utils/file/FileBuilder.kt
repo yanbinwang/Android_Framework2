@@ -193,6 +193,39 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                 filePath
             }
         }
+
+        /**
+         * 读取文件
+         */
+        suspend fun suspendingRead(sourcePath: String?): String {
+            sourcePath ?: return ""
+            return withContext(IO) { File(sourcePath).read() }
+        }
+
+        /**
+         * 复制文件(将当前文件拷贝一份到目标路径)
+         */
+        suspend fun suspendingCopy(sourcePath: String?, destPath: String?) {
+            if (sourcePath == null || destPath == null) return
+            withContext(IO) { File(sourcePath).copy(File(destPath)) }
+        }
+
+        /**
+         * 获取文件采用base64形式
+         */
+        suspend fun suspendingBase64(sourcePath: String?): String {
+            sourcePath ?: return ""
+            return withContext(IO) { File(sourcePath).getBase64() }
+        }
+
+        /**
+         * 获取文件hash值
+         */
+        suspend fun suspendingHash(sourcePath: String?): String {
+            sourcePath ?: return ""
+            return withContext(IO) { File(sourcePath).getHash() }
+        }
+
     }
 
     init {
