@@ -2,7 +2,9 @@ package com.example.common.utils.file
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.PixelFormat
 import android.media.MediaPlayer
 import android.net.Uri
 import android.provider.DocumentsContract
@@ -19,11 +21,11 @@ import com.example.framework.utils.function.value.toSafeLong
 import com.example.framework.utils.logE
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
-import java.io.*
+import java.io.File
+import java.io.RandomAccessFile
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.security.MessageDigest
-import java.util.*
 
 /**
  * Created by WangYanBin on 2020/7/1.
@@ -50,20 +52,6 @@ object FileUtil {
     @JvmStatic
     fun base64WithFile(file: File): String {
         var base64 = ""
-//        var inputStream: InputStream? = null
-//        try {
-//            inputStream = FileInputStream(file)
-//            val bytes = ByteArray(inputStream.available())
-//            val length = inputStream.read(bytes)
-//            base64 = Base64.encodeToString(bytes, 0, length, Base64.DEFAULT)
-//        } catch (_: IOException) {
-//        } finally {
-//            try {
-//                inputStream?.close()
-//            } catch (e: IOException) {
-//                e.printStackTrace()
-//            }
-//        }
         file.inputStream().use { input ->
             val bytes = ByteArray(input.available())
             val length = input.read(bytes)
@@ -79,30 +67,6 @@ object FileUtil {
     @JvmStatic
     fun hashWithFile(file: File): String {
         var hash = ""
-//        var inputStream: FileInputStream? = null
-//        try {
-//            inputStream = FileInputStream(file)
-//            val digest = MessageDigest.getInstance("SHA-256")
-//            val array = ByteArray(1024)
-//            var len: Int
-//            while (inputStream.read(array, 0, 1024).also { len = it } != -1) {
-//                digest.update(array, 0, len)
-//            }
-//            //检测是否补0
-//            val bigInt = BigInteger(1, digest.digest())
-//            hash = bigInt.toString(16)
-//            if (hash.length < 64) {
-//                for (i in 0 until 64 - hash.length) {
-//                    hash = "0$hash"
-//                }
-//            }
-//        } catch (_: Exception) {
-//        } finally {
-//            try {
-//                inputStream?.close()
-//            } catch (_: Exception) {
-//            }
-//        }
         file.inputStream().use { input ->
             val digest = MessageDigest.getInstance("SHA-256")
             val array = ByteArray(1024)
@@ -161,40 +125,6 @@ object FileUtil {
         } else {
             targetLength.div(cutSize).plus(1)
         }.toSafeInt()
-//        //获取目标文件,预分配文件所占的空间,在磁盘中创建一个指定大小的文件(r:只读)
-//        var accessFile: RandomAccessFile? = null
-//        try {
-//            accessFile = RandomAccessFile(targetFile, "r")
-//            //文件的总大小
-//            val length = accessFile.length()
-//            //文件切片后每片的最大大小
-//            val maxSize = length / size
-//            //初始化偏移量
-//            var offSet = 0L
-//            //开始切片
-//            for (i in 0 until size - 1) {
-//                val begin = offSet
-//                val end = (i + 1) * maxSize
-//                val tmpInfo = write(targetFile.absolutePath, i, begin, end)
-//                offSet = tmpInfo.filePointer
-//                splitList.add(tmpInfo.filePath.orEmpty())
-//            }
-//            if (length - offSet > 0) {
-//                splitList.add(write(targetFile.absolutePath, size - 1, offSet, length).filePath.orEmpty())
-//            }
-//        } catch (_: Exception) {
-//        } finally {
-//            try {
-//                accessFile?.close()
-//            } catch (_: Exception) {
-//            }
-//            //确保返回的集合中不包含空路径
-//            for (i in splitList.indices.reversed()) {
-//                if (splitList.safeGet(i).isNullOrEmpty()) {
-//                    splitList.removeAt(i)
-//                }
-//            }
-//        }
         //获取目标文件,预分配文件所占的空间,在磁盘中创建一个指定大小的文件(r:只读)
         RandomAccessFile(targetFile, "r").use { accessFile ->
             //文件的总大小
@@ -236,38 +166,8 @@ object FileUtil {
         val info = TmpInfo()
         //源文件
         val file = File(filePath)
-        //申明文件切割后的文件磁盘
-        var inAccessFile: RandomAccessFile? = null
         //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
         val tmpFile = File("${file.parent}/${file.name.split(".")[0]}_${index}.tmp")
-//        //如果不存在，则创建一个或继续写入
-//        var outAccessFile: RandomAccessFile? = null
-//        try {
-//            inAccessFile = RandomAccessFile(file, "r")
-//            outAccessFile = RandomAccessFile(tmpFile, "rw")
-//            //申明具体每一文件的字节数组
-//            val b = ByteArray(1024)
-//            var n: Int
-//            //从指定位置读取文件字节流
-//            inAccessFile.seek(begin)
-//            //判断文件流读取的边界，从指定每一份文件的范围，写入不同的文件
-//            while (inAccessFile.read(b).also { n = it } != -1 && inAccessFile.filePointer <= end) {
-//                outAccessFile.write(b, 0, n)
-//            }
-//            //关闭输入输出流,赋值
-//            info.filePath = tmpFile.absolutePath
-//            info.filePointer = inAccessFile.filePointer
-//        } catch (_: Exception) {
-//        } finally {
-//            try {
-//                inAccessFile?.close()
-//            } catch (_: Exception) {
-//            }
-//            try {
-//                outAccessFile?.close()
-//            } catch (_: Exception) {
-//            }
-//        }
         //如果不存在，则创建一个或继续写入
         RandomAccessFile(tmpFile, "rw").use { outAccessFile ->
             RandomAccessFile(file, "r").use { inAccessFile ->
@@ -365,20 +265,6 @@ fun String?.read(): String {
 fun File?.read(): String {
     this ?: return ""
     if (exists()) {
-//        var bufferedReader: BufferedReader? = null
-//        try {
-//            bufferedReader = BufferedReader(InputStreamReader(FileInputStream(this)))
-//            val stringBuilder = StringBuilder()
-//            var str: String?
-//            while (bufferedReader.readLine().also { str = it } != null) stringBuilder.append(str)
-//            return stringBuilder.toString()
-//        } catch (_: Exception) {
-//        } finally {
-//            try {
-//                bufferedReader?.close()
-//            } catch (_: Exception) {
-//            }
-//        }
         bufferedReader().use { reader ->
             val stringBuilder = StringBuilder()
             var str: String?
@@ -394,27 +280,6 @@ fun File?.read(): String {
  */
 fun File.copy(destFile: File) {
     if (!destFile.exists()) destFile.createNewFile()
-//    var inputStream: FileInputStream? = null
-//    var outputStream: FileOutputStream? = null
-//    try {
-//        inputStream = FileInputStream(this)
-//        outputStream = FileOutputStream(destFile)
-//        inputStream.channel.use { source ->
-//            outputStream.channel.use { destination ->
-//                destination?.transferFrom(source, 0, source.size())
-//            }
-//        }
-//    } catch (_: Exception) {
-//    } finally {
-//        try {
-//            inputStream?.close()
-//        } catch (_: Exception) {
-//        }
-//        try {
-//            outputStream?.close()
-//        } catch (_: Exception) {
-//        }
-//    }
     inputStream().channel.use { source ->
         destFile.outputStream().channel.use { destination ->
             destination?.transferFrom(source, 0, source.size())

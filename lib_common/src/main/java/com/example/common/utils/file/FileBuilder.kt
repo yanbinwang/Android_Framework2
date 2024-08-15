@@ -64,19 +64,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          */
         suspend fun suspendingSavePDF(file: File, index: Int = 0): String? {
             return withContext(IO) {
-//                val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
-//                val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
-//                val width = page.width
-//                val height = page.height
-//                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-//                val canvas = Canvas(bitmap)
-//                canvas.drawColor(Color.WHITE)
-//                canvas.drawBitmap(bitmap, 0f, 0f, null)
-//                val rent = Rect(0, 0, width, height)
-//                page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-//                page.close()
-//                renderer.close()
-//                saveBit(bitmap)
                 PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).use { renderer ->
                     //选择渲染哪一页的渲染数据
                     renderer.openPage(index).use { page ->
@@ -169,40 +156,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             filePath.deleteDir()
             //创建一个安装的文件，开启io协程写入
             val file = File(filePath.isMkdirs(), fileName)
-//            withContext(IO) {
-//                var inputStream: InputStream? = null
-//                var outputStream: FileOutputStream? = null
-//                try {
-//                    //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
-//                    val body = CommonSubscribe.getDownloadApi(downloadUrl)
-//                    val buf = ByteArray(2048)
-//                    val total = body.contentLength()
-//                    inputStream = body.byteStream()
-//                    outputStream = FileOutputStream(file)
-//                    var len: Int
-//                    var sum = 0L
-//                    while (((inputStream.read(buf)).also { len = it }) != -1) {
-//                        outputStream.write(buf, 0, len)
-//                        sum += len.toLong()
-//                        val progress = (sum * 1.0f / total * 100).toSafeInt()
-//                        withContext(Main) { onLoading(progress) }
-//                    }
-//                    outputStream.flush()
-//                    withContext(Main) { onSuccess(file.path) }
-//                } catch (e: Exception) {
-//                    withContext(Main) { onFailed(e) }
-//                } finally {
-//                    try {
-//                        inputStream?.close()
-//                    } catch (_: Exception) {
-//                    }
-//                    try {
-//                        outputStream?.close()
-//                    } catch (_: Exception) {
-//                    }
-//                    withContext(Main) { onComplete() }
-//                }
-//            }
             withContext(IO) {
                 try {
                     //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
@@ -226,8 +179,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                 } catch (e: Exception) {
                     withContext(Main) { onFailed(e) }
                 } finally {
-                    inputStream?.close()
-                    fileOutputStream?.close()
                     withContext(Main) { onComplete() }
                 }
             }
