@@ -21,6 +21,7 @@ import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.saveBit
 import com.example.framework.utils.function.doOnDestroy
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
 import com.example.glide.ImageLoader
 import kotlinx.coroutines.CoroutineScope
@@ -63,19 +64,33 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          */
         suspend fun suspendingSavePDF(file: File, index: Int = 0): String? {
             return withContext(IO) {
-                val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
-                val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
-                val width = page.width
-                val height = page.height
-                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(bitmap)
-                canvas.drawColor(Color.WHITE)
-                canvas.drawBitmap(bitmap, 0f, 0f, null)
-                val rent = Rect(0, 0, width, height)
-                page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                page.close()
-                renderer.close()
-                saveBit(bitmap)
+//                val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
+//                val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
+//                val width = page.width
+//                val height = page.height
+//                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+//                val canvas = Canvas(bitmap)
+//                canvas.drawColor(Color.WHITE)
+//                canvas.drawBitmap(bitmap, 0f, 0f, null)
+//                val rent = Rect(0, 0, width, height)
+//                page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+//                page.close()
+//                renderer.close()
+//                saveBit(bitmap)
+                PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).use { renderer ->
+                    //选择渲染哪一页的渲染数据
+                    renderer.openPage(index).use { page ->
+                        val width = page.width
+                        val height = page.height
+                        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                        val canvas = Canvas(bitmap)
+                        canvas.drawColor(Color.WHITE)
+                        canvas.drawBitmap(bitmap, 0f, 0f, null)
+                        val rent = Rect(0, 0, width, height)
+                        page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                        saveBit(bitmap)
+                    }
+                }
             }
         }
 
@@ -116,26 +131,34 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             }
         }
 
-        @Throws(Exception::class)
         private fun zipFolder(folderList: MutableList<String>, zipPath: String) {
             //创建ZIP
-            val outZip = ZipOutputStream(FileOutputStream(zipPath))
-            //批量打入压缩包
-            for (folderPath in folderList) {
-                val file = File(folderPath)
-                val zipEntry = ZipEntry(file.name)
-                val inputStream = FileInputStream(file)
-                outZip.putNextEntry(zipEntry)
-                var len: Int
-                val buffer = ByteArray(4096)
-                while (inputStream.read(buffer).also { len = it } != -1) {
-                    outZip.write(buffer, 0, len)
+            var outZip: ZipOutputStream? = null
+            try {
+                outZip = ZipOutputStream(FileOutputStream(zipPath))
+                //批量打入压缩包
+                for (folderPath in folderList) {
+                    val file = File(folderPath)
+                    val zipEntry = ZipEntry(file.name)
+                    file.inputStream().use { inputStream ->
+                        outZip.putNextEntry(zipEntry)
+                        var len: Int
+                        val buffer = ByteArray(4096)
+                        while (inputStream.read(buffer).also { len = it } != -1) {
+                            outZip.write(buffer, 0, len)
+                        }
+                        outZip.closeEntry()
+                    }
                 }
-                outZip.closeEntry()
+                //完成和关闭
+                outZip.finish()
+            } catch (_: Exception) {
+            } finally {
+                try {
+                    outZip?.close()
+                } catch (_: Exception) {
+                }
             }
-            //完成和关闭
-            outZip.finish()
-            outZip.close()
         }
 
         /**
@@ -146,26 +169,60 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             filePath.deleteDir()
             //创建一个安装的文件，开启io协程写入
             val file = File(filePath.isMkdirs(), fileName)
+//            withContext(IO) {
+//                var inputStream: InputStream? = null
+//                var outputStream: FileOutputStream? = null
+//                try {
+//                    //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
+//                    val body = CommonSubscribe.getDownloadApi(downloadUrl)
+//                    val buf = ByteArray(2048)
+//                    val total = body.contentLength()
+//                    inputStream = body.byteStream()
+//                    outputStream = FileOutputStream(file)
+//                    var len: Int
+//                    var sum = 0L
+//                    while (((inputStream.read(buf)).also { len = it }) != -1) {
+//                        outputStream.write(buf, 0, len)
+//                        sum += len.toLong()
+//                        val progress = (sum * 1.0f / total * 100).toSafeInt()
+//                        withContext(Main) { onLoading(progress) }
+//                    }
+//                    outputStream.flush()
+//                    withContext(Main) { onSuccess(file.path) }
+//                } catch (e: Exception) {
+//                    withContext(Main) { onFailed(e) }
+//                } finally {
+//                    try {
+//                        inputStream?.close()
+//                    } catch (_: Exception) {
+//                    }
+//                    try {
+//                        outputStream?.close()
+//                    } catch (_: Exception) {
+//                    }
+//                    withContext(Main) { onComplete() }
+//                }
+//            }
             withContext(IO) {
-                var inputStream: InputStream? = null
-                var fileOutputStream: FileOutputStream? = null
                 try {
                     //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
                     val body = CommonSubscribe.getDownloadApi(downloadUrl)
                     val buf = ByteArray(2048)
                     val total = body.contentLength()
-                    inputStream = body.byteStream()
-                    fileOutputStream = FileOutputStream(file)
-                    var len: Int
-                    var sum = 0L
-                    while (((inputStream.read(buf)).also { len = it }) != -1) {
-                        fileOutputStream.write(buf, 0, len)
-                        sum += len.toLong()
-                        val progress = (sum * 1.0f / total * 100).toInt()
-                        withContext(Main) { onLoading(progress) }
+                    body.byteStream().use { inputStream ->
+                        file.outputStream().use { outputStream ->
+                            var len: Int
+                            var sum = 0L
+                            while (((inputStream.read(buf)).also { len = it }) != -1) {
+                                outputStream.write(buf, 0, len)
+                                sum += len.toLong()
+                                val progress = (sum * 1.0f / total * 100).toSafeInt()
+                                withContext(Main) { onLoading(progress) }
+                            }
+                            outputStream.flush()
+                            withContext(Main) { onSuccess(file.path) }
+                        }
                     }
-                    fileOutputStream.flush()
-                    withContext(Main) { onSuccess(file.path) }
                 } catch (e: Exception) {
                     withContext(Main) { onFailed(e) }
                 } finally {
@@ -191,6 +248,38 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                 file?.delete()
                 filePath
             }
+        }
+
+        /**
+         * 读取文件
+         */
+        suspend fun suspendingRead(sourcePath: String?): String {
+            sourcePath ?: return ""
+            return withContext(IO) { File(sourcePath).read() }
+        }
+
+        /**
+         * 复制文件(将当前文件拷贝一份到目标路径)
+         */
+        suspend fun suspendingCopy(sourcePath: String?, destPath: String?) {
+            if (sourcePath == null || destPath == null) return
+            withContext(IO) { File(sourcePath).copy(File(destPath)) }
+        }
+
+        /**
+         * 获取文件采用base64形式
+         */
+        suspend fun suspendingBase64(sourcePath: String?): String {
+            sourcePath ?: return ""
+            return withContext(IO) { File(sourcePath).getBase64() }
+        }
+
+        /**
+         * 获取文件hash值
+         */
+        suspend fun suspendingHash(sourcePath: String?): String {
+            sourcePath ?: return ""
+            return withContext(IO) { File(sourcePath).getHash() }
         }
 
     }
@@ -242,7 +331,8 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             val list = ArrayList<String?>()
             val pageCount = withContext(IO) { PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).pageCount }
             for (index in 0 until pageCount) {
-                list.add(suspendingSavePDF(file, index))
+                val filePath = suspendingSavePDF(file, index)
+                list.add(filePath)
             }
             onResult.invoke(list)
         }
@@ -301,7 +391,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
     /**
      * 存储图片协程(下载url)
      */
-    fun downloadPicJob(mContext: Context, string: String, root: String = getStoragePath("Saved Images"), deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+    fun downloadPicJob(mContext: Context, string: String, root: String = getStoragePath("保存图片"), deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
         onStart()
         downloadPicJob?.cancel()
         downloadPicJob = launch {

@@ -10,7 +10,7 @@ import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.resString
 import com.example.common.utils.helper.AccountHelper
-import com.example.common.utils.toJsonString
+import com.example.common.utils.toJson
 import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -108,7 +108,7 @@ class MultiReqUtil(
  * hashMapOf("" to "")不需要写此扩展
  */
 fun <K, V> HashMap<K, V>?.requestBody() =
-    this?.toJsonString().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
+    this?.toJson().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
 
 fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
     val map = hashMapOf<String, Any>()

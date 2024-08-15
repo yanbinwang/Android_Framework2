@@ -48,15 +48,19 @@ fun String?.decodeDimensions(): IntArray? {
  */
 fun String?.decodeAsset(): Bitmap? {
     this ?: return null
-    var stream: InputStream? = null
-    return try {
-        stream = BaseApplication.instance.assets.open(this)
-        BitmapFactory.decodeStream(stream)
-    } catch (e: Exception) {
-        null
-    } finally {
-        stream?.close()
-    }
+//    var stream: InputStream? = null
+//    return try {
+//        stream = BaseApplication.instance.assets.open(this)
+//        BitmapFactory.decodeStream(stream)
+//    } catch (e: Exception) {
+//        null
+//    } finally {
+//        try {
+//            stream?.close()
+//        } catch (_: Exception) {
+//        }
+//    }
+    return BaseApplication.instance.assets.open(this).use { BitmapFactory.decodeStream(it) }
 }
 
 /**
@@ -125,7 +129,7 @@ fun Drawable.drawableToBitmap(): Bitmap {
  * format->图片类型
  * quality->压缩率
  */
-fun saveBit(bitmap: Bitmap?, root: String = getStoragePath("Saved Images"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
+fun saveBit(bitmap: Bitmap?, root: String = getStoragePath("保存图片"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
     bitmap ?: return null
     //存储目录文件
     val storeDir = File(root)
@@ -134,16 +138,25 @@ fun saveBit(bitmap: Bitmap?, root: String = getStoragePath("Saved Images"), file
     root.isMkdirs()
     //在目录文件夹下生成一个新的图片
     val file = File(storeDir, "${fileName}${format.getSuffix()}")
-    var fileOutputStream : FileOutputStream? = null
-    //开流开始写入
-    try {
-        fileOutputStream = FileOutputStream(file)
+//    var fileOutputStream: FileOutputStream? = null
+//    //开流开始写入
+//    try {
+//        fileOutputStream = FileOutputStream(file)
+//        //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
+//        bitmap.compress(format, if (format != PNG) quality else 100, fileOutputStream)
+//        fileOutputStream.flush()
+//    } catch (_: Exception) {
+//    } finally {
+//        try {
+//            fileOutputStream?.close()
+//        } catch (_: Exception) {
+//        }
+//        bitmap.recycle()
+//    }
+    file.outputStream().use { outputStream ->
         //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
-        bitmap.compress(format, if (format != PNG) quality else 100, fileOutputStream)
-    } catch (_: Exception) {
-    } finally {
-        fileOutputStream?.flush()
-        fileOutputStream?.close()
+        bitmap.compress(format, if (format != PNG) quality else 100, outputStream)
+        outputStream.flush()
         bitmap.recycle()
     }
     return file.absolutePath
@@ -167,30 +180,49 @@ private fun Bitmap.CompressFormat.getSuffix(): String {
  * 取得一个新的图片文件
  */
 fun Context.degreeImage(file: File, delete: Boolean = false): File {
-    val degree = readDegree(file.absolutePath)
-    var bitmap: Bitmap
-    return if (degree != 0f) {
+//    val degree = readDegree(file.absolutePath)
+//    var bitmap: Bitmap
+//    return if (degree != 0f) {
+//        val matrix = Matrix()
+//        matrix.postRotate(degree)
+//        BitmapFactory.decodeFile(file.absolutePath).let {
+//            bitmap = Bitmap.createBitmap(it, 0, 0, it.width, it.height, matrix, true)
+//            it.recycle()
+//        }
+//        val tempFile = File(applicationContext.externalCacheDir, file.name.replace(".jpg", "_degree.jpg"))
+//        var fileOutputStream : FileOutputStream? = null
+//        try {
+//            fileOutputStream = FileOutputStream(tempFile)
+//            bitmap.compress(JPEG, 100, fileOutputStream)
+//            if (delete) file.delete()
+//            tempFile
+//        } catch (e: IOException) {
+//            file
+//        } finally {
+//            fileOutputStream?.flush()
+//            fileOutputStream?.close()
+//            bitmap.recycle()
+//        }
+//    } else file
+    var mFile = file
+    if (readDegree(file.absolutePath) != 0f) {
+        var bitmap: Bitmap
         val matrix = Matrix()
-        matrix.postRotate(degree)
         BitmapFactory.decodeFile(file.absolutePath).let {
             bitmap = Bitmap.createBitmap(it, 0, 0, it.width, it.height, matrix, true)
             it.recycle()
         }
-        val tempFile = File(applicationContext.externalCacheDir, file.name.replace(".jpg", "_degree.jpg"))
-        var fileOutputStream : FileOutputStream? = null
-        try {
-            fileOutputStream = FileOutputStream(tempFile)
-            bitmap.compress(JPEG, 100, fileOutputStream)
+//        val tempFile = File(applicationContext.externalCacheDir, file.name.replace(".jpg", "_degree.jpg"))
+        val tempFile = File(getStoragePath("保存图片"), file.name.replace(".jpg", "_degree.jpg"))
+        if (tempFile.exists()) tempFile.delete()
+        tempFile.outputStream().use { outputStream ->
+            bitmap.compress(JPEG, 100, outputStream)
             if (delete) file.delete()
-            tempFile
-        } catch (e: IOException) {
-            file
-        } finally {
-            fileOutputStream?.flush()
-            fileOutputStream?.close()
-            bitmap.recycle()
+            mFile = tempFile
         }
-    } else file
+        bitmap.recycle()
+    }
+    return mFile
 }
 
 /**
