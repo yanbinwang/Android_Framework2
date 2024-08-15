@@ -2,7 +2,9 @@ package com.example.common.utils.file
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.PixelFormat
 import android.media.MediaPlayer
 import android.net.Uri
 import android.provider.DocumentsContract
@@ -19,11 +21,11 @@ import com.example.framework.utils.function.value.toSafeLong
 import com.example.framework.utils.logE
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
-import java.io.*
+import java.io.File
+import java.io.RandomAccessFile
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.security.MessageDigest
-import java.util.*
 
 /**
  * Created by WangYanBin on 2020/7/1.
@@ -236,8 +238,8 @@ object FileUtil {
         val info = TmpInfo()
         //源文件
         val file = File(filePath)
-        //申明文件切割后的文件磁盘
-        var inAccessFile: RandomAccessFile? = null
+//        //申明文件切割后的文件磁盘
+//        var inAccessFile: RandomAccessFile? = null
         //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
         val tmpFile = File("${file.parent}/${file.name.split(".")[0]}_${index}.tmp")
 //        //如果不存在，则创建一个或继续写入
