@@ -63,19 +63,30 @@ object WXShareUtil {
 
     @JvmStatic
     fun inputStreamToByte(stream: InputStream?): ByteArray? {
+        var imgdata: ByteArray? = null
+        var bytestream: ByteArrayOutputStream? = null
         try {
-            val bytestream = ByteArrayOutputStream()
+            bytestream = ByteArrayOutputStream()
             var ch: Int
             while ((stream?.read().also { ch = it.orZero }) != -1) {
                 bytestream.write(ch)
             }
-            val imgdata = bytestream.toByteArray()
-            bytestream.close()
-            return imgdata
+            imgdata = bytestream.toByteArray()
         } catch (e: Exception) {
             e.printStackTrace()
+        } finally {
+            try {
+                stream?.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            try {
+                bytestream?.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
-        return null
+        return imgdata
     }
 
     @JvmStatic
@@ -108,15 +119,22 @@ object WXShareUtil {
             return null
         }
         var b: ByteArray? = null
+        var access: RandomAccessFile? = null
         try {
-            val access = RandomAccessFile(fileName, "r")
+            access = RandomAccessFile(fileName, "r")
             b = ByteArray(mLen)
             access.seek(offset.toLong())
             access.readFully(b)
-            access.close()
+
         } catch (e: Exception) {
             "readFromFile : errMsg = ${e.message}".logE(TAG)
             e.printStackTrace()
+        } finally {
+            try {
+                access?.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
         return b
     }
