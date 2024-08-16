@@ -508,8 +508,7 @@ suspend fun String?.mediaDuration(): Int {
             medialPlayer.setDataSource(sourcePath)
             medialPlayer.prepare()
             val millisecond = medialPlayer.duration//视频时长（毫秒）
-            (millisecond.toString()).divide("1000").toSafeInt()
-                .apply { "文件时长：${this}秒".logE() }
+            (millisecond.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
         } catch (_: Exception) {
             0
         }
