@@ -106,9 +106,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                         canvas.drawBitmap(bitmap, 0f, 0f, null)
                         val rent = Rect(0, 0, width, height)
                         page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                        val filePath = saveBit(bitmap)
-                        bitmap.recycle()
-                        filePath
+                        saveBit(bitmap).apply { bitmap.recycle() }
                     }
                 }
             }
