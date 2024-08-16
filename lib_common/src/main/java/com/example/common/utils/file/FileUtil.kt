@@ -499,7 +499,7 @@ fun Number?.getSizeFormat(): String {
  * 返回时长(音频，视频)->不支持在线音视频
  * 放在线程中读取，超时会导致卡顿或闪退
  */
-suspend fun String?.mediaTime(): Int {
+suspend fun String?.mediaDuration(): Int {
     val sourcePath = this
     if (null == sourcePath || !File(sourcePath).exists()) return 0
     return withContext(IO) {
@@ -507,9 +507,7 @@ suspend fun String?.mediaTime(): Int {
         medialPlayer.setDataSource(sourcePath)
         medialPlayer.prepare()
         val millisecond = medialPlayer.duration//视频时长（毫秒）
-        val second = (millisecond.toString()).divide("1000").toSafeInt()
-        "文件时长：${second}秒".logE()
-        second
+        (millisecond.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
     }
 }
 
