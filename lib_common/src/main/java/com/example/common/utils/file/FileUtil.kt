@@ -15,6 +15,7 @@ import com.example.common.BaseApplication
 import com.example.common.config.Constants
 import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.value.toSafeLong
@@ -149,7 +150,7 @@ object FileUtil {
      * @param filePath  分割文件地址
      * @param filePointer 分割文件大小
      */
-    class TmpInfo(var filePath: String? = null, var filePointer: Long = 0)
+    data class TmpInfo(var filePath: String? = null, var filePointer: Long? = null)
 
     /**
      * 文件分割
@@ -182,7 +183,7 @@ object FileUtil {
 //                val begin = offSet
 //                val end = (i + 1) * maxSize
 //                val tmpInfo = write(targetFile.absolutePath, i, begin, end)
-//                offSet = tmpInfo.filePointer
+//                offSet = tmpInfo.filePointer.orZero
 //                splitList.add(tmpInfo.filePath.orEmpty())
 //            }
 //            if (length - offSet > 0) {
@@ -223,7 +224,7 @@ object FileUtil {
                 val begin = offSet
                 val end = (i + 1) * maxSize
                 val tmpInfo = write(targetFile.absolutePath, i, begin, end)
-                offSet = tmpInfo.filePointer
+                offSet = tmpInfo.filePointer.orZero
                 splitList.add(tmpInfo.filePath.orEmpty())
             }
             if (length - offSet > 0) {
