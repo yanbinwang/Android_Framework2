@@ -64,20 +64,37 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 存储pdf
          */
         suspend fun suspendingSavePDF(file: File, index: Int = 0): String? {
+//            return withContext(IO) {
+//                var filePath: String? = null
+//                var renderer: PdfRenderer? = null
+//                var page: PdfRenderer.Page? = null
+//                try {
+//                    renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
+//                    page = renderer.openPage(index)//选择渲染哪一页的渲染数据
+//                    val width = page.width
+//                    val height = page.height
+//                    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+//                    val canvas = Canvas(bitmap)
+//                    canvas.drawColor(Color.WHITE)
+//                    canvas.drawBitmap(bitmap, 0f, 0f, null)
+//                    val rent = Rect(0, 0, width, height)
+//                    page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+//                    filePath = saveBit(bitmap)
+//                    bitmap.recycle()
+//                } catch (_: Exception) {
+//                } finally {
+//                    try {
+//                        page?.close()
+//                    } catch (_: Exception) {
+//                    }
+//                    try {
+//                        renderer?.close()
+//                    } catch (_: Exception) {
+//                    }
+//                }
+//                filePath
+//            }
             return withContext(IO) {
-//                val renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
-//                val page = renderer.openPage(index)//选择渲染哪一页的渲染数据
-//                val width = page.width
-//                val height = page.height
-//                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-//                val canvas = Canvas(bitmap)
-//                canvas.drawColor(Color.WHITE)
-//                canvas.drawBitmap(bitmap, 0f, 0f, null)
-//                val rent = Rect(0, 0, width, height)
-//                page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-//                page.close()
-//                renderer.close()
-//                saveBit(bitmap)
                 PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).use { renderer ->
                     //选择渲染哪一页的渲染数据
                     renderer.openPage(index).use { page ->
@@ -89,7 +106,9 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                         canvas.drawBitmap(bitmap, 0f, 0f, null)
                         val rent = Rect(0, 0, width, height)
                         page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                        saveBit(bitmap)
+                        val filePath = saveBit(bitmap)
+                        bitmap.recycle()
+                        filePath
                     }
                 }
             }
@@ -166,10 +185,10 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 存储文件
          */
         suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: String, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
-            //清除目录下的所有文件
-            filePath.deleteDir()
-            //创建一个安装的文件，开启io协程写入
-            val file = File(filePath.isMkdirs(), fileName)
+//            //清除目录下的所有文件
+//            filePath.deleteDir()
+//            //创建一个安装的文件，开启io协程写入
+//            val file = File(filePath.isMkdirs(), fileName)
 //            withContext(IO) {
 //                var inputStream: InputStream? = null
 //                var outputStream: FileOutputStream? = null
@@ -204,6 +223,10 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
 //                    withContext(Main) { onComplete() }
 //                }
 //            }
+            //清除目录下的所有文件
+            filePath.deleteDir()
+            //创建一个安装的文件，开启io协程写入
+            val file = File(filePath.isMkdirs(), fileName)
             withContext(IO) {
                 try {
                     //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
