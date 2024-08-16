@@ -30,6 +30,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
@@ -37,6 +38,7 @@ import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resume
 
 /**
  * 工具类中，实现了对应文件流下载保存的方法，此处采用协程的方式引用
@@ -151,29 +153,29 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
 
         private fun zipFolder(folderList: MutableList<String>, zipPath: String) {
             //创建ZIP
-            var outZip: ZipOutputStream? = null
+            var outZipStream: ZipOutputStream? = null
             try {
-                outZip = ZipOutputStream(FileOutputStream(zipPath))
+                outZipStream = ZipOutputStream(FileOutputStream(zipPath))
                 //批量打入压缩包
                 for (folderPath in folderList) {
                     val file = File(folderPath)
                     val zipEntry = ZipEntry(file.name)
                     file.inputStream().use { inputStream ->
-                        outZip.putNextEntry(zipEntry)
+                        outZipStream.putNextEntry(zipEntry)
                         var len: Int
                         val buffer = ByteArray(4096)
                         while (inputStream.read(buffer).also { len = it } != -1) {
-                            outZip.write(buffer, 0, len)
+                            outZipStream.write(buffer, 0, len)
                         }
-                        outZip.closeEntry()
+                        outZipStream.closeEntry()
                     }
                 }
                 //完成和关闭
-                outZip.finish()
+                outZipStream.finish()
             } catch (_: Exception) {
             } finally {
                 try {
-                    outZip?.close()
+                    outZipStream?.close()
                 } catch (_: Exception) {
                 }
             }
@@ -239,16 +241,16 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                                 outputStream.write(buf, 0, len)
                                 sum += len.toLong()
                                 val progress = (sum * 1.0f / total * 100).toSafeInt()
-                                withContext(Main) { onLoading(progress) }
+                                withContext(Main) { onLoading.invoke(progress) }
                             }
                             outputStream.flush()
-                            withContext(Main) { onSuccess(file.path) }
+                            withContext(Main) { onSuccess.invoke(file.path) }
                         }
                     }
                 } catch (e: Exception) {
-                    withContext(Main) { onFailed(e) }
+                    withContext(Main) { onFailed.invoke(e) }
                 } finally {
-                    withContext(Main) { onComplete() }
+                    withContext(Main) { onComplete.invoke() }
                 }
             }
         }
@@ -257,16 +259,27 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 存储网络路径图片
          */
         suspend fun suspendingDownloadPic(mContext: Context, string: String, storeDir: File): String? {
-            return withContext(IO) {
-                var file: File? = null
-                var filePath: String? = null
-                ImageLoader.instance.download(mContext, string) {
-                    file = it
-                    filePath = "${storeDir.absolutePath}/${it?.name}"//此处`it?.name`会包含glide下载图片的后缀（png,jpg,webp等）
-                }
-                file?.copy(storeDir)
-                file?.delete()
-                filePath
+//            return withContext(IO) {
+//                var file: File? = null
+//                var filePath: String? = null
+//                ImageLoader.instance.download(mContext, string) {
+//                    file = it
+//                    filePath = "${storeDir.absolutePath}/${it?.name}"//此处`it?.name`会包含glide下载图片的后缀（png,jpg,webp等）
+//                }
+//                file?.copy(storeDir)
+//                file?.delete()
+//                filePath
+//            }
+            return withContext(IO) { suspendingGlideDownload(mContext, string, storeDir) }
+        }
+
+        private suspend fun suspendingGlideDownload(mContext: Context, string: String, storeDir: File) = suspendCancellableCoroutine {
+            ImageLoader.instance.download(mContext, string) { file ->
+                //此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
+                it.resume("${storeDir.absolutePath}/${file?.name}".apply {
+                    file?.copy(storeDir)
+                    file?.delete()
+                })
             }
         }
 
