@@ -277,7 +277,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                                 withContext(Main) { listener.invoke(progress) }
                             }
                             outputStream.flush()
-                            withContext(Main) { file.path }
+                            file.path
                         }
                     }
                 } catch (e: Exception) {
