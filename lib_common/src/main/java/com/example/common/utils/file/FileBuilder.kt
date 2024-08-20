@@ -34,7 +34,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.coroutines.CoroutineContext
@@ -440,7 +439,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         }
     }
 
-    fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
+    fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String?) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
 //        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
 //            R.string.linkError.shortToast()
 //            return
@@ -458,7 +457,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         downloadJob?.cancel()
         downloadJob = launch {
             try {
-                val downloadFilePath = suspendingDownload(downloadUrl, filePath, fileName, onLoading).orEmpty()
+                val downloadFilePath = suspendingDownload(downloadUrl, filePath, fileName, onLoading)
                 onSuccess(downloadFilePath)
             } catch (e: Exception) {
                 onFailed.invoke(e)
