@@ -462,8 +462,9 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                 onSuccess(downloadFilePath)
             } catch (e: Exception) {
                 onFailed.invoke(e)
+            } finally {
+                onComplete()
             }
-            onComplete()
         }
     }
 
