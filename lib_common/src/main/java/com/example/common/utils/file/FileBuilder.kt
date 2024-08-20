@@ -255,6 +255,37 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             }
         }
 
+        suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: String, listener: (progress: Int) -> Unit = {}): String? {
+            //清除目录下的所有文件
+            filePath.deleteDir()
+            //创建一个安装的文件，开启io协程写入
+            val file = File(filePath.isMkdirs(), fileName)
+            return withContext(IO) {
+                try {
+                    //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
+                    val body = CommonSubscribe.getDownloadApi(downloadUrl)
+                    val buf = ByteArray(2048)
+                    val total = body.contentLength()
+                    body.byteStream().use { inputStream ->
+                        file.outputStream().use { outputStream ->
+                            var len: Int
+                            var sum = 0L
+                            while (((inputStream.read(buf)).also { len = it }) != -1) {
+                                outputStream.write(buf, 0, len)
+                                sum += len.toLong()
+                                val progress = (sum * 1.0f / total * 100).toSafeInt()
+                                withContext(Main) { listener.invoke(progress) }
+                            }
+                            outputStream.flush()
+                            withContext(Main) { file.path }
+                        }
+                    }
+                } catch (e: Exception) {
+                    throw e
+                }
+            }
+        }
+
         /**
          * 存储网络路径图片
          */
@@ -410,6 +441,15 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
     }
 
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
+//        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
+//            R.string.linkError.shortToast()
+//            return
+//        }
+//        onStart()
+//        downloadJob?.cancel()
+//        downloadJob = launch {
+//            suspendingDownload(downloadUrl, filePath, fileName, onSuccess, onLoading, onFailed, onComplete)
+//        }
         if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
             R.string.linkError.shortToast()
             return
@@ -417,7 +457,13 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         onStart()
         downloadJob?.cancel()
         downloadJob = launch {
-            suspendingDownload(downloadUrl, filePath, fileName, onSuccess, onLoading, onFailed, onComplete)
+            try {
+                val downloadFilePath = suspendingDownload(downloadUrl, filePath, fileName, onLoading).orEmpty()
+                onSuccess(downloadFilePath)
+            } catch (e: Exception) {
+                onFailed.invoke(e)
+            }
+            onComplete()
         }
     }
 
