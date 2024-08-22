@@ -31,6 +31,46 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
     private var interpolator: Interpolator = AccelerateDecelerateInterpolator()
     private val animationList by lazy { ArrayList<Animator>() }
 
+    companion object {
+        /**
+         * 进入
+         */
+        @JvmStatic
+        fun Context.enterAnimation(): AnimationSet {
+            return AnimationSet(this, null).apply {
+                val alpha = AlphaAnimation(0.0f, 1.0f)
+                alpha.duration = 90
+                val scale1 = ScaleAnimation(0.8f, 1.05f, 0.8f, 1.05f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                scale1.duration = 135
+                val scale2 = ScaleAnimation(1.05f, 0.95f, 1.05f, 0.95f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                scale2.duration = 105
+                scale2.startOffset = 135
+                val scale3 = ScaleAnimation(0.95f, 1f, 0.95f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                scale3.duration = 60
+                scale3.startOffset = 240
+                addAnimation(alpha)
+                addAnimation(scale1)
+                addAnimation(scale2)
+                addAnimation(scale3)
+            }
+        }
+
+        /**
+         * 退出
+         */
+        @JvmStatic
+        fun Context.exitAnimation(): AnimationSet {
+            return AnimationSet(this, null).apply {
+                val alpha = AlphaAnimation(1.0f, 0.0f)
+                alpha.duration = 150
+                val scale = ScaleAnimation(1.0f, 0.6f, 1.0f, 0.6f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                scale.duration = 150
+                addAnimation(alpha)
+                addAnimation(scale)
+            }
+        }
+    }
+
     /**
      * 动画执行次数
      */
@@ -325,40 +365,4 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         animSet.start()
     }
 
-}
-
-/**
- * 进入
- */
-fun Context.enterAnimation(): AnimationSet {
-    return AnimationSet(this, null).apply {
-        val alpha = AlphaAnimation(0.0f, 1.0f)
-        alpha.duration = 90
-        val scale1 = ScaleAnimation(0.8f, 1.05f, 0.8f, 1.05f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale1.duration = 135
-        val scale2 = ScaleAnimation(1.05f, 0.95f, 1.05f, 0.95f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale2.duration = 105
-        scale2.startOffset = 135
-        val scale3 = ScaleAnimation(0.95f, 1f, 0.95f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale3.duration = 60
-        scale3.startOffset = 240
-        addAnimation(alpha)
-        addAnimation(scale1)
-        addAnimation(scale2)
-        addAnimation(scale3)
-    }
-}
-
-/**
- * 退出
- */
-fun Context.exitAnimation(): AnimationSet {
-    return AnimationSet(this, null).apply {
-        val alpha = AlphaAnimation(1.0f, 0.0f)
-        alpha.duration = 150
-        val scale = ScaleAnimation(1.0f, 0.6f, 1.0f, 0.6f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale.duration = 150
-        addAnimation(alpha)
-        addAnimation(scale)
-    }
 }
