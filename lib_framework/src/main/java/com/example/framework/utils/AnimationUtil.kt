@@ -28,8 +28,8 @@ import java.util.*
  */
 @SuppressLint("SetTextI18n")
 class AnimationUtil(private val view: View?, private val millisecond: Long) {
-    private val animationList by lazy { ArrayList<Animator>() }
     private var interpolator: Interpolator = AccelerateDecelerateInterpolator()
+    private val animationList by lazy { ArrayList<Animator>() }
 
     /**
      * 动画执行次数
