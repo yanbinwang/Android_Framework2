@@ -196,9 +196,7 @@ object WXShareUtil {
                     }
                 }
                 options.inJustDecodeBounds = false
-                "bitmap required size=${newWidth}x${newHeight}, orig=${options.outWidth}x${options.outHeight}, sample=${options.inSampleSize}".logI(
-                    TAG
-                )
+                "bitmap required size=${newWidth}x${newHeight}, orig=${options.outWidth}x${options.outHeight}, sample=${options.inSampleSize}".logI(TAG)
                 var bm = BitmapFactory.decodeFile(path, options)
                 if (bm == null) {
                     "bitmap decode failed".logE(TAG)
