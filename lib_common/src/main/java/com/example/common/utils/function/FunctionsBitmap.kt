@@ -21,9 +21,7 @@ import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InputStream
 import java.util.*
 
 /**
@@ -40,6 +38,18 @@ fun String?.decodeDimensions(): IntArray? {
     val width = options.outWidth
     val height = options.outHeight
     return intArrayOf(width, height)
+}
+
+/**
+ * 判断一个路径地址是否为一张图片
+ * inJustDecodeBounds=true不会把图片放入内存，只会获取宽高，判断当前路径是否为图片，是的话捕获文件路径
+ */
+fun String?.decodeFile(): Boolean {
+    this ?: return false
+    val options = BitmapFactory.Options()
+    options.inJustDecodeBounds = true
+    BitmapFactory.decodeFile(this, options)
+    return options.outWidth != -1
 }
 
 /**
