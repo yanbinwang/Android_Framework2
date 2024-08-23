@@ -144,7 +144,7 @@ object OssDBHelper {
     @JvmStatic
     fun addObserver(observer: LifecycleOwner) {
         //以main为底座，绑定main的生命周期
-        OssFactory.instance.addObserver(observer)
+        OssFactory.instance.cancelAllWork(observer)
         //加载数据前，让数据库中所有上传中状态的数据，变为未上传
         dao?.loadAll()?.forEach { updateUpload(it.baoquan, false) }
     }

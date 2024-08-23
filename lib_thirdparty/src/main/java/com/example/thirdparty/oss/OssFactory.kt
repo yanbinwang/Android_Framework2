@@ -39,10 +39,9 @@ import com.example.thirdparty.oss.bean.OssSts
 import com.example.thirdparty.oss.bean.OssSts.Companion.bucketName
 import com.example.thirdparty.oss.bean.OssSts.Companion.objectName
 import com.example.thirdparty.oss.subscribe.OssSubscribe
-import com.google.common.reflect.TypeToken
-import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
@@ -58,18 +57,19 @@ import kotlin.coroutines.CoroutineContext
  * 阿里oss文件上传
  */
 class OssFactory private constructor() : CoroutineScope {
-    /**
-     * oss基础配资
-     */
+    //oss基础类
     private var oss: OSS? = null
+    //key->保全号（服务器唯一id）value->对应oss的传输类
     private val ossMap by lazy { ConcurrentHashMap<String, OSSAsyncTask<ResumableUploadResult?>?>() }
-    private val implMap by lazy { ConcurrentHashMap<String, WeakReference<OssImpl>>() }//传入页面的classname以及页面实现OssImpl
-    /**
-     * 校验oss是否初始化
-     */
+    //传入页面的lifecycle以及页面实现的OssImpl
+    private val implList by lazy { ArrayList<WeakReference<OssImpl>>() }
+
+    //内部状态 first->是否正在请求 second->是否获取授权
+    private var state = false to false
+    //校验oss是否初始化
     private val isInit get() = run {
-        if (!isAuthorize) {
-            if (!isRequest) {
+        if (!state.second) {
+            if (!state.first) {
                 "oss初始化失败，请稍后再试".shortToast()
                 initialize()
             }
@@ -78,73 +78,69 @@ class OssFactory private constructor() : CoroutineScope {
             true
         }
     }
-    /**
-     * 协程
-     */
+
+    //协程整体，因全局文件上传都需要调取oss，故而无需考虑cancel问题（方法可补充，main中调取）
     private var initJob: Job? = null
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
     companion object {
+        /**
+         * 单例初始化
+         */
         @JvmStatic
         val instance by lazy { OssFactory() }
-
-        /**
-         * 内部状态判断
-         */
-        private var statePair = false to false
-
-        /**
-         * 是否正在请求
-         */
-        val isRequest get() = statePair.first
-
-        /**
-         * 是否获取授权
-         */
-        val isAuthorize get() = statePair.second
     }
 
+    // <editor-fold defaultstate="collapsed" desc="基础方法">
     /**
      * oss初始化
-     * 1.服务器将过期时间调成最大，
-     * 2.app启动时初始化，保证app启动期间获取的授权时间是最长的
-     * 3.接口失败或者上传失败时再次调取initialize（）
+     * 1.后端服务器将oss过期时间调成最大
+     * 2.app启动时application中初始化，保证启动期间先获取一次授权，时间过长会重置（120分钟）
+     * 3.接口失败或者上传失败时再次调取initialize（）重新赋值
      */
     @Synchronized
     fun initialize() {
-        statePair = true to false
+        state = true to false
         initJob?.cancel()
-        initJob = launch(Dispatchers.IO) {
+        initJob = launch(IO) {
             oss = OSSClient(BaseApplication.instance.applicationContext, "https://oss-cn-shenzhen.aliyuncs.com", object : OSSFederationCredentialProvider() {
                 override fun getFederationToken(): OSSFederationToken? {
-                    return try {
-                        val stsUrl = URL("swallow/sts/aliyun/oss".byServerUrl)
-                        val conn = stsUrl.openConnection() as? HttpURLConnection
-                        val input = conn?.inputStream
+                    val stsUrl = URL("swallow/sts/aliyun/oss".byServerUrl)
+                    val conn = stsUrl.openConnection() as? HttpURLConnection
+                    return conn?.inputStream.use { input ->
                         val json = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME)
                         log("暂无", "服务器json:\n${json}")
-//                        val bean = Gson().fromJson<ApiResponse<OssSts>>(json, object : TypeToken<ApiResponse<OssSts>>() {}.type).let { if (it.successful()) it.data else null }
                         val bean = json.toObj<ApiResponse<OssSts>>(getType(ApiResponse::class.java, OssSts::class.java)).let { if (it.successful()) it?.data else null }
                         if (null != bean) {
-                            statePair = false to true
+                            state = false to true
                             OSSFederationToken(bean.accessKeyId.orEmpty(), bean.accessKeySecret.orEmpty(), bean.securityToken.orEmpty(), bean.expiration.orEmpty())
                         } else {
-                            statePair = false to false
+                            state = false to false
                             null
                         }
-                    } catch (e: Exception) {
-                        //失败为空
-                        statePair = false to false
-                        null
                     }
-                    //配置类如果不设置，会有默认配置
                 }}, ClientConfiguration().apply {
                 connectionTimeout = 3600 * 1000//连接超时，默认15秒。
                 socketTimeout = 3600 * 1000//socket超时，默认15秒。
                 maxConcurrentRequest = Int.MAX_VALUE//最大并发请求数，默认5个。
-                maxErrorRetry = 0 })//失败后最大重试次数，默认2次。
+                maxErrorRetry = 0//失败后最大重试次数，默认2次。
+            })
+        }
+    }
+
+    /**
+     * 部分页面实现回调
+     * owner: LifecycleOwner
+     * impl: OssImpl
+     */
+    fun bind(owner: LifecycleOwner, impl: OssImpl) {
+        if (implList.find { it == WeakReference(impl) } == null) {
+            implList.add(WeakReference(impl))
+            owner.doOnDestroy {
+                implList.remove(WeakReference(impl))
+            }
         }
     }
 
@@ -152,7 +148,7 @@ class OssFactory private constructor() : CoroutineScope {
      * 绑定对应页面的生命周期-》对应回调重写对应方法
      * @param observer
      */
-    fun addObserver(observer: LifecycleOwner) {
+    fun cancelAllWork(observer: LifecycleOwner) {
         observer.doOnDestroy { cancelAllWork() }
     }
 
@@ -171,29 +167,15 @@ class OssFactory private constructor() : CoroutineScope {
             }
         }
         ossMap.clear()
+        implList.clear()
         //取消页面协程
         initJob?.cancel()
 //        job.cancel()
         coroutineContext.cancelChildren()
     }
+    // </editor-fold>
 
-    /**
-     * 部分页面实现回调
-     * className: String
-     * impl: WeakReference<OssImpl>
-     */
-    fun bind(pair: Pair<String, WeakReference<OssImpl>>) {
-        implMap[pair.first] = pair.second
-    }
-
-    /**
-     * 解绑
-     */
-    fun unbind(className: String) {
-        implMap.remove(className)
-    }
-
-
+    // <editor-fold defaultstate="collapsed" desc="证据文件上传">
     /**
      * 断点续传
      * sourcePath->本地文件完整路径，例如/storage/emulated/0/oss/examplefile.txt(调取OssHelper可获取)
@@ -204,11 +186,12 @@ class OssFactory private constructor() : CoroutineScope {
      * objectName->Object完整路径，例如exampledir/exampleobject.txt。Object完整路径中不能包含Bucket名称
      */
     @Synchronized
-    fun asyncResumableUpload(sourcePath: String, baoquan: String, fileType: String) {
+    fun asyncResumableUpload(sourcePath: String?, baoquan: String, fileType: String) {
+        sourcePath ?: return
         if (isInit) {
-            val dbPair = init(sourcePath, baoquan, fileType)
-            val query = dbPair.first
-            val recordDirectory = dbPair.second
+            val data = init(sourcePath, baoquan, fileType)
+            val query = data.first
+            val recordDirectory = data.second
             if (OssDBHelper.isComplete(baoquan)) {
                 success(query, fileType, recordDirectory)
             } else {
@@ -224,7 +207,7 @@ class OssFactory private constructor() : CoroutineScope {
                 var percentage = 0
                 request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->
                     percentage = ((currentSize.toDouble() / totalSize.toDouble()) * 100).toSafeInt()
-                    results(1, baoquan, percentage)
+                    callback(1, baoquan, percentage)
                     log(sourcePath, "上传中\n保全号：${baoquan}\n已上传大小（currentSize）:${currentSize}\n总大小（totalSize）:${totalSize}\n上传百分比（percentage）:${percentage}%")
                 }
                 val resumableTask = oss?.asyncResumableUpload(request, object : OSSCompletedCallback<ResumableUploadRequest?, ResumableUploadResult?> {
@@ -290,7 +273,7 @@ class OssFactory private constructor() : CoroutineScope {
             OssDBHelper.insert(query)
         }
         OssDBHelper.updateUpload(baoquan, true)
-        results(0, baoquan)
+        callback(0, baoquan)
         return query
     }
 
@@ -327,7 +310,7 @@ class OssFactory private constructor() : CoroutineScope {
                     query.sourcePath.deleteDir()
                     recordDirectory.deleteFile()
                     OssDBHelper.delete(query)
-                    results(2, this@apply, success = true)
+                    callback(2, this@apply, success = true)
                     EVENT_EVIDENCE_UPDATE.post(fileType)
                 }, { failure(this@apply, it?.second.orEmpty()) })
             }
@@ -339,7 +322,7 @@ class OssFactory private constructor() : CoroutineScope {
      */
     private fun failure(baoquan: String, errorMessage: String) {
         OssDBHelper.updateUpload(baoquan, false)
-        results(2, baoquan, success = false)
+        callback(2, baoquan, success = false)
         launch {
             request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)) })
         }
@@ -348,9 +331,9 @@ class OssFactory private constructor() : CoroutineScope {
     /**
      * 接口回调方法
      */
-    private fun results(type: Int, baoquan: String, progress: Int = 0, success: Boolean = true) {
-        for ((_, value) in implMap) {
-            value.get()?.apply {
+    private fun callback(type: Int, baoquan: String, progress: Int = 0, success: Boolean = true) {
+        implList.forEach {
+            it.get()?.apply {
                 when (type) {
                     0 -> onStart(baoquan)
                     1 -> onLoading(baoquan, progress)
@@ -361,10 +344,33 @@ class OssFactory private constructor() : CoroutineScope {
     }
 
     /**
+     * 回调接口
+     */
+    interface OssImpl {
+        /**
+         * 更新某个item的状态（开始上传）
+         */
+        fun onStart(baoquan: String)
+
+        /**
+         * 更新某个item的进度
+         */
+        fun onLoading(baoquan: String, progress: Int)
+
+        /**
+         * 更新某个item的状态（完成）
+         */
+        fun onComplete(baoquan: String, success: Boolean)
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="普通文件上传">
+    /**
      * 直接执行文件上传
      */
     @Synchronized
-    fun asyncResumableUpload(sourcePath: String, onStart: () -> Unit = {}, onSuccess: (objectKey: String?) -> Unit = {}, onLoading: (progress: Int?) -> Unit = {}, onFailed: (result: String?) -> Unit = {}, onComplete: () -> Unit = {}, privately: Boolean = false) {
+    fun asyncResumableUpload(sourcePath: String?, onStart: () -> Unit = {}, onSuccess: (objectKey: String?) -> Unit = {}, onLoading: (progress: Int?) -> Unit = {}, onFailed: (result: String?) -> Unit = {}, onComplete: () -> Unit = {}, privately: Boolean = false) {
+        sourcePath ?: return
         if (isInit) {
             onStart.invoke()
             //设置对应文件的断点文件存放路径
@@ -419,30 +425,11 @@ class OssFactory private constructor() : CoroutineScope {
             ossMap[sourcePath] = resumableTask
         }
     }
+    // </editor-fold>
 
     /**
      * log日志查看
      */
     private fun log(localPath: String, state: String) = " \n————————————————————————文件上传————————————————————————\n文件路径：${localPath}\n上传状态：${state}\n————————————————————————文件上传————————————————————————".logWTF
-
-    /**
-     * 回调接口
-     */
-    interface OssImpl {
-        /**
-         * 更新某个item的状态（开始上传）
-         */
-        fun onStart(baoquan: String)
-
-        /**
-         * 更新某个item的进度
-         */
-        fun onLoading(baoquan: String, progress: Int)
-
-        /**
-         * 更新某个item的状态（完成）
-         */
-        fun onComplete(baoquan: String, success: Boolean)
-    }
 
 }
