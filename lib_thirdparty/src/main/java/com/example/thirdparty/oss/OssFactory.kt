@@ -46,12 +46,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.ref.WeakReference
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resume
 
 /**
  * 阿里oss文件上传
@@ -104,30 +107,35 @@ class OssFactory private constructor() : CoroutineScope {
     fun initialize() {
         state = true to false
         initJob?.cancel()
-        initJob = launch(IO) {
-            oss = OSSClient(BaseApplication.instance.applicationContext, "https://oss-cn-shenzhen.aliyuncs.com", object : OSSFederationCredentialProvider() {
-                override fun getFederationToken(): OSSFederationToken? {
-                    val stsUrl = URL("swallow/sts/aliyun/oss".byServerUrl)
-                    val conn = stsUrl.openConnection() as? HttpURLConnection
-                    return conn?.inputStream.use { input ->
-                        val json = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME)
-                        log("暂无", "服务器json:\n${json}")
-                        val bean = json.toObj<ApiResponse<OssSts>>(getType(ApiResponse::class.java, OssSts::class.java)).let { if (it.successful()) it?.data else null }
-                        if (null != bean) {
-                            state = false to true
-                            OSSFederationToken(bean.accessKeyId.orEmpty(), bean.accessKeySecret.orEmpty(), bean.securityToken.orEmpty(), bean.expiration.orEmpty())
+        initJob = launch {
+            state = false to withContext(IO) { suspendingOSS() }
+        }
+    }
+
+    private suspend fun suspendingOSS() = suspendCancellableCoroutine {
+        oss = OSSClient(BaseApplication.instance.applicationContext, "https://oss-cn-shenzhen.aliyuncs.com", object : OSSFederationCredentialProvider() {
+            override fun getFederationToken(): OSSFederationToken? {
+                val stsUrl = URL("swallow/sts/aliyun/oss".byServerUrl)
+                val conn = stsUrl.openConnection() as? HttpURLConnection
+                return conn?.inputStream.use { input ->
+                    val json = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME)
+                    log("暂无", "服务器json:\n${json}")
+                    val bean = json.toObj<ApiResponse<OssSts>>(getType(ApiResponse::class.java, OssSts::class.java)).let { if (it.successful()) it?.data else null }
+                    (null != bean).let { value ->
+                        it.resume(value)
+                        if (value) {
+                            OSSFederationToken(bean?.accessKeyId.orEmpty(), bean?.accessKeySecret.orEmpty(), bean?.securityToken.orEmpty(), bean?.expiration.orEmpty())
                         } else {
-                            state = false to false
                             null
                         }
                     }
-                }}, ClientConfiguration().apply {
+                }
+            }}, ClientConfiguration().apply {
                 connectionTimeout = 3600 * 1000//连接超时，默认15秒。
                 socketTimeout = 3600 * 1000//socket超时，默认15秒。
                 maxConcurrentRequest = Int.MAX_VALUE//最大并发请求数，默认5个。
                 maxErrorRetry = 0//失败后最大重试次数，默认2次。
-            })
-        }
+        })
     }
 
     /**
