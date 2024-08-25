@@ -135,7 +135,7 @@ class OssFactory private constructor() : CoroutineScope {
                 socketTimeout = 3600 * 1000//socket超时，默认15秒。
                 maxConcurrentRequest = Int.MAX_VALUE//最大并发请求数，默认5个。
                 maxErrorRetry = 0//失败后最大重试次数，默认2次。
-        })
+            })
     }
 
     /**
