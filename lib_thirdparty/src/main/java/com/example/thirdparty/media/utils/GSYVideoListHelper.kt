@@ -38,7 +38,7 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
      */
     fun bind(rvList: RecyclerView?) {
         this.rvList = rvList
-        dataManager.clear()
+        this.dataManager.clear()
     }
 
     /**
