@@ -26,44 +26,11 @@ import kotlin.math.max
  */
 class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var rvList: RecyclerView? = null
+    private val dataManager by lazy { ConcurrentHashMap<Int, String>() }
 
 
     init {
         mActivity.lifecycle.addObserver(this)
-    }
-
-    companion object {
-        private val dataManager by lazy { ConcurrentHashMap<Int, String>() }
-
-        /**
-         * 列表内部调取
-         */
-        @Synchronized
-        fun setUpLazy(player: StandardGSYVideoPlayer?, url: String, position: Int) {
-            //每一项都会调取dataManager
-            dataManager[position] = url
-            //设置每个列表的url
-            player?.setUpLazy(url, true, null, null, "这是title")
-            //增加title
-            player?.titleTextView?.visibility = View.GONE
-            //设置返回键
-            player?.backButton?.setVisibility(View.GONE)
-            //设置全屏按键功能
-            player?.fullscreenButton?.setOnClickListener {
-                player.startWindowFullscreen(player.context, false, true)
-            }
-            //防止错位设置(下标+url)
-            player?.playTag = "${position}::${url}"
-            player?.playPosition = position
-            //是否根据视频尺寸，自动选择竖屏全屏或者横屏全屏
-            player?.isAutoFullWithSize = true
-            //音频焦点冲突时是否释放
-            player?.isReleaseWhenLossAudio = false
-            //全屏动画
-            player?.isShowFullAnimation = true
-            //小屏时不触摸滑动
-            player?.setIsTouchWiget(false)
-        }
     }
 
     /**
@@ -72,6 +39,37 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
     fun bind(rvList: RecyclerView?) {
         this.rvList = rvList
         dataManager.clear()
+    }
+
+    /**
+     * 列表内部调取
+     * 适配器初始化传入helper，然后内部调取setUpLazy方法
+     */
+    @Synchronized
+    fun setUpLazy(player: StandardGSYVideoPlayer?, url: String, position: Int) {
+        //每一项都会调取dataManager
+        dataManager[position] = url
+        //设置每个列表的url
+        player?.setUpLazy(url, true, null, null, "这是title")
+        //增加title
+        player?.titleTextView?.visibility = View.GONE
+        //设置返回键
+        player?.backButton?.setVisibility(View.GONE)
+        //设置全屏按键功能
+        player?.fullscreenButton?.setOnClickListener {
+            player.startWindowFullscreen(player.context, false, true)
+        }
+        //防止错位设置(下标+url)
+        player?.playTag = "${position}::${url}"
+        player?.playPosition = position
+        //是否根据视频尺寸，自动选择竖屏全屏或者横屏全屏
+        player?.isAutoFullWithSize = true
+        //音频焦点冲突时是否释放
+        player?.isReleaseWhenLossAudio = false
+        //全屏动画
+        player?.isShowFullAnimation = true
+        //小屏时不触摸滑动
+        player?.setIsTouchWiget(false)
     }
 
     /**
