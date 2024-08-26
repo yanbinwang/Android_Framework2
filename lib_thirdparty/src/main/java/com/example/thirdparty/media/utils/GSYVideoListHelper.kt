@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.framework.utils.function.value.orZero
 import com.shuyu.gsyvideoplayer.GSYVideoManager
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 
 /**
@@ -24,46 +25,53 @@ import kotlin.math.max
  *     android:screenOrientation="portrait" />
  */
 class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
-    private var TAG: String = ""
     private var rvList: RecyclerView? = null
+
 
     init {
         mActivity.lifecycle.addObserver(this)
     }
 
-    /**
-     * 绑定列表
-     */
-    fun bind(rvList: RecyclerView?, TAG: String) {
-        this.rvList = rvList
-        this.TAG = TAG
+    companion object {
+        private val dataManager by lazy { ConcurrentHashMap<Int, String>() }
+
+        /**
+         * 列表内部调取
+         */
+        @Synchronized
+        fun setUpLazy(player: StandardGSYVideoPlayer?, url: String, position: Int) {
+            //每一项都会调取dataManager
+            dataManager[position] = url
+            //设置每个列表的url
+            player?.setUpLazy(url, true, null, null, "这是title")
+            //增加title
+            player?.titleTextView?.visibility = View.GONE
+            //设置返回键
+            player?.backButton?.setVisibility(View.GONE)
+            //设置全屏按键功能
+            player?.fullscreenButton?.setOnClickListener {
+                player.startWindowFullscreen(player.context, false, true)
+            }
+            //防止错位设置(下标+url)
+            player?.playTag = "${position}::${url}"
+            player?.playPosition = position
+            //是否根据视频尺寸，自动选择竖屏全屏或者横屏全屏
+            player?.isAutoFullWithSize = true
+            //音频焦点冲突时是否释放
+            player?.isReleaseWhenLossAudio = false
+            //全屏动画
+            player?.isShowFullAnimation = true
+            //小屏时不触摸滑动
+            player?.setIsTouchWiget(false)
+        }
     }
 
     /**
-     * 列表内部调取
+     * 绑定列表
      */
-    @Synchronized
-    fun setUpLazy(player: StandardGSYVideoPlayer?, url: String, position: Int) {
-        player?.setUpLazy(url, true, null, null, "这是title")
-        //增加title
-        player?.titleTextView?.visibility = View.GONE
-        //设置返回键
-        player?.backButton?.setVisibility(View.GONE)
-        //设置全屏按键功能
-        player?.fullscreenButton?.setOnClickListener {
-            player.startWindowFullscreen(player.context, false, true)
-        }
-        //防止错位设置
-        player?.playTag = TAG
-        player?.playPosition = position
-        //是否根据视频尺寸，自动选择竖屏全屏或者横屏全屏
-        player?.isAutoFullWithSize = true
-        //音频焦点冲突时是否释放
-        player?.isReleaseWhenLossAudio = false
-        //全屏动画
-        player?.isShowFullAnimation = true
-        //小屏时不触摸滑动
-        player?.setIsTouchWiget(false)
+    fun bind(rvList: RecyclerView?) {
+        this.rvList = rvList
+        dataManager.clear()
     }
 
     /**
@@ -84,8 +92,10 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
                 if (GSYVideoManager.instance().playPosition >= 0) {
                     //当前播放的位置
                     val position = GSYVideoManager.instance().playPosition
+                    //当前播放tag
+                    val playTag = dataManager[position]
                     //对应的播放列表TAG
-                    if (GSYVideoManager.instance().playTag.equals(TAG) && (position < firstVisibleItem || position > lastVisibleItem)) {
+                    if (GSYVideoManager.instance().playTag.equals(playTag) && (position < firstVisibleItem || position > lastVisibleItem)) {
                         if (GSYVideoManager.isFullState(mActivity)) {
                             return
                         }
@@ -123,6 +133,7 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
             Lifecycle.Event.ON_DESTROY -> {
                 GSYVideoManager.releaseAllVideos()
                 rvList?.clearOnScrollListeners()
+                dataManager.clear()
                 mActivity.lifecycle.removeObserver(this)
             }
             else -> {}
