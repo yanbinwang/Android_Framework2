@@ -98,7 +98,7 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
                             return
                         }
                         //如果滑出去了上面和下面就是否，和今日头条一样
-                        GSYVideoManager.releaseAllVideos()
+//                        GSYVideoManager.releaseAllVideos()
 //                        adapter.notifyDataSetChanged()
                         listener.invoke()
                     }
