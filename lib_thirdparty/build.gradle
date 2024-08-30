@@ -61,8 +61,7 @@ dependencies {
     api project(':lib_local:amap_sdk')
     //数据库
     api project(':lib_local:greendao')
-    //相机/播放器
-    api 'com.github.CarGuo.GSYVideoPlayer:GSYVideoPlayer:v8.6.0-release-jitpack'
+    //相机
     api 'com.otaliastudios:cameraview:2.7.2'
     //相册/裁剪
     api 'com.yanzhenjie:album:2.1.3'

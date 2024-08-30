@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import com.example.common.base.BaseLazyFragment
 import com.example.common.base.page.Extra
-import com.example.common.utils.toJsonString
+import com.example.common.utils.toJson
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.logWTF
 import com.example.gsyvideoplayer.utils.GSYVideoHelper
@@ -24,17 +24,17 @@ class VideoSnapFragment : BaseLazyFragment<FragmentVideoSnapBinding>(), VideoSna
     }
 
     override fun releaseVideo(bean: VideoSnapBean?) {
-        "当前bundle:${bundle.toJsonString()}".logWTF
+        "当前bundle:${bundle.toJson()}".logWTF
         if (bean?.id == bundle?.id) {
-            "满足释放条件，传入的bean:${bean.toJsonString()}".logWTF
+            "满足释放条件，传入的bean:${bean.toJson()}".logWTF
             helper.pause()
         }
     }
 
     override fun playVideo(bean: VideoSnapBean?) {
-        "当前bundle:${bundle.toJsonString()}".logWTF
+        "当前bundle:${bundle.toJson()}".logWTF
         if (bean?.id == bundle?.id) {
-            "满足播放条件，传入的bean:${bean.toJsonString()}".logWTF
+            "满足播放条件，传入的bean:${bean.toJson()}".logWTF
             helper.start()
         }
     }

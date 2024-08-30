@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.utils
+package com.example.gsyvideoplayer.utils
 
 import android.view.View
 import androidx.fragment.app.FragmentActivity
@@ -8,8 +8,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.framework.utils.function.value.orZero
+import com.example.gsyvideoplayer.video.StandardGSYVideoPlayer
 import com.shuyu.gsyvideoplayer.GSYVideoManager
-import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 

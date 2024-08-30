@@ -51,6 +51,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //框架库
     implementation project(':lib_common')
+    //图片加载库/播放器
     api project(':lib_local:glide')
     api 'com.github.CarGuo.GSYVideoPlayer:GSYVideoPlayer:v8.6.0-release-jitpack'
 }
