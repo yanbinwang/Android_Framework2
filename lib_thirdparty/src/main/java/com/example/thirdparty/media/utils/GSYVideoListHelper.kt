@@ -25,8 +25,8 @@ import kotlin.math.max
  *     android:screenOrientation="portrait" />
  */
 class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
-    private var rvList: RecyclerView? = null
-    private val dataManager by lazy { ConcurrentHashMap<Int, String>() }
+    private var recycler: RecyclerView? = null
+    private val data by lazy { ConcurrentHashMap<Int, String>() }
 
 
     init {
@@ -36,9 +36,9 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
     /**
      * 绑定列表
      */
-    fun bind(rvList: RecyclerView?) {
-        this.rvList = rvList
-        this.dataManager.clear()
+    fun bind(recycler: RecyclerView?) {
+        this.recycler = recycler
+        this.data.clear()
     }
 
     /**
@@ -48,7 +48,7 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
     @Synchronized
     fun setUpLazy(player: StandardGSYVideoPlayer?, url: String, position: Int) {
         //每一项都会调取dataManager
-        dataManager[position] = url
+        data[position] = url
         //设置每个列表的url
         player?.setUpLazy(url, true, null, null, "这是title")
         //增加title
@@ -76,7 +76,7 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
      * 设置列表监听
      */
     fun setOnScrollListener(listener: (() -> Unit)) {
-        rvList?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        recycler?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val layoutManager = recyclerView.layoutManager as? GridLayoutManager
@@ -91,7 +91,7 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
                     //当前播放的位置
                     val position = GSYVideoManager.instance().playPosition
                     //当前播放tag
-                    val playTag = dataManager[position]
+                    val playTag = data[position]
                     //对应的播放列表TAG
                     if (GSYVideoManager.instance().playTag.equals(playTag) && (position < firstVisibleItem || position > lastVisibleItem)) {
                         if (GSYVideoManager.isFullState(mActivity)) {
@@ -130,8 +130,8 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
             Lifecycle.Event.ON_PAUSE -> GSYVideoManager.onPause()
             Lifecycle.Event.ON_DESTROY -> {
                 GSYVideoManager.releaseAllVideos()
-                rvList?.clearOnScrollListeners()
-                dataManager.clear()
+                recycler?.clearOnScrollListeners()
+                data.clear()
                 mActivity.lifecycle.removeObserver(this)
             }
             else -> {}
