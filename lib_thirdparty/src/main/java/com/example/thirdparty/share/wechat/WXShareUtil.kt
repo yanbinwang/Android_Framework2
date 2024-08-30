@@ -5,6 +5,7 @@ import android.graphics.Bitmap.CompressFormat
 import android.graphics.BitmapFactory
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logD
 import com.example.framework.utils.logE
 import com.example.framework.utils.logI
@@ -26,26 +27,49 @@ object WXShareUtil {
 
     @JvmStatic
     fun bmpToByteArray(bmp: Bitmap?, needRecycle: Boolean?): ByteArray {
-        val output = ByteArrayOutputStream()
-        bmp?.compress(CompressFormat.PNG, 100, output)
-        if (needRecycle.orFalse) {
-            bmp?.recycle()
+//        val output = ByteArrayOutputStream()
+//        bmp?.compress(CompressFormat.PNG, 100, output)
+//        if (needRecycle.orFalse) {
+//            bmp?.recycle()
+//        }
+//        val result = output.toByteArray()
+//        try {
+//            output.close()
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+//        return result
+        return ByteArrayOutputStream().use { output ->
+            bmp?.compress(CompressFormat.PNG, 100, output)
+            if (needRecycle.orFalse) {
+                bmp?.recycle()
+            }
+            output.toByteArray()
         }
-        val result = output.toByteArray()
-        try {
-            output.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return result
     }
 
     @JvmStatic
     fun getHtmlByteArray(url: String?): ByteArray? {
-        val htmlUrl: URL?
+//        val htmlUrl: URL?
+//        var inStream: InputStream? = null
+//        try {
+//            htmlUrl = URL(url)
+//            val connection = htmlUrl.openConnection()
+//            val httpConnection = connection as? HttpURLConnection
+//            val responseCode = httpConnection?.responseCode
+//            if (responseCode == HttpURLConnection.HTTP_OK) {
+//                inStream = httpConnection.inputStream
+//            }
+//        } catch (e: MalformedURLException) {
+//            e.printStackTrace()
+//        } catch (e: IOException) {
+//            e.printStackTrace()
+//        }
+//        val data = inputStreamToByte(inStream)
+//        return data
         var inStream: InputStream? = null
         try {
-            htmlUrl = URL(url)
+            val htmlUrl = URL(url)
             val connection = htmlUrl.openConnection()
             val httpConnection = connection as? HttpURLConnection
             val responseCode = httpConnection?.responseCode
@@ -57,25 +81,35 @@ object WXShareUtil {
         } catch (e: IOException) {
             e.printStackTrace()
         }
-        val data = inputStreamToByte(inStream)
-        return data
+        return inputStreamToByte(inStream)
     }
 
     @JvmStatic
     fun inputStreamToByte(stream: InputStream?): ByteArray? {
+        var imgdata: ByteArray? = null
+        var bytestream: ByteArrayOutputStream? = null
         try {
-            val bytestream = ByteArrayOutputStream()
+            bytestream = ByteArrayOutputStream()
             var ch: Int
             while ((stream?.read().also { ch = it.orZero }) != -1) {
                 bytestream.write(ch)
             }
-            val imgdata = bytestream.toByteArray()
-            bytestream.close()
-            return imgdata
+            imgdata = bytestream.toByteArray()
         } catch (e: Exception) {
             e.printStackTrace()
+        } finally {
+            try {
+                stream?.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            try {
+                bytestream?.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
-        return null
+        return imgdata
     }
 
     @JvmStatic
@@ -90,7 +124,7 @@ object WXShareUtil {
             return null
         }
         if (mLen == -1) {
-            mLen = file.length().toInt()
+            mLen = file.length().toSafeInt()
         }
         "readFromFile : offset = $offset len = $mLen offset + len = ${(offset.orZero + mLen)}".logD(
             TAG
@@ -103,20 +137,26 @@ object WXShareUtil {
             "readFromFile invalid len:$mLen".logE(TAG)
             return null
         }
-        if (offset.orZero + mLen > file.length().toInt()) {
+        if (offset.orZero + mLen > file.length().toSafeInt()) {
             "readFromFile invalid file len:${file.length()}".logE(TAG)
             return null
         }
         var b: ByteArray? = null
+        var access: RandomAccessFile? = null
         try {
-            val access = RandomAccessFile(fileName, "r")
+            access = RandomAccessFile(fileName, "r")
             b = ByteArray(mLen)
             access.seek(offset.toLong())
             access.readFully(b)
-            access.close()
         } catch (e: Exception) {
             "readFromFile : errMsg = ${e.message}".logE(TAG)
             e.printStackTrace()
+        } finally {
+            try {
+                access?.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
         return b
     }
@@ -132,7 +172,7 @@ object WXShareUtil {
                 val beY = options.outHeight * 1.0 / height
                 val beX = options.outWidth * 1.0 / width
                 "extractThumbNail: extract beX = $beX, beY = $beY".logD(TAG)
-                options.inSampleSize = (if (crop) (if (beY > beX) beX else beY) else (if (beY < beX) beX else beY)).toInt()
+                options.inSampleSize = (if (crop) (if (beY > beX) beX else beY) else (if (beY < beX) beX else beY)).toSafeInt()
                 if (options.inSampleSize <= 1) {
                     options.inSampleSize = 1
                 }
@@ -144,21 +184,19 @@ object WXShareUtil {
                 var newWidth = width
                 if (crop) {
                     if (beY > beX) {
-                        newHeight = (newWidth * 1.0 * options.outHeight / options.outWidth).toInt()
+                        newHeight = (newWidth * 1.0 * options.outHeight / options.outWidth).toSafeInt()
                     } else {
-                        newWidth = (newHeight * 1.0 * options.outWidth / options.outHeight).toInt()
+                        newWidth = (newHeight * 1.0 * options.outWidth / options.outHeight).toSafeInt()
                     }
                 } else {
                     if (beY < beX) {
-                        newHeight = (newWidth * 1.0 * options.outHeight / options.outWidth).toInt()
+                        newHeight = (newWidth * 1.0 * options.outHeight / options.outWidth).toSafeInt()
                     } else {
-                        newWidth = (newHeight * 1.0 * options.outWidth / options.outHeight).toInt()
+                        newWidth = (newHeight * 1.0 * options.outWidth / options.outHeight).toSafeInt()
                     }
                 }
                 options.inJustDecodeBounds = false
-                "bitmap required size=${newWidth}x${newHeight}, orig=${options.outWidth}x${options.outHeight}, sample=${options.inSampleSize}".logI(
-                    TAG
-                )
+                "bitmap required size=${newWidth}x${newHeight}, orig=${options.outWidth}x${options.outHeight}, sample=${options.inSampleSize}".logI(TAG)
                 var bm = BitmapFactory.decodeFile(path, options)
                 if (bm == null) {
                     "bitmap decode failed".logE(TAG)

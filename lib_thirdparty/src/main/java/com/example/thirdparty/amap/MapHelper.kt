@@ -100,7 +100,7 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
             aMap?.setOnMapLoadedListener {
                 //先移动到默认点再检测权限定位
                 moveCamera()
-                if (mapView?.context?.checkSelfLocation().orFalse) location()
+                location()
             }
         }
     }
@@ -109,7 +109,7 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
      * 地图定位
      */
     fun location() {
-        location.start()
+        if (mActivity.checkSelfLocation().orFalse) location.start()
     }
 
     /**
@@ -159,7 +159,8 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
             .draggable(false) //设置手势拖拽
         //给地图覆盖物加上额外的集合数据（点击时候取）
         val marker = aMap?.addMarker(markerOptions)
-        marker?.title = json
+//        marker?.title = json
+        marker?.snippet = json//使用摘录比title更规范些
         marker?.setFixingPointEnable(false) //去除拉近动画
         marker?.isInfoWindowEnable = false //禁止高德地图自己的弹出窗口
     }

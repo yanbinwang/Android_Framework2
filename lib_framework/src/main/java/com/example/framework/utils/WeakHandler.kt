@@ -70,7 +70,7 @@ class WeakHandler {
         mExec?.removeCallbacks(runnable)
     }
 
-    fun removeCallbacks(r: Runnable, token: Any) {
+    fun removeCallbacks(r: Runnable, token: Any?) {
         val runnable = mRunnables.remove(r) ?: return
         mExec?.removeCallbacks(runnable, token)
     }
@@ -151,13 +151,16 @@ class WeakHandler {
             val callback = mCallback?.get() ?: return
             callback.handleMessage(msg)
         }
+
     }
 
     private class WeakRunnable(private val delegate: WeakReference<Runnable>, private val reference: WeakReference<ChainedRef>) : Runnable {
+
         override fun run() {
             reference.get()?.remove()
             delegate.get()?.run()
         }
+
     }
 
     private class ChainedRef(private val lock: Lock, private val runnable: Runnable?) {
@@ -168,8 +171,8 @@ class WeakHandler {
         fun remove(): WeakRunnable {
             lock.lock()
             try {
-                if (prev != null) prev?.next = next
-                if (next != null) next?.prev = prev
+                prev?.next = next
+                next?.prev = prev
                 prev = null
                 next = null
             } finally {
@@ -203,6 +206,7 @@ class WeakHandler {
             }
             return null
         }
+
     }
 
 }

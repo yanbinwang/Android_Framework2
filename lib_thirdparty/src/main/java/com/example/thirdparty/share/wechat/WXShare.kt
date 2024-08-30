@@ -18,7 +18,7 @@ import com.tencent.mm.opensdk.modelmsg.WXWebpageObject
 /**
  * 微信分享构建
  */
-class WXShare(owner: LifecycleOwner? = null) {
+class WXShare(owner: LifecycleOwner) {
     //分享信息
     private var result: WXShareResult? = null
     //通过WXAPIFactory工厂，获取IWXAPI的实例

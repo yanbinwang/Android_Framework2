@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.utils.helper
+package com.example.thirdparty.media.utils
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -11,9 +11,9 @@ import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
 import com.example.thirdparty.media.service.KeyEventReceiver
-import com.example.thirdparty.media.utils.StorageUtil
-import com.example.thirdparty.media.utils.StorageUtil.StorageType.IMAGE
-import com.example.thirdparty.media.utils.StorageUtil.StorageType.VIDEO
+import com.example.common.utils.StorageUtil
+import com.example.common.utils.StorageUtil.StorageType.IMAGE
+import com.example.common.utils.StorageUtil.StorageType.VIDEO
 import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.CameraView
 import com.otaliastudios.cameraview.PictureResult

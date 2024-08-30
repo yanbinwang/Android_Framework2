@@ -4,7 +4,9 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Paint
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
@@ -45,7 +47,9 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.parseColor
@@ -769,6 +773,25 @@ fun ImageView?.setResource(@DrawableRes resId: Int) {
 fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
     this ?: return
     setImageResource(if (!triple.first) triple.third else triple.second)
+}
+
+/**
+ * 设置一个新的bitmap
+ */
+fun ImageView?.setBitmap(observer: LifecycleOwner, bit: Bitmap?) {
+    this ?: return
+    observer.doOnDestroy { recycle() }
+    recycle()
+    setImageBitmap(bit)
+}
+
+/**
+ * imageview回收
+ */
+fun ImageView?.recycle() {
+    this ?: return
+    val oldBitmap = (getDrawable() as? BitmapDrawable)?.bitmap
+    oldBitmap?.recycle()
 }
 
 /**

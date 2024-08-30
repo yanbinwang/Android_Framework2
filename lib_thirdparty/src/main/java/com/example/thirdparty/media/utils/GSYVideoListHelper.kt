@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.utils.helper
+package com.example.thirdparty.media.utils
 
 import android.view.View
 import androidx.fragment.app.FragmentActivity
@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.framework.utils.function.value.orZero
 import com.shuyu.gsyvideoplayer.GSYVideoManager
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 
 /**
@@ -24,8 +25,9 @@ import kotlin.math.max
  *     android:screenOrientation="portrait" />
  */
 class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
-    private var TAG: String = ""
-    private var rvList: RecyclerView? = null
+    private var recycler: RecyclerView? = null
+    private val data by lazy { ConcurrentHashMap<Int, String>() }
+
 
     init {
         mActivity.lifecycle.addObserver(this)
@@ -34,16 +36,20 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
     /**
      * 绑定列表
      */
-    fun bind(rvList: RecyclerView?, TAG: String) {
-        this.rvList = rvList
-        this.TAG = TAG
+    fun bind(recycler: RecyclerView?) {
+        this.recycler = recycler
+        this.data.clear()
     }
 
     /**
      * 列表内部调取
+     * 适配器初始化传入helper，然后内部调取setUpLazy方法
      */
     @Synchronized
     fun setUpLazy(player: StandardGSYVideoPlayer?, url: String, position: Int) {
+        //每一项都会调取dataManager
+        data[position] = url
+        //设置每个列表的url
         player?.setUpLazy(url, true, null, null, "这是title")
         //增加title
         player?.titleTextView?.visibility = View.GONE
@@ -53,8 +59,8 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
         player?.fullscreenButton?.setOnClickListener {
             player.startWindowFullscreen(player.context, false, true)
         }
-        //防止错位设置
-        player?.playTag = TAG
+        //防止错位设置(下标+url)
+        player?.playTag = "${position}::${url}"
         player?.playPosition = position
         //是否根据视频尺寸，自动选择竖屏全屏或者横屏全屏
         player?.isAutoFullWithSize = true
@@ -70,7 +76,7 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
      * 设置列表监听
      */
     fun setOnScrollListener(listener: (() -> Unit)) {
-        rvList?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        recycler?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val layoutManager = recyclerView.layoutManager as? GridLayoutManager
@@ -84,13 +90,15 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
                 if (GSYVideoManager.instance().playPosition >= 0) {
                     //当前播放的位置
                     val position = GSYVideoManager.instance().playPosition
+                    //当前播放tag
+                    val playTag = data[position]
                     //对应的播放列表TAG
-                    if (GSYVideoManager.instance().playTag.equals(TAG) && (position < firstVisibleItem || position > lastVisibleItem)) {
+                    if (GSYVideoManager.instance().playTag.equals(playTag) && (position < firstVisibleItem || position > lastVisibleItem)) {
                         if (GSYVideoManager.isFullState(mActivity)) {
                             return
                         }
                         //如果滑出去了上面和下面就是否，和今日头条一样
-                        GSYVideoManager.releaseAllVideos()
+//                        GSYVideoManager.releaseAllVideos()
 //                        adapter.notifyDataSetChanged()
                         listener.invoke()
                     }
@@ -122,7 +130,8 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
             Lifecycle.Event.ON_PAUSE -> GSYVideoManager.onPause()
             Lifecycle.Event.ON_DESTROY -> {
                 GSYVideoManager.releaseAllVideos()
-                rvList?.clearOnScrollListeners()
+                recycler?.clearOnScrollListeners()
+                data.clear()
                 mActivity.lifecycle.removeObserver(this)
             }
             else -> {}

@@ -4,11 +4,12 @@ import android.content.Context
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.common.base.page.RequestCode.REQUEST_PHOTO
+import androidx.fragment.app.FragmentActivity
+import com.example.common.base.page.RequestCode.REQUEST_ALBUM
+import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.mb
 import com.example.common.utils.function.string
-import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
 import com.example.thirdparty.R
@@ -42,6 +43,14 @@ class AlbumHelper {
      * activity和fragment在裁剪或者OnActivityResult时是必须指明的，不然返回会错误
      */
     constructor(activity: AppCompatActivity) {
+        imageCamera = Album.camera(activity)
+        videoMultiple = Album.video(activity)
+        imageMultiple = Album.image(activity)
+        durban = Durban.with(activity)
+        widget = activity.getAlbumWidget()
+    }
+
+    constructor(activity: FragmentActivity) {
         imageCamera = Album.camera(activity)
         videoMultiple = Album.video(activity)
         imageMultiple = Album.image(activity)
@@ -177,7 +186,7 @@ class AlbumHelper {
             //图片路径list或者数组
             ?.inputImagePaths(*imagePathArray)
             //图片输出文件夹路径
-            ?.outputDirectory("${STORAGE}/裁剪图片")
+            ?.outputDirectory(getStoragePath("裁剪图片"))
             //裁剪图片输出的最大宽高
             ?.maxWidthHeight(width, height)
             //裁剪时的宽高比
@@ -201,7 +210,7 @@ class AlbumHelper {
                     .scaleTitle(true)
                     .build())
             //创建控制面板配置
-            ?.requestCode(REQUEST_PHOTO)?.start()
+            ?.requestCode(REQUEST_ALBUM)?.start()
     }
 
 }

@@ -28,7 +28,7 @@ import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.socket.topic.WebSocketRequest
-import com.example.common.utils.AppManager
+import com.example.common.utils.manager.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth

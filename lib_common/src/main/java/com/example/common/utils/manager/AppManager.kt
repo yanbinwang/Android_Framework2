@@ -1,4 +1,4 @@
-package com.example.common.utils
+package com.example.common.utils.manager
 
 import android.app.Activity
 import android.app.ActivityManager

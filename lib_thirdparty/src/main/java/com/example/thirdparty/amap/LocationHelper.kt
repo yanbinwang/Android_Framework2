@@ -25,7 +25,7 @@ import com.example.common.utils.DataStringCacheUtil
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.registerResult
 import com.example.common.utils.function.string
-import com.example.common.utils.toJsonString
+import com.example.common.utils.toJson
 import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.string
@@ -59,7 +59,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
     companion object {
         //经纬度json->默认杭州
         private const val AMAP_JSON = "{latitude:30.2780010000,longitude:120.1680690000}"
-        private const val AMAP_LATLNG = "map_latlng"
+        private const val AMAP_LATLNG = "amap_latlng"
         internal val aMapLatLng = DataStringCacheUtil(AMAP_LATLNG, AMAP_JSON)
     }
 
@@ -122,7 +122,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
 
     override fun onLocationChanged(aMapLocation: AMapLocation?) {
         if (aMapLocation != null && aMapLocation.errorCode == AMapLocation.LOCATION_SUCCESS) {
-            aMapLatLng.set(LatLng(aMapLocation.latitude, aMapLocation.longitude).toJsonString())
+            aMapLatLng.set(LatLng(aMapLocation.latitude, aMapLocation.longitude).toJson().orEmpty())
             //部分地区可能地址取到为空，直接赋值一个未获取地址的默认显示文案
             if (aMapLocation.address.isNullOrEmpty()) aMapLocation.address = string(R.string.mapLocationEmpty)
             listener?.onLocationChanged(aMapLocation, true)
@@ -196,11 +196,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
         //判断GPS模块是否开启，如果没有则开启
         return if (!manager?.isProviderEnabled(LocationManager.GPS_PROVIDER).orFalse) {
             mDialog
-                .setParams(
-                    string(R.string.hint),
-                    string(R.string.mapGps),
-                    string(R.string.mapGpsGoSetting),
-                    string(R.string.cancel))
+                .setParams(string(R.string.hint), string(R.string.mapGps), string(R.string.mapGpsGoSetting), string(R.string.cancel))
                 .setDialogListener({ result?.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) })
                 .show()
             false

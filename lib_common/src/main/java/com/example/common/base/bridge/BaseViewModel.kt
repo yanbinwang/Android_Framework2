@@ -19,13 +19,15 @@ import com.example.common.event.EventBus
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.MultiReqUtil
 import com.example.common.network.repository.request
+import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.requestLayer
-import com.example.common.utils.AppManager
+import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
@@ -264,6 +266,30 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         }
     }
 
+    protected fun <T> launchAffair(
+        coroutineScope: suspend CoroutineScope.() -> T,
+        resp: (T?) -> Unit = {},
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+        end: () -> Unit = {},
+        isShowToast: Boolean = true,
+        isShowDialog: Boolean = true,
+        isClose: Boolean = true
+    ): Job {
+        if (isShowDialog) mView?.showDialog()
+        return launch {
+            requestAffair(
+                { coroutineScope() },
+                { resp(it) },
+                { err(it) },
+                {
+                    if (isShowDialog || isClose) mView?.hideDialog()
+                    end()
+                },
+                isShowToast
+            )
+        }
+    }
+
     /**
      * 不做回调，直接得到结果
      * 在不调用await（）方法时可以当一个参数写，调用了才会发起请求并拿到结果
@@ -284,6 +310,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      *    val task1 = request({ model.getUserData() })
      *    val task2 = request({ model.getUserData() })
      * }
+     *  private suspend fun getUserInfoAsync(req: MultiReqUtil): Deferred<UserInfoBean?> {
+     *     return async { req.request({ CommonSubscribe.getUserInfoApi(hashMapOf("id" to AccountHelper.getUserId())) }) }
+     *  }
      */
     protected fun <T> async(
         req: MultiReqUtil,
@@ -299,6 +328,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
     ): Deferred<ApiResponse<T>?> {
         return async(Main, LAZY) { req.requestLayer({ coroutineScope() }, err) }
+    }
+
+    protected fun <T> asyncAffair(
+        req: MultiReqUtil,
+        coroutineScope: suspend CoroutineScope.() -> T,
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
+    ): Deferred<T?> {
+        return async(Main, LAZY) { req.requestAffair({ coroutineScope() }, err) }
     }
 
     override fun onCleared() {
@@ -370,5 +407,6 @@ fun <T> ViewModel.async(
 fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: ViewModelStoreOwner): VM {
     val viewModel = ViewModelProvider(owner)[this]
     lifecycle.addObserver(viewModel)
+    lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }
     return viewModel
 }

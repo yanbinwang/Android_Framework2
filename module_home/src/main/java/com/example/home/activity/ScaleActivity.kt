@@ -7,7 +7,7 @@ import com.example.common.base.page.Extra
 import com.example.common.bean.interf.TransparentOwner
 import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.TitleBuilder
-import com.example.framework.utils.enterAnimation
+import com.example.framework.utils.AnimationUtil.Companion.enterAnimation
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.toNewList
 import com.example.home.R
@@ -40,7 +40,7 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
         super.initData()
         val imgList = list?.toNewList { ScaleImageView(this) to it }
         mBinding?.vpPage?.apply {
-            adapter = ScaleAdapter(imgList)
+            adapter = ScaleAdapter(imgList.orEmpty())
             currentItem = 0
             animation = enterAnimation()
         }

@@ -9,7 +9,7 @@ import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.resString
 import com.example.common.utils.helper.AccountHelper
-import com.example.common.utils.toJsonString
+import com.example.common.utils.toJson
 import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -60,6 +60,24 @@ class MultiReqUtil(
         return response
     }
 
+    suspend fun <T> requestAffair(
+        coroutineScope: suspend CoroutineScope.() -> T,
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+    ): T? {
+        if (isShowDialog && !loadingStarted) {
+            view?.showDialog()
+            loadingStarted = true
+        }
+        var result: T? = null
+        requestAffair({ coroutineScope() }, {
+            result = it
+        }, {
+            results = true
+            err.invoke(it)
+        }, isShowToast = false)
+        return result
+    }
+
     /**
      * 当串行请求多个接口的时候，如果开发需要知道这多个串行请求是否都成功
      * 在end()被调取之前，可通过当前方法判断
@@ -89,7 +107,7 @@ class MultiReqUtil(
  * hashMapOf("" to "")不需要写此扩展
  */
 fun <K, V> HashMap<K, V>?.requestBody() =
-    this?.toJsonString().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
+    this?.toJson().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
 
 fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
     val map = hashMapOf<String, Any>()
@@ -165,6 +183,23 @@ suspend fun <T> requestLayer(
         err(Triple(FAILURE, "", e))
     } finally {
         log("结束请求")
+        end()
+    }
+}
+
+suspend fun <T> requestAffair(
+    coroutineScope: suspend CoroutineScope.() -> T,
+    resp: (T?) -> Unit = {},
+    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+    end: () -> Unit = {},
+    isShowToast: Boolean = false
+) {
+    try {
+        resp(withContext(IO) { coroutineScope() })
+    } catch (e: Exception) {
+        if (isShowToast) "".responseToast()
+        err(Triple(FAILURE, "", e))
+    } finally {
         end()
     }
 }
