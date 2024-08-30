@@ -139,7 +139,7 @@ fun Drawable.drawableToBitmap(): Bitmap {
  * format->图片类型
  * quality->压缩率
  */
-fun saveBit(bitmap: Bitmap?, root: String = getStoragePath("保存图片"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
+fun saveBit(bitmap: Bitmap?, root: String = getStoragePath("Save Image"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
     bitmap ?: return null
     //存储目录文件
     val storeDir = File(root)
@@ -223,7 +223,7 @@ fun Context.degreeImage(file: File, delete: Boolean = false): File {
             it.recycle()
         }
 //        val tempFile = File(applicationContext.externalCacheDir, file.name.replace(".jpg", "_degree.jpg"))
-        val tempFile = File(getStoragePath("保存图片"), file.name.replace(".jpg", "_degree.jpg"))
+        val tempFile = File(getStoragePath("Save Image"), file.name.replace(".jpg", "_degree.jpg"))
         if (tempFile.exists()) tempFile.delete()
         tempFile.outputStream().use { outputStream ->
             bitmap.compress(JPEG, 100, outputStream)

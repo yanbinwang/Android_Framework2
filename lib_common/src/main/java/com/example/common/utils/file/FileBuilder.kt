@@ -30,13 +30,14 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resume
 
 /**
  * 工具类中，实现了对应文件流下载保存的方法，此处采用协程的方式引用
@@ -64,6 +65,36 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 存储pdf
          */
         suspend fun suspendingSavePDF(file: File, index: Int = 0): String? {
+//            return withContext(IO) {
+//                var filePath: String? = null
+//                var renderer: PdfRenderer? = null
+//                var page: PdfRenderer.Page? = null
+//                try {
+//                    renderer = PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
+//                    page = renderer.openPage(index)//选择渲染哪一页的渲染数据
+//                    val width = page.width
+//                    val height = page.height
+//                    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+//                    val canvas = Canvas(bitmap)
+//                    canvas.drawColor(Color.WHITE)
+//                    canvas.drawBitmap(bitmap, 0f, 0f, null)
+//                    val rent = Rect(0, 0, width, height)
+//                    page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+//                    filePath = saveBit(bitmap)
+//                    bitmap.recycle()
+//                } catch (_: Exception) {
+//                } finally {
+//                    try {
+//                        page?.close()
+//                    } catch (_: Exception) {
+//                    }
+//                    try {
+//                        renderer?.close()
+//                    } catch (_: Exception) {
+//                    }
+//                }
+//                filePath
+//            }
             return withContext(IO) {
                 PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).use { renderer ->
                     //选择渲染哪一页的渲染数据
@@ -76,7 +107,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                         canvas.drawBitmap(bitmap, 0f, 0f, null)
                         val rent = Rect(0, 0, width, height)
                         page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                        saveBit(bitmap)
+                        saveBit(bitmap).apply { bitmap.recycle() }
                     }
                 }
             }
@@ -121,29 +152,29 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
 
         private fun zipFolder(folderList: MutableList<String>, zipPath: String) {
             //创建ZIP
-            var outZip: ZipOutputStream? = null
+            var outZipStream: ZipOutputStream? = null
             try {
-                outZip = ZipOutputStream(FileOutputStream(zipPath))
+                outZipStream = ZipOutputStream(FileOutputStream(zipPath))
                 //批量打入压缩包
                 for (folderPath in folderList) {
                     val file = File(folderPath)
                     val zipEntry = ZipEntry(file.name)
                     file.inputStream().use { inputStream ->
-                        outZip.putNextEntry(zipEntry)
+                        outZipStream.putNextEntry(zipEntry)
                         var len: Int
                         val buffer = ByteArray(4096)
                         while (inputStream.read(buffer).also { len = it } != -1) {
-                            outZip.write(buffer, 0, len)
+                            outZipStream.write(buffer, 0, len)
                         }
-                        outZip.closeEntry()
+                        outZipStream.closeEntry()
                     }
                 }
                 //完成和关闭
-                outZip.finish()
+                outZipStream.finish()
             } catch (_: Exception) {
             } finally {
                 try {
-                    outZip?.close()
+                    outZipStream?.close()
                 } catch (_: Exception) {
                 }
             }
@@ -153,6 +184,44 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 存储文件
          */
         suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: String, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
+//            //清除目录下的所有文件
+//            filePath.deleteDir()
+//            //创建一个安装的文件，开启io协程写入
+//            val file = File(filePath.isMkdirs(), fileName)
+//            withContext(IO) {
+//                var inputStream: InputStream? = null
+//                var outputStream: FileOutputStream? = null
+//                try {
+//                    //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
+//                    val body = CommonSubscribe.getDownloadApi(downloadUrl)
+//                    val buf = ByteArray(2048)
+//                    val total = body.contentLength()
+//                    inputStream = body.byteStream()
+//                    outputStream = FileOutputStream(file)
+//                    var len: Int
+//                    var sum = 0L
+//                    while (((inputStream.read(buf)).also { len = it }) != -1) {
+//                        outputStream.write(buf, 0, len)
+//                        sum += len.toLong()
+//                        val progress = (sum * 1.0f / total * 100).toSafeInt()
+//                        withContext(Main) { onLoading(progress) }
+//                    }
+//                    outputStream.flush()
+//                    withContext(Main) { onSuccess(file.path) }
+//                } catch (e: Exception) {
+//                    withContext(Main) { onFailed(e) }
+//                } finally {
+//                    try {
+//                        inputStream?.close()
+//                    } catch (_: Exception) {
+//                    }
+//                    try {
+//                        outputStream?.close()
+//                    } catch (_: Exception) {
+//                    }
+//                    withContext(Main) { onComplete() }
+//                }
+//            }
             //清除目录下的所有文件
             filePath.deleteDir()
             //创建一个安装的文件，开启io协程写入
@@ -171,16 +240,47 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                                 outputStream.write(buf, 0, len)
                                 sum += len.toLong()
                                 val progress = (sum * 1.0f / total * 100).toSafeInt()
-                                withContext(Main) { onLoading(progress) }
+                                withContext(Main) { onLoading.invoke(progress) }
                             }
                             outputStream.flush()
-                            withContext(Main) { onSuccess(file.path) }
+                            withContext(Main) { onSuccess.invoke(file.path) }
                         }
                     }
                 } catch (e: Exception) {
-                    withContext(Main) { onFailed(e) }
+                    withContext(Main) { onFailed.invoke(e) }
                 } finally {
-                    withContext(Main) { onComplete() }
+                    withContext(Main) { onComplete.invoke() }
+                }
+            }
+        }
+
+        suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: String, listener: (progress: Int) -> Unit = {}): String? {
+            //清除目录下的所有文件
+            filePath.deleteDir()
+            //创建一个安装的文件，开启io协程写入
+            val file = File(filePath.isMkdirs(), fileName)
+            return withContext(IO) {
+                try {
+                    //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
+                    val body = CommonSubscribe.getDownloadApi(downloadUrl)
+                    val buf = ByteArray(2048)
+                    val total = body.contentLength()
+                    body.byteStream().use { inputStream ->
+                        file.outputStream().use { outputStream ->
+                            var len: Int
+                            var sum = 0L
+                            while (((inputStream.read(buf)).also { len = it }) != -1) {
+                                outputStream.write(buf, 0, len)
+                                sum += len.toLong()
+                                val progress = (sum * 1.0f / total * 100).toSafeInt()
+                                withContext(Main) { listener.invoke(progress) }
+                            }
+                            outputStream.flush()
+                            file.path
+                        }
+                    }
+                } catch (e: Exception) {
+                    throw e
                 }
             }
         }
@@ -189,16 +289,27 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 存储网络路径图片
          */
         suspend fun suspendingDownloadPic(mContext: Context, string: String, storeDir: File): String? {
-            return withContext(IO) {
-                var file: File? = null
-                var filePath: String? = null
-                ImageLoader.instance.download(mContext, string) {
-                    file = it
-                    filePath = "${storeDir.absolutePath}/${it?.name}"//此处`it?.name`会包含glide下载图片的后缀（png,jpg,webp等）
-                }
-                file?.copy(storeDir)
-                file?.delete()
-                filePath
+//            return withContext(IO) {
+//                var file: File? = null
+//                var filePath: String? = null
+//                ImageLoader.instance.download(mContext, string) {
+//                    file = it
+//                    filePath = "${storeDir.absolutePath}/${it?.name}"//此处`it?.name`会包含glide下载图片的后缀（png,jpg,webp等）
+//                }
+//                file?.copy(storeDir)
+//                file?.delete()
+//                filePath
+//            }
+            return withContext(IO) { suspendingGlideDownload(mContext, string, storeDir) }
+        }
+
+        private suspend fun suspendingGlideDownload(mContext: Context, string: String, storeDir: File) = suspendCancellableCoroutine {
+            ImageLoader.instance.download(mContext, string) { file ->
+                //此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
+                it.resume("${storeDir.absolutePath}/${file?.name}".apply {
+                    file?.copy(storeDir)
+                    file?.delete()
+                })
             }
         }
 
@@ -328,7 +439,16 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         }
     }
 
-    fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
+    fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String?) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
+//        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
+//            R.string.linkError.shortToast()
+//            return
+//        }
+//        onStart()
+//        downloadJob?.cancel()
+//        downloadJob = launch {
+//            suspendingDownload(downloadUrl, filePath, fileName, onSuccess, onLoading, onFailed, onComplete)
+//        }
         if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
             R.string.linkError.shortToast()
             return
@@ -336,14 +456,21 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         onStart()
         downloadJob?.cancel()
         downloadJob = launch {
-            suspendingDownload(downloadUrl, filePath, fileName, onSuccess, onLoading, onFailed, onComplete)
+            try {
+                val downloadFilePath = suspendingDownload(downloadUrl, filePath, fileName, onLoading)
+                onSuccess(downloadFilePath)
+            } catch (e: Exception) {
+                onFailed.invoke(e)
+            } finally {
+                onComplete()
+            }
         }
     }
 
     /**
      * 存储图片协程(下载url)
      */
-    fun downloadPicJob(mContext: Context, string: String, root: String = getStoragePath("保存图片"), deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+    fun downloadPicJob(mContext: Context, string: String, root: String = getStoragePath("Save Image"), deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
         onStart()
         downloadPicJob?.cancel()
         downloadPicJob = launch {
