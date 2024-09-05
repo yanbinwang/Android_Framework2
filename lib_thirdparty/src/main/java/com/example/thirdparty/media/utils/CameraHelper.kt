@@ -273,7 +273,6 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
                 cvFinder = null
                 observer.lifecycle.removeObserver(this)
             }
-
             else -> {}
         }
     }
