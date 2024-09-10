@@ -357,6 +357,14 @@ fun String?.isMkdirs(): String {
 }
 
 /**
+ * 判断是否存在
+ */
+fun String?.isExists(): Boolean {
+    this ?: return false
+    return File(this).exists()
+}
+
+/**
  * 删除文件
  */
 fun String?.deleteFile() {
