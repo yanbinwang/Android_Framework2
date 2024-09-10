@@ -13,6 +13,7 @@ import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.FileBuilder
 import com.example.common.utils.file.deleteFile
+import com.example.common.utils.file.isExists
 import com.example.common.utils.function.pullUpOverlay
 import com.example.common.utils.function.pullUpScreen
 import com.example.common.utils.function.registerResult
@@ -105,7 +106,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: 
             observer.setOnShotListener {
                 it ?: return@setOnShotListener
                 if (isRecording) {
-                    if (!File(it).exists()) return@setOnShotListener
+                    if (!it.isExists()) return@setOnShotListener
                     list.add(it)
                 }
             }
