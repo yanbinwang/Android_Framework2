@@ -289,17 +289,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 存储网络路径图片
          */
         suspend fun suspendingDownloadPic(mContext: Context, string: String, storeDir: File): String {
-//            return withContext(IO) {
-//                var file: File? = null
-//                var filePath: String? = null
-//                ImageLoader.instance.download(mContext, string) {
-//                    file = it
-//                    filePath = "${storeDir.absolutePath}/${it?.name}"//此处`it?.name`会包含glide下载图片的后缀（png,jpg,webp等）
-//                }
-//                file?.copy(storeDir)
-//                file?.delete()
-//                filePath
-//            }
             return withContext(IO) { suspendingGlideDownload(mContext, string, storeDir) }
         }
 
@@ -440,15 +429,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
     }
 
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String?) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
-//        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-//            R.string.linkError.shortToast()
-//            return
-//        }
-//        onStart()
-//        downloadJob?.cancel()
-//        downloadJob = launch {
-//            suspendingDownload(downloadUrl, filePath, fileName, onSuccess, onLoading, onFailed, onComplete)
-//        }
         if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
             R.string.linkError.shortToast()
             return
