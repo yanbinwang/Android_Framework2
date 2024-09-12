@@ -68,13 +68,11 @@ object FileUtil {
 //            }
 //        }
 //        return base64
-        var base64: String
-        file.inputStream().use { input ->
+        return file.inputStream().use { input ->
             val bytes = ByteArray(input.available())
             val length = input.read(bytes)
-            base64 = Base64.encodeToString(bytes, 0, length, Base64.DEFAULT)
+            Base64.encodeToString(bytes, 0, length, Base64.DEFAULT)
         }
-        return base64
     }
 
     /**
@@ -109,8 +107,8 @@ object FileUtil {
 //            }
 //        }
 //        return hash
-        var hash: String
-        file.inputStream().use { input ->
+//        var hash: String
+        return file.inputStream().use { input ->
             val digest = MessageDigest.getInstance("SHA-256")
             val array = ByteArray(1024)
             var len: Int
@@ -119,14 +117,14 @@ object FileUtil {
             }
             //检测是否需要补0
             val bigInt = BigInteger(1, digest.digest())
-            hash = bigInt.toString(16)
+            var hash = bigInt.toString(16)
             if (hash.length < 64) {
                 for (i in 0 until 64 - hash.length) {
                     hash = "0$hash"
                 }
             }
+            hash
         }
-        return hash
     }
 
     /**

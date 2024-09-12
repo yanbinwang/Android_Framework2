@@ -288,7 +288,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         /**
          * 存储网络路径图片
          */
-        suspend fun suspendingDownloadPic(mContext: Context, string: String, storeDir: File): String? {
+        suspend fun suspendingDownloadPic(mContext: Context, string: String, storeDir: File): String {
 //            return withContext(IO) {
 //                var file: File? = null
 //                var filePath: String? = null
