@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.common.utils.function.decodeFile
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.logE
 import java.io.File
@@ -59,11 +60,16 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
                     }
                     if (filePath != queryPath) {
                         filePath = queryPath
-                        //inJustDecodeBounds=true不会把图片放入内存，只会获取宽高，判断当前路径是否为图片，是的话捕获文件路径
-                        val options = BitmapFactory.Options()
-                        options.inJustDecodeBounds = true
-                        BitmapFactory.decodeFile(queryPath, options)
-                        if (options.outWidth != -1) {
+//                        //inJustDecodeBounds=true不会把图片放入内存，只会获取宽高，判断当前路径是否为图片，是的话捕获文件路径
+//                        val options = BitmapFactory.Options()
+//                        options.inJustDecodeBounds = true
+//                        BitmapFactory.decodeFile(queryPath, options)
+//                        if (options.outWidth != -1) {
+//                            val file = File(queryPath)
+//                            " \n生成图片的路径:$queryPath\n手机截屏的路径：${file.parent}".logE(TAG)
+//                            listener.invoke(queryPath)
+//                        }
+                        if (queryPath.decodeFile()) {
                             val file = File(queryPath)
                             " \n生成图片的路径:$queryPath\n手机截屏的路径：${file.parent}".logE(TAG)
                             listener.invoke(queryPath)
