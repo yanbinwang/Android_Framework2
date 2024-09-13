@@ -18,6 +18,7 @@ import java.io.File
  * 直播库初始化
  */
 object LiveHelper {
+    private var initialized = false
     private var mIsServiceAlive = false
     private var mServiceIntent: Intent? = null
     private var mContext: Application? = null
@@ -25,11 +26,13 @@ object LiveHelper {
 
     /**
      * 注意：参数 userId 代表用户的唯一标识符，用于区分不同的用户
+     * 用户登录时主动调取/application中也做一次调取
      */
     @JvmStatic
     fun init(application: Application) {
         mContext = application
         if (AccountHelper.isLogin()) {
+            //初始化推送
             StreamingEnv.init(application.applicationContext, AccountHelper.getUserId())
             //设置日志等级
             StreamingEnv.setLogLevel(Log.INFO)
@@ -50,6 +53,8 @@ object LiveHelper {
                     stopService()
                 }
             })
+            //开启日志收集
+            openCrash()
         }
     }
 
@@ -72,9 +77,9 @@ object LiveHelper {
     /**
      * application种attachBaseContext调取
      */
-    @JvmStatic
-    fun openCrash() {
-        if (AccountHelper.isLogin()) {
+    private fun openCrash() {
+        if (!initialized) {
+            initialized = true
             XCrash.init(mContext, InitParameters()
                 //设置log日志位置
                 .setLogDir(mCrashLogDir)
