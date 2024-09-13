@@ -586,14 +586,23 @@ fun Number?.getSizeFormat(): String {
 suspend fun String?.mediaDuration(): Int {
     if (null == this || !File(this).exists()) return 0
     return withContext(IO) {
+        val player = MediaPlayer()
         try {
-            val medialPlayer = MediaPlayer()
-            medialPlayer.setDataSource(this@mediaDuration)
-            medialPlayer.prepare()
-            val millisecond = medialPlayer.duration//视频时长（毫秒）
-            (millisecond.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
+            player.setDataSource(this@mediaDuration)
+            player.prepare()
+            //视频时长（毫秒）/1000=x秒
+            (player.duration.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
         } catch (_: Exception) {
             0
+        } finally {
+            try {
+                player.apply {
+                    stop()
+                    reset()
+                    release()
+                }
+            } catch (_: Exception) {
+            }
         }
     }
 }
