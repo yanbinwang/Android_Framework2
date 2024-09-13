@@ -1,4 +1,4 @@
-package com.example.live.service
+package com.example.thirdparty.live.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -9,7 +9,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import com.example.common.utils.function.string
-import com.example.live.R
+import com.example.thirdparty.R
 
 /**
  * 保活服务

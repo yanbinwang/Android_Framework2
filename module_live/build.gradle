@@ -48,9 +48,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //框架库
     api project(':lib_thirdparty')
-    api project(':lib_local:qiniu_sdk')
-    //xCrash日志收集（可删）
-    implementation 'com.iqiyi.xcrash:xcrash-android-lib:3.0.0'
+//    api project(':lib_local:qiniu_sdk')
     //页面路由
     implementation deps.alibaba.arouter
     kapt deps.alibaba.arouter_compiler

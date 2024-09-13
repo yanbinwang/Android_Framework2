@@ -1,31 +1,9 @@
-package com.example.live.utils
+package com.example.qiniu.utils
 
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 
-/**
- * /**
- *          * track app background state to avoid possibly stopping microphone recording
- *          * in screen streaming mode on Android P+
- *          */
- *         AppStateTracker.track(this, new AppStateTracker.AppStateChangeListener() {
- *             @Override
- *             public void appTurnIntoForeground() {
- *                 stopService();
- *             }
- *
- *             @Override
- *             public void appTurnIntoBackGround() {
- *                 startService();
- *             }
- *
- *             @Override
- *             public void appDestroyed() {
- *                 stopService();
- *             }
- *         });
- */
 object AppStateTracker {
     private var currentState = 0
     private const val STATE_FOREGROUND = 0

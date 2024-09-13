@@ -131,6 +131,8 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
+        <!-- 直播保活 -->
+        <service android:name="com.example.thirdparty.live.service.KeepAppAliveService" />
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"

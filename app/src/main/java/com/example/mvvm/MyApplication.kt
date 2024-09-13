@@ -4,7 +4,7 @@ import android.os.Looper
 import android.util.Log
 import com.example.common.BaseApplication
 import com.example.framework.utils.function.value.isDebug
-import com.example.live.utils.LiveHelper
+import com.example.thirdparty.live.utils.LiveHelper
 import com.example.mvvm.activity.MainActivity
 import com.example.thirdparty.album.GlideLoader
 import com.yanzhenjie.album.Album

@@ -46,6 +46,8 @@ dependencies {
     api files('libs/pldroid-media-streaming-3.1.6.jar')
     //简易播放器
     api 'com.qiniu:qplayer2-core:1.0.3'
+    //xCrash日志收集（可删）
+    api 'com.iqiyi.xcrash:xcrash-android-lib:3.0.0'
     // dns 相关 jar 包，必须依赖
     implementation 'com.qiniu:happy-dns:1.0.1'
     // 监听应用生命周期，必须依赖

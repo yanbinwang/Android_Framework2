@@ -2,7 +2,7 @@
 
     <application>
 
-        <service android:name=".service.KeepAppAliveService" />
+        <service android:name="com.example.thirdparty.live.service.KeepAppAliveService" />
 
     </application>
 

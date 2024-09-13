@@ -1,4 +1,4 @@
-package com.example.live.utils
+package com.example.thirdparty.live.utils
 
 import android.app.Application
 import android.content.Intent
@@ -6,7 +6,8 @@ import android.util.Log
 import com.example.common.config.Constants
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.helper.AccountHelper
-import com.example.live.service.KeepAppAliveService
+import com.example.thirdparty.live.service.KeepAppAliveService
+import com.example.qiniu.utils.AppStateTracker
 import com.qiniu.pili.droid.streaming.StreamingEnv
 import com.qiniu.pili.droid.streaming.common.FileLogHelper
 import xcrash.TombstoneManager
@@ -80,7 +81,8 @@ object LiveHelper {
     private fun openCrash() {
         if (!initialized) {
             initialized = true
-            XCrash.init(mContext, InitParameters()
+            XCrash.init(
+                mContext, InitParameters()
                 //设置log日志位置
                 .setLogDir(mCrashLogDir)
                 .setJavaDumpNetworkInfo(false)
