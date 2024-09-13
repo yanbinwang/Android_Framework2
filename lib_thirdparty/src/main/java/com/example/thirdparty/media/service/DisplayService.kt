@@ -24,6 +24,7 @@ import com.example.thirdparty.media.widget.TimerTick
 
 /**
  *  Created by wangyanbin
+ *  https://zhuanlan.zhihu.com/p/75974735
  *  录屏服务
  *  <!-- 屏幕录制 -->
  *  <service

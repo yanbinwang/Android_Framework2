@@ -7,13 +7,14 @@ import android.media.MediaActionSound
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.utils.builder.shortToast
-import com.example.framework.utils.function.value.orFalse
-import com.example.thirdparty.R
-import com.example.thirdparty.media.service.KeyEventReceiver
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType.IMAGE
 import com.example.common.utils.StorageUtil.StorageType.VIDEO
+import com.example.common.utils.builder.shortToast
+import com.example.framework.utils.function.doOnReceiver
+import com.example.framework.utils.function.value.orFalse
+import com.example.thirdparty.R
+import com.example.thirdparty.media.service.KeyEventReceiver
 import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.CameraView
 import com.otaliastudios.cameraview.PictureResult
@@ -132,9 +133,10 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
             }
         }
         if (hasReceiver) {
-            val intentFilter = IntentFilter()
-            intentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
-            mContext?.registerReceiver(eventReceiver, intentFilter)
+//            val intentFilter = IntentFilter()
+//            intentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
+//            mContext?.registerReceiver(eventReceiver, intentFilter)
+            mContext.doOnReceiver(observer, eventReceiver, IntentFilter().apply { addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS) })
         }
     }
 
@@ -264,16 +266,15 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
         when (event) {
             Lifecycle.Event.ON_PAUSE -> closeFlash()
             Lifecycle.Event.ON_DESTROY -> {
-                if (hasReceiver.orFalse) {
-                    try {
-                        mContext?.unregisterReceiver(eventReceiver)
-                    } catch (_: Exception) {
-                    }
-                }
+//                if (hasReceiver.orFalse) {
+//                    try {
+//                        mContext?.unregisterReceiver(eventReceiver)
+//                    } catch (_: Exception) {
+//                    }
+//                }
                 cvFinder = null
                 observer.lifecycle.removeObserver(this)
             }
-
             else -> {}
         }
     }

@@ -98,7 +98,7 @@ class TimerTick(mContext: Context, move: Boolean = true) {
     /**
      * 开启定时器计时按秒累加，毫秒级的操作不能被获取
      */
-    fun start(observer: Lifecycle? = null) {
+    fun start(observer: Lifecycle) {
         timerCount = 0
         if (timer == null) {
             timer = Timer()

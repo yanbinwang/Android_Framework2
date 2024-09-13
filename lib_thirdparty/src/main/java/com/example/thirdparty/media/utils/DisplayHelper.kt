@@ -6,16 +6,17 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.common.base.bridge.BaseView
 import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.file.FileBuilder
 import com.example.common.utils.file.deleteFile
+import com.example.common.utils.file.isExists
 import com.example.common.utils.function.pullUpOverlay
 import com.example.common.utils.function.pullUpScreen
 import com.example.common.utils.function.registerResult
-import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.function.startService
 import com.example.framework.utils.function.stopService
 import com.example.framework.utils.function.value.currentTimeNano
@@ -31,14 +32,15 @@ import java.io.File
  * @description 录屏工具类
  * @author yan
  */
-class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
+class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: Boolean = false) : LifecycleEventObserver {
     private var isDestroy = false
     private var lastRefreshTime = 0L
+    private var mView: BaseView? = null
     private var listener: OnDisplayListener? = null
     private val list by lazy { ArrayList<String>() }
     private val builder by lazy { FileBuilder(mActivity) }
-    private val loading by lazy { LoadingDialog(mActivity) }
     private val observer by lazy { ShotObserver(mActivity) }
+
     /**
      * 处理录屏的回调
      */
@@ -64,11 +66,13 @@ class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObs
          * 用于计算系统弹出弹框到正式开始录屏花费了多少时间（毫秒）
          */
         var waitingTime = 0L
+
         /**
          * 安全区间内的屏幕录制宽高
          */
         var previewWidth = screenWidth
         var previewHeight = screenHeight
+
         /**
          * 是否正在进行录制，便于区分截图捕获到的图片路径
          */
@@ -97,33 +101,39 @@ class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObs
                 }
             }
         }
-        //只要在录屏中，截一张图就copy一张到目标目录，但是需要及时清空
-        observer.setOnShotListener {
-            it ?: return@setOnShotListener
-            if (isRecording) {
-                if (!File(it).exists()) return@setOnShotListener
-                list.add(it)
+        if (isZip) {
+            //只要在录屏中，截一张图就copy一张到目标目录，但是需要及时清空
+            observer.setOnShotListener {
+                it ?: return@setOnShotListener
+                if (isRecording) {
+                    if (!it.isExists()) return@setOnShotListener
+                    list.add(it)
+                }
             }
         }
         //录屏文件创建/停止录屏时（exists=false）都会回调
         DisplayService.setOnDisplayListener { folderPath, isRecoding ->
-            if(isDestroy) return@setOnDisplayListener
+            if (isDestroy) return@setOnDisplayListener
             if (!isRecoding) {
                 folderPath ?: return@setOnDisplayListener
-                //说明未截图
-                if (list.safeSize == 0) {
-                    listener?.onResult(folderPath, false)
+                if (isZip) {
+                    //说明未截图
+                    if (list.safeSize == 0) {
+                        listener?.onResult(folderPath, false)
+                    } else {
+                        //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
+                        list.add(folderPath)
+                        //压缩包输出路径（会以录屏文件的命名方式来命名）
+                        val zipPath = File(folderPath).name.replace("mp4", "zip")
+                        //开始压包
+                        builder.zipJob(list, zipPath, { mView?.showDialog() }, {
+                            mView?.hideDialog()
+                            folderPath.deleteFile()
+                        })
+                        listener?.onResult(zipPath, true)
+                    }
                 } else {
-                    //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
-                    list.add(folderPath)
-                    //压缩包输出路径（会以录屏文件的命名方式来命名）
-                    val zipPath = File(folderPath).name.replace("mp4", "zip")
-                    //开始压包
-                    builder.zipJob(list, zipPath, { showDialog() }, {
-                        hideDialog()
-                        folderPath.deleteFile()
-                    })
-                    listener?.onResult(zipPath, true)
+                    listener?.onResult(folderPath, false)
                 }
             } else {
                 listener?.onStart(folderPath)
@@ -131,12 +141,11 @@ class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObs
         }
     }
 
-    private fun showDialog() {
-        loading.shown(false)
-    }
-
-    private fun hideDialog() {
-        loading.hidden()
+    /**
+     * 设置加载参数
+     */
+    fun setBundle(mView: BaseView) {
+        this.mView = mView
     }
 
     /**
@@ -174,10 +183,12 @@ class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObs
          * 正式开始录屏
          */
         fun onStart(filePath: String?)
+
         /**
          * 取消
          */
         fun onCancel()
+
         /**
          * isZip->true是zip文件夹，可能包含录制时的截图
          */
@@ -191,7 +202,7 @@ class DisplayHelper(private val mActivity: FragmentActivity) : LifecycleEventObs
         when (event) {
             Lifecycle.Event.ON_DESTROY -> {
                 isDestroy = true
-                hideDialog()
+                mView?.hideDialog()
                 stopScreen()
                 result?.unregister()
                 mActivity.lifecycle.removeObserver(this)

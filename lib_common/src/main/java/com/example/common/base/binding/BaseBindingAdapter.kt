@@ -20,7 +20,7 @@ import com.example.common.utils.function.ptFloat
 import com.example.common.utils.function.setSpanFirst
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
-import com.example.framework.utils.enterAnimation
+import com.example.framework.utils.AnimationUtil.Companion.enterAnimation
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.toSafeFloat
