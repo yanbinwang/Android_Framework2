@@ -4,6 +4,7 @@ import android.os.Looper
 import android.util.Log
 import com.example.common.BaseApplication
 import com.example.framework.utils.function.value.isDebug
+import com.example.live.utils.LiveHelper
 import com.example.mvvm.activity.MainActivity
 import com.example.thirdparty.album.GlideLoader
 import com.yanzhenjie.album.Album
@@ -59,6 +60,8 @@ class MyApplication : BaseApplication() {
         }
         //初始化图片库类
         initAlbum()
+        //直播初始化
+        initLive()
 //        //数据库初始化
 //        initOssDao()
 //        //初始化oss
@@ -74,6 +77,10 @@ class MyApplication : BaseApplication() {
             .setAlbumLoader(GlideLoader()) //设置Album加载器。
             .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
             .build())
+    }
+
+    private fun initLive() {
+        LiveHelper.init(this)
     }
 
 //    private fun initOssDao() {

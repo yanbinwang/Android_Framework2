@@ -58,7 +58,7 @@ object LiveHelper {
         }
     }
 
-    private fun startService() {
+    internal fun startService() {
         if (mServiceIntent == null) {
             mServiceIntent = Intent(mContext, KeepAppAliveService::class.java)
         }
@@ -66,7 +66,7 @@ object LiveHelper {
         mIsServiceAlive = true
     }
 
-    private fun stopService() {
+    internal fun stopService() {
         if (mIsServiceAlive) {
             mContext?.stopService(mServiceIntent)
             mServiceIntent = null
