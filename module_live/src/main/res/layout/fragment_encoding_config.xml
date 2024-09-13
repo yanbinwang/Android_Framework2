@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="MissingConstraints">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:visibility="visible"
         tools:visibility="visible">
 
@@ -62,8 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="48pt"
             android:layout_marginTop="5pt"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/rg_encoding">
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="140pt"
@@ -97,12 +96,10 @@
         </RadioGroup>
 
         <LinearLayout
-            android:id="@+id/ll_video_config"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5pt"
-            android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/rg_encode">
+            android:orientation="vertical">
 
             <RadioGroup
                 android:id="@+id/rg_video_quality"
@@ -114,34 +111,32 @@
                     android:layout_width="140pt"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
+                    android:text="Video quality config:"
                     android:textColor="@color/textPrimary"
-                    android:textSize="@dimen/textSize14"
-                    android:text="Video quality config:" />
+                    android:textSize="@dimen/textSize14" />
 
                 <RadioButton
                     android:id="@+id/rb_video_quality_preset"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:checked="true"
                     android:layout_gravity="center_vertical"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="@dimen/textSize12"
                     android:layout_marginStart="5pt"
-                    android:text="预设" />
+                    android:checked="true"
+                    android:text="预设"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize12" />
 
                 <RadioButton
                     android:id="@+id/rb_video_quality_custom"
-                    android:layout_gravity="center_vertical"
                     android:layout_width="wrap_content"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="@dimen/textSize12"
                     android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
                     android:layout_marginStart="10pt"
-                    android:text="自定义" />
+                    android:text="自定义"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize12" />
 
             </RadioGroup>
-
-
 
         </LinearLayout>
 
@@ -150,8 +145,7 @@
             android:layout_width="match_parent"
             android:layout_height="48pt"
             android:layout_marginTop="5pt"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@+id/ll_video_config">
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="140pt"
@@ -190,8 +184,7 @@
             android:layout_height="48pt"
             android:layout_marginTop="5pt"
             android:background="@drawable/shape_r5_grey"
-            android:spinnerMode="dropdown"
-            app:layout_constraintTop_toBottomOf="@id/rg_audio_quality" />
+            android:spinnerMode="dropdown" />
 
         <LinearLayout
             android:id="@+id/ll_audio_quality"
@@ -199,7 +192,6 @@
             android:layout_height="48pt"
             android:layout_marginTop="5pt"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/rg_audio_quality"
             tools:visibility="visible">
 
             <TextView
@@ -245,6 +237,6 @@
 
         </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </layout>

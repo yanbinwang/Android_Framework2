@@ -1,9 +1,186 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingConstraints">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <RadioGroup
+            android:id="@+id/rg_facing"
+            android:layout_width="match_parent"
+            android:layout_height="48pt"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="140pt"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="Facing:"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14" />
+
+            <RadioButton
+                android:id="@+id/facing_front"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5pt"
+                android:checked="true"
+                android:gravity="center_vertical"
+                android:text="Front"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize12" />
+
+            <RadioButton
+                android:id="@+id/facing_back"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5pt"
+                android:gravity="center_vertical"
+                android:text="Back"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize12" />
+
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48pt"
+            android:layout_marginTop="5pt">
+
+            <TextView
+                android:layout_width="140pt"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="Size:"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14" />
+
+            <Spinner
+                android:id="@+id/preview_size_level_spinner"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5pt"
+                android:layout_weight="1"
+                android:background="@drawable/shape_r5_grey" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5pt"
+                android:gravity="center_vertical"
+                android:text="Ratio:"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14" />
+
+            <Spinner
+                android:id="@+id/preview_size_ratio_spinner"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5pt"
+                android:layout_weight="1"
+                android:background="@drawable/shape_r5_grey" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48pt"
+            android:layout_marginTop="5pt">
+
+            <TextView
+                android:layout_width="140pt"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="Focus mode:"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14" />
+
+            <Spinner
+                android:id="@+id/focus_mode_spinner"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5pt"
+                android:layout_weight="1"
+                android:background="@drawable/shape_r5_grey" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48pt"
+            android:layout_marginTop="5pt">
+
+            <CheckBox
+                android:id="@+id/face_beauty"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:checked="true"
+                android:gravity="center_vertical"
+                android:text="Beauty"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize12" />
+
+            <CheckBox
+                android:id="@+id/external_face_beauty"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5pt"
+                android:checked="false"
+                android:gravity="center_vertical"
+                android:text="CustomBeauty"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize12" />
+
+            <CheckBox
+                android:id="@+id/continuous_auto_focus"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5pt"
+                android:checked="true"
+                android:gravity="center_vertical"
+                android:text="AutoFocus"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize12" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48pt"
+            android:layout_marginTop="5pt">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="Front camera mirror:"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14" />
+
+            <CheckBox
+                android:id="@+id/preview_mirror"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5pt"
+                android:gravity="center_vertical"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize12"
+                android:text="Preview" />
+
+            <CheckBox
+                android:id="@+id/encoding_mirror"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5pt"
+                android:gravity="center_vertical"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize12"
+                android:text="Encoding" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
