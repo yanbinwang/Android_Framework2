@@ -487,15 +487,16 @@ fun File?.read(): String {
 //    }
 //    return ""
     this ?: return ""
-    if (exists()) {
+    return if (exists()) {
         bufferedReader().use { reader ->
             val stringBuilder = StringBuilder()
             var str: String?
             while (reader.readLine().also { str = it } != null) stringBuilder.append(str)
-            return stringBuilder.toString()
+            stringBuilder.toString()
         }
+    } else {
+        ""
     }
-    return ""
 }
 
 /**
