@@ -6,7 +6,7 @@ import android.content.Intent
 import android.util.Log
 import com.example.common.config.Constants
 import com.example.common.utils.StorageUtil.getStoragePath
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.file.deleteDir
 import com.example.common.utils.helper.AccountHelper
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.logI
@@ -89,11 +89,11 @@ object Livestreaming {
                                 TombstoneManager.deleteTombstone(crashFile.path)
                             }
                         }
-                        "崩溃日志已上传！".shortToast()
+                        "崩溃日志已上传！".logI
                     }
 
                     override fun onReportError(name: String?, errorMsg: String?) {
-                        "崩溃日志上传失败 : $errorMsg".shortToast()
+                        "崩溃日志上传失败 : $errorMsg".logI
                     }
                 })
             }
@@ -127,12 +127,13 @@ object Livestreaming {
                     return
                 }
                 logNames?.forEach { it.logI }
+                //日志上传后清空
+                StreamingEnv.getLogFilePath().deleteDir()
                 "日志已上传".logI
-                "日志已上传！".shortToast()
             }
 
             override fun onReportError(name: String?, errorMsg: String?) {
-                "日志 $name 上传失败: $errorMsg".shortToast()
+                "日志 $name 上传失败: $errorMsg".logI
             }
         })
     }
