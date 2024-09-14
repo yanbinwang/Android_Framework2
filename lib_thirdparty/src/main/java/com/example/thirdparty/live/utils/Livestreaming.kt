@@ -1,6 +1,7 @@
 package com.example.thirdparty.live.utils
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.example.common.config.Constants
@@ -26,7 +27,6 @@ object Livestreaming {
     private var initialized = false
     private var mIsServiceAlive = false
     private var mServiceIntent: Intent? = null
-    private var mContext: Application? = null
     private val mCrashLogDir get() = getStoragePath("崩溃日志", false)
 
     /**
@@ -35,7 +35,6 @@ object Livestreaming {
      */
     @JvmStatic
     fun init(application: Application) {
-        mContext = application
         //初始化推送/获取当前登录用户的userid
         StreamingEnv.init(application.applicationContext, AccountHelper.getUserId().ifEmpty { "" })
         //设置日志等级
@@ -44,19 +43,19 @@ object Livestreaming {
         //默认为关闭
         StreamingEnv.setLogfileEnabled(true)
         //开启日志收集
-        openCrash()
+        openCrash(application)
         //保活
         AppStateTracker.track(application, object : AppStateTracker.AppStateChangeListener {
             override fun appTurnIntoForeground() {
-                stopService()
+                stopService(application)
             }
 
             override fun appTurnIntoBackGround() {
-                startService()
+                startService(application)
             }
 
             override fun appDestroyed() {
-                stopService()
+                stopService(application)
             }
         })
     }
@@ -64,7 +63,7 @@ object Livestreaming {
     /**
      * application种attachBaseContext调取
      */
-    private fun openCrash() {
+    private fun openCrash(mContext: Context) {
         if (!initialized) {
             initialized = true
             XCrash.init(mContext, InitParameters()
@@ -101,17 +100,17 @@ object Livestreaming {
         }
     }
 
-    internal fun startService() {
+    internal fun startService(mContext: Context) {
         if (mServiceIntent == null) {
             mServiceIntent = Intent(mContext, KeepAppAliveService::class.java)
         }
-        mContext?.startService(mServiceIntent)
+        mContext.startService(mServiceIntent)
         mIsServiceAlive = true
     }
 
-    internal fun stopService() {
+    internal fun stopService(mContext: Context) {
         if (mIsServiceAlive) {
-            mContext?.stopService(mServiceIntent)
+            mContext.stopService(mServiceIntent)
             mServiceIntent = null
             mIsServiceAlive = false
         }
