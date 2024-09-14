@@ -7,6 +7,7 @@ import com.example.framework.utils.function.value.isDebug
 import com.example.thirdparty.live.utils.LiveHelper
 import com.example.mvvm.activity.MainActivity
 import com.example.thirdparty.album.GlideLoader
+import com.example.thirdparty.utils.NotificationUtil
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import com.zxy.recovery.core.Recovery
@@ -60,16 +61,21 @@ class MyApplication : BaseApplication() {
         }
         //初始化图片库类
         initAlbum()
-        //直播初始化
-        initLive()
+        //初始化推送
+        initNotification()
 //        //数据库初始化
 //        initOssDao()
 //        //初始化oss
 //        initOss()
-//        //初始化进程监听
-//        setOnStateChangedListener { if (it) initOss() }
-//        //授权初始化
-//        setOnPrivacyAgreedListener { if (it) { initAMap() } }
+        //初始化进程监听
+        setOnStateChangedListener { if (it) initOss() }
+        //授权初始化
+        setOnPrivacyAgreedListener {
+            if (it) {
+                initAMap()
+                initLive()
+            }
+        }
     }
 
     private fun initAlbum() {
@@ -79,24 +85,28 @@ class MyApplication : BaseApplication() {
             .build())
     }
 
-    private fun initLive() {
-        LiveHelper.init(this)
+    private fun initNotification() {
+        NotificationUtil.init()
     }
 
 //    private fun initOssDao() {
 //        OssDBHelper.init(DaoMaster(DaoMaster.DevOpenHelper(this, "${VERSION_NAME}.db", null).readableDb).newSession().ossDBDao)
 //    }
-//
-//    private fun initOss() {
+
+    private fun initOss() {
 //        OssFactory.instance.initialize()
-//    }
+    }
 //
-//    private fun initAMap() {
+    private fun initAMap() {
 //        //高德地图隐私政策合规
 //        ServiceSettings.updatePrivacyShow(applicationContext, true, true)
 //        ServiceSettings.updatePrivacyAgree(applicationContext, true)
-//    }
-//
+    }
+
+    private fun initLive() {
+        LiveHelper.init(this)
+    }
+
 //    /**
 //     * 程序被销毁时会调用，不保证100%调取
 //     */

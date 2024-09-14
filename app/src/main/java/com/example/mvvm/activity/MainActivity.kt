@@ -19,6 +19,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
+        //从服务器或本地指定一个推流地址-》rtmp/srt/quic打头
+        val publishUrl = "rtmp://dddddd"
+        if (publishUrl.startsWith("rtmp")) {
+            mBinding?.rbTransferRtmp?.setChecked(true)
+        } else if (publishUrl.startsWith("srt")) {
+            mBinding?.rbTransferSrt?.setChecked(true)
+        } else {
+            mBinding?.rbTransferQuic?.setChecked(true)
+        }
         initStreamTypeSpinner()
     }
 

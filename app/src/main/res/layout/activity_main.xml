@@ -45,7 +45,7 @@
                     android:layout_width="0dp"
                     android:layout_height="48pt"
                     android:layout_marginEnd="5pt"
-                    android:hint="You could paste publish URL here :)"
+                    android:hint="您可以在此处粘贴推流地址 :)"
                     android:singleLine="true"
                     android:textColor="@color/textPrimary"
                     android:textColorHint="@color/textHint"

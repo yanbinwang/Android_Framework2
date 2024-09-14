@@ -7,6 +7,7 @@ import com.example.common.config.ARouterPath
 import com.example.common.config.CacheData.userBean
 import com.example.common.config.CacheData.userInfoBean
 import com.example.common.event.EventCode.EVENT_USER_INFO_REFRESH
+import com.example.common.socket.topic.WebSocketConnect
 import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.orFalse
@@ -164,7 +165,7 @@ object AccountHelper {
     fun signOut(isNavigation: Boolean = true) {
         userBean.del()
         userInfoBean.del()
-//        WebSocketConnect.disconnect()
+        WebSocketConnect.disconnect()
 //        EVENT_USER_LOGIN_OUT.post()
         AppManager.finishAll()
 //        ARouter.getInstance().build(ARouterPath.StartActivity).navigation()
