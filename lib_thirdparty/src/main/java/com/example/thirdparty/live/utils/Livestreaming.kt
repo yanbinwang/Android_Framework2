@@ -22,16 +22,16 @@ import java.io.File
  * 直播库初始化
  * 由于隐私协议问题，会在调取initPrivacyAgreed后调取init方法
  */
-object LiveHelper {
+object Livestreaming {
     private var initialized = false
     private var mIsServiceAlive = false
     private var mServiceIntent: Intent? = null
     private var mContext: Application? = null
-    private val mCrashLogDir get() = getStoragePath("崩溃日志", false)//因直播的初始化是在登录后启用，故而崩溃日志也是登录后再开始收集
+    private val mCrashLogDir get() = getStoragePath("崩溃日志", false)
 
     /**
      * 注意：参数 userId 代表用户的唯一标识符，用于区分不同的用户
-     * 用户登录时主动调取/application中也做一次调取
+     * 用户登录时主动调取updateUid/application中也做一次调取
      */
     @JvmStatic
     fun init(application: Application) {
@@ -43,6 +43,8 @@ object LiveHelper {
         //开启日志的本地保存，保存在应用私有目录(getExternalFilesDir) 或者 getFilesDir 文件目录下的 Pili 文件夹中
         //默认为关闭
         StreamingEnv.setLogfileEnabled(true)
+        //开启日志收集
+        openCrash()
         //保活
         AppStateTracker.track(application, object : AppStateTracker.AppStateChangeListener {
             override fun appTurnIntoForeground() {
@@ -57,24 +59,6 @@ object LiveHelper {
                 stopService()
             }
         })
-        //开启日志收集
-        openCrash()
-    }
-
-    internal fun startService() {
-        if (mServiceIntent == null) {
-            mServiceIntent = Intent(mContext, KeepAppAliveService::class.java)
-        }
-        mContext?.startService(mServiceIntent)
-        mIsServiceAlive = true
-    }
-
-    internal fun stopService() {
-        if (mIsServiceAlive) {
-            mContext?.stopService(mServiceIntent)
-            mServiceIntent = null
-            mIsServiceAlive = false
-        }
     }
 
     /**
@@ -83,8 +67,7 @@ object LiveHelper {
     private fun openCrash() {
         if (!initialized) {
             initialized = true
-            XCrash.init(
-                mContext, InitParameters()
+            XCrash.init(mContext, InitParameters()
                 //设置log日志位置
                 .setLogDir(mCrashLogDir)
                 .setJavaDumpNetworkInfo(false)
@@ -118,13 +101,20 @@ object LiveHelper {
         }
     }
 
-    /**
-     * 针对项目用户登录退出时候的userid
-     * 如果为空，sdk内部会通过随机数自动产生一个
-     */
-    @JvmStatic
-    fun updateUid(uid: String?) {
-        StreamingEnv.updateUid(uid)
+    internal fun startService() {
+        if (mServiceIntent == null) {
+            mServiceIntent = Intent(mContext, KeepAppAliveService::class.java)
+        }
+        mContext?.startService(mServiceIntent)
+        mIsServiceAlive = true
+    }
+
+    internal fun stopService() {
+        if (mIsServiceAlive) {
+            mContext?.stopService(mServiceIntent)
+            mServiceIntent = null
+            mIsServiceAlive = false
+        }
     }
 
     /**
@@ -146,6 +136,15 @@ object LiveHelper {
                 "日志 $name 上传失败: $errorMsg".shortToast()
             }
         })
+    }
+
+    /**
+     * 针对项目用户登录退出时候的userid
+     * 如果uid为空，sdk内部会通过随机数自动产生一个
+     */
+    @JvmStatic
+    fun updateUid(uid: String?) {
+        StreamingEnv.updateUid(uid)
     }
 
 }
