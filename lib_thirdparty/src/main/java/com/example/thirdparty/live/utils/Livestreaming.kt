@@ -144,7 +144,7 @@ object Livestreaming {
      * 如果uid为空，sdk内部会通过随机数自动产生一个
      */
     @JvmStatic
-    fun updateUid(uid: String? = null) {
+    fun updateUid(uid: String? = "") {
         StreamingEnv.updateUid(uid)
     }
 
