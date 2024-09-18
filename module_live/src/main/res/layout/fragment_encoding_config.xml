@@ -7,11 +7,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="visible"
+        android:visibility="gone"
         tools:visibility="visible">
 
         <RadioGroup
-            android:id="@+id/rg_encoding"
+            android:id="@+id/encoding_radio_group"
             android:layout_width="match_parent"
             android:layout_height="48pt"
             android:orientation="horizontal">
@@ -25,7 +25,7 @@
                 android:textSize="@dimen/textSize14" />
 
             <RadioButton
-                android:id="@+id/rb_encoding_sw"
+                android:id="@+id/encoding_sw"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="5pt"
@@ -35,7 +35,7 @@
                 android:textSize="@dimen/textSize12" />
 
             <RadioButton
-                android:id="@+id/rb_encoding_hw"
+                android:id="@+id/encoding_hw"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="10pt"
@@ -46,7 +46,7 @@
                 android:textSize="@dimen/textSize12" />
 
             <RadioButton
-                android:id="@+id/rb_encoding_hw_yuv"
+                android:id="@+id/encoding_hw_yuv"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="10pt"
@@ -58,7 +58,7 @@
         </RadioGroup>
 
         <RadioGroup
-            android:id="@+id/rg_encode"
+            android:id="@+id/encode_video_type_radio_group"
             android:layout_width="match_parent"
             android:layout_height="48pt"
             android:layout_marginTop="5pt"
@@ -96,13 +96,38 @@
         </RadioGroup>
 
         <LinearLayout
+            android:id="@+id/yuv_filter_mode_panel"
+            android:layout_width="match_parent"
+            android:layout_height="48pt"
+            android:layout_marginTop="5pt"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="140pt"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="YUV filter mode:"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14" />
+
+            <Spinner
+                android:id="@+id/yuv_filter_mode_set"
+                android:layout_width="140pt"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5pt"
+                android:background="@drawable/shape_r5_grey" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/video_config_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5pt"
             android:orientation="vertical">
 
             <RadioGroup
-                android:id="@+id/rg_video_quality"
+                android:id="@+id/video_quality_radio_group"
                 android:layout_width="match_parent"
                 android:layout_height="48pt"
                 android:orientation="horizontal">
@@ -116,7 +141,7 @@
                     android:textSize="@dimen/textSize14" />
 
                 <RadioButton
-                    android:id="@+id/rb_video_quality_preset"
+                    android:id="@+id/video_quality_preset"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
@@ -127,21 +152,526 @@
                     android:textSize="@dimen/textSize12" />
 
                 <RadioButton
-                    android:id="@+id/rb_video_quality_custom"
+                    android:id="@+id/video_quality_custom"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginStart="10pt"
+                    android:layout_marginStart="5pt"
                     android:text="自定义"
                     android:textColor="@color/textPrimary"
                     android:textSize="@dimen/textSize12" />
 
             </RadioGroup>
 
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Spinner
+                    android:id="@+id/video_quality_presets"
+                    android:layout_width="140pt"
+                    android:layout_height="48pt"
+                    android:layout_marginTop="5pt"
+                    android:background="@drawable/shape_r5_grey" />
+
+                <LinearLayout
+                    android:id="@+id/video_quality_custom_panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="48pt">
+
+                        <TextView
+                            android:layout_width="0pt"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:text="FPS:"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="@dimen/textSize14" />
+
+                        <EditText
+                            android:id="@+id/video_quality_custom_fps"
+                            android:layout_width="0pt"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="5pt"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:inputType="numberDecimal"
+                            android:text="20"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="@dimen/textSize14" />
+
+                        <TextView
+                            android:layout_width="0pt"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="5pt"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:text="Bitrate:"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="@dimen/textSize14" />
+
+                        <EditText
+                            android:id="@+id/video_quality_custom_bitrate"
+                            android:layout_width="0pt"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="5pt"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:inputType="numberDecimal"
+                            android:text="1000"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="@dimen/textSize14" />
+
+                        <TextView
+                            android:layout_width="0pt"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="5pt"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:text="Profile:"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="@dimen/textSize14" />
+
+                        <Spinner
+                            android:id="@+id/video_quality_custom_profile"
+                            android:layout_width="0pt"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="5pt"
+                            android:layout_weight="1"
+                            android:background="@drawable/shape_r5_grey" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="48pt">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
+                            android:text="Max key frame interval:"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="@dimen/textSize14" />
+
+                        <EditText
+                            android:id="@+id/video_quality_custom_max_key_frame_interval"
+                            android:layout_width="0pt"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="5pt"
+                            android:layout_weight="1"
+                            android:inputType="numberDecimal"
+                            android:text="60"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="@dimen/textSize14" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <RadioGroup
+                android:id="@+id/video_size_radio_group"
+                android:layout_width="match_parent"
+                android:layout_height="48pt"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="140pt"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="Video size config:"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize14" />
+
+                <RadioButton
+                    android:id="@+id/video_size_preset"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="5pt"
+                    android:checked="true"
+                    android:gravity="center_vertical"
+                    android:text="Preset"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize12" />
+
+                <RadioButton
+                    android:id="@+id/video_size_custom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="5pt"
+                    android:gravity="center_vertical"
+                    android:text="Custom"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize12" />
+
+            </RadioGroup>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Spinner
+                    android:id="@+id/video_size_presets"
+                    android:layout_width="140pt"
+                    android:layout_height="48pt"
+                    android:background="@drawable/shape_r5_grey" />
+
+                <LinearLayout
+                    android:id="@+id/video_size_custom_panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="48pt"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <TextView
+                        android:layout_width="0pt"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="Width:"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="@dimen/textSize14" />
+
+                    <EditText
+                        android:id="@+id/video_size_custom_width"
+                        android:layout_width="0pt"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:inputType="numberDecimal"
+                        android:text="480"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="@dimen/textSize14" />
+
+                    <TextView
+                        android:layout_width="0pt"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="Height:"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="@dimen/textSize14" />
+
+                    <EditText
+                        android:id="@+id/video_size_custom_height"
+                        android:layout_width="0pt"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:inputType="numberDecimal"
+                        android:text="848"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="@dimen/textSize14" />
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <RadioGroup
+                android:id="@+id/orientation_group"
+                android:layout_width="match_parent"
+                android:layout_height="48pt"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="140pt"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="Orientation:"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize14" />
+
+                <RadioButton
+                    android:id="@+id/orientation_portrait"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:checked="true"
+                    android:gravity="center_vertical"
+                    android:text="Portrait"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize12" />
+
+                <RadioButton
+                    android:id="@+id/orientation_landscape"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="5pt"
+                    android:gravity="center_vertical"
+                    android:text="Landscape"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize12" />
+            </RadioGroup>
+
+            <RadioGroup
+                android:id="@+id/rate_control_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rate control:" />
+
+                <RadioButton
+                    android:id="@+id/rate_control_quality"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Quality" />
+
+                <RadioButton
+                    android:id="@+id/rate_control_bitrate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bitrate" />
+            </RadioGroup>
+
+            <RadioGroup
+                android:id="@+id/bitrate_control_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bitrate control:" />
+
+                <RadioButton
+                    android:id="@+id/bitrate_auto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Auto" />
+
+                <RadioButton
+                    android:id="@+id/bitrate_manual"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Manual" />
+
+                <RadioButton
+                    android:id="@+id/bitrate_disable"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Disable" />
+            </RadioGroup>
+
+            <LinearLayout
+                android:id="@+id/auto_bitrate_range"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Adaptive bitrate range:" />
+
+                <EditText
+                    android:id="@+id/auto_bitrate_min"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:text="800" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="~" />
+
+                <EditText
+                    android:id="@+id/auto_bitrate_max"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:text="1500" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="kbps" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <CheckBox
+                    android:id="@+id/fps_control"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="FPS Control" />
+
+                <CheckBox
+                    android:id="@+id/watermark_control"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="watermark" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/watermark_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Watermark alpha:" />
+
+                    <EditText
+                        android:id="@+id/watermark_alpha"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:text="100" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Watermark size:" />
+
+                    <Spinner
+                        android:id="@+id/watermark_size_presets"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Watermark custom width:" />
+
+                    <EditText
+                        android:id="@+id/watermark_custom_width"
+                        android:layout_width="50dp"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:text="0" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="height:" />
+
+                    <EditText
+                        android:id="@+id/watermark_custom_height"
+                        android:layout_width="50dp"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:text="0" />
+                </LinearLayout>
+
+                <RadioGroup
+                    android:id="@+id/watermark_location_radio_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Watermark location config:" />
+
+                    <RadioButton
+                        android:id="@+id/watermark_location_preset"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="Preset" />
+
+                    <RadioButton
+                        android:id="@+id/watermark_location_custom"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Custom" />
+                </RadioGroup>
+
+                <Spinner
+                    android:id="@+id/watermark_location_presets"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <LinearLayout
+                    android:id="@+id/watermark_location_custom_panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="X:" />
+
+                    <EditText
+                        android:id="@+id/watermark_location_custom_x"
+                        android:layout_width="48dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:inputType="numberDecimal"
+                        android:text="0.5" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Y:" />
+
+                    <EditText
+                        android:id="@+id/watermark_location_custom_y"
+                        android:layout_width="48dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:inputType="numberDecimal"
+                        android:text="0.5" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/picture_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <CheckBox
+                    android:id="@+id/pic_streaming_control"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="picture streaming" />
+
+                <ImageView
+                    android:id="@+id/picture_preview"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="5dp"
+                    android:background="@android:color/darker_gray" />
+            </LinearLayout>
+
         </LinearLayout>
 
         <RadioGroup
-            android:id="@+id/rg_audio_quality"
+            android:id="@+id/audio_quality_radio_group"
             android:layout_width="match_parent"
             android:layout_height="48pt"
             android:layout_marginTop="5pt"
@@ -178,64 +708,70 @@
 
         </RadioGroup>
 
-        <Spinner
-            android:id="@+id/sp_audio_quality"
-            android:layout_width="140pt"
-            android:layout_height="48pt"
-            android:layout_marginTop="5pt"
-            android:background="@drawable/shape_r5_grey"
-            android:spinnerMode="dropdown" />
-
-        <LinearLayout
-            android:id="@+id/ll_audio_quality"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="48pt"
-            android:layout_marginTop="5pt"
-            android:visibility="gone"
-            tools:visibility="visible">
+            android:layout_height="wrap_content">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:text="采样率:"
-                android:textColor="@color/textPrimary"
-                android:textSize="@dimen/textSize14" />
+            <Spinner
+                android:id="@+id/audio_quality_presets"
+                android:layout_width="140pt"
+                android:layout_height="48pt"
+                android:layout_marginTop="5pt"
+                android:background="@drawable/shape_r5_grey"
+                android:spinnerMode="dropdown" />
 
-            <EditText
-                android:id="@+id/et_rate"
-                android:layout_width="100pt"
-                android:layout_height="match_parent"
-                android:layout_marginStart="5pt"
-                android:gravity="center_vertical"
-                android:inputType="numberDecimal"
-                android:text="44100"
-                android:textColor="@color/textPrimary"
-                android:textColorHint="@color/textHint"
-                android:textSize="@dimen/textSize12" />
+            <LinearLayout
+                android:id="@+id/audio_quality_custom_panel"
+                android:layout_width="match_parent"
+                android:layout_height="48pt"
+                android:layout_marginTop="5pt"
+                android:visibility="gone"
+                tools:visibility="visible">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginStart="10pt"
-                android:gravity="center_vertical"
-                android:text="比特率:"
-                android:textColor="@color/textPrimary"
-                android:textSize="@dimen/textSize14" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="采样率:"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize14" />
 
-            <EditText
-                android:id="@+id/et_bitrate"
-                android:layout_width="100pt"
-                android:layout_height="match_parent"
-                android:layout_marginStart="5pt"
-                android:gravity="center_vertical"
-                android:inputType="numberDecimal"
-                android:text="96"
-                android:textColor="@color/textPrimary"
-                android:textColorHint="@color/textHint"
-                android:textSize="@dimen/textSize12" />
+                <EditText
+                    android:id="@+id/audio_quality_custom_sample_rate"
+                    android:layout_width="100pt"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="5pt"
+                    android:gravity="center_vertical"
+                    android:inputType="numberDecimal"
+                    android:text="44100"
+                    android:textColor="@color/textPrimary"
+                    android:textColorHint="@color/textHint"
+                    android:textSize="@dimen/textSize12" />
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10pt"
+                    android:gravity="center_vertical"
+                    android:text="比特率:"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize14" />
+
+                <EditText
+                    android:id="@+id/audio_quality_custom_bitrate"
+                    android:layout_width="100pt"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="5pt"
+                    android:gravity="center_vertical"
+                    android:inputType="numberDecimal"
+                    android:text="96"
+                    android:textColor="@color/textPrimary"
+                    android:textColorHint="@color/textHint"
+                    android:textSize="@dimen/textSize12" />
+
+            </LinearLayout>
+
+        </FrameLayout>
 
     </LinearLayout>
 

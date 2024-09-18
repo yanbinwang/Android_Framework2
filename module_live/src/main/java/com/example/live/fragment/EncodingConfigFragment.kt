@@ -1,11 +1,14 @@
 package com.example.live.fragment
 
-import com.example.common.base.BaseFragment
+import android.content.Intent
+import android.os.Bundle
+import com.example.live.config.Config
+import com.example.live.config.EncodingConfig
 import com.example.live.databinding.FragmentEncodingConfigBinding
 import com.qiniu.pili.droid.streaming.StreamingProfile
 import com.qiniu.pili.droid.streaming.WatermarkSetting
 
-class EncodingConfigFragment : BaseFragment<FragmentEncodingConfigBinding>() {
+class EncodingConfigFragment : ConfigFragment<FragmentEncodingConfigBinding>() {
     private val DEFAULT_VIDEO_QUALITY_POS = 6
     private val DEFAULT_AUDIO_QUALITY_POS = 3
     private val DEFAULT_H264_PROFILE_POS = 2
@@ -109,6 +112,17 @@ class EncodingConfigFragment : BaseFragment<FragmentEncodingConfigBinding>() {
         "Box",
     )
 
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
+        initVideoQualityPanel()
+        initVideoSizePanel()
+        initAudioQualityPanel()
+        initWatermarkPanel()
+        initPicturePanel()
+        initBitrateCtrlPanel()
+        initYuvFilterModePanel()
+    }
+
     private fun initVideoQualityPanel() {
 
     }
@@ -136,4 +150,42 @@ class EncodingConfigFragment : BaseFragment<FragmentEncodingConfigBinding>() {
     private fun initYuvFilterModePanel() {
 
     }
+
+    override fun getIntent(): Intent {
+        val data = Intent()
+        data.putExtra(Config.NAME_ENCODING_CONFIG, buildEncodingConfig())
+        return data
+    }
+
+    /**
+     * 根据所选配置生成 EncodingConfig，用来保存配置信息
+     *
+     * @return 配置信息实体类实例
+     */
+    private fun buildEncodingConfig(): EncodingConfig {
+
+    }
+
+    fun forceCustomVideoEncodingSize(enable: Boolean) {
+//        view!!.findViewById(R.id.video_size_preset).setEnabled(!enable)
+        if (enable) {
+            mBinding?.rbVideoQualityPreset
+//            (view!!.findViewById(R.id.video_size_custom) as RadioButton).isChecked = true
+        }
+    }
+//
+//    fun enableAudioOnly(enable: Boolean) {
+//        view!!.findViewById(R.id.video_config_panel)
+//            .setVisibility(if (enable) View.GONE else View.VISIBLE)
+//    }
+//
+//    fun enableWatermark(enable: Boolean) {
+//        val watermarkConfigPanel: View = view!!.findViewById(R.id.watermark_panel)
+//        watermarkConfigPanel.visibility = if (enable) View.VISIBLE else View.GONE
+//    }
+//
+//    fun enablePictureStreaming(enable: Boolean) {
+//        val pictureConfigPanel: View = view!!.findViewById(R.id.picture_panel)
+//        pictureConfigPanel.visibility = if (enable) View.VISIBLE else View.GONE
+//    }
 }
