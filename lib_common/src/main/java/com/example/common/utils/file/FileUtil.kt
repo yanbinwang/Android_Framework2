@@ -316,7 +316,6 @@ object FileUtil {
      */
     @JvmStatic
     fun split(targetFile: File, cutSize: Long): MutableList<String> {
-        val splitList = ArrayList<String>()
         //计算需要分割的文件总数
         val targetLength = targetFile.length()
         val size = if (targetLength.mod(cutSize) == 0L) {
@@ -325,6 +324,7 @@ object FileUtil {
             targetLength.div(cutSize).plus(1)
         }.toSafeInt()
         //获取目标文件,预分配文件所占的空间,在磁盘中创建一个指定大小的文件(r:只读)
+        val splitList = ArrayList<String>()
         RandomAccessFile(targetFile, "r").use { accessFile ->
             //文件的总大小
             val length = accessFile.length()
