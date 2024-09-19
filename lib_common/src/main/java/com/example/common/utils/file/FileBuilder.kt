@@ -417,7 +417,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         onStart()
         viewJob?.cancel()
         viewJob = launch {
-            val filePath = saveBit(suspendingSaveView(view, width, height))
+            val filePath = withContext(IO) { saveBit(suspendingSaveView(view, width, height)) }
             onResult.invoke(filePath)
         }
     }
