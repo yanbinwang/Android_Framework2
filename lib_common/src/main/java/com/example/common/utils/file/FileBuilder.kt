@@ -151,10 +151,35 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         }
 
         private fun zipFolder(folderList: MutableList<String>, zipPath: String) {
+//            //创建ZIP
+//            var outZipStream: ZipOutputStream? = null
+//            try {
+//                outZipStream = ZipOutputStream(FileOutputStream(zipPath))
+//                //批量打入压缩包
+//                for (folderPath in folderList) {
+//                    val file = File(folderPath)
+//                    val zipEntry = ZipEntry(file.name)
+//                    file.inputStream().use { inputStream ->
+//                        outZipStream.putNextEntry(zipEntry)
+//                        var len: Int
+//                        val buffer = ByteArray(4096)
+//                        while (inputStream.read(buffer).also { len = it } != -1) {
+//                            outZipStream.write(buffer, 0, len)
+//                        }
+//                        outZipStream.closeEntry()
+//                    }
+//                }
+//                //完成和关闭
+//                outZipStream.finish()
+//            } catch (_: Exception) {
+//            } finally {
+//                try {
+//                    outZipStream?.close()
+//                } catch (_: Exception) {
+//                }
+//            }
             //创建ZIP
-            var outZipStream: ZipOutputStream? = null
-            try {
-                outZipStream = ZipOutputStream(FileOutputStream(zipPath))
+            ZipOutputStream(FileOutputStream(zipPath)).use { outZipStream ->
                 //批量打入压缩包
                 for (folderPath in folderList) {
                     val file = File(folderPath)
@@ -171,12 +196,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                 }
                 //完成和关闭
                 outZipStream.finish()
-            } catch (_: Exception) {
-            } finally {
-                try {
-                    outZipStream?.close()
-                } catch (_: Exception) {
-                }
             }
         }
 
