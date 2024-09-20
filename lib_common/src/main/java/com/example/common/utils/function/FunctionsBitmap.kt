@@ -147,7 +147,7 @@ fun saveBit(bitmap: Bitmap?, root: String = getStoragePath("保存图片"), file
     if (deleteDir) root.deleteDir()
     root.isMkdirs()
     //在目录文件夹下生成一个新的图片
-    val file = File(storeDir, "${fileName}${format.getSuffix()}")
+    val file = File(storeDir, "${fileName}.${format.getSuffix()}")
 //    var fileOutputStream: FileOutputStream? = null
 //    //开流开始写入
 //    try {
@@ -178,9 +178,9 @@ fun saveBit(bitmap: Bitmap?, root: String = getStoragePath("保存图片"), file
  */
 private fun Bitmap.CompressFormat.getSuffix(): String {
     return when (this) {
-        JPEG -> ".jpg"
-        PNG -> ".png"
-        else -> ".webp"
+        JPEG -> "jpg"
+        PNG -> "png"
+        else -> "webp"
     }
 }
 
