@@ -151,10 +151,35 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         }
 
         private fun zipFolder(folderList: MutableList<String>, zipPath: String) {
+//            //创建ZIP
+//            var outZipStream: ZipOutputStream? = null
+//            try {
+//                outZipStream = ZipOutputStream(FileOutputStream(zipPath))
+//                //批量打入压缩包
+//                for (folderPath in folderList) {
+//                    val file = File(folderPath)
+//                    val zipEntry = ZipEntry(file.name)
+//                    file.inputStream().use { inputStream ->
+//                        outZipStream.putNextEntry(zipEntry)
+//                        var len: Int
+//                        val buffer = ByteArray(4096)
+//                        while (inputStream.read(buffer).also { len = it } != -1) {
+//                            outZipStream.write(buffer, 0, len)
+//                        }
+//                        outZipStream.closeEntry()
+//                    }
+//                }
+//                //完成和关闭
+//                outZipStream.finish()
+//            } catch (_: Exception) {
+//            } finally {
+//                try {
+//                    outZipStream?.close()
+//                } catch (_: Exception) {
+//                }
+//            }
             //创建ZIP
-            var outZipStream: ZipOutputStream? = null
-            try {
-                outZipStream = ZipOutputStream(FileOutputStream(zipPath))
+            ZipOutputStream(FileOutputStream(zipPath)).use { outZipStream ->
                 //批量打入压缩包
                 for (folderPath in folderList) {
                     val file = File(folderPath)
@@ -171,12 +196,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                 }
                 //完成和关闭
                 outZipStream.finish()
-            } catch (_: Exception) {
-            } finally {
-                try {
-                    outZipStream?.close()
-                } catch (_: Exception) {
-                }
             }
         }
 
@@ -334,6 +353,16 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             return withContext(IO) { File(sourcePath).getHash() }
         }
 
+        /**
+         * 获取media文件的时长
+         * 返回时长(音频，视频)->不支持在线音视频
+         * 放在线程中读取，超时会导致卡顿或闪退
+         */
+        suspend fun suspendingDuration(sourcePath: String?): Int {
+            sourcePath ?: return 0
+            return withContext(IO) { File(sourcePath).getDuration() }
+        }
+
     }
 
     init {
@@ -406,7 +435,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         onStart()
         viewJob?.cancel()
         viewJob = launch {
-            val filePath = saveBit(suspendingSaveView(view, width, height))
+            val filePath = withContext(IO) { saveBit(suspendingSaveView(view, width, height)) }
             onResult.invoke(filePath)
         }
     }

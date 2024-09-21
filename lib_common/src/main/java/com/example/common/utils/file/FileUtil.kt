@@ -20,8 +20,6 @@ import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.value.toSafeLong
 import com.example.framework.utils.logE
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.RandomAccessFile
 import java.math.BigDecimal
@@ -85,6 +83,33 @@ object FileUtil {
     }
 
     /**
+     * 获取media文件的时长
+     * 返回时长(音频，视频)->不支持在线音视频
+     * 放在线程中读取，超时会导致卡顿或闪退
+     */
+    @JvmStatic
+    fun durationWithFile(file: File): Int {
+        val player = MediaPlayer()
+        return try {
+            player.setDataSource(file.absolutePath)
+            player.prepare()
+            //视频时长（毫秒）/1000=x秒
+            (player.duration.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
+        } catch (_: Exception) {
+            0
+        } finally {
+            try {
+                player.apply {
+                    stop()
+                    reset()
+                    release()
+                }
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    /**
      * 获取整个目录的文件大小
      */
     @JvmStatic
@@ -108,7 +133,6 @@ object FileUtil {
      */
     @JvmStatic
     fun split(targetFile: File, cutSize: Long): MutableList<String> {
-        val splitList = ArrayList<String>()
         //计算需要分割的文件总数
         val targetLength = targetFile.length()
         val size = if (targetLength.mod(cutSize) == 0L) {
@@ -117,6 +141,7 @@ object FileUtil {
             targetLength.div(cutSize).plus(1)
         }.toSafeInt()
         //获取目标文件,预分配文件所占的空间,在磁盘中创建一个指定大小的文件(r:只读)
+        val splitList = ArrayList<String>()
         RandomAccessFile(targetFile, "r").use { accessFile ->
             //文件的总大小
             val length = accessFile.length()
@@ -253,29 +278,64 @@ fun String?.deleteDir() {
  * kt中对File类做了readText扩展，但是实现相当于将每行文本塞入list集合，再从集合中读取
  * 此项操作比较吃内存，官方注释也不推荐读取2G以上的文件，所以使用java的方法
  */
-fun String?.read(): String {
+internal fun File?.read(): String {
+//    this ?: return ""
+//    if (exists()) {
+//        var bufferedReader: BufferedReader? = null
+//        try {
+//            bufferedReader = BufferedReader(InputStreamReader(FileInputStream(this)))
+//            val stringBuilder = StringBuilder()
+//            var str: String?
+//            while (bufferedReader.readLine().also { str = it } != null) stringBuilder.append(str)
+//            return stringBuilder.toString()
+//        } catch (_: Exception) {
+//        } finally {
+//            try {
+//                bufferedReader?.close()
+//            } catch (_: Exception) {
+//            }
+//        }
+//    }
+//    return ""
     this ?: return ""
-    val file = File(this)
-    return file.read()
-}
-
-fun File?.read(): String {
-    this ?: return ""
-    if (exists()) {
+    return if (exists()) {
         bufferedReader().use { reader ->
             val stringBuilder = StringBuilder()
             var str: String?
             while (reader.readLine().also { str = it } != null) stringBuilder.append(str)
-            return stringBuilder.toString()
+            stringBuilder.toString()
         }
+    } else {
+        ""
     }
-    return ""
 }
 
 /**
  * 将当前文件拷贝一份到目标路径
  */
-fun File.copy(destFile: File) {
+internal fun File.copy(destFile: File) {
+//    if (!destFile.exists()) destFile.createNewFile()
+//    var inputStream: FileInputStream? = null
+//    var outputStream: FileOutputStream? = null
+//    try {
+//        inputStream = FileInputStream(this)
+//        outputStream = FileOutputStream(destFile)
+//        inputStream.channel.use { source ->
+//            outputStream.channel.use { destination ->
+//                destination?.transferFrom(source, 0, source.size())
+//            }
+//        }
+//    } catch (_: Exception) {
+//    } finally {
+//        try {
+//            inputStream?.close()
+//        } catch (_: Exception) {
+//        }
+//        try {
+//            outputStream?.close()
+//        } catch (_: Exception) {
+//        }
+//    }
     if (!destFile.exists()) destFile.createNewFile()
     inputStream().channel.use { source ->
         destFile.outputStream().channel.use { destination ->
@@ -287,7 +347,7 @@ fun File.copy(destFile: File) {
 /**
  * 获取文件采用base64形式
  */
-fun File?.getBase64(): String {
+internal fun File?.getBase64(): String {
     this ?: return ""
     return FileUtil.base64WithFile(this)
 }
@@ -295,9 +355,17 @@ fun File?.getBase64(): String {
 /**
  * 获取文件hash值（放在io线程）
  */
-fun File?.getHash(): String {
+internal fun File?.getHash(): String {
     this ?: return ""
     return FileUtil.hashWithFile(this)
+}
+
+/**
+ * 获取media文件的时长（放在io线程）
+ */
+internal fun File?.getDuration(): Int {
+    this ?: return 0
+    return FileUtil.durationWithFile(this)
 }
 
 /**
@@ -328,26 +396,6 @@ fun Number?.getSizeFormat(): String {
     if (gigaByteResult < 1) return "${BigDecimal(mByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}GB"
     val teraByteResult = BigDecimal(gigaByteResult)
     return "${teraByteResult.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}TB"
-}
-
-/**
- * 返回时长(音频，视频)->不支持在线音视频
- * 放在线程中读取，超时会导致卡顿或闪退
- */
-suspend fun String?.mediaDuration(): Int {
-    val sourcePath = this
-    if (null == sourcePath || !File(sourcePath).exists()) return 0
-    return withContext(IO) {
-        try {
-            val medialPlayer = MediaPlayer()
-            medialPlayer.setDataSource(sourcePath)
-            medialPlayer.prepare()
-            val millisecond = medialPlayer.duration//视频时长（毫秒）
-            (millisecond.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
-        } catch (_: Exception) {
-            0
-        }
-    }
 }
 
 /**
