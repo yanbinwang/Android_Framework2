@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PixelFormat
+import android.media.MediaPlayer
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.MediaStore
@@ -12,6 +13,7 @@ import android.util.Base64
 import androidx.core.net.toUri
 import com.example.common.BaseApplication
 import com.example.common.config.Constants
+import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
@@ -120,6 +122,33 @@ object FileUtil {
                 }
             }
             hash
+        }
+    }
+
+    /**
+     * 获取media文件的时长
+     * 返回时长(音频，视频)->不支持在线音视频
+     * 放在线程中读取，超时会导致卡顿或闪退
+     */
+    @JvmStatic
+    fun durationWithFile(file: File): Int {
+        val player = MediaPlayer()
+        return try {
+            player.setDataSource(file.absolutePath)
+            player.prepare()
+            //视频时长（毫秒）/1000=x秒
+            (player.duration.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
+        } catch (_: Exception) {
+            0
+        } finally {
+            try {
+                player.apply {
+                    stop()
+                    reset()
+                    release()
+                }
+            } catch (_: Exception) {
+            }
         }
     }
 
@@ -537,6 +566,14 @@ internal fun File?.getBase64(): String {
 internal fun File?.getHash(): String {
     this ?: return ""
     return FileUtil.hashWithFile(this)
+}
+
+/**
+ * 获取media文件的时长（放在io线程）
+ */
+internal fun File?.getDuration(): Int {
+    this ?: return 0
+    return FileUtil.durationWithFile(this)
 }
 
 /**

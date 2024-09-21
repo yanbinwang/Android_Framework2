@@ -7,7 +7,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.pdf.PdfRenderer
-import android.media.MediaPlayer
 import android.os.ParcelFileDescriptor
 import android.util.Patterns
 import android.view.View
@@ -22,9 +21,7 @@ import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.saveBit
 import com.example.framework.utils.function.doOnDestroy
-import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.logE
 import com.example.framework.utils.logWTF
 import com.example.glide.ImageLoader
 import kotlinx.coroutines.CoroutineScope
@@ -372,28 +369,9 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 返回时长(音频，视频)->不支持在线音视频
          * 放在线程中读取，超时会导致卡顿或闪退
          */
-        suspend fun suspendingMediaDuration(sourcePath: String?): Int {
+        suspend fun suspendingDuration(sourcePath: String?): Int {
             sourcePath ?: return 0
-            return withContext(IO) {
-                val player = MediaPlayer()
-                try {
-                    player.setDataSource(sourcePath)
-                    player.prepare()
-                    //视频时长（毫秒）/1000=x秒
-                    (player.duration.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
-                } catch (_: Exception) {
-                    0
-                } finally {
-                    try {
-                        player.apply {
-                            stop()
-                            reset()
-                            release()
-                        }
-                    } catch (_: Exception) {
-                    }
-                }
-            }
+            return withContext(IO) { File(sourcePath).getDuration() }
         }
 
     }
