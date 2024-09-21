@@ -4,7 +4,7 @@ import android.os.Looper
 import android.util.Log
 import com.example.common.BaseApplication
 import com.example.common.utils.helper.ConfigHelper
-import com.example.common.utils.toJsonString
+import com.example.common.utils.toJson
 import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.function.value.toArray
 import com.example.framework.utils.logE
@@ -81,7 +81,7 @@ class MyApplication : BaseApplication() {
 
     private fun initFireBase() {
         FireBaseUtil.notificationIntentGenerator = { _, map ->
-            " \n收到firebase\nmap:${map.toJsonString()}".logWTF
+            " \n收到firebase\nmap:${map.toJson()}".logWTF
             LinkActivity.byPush(instance, *map.toArray { it.key to it.value })
         }
         FireBaseUtil.tokenRefreshListener = {
