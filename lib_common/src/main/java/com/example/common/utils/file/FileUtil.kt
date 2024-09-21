@@ -279,24 +279,6 @@ fun String?.deleteDir() {
  * 此项操作比较吃内存，官方注释也不推荐读取2G以上的文件，所以使用java的方法
  */
 internal fun File?.read(): String {
-//    this ?: return ""
-//    if (exists()) {
-//        var bufferedReader: BufferedReader? = null
-//        try {
-//            bufferedReader = BufferedReader(InputStreamReader(FileInputStream(this)))
-//            val stringBuilder = StringBuilder()
-//            var str: String?
-//            while (bufferedReader.readLine().also { str = it } != null) stringBuilder.append(str)
-//            return stringBuilder.toString()
-//        } catch (_: Exception) {
-//        } finally {
-//            try {
-//                bufferedReader?.close()
-//            } catch (_: Exception) {
-//            }
-//        }
-//    }
-//    return ""
     this ?: return ""
     return if (exists()) {
         bufferedReader().use { reader ->
@@ -314,28 +296,6 @@ internal fun File?.read(): String {
  * 将当前文件拷贝一份到目标路径
  */
 internal fun File.copy(destFile: File) {
-//    if (!destFile.exists()) destFile.createNewFile()
-//    var inputStream: FileInputStream? = null
-//    var outputStream: FileOutputStream? = null
-//    try {
-//        inputStream = FileInputStream(this)
-//        outputStream = FileOutputStream(destFile)
-//        inputStream.channel.use { source ->
-//            outputStream.channel.use { destination ->
-//                destination?.transferFrom(source, 0, source.size())
-//            }
-//        }
-//    } catch (_: Exception) {
-//    } finally {
-//        try {
-//            inputStream?.close()
-//        } catch (_: Exception) {
-//        }
-//        try {
-//            outputStream?.close()
-//        } catch (_: Exception) {
-//        }
-//    }
     if (!destFile.exists()) destFile.createNewFile()
     inputStream().channel.use { source ->
         destFile.outputStream().channel.use { destination ->
