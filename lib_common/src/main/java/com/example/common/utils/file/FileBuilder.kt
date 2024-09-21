@@ -212,8 +212,15 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         /**
          * 存储网络路径图片
          */
-        suspend fun suspendingDownloadPic(mContext: Context, string: String, storeDir: File): String {
-            return withContext(IO) { suspendingGlideDownload(mContext, string, storeDir) }
+        suspend fun suspendingDownloadPic(mContext: Context, string: String, root: String = getStoragePath("Save Image"), deleteDir: Boolean = false): String {
+            return withContext(IO) {
+                //存储目录文件
+                val storeDir = File(root)
+                //先判断是否需要清空目录，再判断是否存在（不存在则创建）
+                if (deleteDir) root.deleteDir()
+                root.isMkdirs()
+                suspendingGlideDownload(mContext, string, storeDir)
+            }
         }
 
         private suspend fun suspendingGlideDownload(mContext: Context, string: String, storeDir: File) = suspendCancellableCoroutine {
@@ -388,13 +395,8 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         onStart()
         downloadPicJob?.cancel()
         downloadPicJob = launch {
-            //存储目录文件
-            val storeDir = File(root)
-            //先判断是否需要清空目录，再判断是否存在（不存在则创建）
-            if (deleteDir) root.deleteDir()
-            root.isMkdirs()
             //下载的文件从缓存目录拷贝到指定目录
-            val filePath = suspendingDownloadPic(mContext, string, storeDir)
+            val filePath = suspendingDownloadPic(mContext, string, root, deleteDir)
             onResult.invoke(filePath)
         }
     }
