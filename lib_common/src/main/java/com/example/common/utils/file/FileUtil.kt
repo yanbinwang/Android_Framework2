@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PixelFormat
-import android.media.MediaPlayer
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.MediaStore
@@ -13,15 +12,12 @@ import android.util.Base64
 import androidx.core.net.toUri
 import com.example.common.BaseApplication
 import com.example.common.config.Constants
-import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.value.toSafeLong
 import com.example.framework.utils.logE
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.RandomAccessFile
 import java.math.BigDecimal
@@ -461,13 +457,7 @@ fun String?.deleteDir() {
  * kt中对File类做了readText扩展，但是实现相当于将每行文本塞入list集合，再从集合中读取
  * 此项操作比较吃内存，官方注释也不推荐读取2G以上的文件，所以使用java的方法
  */
-fun String?.read(): String {
-    this ?: return ""
-    val file = File(this)
-    return file.read()
-}
-
-fun File?.read(): String {
+internal fun File?.read(): String {
 //    this ?: return ""
 //    if (exists()) {
 //        var bufferedReader: BufferedReader? = null
@@ -502,7 +492,7 @@ fun File?.read(): String {
 /**
  * 将当前文件拷贝一份到目标路径
  */
-fun File.copy(destFile: File) {
+internal fun File.copy(destFile: File) {
 //    if (!destFile.exists()) destFile.createNewFile()
 //    var inputStream: FileInputStream? = null
 //    var outputStream: FileOutputStream? = null
@@ -536,7 +526,7 @@ fun File.copy(destFile: File) {
 /**
  * 获取文件采用base64形式
  */
-fun File?.getBase64(): String {
+internal fun File?.getBase64(): String {
     this ?: return ""
     return FileUtil.base64WithFile(this)
 }
@@ -544,7 +534,7 @@ fun File?.getBase64(): String {
 /**
  * 获取文件hash值（放在io线程）
  */
-fun File?.getHash(): String {
+internal fun File?.getHash(): String {
     this ?: return ""
     return FileUtil.hashWithFile(this)
 }
@@ -577,34 +567,6 @@ fun Number?.getSizeFormat(): String {
     if (gigaByteResult < 1) return "${BigDecimal(mByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}GB"
     val teraByteResult = BigDecimal(gigaByteResult)
     return "${teraByteResult.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}TB"
-}
-
-/**
- * 返回时长(音频，视频)->不支持在线音视频
- * 放在线程中读取，超时会导致卡顿或闪退
- */
-suspend fun String?.mediaDuration(): Int {
-    if (null == this || !File(this).exists()) return 0
-    return withContext(IO) {
-        val player = MediaPlayer()
-        try {
-            player.setDataSource(this@mediaDuration)
-            player.prepare()
-            //视频时长（毫秒）/1000=x秒
-            (player.duration.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
-        } catch (_: Exception) {
-            0
-        } finally {
-            try {
-                player.apply {
-                    stop()
-                    reset()
-                    release()
-                }
-            } catch (_: Exception) {
-            }
-        }
-    }
 }
 
 /**
