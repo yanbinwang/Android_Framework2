@@ -258,10 +258,11 @@ internal fun File?.read(): String {
 /**
  * 将当前文件拷贝一份到目标路径
  */
-internal fun File.copy(destFile: File) {
-    if (!destFile.exists()) destFile.createNewFile()
+internal fun File?.copy(destFile: File?) {
+    if(null == this || !exists()) return
+    if (!destFile?.exists().orFalse) destFile?.createNewFile()
     inputStream().channel.use { source ->
-        destFile.outputStream().channel.use { destination ->
+        destFile?.outputStream()?.channel.use { destination ->
             destination?.transferFrom(source, 0, source.size())
         }
     }

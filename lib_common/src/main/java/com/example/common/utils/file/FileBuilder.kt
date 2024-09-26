@@ -203,7 +203,8 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         /**
          * 文件分割
          */
-        suspend fun suspendingFileSplit(sourcePath: String, cutSize: Long): MutableList<String> {
+        suspend fun suspendingFileSplit(sourcePath: String?, cutSize: Long): MutableList<String> {
+            sourcePath ?: return arrayListOf()
             return withContext(IO) { File(sourcePath).split(cutSize) }
         }
 
