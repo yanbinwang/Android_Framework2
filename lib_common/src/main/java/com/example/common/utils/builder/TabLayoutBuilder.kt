@@ -1,6 +1,5 @@
 package com.example.common.utils.builder
 
-import android.content.Context
 import android.os.Build
 import android.util.SparseArray
 import android.view.ViewGroup
@@ -32,6 +31,23 @@ import com.google.android.material.tabs.TabLayoutMediator
  * --------------------
  * app:tabPadding="0px"
  * app:tabMinWidth="0px"
+ * --------------------
+ *  <com.google.android.material.tabs.TabLayout
+ *             android:id="@+id/tb_menu"
+ *             statusBar_margin="@{true}"
+ *             android:layout_width="match_parent"
+ *             android:layout_height="44pt"
+ *             android:background="@color/bgWhite"
+ *             android:clipChildren="true"
+ *             android:clipToPadding="false"
+ *             android:theme="@style/TabLayoutStyle"
+ *             app:tabIndicator="@drawable/layer_list_tab_line"
+ *             app:tabMinWidth="0dp"
+ *             app:tabMode="fixed"
+ *             app:tabPaddingBottom="0dp"
+ *             app:tabPaddingEnd="0dp"
+ *             app:tabPaddingStart="0dp"
+ *             app:tabPaddingTop="0dp" />
  */
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
     private var builder: FragmentBuilder? = null
