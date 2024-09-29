@@ -11,7 +11,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:paddingHorizontal="6pt"
+            tools:paddingHorizontal="6pt"
             tools:text="文案文案文案"
             tools:textColor="@color/appTheme"
             tools:textSize="@dimen/textSize15" />
