@@ -228,11 +228,11 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun setOnFocusChangeListener(onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)) {
 //        this.onFocusChange = onFocusChange
-        onFocusChangeListener = OnFocusChangeListener { v, hasFocus -> onFocusChange.invoke(v, hasFocus) }
+        mBinding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus -> onFocusChange.invoke(v, hasFocus) }
     }
 
     fun setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
-        editText.setOnEditorActionListener(listener)
+        mBinding.etClear.setOnEditorActionListener(listener)
     }
 
 }

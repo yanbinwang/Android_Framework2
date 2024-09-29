@@ -169,7 +169,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
-        editText.setOnEditorActionListener(listener)
+        mBinding.etClear.setOnEditorActionListener(listener)
     }
 
 }
