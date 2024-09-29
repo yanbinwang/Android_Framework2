@@ -36,8 +36,6 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     private var hideRes = -1
     private var showRes = -1
     private var isShowBtn = true
-//    private var onTextChanged: ((s: Editable?) -> Unit)? = null
-//    private var onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)? = null
     private val mBinding by lazy { ViewPasswordEditBinding.bind(context.inflate(R.layout.view_password_edit)) }
     val editText get() = mBinding.etClear
 
@@ -48,12 +46,6 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
                 if (keyCode == KeyEvent.KEYCODE_DEL) mBinding.etClear.setText("")
                 false
             }
-//            addTextChangedListener {
-//                onTextChanged?.invoke(it)
-//            }
-//            onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
-//                onFocusChange?.invoke(v, hasFocus)
-//            }
         }
         mBinding.ivShow.apply { click { setResource(Triple(mBinding.etClear.passwordDevelopment(), showRes, hideRes)) }}
         //以下属性在xml中前缀使用app:调取
@@ -159,12 +151,10 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun addTextChangedListener(onTextChanged: ((s: Editable?) -> Unit)) {
-//        this.onTextChanged = onTextChanged
         mBinding.etClear.addTextChangedListener { onTextChanged.invoke(it) }
     }
 
     fun setOnFocusChangeListener(onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)) {
-//        this.onFocusChange = onFocusChange
         mBinding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus -> onFocusChange.invoke(v, hasFocus) }
     }
 
