@@ -23,6 +23,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -214,7 +215,7 @@ class WXShare(owner: LifecycleOwner) : CoroutineScope {
     }
 
     private fun buildTransaction(text: String): String {
-        return "${AccountHelper.getUserId()}::${text}::${currentTimeNano}"
+        return "${AccountHelper.getUserId()}::${text}::${currentTimeNano}::${UUID.randomUUID()}"
     }
 
 }
