@@ -2,6 +2,7 @@ package com.example.thirdparty.share.wechat
 
 import android.graphics.Bitmap
 import androidx.lifecycle.LifecycleOwner
+import com.example.common.utils.helper.AccountHelper
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.orZero
@@ -213,7 +214,7 @@ class WXShare(owner: LifecycleOwner) : CoroutineScope {
     }
 
     private fun buildTransaction(text: String): String {
-        return "${currentTimeNano}::${text}"
+        return "${AccountHelper.getUserId()}::${text}::${currentTimeNano}"
     }
 
 }
