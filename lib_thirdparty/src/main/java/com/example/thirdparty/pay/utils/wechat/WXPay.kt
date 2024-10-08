@@ -37,7 +37,7 @@ class WXPay(owner: LifecycleOwner) {
             results(R.string.payInitiate, false)
             val result = wxApi?.sendReq(req)
             "支付状态:${result}".logWTF
-            if (!result.orFalse) results(R.string.payCancel)
+            if (!result.orFalse) results(R.string.payFailure)
         }
     }
 
