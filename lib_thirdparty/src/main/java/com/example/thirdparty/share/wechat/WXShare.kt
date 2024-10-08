@@ -2,6 +2,7 @@ package com.example.thirdparty.share.wechat
 
 import android.graphics.Bitmap
 import androidx.lifecycle.LifecycleOwner
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.orZero
 import com.example.thirdparty.share.wechat.WXShareUtil.bmpToByteArray
@@ -14,15 +15,35 @@ import com.tencent.mm.opensdk.modelmsg.WXMusicVideoObject
 import com.tencent.mm.opensdk.modelmsg.WXTextObject
 import com.tencent.mm.opensdk.modelmsg.WXVideoObject
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
 /**
  * 微信分享构建
  */
-class WXShare(owner: LifecycleOwner) {
+class WXShare(owner: LifecycleOwner) : CoroutineScope {
     //分享信息
     private var result: WXShareResult? = null
     //通过WXAPIFactory工厂，获取IWXAPI的实例
     private val wxApi by lazy { WXManager.instance.regToWx(owner) }
+    //协程
+    private var builderJob: Job? = null
+    private val job = SupervisorJob()
+    override val coroutineContext: CoroutineContext
+        get() = Main + job
+
+    init {
+        owner.doOnDestroy {
+            builderJob?.cancel()
+            job.cancel()
+        }
+    }
 
     /**
      * 设置分享信息
@@ -40,17 +61,20 @@ class WXShare(owner: LifecycleOwner) {
      * SendMessageToWX.Req.WXSceneTimeline->朋友圈
      */
     fun shareToWx(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
-        when (result?.obj) {
-            WXShareResult.Obj.TEXT -> shareText(mTargetScene)
-            WXShareResult.Obj.IMAGE -> shareImage(mTargetScene)
-            WXShareResult.Obj.VIDEO -> shareVideo(mTargetScene)
-            WXShareResult.Obj.WEB_PAGE -> shareWebPage(mTargetScene)
-            WXShareResult.Obj.MINI_PROGRAM -> shareMiniProgram()
-            else -> shareMusic(mTargetScene)
+        builderJob?.cancel()
+        builderJob = launch {
+            when (result?.obj) {
+                WXShareResult.Obj.TEXT -> shareText(mTargetScene)
+                WXShareResult.Obj.IMAGE -> shareImage(mTargetScene)
+                WXShareResult.Obj.VIDEO -> shareVideo(mTargetScene)
+                WXShareResult.Obj.WEB_PAGE -> shareWebPage(mTargetScene)
+                WXShareResult.Obj.MINI_PROGRAM -> shareMiniProgram()
+                else -> shareMusic(mTargetScene)
+            }
         }
     }
 
-    private fun shareText(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
+    private suspend fun shareText(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
         //初始化一个 WXTextObject 对象，填写分享的文本内容
         val textObj = WXTextObject()
         textObj.text = result?.text
@@ -66,7 +90,7 @@ class WXShare(owner: LifecycleOwner) {
         wxApi?.sendReq(req)
     }
 
-    private fun shareImage(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
+    private suspend fun shareImage(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
         val bmp = result?.bmp?.get()
         bmp ?: return
         //初始化 WXImageObject 和 WXMediaMessage 对象
@@ -84,7 +108,7 @@ class WXShare(owner: LifecycleOwner) {
         wxApi?.sendReq(req)
     }
 
-    private fun shareVideo(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
+    private suspend fun shareVideo(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
         val bmp = result?.bmp?.get()
         bmp ?: return
         //初始化一个WXVideoObject，填写url
@@ -105,7 +129,7 @@ class WXShare(owner: LifecycleOwner) {
         wxApi?.sendReq(req)
     }
 
-    private fun shareWebPage(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
+    private suspend fun shareWebPage(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
         val bmp = result?.bmp?.get()
         bmp ?: return
         //初始化一个WXWebpageObject，填写url
@@ -126,7 +150,7 @@ class WXShare(owner: LifecycleOwner) {
         wxApi?.sendReq(req)
     }
 
-    private fun shareMiniProgram() {
+    private suspend fun shareMiniProgram() {
         val bmp = result?.bmp?.get()
         bmp ?: return
         val miniProgramObj = WXMiniProgramObject()
@@ -148,7 +172,7 @@ class WXShare(owner: LifecycleOwner) {
         wxApi?.sendReq(req)
     }
 
-    private fun shareMusic(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
+    private suspend fun shareMusic(mTargetScene: Int = SendMessageToWX.Req.WXSceneSession) {
         val bmp = result?.bmp?.get()
         bmp ?: return
         val musicVideo = WXMusicVideoObject()
@@ -179,11 +203,13 @@ class WXShare(owner: LifecycleOwner) {
         wxApi?.sendReq(req)
     }
 
-    private fun buildThumb(bmp: Bitmap, THUMB_SIZE: Int = 100): ByteArray {
-        //设置缩略图
-        val thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true)
-        bmp.recycle()
-        return bmpToByteArray(thumbBmp, true)
+    private suspend fun buildThumb(bmp: Bitmap, THUMB_SIZE: Int = 100): ByteArray {
+        return withContext(IO) {
+            //设置缩略图
+            val thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true)
+            bmp.recycle()
+            bmpToByteArray(thumbBmp, true)
+        }
     }
 
     private fun buildTransaction(text: String): String {
