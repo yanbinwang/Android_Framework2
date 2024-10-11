@@ -139,6 +139,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             tabParent?.getChildAt(i)?.setPadding(0, 0, 0, 0)
             tabParent?.getChildAt(i).size(WRAP_CONTENT, MATCH_PARENT)
         }
+        //第一次onTabSelected可能不会触发，强制选择一次
+        setSelect(0)
     }
 
     /**
