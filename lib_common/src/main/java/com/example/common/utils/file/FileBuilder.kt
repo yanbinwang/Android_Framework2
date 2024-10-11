@@ -54,7 +54,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         /**
          * 存储图片
          */
-        suspend fun suspendingSavePic(bitmap: Bitmap, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG): String? {
+        suspend fun suspendingSavePic(bitmap: Bitmap?, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG): String? {
             return withContext(IO) { saveBit(bitmap, root, fileName, deleteDir, format) }
         }
 
@@ -345,8 +345,8 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             return
         }
         onStart()
-        downloadJob?.cancel()
-        downloadJob = launch {
+        builderJob?.cancel()
+        builderJob = launch {
             try {
                 val downloadFilePath = suspendingDownload(downloadUrl, filePath, fileName, onLoading)
                 onSuccess(downloadFilePath)
