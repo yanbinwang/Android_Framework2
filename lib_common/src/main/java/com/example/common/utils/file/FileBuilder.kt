@@ -21,6 +21,8 @@ import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.saveBit
 import com.example.framework.utils.function.doOnDestroy
+import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
+import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
 import com.example.glide.ImageLoader
@@ -34,6 +36,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.util.Date
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.coroutines.CoroutineContext
@@ -54,7 +57,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         /**
          * 存储图片
          */
-        suspend fun suspendingSavePic(bitmap: Bitmap?, root: String, fileName: String, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG): String? {
+        suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("Save Image"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG): String? {
             return withContext(IO) { saveBit(bitmap, root, fileName, deleteDir, format) }
         }
 
