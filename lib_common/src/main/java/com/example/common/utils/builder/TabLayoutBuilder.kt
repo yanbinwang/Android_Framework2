@@ -170,11 +170,24 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * 监听
      */
     interface OnTabChangeListener {
-
+        /**
+         * tab被点2次（再次被选中时调用）
+         * 列表加载完成，此时默认选中的是索引为0，回调会执行（onSelected不会执行）
+         * 列表加载完成后，滑动到其他item，再次点击索引为0的Tab时，回调会执行
+         * 之后索引为0的tab再次被选中，会回调onTabSelected
+         */
         fun onReselected(position: Int)
 
+        /**
+         * tab进入选择状态
+         * 列表加载完成后滑动到后面的 item，再次点击第一个 tab,此时onTabSelected不回调
+         */
         fun onSelected(position: Int)
 
+        /**
+         * tab退出选择状态
+         * 如当前选中索引为3的tab,你切换了索引为4的tab,此时 onTabUnselected回调索引为3
+         */
         fun onUnselected(position: Int)
 
     }
