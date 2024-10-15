@@ -9,6 +9,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import android.text.format.Formatter
 import android.util.Base64
 import androidx.core.net.toUri
 import com.example.common.BaseApplication
@@ -142,10 +143,12 @@ fun File?.getTotalSize(): Long {
 
 /**
  * 获取对应大小的文字
+ * 新api --> Formatter.formatFileSize()
  */
 fun File?.getSizeFormat(): String {
     this ?: return ""
     return length().getSizeFormat()
+//    return Formatter.formatFileSize(BaseApplication.instance.applicationContext, length())
 }
 
 fun Number?.getSizeFormat(): String {
