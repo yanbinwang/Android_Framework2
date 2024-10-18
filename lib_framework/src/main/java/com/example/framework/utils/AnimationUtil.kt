@@ -36,7 +36,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
          * 进入
          */
         @JvmStatic
-        fun Context.enterAnimation(): AnimationSet {
+        fun Context.elasticityEnter(): AnimationSet {
             return AnimationSet(this, null).apply {
                 val alpha = AlphaAnimation(0.0f, 1.0f)
                 alpha.duration = 90
@@ -59,7 +59,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
          * 退出
          */
         @JvmStatic
-        fun Context.exitAnimation(): AnimationSet {
+        fun Context.elasticityExit(): AnimationSet {
             return AnimationSet(this, null).apply {
                 val alpha = AlphaAnimation(1.0f, 0.0f)
                 alpha.duration = 150
