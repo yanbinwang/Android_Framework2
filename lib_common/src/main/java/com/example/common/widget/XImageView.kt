@@ -41,7 +41,10 @@ class XImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     init {
         root = FrameLayout(context)
         root.size(MATCH_PARENT, MATCH_PARENT)
-        iv.scaleType = ImageView.ScaleType.FIT_XY
+        iv.apply {
+            scaleType = ImageView.ScaleType.FIT_XY
+            size(MATCH_PARENT, MATCH_PARENT)
+        }
         root?.addView(iv)
         cover.apply {
             background = GradientDrawable().apply { setColor("#cf111111".parseColor()) }
