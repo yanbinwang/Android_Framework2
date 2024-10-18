@@ -25,6 +25,23 @@ import java.io.IOException
 import java.util.*
 
 /**
+ * 读取mipmap下的图片
+ */
+fun Context?.decodeResource(id: Int): Bitmap? {
+    this ?: return null
+    return BitmapFactory.decodeResource(this.resources, id)
+}
+
+/**
+ * 获取asset下的图片
+ * "share/img_order_share_logo.webp".decodeAsset()
+ */
+fun String?.decodeAsset(): Bitmap? {
+    this ?: return null
+    return BaseApplication.instance.assets.open(this).use { BitmapFactory.decodeStream(it) }
+}
+
+/**
  * 获取路径图片的宽高
  * 当我们选择了一个图片，要等边裁剪时可使用当前方法获取对应宽高
  */
@@ -53,32 +70,15 @@ fun String?.decodeFile(): Boolean {
 }
 
 /**
- * 获取asset下的图片
- * "share/img_order_share_logo.webp".decodeAsset()
+ * 重设bitmap大小
  */
-fun String?.decodeAsset(): Bitmap? {
+fun Bitmap?.resizeBitmap(w: Int, h: Int): Bitmap? {
     this ?: return null
-//    var stream: InputStream? = null
-//    return try {
-//        stream = BaseApplication.instance.assets.open(this)
-//        BitmapFactory.decodeStream(stream)
-//    } catch (e: Exception) {
-//        null
-//    } finally {
-//        try {
-//            stream?.close()
-//        } catch (_: Exception) {
-//        }
-//    }
-    return BaseApplication.instance.assets.open(this).use { BitmapFactory.decodeStream(it) }
-}
-
-/**
- * 读取mipmap下的图片
- */
-fun Context?.decodeResource(id: Int): Bitmap? {
-    this ?: return null
-    return BitmapFactory.decodeResource(this.resources, id)
+    val matrix = Matrix()
+    matrix.postScale(w / width.toSafeFloat(), h / height.toSafeFloat()) //长和宽放大缩小的比例
+    val resultBitmap = Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
+    recycle()
+    return resultBitmap
 }
 
 /**
@@ -109,6 +109,45 @@ fun Bitmap?.scaleBitmap(): Bitmap? {
 }
 
 /**
+ * 保存bitmap
+ * root->图片保存路径
+ * fileName->图片名称（扣除jpg和png的后缀）
+ * deleteDir->是否清除目录
+ * format->图片类型
+ * quality->压缩率
+ */
+fun Bitmap?.saveBitmap(root: String = getStoragePath("Save Image"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
+    this ?: return null
+    //存储目录文件
+    val storeDir = File(root)
+    //先判断是否需要清空目录，再判断是否存在（不存在则创建）
+    if (deleteDir) root.deleteDir()
+    root.isMkdirs()
+    //在目录文件夹下生成一个新的图片
+    val file = File(storeDir, "${fileName}.${format.getSuffix()}")
+    //开流开始写入
+    file.outputStream().use { outputStream ->
+        //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
+        compress(format, if (format != PNG) quality else 100, outputStream)
+        outputStream.flush()
+        recycle()
+    }
+    return file.absolutePath
+}
+
+/**
+ * 根据要保存的格式，返回对应后缀名
+ * 安卓只支持一下三种
+ */
+private fun Bitmap.CompressFormat.getSuffix(): String {
+    return when (this) {
+        JPEG -> "jpg"
+        PNG -> "png"
+        else -> "webp"
+    }
+}
+
+/**
  * 根据宽高缩放图片
  */
 fun Drawable.zoomDrawable(w: Int, h: Int = w): Drawable {
@@ -132,56 +171,52 @@ fun Drawable.drawableToBitmap(): Bitmap {
 }
 
 /**
- * bitmap->存储的bitmap
- * root->图片保存路径
- * fileName->图片名称（扣除jpg和png的后缀）
- * deleteDir->是否清除目录
- * format->图片类型
- * quality->压缩率
+ * 获取一个 View 的缓存视图
+ *
+ * @param view
+ * @return
  */
-fun saveBit(bitmap: Bitmap?, root: String = getStoragePath("Save Image"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
-    bitmap ?: return null
-    //存储目录文件
-    val storeDir = File(root)
-    //先判断是否需要清空目录，再判断是否存在（不存在则创建）
-    if (deleteDir) root.deleteDir()
-    root.isMkdirs()
-    //在目录文件夹下生成一个新的图片
-    val file = File(storeDir, "${fileName}.${format.getSuffix()}")
-//    var fileOutputStream: FileOutputStream? = null
-//    //开流开始写入
-//    try {
-//        fileOutputStream = FileOutputStream(file)
-//        //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
-//        bitmap.compress(format, if (format != PNG) quality else 100, fileOutputStream)
-//        fileOutputStream.flush()
-//    } catch (_: Exception) {
-//    } finally {
-//        try {
-//            fileOutputStream?.close()
-//        } catch (_: Exception) {
-//        }
-//        bitmap.recycle()
-//    }
-    file.outputStream().use { outputStream ->
-        //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
-        bitmap.compress(format, if (format != PNG) quality else 100, outputStream)
-        outputStream.flush()
-        bitmap.recycle()
+fun View?.getBitmapFromView(w: Int? = null, h: Int? = null, needBg: Boolean = true): Bitmap? {
+    this ?: return null
+    //请求转换
+    return try {
+        val screenshot = Bitmap.createBitmap(width, height, if (needBg) Bitmap.Config.RGB_565 else Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(screenshot)
+        if (needBg) canvas.drawColor(Color.WHITE)
+        draw(canvas)
+        if (w != null && h != null) {
+            screenshot.resizeBitmap(w, h)
+        } else {
+            screenshot
+        }
+    } catch (e: Exception) {
+        null
     }
-    return file.absolutePath
 }
 
 /**
- * 根据要保存的格式，返回对应后缀名
- * 安卓只支持一下三种
+ * 当measure完后，并不会实际改变View的尺寸，需要调用View.layout方法去进行布局
+ * 按示例调用layout函数后，View的大小将会变成你想要设置成的大小
  */
-private fun Bitmap.CompressFormat.getSuffix(): String {
-    return when (this) {
-        JPEG -> "jpg"
-        PNG -> "png"
-        else -> "webp"
-    }
+fun View.loadLayout(width: Int, height: Int) {
+    //整个View的大小 参数是左上角 和右下角的坐标
+    layout(0, 0, width, height)
+    val measuredWidth = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+    val measuredHeight = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+    measure(measuredWidth, measuredHeight)
+    layout(0, 0, getMeasuredWidth(), getMeasuredHeight())
+}
+
+/**
+ * 如果不设置canvas画布为白色，则生成透明
+ */
+fun View.loadBitmap(): Bitmap {
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    canvas.drawColor(Color.WHITE)
+    layout(0, 0, width, height)
+    draw(canvas)
+    return bitmap
 }
 
 /**
@@ -189,31 +224,7 @@ private fun Bitmap.CompressFormat.getSuffix(): String {
  * 修整部分图片方向不正常
  * 取得一个新的图片文件
  */
-fun Context.degreeImage(file: File, delete: Boolean = false): File {
-//    val degree = readDegree(file.absolutePath)
-//    var bitmap: Bitmap
-//    return if (degree != 0f) {
-//        val matrix = Matrix()
-//        matrix.postRotate(degree)
-//        BitmapFactory.decodeFile(file.absolutePath).let {
-//            bitmap = Bitmap.createBitmap(it, 0, 0, it.width, it.height, matrix, true)
-//            it.recycle()
-//        }
-//        val tempFile = File(applicationContext.externalCacheDir, file.name.replace(".jpg", "_degree.jpg"))
-//        var fileOutputStream : FileOutputStream? = null
-//        try {
-//            fileOutputStream = FileOutputStream(tempFile)
-//            bitmap.compress(JPEG, 100, fileOutputStream)
-//            if (delete) file.delete()
-//            tempFile
-//        } catch (e: IOException) {
-//            file
-//        } finally {
-//            fileOutputStream?.flush()
-//            fileOutputStream?.close()
-//            bitmap.recycle()
-//        }
-//    } else file
+fun degreeImage(file: File, delete: Boolean = false): File {
     var mFile = file
     if (readDegree(file.absolutePath) != 0f) {
         var bitmap: Bitmap
@@ -222,8 +233,7 @@ fun Context.degreeImage(file: File, delete: Boolean = false): File {
             bitmap = Bitmap.createBitmap(it, 0, 0, it.width, it.height, matrix, true)
             it.recycle()
         }
-//        val tempFile = File(applicationContext.externalCacheDir, file.name.replace(".jpg", "_degree.jpg"))
-        val tempFile = File(getStoragePath("Save Image"), file.name.replace(".jpg", "_degree.jpg"))
+        val tempFile = File(getStoragePath("保存图片"), file.name.replace(".jpg", "_degree.jpg"))
         if (tempFile.exists()) tempFile.delete()
         tempFile.outputStream().use { outputStream ->
             bitmap.compress(JPEG, 100, outputStream)
@@ -253,65 +263,6 @@ fun readDegree(path: String): Float {
         ORIENTATION_ROTATE_270 -> degree = 270f
     }
     return degree
-}
-
-/**
- * 获取一个 View 的缓存视图
- *
- * @param view
- * @return
- */
-fun View?.getBitmapFromView(w: Int? = null, h: Int? = null, needBg: Boolean = true): Bitmap? {
-    this ?: return null
-    //请求转换
-    return try {
-        val screenshot = Bitmap.createBitmap(width, height, if (needBg) Bitmap.Config.RGB_565 else Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(screenshot)
-        if (needBg) canvas.drawColor(Color.WHITE)
-        draw(canvas)
-        if (w != null && h != null) {
-            screenshot.resizeBitmap(w, h)
-        } else {
-            screenshot
-        }
-    } catch (e: Exception) {
-        null
-    }
-}
-
-/**
- * 重设bitmap大小
- */
-fun Bitmap?.resizeBitmap(w: Int, h: Int): Bitmap? {
-    this ?: return null
-    val matrix = Matrix()
-    matrix.postScale(w / width.toSafeFloat(), h / height.toSafeFloat()) //长和宽放大缩小的比例
-    val resultBitmap = Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
-    recycle()
-    return resultBitmap
-}
-
-/**
- * 当measure完后，并不会实际改变View的尺寸，需要调用View.layout方法去进行布局
- * 按示例调用layout函数后，View的大小将会变成你想要设置成的大小
- */
-fun View.loadLayout(width: Int, height: Int) {
-    //整个View的大小 参数是左上角 和右下角的坐标
-    layout(0, 0, width, height)
-    val measuredWidth = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
-    val measuredHeight = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
-    measure(measuredWidth, measuredHeight)
-    layout(0, 0, getMeasuredWidth(), getMeasuredHeight())
-}
-
-//如果不设置canvas画布为白色，则生成透明
-fun View.loadBitmap(): Bitmap {
-    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(bitmap)
-    canvas.drawColor(Color.WHITE)
-    layout(0, 0, width, height)
-    draw(canvas)
-    return bitmap
 }
 
 /**
