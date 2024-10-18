@@ -10,7 +10,12 @@ import android.graphics.Color
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.*
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.view.animation.AnimationSet
+import android.view.animation.Interpolator
+import android.view.animation.ScaleAnimation
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import com.example.framework.utils.function.value.orZero
@@ -20,7 +25,7 @@ import com.example.framework.utils.function.view.setPxTextSize
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
-import java.util.*
+import java.util.Locale
 
 /**
  * @description 动画工具类
@@ -173,6 +178,13 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
     /**
      * 设置背景颜色动画
      */
+    fun bgColor(start: String, end: String): AnimationUtil {
+        if (view == null) return this
+        val colorStart = Color.parseColor(start)
+        val colorEnd = Color.parseColor(end)
+        return bgColor(colorStart, colorEnd)
+    }
+
     fun bgColor(@ColorInt colorStart: Int, @ColorInt colorEnd: Int): AnimationUtil {
         if (view == null) return this
         val argbEvaluator = ArgbEvaluator()
