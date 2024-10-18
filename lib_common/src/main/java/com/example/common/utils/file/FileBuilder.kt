@@ -19,7 +19,7 @@ import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
-import com.example.common.utils.function.saveBit
+import com.example.common.utils.function.saveBitmap
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
@@ -58,7 +58,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 存储图片
          */
         suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("保存图片"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG): String? {
-            return withContext(IO) { saveBit(bitmap, root, fileName, deleteDir, format) }
+            return withContext(IO) { bitmap.saveBitmap(root, fileName, deleteDir, format) }
         }
 
         /**
@@ -77,7 +77,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                         canvas.drawBitmap(bitmap, 0f, 0f, null)
                         val rent = Rect(0, 0, width, height)
                         page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                        saveBit(bitmap).apply { bitmap.recycle() }
+                        bitmap.saveBitmap()
                     }
                 }
             }
