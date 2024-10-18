@@ -57,7 +57,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         /**
          * 存储图片
          */
-        suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("保存图片"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG): String? {
+        suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("Save Image"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG): String? {
             return withContext(IO) { bitmap.saveBitmap(root, fileName, deleteDir, format) }
         }
 
@@ -179,7 +179,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         /**
          * 存储网络路径图片
          */
-        suspend fun suspendingDownloadPic(mContext: Context, string: String, root: String = getStoragePath("保存图片"), deleteDir: Boolean = false): String {
+        suspend fun suspendingDownloadPic(mContext: Context, string: String, root: String = getStoragePath("Save Image"), deleteDir: Boolean = false): String {
             return withContext(IO) {
                 //存储目录文件
                 val storeDir = File(root)
@@ -364,7 +364,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
     /**
      * 存储图片协程(下载url)
      */
-    fun downloadPicJob(mContext: Context, string: String, root: String = getStoragePath("保存图片"), deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
+    fun downloadPicJob(mContext: Context, string: String, root: String = getStoragePath("Save Image"), deleteDir: Boolean = false, onStart: () -> Unit = {}, onResult: (filePath: String?) -> Unit = {}) {
         onStart()
         builderJob?.cancel()
         builderJob = launch {

@@ -233,7 +233,7 @@ fun degreeImage(file: File, delete: Boolean = false): File {
             bitmap = Bitmap.createBitmap(it, 0, 0, it.width, it.height, matrix, true)
             it.recycle()
         }
-        val tempFile = File(getStoragePath("保存图片"), file.name.replace(".jpg", "_degree.jpg"))
+        val tempFile = File(getStoragePath("Save Image"), file.name.replace(".jpg", "_degree.jpg"))
         if (tempFile.exists()) tempFile.delete()
         tempFile.outputStream().use { outputStream ->
             bitmap.compress(JPEG, 100, outputStream)
