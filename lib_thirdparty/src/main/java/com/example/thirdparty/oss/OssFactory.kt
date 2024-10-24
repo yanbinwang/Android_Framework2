@@ -108,11 +108,11 @@ class OssFactory private constructor() : CoroutineScope {
         state = true to false
         initJob?.cancel()
         initJob = launch {
-            state = false to withContext(IO) { suspendingOSS() }
+            state = false to withContext(IO) { suspendingOSSClient() }
         }
     }
 
-    private suspend fun suspendingOSS() = suspendCancellableCoroutine {
+    private suspend fun suspendingOSSClient() = suspendCancellableCoroutine {
         oss = OSSClient(BaseApplication.instance.applicationContext, "https://oss-cn-shenzhen.aliyuncs.com", object : OSSFederationCredentialProvider() {
             override fun getFederationToken(): OSSFederationToken? {
                 val stsUrl = URL("swallow/sts/aliyun/oss".byServerUrl)
@@ -121,13 +121,12 @@ class OssFactory private constructor() : CoroutineScope {
                     val json = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME)
                     log("暂无", "服务器json:\n${json}")
                     val bean = json.toObj<ApiResponse<OssSts>>(getType(ApiResponse::class.java, OssSts::class.java)).let { if (it.successful()) it?.data else null }
-                    (null != bean).let { value ->
-                        it.resume(value)
-                        if (value) {
-                            OSSFederationToken(bean?.accessKeyId.orEmpty(), bean?.accessKeySecret.orEmpty(), bean?.securityToken.orEmpty(), bean?.expiration.orEmpty())
-                        } else {
-                            null
-                        }
+                    if(null != bean) {
+                        it.resume(true)
+                        OSSFederationToken(bean.accessKeyId.orEmpty(), bean.accessKeySecret.orEmpty(), bean.securityToken.orEmpty(), bean.expiration.orEmpty())
+                    } else {
+                        it.resume(false)
+                        null
                     }
                 }
             }}, ClientConfiguration().apply {
