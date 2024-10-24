@@ -121,12 +121,13 @@ class OssFactory private constructor() : CoroutineScope {
                     val json = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME)
                     log("暂无", "服务器json:\n${json}")
                     val bean = json.toObj<ApiResponse<OssSts>>(getType(ApiResponse::class.java, OssSts::class.java)).let { if (it.successful()) it?.data else null }
-                    if(null != bean) {
-                        it.resume(true)
-                        OSSFederationToken(bean.accessKeyId.orEmpty(), bean.accessKeySecret.orEmpty(), bean.securityToken.orEmpty(), bean.expiration.orEmpty())
-                    } else {
-                        it.resume(false)
-                        null
+                    (null != bean).let { value ->
+                        it.resume(value)
+                        if (value) {
+                            OSSFederationToken(bean?.accessKeyId.orEmpty(), bean?.accessKeySecret.orEmpty(), bean?.securityToken.orEmpty(), bean?.expiration.orEmpty())
+                        } else {
+                            null
+                        }
                     }
                 }
             }}, ClientConfiguration().apply {
