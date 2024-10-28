@@ -108,7 +108,8 @@ class OssFactory private constructor() : CoroutineScope {
         state = true to false
         initJob?.cancel()
         initJob = launch {
-            state = false to withContext(IO) { suspendingOSSClient() }
+            val value = withContext(IO) { suspendingOSSClient() }
+            state = false to value
         }
     }
 
