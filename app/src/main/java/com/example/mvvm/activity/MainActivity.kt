@@ -163,8 +163,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        //sortedByDescending 指定以genre属性进行降序排序
 //        books.sortedByDescending  { it.genre }
 
+        //https://blog.csdn.net/android_cai_niao/article/details/108407853
 //        //使用sortWith实现升序排序
-        val userList = mutableListOf(Book("The Fellowship of the Ring", "J.R.R. Tolkien", "Fantasy"), Book("The Fellowship of the Ring", "J.R.R. Tolkien", "Fantasy"))
+//        val userList = mutableListOf(Book("The Fellowship of the Ring", "J.R.R. Tolkien", "Fantasy"), Book("The Fellowship of the Ring", "J.R.R. Tolkien", "Fantasy"))
 //        userList.sortWith { u1, u2 ->
 //            u1.genre.compareTo(u2.genre)
 //        }
