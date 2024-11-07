@@ -164,7 +164,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        books.sortedByDescending  { it.genre }
 
 //        //使用sortWith实现升序排序
-//        val userList = mutableListOf(Book("The Fellowship of the Ring", "J.R.R. Tolkien", "Fantasy"), Book("The Fellowship of the Ring", "J.R.R. Tolkien", "Fantasy"))
+        val userList = mutableListOf(Book("The Fellowship of the Ring", "J.R.R. Tolkien", "Fantasy"), Book("The Fellowship of the Ring", "J.R.R. Tolkien", "Fantasy"))
 //        userList.sortWith { u1, u2 ->
 //            u1.genre.compareTo(u2.genre)
 //        }
@@ -173,13 +173,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        userList.sortWith { u1, u2 ->
 //            u2.genre.compareTo(u1.genre)
 //        }
-//        userList.sortWith(kotlin.Comparator { u1, u2 ->
-//            if (u1.isOnline != u2.isOnline) {
-//                u2.isOnline.compareTo(u1.isOnline) // 状态以降序排序
+//        userList.sortWith { u1, u2 ->
+//            if (u1.author != u2.author) {
+//                u2.author.compareTo(u1.author) // 状态以降序排序
 //            } else {
-//                u1.name.compareTo(u2.name)         // 名字以升序排序
+//                u1.genre.compareTo(u2.genre)         // 名字以升序排序
 //            }
-//        })
+//        }
+//        userList.sortWith(
+////            //该方法指定了都是升序排序
+////            compareBy ( {it.author},{it.genre})
+////            //该方法可先升序再降序
+////            compareBy(Book::author).thenBy(Book::genre)
+//        )
 
         val booksByGenre = books.groupBy { it.genre }
         booksByGenre.forEach { (genre, books) ->
