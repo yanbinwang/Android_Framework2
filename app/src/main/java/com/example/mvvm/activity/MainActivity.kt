@@ -26,7 +26,6 @@ import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
-import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
@@ -157,6 +156,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             Book("The Catcher in the Rye", "J.D. Salinger", "Fiction"),
             Book("To Kill a Mockingbird", "Harper Lee", "Fiction")
         )
+
+//        //sortBy 指定以genre属性进行升序排序
+//        books.sortedBy { it.genre }
+//        //sortedByDescending 指定以genre属性进行降序排序
+//        books.sortedByDescending  { it.genre }
 
         val booksByGenre = books.groupBy { it.genre }
         booksByGenre.forEach { (genre, books) ->
