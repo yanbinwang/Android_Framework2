@@ -173,7 +173,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        userList.sortWith { u1, u2 ->
 //            u2.genre.compareTo(u1.genre)
 //        }
-
+//        userList.sortWith(kotlin.Comparator { u1, u2 ->
+//            if (u1.isOnline != u2.isOnline) {
+//                u2.isOnline.compareTo(u1.isOnline) // 状态以降序排序
+//            } else {
+//                u1.name.compareTo(u2.name)         // 名字以升序排序
+//            }
+//        })
 
         val booksByGenre = books.groupBy { it.genre }
         booksByGenre.forEach { (genre, books) ->
