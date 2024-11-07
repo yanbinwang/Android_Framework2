@@ -157,10 +157,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             Book("To Kill a Mockingbird", "Harper Lee", "Fiction")
         )
 
+        //https://www.cnblogs.com/zhangwenju/p/16658993.html
 //        //sortBy 指定以genre属性进行升序排序
 //        books.sortedBy { it.genre }
 //        //sortedByDescending 指定以genre属性进行降序排序
 //        books.sortedByDescending  { it.genre }
+
+//        //使用sortWith实现升序排序
+//        val userList = mutableListOf(Book("The Fellowship of the Ring", "J.R.R. Tolkien", "Fantasy"), Book("The Fellowship of the Ring", "J.R.R. Tolkien", "Fantasy"))
+//        userList.sortWith { u1, u2 ->
+//            u1.genre.compareTo(u2.genre)
+//        }
+//        userList.forEach(::println)
+//        //使用sortWith实现降序排序
+//        userList.sortWith { u1, u2 ->
+//            u2.genre.compareTo(u1.genre)
+//        }
+
 
         val booksByGenre = books.groupBy { it.genre }
         booksByGenre.forEach { (genre, books) ->
