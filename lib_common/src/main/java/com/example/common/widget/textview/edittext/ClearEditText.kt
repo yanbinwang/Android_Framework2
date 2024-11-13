@@ -17,6 +17,7 @@ import androidx.annotation.StringRes
 import androidx.core.widget.addTextChangedListener
 import com.example.common.R
 import com.example.common.databinding.ViewClearEditBinding
+import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.common.widget.textview.SpecialEditText
 import com.example.framework.utils.function.dimen
@@ -86,7 +87,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             val maxLine = typedArray.getInt(R.styleable.ClearEditText_maxLine, -1)
             if (minLine > 0 || maxLine > 0) {
                 mBinding.etClear.isSingleLine = false
-//                mBinding.etClear.setPaddingRelative(0,12.pt,0,12.pt)
+                mBinding.etClear.setPaddingRelative(0, 10.pt, 0, 10.pt)
             } else {
                 mBinding.etClear.isSingleLine = true
                 mBinding.etClear.maxLines = 1

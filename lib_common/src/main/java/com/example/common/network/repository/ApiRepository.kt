@@ -79,6 +79,14 @@ class MultiReqUtil(
         return result
     }
 
+//    suspend fun <T> awaitAll(vararg deferreds: Deferred<T>): List<T> {
+//        return awaitAll(listOf(*deferreds))
+//    }
+//
+//    suspend fun <T> awaitAll(list: List<Deferred<T>>): List<T> {
+//        return list.awaitAll().apply { end() }
+//    }
+
     /**
      * 当串行请求多个接口的时候，如果开发需要知道这多个串行请求是否都成功
      * 在end()被调取之前，可通过当前方法判断

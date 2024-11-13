@@ -14,6 +14,7 @@ class FixedLengthLinkedList<T>(private val maxSize: Int = 0) {
     /**
      * 首位添加
      */
+    @Synchronized
     fun addFirst(element: T) {
         if (deque.size >= maxSize) {
             deque.removeLast()
@@ -24,6 +25,7 @@ class FixedLengthLinkedList<T>(private val maxSize: Int = 0) {
     /**
      * 结尾添加
      */
+    @Synchronized
     fun addLast(element: T) {
         if (deque.size >= maxSize) {
             deque.removeFirst()
