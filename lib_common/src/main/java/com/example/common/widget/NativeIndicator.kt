@@ -59,8 +59,8 @@ class NativeIndicator(tab: TabLayout?, tabTitle: List<String>? = null) : TabLayo
 /**
  * 全局默认样式
  */
-fun TextView?.setTabTheme(text: String?, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15, padding: Pair<Int, Int> = 6.pt to 6.pt) {
-    setTheme(text.orEmpty(), if (selected) colorRes.first.orZero else colorRes.second.orZero,)
+fun TextView?.setTabTheme(text: String?, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, bgRes: Pair<Int, Int> = -1 to -1, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15, padding: Pair<Int, Int> = 6.pt to 6.pt) {
+    setTheme(text.orEmpty(), if (selected) colorRes.first.orZero else colorRes.second.orZero, if (selected) bgRes.first.orZero else bgRes.second.orZero)
     textSize(if (selected) sizeRes.first.orZero else sizeRes.second.orZero)
     padding(start = padding.first, end = padding.second)
     bold(selected)
