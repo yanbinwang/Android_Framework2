@@ -27,15 +27,10 @@ import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.background
-import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.charBlackList
 import com.example.framework.utils.function.view.charLimit
 import com.example.framework.utils.function.view.decimalFilter
 import com.example.framework.utils.function.view.emojiLimit
-import com.example.framework.utils.function.view.initGridHorizontal
-import com.example.framework.utils.function.view.initGridVertical
-import com.example.framework.utils.function.view.initLinearHorizontal
-import com.example.framework.utils.function.view.initLinearVertical
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.setMatchText
@@ -109,34 +104,6 @@ object BaseBindingAdapter {
     @BindingAdapter(value = ["quick_adapter", "span_count", "horizontal_space", "vertical_space", "has_horizontal_edge", "has_vertical_edge"], requireAll = false)
     fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewAdapter(rec: XRecyclerView, quickAdapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
         rec.setAdapter(quickAdapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
-    }
-
-    /**
-     * 给recyclerview绑定一个适配器
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["linear_adapter", "linear_orientation"], requireAll = false)
-    fun <T : RecyclerView.Adapter<*>> bindingRecyclerViewLinearLayoutManagerAdapter(rec: RecyclerView, linearAdapter: T, @RecyclerView.Orientation linearOrientation: Int?) {
-        rec.cancelItemAnimator()
-        if (linearOrientation.toSafeInt(RecyclerView.VERTICAL) == RecyclerView.VERTICAL) {
-            rec.initLinearVertical(linearAdapter)
-        } else {
-            rec.initLinearHorizontal(linearAdapter)
-        }
-    }
-
-    /**
-     * 给recyclerview绑定一个适配器
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["grid_adapter", "grid_orientation", "grid_columns"], requireAll = false)
-    fun <T : RecyclerView.Adapter<*>> bindingRecyclerViewGridLayoutManagerAdapter(rec: RecyclerView, gridAdapter: T, @RecyclerView.Orientation gridOrientation: Int?, gridColumns: Int?) {
-        rec.cancelItemAnimator()
-        if (gridOrientation.toSafeInt(RecyclerView.VERTICAL) == RecyclerView.VERTICAL) {
-            rec.initGridVertical(gridAdapter, gridColumns.toSafeInt(1))
-        } else {
-            rec.initGridHorizontal(gridAdapter, gridColumns.toSafeInt(1))
-        }
     }
     // </editor-fold>
 
