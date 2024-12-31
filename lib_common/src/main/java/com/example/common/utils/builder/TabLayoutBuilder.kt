@@ -135,16 +135,21 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
         }
         tab?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
+                //处理选中事件
+                //可以在这里更新页面内容或者改变选中标签的样式
                 onTabBind(tab, true)
                 listener?.onSelected(tab?.position.orZero)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
+                //处理取消选中事件
                 onTabBind(tab, false)
                 listener?.onUnselected(tab?.position.orZero)
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) {
+                //处理再次选中同一个标签的事件
+                //可以在这里执行相应的操作
                 listener?.onReselected(tab?.position.orZero)
             }
 
@@ -162,8 +167,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             tabParent?.getChildAt(i)?.setPadding(0, 0, 0, 0)
             tabParent?.getChildAt(i).size(WRAP_CONTENT, MATCH_PARENT)
         }
-        //第一次onTabSelected可能不会触发，强制选择一次
-        setSelect(0)
+//        //第一次onTabSelected可能不会触发，强制选择一次
+//        setSelect(0)
     }
 
     /**
