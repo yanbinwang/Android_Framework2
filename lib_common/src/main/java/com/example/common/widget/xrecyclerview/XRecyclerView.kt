@@ -70,7 +70,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private fun initInflate() {
         var view: View? = null
         when (refreshEnable) {
-            true -> {
+            false -> {
                 view = context.inflate(R.layout.view_xrecycler)
                 recycler = view.findViewById(R.id.rv_list)
                 if (emptyEnable) {
@@ -85,7 +85,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                     empty?.setOnEmptyRefreshListener { listener?.invoke(it) }
                 }
             }
-            false -> {
+            true -> {
                 view = context.inflate(R.layout.view_xrecycler_refresh)
                 empty = view.findViewById(R.id.empty)
                 refresh = view.findViewById(R.id.refresh)
