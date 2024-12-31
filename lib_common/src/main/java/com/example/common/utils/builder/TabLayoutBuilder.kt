@@ -71,6 +71,38 @@ import com.google.android.material.tabs.TabLayoutMediator
  *                 app:tabPaddingEnd="0dp"
  *                 app:tabPaddingStart="0dp"
  *                 app:tabPaddingTop="0dp" />
+ *
+ *                 override fun initEvent() {
+ *         super.initEvent()
+ *         indicator.setOnTabChangeListener(object : TabLayoutBuilder.OnTabChangeListener {
+ *             override fun onReselected(position: Int) {
+ *                 onSelected(position, true)
+ *             }
+ *
+ *             override fun onSelected(position: Int) {
+ *                 onSelected(position, false)
+ *             }
+ *
+ *             override fun onUnselected(position: Int) {
+ *             }
+ *         })
+ *     }
+ *
+ *     private fun onSelected(index: Int, isReselected: Boolean) {
+ *         //如果是重复点击的，或者与上一次相等的情况，不予以操作
+ *         val unable = isReselected || index == currentItem
+ *         if (!unable) {
+ *             if (index == 2 && !isLogin()) {
+ *                 navigation(ARouterPath.LoginActivity)
+ *                 //秒切频率太快，commit还未来得及切换，倒计时1s切回上个选项卡
+ *                 schedule({
+ *                     indicator.setSelect(currentItem)
+ *                 })
+ *             } else {
+ *                 currentItem = index
+ *             }
+ *         }
+ *     }
  */
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
     private var builder: FragmentBuilder? = null
