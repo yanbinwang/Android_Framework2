@@ -42,12 +42,67 @@ import com.google.android.material.tabs.TabLayoutMediator
  *             android:clipToPadding="false"
  *             android:theme="@style/TabLayoutStyle"
  *             app:tabIndicator="@drawable/layer_list_tab_line"
+ *             app:tabBackground="@android:color/transparent"
+ *             app:tabRippleColor="@android:color/transparent"
  *             app:tabMinWidth="0dp"
  *             app:tabMode="fixed"
+ *             app:tabPadding="0px"
  *             app:tabPaddingBottom="0dp"
  *             app:tabPaddingEnd="0dp"
  *             app:tabPaddingStart="0dp"
  *             app:tabPaddingTop="0dp" />
+ *
+ *             <com.google.android.material.tabs.TabLayout
+ *                 android:id="@+id/tb_indicator"
+ *                 android:layout_width="match_parent"
+ *                 android:layout_height="50pt"
+ *                 android:layout_gravity="bottom"
+ *                 android:background="@color/bgDefault"
+ *                 android:clipChildren="true"
+ *                 android:clipToPadding="false"
+ *                 android:theme="@style/TabLayoutStyle"
+ *                 app:tabBackground="@android:color/transparent"
+ *                 app:tabRippleColor="@android:color/transparent"
+ *                 app:tabIndicator="@null"
+ *                 app:tabMinWidth="0dp"
+ *                 app:tabMode="fixed"
+ *                 app:tabPadding="0px"
+ *                 app:tabPaddingBottom="0dp"
+ *                 app:tabPaddingEnd="0dp"
+ *                 app:tabPaddingStart="0dp"
+ *                 app:tabPaddingTop="0dp" />
+ *
+ *                 override fun initEvent() {
+ *         super.initEvent()
+ *         indicator.setOnTabChangeListener(object : TabLayoutBuilder.OnTabChangeListener {
+ *             override fun onReselected(position: Int) {
+ *                 onSelected(position, true)
+ *             }
+ *
+ *             override fun onSelected(position: Int) {
+ *                 onSelected(position, false)
+ *             }
+ *
+ *             override fun onUnselected(position: Int) {
+ *             }
+ *         })
+ *     }
+ *
+ *     private fun onSelected(index: Int, isReselected: Boolean) {
+ *         //如果是重复点击的，或者与上一次相等的情况，不予以操作
+ *         val unable = isReselected || index == currentItem
+ *         if (!unable) {
+ *             if (index == 2 && !isLogin()) {
+ *                 navigation(ARouterPath.LoginActivity)
+ *                 //秒切频率太快，commit还未来得及切换，倒计时1s切回上个选项卡
+ *                 schedule({
+ *                     indicator.setSelect(currentItem)
+ *                 })
+ *             } else {
+ *                 currentItem = index
+ *             }
+ *         }
+ *     }
  */
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
     private var builder: FragmentBuilder? = null
@@ -112,24 +167,31 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
         }
         tab?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
+                //处理选中事件
+                //可以在这里更新页面内容或者改变选中标签的样式
                 onTabBind(tab, true)
                 listener?.onSelected(tab?.position.orZero)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
+                //处理取消选中事件
                 onTabBind(tab, false)
                 listener?.onUnselected(tab?.position.orZero)
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) {
+                //处理再次选中同一个标签的事件
+                //可以在这里执行相应的操作
                 listener?.onReselected(tab?.position.orZero)
             }
 
             private fun onTabBind(tab: TabLayout.Tab?, selected: Boolean) {
                 tab?.customView ?: return
                 tab.position.orZero.apply {
+                    //子tab状态回调
                     onBindView(tabViews[this], tabList.safeGet(this), selected, this)
-                    builder?.selectTab(this)
+                    //下标对应的fragment显示
+                    if (selected) builder?.selectTab(this)
                 }
             }
         })
@@ -139,8 +201,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             tabParent?.getChildAt(i)?.setPadding(0, 0, 0, 0)
             tabParent?.getChildAt(i).size(WRAP_CONTENT, MATCH_PARENT)
         }
-        //第一次onTabSelected可能不会触发，强制选择一次
-        setSelect(0)
+//        //第一次onTabSelected可能不会触发，强制选择一次
+//        setSelect(0)
     }
 
     /**

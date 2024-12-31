@@ -756,6 +756,8 @@ fun ImageView?.tint(@ColorRes res: Int) {
 
 /**
  * 图片src资源
+ * setImageResource()里面是int类型 无法使用setImageResource来清空图片,不过Bitmap可以设置为nul从而达到设置为空的效果
+ * 设置setImageDrawable(null)
  */
 fun ImageView?.setDrawable(resId: Drawable?) {
     this ?: return
@@ -764,6 +766,8 @@ fun ImageView?.setDrawable(resId: Drawable?) {
 
 fun ImageView?.setResource(@DrawableRes resId: Int) {
     this ?: return
+    //‌调用setImageResource(0)会导致ImageView显示一个默认的占位符图片，而不是显示任何有效的图像资源‌
+    //-1则会闪退报错
     setImageResource(resId)
 }
 
