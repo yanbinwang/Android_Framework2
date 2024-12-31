@@ -766,6 +766,8 @@ fun ImageView?.setDrawable(resId: Drawable?) {
 
 fun ImageView?.setResource(@DrawableRes resId: Int) {
     this ?: return
+    //‌调用setImageResource(0)会导致ImageView显示一个默认的占位符图片，而不是显示任何有效的图像资源‌
+    //-1则会闪退报错
     setImageResource(resId)
 }
 
