@@ -24,20 +24,20 @@ import java.io.Serializable
  * 1.接口提示
  * 2.遮罩层操作
  */
-fun ViewGroup?.setState(imgRes: Int = -1, textRes: Int = R.string.dataError, index: Int = 1) {
+fun ViewGroup?.setState(resId: Int? = null, resText: Int? = null, index: Int = 1) {
     this ?: return
     val emptyLayout = if (this is EmptyLayout) this else getEmptyView(index)
-    emptyLayout?.error(imgRes, textRes)
+    emptyLayout?.error(resId, resText)
 }
 
 /**
  * 列表页调取方法
  */
-fun XRecyclerView?.setState(length: Int = 0, imgRes: Int = -1, textRes: Int = R.string.dataError) {
+fun XRecyclerView?.setState(length: Int = 0, resId: Int? = null, resText: Int? = null) {
     this ?: return
     finishRefreshing()
     //判断集合长度，有长度不展示emptyview只做提示
-    if (length <= 0) empty?.setState(imgRes, textRes)
+    if (length <= 0) empty?.setState(resId, resText)
 }
 
 /**
