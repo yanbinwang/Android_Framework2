@@ -78,12 +78,15 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 if (emptyEnable) {
                     empty = EmptyLayout(context)
                     //部分empty是有初始大小要求的，不必撑满整个屏幕
+//                    recycler?.setEmptyView(empty?.setListView(recycler).apply {
+//                        if (minimumHeight > 0) {
+//                            emptySize(height = minimumHeight)
+//                        } else {
+//                            emptySize(MATCH_PARENT, MATCH_PARENT)
+//                        }
+//                    })
                     recycler?.setEmptyView(empty?.setListView(recycler).apply {
-                        if (minimumHeight > 0) {
-                            emptySize(height = minimumHeight)
-                        } else {
-                            emptySize(MATCH_PARENT, MATCH_PARENT)
-                        }
+                        emptySize(MATCH_PARENT, MATCH_PARENT)
                     })
                     empty?.setOnEmptyRefreshListener { listener?.invoke(it) }
                 }
