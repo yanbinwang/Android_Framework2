@@ -156,8 +156,10 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             private fun onTabBind(tab: TabLayout.Tab?, selected: Boolean) {
                 tab?.customView ?: return
                 tab.position.orZero.apply {
+                    //子tab状态回调
                     onBindView(tabViews[this], tabList.safeGet(this), selected, this)
-                    builder?.selectTab(this)
+                    //下标对应的fragment显示
+                    if (selected) builder?.selectTab(this)
                 }
             }
         })
