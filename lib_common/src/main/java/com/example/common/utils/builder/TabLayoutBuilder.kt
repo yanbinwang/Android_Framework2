@@ -42,12 +42,35 @@ import com.google.android.material.tabs.TabLayoutMediator
  *             android:clipToPadding="false"
  *             android:theme="@style/TabLayoutStyle"
  *             app:tabIndicator="@drawable/layer_list_tab_line"
+ *             app:tabBackground="@android:color/transparent"
+ *             app:tabRippleColor="@android:color/transparent"
  *             app:tabMinWidth="0dp"
  *             app:tabMode="fixed"
+ *             app:tabPadding="0px"
  *             app:tabPaddingBottom="0dp"
  *             app:tabPaddingEnd="0dp"
  *             app:tabPaddingStart="0dp"
  *             app:tabPaddingTop="0dp" />
+ *
+ *             <com.google.android.material.tabs.TabLayout
+ *                 android:id="@+id/tb_indicator"
+ *                 android:layout_width="match_parent"
+ *                 android:layout_height="50pt"
+ *                 android:layout_gravity="bottom"
+ *                 android:background="@color/bgDefault"
+ *                 android:clipChildren="true"
+ *                 android:clipToPadding="false"
+ *                 android:theme="@style/TabLayoutStyle"
+ *                 app:tabBackground="@android:color/transparent"
+ *                 app:tabRippleColor="@android:color/transparent"
+ *                 app:tabIndicator="@null"
+ *                 app:tabMinWidth="0dp"
+ *                 app:tabMode="fixed"
+ *                 app:tabPadding="0px"
+ *                 app:tabPaddingBottom="0dp"
+ *                 app:tabPaddingEnd="0dp"
+ *                 app:tabPaddingStart="0dp"
+ *                 app:tabPaddingTop="0dp" />
  */
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
     private var builder: FragmentBuilder? = null
