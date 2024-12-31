@@ -55,6 +55,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         private set
     var empty: EmptyLayout? = null//自定义封装的空布局
         private set
+    var root: View? = null//整体容器
+        private set
 
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
@@ -75,11 +77,12 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 recycler = view.findViewById(R.id.rv_list)
                 if (emptyEnable) {
                     empty = EmptyLayout(context)
+                    //部分empty是有初始大小要求的，不必撑满整个屏幕
                     recycler?.setEmptyView(empty?.setListView(recycler).apply {
                         if (minimumHeight > 0) {
-                            size(height = minimumHeight)
+                            emptySize(height = minimumHeight)
                         } else {
-                            size(MATCH_PARENT, MATCH_PARENT)
+                            emptySize(MATCH_PARENT, MATCH_PARENT)
                         }
                     })
                     empty?.setOnEmptyRefreshListener { listener?.invoke(it) }
@@ -103,7 +106,28 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         recycler?.setHasFixedSize(true)
         recycler?.cancelItemAnimator()
         addView(view)
-        view.size(MATCH_PARENT, WRAP_CONTENT)
+        root = view
+        rootSize(MATCH_PARENT, WRAP_CONTENT)
+//        view.size(MATCH_PARENT, WRAP_CONTENT)
+    }
+
+    /**
+     * 设定内部view大小的方法
+     */
+    fun emptySize(width: Int? = null, height: Int? = null) {
+        viewSize(empty, width, height)
+    }
+
+    fun recyclerSize(width: Int? = null, height: Int? = null) {
+        viewSize(recycler, width, height)
+    }
+
+    fun rootSize(width: Int? = null, height: Int? = null) {
+        viewSize(root, width, height)
+    }
+
+    private fun viewSize(view: View?, width: Int? = null, height: Int? = null) {
+        view.size(width, height)
     }
 
     /**
