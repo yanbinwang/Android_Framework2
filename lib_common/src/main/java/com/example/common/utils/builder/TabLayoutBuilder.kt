@@ -42,6 +42,8 @@ import com.google.android.material.tabs.TabLayoutMediator
  *             android:clipToPadding="false"
  *             android:theme="@style/TabLayoutStyle"
  *             app:tabIndicator="@drawable/layer_list_tab_line"
+ *             app:tabIndicatorColor="@color/bgOrange"
+ *             app:tabIndicatorHeight="3pt"
  *             app:tabBackground="@android:color/transparent"
  *             app:tabRippleColor="@android:color/transparent"
  *             app:tabMinWidth="0dp"
