@@ -6,6 +6,7 @@ import android.view.ViewGroup
 
 /**
  * 自定义控件继承viewgroup需要清除边距，使用当前类做处理
+ * 自定义控件如果宽度是手机宽度，则可用当前BaseViewGroup，否则推荐使用继承FrameLayout
  */
 abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ViewGroup(context, attrs, defStyleAttr) {
     //检测布局绘制
