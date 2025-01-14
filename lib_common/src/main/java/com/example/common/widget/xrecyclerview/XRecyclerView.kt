@@ -103,7 +103,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         recycler?.cancelItemAnimator()
         addView(view)
         root = view
-        rootSize(MATCH_PARENT, WRAP_CONTENT)
+//        rootSize(MATCH_PARENT, WRAP_CONTENT)
     }
 
     /**
