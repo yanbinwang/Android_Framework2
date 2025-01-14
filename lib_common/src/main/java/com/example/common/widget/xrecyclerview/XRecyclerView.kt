@@ -23,7 +23,7 @@ import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.gone
@@ -46,22 +46,31 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
  * onFinishInflate方法只有在布局文件中加载view实例会回调，如果直接new一个view的话是不会回调的。
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-    private var refreshEnable = false//是否具有刷新
-    private var emptyEnable = false//是否具有空布局
-    private var listener: ((result: Boolean) -> Unit)? = null//空布局点击
-    var recycler: ObserverRecyclerView? = null//数据列表
+    //是否具有刷新
+    private var refreshEnable = false
+    //是否具有空布局
+    private var emptyEnable = false
+    //空遮罩高度，-1表示为全屏
+    private var emptyHeight = -1f
+    //空布局点击
+    private var listener: ((result: Boolean) -> Unit)? = null
+    //自定义封装的空布局
+    val empty by lazy { EmptyLayout(context).apply { onInflate() } }
+    //数据列表
+    var recycler: ObserverRecyclerView? = null
         private set
-    var refresh: SmartRefreshLayout? = null//刷新控件 类型1才有
+    //刷新控件 类型1才有
+    var refresh: SmartRefreshLayout? = null
         private set
-    var empty: EmptyLayout? = null//自定义封装的空布局
-        private set
-    var root: View? = null//整体容器
+    //整体容器
+    var root: View? = null
         private set
 
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
         refreshEnable = typedArray.getBoolean(R.styleable.XRecyclerView_xrvEnableRefresh,false)
         emptyEnable = typedArray.getBoolean(R.styleable.XRecyclerView_xrvEnableEmpty,false)
+        emptyHeight = typedArray.getDimension(R.styleable.XRecyclerView_xrvEmptyHeight, -1f)
         typedArray.recycle()
     }
 
@@ -76,33 +85,17 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 view = context.inflate(R.layout.view_xrecycler)
                 recycler = view.findViewById(R.id.rv_list)
                 if (emptyEnable) {
-                    empty = EmptyLayout(context)
-                    //部分empty是有初始大小要求的，不必撑满整个屏幕
-//                    recycler?.setEmptyView(empty?.setListView(recycler).apply {
-//                        if (minimumHeight > 0) {
-//                            emptySize(height = minimumHeight)
-//                        } else {
-//                            emptySize(MATCH_PARENT, MATCH_PARENT)
-//                        }
-//                    })
-                    recycler?.setEmptyView(empty?.setListView(recycler).apply {
-                        emptySize(MATCH_PARENT, MATCH_PARENT)
-                    })
-                    empty?.setOnEmptyRefreshListener { listener?.invoke(it) }
+                    recycler?.setEmptyView(empty.setListView(recycler))
+                    emptyConfigure()
                 }
             }
             true -> {
                 view = context.inflate(R.layout.view_xrecycler_refresh)
-                empty = view.findViewById(R.id.empty)
                 refresh = view.findViewById(R.id.refresh)
                 recycler = view.findViewById(R.id.rv_list)
                 if (emptyEnable) {
-                    empty?.setOnEmptyRefreshListener { listener?.invoke(it) }
-                } else {
-                    empty?.gone()
-                    view.findViewById<FrameLayout>(R.id.fl_root).apply {
-                        if(getChildAt(1) is EmptyLayout) removeViewAt(1)
-                    }
+                    (view.findViewById<FrameLayout>(R.id.fl_root))?.addView(empty)
+                    emptyConfigure()
                 }
             }
         }
@@ -111,7 +104,20 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         addView(view)
         root = view
         rootSize(MATCH_PARENT, WRAP_CONTENT)
-//        view.size(MATCH_PARENT, WRAP_CONTENT)
+    }
+
+    /**
+     * 部分empty是有初始大小要求的，不必撑满整个屏幕
+     */
+    private fun emptyConfigure() {
+        if (-1f == emptyHeight) {
+            emptySize(MATCH_PARENT, MATCH_PARENT)
+        } else {
+            emptySize(MATCH_PARENT, emptyHeight.toSafeInt())
+        }
+        empty.setOnEmptyRefreshListener {
+            listener?.invoke(it)
+        }
     }
 
     /**
@@ -247,27 +253,27 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 修改空布局背景颜色
      */
-    fun setEmptyBackgroundColor(color: Int) = empty?.setBackgroundColor(color)
+    fun setEmptyBackgroundColor(color: Int) = empty.setBackgroundColor(color)
 
     /**
      * 当数据正在加载的时候显示
      */
     fun loading() {
-        empty?.loading()
+        empty.loading()
     }
 
     /**
      * 当数据为空时(显示需要显示的图片，以及内容字)
      */
     fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
-        empty?.empty(resId, text, refreshText, width, height)
+        empty.empty(resId, text, refreshText, width, height)
     }
 
     /**
      * 当数据异常时
      */
     fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
-        empty?.error(resId, text, refreshText, width, height)
+        empty.error(resId, text, refreshText, width, height)
     }
 
 }

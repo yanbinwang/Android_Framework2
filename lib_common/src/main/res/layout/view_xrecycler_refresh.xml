@@ -18,9 +18,9 @@
 
     </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
-    <com.example.common.widget.EmptyLayout
-        android:id="@+id/empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+<!--    <com.example.common.widget.EmptyLayout-->
+<!--        android:id="@+id/empty"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent" />-->
 
 </FrameLayout>
