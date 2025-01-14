@@ -41,9 +41,14 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
 /**
  * author: wyb
  * date: 2017/11/20.
- * <p>
+ *
  * 一般自定义view或viewGroup基本上都会去实现onMeasure、onLayout、onDraw方法，还有另外两个方法是onFinishInflate和onSizeChanged。
- * onFinishInflate方法只有在布局文件中加载view实例会回调，如果直接new一个view的话是不会回调的。
+ * onFinishInflate方法只有在布局文件中加载view实例会回调，如果直接new一个view的话是不会回调的，需要手动调取
+ *
+ * 在Android中，如果子View的宽度或高度设置为match_parent，而父View的宽度或高度设置为wrap_content，则会出现以下情况：
+ * 子View将会占据尽可能多的空间，即整个父View的宽度或高度。
+ * 父View的大小将取决于子View的实际尺寸，即父View的大小将足够包含子View的尺寸。
+ * 简单来说，match_parent对子View而言等同于fill_parent，意味着子View将尽可能地填充父View的宽度或高度。而wrap_content则表示子View的大小只会是足够包含其内容的大小。
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     //是否具有刷新
