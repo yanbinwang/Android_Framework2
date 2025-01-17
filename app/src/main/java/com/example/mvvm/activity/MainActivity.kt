@@ -126,7 +126,7 @@ import kotlinx.coroutines.launch
  * kotlin的==等价于java的equals
  *
  * 数组的比较
- * 使用.contentEquals() 和.contentDeepEquals() 比较两个数组是否具有相同顺序的相同元素
+ * 使用.contentEquals() -》不比较顺序，顺序不一致内容一致为true  和.contentDeepEquals() -》比较顺序，顺序不一致则内容一致为false 比较两个数组是否具有相同顺序的相同元素
  * 不要使用相等（==）和不等（！=）运算符来比较数组的内容，这些操作符检查指定的变量是否指向同一个对象
  * https://blog.csdn.net/cyclelucky/article/details/135106212
  */
