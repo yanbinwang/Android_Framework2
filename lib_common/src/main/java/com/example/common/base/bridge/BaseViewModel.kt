@@ -91,7 +91,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         when (view) {
             //传入BaseTitleActivity中写好的容器viewGroup
             is FrameLayout -> this.weakEmpty = WeakReference(view.getEmptyView(1))
-            //界面上绘制好empty ----- mBinding?.root.doOnceAfterLayout-->只传empty的情况中，如果是fragment且懒加载外加FragmentManager切换，需要在父类加载完成后添加，activity不需要
+            //界面上绘制好empty
             is EmptyLayout -> this.weakEmpty = WeakReference(view)
             //外层下拉刷新的控件
             is SmartRefreshLayout -> this.weakRefresh = WeakReference(view)
@@ -110,7 +110,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 this.weakEmpty = WeakReference(view.getEmptyView(1))
                 this.weakRefresh = WeakReference(refresh)
             }
-            //mBinding?.root.doOnceAfterLayout-->只传empty的情况中，如果是fragment且懒加载外加FragmentManager切换，需要在父类加载完成后添加，activity不需要
             is EmptyLayout -> {
                 this.weakEmpty = WeakReference(view)
                 this.weakRefresh = WeakReference(refresh)
