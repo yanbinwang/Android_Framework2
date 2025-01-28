@@ -282,7 +282,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
             val mValue = (animation.animatedValue as? Float)?.toSafeInt()
             //设置高度
             val layoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams
-            layoutParams?.leftMargin = mValue
+            layoutParams?.leftMargin = mValue.orZero
             view.layoutParams = layoutParams
         }
         animationList.add(animator)
@@ -307,7 +307,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         animator.addUpdateListener { animation ->
             val mValue = (animation.animatedValue as? Float)?.toSafeInt()
             val layoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams
-            layoutParams?.rightMargin = mValue
+            layoutParams?.rightMargin = mValue.orZero
             view.layoutParams = layoutParams
         }
         animationList.add(animator)
