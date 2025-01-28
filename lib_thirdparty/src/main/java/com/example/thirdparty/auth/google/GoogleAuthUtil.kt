@@ -21,11 +21,12 @@ import com.google.android.gms.tasks.Task
 class GoogleAuthUtil(private val mActivity: FragmentActivity) {
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val mActivityResult = mActivity.registerResult { onActivityResultListener?.invoke(it) }
-    private val mGoogleSignInClient by lazy { GoogleSignIn.getClient(mActivity, GoogleSignInOptions
-        .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(GOOGLE_AUTH_API.orEmpty())
-        .requestEmail()
-        .build())
+    private val mGoogleSignInClient by lazy {
+        GoogleSignIn.getClient(mActivity, GoogleSignInOptions
+            .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(GOOGLE_AUTH_API.orEmpty())
+            .requestEmail()
+            .build())
     }
 
     companion object {
@@ -33,14 +34,15 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
     }
 
     init {
-        signOut()
         mActivity.doOnDestroy {
             onActivityResultListener = null
             mActivityResult?.unregister()
         }
+        signOut()
     }
 
     fun signIn(onSuccess: (bean: GoogleInfoBean) -> Unit, onCancel: () -> Unit, onFailed: () -> Unit) {
+        R.string.authInitiate.shortToast()
         val account = GoogleSignIn.getLastSignedInAccount(mActivity)
         when {
             account != null -> {
@@ -100,7 +102,7 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
         }
     }
 
-    fun signOut() {
+    private fun signOut() {
         try {
             mGoogleSignInClient.signOut()
             mGoogleSignInClient.revokeAccess()
