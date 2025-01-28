@@ -20,6 +20,7 @@
     "dataNetError":"Jaringan tidak terhubung, silakan periksa pengaturan jaringan",
     "linkError":"Alamat tautan tidak valid",
     "sourcePathError":"Jalur file yang salah",
+    "authInitiate":"Memulai login rekening pihak ketiga, silakan tunggu&#8230;",
     "authCancel":"Operasi dibatalkan",
     "authError":"Login gagal, silakan coba metode lain",
     "authOpenIdError":"Gagal mendapatkan informasi rekening pihak ketiga",

@@ -1,0 +1,28 @@
+<resources>
+    <!-- 三方登录提示 -->
+    <string name="authInitiate">正在發起三方帳號登錄，請稍後&#8230;</string>
+    <string name="authCancel">操作被取消</string>
+    <string name="authError">登錄失敗，請嘗試其它方式</string>
+    <string name="authOpenIdError">三方帳號信息獲取失敗</string>
+    <string name="authNetworkFail">網絡連接失敗</string>
+    <!-- 图片压缩提示 -->
+    <string name="compressError">請上傳10M以內的圖片</string>
+    <!-- 用户提示字段 -->
+    <string name="emailHint">請輸入郵箱</string>
+    <string name="emailEmpty">郵箱不能為空</string>
+    <string name="emailError">郵箱格式錯誤</string>
+    <string name="passwordHint">請輸入密碼</string>
+    <string name="passwordEmpty">密碼不能為空</string>
+    <string name="passwordError">密碼由6~20位的字母和數字組成</string>
+    <string name="phoneHint">請輸入手機號</string>
+    <string name="phoneEmpty">手機號不能為空</string>
+    <string name="phoneError">手機號格式錯誤</string>
+    <string name="verifySmsHint">請輸入驗證碼</string>
+    <string name="verifySmsEmpty">驗證碼不能為空</string>
+    <string name="verifySmsError">請輸入6位數字驗證碼</string>
+    <!-- 首页字段 -->
+    <string name="mainHome">首頁</string>
+    <string name="mainMarket">市場</string>
+    <string name="mainBalance">資金</string>
+    <string name="mainUser">我的</string>
+</resources>

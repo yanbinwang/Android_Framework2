@@ -8,6 +8,7 @@ import com.example.common.R
  */
 object I18nMap {
     val map = hashMapOf(
+        //------------------框架默认------------------
         R.string.hint to "hint",
         R.string.sure to "sure",
         R.string.cancel to "cancel",
@@ -27,11 +28,15 @@ object I18nMap {
         R.string.dataNetError to "dataNetError",
         R.string.linkError to "linkError",
         R.string.sourcePathError to "sourcePathError",
+        //------------------三方登录提示------------------
+        R.string.authInitiate to "authInitiate",
         R.string.authCancel to "authCancel",
         R.string.authError to "authError",
         R.string.authOpenIdError to "authOpenIdError",
         R.string.authNetworkFail to "authNetworkFail",
+        //------------------图片压缩提示------------------
         R.string.compressError to "compressError",
+        //------------------用户通用工具类提示字段------------------
         R.string.emailHint to "emailHint",
         R.string.emailEmpty to "emailEmpty",
         R.string.emailError to "emailError",
@@ -44,6 +49,7 @@ object I18nMap {
         R.string.verifySmsHint to "verifySmsHint",
         R.string.verifySmsEmpty to "verifySmsEmpty",
         R.string.verifySmsError to "verifySmsError",
+        //------------------首页------------------
         R.string.mainHome to "mainHome",
         R.string.mainMarket to "mainMarket",
         R.string.mainBalance to "mainBalance",

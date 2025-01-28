@@ -20,6 +20,7 @@
     "dataNetError":"The network is not connected, please check the network settings",
     "linkError":"The link address is invalid",
     "sourcePathError":"Wrong file path",
+    "authInitiate":"Initiating third-party account login, please wait&#8230;",
     "authCancel":"Operation canceled",
     "authError":"Login failed, please try another method",
     "authOpenIdError":"Failed to obtain third-party account information",
