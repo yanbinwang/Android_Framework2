@@ -1,10 +1,13 @@
 package com.example.thirdparty.auth.google
 
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.ActivityResult
 import androidx.fragment.app.FragmentActivity
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.getManifestString
+import com.example.common.utils.function.registerResult
+import com.example.framework.utils.function.doOnDestroy
 import com.example.thirdparty.R
+import com.example.thirdparty.auth.google.bean.GoogleInfoBean
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -16,12 +19,13 @@ import com.google.android.gms.tasks.Task
  * google三方登录
  */
 class GoogleAuthUtil(private val mActivity: FragmentActivity) {
-    private val mGoogleSignInClient by lazy {
-        GoogleSignIn.getClient(mActivity, GoogleSignInOptions
-                .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(GOOGLE_AUTH_API.orEmpty())
-                .requestEmail()
-                .build())
+    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
+    private val mActivityResult = mActivity.registerResult { onActivityResultListener?.invoke(it) }
+    private val mGoogleSignInClient by lazy { GoogleSignIn.getClient(mActivity, GoogleSignInOptions
+        .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestIdToken(GOOGLE_AUTH_API.orEmpty())
+        .requestEmail()
+        .build())
     }
 
     companion object {
@@ -30,9 +34,13 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
 
     init {
         signOut()
+        mActivity.doOnDestroy {
+            onActivityResultListener = null
+            mActivityResult?.unregister()
+        }
     }
 
-    fun signIn(success: (bean: GoogleInfoBean) -> Unit, cancel: () -> Unit, failed: () -> Unit) {
+    fun signIn(onSuccess: (bean: GoogleInfoBean) -> Unit, onCancel: () -> Unit, onFailed: () -> Unit) {
         val account = GoogleSignIn.getLastSignedInAccount(mActivity)
         when {
             account != null -> {
@@ -40,42 +48,53 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
                     R.string.authOpenIdError.shortToast()
                     return
                 }
-                success(GoogleInfoBean(account))
+                onSuccess(GoogleInfoBean(account))
             }
-            else -> callSignIn(success, cancel, failed)
+            else -> callSignIn(onSuccess, onCancel, onFailed)
         }
     }
 
-    private fun callSignIn(success: (bean: GoogleInfoBean) -> Unit, cancel: () -> Unit, failed: () -> Unit) {
-        mActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
-            handleSignInResult(task, success, cancel, failed)
-//            mActivity.clearOnActivityResultListener()
-            signOut()
-        }.launch(mGoogleSignInClient.signInIntent)
+    private fun callSignIn(onSuccess: (bean: GoogleInfoBean) -> Unit, onCancel: () -> Unit, onFailed: () -> Unit) {
+//        mActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+//            val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
+//            handleSignInResult(task, onSuccess, onCancel, onFailed)
+////            mActivity.clearOnActivityResultListener()
+//            signOut()
+//        }.launch(mGoogleSignInClient.signInIntent)
+        if (null == onActivityResultListener) {
+            onActivityResultListener = {
+                val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
+                handleSignInResult(task, onSuccess, onCancel, onFailed)
+                onActivityResultListener = null
+                signOut()
+            }
+        }
+        mActivityResult?.launch(mGoogleSignInClient.signInIntent)
     }
 
-    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>, success: (account: GoogleInfoBean) -> Unit, cancel: () -> Unit, failed: () -> Unit, ) {
+    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>, onSuccess: (account: GoogleInfoBean) -> Unit, onCancel: () -> Unit, onFailed: () -> Unit, ) {
         try {
-            val account = completedTask.getResult(ApiException::class.java) ?: throw ApiException(RESULT_INTERNAL_ERROR)
+            val account = completedTask.getResult(ApiException::class.java) ?: throw ApiException(
+                RESULT_INTERNAL_ERROR
+            )
             if (account.id.isNullOrEmpty()) {
                 R.string.authOpenIdError.shortToast()
                 return
             }
-            success(GoogleInfoBean(account))
+            onSuccess(GoogleInfoBean(account))
         } catch (e: ApiException) {
             when (e.statusCode) {
                 12501 -> {
                     R.string.authCancel.shortToast()
-                    cancel()
+                    onCancel()
                 }
                 7 -> {
                     R.string.authNetworkFail.shortToast()
-                    failed()
+                    onFailed()
                 }
                 else -> {
                     R.string.authError.shortToast()
-                    failed()
+                    onFailed()
                 }
             }
         }
