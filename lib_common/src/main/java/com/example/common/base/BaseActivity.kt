@@ -217,6 +217,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     override fun onDestroy() {
         super.onDestroy()
+        clearOnActivityResultListener()
         AppManager.removeActivity(this)
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
         for ((key, value) in dataManager) {
