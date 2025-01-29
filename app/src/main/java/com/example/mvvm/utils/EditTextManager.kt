@@ -15,6 +15,7 @@ import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.safeGet
+import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.visible
@@ -66,6 +67,15 @@ class EditTextManager(observer: LifecycleOwner) {
     }
 
     /**
+     * 只绑定输入框
+     */
+    fun bind(vararg views: View?): EditTextManager {
+        val viewList = arrayListOf(*views)
+        list = viewList.toNewList { it to null }
+        return this
+    }
+
+    /**
      * 构建
      */
     fun build(): EditTextManager {
@@ -99,10 +109,10 @@ class EditTextManager(observer: LifecycleOwner) {
      */
     fun normal() {
         list?.forEach {
-            //隐藏所有reason错误
-            it.first?.gone()
             //所有选中都初始化
-            it.second?.background = colorRes.first
+            it.first?.background = colorRes.first
+            //隐藏所有reason错误
+            it.second?.gone()
         }
     }
 
