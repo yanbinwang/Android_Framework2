@@ -680,3 +680,21 @@ public static java.lang.String TABLENAME;
 #-keep class com.dataqin.pay.model.** {*;}
 #-keep class com.dataqin.map.model.** {*;}
 #-keep class com.dataqin.certification.model.** {*;}
+
+# 保留 AndroidX Credentials 库中的所有类及成员
+-keep class androidx.credentials.** { *; }
+# 保留 Parcelable 实现（防止序列化/反序列化问题）
+-keep class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
+}
+# 保留 JSON 序列化模型（如果库使用 GSON/Jackson 等）
+-keepclassmembers,allowobfuscation class androidx.credentials.** {
+    @com.google.gson.annotations.SerializedName <fields>;
+    @com.fasterxml.jackson.annotation.** <fields>;
+}
+# 保留无参构造函数（防止反射实例化失败）
+-keepclassmembers class androidx.credentials.** {
+    public <init>();
+}
+# 保留服务加载器所需的类（如 META-INF/services 配置）
+-keep class androidx.credentials.provider.** { *; }
