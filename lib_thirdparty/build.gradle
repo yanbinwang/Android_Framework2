@@ -42,7 +42,7 @@ dependencies {
     //文件压缩
     implementation 'id.zelory:compressor:3.0.1'
     //谷歌三方登錄
-    implementation 'com.google.android.gms:play-services-auth:20.4.1'
+    implementation 'com.google.android.gms:play-services-auth:21.3.0'
     //谷歌异常捕获
     implementation platform('com.google.firebase:firebase-bom:31.3.0')
     implementation 'com.google.firebase:firebase-analytics-ktx'
