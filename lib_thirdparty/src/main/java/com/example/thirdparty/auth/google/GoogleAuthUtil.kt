@@ -217,7 +217,8 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) : CoroutineScope {
                     //https://developer.android.google.cn/identity/sign-in/credential-manager-troubleshooting-guide?hl=zh-cn
 //                       //无可用凭证，引导用户注册。
 //                       is NoCredentialException -> showSignUpPrompt()
-                    is GetCredentialCancellationException -> {
+                    //用户取消了通行密钥注册或检索
+                    is GetCredentialCancellationException, is CreateCredentialCancellationException  -> {
                         R.string.authCancel.shortToast()
                         onCancel()
                     }
