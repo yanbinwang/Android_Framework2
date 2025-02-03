@@ -214,6 +214,7 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) : CoroutineScope {
                 handleSignInResult(result, onSuccess)
             } catch (e: Exception) {
                 when (e) {
+                    //https://developer.android.google.cn/identity/sign-in/credential-manager-troubleshooting-guide?hl=zh-cn
 //                       //无可用凭证，引导用户注册。
 //                       is NoCredentialException -> showSignUpPrompt()
                     is GetCredentialCancellationException -> {
