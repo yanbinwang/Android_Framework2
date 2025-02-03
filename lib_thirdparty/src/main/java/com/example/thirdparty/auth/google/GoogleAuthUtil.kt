@@ -12,6 +12,7 @@ import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.fragment.app.FragmentActivity
+import com.example.common.utils.NetWorkUtil.isNetworkAvailable
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.getManifestString
 import com.example.common.utils.function.registerResult
@@ -218,12 +219,12 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) : CoroutineScope {
 //                       //无可用凭证，引导用户注册。
 //                       is NoCredentialException -> showSignUpPrompt()
                     //用户取消了通行密钥注册或检索
-                    is GetCredentialCancellationException, is CreateCredentialCancellationException  -> {
+                    is GetCredentialCancellationException, is CreateCredentialCancellationException -> {
                         R.string.authCancel.shortToast()
                         onCancel()
                     }
                     else -> {
-                        R.string.authError.shortToast()
+                        (if (!isNetworkAvailable()) R.string.authNetworkFail else R.string.authError).shortToast()
                         onFailed()
                     }
                 }
@@ -240,6 +241,10 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) : CoroutineScope {
                     try {
                         //使用googleIdTokenCredentials并提取ID进行验证和在服务器上进行身份验证
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                        if (googleIdTokenCredential.id.isEmpty()) {
+                            R.string.authOpenIdError.shortToast()
+                            return
+                        }
                         onSuccess(GoogleInfoBean(googleIdTokenCredential))
                     } catch (e: GoogleIdTokenParsingException) {
                         throw RuntimeException("收到无效的google id令牌响应:$e")
