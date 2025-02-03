@@ -13,6 +13,13 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
+    <queries>
+        <!-- 允许访问 Google 登录服务 -->
+        <package android:name="com.google.android.gms" />
+        <!-- 允许访问系统凭证管理服务 -->
+        <package android:name="com.android.credentialmanager" />
+    </queries>
+
     <application
         android:name=".MyApplication"
         android:allowBackup="false"

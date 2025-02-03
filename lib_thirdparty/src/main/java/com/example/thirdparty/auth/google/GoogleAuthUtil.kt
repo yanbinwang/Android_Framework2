@@ -76,9 +76,7 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>, onSuccess: (account: GoogleInfoBean) -> Unit, onCancel: () -> Unit, onFailed: () -> Unit, ) {
         try {
-            val account = completedTask.getResult(ApiException::class.java) ?: throw ApiException(
-                RESULT_INTERNAL_ERROR
-            )
+            val account = completedTask.getResult(ApiException::class.java) ?: throw ApiException(RESULT_INTERNAL_ERROR)
             if (account.id.isNullOrEmpty()) {
                 R.string.authOpenIdError.shortToast()
                 return
