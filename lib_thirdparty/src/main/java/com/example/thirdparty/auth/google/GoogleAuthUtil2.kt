@@ -1,5 +1,6 @@
 package com.example.thirdparty.auth.google
 
+import android.content.Context
 import android.os.CancellationSignal
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
@@ -12,8 +13,11 @@ import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.fragment.app.FragmentActivity
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.getManifestString
+import com.example.common.utils.function.toPhone
 import com.example.framework.utils.function.doOnDestroy
 import com.example.thirdparty.R
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -54,6 +58,15 @@ class GoogleAuthUtil2(private val mActivity: FragmentActivity) : CoroutineScope 
 //            secureRandom.nextBytes(nonceBytes)
 //            return nonceBytes.base64Encode()
 //        }
+
+        /**
+         * 谷歌服务是否可用
+         */
+        fun Context?.isGooglePlayServicesAvailable(): Boolean {
+            this ?: return false
+            return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this) == ConnectionResult.SUCCESS
+        }
+
     }
 
     init {
@@ -68,6 +81,10 @@ class GoogleAuthUtil2(private val mActivity: FragmentActivity) : CoroutineScope 
      * 开始登录
      */
     fun signIn(onSuccess: (bean: GoogleIdTokenCredential) -> Unit, onCancel: () -> Unit, onFailed: () -> Unit) {
+        if (!mActivity.isGooglePlayServicesAvailable()) {
+            R.string.authError.shortToast()
+            return
+        }
         if (!isLock) {
             isLock = true
             R.string.authInitiate.shortToast()
@@ -97,6 +114,8 @@ class GoogleAuthUtil2(private val mActivity: FragmentActivity) : CoroutineScope 
                     handleSignInResult(result, onSuccess)
                 } catch (e: Exception) {
                     when (e) {
+//                        //无可用凭证，引导用户注册。
+//                        is NoCredentialException -> showSignUpPrompt()
                         is GetCredentialCancellationException -> {
                             R.string.authCancel.shortToast()
                             onCancel()
