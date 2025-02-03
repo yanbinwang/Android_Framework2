@@ -13,9 +13,9 @@ import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.fragment.app.FragmentActivity
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.getManifestString
-import com.example.common.utils.function.toPhone
 import com.example.framework.utils.function.doOnDestroy
 import com.example.thirdparty.R
+import com.example.thirdparty.auth.google.bean.GoogleInfoBean
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
@@ -35,9 +35,8 @@ import kotlin.coroutines.CoroutineContext
  * https://blog.csdn.net/zll18201518375/article/details/138577963
  */
 class GoogleAuthUtil2(private val mActivity: FragmentActivity) : CoroutineScope {
-    private var isLock = false
-    private val credentialManager by lazy { CredentialManager.create(mActivity) }
     private var builderJob: Job? = null
+    private val credentialManager by lazy { CredentialManager.create(mActivity) }
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = Main + job
@@ -80,17 +79,15 @@ class GoogleAuthUtil2(private val mActivity: FragmentActivity) : CoroutineScope 
     /**
      * 开始登录
      */
-    fun signIn(onSuccess: (bean: GoogleIdTokenCredential) -> Unit, onCancel: () -> Unit, onFailed: () -> Unit) {
+    fun signIn(onSuccess: (bean: GoogleInfoBean) -> Unit, onCancel: () -> Unit, onFailed: () -> Unit) {
         if (!mActivity.isGooglePlayServicesAvailable()) {
             R.string.authError.shortToast()
             return
         }
-        if (!isLock) {
-            isLock = true
-            R.string.authInitiate.shortToast()
-            builderJob?.cancel()
-            builderJob = launch {
-                try {
+        R.string.authInitiate.shortToast()
+        builderJob?.cancel()
+        builderJob = launch {
+            try {
 //                val nonce = generateNonce() // 生成随机 nonce
 //                val result = credentialManager.getCredential(
 //                    mActivity, GetCredentialRequest.Builder()
@@ -109,29 +106,27 @@ class GoogleAuthUtil2(private val mActivity: FragmentActivity) : CoroutineScope 
 //                        )
 //                        .build()
 //                )
-                    signOut()
-                    val result = credentialManager.getCredential(mActivity, GetCredentialRequest.Builder().addCredentialOption(GetSignInWithGoogleOption.Builder(GOOGLE_AUTH_API.orEmpty()).build()).build())
-                    handleSignInResult(result, onSuccess)
-                } catch (e: Exception) {
-                    when (e) {
-//                        //无可用凭证，引导用户注册。
-//                        is NoCredentialException -> showSignUpPrompt()
-                        is GetCredentialCancellationException -> {
-                            R.string.authCancel.shortToast()
-                            onCancel()
-                        }
-                        else -> {
-                            R.string.authError.shortToast()
-                            onFailed()
-                        }
+                signOut()
+                val result = credentialManager.getCredential(mActivity, GetCredentialRequest.Builder().addCredentialOption(GetSignInWithGoogleOption.Builder(GOOGLE_AUTH_API.orEmpty()).build()).build())
+                handleSignInResult(result, onSuccess)
+            } catch (e: Exception) {
+                when (e) {
+//                       //无可用凭证，引导用户注册。
+//                       is NoCredentialException -> showSignUpPrompt()
+                    is GetCredentialCancellationException -> {
+                        R.string.authCancel.shortToast()
+                        onCancel()
+                    }
+                    else -> {
+                        R.string.authError.shortToast()
+                        onFailed()
                     }
                 }
-                isLock = false
             }
         }
     }
 
-    private fun handleSignInResult(result: GetCredentialResponse, onSuccess: (account: GoogleIdTokenCredential) -> Unit) {
+    private fun handleSignInResult(result: GetCredentialResponse, onSuccess: (account: GoogleInfoBean) -> Unit) {
         //处理成功返回的凭据
         when (val credential = result.credential) {
             //GoogleIdToken凭据
@@ -140,7 +135,7 @@ class GoogleAuthUtil2(private val mActivity: FragmentActivity) : CoroutineScope 
                     try {
                         //使用googleIdTokenCredentials并提取ID进行验证和在服务器上进行身份验证
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                        onSuccess(googleIdTokenCredential)
+                        onSuccess(GoogleInfoBean(googleIdTokenCredential))
                     } catch (e: GoogleIdTokenParsingException) {
                         throw RuntimeException("收到无效的google id令牌响应:$e")
                     }
