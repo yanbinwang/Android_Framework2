@@ -13,18 +13,33 @@ import android.view.View
 import androidx.exifinterface.media.ExifInterface
 import androidx.exifinterface.media.ExifInterface.*
 import com.example.common.BaseApplication
+import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.file.deleteDir
 import com.example.common.utils.file.isMkdirs
-import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InputStream
 import java.util.*
+
+/**
+ * 读取mipmap下的图片
+ */
+fun Context?.decodeResource(id: Int): Bitmap? {
+    this ?: return null
+    return BitmapFactory.decodeResource(this.resources, id)
+}
+
+/**
+ * 获取asset下的图片
+ * "share/img_order_share_logo.webp".decodeAsset()
+ */
+fun String?.decodeAsset(): Bitmap? {
+    this ?: return null
+    return BaseApplication.instance.assets.open(this).use { BitmapFactory.decodeStream(it) }
+}
 
 /**
  * 获取路径图片的宽高
@@ -43,28 +58,27 @@ fun String?.decodeDimensions(): IntArray? {
 }
 
 /**
- * 获取asset下的图片
- * "share/img_order_share_logo.webp".decodeAsset()
+ * 判断一个路径地址是否为一张图片
+ * inJustDecodeBounds=true不会把图片放入内存，只会获取宽高，判断当前路径是否为图片，是的话捕获文件路径
  */
-fun String?.decodeAsset(): Bitmap? {
-    this ?: return null
-    var stream: InputStream? = null
-    return try {
-        stream = BaseApplication.instance.assets.open(this)
-        BitmapFactory.decodeStream(stream)
-    } catch (e: Exception) {
-        null
-    } finally {
-        stream?.close()
-    }
+fun String?.decodeFile(): Boolean {
+    this ?: return false
+    val options = BitmapFactory.Options()
+    options.inJustDecodeBounds = true
+    BitmapFactory.decodeFile(this, options)
+    return options.outWidth != -1
 }
 
 /**
- * 读取mipmap下的图片
+ * 重设bitmap大小
  */
-fun Context?.decodeResource(id: Int): Bitmap? {
+fun Bitmap?.resizeBitmap(w: Int, h: Int): Bitmap? {
     this ?: return null
-    return BitmapFactory.decodeResource(this.resources, id)
+    val matrix = Matrix()
+    matrix.postScale(w / width.toSafeFloat(), h / height.toSafeFloat()) //长和宽放大缩小的比例
+    val resultBitmap = Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
+    recycle()
+    return resultBitmap
 }
 
 /**
@@ -95,6 +109,45 @@ fun Bitmap?.scaleBitmap(): Bitmap? {
 }
 
 /**
+ * 保存bitmap
+ * root->图片保存路径
+ * fileName->图片名称（扣除jpg和png的后缀）
+ * deleteDir->是否清除目录
+ * format->图片类型
+ * quality->压缩率
+ */
+fun Bitmap?.saveBitmap(root: String = getStoragePath("保存图片"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
+    this ?: return null
+    //存储目录文件
+    val storeDir = File(root)
+    //先判断是否需要清空目录，再判断是否存在（不存在则创建）
+    if (deleteDir) root.deleteDir()
+    root.isMkdirs()
+    //在目录文件夹下生成一个新的图片
+    val file = File(storeDir, "${fileName}.${format.getSuffix()}")
+    //开流开始写入
+    file.outputStream().use { outputStream ->
+        //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
+        compress(format, if (format != PNG) quality else 100, outputStream)
+        outputStream.flush()
+        recycle()
+    }
+    return file.absolutePath
+}
+
+/**
+ * 根据要保存的格式，返回对应后缀名
+ * 安卓只支持一下三种
+ */
+private fun Bitmap.CompressFormat.getSuffix(): String {
+    return when (this) {
+        JPEG -> "jpg"
+        PNG -> "png"
+        else -> "webp"
+    }
+}
+
+/**
  * 根据宽高缩放图片
  */
 fun Drawable.zoomDrawable(w: Int, h: Int = w): Drawable {
@@ -115,101 +168,6 @@ fun Drawable.drawableToBitmap(): Bitmap {
     setBounds(0, 0, intrinsicWidth, intrinsicHeight)
     draw(canvas)
     return bitmap
-}
-
-/**
- * bitmap->存储的bitmap
- * root->图片保存路径
- * fileName->图片名称（扣除jpg和png的后缀）
- * deleteDir->是否清除目录
- * format->图片类型
- * quality->压缩率
- */
-fun saveBit(bitmap: Bitmap, root: String = "${STORAGE}/保存图片", fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
-    //存储目录文件
-    val storeDir = File(root)
-    //先判断是否需要清空目录，再判断是否存在（不存在则创建）
-    if (deleteDir) root.deleteDir()
-    root.isMkdirs()
-    //在目录文件夹下生成一个新的图片
-    val file = File(storeDir, "${fileName}${format.getSuffix()}")
-    var fileOutputStream : FileOutputStream? = null
-    //开流开始写入
-    try {
-        fileOutputStream = FileOutputStream(file)
-        //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
-        bitmap.compress(format, if (format != PNG) quality else 100, fileOutputStream)
-    } catch (_: Exception) {
-    } finally {
-        fileOutputStream?.flush()
-        fileOutputStream?.close()
-        bitmap.recycle()
-    }
-    return file.absolutePath
-}
-
-/**
- * 根据要保存的格式，返回对应后缀名
- * 安卓只支持一下三种
- */
-private fun Bitmap.CompressFormat.getSuffix(): String {
-    return when (this) {
-        JPEG -> ".jpg"
-        PNG -> ".png"
-        else -> ".webp"
-    }
-}
-
-/**
- * 旋转图片
- * 修整部分图片方向不正常
- * 取得一个新的图片文件
- */
-fun Context.degreeImage(file: File, delete: Boolean = false): File {
-    val degree = readDegree(file.absolutePath)
-    var bitmap: Bitmap
-    return if (degree != 0f) {
-        val matrix = Matrix()
-        matrix.postRotate(degree)
-        BitmapFactory.decodeFile(file.absolutePath).let {
-            bitmap = Bitmap.createBitmap(it, 0, 0, it.width, it.height, matrix, true)
-            it.recycle()
-        }
-        val tempFile = File(applicationContext.externalCacheDir, file.name.replace(".jpg", "_degree.jpg"))
-        var fileOutputStream : FileOutputStream? = null
-        try {
-            fileOutputStream = FileOutputStream(tempFile)
-            bitmap.compress(JPEG, 100, fileOutputStream)
-            if (delete) file.delete()
-            tempFile
-        } catch (e: IOException) {
-            file
-        } finally {
-            fileOutputStream?.flush()
-            fileOutputStream?.close()
-            bitmap.recycle()
-        }
-    } else file
-}
-
-/**
- * 读取图片的方向
- * 部分手机拍摄需要设置手机屏幕screenOrientation
- * 不然会读取为0
- */
-fun readDegree(path: String): Float {
-    var degree = 0f
-    var exifInterface: ExifInterface? = null
-    try {
-        exifInterface = ExifInterface(path)
-    } catch (_: IOException) {
-    }
-    when (exifInterface?.getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL)) {
-        ORIENTATION_ROTATE_90 -> degree = 90f
-        ORIENTATION_ROTATE_180 -> degree = 180f
-        ORIENTATION_ROTATE_270 -> degree = 270f
-    }
-    return degree
 }
 
 /**
@@ -237,18 +195,6 @@ fun View?.getBitmapFromView(w: Int? = null, h: Int? = null, needBg: Boolean = tr
 }
 
 /**
- * 重设bitmap大小
- */
-fun Bitmap?.resizeBitmap(w: Int, h: Int): Bitmap? {
-    this ?: return null
-    val matrix = Matrix()
-    matrix.postScale(w / width.toSafeFloat(), h / height.toSafeFloat()) //长和宽放大缩小的比例
-    val resultBitmap = Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
-    recycle()
-    return resultBitmap
-}
-
-/**
  * 当measure完后，并不会实际改变View的尺寸，需要调用View.layout方法去进行布局
  * 按示例调用layout函数后，View的大小将会变成你想要设置成的大小
  */
@@ -261,7 +207,9 @@ fun View.loadLayout(width: Int, height: Int) {
     layout(0, 0, getMeasuredWidth(), getMeasuredHeight())
 }
 
-//如果不设置canvas画布为白色，则生成透明
+/**
+ * 如果不设置canvas画布为白色，则生成透明
+ */
 fun View.loadBitmap(): Bitmap {
     val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
@@ -269,6 +217,52 @@ fun View.loadBitmap(): Bitmap {
     layout(0, 0, width, height)
     draw(canvas)
     return bitmap
+}
+
+/**
+ * 旋转图片
+ * 修整部分图片方向不正常
+ * 取得一个新的图片文件
+ */
+fun degreeImage(file: File, delete: Boolean = false): File {
+    var mFile = file
+    if (readDegree(file.absolutePath) != 0f) {
+        var bitmap: Bitmap
+        val matrix = Matrix()
+        BitmapFactory.decodeFile(file.absolutePath).let {
+            bitmap = Bitmap.createBitmap(it, 0, 0, it.width, it.height, matrix, true)
+            it.recycle()
+        }
+        val tempFile = File(getStoragePath("保存图片"), file.name.replace(".jpg", "_degree.jpg"))
+        if (tempFile.exists()) tempFile.delete()
+        tempFile.outputStream().use { outputStream ->
+            bitmap.compress(JPEG, 100, outputStream)
+            if (delete) file.delete()
+            mFile = tempFile
+        }
+        bitmap.recycle()
+    }
+    return mFile
+}
+
+/**
+ * 读取图片的方向
+ * 部分手机拍摄需要设置手机屏幕screenOrientation
+ * 不然会读取为0
+ */
+fun readDegree(path: String): Float {
+    var degree = 0f
+    var exifInterface: ExifInterface? = null
+    try {
+        exifInterface = ExifInterface(path)
+    } catch (_: IOException) {
+    }
+    when (exifInterface?.getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL)) {
+        ORIENTATION_ROTATE_90 -> degree = 90f
+        ORIENTATION_ROTATE_180 -> degree = 180f
+        ORIENTATION_ROTATE_270 -> degree = 270f
+    }
+    return degree
 }
 
 /**

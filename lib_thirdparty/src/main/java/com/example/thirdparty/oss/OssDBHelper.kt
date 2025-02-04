@@ -1,8 +1,9 @@
 package com.example.thirdparty.oss
 
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.file.deleteFile
-import com.example.common.utils.helper.AccountHelper.STORAGE
 import com.example.common.utils.helper.AccountHelper.getUserId
+import com.example.framework.utils.function.value.safeSize
 import com.example.greendao.bean.OssDB
 import com.example.greendao.dao.OssDBDao
 
@@ -17,7 +18,7 @@ object OssDBHelper {
      * application中调取
      */
     fun init(dao: OssDBDao) {
-        this.dao = dao
+        OssDBHelper.dao = dao
     }
 
     /**
@@ -90,20 +91,20 @@ object OssDBHelper {
         }
     }
 
-    /**
-     * 获取对应文件在手机内的路径
-     */
-    @JvmStatic
-    fun sourcePath(appType: String, title: String): String {
-        return "${STORAGE}/${
-            when (appType) {
-                "1" -> "拍照"
-                "2" -> "录音"
-                "3" -> "录像"
-                else -> "录屏"
-            }
-        }/${title}"
-    }
+//    /**
+//     * 获取对应文件在手机内的路径
+//     */
+//    @JvmStatic
+//    fun sourcePath(appType: String, title: String): String {
+//        return "${STORAGE}/${
+//            when (appType) {
+//                "1" -> "拍照"
+//                "2" -> "录音"
+//                "3" -> "录像"
+//                else -> "录屏"
+//            }
+//        }/${title}"
+//    }
 
     /**
      * 开始上传文件
@@ -127,16 +128,6 @@ object OssDBHelper {
     }
 
     /**
-     * 文件是否正在上传
-     */
-    @JvmStatic
-    fun isUpload(baoquan: String): Boolean {
-        val bean = query(baoquan)
-        bean ?: return false
-        return bean.state == 0
-    }
-
-    /**
      * 完成上传，通常此时这条数据已经被删除不存在了
      */
     @JvmStatic
@@ -148,6 +139,27 @@ object OssDBHelper {
     }
 
     /**
+     * 更新数据库中所有数据的上传状态
+     */
+    @JvmStatic
+    fun addObserver(observer: LifecycleOwner) {
+        //以main为底座，绑定main的生命周期
+        OssFactory.instance.cancelAllWork(observer)
+        //加载数据前，让数据库中所有上传中状态的数据，变为未上传
+        dao?.loadAll()?.forEach { updateUpload(it.baoquan, false) }
+    }
+
+    /**
+     * 文件是否正在上传
+     */
+    @JvmStatic
+    fun isUpload(baoquan: String): Boolean {
+        val bean = query(baoquan)
+        bean ?: return false
+        return bean.state == 0
+    }
+
+    /**
      * 文件是否完成上传
      */
     @JvmStatic
@@ -155,6 +167,22 @@ object OssDBHelper {
         val bean = query(baoquan)
         bean ?: return false
         return bean.state == 2
+    }
+
+    /**
+     * 当前用户是否有正在提交的数据
+     */
+    @JvmStatic
+    fun isSubmit(): Boolean {
+        return submitNumber() > 0
+    }
+
+    /**
+     * 当前上传数
+     */
+    @JvmStatic
+    fun submitNumber(): Int {
+        return query()?.filter { it.state == 0 }.safeSize
     }
     // </editor-fold>
 

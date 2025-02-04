@@ -26,6 +26,7 @@ class TelephonyObserver(private val mActivity: FragmentActivity) : LifecycleEven
         private var listener: OnTelephonyListener? = null
 
         @JvmStatic
+        @Synchronized
         private fun onChanged(state: Int) {
             when (state) {
                 //手机状态：空闲状态
@@ -69,20 +70,6 @@ class TelephonyObserver(private val mActivity: FragmentActivity) : LifecycleEven
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.S)
-    private class MyCallStateListener : TelephonyCallback(), CallStateListener {
-        override fun onCallStateChanged(state: Int) {
-            onChanged(state)
-        }
-    }
-
-    private class MyPhoneStateListener : PhoneStateListener() {
-        override fun onCallStateChanged(state: Int, phoneNumber: String) {
-            super.onCallStateChanged(state, phoneNumber)
-            onChanged(state)
-        }
-    }
-
     /**
      * 设置回调监听
      */
@@ -108,6 +95,21 @@ class TelephonyObserver(private val mActivity: FragmentActivity) : LifecycleEven
          * 接电话状态
          */
         fun onOffHook()
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.S)
+    private class MyCallStateListener : TelephonyCallback(), CallStateListener {
+        override fun onCallStateChanged(state: Int) {
+            onChanged(state)
+        }
+    }
+
+    private class MyPhoneStateListener : PhoneStateListener() {
+        @Deprecated("Deprecated in Java")
+        override fun onCallStateChanged(state: Int, phoneNumber: String) {
+            super.onCallStateChanged(state, phoneNumber)
+            onChanged(state)
+        }
     }
 
 }

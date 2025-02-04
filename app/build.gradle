@@ -61,7 +61,8 @@ android {
         manifestPlaceholders = [
                 PACKAGE_NAME : build_config.applicationId,
                 DESIGN_WIDTH : build_config.DESIGN_WIDTH,
-                DESIGN_HEIGHT: build_config.DESIGN_HEIGHT
+                DESIGN_HEIGHT: build_config.DESIGN_HEIGHT,
+                AMAP_API_KEY : build_config.AMAP_API_KEY
         ]
     }
 
@@ -70,12 +71,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = '11'
     }
 
     buildTypes {

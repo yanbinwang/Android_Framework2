@@ -366,22 +366,22 @@ fun EditText?.getNumber(): String {
     return text.toString().ifEmpty { "0" }
 }
 
-fun EditText?.add(number: String) {
+fun EditText?.add(number: String?) {
     this ?: return
     setText(getNumber().add(number))
 }
 
-fun EditText?.subtract(number: String) {
+fun EditText?.subtract(number: String?) {
     this ?: return
     setText(getNumber().subtract(number))
 }
 
-fun EditText?.multiply(number: String) {
+fun EditText?.multiply(number: String?) {
     this ?: return
     setText(getNumber().multiply(number))
 }
 
-fun EditText?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
+fun EditText?.divide(number: String?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
     this ?: return
     setText(getNumber().divide(number, scale, mode))
 }

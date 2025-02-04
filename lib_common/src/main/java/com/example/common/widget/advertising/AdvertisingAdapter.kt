@@ -27,14 +27,15 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.itemView.click { onItemClick?.invoke(position.mod(list.safeSize)) }
-        val bean = list.safeGet(position.mod(list.safeSize)).orEmpty()
-        val image = holder.itemView as? ImageView ?: return
-        if (localAsset) {
-//            image.setDrawable(holder.itemView.context.defTypeMipmap(bean))
-            ImageLoader.instance.displayRound(image, holder.itemView.context.defTypeMipmap(bean), radius = radius.pt)
-        } else {
-            ImageLoader.instance.displayRound(image, bean, radius = radius.pt)
+        holder.itemView.apply {
+            click { onItemClick?.invoke(position.mod(list.safeSize)) }
+            val bean = list.safeGet(position.mod(list.safeSize)) ?: return
+            val image = (this as? ImageView) ?: return
+            if (localAsset) {
+                ImageLoader.instance.displayRoundDefType(image, context.defTypeMipmap(bean), radius = radius.pt)
+            } else {
+                ImageLoader.instance.displayRound(image, bean, radius = radius.pt)
+            }
         }
     }
 

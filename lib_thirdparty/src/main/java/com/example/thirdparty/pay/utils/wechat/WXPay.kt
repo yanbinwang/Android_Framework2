@@ -10,7 +10,7 @@ import com.example.thirdparty.R
 import com.example.thirdparty.utils.wechat.WXManager
 import com.tencent.mm.opensdk.modelpay.PayReq
 
-class WXPay(owner: LifecycleOwner? = null) {
+class WXPay(owner: LifecycleOwner) {
     //通过WXAPIFactory工厂，获取IWXAPI的实例
     private val wxApi by lazy { WXManager.instance.regToWx(owner) }
 
@@ -32,21 +32,21 @@ class WXPay(owner: LifecycleOwner? = null) {
                 false
             })) {
             results(R.string.wechatSupportError)
-            return
+        } else {
+            //发起支付
+            results(R.string.payInitiate, false)
+            val result = wxApi?.sendReq(req)
+            "支付状态:${result}".logWTF
+            if (!result.orFalse) results(R.string.payFailure)
         }
-        //发起支付
-        results(R.string.payInitiate, false)
-        val result = wxApi?.sendReq(req)
-        "支付状态:${result}".logWTF
-        if (!result.orFalse) results(R.string.payCancel)
     }
 
     /**
      * 统一处理
      */
-    private fun results(resId: Int, isPost: Boolean = true) {
+    private fun results(resId: Int, type: Boolean = true) {
         resId.shortToast()
-        if (isPost) EVENT_PAY_FAILURE.post()
+        if (type) EVENT_PAY_FAILURE.post()
     }
 
 }

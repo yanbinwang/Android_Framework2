@@ -10,7 +10,12 @@ import android.graphics.Color
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.*
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.view.animation.AnimationSet
+import android.view.animation.Interpolator
+import android.view.animation.ScaleAnimation
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import com.example.framework.utils.function.value.orZero
@@ -20,7 +25,7 @@ import com.example.framework.utils.function.view.setPxTextSize
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
-import java.util.*
+import java.util.Locale
 
 /**
  * @description 动画工具类
@@ -28,8 +33,48 @@ import java.util.*
  */
 @SuppressLint("SetTextI18n")
 class AnimationUtil(private val view: View?, private val millisecond: Long) {
-    private val animationList by lazy { ArrayList<Animator>() }
     private var interpolator: Interpolator = AccelerateDecelerateInterpolator()
+    private val animationList by lazy { ArrayList<Animator>() }
+
+    companion object {
+        /**
+         * 进入
+         */
+        @JvmStatic
+        fun Context.elasticityEnter(): AnimationSet {
+            return AnimationSet(this, null).apply {
+                val alpha = AlphaAnimation(0.0f, 1.0f)
+                alpha.duration = 90
+                val scale1 = ScaleAnimation(0.8f, 1.05f, 0.8f, 1.05f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                scale1.duration = 135
+                val scale2 = ScaleAnimation(1.05f, 0.95f, 1.05f, 0.95f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                scale2.duration = 105
+                scale2.startOffset = 135
+                val scale3 = ScaleAnimation(0.95f, 1f, 0.95f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                scale3.duration = 60
+                scale3.startOffset = 240
+                addAnimation(alpha)
+                addAnimation(scale1)
+                addAnimation(scale2)
+                addAnimation(scale3)
+            }
+        }
+
+        /**
+         * 退出
+         */
+        @JvmStatic
+        fun Context.elasticityExit(): AnimationSet {
+            return AnimationSet(this, null).apply {
+                val alpha = AlphaAnimation(1.0f, 0.0f)
+                alpha.duration = 150
+                val scale = ScaleAnimation(1.0f, 0.6f, 1.0f, 0.6f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                scale.duration = 150
+                addAnimation(alpha)
+                addAnimation(scale)
+            }
+        }
+    }
 
     /**
      * 动画执行次数
@@ -133,6 +178,13 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
     /**
      * 设置背景颜色动画
      */
+    fun bgColor(start: String, end: String): AnimationUtil {
+        if (view == null) return this
+        val colorStart = Color.parseColor(start)
+        val colorEnd = Color.parseColor(end)
+        return bgColor(colorStart, colorEnd)
+    }
+
     fun bgColor(@ColorInt colorStart: Int, @ColorInt colorEnd: Int): AnimationUtil {
         if (view == null) return this
         val argbEvaluator = ArgbEvaluator()
@@ -230,7 +282,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
             val mValue = (animation.animatedValue as? Float)?.toSafeInt()
             //设置高度
             val layoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams
-            layoutParams?.leftMargin = mValue
+            layoutParams?.leftMargin = mValue.orZero
             view.layoutParams = layoutParams
         }
         animationList.add(animator)
@@ -255,7 +307,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         animator.addUpdateListener { animation ->
             val mValue = (animation.animatedValue as? Float)?.toSafeInt()
             val layoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams
-            layoutParams?.rightMargin = mValue
+            layoutParams?.rightMargin = mValue.orZero
             view.layoutParams = layoutParams
         }
         animationList.add(animator)
@@ -325,40 +377,4 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         animSet.start()
     }
 
-}
-
-/**
- * 进入
- */
-fun Context.enterAnimation(): AnimationSet {
-    return AnimationSet(this, null).apply {
-        val alpha = AlphaAnimation(0.0f, 1.0f)
-        alpha.duration = 90
-        val scale1 = ScaleAnimation(0.8f, 1.05f, 0.8f, 1.05f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale1.duration = 135
-        val scale2 = ScaleAnimation(1.05f, 0.95f, 1.05f, 0.95f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale2.duration = 105
-        scale2.startOffset = 135
-        val scale3 = ScaleAnimation(0.95f, 1f, 0.95f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale3.duration = 60
-        scale3.startOffset = 240
-        addAnimation(alpha)
-        addAnimation(scale1)
-        addAnimation(scale2)
-        addAnimation(scale3)
-    }
-}
-
-/**
- * 退出
- */
-fun Context.exitAnimation(): AnimationSet {
-    return AnimationSet(this, null).apply {
-        val alpha = AlphaAnimation(1.0f, 0.0f)
-        alpha.duration = 150
-        val scale = ScaleAnimation(1.0f, 0.6f, 1.0f, 0.6f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale.duration = 150
-        addAnimation(alpha)
-        addAnimation(scale)
-    }
 }

@@ -4,13 +4,20 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Paint
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.view.*
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.AlphaAnimation
@@ -21,7 +28,16 @@ import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.BaseExpandableListAdapter
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.ExpandableListView
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RadioButton
+import android.widget.TextView
 import androidx.annotation.AnimRes
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
@@ -31,7 +47,9 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.parseColor
@@ -447,6 +465,37 @@ fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
 }
 
 /**
+ * 展开页面按钮的动画，传入是否是展开状态
+ */
+//fun View?.rotate(isOpen: Boolean = false): Boolean {
+//    if (this == null) return isOpen
+//    if (animation != null) {
+//        if (animation.hasStarted() && !animation.hasEnded()) return isOpen
+//    }
+//    val startRot = if (isOpen) 180f else 0f
+//    val endRot = if (isOpen) 0f else 180f
+//    val anim = AnimatorSet()
+//    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
+//    anim.duration = 500
+//    anim.start()
+//    return !isOpen
+//}
+fun View?.rotate() {
+    if (this == null) return
+    if (animation != null) {
+        if (animation.hasStarted() && !animation.hasEnded()) return
+    }
+    val isRotate = tag as? Boolean ?: false
+    val startRot = if (isRotate) 180f else 0f
+    val endRot = if (isRotate) 0f else 180f
+    tag = !isRotate
+    val anim = AnimatorSet()
+    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
+    anim.duration = 500
+    anim.start()
+}
+
+/**
  * 旋轉
  */
 fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
@@ -462,23 +511,6 @@ fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
     anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f))
     anim.duration = time
     anim.start()
-}
-
-/**
- * 展开页面按钮的动画，传入是否是展开状态
- */
-fun View?.rotate(isOpen: Boolean = false): Boolean {
-    if (this == null) return isOpen
-    if (animation != null) {
-        if (animation.hasStarted() && !animation.hasEnded()) return isOpen
-    }
-    val startRot = if (isOpen) 180f else 0f
-    val endRot = if (isOpen) 0f else 180f
-    val anim = AnimatorSet()
-    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
-    anim.duration = 500
-    anim.start()
-    return !isOpen
 }
 
 /**
@@ -620,15 +652,6 @@ fun View?.stopHardwareAccelerate() {
     setLayerType(View.LAYER_TYPE_SOFTWARE, Paint())
 }
 
-///**
-// * 在viewgroup中插入一个xml引用的view，需设置这个view的root目录撑满
-// * 可调用该方法
-// */
-//fun View?.layoutParamsMatch() {
-//    if (this == null) return
-//    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
-//}
-
 /**
  * 控件获取焦点
  */
@@ -733,6 +756,8 @@ fun ImageView?.tint(@ColorRes res: Int) {
 
 /**
  * 图片src资源
+ * setImageResource()里面是int类型 无法使用setImageResource来清空图片,不过Bitmap可以设置为nul从而达到设置为空的效果
+ * 设置setImageDrawable(null)
  */
 fun ImageView?.setDrawable(resId: Drawable?) {
     this ?: return
@@ -741,6 +766,8 @@ fun ImageView?.setDrawable(resId: Drawable?) {
 
 fun ImageView?.setResource(@DrawableRes resId: Int) {
     this ?: return
+    //‌调用setImageResource(0)会导致ImageView显示一个默认的占位符图片，而不是显示任何有效的图像资源‌
+    //-1则会闪退报错
     setImageResource(resId)
 }
 
@@ -753,6 +780,25 @@ fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
 }
 
 /**
+ * 设置一个新的bitmap
+ */
+fun ImageView?.setBitmap(observer: LifecycleOwner, bit: Bitmap?) {
+    this ?: return
+    observer.doOnDestroy { recycle() }
+    recycle()
+    setImageBitmap(bit)
+}
+
+/**
+ * imageview回收
+ */
+fun ImageView?.recycle() {
+    this ?: return
+    val oldBitmap = (getDrawable() as? BitmapDrawable)?.bitmap
+    oldBitmap?.recycle()
+}
+
+/**
  * appbar监听
  */
 fun AppBarLayout?.stateChanged(func: (state: AppBarStateChangeListener.State?) -> Unit?) {
@@ -762,6 +808,16 @@ fun AppBarLayout?.stateChanged(func: (state: AppBarStateChangeListener.State?) -
             func.invoke(state)
         }
     })
+}
+
+/**
+ * 可折叠list初始化
+ */
+fun ExpandableListView?.init(adapter: BaseExpandableListAdapter) {
+    this ?: return
+    setGroupIndicator(null)//去除右侧箭头
+    setOnGroupClickListener { _, _, _, _ -> true }//使列表不能点击收缩
+    setAdapter(adapter)
 }
 
 /**

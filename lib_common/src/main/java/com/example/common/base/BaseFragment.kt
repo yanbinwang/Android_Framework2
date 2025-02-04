@@ -28,7 +28,7 @@ import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.socket.topic.WebSocketRequest
-import com.example.common.utils.AppManager
+import com.example.common.utils.manager.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
@@ -68,10 +68,10 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
+    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
+    protected val mActivityResult = activity.registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { AppDialog(mActivity) }
     protected val mPermission by lazy { PermissionHelper(mActivity) }
-    protected val mActivityResult = activity.registerResult { onActivityResultListener?.invoke(it) }
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(mActivity) }
     private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
@@ -173,6 +173,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun onDetach() {
         super.onDetach()
+        clearOnActivityResultListener()
         for ((key, value) in dataManager) {
             key.removeObserver(value)
         }

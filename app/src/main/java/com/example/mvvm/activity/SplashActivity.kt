@@ -8,6 +8,7 @@ import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.fullScreen
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
+import com.example.framework.utils.function.value.second
 import me.jessyan.autosize.internal.CancelAdapt
 
 /**
@@ -43,7 +44,7 @@ class SplashActivity : BaseActivity<ViewDataBinding>(), CancelAdapt {
         super.onCreate(savedInstanceState)
         schedule({
             navigation(ARouterPath.MainActivity).finish()
-        }, 2000)
+        }, 2.second)
     }
 
 }

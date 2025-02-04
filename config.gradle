@@ -6,7 +6,7 @@ def versions = [:]
 versions.appcompat = "1.6.1"
 versions.constraintlayout = "2.1.4"
 versions.recyclerview = "1.2.1"
-versions.core = "1.10.0"
+versions.core = "1.12.0"
 //versions.splashscreen = "1.0.0"
 versions.viewmodel = "2.6.1"
 versions.livedata = "2.6.1"
@@ -88,6 +88,7 @@ def build_config = [:]
 build_config.applicationId = "com.example.mvvm"//主appId（包名）
 build_config.DESIGN_WIDTH = "375"
 build_config.DESIGN_HEIGHT = "667"
+build_config.AMAP_API_KEY = "feb098c99b26513b0bfa5008b64eefa7"
 ext.build_config = build_config
 
 //数据库参数配置

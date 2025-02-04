@@ -218,6 +218,17 @@ fun <T> List<T>.toArrayList(): ArrayList<T> {
 }
 
 /**
+ * 取得async异步协程集合后，拿取对应的值强转
+ */
+fun <T> List<Any?>?.toObj(position: Int): T? {
+    return when {
+        isNullOrEmpty() -> null
+        position in indices -> get(position) as? T
+        else -> null
+    }
+}
+
+/**
  * list1为服务器中数据
  * list2为本地存储数据
  * isDuplicate:是否返回重复的或不重复的数据
@@ -380,6 +391,18 @@ val CharArray?.randomItem: Char?
  * val list = listOf("1111","2222","3333")
  * list.join(",")
  * 1111,2222,3333
+ *
+ * ArrayList<String>().apply {
+ * Triple(
+ *     mBinding?.ckDeal?.isChecked.orFalse,
+ *     mBinding?.ckTraded?.isChecked.orFalse,
+ *     mBinding?.ckBlock?.isChecked.orFalse
+ * ).toList().forEachIndexed { index, boolean ->
+ *     if (boolean) {
+ *         add((index + 1).toString())
+ *     }
+ * }
+ * }.join(",")
  */
 fun List<String>?.join(separator: String): String {
     if (isNullOrEmpty()) return ""
@@ -395,7 +418,7 @@ fun List<String>?.join(separator: String): String {
  *  val list = listOf("1" to true, "2" to true, "3" to true)
  *  部分接口参数需要id逗号拼接或者特殊符号拼接，可以使用当前方式提取出其中选中的值
  */
-fun List<Pair<String, Boolean>>?.joinSelect(separator: String): String {
+fun List<Pair<String, Boolean>>?.joinFilter(separator: String): String {
     if (isNullOrEmpty()) return ""
     return filter { it.second }.toNewList { it.first }.join(separator)
 }
@@ -425,4 +448,12 @@ fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
         }
     }
     return json
+}
+
+/**
+ * pair处理（如果都不为空，则返回true）
+ */
+fun Pair<String?, String?>?.isNotEmpty(): Boolean {
+    this ?: return false
+    return !first.isNullOrEmpty() && !second.isNullOrEmpty()
 }

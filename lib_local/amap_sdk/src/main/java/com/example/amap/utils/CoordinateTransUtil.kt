@@ -180,6 +180,19 @@ object CoordinateTransUtil {
     }
 
     /**
+     * 百度坐标BD09 转 WGS84
+     *
+     * @param lng 经度
+     * @param lat 纬度
+     * @return WGS84 坐标：[经度，纬度]
+     */
+    @JvmStatic
+    fun transformBD09ToWGS84(lng: Double, lat: Double): DoubleArray {
+        val lngLat = transformBD09ToGCJ02(lng, lat)
+        return transformGCJ02ToWGS84(lngLat[0], lngLat[1])
+    }
+
+    /**
      * GCJ02 转百度坐标
      *
      * @param lng GCJ02 经度
@@ -246,19 +259,6 @@ object CoordinateTransUtil {
         ret += (20.0 * sin(lng * PI) + 40.0 * sin(lng / 3.0 * PI)) * 2.0 / 3.0
         ret += (150.0 * sin(lng / 12.0 * PI) + 300.0 * sin(lng / 30.0 * PI)) * 2.0 / 3.0
         return ret
-    }
-
-    /**
-     * 百度坐标BD09 转 WGS84
-     *
-     * @param lng 经度
-     * @param lat 纬度
-     * @return WGS84 坐标：[经度，纬度]
-     */
-    @JvmStatic
-    fun transformBD09ToWGS84(lng: Double, lat: Double): DoubleArray {
-        val lngLat = transformBD09ToGCJ02(lng, lat)
-        return transformGCJ02ToWGS84(lngLat[0], lngLat[1])
     }
 
 }

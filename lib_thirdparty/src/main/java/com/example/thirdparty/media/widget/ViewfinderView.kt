@@ -8,6 +8,10 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import com.example.common.utils.function.color
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.toSafeFloat
 
@@ -17,9 +21,9 @@ import com.example.framework.utils.function.value.toSafeFloat
  */
 @SuppressLint("DrawAllocation")
 class ViewfinderView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
-    private var screenRate = 20.pt//四个边角的长度
+    private val screenRate = 20.pt//四个边角的长度
     private val cornerWidth = 1.pt //四个边角的粗细
-    private val paint by lazy { Paint() } //画笔对象
+    private val paint = Paint()//画笔对象
 
     override fun onDraw(canvas: Canvas) {
         val frame = Rect(0, 0, width, height)
@@ -39,4 +43,26 @@ class ViewfinderView @JvmOverloads constructor(context: Context, attrs: Attribut
             drawRect((frame.right - cornerWidth).toSafeFloat(), (frame.bottom - screenRate).toSafeFloat(), frame.right.toSafeFloat(), frame.bottom.toSafeFloat(), paint)
         }
     }
+
+    fun onShutter() {
+        setBackgroundColor(color(android.R.color.black))
+        if (animation != null) {
+            if (animation.hasStarted() && !animation.hasEnded()) {
+                return
+            }
+        }
+        val anim = AlphaAnimation(1f, 0f)
+        anim.fillAfter = false
+        anim.duration = 500
+        anim.interpolator = AccelerateInterpolator()
+        anim.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationEnd(animation: Animation?) {
+                setBackgroundColor(color(android.R.color.transparent))
+            }
+            override fun onAnimationStart(animation: Animation?) {}
+            override fun onAnimationRepeat(animation: Animation?) {}
+        })
+        startAnimation(anim)
+    }
+
 }

@@ -9,9 +9,8 @@ import com.example.framework.utils.function.value.isDebug
 import com.example.greendao.dao.DaoMaster
 import com.example.mvvm.activity.MainActivity
 import com.example.thirdparty.album.GlideLoader
-import com.example.thirdparty.oss.OssFactory
 import com.example.thirdparty.oss.OssDBHelper
-import com.example.thirdparty.utils.wechat.WXManager
+import com.example.thirdparty.oss.OssFactory
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import com.zxy.recovery.core.Recovery
@@ -19,6 +18,8 @@ import java.util.Locale
 
 /**
  * Created by WangYanBin on 2020/8/14.
+ * 1.如果三方库不依赖于common库，则需要在application中初始化的方法统一放在BaseApplication中
+ * 2.如果依赖了common库，且在thirdparty中做了二次工具类的封装，此时若还需在application中初始化，放在MyApplication中
  */
 class MyApplication : BaseApplication() {
 
@@ -94,12 +95,12 @@ class MyApplication : BaseApplication() {
         ServiceSettings.updatePrivacyAgree(applicationContext, true)
     }
 
-    /**
-     * 程序被销毁时会调用，不保证100%调取
-     */
-    override fun onTerminate() {
-        super.onTerminate()
-        WXManager.instance.unRegToWx()
-    }
+//    /**
+//     * 程序被销毁时会调用，真机不会调取
+//     */
+//    override fun onTerminate() {
+//        super.onTerminate()
+//        WXManager.instance.unRegToWx()
+//    }
 
 }
