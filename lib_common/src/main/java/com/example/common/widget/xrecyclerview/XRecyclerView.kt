@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
 import androidx.databinding.ViewDataBinding
@@ -27,7 +26,6 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.getHolder
-import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.initConcat
 import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
@@ -204,6 +202,14 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
+     * 让列表滚动到对应下标点
+     */
+    fun scrollToPosition(position: Int) {
+        if (position < 0 || position > recycler?.adapter?.itemCount.orZero -1) recycler
+        recycler?.scrollToPosition(position)
+    }
+
+    /**
      * 刷新页面监听
      * 根据传入不同的监听，确定是否具备头和尾，无需在xml中指定
      */
@@ -260,14 +266,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 修改空布局背景颜色
      */
     fun setEmptyBackgroundColor(color: Int) = empty.setBackgroundColor(color)
-
-    /**
-     * 让列表滚动到对应下标点
-     */
-    fun scrollToPosition(position: Int) {
-        if (position < 0 || position > recycler?.adapter?.itemCount.orZero -1) recycler
-        recycler?.scrollToPosition(position)
-    }
 
     /**
      * 当数据正在加载的时候显示
