@@ -16,11 +16,7 @@ import java.util.Locale
  */
 class SideAdapter : BaseQuickAdapter<SortBean, ItemSideBinding>() {
 
-    override fun onConvert(
-        holder: BaseViewDataBindingHolder,
-        item: SortBean?,
-        payloads: MutableList<Any>?
-    ) {
+    override fun onConvert(holder: BaseViewDataBindingHolder, item: SortBean?, payloads: MutableList<Any>?) {
         super.onConvert(holder, item, payloads)
         mBinding?.apply {
             val position = holder.absoluteAdapterPosition
@@ -32,7 +28,6 @@ class SideAdapter : BaseQuickAdapter<SortBean, ItemSideBinding>() {
             } else {
                 tvLetter.gone()
             }
-
             val title = item?.name
             if (title?.contains("/").orFalse) {
                 val index = title?.indexOf("/").orZero
@@ -44,6 +39,9 @@ class SideAdapter : BaseQuickAdapter<SortBean, ItemSideBinding>() {
         }
     }
 
+    /**
+     * 获取传入对象标题ABCD的ascii码（java使用chatAt，kotlin使用code）
+     */
     fun getSectionForPosition(bean: SortBean?): Int? {
         return bean?.sortLetters?.get(0)?.code
     }

@@ -23,6 +23,7 @@ import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.getHolder
@@ -264,6 +265,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 让列表滚动到对应下标点
      */
     fun scrollToPosition(position: Int) {
+        if (position < 0 || position > recycler?.adapter?.itemCount.orZero -1) recycler
         recycler?.scrollToPosition(position)
     }
 

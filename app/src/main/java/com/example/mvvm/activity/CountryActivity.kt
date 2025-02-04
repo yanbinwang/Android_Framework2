@@ -32,9 +32,7 @@ class CountryActivity : BaseTitleActivity<ActivityCountryBinding>() {
         mBinding?.sideBar?.setOnTouchingLetterChangedListener(object : SideBar.OnTouchingLetterChangedListener {
             override fun onTouchingLetterChanged(s: String?) {
                 val position = mBinding?.adapter?.getPositionForSection(s?.get(0)?.code.orZero).orZero
-                if (position != -1) {
-                    mBinding?.xrvList?.scrollToPosition(position)
-                }
+                mBinding?.xrvList?.scrollToPosition(position)
             }
         })
         viewModel?.setOnEmptyRefreshListener {
