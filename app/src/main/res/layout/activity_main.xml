@@ -7,12 +7,12 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/tv_input"
+            android:id="@+id/tv_country"
             statusBar_margin="@{true}"
             android:layout_width="match_parent"
             android:layout_height="40pt"
             android:gravity="center"
-            android:text="打开输入框"
+            android:text="城市选择"
             android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize14" />
 
