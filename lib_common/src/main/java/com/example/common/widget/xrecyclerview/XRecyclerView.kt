@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
 import androidx.databinding.ViewDataBinding
@@ -27,7 +26,6 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.getHolder
-import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.initConcat
 import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
