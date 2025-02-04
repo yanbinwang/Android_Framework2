@@ -44,6 +44,7 @@ class TopSheetDialog : AppCompatDialog {
     }}
 
     companion object {
+        @JvmStatic
         private fun getThemeResId(context: Context, themeId: Int): Int {
             var mThemeId = themeId
             if (mThemeId == 0) {

@@ -90,6 +90,30 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private val advAdapter by lazy { AdvertisingAdapter() }
     //切线程
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+    //注册广告监听
+    private val callback by lazy { object : OnPageChangeCallback() {
+        private var curIndex = 0//当前选中的数组索引
+        private var oldIndex = 0//上次选中的数组索引
+        override fun onPageSelected(position: Int) {
+            super.onPageSelected(position)
+            //切换圆点
+            curIndex = position % list.size
+            if (null != ovalLayout) {
+                if (list.size > 1) {
+                    ovalLayout?.getChildAt(oldIndex)?.background = triple.second
+                    ovalLayout?.getChildAt(curIndex)?.background = triple.first
+                    oldIndex = curIndex
+                }
+            }
+            //切换
+            onPagerCurrent?.invoke(curIndex)
+        }
+
+        override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+            super.onPageScrolled(position, positionOffset, positionOffsetPixels)
+            allowScroll = positionOffsetPixels == 0
+        }
+    }}
     //回调方法
     private var onPagerClick: ((index: Int) -> Unit)? = null
     private var onPagerCurrent: ((index: Int) -> Unit)? = null
@@ -101,29 +125,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         banner = ViewPager2(context).apply {
             reduceSensitivity()
             adapter(advAdapter, userInputEnabled = true)
-            registerOnPageChangeCallback(object : OnPageChangeCallback() {
-                private var curIndex = 0//当前选中的数组索引
-                private var oldIndex = 0//上次选中的数组索引
-                override fun onPageSelected(position: Int) {
-                    super.onPageSelected(position)
-                    //切换圆点
-                    curIndex = position % list.size
-                    if (null != ovalLayout) {
-                        if (list.size > 1) {
-                            ovalLayout?.getChildAt(oldIndex)?.background = triple.second
-                            ovalLayout?.getChildAt(curIndex)?.background = triple.first
-                            oldIndex = curIndex
-                        }
-                    }
-                    //切换
-                    onPagerCurrent?.invoke(curIndex)
-                }
-
-                override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-                    super.onPageScrolled(position, positionOffset, positionOffsetPixels)
-                    allowScroll = positionOffsetPixels == 0
-                }
-            })
+            registerOnPageChangeCallback(callback)
 //            setOnTouchListener { _, event ->
 //                when (event?.action) {
 //                    MotionEvent.ACTION_UP -> if (autoScroll) startRoll()
@@ -149,7 +151,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         when (event) {
             Lifecycle.Event.ON_RESUME -> startRoll()
             Lifecycle.Event.ON_PAUSE -> stopRoll()
-            Lifecycle.Event.ON_DESTROY -> source.lifecycle.removeObserver(this)
+            Lifecycle.Event.ON_DESTROY -> {
+                banner?.unregisterOnPageChangeCallback(callback)
+                source.lifecycle.removeObserver(this)
+            }
             else -> {}
         }
     }

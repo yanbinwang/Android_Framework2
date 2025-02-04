@@ -11,7 +11,6 @@ import com.example.mvvm.activity.MainActivity
 import com.example.thirdparty.album.GlideLoader
 import com.example.thirdparty.oss.OssDBHelper
 import com.example.thirdparty.oss.OssFactory
-import com.example.thirdparty.utils.wechat.WXManager
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import com.zxy.recovery.core.Recovery
@@ -96,12 +95,12 @@ class MyApplication : BaseApplication() {
         ServiceSettings.updatePrivacyAgree(applicationContext, true)
     }
 
-    /**
-     * 程序被销毁时会调用，不保证100%调取
-     */
-    override fun onTerminate() {
-        super.onTerminate()
-        WXManager.instance.unRegToWx()
-    }
+//    /**
+//     * 程序被销毁时会调用，真机不会调取
+//     */
+//    override fun onTerminate() {
+//        super.onTerminate()
+//        WXManager.instance.unRegToWx()
+//    }
 
 }

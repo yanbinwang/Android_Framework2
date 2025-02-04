@@ -108,11 +108,12 @@ class OssFactory private constructor() : CoroutineScope {
         state = true to false
         initJob?.cancel()
         initJob = launch {
-            state = false to withContext(IO) { suspendingOSS() }
+            val value = withContext(IO) { suspendingOSSClient() }
+            state = false to value
         }
     }
 
-    private suspend fun suspendingOSS() = suspendCancellableCoroutine {
+    private suspend fun suspendingOSSClient() = suspendCancellableCoroutine {
         oss = OSSClient(BaseApplication.instance.applicationContext, "https://oss-cn-shenzhen.aliyuncs.com", object : OSSFederationCredentialProvider() {
             override fun getFederationToken(): OSSFederationToken? {
                 val stsUrl = URL("swallow/sts/aliyun/oss".byServerUrl)

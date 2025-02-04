@@ -32,13 +32,13 @@ class WXPay(owner: LifecycleOwner) {
                 false
             })) {
             results(R.string.wechatSupportError)
-            return
+        } else {
+            //发起支付
+            results(R.string.payInitiate, false)
+            val result = wxApi?.sendReq(req)
+            "支付状态:${result}".logWTF
+            if (!result.orFalse) results(R.string.payFailure)
         }
-        //发起支付
-        results(R.string.payInitiate, false)
-        val result = wxApi?.sendReq(req)
-        "支付状态:${result}".logWTF
-        if (!result.orFalse) results(R.string.payCancel)
     }
 
     /**

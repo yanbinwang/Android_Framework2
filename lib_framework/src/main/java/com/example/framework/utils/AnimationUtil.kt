@@ -10,7 +10,12 @@ import android.graphics.Color
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.*
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.view.animation.AnimationSet
+import android.view.animation.Interpolator
+import android.view.animation.ScaleAnimation
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import com.example.framework.utils.function.value.orZero
@@ -20,7 +25,7 @@ import com.example.framework.utils.function.view.setPxTextSize
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
-import java.util.*
+import java.util.Locale
 
 /**
  * @description 动画工具类
@@ -36,7 +41,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
          * 进入
          */
         @JvmStatic
-        fun Context.enterAnimation(): AnimationSet {
+        fun Context.elasticityEnter(): AnimationSet {
             return AnimationSet(this, null).apply {
                 val alpha = AlphaAnimation(0.0f, 1.0f)
                 alpha.duration = 90
@@ -59,7 +64,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
          * 退出
          */
         @JvmStatic
-        fun Context.exitAnimation(): AnimationSet {
+        fun Context.elasticityExit(): AnimationSet {
             return AnimationSet(this, null).apply {
                 val alpha = AlphaAnimation(1.0f, 0.0f)
                 alpha.duration = 150
@@ -173,6 +178,13 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
     /**
      * 设置背景颜色动画
      */
+    fun bgColor(start: String, end: String): AnimationUtil {
+        if (view == null) return this
+        val colorStart = Color.parseColor(start)
+        val colorEnd = Color.parseColor(end)
+        return bgColor(colorStart, colorEnd)
+    }
+
     fun bgColor(@ColorInt colorStart: Int, @ColorInt colorEnd: Int): AnimationUtil {
         if (view == null) return this
         val argbEvaluator = ArgbEvaluator()
@@ -270,7 +282,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
             val mValue = (animation.animatedValue as? Float)?.toSafeInt()
             //设置高度
             val layoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams
-            layoutParams?.leftMargin = mValue
+            layoutParams?.leftMargin = mValue.orZero
             view.layoutParams = layoutParams
         }
         animationList.add(animator)
@@ -295,7 +307,7 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
         animator.addUpdateListener { animation ->
             val mValue = (animation.animatedValue as? Float)?.toSafeInt()
             val layoutParams = view.layoutParams as? ViewGroup.MarginLayoutParams
-            layoutParams?.rightMargin = mValue
+            layoutParams?.rightMargin = mValue.orZero
             view.layoutParams = layoutParams
         }
         animationList.add(animator)

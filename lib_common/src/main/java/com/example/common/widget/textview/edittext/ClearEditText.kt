@@ -17,6 +17,7 @@ import androidx.annotation.StringRes
 import androidx.core.widget.addTextChangedListener
 import com.example.common.R
 import com.example.common.databinding.ViewClearEditBinding
+import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
@@ -40,7 +41,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     private var isDisabled = false//是否不可操作
     private var isShowBtn = true//是否显示清除按钮
     private var onTextChanged: ((s: Editable?) -> Unit)? = null
-    private var onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)? = null
     private val mBinding by lazy { ViewClearEditBinding.bind(context.inflate(R.layout.view_clear_edit)) }
     val editText get() = mBinding.etClear
 
@@ -51,9 +51,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
                 if (isDisabled || !isShowBtn) return@addTextChangedListener
                 mBinding.ivClear.visibility = if (it.toString().isEmpty()) View.GONE else View.VISIBLE
                 onTextChanged?.invoke(it)
-            }
-            onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
-                onFocusChange?.invoke(v, hasFocus)
             }
         }
         mBinding.ivClear.click { mBinding.etClear.setText("") }
@@ -89,6 +86,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             val maxLine = typedArray.getInt(R.styleable.ClearEditText_maxLine, -1)
             if (minLine > 0 || maxLine > 0) {
                 mBinding.etClear.isSingleLine = false
+                mBinding.etClear.setPaddingRelative(0, 10.pt, 0, 10.pt)
             } else {
                 mBinding.etClear.isSingleLine = true
                 mBinding.etClear.maxLines = 1
@@ -226,11 +224,11 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun setOnFocusChangeListener(onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)) {
-        this.onFocusChange = onFocusChange
+        mBinding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus -> onFocusChange.invoke(v, hasFocus) }
     }
 
     fun setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
-        editText.setOnEditorActionListener(listener)
+        mBinding.etClear.setOnEditorActionListener(listener)
     }
 
 }

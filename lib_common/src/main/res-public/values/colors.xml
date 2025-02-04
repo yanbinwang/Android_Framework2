@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 特定字体的颜色,不管何种模式基本不可改变（每种颜色最多3种样式，需要UI统一） -->
+    <color name="bgMain">#3d81f2</color>
     <color name="bgWhite">#ffffff</color>
     <color name="bgBlack">#000000</color>
     <color name="bgBlue">#3d81f2</color>
@@ -8,6 +9,7 @@
     <color name="textWhite">#ffffff</color>
     <color name="textRed">#E25728</color>
 <!--    &lt;!&ndash; 描边 &ndash;&gt;-->
+<!--    <color name="strokeMain">#3d81f2</color>-->
 <!--    <color name="strokeBlue">#3d81f2</color>-->
 <!--    <color name="strokeGrey">#999EA4</color>-->
 <!--    <color name="strokeRed">#E25728</color>-->

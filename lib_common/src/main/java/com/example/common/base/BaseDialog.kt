@@ -14,8 +14,8 @@ import android.view.WindowManager
 import androidx.databinding.ViewDataBinding
 import com.example.common.R
 import com.example.common.utils.function.pt
-import com.example.framework.utils.AnimationUtil.Companion.enterAnimation
-import com.example.framework.utils.AnimationUtil.Companion.exitAnimation
+import com.example.framework.utils.AnimationUtil.Companion.elasticityEnter
+import com.example.framework.utils.AnimationUtil.Companion.elasticityExit
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.logE
 import java.lang.reflect.ParameterizedType
@@ -54,9 +54,9 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
         }
         if (animation) {
             //当布局show出来的时候执行开始动画
-            setOnShowListener { dialogView?.startAnimation(context.enterAnimation()) }
+            setOnShowListener { dialogView?.startAnimation(context.elasticityEnter()) }
             //当布局销毁时执行结束动画
-            setOnDismissListener { dialogView?.startAnimation(context.exitAnimation()) }
+            setOnDismissListener { dialogView?.startAnimation(context.elasticityExit()) }
         }
         if (close) {
             setOnKeyListener { _: DialogInterface?, _: Int, _: KeyEvent? -> true }

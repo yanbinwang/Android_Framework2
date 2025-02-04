@@ -9,6 +9,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import android.text.format.Formatter
 import android.util.Base64
 import androidx.core.net.toUri
 import com.example.common.BaseApplication
@@ -20,8 +21,6 @@ import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.value.toSafeLong
 import com.example.framework.utils.logE
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.RandomAccessFile
 import java.math.BigDecimal
@@ -48,88 +47,6 @@ object FileUtil {
     }
 
     /**
-     * 获取文件base64位地址
-     */
-    @JvmStatic
-    fun base64WithFile(file: File): String {
-//        var base64 = ""
-//        var inputStream: InputStream? = null
-//        try {
-//            inputStream = FileInputStream(file)
-//            val bytes = ByteArray(inputStream.available())
-//            val length = inputStream.read(bytes)
-//            base64 = Base64.encodeToString(bytes, 0, length, Base64.DEFAULT)
-//        } catch (_: IOException) {
-//        } finally {
-//            try {
-//                inputStream?.close()
-//            } catch (e: IOException) {
-//                e.printStackTrace()
-//            }
-//        }
-//        return base64
-        var base64: String
-        file.inputStream().use { input ->
-            val bytes = ByteArray(input.available())
-            val length = input.read(bytes)
-            base64 = Base64.encodeToString(bytes, 0, length, Base64.DEFAULT)
-        }
-        return base64
-    }
-
-    /**
-     * 获取文件哈希值
-     * 满足64位哈希，不足则前位补0
-     */
-    @JvmStatic
-    fun hashWithFile(file: File): String {
-//        var hash = ""
-//        var inputStream: FileInputStream? = null
-//        try {
-//            inputStream = FileInputStream(file)
-//            val digest = MessageDigest.getInstance("SHA-256")
-//            val array = ByteArray(1024)
-//            var len: Int
-//            while (inputStream.read(array, 0, 1024).also { len = it } != -1) {
-//                digest.update(array, 0, len)
-//            }
-//            //检测是否补0
-//            val bigInt = BigInteger(1, digest.digest())
-//            hash = bigInt.toString(16)
-//            if (hash.length < 64) {
-//                for (i in 0 until 64 - hash.length) {
-//                    hash = "0$hash"
-//                }
-//            }
-//        } catch (_: Exception) {
-//        } finally {
-//            try {
-//                inputStream?.close()
-//            } catch (_: Exception) {
-//            }
-//        }
-//        return hash
-        var hash: String
-        file.inputStream().use { input ->
-            val digest = MessageDigest.getInstance("SHA-256")
-            val array = ByteArray(1024)
-            var len: Int
-            while (input.read(array, 0, 1024).also { len = it } != -1) {
-                digest.update(array, 0, len)
-            }
-            //检测是否需要补0
-            val bigInt = BigInteger(1, digest.digest())
-            hash = bigInt.toString(16)
-            if (hash.length < 64) {
-                for (i in 0 until 64 - hash.length) {
-                    hash = "0$hash"
-                }
-            }
-        }
-        return hash
-    }
-
-    /**
      * 获取整个目录的文件大小
      */
     @JvmStatic
@@ -143,171 +60,6 @@ object FileUtil {
             }
         }
         return size
-    }
-
-    /**
-     * 开始创建并写入tmp文件
-     * @param filePath  分割文件地址
-     * @param filePointer 分割文件大小
-     */
-    data class TmpInfo(var filePath: String? = null, var filePointer: Long? = null)
-
-    /**
-     * 文件分割
-     *
-     * @param targetFile 分割的文件
-     * @param cutSize    分割文件的大小
-     */
-    @JvmStatic
-    fun split(targetFile: File, cutSize: Long): MutableList<String> {
-//        val splitList = ArrayList<String>()
-//        //计算需要分割的文件总数
-//        val targetLength = targetFile.length()
-//        val size = if (targetLength.mod(cutSize) == 0L) {
-//            targetLength.div(cutSize)
-//        } else {
-//            targetLength.div(cutSize).plus(1)
-//        }.toSafeInt()
-//        //获取目标文件,预分配文件所占的空间,在磁盘中创建一个指定大小的文件(r:只读)
-//        var accessFile: RandomAccessFile? = null
-//        try {
-//            accessFile = RandomAccessFile(targetFile, "r")
-//            //文件的总大小
-//            val length = accessFile.length()
-//            //文件切片后每片的最大大小
-//            val maxSize = length / size
-//            //初始化偏移量
-//            var offSet = 0L
-//            //开始切片
-//            for (i in 0 until size - 1) {
-//                val begin = offSet
-//                val end = (i + 1) * maxSize
-//                val tmpInfo = write(targetFile.absolutePath, i, begin, end)
-//                offSet = tmpInfo.filePointer.orZero
-//                splitList.add(tmpInfo.filePath.orEmpty())
-//            }
-//            if (length - offSet > 0) {
-//                splitList.add(write(targetFile.absolutePath, size - 1, offSet, length).filePath.orEmpty())
-//            }
-//        } catch (_: Exception) {
-//        } finally {
-//            try {
-//                accessFile?.close()
-//            } catch (_: Exception) {
-//            }
-//            //确保返回的集合中不包含空路径
-//            for (i in splitList.indices.reversed()) {
-//                if (splitList.safeGet(i).isNullOrEmpty()) {
-//                    splitList.removeAt(i)
-//                }
-//            }
-//        }
-//        return splitList
-        val splitList = ArrayList<String>()
-        //计算需要分割的文件总数
-        val targetLength = targetFile.length()
-        val size = if (targetLength.mod(cutSize) == 0L) {
-            targetLength.div(cutSize)
-        } else {
-            targetLength.div(cutSize).plus(1)
-        }.toSafeInt()
-        //获取目标文件,预分配文件所占的空间,在磁盘中创建一个指定大小的文件(r:只读)
-        RandomAccessFile(targetFile, "r").use { accessFile ->
-            //文件的总大小
-            val length = accessFile.length()
-            //文件切片后每片的最大大小
-            val maxSize = length / size
-            //初始化偏移量
-            var offSet = 0L
-            //开始切片
-            for (i in 0 until size - 1) {
-                val begin = offSet
-                val end = (i + 1) * maxSize
-                val tmpInfo = write(targetFile.absolutePath, i, begin, end)
-                offSet = tmpInfo.filePointer.orZero
-                splitList.add(tmpInfo.filePath.orEmpty())
-            }
-            if (length - offSet > 0) {
-                splitList.add(write(targetFile.absolutePath, size - 1, offSet, length).filePath.orEmpty())
-            }
-            //确保返回的集合中不包含空路径
-            for (i in splitList.indices.reversed()) {
-                if (splitList.safeGet(i).isNullOrEmpty()) {
-                    splitList.removeAt(i)
-                }
-            }
-        }
-        return splitList
-    }
-
-    /**
-     * 开始创建并写入tmp文件
-     * @param filePath  源文件地址
-     * @param index 源文件的顺序标识
-     * @param begin 开始指针的位置
-     * @param end   结束指针的位置
-     */
-    @JvmStatic
-    fun write(filePath: String, index: Int, begin: Long, end: Long): TmpInfo {
-//        val info = TmpInfo()
-//        //源文件
-//        val file = File(filePath)
-//        //申明文件切割后的文件磁盘
-//        var inAccessFile: RandomAccessFile? = null
-//        //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
-//        val tmpFile = File("${file.parent}/${file.name.split(".")[0]}_${index}.tmp")
-//        //如果不存在，则创建一个或继续写入
-//        var outAccessFile: RandomAccessFile? = null
-//        try {
-//            inAccessFile = RandomAccessFile(file, "r")
-//            outAccessFile = RandomAccessFile(tmpFile, "rw")
-//            //申明具体每一文件的字节数组
-//            val b = ByteArray(1024)
-//            var n: Int
-//            //从指定位置读取文件字节流
-//            inAccessFile.seek(begin)
-//            //判断文件流读取的边界，从指定每一份文件的范围，写入不同的文件
-//            while (inAccessFile.read(b).also { n = it } != -1 && inAccessFile.filePointer <= end) {
-//                outAccessFile.write(b, 0, n)
-//            }
-//            //关闭输入输出流,赋值
-//            info.filePath = tmpFile.absolutePath
-//            info.filePointer = inAccessFile.filePointer
-//        } catch (_: Exception) {
-//        } finally {
-//            try {
-//                inAccessFile?.close()
-//            } catch (_: Exception) {
-//            }
-//            try {
-//                outAccessFile?.close()
-//            } catch (_: Exception) {
-//            }
-//        }
-//        return info
-        val info = TmpInfo()
-        //源文件
-        val file = File(filePath)
-        //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
-        val tmpFile = File("${file.parent}/${file.name.split(".")[0]}_${index}.tmp")
-        //如果不存在，则创建一个或继续写入
-        RandomAccessFile(tmpFile, "rw").use { outAccessFile ->
-            RandomAccessFile(file, "r").use { inAccessFile ->
-                //申明具体每一文件的字节数组
-                val b = ByteArray(1024)
-                var n: Int
-                //从指定位置读取文件字节流
-                inAccessFile.seek(begin)
-                //判断文件流读取的边界，从指定每一份文件的范围，写入不同的文件
-                while (inAccessFile.read(b).also { n = it } != -1 && inAccessFile.filePointer <= end) {
-                    outAccessFile.write(b, 0, n)
-                }
-                //关闭输入输出流,赋值
-                info.filePath = tmpFile.absolutePath
-                info.filePointer = inAccessFile.filePointer
-            }
-        }
-        return info
     }
 
 }
@@ -357,6 +109,14 @@ fun String?.isMkdirs(): String {
 }
 
 /**
+ * 判断是否存在
+ */
+fun String?.isExists(): Boolean {
+    this ?: return false
+    return File(this).exists()
+}
+
+/**
  * 删除文件
  */
 fun String?.deleteFile() {
@@ -374,98 +134,6 @@ fun String?.deleteDir() {
 }
 
 /**
- * 读取文件到文本（文本，找不到文件或读取错返回null）
- * kt中对File类做了readText扩展，但是实现相当于将每行文本塞入list集合，再从集合中读取
- * 此项操作比较吃内存，官方注释也不推荐读取2G以上的文件，所以使用java的方法
- */
-fun String?.read(): String {
-    this ?: return ""
-    val file = File(this)
-    return file.read()
-}
-
-fun File?.read(): String {
-//    this ?: return ""
-//    if (exists()) {
-//        var bufferedReader: BufferedReader? = null
-//        try {
-//            bufferedReader = BufferedReader(InputStreamReader(FileInputStream(this)))
-//            val stringBuilder = StringBuilder()
-//            var str: String?
-//            while (bufferedReader.readLine().also { str = it } != null) stringBuilder.append(str)
-//            return stringBuilder.toString()
-//        } catch (_: Exception) {
-//        } finally {
-//            try {
-//                bufferedReader?.close()
-//            } catch (_: Exception) {
-//            }
-//        }
-//    }
-//    return ""
-    this ?: return ""
-    if (exists()) {
-        bufferedReader().use { reader ->
-            val stringBuilder = StringBuilder()
-            var str: String?
-            while (reader.readLine().also { str = it } != null) stringBuilder.append(str)
-            return stringBuilder.toString()
-        }
-    }
-    return ""
-}
-
-/**
- * 将当前文件拷贝一份到目标路径
- */
-fun File.copy(destFile: File) {
-//    if (!destFile.exists()) destFile.createNewFile()
-//    var inputStream: FileInputStream? = null
-//    var outputStream: FileOutputStream? = null
-//    try {
-//        inputStream = FileInputStream(this)
-//        outputStream = FileOutputStream(destFile)
-//        inputStream.channel.use { source ->
-//            outputStream.channel.use { destination ->
-//                destination?.transferFrom(source, 0, source.size())
-//            }
-//        }
-//    } catch (_: Exception) {
-//    } finally {
-//        try {
-//            inputStream?.close()
-//        } catch (_: Exception) {
-//        }
-//        try {
-//            outputStream?.close()
-//        } catch (_: Exception) {
-//        }
-//    }
-    if (!destFile.exists()) destFile.createNewFile()
-    inputStream().channel.use { source ->
-        destFile.outputStream().channel.use { destination ->
-            destination?.transferFrom(source, 0, source.size())
-        }
-    }
-}
-
-/**
- * 获取文件采用base64形式
- */
-fun File?.getBase64(): String {
-    this ?: return ""
-    return FileUtil.base64WithFile(this)
-}
-
-/**
- * 获取文件hash值（放在io线程）
- */
-fun File?.getHash(): String {
-    this ?: return ""
-    return FileUtil.hashWithFile(this)
-}
-
-/**
  * 文件本身的整体大小
  */
 fun File?.getTotalSize(): Long {
@@ -475,10 +143,12 @@ fun File?.getTotalSize(): Long {
 
 /**
  * 获取对应大小的文字
+ * 新api --> Formatter.formatFileSize()
  */
 fun File?.getSizeFormat(): String {
     this ?: return ""
     return length().getSizeFormat()
+//    return Formatter.formatFileSize(BaseApplication.instance.applicationContext, length())
 }
 
 fun Number?.getSizeFormat(): String {
@@ -496,21 +166,171 @@ fun Number?.getSizeFormat(): String {
 }
 
 /**
- * 返回时长(音频，视频)->不支持在线音视频
- * 放在线程中读取，超时会导致卡顿或闪退
+ * 文件分割
+ * cutSize->分割文件的大小
  */
-suspend fun String?.mediaDuration(): Int {
-    val sourcePath = this
-    if (null == sourcePath || !File(sourcePath).exists()) return 0
-    return withContext(IO) {
+internal fun File?.split(cutSize: Long): MutableList<String> {
+    this ?: return arrayListOf()
+    //计算需要分割的文件总数
+    val targetLength = length()
+    val size = if (targetLength.mod(cutSize) == 0L) {
+        targetLength.div(cutSize)
+    } else {
+        targetLength.div(cutSize).plus(1)
+    }.toSafeInt()
+    //获取目标文件,预分配文件所占的空间,在磁盘中创建一个指定大小的文件(r:只读)
+    val splitList = ArrayList<String>()
+    RandomAccessFile(this, "r").use { accessFile ->
+        //文件的总大小
+        val length = accessFile.length()
+        //文件切片后每片的最大大小
+        val maxSize = length / size
+        //初始化偏移量
+        var offSet = 0L
+        //开始切片
+        for (i in 0 until size - 1) {
+            val begin = offSet
+            val end = (i + 1) * maxSize
+            val tmpInfo = write(absolutePath, i, begin, end)
+            offSet = tmpInfo.second.orZero
+            splitList.add(tmpInfo.first.orEmpty())
+        }
+        if (length - offSet > 0) {
+            splitList.add(write(absolutePath, size - 1, offSet, length).first.orEmpty())
+        }
+        //确保返回的集合中不包含空路径
+        for (i in splitList.indices.reversed()) {
+            if (splitList.safeGet(i).isNullOrEmpty()) {
+                splitList.removeAt(i)
+            }
+        }
+    }
+    return splitList
+}
+
+/**
+ * 开始创建并写入tmp文件
+ * @param filePath  源文件地址
+ * @param index 源文件的顺序标识
+ * @param begin 开始指针的位置
+ * @param end   结束指针的位置
+ * @return first->分割文件地址 second->分割文件大小
+ */
+private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<String?, Long?> {
+    //源文件
+    val file = File(filePath)
+    //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
+    val tmpFile = File("${file.parent}/${file.name.split(".")[0]}_${index}.tmp")
+    //如果不存在，则创建一个或继续写入
+    return RandomAccessFile(tmpFile, "rw").use { outAccessFile ->
+        RandomAccessFile(file, "r").use { inAccessFile ->
+            //申明具体每一文件的字节数组
+            val b = ByteArray(1024)
+            var n: Int
+            //从指定位置读取文件字节流
+            inAccessFile.seek(begin)
+            //判断文件流读取的边界，从指定每一份文件的范围，写入不同的文件
+            while (inAccessFile.read(b).also { n = it } != -1 && inAccessFile.filePointer <= end) {
+                outAccessFile.write(b, 0, n)
+            }
+            //关闭输入输出流,赋值
+            tmpFile.absolutePath to inAccessFile.filePointer
+        }
+    }
+}
+
+/**
+ * 读取文件到文本（文本，找不到文件或读取错返回null）
+ * kt中对File类做了readText扩展，但是实现相当于将每行文本塞入list集合，再从集合中读取
+ * 此项操作比较吃内存，官方注释也不推荐读取2G以上的文件，所以使用java的方法
+ */
+internal fun File?.read(): String {
+    this ?: return ""
+    return if (exists()) {
+        bufferedReader().use { reader ->
+            val stringBuilder = StringBuilder()
+            var str: String?
+            while (reader.readLine().also { str = it } != null) stringBuilder.append(str)
+            stringBuilder.toString()
+        }
+    } else {
+        ""
+    }
+}
+
+/**
+ * 将当前文件拷贝一份到目标路径
+ */
+internal fun File?.copy(destFile: File?) {
+    if(null == this || !exists()) return
+    if (!destFile?.exists().orFalse) destFile?.createNewFile()
+    inputStream().channel.use { source ->
+        destFile?.outputStream()?.channel.use { destination ->
+            destination?.transferFrom(source, 0, source.size())
+        }
+    }
+}
+
+/**
+ * 获取文件采用base64形式
+ */
+internal fun File?.getBase64(): String {
+    this ?: return ""
+    return inputStream().use { input ->
+        val bytes = ByteArray(input.available())
+        val length = input.read(bytes)
+        Base64.encodeToString(bytes, 0, length, Base64.DEFAULT)
+    }
+}
+
+/**
+ * 获取文件hash值
+ * 满足64位哈希，不足则前位补0
+ */
+internal fun File?.getHash(): String {
+    this ?: return ""
+    return inputStream().use { input ->
+        val digest = MessageDigest.getInstance("SHA-256")
+        val array = ByteArray(1024)
+        var len: Int
+        while (input.read(array, 0, 1024).also { len = it } != -1) {
+            digest.update(array, 0, len)
+        }
+        //检测是否需要补0
+        val bigInt = BigInteger(1, digest.digest())
+        var hash = bigInt.toString(16)
+        if (hash.length < 64) {
+            for (i in 0 until 64 - hash.length) {
+                hash = "0$hash"
+            }
+        }
+        hash
+    }
+}
+
+/**
+ * 获取media文件的时长（
+ * 返回时长(音频，视频)->不支持在线音视频
+ * 放在io子线程中读取，超时会导致卡顿或闪退
+ */
+internal fun File?.getDuration(): Int {
+    this ?: return 0
+    val player = MediaPlayer()
+    return try {
+        player.setDataSource(absolutePath)
+        player.prepare()
+        //视频时长（毫秒）/1000=x秒
+        (player.duration.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
+    } catch (_: Exception) {
+        0
+    } finally {
         try {
-            val medialPlayer = MediaPlayer()
-            medialPlayer.setDataSource(sourcePath)
-            medialPlayer.prepare()
-            val millisecond = medialPlayer.duration//视频时长（毫秒）
-            (millisecond.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
+            player.apply {
+                stop()
+                reset()
+                release()
+            }
         } catch (_: Exception) {
-            0
         }
     }
 }
