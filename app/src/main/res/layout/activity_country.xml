@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="adapter"
+            type="com.example.mvvm.widget.sidebar.SideAdapter" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.example.common.widget.xrecyclerview.XRecyclerView
+            android:id="@+id/xrv_list"
+            quick_adapter="@{adapter}"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:xrvEnableEmpty="true" />
+
+        <TextView
+            android:id="@+id/tv_dialog"
+            android:layout_width="80pt"
+            android:layout_height="80pt"
+            android:layout_gravity="center"
+            android:background="@drawable/shape_sidebar_letter"
+            android:gravity="center"
+            android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize24"
+            android:visibility="invisible"
+            tools:text="1"
+            tools:visibility="visible" />
+
+        <com.example.mvvm.widget.sidebar.SideBar
+            android:id="@+id/sideBar"
+            android:layout_width="30pt"
+            android:layout_height="match_parent"
+            android:layout_gravity="end|center" />
+
+    </FrameLayout>
+
+</layout>

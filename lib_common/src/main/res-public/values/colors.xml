@@ -40,4 +40,12 @@
     <!--全局选项-->
     <color name="tabSelected">#FFAF0E</color>
     <color name="tabUnselected">#999EA4</color>
+    <!-- 筛选遮罩 -->
+    <color name="strokeSide">#ffffff</color>
+    <color name="sideBg">#f2f2f2</color>
+    <color name="sideLetterText">#454545</color>
+    <color name="sideText">#FFAF0E</color>
+    <color name="sideStart">#2e60df</color>
+    <color name="sideEnd">#3259e1</color>
+    <color name="sideCenter">#3e78f1</color>
 </resources>

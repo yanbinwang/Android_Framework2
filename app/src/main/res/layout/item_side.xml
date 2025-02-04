@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingConstraints">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:background="@color/appWindowBackground">
+
+        <TextView
+            android:id="@+id/tv_letter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/sideBg"
+            android:paddingHorizontal="10pt"
+            android:paddingVertical="5pt"
+            android:textColor="@color/sideLetterText"
+            android:textSize="@dimen/textSize16"
+            tools:text="A" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10pt">
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14"
+                tools:text="标题" />
+
+            <TextView
+                android:id="@+id/tv_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|end"
+                android:layout_marginEnd="20dp"
+                android:textColor="@color/textSecondary"
+                android:textSize="@dimen/textSize12"
+                tools:text="简介" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</layout>

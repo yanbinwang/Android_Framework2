@@ -20,6 +20,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         mBinding?.flInput.click {
             input.showInput()
         }
-//        mBinding?.tvInput.click { input.showInput() }
+        mBinding?.tvCountry.click { navigation(ARouterPath.CountryActivity) }
     }
 }

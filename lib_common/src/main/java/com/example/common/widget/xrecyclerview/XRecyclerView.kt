@@ -261,6 +261,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     fun setEmptyBackgroundColor(color: Int) = empty.setBackgroundColor(color)
 
     /**
+     * 让列表滚动到对应下标点
+     */
+    fun scrollToPosition(position: Int) {
+        recycler?.scrollToPosition(position)
+    }
+
+    /**
      * 当数据正在加载的时候显示
      */
     fun loading() {
