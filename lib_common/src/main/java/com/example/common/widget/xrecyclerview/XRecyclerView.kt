@@ -205,7 +205,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 让列表滚动到对应下标点
      */
     fun scrollToPosition(position: Int) {
-        if (position < 0 || position > recycler?.adapter?.itemCount.orZero -1) recycler
+        if (position < 0 || position > recycler?.adapter?.itemCount.orZero -1) return
         recycler?.scrollToPosition(position)
     }
 
