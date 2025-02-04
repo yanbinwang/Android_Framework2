@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="MissingConstraints">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -16,6 +16,44 @@
             android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize14" />
 
-    </LinearLayout>
+        <FrameLayout
+            android:id="@+id/fl_input"
+            android:layout_width="match_parent"
+            android:layout_height="60pt"
+            android:layout_gravity="bottom"
+            android:background="@color/bgWhite">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10pt"
+                android:background="@drawable/shape_r20_grey">
+
+                <TextView
+                    android:layout_width="0pt"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:gravity="center_vertical"
+                    android:paddingStart="20pt"
+                    android:paddingEnd="10pt"
+                    android:text="请输入"
+                    android:textColor="@color/textWhite"
+                    android:textSize="@dimen/textSize14" />
+
+                <TextView
+                    android:layout_width="80pt"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/shape_r20_blue"
+                    android:gravity="center"
+                    android:text="发送"
+                    android:textColor="@color/textWhite"
+                    android:textSize="@dimen/textSize14" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+    </FrameLayout>
 
 </layout>

@@ -17,6 +17,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun initEvent() {
         super.initEvent()
-        mBinding?.tvInput.click { input.showInput() }
+        mBinding?.flInput.click {
+            input.showInput()
+        }
+//        mBinding?.tvInput.click { input.showInput() }
     }
 }

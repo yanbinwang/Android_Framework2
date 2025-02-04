@@ -30,12 +30,11 @@ import com.example.common.base.page.navigation
 import com.example.common.bean.interf.TransparentOwner
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.socket.topic.WebSocketRequest
-import com.example.common.utils.manager.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.registerResult
+import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
@@ -115,7 +114,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             }
         }
         AppManager.addActivity(this)
-        WebSocketRequest.addObserver(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
         if (isImmersionBarEnabled()) initImmersionBar()
         initView(savedInstanceState)
