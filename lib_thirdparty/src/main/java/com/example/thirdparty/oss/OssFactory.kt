@@ -99,12 +99,14 @@ class OssFactory private constructor() : CoroutineScope {
         /**
          * 直接执行文件上传-》挂起的形式
          */
-        suspend fun suspendingAsyncResumableUpload(sourcePath: String?, privately: Boolean = false) = suspendCancellableCoroutine {
+        suspend fun suspendingAsyncResumableUpload(sourcePath: String?, onLoading: (progress: Int?) -> Unit = {}, privately: Boolean = false) = suspendCancellableCoroutine {
             if (sourcePath.isNullOrEmpty()) {
                 it.resume("")
             } else {
                 instance.asyncResumableUpload(sourcePath, onSuccess = { objectKey ->
                     it.resume(objectKey)
+                }, onLoading = { progress ->
+                    onLoading.invoke(progress)
                 }, onFailed = { result ->
                     it.resumeWithException(RuntimeException(result))
                 }, privately = privately)
