@@ -54,11 +54,25 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         get() = Main + job
 
     companion object {
+
+        /**
+         * 校验url
+         */
+        fun String.urlVerify(): Boolean {
+            return if (!Patterns.WEB_URL.matcher(this).matches()) {
+                return false
+            } else {
+                true
+            }
+        }
+
         /**
          * 存储图片
          */
         suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("保存图片"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG): String? {
-            return withContext(IO) { bitmap.saveBitmap(root, fileName, deleteDir, format) }
+            return withContext(IO) {
+                bitmap.saveBitmap(root, fileName, deleteDir, format)
+            }
         }
 
         /**
@@ -146,6 +160,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 存储文件
          */
         suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: String, listener: (progress: Int) -> Unit = {}): String? {
+            if (!downloadUrl.urlVerify()) return null
             //清除目录下的所有文件
             filePath.deleteDir()
             //创建一个安装的文件，开启io协程写入
@@ -343,7 +358,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
      * 下载文件
      */
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String?) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
-        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
+        if (!downloadUrl.urlVerify()) {
             R.string.linkError.shortToast()
             return
         }
