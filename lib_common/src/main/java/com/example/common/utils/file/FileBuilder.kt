@@ -20,6 +20,7 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.saveBitmap
+import com.example.common.utils.function.string
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
@@ -54,17 +55,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         get() = Main + job
 
     companion object {
-
-        /**
-         * 校验url
-         */
-        fun String.urlVerify(): Boolean {
-            return if (!Patterns.WEB_URL.matcher(this).matches()) {
-                return false
-            } else {
-                true
-            }
-        }
 
         /**
          * 存储图片
@@ -160,14 +150,16 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 存储文件
          */
         suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: String, listener: (progress: Int) -> Unit = {}): String? {
-            if (!downloadUrl.urlVerify()) return null
+            if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
+                throw RuntimeException(string(R.string.linkError))
+            }
             //清除目录下的所有文件
             filePath.deleteDir()
             //创建一个安装的文件，开启io协程写入
             val file = File(filePath.isMkdirs(), fileName)
             return withContext(IO) {
                 try {
-                    //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
+                    //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载(加try/catch为双保险，万一地址不正确应用就会闪退)
                     val body = CommonSubscribe.getDownloadApi(downloadUrl)
                     val buf = ByteArray(2048)
                     val total = body.contentLength()
@@ -179,7 +171,9 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                                 outputStream.write(buf, 0, len)
                                 sum += len.toLong()
                                 val progress = (sum * 1.0f / total * 100).toSafeInt()
-                                withContext(Main) { listener.invoke(progress) }
+                                withContext(Main) {
+                                    listener.invoke(progress)
+                                }
                             }
                             outputStream.flush()
                             file.path
@@ -358,7 +352,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
      * 下载文件
      */
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String?) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
-        if (!downloadUrl.urlVerify()) {
+        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
             R.string.linkError.shortToast()
             return
         }
