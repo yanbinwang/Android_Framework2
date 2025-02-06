@@ -7,7 +7,6 @@ versions.appcompat = "1.6.1"
 versions.constraintlayout = "2.1.4"
 versions.recyclerview = "1.2.1"
 versions.core = "1.12.0"
-//versions.splashscreen = "1.0.0"
 versions.viewmodel = "2.6.1"
 versions.livedata = "2.6.1"
 //------------------------------------------------------------------------------------------
@@ -29,7 +28,6 @@ versions.eventbus = "3.3.1"
 versions.xxpermissions = "16.2"
 versions.immersionbar = "3.2.2"
 versions.circleprogressbar = "1.3.6"
-versions.stomp = "4.0.1"
 
 //安卓x库
 def androidx = [:]
@@ -37,7 +35,6 @@ androidx.appcompat = "androidx.appcompat:appcompat:$versions.appcompat"
 androidx.constraintlayout = "androidx.constraintlayout:constraintlayout:$versions.constraintlayout"
 androidx.recyclerview = "androidx.recyclerview:recyclerview:$versions.recyclerview"
 androidx.core = "androidx.core:core-ktx:$versions.core"
-//androidx.splashscreen = "androidx.core:core-splashscreen:$versions.splashscreen"
 androidx.viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.viewmodel"
 androidx.livedata = "androidx.lifecycle:lifecycle-livedata-ktx:$versions.livedata"
 deps.androidx = androidx
@@ -67,7 +64,6 @@ deps.eventbus = "org.greenrobot:eventbus:$versions.eventbus"//广播
 deps.xxpermissions = "com.github.getActivity:XXPermissions:$versions.xxpermissions"//权限
 deps.immersionbar = "com.geyifeng.immersionbar:immersionbar:$versions.immersionbar"//状态栏
 deps.circleprogressbar = "com.dinuscxj:circleprogressbar:$versions.circleprogressbar"//加载进度条
-deps.stomp = "cn.zhxu:okhttps-stomp:$versions.stomp"//socket
 ext.deps = deps
 //---------------------------------------------全局引用配置结束---------------------------------------------
 
@@ -88,7 +84,6 @@ def build_config = [:]
 build_config.applicationId = "com.example.mvvm"//主appId（包名）
 build_config.DESIGN_WIDTH = "375"
 build_config.DESIGN_HEIGHT = "667"
-build_config.AMAP_API_KEY = "feb098c99b26513b0bfa5008b64eefa7"
 ext.build_config = build_config
 
 //数据库参数配置

@@ -2,19 +2,10 @@ package com.example.mvvm
 
 import android.os.Looper
 import android.util.Log
-import com.amap.api.services.core.ServiceSettings
 import com.example.common.BaseApplication
-import com.example.common.config.Constants.VERSION_NAME
 import com.example.framework.utils.function.value.isDebug
-import com.example.greendao.dao.DaoMaster
 import com.example.mvvm.activity.MainActivity
-import com.example.thirdparty.album.GlideLoader
-import com.example.thirdparty.oss.OssDBHelper
-import com.example.thirdparty.oss.OssFactory
-import com.yanzhenjie.album.Album
-import com.yanzhenjie.album.AlbumConfig
 import com.zxy.recovery.core.Recovery
-import java.util.Locale
 
 /**
  * Created by WangYanBin on 2020/8/14.
@@ -62,37 +53,10 @@ class MyApplication : BaseApplication() {
                 }
             }
         }
-        //初始化图片库类
-        initAlbum()
-        //数据库初始化
-        initOssDao()
-        //初始化oss
-        initOss()
-        //初始化进程监听
-        setOnStateChangedListener { if (it) initOss() }
-        //授权初始化
-        setOnPrivacyAgreedListener { if (it) { initAMap() } }
-    }
-
-    private fun initAlbum() {
-        Album.initialize(AlbumConfig.newBuilder(this)
-            .setAlbumLoader(GlideLoader()) //设置Album加载器。
-            .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
-            .build())
-    }
-
-    private fun initOssDao() {
-        OssDBHelper.init(DaoMaster(DaoMaster.DevOpenHelper(this, "${VERSION_NAME}.db", null).readableDb).newSession().ossDBDao)
-    }
-
-    private fun initOss() {
-        OssFactory.instance.initialize()
-    }
-
-    private fun initAMap() {
-        //高德地图隐私政策合规
-        ServiceSettings.updatePrivacyShow(applicationContext, true, true)
-        ServiceSettings.updatePrivacyAgree(applicationContext, true)
+//        //初始化进程监听
+//        setOnStateChangedListener { if (it) initOss() }
+//        //授权初始化
+//        setOnPrivacyAgreedListener { if (it) { initAMap() } }
     }
 
 //    /**
