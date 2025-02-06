@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingConstraints">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:id="@+id/fl_title"
+            statusBar_padding="@{true}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bgDefault">
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="match_parent"
+                android:layout_height="44pt"
+                android:gravity="center"
+                android:text="更多"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize18"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/fl_update"
+            android:layout_width="match_parent"
+            android:layout_height="52pt"
+            android:layout_marginTop="1pt"
+            android:background="@color/bgDefault"
+            android:paddingHorizontal="15pt"
+            app:layout_constraintTop_toBottomOf="@id/fl_title">
+
+            <ImageView
+                android:layout_width="24pt"
+                android:layout_height="24pt"
+                android:layout_gravity="center_vertical"
+                android:src="@mipmap/ic_update" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="33pt"
+                android:text="检查更新"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize15"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center_vertical"
+                android:layout_marginEnd="17pt"
+                android:text="v1.0.0"
+                android:textColor="@color/textHint"
+                android:textSize="@dimen/textSize16"
+                tools:text="v1.0.0" />
+
+            <ImageView
+                android:layout_width="7pt"
+                android:layout_height="14pt"
+                android:layout_gravity="end|center_vertical"
+                android:src="@mipmap/ic_arrow_menu" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/fl_clear"
+            android:layout_width="match_parent"
+            android:layout_height="52pt"
+            android:layout_marginTop="1pt"
+            android:background="@color/bgDefault"
+            android:paddingHorizontal="15pt"
+            app:layout_constraintTop_toBottomOf="@id/fl_update">
+
+            <ImageView
+                android:layout_width="24pt"
+                android:layout_height="24pt"
+                android:layout_gravity="center_vertical"
+                android:src="@mipmap/ic_cache_clear" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="33pt"
+                android:text="清理缓存"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize15"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_cache"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center_vertical"
+                android:layout_marginEnd="17pt"
+                android:text="2.63M"
+                android:textColor="@color/textHint"
+                android:textSize="@dimen/textSize16"
+                tools:text="2.63M" />
+
+            <ImageView
+                android:layout_width="7pt"
+                android:layout_height="14pt"
+                android:layout_gravity="end|center_vertical"
+                android:src="@mipmap/ic_arrow_menu" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/fl_about_us"
+            android:layout_width="match_parent"
+            android:layout_height="52pt"
+            android:layout_marginTop="1pt"
+            android:background="@color/bgDefault"
+            android:paddingHorizontal="15pt"
+            app:layout_constraintTop_toBottomOf="@id/fl_clear">
+
+            <ImageView
+                android:layout_width="24pt"
+                android:layout_height="24pt"
+                android:layout_gravity="center_vertical"
+                android:src="@mipmap/ic_about_us" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="33pt"
+                android:text="关于我们"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize15"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="7pt"
+                android:layout_height="14pt"
+                android:layout_gravity="end|center_vertical"
+                android:src="@mipmap/ic_arrow_menu" />
+
+        </FrameLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

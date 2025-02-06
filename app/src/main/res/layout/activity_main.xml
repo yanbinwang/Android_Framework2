@@ -10,12 +10,12 @@
             android:id="@+id/fl_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="61pt" />
+            android:layout_marginBottom="51pt" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tb_indicator"
             android:layout_width="match_parent"
-            android:layout_height="60pt"
+            android:layout_height="50pt"
             android:layout_gravity="bottom"
             android:background="@color/bgDefault"
             android:clipChildren="true"

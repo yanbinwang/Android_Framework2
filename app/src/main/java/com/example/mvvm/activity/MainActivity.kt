@@ -5,12 +5,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.example.bookshelf.fragment.BookShelfFragment
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
 import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.TabLayoutBuilder
+import com.example.discovery.fragment.DiscoveryFragment
 import com.example.framework.utils.builder.FragmentBuilder
+import com.example.framework.utils.builder.getBind
 import com.example.framework.utils.function.value.clearFragmentSavedState
+import com.example.more.fragment.MoreFragment
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.MainIndicator
@@ -52,7 +56,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         val builder = FragmentBuilder(supportFragmentManager, R.id.fl_content).apply {
-//            bind(HomeFragment::class.java.getBind(), MarketFragment::class.java.getBind(), AccountFragment::class.java.getBind())
+            bind(BookShelfFragment::class.java.getBind(), DiscoveryFragment::class.java.getBind(), MoreFragment::class.java.getBind())
         }
         indicator.apply {
             init()

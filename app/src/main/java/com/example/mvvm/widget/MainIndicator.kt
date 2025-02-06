@@ -23,7 +23,7 @@ class MainIndicator(tab: TabLayout?) : TabLayoutBuilder<Triple<Int, Int, String>
     override fun onBindView(mBinding: ItemMainTabBinding?, item: Triple<Int, Int, String>?, selected: Boolean, index: Int) {
         mBinding?.apply {
             ivIcon.background(if (selected) item?.first.orZero else item?.second.orZero)
-            tvLabel.setTabTheme(item?.third, selected, R.color.homeTextSelected to R.color.homeTextUnselected, sizeRes = R.dimen.textSize12 to R.dimen.textSize12, padding = 0 to 0)
+            tvLabel.setTabTheme(item?.third, selected, R.color.homeTextSelected to R.color.homeTextUnselected, sizeRes = R.dimen.textSize10 to R.dimen.textSize10, padding = 0 to 0)
         }
     }
 

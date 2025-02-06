@@ -130,7 +130,9 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
     androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
     //基础库
-    implementation project(':module_home')
+    implementation project(':module_bookshelf')
+    implementation project(':module_discovery')
+    implementation project(':module_more')
     //页面路由
     implementation deps.alibaba.arouter
     kapt deps.alibaba.arouter_compiler
