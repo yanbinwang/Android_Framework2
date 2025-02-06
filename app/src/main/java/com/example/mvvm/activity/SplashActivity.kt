@@ -7,8 +7,10 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.fullScreen
-import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.value.second
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.jessyan.autosize.internal.CancelAdapt
 
 /**
@@ -29,6 +31,7 @@ import me.jessyan.autosize.internal.CancelAdapt
  */
 @Route(path = ARouterPath.SplashActivity)
 class SplashActivity : BaseActivity<ViewDataBinding>(), CancelAdapt {
+    private var progressJob: Job? = null
 
     override fun isImmersionBarEnabled() = false
 
@@ -42,9 +45,29 @@ class SplashActivity : BaseActivity<ViewDataBinding>(), CancelAdapt {
         }
         window.fullScreen()
         super.onCreate(savedInstanceState)
-        schedule({
-            navigation(ARouterPath.MainActivity).finish()
-        }, 2.second)
+        //在父类构造之前先检测，没有直接关闭
+        if (!isTaskRoot) {
+            jump()
+        } else {
+            initSplash()
+        }
+    }
+
+    private fun initSplash() {
+        progressJob?.cancel()
+        progressJob = launch {
+            delay(2.second)
+            jump()
+        }
+    }
+
+    private fun jump() {
+        navigation(ARouterPath.MainActivity).finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        progressJob?.cancel()
     }
 
 }

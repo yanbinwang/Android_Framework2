@@ -112,7 +112,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     private var listener: OnTabChangeListener? = null
     private val tabViews by lazy { SparseArray<VDB>() }
     protected val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext
-    protected val mCurrentIndex get() = tab?.selectedTabPosition.orZero
+    val mCurrentIndex get() = tab?.selectedTabPosition.orZero
 
     /**
      * 无特殊绑定的自定义头

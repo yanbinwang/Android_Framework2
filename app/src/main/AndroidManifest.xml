@@ -59,7 +59,7 @@
             android:name="design_height_in_dp"
             android:value="${DESIGN_HEIGHT}" />
         <!-- ******************************************************基础全局配置****************************************************** -->
-
+        <!-- 启动页 -->
         <activity
             android:name=".activity.SplashActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
@@ -72,13 +72,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <!-- 首页 -->
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
+            android:theme="@style/MainTheme"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
+        <!-- ******************************************************首页模块****************************************************** -->
         <!-- 伸縮大圖 -->
         <activity
             android:name="com.example.home.activity.ScaleActivity"

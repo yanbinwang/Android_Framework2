@@ -1,22 +1,17 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="NewApi">
 
-    <!-- 启动页，直接背景是一张启动页图，点开app就是引导页的展示 -->
     <style name="SplashTheme" parent="TransitionTheme">
-        <item name="colorPrimaryDark">@color/appTheme</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="colorPrimaryDark">@color/bgDefault</item>
+        <item name="android:navigationBarColor">@color/bgDefault</item>
         <item name="android:windowBackground">@drawable/layout_list_splash</item>
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowLightStatusBar">false</item>
-        <!--        <item name="android:windowIsTranslucent">true</item>-->
-        <!--        <item name="android:windowBackground">@color/white_00ffffff</item>-->
-        <!--        <item name="android:windowAnimationStyle">@null</item>-->
     </style>
 
-    <!--注册选择页背景是蓝色，故而使用此样式-->
-    <style name="StartTheme" parent="TransitionTheme">
-        <item name="android:windowBackground">@color/appTheme</item>
+    <style name="MainTheme" parent="TransitionTheme">
+        <item name="colorPrimaryDark">@color/appWindowBackground</item>
+        <item name="android:windowBackground">@color/appWindowBackground</item>
         <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:navigationBarColor">@color/appTheme</item>
     </style>
 
 </resources>
