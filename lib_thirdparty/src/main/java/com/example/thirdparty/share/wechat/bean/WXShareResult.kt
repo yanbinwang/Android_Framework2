@@ -1,4 +1,4 @@
-package com.example.thirdparty.share.wechat
+package com.example.thirdparty.share.wechat.bean
 
 import android.graphics.Bitmap
 import com.example.common.BaseApplication
