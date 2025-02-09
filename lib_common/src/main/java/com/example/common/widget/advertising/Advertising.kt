@@ -221,11 +221,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         this.ovalLayout = ovalLayout
         this.advAdapter.setParams(radius, localAsset)
         if (ovalList != null) this.triple = ovalList
-        //添加遮罩
-        banner?.background = GradientDrawable().apply {
-            setColor(color(R.color.bgGrey))
-            cornerRadius = radius.ptFloat
-        }
+        cover(radius)
     }
 
     override fun setOrientation(orientation: Int) {
@@ -234,6 +230,16 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     override fun setPageTransformer(marginPx: Int) {
         banner?.setPageTransformer(MarginPageTransformer(marginPx.pt))
+    }
+
+    /**
+     * 添加遮罩
+     */
+    private fun cover(radius: Int) {
+        banner?.background = GradientDrawable().apply {
+            setColor(color(R.color.bgGrey))
+            cornerRadius = radius.ptFloat
+        }
     }
 
     /**
