@@ -17,7 +17,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.example.common.R
+import com.example.common.utils.function.color
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.parseColor
@@ -218,6 +221,11 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         this.ovalLayout = ovalLayout
         this.advAdapter.setParams(radius, localAsset)
         if (ovalList != null) this.triple = ovalList
+        //添加遮罩
+        banner?.background = GradientDrawable().apply {
+            setColor(color(R.color.bgGrey))
+            cornerRadius = radius.ptFloat
+        }
     }
 
     override fun setOrientation(orientation: Int) {
