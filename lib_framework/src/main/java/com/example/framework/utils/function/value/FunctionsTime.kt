@@ -2,12 +2,33 @@ package com.example.framework.utils.function.value
 
 import com.example.framework.utils.function.value.DateFormat.EN_YMD
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
+import com.example.framework.utils.function.value.DateFormat.getDateFormat
 import java.text.ParseException
 import java.text.ParsePosition
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.Calendar.MONTH
+import java.util.Calendar.YEAR
+import kotlin.math.floor
 
 //------------------------------------日期时间工具类------------------------------------
+/**
+ * 服务器时间-推测的服务器接收时间
+ */
+private var timeDiff = -1L
+
+/**
+ * 现在的时间戳
+ */
+val currentTimeStamp: Long
+    get() {
+        return if (timeDiff < 0) {
+            System.currentTimeMillis()
+        } else {
+            currentTimeNano + timeDiff
+        }
+    }
+
 /**
  * 以纳秒为单位，返回正在运行的Java虚拟机的高分辨率时间源的当前值
  * 该方法只能用于测量经过时间，与系统或挂钟时间的任何其他概念无关，用来作时间间隔判断
@@ -38,13 +59,27 @@ fun Date?.toSafeDate(): Date {
 }
 
 /**
- * 获取手机本身日期格式，指定为国内时区，避免用户手动改时区
- * @param this 日期格式（yyyy-MM-dd）
+ * 是否为当日(手机时间为准)
+ * after->当Date1大于Date2时，返回TRUE，当小于等于时，返回false
+ * before->当Date1小于Date2时，返回TRUE，当大于等于时，返回false
  */
-private fun String.getDateFormat(): SimpleDateFormat {
-    val dateFormat = SimpleDateFormat(this, Locale.getDefault())
-    dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
-    return dateFormat
+@Synchronized
+fun Date.isToday(): Boolean {
+    var flag = false
+    try {
+        //获取当前系统时间
+        val subDate = EN_YMD.convert(System.currentTimeMillis())
+        //定义每天的24h时间范围
+        val beginTime = "$subDate 00:00:00"
+        val endTime = "$subDate 23:59:59"
+        //转换Date
+        val dateFormat = EN_YMDHMS.getDateFormat()
+        val parseBeginTime = dateFormat.parse(beginTime)
+        val parseEndTime = dateFormat.parse(endTime)
+        if ((after(parseBeginTime) && before(parseEndTime)) || equals(parseBeginTime) || equals(parseEndTime)) flag = true
+    } catch (_: ParseException) {
+    }
+    return flag
 }
 
 /**
@@ -122,32 +157,6 @@ fun String?.compare(source: String, format: String = EN_YMD): Int {
 }
 
 /**
- * 处理时间
- * @param this 时间戳
- */
-@Synchronized
-fun Long.timer(): String {
-    val hour: Long
-    val second: Long
-    var minute: Long
-    return if (this <= 0) "00:00" else {
-        minute = this / 60
-        if (minute < 60) {
-            second = this % 60
-            "${minute.timerUnit()}:${second.timerUnit()}"
-        } else {
-            hour = minute / 60
-            if (hour > 99) return "99:59:59"
-            minute %= 60
-            second = this - hour * 3600 - minute * 60
-            "${hour.timerUnit()}:${minute.timerUnit()}:${second.timerUnit()}"
-        }
-    }
-}
-
-private fun Long.timerUnit() = if (this in 0..9) "0$this" else this.toString()
-
-/**
  * 获取日期的当月的第几周
  * @param this 日期（yyyy-MM-dd）
  */
@@ -202,31 +211,109 @@ fun String.getWeek(): String {
 }
 
 /**
- * 是否为当日(手机时间为准)
- * after->当Date1大于Date2时，返回TRUE，当小于等于时，返回false
- * before->当Date1小于Date2时，返回TRUE，当大于等于时，返回false
+ * 是否为今天
  */
-@Synchronized
-fun Date.isToday(): Boolean {
-    var flag = false
-    try {
-        //获取当前系统时间
-        val subDate = EN_YMD.convert(System.currentTimeMillis())
-        //定义每天的24h时间范围
-        val beginTime = "$subDate 00:00:00"
-        val endTime = "$subDate 23:59:59"
-        //转换Date
-        val dateFormat = EN_YMDHMS.getDateFormat()
-        val parseBeginTime = dateFormat.parse(beginTime)
-        val parseEndTime = dateFormat.parse(endTime)
-        if ((after(parseBeginTime) && before(parseEndTime)) || equals(parseBeginTime) || equals(parseEndTime)) flag = true
-    } catch (_: ParseException) {
+val Long?.isToday: Boolean
+    get() {
+        this ?: return false
+        return this.dayDiff(currentTimeStamp) == 0
     }
-    return flag
+
+/**
+ * 计算日期差距
+ * this - other，主体时间越靠后值越大
+ */
+fun Long?.dayDiff(other: Long?): Int {
+    this ?: return 0
+    other ?: return 0
+    val time1Day = floor((this - DateFormat.timeContrast) / (1000f * 60f * 60f * 24f)).toInt()
+    val time2Day = floor((other - DateFormat.timeContrast) / (1000f * 60f * 60f * 24f)).toInt()
+    return time1Day - time2Day
+}
+
+///**
+// * 处理时间
+// * @param this 时间单位->秒
+// */
+//@Synchronized
+//fun Long.timer(): String {
+//    val hour: Long
+//    val second: Long
+//    var minute: Long
+//    return if (this <= 0) "00:00:00" else {
+//        minute = this / 60
+//        hour = minute / 60
+//        if (hour > 99) return "99:59:59"
+//        minute %= 60
+//        second = this - hour * 3600 - minute * 60
+//        "${hour.timerUnit()}:${minute.timerUnit()}:${second.timerUnit()}"
+//    }
+//}
+//
+//private fun Long.timerUnit() = if (this in 0..9) "0$this" else this.toString()
+
+/**
+ * 时间戳差值，换算倒计时时间（00:00:00）时间单位->毫秒
+ * @param showMin 显示分钟和秒钟
+ * @param showSec 显示秒钟
+ * */
+fun Long?.timeCountDown(showMin: Boolean = true, showSec: Boolean = true): String {
+    this ?: return when {
+        showMin && showSec -> "00:00:00"
+        showMin && !showSec -> "00:00"
+        else -> "00"
+    }
+    val hour = this / 1.hour
+    if (!showMin) return hour.toString()
+    val minute = (this % 1.hour) / 1.minute
+    if (!showSec) return "${hour.getNumber(false)}:${minute.getNumber(true)}"
+    val second = (this % 1.minute) / 1.second
+    return "${hour.getNumber(false)}:${minute.getNumber(true)}:${second.getNumber(true)}"
+}
+
+private fun Long.getNumber(cap: Boolean = true): String {
+    return when {
+        this <= 0 -> "00"
+        this < 10 -> "0$this"
+        this > 99 && cap -> "99"
+        else -> this.toString()
+    }
+}
+
+/**
+ * 获取年月
+ */
+fun Long.getYearAndMonth(): Pair<Int, Int> {
+    val calendar = Calendar.getInstance()
+    calendar.time = Date(this)
+    return calendar.get(YEAR) to (calendar.get(MONTH) + 1)
 }
 
 // <editor-fold defaultstate="collapsed" desc="常用的日期格式">
 object DateFormat {
+    /**
+     * 获取手机本身日期格式，指定为国内时区，避免用户手动改时区
+     * @param this 日期格式（yyyy-MM-dd）
+     */
+    fun String.getDateFormat(): SimpleDateFormat {
+        val dateFormat = SimpleDateFormat(this, Locale.getDefault())
+        dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+        return dateFormat
+    }
+
+    /**
+     * 获取手机计算日历
+     */
+    val timeContrast by lazy {
+        Calendar.getInstance().let {
+            it.set(2000, 0, 1, 0, 0, 0)
+            it.timeInMillis
+        }
+    }
+
+    /**
+     * 常用的一些日期格式
+     */
     const val EN_M = "MM"
     const val EN_MD = "MM-dd"
     const val EN_HM = "HH:mm"

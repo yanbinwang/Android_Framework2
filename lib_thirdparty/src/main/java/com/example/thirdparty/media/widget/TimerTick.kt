@@ -16,7 +16,7 @@ import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.timer
+import com.example.framework.utils.function.value.timeCountDown
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.thirdparty.R
 import com.example.thirdparty.databinding.ViewTimeTickBinding
@@ -114,7 +114,7 @@ class TimerTick(mContext: Context, move: Boolean = true) {
                                 tickDialog?.dismiss()
                             }
                         }
-                        mBinding.tvTimer.text = (timerCount - 1).timer()
+                        mBinding.tvTimer.text = (timerCount - 1).timeCountDown()
                     }
                 }
             }
