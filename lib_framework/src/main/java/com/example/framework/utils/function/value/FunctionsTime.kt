@@ -12,6 +12,7 @@ import java.util.Calendar.YEAR
 import kotlin.math.floor
 
 //------------------------------------日期时间工具类------------------------------------
+
 /**
  * 服务器时间-推测的服务器接收时间
  */
@@ -59,7 +60,7 @@ fun Date?.toSafeDate(): Date {
 }
 
 /**
- * 是否为当日(手机时间为准)
+ * 是否为当日(手机时间为准)->针对国内时差
  * after->当Date1大于Date2时，返回TRUE，当小于等于时，返回false
  * before->当Date1小于Date2时，返回TRUE，当大于等于时，返回false
  */
