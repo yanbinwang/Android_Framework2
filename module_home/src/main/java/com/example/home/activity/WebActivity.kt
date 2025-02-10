@@ -7,6 +7,7 @@ import com.example.common.base.BaseTitleActivity
 import com.example.common.base.page.Extra
 import com.example.common.bean.WebBundle
 import com.example.common.config.ARouterPath
+import com.example.common.utils.function.orNoData
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.orFalse
@@ -28,7 +29,7 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
         //需要标题头并且值已经传输过来了则设置标题
         titleBuilder.apply {
             if (bundle?.getTitleRequired().orTrue) {
-                setTitle(bundle?.getTitle().orEmpty())
+                setTitle(bundle?.getTitle().orNoData())
             } else {
                 hideTitle()
             }
@@ -43,7 +44,7 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
             if (bundle?.isTitleRequired().orFalse) {
                 titleBuilder
                     //当传输的title为空时，取一次网页自带的标题并且刷新按钮浮现
-                    .setTitle(bundle?.getTitle() ?: it.orEmpty())
+                    .setTitle(bundle?.getTitle().orNoData())
                     .setRight(R.mipmap.ic_refresh, R.color.bgBlack, 60.pt, 60.pt) { helper.refresh() }
             }
         })

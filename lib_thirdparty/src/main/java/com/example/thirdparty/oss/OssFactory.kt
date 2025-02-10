@@ -55,6 +55,7 @@ import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * 阿里oss文件上传
@@ -94,6 +95,23 @@ class OssFactory private constructor() : CoroutineScope {
          */
         @JvmStatic
         val instance by lazy { OssFactory() }
+
+        /**
+         * 直接执行文件上传-》挂起的形式
+         */
+        suspend fun suspendingAsyncResumableUpload(sourcePath: String?, onLoading: (progress: Int?) -> Unit = {}, privately: Boolean = false) = suspendCancellableCoroutine {
+            if (sourcePath.isNullOrEmpty()) {
+                it.resume("")
+            } else {
+                instance.asyncResumableUpload(sourcePath, onSuccess = { objectKey ->
+                    it.resume(objectKey)
+                }, onLoading = { progress ->
+                    onLoading.invoke(progress)
+                }, onFailed = { result ->
+                    it.resumeWithException(RuntimeException(result))
+                }, privately = privately)
+            }
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="基础方法">
