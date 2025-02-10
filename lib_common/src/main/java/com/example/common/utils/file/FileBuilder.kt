@@ -59,7 +59,8 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          */
         suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("Save Image"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG): String? {
             return withContext(IO) {
-                bitmap.saveBitmap(root, fileName, deleteDir, format) }
+                bitmap.saveBitmap(root, fileName, deleteDir, format)
+            }
         }
 
         /**

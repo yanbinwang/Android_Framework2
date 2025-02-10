@@ -103,12 +103,6 @@ private fun Long.getNumber(cap: Boolean = true): String {
     }
 }
 
-fun Long?.timeCountDownCN(): String {
-    var list = timeCountDown().split(":")
-    if (list.safeSize != 3) list = listOf("00", "00", "00")
-    return "${list.safeGet(0)}时${list.safeGet(1)}分${list.safeGet(2)}秒"
-}
-
 /**
  * 获取年月
  */
@@ -255,23 +249,6 @@ fun String?.getWeekOfDate(): Int {
     }
 }
 
-/**
- * 返回中文形式的星期
- * @param source 日期（yyyy-MM-dd）
- */
-fun String.getWeekOfDateCN(): String {
-    return when (getWeekOfDate()) {
-        0 -> "星期天"
-        1 -> "星期一"
-        2 -> "星期二"
-        3 -> "星期三"
-        4 -> "星期四"
-        5 -> "星期五"
-        6 -> "星期六"
-        else -> ""
-    }
-}
-
 // <editor-fold defaultstate="collapsed" desc="常用的日期格式及方法">
 object DateFormat {
     /**
@@ -285,14 +262,6 @@ object DateFormat {
     const val EN_YMD = "yyyy-MM-dd"
     const val EN_YMDHM = "yyyy-MM-dd HH:mm"
     const val EN_YMDHMS = "yyyy-MM-dd HH:mm:ss"
-    const val CN_M = "M月"
-    const val CN_MD = "M月d日"
-    const val CN_HM = "HH时mm分"
-    const val CN_HMS = "HH时mm分ss秒"
-    const val CN_YM = "yyyy年M月"
-    const val CN_YMD = "yyyy年MM月dd日"
-    const val CN_YMDHM = "yyyy年MM月dd日 HH时mm分"
-    const val CN_YMDHMS = "yyyy年MM月dd日 HH时mm分ss秒"
 
     /**
      * 获取手机计算日历
