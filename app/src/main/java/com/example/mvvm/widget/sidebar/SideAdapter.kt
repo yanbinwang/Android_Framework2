@@ -5,6 +5,7 @@ import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
 import com.example.common.utils.function.orNoData
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.visible
 import com.example.mvvm.databinding.ItemSideBinding
@@ -43,7 +44,9 @@ class SideAdapter : BaseQuickAdapter<SortBean, ItemSideBinding>() {
      * 获取传入对象标题ABCD的ascii码（java使用chatAt，kotlin使用code）
      */
     fun getSectionForPosition(bean: SortBean?): Int? {
-        return bean?.sortLetters?.get(0)?.code
+//        return bean?.sortLetters?.get(0)?.code
+        val list = bean?.sortLetters?.toList()
+        return list.safeGet(0)?.code
     }
 
     /**
@@ -51,11 +54,19 @@ class SideAdapter : BaseQuickAdapter<SortBean, ItemSideBinding>() {
      * position == getPositionForSection(section)
      */
     fun getPositionForSection(section: Int): Int {
-        for (i in 0 until itemCount) {
-            val sortStr = item(i)?.sortLetters.orEmpty()
-            val firstChar = sortStr.uppercase(Locale.getDefault())[0]
-            if (firstChar.code == section) {
-                return i
+//        for (i in 0 until itemCount) {
+//            val sortStr = item(i)?.sortLetters.orEmpty()
+//            val firstChar = sortStr.uppercase(Locale.getDefault())[0]
+//            if (firstChar.code == section) {
+//                return i
+//            }
+//        }
+//        return -1
+        list().forEachIndexed { index, sortBean ->
+            val sortStr = sortBean.sortLetters.orEmpty()
+            val firstChar = sortStr.uppercase(Locale.getDefault()).toList().safeGet(0)
+            if (firstChar?.code == section) {
+                return index
             }
         }
         return -1
