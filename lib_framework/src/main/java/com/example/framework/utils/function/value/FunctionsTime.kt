@@ -319,11 +319,7 @@ object DateFormat {
      */
     private val DEFAULT_FORMAT = EN_YMD
 
-    fun convert(
-        format: String = DEFAULT_FORMAT,
-        source: String,
-        timeFormat: String = EN_YMDHMS
-    ): String {
+    fun convert(source: String, format: String = DEFAULT_FORMAT, timeFormat: String): String {
         return timeFormat.convert(format, source)
     }
 
