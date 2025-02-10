@@ -308,6 +308,7 @@ object DateFormat {
      * 获取手机本身日期格式，指定为国内时区，避免用户手动改时区
      * @param this 日期格式（yyyy-MM-dd）
      */
+    @JvmStatic
     fun String.getDateFormat(): SimpleDateFormat {
         val dateFormat = SimpleDateFormat(this, Locale.getDefault())
         dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
@@ -319,22 +320,27 @@ object DateFormat {
      */
     private val DEFAULT_FORMAT = EN_YMD
 
+    @JvmStatic
     fun convert(timeFormat: String, source: String, format: String = DEFAULT_FORMAT): String {
         return timeFormat.convert(format, source)
     }
 
+    @JvmStatic
     fun convert(source: String, format: String = DEFAULT_FORMAT): Long {
         return format.convert(source)
     }
 
+    @JvmStatic
     fun convert(timestamp: Long, format: String = DEFAULT_FORMAT): String {
         return format.convert(timestamp)
     }
 
+    @JvmStatic
     fun convert(date: Date, format: String = DEFAULT_FORMAT): String {
         return format.convert(date)
     }
 
+    @JvmStatic
     fun compare(timeDay: String, timeDay2: String, format: String = DEFAULT_FORMAT): Int {
         return timeDay.compare(timeDay2, format)
     }
