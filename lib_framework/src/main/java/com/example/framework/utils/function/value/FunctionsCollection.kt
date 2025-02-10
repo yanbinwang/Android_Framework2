@@ -218,6 +218,17 @@ fun <T> List<T>.toArrayList(): ArrayList<T> {
 }
 
 /**
+ * 取得async异步协程集合后，拿取对应的值强转
+ */
+fun <T> List<Any?>?.toObj(position: Int): T? {
+    return when {
+        isNullOrEmpty() -> null
+        position in indices -> get(position) as? T
+        else -> null
+    }
+}
+
+/**
  * list1为服务器中数据
  * list2为本地存储数据
  * isDuplicate:是否返回重复的或不重复的数据
