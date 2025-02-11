@@ -216,7 +216,7 @@ internal fun File?.split(cutSize: Long): MutableList<String> {
  * @param end   结束指针的位置
  * @return first->分割文件地址 second->分割文件大小
  */
-private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<String?, Long?> {
+fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<String?, Long?> {
     //源文件
     val file = File(filePath)
     //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
