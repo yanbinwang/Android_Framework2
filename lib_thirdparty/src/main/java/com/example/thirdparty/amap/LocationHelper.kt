@@ -48,13 +48,7 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
     private val handler by lazy { WeakHandler(Looper.getMainLooper()) }
     private val manager by lazy { mActivity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager }
     private val mDialog by lazy { AppDialog(mActivity) }
-    private val result = mActivity.registerResult {
-        if (it.resultCode == Activity.RESULT_OK) {
-            listener?.onGpsSetting(true)
-        } else {
-            listener?.onGpsSetting(false)
-        }
-    }
+    private val result = mActivity.registerResult { listener?.onGpsSetting(it.resultCode == Activity.RESULT_OK) }
 
     companion object {
         //经纬度json->默认杭州
