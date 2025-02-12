@@ -221,6 +221,15 @@ class PartFactory private constructor() : CoroutineScope {
     }
 
     /**
+     * 某个分片上传成功，取消和删除对应标记的map
+     */
+    private fun end(baoquan: String) {
+        val value = partMap[baoquan]
+        value?.cancel()
+        partMap.remove(baoquan)
+    }
+
+    /**
      * 初始化相关参数
      */
     private suspend fun query(sourcePath: String, baoquan: String): PartDB {
@@ -240,15 +249,6 @@ class PartFactory private constructor() : CoroutineScope {
         PartDBHelper.updateUpload(baoquan, true)
         callback(0, baoquan)
         return query
-    }
-
-    /**
-     * 某个分片上传成功，取消和删除对应标记的map
-     */
-    private fun end(baoquan: String) {
-        val value = partMap[baoquan]
-        value?.cancel()
-        partMap.remove(baoquan)
     }
 
     /**
