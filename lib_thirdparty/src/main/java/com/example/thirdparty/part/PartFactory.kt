@@ -145,11 +145,11 @@ class PartFactory private constructor() : CoroutineScope {
             val tmp = PartDBHelper.split(query)
             query.filePointer = tmp.filePointer.orZero
             //方法内部调用方法，循环传输
-            suspendingPartUpload(query, tmp.filePath.orEmpty(), fileType, baoquan, isZip)
+            suspendingPartUpload(query, tmp.filePath.orEmpty(), recordDirectory, fileType, baoquan, isZip)
         }
     }
 
-    private suspend fun suspendingPartUpload(query: PartDB, tmpPath: String, fileType: String, baoquan: String, isZip: Boolean = false) {
+    private suspend fun suspendingPartUpload(query: PartDB, tmpPath: String, recordDirectory: String, fileType: String, baoquan: String, isZip: Boolean = false) {
         val paramsFile = File(tmpPath)
         val builder = MultipartBody.Builder()
         builder.setType(MultipartBody.FORM)
@@ -175,15 +175,17 @@ class PartFactory private constructor() : CoroutineScope {
                         val progress = query.index.toString().divide(reQuery.total.toString(), 2).multiply("100").removeEndZero().toSafeInt()
                         callback(1, query.baoquan_no, progress, true)
                         //再开启下一次传输
-                        suspendingPartUpload(reQuery, nextTmp.filePath.orEmpty(), fileType, baoquan, isZip)
+                        suspendingPartUpload(reQuery, nextTmp.filePath.orEmpty(), recordDirectory, fileType, baoquan, isZip)
                     } else if (reQuery.index >= query.total) {
                         //此时即便通知服务器接口并未调取成功，也已经将最后一个分片传输成功了，故而调取后直接执行成功和刷新
                         PartSubscribe.getPartCombineApi(mapOf("baoquan_no" to baoquan))
+                        recordDirectory.deleteFile()
                         success(query, fileType)
                         end(baoquan)
                     }
                 } else {
                     //没查到，说明之前应该已经完成了请求交互
+                    recordDirectory.deleteFile()
                     success(query, fileType)
                     end(baoquan)
                 }
@@ -192,6 +194,7 @@ class PartFactory private constructor() : CoroutineScope {
                 log(query.sourcePath, "失败\n失败原因：${errMsg}")
                 //后端坑，可能已经插入成功了，但是此时请求回调了
                 if (errMsg == "该保全号信息有误") {
+                    recordDirectory.deleteFile()
                     success(query, fileType)
                 } else {
                     failure(baoquan)
