@@ -3,6 +3,7 @@ package com.example.thirdparty.part
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.event.EventCode.EVENT_EVIDENCE_UPDATE
 import com.example.common.network.repository.successful
+import com.example.common.utils.file.deleteDir
 import com.example.common.utils.file.deleteFile
 import com.example.common.utils.file.getSizeFormat
 import com.example.common.utils.file.mb
@@ -126,9 +127,20 @@ class PartFactory private constructor() : CoroutineScope {
         }
     }
 
+    /**
+     * 文件分片上传
+     * 1.分片与断点的区别在于，它是固定顺序一个个传的，而不是随机某个拓片打乱的形式上传
+     * 2.生成拓片的时候会根据源文件路径创建一个${fileName}_record命名的文件夹用于存放拓片
+     * 3.每次上传之前可以清空一次拓片文件夹，避免造成文件冗余
+     */
     private fun toPartUpload(sourcePath: String, fileType: String, baoquan: String, isZip: Boolean = false) {
         partMap[baoquan] = launch {
             val query = query(sourcePath, baoquan)
+            //尝试清空一下本地拓片文件夹，分片上传存放拓片的文件内只会有一个tmp文件
+            val file = File(sourcePath)
+            val fileName = file.name.split(".")[0]
+            val recordDirectory = "${file.parent}/${fileName}_record"
+            recordDirectory.deleteDir()
             //获取分片信息并开始分片
             val tmp = PartDBHelper.split(query)
             query.filePointer = tmp.filePointer.orZero
@@ -189,6 +201,9 @@ class PartFactory private constructor() : CoroutineScope {
         }
     }
 
+    /**
+     * 文件整体上传
+     */
     private fun toUpload(sourcePath: String, fileType: String, baoquan: String, isZip: Boolean = false) {
         partMap[baoquan] = launch {
             val query = query(sourcePath, baoquan)
