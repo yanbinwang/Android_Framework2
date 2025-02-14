@@ -5,7 +5,6 @@ import android.graphics.Paint
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.view.Gravity
-import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -16,6 +15,7 @@ import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.parseColor
+import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.disable
@@ -24,32 +24,30 @@ import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.layoutGravity
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.visible
-import com.example.framework.widget.BaseViewGroup
 import com.example.glide.ImageLoader
 
 /**
  * @description 进度条的加载
  * @author yan
  */
-class XImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-    private var root: FrameLayout? = null
+class XImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr) {
     private val iv by lazy { ImageView(context) }
-    private val cover by lazy { View(context) }
     private val progressBar by lazy { CircleProgressBar(context) }
 
     init {
-        root = FrameLayout(context)
-        root.size(MATCH_PARENT, MATCH_PARENT)
+        //背景为灰色
+        size(MATCH_PARENT, MATCH_PARENT)
+        background = GradientDrawable().apply { setColor("#cf111111".parseColor()) }
+        //加载的图片
+        addView(iv)
+        //加载的进度条
+        addView(progressBar)
+        //设置内部ui基础属性
         iv.apply {
             scaleType = ImageView.ScaleType.FIT_XY
             size(MATCH_PARENT, MATCH_PARENT)
+            gone()
         }
-        root?.addView(iv)
-        cover.apply {
-            background = GradientDrawable().apply { setColor("#cf111111".parseColor()) }
-            size(MATCH_PARENT, MATCH_PARENT)
-        }
-        root?.addView(cover)
         progressBar.apply {
             size(40.pt, 40.pt)
             setDrawBackgroundOutsideProgress(false)
@@ -62,32 +60,32 @@ class XImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet
             setStyle(SOLID_LINE)
             setProgressTextColor(color(R.color.textWhite))
             setProgressTextSize(9.ptFloat)
-        }
-        root?.addView(progressBar)
-        progressBar.apply {
             layoutGravity = Gravity.CENTER
             max = 100
             progress = 0
+            gone()
         }
-    }
-
-    override fun onInflate() {
-        if (isInflate) addView(root)
     }
 
     fun load(url: String) {
         ImageLoader.instance.displayProgress(iv, url, {
-            root.disable()
-            cover.visible()
-            progressBar.progress = 0
+            disable()
+            iv.gone()
             iv.click {}
+            progressBar.visible()
+            progressBar.progress = 0
         }, {
             progressBar.progress = it.orZero
         }, {
-            root.enable()
-            cover.gone()
+            enable()
+            iv.appear()
             progressBar.gone()
-            if(!it) iv.click { load(url) }
+            //加载失败的话，点击可以再次加载
+            if (!it) {
+                iv.click {
+                    load(url)
+                }
+            }
         })
     }
 
