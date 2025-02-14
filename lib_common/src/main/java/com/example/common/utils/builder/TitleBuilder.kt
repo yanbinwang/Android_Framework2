@@ -99,7 +99,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
         return this
     }
 
-    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int? = null, height: Int? = null, onClick: () -> Unit = { }): TitleBuilder {
+    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int? = null, height: Int? = null, onClick: () -> Unit = {}): TitleBuilder {
         mBinding?.ivRight?.apply {
             visible()
             setResource(resId)
@@ -127,7 +127,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
         return this
     }
 
-    fun setI18nRight(resLabel: Int, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = { }): TitleBuilder {
+    fun setI18nRight(resLabel: Int, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = {}): TitleBuilder {
         mBinding?.tvRight?.apply {
             visible()
             setI18nTheme(resLabel, labelColor)
