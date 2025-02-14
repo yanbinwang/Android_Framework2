@@ -60,4 +60,7 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
 
 }
 
+/**
+ * 如果activity中的fragment不在onCreate中初始化，而是在onResume中或者接口请求完成后的代码中产生，可能会导致生命周期调用不正常，此时使用此注解
+ */
 val BaseLazyFragment<*>.needLazyOwner get() = hasAnnotation(LazyOwner::class.java)
