@@ -404,7 +404,20 @@ fun <T> ViewModel.async(
     block: suspend CoroutineScope.() -> T
 ) = viewModelScope.async(context, start, block)
 
+/**
+ * activity中构建viewmodel使用此方法
+ */
 fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: ViewModelStoreOwner): VM {
+    val viewModel = ViewModelProvider(owner)[this]
+    lifecycle.addObserver(viewModel)
+    lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }
+    return viewModel
+}
+
+/**
+ * fragment中构建viewmodel使用此方法
+ */
+fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: FragmentActivity): VM {
     val viewModel = ViewModelProvider(owner)[this]
     lifecycle.addObserver(viewModel)
     lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }
