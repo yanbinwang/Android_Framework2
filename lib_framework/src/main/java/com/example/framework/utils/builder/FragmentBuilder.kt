@@ -39,7 +39,7 @@ import java.io.Serializable
 @Suppress("UNCHECKED_CAST")
 class FragmentBuilder(private val manager: FragmentManager, private val containerViewId: Int) {
     private var isArguments = false
-    private var mCurrentItem = 0
+    private var mCurrentItem = -1
     private var clazzList: List<Pair<Class<*>, String>>? = null
     private var clazzBundleList: List<Triple<Class<*>, String, Bundle>>? = null
     private var onTabShowListener: ((tab: Int) -> Unit)? = null
@@ -82,6 +82,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      * 切换选择
      */
     fun selectTab(tab: Int) {
+        if (mCurrentItem == tab) return
         mCurrentItem = tab
         val transaction = manager.beginTransaction()
         list.forEach { transaction.hide(it) }
