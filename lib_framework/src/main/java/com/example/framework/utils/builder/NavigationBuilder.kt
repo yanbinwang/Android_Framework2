@@ -58,7 +58,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  */
 @SuppressLint("RestrictedApi")
 class NavigationBuilder(private val navigationView: BottomNavigationView?, private val ids: List<Int>, private val animation: Boolean = true) {
-    private var currentItem = 0
+    private var mCurrentItem = -1
     private var flipper: ViewPager2? = null
     private var builder: FragmentBuilder? = null
     private var onItemSelectedListener: ((index: Int, currentItem: Int) -> Unit)? = null
@@ -84,7 +84,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
             //默认允许切换页面
             if (enableSelected) selectTab(index)
             //回调我们自己的监听，返回下标和前一次历史下标
-            onItemSelectedListener?.invoke(index, currentItem)
+            onItemSelectedListener?.invoke(index, mCurrentItem)
             true
         }
         //默认效果删除
@@ -125,18 +125,18 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
     /**
      * 选择对应下标的页面
      */
-    fun selectTab(index: Int) {
-        if (index == -1) return
-        currentItem = index
+    fun selectTab(tab: Int) {
+        if (mCurrentItem == tab) return
+        mCurrentItem = tab
         //如果频繁点击相同的页面tab，不执行切换代码
-        if (!isRepeat(index)) {
+        if (!isRepeat(tab)) {
             if (isPager) {
-                flipper?.setCurrentItem(index, false)
+                flipper?.setCurrentItem(tab, false)
             } else {
-                builder?.selectTab(index)
+                builder?.selectTab(tab)
             }
             if (animation) {
-                getItemView(index)?.getChildAt(0)?.apply {
+                getItemView(tab)?.getChildAt(0)?.apply {
                     startAnimation(context.elasticityEnter())
                     vibrate(50)
                 }
