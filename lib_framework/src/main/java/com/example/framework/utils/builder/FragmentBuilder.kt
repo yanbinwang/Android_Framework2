@@ -89,9 +89,15 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
         if (mCurrentItem == tab) return
         mCurrentItem = tab
         val transaction = manager.beginTransaction()
-        setCustomAnimations(transaction)
-        list.forEach { transaction.hide(it) }
-        val fragment = if (isArguments) newInstanceArguments() else newInstance()
+        initAnimations(transaction)
+        list.forEach {
+            transaction.hide(it)
+        }
+        val fragment = if (isArguments) {
+            newInstanceArguments()
+        } else {
+            newInstance()
+        }
         if (null != fragment) {
             transaction.show(fragment)
             transaction.commitAllowingStateLoss()
@@ -102,7 +108,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     private fun newInstance(): Fragment? {
         clazzList.safeGet(mCurrentItem).let {
             val transaction = manager.beginTransaction()
-            setCustomAnimations(transaction)
+            initAnimations(transaction)
             val tag = it?.second
             var fragment = manager.findFragmentByTag(tag)
             if (null == fragment) {
@@ -119,8 +125,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     private fun newInstanceArguments(): Fragment? {
         clazzBundleList.safeGet(mCurrentItem).let {
             val transaction = manager.beginTransaction()
-            setCustomAnimations(transaction)
-            //此时的tag需要本身类class简拼外加id
+            initAnimations(transaction)
             val tag = it?.second + it?.third.toString()
             var fragment = manager.findFragmentByTag(tag)
             if (null == fragment) {
@@ -138,7 +143,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     /**
      * 设置动画（进入、退出、返回进入、返回退出）
      */
-    private fun setCustomAnimations(transaction: FragmentTransaction) {
+    private fun initAnimations(transaction: FragmentTransaction) {
         if (isAnimation) {
             transaction.setCustomAnimations(
                 animList.safeGet(0).orZero,
@@ -147,20 +152,6 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
                 animList.safeGet(3).orZero
             )
         }
-    }
-
-    /**
-     * 设置动画
-     * builder.setAnimation(
-     *     R.anim.set_translate_right_in, -> 新Fragment进入动画
-     *     R.anim.set_translate_left_out, -> 旧Fragment退出动画
-     *     R.anim.set_translate_left_in, -> 返回时旧Fragment重新进入动画
-     *     R.anim.set_translate_right_out -> 返回时新Fragment退出动画
-     * )
-     */
-    fun setAnimation(vararg elements: Int) {
-        isAnimation = true
-        animList = elements.toMutableList()
     }
 
     /**
@@ -182,6 +173,20 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      */
     fun getCurrentIndex(): Int {
         return mCurrentItem
+    }
+
+    /**
+     * 设置动画
+     * builder.setAnimation(
+     *     R.anim.set_translate_right_in, -> 新Fragment进入动画
+     *     R.anim.set_translate_left_out, -> 旧Fragment退出动画
+     *     R.anim.set_translate_left_in, -> 返回时旧Fragment重新进入动画
+     *     R.anim.set_translate_right_out -> 返回时新Fragment退出动画
+     * )
+     */
+    fun setAnimation(vararg elements: Int) {
+        isAnimation = true
+        animList = elements.toMutableList()
     }
 
     /**
