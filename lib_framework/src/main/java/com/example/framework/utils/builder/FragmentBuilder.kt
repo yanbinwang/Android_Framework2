@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import com.example.framework.utils.function.value.getSimpleName
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import java.io.Serializable
 
@@ -39,7 +41,9 @@ import java.io.Serializable
 @Suppress("UNCHECKED_CAST")
 class FragmentBuilder(private val manager: FragmentManager, private val containerViewId: Int) {
     private var isArguments = false
+    private var isAnimation = false
     private var mCurrentItem = -1
+    private var animList: MutableList<Int>? = null
     private var clazzList: List<Pair<Class<*>, String>>? = null
     private var clazzBundleList: List<Triple<Class<*>, String, Bundle>>? = null
     private var onTabShowListener: ((tab: Int) -> Unit)? = null
@@ -85,6 +89,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
         if (mCurrentItem == tab) return
         mCurrentItem = tab
         val transaction = manager.beginTransaction()
+        setCustomAnimations(transaction)
         list.forEach { transaction.hide(it) }
         val fragment = if (isArguments) newInstanceArguments() else newInstance()
         if (null != fragment) {
@@ -97,6 +102,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     private fun newInstance(): Fragment? {
         clazzList.safeGet(mCurrentItem).let {
             val transaction = manager.beginTransaction()
+            setCustomAnimations(transaction)
             var fragment = manager.findFragmentByTag(it?.second)
             if (null == fragment) {
                 fragment = it?.first?.getDeclaredConstructor()?.newInstance() as? Fragment
@@ -112,6 +118,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     private fun newInstanceArguments(): Fragment? {
         clazzBundleList.safeGet(mCurrentItem).let {
             val transaction = manager.beginTransaction()
+            setCustomAnimations(transaction)
             var fragment = manager.findFragmentByTag(it?.second)
             if (null == fragment) {
                 fragment = it?.first?.getDeclaredConstructor()?.newInstance() as? Fragment
@@ -123,6 +130,34 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
             }
             return fragment
         }
+    }
+
+    /**
+     * 设置动画（进入、退出、返回进入、返回退出）
+     */
+    private fun setCustomAnimations(transaction: FragmentTransaction) {
+        if (isAnimation) {
+            transaction.setCustomAnimations(
+                animList.safeGet(0).orZero,
+                animList.safeGet(1).orZero,
+                animList.safeGet(2).orZero,
+                animList.safeGet(3).orZero
+            )
+        }
+    }
+
+    /**
+     * 设置动画
+     * builder.setAnimation(
+     *     R.anim.set_translate_right_in, -> 新Fragment进入动画
+     *     R.anim.set_translate_left_out, -> 旧Fragment退出动画
+     *     R.anim.set_translate_left_in, -> 返回时旧Fragment重新进入动画
+     *     R.anim.set_translate_right_out -> 返回时新Fragment退出动画
+     * )
+     */
+    fun setAnimation(vararg elements: Int) {
+        isAnimation = true
+        animList = elements.toMutableList()
     }
 
     /**
