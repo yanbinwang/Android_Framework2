@@ -103,11 +103,12 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
         clazzList.safeGet(mCurrentItem).let {
             val transaction = manager.beginTransaction()
             setCustomAnimations(transaction)
-            var fragment = manager.findFragmentByTag(it?.second)
+            val tag = it?.second
+            var fragment = manager.findFragmentByTag(tag)
             if (null == fragment) {
                 fragment = it?.first?.getDeclaredConstructor()?.newInstance() as? Fragment
                 fragment ?: return null
-                transaction.add(containerViewId, fragment, it?.second)
+                transaction.add(containerViewId, fragment, tag)
                 transaction.commitAllowingStateLoss()
                 list.add(fragment)
             }
@@ -119,12 +120,14 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
         clazzBundleList.safeGet(mCurrentItem).let {
             val transaction = manager.beginTransaction()
             setCustomAnimations(transaction)
-            var fragment = manager.findFragmentByTag(it?.second)
+            //此时的tag需要本身类class简拼外加id
+            val tag = it?.second + it?.third.toString()
+            var fragment = manager.findFragmentByTag(tag)
             if (null == fragment) {
                 fragment = it?.first?.getDeclaredConstructor()?.newInstance() as? Fragment
                 fragment ?: return null
                 fragment.arguments = it?.third
-                transaction.add(containerViewId, fragment, it?.second)
+                transaction.add(containerViewId, fragment, tag)
                 transaction.commitAllowingStateLoss()
                 list.add(fragment)
             }
