@@ -37,6 +37,31 @@ import java.io.Serializable
  *  intent.getIntExtra(Extras.TAB_INDEX, 0).also { navigationBuilder.selectedItem(it) }//注意selected
  *  }
  *
+ *  /**
+ *   * 1.4个子Fragment是在MainActivity内部的
+ *   * 2.当前Fragment第一次加载时调取onResume
+ *   * 3.二级页面被打开其后关闭，统一调取一次（栈内初始化了几个Fragment就回调几个）
+ *  */
+ *  override fun onResume() {
+ *  super.onResume()
+ *  if (isHidden) return
+ *  refreshNow()
+ *  }
+ *
+ *  /**
+ *   * 1.当前Fragment第一次加载时不会被调取
+ *   * 2.使用FragmentManager切换时，栈内有几个Fragment就回调几个
+ *   * 3.!hidden表示当前可见
+ *  */
+ *  override fun onHiddenChanged(hidden: Boolean) {
+ *  super.onHiddenChanged(hidden)
+ *  if (!hidden) refreshNow()
+ *  }
+ *
+ *  private fun refreshNow() {
+ *  viewModel?.refresh()
+ *  helper.zendeskInfo()
+ *  }
  */
 @Suppress("UNCHECKED_CAST")
 class FragmentBuilder(private val manager: FragmentManager, private val containerViewId: Int) {
