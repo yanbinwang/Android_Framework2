@@ -126,7 +126,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
         clazzBundleList.safeGet(mCurrentItem).let {
             val transaction = manager.beginTransaction()
             initAnimations(transaction)
-            val tag = it?.second + it?.third.toString()
+            val tag = it?.second
             var fragment = manager.findFragmentByTag(tag)
             if (null == fragment) {
                 fragment = it?.first?.getDeclaredConstructor()?.newInstance() as? Fragment
