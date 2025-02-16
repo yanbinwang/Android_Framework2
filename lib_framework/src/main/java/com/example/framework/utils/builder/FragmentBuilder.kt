@@ -64,16 +64,15 @@ import java.io.Serializable
  *  add和replace区别，如果我要在容器内加载一连串fragment，它们使用的是同一个xml文件，只是id有区分，此时就可能出现ui错位
  *  这种时候就使用replace直接删除容器之前的fragment，直接替换（保证当前容器内只有一个fragment）
  */
-@Suppress("UNCHECKED_CAST")
 class FragmentBuilder(private val manager: FragmentManager, private val containerViewId: Int, private val extras: Boolean = true) {
-    private var isArguments = false
-    private var isAnimation = false
-    private var mCurrentItem = -1
-    private var animList: MutableList<Int>? = null
-    private var clazzList: List<Pair<Class<*>, String>>? = null
-    private var clazzBundleList: List<Triple<Class<*>, String, Bundle>>? = null
-    private var onTabShowListener: ((tab: Int) -> Unit)? = null
-    private val list by lazy { ArrayList<Fragment>() }
+    private var mCurrentItem = -1//默认下标
+    private var isArguments = false//是否是添加参数的模式
+    private var isAnimation = false//是否执行动画
+    private var animList: MutableList<Int>? = null//动画集合
+    private var clazzList: List<Pair<Class<*>, String>>? = null//普通模式class集合
+    private var clazzBundleList: List<Triple<Class<*>, String, Bundle>>? = null//参数模式class集合
+    private var onTabShowListener: ((tab: Int) -> Unit)? = null//切换监听
+    private val bufferList by lazy { ArrayList<Fragment>() }//存储声明的fragment
 
     /**
      *  HomeFragment::class.java.getBind()
@@ -81,8 +80,8 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      *  second：tag值，不传默认为class名
      */
     fun bind(clazzList: List<Pair<Class<*>, String>>, default: Int = 0) {
-        this.list.clear()
         this.isArguments = false
+        this.bufferList.clear()
         this.clazzList = clazzList
         selectTab(default)
     }
@@ -98,8 +97,8 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      * third：内存中存储的tag
      */
     fun bindBundle(clazzBundleList: List<Triple<Class<*>, String, Bundle>>, default: Int = 0) {
-        this.list.clear()
         this.isArguments = true
+        this.bufferList.clear()
         this.clazzBundleList = clazzBundleList
         selectTab(default)
     }
@@ -115,15 +114,21 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
         if (mCurrentItem == tab) return
         mCurrentItem = tab
         val transaction = manager.beginTransaction()
-        initAnimations(transaction)
-        list.forEach {
+        //设置动画（进入、退出、返回进入、返回退出）
+        if (isAnimation && extras) {
+            transaction.setCustomAnimations(animList.safeGet(0).orZero, animList.safeGet(1).orZero, animList.safeGet(2).orZero, animList.safeGet(3).orZero)
+        }
+        //使现有的fragment，全部隐藏
+        bufferList.forEach {
             transaction.hide(it)
         }
+        //获取到选中的fragment
         val fragment = if (isArguments) {
             newInstanceArguments()
         } else {
             newInstance()
         }
+        //不为空的情况下，显示出来
         if (null != fragment) {
             transaction.show(fragment)
             transaction.commitAllowingStateLoss()
@@ -134,7 +139,6 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     private fun newInstance(): Fragment? {
         clazzList.safeGet(mCurrentItem).let {
             val transaction = manager.beginTransaction()
-            initAnimations(transaction)
             val tag = it?.second
             var fragment = manager.findFragmentByTag(tag)
             if (null == fragment) {
@@ -149,7 +153,6 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     private fun newInstanceArguments(): Fragment? {
         clazzBundleList.safeGet(mCurrentItem).let {
             val transaction = manager.beginTransaction()
-            initAnimations(transaction)
             val tag = it?.second
             var fragment = manager.findFragmentByTag(tag)
             if (null == fragment) {
@@ -159,20 +162,6 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
                 initCommit(transaction, fragment, tag)
             }
             return fragment
-        }
-    }
-
-    /**
-     * 设置动画（进入、退出、返回进入、返回退出）
-     */
-    private fun initAnimations(transaction: FragmentTransaction) {
-        if (isAnimation && extras) {
-            transaction.setCustomAnimations(
-                animList.safeGet(0).orZero,
-                animList.safeGet(1).orZero,
-                animList.safeGet(2).orZero,
-                animList.safeGet(3).orZero
-            )
         }
     }
 
@@ -189,23 +178,9 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
         transaction.commitAllowingStateLoss()
         //replace栈内只有一个，集合也只存一个
         if (!extras) {
-            list.clear()
+            bufferList.clear()
         }
-        list.add(fragment)
-    }
-
-    /**
-     * 获取集合
-     */
-    fun getList(): List<Fragment> {
-        return list
-    }
-
-    /**
-     * 获取对应的fragment
-     */
-    fun <T : Fragment> getFragment(index: Int): T? {
-        return list.safeGet(index) as? T
+        bufferList.add(fragment)
     }
 
     /**
