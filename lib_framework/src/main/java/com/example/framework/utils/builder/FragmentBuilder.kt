@@ -5,6 +5,8 @@ import android.os.Parcelable
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.LifecycleOwner
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.getSimpleName
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
@@ -188,6 +190,29 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      */
     fun getCurrentIndex(): Int {
         return mCurrentItem
+    }
+
+    /**
+     * 设置manager切换时的监听
+     * private val callback by lazy {
+     * object : FragmentManager.FragmentLifecycleCallbacks(){
+     * override fun onFragmentAttached(fm: FragmentManager, f: Fragment, context: Context) {
+     * super.onFragmentAttached(fm, f, context)
+     * "Attached-当前fragment:${f}".logWTF("wyb")
+     * }
+     *
+     * override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
+     * super.onFragmentResumed(fm, f)
+     * "Resumed-当前fragment:${f}".logWTF("wyb")
+     * }
+     * }
+     *  }
+     */
+    fun setLifecycleCallbacks(owner: LifecycleOwner, callback: FragmentManager.FragmentLifecycleCallbacks) {
+        manager.registerFragmentLifecycleCallbacks(callback, false)
+        owner.doOnDestroy {
+            manager.unregisterFragmentLifecycleCallbacks(callback)
+        }
     }
 
     /**
