@@ -213,6 +213,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     override fun onDestroy() {
         super.onDestroy()
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
+        clearOnActivityResultListener()
         for ((key, value) in dataManager) {
             key.removeObserver(value)
         }

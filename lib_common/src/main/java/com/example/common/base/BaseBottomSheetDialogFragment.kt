@@ -303,6 +303,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     override fun onDestroy() {
         super.onDestroy()
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
+        clearOnActivityResultListener()
         for ((key, value) in dataManager) {
             key.removeObserver(value)
         }
