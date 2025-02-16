@@ -48,11 +48,9 @@ import java.io.Serializable
  *  refreshNow()
  *  }
  *
- *  /**
- *   * 1.当前Fragment第一次加载时不会被调取
- *   * 2.使用FragmentManager切换时，栈内有几个Fragment就回调几个
- *   * 3.!hidden表示当前可见
- *  */
+ *  1.当前Fragment第一次加载时不会被调取
+ *  2.使用FragmentManager切换时，栈内有几个Fragment就回调几个
+ *  3.!hidden表示当前可见
  *  override fun onHiddenChanged(hidden: Boolean) {
  *  super.onHiddenChanged(hidden)
  *  if (!hidden) refreshNow()
@@ -62,9 +60,12 @@ import java.io.Serializable
  *  viewModel?.refresh()
  *  helper.zendeskInfo()
  *  }
+ *
+ *  add和replace区别，如果我要在容器内加载一连串fragment，它们使用的是同一个xml文件，只是id有区分，此时就可能出现ui错位
+ *  这种时候就使用replace直接删除容器之前的fragment，直接替换（保证当前容器内只有一个fragment）
  */
 @Suppress("UNCHECKED_CAST")
-class FragmentBuilder(private val manager: FragmentManager, private val containerViewId: Int) {
+class FragmentBuilder(private val manager: FragmentManager, private val containerViewId: Int, private val extras: Boolean = true) {
     private var isArguments = false
     private var isAnimation = false
     private var mCurrentItem = -1
@@ -139,9 +140,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
             if (null == fragment) {
                 fragment = it?.first?.getDeclaredConstructor()?.newInstance() as? Fragment
                 fragment ?: return null
-                transaction.add(containerViewId, fragment, tag)
-                transaction.commitAllowingStateLoss()
-                list.add(fragment)
+                initCommit(transaction, fragment, tag)
             }
             return fragment
         }
@@ -157,9 +156,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
                 fragment = it?.first?.getDeclaredConstructor()?.newInstance() as? Fragment
                 fragment ?: return null
                 fragment.arguments = it?.third
-                transaction.add(containerViewId, fragment, tag)
-                transaction.commitAllowingStateLoss()
-                list.add(fragment)
+                initCommit(transaction, fragment, tag)
             }
             return fragment
         }
@@ -169,7 +166,7 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      * 设置动画（进入、退出、返回进入、返回退出）
      */
     private fun initAnimations(transaction: FragmentTransaction) {
-        if (isAnimation) {
+        if (isAnimation && extras) {
             transaction.setCustomAnimations(
                 animList.safeGet(0).orZero,
                 animList.safeGet(1).orZero,
@@ -177,6 +174,24 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
                 animList.safeGet(3).orZero
             )
         }
+    }
+
+    /**
+     * 初始化提交
+     */
+    private fun initCommit(transaction: FragmentTransaction, fragment: Fragment, tag: String?) {
+        //add会将视图保存在栈内，适用于首页切换，replace会直接替换，如果子fragment列表要切换使用此方法，需要注意，replace使用后，动画就失效了
+        if (extras) {
+            transaction.add(containerViewId, fragment, tag)
+        } else {
+            transaction.replace(containerViewId, fragment, tag)
+        }
+        transaction.commitAllowingStateLoss()
+        //replace栈内只有一个，集合也只存一个
+        if (!extras) {
+            list.clear()
+        }
+        list.add(fragment)
     }
 
     /**

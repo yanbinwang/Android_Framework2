@@ -111,7 +111,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
             val superclass = javaClass.genericSuperclass
             val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
             val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            mBinding = method?.invoke(null, layoutInflater, container, false) as? VDB
+            mBinding = method?.invoke(null, inflater, container, false) as? VDB
             mBinding?.root
         } catch (_: Exception) {
             null
