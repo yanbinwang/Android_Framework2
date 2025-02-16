@@ -26,12 +26,12 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.utils.manager.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
 import com.example.common.utils.function.registerResult
+import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
@@ -213,10 +213,6 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     override fun onDestroy() {
         super.onDestroy()
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
         for ((key, value) in dataManager) {
             key.removeObserver(value)
         }
