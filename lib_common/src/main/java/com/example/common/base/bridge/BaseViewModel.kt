@@ -4,13 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
 import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
@@ -413,8 +414,9 @@ fun <T> ViewModel.async(
 
 /**
  * activity中构建viewmodel使用此方法
+ * ViewModelStoreOwner
  */
-fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: ViewModelStoreOwner): VM {
+fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: AppCompatActivity): VM {
     val viewModel = ViewModelProvider(owner)[this]
     lifecycle.addObserver(viewModel)
     lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }
@@ -424,7 +426,7 @@ fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: ViewModel
 /**
  * fragment中构建viewmodel使用此方法
  */
-fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: FragmentActivity): VM {
+fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: Fragment): VM {
     val viewModel = ViewModelProvider(owner)[this]
     lifecycle.addObserver(viewModel)
     lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }
