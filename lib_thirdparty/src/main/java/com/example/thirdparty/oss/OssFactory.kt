@@ -161,11 +161,13 @@ class OssFactory private constructor() : CoroutineScope {
 
     /**
      * 校验oss是否初始化
+     * 1.请求正在进行的情况下，只会返回结果
+     * 2.请求不在进行，结果失败的情况下，会主动再发起一次初始化，此时可以设置是否有默认提示
      */
-    private fun isInit(): Boolean {
+    fun isInit(isToast: Boolean = true): Boolean {
         return if (!state.second) {
             if (!state.first) {
-                "oss初始化失败，请稍后再试".shortToast()
+                if (isToast) "oss初始化失败，请稍后再试".shortToast()
                 initialize()
             }
             false
