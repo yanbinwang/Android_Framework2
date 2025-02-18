@@ -76,6 +76,7 @@ class FragmentBuilder(private val fragmentManager: FragmentManager, observer: Li
     init {
         observer.doOnDestroy {
             buffer.clear()
+            anim?.clear()
             clazz?.clear()
             clazzBundle?.clear()
         }
