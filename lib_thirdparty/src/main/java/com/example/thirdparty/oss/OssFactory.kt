@@ -132,22 +132,19 @@ class OssFactory private constructor() : CoroutineScope {
                         val json = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME)
                         log("暂无", "服务器json:\n${json}")
                         //服务器返回数据体处理
-                        val bean = json.toObj<ApiResponse<OssSts>>(getType(ApiResponse::class.java, OssSts::class.java)).let { body ->
-                            if (body.successful()) {
-                                body?.data
+                        val token = json.toObj<ApiResponse<OssSts>>(getType(ApiResponse::class.java, OssSts::class.java)).let { response ->
+                            if (response.successful()) {
+                                val bean = response?.data
+                                //data就算服务器返回成功，如果本身是空，也算失败
+                                bean ?: return null
+                                OSSFederationToken(bean.accessKeyId.orEmpty(), bean.accessKeySecret.orEmpty(), bean.securityToken.orEmpty(), bean.expiration.orEmpty())
                             } else {
                                 null
                             }
                         }
-                        //oss所需token处理
-                        (null != bean).let { value ->
-                            it.resume(value)
-                            if (value) {
-                                OSSFederationToken(bean?.accessKeyId.orEmpty(), bean?.accessKeySecret.orEmpty(), bean?.securityToken.orEmpty(), bean?.expiration.orEmpty())
-                            } else {
-                                null
-                            }
-                        }
+                        //不为null就是
+                        it.resume(token != null)
+                        token
                     }
                 }}, ClientConfiguration().apply {
                     connectionTimeout = 3600 * 1000//连接超时，默认15秒。
