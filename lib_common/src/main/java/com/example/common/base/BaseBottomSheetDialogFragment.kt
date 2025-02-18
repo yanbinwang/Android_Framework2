@@ -32,12 +32,12 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.utils.manager.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
 import com.example.common.utils.function.registerResult
+import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
@@ -111,7 +111,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
             val superclass = javaClass.genericSuperclass
             val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
             val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            mBinding = method?.invoke(null, layoutInflater, container, false) as? VDB
+            mBinding = method?.invoke(null, inflater, container, false) as? VDB
             mBinding?.root
         } catch (_: Exception) {
             null
@@ -244,7 +244,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 //    }
 
     override fun <VM : BaseViewModel> VM.create(): VM? {
-        return javaClass.create(mActivity.lifecycle, mActivity).also { it.initialize(mActivity, this@BaseBottomSheetDialogFragment) }
+        return javaClass.create(mActivity.lifecycle, this@BaseBottomSheetDialogFragment).also { it.initialize(mActivity, this@BaseBottomSheetDialogFragment) }
     }
 
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
@@ -303,10 +303,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     override fun onDestroy() {
         super.onDestroy()
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
+        clearOnActivityResultListener()
         for ((key, value) in dataManager) {
             key.removeObserver(value)
         }

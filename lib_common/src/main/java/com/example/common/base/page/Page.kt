@@ -57,7 +57,6 @@ fun <T> List<T>?.getPage(total: Int?): Page<T>? {
  *  }, {
  *      setTotalCount(it?.total)
  *      evidenceData.postValue(it)//先回调赋值刷新适配器
- *      reset(hasNextPage)
  *  }, {
  *      onError()
  *      recyclerView?.setState(currentCount)
@@ -66,7 +65,6 @@ fun <T> List<T>?.getPage(total: Int?): Page<T>? {
  *
  *  postValue完成后，回调的订阅里赋值一下
  *  binding.adapter.notify(it.list, viewModel.hasRefresh) { viewModel.emptyView?.empty() } or binding.adapter.notify<ViewModel>(it.list, viewModel)
- *  viewModel.setCurrentCount(binding.adapter.size())//可删除，在notify中实现
  */
 class Paging {
     var hasRefresh = false//是否刷新

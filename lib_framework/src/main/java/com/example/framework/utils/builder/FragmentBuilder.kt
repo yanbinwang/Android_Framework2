@@ -4,7 +4,11 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.LifecycleOwner
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.getSimpleName
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import java.io.Serializable
 
@@ -35,15 +39,42 @@ import java.io.Serializable
  *  intent.getIntExtra(Extras.TAB_INDEX, 0).also { navigationBuilder.selectedItem(it) }//注意selected
  *  }
  *
+ *  /**
+ *   * 1.4个子Fragment是在MainActivity内部的
+ *   * 2.当前Fragment第一次加载时调取onResume
+ *   * 3.二级页面被打开其后关闭，统一调取一次（栈内初始化了几个Fragment就回调几个）
+ *  */
+ *  override fun onResume() {
+ *  super.onResume()
+ *  if (isHidden) return
+ *  refreshNow()
+ *  }
+ *
+ *  1.当前Fragment第一次加载时不会被调取
+ *  2.使用FragmentManager切换时，栈内有几个Fragment就回调几个
+ *  3.!hidden表示当前可见
+ *  override fun onHiddenChanged(hidden: Boolean) {
+ *  super.onHiddenChanged(hidden)
+ *  if (!hidden) refreshNow()
+ *  }
+ *
+ *  private fun refreshNow() {
+ *  viewModel?.refresh()
+ *  helper.zendeskInfo()
+ *  }
+ *
+ *  add和replace区别，如果我要在容器内加载一连串fragment，它们使用的是同一个xml文件，只是id有区分，此时就可能出现ui错位
+ *  这种时候就使用replace直接删除容器之前的fragment，直接替换（保证当前容器内只有一个fragment）
  */
-@Suppress("UNCHECKED_CAST")
-class FragmentBuilder(private val manager: FragmentManager, private val containerViewId: Int) {
-    private var isArguments = false
-    private var mCurrentItem = -1
-    private var clazzList: List<Pair<Class<*>, String>>? = null
-    private var clazzBundleList: List<Triple<Class<*>, String, Bundle>>? = null
-    private var onTabShowListener: ((tab: Int) -> Unit)? = null
-    private val list by lazy { ArrayList<Fragment>() }
+class FragmentBuilder(private val manager: FragmentManager, private val containerViewId: Int, private val extras: Boolean = true) {
+    private var mCurrentItem = -1//默认下标
+    private var isArguments = false//是否是添加参数的模式
+    private var isAnimation = false//是否执行动画
+    private var animList: MutableList<Int>? = null//动画集合
+    private var clazzList: List<Pair<Class<*>, String>>? = null//普通模式class集合
+    private var clazzBundleList: List<Triple<Class<*>, String, Bundle>>? = null//参数模式class集合
+    private var onTabShowListener: ((tab: Int) -> Unit)? = null//切换监听
+    private val bufferList by lazy { ArrayList<Fragment>() }//存储声明的fragment
 
     /**
      *  HomeFragment::class.java.getBind()
@@ -51,8 +82,8 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      *  second：tag值，不传默认为class名
      */
     fun bind(clazzList: List<Pair<Class<*>, String>>, default: Int = 0) {
-        this.list.clear()
         this.isArguments = false
+        this.bufferList.clear()
         this.clazzList = clazzList
         selectTab(default)
     }
@@ -68,8 +99,8 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      * third：内存中存储的tag
      */
     fun bindBundle(clazzBundleList: List<Triple<Class<*>, String, Bundle>>, default: Int = 0) {
-        this.list.clear()
         this.isArguments = true
+        this.bufferList.clear()
         this.clazzBundleList = clazzBundleList
         selectTab(default)
     }
@@ -85,8 +116,21 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
         if (mCurrentItem == tab) return
         mCurrentItem = tab
         val transaction = manager.beginTransaction()
-        list.forEach { transaction.hide(it) }
-        val fragment = if (isArguments) newInstanceArguments() else newInstance()
+        //设置动画（进入、退出、返回进入、返回退出）
+        if (isAnimation && extras) {
+            transaction.setCustomAnimations(animList.safeGet(0).orZero, animList.safeGet(1).orZero, animList.safeGet(2).orZero, animList.safeGet(3).orZero)
+        }
+        //使现有的fragment，全部隐藏
+        bufferList.forEach {
+            transaction.hide(it)
+        }
+        //获取到选中的fragment
+        val fragment = if (isArguments) {
+            newInstanceArguments()
+        } else {
+            newInstance()
+        }
+        //不为空的情况下，显示出来
         if (null != fragment) {
             transaction.show(fragment)
             transaction.commitAllowingStateLoss()
@@ -97,13 +141,12 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     private fun newInstance(): Fragment? {
         clazzList.safeGet(mCurrentItem).let {
             val transaction = manager.beginTransaction()
-            var fragment = manager.findFragmentByTag(it?.second)
+            val tag = it?.second
+            var fragment = manager.findFragmentByTag(tag)
             if (null == fragment) {
                 fragment = it?.first?.getDeclaredConstructor()?.newInstance() as? Fragment
                 fragment ?: return null
-                transaction.add(containerViewId, fragment, it?.second)
-                transaction.commitAllowingStateLoss()
-                list.add(fragment)
+                initCommit(transaction, fragment, tag)
             }
             return fragment
         }
@@ -112,31 +155,34 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     private fun newInstanceArguments(): Fragment? {
         clazzBundleList.safeGet(mCurrentItem).let {
             val transaction = manager.beginTransaction()
-            var fragment = manager.findFragmentByTag(it?.second)
+            val tag = it?.second
+            var fragment = manager.findFragmentByTag(tag)
             if (null == fragment) {
                 fragment = it?.first?.getDeclaredConstructor()?.newInstance() as? Fragment
                 fragment ?: return null
                 fragment.arguments = it?.third
-                transaction.add(containerViewId, fragment, it?.second)
-                transaction.commitAllowingStateLoss()
-                list.add(fragment)
+                initCommit(transaction, fragment, tag)
             }
             return fragment
         }
     }
 
     /**
-     * 获取集合
+     * 初始化提交
      */
-    fun getList(): List<Fragment> {
-        return list
-    }
-
-    /**
-     * 获取对应的fragment
-     */
-    fun <T : Fragment> getFragment(index: Int): T? {
-        return list.safeGet(index) as? T
+    private fun initCommit(transaction: FragmentTransaction, fragment: Fragment, tag: String?) {
+        //add会将视图保存在栈内，适用于首页切换，replace会直接替换，如果子fragment列表要切换使用此方法，需要注意，replace使用后，动画就失效了
+        if (extras) {
+            transaction.add(containerViewId, fragment, tag)
+        } else {
+            transaction.replace(containerViewId, fragment, tag)
+        }
+        transaction.commitAllowingStateLoss()
+        //replace栈内只有一个，集合也只存一个
+        if (!extras) {
+            bufferList.clear()
+        }
+        bufferList.add(fragment)
     }
 
     /**
@@ -144,6 +190,43 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      */
     fun getCurrentIndex(): Int {
         return mCurrentItem
+    }
+
+    /**
+     * 设置manager切换时的监听
+     * private val callback by lazy {
+     * object : FragmentManager.FragmentLifecycleCallbacks(){
+     * override fun onFragmentAttached(fm: FragmentManager, f: Fragment, context: Context) {
+     * super.onFragmentAttached(fm, f, context)
+     * "Attached-当前fragment:${f}".logWTF("wyb")
+     * }
+     *
+     * override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
+     * super.onFragmentResumed(fm, f)
+     * "Resumed-当前fragment:${f}".logWTF("wyb")
+     * }
+     * }
+     *  }
+     */
+    fun setLifecycleCallbacks(owner: LifecycleOwner, callback: FragmentManager.FragmentLifecycleCallbacks) {
+        manager.registerFragmentLifecycleCallbacks(callback, false)
+        owner.doOnDestroy {
+            manager.unregisterFragmentLifecycleCallbacks(callback)
+        }
+    }
+
+    /**
+     * 设置动画
+     * builder.setAnimation(
+     *     R.anim.set_translate_right_in, -> 新Fragment进入动画
+     *     R.anim.set_translate_left_out, -> 旧Fragment退出动画
+     *     R.anim.set_translate_left_in, -> 返回时旧Fragment重新进入动画
+     *     R.anim.set_translate_right_out -> 返回时新Fragment退出动画
+     * )
+     */
+    fun setAnimation(vararg elements: Int) {
+        isAnimation = true
+        animList = elements.toMutableList()
     }
 
     /**
