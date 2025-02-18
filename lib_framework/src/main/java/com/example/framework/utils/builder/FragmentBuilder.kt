@@ -10,15 +10,13 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.getSimpleName
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
+import com.example.framework.utils.function.value.safeSize
 import java.io.Serializable
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  *  Created by wangyanbin
  *  页面切换管理工具类
- *  manager->當前頁面的FragmentManager
- *  containerViewId->當前頁面FrameLayout佈局的id
- *  fragmentList->fragment的集合
- *  tab->没人选中的下标
  *
  *  //记录下标
  *  override fun recreate() {
@@ -39,11 +37,9 @@ import java.io.Serializable
  *  intent.getIntExtra(Extras.TAB_INDEX, 0).also { navigationBuilder.selectedItem(it) }//注意selected
  *  }
  *
- *  /**
- *   * 1.4个子Fragment是在MainActivity内部的
- *   * 2.当前Fragment第一次加载时调取onResume
- *   * 3.二级页面被打开其后关闭，统一调取一次（栈内初始化了几个Fragment就回调几个）
- *  */
+ *  1.四个子Fragment是在MainActivity内部的
+ *  2.当前Fragment第一次加载时调取onResume
+ *  3.二级页面被打开其后关闭，统一调取一次（栈内初始化了几个Fragment就回调几个）
  *  override fun onResume() {
  *  super.onResume()
  *  if (isHidden) return
@@ -66,25 +62,35 @@ import java.io.Serializable
  *  add和replace区别，如果我要在容器内加载一连串fragment，它们使用的是同一个xml文件，只是id有区分，此时就可能出现ui错位
  *  这种时候就使用replace直接删除容器之前的fragment，直接替换（保证当前容器内只有一个fragment）
  */
-class FragmentBuilder(private val manager: FragmentManager, private val containerViewId: Int, private val extras: Boolean = true) {
-    private var mCurrentItem = -1//默认下标
+class FragmentBuilder(private val fragmentManager: FragmentManager, observer: LifecycleOwner, private val containerViewId: Int, private val isAdd: Boolean = true) {
     private var isArguments = false//是否是添加参数的模式
     private var isAnimation = false//是否执行动画
-    private var animList: MutableList<Int>? = null//动画集合
-    private var clazzList: List<Pair<Class<*>, String>>? = null//普通模式class集合
-    private var clazzBundleList: List<Triple<Class<*>, String, Bundle>>? = null//参数模式class集合
+    private var mCurrentItem = -1//默认下标->不指定任何值
+    private var managerLength = 0//当前需要管理的总长度
+    private var anim: MutableList<Int>? = null//动画集合
+    private var clazz: MutableList<Pair<Class<*>, String>>? = null//普通模式class集合
+    private var clazzBundle: MutableList<Triple<Class<*>, String, Bundle>>? = null//参数模式class集合
     private var onTabShowListener: ((tab: Int) -> Unit)? = null//切换监听
-    private val bufferList by lazy { ArrayList<Fragment>() }//存储声明的fragment
+    private val buffer by lazy { ConcurrentHashMap<Int, Fragment>() }//存储声明的fragment
+
+    init {
+        observer.doOnDestroy {
+            buffer.clear()
+            clazz?.clear()
+            clazzBundle?.clear()
+        }
+    }
 
     /**
      *  HomeFragment::class.java.getBind()
      *  first：class名
      *  second：tag值，不传默认为class名
      */
-    fun bind(clazzList: List<Pair<Class<*>, String>>, default: Int = 0) {
-        this.isArguments = false
-        this.bufferList.clear()
-        this.clazzList = clazzList
+    fun bind(list: List<Pair<Class<*>, String>>, default: Int = 0) {
+        isArguments = false
+        buffer.clear()
+        clazz = list.toMutableList()
+        managerLength = list.safeSize
         selectTab(default)
     }
 
@@ -93,15 +99,16 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     }
 
     /**
-     * EvidencePageFragment::class.java.getBind(Extras.REQUEST_ID to id, "EviPager${id}")
+     * SceneListFragment::class.java.getBindBundle("Scene${i}", pairs = arrayOf(Extra.ID to i))
      * first：class名
-     * second：pair对象 （first，fragment透传的key second，透传的值）
-     * third：内存中存储的tag
+     * second：内存中存储的tag
+     * third：pair对象 （first，fragment透传的key second，透传的值）
      */
-    fun bindBundle(clazzBundleList: List<Triple<Class<*>, String, Bundle>>, default: Int = 0) {
-        this.isArguments = true
-        this.bufferList.clear()
-        this.clazzBundleList = clazzBundleList
+    fun bindBundle(list: List<Triple<Class<*>, String, Bundle>>, default: Int = 0) {
+        isArguments = true
+        buffer.clear()
+        clazzBundle = list.toMutableList()
+        managerLength = list.safeSize
         selectTab(default)
     }
 
@@ -111,18 +118,23 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
 
     /**
      * 切换选择
+     * 重复选择或者超过初始化长度都return
      */
     fun selectTab(tab: Int) {
-        if (mCurrentItem == tab) return
+        if (mCurrentItem == tab || tab > managerLength - 1 || tab < 0) return
         mCurrentItem = tab
-        val transaction = manager.beginTransaction()
-        //设置动画（进入、退出、返回进入、返回退出）
-        if (isAnimation && extras) {
-            transaction.setCustomAnimations(animList.safeGet(0).orZero, animList.safeGet(1).orZero, animList.safeGet(2).orZero, animList.safeGet(3).orZero)
+        val transaction = fragmentManager.beginTransaction()
+        //设置动画（进入、退出、返回进入、返回退出）->只有add这种保留原fragment在栈内的情况才会设置动画
+        if (isAnimation && isAdd) {
+            if (anim.safeSize == 2) {
+                transaction.setCustomAnimations(anim.safeGet(0).orZero, anim.safeGet(1).orZero)
+            } else {
+                transaction.setCustomAnimations(anim.safeGet(0).orZero, anim.safeGet(1).orZero, anim.safeGet(2).orZero, anim.safeGet(3).orZero)
+            }
         }
         //使现有的fragment，全部隐藏
-        bufferList.forEach {
-            transaction.hide(it)
+        for ((_, value) in buffer) {
+            transaction.hide(value)
         }
         //获取到选中的fragment
         val fragment = if (isArguments) {
@@ -139,29 +151,29 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     }
 
     private fun newInstance(): Fragment? {
-        clazzList.safeGet(mCurrentItem).let {
-            val transaction = manager.beginTransaction()
+        clazz.safeGet(mCurrentItem).let {
+            val transaction = fragmentManager.beginTransaction()
             val tag = it?.second
-            var fragment = manager.findFragmentByTag(tag)
+            var fragment = fragmentManager.findFragmentByTag(tag)
             if (null == fragment) {
                 fragment = it?.first?.getDeclaredConstructor()?.newInstance() as? Fragment
                 fragment ?: return null
-                initCommit(transaction, fragment, tag)
+                commit(transaction, fragment, tag)
             }
             return fragment
         }
     }
 
     private fun newInstanceArguments(): Fragment? {
-        clazzBundleList.safeGet(mCurrentItem).let {
-            val transaction = manager.beginTransaction()
+        clazzBundle.safeGet(mCurrentItem).let {
+            val transaction = fragmentManager.beginTransaction()
             val tag = it?.second
-            var fragment = manager.findFragmentByTag(tag)
+            var fragment = fragmentManager.findFragmentByTag(tag)
             if (null == fragment) {
                 fragment = it?.first?.getDeclaredConstructor()?.newInstance() as? Fragment
                 fragment ?: return null
                 fragment.arguments = it?.third
-                initCommit(transaction, fragment, tag)
+                commit(transaction, fragment, tag)
             }
             return fragment
         }
@@ -170,19 +182,19 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
     /**
      * 初始化提交
      */
-    private fun initCommit(transaction: FragmentTransaction, fragment: Fragment, tag: String?) {
+    private fun commit(transaction: FragmentTransaction, fragment: Fragment, tag: String?) {
         //add会将视图保存在栈内，适用于首页切换，replace会直接替换，如果子fragment列表要切换使用此方法，需要注意，replace使用后，动画就失效了
-        if (extras) {
+        if (isAdd) {
             transaction.add(containerViewId, fragment, tag)
         } else {
             transaction.replace(containerViewId, fragment, tag)
         }
         transaction.commitAllowingStateLoss()
         //replace栈内只有一个，集合也只存一个
-        if (!extras) {
-            bufferList.clear()
+        if (!isAdd) {
+            buffer.clear()
         }
-        bufferList.add(fragment)
+        buffer[mCurrentItem] = fragment
     }
 
     /**
@@ -190,6 +202,35 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      */
     fun getCurrentIndex(): Int {
         return mCurrentItem
+    }
+
+    /**
+     * 获取对应的fragment
+     * 存在获取不到的情况(直接从0选择2,3的页面，然后获取1，本身并未添加进map，拿到的就是null)
+     */
+    fun <T : Fragment> getFragment(index: Int): T? {
+        return buffer[index] as? T
+    }
+
+    /**
+     * 设置动画
+     * builder.setAnimation(
+     *     R.anim.set_translate_right_in, -> 新Fragment进入动画
+     *     R.anim.set_translate_left_out, -> 旧Fragment退出动画
+     *     R.anim.set_translate_left_in, -> 返回时旧Fragment重新进入动画
+     *     R.anim.set_translate_right_out -> 返回时新Fragment退出动画
+     * )
+     */
+    fun setAnimation(vararg elements: Int) {
+        isAnimation = true
+        anim = elements.toMutableList()
+    }
+
+    /**
+     * 设置点击事件
+     */
+    fun setOnItemClickListener(onTabShow: ((tab: Int) -> Unit)) {
+        this.onTabShowListener = onTabShow
     }
 
     /**
@@ -208,32 +249,11 @@ class FragmentBuilder(private val manager: FragmentManager, private val containe
      * }
      *  }
      */
-    fun setLifecycleCallbacks(owner: LifecycleOwner, callback: FragmentManager.FragmentLifecycleCallbacks) {
-        manager.registerFragmentLifecycleCallbacks(callback, false)
+    fun registerLifecycleCallbacks(owner: LifecycleOwner, callback: FragmentManager.FragmentLifecycleCallbacks) {
+        fragmentManager.registerFragmentLifecycleCallbacks(callback, false)
         owner.doOnDestroy {
-            manager.unregisterFragmentLifecycleCallbacks(callback)
+            fragmentManager.unregisterFragmentLifecycleCallbacks(callback)
         }
-    }
-
-    /**
-     * 设置动画
-     * builder.setAnimation(
-     *     R.anim.set_translate_right_in, -> 新Fragment进入动画
-     *     R.anim.set_translate_left_out, -> 旧Fragment退出动画
-     *     R.anim.set_translate_left_in, -> 返回时旧Fragment重新进入动画
-     *     R.anim.set_translate_right_out -> 返回时新Fragment退出动画
-     * )
-     */
-    fun setAnimation(vararg elements: Int) {
-        isAnimation = true
-        animList = elements.toMutableList()
-    }
-
-    /**
-     * 设置点击事件
-     */
-    fun setOnItemClickListener(onTabShow: ((tab: Int) -> Unit)) {
-        this.onTabShowListener = onTabShow
     }
 
 }
