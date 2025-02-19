@@ -60,4 +60,10 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
 
 }
 
+/**
+ * 如果activity中的fragment不在onCreate中初始化，而是在onResume中或者接口请求完成后的代码中产生，可能会导致生命周期调用不正常，推荐此时使用此注解
+ * 情况列举:
+ * 1.如首页切换使用的是fragmentmanager，并且某个子fragment中又套了fragmentlayout，再加fragmentmanager，那么这个子fragment内的子fragment就需要加上注解作区分了
+ * 2.实际情况下，如果子fragment再套manager的情况，加载起来会不好看，推荐用viewpager2切换
+ */
 val BaseLazyFragment<*>.needLazyOwner get() = hasAnnotation(LazyOwner::class.java)

@@ -4,13 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
 import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
@@ -88,6 +89,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 其余页面外层写FrameLayout，套上要使用的布局后再initView中调用该方法
      */
     fun setExtraView(view: View?) {
+        view ?: return
         when (view) {
             //传入BaseTitleActivity中写好的容器viewGroup
             is FrameLayout -> this.weakEmpty = WeakReference(view.getEmptyView(1))
@@ -105,6 +107,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     //部分首页加载时需要使用empty，完成后需要使用下拉刷新（只有下拉），故而直接传入两层view
     fun setExtraView(view: View?, refresh: SmartRefreshLayout?) {
+        if (view == null || refresh == null) return
         when (view) {
             is FrameLayout -> {
                 this.weakEmpty = WeakReference(view.getEmptyView(1))
@@ -126,6 +129,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      */
     fun setCurrentCount(currentCount: Int?) {
         paging.currentCount = currentCount.orZero
+        reset(hasNextPage())
     }
 
     /**
@@ -207,12 +211,16 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      */
     fun reset(hasNextPage: Boolean? = true) {
         finishRefreshing(hasNextPage)
-        mEmpty?.fade(300)
+        if (null != mRecycler) {
+            if (currentCount() != 0) mEmpty?.fade(300)
+        } else {
+            mEmpty?.fade(300)
+        }
     }
 
     private fun finishRefreshing(hasNextPage: Boolean? = true) {
         if (null == mRecycler) mRefresh?.finishRefreshing()
-        mRecycler?.finishRefreshing(hasNextPage.orTrue)
+        mRecycler?.finishRefreshing(!hasNextPage.orTrue)
     }
 
     /**
@@ -404,7 +412,21 @@ fun <T> ViewModel.async(
     block: suspend CoroutineScope.() -> T
 ) = viewModelScope.async(context, start, block)
 
-fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: ViewModelStoreOwner): VM {
+/**
+ * activity中构建viewmodel使用此方法
+ * ViewModelStoreOwner
+ */
+fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: AppCompatActivity): VM {
+    val viewModel = ViewModelProvider(owner)[this]
+    lifecycle.addObserver(viewModel)
+    lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }
+    return viewModel
+}
+
+/**
+ * fragment中构建viewmodel使用此方法
+ */
+fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: Fragment): VM {
     val viewModel = ViewModelProvider(owner)[this]
     lifecycle.addObserver(viewModel)
     lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }

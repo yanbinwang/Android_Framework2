@@ -148,7 +148,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
             if (null != width && null != height) size(width, height)
             click { onClick.invoke(this) }
         }
-        mBinding?.tvRight.gone()
+        mBinding?.ivRight.gone()
         return this
     }
 
