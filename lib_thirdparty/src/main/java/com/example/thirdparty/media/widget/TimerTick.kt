@@ -16,7 +16,8 @@ import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.timer
+import com.example.framework.utils.function.value.second
+import com.example.framework.utils.function.value.timeCountDown
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.thirdparty.R
 import com.example.thirdparty.databinding.ViewTimeTickBinding
@@ -36,7 +37,7 @@ class TimerTick(mContext: Context, move: Boolean = true) {
 
     companion object {
         @Volatile
-        var timerCount: Long = 0//录制时的时间在应用回退到页面时赋值页面的时间
+        var timerSecond = 0//录制时的时间在应用回退到页面时赋值页面的时间
     }
 
     /**
@@ -99,13 +100,13 @@ class TimerTick(mContext: Context, move: Boolean = true) {
      * 开启定时器计时按秒累加，毫秒级的操作不能被获取
      */
     fun start(observer: Lifecycle) {
-        timerCount = 0
+        timerSecond = 0
         if (timer == null) {
             timer = Timer()
             timerTask = object : TimerTask() {
                 override fun run() {
                     weakHandler.post {
-                        timerCount++
+                        timerSecond++
                         //每秒做一次检测，当程序退到后台显示计时器
                         if (null != tickDialog) {
                             if (!appIsOnForeground()) {
@@ -114,7 +115,7 @@ class TimerTick(mContext: Context, move: Boolean = true) {
                                 tickDialog?.dismiss()
                             }
                         }
-                        mBinding.tvTimer.text = (timerCount - 1).timer()
+                        mBinding.tvTimer.text = (timerSecond - 1).second.timeCountDown()
                     }
                 }
             }
@@ -127,7 +128,7 @@ class TimerTick(mContext: Context, move: Boolean = true) {
      * 挂载的服务销毁同时调用，结束计时器,弹框等
      */
     fun destroy() {
-        timerCount = 0
+        timerSecond = 0
         timerTask?.cancel()
         timer?.cancel()
         timerTask = null

@@ -7,6 +7,7 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.orZero
 import com.example.thirdparty.share.wechat.WXShareUtil.bmpToByteArray
+import com.example.thirdparty.share.wechat.bean.WXShareResult
 import com.example.thirdparty.utils.wechat.WXManager
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
 import com.tencent.mm.opensdk.modelmsg.WXImageObject

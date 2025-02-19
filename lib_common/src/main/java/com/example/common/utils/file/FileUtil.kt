@@ -219,8 +219,13 @@ internal fun File?.split(cutSize: Long): MutableList<String> {
 private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<String?, Long?> {
     //源文件
     val file = File(filePath)
-    //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
-    val tmpFile = File("${file.parent}/${file.name.split(".")[0]}_${index}.tmp")
+//    //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
+//    val tmpFile = File("${file.parent}/${file.name.split(".")[0]}_${index}.tmp")
+    val fileName = file.name.split(".")[0]
+    //本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
+    val recordDirectory = "${file.parent}/${fileName}_record"
+    //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件->多一个文件夹，好管理对应文件的tmp
+    val tmpFile = File("${recordDirectory}/${fileName}_${index}.tmp")
     //如果不存在，则创建一个或继续写入
     return RandomAccessFile(tmpFile, "rw").use { outAccessFile ->
         RandomAccessFile(file, "r").use { inAccessFile ->
@@ -319,8 +324,10 @@ internal fun File?.getDuration(): Int {
     return try {
         player.setDataSource(absolutePath)
         player.prepare()
-        //视频时长（毫秒）/1000=x秒
-        (player.duration.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
+//        //视频时长（毫秒）/1000=x秒
+//        (player.duration.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
+        val duration = player.duration.orZero
+        Math.round(duration / 1000.0).toSafeInt().apply { "文件时长：${this}秒".logE() }
     } catch (_: Exception) {
         0
     } finally {

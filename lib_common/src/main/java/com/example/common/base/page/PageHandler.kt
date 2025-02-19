@@ -19,24 +19,24 @@ import com.example.framework.utils.function.value.orZero
 import java.io.Serializable
 
 /**
- * 页面工具类
- * 1.接口提示
- * 2.遮罩层操作
- */
-fun ViewGroup?.setState(resId: Int? = null, text: String? = null, index: Int = 1) {
-    this ?: return
-    val emptyLayout = if (this is EmptyLayout) this else getEmptyView(index)
-    emptyLayout?.error(resId, text)
-}
-
-/**
  * 列表页调取方法
  */
 fun XRecyclerView?.setState(length: Int = 0, imgRes: Int? = null, text: String? = null) {
     this ?: return
     finishRefreshing()
     //判断集合长度，有长度不展示emptyview只做提示
-    if (length <= 0) empty?.setState(imgRes, text)
+    if (length <= 0) empty.setEmptyState(imgRes, text)
+}
+
+/**
+ * 页面工具类
+ * 1.接口提示
+ * 2.遮罩层操作
+ */
+fun ViewGroup?.setEmptyState(resId: Int? = null, text: String? = null, index: Int = 1) {
+    this ?: return
+    val emptyLayout = if (this is EmptyLayout) this else getEmptyView(index)
+    emptyLayout?.error(resId, text)
 }
 
 /**

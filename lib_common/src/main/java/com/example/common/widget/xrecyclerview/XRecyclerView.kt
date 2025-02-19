@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
 import androidx.databinding.ViewDataBinding
@@ -23,10 +22,10 @@ import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.cancelItemAnimator
 import com.example.framework.utils.function.view.getHolder
-import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.initConcat
 import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
@@ -200,6 +199,14 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun <VDB : ViewDataBinding> getViewHolder(position: Int): VDB? {
         return getHolder<BaseViewDataBindingHolder>(position)?.getBinding() as? VDB
+    }
+
+    /**
+     * 让列表滚动到对应下标点
+     */
+    fun scrollToPosition(position: Int) {
+        if (position < 0 || position > recycler?.adapter?.itemCount.orZero -1) return
+        recycler?.scrollToPosition(position)
     }
 
     /**
