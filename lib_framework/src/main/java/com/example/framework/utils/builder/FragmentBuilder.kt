@@ -65,18 +65,18 @@ import java.util.concurrent.ConcurrentHashMap
 class FragmentBuilder(private val fragmentManager: FragmentManager, private val observer: LifecycleOwner, private val containerViewId: Int, private val isAdd: Boolean = true) {
     private var isArguments = false//是否是添加参数的模式
     private var isAnimation = false//是否执行动画
-    private var mCurrentItem = -1//默认下标->不指定任何值
+    private var currentItem = -1//默认下标->不指定任何值
     private var managerLength = 0//当前需要管理的总长度
     private var anim: MutableList<Int>? = null//动画集合
     private var clazz: MutableList<Pair<Class<*>, String>>? = null//普通模式class集合
     private var clazzBundle: MutableList<Triple<Class<*>, String, Bundle>>? = null//参数模式class集合
-    private var onTabShowListener: ((tab: Int) -> Unit)? = null//切换监听
+    private var listener: ((tab: Int) -> Unit)? = null//切换监听
     private val buffer by lazy { ConcurrentHashMap<Int, Fragment>() }//存储声明的fragment
 
     init {
         observer.doOnDestroy {
-            buffer.clear()
             anim?.clear()
+            buffer.clear()
             clazz?.clear()
             clazzBundle?.clear()
         }
@@ -122,8 +122,8 @@ class FragmentBuilder(private val fragmentManager: FragmentManager, private val 
      * 重复选择或者超过初始化长度都return
      */
     fun selectTab(tab: Int) {
-        if (mCurrentItem == tab || tab > managerLength - 1 || tab < 0) return
-        mCurrentItem = tab
+        if (currentItem == tab || tab > managerLength - 1 || tab < 0) return
+        currentItem = tab
         val transaction = fragmentManager.beginTransaction()
         //设置动画（进入、退出、返回进入、返回退出）->只有add这种保留原fragment在栈内的情况才会设置动画
         if (isAnimation && isAdd) {
@@ -147,12 +147,12 @@ class FragmentBuilder(private val fragmentManager: FragmentManager, private val 
         if (null != fragment) {
             transaction.show(fragment)
             transaction.commitAllowingStateLoss()
-            onTabShowListener?.invoke(tab)
+            listener?.invoke(tab)
         }
     }
 
     private fun newInstance(): Fragment? {
-        clazz.safeGet(mCurrentItem).let {
+        clazz.safeGet(currentItem).let {
             val transaction = fragmentManager.beginTransaction()
             val tag = it?.second
             var fragment = fragmentManager.findFragmentByTag(tag)
@@ -166,7 +166,7 @@ class FragmentBuilder(private val fragmentManager: FragmentManager, private val 
     }
 
     private fun newInstanceArguments(): Fragment? {
-        clazzBundle.safeGet(mCurrentItem).let {
+        clazzBundle.safeGet(currentItem).let {
             val transaction = fragmentManager.beginTransaction()
             val tag = it?.second
             var fragment = fragmentManager.findFragmentByTag(tag)
@@ -195,14 +195,14 @@ class FragmentBuilder(private val fragmentManager: FragmentManager, private val 
         if (!isAdd) {
             buffer.clear()
         }
-        buffer[mCurrentItem] = fragment
+        buffer[currentItem] = fragment
     }
 
     /**
      * 获取当前选中的下标
      */
     fun getCurrentIndex(): Int {
-        return mCurrentItem
+        return currentItem
     }
 
     /**
@@ -230,8 +230,8 @@ class FragmentBuilder(private val fragmentManager: FragmentManager, private val 
     /**
      * 设置点击事件
      */
-    fun setOnItemClickListener(onTabShow: ((tab: Int) -> Unit)) {
-        this.onTabShowListener = onTabShow
+    fun setOnTabSelectedListener(listener: ((tab: Int) -> Unit)) {
+        this.listener = listener
     }
 
     /**
