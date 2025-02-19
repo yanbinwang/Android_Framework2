@@ -58,7 +58,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *  </style>
  */
 @SuppressLint("RestrictedApi")
-class NavigationBuilder(private val navigationView: BottomNavigationView?, private val ids: List<Int>, private val enableSelected: Boolean = true, private val animation: Boolean = true) {
+class NavigationBuilder(private val navigationView: BottomNavigationView?, private val ids: List<Int>, private val enableSelect: Boolean = true, private val animation: Boolean = true) {
     private var currentItem = -1
     private var flipper: ViewPager2? = null
     private var builder: FragmentBuilder? = null
@@ -79,7 +79,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
             //返回此次点击的下标
             val index = ids.indexOfFirst { it == item.itemId }
             //默认允许切换页面
-            if (enableSelected) setSelectTab(index)
+            if (enableSelect) selectTab(index)
             //回调我们自己的监听，返回下标和前一次历史下标-》-1就是没选过，直接为0
             onItemSelectedListener?.invoke(index, currentItem)
             true
@@ -101,19 +101,19 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
     }
 
     /**
-     * 只有禁止自动选择的模式才能调取
+     * 只有禁止自动选择的模式/特许模式，才能调取
      */
-    fun setSelect(index: Int, isArrow: Boolean = false) {
-        if (!enableSelected || isArrow) {
-            setSelectItem(index)
-            setSelectTab(index)
+    fun setSelect(index: Int, recreate: Boolean = false) {
+        if (!enableSelect || recreate) {
+            selectItem(index)
+            selectTab(index, true)
         }
     }
 
     /**
      * 选中对应下标的item
      */
-    fun setSelectItem(index: Int) {
+    private fun selectItem(index: Int) {
         navigationView?.postDelayed({
             navigationView.selectedItemId = navigationView.menu.getItem(index)?.itemId.orZero
         }, 500)
@@ -125,15 +125,23 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
     /**
      * 选择对应下标的页面
      */
-    fun setSelectTab(tab: Int) {
-        if (currentItem == tab || tab > ids.safeSize - 1 || tab < 0) return
+    private fun selectTab(tab: Int, recreate: Boolean = false) {
+        if (recreate) {
+            selectTabNow(tab, true)
+        } else {
+            if (currentItem == tab || tab > ids.safeSize - 1 || tab < 0) return
+            selectTabNow(tab, false)
+        }
+    }
+
+    private fun selectTabNow(tab: Int, recreate: Boolean) {
         currentItem = tab
         //如果频繁点击相同的页面tab，不执行切换代码
-        if (!isRepeat(tab)) {
+//        if (!isRepeat(tab)) {
             if (isPager) {
                 flipper?.setCurrentItem(tab, false)
             } else {
-                builder?.selectTab(tab)
+                builder?.selectTab(tab, recreate)
             }
             if (animation) {
                 getItemView(tab)?.getChildAt(0)?.apply {
@@ -141,7 +149,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
                     vibrate(50)
                 }
             }
-        }
+//        }
     }
 
     /**
@@ -164,12 +172,12 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
         return 0
     }
 
-    /**
-     * 是否重复选择
-     */
-    fun isRepeat(index: Int): Boolean {
-        return index == (if (isPager) flipper?.currentItem else builder?.getCurrentIndex())
-    }
+//    /**
+//     * 是否重复选择
+//     */
+//    fun isRepeat(index: Int): Boolean {
+//        return index == (if (isPager) flipper?.currentItem else builder?.getCurrentIndex())
+//    }
 
     /**
      * 添加角标
