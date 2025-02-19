@@ -262,7 +262,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 //
 //}
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
-    private var previousCurrentItem = 0//上次点击的下标(历史下标，非当前选中)
     private var builder: FragmentBuilder? = null
     private var mediator: TabLayoutMediator? = null
     private var listener: OnTabChangeListener? = null
@@ -329,7 +328,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
                 //处理选中事件
                 //可以在这里更新页面内容或者改变选中标签的样式
                 onTabBind(tab, true)
-                onSelected(tab?.position.orZero, false)
+                listener?.onSelected(tab?.position.orZero)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
@@ -341,7 +340,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             override fun onTabReselected(tab: TabLayout.Tab?) {
                 //处理再次选中同一个标签的事件
                 //可以在这里执行相应的操作
-                onSelected(tab?.position.orZero, true)
+                listener?.onReselected(tab?.position.orZero)
             }
 
             private fun onTabBind(tab: TabLayout.Tab?, selected: Boolean) {
@@ -360,18 +359,6 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             tabParent?.getChildAt(i)?.setPadding(0, 0, 0, 0)
             tabParent?.getChildAt(i).size(WRAP_CONTENT, MATCH_PARENT)
         }
-    }
-
-    /**
-     * 修正一下重复点击的问题
-     */
-    private fun onSelected(index: Int, isReselected: Boolean) {
-        //如果是重复点击的，或者与上一次相等的情况，不予以操作
-        val unable = isReselected || index == previousCurrentItem
-        if (!unable) {
-            previousCurrentItem = index
-        }
-        listener?.onSelected(index, unable)
     }
 
     /**
@@ -406,13 +393,6 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     }
 
     /**
-     * 上一个被选中的值
-     */
-    fun getPreviousCurrentItem(): Int {
-        return previousCurrentItem
-    }
-
-    /**
      * 设置选中下标
      * 当调用select()方法选中一个不同的tab时，会触发addOnTabSelectedListener的回调；如果选中的是当前已经选中的tab，则不会触发
      */
@@ -432,20 +412,19 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * 监听
      */
     interface OnTabChangeListener {
-//        /**
-//         * tab被点2次（再次被选中时调用）
-//         * 列表加载完成，此时默认选中的是索引为0，回调会执行（onSelected不会执行）
-//         * 列表加载完成后，滑动到其他item，再次点击索引为0的Tab时，回调会执行
-//         * 之后索引为0的tab再次被选中，会回调onTabSelected
-//         */
-//        fun onReselected(position: Int)
+        /**
+         * tab被点2次（再次被选中时调用）
+         * 列表加载完成，此时默认选中的是索引为0，回调会执行（onSelected不会执行）
+         * 列表加载完成后，滑动到其他item，再次点击索引为0的Tab时，回调会执行
+         * 之后索引为0的tab再次被选中，会回调onTabSelected
+         */
+        fun onReselected(position: Int)
 
         /**
          * tab进入选择状态
          * 列表加载完成后滑动到后面的 item，再次点击第一个 tab,此时onTabSelected不回调
-         * isReselected：true为重复点击，或与之前点击下标一致，false为全新切换下标，与之前都不相同
          */
-        fun onSelected(position: Int, isReselected: Boolean)
+        fun onSelected(position: Int)
 
         /**
          * tab退出选择状态
