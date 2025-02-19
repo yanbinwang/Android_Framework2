@@ -129,6 +129,46 @@ import kotlinx.coroutines.launch
  * 使用.contentEquals() -》不比较顺序，顺序不一致内容一致为true  和.contentDeepEquals() -》比较顺序，顺序不一致则内容一致为false 比较两个数组是否具有相同顺序的相同元素
  * 不要使用相等（==）和不等（！=）运算符来比较数组的内容，这些操作符检查指定的变量是否指向同一个对象
  * https://blog.csdn.net/cyclelucky/article/details/135106212
+ *
+一、基于 Java 并发包 (java.util.concurrent) 的集合
+Java 提供了丰富的线程安全集合类，Kotlin 可以直接使用：
+
+1. 线程安全的 List
+CopyOnWriteArrayList
+特点：写操作复制整个数组，读操作无锁。适用于读多写少的场景（如配置列表、事件监听器列表）。
+示例：
+import java.util.concurrent.CopyOnWriteArrayList
+
+val list = CopyOnWriteArrayList<Int>()
+list.add(1) // 写操作复制数组
+for (num in list) { // 读操作无需加锁
+println(num)
+}
+2. 线程安全的 Map
+ConcurrentHashMap
+特点：分段锁机制，高并发性能，支持原子操作（如 putIfAbsent）。
+示例：
+import java.util.concurrent.ConcurrentHashMap
+
+val map = ConcurrentHashMap<String, Int>()
+map.put("key", 1) // 原子插入
+val value = map.getOrDefault("key", 0) // 原子读取
+3. 线程安全的 Queue
+ConcurrentLinkedQueue
+特点：基于链表的实现，无锁算法，适合高并发场景。
+BlockingQueue
+特点：支持阻塞操作（如 take()、put()），用于生产者-消费者模型。
+示例：
+import java.util.concurrent.ArrayBlockingQueue
+
+val queue = ArrayBlockingQueue<Int>(10)
+queue.put(1) // 阻塞插入
+val num = queue.take() // 阻塞取出
+4. 线程安全的 Set
+ConcurrentHashMap.newKeySet()
+特点：基于 ConcurrentHashMap 实现的无序集合，支持高并发操作。
+CopyOnWriteArraySet
+特点：写操作复制数组，读操作无锁，适用于读多写少场景。
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
