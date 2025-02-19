@@ -79,7 +79,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
             //返回此次点击的下标
             val index = ids.indexOfFirst { it == item.itemId }
             //默认允许切换页面
-            if (enableSelected) selectTab(index)
+            if (enableSelected) setSelectTab(index)
             //回调我们自己的监听，返回下标和前一次历史下标-》-1就是没选过，直接为0
             onItemSelectedListener?.invoke(index, currentItem)
             true
@@ -103,26 +103,29 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
     /**
      * 只有禁止自动选择的模式才能调取
      */
-    fun selected(index: Int, isArrow: Boolean = false) {
+    fun setSelect(index: Int, isArrow: Boolean = false) {
         if (!enableSelected || isArrow) {
-            selectedItem(index)
-            selectTab(index)
+            setSelectItem(index)
+            setSelectTab(index)
         }
     }
 
     /**
      * 选中对应下标的item
      */
-    fun selectedItem(index: Int) {
-        navigationView?.post {
+    fun setSelectItem(index: Int) {
+        navigationView?.postDelayed({
             navigationView.selectedItemId = navigationView.menu.getItem(index)?.itemId.orZero
-        }
+        }, 500)
+//        navigationView?.post {
+//            navigationView.selectedItemId = navigationView.menu.getItem(index)?.itemId.orZero
+//        }
     }
 
     /**
      * 选择对应下标的页面
      */
-    fun selectTab(tab: Int) {
+    fun setSelectTab(tab: Int) {
         if (currentItem == tab || tab > ids.safeSize - 1 || tab < 0) return
         currentItem = tab
         //如果频繁点击相同的页面tab，不执行切换代码
