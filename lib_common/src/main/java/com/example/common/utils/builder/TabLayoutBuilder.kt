@@ -263,14 +263,14 @@ import com.google.android.material.tabs.TabLayoutMediator
 //
 //}
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
-    private var currentItem = 0//上次点击的下标
-    private var tabLength = 0//当前需要管理的总长度
+    private var currentItem = 0//上次点击的下标(历史下标，非当前选中)
     private var builder: FragmentBuilder? = null
     private var mediator: TabLayoutMediator? = null
     private var listener: OnTabChangeListener? = null
     private val tabViews by lazy { SparseArray<VDB>() }
-    private val mCurrentItem get() = tab?.selectedTabPosition.orZero
-    private val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext
+    private val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext//整体上下文
+    private val mCurrentItem get() = tab?.selectedTabPosition.orZero//当前选中下标
+    private val mTabCount get() = tab?.tabCount.orZero//当前需要管理的总长度
 
     /**
      * 无特殊绑定的自定义头
@@ -307,7 +307,6 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
         tab?.removeAllTabs()
         tabViews.clear()
         if (null != list) tabList = list
-        tabLength = tabList.safeSize
         tabList?.forEach { _ -> tab?.addTab(tab.newTab()) }
     }
 
@@ -387,13 +386,6 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     protected abstract fun onBindView(mBinding: VDB?, item: T?, selected: Boolean, index: Int)
 
     /**
-     * 获取当前选中的下标
-     */
-    fun getCurrentIndex(): Int {
-        return mCurrentItem
-    }
-
-    /**
      * 获取上下文
      */
     fun getContext(): Context {
@@ -401,11 +393,25 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     }
 
     /**
+     * 获取当前选中的下标
+     */
+    fun getCurrentIndex(): Int {
+        return mCurrentItem
+    }
+
+    /**
+     * 获取总长度
+     */
+    fun getTabCount(): Int {
+        return mTabCount
+    }
+
+    /**
      * 设置选中下标
      * 当调用select()方法选中一个不同的tab时，会触发addOnTabSelectedListener的回调；如果选中的是当前已经选中的tab，则不会触发
      */
     fun setSelect(index: Int) {
-        if (mCurrentItem == index || index > tabLength - 1 || index < 0) return
+        if (mCurrentItem == index || index > mTabCount - 1 || index < 0) return
         tab?.getTabAt(index)?.select()
     }
 
