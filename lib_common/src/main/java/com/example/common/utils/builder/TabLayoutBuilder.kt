@@ -13,7 +13,6 @@ import com.example.common.BaseApplication
 import com.example.framework.utils.builder.FragmentBuilder
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
-import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.bind
 import com.example.framework.utils.function.view.size
@@ -263,7 +262,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 //
 //}
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
-    private var currentItem = 0//上次点击的下标(历史下标，非当前选中)
+    private var previousCurrentItem = 0//上次点击的下标(历史下标，非当前选中)
     private var builder: FragmentBuilder? = null
     private var mediator: TabLayoutMediator? = null
     private var listener: OnTabChangeListener? = null
@@ -368,9 +367,9 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      */
     private fun onSelected(index: Int, isReselected: Boolean) {
         //如果是重复点击的，或者与上一次相等的情况，不予以操作
-        val unable = isReselected || index == currentItem
+        val unable = isReselected || index == previousCurrentItem
         if (!unable) {
-            currentItem = index
+            previousCurrentItem = index
         }
         listener?.onSelected(index, unable)
     }
@@ -393,6 +392,13 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     }
 
     /**
+     * 获取总长度
+     */
+    fun getTabCount(): Int {
+        return mTabCount
+    }
+
+    /**
      * 获取当前选中的下标
      */
     fun getCurrentIndex(): Int {
@@ -400,10 +406,10 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     }
 
     /**
-     * 获取总长度
+     * 上一个被选中的值
      */
-    fun getTabCount(): Int {
-        return mTabCount
+    fun getPreviousCurrentItem(): Int {
+        return previousCurrentItem
     }
 
     /**
