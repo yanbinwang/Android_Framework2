@@ -59,10 +59,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  */
 @SuppressLint("RestrictedApi")
 class NavigationBuilder(private val navigationView: BottomNavigationView?, private val ids: List<Int>, private val animation: Boolean = true) {
-    private var currentItem = -1
     private var flipper: ViewPager2? = null
     private var builder: FragmentBuilder? = null
-    private var onItemSelectedListener: ((index: Int, currentItem: Int) -> Unit)? = null
+    private var onItemSelectedListener: ((index: Int) -> Unit)? = null
     private val isPager get() = null != flipper
     private val menuView get() = navigationView?.getChildAt(0) as? BottomNavigationMenuView
 
@@ -81,7 +80,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
             //默认允许切换页面
             selectTab(index)
             //回调我们自己的监听，返回下标和前一次历史下标->-1就是没选过
-            onItemSelectedListener?.invoke(index, currentItem)
+            onItemSelectedListener?.invoke(index)
             true
         }
         //默认效果删除
@@ -142,13 +141,12 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
         if (recreate) {
             selectTabNow(tab, true)
         } else {
-            if (currentItem == tab || tab > ids.safeSize - 1 || tab < 0) return
+            if (getCurrentIndex() == tab || tab > ids.safeSize - 1 || tab < 0) return
             selectTabNow(tab, false)
         }
     }
 
     private fun selectTabNow(tab: Int, recreate: Boolean) {
-        currentItem = tab
         //如果频繁点击相同的页面tab，不执行切换代码
 //        if (!isRepeat(tab)) {
             if (isPager) {
@@ -179,10 +177,13 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
      * 获取当前选中的下标
      */
     fun getCurrentIndex(): Int {
+        var currentIndex = 0
         navigationView?.menu?.forEach { menuItem ->
-            if (menuItem.isChecked.orFalse) return ids.indexOfFirst { it == menuItem.itemId }
+            if (menuItem.isChecked.orFalse)  {
+                currentIndex = ids.indexOfFirst { it == menuItem.itemId }
+            }
         }
-        return 0
+        return currentIndex
     }
 
 //    /**
@@ -227,7 +228,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
     /**
      * 设置点击事件
      */
-    fun setOnItemSelectedListener(onItemSelectedListener: ((index: Int, currentItem: Int) -> Unit)) {
+    fun setOnItemSelectedListener(onItemSelectedListener: ((index: Int) -> Unit)) {
         this.onItemSelectedListener = onItemSelectedListener
     }
 
