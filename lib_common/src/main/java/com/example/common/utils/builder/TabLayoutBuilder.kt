@@ -396,9 +396,21 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * 设置选中下标
      * 当调用select()方法选中一个不同的tab时，会触发addOnTabSelectedListener的回调；如果选中的是当前已经选中的tab，则不会触发
      */
-    fun setSelect(index: Int) {
-        if (mCurrentItem == index || index > mTabCount - 1 || index < 0) return
-        tab?.getTabAt(index)?.select()
+    fun setSelect(index: Int, recreate: Boolean = false) {
+        if (recreate) {
+            builder?.selectTab(index, true)
+            selectTabNow(index)
+        } else {
+            if (mCurrentItem == index || index > mTabCount - 1 || index < 0) return
+            selectTabNow(index)
+        }
+    }
+
+    private fun selectTabNow(index: Int) {
+        tab?.postDelayed({
+            tab.getTabAt(index)?.select()
+        }, 500)
+//        tab?.getTabAt(index)?.select()
     }
 
     /**
