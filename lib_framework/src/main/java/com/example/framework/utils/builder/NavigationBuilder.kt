@@ -58,7 +58,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *  </style>
  */
 @SuppressLint("RestrictedApi")
-class NavigationBuilder(private val navigationView: BottomNavigationView?, private val ids: List<Int>, private val enableSelect: Boolean = true, private val animation: Boolean = true) {
+class NavigationBuilder(private val navigationView: BottomNavigationView?, private val ids: List<Int>, private val animation: Boolean = true) {
     private var currentItem = -1
     private var flipper: ViewPager2? = null
     private var builder: FragmentBuilder? = null
@@ -79,8 +79,8 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
             //返回此次点击的下标
             val index = ids.indexOfFirst { it == item.itemId }
             //默认允许切换页面
-            if (enableSelect) selectTab(index)
-            //回调我们自己的监听，返回下标和前一次历史下标-》-1就是没选过，直接为0
+            selectTab(index)
+            //回调我们自己的监听，返回下标和前一次历史下标->-1就是没选过
             onItemSelectedListener?.invoke(index, currentItem)
             true
         }
@@ -104,19 +104,32 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
      * 只有禁止自动选择的模式/特许模式，才能调取
      */
     fun setSelect(index: Int, recreate: Boolean = false) {
-        if (!enableSelect || recreate) {
-            selectItem(index)
+        //此时系统回收了页面，不管结果如何，立即切换
+        if (recreate) {
             selectTab(index, true)
+        }
+        //新选中的 itemId 与当前选中的 itemId 不同时，才会触发监听器，监听器内做了页面的切换
+        //获取当前选中的Item ID
+        val currentItemId = navigationView?.selectedItemId
+        //要选中的Item ID
+        val toCurrentItemId = navigationView?.menu?.getItem(index)?.itemId.orZero
+        //开始调取item的切换，此时也会触发页面的selectTab（监听内，但监听内就会被return）
+        if (currentItemId != toCurrentItemId) {
+            selectItem(index)
         }
     }
 
     /**
      * 选中对应下标的item
+     * 仅当新选中的 itemId 与当前选中的 itemId 不同时，才会触发监听器
      */
     private fun selectItem(index: Int) {
-        navigationView?.postDelayed({
-            navigationView.selectedItemId = navigationView.menu.getItem(index)?.itemId.orZero
-        }, 500)
+        val menu = navigationView?.menu
+        if (index < menu?.size().orZero) {
+            navigationView?.postDelayed({
+                navigationView.selectedItemId = menu?.getItem(index)?.itemId.orZero
+            }, 500)
+        }
 //        navigationView?.post {
 //            navigationView.selectedItemId = navigationView.menu.getItem(index)?.itemId.orZero
 //        }
