@@ -103,8 +103,8 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
     /**
      * 只有禁止自动选择的模式才能调取
      */
-    fun selected(index: Int) {
-        if (!enableSelected) {
+    fun selected(index: Int, isArrow: Boolean = false) {
+        if (!enableSelected || isArrow) {
             selectedItem(index)
             selectTab(index)
         }
