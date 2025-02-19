@@ -62,7 +62,7 @@ import java.util.concurrent.ConcurrentHashMap
  *  add和replace区别，如果我要在容器内加载一连串fragment，它们使用的是同一个xml文件，只是id有区分，此时就可能出现ui错位
  *  这种时候就使用replace直接删除容器之前的fragment，直接替换（保证当前容器内只有一个fragment）
  */
-class FragmentBuilder(private val fragmentManager: FragmentManager, observer: LifecycleOwner, private val containerViewId: Int, private val isAdd: Boolean = true) {
+class FragmentBuilder(private val fragmentManager: FragmentManager, private val observer: LifecycleOwner, private val containerViewId: Int, private val isAdd: Boolean = true) {
     private var isArguments = false//是否是添加参数的模式
     private var isAnimation = false//是否执行动画
     private var mCurrentItem = -1//默认下标->不指定任何值
@@ -250,9 +250,9 @@ class FragmentBuilder(private val fragmentManager: FragmentManager, observer: Li
      * }
      *  }
      */
-    fun registerLifecycleCallbacks(owner: LifecycleOwner, callback: FragmentManager.FragmentLifecycleCallbacks) {
+    fun registerLifecycleCallbacks(callback: FragmentManager.FragmentLifecycleCallbacks) {
         fragmentManager.registerFragmentLifecycleCallbacks(callback, false)
-        owner.doOnDestroy {
+        observer.doOnDestroy {
             fragmentManager.unregisterFragmentLifecycleCallbacks(callback)
         }
     }
