@@ -235,10 +235,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 //}
 @SuppressLint("RestrictedApi")
 class NavigationBuilder(private val navigationView: BottomNavigationView?, private val ids: List<Int>, private val animation: Boolean = true) {
-    private var previous = 0
     private var flipper: ViewPager2? = null
     private var builder: FragmentBuilder? = null
-    private var listener: ((index: Int, previous: Int, isReselected: Boolean) -> Unit)? = null
+    private var listener: ((index: Int) -> Unit)? = null
     private val isPager get() = null != flipper
     private val menuView get() = navigationView?.getChildAt(0) as? BottomNavigationMenuView
 
@@ -257,11 +256,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
             //默认允许切换页面
             selectTab(index)
             //回调我们自己的监听，返回下标和前一次历史下标->-1就是没选过
-            val unable = index == previous
-            listener?.invoke(index, previous, unable)
-            if (!unable) {
-                previous = index
-            }
+            listener?.invoke(index)
             true
         }
         //默认效果删除
@@ -398,7 +393,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
     /**
      * 设置点击事件
      */
-    fun setOnItemSelectedListener(listener: ((index: Int, previous: Int, isReselected: Boolean) -> Unit)) {
+    fun setOnItemSelectedListener(listener: ((index: Int) -> Unit)) {
         this.listener = listener
     }
 
