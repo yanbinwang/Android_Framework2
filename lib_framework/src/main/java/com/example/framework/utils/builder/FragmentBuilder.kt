@@ -95,8 +95,8 @@ class FragmentBuilder(private val fragmentManager: FragmentManager, private val 
         selectTab(default)
     }
 
-    fun bind(vararg clazzPair: Pair<Class<*>, String>) {
-        bind(listOf(*clazzPair))
+    fun bind(vararg clazzPair: Pair<Class<*>, String>, default: Int = 0) {
+        bind(listOf(*clazzPair), default)
     }
 
     /**
@@ -113,8 +113,8 @@ class FragmentBuilder(private val fragmentManager: FragmentManager, private val 
         selectTab(default)
     }
 
-    fun bindBundle(vararg clazzTriple: Triple<Class<*>, String, Bundle>) {
-        bindBundle(listOf(*clazzTriple))
+    fun bindBundle(vararg clazzTriple: Triple<Class<*>, String, Bundle>, default: Int = 0) {
+        bindBundle(listOf(*clazzTriple), default)
     }
 
     /**

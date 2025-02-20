@@ -10,6 +10,8 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.common.BaseApplication
+import com.example.common.config.ARouterPath
+import com.example.common.utils.helper.AccountHelper.isLogin
 import com.example.framework.utils.builder.FragmentBuilder
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
@@ -112,8 +114,9 @@ import com.google.android.material.tabs.TabLayoutMediator
 //    private var mediator: TabLayoutMediator? = null
 //    private var listener: OnTabChangeListener? = null
 //    private val tabViews by lazy { SparseArray<VDB>() }
-//    protected val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext
-//    protected val mCurrentIndex get() = tab?.selectedTabPosition.orZero
+//    private val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext//整体上下文
+//    private val mCurrentItem get() = tab?.selectedTabPosition.orZero//当前选中下标
+//    private val mTabCount get() = tab?.tabCount.orZero//当前需要管理的总长度
 //
 //    /**
 //     * 无特殊绑定的自定义头
@@ -204,8 +207,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 //            tabParent?.getChildAt(i)?.setPadding(0, 0, 0, 0)
 //            tabParent?.getChildAt(i).size(WRAP_CONTENT, MATCH_PARENT)
 //        }
-////        //第一次onTabSelected可能不会触发，强制选择一次
-////        setSelect(0)
 //    }
 //
 //    /**
@@ -219,19 +220,52 @@ import com.google.android.material.tabs.TabLayoutMediator
 //    protected abstract fun onBindView(mBinding: VDB?, item: T?, selected: Boolean, index: Int)
 //
 //    /**
-//     * 设置监听
+//     * 获取上下文
 //     */
-//    fun setOnTabChangeListener(listener: OnTabChangeListener) {
-//        this.listener = listener
+//    fun getContext(): Context {
+//        return mContext
+//    }
+//
+//    /**
+//     * 获取总长度
+//     */
+//    fun getTabCount(): Int {
+//        return mTabCount
+//    }
+//
+//    /**
+//     * 获取当前选中的下标
+//     */
+//    fun getCurrentIndex(): Int {
+//        return mCurrentItem
 //    }
 //
 //    /**
 //     * 设置选中下标
 //     * 当调用select()方法选中一个不同的tab时，会触发addOnTabSelectedListener的回调；如果选中的是当前已经选中的tab，则不会触发
 //     */
-//    fun setSelect(index: Int) {
-//        if (mCurrentIndex == index) return
-//        tab?.getTabAt(index)?.select()
+//    fun setSelect(index: Int, recreate: Boolean = false) {
+//        if (recreate) {
+//            builder?.selectTab(index, true)
+//            selectTabNow(index)
+//        } else {
+//            if (mCurrentItem == index || index > mTabCount - 1 || index < 0) return
+//            selectTabNow(index)
+//        }
+//    }
+//
+//    private fun selectTabNow(index: Int) {
+//        tab?.postDelayed({
+//            tab.getTabAt(index)?.select()
+//        }, 500)
+////        tab?.getTabAt(index)?.select()
+//    }
+//
+//    /**
+//     * 设置监听
+//     */
+//    fun setOnTabChangeListener(listener: OnTabChangeListener) {
+//        this.listener = listener
 //    }
 //
 //    /**
@@ -262,6 +296,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 //
 //}
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
+    private var previous = 0
     private var builder: FragmentBuilder? = null
     private var mediator: TabLayoutMediator? = null
     private var listener: OnTabChangeListener? = null
@@ -273,18 +308,18 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     /**
      * 无特殊绑定的自定义头
      */
-    fun bind(list: List<T>? = null) {
-        init(list)
-        addOnTabSelectedListener()
+    fun build(list: List<T>? = null, default: Int = 0) {
+        initView(list)
+        initEvent(default)
     }
 
     /**
      * 注入管理器
      */
-    fun bind(builder: FragmentBuilder, list: List<T>? = null) {
+    fun bind(builder: FragmentBuilder, list: List<T>? = null, default: Int = 0) {
         this.builder = builder
-        init(list)
-        addOnTabSelectedListener()
+        initView(list)
+        initEvent(default)
     }
 
     /**
@@ -292,16 +327,16 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * userInputEnabled:是否左右滑动
      * pageLimit：是否预加载数据（懒加载为false）
      */
-    fun bind(pager: ViewPager2?, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false) {
+    fun bind(pager: ViewPager2?, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false, default: Int = 0) {
         pager?.adapter = null
         mediator?.detach()
-        init(list)
+        initView(list)
         pager.adapter(adapter, orientation, userInputEnabled, pageLimit)
         mediator = pager.bind(tab)
-        addOnTabSelectedListener()
+        initEvent(default)
     }
 
-    private fun init(list: List<T>? = null) {
+    private fun initView(list: List<T>? = null) {
         tab?.removeAllTabs()
         tabViews.clear()
         if (null != list) tabList = list
@@ -311,7 +346,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     /**
      * 这个方法需要放在setupWithViewPager()后面
      */
-    private fun addOnTabSelectedListener() {
+    private fun initEvent(default: Int = 0) {
         for (i in 0 until tab?.tabCount.orZero) {
             tab?.getTabAt(i)?.apply {
                 val mBinding = getBindView()
@@ -328,7 +363,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
                 //处理选中事件
                 //可以在这里更新页面内容或者改变选中标签的样式
                 onTabBind(tab, true)
-                listener?.onSelected(tab?.position.orZero)
+                onSelected(tab?.position.orZero, false)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
@@ -340,7 +375,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             override fun onTabReselected(tab: TabLayout.Tab?) {
                 //处理再次选中同一个标签的事件
                 //可以在这里执行相应的操作
-                listener?.onReselected(tab?.position.orZero)
+                onSelected(tab?.position.orZero, true)
             }
 
             private fun onTabBind(tab: TabLayout.Tab?, selected: Boolean) {
@@ -358,6 +393,19 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
         for (i in 0 until tabParent?.childCount.orZero) {
             tabParent?.getChildAt(i)?.setPadding(0, 0, 0, 0)
             tabParent?.getChildAt(i).size(WRAP_CONTENT, MATCH_PARENT)
+        }
+        //如果设置了默认选择下标则做一个指定
+        setSelect(default)
+    }
+
+    private fun onSelected(index: Int, isReselected: Boolean) {
+        //如果是重复点击的，或者与上一次相等的情况，不予以操作
+        val unable = isReselected || index == previous
+        //回调此次选中的下标/上次历史记录的下标，是否是重复选择
+        listener?.onSelected(index, previous, unable)
+        //监听回调后再对上次返回的值覆盖
+        if (!unable) {
+            previous = index
         }
     }
 
@@ -424,19 +472,19 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * 监听
      */
     interface OnTabChangeListener {
-        /**
-         * tab被点2次（再次被选中时调用）
-         * 列表加载完成，此时默认选中的是索引为0，回调会执行（onSelected不会执行）
-         * 列表加载完成后，滑动到其他item，再次点击索引为0的Tab时，回调会执行
-         * 之后索引为0的tab再次被选中，会回调onTabSelected
-         */
-        fun onReselected(position: Int)
+//        /**
+//         * tab被点2次（再次被选中时调用）
+//         * 列表加载完成，此时默认选中的是索引为0，回调会执行（onSelected不会执行）
+//         * 列表加载完成后，滑动到其他item，再次点击索引为0的Tab时，回调会执行
+//         * 之后索引为0的tab再次被选中，会回调onTabSelected
+//         */
+//        fun onReselected(position: Int)
 
         /**
          * tab进入选择状态
          * 列表加载完成后滑动到后面的 item，再次点击第一个 tab,此时onTabSelected不回调
          */
-        fun onSelected(position: Int)
+        fun onSelected(position: Int, previous: Int, isReselected: Boolean)
 
         /**
          * tab退出选择状态
