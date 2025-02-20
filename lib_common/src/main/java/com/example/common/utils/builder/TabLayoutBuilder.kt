@@ -308,9 +308,9 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     /**
      * 无特殊绑定的自定义头
      */
-    fun bind(list: List<T>? = null, default: Int = 0) {
-        init(list)
-        addOnTabSelectedListener(default)
+    fun build(list: List<T>? = null, default: Int = 0) {
+        initView(list)
+        initEvent(default)
     }
 
     /**
@@ -318,8 +318,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      */
     fun bind(builder: FragmentBuilder, list: List<T>? = null, default: Int = 0) {
         this.builder = builder
-        init(list)
-        addOnTabSelectedListener(default)
+        initView(list)
+        initEvent(default)
     }
 
     /**
@@ -330,13 +330,13 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     fun bind(pager: ViewPager2?, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false, default: Int = 0) {
         pager?.adapter = null
         mediator?.detach()
-        init(list)
+        initView(list)
         pager.adapter(adapter, orientation, userInputEnabled, pageLimit)
         mediator = pager.bind(tab)
-        addOnTabSelectedListener(default)
+        initEvent(default)
     }
 
-    private fun init(list: List<T>? = null) {
+    private fun initView(list: List<T>? = null) {
         tab?.removeAllTabs()
         tabViews.clear()
         if (null != list) tabList = list
@@ -346,7 +346,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     /**
      * 这个方法需要放在setupWithViewPager()后面
      */
-    private fun addOnTabSelectedListener(default: Int = 0) {
+    private fun initEvent(default: Int = 0) {
         for (i in 0 until tab?.tabCount.orZero) {
             tab?.getTabAt(i)?.apply {
                 val mBinding = getBindView()
