@@ -10,8 +10,6 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.common.BaseApplication
-import com.example.common.config.ARouterPath
-import com.example.common.utils.helper.AccountHelper.isLogin
 import com.example.framework.utils.builder.FragmentBuilder
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
@@ -296,7 +294,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 //
 //}
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
-    private var previous = 0
+    private var bindMode = -1//绑定模式 -> -1：正常 / 0：FragmentManager / 1：ViewPager2
     private var builder: FragmentBuilder? = null
     private var mediator: TabLayoutMediator? = null
     private var listener: OnTabChangeListener? = null
@@ -309,6 +307,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * 无特殊绑定的自定义头
      */
     fun build(list: List<T>? = null, default: Int = 0) {
+        bindMode = -1
         initView(list)
         initEvent(default)
     }
@@ -316,8 +315,9 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     /**
      * 注入管理器
      */
-    fun bind(builder: FragmentBuilder, list: List<T>? = null, default: Int = 0) {
-        this.builder = builder
+    fun bind(fragmentBuilder: FragmentBuilder, list: List<T>? = null, default: Int = 0) {
+        bindMode = 0
+        builder = fragmentBuilder
         initView(list)
         initEvent(default)
     }
@@ -328,6 +328,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * pageLimit：是否预加载数据（懒加载为false）
      */
     fun bind(pager: ViewPager2?, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false, default: Int = 0) {
+        bindMode = 1
         pager?.adapter = null
         mediator?.detach()
         initView(list)
@@ -363,7 +364,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
                 //处理选中事件
                 //可以在这里更新页面内容或者改变选中标签的样式
                 onTabBind(tab, true)
-                onSelected(tab?.position.orZero, false)
+                listener?.onSelected(tab?.position.orZero)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
@@ -375,7 +376,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             override fun onTabReselected(tab: TabLayout.Tab?) {
                 //处理再次选中同一个标签的事件
                 //可以在这里执行相应的操作
-                onSelected(tab?.position.orZero, true)
+                listener?.onReselected(tab?.position.orZero)
             }
 
             private fun onTabBind(tab: TabLayout.Tab?, selected: Boolean) {
@@ -383,8 +384,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
                 tab.position.orZero.apply {
                     //子tab状态回调
                     onBindView(tabViews[this], tabList.safeGet(this), selected, this)
-                    //下标对应的fragment显示
-                    if (selected) builder?.selectTab(this)
+                    //下标对应的fragment显示,只有manager需要手动切，viewpager2在绑定时就已经实现了切换
+                    if (selected && 0 == bindMode) builder?.selectTab(this)
                 }
             }
         })
@@ -396,17 +397,6 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
         }
         //如果设置了默认选择下标则做一个指定
         setSelect(default)
-    }
-
-    private fun onSelected(index: Int, isReselected: Boolean) {
-        //如果是重复点击的，或者与上一次相等的情况，不予以操作
-        val unable = isReselected || index == previous
-        //回调此次选中的下标/上次历史记录的下标，是否是重复选择
-        listener?.onSelected(index, previous, unable)
-        //监听回调后再对上次返回的值覆盖
-        if (!unable) {
-            previous = index
-        }
     }
 
     /**
@@ -472,19 +462,19 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * 监听
      */
     interface OnTabChangeListener {
-//        /**
-//         * tab被点2次（再次被选中时调用）
-//         * 列表加载完成，此时默认选中的是索引为0，回调会执行（onSelected不会执行）
-//         * 列表加载完成后，滑动到其他item，再次点击索引为0的Tab时，回调会执行
-//         * 之后索引为0的tab再次被选中，会回调onTabSelected
-//         */
-//        fun onReselected(position: Int)
+        /**
+         * tab被点2次（再次被选中时调用）
+         * 列表加载完成，此时默认选中的是索引为0，回调会执行（onSelected不会执行）
+         * 列表加载完成后，滑动到其他item，再次点击索引为0的Tab时，回调会执行
+         * 之后索引为0的tab再次被选中，会回调onTabSelected
+         */
+        fun onReselected(position: Int)
 
         /**
          * tab进入选择状态
          * 列表加载完成后滑动到后面的 item，再次点击第一个 tab,此时onTabSelected不回调
          */
-        fun onSelected(position: Int, previous: Int, isReselected: Boolean)
+        fun onSelected(position: Int)
 
         /**
          * tab退出选择状态
