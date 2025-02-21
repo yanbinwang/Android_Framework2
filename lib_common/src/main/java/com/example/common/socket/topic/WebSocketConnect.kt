@@ -3,7 +3,7 @@ package com.example.common.socket.topic
 import com.example.common.config.ServerConfig
 
 /**
- * socket连接helper
+ * socket连接帮助类
  * 整体连接的订阅和关闭
  * 登出时记得调取WebSocketConnect.disconnect()
  */
