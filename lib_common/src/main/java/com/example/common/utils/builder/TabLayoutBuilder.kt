@@ -294,6 +294,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 //
 //}
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
+    private var bindMode = -1//绑定模式 -> -1：正常 / 0：FragmentManager / 1：ViewPager2
     private var builder: FragmentBuilder? = null
     private var mediator: TabLayoutMediator? = null
     private var listener: OnTabChangeListener? = null
@@ -306,6 +307,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * 无特殊绑定的自定义头
      */
     fun build(list: List<T>? = null, default: Int = 0) {
+        bindMode = -1
         initView(list)
         initEvent(default)
     }
@@ -313,8 +315,9 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     /**
      * 注入管理器
      */
-    fun bind(builder: FragmentBuilder, list: List<T>? = null, default: Int = 0) {
-        this.builder = builder
+    fun bind(fragmentBuilder: FragmentBuilder, list: List<T>? = null, default: Int = 0) {
+        bindMode = 0
+        builder = fragmentBuilder
         initView(list)
         initEvent(default)
     }
@@ -325,6 +328,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * pageLimit：是否预加载数据（懒加载为false）
      */
     fun bind(pager: ViewPager2?, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false, default: Int = 0) {
+        bindMode = 1
         pager?.adapter = null
         mediator?.detach()
         initView(list)
@@ -380,8 +384,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
                 tab.position.orZero.apply {
                     //子tab状态回调
                     onBindView(tabViews[this], tabList.safeGet(this), selected, this)
-                    //下标对应的fragment显示
-                    if (selected) builder?.selectTab(this)
+                    //下标对应的fragment显示,只有manager需要手动切，viewpager2在绑定时就已经实现了切换
+                    if (selected && 0 == bindMode) builder?.selectTab(this)
                 }
             }
         })
