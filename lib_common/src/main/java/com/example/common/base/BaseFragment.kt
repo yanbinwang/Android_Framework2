@@ -27,6 +27,7 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
+import com.example.common.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
@@ -59,6 +60,17 @@ import kotlin.coroutines.CoroutineContext
 
 /**
  * Created by WangYanBin on 2020/6/4.
+ * onAttach()‌：当Fragment与Activity关联时调用。
+ * onCreate()‌：在Fragment创建时调用。
+ * onCreateView()‌：创建Fragment的用户界面。
+ * onActivityCreated()‌：当与Fragment关联的Activity的onCreate()方法执行完毕时调用。
+ * onStart()‌：当Fragment可见时调用。
+ * onResume()‌：当Fragment获取焦点并可与用户交互时调用。
+ * onPause()‌：当Fragment失去焦点或者被其他Fragment覆盖时调用。
+ * onStop()‌：当Fragment不再可见时调用。
+ * onDestroyView()‌：当Fragment的视图被移除时调用。
+ * onDestroy()‌：当Fragment被销毁时调用。
+ * onDetach()‌：当Fragment与Activity解除关联时调用‌
  */
 @Suppress("UNCHECKED_CAST")
 @SuppressLint("UseRequireInsteadOfGet")
@@ -86,6 +98,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WebSocketObserver.addObserver(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
     }
 
@@ -100,7 +113,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
             val superclass = javaClass.genericSuperclass
             val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
             val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            mBinding = method?.invoke(null, layoutInflater, container, false) as? VDB
+            mBinding = method?.invoke(null, inflater, container, false) as? VDB
             mBinding?.root
         } catch (_: Exception) {
             null
@@ -167,10 +180,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     override fun onDestroy() {
         super.onDestroy()
         if (isEventBusEnabled()) EventBus.instance.unregister(this)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
         clearOnActivityResultListener()
         for ((key, value) in dataManager) {
             key.removeObserver(value)

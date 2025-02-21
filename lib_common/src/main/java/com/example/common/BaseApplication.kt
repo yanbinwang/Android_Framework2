@@ -22,9 +22,16 @@ import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
 import com.example.common.base.proxy.NetworkCallbackImpl
 import com.example.common.base.proxy.NetworkReceiver
 import com.example.common.config.ARouterPath
+import com.example.common.config.Constants.SOCKET_ADVERTISE_URL
+import com.example.common.config.Constants.SOCKET_DEAL_URL
+import com.example.common.config.Constants.SOCKET_FUNDS_URL
 import com.example.common.config.ServerConfig
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
+import com.example.common.socket.SocketEventCode.EVENT_SOCKET_ADVERTISE
+import com.example.common.socket.SocketEventCode.EVENT_SOCKET_DEAL
+import com.example.common.socket.SocketEventCode.EVENT_SOCKET_FUNDS
+import com.example.common.socket.topic.WebSocketTopic
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
@@ -95,6 +102,8 @@ abstract class BaseApplication : Application() {
         initSmartRefresh()
         //全局toast
         initToast()
+        //初始化socket
+        initSocket()
         //全局进程
         initLifecycle()
         //初始化友盟/人脸识别->延后
@@ -205,6 +214,17 @@ abstract class BaseApplication : Application() {
             view.textColor(R.color.textWhite)
             toast.view = view
             return@setStringToastBuilder toast
+        }
+    }
+
+    private fun initSocket() {
+        WebSocketTopic.setOnMessageListener { url, data ->
+            val payload = data?.payload.orEmpty()
+            when (url) {
+                SOCKET_DEAL_URL -> EVENT_SOCKET_DEAL.post(payload)
+                SOCKET_ADVERTISE_URL -> EVENT_SOCKET_ADVERTISE.post(payload)
+                SOCKET_FUNDS_URL -> EVENT_SOCKET_FUNDS.post(payload)
+            }
         }
     }
 
