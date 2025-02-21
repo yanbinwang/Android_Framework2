@@ -9,6 +9,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
 import com.example.common.utils.function.string
 import com.example.framework.utils.builder.TimerBuilder
+import com.example.framework.utils.function.value.second
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.textColor
@@ -42,7 +43,7 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
         }, {
             enable()
             text = string(R.string.timerDisabled)
-        }, second)
+        }, second.second)
     }
 
     override fun onDetachedFromWindow() {
