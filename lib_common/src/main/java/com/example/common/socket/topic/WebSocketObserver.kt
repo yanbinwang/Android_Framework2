@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 /**
  * socket生命周期管理，适用于多个界面多个wss订阅
- * 写在BaseActivity中OnCreate-》WebSocketRequest.addObserver(this)
+ * 写在BaseActivity中OnCreate-》WebSocketObserver.addObserver(this)
  */
 object WebSocketObserver : LifecycleEventObserver {
     //    private val list by lazy { ArrayList<WeakReference<LifecycleOwner>>() }
@@ -38,10 +38,10 @@ object WebSocketObserver : LifecycleEventObserver {
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         val clazz = source::class.java.getAnnotation(SocketObserver::class.java)
         if (null != clazz) {
-            val topicUrl = clazz.value
+            val value = clazz.value
             when (event) {
-                Lifecycle.Event.ON_RESUME -> WebSocketConnect.topic(*topicUrl)
-                Lifecycle.Event.ON_PAUSE -> WebSocketConnect.untopic(*topicUrl)
+                Lifecycle.Event.ON_RESUME -> WebSocketConnect.topic(*value)
+                Lifecycle.Event.ON_PAUSE -> WebSocketConnect.untopic(*value)
                 Lifecycle.Event.ON_DESTROY -> remove(source)
                 else -> {}
             }
