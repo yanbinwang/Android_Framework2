@@ -267,7 +267,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
             TimerBuilder.schedule({
                 hideDialog()
                 block.invoke()
-            }, second)
+            }, second, this)
 //            WeakHandler(Looper.getMainLooper()).postDelayed({
 //                hideDialog()
 //                block.invoke()

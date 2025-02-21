@@ -269,7 +269,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             TimerBuilder.schedule({
                 hideDialog()
                 block.invoke()
-            }, second)
+            }, second, this)
 //            WeakHandler(Looper.getMainLooper()).postDelayed({
 //                hideDialog()
 //                block.invoke()
