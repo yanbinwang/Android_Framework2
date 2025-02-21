@@ -8,17 +8,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 
 //------------------------------------viewpager2扩展函数类------------------------------------
 /**
- * ViewPager2隐藏fadingEdge
- */
-fun ViewPager2?.hideFadingEdge() {
-    if (this == null) return
-    try {
-        getRecyclerView()?.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
-    } catch (ignore: Exception) {
-    }
-}
-
-/**
  * ViewPager2获取内部RecyclerView
  */
 fun ViewPager2?.getRecyclerView(): RecyclerView? {
@@ -31,15 +20,28 @@ fun ViewPager2?.getRecyclerView(): RecyclerView? {
 }
 
 /**
- * 设置适配器扩展
+ * ViewPager2隐藏fadingEdge
  */
-fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = false, pageLimit: Boolean = true) {
+fun ViewPager2?.hideFadingEdge() {
     if (this == null) return
-    hideFadingEdge()
-    setAdapter(adapter)
-    setOrientation(orientation)
-    if(pageLimit) offscreenPageLimit = adapter.itemCount  - 1//预加载数量
-    isUserInputEnabled = userInputEnabled //禁止左右滑动
+    try {
+        getRecyclerView()?.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+    } catch (ignore: Exception) {
+    }
+}
+
+/**
+ * 降低ViewPager2灵敏度
+ */
+fun ViewPager2?.reduceSensitivity() {
+    try {
+        val recyclerView = getRecyclerView()
+        val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
+        touchSlopField.isAccessible = true
+        val touchSlop = touchSlopField.get(recyclerView) as? Int
+        touchSlopField.set(recyclerView, touchSlop.orZero * 3)
+    } catch (ignore: Exception) {
+    }
 }
 
 /**
@@ -65,17 +67,15 @@ fun ViewPager2?.prevPage(isSmooth: Boolean = true) {
 }
 
 /**
- * 降低ViewPager2灵敏度
+ * 设置适配器扩展
  */
-fun ViewPager2?.reduceSensitivity() {
-    try {
-        val recyclerView = getRecyclerView()
-        val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
-        touchSlopField.isAccessible = true
-        val touchSlop = touchSlopField.get(recyclerView) as? Int
-        touchSlopField.set(recyclerView, touchSlop.orZero * 3)
-    } catch (ignore: Exception) {
-    }
+fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = false, pageLimit: Boolean = true) {
+    if (this == null) return
+    hideFadingEdge()
+    setAdapter(adapter)
+    setOrientation(orientation)
+    if(pageLimit) offscreenPageLimit = adapter.itemCount  - 1//预加载数量
+    isUserInputEnabled = userInputEnabled //禁止左右滑动
 }
 
 /**
