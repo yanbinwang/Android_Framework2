@@ -10,6 +10,9 @@ import java.util.Timer
 import java.util.TimerTask
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * 定时器构建类
+ */
 class TimerBuilder(observer: LifecycleOwner) {
     private val timerMap by lazy { ConcurrentHashMap<String, Pair<Timer?, TimerTask?>>() }
     private val countDownMap by lazy { ConcurrentHashMap<String, CountDownTimer?>() }
@@ -33,25 +36,19 @@ class TimerBuilder(observer: LifecycleOwner) {
 
     init {
         observer.doOnDestroy {
-            destroy()
-        }
-    }
-
-    /**
-     * 完全销毁所有定时器
-     */
-    private fun destroy() {
-        for ((_, value) in timerMap) {
-            value.apply {
-                first?.cancel()
-                second?.cancel()
+            //完全销毁所有定时器
+            for ((_, value) in timerMap) {
+                value.apply {
+                    first?.cancel()
+                    second?.cancel()
+                }
             }
+            for ((_, value) in countDownMap) {
+                value?.cancel()
+            }
+            timerMap.clear()
+            countDownMap.clear()
         }
-        for ((_, value) in countDownMap) {
-            value?.cancel()
-        }
-        timerMap.clear()
-        countDownMap.clear()
     }
 
     /**
@@ -62,11 +59,15 @@ class TimerBuilder(observer: LifecycleOwner) {
         if (timerMap[tag] == null) {
             timerMap[tag] = Timer() to object : TimerTask() {
                 override fun run() {
-                    handler.post { run.invoke() }
+                    handler.post {
+                        run.invoke()
+                    }
                 }
             }
         }
-        timerMap[tag]?.apply { first?.schedule(second, 0, millisecond) }
+        timerMap[tag]?.apply {
+            first?.schedule(second, 0, millisecond)
+        }
     }
 
     /**
@@ -83,7 +84,9 @@ class TimerBuilder(observer: LifecycleOwner) {
 
     @Synchronized
     fun stopTask(vararg tags: String) {
-        tags.forEach { stopTask(it) }
+        tags.forEach {
+            stopTask(it)
+        }
     }
 
     /**
@@ -118,7 +121,9 @@ class TimerBuilder(observer: LifecycleOwner) {
 
     @Synchronized
     fun stopCountDown(vararg tags: String) {
-        tags.forEach { stopCountDown(it) }
+        tags.forEach {
+            stopCountDown(it)
+        }
     }
 
 }

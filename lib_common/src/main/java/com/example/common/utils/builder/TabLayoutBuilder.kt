@@ -112,8 +112,9 @@ import com.google.android.material.tabs.TabLayoutMediator
 //    private var mediator: TabLayoutMediator? = null
 //    private var listener: OnTabChangeListener? = null
 //    private val tabViews by lazy { SparseArray<VDB>() }
-//    protected val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext
-//    protected val mCurrentIndex get() = tab?.selectedTabPosition.orZero
+//    private val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext//整体上下文
+//    private val mCurrentItem get() = tab?.selectedTabPosition.orZero//当前选中下标
+//    private val mTabCount get() = tab?.tabCount.orZero//当前需要管理的总长度
 //
 //    /**
 //     * 无特殊绑定的自定义头
@@ -204,8 +205,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 //            tabParent?.getChildAt(i)?.setPadding(0, 0, 0, 0)
 //            tabParent?.getChildAt(i).size(WRAP_CONTENT, MATCH_PARENT)
 //        }
-////        //第一次onTabSelected可能不会触发，强制选择一次
-////        setSelect(0)
 //    }
 //
 //    /**
@@ -219,19 +218,52 @@ import com.google.android.material.tabs.TabLayoutMediator
 //    protected abstract fun onBindView(mBinding: VDB?, item: T?, selected: Boolean, index: Int)
 //
 //    /**
-//     * 设置监听
+//     * 获取上下文
 //     */
-//    fun setOnTabChangeListener(listener: OnTabChangeListener) {
-//        this.listener = listener
+//    fun getContext(): Context {
+//        return mContext
+//    }
+//
+//    /**
+//     * 获取总长度
+//     */
+//    fun getTabCount(): Int {
+//        return mTabCount
+//    }
+//
+//    /**
+//     * 获取当前选中的下标
+//     */
+//    fun getCurrentIndex(): Int {
+//        return mCurrentItem
 //    }
 //
 //    /**
 //     * 设置选中下标
 //     * 当调用select()方法选中一个不同的tab时，会触发addOnTabSelectedListener的回调；如果选中的是当前已经选中的tab，则不会触发
 //     */
-//    fun setSelect(index: Int) {
-//        if (mCurrentIndex == index) return
-//        tab?.getTabAt(index)?.select()
+//    fun setSelect(index: Int, recreate: Boolean = false) {
+//        if (recreate) {
+//            builder?.selectTab(index, true)
+//            selectTabNow(index)
+//        } else {
+//            if (mCurrentItem == index || index > mTabCount - 1 || index < 0) return
+//            selectTabNow(index)
+//        }
+//    }
+//
+//    private fun selectTabNow(index: Int) {
+//        tab?.postDelayed({
+//            tab.getTabAt(index)?.select()
+//        }, 500)
+////        tab?.getTabAt(index)?.select()
+//    }
+//
+//    /**
+//     * 设置监听
+//     */
+//    fun setOnTabChangeListener(listener: OnTabChangeListener) {
+//        this.listener = listener
 //    }
 //
 //    /**
@@ -262,6 +294,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 //
 //}
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
+    private var bindMode = -1//绑定模式 -> -1：正常 / 0：FragmentManager / 1：ViewPager2
     private var builder: FragmentBuilder? = null
     private var mediator: TabLayoutMediator? = null
     private var listener: OnTabChangeListener? = null
@@ -273,18 +306,20 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     /**
      * 无特殊绑定的自定义头
      */
-    fun bind(list: List<T>? = null) {
-        init(list)
-        addOnTabSelectedListener()
+    fun build(list: List<T>? = null, default: Int = 0) {
+        bindMode = -1
+        initView(list)
+        initEvent(default)
     }
 
     /**
      * 注入管理器
      */
-    fun bind(builder: FragmentBuilder, list: List<T>? = null) {
-        this.builder = builder
-        init(list)
-        addOnTabSelectedListener()
+    fun bind(fragmentBuilder: FragmentBuilder, list: List<T>? = null, default: Int = 0) {
+        bindMode = 0
+        builder = fragmentBuilder
+        initView(list)
+        initEvent(default)
     }
 
     /**
@@ -292,16 +327,17 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * userInputEnabled:是否左右滑动
      * pageLimit：是否预加载数据（懒加载为false）
      */
-    fun bind(pager: ViewPager2?, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false) {
+    fun bind(pager: ViewPager2?, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false, default: Int = 0) {
+        bindMode = 1
         pager?.adapter = null
         mediator?.detach()
-        init(list)
+        initView(list)
         pager.adapter(adapter, orientation, userInputEnabled, pageLimit)
         mediator = pager.bind(tab)
-        addOnTabSelectedListener()
+        initEvent(default)
     }
 
-    private fun init(list: List<T>? = null) {
+    private fun initView(list: List<T>? = null) {
         tab?.removeAllTabs()
         tabViews.clear()
         if (null != list) tabList = list
@@ -311,7 +347,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     /**
      * 这个方法需要放在setupWithViewPager()后面
      */
-    private fun addOnTabSelectedListener() {
+    private fun initEvent(default: Int = 0) {
         for (i in 0 until tab?.tabCount.orZero) {
             tab?.getTabAt(i)?.apply {
                 val mBinding = getBindView()
@@ -348,8 +384,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
                 tab.position.orZero.apply {
                     //子tab状态回调
                     onBindView(tabViews[this], tabList.safeGet(this), selected, this)
-                    //下标对应的fragment显示
-                    if (selected) builder?.selectTab(this)
+                    //下标对应的fragment显示,只有manager需要手动切，viewpager2在绑定时就已经实现了切换
+                    if (selected && 0 == bindMode) builder?.selectTab(this)
                 }
             }
         })
@@ -359,6 +395,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             tabParent?.getChildAt(i)?.setPadding(0, 0, 0, 0)
             tabParent?.getChildAt(i).size(WRAP_CONTENT, MATCH_PARENT)
         }
+        //如果设置了默认选择下标则做一个指定
+        setSelect(default)
     }
 
     /**

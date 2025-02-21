@@ -21,8 +21,7 @@ import com.example.framework.utils.logWTF
  * stopFlipping：停止View切换
  * displayedChild:获取当前选中的索引
  */
-class SwitchFlipper @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
-    ViewFlipper(context, attrs) {
+class SwitchFlipper @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : ViewFlipper(context, attrs) {
 
     /**
      * 添加view
