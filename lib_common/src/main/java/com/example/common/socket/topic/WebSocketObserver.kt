@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicReference
  * socket生命周期管理，适用于多个界面多个wss订阅
  * 写在BaseActivity中OnCreate-》WebSocketRequest.addObserver(this)
  */
-object WebSocketRequest : LifecycleEventObserver {
+object WebSocketObserver : LifecycleEventObserver {
     //    private val list by lazy { ArrayList<WeakReference<LifecycleOwner>>() }
     private val atomicListRef by lazy { AtomicReference<ArrayList<WeakReference<LifecycleOwner>>>() }
 
