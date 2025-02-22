@@ -3,6 +3,7 @@ package com.example.common.socket.topic
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.common.socket.topic.interf.FragmentManagerOwner
 import com.example.common.socket.topic.interf.SocketObserver
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.hasAnnotation
@@ -97,3 +98,5 @@ object WebSocketObserver : LifecycleEventObserver {
 }
 
 val LifecycleOwner.isSocketObserver get() = hasAnnotation(SocketObserver::class.java)
+
+val LifecycleOwner.isFragmentManagerOwner get() = hasAnnotation(FragmentManagerOwner::class.java)
