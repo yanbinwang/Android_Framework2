@@ -11,9 +11,10 @@ import java.util.concurrent.atomic.AtomicReference
 /**
  * socket生命周期管理，适用于多个界面多个wss订阅
  * 写在BaseActivity中OnCreate-》WebSocketObserver.addObserver(this)
+ * 写的fragment中，如果是viewpager2没太大问题，如果是FragmentManager的话，不建议写
  */
 object WebSocketObserver : LifecycleEventObserver {
-    private val atomicListRef by lazy { AtomicReference(ArrayList<WeakReference<LifecycleOwner>>()) }
+    private val atomicRefList by lazy { AtomicReference(ArrayList<WeakReference<LifecycleOwner>>()) }
 
     @JvmStatic
     fun addObserver(owner: LifecycleOwner) {
@@ -23,27 +24,26 @@ object WebSocketObserver : LifecycleEventObserver {
     @JvmStatic
     private fun add(owner: LifecycleOwner) {
         if (!owner.isSocketObserver) return
-        atomicListRef.get().add(WeakReference(owner))
+        atomicRefList.get().add(WeakReference(owner))
         owner.lifecycle.addObserver(this)
     }
 
     @JvmStatic
     private fun remove(owner: LifecycleOwner) {
         if (!owner.isSocketObserver) return
-        atomicListRef.get().removeAll { it.get() == owner }
+        atomicRefList.get().removeAll { it.get() == owner }
         owner.lifecycle.removeObserver(this)
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         val clazz = source::class.java.getAnnotation(SocketObserver::class.java)
-        if (null != clazz) {
-            val value = clazz.value
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> WebSocketConnect.topic(*value)
-                Lifecycle.Event.ON_PAUSE -> WebSocketConnect.untopic(*value)
-                Lifecycle.Event.ON_DESTROY -> remove(source)
-                else -> {}
-            }
+        clazz ?: return
+        val value = clazz.value
+        when (event) {
+            Lifecycle.Event.ON_RESUME -> WebSocketConnect.topic(*value)
+            Lifecycle.Event.ON_PAUSE -> WebSocketConnect.untopic(*value)
+            Lifecycle.Event.ON_DESTROY -> remove(source)
+            else -> {}
         }
 //        val anno = source::class.java.annotations.find { it::class.java == SocketRequest::class.java } as? SocketRequest
 //            ?: return
