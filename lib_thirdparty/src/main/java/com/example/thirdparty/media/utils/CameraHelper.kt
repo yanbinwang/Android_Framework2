@@ -34,16 +34,14 @@ import java.io.File
  */
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
 class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver: Boolean = false) : LifecycleEventObserver {
-    private var sourcePath = ""
+    private var cameraMode = 0//0：拍照 1：录像
+    private var sourcePath = ""//源文件路径->拍照模式记录的是上一次的图片路径，录像记录的是上一次预创建的路径---》每次都会覆盖
     private var cvFinder: CameraView? = null
     private var onTakePictureListener: OnTakePictureListener? = null
     private var onTakeVideoListener: OnTakeVideoListener? = null
     private val actionSound by lazy { MediaActionSound() }
     private val eventReceiver by lazy { KeyEventReceiver() }
     private val mContext get() = cvFinder?.context
-    private val isTaking get() = isTakingPicture || isTakingVideo
-    val isTakingPicture get() = cvFinder?.isTakingPicture.orFalse
-    val isTakingVideo get() = cvFinder?.isTakingVideo.orFalse
 
     init {
         observer.lifecycle.addObserver(this)
@@ -86,7 +84,9 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
             preview = Preview.GL_SURFACE//绘制相机的装载控件
             facing = Facing.BACK//打开时镜头默认后置
             flash = Flash.AUTO//闪光灯自动
+            //区分页面传入的相机view属于哪种模式
             if (mode == Mode.PICTURE) {
+                cameraMode = 0
                 addCameraListener(object : CameraListener() {
                     override fun onPictureShutter() {
                         super.onPictureShutter()
@@ -96,22 +96,23 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
                     override fun onPictureTaken(result: PictureResult) {
                         super.onPictureTaken(result)
                         //在sd卡的Picture文件夹下创建对应的文件
-                        StorageUtil.getOutputFile(IMAGE).apply {
-                            if (null != this) {
-                                result.toFile(this) {
-                                    if (null != it) {
-                                        onTakePictureListener?.onSuccess(it)
-                                    } else {
-                                        onTakePictureListener?.onFailed()
-                                    }
+                        val outputFile = StorageUtil.getOutputFile(IMAGE)
+                        if (null != outputFile) {
+                            result.toFile(outputFile) {
+                                if (it?.exists().orFalse) {
+                                    sourcePath = it?.absolutePath.orEmpty()
+                                    onTakePictureListener?.onSuccess(it)
+                                } else {
+                                    onTakePictureListener?.onFailed()
                                 }
-                            } else {
-                                onTakePictureListener?.onFailed()
                             }
+                        } else {
+                            onTakePictureListener?.onFailed()
                         }
                     }
                 })
             } else {
+                cameraMode = 1
                 addCameraListener(object : CameraListener() {
                     override fun onVideoRecordingStart() {
                         super.onVideoRecordingStart()
@@ -141,6 +142,17 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
     }
 
     /**
+     * 是否正处于拍摄中的状态
+     */
+    fun isTaking(): Boolean {
+        return if (0 == cameraMode) {
+            cvFinder?.isTakingPicture.orFalse
+        } else {
+            cvFinder?.isTakingVideo.orFalse
+        }
+    }
+
+    /**
      * 镜头复位
      */
     fun reset() {
@@ -151,7 +163,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      * 镜头翻转
      */
     fun toggleFacing() {
-        if (isTaking) return
+        if (isTaking()) return
         closeFlash()
         cvFinder?.toggleFacing()
     }
@@ -160,7 +172,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      * 开关闪光灯
      */
     fun flash() {
-        if (isTaking) return
+        if (isTaking()) return
         if (cvFinder?.facing == Facing.FRONT) {
             R.string.cameraFlashError.shortToast()
         } else {
@@ -174,7 +186,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      * 关灯
      */
     fun closeFlash() {
-        if (isTaking) return
+        if (isTaking()) return
         if (cvFinder?.facing == Facing.BACK) {
             cvFinder?.flash = Flash.OFF
             onTakePictureListener?.onFlash(false)
@@ -186,7 +198,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      * 拍照
      */
     fun takePicture(snapshot: Boolean = true) {
-        if (isTakingPicture) {
+        if (isTaking()) {
             R.string.cameraPictureShutter.shortToast()
             return
         }
@@ -204,22 +216,21 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      * 开始录像
      */
     fun takeVideo(snapshot: Boolean = true) {
-        if (isTakingVideo) {
+        if (isTaking()) {
             R.string.cameraVideoShutter.shortToast()
             return
         }
         cvFinder?.let {
-            StorageUtil.getOutputFile(VIDEO).apply {
-                if (null != this) {
-                    sourcePath = absolutePath
-                    if (snapshot) {
-                        it.takeVideoSnapshot(this)
-                    } else {
-                        it.takeVideo(this)
-                    }
+            val outputFile = StorageUtil.getOutputFile(VIDEO)
+            if (null != outputFile) {
+                sourcePath = outputFile.absolutePath
+                if (snapshot) {
+                    it.takeVideoSnapshot(outputFile)
                 } else {
-                    onTakeVideoListener?.onResult(null)
+                    it.takeVideo(outputFile)
                 }
+            } else {
+                onTakeVideoListener?.onResult(null)
             }
         }
     }
