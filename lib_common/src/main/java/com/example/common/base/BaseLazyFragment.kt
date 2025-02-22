@@ -3,13 +3,75 @@ package com.example.common.base
 import android.os.Bundle
 import android.view.View
 import androidx.databinding.ViewDataBinding
-import com.example.common.bean.interf.LazyOwner
-import com.example.framework.utils.function.value.hasAnnotation
 
 /**
  * Created by WangYanBin on 2020/6/10.
  * 数据懒加载，当界面不可展示时，不执行加载数据的方法
- * 使用时需要用于判断生命周期是否展示用onHiddenChanged方法是否是false判断
+ *
+ * 1）Viewpager2
+ *
+ * 1.子页面在适配器加载出来时只会加载当前下标的onResume方法，比如3个子页面，一开始适配器加载出来只会执行第一个页面的onResume方法
+ * 2.所有子页面的onHiddenChanged会在加载viewpager2页面的activity被盖住时全部触发，返回false，然后页面回来后，执行当前选中子页面的onResume方法
+ * 3.由生命周期变化可以看出，不管多少个子页面，只要管控好当前选中的页面的onResume方法即可，可以在该生命周期内网络请求或者刷新
+ * ------第一次进页面生命周期------
+ * onResume-tradeType：2
+ * ------页面被盖住后执行的生命周期------
+ * onHiddenChanged-tradeType：2-hidden：true
+ * onHiddenChanged-tradeType：1-hidden：true
+ * onHiddenChanged-tradeType：2-hidden：false
+ * onHiddenChanged-tradeType：1-hidden：false
+ * ------盖住的页面被关闭后，回到当前页面执行的生命周期------
+ * onResume-tradeType：2
+ *
+ * 2)FragmentManager
+ * 1.replace方法会直接清空之前的管理器内的所有页面，重新创建，所以只要管控好当前选中的页面的onResume方法即可，可以在该生命周期内网络请求或者刷新
+ * 2.add方法会保存之前添加的fragment，所以当前页面如果已经被add后，再切回来的话onResume方法是不执行的，会执行onHiddenChanged方法，
+ * 而onResume方法则会在整个页面被盖住，盖住其的页面被关闭时所有管理器内存储的页面都会执行一次，故而如果是用FragmentManager的add来切换页面，需要一些特殊处理
+ *
+ * override fun onResume() {
+ * super.onResume()
+ * if (isHidden) return
+ * refreshNow()
+ * }
+ *
+ * override fun onHiddenChanged(hidden: Boolean) {
+ * super.onHiddenChanged(hidden)
+ * if (!hidden) refreshNow()
+ * }
+ *
+ * private fun refreshNow() {
+ * viewModel?.refresh()
+ * }
+ *
+ * replace方法
+ * ------第一次进页面生命周期------
+ * onResume-tradeType：2
+ * ------点击另一个页面执行的生命周期------
+ * onResume-tradeType：1
+ * onHiddenChanged-tradeType：2-hidden：true
+ * ------再点击回来执行的生命周期------
+ * onResume-tradeType：2
+ * onHiddenChanged-tradeType：1-hidden：true
+ * ------盖住的页面被关闭后，回到当前页面执行的生命周期------
+ * onHiddenChanged-tradeType：2-hidden：true
+ * onHiddenChanged-tradeType：2-hidden：false
+ * onResume-tradeType：2
+ *
+ * add方法
+ * ------第一次进页面生命周期------
+ * onResume-tradeType：2
+ * ------点击另一个页面执行的生命周期------
+ * onResume-tradeType：1
+ * onHiddenChanged-tradeType：2-hidden：true
+ * ------再点击回来执行的生命周期------
+ * onHiddenChanged-tradeType：2-hidden：false
+ * onHiddenChanged-tradeType：1-hidden：true
+ * ------盖住的页面被关闭后，回到当前页面执行的生命周期------
+ * onHiddenChanged-tradeType：2-hidden：true
+ * onHiddenChanged-tradeType：1-hidden：true
+ * onHiddenChanged-tradeType：2-hidden：false
+ * onHiddenChanged-tradeType：1-hidden：true
+ * onResume-tradeType：2
  */
 abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
     private var hasLoad = false//页面是否被加载
@@ -22,11 +84,6 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
         super.onViewCreated(view, savedInstanceState)
     }
 
-    override fun initView(savedInstanceState: Bundle?) {
-        super.initView(savedInstanceState)
-        if (needLazyOwner) onHiddenChanged(false)
-    }
-
     override fun onResume() {
         super.onResume()
         if (!hasLoad) {
@@ -35,13 +92,6 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
                 loaded = true
             }
             hasLoad = true
-        }
-    }
-
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        if (needLazyOwner) {
-            if (hidden) onPause() else onResume()
         }
     }
 
@@ -59,11 +109,3 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
     // </editor-fold>
 
 }
-
-/**
- * 如果activity中的fragment不在onCreate中初始化，而是在onResume中或者接口请求完成后的代码中产生，可能会导致生命周期调用不正常，推荐此时使用此注解
- * 情况列举:
- * 1.如首页切换使用的是fragmentmanager，并且某个子fragment中又套了fragmentlayout，再加fragmentmanager，那么这个子fragment内的子fragment就需要加上注解作区分了
- * 2.实际情况下，如果子fragment再套manager的情况，加载起来会不好看，推荐用viewpager2切换
- */
-val BaseLazyFragment<*>.needLazyOwner get() = hasAnnotation(LazyOwner::class.java)

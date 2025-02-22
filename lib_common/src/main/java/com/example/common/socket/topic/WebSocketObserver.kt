@@ -13,8 +13,7 @@ import java.util.concurrent.atomic.AtomicReference
  * 写在BaseActivity中OnCreate-》WebSocketObserver.addObserver(this)
  */
 object WebSocketObserver : LifecycleEventObserver {
-    //    private val list by lazy { ArrayList<WeakReference<LifecycleOwner>>() }
-    private val atomicListRef by lazy { AtomicReference<ArrayList<WeakReference<LifecycleOwner>>>() }
+    private val atomicListRef by lazy { AtomicReference(ArrayList<WeakReference<LifecycleOwner>>()) }
 
     @JvmStatic
     fun addObserver(owner: LifecycleOwner) {
