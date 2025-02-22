@@ -3,6 +3,8 @@ package com.example.common.base
 import android.os.Bundle
 import android.view.View
 import androidx.databinding.ViewDataBinding
+import com.example.common.socket.topic.WebSocketObserver
+import com.example.common.socket.topic.isFragmentManagerOwner
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -79,6 +81,11 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
     private var loaded = false//数据是否被加载
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (!isFragmentManagerOwner) WebSocketObserver.addObserver(this)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         lazyData = true
         super.onViewCreated(view, savedInstanceState)
@@ -93,6 +100,12 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
             }
             hasLoad = true
         }
+        if (isFragmentManagerOwner) WebSocketObserver.onStateChanged(this, isHidden)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (isFragmentManagerOwner) WebSocketObserver.onStateChanged(this, hidden)
     }
 
     /**
