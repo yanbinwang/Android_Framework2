@@ -6,8 +6,6 @@ import cn.zhxu.stomp.Header
 import cn.zhxu.stomp.Message
 import cn.zhxu.stomp.Stomp
 import com.example.framework.utils.logWTF
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 
 /**
  * 非订阅长连接类->websocket代理类
@@ -29,15 +27,13 @@ class WebSocketProxy(private val socketUrl: String) {
     fun connect(list: List<Header>? = headers) {
         if (isConnected()) {
             disconnect()
-            /**
-             * 区别于常规协程，不需要类实现CoroutineScope，并且会阻塞当前线程
-             * 在代码块中的逻辑执行完后才会执行接下来的代码
-             */
-            runBlocking {
-                delay(1000)
+//            /**
+//             * 尽量避免使用此类协程，容易造成内存泄漏
+//             */
+//            GlobalScope.launch(Main) {
+//                delay(1000)
                 connectNow(list)
-            }
-//            schedule({ connectNow(list) })
+//            }
         } else {
             connectNow(list)
         }

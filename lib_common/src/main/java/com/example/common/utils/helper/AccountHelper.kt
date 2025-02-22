@@ -65,12 +65,10 @@ object AccountHelper {
      * 存储手机号
      */
     @JvmStatic
-    fun setPhoneNumber(newPhoneNumber: String?) {
-        newPhoneNumber ?: return
-        getUser().let {
-            it.phoneNumber = newPhoneNumber
-            setUser(it)
-        }
+    fun setPhoneNumber(phoneNumber: String) {
+        val bean = getUser()
+        bean.phoneNumber = phoneNumber
+        setUser(bean)
     }
 
     /**
@@ -106,12 +104,10 @@ object AccountHelper {
      * 0冻结 1正常
      */
     @JvmStatic
-    fun setStatus(newStatus: Int?) {
-        newStatus ?: return
-        getUserInfo().let {
-            it.status = newStatus
-            setUserInfo(it)
-        }
+    fun setStatus(status: Int) {
+        val bean = getUserInfo()
+        bean.status = status
+        setUserInfo(bean)
     }
 
     /**
@@ -130,11 +126,11 @@ object AccountHelper {
      * 刷新个人信息
      */
     @JvmStatic
-    fun refresh(bean: UserInfoBean?) {
+    fun refresh(bean: UserInfoBean?, isPost: Boolean = true) {
         bean ?: return
         if (getUserInfo() == bean) return
         setUserInfo(bean)
-        EVENT_USER_INFO_REFRESH.post(userInfoBean.get())
+        if(isPost) EVENT_USER_INFO_REFRESH.post(userInfoBean.get())
     }
 
     /**
