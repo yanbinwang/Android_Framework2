@@ -248,12 +248,10 @@ class FragmentBuilder(private val fragmentManager: FragmentManager, private val 
      * object : FragmentManager.FragmentLifecycleCallbacks(){
      * override fun onFragmentAttached(fm: FragmentManager, f: Fragment, context: Context) {
      * super.onFragmentAttached(fm, f, context)
-     * "Attached-当前fragment:${f}".logWTF("wyb")
      * }
      *
      * override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
      * super.onFragmentResumed(fm, f)
-     * "Resumed-当前fragment:${f}".logWTF("wyb")
      * }
      * }
      *  }
