@@ -6,10 +6,10 @@
         android:id="@+id/tv_label"
         android:layout_width="match_parent"
         android:layout_height="50pt"
-        android:layout_marginBottom="1pt"
         android:gravity="center"
         android:textColor="@color/textPrimary"
         android:textSize="@dimen/textSize16"
+        tools:layout_marginBottom="1pt"
         tools:text="律师" />
 
 </layout>

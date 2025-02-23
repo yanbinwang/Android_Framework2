@@ -1,12 +1,18 @@
 package com.example.common.widget.popup.select
 
 import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.fragment.app.FragmentActivity
+import com.example.common.R
 import com.example.common.base.BasePopupWindow
 import com.example.common.databinding.ViewPopupSelectMenuBinding
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.safeSize
+import com.example.framework.utils.function.view.background
+import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.layoutGravity
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.size
@@ -53,6 +59,13 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
                         }
                         it.mBinding.root
                     })
+                    if (list.safeSize - 1 != index) {
+                        val view = View(context)
+                        view.size(MATCH_PARENT, 1.pt)
+                        view.background(color(R.color.bgLine))
+                        view.margin(start = 1.pt, end = 1.pt)
+                        addView(view)
+                    }
                 }
             }
         }
