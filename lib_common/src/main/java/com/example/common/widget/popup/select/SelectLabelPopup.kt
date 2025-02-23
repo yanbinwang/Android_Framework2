@@ -4,7 +4,10 @@ import androidx.fragment.app.FragmentActivity
 import com.example.common.base.BasePopupWindow
 import com.example.common.base.PopupAnimType.TRANSLATE
 import com.example.common.databinding.ViewPopupSelectLabelBinding
+import com.example.common.utils.function.pt
+import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.margin
 
 /**
  * Created by wangyanbin
@@ -19,13 +22,23 @@ class SelectLabelPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Str
             llItem.apply {
                 removeAllViews()
                 list.forEachIndexed { index, t ->
-                    addView(SelectItemHolder(llItem, Pair(formatter(t).orEmpty(), index)).let {
+                    val root = SelectItemHolder(llItem, Pair(formatter(t).orEmpty(), index)).let {
                         it.onItemClick = { item, index ->
                             hidden()
                             onCurrent?.invoke(item.orEmpty(), index)
                         }
                         it.mBinding.root
-                    })
+                    }
+                    if (list.safeSize - 1 != index) {
+                        root.margin(bottom = 1.pt)
+                    }
+//                    addView(SelectItemHolder(llItem, Pair(formatter(t).orEmpty(), index)).let {
+//                        it.onItemClick = { item, index ->
+//                            hidden()
+//                            onCurrent?.invoke(item.orEmpty(), index)
+//                        }
+//                        it.mBinding.root
+//                    })
                 }
             }
             tvCancel.click { hidden() }
