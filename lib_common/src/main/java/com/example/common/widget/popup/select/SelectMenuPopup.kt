@@ -11,7 +11,6 @@ import com.example.common.utils.ScreenUtil
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeSize
-import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.layoutGravity
 import com.example.framework.utils.function.view.margin
@@ -62,7 +61,7 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
                     if (list.safeSize - 1 > index) {
                         val view = View(context)
                         view.size(MATCH_PARENT, 1.pt)
-                        view.background(color(R.color.bgLine))
+                        view.setBackgroundColor(color(R.color.bgLine))
                         view.margin(start = 1.pt, end = 1.pt)
                         addView(view)
                     }
