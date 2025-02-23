@@ -59,7 +59,7 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
                         }
                         it.mBinding.root
                     })
-                    if (list.safeSize - 1 != index) {
+                    if (list.safeSize - 1 > index) {
                         val view = View(context)
                         view.size(MATCH_PARENT, 1.pt)
                         view.background(color(R.color.bgLine))
