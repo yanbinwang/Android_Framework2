@@ -27,6 +27,7 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
+import com.example.common.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
@@ -97,7 +98,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        WebSocketObserver.addObserver(this)
+        WebSocketObserver.addObserver(this)
         if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
     }
 
