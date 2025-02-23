@@ -3,9 +3,7 @@ package com.example.common.socket.topic
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.socket.topic.interf.FragmentManagerOwner
 import com.example.common.socket.topic.interf.SocketObserver
-import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.hasAnnotation
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicReference
@@ -31,20 +29,20 @@ object WebSocketObserver : LifecycleEventObserver {
      * 添加
      */
     @JvmStatic
-    private fun add(owner: LifecycleOwner, isObserver: Boolean = true) {
+    private fun add(owner: LifecycleOwner) {
         if (!owner.isSocketObserver) return
         atomicRefList.get().add(WeakReference(owner))
-        if (isObserver) owner.lifecycle.addObserver(this)
+        owner.lifecycle.addObserver(this)
     }
 
     /**
      * 删除
      */
     @JvmStatic
-    private fun remove(owner: LifecycleOwner, isObserver: Boolean = true) {
+    private fun remove(owner: LifecycleOwner) {
         if (!owner.isSocketObserver) return
         atomicRefList.get().removeAll { it.get() == owner }
-        if (isObserver) owner.lifecycle.removeObserver(this)
+        owner.lifecycle.removeObserver(this)
     }
 
     /**
@@ -64,39 +62,37 @@ object WebSocketObserver : LifecycleEventObserver {
 //            ?: return
     }
 
-    /**
-     * 针对Fragment订阅
-     * Fragment在使用FragmentManager时，重写onResume和onHiddenChanged都会调取
-     */
-    @JvmStatic
-    fun onStateChanged(owner: LifecycleOwner, hidden: Boolean) {
-        //注解校验
-        if (!owner.isSocketObserver) return
-        //提取一下页面注解的类
-        val clazz = owner::class.java.getAnnotation(SocketObserver::class.java)
-        clazz ?: return
-        //获取注解类里批量订阅的wss地址
-        val value = clazz.value
-        //检测一下本地管控生命周期的嘞里是否存储了这个值
-        val source = atomicRefList.get().find { it.get() == owner }
-        if (null == source) {
-            //添加进集合，做生命周期监听
-            add(owner, false)
-            owner.doOnDestroy {
-                WebSocketConnect.untopic(*value)
-                remove(owner, false)
-            }
-        }
-        //子页面可见
-        if (!hidden) {
-            WebSocketConnect.topic(*value)
-        } else {
-            WebSocketConnect.untopic(*value)
-        }
-    }
+//    /**
+//     * 针对Fragment订阅
+//     * Fragment在使用FragmentManager时，重写onResume和onHiddenChanged都会调取
+//     */
+//    @JvmStatic
+//    fun onStateChanged(owner: LifecycleOwner, hidden: Boolean) {
+//        //注解校验
+//        if (!owner.isSocketObserver) return
+//        //提取一下页面注解的类
+//        val clazz = owner::class.java.getAnnotation(SocketObserver::class.java)
+//        clazz ?: return
+//        //获取注解类里批量订阅的wss地址
+//        val value = clazz.value
+//        //检测一下本地管控生命周期的嘞里是否存储了这个值
+//        val source = atomicRefList.get().find { it.get() == owner }
+//        if (null == source) {
+//            //添加进集合，做生命周期监听
+//            add(owner, false)
+//            owner.doOnDestroy {
+//                WebSocketConnect.untopic(*value)
+//                remove(owner, false)
+//            }
+//        }
+//        //子页面可见
+//        if (!hidden) {
+//            WebSocketConnect.topic(*value)
+//        } else {
+//            WebSocketConnect.untopic(*value)
+//        }
+//    }
 
 }
 
 val LifecycleOwner.isSocketObserver get() = hasAnnotation(SocketObserver::class.java)
-
-val LifecycleOwner.isFragmentManagerOwner get() = hasAnnotation(FragmentManagerOwner::class.java)
