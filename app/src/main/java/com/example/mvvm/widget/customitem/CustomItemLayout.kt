@@ -92,7 +92,7 @@ class CustomItemLayout @JvmOverloads constructor(context: Context, attrs: Attrib
         //顶部按钮
         banner.apply {
             reduceSensitivity()
-            adapter(itemAdapter)
+            adapter(itemAdapter, pageLimit = true)
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 private var curIndex = 0//当前选中的数组索引
                 private var oldIndex = 0//上次选中的数组索引
