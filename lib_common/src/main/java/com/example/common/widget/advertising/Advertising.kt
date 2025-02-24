@@ -17,10 +17,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.example.common.R
-import com.example.common.utils.function.color
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.parseColor
@@ -208,7 +205,9 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
         //设置图片数据
         advAdapter.refresh(list)
-        advAdapter.setOnItemClickListener { onPagerClick?.invoke(it) }
+        advAdapter.setOnItemClickListener {
+            onPagerClick?.invoke(it)
+        }
         //设置默认选中的起始位置
         banner?.setCurrentItem(if (list.safeSize > 1) absolutePosition else 0, false)
     }
@@ -221,7 +220,6 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         this.ovalLayout = ovalLayout
         this.advAdapter.setParams(radius, localAsset)
         if (ovalList != null) this.triple = ovalList
-        cover(radius)
     }
 
     override fun setOrientation(orientation: Int) {
@@ -230,16 +228,6 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     override fun setPageTransformer(marginPx: Int) {
         banner?.setPageTransformer(MarginPageTransformer(marginPx.pt))
-    }
-
-    /**
-     * 添加遮罩
-     */
-    private fun cover(radius: Int) {
-        banner?.background = GradientDrawable().apply {
-            setColor(color(R.color.bgGrey))
-            cornerRadius = radius.ptFloat
-        }
     }
 
     /**
