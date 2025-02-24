@@ -327,7 +327,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * userInputEnabled:是否左右滑动
      * pageLimit：是否预加载数据（如果只有2个fragment就只会预加载2个页面，超过的话，设为false则会在滑到第三页的时候销毁第一页）
      */
-    fun bind(pager: ViewPager2?, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false, default: Int = 0) {
+    fun bind(pager: ViewPager2?, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = true, default: Int = 0) {
         bindMode = 1
         pager?.adapter = null
         mediator?.detach()
