@@ -525,16 +525,6 @@ rx.internal.util.atomic.LinkedQueueNode consumerNode;
 }
 #------------------------Retrofit混淆结束------------------------
 
-#------------------------sharesdk混淆开始------------------------
--keep class cn.sharesdk.**{*;}
--keep class com.sina.**{*;}
--keep class com.mob.**{*;}
--keep class com.bytedance.**{*;}
--dontwarn cn.sharesdk.**
--dontwarn com.sina.**
--dontwarn com.mob.**
-#------------------------sharesdk混淆结束------------------------
-
 #------------------------greendao混淆开始------------------------
 -keep class org.greenrobot.greendao.**{*;}
 -keep public interface org.greenrobot.greendao.**
@@ -660,20 +650,18 @@ public static java.lang.String TABLENAME;
 -keep class com.alipay.rds.v2.face.RDSClient { *; }
 -keep class com.alipay.rds.constant.* { *; }
 #------------------------阿里人脸识别混淆结束------------------------
-#------------------------gifimage混淆开始------------------------
--keep public class pl.droidsonroids.gif.GifIOException{<init>(int);}
--keep class pl.droidsonroids.gif.GifInfoHandle{<init>(long,int,int,int);}
--keep class pl.droidsonroids.relinker.** {*;}
--keep class pl.droidsonroids.gif.** {*;}
-#------------------------gifimage混淆结束------------------------
+
 -keep class com.example.common.databinding.** {*;}
-#-keep class com.dataqin.home.databinding.** {*;}
--keep class com.example.common.event.LiveDataEvent{*;}
--keep class com.example.common.network.repository.** {*;}
+-keep class com.example.common.base.binding.adapter.BaseItemType { *;}
 -keep class com.example.common.base.page.** {*;}
-
 -keep class com.example.common.bean.** {*;}
+-keep class com.example.common.event.** {*;}
+-keep class com.example.common.network.repository.** {*;}
+-keep class com.example.common.socket.** {*;}
+-keep class com.example.common.widget.advertising.** {*;}
+-keep class com.example.common.widget.popup.select.** {*;}
 
+#-keep class com.dataqin.home.databinding.** {*;}
 #-keep class com.dataqin.home.model.** {*;}
 #-keep class com.dataqin.evidence.model.** {*;}
 #-keep class com.dataqin.account.model.** {*;}
