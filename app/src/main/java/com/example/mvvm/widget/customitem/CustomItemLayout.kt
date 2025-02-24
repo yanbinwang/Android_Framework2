@@ -44,7 +44,7 @@ class CustomItemLayout @JvmOverloads constructor(context: Context, attrs: Attrib
 //        )
 //    }
     //内容data
-    private var data: List<List<Pair<String, String>>>? = null
+    private var data: List<List<Triple<Boolean, String, String>>>? = null
     //按钮适配器
     private val itemAdapter by lazy { CustomItemAdapter() }
     //按钮容器
@@ -68,11 +68,11 @@ class CustomItemLayout @JvmOverloads constructor(context: Context, attrs: Attrib
     /**
      * 传入需要加载的数据
      */
-    fun init(data: List<List<Pair<String, String>>>, ovalList: Triple<Drawable, Drawable, Int>, columns: Int = 4) {
+    fun init(data: List<List<Triple<Boolean, String, String>>>, ovalList: Triple<Drawable, Drawable, Int>, count: Int = 8, columns: Int = 4) {
         this.data = data
         this.ovalList = ovalList
         this.itemAdapter.apply {
-            setColumns(columns)
+            setConfiguration(count, columns)
             refresh(data)
             setOnItemClickListener {
                 onPagerClick?.invoke(it)
@@ -151,6 +151,8 @@ class CustomItemLayout @JvmOverloads constructor(context: Context, attrs: Attrib
 
     /**
      * 设置按钮监听
+     * onPagerClick:每页内的tab的下标
+     * onPagerCurrent：当前页数下标
      */
     fun setCustomListener(onPagerClick: (index: Int) -> Unit, onPagerCurrent: (index: Int) -> Unit) {
         this.onPagerClick = onPagerClick
