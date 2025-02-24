@@ -76,13 +76,16 @@ fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = Vie
     setOrientation(orientation)
     /**
      * offscreenPageLimit默认值-1，系统会根据屏幕布局和可见区域自动计算可保留的页面数量
-     * 如果页面宽度与屏幕宽度一致，则仅保留当前页面
-     * 如果页面宽度小于屏幕宽度（如横向滑动的分屏布局），则可能保留多个页面
-     * 设为0时，完全禁止预加载相邻页面，仅保留当前页面，滑动到新页面时，旧页面会被销毁，新页面需重新创建
+     * 如果页面宽度与屏幕宽度一致，则仅保留当前页面，如果页面宽度小于屏幕宽度（如横向滑动的分屏布局），则可能保留多个页面
+     *
      * offscreenPageLimit = -1 的实际逻辑：
      * ViewPager2 会根据屏幕布局和页面尺寸动态计算可保留的页面数。通常情况下：
      * 单列布局（每个页面占满屏幕宽度）：系统会自动将 offscreenPageLimit 视为 1，即保留当前页面和相邻的一个页面（如果存在）。
      * 多列布局（页面宽度小于屏幕宽度）：可能保留更多页面以支持横向滚动。
+     *
+     * 1）目前已经不能被设为0，因为源码里规定如果要传值必须大于0，切默认配置是关闭，不会预加载，且fragment最好继承BaseLazyFragment，保证请求也滞后执行
+     * 2）不开启的情况下就是只加载当前页，开启的情况下，有多少子页面就预加载多少，推荐fragment继承BaseLazyFragment，保证请求滞后执行，节省一部分内存
+     * 3）不开启的情况下，如果使用EvenBus刷新子页面，需要获取Fragment的isAdded和对应参数来判断是否发起网络请求，开启的情况下，isAdded无需书写
      */
     if(pageLimit) offscreenPageLimit = adapter.itemCount  - 1
     //false 可以禁止用户通过手势左右滑动页面，但页面仍可通过代码控制
