@@ -69,7 +69,7 @@ fun ViewPager2?.prevPage(isSmooth: Boolean = true) {
 /**
  * 设置适配器扩展
  */
-fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = true) {
+fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false) {
     if (this == null) return
     hideFadingEdge()
     setAdapter(adapter)
