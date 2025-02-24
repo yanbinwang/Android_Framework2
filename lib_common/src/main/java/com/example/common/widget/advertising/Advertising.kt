@@ -127,7 +127,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     init {
         banner = ViewPager2(context).apply {
             reduceSensitivity()
-            adapter(advAdapter, pageLimit = false)
+            adapter(advAdapter)
             registerOnPageChangeCallback(callback)
 //            setOnTouchListener { _, event ->
 //                when (event?.action) {
