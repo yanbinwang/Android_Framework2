@@ -74,8 +74,19 @@ fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = Vie
     hideFadingEdge()
     setAdapter(adapter)
     setOrientation(orientation)
-    if(pageLimit) offscreenPageLimit = adapter.itemCount  - 1//预加载数量
-    isUserInputEnabled = userInputEnabled //禁止左右滑动
+    /**
+     * offscreenPageLimit默认值-1，系统会根据屏幕布局和可见区域自动计算可保留的页面数量
+     * 如果页面宽度与屏幕宽度一致，则仅保留当前页面
+     * 如果页面宽度小于屏幕宽度（如横向滑动的分屏布局），则可能保留多个页面
+     * 设为0时，完全禁止预加载相邻页面，仅保留当前页面，滑动到新页面时，旧页面会被销毁，新页面需重新创建
+     * offscreenPageLimit = -1 的实际逻辑：
+     * ViewPager2 会根据屏幕布局和页面尺寸动态计算可保留的页面数。通常情况下：
+     * 单列布局（每个页面占满屏幕宽度）：系统会自动将 offscreenPageLimit 视为 1，即保留当前页面和相邻的一个页面（如果存在）。
+     * 多列布局（页面宽度小于屏幕宽度）：可能保留更多页面以支持横向滚动。
+     */
+    if(pageLimit) offscreenPageLimit = adapter.itemCount  - 1
+    //false 可以禁止用户通过手势左右滑动页面，但页面仍可通过代码控制
+    isUserInputEnabled = userInputEnabled
 }
 
 /**
