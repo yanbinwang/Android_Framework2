@@ -24,6 +24,7 @@ import com.example.framework.utils.TextSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
+import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeFloat
@@ -37,7 +38,12 @@ import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestTopDialog
 import com.example.thirdparty.album.AlbumHelper
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  *  <data>
@@ -317,6 +323,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             .add("★", BitmapSpan(ImageSpan(drawable(R.mipmap.ic_rank)?.toBitmapOrNull(), 18.pt)))
             .build()
 
+//        /**
+//         * take(n)	返回前 n 个元素的新列表
+//         * drop(n)	跳过前 n 个元素，返回剩余元素的列表
+//         * subList(n)	返回从索引 n 开始的子列表（Java 风格）
+//         */
+//        val list = listOf(1, 2, 3, 4, 5)
+//        // 截取前 3 个元素
+//        val result = list.take(3) // [1, 2, 3]
+//        // 截取超过长度的元素（原列表长度为 5，n=10）
+//        val result2 = list.take(10) // [1, 2, 3, 4, 5]
+//        // n 为负数时返回空列表
+//        val result3 = list.take(-5) // []
+
 
 //        binding.tvTest.setClickSpan(
 //            "我已阅读《用户协议》和《隐私政策》",
@@ -346,6 +365,139 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        var key: String? = null,
 //        var value: String? = null
 //    )
+
+    private val list by lazy { ArrayList<Int>() }
+
+    private suspend fun test(){
+        //方式1-通过withTimeoutOrNull 函数可以实现取消flow携程功能， 通过该功能可以处理类似于某些场景下的超时机制，兜底逻辑等
+        withTimeoutOrNull(250) { // 在 250 毫秒后超时
+            var i = 0
+            flow {
+                //重复3次
+                repeat(3){
+                    delay(1000)
+                    i++
+                    emit(i)
+                }
+            }.collect {
+                list.add(it)
+            }
+        }
+        //方式2-flowof扩展函数其实内部也是调用flow扩展函数，只不过flowof是将传递进来的可变参数，遍历了一遍，并且调用flow收集器的emit方法发送取出而已
+        val flow2 = flowOf(1, 2, 3).onEach {
+            delay(1000)
+        }.collect{
+            list.add(it)
+        }
+        //方式3-调用list顶级接口类Iterable的asFlow方法，其实内部还是调用了flow扩展函数，将元素遍历之后emit出去的
+        val flow3 = listOf(1,2,3).asFlow().onEach {
+            delay(1000)
+        }.collect{
+            list.add(it)
+        }
+//        map<T>(transform: suspend T.() -> R)**
+//        作用：将每个元素转换为另一个值。
+//        特点：自动挂起，适合执行耗时操作（如网络请求）。
+//        示例：
+//        kotlin
+//        flowOf(1, 2, 3)
+//            .map { it * 2 } // 转换为 [2, 4, 6]
+//            .collect { println(it) }
+
+//        filter(predicate: suspend (T) -> Boolean)**
+//        作用：过滤不符合条件的元素。
+//        示例：
+//        kotlin
+//        flowOf(1, 2, 3, 4)
+//            .filter { it % 2 == 0 } // 过滤偶数 [2, 4]
+//            .collect { println(it) }
+
+//        flatMap<T>(transform: suspend (T) -> Flow<T>)**
+//        作用：将每个元素替换为一个子流，并将所有子流的元素合并到当前流中。
+//        示例：
+//        kotlin
+//        flowOf(1, 2, 3)
+//            .flatMap { flowOf(it * 10, it * 100) } // 展开为 [10, 100, 20, 200, 30, 300]
+//            .collect { println(it) }
+
+//        collect(consumer: suspend (T) -> Unit)**
+//        作用：触发流的执行并消费数据。
+//        关键点：冷流只有调用 collect 后才会开始发射数据。
+//        示例：
+//        kotlin
+//        flowOf(1, 2, 3).collect { println("Received: $it") }
+
+//        toList() / toSet()**
+//        作用：将流收集到一个列表或集合中。
+//        示例：
+//        kotlin
+//        val list = flowOf(1, 2, 3).toList() // [1, 2, 3]
+
+//        flowOn(context: CoroutineContext)**
+//        作用：切换流的上下文（Dispatcher），仅影响后续操作符。
+//        示例：
+//        kotlin
+//        flowOf(1, 2, 3)
+//            .flowOn(Dispatchers.IO) // 后续操作在 IO 线程执行
+//            .map { heavyCalculation(it) } // 在 IO 线程执行耗时操作
+//            .collect { println(it) } // 在主线程收集结果
+
+//        catch(handler: suspend (Throwable) -> Unit)**
+//        作用：捕获流中抛出的异常，并继续发射数据。
+//        示例：
+//        kotlin
+//        flowOf(1, 2, 3)
+//            .map { if (it == 2) throw RuntimeException("Oops") else it }
+//            .catch { e -> emit(-1) } // 异常时发射 -1
+//            .collect { println(it) }
+
+//        onCompletion(handler: suspend () -> Unit)**
+//        作用：在流完成（无异常或被取消）时触发回调。
+//        示例：
+//        kotlin
+//        flowOf(1, 2, 3)
+//            .onCompletion { println("Stream completed!") }
+//            .collect { println(it) }
+
+//        buffer(bufferSize: Int)**
+//        作用：缓冲元素，允许在收集时异步发射。
+//        场景：防止因下游处理慢导致上游阻塞。
+//        示例：
+//        kotlin
+//        flowOf(1, 2, 3)
+//            .buffer(5) // 缓冲最多 5 个元素
+//            .collect { println(it) }
+
+//        buffer(bufferSize: Int)**
+//        作用：缓冲元素，允许在收集时异步发射。
+//        场景：防止因下游处理慢导致上游阻塞。
+//        示例：
+//        kotlin
+//        flowOf(1, 2, 3)
+//            .buffer(5) // 缓冲最多 5 个元素
+//            .collect { println(it) }
+
+//        zip(other: Flow<T>)**
+//        作用：将两个流按顺序配对，取最短长度。
+//        示例：
+//        kotlin
+//        val flowA = flowOf(1, 2, 3)
+//        val flowB = flowOf("A", "B")
+//
+//        flowA.zip(flowB) { a, b -> Pair(a, b) }
+//            .collect { println(it) } // 输出 (1,A), (2,B)
+
+//        操作符执行顺序（重要！）
+//        kotlin
+//        flowOf(1, 2, 3)
+//            .map { /* 上游操作 */ }       // 1
+//            .flowOn(Dispatchers.IO)     // 2（切换上下文，仅影响后续操作）
+//            .flatMap { /* 中游操作 */ }  // 3
+//            .catch { /* 下游错误处理 */ } // 4
+//            .collect { /* 最终消费 */ }    // 5
+//        上下文切换（如 flowOn）只会影响其后的操作符。
+//        错误处理（如 catch）会在流末尾捕获所有上游异常。
+    }
 
     override fun initEvent() {
         super.initEvent()
