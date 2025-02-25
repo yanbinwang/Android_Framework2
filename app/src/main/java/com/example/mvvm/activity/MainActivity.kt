@@ -468,15 +468,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            .buffer(5) // 缓冲最多 5 个元素
 //            .collect { println(it) }
 
-//        buffer(bufferSize: Int)**
-//        作用：缓冲元素，允许在收集时异步发射。
-//        场景：防止因下游处理慢导致上游阻塞。
-//        示例：
-//        kotlin
-//        flowOf(1, 2, 3)
-//            .buffer(5) // 缓冲最多 5 个元素
-//            .collect { println(it) }
-
 //        zip(other: Flow<T>)**
 //        作用：将两个流按顺序配对，取最短长度。
 //        示例：
