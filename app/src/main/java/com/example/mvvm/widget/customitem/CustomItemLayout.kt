@@ -67,14 +67,20 @@ class CustomItemLayout @JvmOverloads constructor(context: Context, attrs: Attrib
 
     /**
      * 传入需要加载的数据
+     * 1）先将需要加载的按钮集合数据处理成view需要的list，通过toNewList扩展转换即可，再调取init方法配置页面
+     * 2）用例参考
+     * val originalList = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10) //假设原集合已转为列表
+     * val chunkedList = originalList.chunked(8) //按8个元素分块
+     * 结果：[ [1,2,3,4,5,6,7,8], [9,10] ]
      */
-    fun init(data: List<List<Triple<Boolean, String, String>>>, ovalList: Triple<Drawable, Drawable, Int>, count: Int = 8, columns: Int = 4) {
-        this.data = data
+    fun init(list: List<Triple<Boolean, String, String>>, ovalList: Triple<Drawable, Drawable, Int>, columns: Int = 4, tabCount: Int = 8) {
+        this.data = list.chunked(tabCount)
         this.ovalList = ovalList
         this.itemAdapter.apply {
-            setConfiguration(count, columns)
+            setConfiguration(columns, tabCount)
             refresh(data)
             setOnItemClickListener {
+                //返回的是传入的集合下标，而view外层持有服务器的集合，可以通过当前下标去获取外层服务器集合对应的值，然后处理
                 onPagerClick?.invoke(it)
             }
         }
