@@ -24,7 +24,6 @@ import com.example.framework.utils.TextSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
-import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeFloat
@@ -44,6 +43,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+
 
 /**
  *  <data>

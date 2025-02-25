@@ -169,14 +169,15 @@ fun Number?.getSizeFormat(): String {
  * 文件分割
  * cutSize->分割文件的大小
  */
-internal fun File?.split(cutSize: Long): MutableList<String> {
+internal fun File?.split(chunkSize: Long): MutableList<String> {
     this ?: return arrayListOf()
-    //计算需要分割的文件总数
+    //分割文件总大小
     val targetLength = length()
-    val size = if (targetLength.mod(cutSize) == 0L) {
-        targetLength.div(cutSize)
+    //总分片数
+    val numChunks = if (targetLength.mod(chunkSize) == 0L) {
+        targetLength.div(chunkSize)
     } else {
-        targetLength.div(cutSize).plus(1)
+        targetLength.div(chunkSize).plus(1)
     }.toSafeInt()
     //获取目标文件,预分配文件所占的空间,在磁盘中创建一个指定大小的文件(r:只读)
     val splitList = ArrayList<String>()
@@ -184,19 +185,20 @@ internal fun File?.split(cutSize: Long): MutableList<String> {
         //文件的总大小
         val length = accessFile.length()
         //文件切片后每片的最大大小
-        val maxSize = length / size
+        val maxSize = length / numChunks
         //初始化偏移量
         var offSet = 0L
         //开始切片
-        for (i in 0 until size - 1) {
+        for (i in 0 until numChunks - 1) {
             val begin = offSet
             val end = (i + 1) * maxSize
             val tmpInfo = write(absolutePath, i, begin, end)
             offSet = tmpInfo.second.orZero
             splitList.add(tmpInfo.first.orEmpty())
         }
+        //剩余部分（若存在）
         if (length - offSet > 0) {
-            splitList.add(write(absolutePath, size - 1, offSet, length).first.orEmpty())
+            splitList.add(write(absolutePath, numChunks - 1, offSet, length).first.orEmpty())
         }
         //确保返回的集合中不包含空路径
         for (i in splitList.indices.reversed()) {
