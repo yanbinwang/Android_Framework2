@@ -13,6 +13,9 @@ import com.example.common.utils.toJson
 import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
@@ -211,6 +214,25 @@ suspend fun <T> requestAffair(
         end()
     }
 }
+
+//suspend fun <T> flow(
+//    coroutineScope: suspend () -> T,
+//    resp: (T?) -> Unit = {},
+//    err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},
+//    end: () -> Unit = {},
+//    isShowToast: Boolean = false
+//) {
+//    flow {
+//        emit(coroutineScope())
+//    }.flowOn(IO).catch {
+//        if (isShowToast) "".responseToast()
+//        err(Triple(FAILURE, "", it as? Exception))
+//    }.onCompletion {
+//        end()
+//    }.collect {
+//        resp(it)
+//    }
+//}
 
 private fun log(msg: String) = "${msg}\n当前线程：${Thread.currentThread().name}".logE("repository")
 
