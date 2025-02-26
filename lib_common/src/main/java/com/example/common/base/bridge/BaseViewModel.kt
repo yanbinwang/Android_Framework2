@@ -229,7 +229,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launch(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, // 请求
         resp: (T?) -> Unit = {},                                     // 响应
-        err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},   // 错误处理
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},   // 错误处理
         end: () -> Unit = {},                                        // 最后执行方法
         isShowToast: Boolean = true,                                 // 是否toast
         isShowDialog: Boolean = true,                                // 是否显示加载框
@@ -253,7 +253,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launchLayer(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
         resp: (ApiResponse<T>?) -> Unit = {},
-        err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
         end: () -> Unit = {},
         isShowToast: Boolean = true,
         isShowDialog: Boolean = true,
@@ -277,7 +277,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launchAffair(
         coroutineScope: suspend CoroutineScope.() -> T,
         resp: (T?) -> Unit = {},
-        err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
         end: () -> Unit = {},
         isShowToast: Boolean = true,
         isShowDialog: Boolean = true,
@@ -325,7 +325,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> async(
         req: MultiReqUtil,
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<String?, String?, Exception?>?) -> Unit = {}
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
     ): Deferred<T?> {
         return async(Main, LAZY) { req.request({ coroutineScope() }, err) }
     }
@@ -333,7 +333,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> asyncLayer(
         req: MultiReqUtil,
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<String?, String?, Exception?>?) -> Unit = {}
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
     ): Deferred<ApiResponse<T>?> {
         return async(Main, LAZY) { req.requestLayer({ coroutineScope() }, err) }
     }
@@ -341,7 +341,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> asyncAffair(
         req: MultiReqUtil,
         coroutineScope: suspend CoroutineScope.() -> T,
-        err: (e: Triple<String?, String?, Exception?>?) -> Unit = {}
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
     ): Deferred<T?> {
         return async(Main, LAZY) { req.requestAffair({ coroutineScope() }, err) }
     }

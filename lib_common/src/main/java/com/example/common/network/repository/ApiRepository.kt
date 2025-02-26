@@ -2,6 +2,7 @@ package com.example.common.network.repository
 
 import com.example.common.R
 import com.example.common.base.bridge.BaseView
+import com.example.common.base.page.Page
 import com.example.common.network.repository.ApiCode.FAILURE
 import com.example.common.network.repository.ApiCode.SUCCESS
 import com.example.common.network.repository.ApiCode.TOKEN_EXPIRED
@@ -34,7 +35,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 class MultiReqUtil(
     private var view: BaseView? = null,
     private val isShowDialog: Boolean = true,
-    private val err: (e: Triple<String?, String?, Exception?>?) -> Unit = {}
+    private val err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
 ) {
     private var results = false//一旦有请求失败，就会为true
     private var loadingStarted = false//是否开始加载
@@ -44,14 +45,14 @@ class MultiReqUtil(
      */
     suspend fun <T> request(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<String?, String?, Exception?>?) -> Unit = this.err
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
     ): T? {
         return requestLayer(coroutineScope, err)?.data
     }
 
     suspend fun <T> requestLayer(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<String?, String?, Exception?>?) -> Unit = this.err
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
     ): ApiResponse<T>? {
         if (isShowDialog && !loadingStarted) {
             view?.showDialog()
@@ -67,7 +68,7 @@ class MultiReqUtil(
 
     suspend fun <T> requestAffair(
         coroutineScope: suspend CoroutineScope.() -> T,
-        err: (e: Triple<String?, String?, Exception?>?) -> Unit = this.err
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
     ): T? {
         if (isShowDialog && !loadingStarted) {
             view?.showDialog()
@@ -149,7 +150,7 @@ fun String?.responseToast() =
 suspend fun <T> request(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (T?) -> Unit = {},
-    err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},
+    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
@@ -168,7 +169,7 @@ suspend fun <T> request(
 suspend fun <T> requestLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (ApiResponse<T>?) -> Unit = {},
-    err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},
+    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
@@ -217,9 +218,9 @@ suspend fun <T> requestLayer(
             resp(it)
         } else {
             //如果不是被顶号才会有是否提示的逻辑
-            if (!it.tokenExpired()) if (isShowToast) it.msg.responseToast()
+            if (!it.tokenExpired()) if (isShowToast) it.content.responseToast()
             //不管结果如何，失败的回调是需要执行的
-            err(Triple(it.code, it.msg, null))
+            err(Triple(it.statusCode, it.content, null))
         }
     }
 }
@@ -227,7 +228,7 @@ suspend fun <T> requestLayer(
 suspend fun <T> requestAffair(
     coroutineScope: suspend CoroutineScope.() -> T,
     resp: (T?) -> Unit = {},
-    err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},
+    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
