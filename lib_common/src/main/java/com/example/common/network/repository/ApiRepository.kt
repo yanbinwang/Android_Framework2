@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.withContext
@@ -153,7 +154,6 @@ suspend fun <T> request(
     isShowToast: Boolean = false
 ) {
     requestLayer(coroutineScope, { result ->
-//        resp.invoke(it?.data)
         //如果接口是成功的，但是body为空或者后台偷懒没给，我们在写Api时，给一个对象，让结果能够返回
         resp.invoke(result?.data.let {
             if (it is EmptyBean) {
@@ -172,30 +172,55 @@ suspend fun <T> requestLayer(
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
-    try {
-        log("开始请求")
-        //请求+响应数据
-        withContext(IO) {
+//    try {
+//        log("开始请求")
+//        //请求+响应数据
+//        withContext(IO) {
+//            log("发起请求")
+//            coroutineScope()
+//        }.let {
+//            log("处理结果")
+//            if (it.successful()) {
+//                resp(it)
+//            } else {
+//                //如果不是被顶号才会有是否提示的逻辑
+//                if (!it.tokenExpired()) if (isShowToast) it.msg.responseToast()
+//                //不管结果如何，失败的回调是需要执行的
+//                err(Triple(it.code, it.msg, null))
+//            }
+//        }
+//    } catch (e: Exception) {
+//        if (isShowToast) "".responseToast()
+//        //可根据具体异常显示具体错误提示,此处可能是框架/服务器报错（没有提供规定的json结构体）或者json结构解析错误
+//        err(Triple(FAILURE, "", e))
+//    } finally {
+//        log("结束请求")
+//        end()
+//    }
+    log("开始请求")
+    flow {
+        val value = withContext(IO) {
             log("发起请求")
             coroutineScope()
-        }.let {
-            log("处理结果")
-            if (it.successful()) {
-                resp(it)
-            } else {
-                //如果不是被顶号才会有是否提示的逻辑
-                if (!it.tokenExpired()) if (isShowToast) it.msg.responseToast()
-                //不管结果如何，失败的回调是需要执行的
-                err(Triple(it.code, it.msg, null))
-            }
         }
-    } catch (e: Exception) {
+        emit(value)
+    }.flowOn(Main).catch {
         if (isShowToast) "".responseToast()
         //可根据具体异常显示具体错误提示,此处可能是框架/服务器报错（没有提供规定的json结构体）或者json结构解析错误
-        err(Triple(FAILURE, "", e))
-    } finally {
+        err(Triple(FAILURE, "", it as? Exception))
+    }.onCompletion {
         log("结束请求")
         end()
+    }.collect {
+        log("处理结果")
+        if (it.successful()) {
+            resp(it)
+        } else {
+            //如果不是被顶号才会有是否提示的逻辑
+            if (!it.tokenExpired()) if (isShowToast) it.msg.responseToast()
+            //不管结果如何，失败的回调是需要执行的
+            err(Triple(it.code, it.msg, null))
+        }
     }
 }
 
@@ -206,38 +231,28 @@ suspend fun <T> requestAffair(
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
-    try {
-        resp(withContext(IO) { coroutineScope() })
-    } catch (e: Exception) {
+//    try {
+//        resp(withContext(IO) { coroutineScope() })
+//    } catch (e: Exception) {
+//        if (isShowToast) "".responseToast()
+//        err(Triple(FAILURE, "", e))
+//    } finally {
+//        end()
+//    }
+    flow {
+        val value = withContext(IO) { coroutineScope() }
+        emit(value)
+    }.flowOn(Main).catch {
         if (isShowToast) "".responseToast()
-        err(Triple(FAILURE, "", e))
-    } finally {
+        err(Triple(FAILURE, "", it as? Exception))
+    }.onCompletion {
         end()
+    }.collect {
+        resp(it)
     }
 }
 
-//// 定义一个 Flow：主线程触发，中间切换到 IO 线程执行，结果返回主线程
-//suspend fun <T> flow(
-//    coroutineScope: suspend CoroutineScope.() -> T,
-//    resp: (T?) -> Unit = {},
-//    err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},
-//    end: () -> Unit = {},
-//    isShowToast: Boolean = false
-//) {
-//    kotlinx.coroutines.flow.flow {
-//        val value = withContext(IO) { coroutineScope() }
-//        emit(value)
-//    }.flowOn(Main).catch {
-//        if (isShowToast) "".responseToast()
-//        err(Triple(FAILURE, "", it as? Exception))
-//    }.onCompletion {
-//        end()
-//    }.collect {
-//        resp(it)
-//    }
-//}
-
-private fun log(msg: String) = "${msg}\n当前线程：${Thread.currentThread().name}".logE("repository")
+private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().name}".logE("repository")
 
 /**
  * 判断此次请求是否成功
