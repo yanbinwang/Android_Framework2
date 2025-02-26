@@ -213,7 +213,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
 //                        file.path
 //                    }
 //                })
-//            }.flowOn(IO)
+//            }.flowOn(Main)
 //            .catch {
 //                onFailed.invoke(it as? Exception)
 //            }.onCompletion {

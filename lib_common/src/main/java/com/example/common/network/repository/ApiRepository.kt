@@ -13,6 +13,7 @@ import com.example.common.utils.toJson
 import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
@@ -215,16 +216,18 @@ suspend fun <T> requestAffair(
     }
 }
 
+//// 定义一个 Flow：主线程触发，中间切换到 IO 线程执行，结果返回主线程
 //suspend fun <T> flow(
-//    coroutineScope: suspend () -> T,
+//    coroutineScope: suspend CoroutineScope.() -> T,
 //    resp: (T?) -> Unit = {},
 //    err: (e: Triple<String?, String?, Exception?>?) -> Unit = {},
 //    end: () -> Unit = {},
 //    isShowToast: Boolean = false
 //) {
-//    flow {
-//        emit(coroutineScope())
-//    }.flowOn(IO).catch {
+//    kotlinx.coroutines.flow.flow {
+//        val value = withContext(IO) { coroutineScope() }
+//        emit(value)
+//    }.flowOn(Main).catch {
 //        if (isShowToast) "".responseToast()
 //        err(Triple(FAILURE, "", it as? Exception))
 //    }.onCompletion {
