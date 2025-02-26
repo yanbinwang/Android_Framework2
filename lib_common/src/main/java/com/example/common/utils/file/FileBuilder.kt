@@ -352,13 +352,9 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
      * 下载文件
      */
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String?) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
-        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-            R.string.linkError.shortToast()
-            return
-        }
-        onStart()
-        builderJob?.cancel()
-        builderJob = launch {
+//        onStart()
+//        builderJob?.cancel()
+//        builderJob = launch {
 //            flow {
 //                if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
 //                    throw RuntimeException(string(R.string.linkError))
@@ -394,6 +390,14 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
 //            }.collect {
 //                onSuccess(it)
 //            }
+//        }
+        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
+            R.string.linkError.shortToast()
+            return
+        }
+        onStart()
+        builderJob?.cancel()
+        builderJob = launch {
             try {
                 val downloadFilePath = suspendingDownload(downloadUrl, filePath, fileName, onLoading)
                 onSuccess(downloadFilePath)
