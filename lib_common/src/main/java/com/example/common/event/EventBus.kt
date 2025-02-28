@@ -34,15 +34,6 @@ class EventBus private constructor() {
         if (busDefault.isRegistered(subscriber)) busDefault.unregister(subscriber)
     }
 
-//    fun post(vararg objs: Event) {
-//        objs.forEach {
-//            when (Looper.getMainLooper()) {
-//                Looper.myLooper() -> busDefault.post(it)
-//                else -> GlobalScope.launch(Main) { busDefault.post(it) }
-//            }
-//        }
-//    }
-
     fun post(event: Event) {
         when (Looper.getMainLooper()) {
             Looper.myLooper() -> busDefault.post(event)
