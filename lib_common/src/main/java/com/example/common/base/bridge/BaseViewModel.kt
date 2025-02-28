@@ -228,8 +228,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},   // 错误处理
         end: () -> Unit = {},                                        // 最后执行方法
         isShowToast: Boolean = true,                                 // 是否toast
-        isShowDialog: Boolean = true,                                // 是否显示加载框
-        isClose: Boolean = true                                      // 请求结束前是否关闭dialog
+        isShowDialog: Boolean = true                                 // 是否显示加载框
     ): Job {
         if (isShowDialog) mView?.showDialog()
         return launch {
@@ -238,7 +237,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 { resp(it) },
                 { err(it) },
                 {
-                    if (isShowDialog || isClose) mView?.hideDialog()
+                    if (isShowDialog) mView?.hideDialog()
                     end()
                 },
                 isShowToast
@@ -255,8 +254,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
         end: () -> Unit = {},
         isShowToast: Boolean = true,
-        isShowDialog: Boolean = true,
-        isClose: Boolean = true
+        isShowDialog: Boolean = true
     ): Job {
         if (isShowDialog) mView?.showDialog()
         return launch {
@@ -265,7 +263,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 { resp(it) },
                 { err(it) },
                 {
-                    if (isShowDialog || isClose) mView?.hideDialog()
+                    if (isShowDialog) mView?.hideDialog()
                     end()
                 },
                 isShowToast
