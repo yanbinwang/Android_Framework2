@@ -4,8 +4,8 @@ package com.example.common.event
  * author: wyb
  * date: 2018/4/16.
  * 传递事件类
- * 广播每次发送，都会轮询一遍所有注册的页面
- * 故而只在指定页面订阅降低开销
+ * 1）广播每次发送，都会轮询一遍所有注册的页面
+ * 2）故而只在指定页面订阅降低开销
  */
 class Event(var action: Int, var value: Any? = null) {
 
@@ -61,16 +61,12 @@ class Code<T> {
 
     companion object {
         /**
-         * 方便设置不重复的action用
+         * 方便设置不重复的action,每次重启app数值都会重新累加，以此区分此次发送消息对象的唯一性
          */
         private var actionTime = 0
     }
 
     var action = actionTime++
-
-//    fun post(obj: T? = null) = EventBus.instance.post(event(obj))
-//
-//    fun event(obj: T? = null) = Event(action, obj)
 
     fun post(obj: T? = null) = EventBus.instance.post(Event(action, obj))
 
