@@ -25,12 +25,33 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
- * 网络请求协程扩展-直接获取到对象
- * 如果几个以上的请求，互相之间有关联，则使用当前方法
- * launch {
- *  val task1 = request(1api)
- *  val task2 = request(2api)
+ * 网络请求协程扩展
+ * 1）如果几个以上的请求，使用当前请求类
+ * 2）不做回调，直接得到结果，在不调用await（）方法时可以当一个参数写，调用了才会发起请求并拿到结果
+ * //并发
+ * launch{
+ *   val req = MultiReqUtil(mView)
+ *   val task1 = async { req.request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })?.apply {  } }
+ *   val task2 = async{ req.request(model.getUserData() }
+ *   req.end()
+ *   //单个请求主动发起，处理对象
+ *   task1.await()
+ *   task2.await()
+ *   //同时发起多个请求，list拿取对象
+ *   val taskList = awaitAll(task1, task2)
+ *   taskList.toObj<T>(0)
+ *   taskList.toObj<T>(1)
  * }
+ * //串行
+ * launch{
+ *    val req = MultiReqUtil(mView)
+ *    val task1 = getUserDataAsync(req)
+ *    val task2 = req.request({ model.getUserData() })
+ *    req.end()
+ * }
+ *  private suspend fun getUserInfoAsync(req: MultiReqUtil): Deferred<UserInfoBean?> {
+ *     return async { req.request({ CommonSubscribe.getUserInfoApi(hashMapOf("id" to AccountHelper.getUserId())) }) }
+ *  }
  */
 class MultiReqUtil(
     private var view: BaseView? = null,
@@ -83,14 +104,6 @@ class MultiReqUtil(
         }, isShowToast = false)
         return result
     }
-
-//    suspend fun <T> awaitAll(vararg deferreds: Deferred<T>): List<T> {
-//        return awaitAll(listOf(*deferreds))
-//    }
-//
-//    suspend fun <T> awaitAll(list: List<Deferred<T>>): List<T> {
-//        return list.awaitAll().apply { end() }
-//    }
 
     /**
      * 当串行请求多个接口的时候，如果开发需要知道这多个串行请求是否都成功
