@@ -1,6 +1,7 @@
 package com.example.common.network.interceptor
 
 import com.example.common.config.ServerConfig
+import com.example.common.utils.function.orNoData
 import com.example.framework.utils.LogUtil
 import okhttp3.Headers
 import okhttp3.Interceptor
@@ -107,7 +108,7 @@ internal class LoggingInterceptor : Interceptor {
                 "\n————————————————————————请求开始————————————————————————" +
                 "\n请求头:\n" + headers.toString().trim { it <= ' ' } +
                 "\n请求地址:\n" + requestUrl +
-                "\n请求参数:\n" + queryParams +
+                "\n请求参数:\n" + queryParams.orNoData() +
                 "\n返回参数:\n" + decode(responseResult) +
                 "\n————————————————————————请求结束————————————————————————")
     }
