@@ -52,6 +52,7 @@ class MemoryTrackingInterceptor : Interceptor {
                 "\n————————————————————————请求开始————————————————————————" +
                 "\nJava Heap(JVM 管理的堆内存): ${initialJavaHeap / 1024} MB → $javaHeap KB${calculate(javaHeap)} → ${finalJavaHeap / 1024} MB" +
                 "\nNative Heap(原生堆内存): ${initialNativeHeap / 1024} MB → $nativeHeap KB${calculate(nativeHeap)}→ ${finalNativeHeap / 1024} MB" +
+                "\n内存: ${(initialNativeHeap + initialNativeHeap) / 1024} MB → ${javaHeap + nativeHeap} KB${calculate(javaHeap + nativeHeap)}→ ${(finalJavaHeap + finalNativeHeap) / 1024} MB" +
                 "\n————————————————————————请求结束————————————————————————"
         )
     }
