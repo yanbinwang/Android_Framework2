@@ -532,37 +532,44 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        使用flatMapMerge：当需要将元素转换为流后并发处理（如批量请求或动态生成流）
 
 //            //并行
-//            var bean: TaskCenterBean? = null
-//            var list: List<TaskBean>? = null
-//            val taskCenter = flowOf(req.request({ FundsSubscribe.getTaskCenterApi(reqBodyOf()) }))
-//            val taskList = flowOf(req.request({ FundsSubscribe.getTaskListApi(reqBodyOf()) }))
+//            val result = Result()
+//            val taskCenter = flowWithType("bean", flowOf(req.request({ FundsSubscribe.getTaskCenterApi(reqBodyOf()) })))
+//            val taskList = flowWithType("list", flowOf(req.request({ FundsSubscribe.getTaskListApi(reqBodyOf()) })))
 //            merge(taskCenter, taskList).onCompletion {
 //                if (req.successful()) {
 //                    reset(false)
-//                    pageInfo.postValue(bean to list)
+//                    pageInfo.postValue(result.value())
 //                }
-//            }.collect {
-//                when (it) {
-//                    is TaskCenterBean -> bean = it
-//                    is List<*> -> list = it as? List<TaskBean>
+//            }.collect { (type, data) ->
+//                when (type) {
+//                    "bean" -> result.bean = data as? TaskCenterBean
+//                    "list" -> result.list = data as? List<TaskBean>
 //                }
 //            }
+//
 //            //串行
-//            var bean: TaskCenterBean? = null
-//            var list: List<TaskBean>? = null
-//            val taskCenter = flowOf(req.request({ FundsSubscribe.getTaskCenterApi(reqBodyOf()) }))
-//            val taskList = flowOf(req.request({ FundsSubscribe.getTaskListApi(reqBodyOf()) }))
+//            val result = Result()
+//            val taskCenter = flowWithType("bean", flowOf(req.request({ FundsSubscribe.getTaskCenterApi(reqBodyOf()) })))
+//            val taskList = flowWithType("list", flowOf(req.request({ FundsSubscribe.getTaskListApi(reqBodyOf()) })))
 //            listOf(taskCenter,taskList).asFlow().flattenConcat().onCompletion {
 //                if (req.successful()) {
 //                    reset(false)
-//                    pageInfo.postValue(bean to list)
+//                    pageInfo.postValue(result.value())
 //                }
-//            }.collect {
-//                when (it) {
-//                    is TaskCenterBean -> bean = it
-//                    is List<*> -> list = it as? List<TaskBean>
+//            }.collect { (type, data) ->
+//                when (type) {
+//                    "bean" -> result.bean = data as? TaskCenterBean
+//                    "list" -> result.list = data as? List<TaskBean>
 //                }
 //            }
+//    //为每个 Flow 添加标识符（如类型标签），便于后续区分
+//    fun <T> flowWithType(type: String, flow: Flow<T>): Flow<Pair<String, T>> = flow.map { Pair(type, it) }
+//
+//    data class Result(var bean: TaskCenterBean? = null, var list: List<TaskBean>? = null) {
+//        fun value(): Pair<TaskCenterBean?, List<TaskBean>?> {
+//            return bean to list
+//        }
+//    }
     }
 
     override fun initEvent() {
