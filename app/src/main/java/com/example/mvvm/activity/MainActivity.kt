@@ -488,6 +488,48 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            .collect { /* 最终消费 */ }    // 5
 //        上下文切换（如 flowOn）只会影响其后的操作符。
 //        错误处理（如 catch）会在流末尾捕获所有上游异常。
+
+//        1. merge
+//        用途：将多个独立的Flow合并为一个流，数据按发出顺序交错并发出，无序且支持并发处理。
+//        特性：
+//        并发性：多个流的数据会同时发出，下游按接收顺序处理。
+//        无序性：合并后的数据顺序与各流内部顺序无关，取决于处理速度。
+//        实时性：立即处理每个流的数据，适合实时场景（如传感器数据、聊天消息）。
+//        示例：
+//        kotlin
+//        val flow1 = flow { emit(1); delay(100); emit(3) }
+//        val flow2 = flow { emit(2); delay(50); emit(4) }
+//        val merged = merge(flow1, flow2)
+//        merged.collect { println(it) } // 输出可能为 1 2 3 4 或 2 1 4 3 等
+//        2. flatMapMerge
+//        用途：将嵌套的Flow<Flow<T>>（即流的流）展平并合并，支持并发处理，不保证顺序。
+//        特性：
+//        并发性：内层流同时启动并发出数据。
+//        无序性：合并后的数据顺序由各内层流的处理速度决定。
+//        灵活性：可指定并发数（通过参数控制），避免资源过载。
+//        示例：
+//        kotlin
+//        val source = flowOf(1, 2, 3).onEach { delay(100) }
+//        val transformed = source.flatMapMerge(concurrency = 4) { x ->
+//            flow {
+//                emit("First: $x")
+//                delay(150)
+//                emit("Second: ${x * x}")
+//            }
+//        }
+//        transformed.collect { println(it) }
+        // 输出可能为：
+        // First: 1, First: 2, First: 3
+        // Second: 1, Second: 4, Second: 9
+//        关键区别
+//        特性	merge	flatMapMerge
+//        输入类型	多个独立的Flow	嵌套的Flow<Flow<T>>
+//        顺序保证	无序（并发导致）	无序（并发导致）
+//        并发控制	无限制	可指定并发数（如concurrency参数）
+//        适用场景	合并多个独立数据源	处理转换后的嵌套流（如每个元素生成一个流）
+//        总结
+//        使用merge：当需要合并多个独立流且不关心顺序时（如实时数据聚合）。
+//        使用flatMapMerge：当需要将元素转换为流后并发处理（如批量请求或动态生成流）
     }
 
     override fun initEvent() {
