@@ -530,6 +530,39 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        总结
 //        使用merge：当需要合并多个独立流且不关心顺序时（如实时数据聚合）。
 //        使用flatMapMerge：当需要将元素转换为流后并发处理（如批量请求或动态生成流）
+
+//            //并行
+//            var bean: TaskCenterBean? = null
+//            var list: List<TaskBean>? = null
+//            val taskCenter = flowOf(req.request({ FundsSubscribe.getTaskCenterApi(reqBodyOf()) }))
+//            val taskList = flowOf(req.request({ FundsSubscribe.getTaskListApi(reqBodyOf()) }))
+//            merge(taskCenter, taskList).onCompletion {
+//                if (req.successful()) {
+//                    reset(false)
+//                    pageInfo.postValue(bean to list)
+//                }
+//            }.collect {
+//                when (it) {
+//                    is TaskCenterBean -> bean = it
+//                    is List<*> -> list = it as? List<TaskBean>
+//                }
+//            }
+//            //串行
+//            var bean: TaskCenterBean? = null
+//            var list: List<TaskBean>? = null
+//            val taskCenter = flowOf(req.request({ FundsSubscribe.getTaskCenterApi(reqBodyOf()) }))
+//            val taskList = flowOf(req.request({ FundsSubscribe.getTaskListApi(reqBodyOf()) }))
+//            listOf(taskCenter,taskList).asFlow().flattenConcat().onCompletion {
+//                if (req.successful()) {
+//                    reset(false)
+//                    pageInfo.postValue(bean to list)
+//                }
+//            }.collect {
+//                when (it) {
+//                    is TaskCenterBean -> bean = it
+//                    is List<*> -> list = it as? List<TaskBean>
+//                }
+//            }
     }
 
     override fun initEvent() {
