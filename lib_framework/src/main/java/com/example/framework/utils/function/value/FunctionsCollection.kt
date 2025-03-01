@@ -218,61 +218,6 @@ fun <T> List<T>.toArrayList(): ArrayList<T> {
 }
 
 /**
- * 取得async异步协程集合后，拿取对应的值强转
- * reified:保留类型参数 T 的具体类型信息
- */
-//fun <T> List<Any?>?.toObj(position: Int): T? {
-//    return when {
-//        isNullOrEmpty() -> null
-//        position in indices -> get(position) as? T
-//        else -> null
-//    }
-//}
-inline fun <reified T> List<Any?>?.toObj(position: Int): T? {
-    if (this == null || position < 0 || position >= size) return null
-    val value = get(position)
-    return if (value is T) value else null
-}
-
-/**
- * list1为服务器中数据
- * list2为本地存储数据
- * isDuplicate:是否返回重复的或不重复的数据
- * 正向查为服务器新增数据
- * 反向查为本地删除数据
- */
-fun <T> List<T>?.toFilter(list: List<T>, isDuplicate: Boolean = false): ArrayList<T>? {
-    this ?: return null
-    val filterSet = HashSet<T>(this)//将list转换为set，去除重复元素
-    val duplicateSet = HashSet<T>()//重复的set
-    val incompleteSet = HashSet<T>()//不重复的set
-    list.forEach {
-        if (filterSet.contains(it)) {
-            duplicateSet.add(it)
-        } else {
-            incompleteSet.add(it)
-        }
-    }
-    return if (isDuplicate) ArrayList(duplicateSet) else ArrayList(incompleteSet)
-}
-
-/**
- * 获取一串拼接的json
- */
-fun <T> ArrayList<T>?.toRequestParams(): String {
-    if (this == null) return ""
-    var result = "["
-    for (index in indices) {
-        result = if (index + 1 == size) {
-            result + safeGet(index) + "]"
-        } else {
-            result + safeGet(index) + "],["
-        }
-    }
-    return result
-}
-
-/**
  * 将Collection转换为Bundle
  */
 @Suppress("UNCHECKED_CAST")
@@ -393,6 +338,68 @@ val CharArray?.randomItem: Char?
     }
 
 /**
+ * 取得async异步协程集合后，拿取对应的值强转
+ * reified:保留类型参数 T 的具体类型信息
+ */
+//fun <T> List<Any?>?.toObj(position: Int): T? {
+//    return when {
+//        isNullOrEmpty() -> null
+//        position in indices -> get(position) as? T
+//        else -> null
+//    }
+//}
+inline fun <reified T> List<Any?>?.safeAs(position: Int): T? {
+    if (this == null || position < 0 || position >= size) return null
+    val value = get(position)
+    return if (value is T) value else null
+}
+
+/**
+ * list1为服务器中数据
+ * list2为本地存储数据
+ * isRepeated:是否返回重复的或不重复的数据
+ * 正向查为服务器新增数据
+ * 反向查为本地删除数据
+ * 需重写equals和hasCode方法
+ * data class User(val id: Int, val name: String) {
+ *     override fun equals(other: Any?): Boolean {
+ *         if (this === other) return true
+ *         if (other is User) return id == other.id && name == other.name
+ *         return false
+ *     }
+ *
+ *     override fun hashCode(): Int {
+ *         return Objects.hash(id, name)
+ *     }
+ * }
+ */
+fun <T> List<T>?.extract(list: List<T>, isRepeated : Boolean = false): List<T>? {
+    this ?: return null
+    // 1. 生成重复集合（在两个列表中都存在的用户）
+    val repeated = toSet().intersect(list.toSet())
+    // 2. 生成不重复集合（只存在于一个列表中的用户）
+    val allUsers = toSet().union(list.toSet())
+    val unique = allUsers.subtract(repeated)
+    return if (isRepeated) repeated.toList() else unique.toList()
+}
+
+/**
+ * 获取一串拼接的json
+ */
+fun <T> ArrayList<T>?.requestParams(): String {
+    if (this == null) return ""
+    var result = "["
+    for (index in indices) {
+        result = if (index + 1 == size) {
+            result + safeGet(index) + "]"
+        } else {
+            result + safeGet(index) + "],["
+        }
+    }
+    return result
+}
+
+/**
  * string集合合并成一个string->某些id提取出来后需要‘,’号分隔拼接成string参数传递给后端，可以使用当前方法
  * val list = listOf("1111","2222","3333")
  * list.join(",")
@@ -430,14 +437,6 @@ fun List<Pair<String, Boolean>>?.joinFilter(separator: String): String {
 }
 
 /**
- * 集合转jsonarray
- */
-fun List<*>?.toJsonArray(): JSONArray? {
-    this ?: return null
-    return JSONArray(this)
-}
-
-/**
  * pair转jsonobject
  */
 fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
@@ -454,6 +453,14 @@ fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
         }
     }
     return json
+}
+
+/**
+ * 集合转jsonarray
+ */
+fun List<*>?.toJsonArray(): JSONArray? {
+    this ?: return null
+    return JSONArray(this)
 }
 
 /**
