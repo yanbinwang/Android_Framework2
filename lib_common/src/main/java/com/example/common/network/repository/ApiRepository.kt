@@ -15,8 +15,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -54,81 +62,126 @@ import okhttp3.RequestBody.Companion.toRequestBody
  */
 class MultiReqUtil(
     private var view: BaseView? = null,
-    private val isShowDialog: Boolean = true,
-    private val err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
+    private val isShowDialog: Boolean = true
 ) {
-    private var results = false//一旦有请求失败，就会为true
-    private var loadingStarted = false//是否开始加载
+    //是否开始加载
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> get() = _loading
+    //整体失败回调
+    private val _errors = MutableSharedFlow<Triple<Int?, String?, Exception?>>()
+    val errors: SharedFlow<Triple<Int?, String?, Exception?>> = _errors
+    //整体响应
+    private var allResults: List<ApiResponse<*>>? = null
 
     /**
-     * 发起请求
+     * 并行发起多个请求
      */
-    suspend fun <T> request(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
-    ): T? {
-        return requestLayer(coroutineScope, err)?.data
-    }
-
-    suspend fun <T> requestLayer(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
-    ): ApiResponse<T>? {
-        start()
-        var response: ApiResponse<T>? = null
-        requestLayer({ coroutineScope() }, {
-            response = it
-        }, err, isShowToast = false)
-        if (!response.successful()) results = true
-        return response
-    }
-
-    suspend fun <T> requestAffair(
-        coroutineScope: suspend CoroutineScope.() -> T,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
-    ): T? {
-        start()
-        var result: T? = null
-        requestAffair({ coroutineScope() }, {
-            result = it
-        }, {
-            results = true
-            err.invoke(it)
-        }, isShowToast = false)
-        return result
+    fun <T> requestAll(
+        vararg requests: suspend () -> ApiResponse<T>
+    ): Flow<Result<List<T>>> = flow {
+        _loading.value = true
+        view?.showDialog()
+        val results = requests.map { request ->
+            flow {
+                try {
+                    emit(request().data ?: throw NullPointerException("Data is null"))
+                } catch (e: Exception) {
+                    emit(null)
+                    _errors.emit(Triple(null, e.message, e))
+                }
+            }
+        }.merge()
+        allResults = results.mapNotNull { it.firstOrNull() }
+        val successful = allResults?.all { it?.successful() == true } ?: false
+        emit(Result.success(allResults?.map { it!! } ?: emptyList(), successful))
+    }.onCompletion {
+        _loading.value = false
+        view?.hideDialog()
     }
 
     /**
-     * 当串行请求多个接口的时候，如果开发需要知道这多个串行请求是否都成功
-     * 在end()被调取之前，可通过当前方法判断
+     * 判断所有请求是否成功
      */
-    fun successful(): Boolean {
-        return !results
-    }
-
-    /**
-     * 请求开始时调取
-     */
-    fun start() {
-        if (isShowDialog && !loadingStarted) {
-            view?.showDialog()
-            loadingStarted = true
-        }
-    }
-
-    /**
-     * 请求结束主动调取
-     */
-    fun end() {
-        if (isShowDialog) {
-            view?.hideDialog()
-            loadingStarted = false
-        }
-        view = null
-        results = false//只有传统方法该值才有用
-    }
+    fun allSuccessful(): Boolean = allResults?.all { it?.successful() == true } ?: false
 
 }
+//class MultiReqUtil(
+//    private var view: BaseView? = null,
+//    private val isShowDialog: Boolean = true,
+//    private val err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
+//) {
+//    private var results = false//一旦有请求失败，就会为true
+//    private var loadingStarted = false//是否开始加载
+//
+//    /**
+//     * 发起请求
+//     */
+//    suspend fun <T> request(
+//        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+//        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+//    ): T? {
+//        return requestLayer(coroutineScope, err)?.data
+//    }
+//
+//    suspend fun <T> requestLayer(
+//        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+//        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+//    ): ApiResponse<T>? {
+//        start()
+//        var response: ApiResponse<T>? = null
+//        requestLayer({ coroutineScope() }, {
+//            response = it
+//        }, err, isShowToast = false)
+//        if (!response.successful()) results = true
+//        return response
+//    }
+//
+//    suspend fun <T> requestAffair(
+//        coroutineScope: suspend CoroutineScope.() -> T,
+//        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+//    ): T? {
+//        start()
+//        var result: T? = null
+//        requestAffair({ coroutineScope() }, {
+//            result = it
+//        }, {
+//            results = true
+//            err.invoke(it)
+//        }, isShowToast = false)
+//        return result
+//    }
+//
+//    /**
+//     * 当串行请求多个接口的时候，如果开发需要知道这多个串行请求是否都成功
+//     * 在end()被调取之前，可通过当前方法判断
+//     */
+//    fun successful(): Boolean {
+//        return !results
+//    }
+//
+//    /**
+//     * 请求开始时调取
+//     */
+//    fun start() {
+//        if (isShowDialog && !loadingStarted) {
+//            view?.showDialog()
+//            loadingStarted = true
+//        }
+//    }
+//
+//    /**
+//     * 请求结束主动调取
+//     */
+//    fun end() {
+//        if (isShowDialog) {
+//            view?.hideDialog()
+//            loadingStarted = false
+//        }
+//        view = null
+//        results = false//只有传统方法该值才有用
+//    }
+//
+//}
 
 //------------------------------------针对协程返回的参数(协程只有成功和失败)------------------------------------
 /**
