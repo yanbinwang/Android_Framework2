@@ -13,8 +13,6 @@ import com.example.common.utils.toJson
 import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
@@ -100,43 +98,6 @@ class MultiReqUtil(
         }, isShowToast = false)
         return result
     }
-
-//    /**
-//     * 冷流处理数据
-//     */
-//    suspend fun <T> flowOf(coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err): Flow<T?> {
-//        return kotlinx.coroutines.flow.flowOf(request(coroutineScope, err))
-//    }
-//
-//    /**
-//     * merge->并行 merge(flow1, flow2)
-//     * flattenConcat->串行 listOf(flow1,flow2).asFlow().flattenConcat()
-//     * 为每个 Flow 添加标识符（如类型标签），便于后续区分
-//     * data class Result(var bean: TaskCenterBean? = null, var list: List<TaskBean>? = null) {
-//     *     fun value(): Pair<TaskCenterBean?, List<TaskBean>?> {
-//     *         return bean to list
-//     *     }
-//     * }
-//     * val req = MultiReqUtil()
-//     * val result = Result()
-//     * val taskCenter = flowWithType("bean", flowOf(req.request({ FundsSubscribe.getTaskCenterApi(reqBodyOf()) })))
-//     * val taskList = flowWithType("list", flowOf(req.request({ FundsSubscribe.getTaskListApi(reqBodyOf()) })))
-//     * listOf(taskCenter,taskList).asFlow().flattenConcat().onCompletion {
-//     *   if (req.successful()) {
-//     *       reset(false)
-//     *       pageInfo.postValue(result.value())
-//     *   }
-//     * }.collect { (type, data) ->
-//     *   when (type) {
-//     *     "bean" -> result.bean = data as? TaskCenterBean
-//     *     "list" -> result.list = data as? List<TaskBean>
-//     *   }
-//     * }
-//     * req.end()
-//     */
-//    suspend fun <T> flowWithType(type: String, coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err): Flow<Pair<String, T?>> {
-//        return flowOf(coroutineScope, err).map { Pair(type, it) }
-//    }
 
     /**
      * 当串行请求多个接口的时候，如果开发需要知道这多个串行请求是否都成功
@@ -245,31 +206,6 @@ suspend fun <T> requestLayer(
         log("结束请求")
         end()
     }
-//    log("开始请求")
-//    flow {
-//        val value = withContext(IO) {
-//            log("发起请求")
-//            coroutineScope()
-//        }
-//        emit(value)
-//    }.flowOn(Main).catch {
-//        if (isShowToast) "".responseToast()
-//        //可根据具体异常显示具体错误提示,此处可能是框架/服务器报错（没有提供规定的json结构体）或者json结构解析错误
-//        err(Triple(FAILURE, "", it as? Exception))
-//    }.onCompletion {
-//        log("结束请求")
-//        end()
-//    }.collect {
-//        log("处理结果")
-//        if (it.successful()) {
-//            resp(it)
-//        } else {
-//            //如果不是被顶号才会有是否提示的逻辑
-//            if (!it.tokenExpired()) if (isShowToast) it.msg.responseToast()
-//            //不管结果如何，失败的回调是需要执行的
-//            err(Triple(it.code, it.msg, null))
-//        }
-//    }
 }
 
 suspend fun <T> requestAffair(
@@ -287,17 +223,6 @@ suspend fun <T> requestAffair(
     } finally {
         end()
     }
-//    flow {
-//        val value = withContext(IO) { coroutineScope() }
-//        emit(value)
-//    }.flowOn(Main).catch {
-//        if (isShowToast) "".responseToast()
-//        err(Triple(FAILURE, "", it as? Exception))
-//    }.onCompletion {
-//        end()
-//    }.collect {
-//        resp(it)
-//    }
 }
 
 private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().name}".logE("repository")
