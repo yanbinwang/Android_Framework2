@@ -206,31 +206,6 @@ suspend fun <T> requestLayer(
         log("结束请求")
         end()
     }
-//    log("开始请求")
-//    flow {
-//        val value = withContext(IO) {
-//            log("发起请求")
-//            coroutineScope()
-//        }
-//        emit(value)
-//    }.flowOn(Main).catch {
-//        if (isShowToast) "".responseToast()
-//        //可根据具体异常显示具体错误提示,此处可能是框架/服务器报错（没有提供规定的json结构体）或者json结构解析错误
-//        err(Triple(FAILURE, "", it as? Exception))
-//    }.onCompletion {
-//        log("结束请求")
-//        end()
-//    }.collect {
-//        log("处理结果")
-//        if (it.successful()) {
-//            resp(it)
-//        } else {
-//            //如果不是被顶号才会有是否提示的逻辑
-//            if (!it.tokenExpired()) if (isShowToast) it.msg.responseToast()
-//            //不管结果如何，失败的回调是需要执行的
-//            err(Triple(it.code, it.msg, null))
-//        }
-//    }
 }
 
 suspend fun <T> requestAffair(
@@ -248,17 +223,6 @@ suspend fun <T> requestAffair(
     } finally {
         end()
     }
-//    flow {
-//        val value = withContext(IO) { coroutineScope() }
-//        emit(value)
-//    }.flowOn(Main).catch {
-//        if (isShowToast) "".responseToast()
-//        err(Triple(FAILURE, "", it as? Exception))
-//    }.onCompletion {
-//        end()
-//    }.collect {
-//        resp(it)
-//    }
 }
 
 private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().name}".logE("repository")
