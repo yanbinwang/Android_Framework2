@@ -279,6 +279,10 @@ suspend fun <T> requestAffair(
 
 /**
  * flow如果不调用collect是不会执行数据流通的
+ * 1）如果 Flow 没有更多元素可发射（例如 flowOf(1, 2, 3) 发射完最后一个元素后自动结束）。
+ * 或者在自定义 flow 构建器中，**主动调用 cancel()** 终止流
+ * 2）如果在 Flow 执行过程中（包括上游操作符或 emit 本身）抛出未捕获的异常，Flow 会被取消
+ * 3）如果 Flow 所在的协程被取消（例如 Activity/Fragment 被销毁），Flow 会自动终止，launch的job直接cancel，flow就终止了
  */
 fun <T> flow(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
