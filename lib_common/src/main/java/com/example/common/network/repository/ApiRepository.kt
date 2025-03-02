@@ -74,10 +74,7 @@ class MultiReqUtil(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
     ): ApiResponse<T>? {
-        if (isShowDialog && !loadingStarted) {
-            view?.showDialog()
-            loadingStarted = true
-        }
+        start()
         var response: ApiResponse<T>? = null
         requestLayer({ coroutineScope() }, {
             response = it
@@ -90,10 +87,7 @@ class MultiReqUtil(
         coroutineScope: suspend CoroutineScope.() -> T,
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
     ): T? {
-        if (isShowDialog && !loadingStarted) {
-            view?.showDialog()
-            loadingStarted = true
-        }
+        start()
         var result: T? = null
         requestAffair({ coroutineScope() }, {
             result = it
@@ -104,57 +98,22 @@ class MultiReqUtil(
         return result
     }
 
-//    /**
-//     * 冷流处理数据
-//     */
-//    fun <T> flow(
-//        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-//        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
-//    ): Flow<T?> {
-//        if (isShowDialog && !loadingStarted) {
-//            view?.showDialog()
-//            loadingStarted = true
-//        }
-//        return flow(coroutineScope, {
-//            results = true
-//            err.invoke(it)
-//        }, false)
-//    }
-//
-//    fun <T> flowLayer(
-//        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-//        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
-//    ): Flow<ApiResponse<T>> {
-//        if (isShowDialog && !loadingStarted) {
-//            view?.showDialog()
-//            loadingStarted = true
-//        }
-//        return flowLayer(coroutineScope, {
-//            results = true
-//            err.invoke(it)
-//        }, false)
-//    }
-//
-//    fun <T> flowAffair(
-//        coroutineScope: suspend CoroutineScope.() -> T,
-//        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
-//    ): Flow<T?> {
-//        if (isShowDialog && !loadingStarted) {
-//            view?.showDialog()
-//            loadingStarted = true
-//        }
-//        return flowAffair(coroutineScope, {
-//            results = true
-//            err.invoke(it)
-//        }, false)
-//    }
-
     /**
      * 当串行请求多个接口的时候，如果开发需要知道这多个串行请求是否都成功
      * 在end()被调取之前，可通过当前方法判断
      */
     fun successful(): Boolean {
         return !results
+    }
+
+    /**
+     * 请求开始时调取
+     */
+    fun start() {
+        if (isShowDialog && !loadingStarted) {
+            view?.showDialog()
+            loadingStarted = true
+        }
     }
 
     /**
@@ -166,7 +125,7 @@ class MultiReqUtil(
             loadingStarted = false
         }
         view = null
-        results = false
+        results = false//只有传统方法该值才有用
     }
 
 }
