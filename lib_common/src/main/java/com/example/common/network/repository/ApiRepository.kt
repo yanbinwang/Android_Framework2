@@ -117,10 +117,10 @@ class MultiReqUtil(
             view?.showDialog()
             loadingStarted = true
         }
-        return flow(coroutineScope, err = {
+        return flow(coroutineScope, {
             results = true
             err.invoke(it)
-        }, isShowToast = false)
+        }, false)
     }
 
     fun <T> flowLayer(
@@ -131,10 +131,10 @@ class MultiReqUtil(
             view?.showDialog()
             loadingStarted = true
         }
-        return flowLayer(coroutineScope, err = {
+        return flowLayer(coroutineScope, {
             results = true
             err.invoke(it)
-        }, isShowToast = false)
+        }, false)
     }
 
     fun <T> flowAffair(
@@ -145,10 +145,10 @@ class MultiReqUtil(
             view?.showDialog()
             loadingStarted = true
         }
-        return flowAffair(coroutineScope, err = {
+        return flowAffair(coroutineScope, {
             results = true
             err.invoke(it)
-        }, isShowToast = false)
+        }, false)
     }
 
     /**
@@ -282,23 +282,15 @@ suspend fun <T> requestAffair(
  */
 fun <T> flow(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    resp: (T?) -> Unit = {},
     err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
-    end: () -> Unit = {},
     isShowToast: Boolean = false
 ): Flow<T?> {
-    return flowLayer(coroutineScope, {
-        resp.invoke(it?.data)
-    }, err, end, isShowToast).map {
-        it.data
-    }
+    return flowLayer(coroutineScope, err, isShowToast).map { it.data }
 }
 
 fun <T> flowLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    resp: (ApiResponse<T>?) -> Unit = {},
     err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
-    end: () -> Unit = {},
     isShowToast: Boolean = false
 ): Flow<ApiResponse<T>> {
     return flow {
@@ -316,7 +308,6 @@ fun <T> flowLayer(
                     it
                 } as? T
             }
-            resp(response)
         } else {
             //如果不是被顶号才会有是否提示的逻辑
             if (!response.tokenExpired()) if (isShowToast) response.msg.responseToast()
@@ -330,26 +321,21 @@ fun <T> flowLayer(
         err(Triple(FAILURE, "", it as? Exception))
     }.onCompletion {
         log("结束请求")
-        end()
     }
 }
 
 fun <T> flowAffair(
     coroutineScope: suspend CoroutineScope.() -> T,
-    resp: (T?) -> Unit = {},
     err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
-    end: () -> Unit = {},
     isShowToast: Boolean = false
 ): Flow<T> {
     return flow {
         val value = withContext(IO) { coroutineScope() }
-        resp(value)
         emit(value)
     }.flowOn(Main).catch {
         if (isShowToast) "".responseToast()
         err(Triple(FAILURE, "", it as? Exception))
     }.onCompletion {
-        end()
     }
 }
 //    /**
