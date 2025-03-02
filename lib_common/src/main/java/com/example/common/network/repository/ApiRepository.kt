@@ -13,13 +13,8 @@ import com.example.common.utils.toJson
 import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
@@ -106,50 +101,50 @@ class MultiReqUtil(
         return result
     }
 
-    /**
-     * 冷流处理数据
-     */
-    fun <T> flow(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
-    ): Flow<T?> {
-        if (isShowDialog && !loadingStarted) {
-            view?.showDialog()
-            loadingStarted = true
-        }
-        return flow(coroutineScope, {
-            results = true
-            err.invoke(it)
-        }, false)
-    }
-
-    fun <T> flowLayer(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
-    ): Flow<ApiResponse<T>> {
-        if (isShowDialog && !loadingStarted) {
-            view?.showDialog()
-            loadingStarted = true
-        }
-        return flowLayer(coroutineScope, {
-            results = true
-            err.invoke(it)
-        }, false)
-    }
-
-    fun <T> flowAffair(
-        coroutineScope: suspend CoroutineScope.() -> T,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
-    ): Flow<T?> {
-        if (isShowDialog && !loadingStarted) {
-            view?.showDialog()
-            loadingStarted = true
-        }
-        return flowAffair(coroutineScope, {
-            results = true
-            err.invoke(it)
-        }, false)
-    }
+//    /**
+//     * 冷流处理数据
+//     */
+//    fun <T> flow(
+//        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+//        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+//    ): Flow<T?> {
+//        if (isShowDialog && !loadingStarted) {
+//            view?.showDialog()
+//            loadingStarted = true
+//        }
+//        return flow(coroutineScope, {
+//            results = true
+//            err.invoke(it)
+//        }, false)
+//    }
+//
+//    fun <T> flowLayer(
+//        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+//        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+//    ): Flow<ApiResponse<T>> {
+//        if (isShowDialog && !loadingStarted) {
+//            view?.showDialog()
+//            loadingStarted = true
+//        }
+//        return flowLayer(coroutineScope, {
+//            results = true
+//            err.invoke(it)
+//        }, false)
+//    }
+//
+//    fun <T> flowAffair(
+//        coroutineScope: suspend CoroutineScope.() -> T,
+//        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+//    ): Flow<T?> {
+//        if (isShowDialog && !loadingStarted) {
+//            view?.showDialog()
+//            loadingStarted = true
+//        }
+//        return flowAffair(coroutineScope, {
+//            results = true
+//            err.invoke(it)
+//        }, false)
+//    }
 
     /**
      * 当串行请求多个接口的时候，如果开发需要知道这多个串行请求是否都成功
@@ -284,64 +279,64 @@ suspend fun <T> requestAffair(
  * 2）如果在 Flow 执行过程中（包括上游操作符或 emit 本身）抛出未捕获的异常，Flow 会被取消
  * 3）如果 Flow 所在的协程被取消（例如 Activity/Fragment 被销毁），Flow 会自动终止，launch的job直接cancel，flow就终止了
  */
-fun <T> flow(
-    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
-    isShowToast: Boolean = false
-): Flow<T?> {
-    return flowLayer(coroutineScope, err, isShowToast).map { it.data }
-}
-
-fun <T> flowLayer(
-    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
-    isShowToast: Boolean = false
-): Flow<ApiResponse<T>> {
-    return flow {
-        val response = withContext(IO) {
-            log("发起请求")
-            coroutineScope()
-        }
-        log("处理结果")
-        if (response.successful()) {
-            //如果接口是成功的，但是body为空或者后台偷懒没给，我们在写Api时，给一个对象，让结果能够返回
-            response.data.let {
-                if (it is EmptyBean) {
-                    EmptyBean()
-                } else {
-                    it
-                } as? T
-            }
-        } else {
-            //如果不是被顶号才会有是否提示的逻辑
-            if (!response.tokenExpired()) if (isShowToast) response.msg.responseToast()
-            //不管结果如何，失败的回调是需要执行的
-            err(Triple(response.code, response.msg, null))
-        }
-        emit(response)
-    }.flowOn(Main).catch {
-        if (isShowToast) "".responseToast()
-        //可根据具体异常显示具体错误提示,此处可能是框架/服务器报错（没有提供规定的json结构体）或者json结构解析错误
-        err(Triple(FAILURE, "", it as? Exception))
-    }.onCompletion {
-        log("结束请求")
-    }
-}
-
-fun <T> flowAffair(
-    coroutineScope: suspend CoroutineScope.() -> T,
-    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
-    isShowToast: Boolean = false
-): Flow<T> {
-    return flow {
-        val value = withContext(IO) { coroutineScope() }
-        emit(value)
-    }.flowOn(Main).catch {
-        if (isShowToast) "".responseToast()
-        err(Triple(FAILURE, "", it as? Exception))
-    }.onCompletion {
-    }
-}
+//fun <T> flow(
+//    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+//    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+//    isShowToast: Boolean = false
+//): Flow<T?> {
+//    return flowLayer(coroutineScope, err, isShowToast).map { it.data }
+//}
+//
+//fun <T> flowLayer(
+//    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+//    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+//    isShowToast: Boolean = false
+//): Flow<ApiResponse<T>> {
+//    return flow {
+//        val response = withContext(IO) {
+//            log("发起请求")
+//            coroutineScope()
+//        }
+//        log("处理结果")
+//        if (response.successful()) {
+//            //如果接口是成功的，但是body为空或者后台偷懒没给，我们在写Api时，给一个对象，让结果能够返回
+//            response.data.let {
+//                if (it is EmptyBean) {
+//                    EmptyBean()
+//                } else {
+//                    it
+//                } as? T
+//            }
+//        } else {
+//            //如果不是被顶号才会有是否提示的逻辑
+//            if (!response.tokenExpired()) if (isShowToast) response.msg.responseToast()
+//            //不管结果如何，失败的回调是需要执行的
+//            err(Triple(response.code, response.msg, null))
+//        }
+//        emit(response)
+//    }.flowOn(Main).catch {
+//        if (isShowToast) "".responseToast()
+//        //可根据具体异常显示具体错误提示,此处可能是框架/服务器报错（没有提供规定的json结构体）或者json结构解析错误
+//        err(Triple(FAILURE, "", it as? Exception))
+//    }.onCompletion {
+//        log("结束请求")
+//    }
+//}
+//
+//fun <T> flowAffair(
+//    coroutineScope: suspend CoroutineScope.() -> T,
+//    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+//    isShowToast: Boolean = false
+//): Flow<T> {
+//    return flow {
+//        val value = withContext(IO) { coroutineScope() }
+//        emit(value)
+//    }.flowOn(Main).catch {
+//        if (isShowToast) "".responseToast()
+//        err(Triple(FAILURE, "", it as? Exception))
+//    }.onCompletion {
+//    }
+//}
 //    /**
 //     * merge->并行 merge(flow1, flow2)
 //     * flattenConcat->串行 listOf(flow1,flow2).asFlow().flattenConcat()
