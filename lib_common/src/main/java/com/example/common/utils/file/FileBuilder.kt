@@ -16,7 +16,6 @@ import com.example.common.R
 import com.example.common.subscribe.CommonSubscribe
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.StorageUtil.getStoragePath
-import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.saveBitmap
@@ -32,10 +31,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -188,47 +183,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                 }
             }
         }
-
-//        suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: String, onSuccess: (path: String?) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
-//            flow {
-//                if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-//                    throw RuntimeException(string(R.string.linkError))
-//                }
-//                val downloadPath = withContext(IO) {
-//                    //清除目录下的所有文件
-//                    filePath.deleteDir()
-//                    //创建一个安装的文件，开启io协程写入
-//                    val file = File(filePath.isMkdirs(), fileName)
-//                    val body = CommonSubscribe.getDownloadApi(downloadUrl)
-//                    val buf = ByteArray(2048)
-//                    val total = body.contentLength()
-//                    body.byteStream().use { inputStream ->
-//                        file.outputStream().use { outputStream ->
-//                            var len: Int
-//                            var sum = 0L
-//                            while (((inputStream.read(buf)).also { len = it }) != -1) {
-//                                outputStream.write(buf, 0, len)
-//                                sum += len.toLong()
-//                                val progress = (sum * 1.0f / total * 100).toSafeInt()
-//                                withContext(Main) {
-//                                    onLoading.invoke(progress)
-//                                }
-//                            }
-//                            outputStream.flush()
-//                            file.path
-//                        }
-//                    }
-//                }
-//                emit(downloadPath)
-//            }.flowOn(Main)
-//            .catch {
-//                onFailed.invoke(it as? Exception)
-//            }.onCompletion {
-//                onComplete()
-//            }.collect {
-//                onSuccess(it)
-//            }
-//        }
 
         /**
          * 存储网络路径图片
@@ -397,15 +351,10 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
      * 下载文件
      */
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String?) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
-//        onStart()
-//        builderJob?.cancel()
-//        builderJob = launch {
-//            suspendingDownload(downloadUrl, filePath, fileName, onSuccess, onLoading, onFailed, onComplete)
+//        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
+//            R.string.linkError.shortToast()
+//            return
 //        }
-        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-            R.string.linkError.shortToast()
-            return
-        }
         onStart()
         builderJob?.cancel()
         builderJob = launch {
