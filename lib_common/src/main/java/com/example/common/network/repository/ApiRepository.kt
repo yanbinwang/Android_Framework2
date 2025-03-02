@@ -13,8 +13,11 @@ import com.example.common.utils.toJson
 import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
@@ -369,6 +372,34 @@ suspend fun <T> requestAffair(
 fun Flow<*>?.flowWithType(type: String) {
     this ?: return
     this.map { Pair(type, it) }
+}
+
+/**
+ * flowOf(1, 2, 3)
+ *     .uiFlow() // 自动在 IO 处理数据，Main 发射结果
+ *     .collect { println(it) }
+ * // 扩展 Flow，自动在 IO 线程处理数据，并在主线程发射结果
+ * inline fun <T> Flow<T>.uiFlow() = flowOn(Dispatchers.IO)
+ *     .onEach { println("处理数据: $it (线程: ${Thread.currentThread().name}") }
+ *     .flowOn(Dispatchers.Main)
+ *     .onEach { println("发射结果: $it (线程: ${Thread.currentThread().name}") }
+ */
+fun <T> Flow<T>.uiFlow() = flowOn(IO)
+    .onEach { println("处理数据: $it (线程: ${Thread.currentThread().name}") }
+    .flowOn(Main)
+    .onEach { println("发射结果: $it (线程: ${Thread.currentThread().name}") }
+
+fun <T> ApiResponse<T>?.resp(
+    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+    isShowToast: Boolean = false): T? {
+    val response = this
+    return if (successful()) {
+        response?.data
+    } else {
+        if (!tokenExpired()) if (isShowToast) response?.msg.responseToast()
+        err.invoke(Triple(response?.code, response?.msg, null))
+        null
+    }
 }
 
 private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().name}".logE("repository")
