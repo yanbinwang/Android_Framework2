@@ -23,7 +23,6 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.logWTF
 import com.example.glide.ImageLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -101,29 +100,17 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                     view.loadLayout(width, mHeight)
                     view.loadBitmap()
                 }
-            } catch (_: Exception) {
-                null
+            } catch (e: Exception) {
+                throw e
             }
         }
 
         /**
          * 存储zip压缩包
          */
-        suspend fun suspendingZip(folderList: MutableList<String>, zipPath: String): String? {
-//            return try {
-//                withContext(IO) {
-//                    zipPath.isMkdirs()
-//                    zipFolder(folderList, zipPath)
-//                }
-//                zipPath
-//            } catch (e: Exception) {
-//                "打包图片生成压缩文件异常: $e".logWTF
-//                null
-//            }
-            withContext(IO) {
-                zipPath.isMkdirs()
-                zipFolder(folderList, zipPath)
-            }
+        suspend fun suspendingZip(folderList: MutableList<String>, zipPath: String): String {
+            zipPath.isMkdirs()
+            withContext(IO) { zipFolder(folderList, zipPath) }
             return zipPath
         }
 
@@ -200,10 +187,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         private suspend fun suspendingGlideDownload(mContext: Context, string: String, storeDir: File) = suspendCancellableCoroutine {
             ImageLoader.instance.download(mContext, string) { file ->
                 //此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
-//                it.resume("${storeDir.absolutePath}/${file?.name}".apply {
-//                    file?.copy(storeDir)
-//                    file?.delete()
-//                })
                 if (null == file || !file.exists()) {
                     it.resumeWithException(RuntimeException("下载失败"))
                 } else {
@@ -305,8 +288,8 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         onStart()
         builderJob?.cancel()
         builderJob = launch {
-            val list = ArrayList<String?>()
             val pageCount = withContext(IO) { PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).pageCount }
+            val list = ArrayList<String?>()
             for (index in 0 until pageCount) {
                 val filePath = suspendingSavePDF(file, index)
                 list.add(filePath)
@@ -331,7 +314,12 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         onStart()
         builderJob?.cancel()
         builderJob = launch {
-            val filePath = suspendingSavePic(suspendingSaveView(view, width, height))
+            val filePath = try {
+                val bit = suspendingSaveView(view, width, height)
+                suspendingSavePic(bit)
+            } catch (e: Exception) {
+                ""
+            }
             onResult.invoke(filePath)
         }
     }
