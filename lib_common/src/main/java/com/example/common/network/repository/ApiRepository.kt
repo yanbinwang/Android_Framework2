@@ -59,6 +59,11 @@ import okhttp3.RequestBody.Companion.toRequestBody
  *  private suspend fun getUserInfoAsync(req: MultiReqUtil): Deferred<UserInfoBean?> {
  *     return async { req.request({ CommonSubscribe.getUserInfoApi(hashMapOf("id" to AccountHelper.getUserId())) }) }
  *  }
+ *
+ *  https://blog.csdn.net/Androiddddd/article/details/135092324
+ *  热流:
+ *  SharedFlow 使用了一种基于事件溯源的机制，当有新的事件产生时，将事件添加到共享的事件序列中，然后通知所有订阅者。
+ *  StateFlow 则维护了一个可变的状态，并在状态发生变化时通知所有观察者。
  */
 class MultiReqUtil(
     private var view: BaseView? = null,
@@ -76,28 +81,46 @@ class MultiReqUtil(
     /**
      * 并行发起多个请求
      */
-    fun <T> requestAll(
-        vararg requests: suspend () -> ApiResponse<T>
-    ): Flow<Result<List<T>>> = flow {
-        _loading.value = true
-        view?.showDialog()
+    fun requestAll(vararg requests: suspend () -> ApiResponse<*>): Flow<Result<List<ApiResponse<*>>>> = flow {
+        if (isShowDialog && !loading.value) {
+            view?.showDialog()
+            _loading.value = true
+        }
+        //合并所有请求
         val results = requests.map { request ->
             flow {
                 try {
-                    emit(request().data ?: throw NullPointerException("Data is null"))
-                } catch (e: Exception) {
+                    emit(request())
+                }catch (e:Exception){
                     emit(null)
                     _errors.emit(Triple(null, e.message, e))
                 }
             }
         }.merge()
-        allResults = results.mapNotNull { it.firstOrNull() }
-        val successful = allResults?.all { it?.successful() == true } ?: false
-        emit(Result.success(allResults?.map { it!! } ?: emptyList(), successful))
-    }.onCompletion {
-        _loading.value = false
-        view?.hideDialog()
+        allResults = results.mapNotNull {  }
     }
+//    fun <T> requestAll(
+//        vararg requests: suspend () -> ApiResponse<T>
+//    ): Flow<Result<List<T>>> = flow {
+//        _loading.value = true
+//        view?.showDialog()
+//        val results = requests.map { request ->
+//            flow {
+//                try {
+//                    emit(request().data ?: throw NullPointerException("Data is null"))
+//                } catch (e: Exception) {
+//                    emit(null)
+//                    _errors.emit(Triple(null, e.message, e))
+//                }
+//            }
+//        }.merge()
+//        allResults = results.mapNotNull { it.firstOrNull() }
+//        val successful = allResults?.all { it?.successful() == true } ?: false
+//        emit(Result.success(allResults?.map { it!! } ?: emptyList(), successful))
+//    }.onCompletion {
+//        _loading.value = false
+//        view?.hideDialog()
+//    }
 
     /**
      * 判断所有请求是否成功
