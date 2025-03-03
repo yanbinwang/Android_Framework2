@@ -40,6 +40,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * 工具类中，实现了对应文件流下载保存的方法
@@ -194,10 +195,17 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         private suspend fun suspendingGlideDownload(mContext: Context, string: String, storeDir: File) = suspendCancellableCoroutine {
             ImageLoader.instance.download(mContext, string) { file ->
                 //此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
-                it.resume("${storeDir.absolutePath}/${file?.name}".apply {
-                    file?.copy(storeDir)
-                    file?.delete()
-                })
+//                it.resume("${storeDir.absolutePath}/${file?.name}".apply {
+//                    file?.copy(storeDir)
+//                    file?.delete()
+//                })
+                if (null == file || !file.exists()) {
+                    it.resumeWithException(RuntimeException("下载失败"))
+                } else {
+                    file.copy(storeDir)
+                    file.delete()
+                    it.resume("${storeDir.absolutePath}/${file.name}")
+                }
             }
         }
 
