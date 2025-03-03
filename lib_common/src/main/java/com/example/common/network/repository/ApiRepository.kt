@@ -57,7 +57,7 @@ class MultiReqUtil(
     private var loadingStarted = false//是否开始加载
 
     /**
-     * 发起请求
+     * 返回Body
      */
     suspend fun <T> request(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
@@ -66,14 +66,14 @@ class MultiReqUtil(
         return requestLayer(coroutineScope, err)?.data
     }
 
+    /**
+     * 返回外层response整体
+     */
     suspend fun <T> requestLayer(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
     ): ApiResponse<T>? {
-        if (isShowDialog && !loadingStarted) {
-            view?.showDialog()
-            loadingStarted = true
-        }
+        start()
         var response: ApiResponse<T>? = null
         requestLayer({ coroutineScope() }, {
             response = it
@@ -82,14 +82,14 @@ class MultiReqUtil(
         return response
     }
 
+    /**
+     * 处理普通挂起方法->如网络请求之前需要本地处理图片等操作，整体捆起来做判断
+     */
     suspend fun <T> requestAffair(
         coroutineScope: suspend CoroutineScope.() -> T,
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
     ): T? {
-        if (isShowDialog && !loadingStarted) {
-            view?.showDialog()
-            loadingStarted = true
-        }
+        start()
         var result: T? = null
         requestAffair({ coroutineScope() }, {
             result = it
@@ -101,11 +101,13 @@ class MultiReqUtil(
     }
 
     /**
-     * 当串行请求多个接口的时候，如果开发需要知道这多个串行请求是否都成功
-     * 在end()被调取之前，可通过当前方法判断
+     * 请求开始前自动调取
      */
-    fun successful(): Boolean {
-        return !results
+    private fun start() {
+        if (isShowDialog && !loadingStarted) {
+            view?.showDialog()
+            loadingStarted = true
+        }
     }
 
     /**
@@ -118,6 +120,14 @@ class MultiReqUtil(
         }
         view = null
         results = false
+    }
+
+    /**
+     * 当串行请求多个接口的时候，如果开发需要知道这多个串行请求是否都成功
+     * 在end()被调取之前，可通过当前方法判断
+     */
+    fun successful(): Boolean {
+        return !results
     }
 
 }
