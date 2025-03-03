@@ -56,7 +56,7 @@ class MultiReqUtil(
     private var loadingStarted = false//是否开始加载
 
     /**
-     * 发起请求
+     * 返回Body
      */
     suspend fun <T> request(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
@@ -65,6 +65,9 @@ class MultiReqUtil(
         return requestLayer(coroutineScope, err)?.data
     }
 
+    /**
+     * 返回外层response整体
+     */
     suspend fun <T> requestLayer(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
@@ -78,6 +81,9 @@ class MultiReqUtil(
         return response
     }
 
+    /**
+     * 处理普通挂起方法->如网络请求之前需要本地处理图片等操作，整体捆起来做判断
+     */
     suspend fun <T> requestAffair(
         coroutineScope: suspend CoroutineScope.() -> T,
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
