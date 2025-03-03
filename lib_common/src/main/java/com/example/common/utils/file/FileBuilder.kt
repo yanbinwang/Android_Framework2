@@ -110,16 +110,21 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 存储zip压缩包
          */
         suspend fun suspendingZip(folderList: MutableList<String>, zipPath: String): String? {
-            return try {
-                withContext(IO) {
-                    zipPath.isMkdirs()
-                    zipFolder(folderList, zipPath)
-                }
-                zipPath
-            } catch (e: Exception) {
-                "打包图片生成压缩文件异常: $e".logWTF
-                null
+//            return try {
+//                withContext(IO) {
+//                    zipPath.isMkdirs()
+//                    zipFolder(folderList, zipPath)
+//                }
+//                zipPath
+//            } catch (e: Exception) {
+//                "打包图片生成压缩文件异常: $e".logWTF
+//                null
+//            }
+            withContext(IO) {
+                zipPath.isMkdirs()
+                zipFolder(folderList, zipPath)
             }
+            return zipPath
         }
 
         private fun zipFolder(folderList: MutableList<String>, zipPath: String) {
@@ -378,7 +383,11 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         builderJob?.cancel()
         builderJob = launch {
             //下载的文件从缓存目录拷贝到指定目录
-            val filePath = suspendingDownloadPic(mContext, string, root, deleteDir)
+            val filePath = try {
+                suspendingDownloadPic(mContext, string, root, deleteDir)
+            } catch (e: Exception) {
+                ""
+            }
             onResult.invoke(filePath)
         }
     }
