@@ -16,7 +16,6 @@ import com.example.common.R
 import com.example.common.subscribe.CommonSubscribe
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.StorageUtil.getStoragePath
-import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.saveBitmap
@@ -25,17 +24,12 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.logWTF
 import com.example.glide.ImageLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -46,6 +40,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * 工具类中，实现了对应文件流下载保存的方法
@@ -107,25 +102,18 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                     view.loadLayout(width, mHeight)
                     view.loadBitmap()
                 }
-            } catch (_: Exception) {
-                null
+            } catch (e: Exception) {
+                throw e
             }
         }
 
         /**
          * 存储zip压缩包
          */
-        suspend fun suspendingZip(folderList: MutableList<String>, zipPath: String): String? {
-            return try {
-                withContext(IO) {
-                    zipPath.isMkdirs()
-                    zipFolder(folderList, zipPath)
-                }
-                zipPath
-            } catch (e: Exception) {
-                "打包图片生成压缩文件异常: $e".logWTF
-                null
-            }
+        suspend fun suspendingZip(folderList: MutableList<String>, zipPath: String): String {
+            zipPath.isMkdirs()
+            withContext(IO) { zipFolder(folderList, zipPath) }
+            return zipPath
         }
 
         private fun zipFolder(folderList: MutableList<String>, zipPath: String) {
@@ -189,47 +177,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
             }
         }
 
-//        suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: String, onSuccess: (path: String?) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
-//            flow {
-//                if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-//                    throw RuntimeException(string(R.string.linkError))
-//                }
-//                val downloadPath = withContext(IO) {
-//                    //清除目录下的所有文件
-//                    filePath.deleteDir()
-//                    //创建一个安装的文件，开启io协程写入
-//                    val file = File(filePath.isMkdirs(), fileName)
-//                    val body = CommonSubscribe.getDownloadApi(downloadUrl)
-//                    val buf = ByteArray(2048)
-//                    val total = body.contentLength()
-//                    body.byteStream().use { inputStream ->
-//                        file.outputStream().use { outputStream ->
-//                            var len: Int
-//                            var sum = 0L
-//                            while (((inputStream.read(buf)).also { len = it }) != -1) {
-//                                outputStream.write(buf, 0, len)
-//                                sum += len.toLong()
-//                                val progress = (sum * 1.0f / total * 100).toSafeInt()
-//                                withContext(Main) {
-//                                    onLoading.invoke(progress)
-//                                }
-//                            }
-//                            outputStream.flush()
-//                            file.path
-//                        }
-//                    }
-//                }
-//                emit(downloadPath)
-//            }.flowOn(Main)
-//            .catch {
-//                onFailed.invoke(it as? Exception)
-//            }.onCompletion {
-//                onComplete()
-//            }.collect {
-//                onSuccess(it)
-//            }
-//        }
-
         /**
          * 存储网络路径图片
          */
@@ -247,10 +194,13 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         private suspend fun suspendingGlideDownload(mContext: Context, string: String, storeDir: File) = suspendCancellableCoroutine {
             ImageLoader.instance.download(mContext, string) { file ->
                 //此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
-                it.resume("${storeDir.absolutePath}/${file?.name}".apply {
-                    file?.copy(storeDir)
-                    file?.delete()
-                })
+                if (null == file || !file.exists()) {
+                    it.resumeWithException(RuntimeException("下载失败"))
+                } else {
+                    file.copy(storeDir)
+                    file.delete()
+                    it.resume("${storeDir.absolutePath}/${file.name}")
+                }
             }
         }
 
@@ -345,8 +295,8 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         onStart()
         builderJob?.cancel()
         builderJob = launch {
-            val list = ArrayList<String?>()
             val pageCount = withContext(IO) { PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).pageCount }
+            val list = ArrayList<String?>()
             for (index in 0 until pageCount) {
                 val filePath = suspendingSavePDF(file, index)
                 list.add(filePath)
@@ -371,7 +321,12 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         onStart()
         builderJob?.cancel()
         builderJob = launch {
-            val filePath = suspendingSavePic(suspendingSaveView(view, width, height))
+            val filePath = try {
+                val bit = suspendingSaveView(view, width, height)
+                suspendingSavePic(bit)
+            } catch (e: Exception) {
+                ""
+            }
             onResult.invoke(filePath)
         }
     }
@@ -397,15 +352,10 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
      * 下载文件
      */
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String?) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
-//        onStart()
-//        builderJob?.cancel()
-//        builderJob = launch {
-//            suspendingDownload(downloadUrl, filePath, fileName, onSuccess, onLoading, onFailed, onComplete)
+//        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
+//            R.string.linkError.shortToast()
+//            return
 //        }
-        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-            R.string.linkError.shortToast()
-            return
-        }
         onStart()
         builderJob?.cancel()
         builderJob = launch {
@@ -428,7 +378,11 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         builderJob?.cancel()
         builderJob = launch {
             //下载的文件从缓存目录拷贝到指定目录
-            val filePath = suspendingDownloadPic(mContext, string, root, deleteDir)
+            val filePath = try {
+                suspendingDownloadPic(mContext, string, root, deleteDir)
+            } catch (e: Exception) {
+                ""
+            }
             onResult.invoke(filePath)
         }
     }
