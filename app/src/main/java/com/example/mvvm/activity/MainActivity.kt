@@ -4,8 +4,11 @@ import android.os.Bundle
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
+import com.example.common.base.bridge.launch
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
+import com.example.common.network.repository.reqBodyOf
+import com.example.common.subscribe.CommonSubscribe
 import com.example.common.utils.file.FileBuilder
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
@@ -648,38 +651,36 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            return bean to list
 //        }
 //    }
-//data class Currency(val id: String, val name: String)
-//        data class ExchangeRate(val rate: Double)
-//        data class CurrencyDetail(val currency: Currency, val exchangeRate: ExchangeRate)
+//data class CoinDetail(
+//    var coinBean: CoinBean? = null,
+//    var rateBean: CoinRateBean? = null,
+//    var amount: String? = null
+//)
 //
-//        // 获取币种列表的接口
-//        suspend fun getCurrencies(): List<Currency> {
-//            delay(1000) // 模拟网络请求
-//            return listOf(Currency("1", "USD"), Currency("2", "EUR"))
-//        }
-//
-//        // 根据 ID 获取汇率的接口
-//        suspend fun getExchangeRate(id: String): ExchangeRate {
-//            delay(500) // 模拟网络请求
-//            return ExchangeRate(1.23)
-//        }
-//
-//// 主流程
-//        lifecycleScope.launch {
-//            flow {
-//                val currencies = getCurrencies()
-//                emitAll(currencies.asFlow())
-//            }
-//                .flatMapConcat { currency ->
+//        /**
+//         * flow收集所有货币的详细信息，比率和保留小数位数可用數量等
+//         */
+//        fun getCoinDetail() {
+//            launch {
+//                val list = ArrayList<CoinDetail>()
+//                flow {
+//                    val currencies = CommonSubscribe.getCoinListApi().data.orEmpty()
+//                    emitAll(currencies.asFlow())
+//                }.flatMapConcat { currency ->
 //                    flow {
-//                        val rate = getExchangeRate(currency.id)
-//                        emit(CurrencyDetail(currency, rate))
+//                        val rateBean = FundsSubscribe.getCoinRateApi(
+//                            reqBodyOf(
+//                            "coinName" to currency.digitalCurrency,
+//                            "marketCoinName" to currency.legalCurrency
+//                        )
+//                        ).data
+//                        val amount = FundsSubscribe.getCoinAmountApi(reqBodyOf("unit" to currency.digitalCurrency)).data
+//                        emit(CoinDetail(currency, rateBean, amount))
 //                    }
+//                }.uiFlow().collect {
+//                    list.add(it)
 //                }
-//                .collect { detail ->
-//                    // 处理组合后的数据
-//                    Log.d("CurrencyDetail", "${detail.currency.name}: ${detail.exchangeRate.rate}")
-//                }
+//            }
 //        }
     }
 
