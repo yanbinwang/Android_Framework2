@@ -648,6 +648,39 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            return bean to list
 //        }
 //    }
+//data class Currency(val id: String, val name: String)
+//        data class ExchangeRate(val rate: Double)
+//        data class CurrencyDetail(val currency: Currency, val exchangeRate: ExchangeRate)
+//
+//        // 获取币种列表的接口
+//        suspend fun getCurrencies(): List<Currency> {
+//            delay(1000) // 模拟网络请求
+//            return listOf(Currency("1", "USD"), Currency("2", "EUR"))
+//        }
+//
+//        // 根据 ID 获取汇率的接口
+//        suspend fun getExchangeRate(id: String): ExchangeRate {
+//            delay(500) // 模拟网络请求
+//            return ExchangeRate(1.23)
+//        }
+//
+//// 主流程
+//        lifecycleScope.launch {
+//            flow {
+//                val currencies = getCurrencies()
+//                emitAll(currencies.asFlow())
+//            }
+//                .flatMapConcat { currency ->
+//                    flow {
+//                        val rate = getExchangeRate(currency.id)
+//                        emit(CurrencyDetail(currency, rate))
+//                    }
+//                }
+//                .collect { detail ->
+//                    // 处理组合后的数据
+//                    Log.d("CurrencyDetail", "${detail.currency.name}: ${detail.exchangeRate.rate}")
+//                }
+//        }
     }
 
     override fun initEvent() {
