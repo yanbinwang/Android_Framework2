@@ -13,6 +13,7 @@ import com.example.common.utils.toJson
 import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
@@ -286,23 +287,6 @@ private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().
 //        return flowOf(coroutineScope, err).map { Pair(type, it) }
 //    }
 //fun <T> Flow<T>.typeFlow(type: String) = map { Pair(type, it) }
-//fun <T> Flow<T>.withHandling(
-//    onStart: () -> Unit,
-//    onCompletion: (cause: Throwable?) -> Unit = {}
-//): Flow<T> {
-//    return flowOn(IO).onStart {
-//        onStart()
-//    }.catch {
-//        var wrapper = it
-//        if (it !is ResponseWrapper) {
-//            wrapper = ResponseWrapper(FAILURE, "", it as? Exception)
-//        }
-//        throw wrapper
-//    }.onCompletion {
-//        onCompletion(it)
-//    }
-//}
-
 fun <T> Flow<T>.withHandling(
     view: BaseView? = null,
     err: (ResponseWrapper?) -> Unit = {},
@@ -310,31 +294,24 @@ fun <T> Flow<T>.withHandling(
     isShowToast: Boolean = false,
     isShowDialog: Boolean = false
 ): Flow<T> {
-//    return withHandling({
-//        view?.showDialog()
-//    }, {
-//        if (it != null) {
-//            val wrapper = it as? ResponseWrapper
-//            if (isShowToast) wrapper?.errMessage.responseToast()
-//            err.invoke(wrapper)
-//        }
-//        view?.hideDialog()
-//        end()
-//    })
     return flowOn(IO).onStart {
-        if (isShowDialog) view?.showDialog()
-    }.catch {
-        var wrapper = it
-        if (it !is ResponseWrapper) {
-            wrapper = ResponseWrapper(FAILURE, "", it as? Exception)
+        withContext(Main) {
+            if (isShowDialog) view?.showDialog()
         }
-        (wrapper as? ResponseWrapper).apply {
-            if (isShowToast) this?.errMessage.responseToast()
-            err.invoke(this)
+    }.catch { exception ->
+        val wrapper: ResponseWrapper = when (exception) {
+            is ResponseWrapper -> exception
+            else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
+        }
+        withContext(Main) {
+            if (isShowToast) wrapper.errMessage?.responseToast()
+            err(wrapper)
         }
     }.onCompletion {
-        if (isShowDialog) view?.hideDialog()
-        end()
+        withContext(Main) {
+            if (isShowDialog) view?.hideDialog()
+            end()
+        }
     }
 }
 

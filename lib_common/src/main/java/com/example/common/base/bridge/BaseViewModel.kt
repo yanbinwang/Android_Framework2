@@ -325,39 +325,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         isShowDialog: Boolean = true
     ): Job {
         return launch {
-//            flow {
-//                log("flow")
-//                val response = coroutineScope()
-//                emit(response.resultedLayer())
-//            }.withHandling({
-//                log("onStart")
-//                if (isShowDialog) mView?.showDialog()
-//            }, {
-//                //withHandling中的catch处理了所有的异常，如果被catch且上抛了此处强转捕获
-//                if (it != null) {
-//                    log("catch")
-//                    val wrapper = it as? ResponseWrapper
-//                    if (isShowToast) wrapper?.errMessage.responseToast()
-//                    err.invoke(wrapper)
-//                }
-//                log("onCompletion")
-//                end()
-//            }).collect {
-//                log("collect")
-//                resp.invoke(it)
-//            }
             flow {
-                log("flow")
                 val response = coroutineScope()
                 emit(response.resultedLayer())
             }.withHandling(if (isShowDialog) mView else null, err, end, isShowToast).collect {
-                log("collect")
                 resp.invoke(it)
             }
         }
     }
-
-    private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().name}".logE("launchFlow")
 
     override fun onCleared() {
         super.onCleared()
