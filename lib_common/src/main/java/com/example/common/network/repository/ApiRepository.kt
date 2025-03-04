@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -286,12 +287,18 @@ private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().
 //fun <T> Flow<T>.typeFlow(type: String) = map { Pair(type, it) }
 fun <T> Flow<T>.withHandling(
     onStart: () -> Unit,
-    onCompletion: () -> Unit
+    onCompletion: (cause: Throwable?) -> Unit = {}
 ): Flow<T> {
     return flowOn(IO).onStart {
         onStart()
     }.catch {
-        onCompletion()
+        var wrapper = it
+        if (it !is ResponseWrapper) {
+            wrapper = ResponseWrapper(FAILURE, "", it as? Exception)
+        }
+        throw wrapper
+    }.onCompletion {
+        onCompletion(it)
     }
 }
 
