@@ -19,12 +19,15 @@ import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.repository.ApiCode.FAILURE
 import com.example.common.network.repository.ApiResponse
-import com.example.common.network.repository.autoThread
+import com.example.common.network.repository.ResponseWrapper
 import com.example.common.network.repository.request
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.requestLayer
 import com.example.common.network.repository.responseToast
 import com.example.common.network.repository.resulted
+import com.example.common.network.repository.successful
+import com.example.common.network.repository.tokenExpired
+import com.example.common.network.repository.withHandling
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.EmptyLayout
@@ -35,15 +38,17 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
+import com.example.framework.utils.logE
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -235,7 +240,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launch(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, // 请求
         resp: (T?) -> Unit = {},                                     // 响应
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},   // 错误处理
+        err: (ResponseWrapper) -> Unit = {},   // 错误处理
         end: () -> Unit = {},                                        // 最后执行方法
         isShowToast: Boolean = true,                                 // 是否toast
         isShowDialog: Boolean = true                                 // 是否显示加载框
@@ -261,7 +266,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launchLayer(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
         resp: (ApiResponse<T>?) -> Unit = {},
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+        err: (ResponseWrapper) -> Unit = {},
         end: () -> Unit = {},
         isShowToast: Boolean = true,
         isShowDialog: Boolean = true
@@ -287,11 +292,10 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launchAffair(
         coroutineScope: suspend CoroutineScope.() -> T,
         resp: (T?) -> Unit = {},
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+        err: (ResponseWrapper) -> Unit = {},
         end: () -> Unit = {},
         isShowToast: Boolean = true,
-        isShowDialog: Boolean = true,
-        isClose: Boolean = true
+        isShowDialog: Boolean = true
     ): Job {
         if (isShowDialog) mView?.showDialog()
         return launch {
@@ -300,7 +304,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 { resp(it) },
                 { err(it) },
                 {
-                    if (isShowDialog || isClose) mView?.hideDialog()
+                    if (isShowDialog) mView?.hideDialog()
                     end()
                 },
                 isShowToast
@@ -309,67 +313,49 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     /**
-     * launch在主线程发起，onStart会在主线程执行，flow包括后续的map因为使用了uiFlow扩展，会切到子线程执行然后切回主线程
+     * launch在主线程发起，withHandling做了截获，上半部分代码块切到io执行，下半部分切回main
      */
     protected fun <T> launchFlow(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        resp: (T?) -> Unit = {},
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+        resp: (ApiResponse<T>?) -> Unit = {},
+        err: (ResponseWrapper?) -> Unit = {},
         end: () -> Unit = {},
         isShowToast: Boolean = true,
         isShowDialog: Boolean = true
     ): Job {
         return launch {
-//            flow {
-//                val value = coroutineScope()
-//                emit(value)
-//            }.onStart {
-//                if (isShowDialog) mView?.showDialog()
-//            }.map {
-//                it.resulted(err, isShowToast)
-//            }.autoThread().catch {
-//                if (isShowToast) "".responseToast()
-//                err.invoke(Triple(FAILURE, "", it as? Exception))
-//            }.onCompletion {
-//                if (isShowDialog) mView?.hideDialog()
-//                end()
-//            }.collect {
-//                if (it.first) resp.invoke(it.second.data)
-//            }
             flow {
-                val value = coroutineScope()
-                emit(value)
-            }.map {
-                it.resulted(err, isShowToast)
-            }.withHandling(isShowDialog).catch {
-                if (isShowToast) "".responseToast()
-                err.invoke(Triple(FAILURE, "", it as? Exception))
-            }.onCompletion {
+                log("flow")
+                val response = coroutineScope()
+                if (response.resulted()) {
+                    emit(response)
+                } else {
+                    throw ResponseWrapper(response.code, response.msg)
+                }
+            }.withHandling({
+                log("onStart")
+                if (isShowDialog) mView?.showDialog()
+            }, {
+                log("onCompletion")
                 end()
+            }).catch {
+                log("catch")
+                if (it is ResponseWrapper) {
+                    val wrapper = it as? ResponseWrapper
+                    if (isShowToast) wrapper?.errMessage.responseToast()
+                    err.invoke(wrapper)
+                } else {
+                    if (isShowToast) "".responseToast()
+                    err.invoke(ResponseWrapper(FAILURE, "", it as? Exception))
+                }
             }.collect {
-                if (it.first) resp.invoke(it.second.data)
+                log("collect")
+                resp.invoke(it)
             }
         }
     }
 
-    /**
-      * flow {
-      *    val bean = FundsSubscribe.getTaskCenterApi(reqBodyOf()).data
-      *    val list = FundsSubscribe.getTaskListApi(reqBodyOf()).data
-      *    if (null == bean || list.safeSize <= 0) throw RuntimeException("请求失败")
-      *    emit(Result(bean, list))
-      *  }.withHandling().collect {
-      *    pageInfo.postValue(it.value())
-      *  }
-      */
-    fun <T> Flow<T>.withHandling(
-        isShowToast: Boolean = true,
-        isShowDialog: Boolean = true
-    ): Flow<T> = this
-        .onStart { if (isShowDialog) mView?.showDialog() }
-        .autoThread()
-        .catch { if (isShowToast) "".responseToast() }
-        .onCompletion { if (isShowDialog) mView?.hideDialog() }
+    private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().name}".logE("launchFlow")
 
     override fun onCleared() {
         super.onCleared()

@@ -13,15 +13,9 @@ import com.example.common.utils.toJson
 import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -65,7 +59,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 class MultiReqUtil(
     private var view: BaseView? = null,
     private val isShowDialog: Boolean = true,
-    private val err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
+    private val err: (ResponseWrapper) -> Unit = {}
 ) {
     private var results = false//一旦有请求失败，就会为true
     private var loadingStarted = false//是否开始加载
@@ -75,7 +69,7 @@ class MultiReqUtil(
      */
     suspend fun <T> request(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+        err: (ResponseWrapper) -> Unit = this.err
     ): T? {
         return requestLayer(coroutineScope, err)?.data
     }
@@ -85,7 +79,7 @@ class MultiReqUtil(
      */
     suspend fun <T> requestLayer(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+        err: (ResponseWrapper) -> Unit = this.err
     ): ApiResponse<T>? {
         start()
         var response: ApiResponse<T>? = null
@@ -101,7 +95,7 @@ class MultiReqUtil(
      */
     suspend fun <T> requestAffair(
         coroutineScope: suspend CoroutineScope.() -> T,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+        err: (ResponseWrapper) -> Unit = this.err
     ): T? {
         start()
         var result: T? = null
@@ -112,26 +106,6 @@ class MultiReqUtil(
             err.invoke(it)
         }, isShowToast = false)
         return result
-    }
-
-    /**
-     * 多个请求串行
-     * 1)执行流程是onStart -> flow{} -> onEach -> collect -> onCompletion
-     * 2)若onEach中抛出异常，collect不会继续执行，但onCompletion仍会被调用
-     */
-    fun requestFlow(
-        vararg requests: suspend () -> ApiResponse<*>,
-        err: (e: Triple<Int?, String?, Exception?>) -> Unit = this.err
-    ): Flow<Pair<Boolean, ApiResponse<*>>> {
-        return requests.asFlow().onStart {
-            start()
-        }.map {
-            it.invoke().resulted(err,false).apply { if (!first) results = true }
-        }.autoThread().catch {
-            err.invoke(Triple(FAILURE, "", it as? Exception))
-        }.onCompletion {
-            end()
-        }
     }
 
     /**
@@ -202,7 +176,7 @@ fun String?.responseToast() =
 suspend fun <T> request(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (T?) -> Unit = {},
-    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+    err: (ResponseWrapper) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
@@ -221,7 +195,7 @@ suspend fun <T> request(
 suspend fun <T> requestLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (ApiResponse<T>?) -> Unit = {},
-    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+    err: (ResponseWrapper) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
@@ -240,13 +214,13 @@ suspend fun <T> requestLayer(
                 //如果不是被顶号才会有是否提示的逻辑
                 if (!it.tokenExpired()) if (isShowToast) it.msg.responseToast()
                 //不管结果如何，失败的回调是需要执行的
-                err(Triple(it.code, it.msg, null))
+                err(ResponseWrapper(it.code, it.msg))
             }
         }
     } catch (e: Exception) {
         if (isShowToast) "".responseToast()
         //可根据具体异常显示具体错误提示,此处可能是框架/服务器报错（没有提供规定的json结构体）或者json结构解析错误
-        err(Triple(FAILURE, "", e))
+        err(ResponseWrapper(FAILURE, "", e))
     } finally {
         log("结束请求")
         end()
@@ -256,7 +230,7 @@ suspend fun <T> requestLayer(
 suspend fun <T> requestAffair(
     coroutineScope: suspend CoroutineScope.() -> T,
     resp: (T?) -> Unit = {},
-    err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+    err: (ResponseWrapper) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false
 ) {
@@ -264,7 +238,7 @@ suspend fun <T> requestAffair(
         resp(withContext(IO) { coroutineScope() })
     } catch (e: Exception) {
         if (isShowToast) "".responseToast()
-        err(Triple(FAILURE, "", e))
+        err(ResponseWrapper(FAILURE, "", e))
     } finally {
         end()
     }
@@ -305,68 +279,26 @@ private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().
 //     * }
 //     * req.end()
 //     */
-//    suspend fun <T> flowWithType(type: String, coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err): Flow<Pair<String, T?>> {
+//    suspend fun <T> flowWithType(type: String, coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, err: (ResponseWrapper) -> Unit = this.err): Flow<Pair<String, T?>> {
 //        return flowOf(coroutineScope, err).map { Pair(type, it) }
 //    }
 //fun <T> Flow<T>.typeFlow(type: String) = map { Pair(type, it) }
-
-/**
- * flowOf(1, 2, 3)
- *     .uiFlow() // 自动在 IO 处理数据，Main 发射结果
- *     .collect { println(it) }
- * // 扩展 Flow，自动在 IO 线程处理数据，并在主线程发射结果
- * inline fun <T> Flow<T>.uiFlow() = flowOn(Dispatchers.IO)
- *     .onEach { println("处理数据: $it (线程: ${Thread.currentThread().name}") }
- *     .flowOn(Dispatchers.Main)
- *     .onEach { println("发射结果: $it (线程: ${Thread.currentThread().name}") }
- */
-//fun <T> Flow<T>.uiFlow() = flowOn(IO)
-//    .onEach { log("处理数据") }
-//    .flowOn(Main)
-//    .onEach { log("发射结果") }
-fun <T> Flow<T>.autoThread(): Flow<T> = flow {
-    //使用flowOn将上游操作切换到IO线程
-    withContext(IO) {
-        collect { value ->
-            emit(value)
-        }
-    }
-}.catch { e ->
-    //catch操作在主线程处理
-    withContext(Main) {
-        //自定义异常处理逻辑
-        log("Caught exception on main thread: ${e.message}")
-    }
-}.onCompletion {
-    //onCompletion操作在主线程处理
-    withContext(Main) {
-        //自定义完成回调逻辑
-        log("Flow completed on main thread")
+fun <T> Flow<T>.withHandling(
+    onStart: () -> Unit,
+    onCompletion: () -> Unit
+): Flow<T> {
+    return flowOn(IO).onStart {
+        onStart()
+    }.catch {
+        onCompletion()
     }
 }
 
-//fun <T> Flow<T>.withHandling(
-//    onStart: () -> Unit,
-//    onCompletion: () -> Unit
-//): Flow<T> = this
-//    .onStart { onStart() }
-//    .onCompletion { onCompletion() }
-//    .autoThread()
-
 /**
- * 处理结果
+ * 判断此次请求是否通过，token无过期
  */
-fun <T> ApiResponse<T>.resulted(
-    err: (e: Triple<Int?, String?, Exception?>) -> Unit = {},
-    isShowToast: Boolean = false
-): Pair<Boolean, ApiResponse<T>> {
-    if (!successful()) {
-        //如果不是被顶号才会有是否提示的逻辑
-        if (!tokenExpired()) if (isShowToast) msg.responseToast()
-        //不管结果如何，失败的回调是需要执行的
-        err(Triple(code, msg, null))
-    }
-    return Pair(successful(), this)
+fun <T> ApiResponse<T>?.resulted(): Boolean {
+    return !tokenExpired() && successful()
 }
 
 /**
