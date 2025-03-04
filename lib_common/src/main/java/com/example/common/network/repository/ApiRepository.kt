@@ -252,6 +252,7 @@ private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().
  * 或者在自定义 flow 构建器中，**主动调用 cancel()** 终止流
  * 2）如果在 Flow 执行过程中（包括上游操作符或 emit 本身）抛出未捕获的异常，Flow 会被取消
  * 3）如果 Flow 所在的协程被取消（例如 Activity/Fragment 被销毁），Flow 会自动终止，launch的job直接cancel，flow就终止了
+ * 4)onCompletion操作符的lambda参数cause: Throwable?用于表示流完成时的状态。当流因异常终止时，cause会被设置为对应的Throwable对象；若流正常完成（无异常），则cause为null
  */
 //    /**
 //     * merge->并行 merge(flow1, flow2)

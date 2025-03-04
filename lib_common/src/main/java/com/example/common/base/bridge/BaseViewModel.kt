@@ -25,6 +25,7 @@ import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.requestLayer
 import com.example.common.network.repository.responseToast
 import com.example.common.network.repository.resulted
+import com.example.common.network.repository.resultedLayer
 import com.example.common.network.repository.successful
 import com.example.common.network.repository.tokenExpired
 import com.example.common.network.repository.withHandling
@@ -327,11 +328,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
             flow {
                 log("flow")
                 val response = coroutineScope()
-                if (response.resulted()) {
-                    emit(response)
-                } else {
-                    throw ResponseWrapper(response.code, response.msg)
-                }
+                emit(response.resultedLayer())
             }.withHandling({
                 log("onStart")
                 if (isShowDialog) mView?.showDialog()
