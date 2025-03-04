@@ -352,12 +352,24 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         }
     }
 
+    /**
+      * flow {
+      *    val bean = FundsSubscribe.getTaskCenterApi(reqBodyOf()).data
+      *    val list = FundsSubscribe.getTaskListApi(reqBodyOf()).data
+      *    if (null == bean || list.safeSize <= 0) throw RuntimeException("请求失败")
+      *    emit(Result(bean, list))
+      *  }.withHandling().collect {
+      *    pageInfo.postValue(it.value())
+      *  }
+      */
     fun <T> Flow<T>.withHandling(
+        isShowToast: Boolean = true,
         isShowDialog: Boolean = true
     ): Flow<T> = this
         .onStart { if (isShowDialog) mView?.showDialog() }
-        .onCompletion { if (isShowDialog) mView?.hideDialog() }
         .autoThread()
+        .catch { if (isShowToast) "".responseToast() }
+        .onCompletion { if (isShowDialog) mView?.hideDialog() }
 
     override fun onCleared() {
         super.onCleared()
