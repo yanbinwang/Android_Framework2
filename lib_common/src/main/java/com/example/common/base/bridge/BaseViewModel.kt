@@ -18,6 +18,7 @@ import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.repository.ApiResponse
+import com.example.common.network.repository.ResponseWrapper
 import com.example.common.network.repository.request
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.requestLayer
@@ -225,7 +226,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launch(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, // 请求
         resp: (T?) -> Unit = {},                                     // 响应
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},   // 错误处理
+        err: (ResponseWrapper) -> Unit = {},   // 错误处理
         end: () -> Unit = {},                                        // 最后执行方法
         isShowToast: Boolean = true,                                 // 是否toast
         isShowDialog: Boolean = true                                 // 是否显示加载框
@@ -251,7 +252,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launchLayer(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
         resp: (ApiResponse<T>?) -> Unit = {},
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+        err: (ResponseWrapper) -> Unit = {},
         end: () -> Unit = {},
         isShowToast: Boolean = true,
         isShowDialog: Boolean = true
@@ -277,7 +278,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launchAffair(
         coroutineScope: suspend CoroutineScope.() -> T,
         resp: (T?) -> Unit = {},
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+        err: (ResponseWrapper) -> Unit = {},
         end: () -> Unit = {},
         isShowToast: Boolean = true,
         isShowDialog: Boolean = true,
