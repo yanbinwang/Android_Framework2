@@ -295,10 +295,18 @@ fun <T> Flow<T>.withHandling(
 }
 
 /**
- * 判断此次请求是否通过，token无过期
+ * 判断此次请求是否通过，token无过期,直接返回结果
  */
-fun <T> ApiResponse<T>?.resulted(): Boolean {
-    return !tokenExpired() && successful()
+fun <T> ApiResponse<T>?.resulted(): T? {
+    return resultedLayer()?.data
+}
+
+fun <T> ApiResponse<T>?.resultedLayer(): ApiResponse<T>? {
+    if (!tokenExpired() && successful()) {
+        return this
+    } else {
+        throw ResponseWrapper(this?.code, this?.msg)
+    }
 }
 
 /**
