@@ -4,8 +4,11 @@ import android.os.Bundle
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
+import com.example.common.base.bridge.launch
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
+import com.example.common.network.repository.reqBodyOf
+import com.example.common.subscribe.CommonSubscribe
 import com.example.common.utils.file.FileBuilder
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
@@ -648,6 +651,37 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            return bean to list
 //        }
 //    }
+//data class CoinDetail(
+//    var coinBean: CoinBean? = null,
+//    var rateBean: CoinRateBean? = null,
+//    var amount: String? = null
+//)
+//
+//        /**
+//         * flow收集所有货币的详细信息，比率和保留小数位数可用數量等
+//         */
+//        fun getCoinDetail() {
+//            launch {
+//                val list = ArrayList<CoinDetail>()
+//                flow {
+//                    val currencies = CommonSubscribe.getCoinListApi().data.orEmpty()
+//                    emitAll(currencies.asFlow())
+//                }.flatMapConcat { currency ->
+//                    flow {
+//                        val rateBean = FundsSubscribe.getCoinRateApi(
+//                            reqBodyOf(
+//                            "coinName" to currency.digitalCurrency,
+//                            "marketCoinName" to currency.legalCurrency
+//                        )
+//                        ).data
+//                        val amount = FundsSubscribe.getCoinAmountApi(reqBodyOf("unit" to currency.digitalCurrency)).data
+//                        emit(CoinDetail(currency, rateBean, amount))
+//                    }
+//                }.uiFlow().collect {
+//                    list.add(it)
+//                }
+//            }
+//        }
     }
 
     override fun initEvent() {
