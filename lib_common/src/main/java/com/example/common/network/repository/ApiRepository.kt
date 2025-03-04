@@ -125,7 +125,7 @@ class MultiReqUtil(
         return requests.asFlow().onStart {
             start()
         }.map {
-            it.invoke().resulted(err,false)
+            it.invoke().resulted(err,false).apply { if (!first) results = true }
         }.uiFlow().catch {
             err.invoke(Triple(FAILURE, "", it as? Exception))
         }.onCompletion {
