@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
@@ -114,25 +115,31 @@ class MultiReqUtil(
 
     /**
      * 多个请求串行
+     * 1)执行流程是onStart -> flow{} -> onEach -> collect -> onCompletion
+     * 2)若onEach中抛出异常，collect不会继续执行，但onCompletion仍会被调用
      */
     fun requestFlow(
         vararg requests: suspend () -> ApiResponse<*>,
         err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
     ): Flow<Pair<Boolean, ApiResponse<*>>> {
-        start()
-        return requests.asFlow().map {
-            var key = true
+        return requests.asFlow().onStart {
+            start()
+        }.map {
             val response = it.invoke()
-            if (!response.successful()) {
-                key = false
+            val isSuccessful = response.successful()
+            if (!isSuccessful) {
                 results = true
                 //如果不是被顶号才会有是否提示的逻辑
                 response.tokenExpired()
                 //不管结果如何，失败的回调是需要执行的
                 err(Triple(response.code, response.msg, null))
             }
-            Pair(key, response)
-        }.uiFlow().catch { err.invoke(Triple(FAILURE, "", it as? Exception)) }.onCompletion { end() }
+            Pair(isSuccessful, response)
+        }.uiFlow().catch {
+            err.invoke(Triple(FAILURE, "", it as? Exception))
+        }.onCompletion {
+            end()
+        }
     }
 
     /**
