@@ -333,19 +333,16 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 //                log("onStart")
 //                if (isShowDialog) mView?.showDialog()
 //            }, {
-//                log("onCompletion")
-//                end()
-//            }).catch {
-//                log("catch")
-//                if (it is ResponseWrapper) {
+//                //withHandling中的catch处理了所有的异常，如果被catch且上抛了此处强转捕获
+//                if (it != null) {
+//                    log("catch")
 //                    val wrapper = it as? ResponseWrapper
 //                    if (isShowToast) wrapper?.errMessage.responseToast()
 //                    err.invoke(wrapper)
-//                } else {
-//                    if (isShowToast) "".responseToast()
-//                    err.invoke(ResponseWrapper(FAILURE, "", it as? Exception))
 //                }
-//            }.collect {
+//                log("onCompletion")
+//                end()
+//            }).collect {
 //                log("collect")
 //                resp.invoke(it)
 //            }
@@ -353,20 +350,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 log("flow")
                 val response = coroutineScope()
                 emit(response.resultedLayer())
-            }.withHandling({
-                log("onStart")
-                if (isShowDialog) mView?.showDialog()
-            }, {
-                //withHandling中的catch处理了所有的异常，如果被catch且上抛了此处强转捕获
-                if (it != null) {
-                    log("catch")
-                    val wrapper = it as? ResponseWrapper
-                    if (isShowToast) wrapper?.errMessage.responseToast()
-                    err.invoke(wrapper)
-                }
-                log("onCompletion")
-                end()
-            }).collect {
+            }.withHandling(if (isShowDialog) mView else null, err, end, isShowToast).collect {
                 log("collect")
                 resp.invoke(it)
             }
