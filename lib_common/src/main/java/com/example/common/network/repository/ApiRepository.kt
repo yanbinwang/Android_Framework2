@@ -307,7 +307,8 @@ fun <T> Flow<T>.withHandling(
     view: BaseView? = null,
     err: (ResponseWrapper?) -> Unit = {},
     end: () -> Unit = {},
-    isShowToast: Boolean = false
+    isShowToast: Boolean = false,
+    isShowDialog: Boolean = false
 ): Flow<T> {
 //    return withHandling({
 //        view?.showDialog()
@@ -321,7 +322,7 @@ fun <T> Flow<T>.withHandling(
 //        end()
 //    })
     return flowOn(IO).onStart {
-        view?.showDialog()
+        if (isShowDialog) view?.showDialog()
     }.catch {
         var wrapper = it
         if (it !is ResponseWrapper) {
@@ -332,7 +333,7 @@ fun <T> Flow<T>.withHandling(
             err.invoke(this)
         }
     }.onCompletion {
-        view?.hideDialog()
+        if (isShowDialog) view?.hideDialog()
         end()
     }
 }
