@@ -9,6 +9,7 @@ data class ApiResponse<T>(
     var code: Int? = null,//状态码
     var msg: String? = null,//信息
     var data: T? = null,//数据
+    var e: Exception? = null
 )
 
 /**

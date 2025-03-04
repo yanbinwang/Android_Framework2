@@ -235,7 +235,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launch(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, // 请求
         resp: (T?) -> Unit = {},                                     // 响应
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},   // 错误处理
+        err: (e: ApiResponse<T>) -> Unit = {},   // 错误处理
         end: () -> Unit = {},                                        // 最后执行方法
         isShowToast: Boolean = true,                                 // 是否toast
         isShowDialog: Boolean = true                                 // 是否显示加载框
@@ -261,7 +261,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launchLayer(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
         resp: (ApiResponse<T>?) -> Unit = {},
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+        err: (e: ApiResponse<T>) -> Unit = {},
         end: () -> Unit = {},
         isShowToast: Boolean = true,
         isShowDialog: Boolean = true
@@ -287,11 +287,10 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launchAffair(
         coroutineScope: suspend CoroutineScope.() -> T,
         resp: (T?) -> Unit = {},
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+        err: (e: ApiResponse<T>) -> Unit = {},
         end: () -> Unit = {},
         isShowToast: Boolean = true,
-        isShowDialog: Boolean = true,
-        isClose: Boolean = true
+        isShowDialog: Boolean = true
     ): Job {
         if (isShowDialog) mView?.showDialog()
         return launch {
@@ -300,7 +299,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 { resp(it) },
                 { err(it) },
                 {
-                    if (isShowDialog || isClose) mView?.hideDialog()
+                    if (isShowDialog) mView?.hideDialog()
                     end()
                 },
                 isShowToast
@@ -314,28 +313,12 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launchFlow(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
         resp: (T?) -> Unit = {},
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+        err: (e: ApiResponse<T>) -> Unit = {},
         end: () -> Unit = {},
         isShowToast: Boolean = true,
         isShowDialog: Boolean = true
     ): Job {
         return launch {
-//            flow {
-//                val value = coroutineScope()
-//                emit(value)
-//            }.onStart {
-//                if (isShowDialog) mView?.showDialog()
-//            }.map {
-//                it.resulted(err, isShowToast)
-//            }.autoThread().catch {
-//                if (isShowToast) "".responseToast()
-//                err.invoke(Triple(FAILURE, "", it as? Exception))
-//            }.onCompletion {
-//                if (isShowDialog) mView?.hideDialog()
-//                end()
-//            }.collect {
-//                if (it.first) resp.invoke(it.second.data)
-//            }
             flow {
                 val value = coroutineScope()
                 emit(value)
@@ -343,7 +326,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 it.resulted(err, isShowToast)
             }.withHandling(isShowDialog).catch {
                 if (isShowToast) "".responseToast()
-                err.invoke(Triple(FAILURE, "", it as? Exception))
+                err.invoke(ApiResponse(FAILURE, "", e = it as? Exception))
             }.onCompletion {
                 end()
             }.collect {
