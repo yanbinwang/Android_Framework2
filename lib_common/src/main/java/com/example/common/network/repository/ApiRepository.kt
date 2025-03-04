@@ -120,21 +120,12 @@ class MultiReqUtil(
      */
     fun requestFlow(
         vararg requests: suspend () -> ApiResponse<*>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = this.err
+        err: (e: Triple<Int?, String?, Exception?>) -> Unit = this.err
     ): Flow<Pair<Boolean, ApiResponse<*>>> {
         return requests.asFlow().onStart {
             start()
         }.map {
-            val response = it.invoke()
-            val isSuccessful = response.successful()
-            if (!isSuccessful) {
-                results = true
-                //如果不是被顶号才会有是否提示的逻辑
-                response.tokenExpired()
-                //不管结果如何，失败的回调是需要执行的
-                err(Triple(response.code, response.msg, null))
-            }
-            Pair(isSuccessful, response)
+            it.invoke().resulted(err,false)
         }.uiFlow().catch {
             err.invoke(Triple(FAILURE, "", it as? Exception))
         }.onCompletion {
@@ -329,9 +320,25 @@ private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().
  *     .onEach { println("发射结果: $it (线程: ${Thread.currentThread().name}") }
  */
 fun <T> Flow<T>.uiFlow() = flowOn(IO)
-    .onEach { println("处理数据: $it (线程: ${Thread.currentThread().name}") }
+    .onEach { log("处理数据") }
     .flowOn(Main)
-    .onEach { println("发射结果: $it (线程: ${Thread.currentThread().name}") }
+    .onEach { log("发射结果") }
+
+/**
+ * 处理结果
+ */
+fun <T> ApiResponse<T>.resulted(
+    err: (e: Triple<Int?, String?, Exception?>) -> Unit = {},
+    isShowToast: Boolean = false
+): Pair<Boolean, ApiResponse<T>> {
+    if (!successful()) {
+        //如果不是被顶号才会有是否提示的逻辑
+        if (!tokenExpired()) if (isShowToast) msg.responseToast()
+        //不管结果如何，失败的回调是需要执行的
+        err(Triple(code, msg, null))
+    }
+    return Pair(successful(), this)
+}
 
 /**
  * 判断此次请求是否成功

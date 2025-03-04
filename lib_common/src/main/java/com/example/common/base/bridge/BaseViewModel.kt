@@ -17,10 +17,14 @@ import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
+import com.example.common.network.repository.ApiCode.FAILURE
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.request
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.requestLayer
+import com.example.common.network.repository.responseToast
+import com.example.common.network.repository.resulted
+import com.example.common.network.repository.uiFlow
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.EmptyLayout
@@ -36,6 +40,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
@@ -295,6 +304,37 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 },
                 isShowToast
             )
+        }
+    }
+
+    /**
+     * launch在主线程发起，onStart会在主线程执行，flow包括后续的map因为使用了uiFlow扩展，会切到子线程执行然后切回主线程
+     */
+    protected fun <T> launchFlow(
+        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+        resp: (T?) -> Unit = {},
+        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
+        end: () -> Unit = {},
+        isShowToast: Boolean = true,
+        isShowDialog: Boolean = true
+    ): Job {
+        return launch {
+            flow {
+                val value = coroutineScope()
+                emit(value)
+            }.onStart {
+                if (isShowDialog) mView?.showDialog()
+            }.map {
+                it.resulted(err, isShowToast)
+            }.uiFlow().catch {
+                if (isShowToast) "".responseToast()
+                err.invoke(Triple(FAILURE, "", it as? Exception))
+            }.onCompletion {
+                if (isShowDialog) mView?.hideDialog()
+                end()
+            }.collect {
+                if (it.first) resp.invoke(it.second.data)
+            }
         }
     }
 
