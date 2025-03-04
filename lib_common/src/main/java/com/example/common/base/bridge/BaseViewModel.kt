@@ -19,12 +19,12 @@ import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.repository.ApiCode.FAILURE
 import com.example.common.network.repository.ApiResponse
+import com.example.common.network.repository.autoThread
 import com.example.common.network.repository.request
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.requestLayer
 import com.example.common.network.repository.responseToast
 import com.example.common.network.repository.resulted
-import com.example.common.network.repository.uiFlow
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.EmptyLayout
@@ -40,6 +40,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -319,24 +320,44 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         isShowDialog: Boolean = true
     ): Job {
         return launch {
+//            flow {
+//                val value = coroutineScope()
+//                emit(value)
+//            }.onStart {
+//                if (isShowDialog) mView?.showDialog()
+//            }.map {
+//                it.resulted(err, isShowToast)
+//            }.autoThread().catch {
+//                if (isShowToast) "".responseToast()
+//                err.invoke(Triple(FAILURE, "", it as? Exception))
+//            }.onCompletion {
+//                if (isShowDialog) mView?.hideDialog()
+//                end()
+//            }.collect {
+//                if (it.first) resp.invoke(it.second.data)
+//            }
             flow {
                 val value = coroutineScope()
                 emit(value)
-            }.onStart {
-                if (isShowDialog) mView?.showDialog()
             }.map {
                 it.resulted(err, isShowToast)
-            }.uiFlow().catch {
+            }.withHandling(isShowDialog).catch {
                 if (isShowToast) "".responseToast()
                 err.invoke(Triple(FAILURE, "", it as? Exception))
             }.onCompletion {
-                if (isShowDialog) mView?.hideDialog()
                 end()
             }.collect {
                 if (it.first) resp.invoke(it.second.data)
             }
         }
     }
+
+    fun <T> Flow<T>.withHandling(
+        isShowDialog: Boolean = true
+    ): Flow<T> = this
+        .onStart { if (isShowDialog) mView?.showDialog() }
+        .onCompletion { if (isShowDialog) mView?.hideDialog() }
+        .autoThread()
 
     override fun onCleared() {
         super.onCleared()

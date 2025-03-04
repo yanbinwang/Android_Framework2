@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
@@ -126,7 +127,7 @@ class MultiReqUtil(
             start()
         }.map {
             it.invoke().resulted(err,false).apply { if (!first) results = true }
-        }.uiFlow().catch {
+        }.autoThread().catch {
             err.invoke(Triple(FAILURE, "", it as? Exception))
         }.onCompletion {
             end()
@@ -319,10 +320,38 @@ private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().
  *     .flowOn(Dispatchers.Main)
  *     .onEach { println("发射结果: $it (线程: ${Thread.currentThread().name}") }
  */
-fun <T> Flow<T>.uiFlow() = flowOn(IO)
-    .onEach { log("处理数据") }
-    .flowOn(Main)
-    .onEach { log("发射结果") }
+//fun <T> Flow<T>.uiFlow() = flowOn(IO)
+//    .onEach { log("处理数据") }
+//    .flowOn(Main)
+//    .onEach { log("发射结果") }
+fun <T> Flow<T>.autoThread(): Flow<T> = flow {
+    //使用flowOn将上游操作切换到IO线程
+    withContext(IO) {
+        collect { value ->
+            emit(value)
+        }
+    }
+}.catch { e ->
+    //catch操作在主线程处理
+    withContext(Main) {
+        //自定义异常处理逻辑
+        log("Caught exception on main thread: ${e.message}")
+    }
+}.onCompletion {
+    //onCompletion操作在主线程处理
+    withContext(Main) {
+        //自定义完成回调逻辑
+        log("Flow completed on main thread")
+    }
+}
+
+//fun <T> Flow<T>.withHandling(
+//    onStart: () -> Unit,
+//    onCompletion: () -> Unit
+//): Flow<T> = this
+//    .onStart { onStart() }
+//    .onCompletion { onCompletion() }
+//    .autoThread()
 
 /**
  * 处理结果
