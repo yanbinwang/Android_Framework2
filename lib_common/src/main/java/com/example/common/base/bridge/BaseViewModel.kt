@@ -17,17 +17,12 @@ import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.network.repository.ApiCode.FAILURE
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.ResponseWrapper
 import com.example.common.network.repository.request
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.requestLayer
-import com.example.common.network.repository.responseToast
-import com.example.common.network.repository.resulted
 import com.example.common.network.repository.resultedLayer
-import com.example.common.network.repository.successful
-import com.example.common.network.repository.tokenExpired
 import com.example.common.network.repository.withHandling
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
@@ -39,19 +34,12 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
-import com.example.framework.utils.logE
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
@@ -328,7 +316,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
             flow {
                 val response = coroutineScope()
                 emit(response.resultedLayer())
-            }.withHandling(if (isShowDialog) mView else null, err, end, isShowToast).collect {
+            }.withHandling(mView, err, end, isShowToast, isShowDialog).collect {
                 resp.invoke(it)
             }
         }

@@ -254,39 +254,9 @@ private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().
  * 或者在自定义 flow 构建器中，**主动调用 cancel()** 终止流
  * 2）如果在 Flow 执行过程中（包括上游操作符或 emit 本身）抛出未捕获的异常，Flow 会被取消
  * 3）如果 Flow 所在的协程被取消（例如 Activity/Fragment 被销毁），Flow 会自动终止，launch的job直接cancel，flow就终止了
- * 4)onCompletion操作符的lambda参数cause: Throwable?用于表示流完成时的状态。当流因异常终止时，cause会被设置为对应的Throwable对象；若流正常完成（无异常），则cause为null
- * 多写几次onCompletion后添加的先执行
+ * 4) onCompletion操作符的lambda参数cause: Throwable?用于表示流完成时的状态。当流因异常终止时，cause会被设置为对应的Throwable对象；
+ * 若流正常完成（无异常），则cause为null，多写几次onCompletion后添加的先执行，需要注意
  */
-//    /**
-//     * merge->并行 merge(flow1, flow2)
-//     * flattenConcat->串行 listOf(flow1,flow2).asFlow().flattenConcat()
-//     * 为每个 Flow 添加标识符（如类型标签），便于后续区分
-//     * data class Result(var bean: TaskCenterBean? = null, var list: List<TaskBean>? = null) {
-//     *     fun value(): Pair<TaskCenterBean?, List<TaskBean>?> {
-//     *         return bean to list
-//     *     }
-//     * }
-//     * val req = MultiReqUtil()
-//     * val result = Result()
-//     * val taskCenter = flowWithType("bean", flowOf(req.request({ FundsSubscribe.getTaskCenterApi(reqBodyOf()) })))
-//     * val taskList = flowWithType("list", flowOf(req.request({ FundsSubscribe.getTaskListApi(reqBodyOf()) })))
-//     * listOf(taskCenter,taskList).asFlow().flattenConcat().onCompletion {
-//     *   if (req.successful()) {
-//     *       reset(false)
-//     *       pageInfo.postValue(result.value())
-//     *   }
-//     * }.collect { (type, data) ->
-//     *   when (type) {
-//     *     "bean" -> result.bean = data as? TaskCenterBean
-//     *     "list" -> result.list = data as? List<TaskBean>
-//     *   }
-//     * }
-//     * req.end()
-//     */
-//    suspend fun <T> flowWithType(type: String, coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, err: (ResponseWrapper) -> Unit = this.err): Flow<Pair<String, T?>> {
-//        return flowOf(coroutineScope, err).map { Pair(type, it) }
-//    }
-//fun <T> Flow<T>.typeFlow(type: String) = map { Pair(type, it) }
 fun <T> Flow<T>.withHandling(
     view: BaseView? = null,
     err: (ResponseWrapper?) -> Unit = {},
@@ -316,21 +286,6 @@ fun <T> Flow<T>.withHandling(
 }
 
 /**
- * 判断此次请求是否通过，token无过期,直接返回结果
- */
-fun <T> ApiResponse<T>?.resulted(): T? {
-    return resultedLayer()?.data
-}
-
-fun <T> ApiResponse<T>?.resultedLayer(): ApiResponse<T>? {
-    if (!tokenExpired() && successful()) {
-        return this
-    } else {
-        throw ResponseWrapper(this?.code, this?.msg)
-    }
-}
-
-/**
  * 判断此次请求是否成功
  */
 fun <T> ApiResponse<T>?.successful(): Boolean {
@@ -348,4 +303,19 @@ fun <T> ApiResponse<T>?.tokenExpired(): Boolean {
         return true
     }
     return false
+}
+
+/**
+ * 判断此次请求是否通过，token无过期,直接返回结果
+ */
+fun <T> ApiResponse<T>?.resulted(): T? {
+    return resultedLayer()?.data
+}
+
+fun <T> ApiResponse<T>?.resultedLayer(): ApiResponse<T>? {
+    if (!tokenExpired() && successful()) {
+        return this
+    } else {
+        throw ResponseWrapper(this?.code, this?.msg)
+    }
 }
