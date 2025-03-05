@@ -33,6 +33,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
@@ -47,11 +48,22 @@ import kotlin.coroutines.resumeWithException
  * 1.此处采用协程的方式引用
  * 2.如需单独调用，则初始化该类，然后调取对应方法
  */
-class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
+//class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
+//    private var builderJob: Job? = null
+//    private val job = SupervisorJob()
+//    override val coroutineContext: CoroutineContext
+//        get() = Main + job
+//
+//init {
+//    observer.doOnDestroy {
+//        builderJob?.cancel()
+//        job.cancel()
+//    }
+//}
+class FileBuilder(private val scope: CoroutineScope) : CoroutineScope, Closeable {
     private var builderJob: Job? = null
-    private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
-        get() = Main + job
+        get() = scope.coroutineContext + Main
 
     companion object {
 
@@ -256,11 +268,8 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
 
     }
 
-    init {
-        observer.doOnDestroy {
-            builderJob?.cancel()
-            job.cancel()
-        }
+    override fun close() {
+        builderJob?.cancel()
     }
 
     /**
