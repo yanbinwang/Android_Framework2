@@ -97,22 +97,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 存储pdf
          */
         suspend fun suspendingSavePDF(file: File, index: Int = 0): String? {
-//            return withContext(IO) {
-//                PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).use { renderer ->
-//                    //选择渲染哪一页的渲染数据
-//                    renderer.openPage(index).use { page ->
-//                        val width = page.width
-//                        val height = page.height
-//                        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-//                        val canvas = Canvas(bitmap)
-//                        canvas.drawColor(Color.WHITE)
-//                        canvas.drawBitmap(bitmap, 0f, 0f, null)
-//                        val rent = Rect(0, 0, width, height)
-//                        page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-//                        suspendingSavePic(bitmap)
-//                    }
-//                }
-//            }
             return withContext(IO) { suspendingSavePDF(PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)), index) }
         }
 
@@ -342,13 +326,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         onStart()
         builderJob?.cancel()
         builderJob = launch {
-//            val pageCount = withContext(IO) { PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).pageCount }
-//            val list = ArrayList<String?>()
-//            for (index in 0 until pageCount) {
-//                val filePath = suspendingSavePDF(file, index)
-//                list.add(filePath)
-//            }
-//            onResult.invoke(list)
             val list = ArrayList<String?>()
             withContext(IO) {
                 PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).use {
@@ -409,10 +386,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
      * 下载文件
      */
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String?) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
-//        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-//            R.string.linkError.shortToast()
-//            return
-//        }
         onStart()
         builderJob?.cancel()
         builderJob = launch {

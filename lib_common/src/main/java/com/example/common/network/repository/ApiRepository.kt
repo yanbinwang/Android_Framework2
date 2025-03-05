@@ -24,125 +24,82 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
+//------------------------------------针对协程返回的参数(协程只有成功和失败)------------------------------------
+
 /**
- * 网络请求协程扩展
- * 1）如果几个以上的请求，使用当前请求类
- * 2）不做回调，直接得到结果，在不调用await（）方法时可以当一个参数写，调用了才会发起请求并拿到结果
- * //并发
- * launch{
- *   val req = MultiReqUtil(mView)
- *   val task1 = async { req.request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })?.apply {  } }
- *   val task2 = async{ req.request(model.getUserData() }
- *   req.end()
- *   //单个请求主动发起，处理对象
- *   task1.await()
- *   task2.await()
- *   //同时发起多个请求，list拿取对象
- *   val taskList = awaitAll(task1, task2)
- *   taskList.toObj<T>(0)
- *   taskList.toObj<T>(1)
- * }
- * //串行
- * launch{
- *    val req = MultiReqUtil(mView)
- *    val task1 = getUserDataAsync(req)
- *    val task2 = req.request({ model.getUserData() })
- *    req.end()
- * }
- *  private suspend fun getUserInfoAsync(req: MultiReqUtil): Deferred<UserInfoBean?> {
- *     return async { req.request({ CommonSubscribe.getUserInfoApi(hashMapOf("id" to AccountHelper.getUserId())) }) }
- *  }
- *
- *  https://blog.csdn.net/Androiddddd/article/details/135092324
- *  热流:
- *  SharedFlow 使用了一种基于事件溯源的机制，当有新的事件产生时，将事件添加到共享的事件序列中，然后通知所有订阅者。
- *  StateFlow 则维护了一个可变的状态，并在状态发生变化时通知所有观察者。
+ * flow如果不调用collect是不会执行数据流通的
+ * 1）如果 Flow 没有更多元素可发射（例如 flowOf(1, 2, 3) 发射完最后一个元素后自动结束）。
+ * 或者在自定义 flow 构建器中，**主动调用 cancel()** 终止流
+ * 2）如果在 Flow 执行过程中（包括上游操作符或 emit 本身）抛出未捕获的异常，Flow 会被取消
+ * 3）如果 Flow 所在的协程被取消（例如 Activity/Fragment 被销毁），Flow 会自动终止，launch的job直接cancel，flow就终止了
+ * 4) onCompletion操作符的lambda参数cause: Throwable?用于表示流完成时的状态。当流因异常终止时，cause会被设置为对应的Throwable对象；
+ * 若流正常完成（无异常），则cause为null，多写几次onCompletion后添加的先执行，需要注意
  */
-class MultiReqUtil(
-    private var view: BaseView? = null,
-    private val isShowDialog: Boolean = true,
-    private val err: (ResponseWrapper) -> Unit = {}
-) {
-    private var results = false//一旦有请求失败，就会为true
-    private var loadingStarted = false//是否开始加载
-
-    /**
-     * 发起请求
-     */
-    suspend fun <T> request(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (ResponseWrapper) -> Unit = this.err
-    ): T? {
-        return requestLayer(coroutineScope, err)?.data
-    }
-
-    /**
-     * 返回外层response整体
-     */
-    suspend fun <T> requestLayer(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (ResponseWrapper) -> Unit = this.err
-    ): ApiResponse<T>? {
-        start()
-        var response: ApiResponse<T>? = null
-        requestLayer({ coroutineScope() }, {
-            response = it
-        }, err, isShowToast = false)
-        if (!response.successful()) results = true
-        return response
-    }
-
-    /**
-     * 处理普通挂起方法->如网络请求之前需要本地处理图片等操作，整体捆起来做判断
-     */
-    suspend fun <T> requestAffair(
-        coroutineScope: suspend CoroutineScope.() -> T,
-        err: (ResponseWrapper) -> Unit = this.err
-    ): T? {
-        start()
-        var result: T? = null
-        requestAffair({ coroutineScope() }, {
-            result = it
-        }, {
-            results = true
-            err.invoke(it)
-        }, isShowToast = false)
-        return result
-    }
-
-    /**
-     * 请求开始时调取
-     */
-    fun start() {
-        if (isShowDialog && !loadingStarted) {
-            view?.showDialog()
-            loadingStarted = true
+fun <T> Flow<T>.withHandling(
+    view: BaseView? = null,
+    err: (ResponseWrapper) -> Unit = {},
+    end: () -> Unit = {},
+    isShowToast: Boolean = false,
+    isShowDialog: Boolean = false
+): Flow<T> {
+    return withHandling(err, {
+        if (isShowDialog) view?.hideDialog()
+        end()
+    }, isShowToast).onStart {
+        withContext(Main) {
+            if (isShowDialog) view?.showDialog()
         }
     }
-
-    /**
-     * 请求结束主动调取
-     */
-    fun end() {
-        if (isShowDialog) {
-            view?.hideDialog()
-            loadingStarted = false
-        }
-        view = null
-        results = false//只有传统方法该值才有用
-    }
-
-    /**
-     * 当串行请求多个接口的时候，如果开发需要知道这多个串行请求是否都成功
-     * 在end()被调取之前，可通过当前方法判断
-     */
-    fun successful(): Boolean {
-        return !results
-    }
-
 }
 
-//------------------------------------针对协程返回的参数(协程只有成功和失败)------------------------------------
+fun <T> Flow<T>.withHandling(
+    err: (ResponseWrapper) -> Unit = {},
+    end: () -> Unit = {},
+    isShowToast: Boolean = false,
+): Flow<T> {
+    return flowOn(IO).catch { exception ->
+        val wrapper: ResponseWrapper = when (exception) {
+            is ResponseWrapper -> exception
+            else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
+        }
+        withContext(Main) {
+            if (isShowToast) wrapper.errMessage?.responseToast()
+            err(wrapper)
+        }
+    }.onCompletion {
+        withContext(Main) {
+            end()
+        }
+    }
+}
+//fun <T> Flow<T>.withHandling(
+//    view: BaseView? = null,
+//    err: (ResponseWrapper?) -> Unit = {},
+//    end: () -> Unit = {},
+//    isShowToast: Boolean = false,
+//    isShowDialog: Boolean = false
+//): Flow<T> {
+//    return flowOn(IO).onStart {
+//        withContext(Main) {
+//            if (isShowDialog) view?.showDialog()
+//        }
+//    }.catch { exception ->
+//        val wrapper: ResponseWrapper = when (exception) {
+//            is ResponseWrapper -> exception
+//            else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
+//        }
+//        withContext(Main) {
+//            if (isShowToast) wrapper.errMessage?.responseToast()
+//            err(wrapper)
+//        }
+//    }.onCompletion {
+//        withContext(Main) {
+//            if (isShowDialog) view?.hideDialog()
+//            end()
+//        }
+//    }
+//}
+
 /**
  * 请求转换
  * map扩展，如果只需传入map则使用
@@ -168,122 +125,6 @@ fun String?.responseToast() =
     (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.responseNetError) else {
         if (isNullOrEmpty()) resString(R.string.responseError) else this
     }).shortToast()
-
-/**
- * 网络请求协程扩展-并行请求
- * 每个挂起方法外层都会套一个launch
- * requestLayer中已经对body做了处理，直接拿对象返回即可
- * 如果返回格式过于奇葩，放在body层级，则做特殊处理，其余情况不做改进！
- */
-suspend fun <T> request(
-    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    resp: (T?) -> Unit = {},
-    err: (ResponseWrapper) -> Unit = {},
-    end: () -> Unit = {},
-    isShowToast: Boolean = false
-) {
-    requestLayer(coroutineScope, { result ->
-        //如果接口是成功的，但是body为空或者后台偷懒没给，我们在写Api时，给一个对象，让结果能够返回
-        resp.invoke(result?.data.let {
-            if (it is EmptyBean) {
-                EmptyBean()
-            } else {
-                it
-            } as? T
-        })
-    }, err, end, isShowToast)
-}
-
-suspend fun <T> requestLayer(
-    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    resp: (ApiResponse<T>?) -> Unit = {},
-    err: (ResponseWrapper) -> Unit = {},
-    end: () -> Unit = {},
-    isShowToast: Boolean = false
-) {
-    //优先使用try/catch，冷流切换数据内存开销相对较大
-    try {
-        log("开始请求")
-        //请求+响应数据
-        withContext(IO) {
-            log("发起请求")
-            coroutineScope()
-        }.let {
-            log("处理结果")
-            if (it.successful()) {
-                resp(it)
-            } else {
-                //如果不是被顶号才会有是否提示的逻辑
-                if (!it.tokenExpired()) if (isShowToast) it.msg.responseToast()
-                //不管结果如何，失败的回调是需要执行的
-                err(ResponseWrapper(it.code, it.msg))
-            }
-        }
-    } catch (e: Exception) {
-        if (isShowToast) "".responseToast()
-        //可根据具体异常显示具体错误提示,此处可能是框架/服务器报错（没有提供规定的json结构体）或者json结构解析错误
-        err(ResponseWrapper(FAILURE, "", e))
-    } finally {
-        log("结束请求")
-        end()
-    }
-}
-
-suspend fun <T> requestAffair(
-    coroutineScope: suspend CoroutineScope.() -> T,
-    resp: (T?) -> Unit = {},
-    err: (ResponseWrapper) -> Unit = {},
-    end: () -> Unit = {},
-    isShowToast: Boolean = false
-) {
-    try {
-        resp(withContext(IO) { coroutineScope() })
-    } catch (e: Exception) {
-        if (isShowToast) "".responseToast()
-        err(ResponseWrapper(FAILURE, "", e))
-    } finally {
-        end()
-    }
-}
-
-private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().name}".logE("repository")
-
-/**
- * flow如果不调用collect是不会执行数据流通的
- * 1）如果 Flow 没有更多元素可发射（例如 flowOf(1, 2, 3) 发射完最后一个元素后自动结束）。
- * 或者在自定义 flow 构建器中，**主动调用 cancel()** 终止流
- * 2）如果在 Flow 执行过程中（包括上游操作符或 emit 本身）抛出未捕获的异常，Flow 会被取消
- * 3）如果 Flow 所在的协程被取消（例如 Activity/Fragment 被销毁），Flow 会自动终止，launch的job直接cancel，flow就终止了
- * 4) onCompletion操作符的lambda参数cause: Throwable?用于表示流完成时的状态。当流因异常终止时，cause会被设置为对应的Throwable对象；
- * 若流正常完成（无异常），则cause为null，多写几次onCompletion后添加的先执行，需要注意
- */
-fun <T> Flow<T>.withHandling(
-    view: BaseView? = null,
-    err: (ResponseWrapper?) -> Unit = {},
-    end: () -> Unit = {},
-    isShowToast: Boolean = false,
-    isShowDialog: Boolean = false
-): Flow<T> {
-    return flowOn(IO).onStart {
-        withContext(Main) {
-            if (isShowDialog) view?.showDialog()
-        }
-    }.catch { exception ->
-        val wrapper: ResponseWrapper = when (exception) {
-            is ResponseWrapper -> exception
-            else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
-        }
-        withContext(Main) {
-            if (isShowToast) wrapper.errMessage?.responseToast()
-            err(wrapper)
-        }
-    }.onCompletion {
-        withContext(Main) {
-            if (isShowDialog) view?.hideDialog()
-            end()
-        }
-    }
-}
 
 /**
  * 判断此次请求是否成功

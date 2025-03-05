@@ -19,9 +19,7 @@ import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.ResponseWrapper
-import com.example.common.network.repository.request
-import com.example.common.network.repository.requestAffair
-import com.example.common.network.repository.requestLayer
+import com.example.common.network.repository.resulted
 import com.example.common.network.repository.resultedLayer
 import com.example.common.network.repository.withHandling
 import com.example.common.utils.manager.AppManager
@@ -225,27 +223,23 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     /**
      * 常规发起一个网络请求
+     * launch在主线程发起，withHandling做了截获，上半部分代码块切到io执行，下半部分切回main
      */
     protected fun <T> launch(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, // 请求
         resp: (T?) -> Unit = {},                                     // 响应
-        err: (ResponseWrapper) -> Unit = {},   // 错误处理
+        err: (ResponseWrapper) -> Unit = {},                         // 错误处理
         end: () -> Unit = {},                                        // 最后执行方法
         isShowToast: Boolean = true,                                 // 是否toast
         isShowDialog: Boolean = true                                 // 是否显示加载框
     ): Job {
-        if (isShowDialog) mView?.showDialog()
         return launch {
-            request(
-                { coroutineScope() },
-                { resp(it) },
-                { err(it) },
-                {
-                    if (isShowDialog) mView?.hideDialog()
-                    end()
-                },
-                isShowToast
-            )
+            flow {
+                val response = coroutineScope()
+                emit(response.resulted())
+            }.withHandling(mView, err, end, isShowToast, isShowDialog).collect {
+                resp.invoke(it)
+            }
         }
     }
 
@@ -260,18 +254,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         isShowToast: Boolean = true,
         isShowDialog: Boolean = true
     ): Job {
-        if (isShowDialog) mView?.showDialog()
         return launch {
-            requestLayer(
-                { coroutineScope() },
-                { resp(it) },
-                { err(it) },
-                {
-                    if (isShowDialog) mView?.hideDialog()
-                    end()
-                },
-                isShowToast
-            )
+            flow {
+                val response = coroutineScope()
+                emit(response.resultedLayer())
+            }.withHandling(mView, err, end, isShowToast, isShowDialog).collect {
+                resp.invoke(it)
+            }
         }
     }
 
@@ -286,36 +275,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         isShowToast: Boolean = true,
         isShowDialog: Boolean = true
     ): Job {
-        if (isShowDialog) mView?.showDialog()
-        return launch {
-            requestAffair(
-                { coroutineScope() },
-                { resp(it) },
-                { err(it) },
-                {
-                    if (isShowDialog) mView?.hideDialog()
-                    end()
-                },
-                isShowToast
-            )
-        }
-    }
-
-    /**
-     * launch在主线程发起，withHandling做了截获，上半部分代码块切到io执行，下半部分切回main
-     */
-    protected fun <T> launchFlow(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        resp: (ApiResponse<T>?) -> Unit = {},
-        err: (ResponseWrapper?) -> Unit = {},
-        end: () -> Unit = {},
-        isShowToast: Boolean = true,
-        isShowDialog: Boolean = true
-    ): Job {
         return launch {
             flow {
-                val response = coroutineScope()
-                emit(response.resultedLayer())
+                emit(coroutineScope())
             }.withHandling(mView, err, end, isShowToast, isShowDialog).collect {
                 resp.invoke(it)
             }

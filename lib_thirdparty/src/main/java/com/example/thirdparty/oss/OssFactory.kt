@@ -19,8 +19,9 @@ import com.example.common.BaseApplication
 import com.example.common.event.EventCode.EVENT_EVIDENCE_UPDATE
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.reqBodyOf
-import com.example.common.network.repository.request
+import com.example.common.network.repository.resulted
 import com.example.common.network.repository.successful
+import com.example.common.network.repository.withHandling
 import com.example.common.utils.GsonUtil.getType
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.StorageUtil.getStoragePath
@@ -47,6 +48,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -364,18 +366,20 @@ class OssFactory private constructor() : CoroutineScope {
     private fun success(query: OssDB, fileType: String, recordDirectory: String) {
         val baoquan = query.baoquan
         ossJobMap[baoquan] = launch {
-            request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query.objectKey)) }, {
+            flow {
+                emit(OssSubscribe.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query.objectKey)).resulted())
+            }.withHandling({
+                failure(baoquan, it.errMessage)
+            }, {
+                end(baoquan)
+            }).collect {
                 //删除对应断点续传的文件夹和源文件
                 query.sourcePath.deleteDir()
                 recordDirectory.deleteFile()
                 OssDBHelper.delete(query)
                 callback(2, baoquan, success = true)
                 EVENT_EVIDENCE_UPDATE.post(fileType)
-            }, {
-                failure(baoquan, it.errMessage)
-            }, {
-                end(baoquan)
-            })
+            }
         }
     }
 
@@ -386,9 +390,11 @@ class OssFactory private constructor() : CoroutineScope {
         OssDBHelper.updateUpload(baoquan, false)
         callback(2, baoquan, success = false)
         ossJobMap[baoquan] = launch {
-            request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)) }, end = {
+            flow {
+                emit(OssSubscribe.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)).resulted())
+            }.withHandling(end = {
                 end(baoquan)
-            })
+            }).collect {}
         }
     }
 
