@@ -353,7 +353,7 @@ class OssFactory private constructor() : CoroutineScope {
             //即刻停止当前请求，刷新列表，并通知服务器错误信息
             val value = ossMap[baoquan]
             (value as? OSSAsyncTask<*>?)?.cancel()
-            failure(baoquan, errorMessage.orEmpty())
+            failure(baoquan, errorMessage)
         }
         ossMap.remove(baoquan)
     }
@@ -372,7 +372,7 @@ class OssFactory private constructor() : CoroutineScope {
                 callback(2, baoquan, success = true)
                 EVENT_EVIDENCE_UPDATE.post(fileType)
             }, {
-                failure(baoquan, it?.second.orEmpty())
+                failure(baoquan, it.errMessage)
             }, {
                 end(baoquan)
             })
@@ -382,7 +382,7 @@ class OssFactory private constructor() : CoroutineScope {
     /**
      * 告知服务器此次失败的链接地址-》只做通知
      */
-    private fun failure(baoquan: String, errorMessage: String) {
+    private fun failure(baoquan: String, errorMessage: String?) {
         OssDBHelper.updateUpload(baoquan, false)
         callback(2, baoquan, success = false)
         ossJobMap[baoquan] = launch {
