@@ -97,21 +97,39 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
          * 存储pdf
          */
         suspend fun suspendingSavePDF(file: File, index: Int = 0): String? {
-            return withContext(IO) {
-                PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).use { renderer ->
-                    //选择渲染哪一页的渲染数据
-                    renderer.openPage(index).use { page ->
-                        val width = page.width
-                        val height = page.height
-                        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                        val canvas = Canvas(bitmap)
-                        canvas.drawColor(Color.WHITE)
-                        canvas.drawBitmap(bitmap, 0f, 0f, null)
-                        val rent = Rect(0, 0, width, height)
-                        page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                        suspendingSavePic(bitmap)
-                    }
-                }
+//            return withContext(IO) {
+//                PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).use { renderer ->
+//                    //选择渲染哪一页的渲染数据
+//                    renderer.openPage(index).use { page ->
+//                        val width = page.width
+//                        val height = page.height
+//                        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+//                        val canvas = Canvas(bitmap)
+//                        canvas.drawColor(Color.WHITE)
+//                        canvas.drawBitmap(bitmap, 0f, 0f, null)
+//                        val rent = Rect(0, 0, width, height)
+//                        page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+//                        suspendingSavePic(bitmap)
+//                    }
+//                }
+//            }
+            return withContext(IO) { suspendingSavePDF(PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)), index) }
+        }
+
+        suspend fun suspendingSavePDF(renderer: PdfRenderer, index: Int = 0): String? {
+            //选择渲染哪一页的渲染数据
+            return renderer.use {
+                if (index > it.pageCount - 1) return null
+                val page = it.openPage(index)
+                val width = page.width
+                val height = page.height
+                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(bitmap)
+                canvas.drawColor(Color.WHITE)
+                canvas.drawBitmap(bitmap, 0f, 0f, null)
+                val rent = Rect(0, 0, width, height)
+                page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                suspendingSavePic(bitmap)
             }
         }
 
@@ -324,11 +342,21 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         onStart()
         builderJob?.cancel()
         builderJob = launch {
-            val pageCount = withContext(IO) { PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).pageCount }
+//            val pageCount = withContext(IO) { PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).pageCount }
+//            val list = ArrayList<String?>()
+//            for (index in 0 until pageCount) {
+//                val filePath = suspendingSavePDF(file, index)
+//                list.add(filePath)
+//            }
+//            onResult.invoke(list)
             val list = ArrayList<String?>()
-            for (index in 0 until pageCount) {
-                val filePath = suspendingSavePDF(file, index)
-                list.add(filePath)
+            withContext(IO) {
+                PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).use {
+                    for (index in 0 until it.pageCount) {
+                        val filePath = suspendingSavePDF(it, index)
+                        list.add(filePath)
+                    }
+                }
             }
             onResult.invoke(list)
         }
