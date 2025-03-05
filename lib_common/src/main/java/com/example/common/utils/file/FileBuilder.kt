@@ -3,22 +3,20 @@ package com.example.common.utils.file
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.JPEG
+import android.graphics.Bitmap.CompressFormat.PNG
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
-import android.util.Patterns
 import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.R
 import com.example.common.subscribe.CommonSubscribe
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
-import com.example.common.utils.function.saveBitmap
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
@@ -53,12 +51,42 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         get() = Main + job
 
     companion object {
+
         /**
-         * 存储图片
-         */
-        suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("Save Image"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG): String? {
+         * 存储图片保存bitmap
+         * root->图片保存路径
+         * fileName->图片名称（扣除jpg和png的后缀）
+         * deleteDir->是否清除目录
+         * format->图片类型
+         * quality->压缩率
+        */
+        suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("Save Image"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
             return withContext(IO) {
-                bitmap.saveBitmap(root, fileName, deleteDir, format)
+                if (null != bitmap) {
+                    //存储目录文件
+                    val storeDir = File(root)
+                    //先判断是否需要清空目录，再判断是否存在（不存在则创建）
+                    if (deleteDir) root.deleteDir()
+                    root.isMkdirs()
+                    //根据要保存的格式，返回对应后缀名->安卓只支持以下三种
+                    val suffix = when(format) {
+                        JPEG -> "jpg"
+                        PNG -> "png"
+                        else -> "webp"
+                    }
+                    //在目录文件夹下生成一个新的图片
+                    val file = File(storeDir, "${fileName}.${suffix}")
+                    //开流开始写入
+                    file.outputStream().use { outputStream ->
+                        //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
+                        bitmap.compress(format, if (format != PNG) quality else 100, outputStream)
+                        outputStream.flush()
+                        bitmap.recycle()
+                    }
+                    file.absolutePath
+                } else {
+                    null
+                }
             }
         }
 
@@ -78,7 +106,7 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
                         canvas.drawBitmap(bitmap, 0f, 0f, null)
                         val rent = Rect(0, 0, width, height)
                         page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                        bitmap.saveBitmap()
+                        suspendingSavePic(bitmap)
                     }
                 }
             }

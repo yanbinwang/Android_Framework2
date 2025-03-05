@@ -3,7 +3,6 @@ package com.example.common.utils.function
 import android.content.Context
 import android.graphics.*
 import android.graphics.Bitmap.CompressFormat.JPEG
-import android.graphics.Bitmap.CompressFormat.PNG
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.text.Layout
@@ -14,10 +13,6 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.exifinterface.media.ExifInterface.*
 import com.example.common.BaseApplication
 import com.example.common.utils.StorageUtil.getStoragePath
-import com.example.common.utils.file.deleteDir
-import com.example.common.utils.file.isMkdirs
-import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
-import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import java.io.File
@@ -106,45 +101,6 @@ fun Bitmap?.scaleBitmap(): Bitmap? {
         } else {
             1f
         }, true)
-}
-
-/**
- * 保存bitmap
- * root->图片保存路径
- * fileName->图片名称（扣除jpg和png的后缀）
- * deleteDir->是否清除目录
- * format->图片类型
- * quality->压缩率
- */
-fun Bitmap?.saveBitmap(root: String = getStoragePath("Save Image"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
-    this ?: return null
-    //存储目录文件
-    val storeDir = File(root)
-    //先判断是否需要清空目录，再判断是否存在（不存在则创建）
-    if (deleteDir) root.deleteDir()
-    root.isMkdirs()
-    //在目录文件夹下生成一个新的图片
-    val file = File(storeDir, "${fileName}.${format.getSuffix()}")
-    //开流开始写入
-    file.outputStream().use { outputStream ->
-        //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
-        compress(format, if (format != PNG) quality else 100, outputStream)
-        outputStream.flush()
-        recycle()
-    }
-    return file.absolutePath
-}
-
-/**
- * 根据要保存的格式，返回对应后缀名
- * 安卓只支持一下三种
- */
-private fun Bitmap.CompressFormat.getSuffix(): String {
-    return when (this) {
-        JPEG -> "jpg"
-        PNG -> "png"
-        else -> "webp"
-    }
 }
 
 /**
