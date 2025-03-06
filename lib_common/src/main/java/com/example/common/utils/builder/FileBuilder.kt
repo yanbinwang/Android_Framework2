@@ -27,7 +27,7 @@ import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.read
 import com.example.common.utils.function.split
-import com.example.common.utils.function.string
+import com.example.common.utils.i18n.string
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.toSafeInt
@@ -52,7 +52,7 @@ import kotlin.coroutines.resumeWithException
  * format->图片类型
  * quality->压缩率
  */
-suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("保存图片"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
+suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("Save Image"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
     return withContext(IO) {
         if (null != bitmap) {
             //存储目录文件
@@ -203,7 +203,7 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
     val file = File(filePath.isMkdirs(), fileName)
     return withContext(IO) {
         try {
-            //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载(加try/catch为双保险，万一地址不正确应用就会闪退)
+            //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
             val body = CommonSubscribe.getDownloadApi(downloadUrl)
             val buf = ByteArray(2048)
             val total = body.contentLength()
@@ -215,9 +215,7 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
                         outputStream.write(buf, 0, len)
                         sum += len.toLong()
                         val progress = (sum * 1.0f / total * 100).toSafeInt()
-                        withContext(Main) {
-                            listener.invoke(progress)
-                        }
+                        withContext(Main) { listener.invoke(progress) }
                     }
                     outputStream.flush()
                     file.path
@@ -232,7 +230,7 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
 /**
  * 存储网络路径图片(下载url)
  */
-suspend fun suspendingDownloadPic(mContext: Context, string: String, root: String = getStoragePath("保存图片"), deleteDir: Boolean = false): String {
+suspend fun suspendingDownloadPic(mContext: Context, string: String, root: String = getStoragePath("Save Image"), deleteDir: Boolean = false): String {
     return withContext(IO) {
         //存储目录文件
         val storeDir = File(root)
@@ -258,7 +256,7 @@ private suspend fun suspendingGlideDownload(mContext: Context, string: String, s
     }
 
 /**
- * 文件分片
+ * 文件分割
  */
 suspend fun suspendingFileSplit(sourcePath: String?, cutSize: Long): MutableList<String> {
     sourcePath ?: return arrayListOf()
