@@ -19,7 +19,7 @@ import com.example.common.BaseApplication
 import com.example.common.event.EventCode.EVENT_EVIDENCE_UPDATE
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.reqBodyOf
-import com.example.common.network.repository.resulted
+import com.example.common.network.repository.request
 import com.example.common.network.repository.successful
 import com.example.common.network.repository.withHandling
 import com.example.common.utils.GsonUtil.getType
@@ -367,7 +367,7 @@ class OssFactory private constructor() : CoroutineScope {
         val baoquan = query.baoquan
         ossJobMap[baoquan] = launch {
             flow {
-                emit(OssSubscribe.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query.objectKey)).resulted())
+                emit(request { OssSubscribe.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query.objectKey)) })
             }.withHandling({
                 failure(baoquan, it.errMessage)
             }, {
@@ -391,7 +391,7 @@ class OssFactory private constructor() : CoroutineScope {
         callback(2, baoquan, success = false)
         ossJobMap[baoquan] = launch {
             flow {
-                emit(OssSubscribe.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)).resulted())
+                emit(request { OssSubscribe.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)) })
             }.withHandling(end = {
                 end(baoquan)
             }).collect {}

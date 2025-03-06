@@ -19,8 +19,8 @@ import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.ResponseWrapper
-import com.example.common.network.repository.resulted
-import com.example.common.network.repository.resultedLayer
+import com.example.common.network.repository.request
+import com.example.common.network.repository.requestLayer
 import com.example.common.network.repository.withHandling
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
@@ -235,8 +235,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     ): Job {
         return launch {
             flow {
-                val response = coroutineScope()
-                emit(response.resulted())
+                emit(request(coroutineScope))
             }.withHandling(mView, err, end, isShowToast, isShowDialog).collect {
                 resp.invoke(it)
             }
@@ -256,8 +255,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     ): Job {
         return launch {
             flow {
-                val response = coroutineScope()
-                emit(response.resultedLayer())
+                emit(requestLayer(coroutineScope))
             }.withHandling(mView, err, end, isShowToast, isShowDialog).collect {
                 resp.invoke(it)
             }

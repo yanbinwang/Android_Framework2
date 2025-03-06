@@ -10,7 +10,6 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.resString
 import com.example.common.utils.helper.AccountHelper
 import com.example.common.utils.toJson
-import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -25,6 +24,39 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 //------------------------------------针对协程返回的参数(协程只有成功和失败)------------------------------------
+/**
+ * flow处理网络请求的时候的方法外层套一个这个方法，会处理对象并拿取body
+ */
+suspend fun <T> request(
+    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+): T? {
+    return requestLayer(coroutineScope).data.let {
+        if (it is EmptyBean) {
+            EmptyBean()
+        } else {
+            it
+        } as? T
+    }
+}
+
+suspend fun <T> requestLayer(
+    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+): ApiResponse<T> {
+    try {
+        //请求+响应数据
+        withContext(IO) {
+            coroutineScope()
+        }.let {
+            if (!it.tokenExpired() && it.successful()) {
+                return it
+            } else {
+                throw ResponseWrapper(it.code, it.msg)
+            }
+        }
+    } catch (e: Exception) {
+        throw e
+    }
+}
 
 /**
  * flow如果不调用collect是不会执行数据流通的
@@ -146,17 +178,17 @@ fun <T> ApiResponse<T>?.tokenExpired(): Boolean {
     return false
 }
 
-/**
- * 判断此次请求是否通过，token无过期,直接返回结果
- */
-fun <T> ApiResponse<T>?.resulted(): T? {
-    return resultedLayer()?.data
-}
-
-fun <T> ApiResponse<T>?.resultedLayer(): ApiResponse<T>? {
-    if (!tokenExpired() && successful()) {
-        return this
-    } else {
-        throw ResponseWrapper(this?.code, this?.msg)
-    }
-}
+///**
+// * 判断此次请求是否通过，token无过期,直接返回结果
+// */
+//fun <T> ApiResponse<T>?.resulted(): T? {
+//    return resultedLayer()?.data
+//}
+//
+//fun <T> ApiResponse<T>?.resultedLayer(): ApiResponse<T>? {
+//    if (!tokenExpired() && successful()) {
+//        return this
+//    } else {
+//        throw ResponseWrapper(this?.code, this?.msg)
+//    }
+//}
