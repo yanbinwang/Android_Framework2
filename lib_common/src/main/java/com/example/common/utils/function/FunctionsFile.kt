@@ -1,4 +1,4 @@
-package com.example.common.utils.file
+package com.example.common.utils.function
 
 import android.content.Context
 import android.content.Intent
@@ -9,12 +9,11 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.text.format.Formatter
 import android.util.Base64
+import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
 import com.example.common.BaseApplication
 import com.example.common.config.Constants
-import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
@@ -26,43 +25,6 @@ import java.io.RandomAccessFile
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.security.MessageDigest
-
-/**
- * Created by WangYanBin on 2020/7/1.
- * 文件管理工具类
- */
-object FileUtil {
-
-    /**
-     * 递归完全删除对应文件夹下的所有文件
-     */
-    @JvmStatic
-    fun deleteDirWithFile(dir: File?) {
-        if (dir == null || !dir.exists() || !dir.isDirectory) return
-        for (file in dir.listFiles().orEmpty()) {
-            if (file.isFile) file.delete() //删除所有文件
-            else if (file.isDirectory) deleteDirWithFile(file) //递规的方式删除文件夹
-        }
-        dir.delete() //删除目录本身
-    }
-
-    /**
-     * 获取整个目录的文件大小
-     */
-    @JvmStatic
-    fun totalSizeWithFile(file: File): Long {
-        var size = 0L
-        for (mFile in file.listFiles().orEmpty()) {
-            size = if (mFile.isDirectory) {
-                size + totalSizeWithFile(mFile)
-            } else {
-                size + mFile.length()
-            }
-        }
-        return size
-    }
-
-}
 
 /**
  * 各个单位换算
@@ -77,7 +39,7 @@ val Number.tb get() = this.toSafeLong() * 1024L * 1024L * 1024L * 1024L
 fun Context.insertImageResolver(file: File?) {
     file ?: return
     MediaStore.Images.Media.insertImage(contentResolver, file.absolutePath, file.name, null)
-    sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://${file.path}")))
+    sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, "file://${file.path}".toUri()))
 }
 
 /**
@@ -86,7 +48,7 @@ fun Context.insertImageResolver(file: File?) {
 fun Context.getApplicationIcon(): Bitmap? {
     try {
         packageManager.getApplicationIcon(Constants.APPLICATION_ID).apply {
-            val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565)
+            val bitmap = createBitmap(intrinsicWidth, intrinsicHeight, if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565)
             val canvas = Canvas(bitmap)
             setBounds(0, 0, intrinsicWidth, intrinsicHeight)
             draw(canvas)
@@ -121,8 +83,12 @@ fun String?.isExists(): Boolean {
  */
 fun String?.deleteFile() {
     this ?: return
-    val file = File(this)
-    if (file.isFile && file.exists()) file.delete()
+    File(this).deleteFile()
+}
+
+fun File?.deleteFile() {
+    this ?: return
+    if (isFile && exists()) delete()
 }
 
 /**
@@ -130,15 +96,46 @@ fun String?.deleteFile() {
  */
 fun String?.deleteDir() {
     this ?: return
-    FileUtil.deleteDirWithFile(File(this))
+    File(this).deleteDir()
+}
+
+fun File?.deleteDir() {
+    this ?: return
+    deleteDirWithFile(this)
+}
+
+private fun deleteDirWithFile(dir: File?) {
+    if (dir == null || !dir.exists() || !dir.isDirectory) return
+    for (file in dir.listFiles().orEmpty()) {
+        if (file.isFile) file.delete() //删除所有文件
+        else if (file.isDirectory) deleteDirWithFile(file) //递规的方式删除文件夹
+    }
+    dir.delete() //删除目录本身
 }
 
 /**
  * 文件本身的整体大小
  */
+fun String?.getTotalSize(): Long {
+    this ?: return 0
+    return File(this).getTotalSize()
+}
+
 fun File?.getTotalSize(): Long {
     this ?: return 0
-    return FileUtil.totalSizeWithFile(this)
+    return totalSizeWithFile(this)
+}
+
+fun totalSizeWithFile(file: File): Long {
+    var size = 0L
+    for (mFile in file.listFiles().orEmpty()) {
+        size = if (mFile.isDirectory) {
+            size + totalSizeWithFile(mFile)
+        } else {
+            size + mFile.length()
+        }
+    }
+    return size
 }
 
 /**
@@ -269,7 +266,7 @@ internal fun File?.read(): String {
  * 将当前文件拷贝一份到目标路径
  */
 internal fun File?.copy(destFile: File?) {
-    if(null == this || !exists()) return
+    if (null == this || !exists()) return
     if (!destFile?.exists().orFalse) destFile?.createNewFile()
     inputStream().channel.use { source ->
         destFile?.outputStream()?.channel.use { destination ->

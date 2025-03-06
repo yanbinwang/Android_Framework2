@@ -8,7 +8,7 @@ import androidx.fragment.app.FragmentActivity
 import com.example.common.base.page.RequestCode.REQUEST_ALBUM
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.file.mb
+import com.example.common.utils.function.mb
 import com.example.common.utils.function.string
 import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
