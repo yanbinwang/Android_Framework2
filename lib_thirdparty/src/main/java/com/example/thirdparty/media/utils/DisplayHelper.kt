@@ -8,12 +8,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.page.Extra
-import com.example.common.network.repository.withHandling
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.builder.suspendingZip
-import com.example.common.utils.function.deleteFile
 import com.example.common.utils.function.isExists
 import com.example.common.utils.function.pullUpOverlay
 import com.example.common.utils.function.pullUpScreen
@@ -31,9 +28,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
-import java.io.File
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -140,10 +134,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: 
 //                            folderPath.deleteFile()
 //                        })
 //                        listener?.onResult(zipPath, true)
-                        builderJob?.cancel()
-                        builderJob = launch {
-                            suspendingShotZip(folderPath)
-                        }
+                        listener?.onResult(folderPath, true)
                     }
                 } else {
                     listener?.onResult(folderPath, false)
@@ -151,21 +142,6 @@ class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: 
             } else {
                 listener?.onStart(folderPath)
             }
-        }
-    }
-
-    private suspend fun suspendingShotZip(folderPath: String) {
-        //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
-        list.add(folderPath)
-        //压缩包输出路径（会以录屏文件的命名方式来命名）
-        val zipPath = File(folderPath).name.replace("mp4", "zip")
-        //开始压包
-        flow {
-            emit(suspendingZip(list, zipPath))
-        }.withHandling(mView, end = {
-            folderPath.deleteFile()
-        }).collect {
-            listener?.onResult(zipPath, true)
         }
     }
 
