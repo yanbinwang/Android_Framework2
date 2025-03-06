@@ -8,10 +8,11 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.page.Extra
+import com.example.common.network.repository.withHandling
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.file.FileBuilder
+import com.example.common.utils.builder.suspendingZip
 import com.example.common.utils.function.deleteFile
 import com.example.common.utils.function.isExists
 import com.example.common.utils.function.pullUpOverlay
@@ -26,20 +27,30 @@ import com.example.framework.utils.function.value.safeSize
 import com.example.thirdparty.R
 import com.example.thirdparty.media.service.DisplayService
 import com.example.thirdparty.media.service.ShotObserver
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.coroutines.CoroutineContext
 
 /**
  * @description 录屏工具类
  * @author yan
  */
-class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: Boolean = false) : LifecycleEventObserver {
+class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: Boolean = false) : CoroutineScope, LifecycleEventObserver {
     private var isDestroy = false
     private var lastRefreshTime = 0L
     private var mView: BaseView? = null
     private var listener: OnDisplayListener? = null
     private val list by lazy { ArrayList<String>() }
-    private val builder by lazy { FileBuilder(mActivity) }
     private val observer by lazy { ShotObserver(mActivity) }
+    private var builderJob: Job? = null
+    private val job = SupervisorJob()
+    override val coroutineContext: CoroutineContext
+        get() = Main + job
 
     /**
      * 处理录屏的回调
@@ -66,13 +77,11 @@ class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: 
          * 用于计算系统弹出弹框到正式开始录屏花费了多少时间（毫秒）
          */
         var waitingTime = 0L
-
         /**
          * 安全区间内的屏幕录制宽高
          */
         var previewWidth = screenWidth
         var previewHeight = screenHeight
-
         /**
          * 是否正在进行录制，便于区分截图捕获到的图片路径
          */
@@ -121,16 +130,20 @@ class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: 
                     if (list.safeSize == 0) {
                         listener?.onResult(folderPath, false)
                     } else {
-                        //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
-                        list.add(folderPath)
-                        //压缩包输出路径（会以录屏文件的命名方式来命名）
-                        val zipPath = File(folderPath).name.replace("mp4", "zip")
-                        //开始压包
-                        builder.zipJob(list, zipPath, { mView?.showDialog() }, {
-                            mView?.hideDialog()
-                            folderPath.deleteFile()
-                        })
-                        listener?.onResult(zipPath, true)
+//                        //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
+//                        list.add(folderPath)
+//                        //压缩包输出路径（会以录屏文件的命名方式来命名）
+//                        val zipPath = File(folderPath).name.replace("mp4", "zip")
+//                        //开始压包
+//                        builder.zipJob(list, zipPath, { mView?.showDialog() }, {
+//                            mView?.hideDialog()
+//                            folderPath.deleteFile()
+//                        })
+//                        listener?.onResult(zipPath, true)
+                        builderJob?.cancel()
+                        builderJob = launch {
+                            suspendingShotZip(folderPath)
+                        }
                     }
                 } else {
                     listener?.onResult(folderPath, false)
@@ -138,6 +151,21 @@ class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: 
             } else {
                 listener?.onStart(folderPath)
             }
+        }
+    }
+
+    private suspend fun suspendingShotZip(folderPath: String) {
+        //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
+        list.add(folderPath)
+        //压缩包输出路径（会以录屏文件的命名方式来命名）
+        val zipPath = File(folderPath).name.replace("mp4", "zip")
+        //开始压包
+        flow {
+            emit(suspendingZip(list, zipPath))
+        }.withHandling(mView, end = {
+            folderPath.deleteFile()
+        }).collect {
+            listener?.onResult(zipPath, true)
         }
     }
 
@@ -205,6 +233,8 @@ class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: 
                 mView?.hideDialog()
                 stopScreen()
                 result?.unregister()
+                builderJob?.cancel()
+                job.cancel()
                 mActivity.lifecycle.removeObserver(this)
             }
             else -> {}
