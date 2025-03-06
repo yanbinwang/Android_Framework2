@@ -9,7 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.file.getFileFromUri
+import com.example.common.utils.function.getFileFromUri
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.function.value.orFalse

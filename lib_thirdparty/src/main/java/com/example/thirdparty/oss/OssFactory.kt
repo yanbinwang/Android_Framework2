@@ -26,8 +26,8 @@ import com.example.common.utils.GsonUtil.getType
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.file.deleteDir
-import com.example.common.utils.file.deleteFile
+import com.example.common.utils.function.deleteDir
+import com.example.common.utils.function.deleteFile
 import com.example.common.utils.function.byServerUrl
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.common.utils.toJson

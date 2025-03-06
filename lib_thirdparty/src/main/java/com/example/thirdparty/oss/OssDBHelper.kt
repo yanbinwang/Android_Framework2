@@ -1,7 +1,7 @@
 package com.example.thirdparty.oss
 
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.utils.file.deleteFile
+import com.example.common.utils.function.deleteFile
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.framework.utils.function.value.safeSize
 import com.example.greendao.bean.OssDB
