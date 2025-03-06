@@ -11,9 +11,7 @@ import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.file.FileBuilder
-import com.example.common.utils.file.deleteFile
-import com.example.common.utils.file.isExists
+import com.example.common.utils.function.isExists
 import com.example.common.utils.function.pullUpOverlay
 import com.example.common.utils.function.pullUpScreen
 import com.example.common.utils.function.registerResult
@@ -38,7 +36,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: 
     private var mView: BaseView? = null
     private var listener: OnDisplayListener? = null
     private val list by lazy { ArrayList<String>() }
-    private val builder by lazy { FileBuilder(mActivity) }
+//    private val builder by lazy { FileBuilder(mActivity) }
     private val observer by lazy { ShotObserver(mActivity) }
 
     /**
@@ -125,11 +123,11 @@ class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: 
                         list.add(folderPath)
                         //压缩包输出路径（会以录屏文件的命名方式来命名）
                         val zipPath = File(folderPath).name.replace("mp4", "zip")
-                        //开始压包
-                        builder.zipJob(list, zipPath, { mView?.showDialog() }, {
-                            mView?.hideDialog()
-                            folderPath.deleteFile()
-                        })
+//                        //开始压包
+//                        builder.zipJob(list, zipPath, { mView?.showDialog() }, {
+//                            mView?.hideDialog()
+//                            folderPath.deleteFile()
+//                        })
                         listener?.onResult(zipPath, true)
                     }
                 } else {
