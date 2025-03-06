@@ -4,12 +4,9 @@ import android.os.Bundle
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
-import com.example.common.base.bridge.launch
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
-import com.example.common.network.repository.reqBodyOf
-import com.example.common.subscribe.CommonSubscribe
-import com.example.common.utils.file.FileBuilder
+import com.example.common.utils.builder.FileBuilder
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt

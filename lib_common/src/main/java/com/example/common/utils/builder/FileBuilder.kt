@@ -1,4 +1,4 @@
-package com.example.common.utils.file
+package com.example.common.utils.builder
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -17,8 +17,16 @@ import com.example.common.R
 import com.example.common.subscribe.CommonSubscribe
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.StorageUtil.getStoragePath
+import com.example.common.utils.function.copy
+import com.example.common.utils.function.deleteDir
+import com.example.common.utils.function.getBase64
+import com.example.common.utils.function.getDuration
+import com.example.common.utils.function.getHash
+import com.example.common.utils.function.isMkdirs
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
+import com.example.common.utils.function.read
+import com.example.common.utils.function.split
 import com.example.common.utils.function.string
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
@@ -342,13 +350,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
         onStart()
         builderJob?.cancel()
         builderJob = launch {
-//            val pageCount = withContext(IO) { PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).pageCount }
-//            val list = ArrayList<String?>()
-//            for (index in 0 until pageCount) {
-//                val filePath = suspendingSavePDF(file, index)
-//                list.add(filePath)
-//            }
-//            onResult.invoke(list)
             val list = ArrayList<String?>()
             withContext(IO) {
                 PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).use {
@@ -409,10 +410,6 @@ class FileBuilder(observer: LifecycleOwner) : CoroutineScope {
      * 下载文件
      */
     fun downloadJob(downloadUrl: String, filePath: String, fileName: String, onStart: () -> Unit = {}, onSuccess: (path: String?) -> Unit = {}, onLoading: (progress: Int) -> Unit = {}, onFailed: (e: Exception?) -> Unit = {}, onComplete: () -> Unit = {}) {
-//        if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-//            R.string.linkError.shortToast()
-//            return
-//        }
         onStart()
         builderJob?.cancel()
         builderJob = launch {
