@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -23,6 +24,20 @@ import kotlin.coroutines.suspendCoroutine
  */
 class TestViewModel : BaseViewModel() {
 //    val token by lazy { MutableLiveData<String?>() }
+    /**
+     * 1、flow数据处理分StateFlow和SharedFlow，后者适合事件流或多值发射，网络请求用前者
+     * 2、StateFlow需要声明默认值，并且和协程高度重合
+     * MutableStateFlow 本身是热流（Hot Flow），其生命周期独立于订阅者。
+     * 但实际使用中需通过 协程作用域（如 lifecycleScope 或 viewModelScope）启动流收集，以便在组件销毁时自动取消协程：
+     * kotlin
+     * // 在 Activity/Fragment 中使用 lifecycleScope
+     * lifecycleScope.launch {
+     *     viewModel.uiState.collect { state ->
+     *         // 更新 UI
+     *     }
+     * } // 组件销毁时自动取消协程[2](@ref)
+     */
+//    val token by lazy { MutableStateFlow("") }
 
     /**
      * 串行
