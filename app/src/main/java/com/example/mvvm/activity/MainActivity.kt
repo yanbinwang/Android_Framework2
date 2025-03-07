@@ -2,13 +2,17 @@ package com.example.mvvm.activity
 
 import android.os.Bundle
 import androidx.core.graphics.drawable.toBitmapOrNull
+import androidx.lifecycle.viewModelScope
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
+import com.example.common.network.repository.request
+import com.example.common.subscribe.CommonSubscribe
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
+import com.example.common.utils.helper.AccountHelper
 import com.example.common.utils.toJson
 import com.example.common.utils.toList
 import com.example.common.utils.toObj
@@ -750,6 +754,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        StateFlow：适合需要维护单一状态且自动更新的场景（如 UI 状态）。
 //        SharedFlow：适合需要灵活控制事件流和多值发射的场景（如事件总线）。
 //        通过合理选择两者，可以高效实现响应式状态管理和实时数据流处理。
+
+//        flow<Unit> {
+//            //认证回退
+//            request { AccountSubscribe.getAuthBackApi() }
+//            request { CommonSubscribe.getUserAuthApi() }.apply { AccountHelper.refresh(this) }
+//        }.withHandling().launchIn(viewModelScope)
     }
 
     override fun initEvent() {
