@@ -29,8 +29,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
  */
 suspend fun <T> request(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+    err: (ResponseWrapper) -> Unit = {}
 ): T? {
-    return requestLayer(coroutineScope).data.let {
+    return requestLayer(coroutineScope, err).data.let {
         if (it is EmptyBean) {
             EmptyBean()
         } else {
@@ -41,6 +42,7 @@ suspend fun <T> request(
 
 suspend fun <T> requestLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+    err: (ResponseWrapper) -> Unit = {}
 ): ApiResponse<T> {
     try {
         //请求+响应数据
@@ -50,7 +52,9 @@ suspend fun <T> requestLayer(
             if (!it.tokenExpired() && it.successful()) {
                 return it
             } else {
-                throw ResponseWrapper(it.code, it.msg)
+                val wrapper = ResponseWrapper(it.code, it.msg)
+                err.invoke(wrapper)
+                throw wrapper
             }
         }
     } catch (e: Exception) {
