@@ -783,7 +783,7 @@ fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
  * 设置一个新的bitmap
  */
 fun ImageView?.setBitmap(observer: LifecycleOwner, bit: Bitmap?) {
-    this ?: return
+    if (this == null || bit == null) return
     observer.doOnDestroy { recycle() }
     recycle()
     setImageBitmap(bit)
