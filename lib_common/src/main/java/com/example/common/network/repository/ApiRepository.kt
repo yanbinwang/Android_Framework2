@@ -53,7 +53,9 @@ suspend fun <T> requestLayer(
                 return it
             } else {
                 val wrapper = ResponseWrapper(it.code, it.msg)
-                err.invoke(wrapper)
+                withContext(Main) {
+                    err.invoke(wrapper)
+                }
                 throw wrapper
             }
         }
