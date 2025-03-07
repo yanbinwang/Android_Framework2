@@ -85,39 +85,30 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 继承BaseTitleActivity的页面传父类的ViewGroup
      * 其余页面外层写FrameLayout，套上要使用的布局后再initView中调用该方法
      */
-    fun setExtraView(view: View?) {
+    fun setExtraView(view: View?, refresh: SmartRefreshLayout? = null) {
         view ?: return
+        //处理 view 的类型，设置 weakEmpty 和 weakRecycler
         when (view) {
             //传入BaseTitleActivity中写好的容器viewGroup
-            is FrameLayout -> this.weakEmpty = WeakReference(view.getEmptyView(1))
+            is FrameLayout -> weakEmpty = WeakReference(view.getEmptyView(1))
             //界面上绘制好empty
-            is EmptyLayout -> this.weakEmpty = WeakReference(view)
-            //外层下拉刷新的控件
-            is SmartRefreshLayout -> this.weakRefresh = WeakReference(view)
+            is EmptyLayout -> weakEmpty = WeakReference(view)
             //传入用于刷新的empty
             is XRecyclerView -> {
-                this.weakEmpty = WeakReference(view.empty)
-                this.weakRecycler = WeakReference(view)
+                weakEmpty = WeakReference(view.empty)
+                weakRecycler = WeakReference(view)
+            }
+            //外层下拉刷新的控件
+            is SmartRefreshLayout -> {
+                //仅在未显式传入 refresh 时从 view 中获取刷新控件
+                if (refresh == null) {
+                    weakRefresh = WeakReference(view)
+                }
             }
         }
-    }
-
-    //部分首页加载时需要使用empty，完成后需要使用下拉刷新（只有下拉），故而直接传入两层view
-    fun setExtraView(view: View?, refresh: SmartRefreshLayout?) {
-        if (view == null || refresh == null) return
-        when (view) {
-            is FrameLayout -> {
-                this.weakEmpty = WeakReference(view.getEmptyView(1))
-                this.weakRefresh = WeakReference(refresh)
-            }
-            is EmptyLayout -> {
-                this.weakEmpty = WeakReference(view)
-                this.weakRefresh = WeakReference(refresh)
-            }
-            is XRecyclerView -> {
-                this.weakEmpty = WeakReference(view.empty)
-                this.weakRefresh = WeakReference(refresh)
-            }
+        // 显式传入刷新控件时覆盖之前的设置
+        if (refresh != null) {
+            weakRefresh = WeakReference(refresh)
         }
     }
 
