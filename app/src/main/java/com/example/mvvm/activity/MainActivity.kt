@@ -6,7 +6,6 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
-import com.example.common.utils.builder.FileBuilder
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
@@ -265,7 +264,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
     private val viewModel by lazy { TestViewModel().create() }
     private val bean by lazy { intentParcelable<UserBean>("bean") }
-    private val builder by lazy { FileBuilder(this) }
+//    private val builder by lazy { FileBuilder(this) }
     private val album by lazy { AlbumHelper(this) }
 
     data class Book(val title: String, val author: String, val genre: String)
@@ -679,6 +678,78 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                }
 //            }
 //        }
+
+//        在 Kotlin 中，StateFlow 和 SharedFlow 是 Flow 库中用于处理热流（Hot Flow）的核心组件，适用于需要实时更新或共享数据的场景。以下是它们的使用方法和区别：
+//
+//        1. StateFlow
+//        StateFlow 是一种特殊的热流（Hot Flow），用于表示 单一数据源的持续状态，类似于 LiveData，但更灵活且线程安全。它总是持有最新值，且会自动通知所有订阅者状态变化。
+//
+//        核心特性：
+//        初始值：创建时必须指定初始值，且后续更新会覆盖旧值。
+//        自动通知：当值变化时，所有订阅者会自动收到更新。
+//        去重：仅在新值与旧值不同时触发更新。
+//        使用示例：
+//        kotlin
+//        class ReactiveCounter {
+//            private val _count = MutableStateFlow(0) // 可变状态流
+//            val count: StateFlow<Int> = _count // 只读状态流
+//
+//            fun increment() {
+//                _count.value++ // 更新状态
+//            }
+//        }
+//
+//        fun main() = runBlocking {
+//            val counter = ReactiveCounter()
+//            launch {
+//                counter.count.collect { value ->
+//                    println("当前计数值：$value") // 每次状态变化自动触发
+//                }
+//            }
+//            counter.increment() // 输出：1
+//            counter.increment() // 输出：2
+//        }
+//        引用来源：、
+//
+//        2. SharedFlow
+//        SharedFlow 是更通用的热流，用于表示 事件流或多值发射，支持灵活的配置（如重放值数量、缓冲策略等）。
+//
+//        核心特性：
+//        无初始值：创建时不需指定初始值，需手动发射数据。
+//        可配置性：通过参数控制重放值（replay）、缓冲容量（extraBufferCapacity）等。
+//        事件触发：每次发射新值均会通知所有订阅者，适合非状态类场景（如点击事件）。
+//        使用示例：
+//        kotlin
+//        val sharedFlow = MutableSharedFlow<Int>()
+//
+//        fun main() = runBlocking {
+//            launch {
+//                sharedFlow.collect { value ->
+//                    println("收到事件：$value")
+//                }
+//            }
+//            sharedFlow.emit(1) // 输出：1
+//            sharedFlow.emit(2) // 输出：2
+//        }
+//        引用来源：、
+//
+//        3. StateFlow 与 SharedFlow 的区别
+//                特性	StateFlow	SharedFlow
+//        数据类型	单一状态值（类似 LiveData）	多值事件流
+//        初始值	必须指定	无需指定
+//        自动更新	值变化时自动通知所有订阅者	需手动发射数据
+//        去重	仅在新旧值不同时触发更新	每次发射均触发
+//        适用场景	状态管理（如计数器、UI 状态）	事件流（如点击、网络请求回调）
+//        引用来源：
+//
+//        4. 常见操作
+//        取消订阅：通过协程的 cancel() 方法停止收集。
+//        终止流：使用 takeWhile 或异常处理提前终止。
+//        转换冷流：通过 stateIn 操作符将冷流转为 StateFlow。
+//        总结
+//        StateFlow：适合需要维护单一状态且自动更新的场景（如 UI 状态）。
+//        SharedFlow：适合需要灵活控制事件流和多值发射的场景（如事件总线）。
+//        通过合理选择两者，可以高效实现响应式状态管理和实时数据流处理。
     }
 
     override fun initEvent() {
