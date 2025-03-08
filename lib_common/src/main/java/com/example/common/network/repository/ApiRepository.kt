@@ -40,6 +40,21 @@ suspend fun <T> request(
     }
 }
 
+/**
+ * 1.列表的网络请求在flow内使用时，如果请求失败，我需要在上抛异常前把此次页数减1，并且对recyclerview做一些操作，故而需要有个err回调
+ * 2.整体的err可以被catch到，通过withHandling扩展函数来实现调用
+ * request({ AccountSubscribe.getCommissionListApi(mutableMapOf(
+ *      "current" to getCurrentPage(),
+ *      "size" to Constants.PAGE_LIMIT))
+ *  }, {
+ *      onError()
+ *      mRecycler?.setState(currentCount())
+ *  })?.also { data ->
+ *      setTotalCount(data.total)
+ *      list.postValue(data.list)
+ *      reset(hasNextPage())
+ *  }
+ */
 suspend fun <T> requestLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     err: (ResponseWrapper) -> Unit = {}
