@@ -40,15 +40,6 @@ suspend fun <T> request(
     }
 }
 
-suspend fun <T> request(
-    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    resp: (T?) -> Unit = {},
-    err: (ResponseWrapper) -> Unit = {}
-) {
-    val data = request(coroutineScope, err)
-    resp.invoke(data)
-}
-
 /**
  * 1.列表的网络请求在flow内使用时，如果请求失败，我需要在上抛异常前把此次页数减1，并且对recyclerview做一些操作，故而需要有个err回调
  * 2.整体的err可以被catch到，通过withHandling扩展函数来实现调用
@@ -83,7 +74,16 @@ suspend fun <T> requestLayer(
     }
 }
 
-suspend fun <T> requestLayer(
+suspend fun <T> handling(
+    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+    resp: (T?) -> Unit = {},
+    err: (ResponseWrapper) -> Unit = {}
+) {
+    val data = request(coroutineScope, err)
+    resp.invoke(data)
+}
+
+suspend fun <T> handlingLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (ApiResponse<T>) -> Unit = {},
     err: (ResponseWrapper) -> Unit = {}
