@@ -49,6 +49,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -366,20 +367,19 @@ class OssFactory private constructor() : CoroutineScope {
     private fun success(query: OssDB, fileType: String, recordDirectory: String) {
         val baoquan = query.baoquan
         ossJobMap[baoquan] = launch {
-            flow {
-                emit(request { OssSubscribe.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query.objectKey)) })
-            }.withHandling({
-                failure(baoquan, it.errMessage)
-            }, {
-                end(baoquan)
-            }).collect {
+            flow<Unit> {
+                request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query.objectKey)) })
                 //删除对应断点续传的文件夹和源文件
                 query.sourcePath.deleteDir()
                 recordDirectory.deleteFile()
                 OssDBHelper.delete(query)
                 callback(2, baoquan, success = true)
                 EVENT_EVIDENCE_UPDATE.post(fileType)
-            }
+            }.withHandling({
+                failure(baoquan, it.errMessage)
+            }, {
+                end(baoquan)
+            }).launchIn(this)
         }
     }
 
@@ -390,11 +390,11 @@ class OssFactory private constructor() : CoroutineScope {
         OssDBHelper.updateUpload(baoquan, false)
         callback(2, baoquan, success = false)
         ossJobMap[baoquan] = launch {
-            flow {
-                emit(request { OssSubscribe.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)) })
+            flow<Unit> {
+                request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)) })
             }.withHandling(end = {
                 end(baoquan)
-            }).collect {}
+            }).launchIn(this)
         }
     }
 
