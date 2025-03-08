@@ -40,6 +40,15 @@ suspend fun <T> request(
     }
 }
 
+suspend fun <T> request(
+    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+    resp: (T?) -> Unit = {},
+    err: (ResponseWrapper) -> Unit = {}
+) {
+    val data = request(coroutineScope, err)
+    resp.invoke(data)
+}
+
 /**
  * 1.列表的网络请求在flow内使用时，如果请求失败，我需要在上抛异常前把此次页数减1，并且对recyclerview做一些操作，故而需要有个err回调
  * 2.整体的err可以被catch到，通过withHandling扩展函数来实现调用
@@ -72,6 +81,15 @@ suspend fun <T> requestLayer(
     } catch (e: Exception) {
         throw e
     }
+}
+
+suspend fun <T> requestLayer(
+    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+    resp: (ApiResponse<T>) -> Unit = {},
+    err: (ResponseWrapper) -> Unit = {}
+) {
+    val response = requestLayer(coroutineScope, err)
+    resp.invoke(response)
 }
 
 /**
@@ -114,33 +132,6 @@ fun <T> Flow<T>.withHandling(
         end()
     }
 }
-//fun <T> Flow<T>.withHandling(
-//    view: BaseView? = null,
-//    err: (ResponseWrapper?) -> Unit = {},
-//    end: () -> Unit = {},
-//    isShowToast: Boolean = false,
-//    isShowDialog: Boolean = false
-//): Flow<T> {
-//    return flowOn(IO).onStart {
-//        withContext(Main) {
-//            if (isShowDialog) view?.showDialog()
-//        }
-//    }.catch { exception ->
-//        val wrapper: ResponseWrapper = when (exception) {
-//            is ResponseWrapper -> exception
-//            else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
-//        }
-//        withContext(Main) {
-//            if (isShowToast) wrapper.errMessage?.responseToast()
-//            err(wrapper)
-//        }
-//    }.onCompletion {
-//        withContext(Main) {
-//            if (isShowDialog) view?.hideDialog()
-//            end()
-//        }
-//    }
-//}
 
 /**
  * 请求转换
@@ -187,18 +178,3 @@ fun <T> ApiResponse<T>?.tokenExpired(): Boolean {
     }
     return false
 }
-
-///**
-// * 判断此次请求是否通过，token无过期,直接返回结果
-// */
-//fun <T> ApiResponse<T>?.resulted(): T? {
-//    return resultedLayer()?.data
-//}
-//
-//fun <T> ApiResponse<T>?.resultedLayer(): ApiResponse<T>? {
-//    if (!tokenExpired() && successful()) {
-//        return this
-//    } else {
-//        throw ResponseWrapper(this?.code, this?.msg)
-//    }
-//}
