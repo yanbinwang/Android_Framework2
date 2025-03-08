@@ -352,17 +352,6 @@ inline fun <reified T> Any?.safeAs(): T? {
     return if (this is T) this else null
 }
 
-fun Any?.checkNotEmpty(): Any {
-    if (this == null) {
-        throw IllegalArgumentException("Object is null")
-    }
-    when (this) {
-        is Collection<*> -> if (this.isEmpty()) throw IllegalArgumentException("Collection is empty")
-        is Array<*> -> if (this.isEmpty()) throw IllegalArgumentException("Array is empty")
-    }
-    return this
-}
-
 /**
  * list1为服务器中数据
  * list2为本地存储数据
