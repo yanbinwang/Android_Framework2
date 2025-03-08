@@ -46,18 +46,13 @@ suspend fun <T> requestLayer(
 ): ApiResponse<T> {
     try {
         //请求+响应数据
-        withContext(IO) {
-            coroutineScope()
-        }.let {
-            if (!it.tokenExpired() && it.successful()) {
-                return it
-            } else {
-                val wrapper = ResponseWrapper(it.code, it.msg)
-                withContext(Main) {
-                    err.invoke(wrapper)
-                }
-                throw wrapper
-            }
+        val response = withContext(IO) { coroutineScope() }
+        if (!response.tokenExpired() && response.successful()) {
+            return response
+        } else {
+            val wrapper = ResponseWrapper(response.code, response.msg)
+            err.invoke(wrapper)
+            throw wrapper
         }
     } catch (e: Exception) {
         throw e
@@ -84,9 +79,7 @@ fun <T> Flow<T>.withHandling(
         if (isShowDialog) view?.hideDialog()
         end()
     }, isShowToast).onStart {
-        withContext(Main) {
-            if (isShowDialog) view?.showDialog()
-        }
+        if (isShowDialog) view?.showDialog()
     }
 }
 
@@ -95,19 +88,15 @@ fun <T> Flow<T>.withHandling(
     end: () -> Unit = {},
     isShowToast: Boolean = false,
 ): Flow<T> {
-    return flowOn(IO).catch { exception ->
+    return flowOn(Main).catch { exception ->
         val wrapper: ResponseWrapper = when (exception) {
             is ResponseWrapper -> exception
             else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
         }
-        withContext(Main) {
-            if (isShowToast) wrapper.errMessage?.responseToast()
-            err(wrapper)
-        }
+        if (isShowToast) wrapper.errMessage?.responseToast()
+        err(wrapper)
     }.onCompletion {
-        withContext(Main) {
-            end()
-        }
+        end()
     }
 }
 //fun <T> Flow<T>.withHandling(
