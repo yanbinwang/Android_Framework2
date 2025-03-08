@@ -59,43 +59,45 @@ class MultiReqUtil(
     /**
      * 返回Body
      */
-    suspend fun <T> request(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (ResponseWrapper) -> Unit = this.err
-    ): T? {
-        return requestLayer(coroutineScope, err)?.data
+    suspend fun <T> request(coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>): T? {
+        return requestLayer(coroutineScope)?.data
     }
 
     /**
      * 返回外层response整体
+     * 单独针对某个接口需要err判断做特殊处理的可以使用此方法，比如列表接口
+     * req.requestLayer(...).apply {
+     *   if (successful()) {
+     *       setTotalCount(this?.totalCount)
+     *       val data = this?.data
+     *       list.postValue(data)
+     *   } else {
+     *       onError()
+     *       mRecycler?.setState(currentCount())
+     *   }
+     * }
      */
-    suspend fun <T> requestLayer(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (ResponseWrapper) -> Unit = this.err
-    ): ApiResponse<T>? {
+    suspend fun <T> requestLayer(coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>): ApiResponse<T>? {
         start()
         var response: ApiResponse<T>? = null
         requestLayer({ coroutineScope() }, {
             response = it
-        }, err, isShowToast = false)
-        if (!response.successful()) results = true
+        }, {
+            error(it)
+        }, isShowToast = false)
         return response
     }
 
     /**
      * 处理普通挂起方法->如网络请求之前需要本地处理图片等操作，整体捆起来做判断
      */
-    suspend fun <T> requestAffair(
-        coroutineScope: suspend CoroutineScope.() -> T,
-        err: (ResponseWrapper) -> Unit = this.err
-    ): T? {
+    suspend fun <T> requestAffair(coroutineScope: suspend CoroutineScope.() -> T): T? {
         start()
         var result: T? = null
         requestAffair({ coroutineScope() }, {
             result = it
         }, {
-            results = true
-            err.invoke(it)
+            error(it)
         }, isShowToast = false)
         return result
     }
@@ -123,11 +125,20 @@ class MultiReqUtil(
     }
 
     /**
-     * 当串行请求多个接口的时候，如果开发需要知道这多个串行请求是否都成功
+     * 请求多个接口的时候，如果开发需要知道多个请求是否都成功
      * 在end()被调取之前，可通过当前方法判断
      */
     fun successful(): Boolean {
         return !results
+    }
+
+    /**
+     * 请求多个接口的时候，异常回调只需要一次即可
+     */
+    private fun error(wrapper: ResponseWrapper) {
+        if (results) return
+        results = true
+        err.invoke(wrapper)
     }
 
 }
@@ -174,7 +185,7 @@ suspend fun <T> request(
 ) {
     requestLayer(coroutineScope, { result ->
         //如果接口是成功的，但是body为空或者后台偷懒没给，我们在写Api时，给一个对象，让结果能够返回
-        resp.invoke(result?.data.let {
+        resp.invoke(result.data.let {
             if (it is EmptyBean) {
                 EmptyBean()
             } else {
@@ -186,7 +197,7 @@ suspend fun <T> request(
 
 suspend fun <T> requestLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    resp: (ApiResponse<T>?) -> Unit = {},
+    resp: (ApiResponse<T>) -> Unit = {},
     err: (ResponseWrapper) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false
@@ -194,19 +205,18 @@ suspend fun <T> requestLayer(
     try {
         log("开始请求")
         //请求+响应数据
-        withContext(IO) {
+        val response = withContext(IO) {
             log("发起请求")
             coroutineScope()
-        }.let {
-            log("处理结果")
-            if (it.successful()) {
-                resp(it)
-            } else {
-                //如果不是被顶号才会有是否提示的逻辑
-                if (!it.tokenExpired()) if (isShowToast) it.content.responseToast()
-                //不管结果如何，失败的回调是需要执行的
-                err(ResponseWrapper(it.statusCode, it.content))
-            }
+        }
+        log("处理结果")
+        if (response.successful()) {
+            resp(response)
+        } else {
+            //如果不是被顶号才会有是否提示的逻辑
+            if (!response.tokenExpired()) if (isShowToast) response.content.responseToast()
+            //不管结果如何，失败的回调是需要执行的
+            err(ResponseWrapper(response.statusCode, response.content))
         }
     } catch (e: Exception) {
         if (isShowToast) "".responseToast()
