@@ -20,6 +20,7 @@ import com.example.common.event.EventBus
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.ResponseWrapper
 import com.example.common.network.repository.request
+import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.requestLayer
 import com.example.common.network.repository.withHandling
 import com.example.common.utils.manager.AppManager
@@ -266,7 +267,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     ): Job {
         return launch {
             flow {
-                emit(coroutineScope())
+                emit(requestAffair(coroutineScope))
             }.withHandling(mView, err, end, isShowToast, isShowDialog).collect {
                 resp.invoke(it)
             }
