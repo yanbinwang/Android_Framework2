@@ -23,7 +23,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
-//------------------------------------针对协程返回的参数(协程只有成功和失败)------------------------------------
+//------------------------------------针对协程返回的参数(协程只有成功和失败,确保方法在flow内使用，并且实现withHandling扩展)------------------------------------
 /**
  * flow处理网络请求的时候的方法外层套一个这个方法，会处理对象并拿取body
  */
@@ -38,6 +38,15 @@ suspend fun <T> request(
             it
         } as? T
     }
+}
+
+suspend fun <T> request(
+    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+    resp: (T?) -> Unit,
+    err: (ResponseWrapper) -> Unit
+) {
+    val data = request(coroutineScope, err)
+    resp.invoke(data)
 }
 
 /**
@@ -63,6 +72,15 @@ suspend fun <T> requestLayer(
     }
 }
 
+suspend fun <T> requestLayer(
+    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+    resp: (ApiResponse<T>) -> Unit,
+    err: (ResponseWrapper) -> Unit
+) {
+    val response = requestLayer(coroutineScope, err)
+    resp.invoke(response)
+}
+
 suspend fun <T> requestAffair(
     coroutineScope: suspend CoroutineScope.() -> T
 ): T {
@@ -72,24 +90,6 @@ suspend fun <T> requestAffair(
     } catch (e: Exception) {
         throw e
     }
-}
-
-suspend fun <T> handling(
-    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    resp: (T?) -> Unit = {},
-    err: (ResponseWrapper) -> Unit = {}
-) {
-    val data = request(coroutineScope, err)
-    resp.invoke(data)
-}
-
-suspend fun <T> handlingLayer(
-    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    resp: (ApiResponse<T>) -> Unit = {},
-    err: (ResponseWrapper) -> Unit = {}
-) {
-    val response = requestLayer(coroutineScope, err)
-    resp.invoke(response)
 }
 
 /**
