@@ -87,7 +87,8 @@ fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = Vie
      * 2）不开启的情况下就是只加载当前页，开启的情况下，有多少子页面就预加载多少，推荐fragment继承BaseLazyFragment，保证请求滞后执行，节省一部分内存
      * 3）不开启的情况下，如果使用EvenBus刷新子页面，需要获取Fragment的isAdded和对应参数来判断是否发起网络请求，开启的情况下，isAdded无需书写
      */
-    if(pageLimit) offscreenPageLimit = adapter.itemCount  - 1
+    val limitCount = adapter.itemCount - 1
+    if (pageLimit) offscreenPageLimit = if (limitCount <= 0) 1 else limitCount
     //false 可以禁止用户通过手势左右滑动页面，但页面仍可通过代码控制
     isUserInputEnabled = userInputEnabled
 }
