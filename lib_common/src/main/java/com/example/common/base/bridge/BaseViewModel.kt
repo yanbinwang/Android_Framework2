@@ -17,12 +17,6 @@ import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.network.repository.ApiResponse
-import com.example.common.network.repository.ResponseWrapper
-import com.example.common.network.repository.request
-import com.example.common.network.repository.requestAffair
-import com.example.common.network.repository.requestLayer
-import com.example.common.network.repository.withHandling
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.EmptyLayout
@@ -36,9 +30,7 @@ import com.example.framework.utils.function.view.fade
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
@@ -211,67 +203,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private fun finishRefreshing(hasNextPage: Boolean? = true) {
         if (null == mRecycler) mRefresh?.finishRefreshing()
         mRecycler?.finishRefreshing(!hasNextPage.orTrue)
-    }
-
-    /**
-     * 常规发起一个网络请求
-     * launch在主线程发起，withHandling做了截获，上半部分代码块切到io执行，下半部分切回main
-     */
-    protected fun <T> launch(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, // 请求
-        resp: (T?) -> Unit = {},                                     // 响应
-        err: (ResponseWrapper) -> Unit = {},                         // 错误处理
-        end: () -> Unit = {},                                        // 最后执行方法
-        isShowToast: Boolean = true,                                 // 是否toast
-        isShowDialog: Boolean = true                                 // 是否显示加载框
-    ): Job {
-        return launch {
-            flow {
-                emit(request(coroutineScope))
-            }.withHandling(mView, err, end, isShowToast, isShowDialog).collect {
-                resp.invoke(it)
-            }
-        }
-    }
-
-    /**
-     * 网络请求外层同时返回
-     */
-    protected fun <T> launchLayer(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        resp: (ApiResponse<T>?) -> Unit = {},
-        err: (ResponseWrapper) -> Unit = {},
-        end: () -> Unit = {},
-        isShowToast: Boolean = true,
-        isShowDialog: Boolean = true
-    ): Job {
-        return launch {
-            flow {
-                emit(requestLayer(coroutineScope))
-            }.withHandling(mView, err, end, isShowToast, isShowDialog).collect {
-                resp.invoke(it)
-            }
-        }
-    }
-
-    /**
-     * 只处理挂起的协程方法
-     */
-    protected fun <T> launchAffair(
-        coroutineScope: suspend CoroutineScope.() -> T,
-        resp: (T?) -> Unit = {},
-        err: (ResponseWrapper) -> Unit = {},
-        end: () -> Unit = {},
-        isShowToast: Boolean = true,
-        isShowDialog: Boolean = true
-    ): Job {
-        return launch {
-            flow {
-                emit(requestAffair(coroutineScope))
-            }.withHandling(mView, err, end, isShowToast, isShowDialog).collect {
-                resp.invoke(it)
-            }
-        }
     }
 
     override fun onCleared() {
