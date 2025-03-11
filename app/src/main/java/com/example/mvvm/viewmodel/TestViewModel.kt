@@ -7,7 +7,6 @@ import com.example.common.base.bridge.launch
 import com.example.common.network.repository.request
 import com.example.common.network.repository.withHandling
 import com.example.common.subscribe.CommonSubscribe
-import com.example.framework.utils.function.value.getCallerMethodName
 import com.example.framework.utils.function.value.safeAs
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
@@ -36,6 +35,41 @@ class TestViewModel : BaseViewModel() {
      * } // 组件销毁时自动取消协程[2](@ref)
      */
 //    val token by lazy { MutableStateFlow("") }
+
+    //用于存储协程 Job 的线程安全集合
+    private val jobMap = ConcurrentHashMap<String, Job>()
+
+    //管理协程 Job 的方法
+    private fun manageJob(job: Job,key: String = getCallerMethodName()) {
+        //如果之前的 Job 存在，取消并从集合中移除
+        jobMap[key]?.let {
+            it.cancel()
+            jobMap.remove(key)
+        }
+        //新的 Job 添加到集合中
+        jobMap[key] = job
+    }
+
+    // 自定义注解
+    @Retention(AnnotationRetention.RUNTIME)
+    @Target(AnnotationTarget.VALUE_PARAMETER)
+    annotation class CallerFunctionName
+
+    /**
+     * 内联函数获取调用者方法名
+     * val methodName = getCallerMethodName()
+     */
+    inline fun getCallerMethodName(@CallerFunctionName callerFunction: String = ""): String {
+        return callerFunction
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // 清除所有 Job
+        jobMap.values.forEach { it.cancel() }
+        jobMap.clear()
+    }
+
 
     /**
      * 串行

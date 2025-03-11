@@ -24,19 +24,16 @@ import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.framework.utils.function.doOnDestroy
-import com.example.framework.utils.function.value.getCallerMethodName
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -57,8 +54,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
     //分页
     private val paging by lazy { Paging() }
-    //用于存储协程 Job 的线程安全集合
-    private val jobMap by lazy { ConcurrentHashMap<String, Job>() }
     //全局倒计时时间点
     protected var lastRefreshTime = 0L
     //基础的注入参数
@@ -210,19 +205,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         mRecycler?.finishRefreshing(!hasNextPage.orTrue)
     }
 
-    /**
-     * 管理协程 Job 的方法
-     */
-    fun manageJob(job: Job, key: String = getCallerMethodName()) {
-        //如果之前的 Job 存在，取消并从集合中移除
-        jobMap[key]?.let {
-            it.cancel()
-            jobMap.remove(key)
-        }
-        //新的 Job 添加到集合中
-        jobMap[key] = job
-    }
-
     override fun onCleared() {
         super.onCleared()
         weakActivity?.clear()
@@ -230,9 +212,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         weakEmpty?.clear()
         weakRecycler?.clear()
         weakRefresh?.clear()
-        //清除所有 Job
-        jobMap.values.forEach { it.cancel() }
-        jobMap.clear()
     }
     // </editor-fold>
 

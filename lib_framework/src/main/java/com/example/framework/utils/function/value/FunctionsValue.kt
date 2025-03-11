@@ -138,18 +138,3 @@ fun mobileIsRoot(): Boolean {
  *  }
  */
 inline fun <T> T.execute(block: T.() -> Unit) = apply(block)
-
-/**
- * 自定义注解
- */
-@Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.VALUE_PARAMETER)
-annotation class CallerFunctionName
-
-/**
- * 内联函数获取调用者方法名
- * val methodName = getCallerMethodName()
- */
-inline fun getCallerMethodName(@CallerFunctionName callerFunction: String = ""): String {
-    return callerFunction
-}
