@@ -26,9 +26,9 @@ import com.example.common.utils.GsonUtil.getType
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.function.byServerUrl
 import com.example.common.utils.function.deleteDir
 import com.example.common.utils.function.deleteFile
-import com.example.common.utils.function.byServerUrl
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.common.utils.toJson
 import com.example.common.utils.toObj
@@ -381,6 +381,7 @@ class OssFactory private constructor() : CoroutineScope {
                 end(baoquan)
             }).launchIn(this)
         }
+        ossJobMap[baoquan]?.invokeOnCompletion { end(baoquan) }
     }
 
     /**
@@ -389,13 +390,12 @@ class OssFactory private constructor() : CoroutineScope {
     private fun failure(baoquan: String, errorMessage: String?) {
         OssDBHelper.updateUpload(baoquan, false)
         callback(2, baoquan, success = false)
-        ossJobMap[baoquan] = launch {
-            flow<Unit> {
-                request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)) })
-            }.withHandling(end = {
-                end(baoquan)
-            }).launchIn(this)
-        }
+        ossJobMap[baoquan] = flow<Unit> {
+            request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)) })
+        }.withHandling(end = {
+            end(baoquan)
+        }).launchIn(this)
+        ossJobMap[baoquan]?.invokeOnCompletion { end(baoquan) }
     }
 
     /**
