@@ -377,6 +377,7 @@ class OssFactory private constructor() : CoroutineScope {
                 end(baoquan)
             })
         }
+        ossJobMap[baoquan]?.invokeOnCompletion { end(baoquan) }
     }
 
     /**
@@ -390,6 +391,7 @@ class OssFactory private constructor() : CoroutineScope {
                 end(baoquan)
             })
         }
+        ossJobMap[baoquan]?.invokeOnCompletion { end(baoquan) }
     }
 
     /**
