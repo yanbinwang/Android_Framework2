@@ -32,7 +32,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -216,11 +215,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="订阅相关">
-    @Subscribe
-    fun onReceive(event: Event) {
-        event.onEvent()
-    }
-
     protected open fun Event.onEvent() {
     }
 
@@ -232,7 +226,11 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     // <editor-fold defaultstate="collapsed" desc="生命周期回调">
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
-        if (isEventBusEnabled()) EventBus.instance.register(this, owner.lifecycle)
+        if (isEventBusEnabled()) {
+            EventBus.instance.register(viewModelScope) {
+                it.onEvent()
+            }
+        }
     }
 
     override fun onStart(owner: LifecycleOwner) {
@@ -253,7 +251,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
-        if (isEventBusEnabled()) EventBus.instance.unregister(this)
     }
     // </editor-fold>
 
