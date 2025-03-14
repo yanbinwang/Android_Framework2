@@ -1,10 +1,17 @@
 package com.example.common.event
 
-import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import com.example.common.utils.manager.JobManager
+import com.example.common.utils.toJson
+import com.example.framework.utils.function.doOnDestroy
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicReference
+import java.lang.ref.WeakReference
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * author: wyb
@@ -15,7 +22,9 @@ class EventBus private constructor() {
     //全局热流
     private val busDefault by lazy { MutableSharedFlow<Event>() }
     //存储所有订阅协程，每个 LifecycleOwner 独立
-    private val busSubscriber by lazy { AtomicReference(ArrayList<Job>()) }
+    private val busSubscriber by lazy { ConcurrentHashMap<WeakReference<LifecycleOwner>, ConcurrentLinkedQueue<Job>>() }
+    //对应页面post的job
+    private val eventManager by lazy { JobManager() }
 
     companion object {
         @JvmStatic
@@ -25,21 +34,26 @@ class EventBus private constructor() {
     /**
      * 无需手动 unregister，依赖 LifecycleOwner 的 scope 自动取消
      */
-    fun register(scope: CoroutineScope, onReceive: (event: Event) -> Unit) {
-        val job = scope.launch {
+    fun register(owner: LifecycleOwner, onReceive: (event: Event) -> Unit) {
+        eventManager.addObserver(owner)
+        val weakOwner = WeakReference(owner)
+        val jobs = busSubscriber.getOrPut(weakOwner) { ConcurrentLinkedQueue() }
+        val job = owner.lifecycleScope.launch {
             try {
                 busDefault.collect { event ->
                     onReceive(event)
                 }
             } catch (e: Exception) {
-                //处理异常，例如记录日志
-                e.printStackTrace()
+                handleException(e)
             }
         }
-        busSubscriber.get() += job
-        //协程结束时自动移除（通过 finally）
-        job.invokeOnCompletion {
-            busSubscriber.get().remove(job)
+        jobs.add(job)
+        //监听 LifecycleOwner 的销毁事件
+        owner.doOnDestroy {
+            busSubscriber.entries.find { it.key.get() == owner }?.let { entry ->
+                entry.value.forEach { it.cancel() }
+                busSubscriber.remove(entry.key)
+            }
         }
     }
 
@@ -48,7 +62,30 @@ class EventBus private constructor() {
      * tryEmit 是非挂起函数，它会尝试立即发射数据。如果缓冲区已满，它会返回 false。
      */
     fun post(event: Event) {
-        busDefault.tryEmit(event)
+        busSubscriber.forEach { (owner, _) ->
+            val job = owner.get()?.lifecycleScope?.launch {
+                try {
+                    busDefault.emit(event)
+                } catch (e: Exception) {
+                    handleException(e)
+                }
+            }
+            job?.let {
+                eventManager.manageJob(it, event.toJson().orEmpty())
+            }
+        }
+    }
+
+    /**
+     * 全局异常处理
+     */
+    private fun handleException(e: Exception) {
+        if (e is CancellationException) {
+            // 协程被取消，无需处理
+        } else {
+            // 可以根据不同的异常类型进行不同的处理
+            e.printStackTrace()
+        }
     }
 
 }

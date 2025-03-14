@@ -53,6 +53,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakEmpty: WeakReference<EmptyLayout?>? = null//遮罩UI
     private var weakRecycler: WeakReference<XRecyclerView?>? = null//列表UI
     private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
+    private var weakLifecycleOwner: WeakReference<LifecycleOwner>? = null//全局生命周期订阅
     //分页
     private val paging by lazy { Paging() }
     //全局倒计时时间点
@@ -238,9 +239,10 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     // <editor-fold defaultstate="collapsed" desc="生命周期回调">
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
+        weakLifecycleOwner = WeakReference(owner)
         jobManager.addObserver(owner)
         if (isEventBusEnabled()) {
-            EventBus.instance.register(viewModelScope) {
+            EventBus.instance.register(owner) {
                 it.onEvent()
             }
         }
