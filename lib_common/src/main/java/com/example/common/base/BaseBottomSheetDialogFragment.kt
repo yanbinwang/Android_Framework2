@@ -355,10 +355,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
                 hideDialog()
                 block.invoke()
             }, second, this)
-//            WeakHandler(Looper.getMainLooper()).postDelayed({
-//                hideDialog()
-//                block.invoke()
-//            }, second)
         }
     }
 

@@ -225,11 +225,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
             TimerBuilder.schedule({
                 hideDialog()
                 block.invoke()
-            }, second)
-//            WeakHandler(Looper.getMainLooper()).postDelayed({
-//                hideDialog()
-//                block.invoke()
-//            }, second)
+            }, second, this)
         }
     }
 
