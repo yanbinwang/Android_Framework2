@@ -348,7 +348,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        val numberHelper = NumberEditTextHelper(binding.etTest)
 //        numberHelper.setPrecision(2)
 //
-//
 //        binding.btnTest.margin(top = getStatusBarHeight() + 80.pt)
 //
 //        showGuide("test", GuidePage
