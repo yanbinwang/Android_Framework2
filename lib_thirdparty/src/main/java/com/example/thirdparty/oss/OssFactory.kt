@@ -8,30 +8,23 @@ import com.alibaba.sdk.android.oss.OSSClient
 import com.alibaba.sdk.android.oss.ServiceException
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback
-import com.alibaba.sdk.android.oss.common.OSSConstants
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken
-import com.alibaba.sdk.android.oss.common.utils.IOUtils
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult
 import com.example.common.BaseApplication
 import com.example.common.event.EventCode.EVENT_EVIDENCE_UPDATE
-import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.reqBodyOf
 import com.example.common.network.repository.request
-import com.example.common.network.repository.successful
 import com.example.common.network.repository.withHandling
-import com.example.common.utils.GsonUtil.getType
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.function.byServerUrl
 import com.example.common.utils.function.deleteDir
 import com.example.common.utils.function.deleteFile
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.common.utils.toJson
-import com.example.common.utils.toObj
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.multiply
@@ -39,25 +32,21 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
 import com.example.greendao.bean.OssDB
-import com.example.thirdparty.oss.bean.OssSts
 import com.example.thirdparty.oss.bean.OssSts.Companion.bucketName
 import com.example.thirdparty.oss.bean.OssSts.Companion.objectName
 import com.example.thirdparty.oss.subscribe.OssSubscribe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.ref.WeakReference
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
@@ -122,53 +111,29 @@ class OssFactory private constructor() : CoroutineScope {
         synchronized(postLock) {
             initJob?.cancel()
             initJob = launch {
-                try {
-                    isAuthorize = withContext(IO) { suspendingOSSClient() }
-                } catch (e: Exception) {
-                    log("暂无", "处理 STS 令牌时发生错误：${e.message}")
-                } finally {
+                flow {
+                    emit(request({ OssSubscribe.getOssTokenApi() }))
+                }.withHandling({
+                    isAuthorize = false
+                }, {
                     initJob?.cancel()
                     initJob = null
+                }).onStart {
+                    isAuthorize = false
+                }.collect {
+                    isAuthorize = true
+                    oss = OSSClient(BaseApplication.instance.applicationContext, "https://oss-cn-shenzhen.aliyuncs.com", object : OSSFederationCredentialProvider() {
+                        override fun getFederationToken(): OSSFederationToken {
+                            return OSSFederationToken(it?.accessKeyId.orEmpty(), it?.accessKeySecret.orEmpty(), it?.securityToken.orEmpty(), it?.expiration.orEmpty())
+                        }
+                    }, ClientConfiguration().apply {
+                        connectionTimeout = 3600 * 1000//连接超时，默认15秒。
+                        socketTimeout = 3600 * 1000//socket超时，默认15秒。
+                        maxConcurrentRequest = Int.MAX_VALUE//最大并发请求数，默认5个。
+                        maxErrorRetry = 0//失败后最大重试次数，默认2次。
+                    })
                 }
             }
-        }
-    }
-
-    private suspend fun suspendingOSSClient() = suspendCancellableCoroutine {
-        try {
-            var token: OSSFederationToken? = null
-            oss = OSSClient(BaseApplication.instance.applicationContext, "https://oss-cn-shenzhen.aliyuncs.com", object : OSSFederationCredentialProvider() {
-                override fun getFederationToken(): OSSFederationToken? {
-                    val stsUrl = URL("swallow/sts/aliyun/oss".byServerUrl)
-                    val conn = stsUrl.openConnection() as? HttpURLConnection
-                    return conn?.inputStream.use { input ->
-                        val json = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME)
-                        log("暂无", "服务器json:\n${json}")
-                        //服务器返回数据体处理
-                        token = json.toObj<ApiResponse<OssSts>>(getType(ApiResponse::class.java, OssSts::class.java)).let { response ->
-                            if (response.successful()) {
-                                val bean = response?.data
-                                //data就算服务器返回成功，如果本身是空，也算失败
-                                bean ?: return null
-                                OSSFederationToken(bean.accessKeyId.orEmpty(), bean.accessKeySecret.orEmpty(), bean.securityToken.orEmpty(), bean.expiration.orEmpty())
-                            } else {
-                                null
-                            }
-                        }
-                        token
-                    }
-                }}, ClientConfiguration().apply {
-                    connectionTimeout = 3600 * 1000//连接超时，默认15秒。
-                    socketTimeout = 3600 * 1000//socket超时，默认15秒。
-                    maxConcurrentRequest = Int.MAX_VALUE//最大并发请求数，默认5个。
-                    maxErrorRetry = 0//失败后最大重试次数，默认2次。
-                }
-            )
-            //不为null就是成功
-            it.resume(null != token)
-        } catch (e: Exception) {
-            //一旦被catch到异常。就是失败
-            it.resumeWithException(e)
         }
     }
 
