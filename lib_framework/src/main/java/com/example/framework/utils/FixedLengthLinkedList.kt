@@ -10,27 +10,30 @@ import java.util.Deque
  */
 class FixedLengthLinkedList<T>(private val maxSize: Int = 0) {
     private val deque: Deque<T> by lazy { ArrayDeque(maxSize) }
+    private val postLock by lazy { Any() }
 
     /**
      * 首位添加
      */
-    @Synchronized
     fun addFirst(element: T) {
-        if (deque.size >= maxSize) {
-            deque.removeLast()
+        synchronized(postLock) {
+            if (deque.size >= maxSize) {
+                deque.removeLast()
+            }
+            deque.addFirst(element)
         }
-        deque.addFirst(element)
     }
 
     /**
      * 结尾添加
      */
-    @Synchronized
     fun addLast(element: T) {
-        if (deque.size >= maxSize) {
-            deque.removeFirst()
+        synchronized(postLock) {
+            if (deque.size >= maxSize) {
+                deque.removeFirst()
+            }
+            deque.addLast(element)
         }
-        deque.addLast(element)
     }
 
     /**
