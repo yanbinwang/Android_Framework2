@@ -18,6 +18,8 @@ import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.utils.manager.AppManager
+import com.example.common.utils.manager.JobManager
+import com.example.common.utils.manager.JobManager.Companion.getCallerMethodName
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.dialog.AppDialog
@@ -30,6 +32,7 @@ import com.example.framework.utils.function.view.fade
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -53,6 +56,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
     //分页
     private val paging by lazy { Paging() }
+    //协程管理类
+    private val jobManager by lazy { JobManager() }
     //全局倒计时时间点
     protected var lastRefreshTime = 0L
     //基础的注入参数
@@ -204,6 +209,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         mRecycler?.finishRefreshing(!hasNextPage.orTrue)
     }
 
+    /**
+     * 协程一旦启动，内部不调用cancel是会一直存在的，故而加一个管控
+     */
+    protected fun manageJob(job: Job, key: String = getCallerMethodName()) {
+        jobManager.manageJob(job, key)
+    }
+
     override fun onCleared() {
         super.onCleared()
         weakActivity?.clear()
@@ -226,6 +238,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     // <editor-fold defaultstate="collapsed" desc="生命周期回调">
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
+        jobManager.addObserver(owner)
         if (isEventBusEnabled()) {
             EventBus.instance.register(viewModelScope) {
                 it.onEvent()
