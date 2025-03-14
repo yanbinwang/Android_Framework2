@@ -3,16 +3,15 @@ package com.example.common.event
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.framework.utils.function.doOnDestroy
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -20,7 +19,7 @@ import kotlin.coroutines.cancellation.CancellationException
  * date: 2018/4/16.
  * 传递事件类
  */
-class EventBus private constructor() : CoroutineScope {
+class EventBus private constructor() {
     /**
      * 全局热流，设置缓冲区大小和溢出策略
      *
@@ -40,15 +39,11 @@ class EventBus private constructor() : CoroutineScope {
      * BufferOverflow.DROP_OLDEST：当缓冲区满时，会丢弃最旧的值，然后继续发射新的值。
      * BufferOverflow.DROP_LATEST：当缓冲区满时，会丢弃最新的值，继续等待缓冲区有空间
      */
-    private val busDefault by lazy { MutableSharedFlow<Event>(0,10,BufferOverflow.SUSPEND) }
+    private val busDefault by lazy { MutableSharedFlow<Event>(0, 10, BufferOverflow.SUSPEND) }
     //存储所有订阅协程，每个 LifecycleOwner 独立
-    private val busSubscriber by lazy { ConcurrentHashMap<LifecycleOwner, MutableList<Job>>() }
-    //事务job
-    private val busJob by lazy { AtomicReference<Job?>(null) }
-    //全局job总栈
-    private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext
-        get() = Main + job
+    private val busSubscriber by lazy { ConcurrentHashMap<LifecycleOwner, Job>() }
+    //当前页面持有的消息协程
+    private val busManager by lazy { AtomicReference(CopyOnWriteArrayList<Job>()) }
 
     companion object {
         @JvmStatic
@@ -59,7 +54,6 @@ class EventBus private constructor() : CoroutineScope {
      * 无需手动 unregister，依赖 LifecycleOwner 的 scope 自动取消
      */
     fun register(owner: LifecycleOwner, onReceive: (event: Event) -> Unit) {
-        val jobList = busSubscriber.getOrPut(owner) { mutableListOf() }
         val newJob = owner.lifecycleScope.launch {
             try {
                 busDefault.collect { event ->
@@ -69,12 +63,14 @@ class EventBus private constructor() : CoroutineScope {
                 handleException(e)
             }
         }
-        jobList.add(newJob)
+        busSubscriber[owner] = newJob
         owner.doOnDestroy {
-            jobList.forEach { it.cancel() }
+            //删除自身订阅
+            busSubscriber[owner]?.cancel()
             busSubscriber.remove(owner)
-            busJob.getAndSet(null)?.cancel()
-//            job.cancel() //禁止使用，避免把全局job都给干没了
+            //删除所有post时创建的协程，保证每次一个页面销毁时，整一个发送的消息栈是干净的
+            busManager.get().forEach { it.cancel() }
+            busManager.get().clear()
         }
     }
 
@@ -83,15 +79,13 @@ class EventBus private constructor() : CoroutineScope {
      * tryEmit 是非挂起函数，它会尝试立即发射数据。如果缓冲区已满，它会返回 false。
      */
     fun post(event: Event) {
-        busJob.getAndSet(null)?.cancel()
-        val newJob = launch {
+        busManager.get().add(GlobalScope.launch(Main) {
             try {
                 busDefault.emit(event)
             } catch (e: Exception) {
                 handleException(e)
             }
-        }
-        busJob.set(newJob)
+        })
     }
 
     /**
