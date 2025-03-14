@@ -19,7 +19,6 @@ import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.manager.JobManager
-import com.example.common.utils.manager.JobManager.Companion.getCallerMethodName
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.dialog.AppDialog
@@ -56,8 +55,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
     //分页
     private val paging by lazy { Paging() }
-    //协程管理类
-    private val jobManager by lazy { JobManager() }
     //全局倒计时时间点
     protected var lastRefreshTime = 0L
     //基础的注入参数
@@ -71,6 +68,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     //弹框/获取权限
     protected val mDialog by lazy { AppDialog(mContext) }
     protected val mPermission by lazy { PermissionHelper(mContext) }
+    //协程管理类
+    val jobManager by lazy { JobManager() }
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
@@ -212,8 +211,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     /**
      * 协程一旦启动，内部不调用cancel是会一直存在的，故而加一个管控
      */
-    protected fun manageJob(job: Job, key: String = getCallerMethodName()) {
-        jobManager.manageJob(job, key)
+    protected inline fun Job.manageJob() {
+        val methodName = object {}.javaClass.enclosingMethod?.name ?: "unknown"
+        jobManager.manageJob(this, methodName)
     }
 
     override fun onCleared() {
