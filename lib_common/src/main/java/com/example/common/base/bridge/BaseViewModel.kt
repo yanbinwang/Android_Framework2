@@ -23,6 +23,8 @@ import com.example.common.network.repository.request
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.requestLayer
 import com.example.common.utils.manager.AppManager
+import com.example.common.utils.manager.JobManager
+import com.example.common.utils.manager.JobManager.Companion.getCallerMethodName
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.dialog.AppDialog
@@ -60,6 +62,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
     //分页
     private val paging by lazy { Paging() }
+    //协程管理类
+    private val jobManager by lazy { JobManager() }
     //全局倒计时时间点
     protected var lastRefreshTime = 0L
     //基础的注入参数
@@ -217,10 +221,11 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun <T> launch(
         coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, // 请求
         resp: (T?) -> Unit = {},                                     // 响应
-        err: (ResponseWrapper) -> Unit = {},   // 错误处理
+        err: (ResponseWrapper) -> Unit = {},                         // 错误处理
         end: () -> Unit = {},                                        // 最后执行方法
         isShowToast: Boolean = true,                                 // 是否toast
-        isShowDialog: Boolean = true                                 // 是否显示加载框
+        isShowDialog: Boolean = true,                                // 是否显示加载框
+        key: String = getCallerMethodName()
     ): Job {
         if (isShowDialog) mView?.showDialog()
         return launch {
@@ -234,7 +239,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 },
                 isShowToast
             )
-        }
+        }.apply { manageJob(this, key) }
     }
 
     /**
@@ -246,7 +251,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         err: (ResponseWrapper) -> Unit = {},
         end: () -> Unit = {},
         isShowToast: Boolean = true,
-        isShowDialog: Boolean = true
+        isShowDialog: Boolean = true,
+        key: String = getCallerMethodName()
     ): Job {
         if (isShowDialog) mView?.showDialog()
         return launch {
@@ -260,7 +266,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 },
                 isShowToast
             )
-        }
+        }.apply { manageJob(this, key) }
     }
 
     /**
@@ -273,7 +279,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         end: () -> Unit = {},
         isShowToast: Boolean = true,
         isShowDialog: Boolean = true,
-        isClose: Boolean = true
+        isClose: Boolean = true,
+        key: String = getCallerMethodName()
     ): Job {
         if (isShowDialog) mView?.showDialog()
         return launch {
@@ -287,7 +294,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 },
                 isShowToast
             )
-        }
+        }.apply { manageJob(this, key) }
+    }
+
+    /**
+     * 协程一旦启动，内部不调用cancel是会一直存在的，故而加一个管控
+     */
+    protected fun manageJob(job: Job, key: String = getCallerMethodName()) {
+        jobManager.manageJob(job, key)
     }
 
     override fun onCleared() {
@@ -317,6 +331,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     // <editor-fold defaultstate="collapsed" desc="生命周期回调">
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
+        jobManager.addObserver(owner)
         if (isEventBusEnabled()) EventBus.instance.register(this, owner.lifecycle)
     }
 
