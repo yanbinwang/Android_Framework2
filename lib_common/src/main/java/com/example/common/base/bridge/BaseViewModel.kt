@@ -296,9 +296,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     /**
      * 协程一旦启动，内部不调用cancel是会一直存在的，故而加一个管控
      */
-    protected inline fun Job.manageJob() {
+    protected inline fun Job.manageJob(key: String? = null) {
         val methodName = object {}.javaClass.enclosingMethod?.name ?: "unknown"
-        jobManager.manageJob(this, methodName)
+        jobManager.manageJob(this, if (!key.isNullOrEmpty()) key else methodName)
     }
 
     override fun onCleared() {
