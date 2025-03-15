@@ -129,10 +129,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         if (!lazyData) initData()
     }
 
-//    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-//        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
-//    }
-
     override fun <VM : BaseViewModel> VM.create(): VM? {
         return javaClass.create(mActivity.lifecycle, this@BaseFragment).also { it.initialize(mActivity, this@BaseFragment) }
     }

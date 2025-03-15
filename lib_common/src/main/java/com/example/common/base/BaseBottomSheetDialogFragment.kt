@@ -242,10 +242,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         }
     }
 
-//    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-//        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
-//    }
-
     override fun <VM : BaseViewModel> VM.create(): VM? {
         return javaClass.create(mActivity.lifecycle, this@BaseBottomSheetDialogFragment).also { it.initialize(mActivity, this@BaseBottomSheetDialogFragment) }
     }
