@@ -2,6 +2,7 @@ package com.example.common.network.repository
 
 import com.example.common.R
 import com.example.common.base.bridge.BaseView
+import com.example.common.base.page.Page
 import com.example.common.network.repository.ApiCode.FAILURE
 import com.example.common.network.repository.ApiCode.SUCCESS
 import com.example.common.network.repository.ApiCode.TOKEN_EXPIRED
@@ -63,7 +64,8 @@ suspend fun <T> requestLayer(
         if (!response.tokenExpired() && response.successful()) {
             return response
         } else {
-            val wrapper = ResponseWrapper(response.code, response.msg)
+            //{"success":false,"errCode":"A0205","errMessage":"账号或密码错误 (A0205)","data":null}
+            val wrapper = ResponseWrapper(response.errCode, response.errMessage, null)
             err.invoke(wrapper)
             throw wrapper
         }
@@ -164,7 +166,7 @@ fun String?.responseToast() =
  */
 fun <T> ApiResponse<T>?.successful(): Boolean {
     if (this == null) return false
-    return SUCCESS == code
+    return errCode == SUCCESS && success == true
 }
 
 /**
@@ -172,9 +174,17 @@ fun <T> ApiResponse<T>?.successful(): Boolean {
  */
 fun <T> ApiResponse<T>?.tokenExpired(): Boolean {
     if (this == null) return false
-    if (TOKEN_EXPIRED == code) {
+    if (TOKEN_EXPIRED == statusCode) {
         AccountHelper.signOut()
         return true
     }
     return false
+}
+
+/**
+ * 页数和集合被包含在的data同一层级，添加处理
+ */
+fun <T, V> ApiResponse<T>?.pageOfData(): Page<V>? {
+    this ?: return null
+    return Page(totalCount, data as? List<V>)
 }
