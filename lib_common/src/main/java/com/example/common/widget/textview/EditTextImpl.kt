@@ -3,6 +3,7 @@ package com.example.common.widget.textview
 import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.shortToast
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.textview.edittext.PasswordEditText
@@ -272,14 +273,14 @@ interface EditTextImpl {
         editText.clear()
     }
 
-    fun ClearEditText?.showInput() {
+    fun ClearEditText?.showInput(observer: LifecycleOwner) {
         if (this == null) return
-        editText.showInput()
+        editText.showInput(observer)
     }
 
-    fun PasswordEditText?.showInput() {
+    fun PasswordEditText?.showInput(observer: LifecycleOwner) {
         if (this == null) return
-        editText.showInput()
+        editText.showInput(observer)
     }
 
     fun ClearEditText?.hideKeyboard() {

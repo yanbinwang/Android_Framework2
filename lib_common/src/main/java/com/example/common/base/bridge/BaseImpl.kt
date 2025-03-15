@@ -14,20 +14,6 @@ interface BaseImpl {
      * 构建viewmodel用作数据交互/网络请求
      */
     fun <VM : BaseViewModel> VM.create(): VM?
-//    fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM
-//
-//    fun <VM : BaseViewModel> VM.create(): VM? {
-//        return createViewModel(javaClass)
-//    }
-//
-//    fun <VM : BaseViewModel> viewModel(): VM? {
-//        val superClass = javaClass.genericSuperclass
-//        val parameterizedType = superClass as? ParameterizedType
-//        val typeArguments = parameterizedType?.actualTypeArguments
-//        val clazz = typeArguments?.get(0) as? Class<VM>
-//        clazz ?: return null
-//        return createViewModel(clazz)
-//    }
 
     /**
      * 初始化状态栏

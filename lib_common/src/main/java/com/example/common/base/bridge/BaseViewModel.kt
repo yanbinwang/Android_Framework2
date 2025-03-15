@@ -17,11 +17,6 @@ import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.network.repository.ApiResponse
-import com.example.common.network.repository.ResponseWrapper
-import com.example.common.network.repository.request
-import com.example.common.network.repository.requestAffair
-import com.example.common.network.repository.requestLayer
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.manager.JobManager
 import com.example.common.utils.permission.PermissionHelper
@@ -39,7 +34,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -59,6 +53,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     private var weakEmpty: WeakReference<EmptyLayout?>? = null//遮罩UI
     private var weakRecycler: WeakReference<XRecyclerView?>? = null//列表UI
     private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
+    private var weakLifecycleOwner: WeakReference<LifecycleOwner>? = null//全局生命周期订阅
     //分页
     private val paging by lazy { Paging() }
     //全局倒计时时间点
@@ -215,85 +210,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     /**
-     * 常规发起一个网络请求
-     */
-    protected fun <T> launch(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, // 请求
-        resp: (T?) -> Unit = {},                                     // 响应
-        err: (ResponseWrapper) -> Unit = {},                         // 错误处理
-        end: () -> Unit = {},                                        // 最后执行方法
-        isShowToast: Boolean = true,                                 // 是否toast
-        isShowDialog: Boolean = true                                // 是否显示加载框
-    ): Job {
-        if (isShowDialog) mView?.showDialog()
-        return launch {
-            request(
-                { coroutineScope() },
-                { resp(it) },
-                { err(it) },
-                {
-                    if (isShowDialog) mView?.hideDialog()
-                    end()
-                },
-                isShowToast
-            )
-        }.apply { manageJob() }
-    }
-
-    /**
-     * 网络请求外层同时返回
-     */
-    protected fun <T> launchLayer(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        resp: (ApiResponse<T>?) -> Unit = {},
-        err: (ResponseWrapper) -> Unit = {},
-        end: () -> Unit = {},
-        isShowToast: Boolean = true,
-        isShowDialog: Boolean = true
-    ): Job {
-        if (isShowDialog) mView?.showDialog()
-        return launch {
-            requestLayer(
-                { coroutineScope() },
-                { resp(it) },
-                { err(it) },
-                {
-                    if (isShowDialog) mView?.hideDialog()
-                    end()
-                },
-                isShowToast
-            )
-        }.apply { manageJob() }
-    }
-
-    /**
-     * 只处理挂起的协程方法
-     */
-    protected fun <T> launchAffair(
-        coroutineScope: suspend CoroutineScope.() -> T,
-        resp: (T?) -> Unit = {},
-        err: (ResponseWrapper) -> Unit = {},
-        end: () -> Unit = {},
-        isShowToast: Boolean = true,
-        isShowDialog: Boolean = true,
-        isClose: Boolean = true
-    ): Job {
-        if (isShowDialog) mView?.showDialog()
-        return launch {
-            requestAffair(
-                { coroutineScope() },
-                { resp(it) },
-                { err(it) },
-                {
-                    if (isShowDialog || isClose) mView?.hideDialog()
-                    end()
-                },
-                isShowToast
-            )
-        }.apply { manageJob() }
-    }
-
-    /**
      * 协程一旦启动，内部不调用cancel是会一直存在的，故而加一个管控
      */
     protected inline fun Job.manageJob(key: String? = null) {
@@ -312,11 +228,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="订阅相关">
-    @Subscribe
-    fun onReceive(event: Event) {
-        event.onEvent()
-    }
-
     protected open fun Event.onEvent() {
     }
 
@@ -328,8 +239,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     // <editor-fold defaultstate="collapsed" desc="生命周期回调">
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
+        weakLifecycleOwner = WeakReference(owner)
         jobManager.addObserver(owner)
-        if (isEventBusEnabled()) EventBus.instance.register(this, owner.lifecycle)
+        if (isEventBusEnabled()) {
+            EventBus.instance.register(owner) {
+                it.onEvent()
+            }
+        }
     }
 
     override fun onStart(owner: LifecycleOwner) {
@@ -350,7 +266,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
-        if (isEventBusEnabled()) EventBus.instance.unregister(this)
     }
     // </editor-fold>
 

@@ -2,7 +2,6 @@ package com.example.common.network.repository
 
 import com.example.common.R
 import com.example.common.base.bridge.BaseView
-import com.example.common.base.page.Page
 import com.example.common.network.repository.ApiCode.FAILURE
 import com.example.common.network.repository.ApiCode.SUCCESS
 import com.example.common.network.repository.ApiCode.TOKEN_EXPIRED
@@ -11,139 +10,129 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.resString
 import com.example.common.utils.helper.AccountHelper
 import com.example.common.utils.toJson
-import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
+//------------------------------------针对协程返回的参数(协程只有成功和失败,确保方法在flow内使用，并且实现withHandling扩展)------------------------------------
 /**
- * 网络请求协程扩展
- * 1）如果几个以上的请求，使用当前请求类
- * 2）不做回调，直接得到结果，在不调用await（）方法时可以当一个参数写，调用了才会发起请求并拿到结果
- * //并发
- * launch{
- *   val req = MultiReqUtil(mView)
- *   val task1 = async { req.request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })?.apply {  } }
- *   val task2 = async{ req.request(model.getUserData() }
- *   req.end()
- *   //单个请求主动发起，处理对象
- *   task1.await()
- *   task2.await()
- *   //同时发起多个请求，list拿取对象
- *   val taskList = awaitAll(task1, task2)
- *   taskList.toObj<T>(0)
- *   taskList.toObj<T>(1)
- * }
- * //串行
- * launch{
- *    val req = MultiReqUtil(mView)
- *    val task1 = getUserDataAsync(req)
- *    val task2 = req.request({ model.getUserData() })
- *    req.end()
- * }
- *  private suspend fun getUserInfoAsync(req: MultiReqUtil): Deferred<UserInfoBean?> {
- *     return async { req.request({ CommonSubscribe.getUserInfoApi(hashMapOf("id" to AccountHelper.getUserId())) }) }
- *  }
+ * flow处理网络请求的时候的方法外层套一个这个方法，会处理对象并拿取body
  */
-class MultiReqUtil(
-    private var view: BaseView? = null,
-    private val isShowDialog: Boolean = true,
-    private val err: (ResponseWrapper) -> Unit = {}
-) {
-    private var results = false//一旦有请求失败，就会为true
-    private var loadingStarted = false//是否开始加载
-
-    /**
-     * 返回Body
-     */
-    suspend fun <T> request(coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>): T? {
-        return requestLayer(coroutineScope)?.data
+suspend fun <T> request(
+    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+    err: (ResponseWrapper) -> Unit = {}
+): T? {
+    return requestLayer(coroutineScope, err).data.let {
+        if (it is EmptyBean) {
+            EmptyBean()
+        } else {
+            it
+        } as? T
     }
-
-    /**
-     * 返回外层response整体
-     * 单独针对某个接口需要err判断做特殊处理的可以使用此方法，比如列表接口
-     * req.requestLayer(...).apply {
-     *   if (successful()) {
-     *       setTotalCount(this?.totalCount)
-     *       val data = this?.data
-     *       list.postValue(data)
-     *   } else {
-     *       onError()
-     *       mRecycler?.setState(currentCount())
-     *   }
-     * }
-     */
-    suspend fun <T> requestLayer(coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>): ApiResponse<T>? {
-        start()
-        var response: ApiResponse<T>? = null
-        requestLayer({ coroutineScope() }, {
-            response = it
-        }, {
-            error(it)
-        }, isShowToast = false)
-        return response
-    }
-
-    /**
-     * 处理普通挂起方法->如网络请求之前需要本地处理图片等操作，整体捆起来做判断
-     */
-    suspend fun <T> requestAffair(coroutineScope: suspend CoroutineScope.() -> T): T? {
-        start()
-        var result: T? = null
-        requestAffair({ coroutineScope() }, {
-            result = it
-        }, {
-            error(it)
-        }, isShowToast = false)
-        return result
-    }
-
-    /**
-     * 请求开始前自动调取
-     */
-    private fun start() {
-        if (isShowDialog && !loadingStarted) {
-            view?.showDialog()
-            loadingStarted = true
-        }
-    }
-
-    /**
-     * 请求结束主动调取
-     */
-    fun end() {
-        if (isShowDialog) {
-            view?.hideDialog()
-            loadingStarted = false
-        }
-        view = null
-        results = false
-    }
-
-    /**
-     * 请求多个接口的时候，如果开发需要知道多个请求是否都成功
-     * 在end()被调取之前，可通过当前方法判断
-     */
-    fun successful(): Boolean {
-        return !results
-    }
-
-    /**
-     * 请求多个接口的时候，异常回调只需要一次即可
-     */
-    private fun error(wrapper: ResponseWrapper) {
-        if (results) return
-        results = true
-        err.invoke(wrapper)
-    }
-
 }
 
-//------------------------------------针对协程返回的参数(协程只有成功和失败)------------------------------------
+suspend fun <T> request(
+    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+    resp: (T?) -> Unit,
+    err: (ResponseWrapper) -> Unit
+) {
+    val data = request(coroutineScope, err)
+    resp.invoke(data)
+}
+
+/**
+ * 1.列表的网络请求在flow内使用时，如果请求失败，我需要在上抛异常前把此次页数减1，并且对recyclerview做一些操作，故而需要有个err回调
+ * 2.整体的err可以被catch到，通过withHandling扩展函数来实现调用
+ */
+suspend fun <T> requestLayer(
+    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+    err: (ResponseWrapper) -> Unit = {}
+): ApiResponse<T> {
+    try {
+        //请求+响应数据
+        val response = withContext(IO) { coroutineScope() }
+        if (!response.tokenExpired() && response.successful()) {
+            return response
+        } else {
+            val wrapper = ResponseWrapper(response.code, response.msg)
+            err.invoke(wrapper)
+            throw wrapper
+        }
+    } catch (e: Exception) {
+        throw e
+    }
+}
+
+suspend fun <T> requestLayer(
+    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
+    resp: (ApiResponse<T>) -> Unit,
+    err: (ResponseWrapper) -> Unit
+) {
+    val response = requestLayer(coroutineScope, err)
+    resp.invoke(response)
+}
+
+suspend fun <T> requestAffair(
+    coroutineScope: suspend CoroutineScope.() -> T
+): T {
+    try {
+        val response = withContext(IO) { coroutineScope() }
+        return response
+    } catch (e: Exception) {
+        throw e
+    }
+}
+
+/**
+ * flow如果不调用collect是不会执行数据流通的
+ * 1）如果 Flow 没有更多元素可发射（例如 flowOf(1, 2, 3) 发射完最后一个元素后自动结束）。
+ * 或者在自定义 flow 构建器中，**主动调用 cancel()** 终止流
+ * 2）如果在 Flow 执行过程中（包括上游操作符或 emit 本身）抛出未捕获的异常，Flow 会被取消
+ * 3）如果 Flow 所在的协程被取消（例如 Activity/Fragment 被销毁），Flow 会自动终止，launch的job直接cancel，flow就终止了
+ * 4) onCompletion操作符的lambda参数cause: Throwable?用于表示流完成时的状态。当流因异常终止时，cause会被设置为对应的Throwable对象；
+ * 若流正常完成（无异常），则cause为null，多写几次onCompletion后添加的先执行，需要注意
+ */
+fun <T> Flow<T>.withHandling(
+    view: BaseView? = null,
+    err: (ResponseWrapper) -> Unit = {},
+    end: () -> Unit = {},
+    isShowToast: Boolean = false,
+    isShowDialog: Boolean = false
+): Flow<T> {
+    return withHandling(err, {
+        if (isShowDialog) view?.hideDialog()
+        end()
+    }, isShowToast).onStart {
+        if (isShowDialog) view?.showDialog()
+    }
+}
+
+fun <T> Flow<T>.withHandling(
+    err: (ResponseWrapper) -> Unit = {},
+    end: () -> Unit = {},
+    isShowToast: Boolean = false,
+): Flow<T> {
+    return flowOn(Main).catch { exception ->
+        val wrapper: ResponseWrapper = when (exception) {
+            is ResponseWrapper -> exception
+            else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
+        }
+        if (isShowToast) wrapper.errMessage?.responseToast()
+        err(wrapper)
+    }.onCompletion {
+        end()
+    }
+}
+
 /**
  * 请求转换
  * map扩展，如果只需传入map则使用
@@ -171,88 +160,11 @@ fun String?.responseToast() =
     }).shortToast()
 
 /**
- * 网络请求协程扩展-并行请求
- * 每个挂起方法外层都会套一个launch
- * requestLayer中已经对body做了处理，直接拿对象返回即可
- * 如果返回格式过于奇葩，放在body层级，则做特殊处理，其余情况不做改进！
- */
-suspend fun <T> request(
-    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    resp: (T?) -> Unit = {},
-    err: (ResponseWrapper) -> Unit = {},
-    end: () -> Unit = {},
-    isShowToast: Boolean = false
-) {
-    requestLayer(coroutineScope, { result ->
-        //如果接口是成功的，但是body为空或者后台偷懒没给，我们在写Api时，给一个对象，让结果能够返回
-        resp.invoke(result.data.let {
-            if (it is EmptyBean) {
-                EmptyBean()
-            } else {
-                it
-            } as? T
-        })
-    }, err, end, isShowToast)
-}
-
-suspend fun <T> requestLayer(
-    coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-    resp: (ApiResponse<T>) -> Unit = {},
-    err: (ResponseWrapper) -> Unit = {},
-    end: () -> Unit = {},
-    isShowToast: Boolean = false
-) {
-    try {
-        log("开始请求")
-        //请求+响应数据
-        val response = withContext(IO) {
-            log("发起请求")
-            coroutineScope()
-        }
-        log("处理结果")
-        if (response.successful()) {
-            resp(response)
-        } else {
-            //如果不是被顶号才会有是否提示的逻辑
-            if (!response.tokenExpired()) if (isShowToast) response.content.responseToast()
-            //不管结果如何，失败的回调是需要执行的
-            err(ResponseWrapper(response.statusCode, response.content))
-        }
-    } catch (e: Exception) {
-        if (isShowToast) "".responseToast()
-        //可根据具体异常显示具体错误提示,此处可能是框架/服务器报错（没有提供规定的json结构体）或者json结构解析错误
-        err(ResponseWrapper(FAILURE, "", e))
-    } finally {
-        log("结束请求")
-        end()
-    }
-}
-
-suspend fun <T> requestAffair(
-    coroutineScope: suspend CoroutineScope.() -> T,
-    resp: (T?) -> Unit = {},
-    err: (ResponseWrapper) -> Unit = {},
-    end: () -> Unit = {},
-    isShowToast: Boolean = false
-) {
-    try {
-        resp(withContext(IO) { coroutineScope() })
-    } catch (e: Exception) {
-        if (isShowToast) "".responseToast()
-        err(ResponseWrapper(FAILURE, "", e))
-    } finally {
-        end()
-    }
-}
-
-private fun log(msg: String) = "${msg}->当前线程：${Thread.currentThread().name}".logE("repository")
-
-/**
  * 判断此次请求是否成功
  */
 fun <T> ApiResponse<T>?.successful(): Boolean {
     if (this == null) return false
-    return SUCCESS == errCode
+    return SUCCESS == code
 }
 
 /**
@@ -260,17 +172,9 @@ fun <T> ApiResponse<T>?.successful(): Boolean {
  */
 fun <T> ApiResponse<T>?.tokenExpired(): Boolean {
     if (this == null) return false
-    if (TOKEN_EXPIRED == statusCode) {
+    if (TOKEN_EXPIRED == code) {
         AccountHelper.signOut()
         return true
     }
     return false
-}
-
-/**
- * 页数和集合被包含在的data同一层级，添加处理
- */
-fun <T, V> ApiResponse<T>?.pageOfData(): Page<V>? {
-    this ?: return null
-    return Page(totalCount, data as? List<V>)
 }
