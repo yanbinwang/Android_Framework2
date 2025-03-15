@@ -235,9 +235,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         }
         if (!isMainThread) {
             owner.lifecycleScope.launch {
-                withContext(Main) {
-                    clearDiskCacheAction()
-                }
+                withContext(Main) { clearDiskCacheAction() }
             }
         } else {
             clearDiskCacheAction()
