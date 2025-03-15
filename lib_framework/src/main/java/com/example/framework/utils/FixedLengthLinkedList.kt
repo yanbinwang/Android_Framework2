@@ -39,22 +39,36 @@ class FixedLengthLinkedList<T>(private val maxSize: Int = 0) {
     /**
      * 首位删除
      */
-    fun removeFirst(): T {
-        return deque.removeFirst()
+    fun removeFirst(): T? {
+        return synchronized(postLock) {
+            try {
+                deque.removeFirst()
+            } catch (e: NoSuchElementException) {
+                null
+            }
+        }
     }
 
     /**
      * 底部增加
      */
-    fun removeLast(): T {
-        return deque.removeLast()
+    fun removeLast(): T? {
+        return synchronized(postLock) {
+            try {
+                deque.removeLast()
+            } catch (e: NoSuchElementException) {
+                null
+            }
+        }
     }
 
     /**
      * 获取当前集合
      */
-    fun getList(): MutableList<T> {
-        return deque.toMutableList()
+    fun getReadOnlyList(): List<T> {
+        return synchronized(postLock) {
+            deque.toList()
+        }
     }
 
 }

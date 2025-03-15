@@ -3,9 +3,12 @@ package com.example.framework.utils.builder
 import android.os.CountDownTimer
 import android.os.Looper
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.second
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Timer
 import java.util.TimerTask
 import java.util.concurrent.ConcurrentHashMap
@@ -24,22 +27,15 @@ class TimerBuilder(observer: LifecycleOwner) {
         private const val COUNT_DOWN_DEFAULT_TAG = "COUNT_DOWN_DEFAULT"
         //默认全局延时handler
         private val handler by lazy { WeakHandler(Looper.getMainLooper()) }
-        //对象锁，缩小范围减少开销
-        private val postLock by lazy { Any() }
 
         /**
-         * 延时任务-容易造成内存泄漏,推荐传入observer
          * delayMillis：延时时间（单位：毫秒）
          */
         @JvmStatic
-        fun schedule(run: (() -> Unit), delayMillis: Long = 1000, observer: LifecycleOwner? = null) {
-            synchronized(postLock) {
-                handler.postDelayed({
-                    run.invoke()
-                }, delayMillis)
-                observer.doOnDestroy {
-                    handler.removeCallbacksAndMessages(null)
-                }
+        fun schedule(observer: LifecycleOwner, run: (() -> Unit), delayMillis: Long = 1000) {
+            observer.lifecycleScope.launch {
+                delay(delayMillis)
+                run.invoke()
             }
         }
     }
@@ -74,19 +70,18 @@ class TimerBuilder(observer: LifecycleOwner) {
      * timer.schedule(task, 2000, 3000);
      */
     fun startTask(tag: String = TASK_DEFAULT_TAG, run: (() -> Unit), delay: Long = 0, period: Long = 1000) {
-        synchronized(postLock) {
-            if (timerMap[tag] == null) {
-                timerMap[tag] = Timer() to object : TimerTask() {
-                    override fun run() {
-                        handler.post {
-                            run.invoke()
-                        }
+        stopTask(tag)//先停止旧的任务
+        if (timerMap[tag] == null) {
+            timerMap[tag] = Timer() to object : TimerTask() {
+                override fun run() {
+                    handler.post {
+                        run.invoke()
                     }
                 }
             }
-            timerMap[tag]?.apply {
-                first?.schedule(second, delay, period)
-            }
+        }
+        timerMap[tag]?.apply {
+            first?.schedule(second, delay, period)
         }
     }
 
@@ -94,20 +89,16 @@ class TimerBuilder(observer: LifecycleOwner) {
      * 计时（累加）-结束
      */
     fun stopTask(tag: String = TASK_DEFAULT_TAG) {
-        synchronized(postLock) {
-            timerMap[tag]?.apply {
-                first?.cancel()
-                second?.cancel()
-            }
-            timerMap.remove(tag)
+        timerMap[tag]?.apply {
+            first?.cancel()
+            second?.cancel()
         }
+        timerMap.remove(tag)
     }
 
     fun stopTask(vararg tags: String) {
-        synchronized(postLock) {
-            tags.forEach {
-                stopTask(it)
-            }
+        tags.forEach {
+            stopTask(it)
         }
     }
 
@@ -120,38 +111,33 @@ class TimerBuilder(observer: LifecycleOwner) {
      * 接收onTick（长）回调的时间间隔（单位：毫秒）
      */
     fun startCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG, onTick: ((second: Long) -> Unit), onFinish: (() -> Unit), millisInFuture: Long = 1000, countDownInterval: Long = 1.second) {
-        synchronized(postLock) {
-            if (countDownMap[tag] == null) {
-                countDownMap[tag] = object : CountDownTimer(millisInFuture, countDownInterval) {
-                    override fun onTick(millisUntilFinished: Long) {
-                        onTick.invoke((millisUntilFinished / 1000L))
-                    }
+        stopCountDown(tag)
+        if (countDownMap[tag] == null) {
+            countDownMap[tag] = object : CountDownTimer(millisInFuture, countDownInterval) {
+                override fun onTick(millisUntilFinished: Long) {
+                    onTick.invoke((millisUntilFinished / 1000L))
+                }
 
-                    override fun onFinish() {
-                        stopCountDown(tag)
-                        onFinish.invoke()
-                    }
+                override fun onFinish() {
+                    stopCountDown(tag)
+                    onFinish.invoke()
                 }
             }
-            countDownMap[tag]?.start()
         }
+        countDownMap[tag]?.start()
     }
 
     /**
      * 倒计时-结束
      */
     fun stopCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG) {
-        synchronized(postLock) {
-            countDownMap[tag]?.cancel()
-            countDownMap.remove(tag)
-        }
+        countDownMap[tag]?.cancel()
+        countDownMap.remove(tag)
     }
 
     fun stopCountDown(vararg tags: String) {
-        synchronized(postLock) {
-            tags.forEach {
-                stopCountDown(it)
-            }
+        tags.forEach {
+            stopCountDown(it)
         }
     }
 
