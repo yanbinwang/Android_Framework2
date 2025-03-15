@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Looper
 import android.widget.ImageView
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
@@ -19,9 +21,10 @@ import com.example.glide.callback.GlideRequestListener
 import com.example.glide.callback.progress.ProgressInterceptor
 import com.example.glide.transform.CornerTransform
 import com.example.glide.transform.ZoomTransform
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -222,28 +225,42 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     /**
      * 清除内存缓存是在主线程中
      */
-    override fun clearMemoryCache(context: Context) {
-        try {
-            if (!isMainThread) {
-                GlobalScope.launch(Dispatchers.Main) { Glide.get(context).clearMemory() }
-            } else {
+    override fun clearMemoryCache(context: Context, owner: LifecycleOwner) {
+        val clearDiskCacheAction = {
+            try {
                 Glide.get(context).clearMemory()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (ignore: Exception) {
+        }
+        if (!isMainThread) {
+            owner.lifecycleScope.launch {
+                withContext(Main) {
+                    clearDiskCacheAction()
+                }
+            }
+        } else {
+            clearDiskCacheAction()
         }
     }
 
     /**
      * 清除磁盘缓存是在子线程中进行
      */
-    override fun clearDiskCache(context: Context) {
-        try {
-            if (isMainThread) {
-                GlobalScope.launch(Dispatchers.IO) { Glide.get(context).clearDiskCache() }
-            } else {
+    override fun clearDiskCache(context: Context, owner: LifecycleOwner) {
+        val clearDiskCacheAction = {
+            try {
                 Glide.get(context).clearDiskCache()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (_: Exception) {
+        }
+        if (isMainThread) {
+            owner.lifecycleScope.launch {
+                withContext(IO) { clearDiskCacheAction() }
+            }
+        } else {
+            clearDiskCacheAction()
         }
     }
 

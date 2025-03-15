@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
+import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.function.drawable
 import com.example.glide.R
 import java.io.File
@@ -70,9 +71,9 @@ interface GlideImpl {
     //---------------------------------------------图片库方法开始---------------------------------------------
     fun download(context: Context, string: String? = null, onStart: () -> Unit = {}, onComplete: (file: File?) -> Unit = {})
 
-    fun clearMemoryCache(context: Context)
+    fun clearMemoryCache(context: Context, owner: LifecycleOwner)
 
-    fun clearDiskCache(context: Context)
+    fun clearDiskCache(context: Context, owner: LifecycleOwner)
 
     fun cacheDir(context: Context): File?
     //---------------------------------------------图片库方法结束---------------------------------------------

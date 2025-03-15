@@ -11,8 +11,8 @@ import okio.buffer
  *  拦截器窗体
  */
 class ProgressResponseBody(url: String, private var responseBody: ResponseBody) : ResponseBody() {
-    private val bufferedSource by lazy { ProgressSource(responseBody, listener).buffer() }
     private val listener by lazy { ProgressInterceptor.listenerMap[url] }
+    private val bufferedSource by lazy { ProgressSource(responseBody, listener).buffer() }
 
     override fun contentLength(): Long {
         return responseBody.contentLength().orZero
