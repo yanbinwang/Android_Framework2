@@ -23,6 +23,7 @@ import com.example.thirdparty.R
 import com.example.thirdparty.databinding.ViewTimeTickBinding
 import java.util.Timer
 import java.util.TimerTask
+import androidx.core.graphics.drawable.toDrawable
 
 /**
  * @author yan
@@ -52,7 +53,7 @@ class TimerTick(mContext: Context, move: Boolean = true) {
             tickDialog?.apply {
                 window?.setType(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
                 window?.decorView?.setPadding(0, 0, 0, 0)
-                window?.decorView?.background = ColorDrawable(Color.TRANSPARENT)
+                window?.decorView?.background = Color.TRANSPARENT.toDrawable()
                 setCancelable(false)
                 mBinding.root.post {
                     val params = window?.attributes
@@ -61,7 +62,7 @@ class TimerTick(mContext: Context, move: Boolean = true) {
                     params?.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                     params?.height = mBinding.root.measuredHeight
                     window?.attributes = params
-                    window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))//透明
+                    window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())//透明
                     //配置移动，只支持上下
                     if (move) {
                         params ?: return@post

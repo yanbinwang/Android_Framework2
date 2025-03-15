@@ -31,11 +31,11 @@ import com.example.common.bean.interf.TransparentOwner
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.socket.topic.WebSocketObserver
-import com.example.common.utils.manager.AppManager
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.registerResult
+import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
@@ -56,7 +56,6 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
-import org.greenrobot.eventbus.Subscribe
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
@@ -116,7 +115,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
         AppManager.addActivity(this)
         WebSocketObserver.addObserver(this)
-        if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
+        if (isEventBusEnabled()) {
+            EventBus.instance.register(this) {
+                it.onEvent()
+            }
+        }
         if (isImmersionBarEnabled()) initImmersionBar()
         initView(savedInstanceState)
         initEvent()
@@ -126,10 +129,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     protected open fun isImmersionBarEnabled(): Boolean {
         return true
     }
-
-    //    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-//        return vmClass.create(lifecycle, this).also { it.initialize(this, this) }
-//    }
 
     override fun <VM : BaseViewModel> VM.create(): VM? {
         return javaClass.create(lifecycle, this@BaseActivity).also { it.initialize(this@BaseActivity, this@BaseActivity) }
@@ -219,7 +218,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         super.onDestroy()
         clearOnActivityResultListener()
         AppManager.removeActivity(this)
-        if (isEventBusEnabled()) EventBus.instance.unregister(this)
         for ((key, value) in dataManager) {
             key.removeObserver(value)
         }
@@ -242,11 +240,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="订阅相关">
-    @Subscribe
-    fun onReceive(event: Event) {
-        event.onEvent()
-    }
-
     protected open fun Event.onEvent() {
     }
 
@@ -266,14 +259,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
         if (second > 0) {
-            TimerBuilder.schedule({
+            TimerBuilder.schedule(this, {
                 hideDialog()
                 block.invoke()
-            }, second, this)
-//            WeakHandler(Looper.getMainLooper()).postDelayed({
-//                hideDialog()
-//                block.invoke()
-//            }, second)
+            }, second)
         }
     }
 

@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Looper
 import android.widget.ImageView
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
@@ -19,9 +21,10 @@ import com.example.glide.callback.GlideRequestListener
 import com.example.glide.callback.progress.ProgressInterceptor
 import com.example.glide.transform.CornerTransform
 import com.example.glide.transform.ZoomTransform
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -43,7 +46,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .load(string)
             .placeholder(R.drawable.shape_glide_mask_bg)
             .dontAnimate()
-            .listener(object : GlideRequestListener<Bitmap?>() {
+            .listener(object : GlideRequestListener<Bitmap>() {
                 override fun onStart() {
                     onStart()
                 }
@@ -55,11 +58,20 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(ZoomTransform(view))
     }
 
-    override fun displayFrame(view: ImageView?, string: String?) {
+    /**
+     * 所需帧的时间位置，单位为微秒。如果为负，返回一个代表性帧
+     * 1秒 = 10分秒
+     * 1分秒 = 10厘秒
+     * 1厘秒 = 10毫秒
+     * 1毫秒 = 1000微秒
+     * 1微秒 = 1000纳秒->取得的是微秒
+     * 1纳秒 = 1000皮秒
+     */
+    override fun displayFrame(view: ImageView?, string: String?, frameTimeMicros: Long) {
         view ?: return
         try {
             Glide.with(view.context)
-                .setDefaultRequestOptions(RequestOptions().frame(1000000).centerCrop())
+                .setDefaultRequestOptions(RequestOptions().frame(frameTimeMicros).centerCrop())
                 .load(string)
                 .dontAnimate()
                 .into(view)
@@ -83,7 +95,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         Glide.with(view.context)
             .load(string)
             .apply(RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE))
-            .addListener(object : GlideRequestListener<Drawable?>() {
+            .addListener(object : GlideRequestListener<Drawable>() {
                 override fun onStart() {
                     ProgressInterceptor.addListener(string) { weakHandler.post { onProgress(it) } }
                     onStart()
@@ -112,7 +124,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .placeholder(R.drawable.shape_glide_bg)
             .error(errorDrawable)
             .dontAnimate()
-            .listener(object : GlideRequestListener<Drawable?>() {
+            .listener(object : GlideRequestListener<Drawable>() {
                 override fun onStart() {
                     onStart()
                 }
@@ -131,7 +143,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .placeholder(R.drawable.shape_glide_bg)
             .error(errorDrawable)
             .dontAnimate()
-            .listener(object : GlideRequestListener<Drawable?>() {
+            .listener(object : GlideRequestListener<Drawable>() {
                 override fun onStart() {
                     onStart()
                 }
@@ -207,7 +219,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         Glide.with(context)
             .downloadOnly()
             .load(string)
-            .listener(object : GlideRequestListener<File?>() {
+            .listener(object : GlideRequestListener<File>() {
                 override fun onStart() {
                     onStart()
                 }
@@ -222,28 +234,40 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
     /**
      * 清除内存缓存是在主线程中
      */
-    override fun clearMemoryCache(context: Context) {
-        try {
-            if (!isMainThread) {
-                GlobalScope.launch(Dispatchers.Main) { Glide.get(context).clearMemory() }
-            } else {
+    override fun clearMemoryCache(context: Context, owner: LifecycleOwner) {
+        val clearDiskCacheAction = {
+            try {
                 Glide.get(context).clearMemory()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (ignore: Exception) {
+        }
+        if (!isMainThread) {
+            owner.lifecycleScope.launch {
+                withContext(Main) { clearDiskCacheAction() }
+            }
+        } else {
+            clearDiskCacheAction()
         }
     }
 
     /**
      * 清除磁盘缓存是在子线程中进行
      */
-    override fun clearDiskCache(context: Context) {
-        try {
-            if (isMainThread) {
-                GlobalScope.launch(Dispatchers.IO) { Glide.get(context).clearDiskCache() }
-            } else {
+    override fun clearDiskCache(context: Context, owner: LifecycleOwner) {
+        val clearDiskCacheAction = {
+            try {
                 Glide.get(context).clearDiskCache()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (_: Exception) {
+        }
+        if (isMainThread) {
+            owner.lifecycleScope.launch {
+                withContext(IO) { clearDiskCacheAction() }
+            }
+        } else {
+            clearDiskCacheAction()
         }
     }
 

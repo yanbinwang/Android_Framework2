@@ -36,13 +36,14 @@ class SplashActivity : BaseActivity<ViewDataBinding>(), CancelAdapt {
         if (!isTaskRoot
             && intent.hasCategory(Intent.CATEGORY_LAUNCHER)
             && intent.action != null
-            && intent.action == Intent.ACTION_MAIN) {
+            && intent.action == Intent.ACTION_MAIN
+        ) {
             finish()
             return
         }
         window.fullScreen()
         super.onCreate(savedInstanceState)
-        schedule({
+        schedule(this, {
             navigation(ARouterPath.MainActivity).finish()
         }, 2.second)
     }

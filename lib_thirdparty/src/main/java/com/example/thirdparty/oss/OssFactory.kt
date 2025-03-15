@@ -8,53 +8,47 @@ import com.alibaba.sdk.android.oss.OSSClient
 import com.alibaba.sdk.android.oss.ServiceException
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback
-import com.alibaba.sdk.android.oss.common.OSSConstants
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken
-import com.alibaba.sdk.android.oss.common.utils.IOUtils
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult
 import com.example.common.BaseApplication
 import com.example.common.event.EventCode.EVENT_EVIDENCE_UPDATE
-import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.reqBodyOf
 import com.example.common.network.repository.request
-import com.example.common.network.repository.successful
-import com.example.common.utils.GsonUtil.getType
+import com.example.common.network.repository.withHandling
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.deleteDir
 import com.example.common.utils.function.deleteFile
-import com.example.common.utils.function.byServerUrl
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.common.utils.toJson
-import com.example.common.utils.toObj
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.multiply
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
 import com.example.greendao.bean.OssDB
-import com.example.thirdparty.oss.bean.OssSts
 import com.example.thirdparty.oss.bean.OssSts.Companion.bucketName
 import com.example.thirdparty.oss.bean.OssSts.Companion.objectName
 import com.example.thirdparty.oss.subscribe.OssSubscribe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.ref.WeakReference
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -63,15 +57,18 @@ import kotlin.coroutines.resumeWithException
  * 阿里oss文件上传
  */
 class OssFactory private constructor() : CoroutineScope {
+    //是否获取授权->若一个线程修改了该变量的值，它会立刻把修改后的值刷新到主内存，同时会让其他线程中该变量的缓存副本失效。这样一来，其他线程在读取这个变量时，就会从主内存中读取到最新的值
+    @Volatile
+    private var isAuthorize = false
     //oss基础类
     private var oss: OSS? = null
     //key->保全号（服务器唯一id）value->对应oss的传输类/协程
     private val ossMap by lazy { ConcurrentHashMap<String, OSSAsyncTask<ResumableUploadResult?>?>() }
     private val ossJobMap by lazy { ConcurrentHashMap<String, Job?>() }
+    //对象锁，缩小范围减少开销
+    private val postLock by lazy { Any() }
     //传入页面的lifecycle以及页面实现的OssImpl
-    private val implList by lazy { ArrayList<WeakReference<OssImpl>>() }
-    //内部oss状态 first->是否正在请求 second->是否获取授权
-    private var state = false to false
+    private val ossImpl by lazy { AtomicReference(ArrayList<WeakReference<OssImpl>>()) }
     //协程整体，因全局文件上传都需要调取oss，故而无需考虑cancel问题（方法可补充，main中调取）
     private var initJob: Job? = null
     private val job = SupervisorJob()
@@ -110,52 +107,33 @@ class OssFactory private constructor() : CoroutineScope {
      * 2.app启动时application中初始化，保证启动期间先获取一次授权，时间过长会重置（120分钟）
      * 3.接口失败或者上传失败时再次调取initialize（）重新赋值
      */
-    @Synchronized
     fun initialize() {
-        state = true to false
-        initJob?.cancel()
-        initJob = launch {
-            val value = withContext(IO) {
-                suspendingOSSClient()
-            }
-            state = false to value
-        }
-    }
-
-    private suspend fun suspendingOSSClient() = suspendCancellableCoroutine {
-        try {
-            oss = OSSClient(BaseApplication.instance.applicationContext, "https://oss-cn-shenzhen.aliyuncs.com", object : OSSFederationCredentialProvider() {
-                override fun getFederationToken(): OSSFederationToken? {
-                    val stsUrl = URL("swallow/sts/aliyun/oss".byServerUrl)
-                    val conn = stsUrl.openConnection() as? HttpURLConnection
-                    return conn?.inputStream.use { input ->
-                        val json = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME)
-                        log("暂无", "服务器json:\n${json}")
-                        //服务器返回数据体处理
-                        val token = json.toObj<ApiResponse<OssSts>>(getType(ApiResponse::class.java, OssSts::class.java)).let { response ->
-                            if (response.successful()) {
-                                val bean = response?.data
-                                //data就算服务器返回成功，如果本身是空，也算失败
-                                bean ?: return null
-                                OSSFederationToken(bean.accessKeyId.orEmpty(), bean.accessKeySecret.orEmpty(), bean.securityToken.orEmpty(), bean.expiration.orEmpty())
-                            } else {
-                                null
-                            }
+        synchronized(postLock) {
+            initJob?.cancel()
+            initJob = launch {
+                flow {
+                    emit(request({ OssSubscribe.getOssTokenApi() }))
+                }.withHandling({
+                    isAuthorize = false
+                }, {
+                    initJob?.cancel()
+                    initJob = null
+                }).onStart {
+                    isAuthorize = false
+                }.collect {
+                    isAuthorize = true
+                    oss = OSSClient(BaseApplication.instance.applicationContext, "https://oss-cn-shenzhen.aliyuncs.com", object : OSSFederationCredentialProvider() {
+                        override fun getFederationToken(): OSSFederationToken {
+                            return OSSFederationToken(it?.accessKeyId.orEmpty(), it?.accessKeySecret.orEmpty(), it?.securityToken.orEmpty(), it?.expiration.orEmpty())
                         }
-                        //不为null就是
-                        it.resume(token != null)
-                        token
-                    }
-                }}, ClientConfiguration().apply {
-                    connectionTimeout = 3600 * 1000//连接超时，默认15秒。
-                    socketTimeout = 3600 * 1000//socket超时，默认15秒。
-                    maxConcurrentRequest = Int.MAX_VALUE//最大并发请求数，默认5个。
-                    maxErrorRetry = 0//失败后最大重试次数，默认2次。
+                    }, ClientConfiguration().apply {
+                        connectionTimeout = 3600 * 1000//连接超时，默认15秒。
+                        socketTimeout = 3600 * 1000//socket超时，默认15秒。
+                        maxConcurrentRequest = Int.MAX_VALUE//最大并发请求数，默认5个。
+                        maxErrorRetry = 0//失败后最大重试次数，默认2次。
+                    })
                 }
-            )
-        } catch (e: Exception) {
-            //一旦被catch到异常。就是失败
-            it.resume(false)
+            }
         }
     }
 
@@ -165,8 +143,8 @@ class OssFactory private constructor() : CoroutineScope {
      * 2.请求不在进行，结果失败的情况下，会主动再发起一次初始化，此时可以设置是否有默认提示
      */
     fun isInit(isToast: Boolean = true): Boolean {
-        return if (!state.second) {
-            if (!state.first) {
+        return if (!isAuthorize) {
+            if (!initJob?.isActive.orFalse) {
                 if (isToast) "oss初始化失败，请稍后再试".shortToast()
                 initialize()
             }
@@ -182,10 +160,11 @@ class OssFactory private constructor() : CoroutineScope {
      * impl: OssImpl
      */
     fun bind(owner: LifecycleOwner, impl: OssImpl) {
-        if (implList.find { it == WeakReference(impl) } == null) {
-            implList.add(WeakReference(impl))
+        val weakImpl = WeakReference(impl)
+        if (ossImpl.get().find { it == weakImpl } == null) {
+            ossImpl.get().add(weakImpl)
             owner.doOnDestroy {
-                implList.remove(WeakReference(impl))
+                ossImpl.get().remove(weakImpl)
             }
         }
     }
@@ -226,7 +205,7 @@ class OssFactory private constructor() : CoroutineScope {
         }
         ossMap.clear()
         ossJobMap.clear()
-        implList.clear()
+        ossImpl.get().clear()
         //取消页面协程
         initJob?.cancel()
 //        job.cancel()
@@ -244,62 +223,63 @@ class OssFactory private constructor() : CoroutineScope {
      * bucketName->Bucket名称，例如examplebucket
      * objectName->Object完整路径，例如exampledir/exampleobject.txt。Object完整路径中不能包含Bucket名称
      */
-    @Synchronized
     fun asyncResumableUpload(sourcePath: String?, baoquan: String, fileType: String) {
         sourcePath ?: return
-        if (isInit()) {
-            val data = init(sourcePath, baoquan, fileType)
-            val query = data.first
-            val recordDirectory = data.second
-            if (OssDBHelper.isComplete(baoquan)) {
-                success(query, fileType, recordDirectory)
-            } else {
-                val recordDir = File(recordDirectory)
-                //确保断点记录的保存路径已存在，如果不存在则新建断点记录的保存路径
-                if (!recordDir.exists()) recordDir.mkdirs()
-                //创建断点上传请求，并指定断点记录文件的保存路径，保存路径为断点记录文件的绝对路径。
-                val request = ResumableUploadRequest(bucketName(), query.objectName, sourcePath, recordDirectory)
-                //调用OSSAsyncTask cancel()方法时，设置DeleteUploadOnCancelling为false，则不删除断点记录文件
-                //如果不设置此参数，则默认值为true，表示删除断点记录文件，下次再上传同一个文件时则重新上传
-                request.setDeleteUploadOnCancelling(false)
-                //设置上传过程回调(进度条)
-                var percentage = 0
-                request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->
+        synchronized(postLock) {
+            if (isInit()) {
+                val data = init(sourcePath, baoquan, fileType)
+                val query = data.first
+                val recordDirectory = data.second
+                if (OssDBHelper.isComplete(baoquan)) {
+                    success(query, fileType, recordDirectory)
+                } else {
+                    val recordDir = File(recordDirectory)
+                    //确保断点记录的保存路径已存在，如果不存在则新建断点记录的保存路径
+                    if (!recordDir.exists()) recordDir.mkdirs()
+                    //创建断点上传请求，并指定断点记录文件的保存路径，保存路径为断点记录文件的绝对路径。
+                    val request = ResumableUploadRequest(bucketName(), query.objectName, sourcePath, recordDirectory)
+                    //调用OSSAsyncTask cancel()方法时，设置DeleteUploadOnCancelling为false，则不删除断点记录文件
+                    //如果不设置此参数，则默认值为true，表示删除断点记录文件，下次再上传同一个文件时则重新上传
+                    request.setDeleteUploadOnCancelling(false)
+                    //设置上传过程回调(进度条)
+                    var percentage = 0
+                    request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->
 //                    percentage = ((currentSize.toSafeDouble() / totalSize.toSafeDouble()) * 100).toSafeInt()
-                    percentage = currentSize.toString().divide(totalSize.toString(), 2).multiply("100").toSafeInt()
-                    callback(1, baoquan, percentage)
-                    log(sourcePath, "上传中\n保全号：${baoquan}\n已上传大小（currentSize）:${currentSize}\n总大小（totalSize）:${totalSize}\n上传百分比（percentage）:${percentage}%")
-                }
-                val resumableTask = oss?.asyncResumableUpload(request, object : OSSCompletedCallback<ResumableUploadRequest?, ResumableUploadResult?> {
-                    override fun onSuccess(request: ResumableUploadRequest?, result: ResumableUploadResult?) {
-                        //此处每次一个片成功都会回调，所以在监听时写通知服务器
-                        log(sourcePath, "上传成功\n保全号：${baoquan}\n${result.toJson()}")
-                        //记录oss的值
-                        query.objectKey = result?.objectKey
-                        response(true, query, fileType, recordDirectory, percentage)
+                        percentage = currentSize.toString().divide(totalSize.toString(), 2).multiply("100").toSafeInt()
+                        callback(1, baoquan, percentage)
+                        log(sourcePath, "上传中\n保全号：${baoquan}\n已上传大小（currentSize）:${currentSize}\n总大小（totalSize）:${totalSize}\n上传百分比（percentage）:${percentage}%")
                     }
-
-                    override fun onFailure(request: ResumableUploadRequest?, clientExcepion: ClientException?, serviceException: ServiceException?) {
-                        var result = "上传失败\n保全号：${baoquan}"
-                        //请求异常
-                        if (clientExcepion != null) {
-                            result += "\n本地异常：\n${clientExcepion.message}"
-                            //本地异常诱发的原因有很多，擅自修改手机本机时间，oss断点数据库出错都有可能导致，此时直接清空断点续传的记录文件，让用户从头来过
-                            if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDir()
+                    val resumableTask = oss?.asyncResumableUpload(request, object : OSSCompletedCallback<ResumableUploadRequest?, ResumableUploadResult?> {
+                        override fun onSuccess(request: ResumableUploadRequest?, result: ResumableUploadResult?) {
+                            //此处每次一个片成功都会回调，所以在监听时写通知服务器
+                            log(sourcePath, "上传成功\n保全号：${baoquan}\n${result.toJson()}")
+                            //记录oss的值
+                            query.objectKey = result?.objectKey
+                            response(true, query, fileType, recordDirectory, percentage)
                         }
-                        if (serviceException != null) result += "\n服务异常：\n${serviceException.message}"
-                        log(sourcePath, result)
-                        //异常处理->刷新列表
-                        response(false, query, fileType, recordDirectory, errorMessage = "传输状态：${result}")
-                    }
-                })
-                //等待完成断点上传任务
+
+                        override fun onFailure(request: ResumableUploadRequest?, clientExcepion: ClientException?, serviceException: ServiceException?) {
+                            var result = "上传失败\n保全号：${baoquan}"
+                            //请求异常
+                            if (clientExcepion != null) {
+                                result += "\n本地异常：\n${clientExcepion.message}"
+                                //本地异常诱发的原因有很多，擅自修改手机本机时间，oss断点数据库出错都有可能导致，此时直接清空断点续传的记录文件，让用户从头来过
+                                if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDir()
+                            }
+                            if (serviceException != null) result += "\n服务异常：\n${serviceException.message}"
+                            log(sourcePath, result)
+                            //异常处理->刷新列表
+                            response(false, query, fileType, recordDirectory, errorMessage = "传输状态：${result}")
+                        }
+                    })
+                    //等待完成断点上传任务
 //                resumableTask?.waitUntilFinished()
-                ossMap[baoquan] = resumableTask
+                    ossMap[baoquan] = resumableTask
+                }
+            } else {
+                init(sourcePath, baoquan, fileType)
+                failure(baoquan, "oss初始化失败")
             }
-        } else {
-            init(sourcePath, baoquan, fileType)
-            failure(baoquan, "oss初始化失败")
         }
     }
 
@@ -364,18 +344,19 @@ class OssFactory private constructor() : CoroutineScope {
     private fun success(query: OssDB, fileType: String, recordDirectory: String) {
         val baoquan = query.baoquan
         ossJobMap[baoquan] = launch {
-            request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query.objectKey)) }, {
+            flow<Unit> {
+                request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query.objectKey)) })
                 //删除对应断点续传的文件夹和源文件
                 query.sourcePath.deleteDir()
                 recordDirectory.deleteFile()
                 OssDBHelper.delete(query)
                 callback(2, baoquan, success = true)
                 EVENT_EVIDENCE_UPDATE.post(fileType)
-            }, {
+            }.withHandling({
                 failure(baoquan, it.errMessage)
             }, {
                 end(baoquan)
-            })
+            }).launchIn(this)
         }
         ossJobMap[baoquan]?.invokeOnCompletion { end(baoquan) }
     }
@@ -386,11 +367,11 @@ class OssFactory private constructor() : CoroutineScope {
     private fun failure(baoquan: String, errorMessage: String?) {
         OssDBHelper.updateUpload(baoquan, false)
         callback(2, baoquan, success = false)
-        ossJobMap[baoquan] = launch {
-            request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)) }, end = {
-                end(baoquan)
-            })
-        }
+        ossJobMap[baoquan] = flow<Unit> {
+            request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)) })
+        }.withHandling(end = {
+            end(baoquan)
+        }).launchIn(this)
         ossJobMap[baoquan]?.invokeOnCompletion { end(baoquan) }
     }
 
@@ -406,7 +387,7 @@ class OssFactory private constructor() : CoroutineScope {
      * 接口回调方法
      */
     private fun callback(type: Int, baoquan: String, progress: Int = 0, success: Boolean = true) {
-        implList.forEach {
+        ossImpl.get().forEach {
             it.get()?.apply {
                 when (type) {
                     0 -> onStart(baoquan)
@@ -442,61 +423,62 @@ class OssFactory private constructor() : CoroutineScope {
     /**
      * 直接执行文件上传
      */
-    @Synchronized
     fun asyncResumableUpload(sourcePath: String?, onStart: () -> Unit = {}, onSuccess: (objectKey: String?) -> Unit = {}, onLoading: (progress: Int?) -> Unit = {}, onFailed: (result: String?) -> Unit = {}, onComplete: () -> Unit = {}, privately: Boolean = false) {
         sourcePath ?: return
-        if (isInit()) {
-            onStart.invoke()
-            //设置对应文件的断点文件存放路径
-            val file = File(sourcePath)
-            val fileName = file.name.split(".")[0]
-            //本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
-            val storeDir = File(getStoragePath("选择的文件"))
-            val recordDirectory = "${storeDir.parent}/${fileName}_record"
-            val recordDir = File(recordDirectory)
-            if (!recordDir.exists()) recordDir.mkdirs()
-            //构建请求
-            val request = ResumableUploadRequest(bucketName(false, privately), objectName("5", sourcePath), sourcePath, recordDirectory)
-            request.setDeleteUploadOnCancelling(false)
-            var progress = 0
-            request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->
-                val percentage = ((currentSize.toDouble() / totalSize.toDouble()) * 100).toSafeInt()
-                progress = percentage
-                onLoading.invoke(percentage)
+        synchronized(postLock) {
+            if (isInit()) {
+                onStart.invoke()
+                //设置对应文件的断点文件存放路径
+                val file = File(sourcePath)
+                val fileName = file.name.split(".")[0]
+                //本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
+                val storeDir = File(getStoragePath("选择的文件"))
+                val recordDirectory = "${storeDir.parent}/${fileName}_record"
+                val recordDir = File(recordDirectory)
+                if (!recordDir.exists()) recordDir.mkdirs()
+                //构建请求
+                val request = ResumableUploadRequest(bucketName(false, privately), objectName("5", sourcePath), sourcePath, recordDirectory)
+                request.setDeleteUploadOnCancelling(false)
+                var progress = 0
+                request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->
+                    val percentage = ((currentSize.toDouble() / totalSize.toDouble()) * 100).toSafeInt()
+                    progress = percentage
+                    onLoading.invoke(percentage)
+                }
+                val resumableTask = oss?.asyncResumableUpload(request, object : OSSCompletedCallback<ResumableUploadRequest?, ResumableUploadResult?> {
+                    override fun onSuccess(request: ResumableUploadRequest?, result: ResumableUploadResult?) {
+                        if (progress == 100) {
+                            recordDirectory.deleteDir()
+                            onComplete(true, result?.objectKey)
+                        }
+                    }
+
+                    override fun onFailure(request: ResumableUploadRequest?, clientExcepion: ClientException?, serviceException: ServiceException?) {
+                        var result = "上传失败"
+                        //请求异常
+                        if (clientExcepion != null) {
+                            result += "\n本地异常：\n${clientExcepion.message}"
+                            //本地异常诱发的原因有很多，擅自修改手机本机时间，oss断点数据库出错都有可能导致，此时直接清空断点续传的记录文件，让用户从头来过
+                            if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDir()
+                        }
+                        if (serviceException != null) result += "\n服务异常：\n${serviceException.message}"
+                        onComplete(false, result)
+                    }
+
+                    private fun onComplete(success: Boolean, callbackMessage: String?) {
+                        if (success) {
+                            onSuccess.invoke(callbackMessage)
+                        } else {
+                            onFailed.invoke(callbackMessage)
+                            val value = ossMap[sourcePath]
+                            (value as? OSSAsyncTask<*>?)?.cancel()
+                        }
+                        onComplete.invoke()
+                        ossMap.remove(sourcePath)
+                    }
+                })
+                ossMap[sourcePath] = resumableTask
             }
-            val resumableTask = oss?.asyncResumableUpload(request, object : OSSCompletedCallback<ResumableUploadRequest?, ResumableUploadResult?> {
-                override fun onSuccess(request: ResumableUploadRequest?, result: ResumableUploadResult?) {
-                    if (progress == 100) {
-                        recordDirectory.deleteDir()
-                        onComplete(true, result?.objectKey)
-                    }
-                }
-
-                override fun onFailure(request: ResumableUploadRequest?, clientExcepion: ClientException?, serviceException: ServiceException?) {
-                    var result = "上传失败"
-                    //请求异常
-                    if (clientExcepion != null) {
-                        result += "\n本地异常：\n${clientExcepion.message}"
-                        //本地异常诱发的原因有很多，擅自修改手机本机时间，oss断点数据库出错都有可能导致，此时直接清空断点续传的记录文件，让用户从头来过
-                        if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDir()
-                    }
-                    if (serviceException != null) result += "\n服务异常：\n${serviceException.message}"
-                    onComplete(false, result)
-                }
-
-                private fun onComplete(success: Boolean, callbackMessage: String?) {
-                    if (success) {
-                        onSuccess.invoke(callbackMessage)
-                    } else {
-                        onFailed.invoke(callbackMessage)
-                        val value = ossMap[sourcePath]
-                        (value as? OSSAsyncTask<*>?)?.cancel()
-                    }
-                    onComplete.invoke()
-                    ossMap.remove(sourcePath)
-                }
-            })
-            ossMap[sourcePath] = resumableTask
         }
     }
     // </editor-fold>

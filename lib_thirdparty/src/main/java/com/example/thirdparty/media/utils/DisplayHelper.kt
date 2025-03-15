@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.common.base.bridge.BaseView
 import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
@@ -23,17 +24,27 @@ import com.example.framework.utils.function.value.safeSize
 import com.example.thirdparty.R
 import com.example.thirdparty.media.service.DisplayService
 import com.example.thirdparty.media.service.ShotObserver
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlin.coroutines.CoroutineContext
 
 /**
  * @description 录屏工具类
  * @author yan
  */
-class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: Boolean = false) : LifecycleEventObserver {
+class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: Boolean = false) : CoroutineScope, LifecycleEventObserver {
     private var isDestroy = false
     private var lastRefreshTime = 0L
+    private var mView: BaseView? = null
     private var listener: OnDisplayListener? = null
     private val list by lazy { ArrayList<String>() }
     private val observer by lazy { ShotObserver(mActivity) }
+    private var builderJob: Job? = null
+    private val job = SupervisorJob()
+    override val coroutineContext: CoroutineContext
+        get() = Main + job
 
     /**
      * 处理录屏的回调
@@ -60,13 +71,11 @@ class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: 
          * 用于计算系统弹出弹框到正式开始录屏花费了多少时间（毫秒）
          */
         var waitingTime = 0L
-
         /**
          * 安全区间内的屏幕录制宽高
          */
         var previewWidth = screenWidth
         var previewHeight = screenHeight
-
         /**
          * 是否正在进行录制，便于区分截图捕获到的图片路径
          */
@@ -137,6 +146,13 @@ class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: 
     }
 
     /**
+     * 设置加载参数
+     */
+    fun setBundle(mView: BaseView) {
+        this.mView = mView
+    }
+
+    /**
      * 开始录屏
      * 尝试唤起手机录屏弹窗，会在onActivityResult中回调结果
      */
@@ -190,8 +206,11 @@ class DisplayHelper(private val mActivity: FragmentActivity, private val isZip: 
         when (event) {
             Lifecycle.Event.ON_DESTROY -> {
                 isDestroy = true
+                mView?.hideDialog()
                 stopScreen()
                 result?.unregister()
+                builderJob?.cancel()
+                job.cancel()
                 mActivity.lifecycle.removeObserver(this)
             }
             else -> {}
