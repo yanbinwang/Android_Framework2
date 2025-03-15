@@ -18,11 +18,21 @@ abstract class GlideRequestListener<R> : RequestListener<R> {
         weakHandler.post { onStart() }
     }
 
+    /**
+     * 加载成功
+     */
     override fun onResourceReady(resource: R, model: Any?, target: Target<R>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
         doResult(resource)
+        /**
+         * true->表示已经处理好资源，不让 Glide 继续默认流程
+         * false->让 Glide 继续默认的显示流程
+         */
         return false
     }
 
+    /**
+     * 加载失败
+     */
     override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<R>?, isFirstResource: Boolean): Boolean {
         doResult(null)
         return false

@@ -46,7 +46,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .load(string)
             .placeholder(R.drawable.shape_glide_mask_bg)
             .dontAnimate()
-            .listener(object : GlideRequestListener<Bitmap?>() {
+            .listener(object : GlideRequestListener<Bitmap>() {
                 override fun onStart() {
                     onStart()
                 }
@@ -86,7 +86,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         Glide.with(view.context)
             .load(string)
             .apply(RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE))
-            .addListener(object : GlideRequestListener<Drawable?>() {
+            .addListener(object : GlideRequestListener<Drawable>() {
                 override fun onStart() {
                     ProgressInterceptor.addListener(string) { weakHandler.post { onProgress(it) } }
                     onStart()
@@ -115,7 +115,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .placeholder(R.drawable.shape_glide_bg)
             .error(errorDrawable)
             .dontAnimate()
-            .listener(object : GlideRequestListener<Drawable?>() {
+            .listener(object : GlideRequestListener<Drawable>() {
                 override fun onStart() {
                     onStart()
                 }
@@ -134,7 +134,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .placeholder(R.drawable.shape_glide_bg)
             .error(errorDrawable)
             .dontAnimate()
-            .listener(object : GlideRequestListener<Drawable?>() {
+            .listener(object : GlideRequestListener<Drawable>() {
                 override fun onStart() {
                     onStart()
                 }
@@ -210,7 +210,7 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         Glide.with(context)
             .downloadOnly()
             .load(string)
-            .listener(object : GlideRequestListener<File?>() {
+            .listener(object : GlideRequestListener<File>() {
                 override fun onStart() {
                     onStart()
                 }
