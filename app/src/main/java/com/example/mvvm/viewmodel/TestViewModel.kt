@@ -1,25 +1,18 @@
 package com.example.mvvm.viewmodel
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
+import androidx.lifecycle.viewModelScope
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.async
 import com.example.common.base.bridge.launch
-import com.example.common.network.repository.MultiReqUtil
+import com.example.common.network.repository.request
+import com.example.common.network.repository.withHandling
 import com.example.common.subscribe.CommonSubscribe
-import com.example.framework.utils.function.value.safeGet
-import kotlinx.coroutines.CoroutineStart
+import com.example.framework.utils.function.value.safeAs
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.suspendCancellableCoroutine
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * 串行/并发是否需要dialog需要主动调取，单纯一次性发起不需要
@@ -41,53 +34,21 @@ class TestViewModel : BaseViewModel() {
      */
 //    val token by lazy { MutableStateFlow("") }
 
-    //用于存储协程 Job 的线程安全集合
-    private val jobMap = ConcurrentHashMap<String, Job>()
-
-    //管理协程 Job 的方法
-    private fun manageJob(job: Job, key: String = getCallerMethodName()) {
-        //如果之前的 Job 存在，取消并从集合中移除
-        jobMap[key]?.let {
-            it.cancel()
-            jobMap.remove(key)
-        }
-        //新的 Job 添加到集合中
-        jobMap[key] = job
-    }
-
-    // 自定义注解
-    @Retention(AnnotationRetention.RUNTIME)
-    @Target(AnnotationTarget.VALUE_PARAMETER)
-    annotation class CallerFunctionName
-
-    /**
-     * 内联函数获取调用者方法名
-     * val methodName = getCallerMethodName()
-     */
-    inline fun getCallerMethodName(@CallerFunctionName callerFunction: String = ""): String {
-        return callerFunction
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        // 清除所有 Job
-        jobMap.values.forEach { it.cancel() }
-        jobMap.clear()
-    }
-
     /**
      * 串行
      * task1/task2按照顺序依次执行
      */
     fun serialTask() {
         launch {
-            //每个请求如果失败了都会回调当前的err监听
-            val req = MultiReqUtil(mView, err = {
+            flow {
+                val task1 = request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
+                val task2 = request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
+                emit(Unit)
+            }.withHandling(mView, {
+                //每个请求如果失败了都会回调当前的err监听
+            }).collect {
 
-            })
-            val task1 = req.request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
-            val task2 = req.request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
-            req.end()
+            }
 //            /**
 //             * 将一个监听回调的处理变为挂起函数的形式
 //             * suspendCoroutine<T>---》T为返回的类型
@@ -109,7 +70,7 @@ class TestViewModel : BaseViewModel() {
          * 区别于常规协程，不需要类实现CoroutineScope，并且会阻塞当前线程
          * 在代码块中的逻辑执行完后才会执行接下来的代码
          */
-        runBlocking {  }
+        runBlocking { }
     }
 
     /**
@@ -118,34 +79,32 @@ class TestViewModel : BaseViewModel() {
      */
     fun concurrencyTask() {
         launch {
-//            val req = MultiReqUtil(view)
-//            val task1 = getUserDataAsync(req)
-//            val task2 = getUserDataAsync(req)
-//            val taskList = awaitAll(task1, task2)
-//            req.end()
-//            taskList.safeGet(0)
-//            taskList.safeGet(1)
-            val req = MultiReqUtil(mView)
-            val task1 = async { req.request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })?.apply {  } }
-            val task2 = async { req.request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })?.apply {  } }
-            val taskList = awaitAll(task1, task2)
-            taskList.safeGet(0)
-            taskList.safeGet(1)
-            req.end()
+            flow {
+                val task1 =
+                    async { request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
+                val task2 =
+                    async { request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
+                val taskList = awaitAll(task1, task2)
+                emit(taskList)
+            }.withHandling(mView).collect {
+                it.safeAs<Any>(0)
+                it.safeAs<Any>(1)
+            }
         }
     }
 
-    private suspend fun getUserDataAsync(req: MultiReqUtil): Deferred<Any?> {
-        return async(Dispatchers.Main, CoroutineStart.LAZY) { req.request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) }) }
+    private fun getUserDataAsync(): Deferred<Any?> {
+        return async { request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) }) }
     }
 
     /**
      * 普通一次性
      */
     fun task() {
-        launch({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) }, {
+        flow<Unit> {
             //拿对象
-        })
+            val bean = request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
+        }.withHandling().launchIn(viewModelScope)
     }
 
 }

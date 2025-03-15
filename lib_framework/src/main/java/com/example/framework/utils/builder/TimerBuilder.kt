@@ -24,19 +24,22 @@ class TimerBuilder(observer: LifecycleOwner) {
         private const val COUNT_DOWN_DEFAULT_TAG = "COUNT_DOWN_DEFAULT"
         //默认全局延时handler
         private val handler by lazy { WeakHandler(Looper.getMainLooper()) }
+        //对象锁，缩小范围减少开销
+        private val postLock by lazy { Any() }
 
         /**
          * 延时任务-容易造成内存泄漏,推荐传入observer
          * delayMillis：延时时间（单位：毫秒）
          */
         @JvmStatic
-        @Synchronized
         fun schedule(run: (() -> Unit), delayMillis: Long = 1000, observer: LifecycleOwner? = null) {
-            handler.postDelayed({
-                run.invoke()
-            }, delayMillis)
-            observer.doOnDestroy {
-                handler.removeCallbacksAndMessages(null)
+            synchronized(postLock) {
+                handler.postDelayed({
+                    run.invoke()
+                }, delayMillis)
+                observer.doOnDestroy {
+                    handler.removeCallbacksAndMessages(null)
+                }
             }
         }
     }
@@ -70,38 +73,41 @@ class TimerBuilder(observer: LifecycleOwner) {
      * 任务首次执行延迟 2 秒，之后每隔 3 秒重复执行一次
      * timer.schedule(task, 2000, 3000);
      */
-    @Synchronized
     fun startTask(tag: String = TASK_DEFAULT_TAG, run: (() -> Unit), delay: Long = 0, period: Long = 1000) {
-        if (timerMap[tag] == null) {
-            timerMap[tag] = Timer() to object : TimerTask() {
-                override fun run() {
-                    handler.post {
-                        run.invoke()
+        synchronized(postLock) {
+            if (timerMap[tag] == null) {
+                timerMap[tag] = Timer() to object : TimerTask() {
+                    override fun run() {
+                        handler.post {
+                            run.invoke()
+                        }
                     }
                 }
             }
-        }
-        timerMap[tag]?.apply {
-            first?.schedule(second, delay, period)
+            timerMap[tag]?.apply {
+                first?.schedule(second, delay, period)
+            }
         }
     }
 
     /**
      * 计时（累加）-结束
      */
-    @Synchronized
     fun stopTask(tag: String = TASK_DEFAULT_TAG) {
-        timerMap[tag]?.apply {
-            first?.cancel()
-            second?.cancel()
+        synchronized(postLock) {
+            timerMap[tag]?.apply {
+                first?.cancel()
+                second?.cancel()
+            }
+            timerMap.remove(tag)
         }
-        timerMap.remove(tag)
     }
 
-    @Synchronized
     fun stopTask(vararg tags: String) {
-        tags.forEach {
-            stopTask(it)
+        synchronized(postLock) {
+            tags.forEach {
+                stopTask(it)
+            }
         }
     }
 
@@ -113,36 +119,39 @@ class TimerBuilder(observer: LifecycleOwner) {
      * countDownInterval:-》间隔时间
      * 接收onTick（长）回调的时间间隔（单位：毫秒）
      */
-    @Synchronized
     fun startCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG, onTick: ((second: Long) -> Unit), onFinish: (() -> Unit), millisInFuture: Long = 1000, countDownInterval: Long = 1.second) {
-        if (countDownMap[tag] == null) {
-            countDownMap[tag] = object : CountDownTimer(millisInFuture, countDownInterval) {
-                override fun onTick(millisUntilFinished: Long) {
-                    onTick.invoke((millisUntilFinished / 1000L))
-                }
+        synchronized(postLock) {
+            if (countDownMap[tag] == null) {
+                countDownMap[tag] = object : CountDownTimer(millisInFuture, countDownInterval) {
+                    override fun onTick(millisUntilFinished: Long) {
+                        onTick.invoke((millisUntilFinished / 1000L))
+                    }
 
-                override fun onFinish() {
-                    stopCountDown(tag)
-                    onFinish.invoke()
+                    override fun onFinish() {
+                        stopCountDown(tag)
+                        onFinish.invoke()
+                    }
                 }
             }
+            countDownMap[tag]?.start()
         }
-        countDownMap[tag]?.start()
     }
 
     /**
      * 倒计时-结束
      */
-    @Synchronized
     fun stopCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG) {
-        countDownMap[tag]?.cancel()
-        countDownMap.remove(tag)
+        synchronized(postLock) {
+            countDownMap[tag]?.cancel()
+            countDownMap.remove(tag)
+        }
     }
 
-    @Synchronized
     fun stopCountDown(vararg tags: String) {
-        tags.forEach {
-            stopCountDown(it)
+        synchronized(postLock) {
+            tags.forEach {
+                stopCountDown(it)
+            }
         }
     }
 
