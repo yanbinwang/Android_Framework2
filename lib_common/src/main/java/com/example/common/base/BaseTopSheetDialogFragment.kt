@@ -257,10 +257,10 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
         if (second > 0) {
-            TimerBuilder.schedule({
+            TimerBuilder.schedule(this, {
                 hideDialog()
                 block.invoke()
-            }, second, this)
+            }, second)
         }
     }
 

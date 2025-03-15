@@ -298,12 +298,12 @@ fun EditText?.onDone(listener: () -> Unit) {
 /**
  * 弹出软键盘并获取焦点
  */
-fun EditText?.showInput(observer: LifecycleOwner? = null) {
+fun EditText?.showInput(observer: LifecycleOwner) {
     if (this == null) return
     focus()
-    TimerBuilder.schedule({
+    TimerBuilder.schedule(observer, {
         showSoftKeyboard(context, this)
-    }, 200, observer)
+    }, 200)
 }
 
 ///**
