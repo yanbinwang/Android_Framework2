@@ -23,7 +23,7 @@ interface GlideImpl {
     /**
      * 线上视频加载某一帧
      */
-    fun displayFrame(view: ImageView?, string: String?)
+    fun displayFrame(view: ImageView?, string: String?, frameTimeMicros: Long = 1000000000)
 
     /**
      * 加载gif图片

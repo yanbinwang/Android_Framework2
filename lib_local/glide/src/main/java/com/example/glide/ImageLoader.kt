@@ -58,11 +58,20 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(ZoomTransform(view))
     }
 
-    override fun displayFrame(view: ImageView?, string: String?) {
+    /**
+     * 所需帧的时间位置，单位为微秒。如果为负，返回一个代表性帧
+     * 1秒 = 10分秒
+     * 1分秒 = 10厘秒
+     * 1厘秒 = 10毫秒
+     * 1毫秒 = 1000微秒
+     * 1微秒 = 1000纳秒->取得的是微秒
+     * 1纳秒 = 1000皮秒
+     */
+    override fun displayFrame(view: ImageView?, string: String?, frameTimeMicros: Long) {
         view ?: return
         try {
             Glide.with(view.context)
-                .setDefaultRequestOptions(RequestOptions().frame(1000000).centerCrop())
+                .setDefaultRequestOptions(RequestOptions().frame(frameTimeMicros).centerCrop())
                 .load(string)
                 .dontAnimate()
                 .into(view)
