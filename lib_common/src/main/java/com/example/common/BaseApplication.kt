@@ -300,13 +300,13 @@ abstract class BaseApplication : Application() {
         super.onTrimMemory(level)
         System.gc()
         if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
-            ImageLoader.instance.clearMemoryCache(this)
+            ImageLoader.instance.clearMemoryCache(this, ProcessLifecycleOwner.get())
         }
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        ImageLoader.instance.clearMemoryCache(this)
+        ImageLoader.instance.clearMemoryCache(this, ProcessLifecycleOwner.get())
     }
 
 }

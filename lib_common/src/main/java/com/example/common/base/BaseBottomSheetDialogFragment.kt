@@ -61,7 +61,6 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
-import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
@@ -97,7 +96,11 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
+        if (isEventBusEnabled()) {
+            EventBus.instance.register(this) {
+                it.onEvent()
+            }
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -239,10 +242,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         }
     }
 
-//    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-//        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
-//    }
-
     override fun <VM : BaseViewModel> VM.create(): VM? {
         return javaClass.create(mActivity.lifecycle, this@BaseBottomSheetDialogFragment).also { it.initialize(mActivity, this@BaseBottomSheetDialogFragment) }
     }
@@ -302,7 +301,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     override fun onDestroy() {
         super.onDestroy()
-        if (isEventBusEnabled()) EventBus.instance.unregister(this)
         clearOnActivityResultListener()
         for ((key, value) in dataManager) {
             key.removeObserver(value)
@@ -330,11 +328,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="订阅相关">
-    @Subscribe
-    fun onReceive(event: Event) {
-        event.onEvent()
-    }
-
     protected open fun Event.onEvent() {
     }
 
@@ -354,14 +347,10 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.shown(flag)
         if (second > 0) {
-            TimerBuilder.schedule({
+            TimerBuilder.schedule(this, {
                 hideDialog()
                 block.invoke()
-            }, second, this)
-//            WeakHandler(Looper.getMainLooper()).postDelayed({
-//                hideDialog()
-//                block.invoke()
-//            }, second)
+            }, second)
         }
     }
 

@@ -22,6 +22,7 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.DecimalInputFilter
 import com.example.framework.utils.EditTextUtil
 import com.example.framework.utils.builder.TimerBuilder
@@ -297,10 +298,10 @@ fun EditText?.onDone(listener: () -> Unit) {
 /**
  * 弹出软键盘并获取焦点
  */
-fun EditText?.showInput() {
+fun EditText?.showInput(observer: LifecycleOwner) {
     if (this == null) return
     focus()
-    TimerBuilder.schedule({
+    TimerBuilder.schedule(observer, {
         showSoftKeyboard(context, this)
     }, 200)
 }

@@ -72,7 +72,6 @@ dependencies {
     api deps.guide
     api deps.circleprogressbar
     implementation deps.mmkv
-    implementation deps.eventbus
     implementation deps.xxpermissions
     implementation deps.immersionbar
     //页面路由
