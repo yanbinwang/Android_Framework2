@@ -18,6 +18,7 @@ import com.example.framework.utils.function.value.toSafeInt
 import java.io.File
 import java.io.IOException
 import java.util.*
+import androidx.core.graphics.createBitmap
 
 /**
  * 读取mipmap下的图片
@@ -119,7 +120,7 @@ fun Drawable.zoomDrawable(w: Int, h: Int = w): Drawable {
 
 fun Drawable.drawableToBitmap(): Bitmap {
     val config = if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
-    val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, config)
+    val bitmap = createBitmap(intrinsicWidth, intrinsicHeight, config)
     val canvas = Canvas(bitmap)
     setBounds(0, 0, intrinsicWidth, intrinsicHeight)
     draw(canvas)

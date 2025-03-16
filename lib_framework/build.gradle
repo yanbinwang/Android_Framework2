@@ -53,10 +53,9 @@ dependencies {
     api deps.androidx.constraintlayout
     api deps.androidx.recyclerview
     api deps.androidx.core
-//    api deps.androidx.splashscreen
     api deps.androidx.viewmodel
 //    api deps.androidx.livedata
     //其余谷歌官方库
-    api deps.material
-    api deps.flexbox
+    api deps.google.material
+    api deps.google.flexbox
 }

@@ -32,9 +32,13 @@ android {
 //    sourceSets {
 //        main {
 //            res {
+//                //添加
 //                srcDirs "src/main/res"
 //                srcDirs "src/main/res-bg"
 //                srcDirs "src/main/res-race"
+//                //过滤
+//                exclude '**/mipmap-mdpi/**'
+//                exclude '**/mipmap-xxxhdpi/**'
 //            }
 //        }
 //    }
@@ -130,9 +134,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    testImplementation "junit:junit:$build_versions.junit"
-    androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
+    testImplementation deps.junit.junit
+    androidTestImplementation deps.junit.junit_ext
+    androidTestImplementation deps.junit.espresso_core
     //基础库
     implementation project(':module_home')
     implementation project(':module_account')
