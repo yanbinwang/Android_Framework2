@@ -10,6 +10,7 @@ import android.media.MediaRecorder
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import com.example.common.base.page.Extra
@@ -39,6 +40,9 @@ import com.example.thirdparty.media.widget.TimerTick
  *     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
  *     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
  *     <uses-permission android:name="android.permission.MEDIA_PROJECTION" />
+ *    <!-- 非必要的权限，息屏加锁 -->
+ *     <uses-permission android:name="android.permission.WAKE_LOCK" />
+ *
  *     android:foregroundServiceType 的值：如果服务还涉及其他类型的前台服务操作，如播放音乐、位置跟踪等，可以使用竖线 | 分隔多个类型
  *     例如 android:foregroundServiceType="mediaProjection|mediaPlayback"。
  *
@@ -73,6 +77,7 @@ class DisplayService : LifecycleService() {
     private var mediaProjection: MediaProjection? = null
     private var mediaRecorder: MediaRecorder? = null
     private var virtualDisplay: VirtualDisplay? = null
+    private var wakeLock: PowerManager.WakeLock? = null
     private val timerTick by lazy { TimerTick(this) }
 
     companion object {
@@ -99,6 +104,13 @@ class DisplayService : LifecycleService() {
             startForeground(1, builder.build())
         }
 //        stopForeground(true)//关闭录屏的图标-可注释
+        //获取 PowerManager 实例
+        val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
+        //创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
+        wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "RecordingService:WakeLock")
+        //获取 WakeLock  获取一个带有超时限制的唤醒锁，当超过指定的超时时间后，唤醒锁会自动释放
+        wakeLock?.acquire()
+
         timerTick.start(lifecycle)
     }
 
@@ -168,6 +180,8 @@ class DisplayService : LifecycleService() {
             virtualDisplay = null
             mediaProjection?.stop()
             mediaProjection = null
+            //释放 WakeLock
+            wakeLock?.release()
         } catch (_: Exception) {
         }
         listener.invoke(folderPath, false)
