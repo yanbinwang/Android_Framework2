@@ -30,9 +30,13 @@ android {
 //    sourceSets {
 //        main {
 //            res {
+//                //添加
 //                srcDirs "src/main/res"
 //                srcDirs "src/main/res-bg"
 //                srcDirs "src/main/res-race"
+//                //过滤
+//                exclude '**/mipmap-mdpi/**'
+//                exclude '**/mipmap-xxxhdpi/**'
 //            }
 //        }
 //    }
@@ -47,6 +51,8 @@ android {
         versionCode build_versions.versionCode
         versionName build_versions.versionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        //仅保留特定屏幕密度的资源
+        resConfigs "hdpi", "xhdpi", "xxhdpi"
         //减少语言支持
         resourceConfigurations += ['zh']
         //dex突破65535的限制
@@ -91,15 +97,15 @@ android {
                 abiFilter "armeabi"
             }
 
-            //移除无用资源
-            splits {
-                density {
-                    enable true
-                    reset()
-                    include "mipmap-hdpi", "mipmap-xhdpi", "mipmap-xxhdpi"
-                    compatibleScreens 'small', 'normal', 'large', 'xlarge'
-                }
-            }
+//            //移除无用资源->淘汰了
+//            splits {
+//                density {
+//                    enable true
+//                    reset()
+//                    include "mipmap-hdpi", "mipmap-xhdpi", "mipmap-xxhdpi"
+//                    compatibleScreens 'small', 'normal', 'large', 'xlarge'
+//                }
+//            }
 
             //去除gradle升级版本后映射文件的警告
             lintOptions {
@@ -127,9 +133,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    testImplementation "junit:junit:$build_versions.junit"
-    androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
+    testImplementation deps.junit.junit
+    androidTestImplementation deps.junit.junit_ext
+    androidTestImplementation deps.junit.espresso_core
     //基础库
     implementation project(':module_home')
     //页面路由
