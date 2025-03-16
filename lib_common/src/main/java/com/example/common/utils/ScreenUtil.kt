@@ -6,6 +6,8 @@ import android.graphics.Point
 import android.os.Build
 import android.view.View
 import android.view.Window
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.view.WindowManager
 import com.example.common.BaseApplication
 import com.example.common.utils.function.getManifestString
@@ -147,21 +149,44 @@ object ScreenUtil {
  * 全屏展示
  */
 fun Window.fullScreen() {
-    val uiOptions = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-            or View.SYSTEM_UI_FLAG_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-    decorView.systemUiVisibility = uiOptions
-//    decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+//    val uiOptions = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+//            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+//            or View.SYSTEM_UI_FLAG_FULLSCREEN
+//            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+//    decorView.systemUiVisibility = uiOptions
+////    decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+//        val lp = attributes
+//        /**
+//         * LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT 全屏模式，内容下移，非全屏不受影响
+//         * LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES 允许内容区域延伸到刘海区
+//         * LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER 不允许内容延伸进刘海区
+//         */
+//        lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+//        attributes = lp
+//    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        // Android 11 及以上版本
+        setDecorFitsSystemWindows(false)
+        val controller = insetsController
+        if (controller != null) {
+            controller.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+            controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+    } else {
+        // Android 11 以下版本
+        val uiOptions = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+        decorView.systemUiVisibility = uiOptions
+    }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         val lp = attributes
-        /**
-         * LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT 全屏模式，内容下移，非全屏不受影响
-         * LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES 允许内容区域延伸到刘海区
-         * LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER 不允许内容延伸进刘海区
-         */
         lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         attributes = lp
     }
