@@ -125,12 +125,12 @@ class DisplayService : LifecycleService() {
         super.onDestroy()
         try {
 //            timerTick.destroy()
-            virtualDisplay?.release()
-            virtualDisplay = null
             mediaRecorder?.stop()
             mediaRecorder?.reset()
             mediaRecorder?.release()
             mediaRecorder = null
+            virtualDisplay?.release()
+            virtualDisplay = null
             mediaProjection?.stop()
             mediaProjection = null
         } catch (_: Exception) {
