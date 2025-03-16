@@ -51,8 +51,6 @@ android {
         versionCode build_versions.versionCode
         versionName build_versions.versionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        //仅保留特定屏幕密度的资源
-        resConfigs "hdpi", "xhdpi", "xxhdpi"
         //减少语言支持
         resourceConfigurations += ['zh']
         //dex突破65535的限制
@@ -97,15 +95,15 @@ android {
                 abiFilter "armeabi"
             }
 
-//            //移除无用资源->淘汰了
-//            splits {
-//                density {
-//                    enable true
-//                    reset()
-//                    include "mipmap-hdpi", "mipmap-xhdpi", "mipmap-xxhdpi"
-//                    compatibleScreens 'small', 'normal', 'large', 'xlarge'
-//                }
-//            }
+            //移除无用资源
+            splits {
+                density {
+                    enable true
+                    reset()
+                    include "mipmap-hdpi", "mipmap-xhdpi", "mipmap-xxhdpi"
+                    compatibleScreens 'small', 'normal', 'large', 'xlarge'
+                }
+            }
 
             //去除gradle升级版本后映射文件的警告
             lintOptions {
