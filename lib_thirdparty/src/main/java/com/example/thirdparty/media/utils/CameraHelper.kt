@@ -172,7 +172,13 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
         if (cvFinder?.facing == Facing.FRONT) {
             R.string.cameraFlashError.shortToast()
         } else {
-            cvFinder?.apply { flash = if (flash == Flash.TORCH) Flash.OFF else Flash.TORCH }
+            cvFinder?.apply {
+                flash = if (flash == Flash.TORCH) {
+                    Flash.OFF
+                } else {
+                    Flash.TORCH
+                }
+            }
             onTakePictureListener?.onFlash(cvFinder?.flash == Flash.TORCH)
             onTakeVideoListener?.onFlash(cvFinder?.flash == Flash.TORCH)
         }
