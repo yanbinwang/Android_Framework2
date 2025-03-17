@@ -11,6 +11,9 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType.AUDIO
+import com.example.common.utils.function.isExists
+import com.example.thirdparty.media.service.DisplayService.Companion
+import java.io.File
 
 /**
  *  <service
@@ -22,10 +25,16 @@ import com.example.common.utils.StorageUtil.StorageType.AUDIO
  */
 class RecordingService : LifecycleService() {
     private var isRelease = false
+    private var folderPath: String? = null
     private var recorder: MediaRecorder? = null
     private var wakeLock: PowerManager.WakeLock? = null
 
     companion object {
+        /**
+         * 是否是关闭页面，由外层传入，以此判断在服务OnDestroy的时候是否需要执行停止
+         */
+        var isDestroy = false
+
         private var listener: OnRecorderListener? = null
 
         fun setOnRecorderListener(listener: OnRecorderListener) {
@@ -59,29 +68,11 @@ class RecordingService : LifecycleService() {
     }
 
     /**
-     * 外层点击停止录制后结束服务，自动停止当前录制
-     */
-    override fun onDestroy() {
-        super.onDestroy()
-        wakeLock?.let {
-            if (it.isHeld) {
-                it.release()
-            }
-        }
-        wakeLock = null
-        if (!isRelease) {
-            stopRecording()
-        } else {
-            isRelease = false
-        }
-    }
-
-    /**
      * 开始录制，启动服务的时候开始
      */
     private fun startRecording() {
         val recordFile = StorageUtil.getOutputFile(AUDIO)
-        val folderPath = recordFile?.absolutePath
+        folderPath = recordFile?.absolutePath
         recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()
         try {
             recorder?.apply {
@@ -134,6 +125,32 @@ class RecordingService : LifecycleService() {
         recorder?.reset()//重置状态（可选）
         recorder?.release()//释放底层资源
         recorder = null//置空引用
+    }
+
+    /**
+     * 外层点击停止录制后结束服务，自动停止当前录制
+     */
+    override fun onDestroy() {
+        super.onDestroy()
+        wakeLock?.let {
+            if (it.isHeld) {
+                it.release()
+            }
+        }
+        wakeLock = null
+        if (isDestroy) {
+            isDestroy = false
+            releaseRecorder()
+            if (folderPath.isExists()) {
+                File(folderPath.orEmpty()).delete()
+            }
+        } else {
+            if (!isRelease) {
+                stopRecording()
+            } else {
+                isRelease = false
+            }
+        }
     }
 
     /**
