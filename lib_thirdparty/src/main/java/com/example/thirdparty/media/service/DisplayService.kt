@@ -13,7 +13,7 @@ import android.os.Build
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.lifecycleScope
 import com.example.common.base.page.Extra
 import com.example.common.network.repository.withHandling
 import com.example.common.utils.ScreenUtil.screenDensity
@@ -26,7 +26,6 @@ import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -178,7 +177,7 @@ class DisplayService : LifecycleService() {
      */
     private fun stopRecording() {
         listener?.onShutter()
-        lifecycle.coroutineScope.launch {
+        lifecycleScope.launch {
             flow {
                 //阻塞直到文件写入完成,切到ui线程做停止
                 withContext(IO) { recorder?.stop() }
