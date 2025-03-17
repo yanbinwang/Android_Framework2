@@ -204,6 +204,20 @@ fun Context.stopService(cls: Class<out Service>) {
 }
 
 /**
+ * 检测服务是否正在运行
+ */
+fun Context.isServiceRunning(cls: Class<*>): Boolean {
+    val manager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+    val runningServices = manager?.getRunningServices(Int.MAX_VALUE).orEmpty()
+    for (serviceInfo in runningServices) {
+        if (cls.name == serviceInfo.service.className) {
+            return true
+        }
+    }
+    return false
+}
+
+/**
  *  获取对应class类页面中intent的消息
  */
 fun Context.getIntent(cls: Class<out Context>, vararg pairs: Pair<String, Any?>): Intent {
