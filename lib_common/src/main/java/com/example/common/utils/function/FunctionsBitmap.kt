@@ -168,7 +168,7 @@ fun View.loadLayout(width: Int, height: Int) {
  * 如果不设置canvas画布为白色，则生成透明
  */
 fun View.loadBitmap(): Bitmap {
-    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val bitmap = createBitmap(width, height)
     val canvas = Canvas(bitmap)
     canvas.drawColor(Color.WHITE)
     layout(0, 0, width, height)
