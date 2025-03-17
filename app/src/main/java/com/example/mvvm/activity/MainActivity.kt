@@ -275,7 +275,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
         mBinding?.ivArrow.click {
 //            it.rotate()
-            mBinding?.finder?.onShutter()
+//            mBinding?.finder?.onShutter()
+            mPermission.requestPermissions {
+                if (it) {
+                    navigation(ARouterPath.TestActivity)
+                }
+            }
         }
 
         val books = listOf(

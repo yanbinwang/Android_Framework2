@@ -74,9 +74,9 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      *         app:cameraMode="video"
      *         app:cameraVideoCodec="h264" />
      */
-    fun bind(cvFinder: CameraView) {
+    fun bind(cvFinder: CameraView?) {
         this.cvFinder = cvFinder
-        cvFinder.apply {
+        cvFinder?.apply {
             setLifecycleOwner(observer)
             keepScreenOn = true//是否保持屏幕高亮
             playSounds = true//录像是否录制声音
