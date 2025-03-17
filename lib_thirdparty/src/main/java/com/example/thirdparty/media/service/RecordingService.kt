@@ -9,10 +9,15 @@ import android.os.Build
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.coroutineScope
+import com.example.common.network.repository.withHandling
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType.AUDIO
 import com.example.common.utils.function.isExists
-import com.example.thirdparty.media.service.DisplayService.Companion
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -102,20 +107,31 @@ class RecordingService : LifecycleService() {
      */
     private fun stopRecording() {
         listener?.onShutter()
-        var exception: Exception? = null
-        try {
-            //阻塞直到文件写入完成
-            recorder?.stop()
-            releaseRecorder()
-        } catch (e: Exception) {
-            exception = e
-        } finally {
-            if (null != exception) {
-                listener?.onError(exception)
-            } else {
+        lifecycle.coroutineScope.launch {
+            flow {
+                //阻塞直到文件写入完成,切到ui线程做停止
+                withContext(IO) { recorder?.stop() }
+                emit(releaseRecorder())
+            }.withHandling({
+                listener?.onError(it.throwable as? Exception)
+            }).collect {
                 listener?.onStop()
             }
         }
+//        var exception: Exception? = null
+//        try {
+//            //阻塞直到文件写入完成
+//            recorder?.stop()
+//            releaseRecorder()
+//        } catch (e: Exception) {
+//            exception = e
+//        } finally {
+//            if (null != exception) {
+//                listener?.onError(exception)
+//            } else {
+//                listener?.onStop()
+//            }
+//        }
     }
 
     /**
@@ -175,7 +191,7 @@ class RecordingService : LifecycleService() {
         /**
          * 报错
          */
-        fun onError(e: Exception)
+        fun onError(e: Exception?)
     }
 
 }

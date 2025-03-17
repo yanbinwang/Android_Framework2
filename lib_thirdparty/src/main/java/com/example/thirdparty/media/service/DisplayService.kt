@@ -13,7 +13,9 @@ import android.os.Build
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.coroutineScope
 import com.example.common.base.page.Extra
+import com.example.common.network.repository.withHandling
 import com.example.common.utils.ScreenUtil.screenDensity
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType
@@ -23,6 +25,11 @@ import com.example.framework.utils.function.value.orZero
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -114,7 +121,7 @@ class DisplayService : LifecycleService() {
         //获取 PowerManager 实例
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
         //创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
-        wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "RecordingService:WakeLock")
+        wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DisplayService:WakeLock")
         //获取 WakeLock  获取一个带有超时限制的唤醒锁，当超过指定的超时时间后，唤醒锁会自动释放
         wakeLock?.acquire()
         //计时器挂载弹框
@@ -171,20 +178,31 @@ class DisplayService : LifecycleService() {
      */
     private fun stopRecording() {
         listener?.onShutter()
-        var exception: Exception? = null
-        try {
-            //阻塞直到文件写入完成
-            recorder?.stop()
-            releaseDisplay()
-        } catch (e: Exception) {
-            exception = e
-        } finally {
-            if (null != exception) {
-                listener?.onError(exception)
-            } else {
+        lifecycle.coroutineScope.launch {
+            flow {
+                //阻塞直到文件写入完成,切到ui线程做停止
+                withContext(IO) { recorder?.stop() }
+                emit(releaseDisplay())
+            }.withHandling({
+                listener?.onError(it.throwable as? Exception)
+            }).collect {
                 listener?.onStop()
             }
         }
+//        var exception: Exception? = null
+//        try {
+//            //阻塞直到文件写入完成
+//            recorder?.stop()
+//            releaseDisplay()
+//        } catch (e: Exception) {
+//            exception = e
+//        } finally {
+//            if (null != exception) {
+//                listener?.onError(exception)
+//            } else {
+//                listener?.onStop()
+//            }
+//        }
     }
 
     private fun releaseDisplay() {
@@ -247,7 +265,7 @@ class DisplayService : LifecycleService() {
         /**
          * 报错
          */
-        fun onError(e: Exception)
+        fun onError(e: Exception?)
     }
 
 }

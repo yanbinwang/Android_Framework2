@@ -139,7 +139,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, private val mView: 
                 }
             }
 
-            override fun onError(e: Exception) {
+            override fun onError(e: Exception?) {
                 R.string.screenError.shortToast()
                 mView.hideDialog()
                 isRecording = false
