@@ -137,11 +137,11 @@ class DisplayService : LifecycleService() {
     }
 
     private fun startRecording(resultCode: Int?, resultData: Intent?) {
-        if (resultData == null) throw RuntimeException("resultData is Empty")
-        val screenFile = StorageUtil.getOutputFile(StorageType.SCREEN)
-        folderPath = screenFile?.absolutePath
-        recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()
         try {
+            if (resultData == null) throw RuntimeException("resultData is Empty")
+            val screenFile = StorageUtil.getOutputFile(StorageType.SCREEN)
+            folderPath = screenFile?.absolutePath
+            recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()
             recorder?.apply {
                 setVideoSource(MediaRecorder.VideoSource.SURFACE)
                 setAudioSource(MediaRecorder.AudioSource.MIC)
