@@ -3,12 +3,8 @@ package com.example.thirdparty.share.wechat
 import android.graphics.Bitmap
 import androidx.core.graphics.scale
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import com.example.common.BaseApplication
-import com.example.common.utils.function.decodeResource
 import com.example.common.utils.helper.AccountHelper
 import com.example.framework.utils.function.value.currentTimeNano
-import com.example.thirdparty.R
 import com.example.thirdparty.share.wechat.WXShareUtil.bmpToByteArray
 import com.example.thirdparty.share.wechat.bean.WXShareMessage
 import com.example.thirdparty.utils.wechat.WXManager
@@ -21,7 +17,6 @@ import com.tencent.mm.opensdk.modelmsg.WXTextObject
 import com.tencent.mm.opensdk.modelmsg.WXVideoObject
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
 
@@ -29,37 +24,55 @@ import java.util.UUID
  * 微信分享构建
  */
 class WXShare(private val owner: LifecycleOwner) {
-    //分享缩略图byte
-    private var thumbByte: ByteArray? = null
+//    //分享缩略图byte
+//    private var thumbByte: ByteArray? = null
     //分享信息
     private var config: WXShareMessage? = null
     //通过WXAPIFactory工厂，获取IWXAPI的实例
     private val wxApi by lazy { WXManager.instance.regToWx(owner) }
 
-    /**
-     * 设置分享基础信息
-     * 每一个分享之前先进行config配置，确定一下本次分享的基础值
-     */
-    fun setConfiguration(config: WXShareMessage?, bitmap: Bitmap? = null, block: () -> Unit = {}) {
-        this.config = config
-        val targetBitmap = bitmap ?: thumbByte?.let { return@setConfiguration } ?: BaseApplication.instance.decodeResource(R.mipmap.ic_share)
-        owner.lifecycleScope.launch {
-            thumbByte = buildThumb(targetBitmap)
-            block.invoke()
+    companion object {
+        /**
+         * 获取分享需要的100*100的缩略图（摆在左侧）BaseApplication.instance.decodeResource(R.mipmap.ic_share)
+         */
+        @JvmStatic
+        suspend fun buildThumb(bmp: Bitmap?, THUMB_SIZE: Int = 100): ByteArray {
+            return withContext(IO) {
+                //设置缩略图
+                val thumbBmp = bmp?.scale(THUMB_SIZE, THUMB_SIZE)
+                bmp?.recycle()
+                bmpToByteArray(thumbBmp, true)
+            }
         }
     }
 
     /**
-     * 获取分享需要的100*100的缩略图（摆在左侧）BaseApplication.instance.decodeResource(R.mipmap.ic_share)
+     * 设置分享基础信息
+     * 每一个分享之前先进行config配置，确定一下本次分享的基础值
      */
-    private suspend fun buildThumb(bmp: Bitmap?, THUMB_SIZE: Int = 100): ByteArray {
-        return withContext(IO) {
-            //设置缩略图
-            val thumbBmp = bmp?.scale(THUMB_SIZE, THUMB_SIZE)
-            bmp?.recycle()
-            bmpToByteArray(thumbBmp, true)
-        }
+    fun setConfiguration(config: WXShareMessage?) {
+        this.config = config
     }
+//    fun setConfiguration(config: WXShareMessage?, bitmap: Bitmap? = null, block: () -> Unit = {}) {
+//        this.config = config
+//        val targetBitmap = bitmap ?: thumbByte?.let { return@setConfiguration } ?: BaseApplication.instance.decodeResource(R.mipmap.ic_share)
+//        owner.lifecycleScope.launch {
+//            thumbByte = buildThumb(targetBitmap)
+//            block.invoke()
+//        }
+//    }
+//
+//    /**
+//     * 获取分享需要的100*100的缩略图（摆在左侧）BaseApplication.instance.decodeResource(R.mipmap.ic_share)
+//     */
+//    private suspend fun buildThumb(bmp: Bitmap?, THUMB_SIZE: Int = 100): ByteArray {
+//        return withContext(IO) {
+//            //设置缩略图
+//            val thumbBmp = bmp?.scale(THUMB_SIZE, THUMB_SIZE)
+//            bmp?.recycle()
+//            bmpToByteArray(thumbBmp, true)
+//        }
+//    }
 
     /**
      * 文字类型分享
@@ -203,7 +216,7 @@ class WXShare(private val owner: LifecycleOwner) {
     private fun WXMediaMessage.rebuild(): WXMediaMessage {
         title = config?.title
         description = config?.description
-        thumbData = thumbByte
+        thumbData = config?.thumbData
         messageExt = config?.messageExt
         return this
     }
