@@ -19,8 +19,8 @@ import com.example.common.network.repository.withHandling
 import com.example.common.utils.ScreenUtil.screenDensity
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType
+import com.example.common.utils.function.deleteFile
 import com.example.common.utils.function.getExtra
-import com.example.common.utils.function.isExists
 import com.example.framework.utils.function.value.orZero
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewWidth
@@ -29,7 +29,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 /**
  *  Created by wangyanbin
@@ -230,9 +229,7 @@ class DisplayService : LifecycleService() {
         if (isDestroy) {
             isDestroy = false
             releaseDisplay()
-            if (folderPath.isExists()) {
-                File(folderPath.orEmpty()).delete()
-            }
+            folderPath.deleteFile()
         } else {
             if (!isRelease) {
                 stopRecording()

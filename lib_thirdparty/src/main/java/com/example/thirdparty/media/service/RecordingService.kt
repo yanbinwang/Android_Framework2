@@ -13,12 +13,11 @@ import androidx.lifecycle.lifecycleScope
 import com.example.common.network.repository.withHandling
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType.AUDIO
-import com.example.common.utils.function.isExists
+import com.example.common.utils.function.deleteFile
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 /**
  *  <service
@@ -157,9 +156,7 @@ class RecordingService : LifecycleService() {
         if (isDestroy) {
             isDestroy = false
             releaseRecorder()
-            if (folderPath.isExists()) {
-                File(folderPath.orEmpty()).delete()
-            }
+            folderPath.deleteFile()
         } else {
             if (!isRelease) {
                 stopRecording()
