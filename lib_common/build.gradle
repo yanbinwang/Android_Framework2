@@ -53,9 +53,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    testImplementation "junit:junit:$build_versions.junit"
-    androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
+    testImplementation deps.junit.junit
+    androidTestImplementation deps.junit.junit_ext
+    androidTestImplementation deps.junit.espresso_core
     //框架库
     api project(':lib_framework')
     //不依赖于common的库统一放在lib_local里
@@ -64,7 +64,6 @@ dependencies {
     //网络请求
     api deps.retrofit2.retrofit
     api deps.retrofit2.converter_gson
-    implementation deps.okhttp3
     //其余第三方库
     api deps.autosize
     api deps.recovery

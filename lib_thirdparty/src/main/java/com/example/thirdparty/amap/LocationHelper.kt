@@ -9,12 +9,12 @@ import android.content.Intent
 import android.graphics.Color
 import android.location.LocationManager
 import android.os.Build
-import android.os.Looper
 import android.provider.Settings
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.coroutineScope
 import com.amap.api.location.AMapLocation
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
@@ -27,10 +27,11 @@ import com.example.common.utils.function.registerResult
 import com.example.common.utils.function.string
 import com.example.common.utils.toJson
 import com.example.common.widget.dialog.AppDialog
-import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  *  Created by wangyanbin
@@ -42,13 +43,12 @@ import com.example.thirdparty.R
  */
 class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationListener, LifecycleEventObserver {
     private var retry = false
+    private val retryTime = 8000L
     private var locationClient: AMapLocationClient? = null
     private var listener: OnLocationListener? = null
-    private val retryTime = 8000L
-    private val handler by lazy { WeakHandler(Looper.getMainLooper()) }
+    private val result = mActivity.registerResult { listener?.onGpsSetting(it.resultCode == Activity.RESULT_OK) }
     private val manager by lazy { mActivity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager }
     private val mDialog by lazy { AppDialog(mActivity) }
-    private val result = mActivity.registerResult { listener?.onGpsSetting(it.resultCode == Activity.RESULT_OK) }
 
     companion object {
         //经纬度json->默认杭州
@@ -137,7 +137,10 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
             return
         }
         retry = true
-        handler.postDelayed({ retry = false }, retryTime)
+        mActivity.lifecycle.coroutineScope.launch {
+            delay(retryTime)
+            retry = false
+        }
         try {
             locationClient?.startLocation()
         } catch (_: Exception) {
@@ -163,7 +166,6 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
      */
     private fun clear() {
         retry = false
-        handler.removeCallbacksAndMessages(null)
     }
 
     /**

@@ -94,10 +94,10 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
             override fun onGpsSetting(flag: Boolean) {
             }
         })
-        //是否需要在网络发生改变时，移动地图
-        if (initLoaded) {
-            //地图加载完成，定位一次，让地图移动到坐标点
-            aMap?.setOnMapLoadedListener {
+        //地图加载完成，定位一次，让地图移动到坐标点
+        aMap?.setOnMapLoadedListener {
+            //是否需要在网络发生改变时，移动地图
+            if (initLoaded) {
                 //先移动到默认点再检测权限定位
                 moveCamera()
                 location()

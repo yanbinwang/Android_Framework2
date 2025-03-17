@@ -27,6 +27,7 @@ import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.value.orZero
 import java.io.File
 import java.io.Serializable
+import androidx.core.net.toUri
 
 /**
  * 当前页面注册一个activity的result，获取resultCode
@@ -128,7 +129,7 @@ fun Activity?.pullUpOverlay(): Boolean {
     this ?: return false
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
         val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
-        intent.data = Uri.parse("package:${packageName}")
+        intent.data = "package:${packageName}".toUri()
         startActivity(intent)
         false
     } else {
@@ -173,7 +174,7 @@ fun Context?.toGoogleSearch(searchText: String) {
  */
 fun Context?.toBrowser(url: String) {
     this ?: return
-    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+    startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
 }
 
 /**
@@ -181,7 +182,7 @@ fun Context?.toBrowser(url: String) {
  */
 fun Context?.toMap(longitude: Double, latitude: Double) {
     this ?: return
-    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("geo:${longitude.orZero},${latitude.orZero}")))
+    startActivity(Intent(Intent.ACTION_VIEW, "geo:${longitude.orZero},${latitude.orZero}".toUri()))
 }
 
 /**
@@ -189,7 +190,7 @@ fun Context?.toMap(longitude: Double, latitude: Double) {
  */
 fun Context?.toPhone(tel: String) {
     this ?: return
-    startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$tel")))
+    startActivity(Intent(Intent.ACTION_DIAL, "tel:$tel".toUri()))
 }
 
 /**
@@ -209,7 +210,7 @@ fun Context?.toSMS(text: String) {
  */
 fun Context?.toSMSApp(tel: String, text: String) {
     this ?: return
-    Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$tel")).apply {
+    Intent(Intent.ACTION_SENDTO, "smsto:$tel".toUri()).apply {
         putExtra("sms_body", text)
         startActivity(this)
     }
@@ -243,7 +244,7 @@ fun Context?.openFile(filePath: String, type: String) {
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 setDataAndType(FileProvider.getUriForFile(this@openFile, "${Constants.APPLICATION_ID}.fileProvider", file), type)
             } else {
-                setDataAndType(Uri.parse("file://$filePath"), type)
+                setDataAndType("file://$filePath".toUri(), type)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
         })

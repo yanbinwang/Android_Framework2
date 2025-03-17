@@ -43,9 +43,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    testImplementation "junit:junit:$build_versions.junit"
-    androidTestImplementation "androidx.test.ext:junit:$build_versions.ext_junit"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$build_versions.espresso_core"
+    testImplementation deps.junit.junit
+    androidTestImplementation deps.junit.junit_ext
+    androidTestImplementation deps.junit.espresso_core
     //框架库
     api project(':lib_common')
     //页面路由
