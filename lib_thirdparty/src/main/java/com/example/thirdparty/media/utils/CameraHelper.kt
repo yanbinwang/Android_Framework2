@@ -198,6 +198,12 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
 
     /**
      * 拍照
+     * //截取当前相机画面
+     * val bitmap = getBitmapFromView(cameraView)
+     * overlayImageView.setImageBitmap(bitmap)
+     * overlayImageView.visibility = View.VISIBLE
+     * //拍照
+     * cameraView.takePhoto()
      */
     fun takePicture(snapshot: Boolean = true) {
         if (isTaking()) {
@@ -205,6 +211,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
             return
         }
         cvFinder?.let {
+            it.autoFocusResetDelay
             actionSound.play(MediaActionSound.SHUTTER_CLICK)
             if (snapshot) {
                 it.takePictureSnapshot()
