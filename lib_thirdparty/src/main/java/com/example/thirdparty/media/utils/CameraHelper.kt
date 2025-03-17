@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.MediaActionSound
+import android.widget.ImageView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -11,8 +12,11 @@ import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType.IMAGE
 import com.example.common.utils.StorageUtil.StorageType.VIDEO
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.function.loadBitmap
 import com.example.framework.utils.function.doOnReceiver
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.view.setBitmap
+import com.example.framework.utils.function.view.visible
 import com.example.thirdparty.R
 import com.example.thirdparty.media.service.KeyEventReceiver
 import com.otaliastudios.cameraview.CameraListener
@@ -25,7 +29,6 @@ import com.otaliastudios.cameraview.controls.Facing
 import com.otaliastudios.cameraview.controls.Flash
 import com.otaliastudios.cameraview.controls.Mode
 import com.otaliastudios.cameraview.controls.Preview
-import java.io.File
 
 /**
  *  Created by wangyanbin
@@ -34,8 +37,7 @@ import java.io.File
  */
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
 class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver: Boolean = false) : LifecycleEventObserver {
-    private var cameraMode = 0//0：拍照 1：录像
-    private var sourcePath = ""//源文件路径->拍照模式记录的是上一次的图片路径，录像记录的是上一次预创建的路径---》每次都会覆盖
+    private var sourcePath: String? = null//源文件路径->拍照模式记录的是上一次的图片路径，录像记录的是上一次预创建的路径---》每次都会覆盖
     private var cvFinder: CameraView? = null
     private var onTakePictureListener: OnTakePictureListener? = null
     private var onTakeVideoListener: OnTakeVideoListener? = null
@@ -72,9 +74,9 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      *         app:cameraMode="video"
      *         app:cameraVideoCodec="h264" />
      */
-    fun bind(cvFinder: CameraView) {
+    fun bind(cvFinder: CameraView?) {
         this.cvFinder = cvFinder
-        cvFinder.apply {
+        cvFinder?.apply {
             setLifecycleOwner(observer)
             keepScreenOn = true//是否保持屏幕高亮
             playSounds = true//录像是否录制声音
@@ -86,7 +88,6 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
             flash = Flash.AUTO//闪光灯自动
             //区分页面传入的相机view属于哪种模式
             if (mode == Mode.PICTURE) {
-                cameraMode = 0
                 addCameraListener(object : CameraListener() {
                     override fun onPictureShutter() {
                         super.onPictureShutter()
@@ -100,19 +101,18 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
                         if (null != outputFile) {
                             result.toFile(outputFile) {
                                 if (it?.exists().orFalse) {
-                                    sourcePath = it?.absolutePath.orEmpty()
-                                    onTakePictureListener?.onSuccess(it)
+                                    sourcePath = it?.absolutePath
+                                    onTakePictureListener?.onTaken(sourcePath)
                                 } else {
-                                    onTakePictureListener?.onFailed()
+                                    onTakePictureListener?.onTaken(null)
                                 }
                             }
                         } else {
-                            onTakePictureListener?.onFailed()
+                            onTakePictureListener?.onTaken(null)
                         }
                     }
                 })
             } else {
-                cameraMode = 1
                 addCameraListener(object : CameraListener() {
                     override fun onVideoRecordingStart() {
                         super.onVideoRecordingStart()
@@ -128,7 +128,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
                     //正式完成录制的回调，获取路径
                     override fun onVideoTaken(result: VideoResult) {
                         super.onVideoTaken(result)
-                        onTakeVideoListener?.onResult(result.file.path)
+                        onTakeVideoListener?.onTaken(result.file.path)
                     }
                 })
             }
@@ -145,7 +145,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      * 是否正处于拍摄中的状态
      */
     fun isTaking(): Boolean {
-        return if (0 == cameraMode) {
+        return if (cvFinder?.mode == Mode.PICTURE) {
             cvFinder?.isTakingPicture.orFalse
         } else {
             cvFinder?.isTakingVideo.orFalse
@@ -176,7 +176,13 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
         if (cvFinder?.facing == Facing.FRONT) {
             R.string.cameraFlashError.shortToast()
         } else {
-            cvFinder?.apply { flash = if (flash == Flash.TORCH) Flash.OFF else Flash.TORCH }
+            cvFinder?.apply {
+                flash = if (flash == Flash.TORCH) {
+                    Flash.OFF
+                } else {
+                    Flash.TORCH
+                }
+            }
             onTakePictureListener?.onFlash(cvFinder?.flash == Flash.TORCH)
             onTakeVideoListener?.onFlash(cvFinder?.flash == Flash.TORCH)
         }
@@ -197,12 +203,18 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
     /**
      * 拍照
      */
-    fun takePicture(snapshot: Boolean = true) {
+    fun takePicture(imageView: ImageView? = null, snapshot: Boolean = true) {
         if (isTaking()) {
             R.string.cameraPictureShutter.shortToast()
             return
         }
         cvFinder?.let {
+            //截取当前相机画面
+            if (null != imageView) {
+                val bitmap = it.loadBitmap()
+                imageView.setBitmap(observer, bitmap)
+                imageView.visible()
+            }
             actionSound.play(MediaActionSound.SHUTTER_CLICK)
             if (snapshot) {
                 it.takePictureSnapshot()
@@ -230,7 +242,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
                     it.takeVideo(outputFile)
                 }
             } else {
-                onTakeVideoListener?.onResult(null)
+                onTakeVideoListener?.onTaken(null)
             }
         }
     }
@@ -254,22 +266,41 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
     }
 
     interface OnTakePictureListener {
+        /**
+         * 开始存储
+         */
         fun onShutter()
 
-        fun onSuccess(sourceFile: File?)
+        /**
+         * 拿取到文件
+         */
+        fun onTaken(sourcePath: String?)
 
-        fun onFailed()
-
+        /**
+         * 闪光灯开关
+         */
         fun onFlash(isOpen: Boolean)
     }
 
     interface OnTakeVideoListener {
+        /**
+         * 开始录制->返回路径可以开一个协程或者计时器实时监控文件大小
+         */
         fun onRecording(sourcePath: String?)
 
+        /**
+         * 开始存储
+         */
         fun onShutter()
 
-        fun onResult(sourcePath: String?)
+        /**
+         * 拿取到文件
+         */
+        fun onTaken(sourcePath: String?)
 
+        /**
+         * 闪光灯开关
+         */
         fun onFlash(isOpen: Boolean)
     }
 
@@ -283,6 +314,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
 //                    } catch (_: Exception) {
 //                    }
 //                }
+                sourcePath = null
                 cvFinder = null
                 observer.lifecycle.removeObserver(this)
             }
