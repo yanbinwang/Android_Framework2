@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.MediaActionSound
+import android.widget.ImageView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -11,8 +12,11 @@ import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType.IMAGE
 import com.example.common.utils.StorageUtil.StorageType.VIDEO
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.function.loadBitmap
 import com.example.framework.utils.function.doOnReceiver
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.view.setBitmap
+import com.example.framework.utils.function.view.visible
 import com.example.thirdparty.R
 import com.example.thirdparty.media.service.KeyEventReceiver
 import com.otaliastudios.cameraview.CameraListener
@@ -198,20 +202,19 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
 
     /**
      * 拍照
-     * //截取当前相机画面
-     * val bitmap = getBitmapFromView(cameraView)
-     * overlayImageView.setImageBitmap(bitmap)
-     * overlayImageView.visibility = View.VISIBLE
-     * //拍照
-     * cameraView.takePhoto()
      */
-    fun takePicture(snapshot: Boolean = true) {
+    fun takePicture(imageView: ImageView? = null, snapshot: Boolean = true) {
         if (isTaking()) {
             R.string.cameraPictureShutter.shortToast()
             return
         }
         cvFinder?.let {
-            it.autoFocusResetDelay
+            //截取当前相机画面
+            if (null != imageView) {
+                val bitmap = it.loadBitmap()
+                imageView.setBitmap(observer, bitmap)
+                imageView.visible()
+            }
             actionSound.play(MediaActionSound.SHUTTER_CLICK)
             if (snapshot) {
                 it.takePictureSnapshot()
