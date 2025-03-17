@@ -82,8 +82,8 @@ import kotlinx.coroutines.withContext
 class DisplayService : LifecycleService() {
     private var isRelease = false
     private var folderPath: String? = null
-    private var projection: MediaProjection? = null
     private var recorder: MediaRecorder? = null
+    private var projection: MediaProjection? = null
     private var display: VirtualDisplay? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private val timerTick by lazy { TimerTick(this) }
