@@ -55,6 +55,8 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.logE
 import com.google.android.material.appbar.AppBarLayout
+import java.util.WeakHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
 
 //------------------------------------view扩展函数类------------------------------------
@@ -782,9 +784,20 @@ fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
 /**
  * 设置一个新的bitmap
  */
+//用于存储每个 ImageView 的订阅状态
+private val subscriptionMap by lazy { WeakHashMap<ImageView, AtomicBoolean>() }
+
 fun ImageView?.setBitmap(observer: LifecycleOwner, bit: Bitmap?) {
     if (this == null || bit == null) return
-    observer.doOnDestroy { recycle() }
+    //检查是否已经订阅过
+    val isSubscribed = subscriptionMap.getOrPut(this) { AtomicBoolean(false) }
+    if (!isSubscribed.getAndSet(true)) {
+        observer.doOnDestroy {
+            recycle()
+            //移除订阅状态标记
+            subscriptionMap.remove(this)
+        }
+    }
     recycle()
     setImageBitmap(bit)
 }

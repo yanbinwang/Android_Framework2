@@ -207,11 +207,27 @@ fun Context.stopService(cls: Class<out Service>) {
  * 检测服务是否正在运行
  */
 fun Context.isServiceRunning(cls: Class<*>): Boolean {
-    val manager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-    val runningServices = manager?.getRunningServices(Int.MAX_VALUE).orEmpty()
-    for (serviceInfo in runningServices) {
-        if (cls.name == serviceInfo.service.className) {
-            return true
+    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+    val appProcesses = activityManager?.runningAppProcesses
+    if (appProcesses != null) {
+        for (appProcess in appProcesses) {
+            if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND ||
+                appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
+            ) {
+                val packageManager = packageManager
+                try {
+                    val serviceInfos = packageManager.getPackageInfo(packageName, PackageManager.GET_SERVICES).services
+                    if (serviceInfos != null) {
+                        for (serviceInfo in serviceInfos) {
+                            if (serviceInfo.name == cls.name) {
+                                return true
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
     return false
