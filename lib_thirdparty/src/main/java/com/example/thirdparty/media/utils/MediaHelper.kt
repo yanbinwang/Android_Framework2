@@ -1,38 +1,23 @@
 package com.example.thirdparty.media.utils
 
 import android.media.MediaPlayer
-import android.media.MediaRecorder
-import android.os.Build
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.utils.StorageUtil
-import com.example.common.utils.StorageUtil.StorageType.AUDIO
 
 /**
- * @description 录音帮助类（熄屏后无声音，并可能会导致后续声音也录制不了）
+ * @description 音频播放帮助类
  * @author yan
  */
-class MediaHelper : LifecycleEventObserver {
-    private var isDestroy = false
-    private var recorder: MediaRecorder? = null
-    private var listener: OnRecorderListener? = null
+class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
+    private var onCompletionListener: ((MediaPlayer) -> Unit)? = null
+    private var onErrorListener: ((MediaPlayer, Int, Int) -> Boolean)? = null
     private val player by lazy { MediaPlayer() }
 
-    // <editor-fold defaultstate="collapsed" desc="初始化相关">
-    constructor(mActivity: FragmentActivity?) {
-        recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && null != mActivity) MediaRecorder(mActivity) else MediaRecorder()
-        mActivity?.lifecycle?.addObserver(this)
+    init {
+        owner.lifecycle.addObserver(this)
     }
 
-    constructor(observer: LifecycleOwner?) {
-        recorder = MediaRecorder()
-        observer?.lifecycle?.addObserver(this)
-    }
-    // </editor-fold>
-
-    // <editor-fold defaultstate="collapsed" desc="播放相关">
     /**
      * 设置播放的音频地址
      */
@@ -84,81 +69,61 @@ class MediaHelper : LifecycleEventObserver {
     }
 
     /**
+     * 获取当前播放进度
+     */
+    fun getCurrentPosition(): Int {
+        return try {
+            player.currentPosition
+        } catch (_: Exception) {
+            0
+        }
+    }
+
+    /**
+     * 跳转到指定位置
+     */
+    fun seekTo(position: Int) {
+        try {
+            player.seekTo(position)
+        } catch (_: Exception) {
+        }
+    }
+
+    /**
+     * 设置播放完成监听器
+     */
+    fun setOnCompletionListener(listener: (MediaPlayer) -> Unit) {
+        onCompletionListener = listener
+        player.setOnCompletionListener {
+            onCompletionListener?.invoke(it)
+        }
+    }
+
+    /**
+     * 设置错误监听器
+     */
+    fun setOnErrorListener(listener: (MediaPlayer, Int, Int) -> Boolean) {
+        onErrorListener = listener
+        player.setOnErrorListener { mp, what, extra ->
+            onErrorListener?.invoke(mp, what, extra) ?: false
+        }
+    }
+
+    /**
      * 销毁-释放资源
      */
     fun release() {
         try {
             player.apply {
-                stop()
-                reset()
-                release()
-            }
-        } catch (_: Exception) {
-        }
-    }
-    // </editor-fold>
-
-    // <editor-fold defaultstate="collapsed" desc="录音相关">
-    /**
-     * 开始录音
-     */
-    fun startRecord() {
-        isDestroy = false
-        val recordFile = StorageUtil.getOutputFile(AUDIO)
-        val sourcePath = recordFile?.absolutePath
-        listener?.onStart(sourcePath)
-        try {
-            recorder?.apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)//设置麦克风
-                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                //若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                    setOutputFile(sourcePath)
-                } else {
-                    setOutputFile(recordFile)
+                if (isPlaying) {
+                    stop()
                 }
-                prepare()
-                start()
-            }
-        } catch (_: Exception) {
-        }
-    }
-
-    /**
-     * 停止录音
-     */
-    fun stopRecord() {
-        if (!isDestroy) listener?.onShutter()
-        try {
-            recorder?.apply {
-                stop()
                 reset()
                 release()
             }
         } catch (_: Exception) {
         }
-        if (!isDestroy) listener?.onStop()
     }
-
-    /**
-     * 录音监听
-     */
-    fun setOnRecorderListener(listener: OnRecorderListener) {
-        this.listener = listener
-    }
-
-    /**
-     * 回调监听
-     */
-    interface OnRecorderListener {
-        fun onStart(sourcePath: String?)
-
-        fun onShutter()
-
-        fun onStop()
-    }
-    // </editor-fold>
 
     /**
      * 生命周期管控
@@ -166,8 +131,6 @@ class MediaHelper : LifecycleEventObserver {
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
             Lifecycle.Event.ON_DESTROY -> {
-                isDestroy = true
-                stopRecord()
                 release()
                 source.lifecycle.removeObserver(this)
             }
