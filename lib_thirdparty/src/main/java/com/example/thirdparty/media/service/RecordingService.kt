@@ -12,7 +12,16 @@ import androidx.lifecycle.LifecycleService
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType.AUDIO
 
+/**
+ *  <service
+ *      android:name="com.sqkj.home.service.RecordingService"
+ *      android:enabled="true"
+ *      android:exported="false"
+ *      android:configChanges="keyboardHidden|orientation|screenSize"//告诉系统，当指定的配置发生变化时，不要销毁并重新创建该服务，而是让服务自己处理这些变化
+ *      android:foregroundServiceType="mediaPlayback"--》 Q开始后台服务需要配置，否则录制不正常  />
+ */
 class RecordingService : LifecycleService() {
+    private var isRelease = false
     private var recorder: MediaRecorder? = null
     private var wakeLock: PowerManager.WakeLock? = null
 
@@ -54,8 +63,17 @@ class RecordingService : LifecycleService() {
      */
     override fun onDestroy() {
         super.onDestroy()
-        wakeLock?.release()
-        stopRecording()
+        wakeLock?.let {
+            if (it.isHeld) {
+                it.release()
+            }
+        }
+        wakeLock = null
+        if (!isRelease) {
+            stopRecording()
+        } else {
+            isRelease = false
+        }
     }
 
     /**
@@ -63,7 +81,7 @@ class RecordingService : LifecycleService() {
      */
     private fun startRecording() {
         val recordFile = StorageUtil.getOutputFile(AUDIO)
-        val sourcePath = recordFile?.absolutePath
+        val folderPath = recordFile?.absolutePath
         recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()
         try {
             recorder?.apply {
@@ -72,18 +90,19 @@ class RecordingService : LifecycleService() {
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                 //若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                    setOutputFile(sourcePath)
+                    setOutputFile(folderPath)
                 } else {
                     setOutputFile(recordFile)
                 }
                 prepare()
                 start()
                 //仅在 start 成功后触发
-                listener?.onStart(sourcePath)
+                listener?.onStart(folderPath)
             }
         } catch (e: Exception) {
-            releaseRecorder()
+            isRelease = true
             listener?.onError(e)
+            releaseRecorder()
         }
     }
 
@@ -112,11 +131,9 @@ class RecordingService : LifecycleService() {
      * 释放资源
      */
     private fun releaseRecorder() {
-        recorder?.apply {
-            reset()//重置状态（可选）
-            release()//释放底层资源
-            recorder = null//置空引用
-        }
+        recorder?.reset()//重置状态（可选）
+        recorder?.release()//释放底层资源
+        recorder = null//置空引用
     }
 
     /**
@@ -126,7 +143,7 @@ class RecordingService : LifecycleService() {
         /**
          * 开始录制
          */
-        fun onStart(sourcePath: String?)
+        fun onStart(folderPath: String?)
 
         /**
          * 开始存储

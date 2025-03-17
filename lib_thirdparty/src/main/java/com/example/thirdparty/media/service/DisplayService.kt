@@ -15,13 +15,15 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenDensity
-import com.example.common.utils.function.getExtra
-import com.example.framework.utils.function.value.orZero
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType
+import com.example.common.utils.function.getExtra
+import com.example.common.utils.function.isExists
+import com.example.framework.utils.function.value.orZero
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick
+import java.io.File
 
 /**
  *  Created by wangyanbin
@@ -73,21 +75,26 @@ import com.example.thirdparty.media.widget.TimerTick
  *       说明：当服务需要使用软件渲染时，可设置为该类型。例如，一些图形处理应用在进行复杂的图形渲染时，可能会使用软件渲染方式，此时将服务标记为 softwareRendering 类型，系统会为其分配相应的资源。
  */
 class DisplayService : LifecycleService() {
+    private var isRelease = false
     private var folderPath: String? = null
-    private var mediaProjection: MediaProjection? = null
-    private var mediaRecorder: MediaRecorder? = null
-    private var virtualDisplay: VirtualDisplay? = null
+    private var projection: MediaProjection? = null
+    private var recorder: MediaRecorder? = null
+    private var display: VirtualDisplay? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private val timerTick by lazy { TimerTick(this) }
 
     companion object {
-        internal var listener: (folderPath: String?, isRecoding: Boolean) -> Unit = { _, _ -> }
+        /**
+         * 是否是关闭页面，由外层传入，以此判断在服务OnDestroy的时候是否需要执行停止
+         */
+        var isDestroy = false
 
         /**
-         * filePath->开始录制时，会返回源文件存储地址(此时记录一下)停止录制时一定为空，此时做ui操作
-         * recoding->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
+         * 回调监听
          */
-        fun setOnDisplayListener(listener: (folderPath: String?, isRecoding: Boolean) -> Unit) {
+        private var listener: OnDisplayListener? = null
+
+        fun setOnDisplayListener(listener: OnDisplayListener) {
             this.listener = listener
         }
     }
@@ -110,43 +117,35 @@ class DisplayService : LifecycleService() {
         wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "RecordingService:WakeLock")
         //获取 WakeLock  获取一个带有超时限制的唤醒锁，当超过指定的超时时间后，唤醒锁会自动释放
         wakeLock?.acquire()
-
+        //计时器挂载弹框
         timerTick.start(lifecycle)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        try {
-            val resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1)
-//            val resultData = intent?.getParcelableExtra(Extra.BUNDLE_BEAN) ?: Intent()
-            val resultData = intent?.getExtra(Extra.BUNDLE_BEAN, Intent::class.java)
-            mediaProjection = createMediaProjection(resultCode, resultData)
-            mediaRecorder = createMediaRecorder()
-            virtualDisplay = createVirtualDisplay()
-            mediaRecorder?.start()
-        } catch (_: Exception) {
-        }
+        //获取到页面OnActivityResult取得的值
+        val resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1)
+//        val resultData = intent?.getParcelableExtra(Extra.BUNDLE_BEAN) ?: Intent()
+        val resultData = intent?.getExtra(Extra.BUNDLE_BEAN, Intent::class.java)
+        startRecording(resultCode, resultData)
 //        return START_STICKY
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun createMediaProjection(resultCode: Int?, resultData: Intent?): MediaProjection? {
-        resultData ?: return null
-        return (getSystemService(MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager)?.getMediaProjection(resultCode.orZero, resultData)
-    }
-
-    private fun createMediaRecorder(): MediaRecorder {
+    private fun startRecording(resultCode: Int?, resultData: Intent?) {
+        if (resultData == null) throw RuntimeException("resultData is Empty")
         val screenFile = StorageUtil.getOutputFile(StorageType.SCREEN)
         folderPath = screenFile?.absolutePath
-        return (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()).apply {
-            setVideoSource(MediaRecorder.VideoSource.SURFACE)
-            setAudioSource(MediaRecorder.AudioSource.MIC)
-            setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-            setVideoEncodingBitRate(5 * previewWidth * previewHeight)
-            setVideoEncoder(MediaRecorder.VideoEncoder.H264)
-            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            setVideoSize(previewWidth, previewHeight)
-            setVideoFrameRate(60)
-            try {
+        recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()
+        try {
+            recorder?.apply {
+                setVideoSource(MediaRecorder.VideoSource.SURFACE)
+                setAudioSource(MediaRecorder.AudioSource.MIC)
+                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                setVideoEncodingBitRate(5 * previewWidth * previewHeight)
+                setVideoEncoder(MediaRecorder.VideoEncoder.H264)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setVideoSize(previewWidth, previewHeight)
+                setVideoFrameRate(60)
                 //若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                     setOutputFile(screenFile?.absolutePath)
@@ -154,14 +153,48 @@ class DisplayService : LifecycleService() {
                     setOutputFile(screenFile)
                 }
                 prepare()
-            } catch (_: Exception) {
             }
-            listener.invoke(folderPath, true)
+            projection = (getSystemService(MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager)?.getMediaProjection(resultCode.orZero, resultData)
+            display = projection?.createVirtualDisplay("mediaProjection", previewWidth, previewHeight, screenDensity, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, recorder?.surface, null, null)
+            recorder?.start()
+            //仅在 start 成功后触发
+            listener?.onStart(folderPath)
+        } catch (e: Exception) {
+            isRelease = true
+            listener?.onError(e)
+            releaseDisplay()
         }
     }
 
-    private fun createVirtualDisplay(): VirtualDisplay? {
-        return mediaProjection?.createVirtualDisplay("mediaProjection", previewWidth, previewHeight, screenDensity, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mediaRecorder?.surface, null, null)
+    /**
+     * 停止录制
+     */
+    private fun stopRecording() {
+        listener?.onShutter()
+        var exception: Exception? = null
+        try {
+            //阻塞直到文件写入完成
+            recorder?.stop()
+            releaseDisplay()
+        } catch (e: Exception) {
+            exception = e
+        } finally {
+            if (null != exception) {
+                listener?.onError(exception)
+            } else {
+                listener?.onStop()
+            }
+        }
+    }
+
+    private fun releaseDisplay() {
+        recorder?.reset()//重置状态（可选）
+        recorder?.release()//释放底层资源
+        recorder = null//置空引用
+        display?.release()
+        display = null
+        projection?.stop()
+        projection = null
     }
 
 //    override fun onBind(intent: Intent?): IBinder? {
@@ -170,21 +203,51 @@ class DisplayService : LifecycleService() {
 
     override fun onDestroy() {
         super.onDestroy()
-        try {
-//            timerTick.destroy()
-            mediaRecorder?.stop()
-            mediaRecorder?.reset()
-            mediaRecorder?.release()
-            mediaRecorder = null
-            virtualDisplay?.release()
-            virtualDisplay = null
-            mediaProjection?.stop()
-            mediaProjection = null
-            //释放 WakeLock
-            wakeLock?.release()
-        } catch (_: Exception) {
+        timerTick.destroy()
+        wakeLock?.let {
+            if (it.isHeld) {
+                it.release()
+            }
         }
-        listener.invoke(folderPath, false)
+        wakeLock = null
+        if (isDestroy) {
+            isDestroy = false
+            releaseDisplay()
+            if (folderPath.isExists()) {
+                File(folderPath.orEmpty()).delete()
+            }
+        } else {
+            if (!isRelease) {
+                stopRecording()
+            } else {
+                isRelease = false
+            }
+        }
+    }
+
+    /**
+     * 录屏回调监听
+     */
+    interface OnDisplayListener {
+        /**
+         * 开始录制
+         */
+        fun onStart(folderPath: String?)
+
+        /**
+         * 开始存储
+         */
+        fun onShutter()
+
+        /**
+         * 停止录制
+         */
+        fun onStop()
+
+        /**
+         * 报错
+         */
+        fun onError(e: Exception)
     }
 
 }

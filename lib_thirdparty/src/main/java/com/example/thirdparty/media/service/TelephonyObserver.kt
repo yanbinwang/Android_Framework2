@@ -27,6 +27,17 @@ class TelephonyObserver(private val mActivity: FragmentActivity) : LifecycleEven
         mActivity.lifecycle.addObserver(this)
     }
 
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_CREATE -> register()
+            Lifecycle.Event.ON_DESTROY -> {
+                unregister()
+                mActivity.lifecycle.removeObserver(this)
+            }
+            else -> {}
+        }
+    }
+
     private fun register() {
         if (highVersion) {
             manager?.registerTelephonyCallback(mActivity.mainExecutor, callState)
@@ -69,17 +80,6 @@ class TelephonyObserver(private val mActivity: FragmentActivity) : LifecycleEven
          * 接电话状态
          */
         fun onOffHook()
-    }
-
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        when (event) {
-            Lifecycle.Event.ON_CREATE -> register()
-            Lifecycle.Event.ON_DESTROY -> {
-                unregister()
-                mActivity.lifecycle.removeObserver(this)
-            }
-            else -> {}
-        }
     }
 
     /**
