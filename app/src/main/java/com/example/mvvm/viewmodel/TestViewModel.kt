@@ -34,6 +34,26 @@ class TestViewModel : BaseViewModel() {
      */
 //    val token by lazy { MutableStateFlow("") }
 
+//    sealed class Screen {
+//        data object Home : Screen()
+//        data class Profile(val userId: String) : Screen()
+//        data object Settings : Screen()
+//    }
+//
+//    fun navigateTo(screen: Screen) {
+//        when (screen) {
+//            is Screen.Home -> println("Navigating to Home screen.")
+//            is Screen.Profile -> println("Navigating to Profile screen for user ${screen.userId}.")
+//            is Screen.Settings -> println("Navigating to Settings screen.")
+//        }
+//    }
+//
+//    fun main() {
+//        val profileScreen = Screen.Profile("123")
+//        navigateTo(profileScreen)
+//    }
+
+
     /**
      * 串行
      * task1/task2按照顺序依次执行
