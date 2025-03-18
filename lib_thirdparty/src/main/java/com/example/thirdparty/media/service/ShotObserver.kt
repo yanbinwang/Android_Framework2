@@ -2,14 +2,13 @@ package com.example.thirdparty.media.service
 
 import android.database.ContentObserver
 import android.database.Cursor
-import android.graphics.BitmapFactory
 import android.os.Build
 import android.provider.MediaStore
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.utils.function.decodeFile
+import com.example.common.utils.function.isValidImage
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.logE
 import java.io.File
@@ -69,7 +68,7 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
 //                            " \n生成图片的路径:$queryPath\n手机截屏的路径：${file.parent}".logE(TAG)
 //                            listener.invoke(queryPath)
 //                        }
-                        if (queryPath.decodeFile()) {
+                        if (queryPath.isValidImage()) {
                             val file = File(queryPath)
                             " \n生成图片的路径:$queryPath\n手机截屏的路径：${file.parent}".logE(TAG)
                             listener.invoke(queryPath)
