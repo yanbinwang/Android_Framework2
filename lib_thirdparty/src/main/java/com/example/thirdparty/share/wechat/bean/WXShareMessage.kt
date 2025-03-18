@@ -7,7 +7,5 @@ package com.example.thirdparty.share.wechat.bean
 class WXShareMessage(
     var title: String? = null,//消息标题->限制长度不超过 512Bytes
     var description: String? = null,//消息描述->限制长度不超过 1KB
-    var messageExt: String? = null,//微信跳回应用时会带上
-    var thumbData: ByteArray? = null,//
-    var scene: Int? = null//SendMessageToWX.Req.WXSceneSession->朋友 SendMessageToWX.Req.WXSceneTimeline->朋友圈
+    var messageExt: String? = null//微信跳回应用时会带上
 )
