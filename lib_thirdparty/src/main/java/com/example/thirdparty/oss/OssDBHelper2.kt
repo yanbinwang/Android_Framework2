@@ -8,6 +8,7 @@ import com.example.objectbox.dao.OssDB
 import com.example.objectbox.dao.OssDB_
 import io.objectbox.Box
 import io.objectbox.BoxStore
+import io.objectbox.query.Query
 import io.objectbox.query.QueryBuilder.StringOrder
 
 /**
@@ -48,11 +49,7 @@ object OssDBHelper2 {
     fun query(baoquan: String?): OssDB? {
         baoquan ?: return null
         return try {
-            dao?.query()
-                ?.equal(OssDB_.userId, AccountHelper.getUserId(), StringOrder.CASE_SENSITIVE)
-                ?.equal(OssDB_.baoquan, baoquan, StringOrder.CASE_SENSITIVE)
-                ?.build()
-                ?.findUnique()
+            getOssDBByBaoquan(baoquan)?.findUnique()
         } catch (e: Exception) {
             null
         }
@@ -74,11 +71,7 @@ object OssDBHelper2 {
     fun delete(baoquan: String?) {
         baoquan ?: return
         try {
-            dao?.query()
-                ?.equal(OssDB_.userId, AccountHelper.getUserId(), StringOrder.CASE_SENSITIVE)
-                ?.equal(OssDB_.baoquan, baoquan, StringOrder.CASE_SENSITIVE)
-                ?.build()
-                ?.remove()
+            getOssDBByBaoquan(baoquan)?.remove()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -92,9 +85,36 @@ object OssDBHelper2 {
         bean ?: return
         dao?.remove(bean)
     }
+
+    /**
+     * 针对当前用户的保全号的删除
+     */
+    @JvmStatic
+    private fun getOssDBByBaoquan(baoquan: String?): Query<OssDB>? {
+        baoquan ?: return null
+        return try {
+            dao?.query()
+                ?.equal(OssDB_.userId, AccountHelper.getUserId(), StringOrder.CASE_SENSITIVE)
+                ?.equal(OssDB_.baoquan, baoquan, StringOrder.CASE_SENSITIVE)
+                ?.build()
+        } catch (e: Exception) {
+            null
+        }
+    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="项目操作方法">
+    /**
+     * 更新数据库中所有数据的上传状态
+     */
+    @JvmStatic
+    fun addObserver(observer: LifecycleOwner) {
+        //以main为底座，绑定main的生命周期
+        OssFactory.instance.cancelAllWork(observer)
+        //加载数据前，让数据库中所有上传中状态的数据，变为未上传
+        updateUploadAll(false)
+    }
+
     /**
      * 整理数据库对应用户的数据
      * 1.服务器请求完成后-》 val existsList = data.list.filter { it.isExists() }//整理服务器给的对照列表，抓出其中本地具备的文件
@@ -128,10 +148,15 @@ object OssDBHelper2 {
      * 更新所有文件的上传状态（登录成功后调取一次）
      */
     @JvmStatic
-    fun updateUpload(isUpload: Boolean = false) {
-        val list = query()
-        list ?: return
-        list.forEach { updateUpload(it.baoquan, isUpload) }
+    fun updateUploadAll(isUpload: Boolean = false) {
+        //获取所有任务
+        val allTasks = dao?.all.orEmpty()
+        //批量修改任务属性
+        for (task in allTasks) {
+            task.state = if (isUpload) 0 else 1
+        }
+        //批量保存修改后的任务
+        dao?.put(allTasks)
     }
 
     /**
@@ -143,17 +168,6 @@ object OssDBHelper2 {
         bean ?: return
         bean.state = if (isComplete) 2 else 1
         dao?.put(bean)
-    }
-
-    /**
-     * 更新数据库中所有数据的上传状态
-     */
-    @JvmStatic
-    fun addObserver(observer: LifecycleOwner) {
-        //以main为底座，绑定main的生命周期
-        OssFactory.instance.cancelAllWork(observer)
-        //加载数据前，让数据库中所有上传中状态的数据，变为未上传
-        dao?.all?.forEach { updateUpload(it.baoquan, false) }
     }
 
     /**
