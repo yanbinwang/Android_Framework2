@@ -57,12 +57,26 @@ fun String?.decodeDimensions(): IntArray? {
  * 判断一个路径地址是否为一张图片
  * inJustDecodeBounds=true不会把图片放入内存，只会获取宽高，判断当前路径是否为图片，是的话捕获文件路径
  */
-fun String?.decodeFile(): Boolean {
-    this ?: return false
-    val options = BitmapFactory.Options()
-    options.inJustDecodeBounds = true
-    BitmapFactory.decodeFile(this, options)
-    return options.outWidth != -1
+fun String?.isValidImage(): Boolean {
+    return this?.let { path ->
+        try {
+            // 检查文件是否存在
+            if (!File(path).exists()) return@let false
+
+            // 仅获取图片宽高信息
+            val options = BitmapFactory.Options().apply {
+                inJustDecodeBounds = true
+            }
+            BitmapFactory.decodeFile(path, options)
+
+            // 有效图片的宽高必须大于0
+            options.outWidth > 0 && options.outHeight > 0
+        } catch (e: Exception) {
+            // 捕获文件操作异常
+            e.printStackTrace()
+            false
+        }
+    } ?: false
 }
 
 /**
