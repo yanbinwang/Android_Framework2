@@ -2,24 +2,28 @@ package com.example.thirdparty.oss
 
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.function.deleteFile
-import com.example.common.utils.helper.AccountHelper.getUserId
+import com.example.common.utils.helper.AccountHelper
 import com.example.framework.utils.function.value.safeSize
-import com.example.greendao.bean.OssDB
-import com.example.greendao.dao.OssDBDao
+import com.example.objectbox.dao.OssDB
+import com.example.objectbox.dao.OssDB_
+import io.objectbox.Box
+import io.objectbox.BoxStore
+import io.objectbox.query.QueryBuilder.StringOrder
 
 /**
  * OSS帮助类
+ * application中调用MyObjectBox.builder().androidContext(context).build()
  */
-object OssDBHelper {
-    private var dao: OssDBDao? = null
+object OssDBHelper2 {
+    private var dao: Box<OssDB>? = null
 
     // <editor-fold defaultstate="collapsed" desc="数据库基础增删改查">
     /**
      * application中调取
      */
     @JvmStatic
-    fun init(dao: OssDBDao) {
-        OssDBHelper.dao = dao
+    fun init(store: BoxStore) {
+        dao = store.boxFor(OssDB::class.java)
     }
 
     /**
@@ -28,7 +32,10 @@ object OssDBHelper {
     @JvmStatic
     fun query(): MutableList<OssDB>? {
         return try {
-            dao?.queryBuilder()?.where(OssDBDao.Properties.UserId.eq(getUserId()))?.list()
+            dao?.query()
+                ?.equal(OssDB_.userId, AccountHelper.getUserId(), StringOrder.CASE_SENSITIVE)
+                ?.build()
+                ?.find()
         } catch (e: Exception) {
             null
         }
@@ -38,9 +45,14 @@ object OssDBHelper {
      * 查询对应保全号的具体文件信息
      */
     @JvmStatic
-    fun query(baoquan: String): OssDB? {
+    fun query(baoquan: String?): OssDB? {
+        baoquan ?: return null
         return try {
-            dao?.queryBuilder()?.where(OssDBDao.Properties.Baoquan.eq(baoquan), OssDBDao.Properties.UserId.eq(getUserId()))?.unique()
+            dao?.query()
+                ?.equal(OssDB_.userId, AccountHelper.getUserId(), StringOrder.CASE_SENSITIVE)
+                ?.equal(OssDB_.baoquan, baoquan, StringOrder.CASE_SENSITIVE)
+                ?.build()
+                ?.findUnique()
         } catch (e: Exception) {
             null
         }
@@ -52,24 +64,33 @@ object OssDBHelper {
     @JvmStatic
     fun insert(bean: OssDB?) {
         bean ?: return
-        dao?.insertOrReplace(bean)
+        dao?.put(bean)
     }
 
     /**
      * 删除对应baoquan数据
      */
     @JvmStatic
-    fun delete(baoquan: String) {
-        dao?.deleteByKey(baoquan)
+    fun delete(baoquan: String?) {
+        baoquan ?: return
+        try {
+            dao?.query()
+                ?.equal(OssDB_.userId, AccountHelper.getUserId(), StringOrder.CASE_SENSITIVE)
+                ?.equal(OssDB_.baoquan, baoquan, StringOrder.CASE_SENSITIVE)
+                ?.build()
+                ?.remove()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     /**
-     * 删除对应model数据
+     * 删除对应bean数据
      */
     @JvmStatic
     fun delete(bean: OssDB?) {
         bean ?: return
-        dao?.delete(bean)
+        dao?.remove(bean)
     }
     // </editor-fold>
 
@@ -92,30 +113,15 @@ object OssDBHelper {
         }
     }
 
-//    /**
-//     * 获取对应文件在手机内的路径
-//     */
-//    @JvmStatic
-//    fun sourcePath(appType: String, title: String): String {
-//        return "${STORAGE}/${
-//            when (appType) {
-//                "1" -> "拍照"
-//                "2" -> "录音"
-//                "3" -> "录像"
-//                else -> "录屏"
-//            }
-//        }/${title}"
-//    }
-
     /**
      * 开始上传文件
      */
     @JvmStatic
-    fun updateUpload(baoquan: String, isUpload: Boolean = true) {
+    fun updateUpload(baoquan: String?, isUpload: Boolean = true) {
         val bean = query(baoquan)
         bean ?: return
         bean.state = if (isUpload) 0 else 1
-        dao?.update(bean)
+        dao?.put(bean)
     }
 
     /**
@@ -132,11 +138,11 @@ object OssDBHelper {
      * 完成上传，通常此时这条数据已经被删除不存在了
      */
     @JvmStatic
-    fun updateComplete(baoquan: String, isComplete: Boolean = true) {
+    fun updateComplete(baoquan: String?, isComplete: Boolean = true) {
         val bean = query(baoquan)
         bean ?: return
         bean.state = if (isComplete) 2 else 1
-        dao?.update(bean)
+        dao?.put(bean)
     }
 
     /**
@@ -147,7 +153,7 @@ object OssDBHelper {
         //以main为底座，绑定main的生命周期
         OssFactory.instance.cancelAllWork(observer)
         //加载数据前，让数据库中所有上传中状态的数据，变为未上传
-        dao?.loadAll()?.forEach { updateUpload(it.baoquan, false) }
+        dao?.all?.forEach { updateUpload(it.baoquan, false) }
     }
 
     /**
