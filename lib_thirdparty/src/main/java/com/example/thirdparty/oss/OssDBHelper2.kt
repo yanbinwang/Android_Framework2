@@ -111,8 +111,8 @@ object OssDBHelper2 {
     fun addObserver(observer: LifecycleOwner) {
         //以main为底座，绑定main的生命周期
         OssFactory.instance.cancelAllWork(observer)
-        //加载数据前，让数据库中所有上传中状态的数据，变为未上传
-        updateUploadAll(false)
+        //加载数据前，让数据库中所有上传中状态的数据，变为未上传（上传失败）
+        updateAll(1)
     }
 
     /**
@@ -134,13 +134,14 @@ object OssDBHelper2 {
     }
 
     /**
-     * 开始上传文件
+     * 更新文件上传状态
+     * 0上传中 1上传失败 2上传完成（证据缺失直接校验源文件路径）
      */
     @JvmStatic
-    fun updateUpload(baoquan: String?, isUpload: Boolean = true) {
+    fun update(baoquan: String?, state: Int = 2) {
         val bean = query(baoquan)
         bean ?: return
-        bean.state = if (isUpload) 0 else 1
+        bean.state = state
         dao?.put(bean)
     }
 
@@ -148,26 +149,15 @@ object OssDBHelper2 {
      * 更新所有文件的上传状态（登录成功后调取一次）
      */
     @JvmStatic
-    fun updateUploadAll(isUpload: Boolean = false) {
+    fun updateAll(state: Int = 1) {
         //获取所有任务
         val allTasks = dao?.all.orEmpty()
         //批量修改任务属性
         for (task in allTasks) {
-            task.state = if (isUpload) 0 else 1
+            task.state = state
         }
         //批量保存修改后的任务
         dao?.put(allTasks)
-    }
-
-    /**
-     * 完成上传，通常此时这条数据已经被删除不存在了
-     */
-    @JvmStatic
-    fun updateComplete(baoquan: String?, isComplete: Boolean = true) {
-        val bean = query(baoquan)
-        bean ?: return
-        bean.state = if (isComplete) 2 else 1
-        dao?.put(bean)
     }
 
     /**
