@@ -83,13 +83,11 @@ class WXShare(private val owner: LifecycleOwner) {
 
     /**
      * 文字类型分享
-     * //初始化一个 WXTextObject 对象，填写分享的文本内容
      * val textObj = WXTextObject()
      * textObj.text = result?.text
-     * //用 WXTextObject 对象初始化一个 WXMediaMessage 对象
+     *
      * val msg = WXMediaMessage(textObj)
      * msg.description = message?.description
-     * share(msg, "text", mTargetScene)
      */
     fun shareText(text: String, scene: Int = SendMessageToWX.Req.WXSceneSession) {
         share(WXTextObject().also { it.text = text }, "text", scene)
@@ -99,10 +97,9 @@ class WXShare(private val owner: LifecycleOwner) {
      * 图片类型分享
      * imageData	byte[]	图片的二进制数据	内容大小不超过 1MB
      * imagePath	String	图片的本地路径	对应图片内容大小不超过 25MB
-     * 初始化 WXImageObject 和 WXMediaMessage 对象
      * val imgObj = WXImageObject(bmp)//调用的其实是imageData，我们可以下载完要分享的bitmap后进行压缩，然后调用bmpToByteArray(thumbBmp, true)生成bmp
+     *
      * val msg = WXMediaMessage(imgObj)
-     * //设置缩略图
      * msg.thumbData = thumbData
      */
     fun shareImage(bmp: Bitmap, scene: Int = SendMessageToWX.Req.WXSceneSession) {
@@ -111,16 +108,13 @@ class WXShare(private val owner: LifecycleOwner) {
 
     /**
      * 视频类型分享
-     * //初始化一个WXVideoObject，填写url
      * val video = WXVideoObject()
      * video.videoUrl = result?.videoUrl
-     * //用 WXVideoObject 对象初始化一个 WXMediaMessage 对象
+     *
      * val msg = WXMediaMessage(video)
      * msg.title = message?.title
      * msg.description = message?.description
-     * //设置缩略图
      * msg.thumbData = thumbData
-     * share(msg, "video", mTargetScene)
      */
     fun shareVideo(videoUrl: String, scene: Int = SendMessageToWX.Req.WXSceneSession) {
         share(WXVideoObject().also { it.videoUrl = videoUrl }, "video", scene)
@@ -128,35 +122,30 @@ class WXShare(private val owner: LifecycleOwner) {
 
     /**
      * 网页类型分享
-     * //初始化一个WXWebpageObject，填写url
      * val webpage = WXWebpageObject()
      * webpage.webpageUrl = result?.webpageUrl
-     * //用 WXWebpageObject 对象初始化一个 WXMediaMessage 对象
+     *
      * val msg = WXMediaMessage(webpage)
      * msg.title = message?.title
      * msg.description = message?.description
-     * //设置缩略图
      * msg.thumbData = thumbData
-     * share(msg, "webpage", mTargetScene)
      */
     fun shareWebPage(webpageUrl: String, scene: Int = SendMessageToWX.Req.WXSceneSession) {
         share(WXWebpageObject().also { it.webpageUrl = webpageUrl }, "webpage", scene)
     }
 
     /**
-     * 小程序类型分享
+     * 小程序类型分享(小程序目前只支持会话->SendMessageToWX.Req.WXSceneSession)
      * val miniProgramObj = WXMiniProgramObject()
      * miniProgramObj.webpageUrl = result?.webpageUrl//兼容低版本的网页链接
      * miniProgramObj.miniprogramType = result?.miniprogramType.orZero // 正式版:0，测试版:1，体验版:2
      * miniProgramObj.userName = result?.userName//小程序原始id
      * miniProgramObj.path = result?.path //小程序页面路径；对于小游戏，可以只传入 query 部分，来实现传参效果，如：传入 "?foo=bar"
+     *
      * val msg = WXMediaMessage(miniProgramObj)
      * msg.title = message?.title//小程序消息title
      * msg.description = message?.description// 小程序消息desc
-     * // 小程序消息封面图片，小于128k
-     * msg.thumbData = thumbData
-     * //小程序目前只支持会话
-     * share(msg, "miniProgram", SendMessageToWX.Req.WXSceneSession)
+     * msg.thumbData = thumbData// 小程序消息封面图片，小于128k
      */
     fun shareMiniProgram(webpageUrl: String, miniprogramType: Int, userName: String, path: String) {
         //小程序目前只支持会话
@@ -182,27 +171,26 @@ class WXShare(private val owner: LifecycleOwner) {
      * musicVideo.issueDate = 1610713585
      * musicVideo.identification = "sample_identification"
      * musicVideo.duration = 120000 // 单位为毫秒
+     *
      * val msg = WXMediaMessage(musicVideo)
      * msg.title = message?.title // 必填，不能为空
      * msg.description = message?.description // 选填，建议与歌手名字段 singerName 保持一致
      * msg.messageExt = "额外信息" // 微信跳回应用时会带上
-     * // 音乐卡片缩略图，不超过64KB
-     * msg.thumbData = thumbData
-     * share(msg, "musicVideo", mTargetScene)
+     * msg.thumbData = thumbData// 音乐卡片缩略图，不超过64KB
      */
     private fun shareMusic(musicUrl: String, musicDataUrl: String, scene: Int = SendMessageToWX.Req.WXSceneSession) {
         share(WXMusicVideoObject().also {
             it.musicUrl = musicUrl//音乐url
             it.musicDataUrl = musicDataUrl// 音乐音频url
 //            //以下内容不做定制
-//            it.songLyric = "xxx" // 歌词
-//            it.hdAlbumThumbFilePath = "xxx" // 专辑图本地文件路径
+//            it.songLyric = "xxx"
+//            it.hdAlbumThumbFilePath = "xxx"
 //            it.singerName = "xxx"
 //            it.albumName = "album_xxx"
 //            it.musicGenre = "流行歌曲"
 //            it.issueDate = 1610713585
 //            it.identification = "sample_identification"
-//            it.duration = 120000 // 单位为毫秒
+//            it.duration = 120000
         }, "musicVideo", scene)
     }
 
