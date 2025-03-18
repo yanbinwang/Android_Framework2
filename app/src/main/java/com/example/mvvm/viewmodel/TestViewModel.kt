@@ -9,6 +9,7 @@ import com.example.common.network.repository.withHandling
 import com.example.common.subscribe.CommonSubscribe
 import com.example.framework.utils.function.value.safeAs
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
@@ -34,23 +35,50 @@ class TestViewModel : BaseViewModel() {
      */
 //    val token by lazy { MutableStateFlow("") }
 
-//    sealed class Screen {
-//        data object Home : Screen()
-//        data class Profile(val userId: String) : Screen()
-//        data object Settings : Screen()
+//    sealed class PageInfoResult {
+//        data class DealDetailResult(val bean: DealBean?) : PageInfoResult()
+//        data class PaymentListResult(val list: List<PaymentBean>?) : PageInfoResult()
 //    }
 //
-//    fun navigateTo(screen: Screen) {
-//        when (screen) {
-//            is Screen.Home -> println("Navigating to Home screen.")
-//            is Screen.Profile -> println("Navigating to Profile screen for user ${screen.userId}.")
-//            is Screen.Settings -> println("Navigating to Settings screen.")
-//        }
-//    }
-//
-//    fun main() {
-//        val profileScreen = Screen.Profile("123")
-//        navigateTo(profileScreen)
+//    fun getPageInfo(orderId: String?) {
+//        launch {
+//            flow {
+//                //详情页数据
+//                val dealDetailAsync = async {
+//                    request({ OrderSubscribe.getDealDetailApi(reqBodyOf("orderId" to orderId)) }).apply {
+//                        PageInfoResult.DealDetailResult(this)
+//                    }
+//                }
+//                //底部筛选支付数据
+//                val paymentListAsync = async {
+//                    requestLayer({ OrderSubscribe.getPaymentListApi() }).data.apply {
+//                        PageInfoResult.PaymentListResult(this)
+//                    }
+//                }
+//                //并行发起
+//                val asyncList = awaitAll(dealDetailAsync, paymentListAsync)
+//                //发射数据
+//                emit(asyncList)
+//            }.withHandling({
+//                //轮询失败直接报错遮罩，并且停止轮询倒计时
+//                error()
+//                reason.postValue(null)
+//            }).collect {
+//                reset(false)
+//                var bean: DealBean? = null
+//                var list: List<PaymentBean>? = null
+//                it.forEach { result ->
+//                    when (result) {
+//                        is PageInfoResult.DealDetailResult -> bean = result.bean
+//                        is PageInfoResult.PaymentListResult -> list = result.list
+//                    }
+//                }
+//                //后端坑，没详情数据还返回成功，故而增加后续判断
+//                if (null != bean && list.safeSize > 0) {
+//                    pageInfo.postValue(DealBundle(bean, list))
+//                }
+//            }
+//        }.manageJob()
 //    }
 
 
