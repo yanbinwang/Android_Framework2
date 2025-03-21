@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace 'com.example.objectbox'
-    compileSdkVersion build_versions.compileSdkVersion
+    compileSdk build_versions.compileSdkVersion
 
     defaultConfig {
         minSdk build_versions.minSdkVersion

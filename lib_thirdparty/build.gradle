@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace 'com.example.thirdparty'
-    compileSdkVersion build_versions.compileSdkVersion
+    compileSdk build_versions.compileSdkVersion
 
     sourceSets {
         main {
