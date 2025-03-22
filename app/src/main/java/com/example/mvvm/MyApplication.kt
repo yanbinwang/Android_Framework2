@@ -73,7 +73,13 @@ class MyApplication : BaseApplication() {
         //初始化进程监听
         setOnStateChangedListener { if (it) initOss() }
         //授权初始化
-        setOnPrivacyAgreedListener { if (it) { initAMap() } }
+        setOnPrivacyAgreedListener {
+            if (it) {
+                initAMap()
+            }
+        }
+        //初始化需要授权的库
+        initPrivacyAgreed(false)
     }
 
     private fun initAlbum() {
