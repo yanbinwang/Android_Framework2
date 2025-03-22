@@ -106,8 +106,8 @@ abstract class BaseApplication : Application() {
         initSocket()
         //全局进程
         initLifecycle()
-        //初始化友盟/人脸识别->延后
-        initPrivacyAgreed()
+//        //初始化友盟/人脸识别->延后
+//        initPrivacyAgreed()
     }
 
     private fun closeAndroidPDialog() {
@@ -282,6 +282,7 @@ abstract class BaseApplication : Application() {
 
     protected fun setOnPrivacyAgreedListener(onPrivacyAgreedListener: (agreed: Boolean) -> Unit) {
         this.onPrivacyAgreedListener = onPrivacyAgreedListener
+        initPrivacyAgreed()
     }
 
     fun initPrivacyAgreed() {
