@@ -178,6 +178,7 @@
         <activity
             android:name="com.example.home.activity.ScaleActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:screenOrientation="portrait"
             android:theme="@style/TransparentTheme"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- ******************************************************服务****************************************************** -->
