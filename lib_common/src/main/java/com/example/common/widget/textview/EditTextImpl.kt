@@ -83,14 +83,6 @@ interface EditTextImpl {
         return editText.checkPassReg(res, res2)
     }
 
-    fun EditText.checkPassReg(@StringRes res: Int = -1): Boolean {
-        return checkPassReg(res2 = res)
-    }
-
-    fun PasswordEditText.checkPassReg(@StringRes res: Int = -1): Boolean {
-        return editText.checkPassReg(res)
-    }
-
     fun String?.checkPassReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
         this ?: return false
         if (!notEmpty()) {
@@ -102,10 +94,6 @@ interface EditTextImpl {
             return false
         }
         return true
-    }
-
-    fun String?.checkPassReg(@StringRes res: Int = -1): Boolean {
-        return checkPassReg(res2 = res)
     }
 
     fun String?.passwordLevel(): Int {
@@ -129,14 +117,6 @@ interface EditTextImpl {
         return editText.checkEmailReg(res, res2)
     }
 
-    fun EditText.checkEmailReg(@StringRes res: Int = -1): Boolean {
-        return checkEmailReg(res2 = res)
-    }
-
-    fun ClearEditText.checkEmailReg(@StringRes res: Int = -1): Boolean {
-        return editText.checkEmailReg(res)
-    }
-
     fun String?.checkEmailReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
         this ?: return false
         if (!notEmpty()) {
@@ -147,10 +127,6 @@ interface EditTextImpl {
         if (-1 != res2) res2.shortToast()
         return false
     }
-
-    fun String?.checkEmailReg(@StringRes res: Int = -1): Boolean {
-        return checkEmailReg(res2 = res)
-    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="内容是否符合手机要求">
@@ -160,14 +136,6 @@ interface EditTextImpl {
 
     fun ClearEditText.checkMobileReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
         return editText.checkMobileReg(res, res2)
-    }
-
-    fun EditText.checkMobileReg(@StringRes res: Int = -1): Boolean {
-        return checkMobileReg(res2 = res)
-    }
-
-    fun ClearEditText.checkMobileReg(@StringRes res: Int = -1): Boolean {
-        return editText.checkMobileReg(res)
     }
 
     fun String?.checkMobileReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
@@ -182,10 +150,6 @@ interface EditTextImpl {
         }
         return true
     }
-
-    fun String?.checkMobileReg(@StringRes res: Int = -1): Boolean {
-        return checkMobileReg(res2 = res)
-    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="内容是否符合验证码要求">
@@ -193,16 +157,8 @@ interface EditTextImpl {
         return text.toString().checkVerifyReg(res, res2, length)
     }
 
-    fun ClearEditText.checkVerifyReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
-        return editText.checkVerifyReg(res, res2)
-    }
-
-    fun EditText.checkVerifyReg(@StringRes res: Int = -1, length: Int = 6): Boolean {
-        return checkVerifyReg(res2 = res, length = length)
-    }
-
-    fun ClearEditText.checkVerifyReg(@StringRes res: Int = -1): Boolean {
-        return editText.checkVerifyReg(res)
+    fun ClearEditText.checkVerifyReg(@StringRes res: Int = -1, @StringRes res2: Int = -1, length: Int = 6): Boolean {
+        return editText.checkVerifyReg(res, res2, length)
     }
 
     fun String?.checkVerifyReg(@StringRes res: Int = -1, @StringRes res2: Int = -1, length: Int = 6): Boolean {
@@ -216,10 +172,6 @@ interface EditTextImpl {
             return false
         }
         return true
-    }
-
-    fun String?.checkVerifyReg(@StringRes res: Int = -1, length: Int = 6): Boolean {
-        return checkVerifyReg(res2 = res, length = length)
     }
     // </editor-fold>
 
@@ -311,7 +263,7 @@ interface EditTextImpl {
         }
     }
 
-    fun OnMultiTextWatcher.textWatchers(vararg views: View) {
+    fun OnMultiTextWatcher.textWatchers(vararg views: View?) {
         for (view in views) {
             when (view) {
                 is EditText -> view.addTextChangedListener(this)

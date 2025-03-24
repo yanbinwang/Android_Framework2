@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace 'com.example.common'
-    compileSdkVersion build_versions.compileSdkVersion
+    compileSdk build_versions.compileSdkVersion
 
     sourceSets {
         main {

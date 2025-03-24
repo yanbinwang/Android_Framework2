@@ -62,7 +62,7 @@ import java.util.Locale
 @SuppressLint("MissingPermission", "UnspecifiedRegisterReceiverFlag", "PrivateApi", "DiscouragedPrivateApi", "SoonBlockedPrivateApi")
 abstract class BaseApplication : Application() {
     private var onStateChangedListener: (isForeground: Boolean) -> Unit = {}
-    private var onPrivacyAgreedListener: (agreed: Boolean) -> Unit = {}
+    private var onPrivacyAgreedListener: (isAgreed: Boolean) -> Unit = {}
 
     companion object {
         //当前app进程是否处于前台
@@ -178,7 +178,7 @@ abstract class BaseApplication : Application() {
                 if (!needOpenHome) return
                 if (BaseActivity.isAnyActivityStarting) return
                 val clazzName = act.javaClass.simpleName.lowercase(Locale.getDefault())
-                if (clazzName == "homeactivity") return
+                if (clazzName == "mainactivity") return
                 if (clazzName == "splashactivity") return
                 if (AppManager.currentActivity() != act) return
                 if (AppManager.stackCount <= 1) {
@@ -307,12 +307,14 @@ abstract class BaseApplication : Application() {
         this.onPrivacyAgreedListener = onPrivacyAgreedListener
     }
 
-    fun initPrivacyAgreed() {
+    fun initPrivacyAgreed(isInitial: Boolean = true) {
         if (ConfigHelper.getPrivacyAgreed()) {
+            if (isInitial) {
 //            //友盟日志收集
 //            initUM()
 //            //支付宝人脸识别
 //            initVerify()
+            }
             onPrivacyAgreedListener.invoke(true)
         } else {
             onPrivacyAgreedListener.invoke(false)

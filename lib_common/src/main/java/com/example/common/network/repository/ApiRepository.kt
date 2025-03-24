@@ -11,6 +11,7 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.resString
 import com.example.common.utils.helper.AccountHelper
 import com.example.common.utils.toJson
+import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -90,6 +91,7 @@ suspend fun <T> requestAffair(
         val response = withContext(IO) { coroutineScope() }
         return response
     } catch (e: Exception) {
+        log("当前异常：${e.toJson()}")
         throw e
     }
 }
@@ -129,11 +131,14 @@ fun <T> Flow<T>.withHandling(
             else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
         }
         if (isShowToast) wrapper.errMessage?.responseToast()
+        log("当前异常：${exception.toJson()}")
         err(wrapper)
     }.onCompletion {
         end()
     }
 }
+
+private fun log(msg: String) = msg.logE("repository")
 
 /**
  * 请求转换

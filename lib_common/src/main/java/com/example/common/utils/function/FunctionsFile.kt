@@ -163,6 +163,13 @@ fun Number?.getSizeFormat(): String {
 }
 
 /**
+ * 文件长度
+ */
+fun String?.getLength(): Long {
+    return this?.let { File(it).length() } ?: 0L
+}
+
+/**
  * 文件分割
  * cutSize->分割文件的大小
  */
