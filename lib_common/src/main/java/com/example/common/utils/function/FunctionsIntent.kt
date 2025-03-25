@@ -239,15 +239,19 @@ fun Context?.openFile(filePath: String, type: String) {
     this ?: return
     val file = File(filePath)
     if (file.fileValidation()) {
-        startActivity(Intent(Intent.ACTION_VIEW).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                setDataAndType(FileProvider.getUriForFile(this@openFile, "${Constants.APPLICATION_ID}.fileProvider", file), type)
-            } else {
-                setDataAndType("file://$filePath".toUri(), type)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-        })
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW).apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    setDataAndType(FileProvider.getUriForFile(this@openFile, "${Constants.APPLICATION_ID}.fileProvider", file), type)
+                } else {
+                    setDataAndType("file://$filePath".toUri(), type)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            })
+        } catch (e: Exception) {
+            "未找到合适的应用来打开此文件，请安装相关应用".shortToast()
+        }
     }
 }
 
@@ -259,16 +263,20 @@ fun Context?.sendFile(filePath: String, fileType: String? = "*/*", title: String
     this ?: return
     val file = File(filePath)
     if (file.fileValidation()) {
-        startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this@sendFile, "${Constants.APPLICATION_ID}.fileProvider", file))
-            } else {
-                putExtra(Intent.EXTRA_STREAM, file)
-            }
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            type = fileType//此处可发送多种文件
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }, title))
+        try {
+            startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this@sendFile, "${Constants.APPLICATION_ID}.fileProvider", file))
+                } else {
+                    putExtra(Intent.EXTRA_STREAM, file)
+                }
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                type = fileType//此处可发送多种文件
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }, title))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
 
