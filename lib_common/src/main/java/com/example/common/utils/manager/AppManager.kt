@@ -102,6 +102,17 @@ object AppManager {
         }
     }
 
+    fun finishActivityClass(clazzName: String) {
+        try {
+            synchronized(activityStack) {
+                activityStack.filter { it.javaClass.simpleName.lowercase(Locale.getDefault()) == clazzName }
+            }.forEach {
+                finishActivity(it)
+            }
+        } catch (_: Exception) {
+        }
+    }
+
     /**
      * 结束非指定类名的Activity
      */
@@ -116,6 +127,17 @@ object AppManager {
         }
     }
 
+    fun finishNotTargetActivity(vararg clazzNames: String) {
+        try {
+            synchronized(activityStack) {
+                activityStack.filter { it.javaClass.simpleName.lowercase(Locale.getDefault()) !in clazzNames }
+            }.forEach {
+                finishActivity(it)
+            }
+        } catch (_: Exception) {
+        }
+    }
+
     /**
      * 结束指定类名的Activity
      */
@@ -123,6 +145,17 @@ object AppManager {
         try {
             synchronized(activityStack) {
                 activityStack.filter { it.javaClass in cls }
+            }.forEach {
+                finishActivity(it)
+            }
+        } catch (_: Exception) {
+        }
+    }
+
+    fun finishTargetActivity(vararg clazzNames: String) {
+        try {
+            synchronized(activityStack) {
+                activityStack.filter { it.javaClass.simpleName.lowercase(Locale.getDefault()) in clazzNames }
             }.forEach {
                 finishActivity(it)
             }
@@ -186,15 +219,36 @@ object AppManager {
         }
     }
 
+    fun isExistActivity(vararg clazzNames: String): Boolean {
+        return try {
+            synchronized(activityStack) {
+                activityStack.find { it.javaClass.simpleName.lowercase(Locale.getDefault()) in clazzNames }
+            } != null
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     /**
-     * 判断Activity是否存在
-     * p层调用
+     * 判断除当前Activity外，是否有其余页面存在
      */
     fun isExistOtherActivity(thisActivity: Any, vararg cls: Class<*>): Boolean {
         return try {
             synchronized(activityStack) {
                 activityStack.find {
                     (it != thisActivity) && (it.javaClass in cls)
+                }
+            } != null
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun isExistOtherActivity(thisActivity: Any, vararg clazzNames: String): Boolean {
+        return try {
+            synchronized(activityStack) {
+                activityStack.find {
+                    (it != thisActivity) && (it.javaClass.simpleName.lowercase(Locale.getDefault()) in clazzNames)
                 }
             } != null
         } catch (e: Exception) {
