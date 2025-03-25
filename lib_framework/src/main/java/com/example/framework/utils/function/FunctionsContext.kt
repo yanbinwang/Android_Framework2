@@ -282,23 +282,23 @@ fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, 
 /**
  * 页面间取值扩展
  */
-fun Activity.intentString(key: String, default: String = "") = intent.getStringExtra(key) ?: default
+fun Activity.intentString(key: String, default: String = "") = intent?.getStringExtra(key) ?: default
 
-fun Activity.intentStringNullable(key: String) = intent.getStringExtra(key)
+fun Activity.intentStringNullable(key: String) = intent?.getStringExtra(key)
 
-fun Activity.intentInt(key: String, default: Int = 0) = intent.getIntExtra(key, default)
+fun Activity.intentInt(key: String, default: Int = 0) = intent?.getIntExtra(key, default)
 
-fun Activity.intentDouble(key: String, default: Double = 0.0) = intent.getDoubleExtra(key, default)
+fun Activity.intentDouble(key: String, default: Double = 0.0) = intent?.getDoubleExtra(key, default)
 
-fun Activity.intentFloat(key: String, default: Float = 0f) = intent.getFloatExtra(key, default)
+fun Activity.intentFloat(key: String, default: Float = 0f) = intent?.getFloatExtra(key, default)
 
-fun Activity.intentBoolean(key: String, default: Boolean = false) = intent.getBooleanExtra(key, default)
+fun Activity.intentBoolean(key: String, default: Boolean = false) = intent?.getBooleanExtra(key, default)
 
-fun <T : Serializable> Activity.intentSerializable(key: String) = intent.getSerializableExtra(key) as? T
+fun <T : Serializable> Activity.intentSerializable(key: String) = intent?.getSerializableExtra(key) as? T
 
 //fun <T : Serializable> Activity.intentSerializable(key: String, default: T) = intent.getSerializableExtra(key) as? T ?: default
 
-fun <T : Parcelable> Activity.intentParcelable(key: String) = intent.getParcelableExtra(key) as? T
+fun <T : Parcelable> Activity.intentParcelable(key: String) = intent?.getParcelableExtra(key) as? T
 
 fun Fragment.intentString(key: String, default: String = "") = arguments?.getString(key) ?: default
 
