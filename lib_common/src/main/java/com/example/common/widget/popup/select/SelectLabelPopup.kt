@@ -29,6 +29,7 @@ class SelectLabelPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Str
                         }
                         it.mBinding.root
                     }
+                    addView(root)
                     if (list.safeSize - 1 > index) {
                         root.margin(bottom = 1.pt)
                     }
