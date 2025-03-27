@@ -28,9 +28,11 @@ import me.jessyan.autosize.internal.CancelAdapt
  *  进入登录页或者首页的背景如果不是纯白色，可以继承TransitionTheme自己写一个对应颜色的样式
  */
 @Route(path = ARouterPath.SplashActivity)
-class SplashActivity : BaseActivity<ViewDataBinding>(), CancelAdapt {
+class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
 
     override fun isImmersionBarEnabled() = false
+
+    override fun isBindingEnabled() = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (!isTaskRoot

@@ -2,7 +2,7 @@
 buildscript {
     apply from: 'config.gradle'
     ext.greendao_version = '3.3.1'
-    ext.objectbox_version = '3.3.1'
+    ext.objectbox_version = '4.2.0'
     dependencies {
         classpath "org.greenrobot:greendao-gradle-plugin:$greendao_version"
         classpath "io.objectbox:objectbox-gradle-plugin:$objectbox_version"

@@ -25,7 +25,8 @@ abstract class BaseQuickAdapter<T, VDB : ViewDataBinding> : BaseAdapter<T> {
         mContext = parent.context
         val aClass = try {
             (javaClass.genericSuperclass as? ParameterizedType)?.actualTypeArguments?.get(1) as? Class<*>
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         return onCreateViewBindingHolder(parent, aClass as? Class<VDB>)
     }

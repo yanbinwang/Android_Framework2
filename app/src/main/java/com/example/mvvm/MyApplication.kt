@@ -17,6 +17,7 @@ import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import com.zxy.recovery.core.Recovery
 import java.util.Locale
+import io.objectbox.BoxStore
 
 /**
  * Created by WangYanBin on 2020/8/14.
@@ -24,6 +25,9 @@ import java.util.Locale
  * 2.如果依赖了common库，且在thirdparty中做了二次工具类的封装，此时若还需在application中初始化，放在MyApplication中
  */
 class MyApplication : BaseApplication() {
+    //数据库
+    private lateinit var daoMaster: DaoMaster
+    private lateinit var boxStore: BoxStore
 
     companion object {
         val instance: MyApplication
@@ -67,6 +71,7 @@ class MyApplication : BaseApplication() {
         //初始化图片库类
         initAlbum()
         //数据库初始化
+        initDao()
         initOssDao()
         //初始化oss
         initOss()
@@ -89,9 +94,27 @@ class MyApplication : BaseApplication() {
             .build())
     }
 
+    private fun initDao() {
+        //确保只初始化一次（Kotlin内部处理线程安全）
+        if (!::daoMaster.isInitialized) {
+            try {
+                val dbOpenHelper = DaoMaster.DevOpenHelper(applicationContext, "${VERSION_NAME}.db", null)
+                val readableDb = dbOpenHelper.readableDb
+                daoMaster = DaoMaster(readableDb)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        if (!::boxStore.isInitialized) {
+            boxStore = MyObjectBox.builder()
+                .androidContext(applicationContext)
+                .build()
+        }
+    }
+
     private fun initOssDao() {
-        OssDBHelper.init(DaoMaster(DaoMaster.DevOpenHelper(applicationContext, "${VERSION_NAME}.db", null).readableDb).newSession().ossDBDao)
-        OssDBHelper2.init(MyObjectBox.builder().androidContext(applicationContext).build())
+        OssDBHelper.init(daoMaster.newSession().ossDBDao)
+        OssDBHelper2.init(boxStore)
     }
 
     private fun initOss() {
