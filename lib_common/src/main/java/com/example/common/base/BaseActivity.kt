@@ -68,7 +68,7 @@ import kotlin.coroutines.CoroutineContext
  * 無xml的界面，泛型括號裡傳ViewDataBinding
  */
 @Suppress("UNCHECKED_CAST")
-abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
+abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected var mBinding: VDB? = null
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected val mActivityResult = registerResult { onActivityResultListener?.invoke(it) }
@@ -130,6 +130,13 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         return true
     }
 
+    /**
+     * 不需要binding的页面《》内传Nothing，并调取该方法
+     */
+    protected open fun isBindingEnabled(): Boolean {
+        return true
+    }
+
     override fun <VM : BaseViewModel> VM.create(): VM? {
         return javaClass.create(lifecycle, this@BaseActivity).also { it.initialize(this@BaseActivity, this@BaseActivity) }
     }
@@ -146,15 +153,18 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun initView(savedInstanceState: Bundle?) {
-        val type = javaClass.genericSuperclass
-        if (type is ParameterizedType) {
-            try {
-                val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
-                val method = vdbClass?.getDeclaredMethod("inflate", LayoutInflater::class.java)
-                mBinding = method?.invoke(null, layoutInflater) as? VDB
-                mBinding?.lifecycleOwner = this
-                setContentView(mBinding?.root)
-            } catch (_: Exception) {
+        if (isBindingEnabled()) {
+            val type = javaClass.genericSuperclass
+            if (type is ParameterizedType) {
+                try {
+                    val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
+                    val method = vdbClass?.getDeclaredMethod("inflate", LayoutInflater::class.java)
+                    mBinding = method?.invoke(null, layoutInflater) as? VDB
+                    mBinding?.lifecycleOwner = this
+                    setContentView(mBinding?.root)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
         ARouter.getInstance().inject(this)

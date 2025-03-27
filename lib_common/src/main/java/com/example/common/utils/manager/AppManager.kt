@@ -5,7 +5,7 @@ import android.app.ActivityManager
 import android.content.Context
 import android.os.Process
 import com.example.common.BaseApplication
-import java.util.*
+import java.util.Stack
 import kotlin.system.exitProcess
 
 /**
@@ -91,7 +91,7 @@ object AppManager {
     /**
      * 结束指定类名的Activity
      */
-    fun finishActivityClass(cls: Class<*>) {
+    fun finishActivityClass(cls: Class<*>?) {
         try {
             synchronized(activityStack) {
                 activityStack.filter { it.javaClass == cls }
@@ -105,7 +105,7 @@ object AppManager {
     /**
      * 结束非指定类名的Activity
      */
-    fun finishNotTargetActivity(vararg cls: Class<*>) {
+    fun finishNotTargetActivity(vararg cls: Class<*>?) {
         try {
             synchronized(activityStack) {
                 activityStack.filter { it.javaClass !in cls }
@@ -119,7 +119,7 @@ object AppManager {
     /**
      * 结束指定类名的Activity
      */
-    fun finishTargetActivity(vararg cls: Class<*>) {
+    fun finishTargetActivity(vararg cls: Class<*>?) {
         try {
             synchronized(activityStack) {
                 activityStack.filter { it.javaClass in cls }
@@ -176,7 +176,7 @@ object AppManager {
     /**
      * 判断Activity是否存在
      */
-    fun isExistActivity(vararg cls: Class<*>): Boolean {
+    fun isExistActivity(vararg cls: Class<*>?): Boolean {
         return try {
             synchronized(activityStack) {
                 activityStack.find { it.javaClass in cls }
@@ -187,10 +187,9 @@ object AppManager {
     }
 
     /**
-     * 判断Activity是否存在
-     * p层调用
+     * 判断除当前Activity外，是否有其余页面存在
      */
-    fun isExistOtherActivity(thisActivity: Any, vararg cls: Class<*>): Boolean {
+    fun isExistOtherActivity(thisActivity: Any, vararg cls: Class<*>?): Boolean {
         return try {
             synchronized(activityStack) {
                 activityStack.find {

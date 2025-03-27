@@ -56,7 +56,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 mBinding = method?.invoke(null, window.layoutInflater) as? VDB
                 contentView = mBinding?.root
                 popupView = mBinding?.root
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
         width = if (popupWidth < 0) popupWidth else popupWidth.pt

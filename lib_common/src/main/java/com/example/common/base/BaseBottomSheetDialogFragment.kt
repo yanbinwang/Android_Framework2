@@ -71,7 +71,7 @@ import kotlin.coroutines.CoroutineContext
  * 底部弹框使用的dialog
  */
 @Suppress("UNCHECKED_CAST")
-abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
+abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
@@ -110,13 +110,19 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
                 .setScreenHeight(screenHeight)
             AutoSizeCompat.autoConvertDensityOfGlobal(resources)
         }
-        return try {
-            val superclass = javaClass.genericSuperclass
-            val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
-            val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            mBinding = method?.invoke(null, inflater, container, false) as? VDB
-            mBinding?.root
-        } catch (_: Exception) {
+        return if (isBindingEnabled()) {
+            try {
+                val superclass = javaClass.genericSuperclass
+                val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
+                val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
+                mBinding = method?.invoke(null, inflater, container, false) as? VDB
+                mBinding?.lifecycleOwner = this
+                mBinding?.root
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        } else {
             null
         }
     }
@@ -240,6 +246,10 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         } catch (e: Exception) {
             e.logE
         }
+    }
+
+    protected open fun isBindingEnabled(): Boolean {
+        return true
     }
 
     override fun <VM : BaseViewModel> VM.create(): VM? {

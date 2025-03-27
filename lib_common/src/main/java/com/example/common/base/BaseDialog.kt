@@ -42,7 +42,8 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
                 mBinding = method?.invoke(null, layoutInflater) as? VDB
                 mBinding?.root?.let { setContentView(it) }
                 dialogView = mBinding?.root
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
         window?.let {

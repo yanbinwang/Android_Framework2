@@ -72,7 +72,7 @@ import kotlin.coroutines.CoroutineContext
  */
 @Suppress("UNCHECKED_CAST")
 @SuppressLint("UseRequireInsteadOfGet")
-abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseView, CoroutineScope {
+abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, BaseView, CoroutineScope {
     protected var lazyData = false
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
@@ -96,7 +96,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        WebSocketObserver.addObserver(this)
         if (isEventBusEnabled()) {
             EventBus.instance.register(this) {
                 it.onEvent()
@@ -111,13 +110,19 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
                 .setScreenHeight(screenHeight)
             AutoSizeCompat.autoConvertDensityOfGlobal(resources)
         }
-        return try {
-            val superclass = javaClass.genericSuperclass
-            val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
-            val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            mBinding = method?.invoke(null, inflater, container, false) as? VDB
-            mBinding?.root
-        } catch (_: Exception) {
+        return if (isBindingEnabled()) {
+            try {
+                val superclass = javaClass.genericSuperclass
+                val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
+                val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
+                mBinding = method?.invoke(null, inflater, container, false) as? VDB
+                mBinding?.lifecycleOwner = this
+                mBinding?.root
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        } else {
             null
         }
     }
@@ -127,6 +132,10 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         initView(savedInstanceState)
         initEvent()
         if (!lazyData) initData()
+    }
+
+    protected open fun isBindingEnabled(): Boolean {
+        return true
     }
 
     override fun <VM : BaseViewModel> VM.create(): VM? {
