@@ -110,7 +110,7 @@ class TimerBuilder(observer: LifecycleOwner) {
      * countDownInterval:-》间隔时间
      * 接收onTick（长）回调的时间间隔（单位：毫秒）
      */
-    fun startCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG, onTick: ((second: Long) -> Unit), onFinish: (() -> Unit), millisInFuture: Long = 1000, countDownInterval: Long = 1.second) {
+    fun startCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG, onTick: ((second: Long) -> Unit), onFinish: (() -> Unit), millisInFuture: Long = 1.second, countDownInterval: Long = 1000) {
         stopCountDown(tag)
         if (countDownMap[tag] == null) {
             countDownMap[tag] = object : CountDownTimer(millisInFuture, countDownInterval) {
