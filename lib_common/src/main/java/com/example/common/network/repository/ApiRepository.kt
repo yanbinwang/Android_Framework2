@@ -85,6 +85,8 @@ suspend fun <T> requestLayer(
         },
         onFailure = { exception ->
             val wrapper = wrapper(exception)
+            //此处的err直接是网络请求失败，如果外层套了flow，那onSuccess请求失败的异常这边是接受不到的，直接会被flow的catch接受
+            err.invoke(wrapper)
             throw wrapper
         }
     )
