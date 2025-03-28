@@ -64,7 +64,7 @@ suspend fun <T> requestLayer(
         if (!response.tokenExpired() && response.successful()) {
             return response
         } else {
-            val wrapper = ResponseWrapper(response.code, response.msg)
+            val wrapper = ResponseWrapper(response.code, response.msg, RuntimeException("Unhandled error: ${response.toJson()}"))
             err.invoke(wrapper)
             throw wrapper
         }
@@ -89,7 +89,6 @@ suspend fun <T> requestAffair(
         val response = withContext(IO) { coroutineScope() }
         return response
     } catch (e: Exception) {
-        log("当前异常：${e.toJson()}")
         throw e
     }
 }
@@ -129,14 +128,14 @@ fun <T> Flow<T>.withHandling(
             else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
         }
         if (isShowToast) wrapper.errMessage?.responseToast()
-        log("当前异常：${exception.toJson()}")
+        log("请求异常：${exception.toJson()}")
         err(wrapper)
     }.onCompletion {
         end()
     }
 }
 
-private fun log(msg: String) = msg.logE("repository")
+private fun log(msg: String) = msg.logE("LoggingInterceptor")
 
 /**
  * 请求转换
