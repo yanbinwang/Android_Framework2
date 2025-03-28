@@ -71,16 +71,6 @@ suspend fun <T> requestLayer(
 //    } catch (e: Exception) {
 //        throw e
 //    }
-    /**
-     * 如果外层嵌套了flow，且flow也写了catch，会导致内部的catch不自信，外层抢先一步获取
-     * 直接在flow的emit这catch，抓取到此次异常
-     * try {
-     *     emit(requestLayer(coroutineScope, err))
-     *  } catch (e: Exception) {
-     *    // 可以在这里做额外处理
-     *     throw e
-     * }
-     */
     return runCatching {
         withContext(IO) { coroutineScope() }
     }.fold(
@@ -100,13 +90,30 @@ suspend fun <T> requestLayer(
     )
 }
 
+/**
+ * 如果外层嵌套了flow，且flow也写了catch，会导致内部的catch不自信，外层抢先一步获取
+ * 直接在flow的emit这catch，抓取到此次异常
+ * try {
+ *     emit(requestLayer(coroutineScope, err))
+ *  } catch (e: Exception) {
+ *    // 可以在这里做额外处理
+ *     throw e
+ * }
+ */
 suspend fun <T> requestLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (ApiResponse<T>) -> Unit,
     err: (ResponseWrapper) -> Unit
 ) {
-    val response = requestLayer(coroutineScope, err)
-    resp.invoke(response)
+//    val response = requestLayer(coroutineScope, err)
+//    resp.invoke(response)
+    runCatching {
+        val response = requestLayer(coroutineScope, err)
+        resp.invoke(response)
+    }.onFailure {
+        val wrapper = wrapper(it)
+        err.invoke(wrapper)
+    }
 }
 
 suspend fun <T> requestAffair(
