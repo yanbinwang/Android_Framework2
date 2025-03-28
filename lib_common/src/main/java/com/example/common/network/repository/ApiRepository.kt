@@ -109,15 +109,15 @@ suspend fun <T> requestLayer(
 ) {
 //    val response = requestLayer(coroutineScope, err)
 //    resp.invoke(response)
-    runCatching {
+    try {
         val response = requestLayer(coroutineScope, err)
         resp.invoke(response)
-    }.onFailure {
+    } catch (e: Throwable) {
         /**
          * 此处会先一步flow捕获异常，因为如果在requestLayer（）方法内，它的catch有网络请求框架失败的上抛
          * 如果这里不接取，flow就会捕获了，此处是为了对一个请求失败时候也做特殊处理（比如页数-1），所以这边再套一层，回调后再抛给flow
          */
-        val wrapper = wrapper(it)
+        val wrapper = wrapper(e)
         err.invoke(wrapper)
         throw wrapper
     }
