@@ -58,19 +58,46 @@ suspend fun <T> requestLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     err: (ResponseWrapper) -> Unit = {}
 ): ApiResponse<T> {
-    try {
-        //请求+响应数据
-        val response = withContext(IO) { coroutineScope() }
-        if (!response.tokenExpired() && response.successful()) {
-            return response
-        } else {
-            val wrapper = ResponseWrapper(response.code, response.msg, RuntimeException("Unhandled error: ${response.toJson()}"))
-            err.invoke(wrapper)
+//    try {
+//        //请求+响应数据
+//        val response = withContext(IO) { coroutineScope() }
+//        if (!response.tokenExpired() && response.successful()) {
+//            return response
+//        } else {
+//            val wrapper = ResponseWrapper(response.code, response.msg, RuntimeException("Unhandled error: ${response.toJson()}"))
+//            err.invoke(wrapper)
+//            throw wrapper
+//        }
+//    } catch (e: Exception) {
+//        throw e
+//    }
+    /**
+     * 如果外层嵌套了flow，且flow也写了catch，会导致内部的catch不自信，外层抢先一步获取
+     * 直接在flow的emit这catch，抓取到此次异常
+     * try {
+     *     emit(requestLayer(coroutineScope, err))
+     *  } catch (e: Exception) {
+     *    // 可以在这里做额外处理
+     *     throw e
+     * }
+     */
+    return runCatching {
+        withContext(IO) { coroutineScope() }
+    }.fold(
+        onSuccess = { response ->
+            if (!response.tokenExpired() && response.successful()) {
+                response
+            } else {
+                val wrapper = ResponseWrapper(response.code, response.msg, RuntimeException("Unhandled error: ${response.toJson()}"))
+                err.invoke(wrapper)
+                throw wrapper
+            }
+        },
+        onFailure = { exception ->
+            val wrapper = wrapper(exception)
             throw wrapper
         }
-    } catch (e: Exception) {
-        throw e
-    }
+    )
 }
 
 suspend fun <T> requestLayer(
@@ -85,12 +112,22 @@ suspend fun <T> requestLayer(
 suspend fun <T> requestAffair(
     coroutineScope: suspend CoroutineScope.() -> T
 ): T {
-    try {
-        val response = withContext(IO) { coroutineScope() }
-        return response
-    } catch (e: Exception) {
-        throw e
-    }
+//    try {
+//        val response = withContext(IO) { coroutineScope() }
+//        return response
+//    } catch (e: Exception) {
+//        throw e
+//    }
+    return runCatching {
+        withContext(IO) { coroutineScope() }
+    }.fold(
+        onSuccess = {
+            it
+        },
+        onFailure = {
+            throw it
+        }
+    )
 }
 
 /**
@@ -123,16 +160,21 @@ fun <T> Flow<T>.withHandling(
     isShowToast: Boolean = false,
 ): Flow<T> {
     return flowOn(Main).catch { exception ->
-        val wrapper: ResponseWrapper = when (exception) {
-            is ResponseWrapper -> exception
-            else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
-        }
+        val wrapper = wrapper(exception)
         if (isShowToast) wrapper.errMessage?.responseToast()
         log("请求异常：${exception.toJson()}")
         err(wrapper)
     }.onCompletion {
         end()
     }
+}
+
+private fun wrapper(exception: Throwable): ResponseWrapper {
+    val wrapper: ResponseWrapper = when (exception) {
+        is ResponseWrapper -> exception
+        else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
+    }
+    return wrapper
 }
 
 private fun log(msg: String) = msg.logE("LoggingInterceptor")
