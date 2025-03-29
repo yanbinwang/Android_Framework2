@@ -807,8 +807,15 @@ fun ImageView?.setBitmap(observer: LifecycleOwner, bit: Bitmap?) {
  */
 fun ImageView?.recycle() {
     this ?: return
-    val oldBitmap = (getDrawable() as? BitmapDrawable)?.bitmap
-    oldBitmap?.recycle()
+//    val oldBitmap = (getDrawable() as? BitmapDrawable)?.bitmap
+//    oldBitmap?.recycle()
+    val drawable = this.drawable
+    if (drawable is BitmapDrawable) {
+        val bitmap = drawable.bitmap
+        if (!bitmap.isRecycled) {
+            bitmap.recycle()
+        }
+    }
 }
 
 /**
