@@ -58,38 +58,19 @@ suspend fun <T> requestLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     err: (ResponseWrapper) -> Unit = {}
 ): ApiResponse<T> {
-//    try {
-//        //请求+响应数据
-//        val response = withContext(IO) { coroutineScope() }
-//        if (!response.tokenExpired() && response.successful()) {
-//            return response
-//        } else {
-//            val wrapper = ResponseWrapper(response.code, response.msg, RuntimeException("Unhandled error: ${response.toJson()}"))
-//            err.invoke(wrapper)
-//            throw wrapper
-//        }
-//    } catch (e: Exception) {
-//        throw e
-//    }
-    return runCatching {
+    return try {
         withContext(IO) { coroutineScope() }
-    }.fold(
-        onSuccess = { response ->
-            if (!response.tokenExpired() && response.successful()) {
-                response
-            } else {
-                val wrapper = ResponseWrapper(response.code, response.msg, RuntimeException("Unhandled error: ${response.toJson()} -> ${response.data.toString()}"))
-                err.invoke(wrapper)
-                throw wrapper
-            }
-        },
-        onFailure = { exception ->
-            val wrapper = wrapper(exception)
-            //此处的err直接是网络请求失败，如果外层套了flow，那onSuccess请求失败的异常这边是接受不到的，直接会被flow的catch接受
-            err.invoke(wrapper)
+    } catch (e: Exception) {
+        val wrapper = wrapper(e)
+        err(wrapper)
+        throw wrapper
+    }.also { response ->
+        if (!response.successful() || response.tokenExpired()) {
+            val wrapper = ResponseWrapper(response.code, response.msg, RuntimeException("Unhandled error: ${response.toJson()} -> ${response.data.toString()}"))
+            err(wrapper)
             throw wrapper
         }
-    )
+    }
 }
 
 /**
@@ -126,22 +107,11 @@ suspend fun <T> requestLayer(
 suspend fun <T> requestAffair(
     coroutineScope: suspend CoroutineScope.() -> T
 ): T {
-//    try {
-//        val response = withContext(IO) { coroutineScope() }
-//        return response
-//    } catch (e: Exception) {
-//        throw e
-//    }
-    return runCatching {
+    return try {
         withContext(IO) { coroutineScope() }
-    }.fold(
-        onSuccess = {
-            it
-        },
-        onFailure = {
-            throw it
-        }
-    )
+    } catch (e: Exception) {
+        throw e
+    }
 }
 
 /**
