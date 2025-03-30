@@ -68,7 +68,7 @@ suspend fun <T> requestLayer(
 ): ApiResponse<T> {
     return try {
         withContext(IO) { coroutineScope() }
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
         val wrapper = wrapper(e)
         err(wrapper)
         throw wrapper
@@ -86,7 +86,7 @@ suspend fun <T> requestLayer(
  * 直接在flow的emit这catch，抓取到此次异常
  * try {
  *     emit(requestLayer(coroutineScope, err))
- *  } catch (e: Exception) {
+ *  } catch (e: Throwable) {
  *    // 可以在这里做额外处理
  *     throw e
  * }
@@ -117,7 +117,7 @@ suspend fun <T> requestAffair(
 ): T {
     return try {
         withContext(IO) { coroutineScope() }
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
         throw e
     }
 }
