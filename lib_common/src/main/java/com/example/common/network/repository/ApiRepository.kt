@@ -10,7 +10,6 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.resString
 import com.example.common.utils.helper.AccountHelper
 import com.example.common.utils.toJson
-import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -46,16 +45,8 @@ suspend fun <T> request(
     resp: (T?) -> Unit,
     err: (ResponseWrapper) -> Unit
 ) {
-//    val data = request(coroutineScope, err)
-//    resp.invoke(data)
-    try {
-        val data = request(coroutineScope, err)
-        resp.invoke(data)
-    } catch (e: Throwable) {
-        val wrapper = wrapper(e)
-        err.invoke(wrapper)
-        throw wrapper
-    }
+    val data = request(coroutineScope, err)
+    resp.invoke(data)
 }
 
 /**
@@ -96,20 +87,8 @@ suspend fun <T> requestLayer(
     resp: (ApiResponse<T>) -> Unit,
     err: (ResponseWrapper) -> Unit
 ) {
-//    val response = requestLayer(coroutineScope, err)
-//    resp.invoke(response)
-    try {
-        val response = requestLayer(coroutineScope, err)
-        resp.invoke(response)
-    } catch (e: Throwable) {
-        /**
-         * 此处会先一步flow捕获异常，因为如果在requestLayer（）方法内，它的catch有网络请求框架失败的上抛
-         * 如果这里不接取，flow就会捕获了，此处是为了对一个请求失败时候也做特殊处理（比如页数-1），所以这边再套一层，回调后再抛给flow
-         */
-        val wrapper = wrapper(e)
-        err.invoke(wrapper)
-        throw wrapper
-    }
+    val response = requestLayer(coroutineScope, err)
+    resp.invoke(response)
 }
 
 suspend fun <T> requestAffair(
@@ -154,7 +133,6 @@ fun <T> Flow<T>.withHandling(
     return flowOn(Main).catch { exception ->
         val wrapper = wrapper(exception)
         if (isShowToast) wrapper.errMessage?.responseToast()
-        log("请求异常：${exception.toJson()}")
         err(wrapper)
     }.onCompletion {
         end()
@@ -168,8 +146,6 @@ private fun wrapper(exception: Throwable): ResponseWrapper {
     }
     return wrapper
 }
-
-private fun log(msg: String) = msg.logE("LoggingInterceptor")
 
 /**
  * 请求转换
