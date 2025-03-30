@@ -46,8 +46,16 @@ suspend fun <T> request(
     resp: (T?) -> Unit,
     err: (ResponseWrapper) -> Unit
 ) {
-    val data = request(coroutineScope, err)
-    resp.invoke(data)
+//    val data = request(coroutineScope, err)
+//    resp.invoke(data)
+    try {
+        val data = request(coroutineScope, err)
+        resp.invoke(data)
+    } catch (e: Throwable) {
+        val wrapper = wrapper(e)
+        err.invoke(wrapper)
+        throw wrapper
+    }
 }
 
 /**
