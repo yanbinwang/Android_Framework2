@@ -95,7 +95,7 @@ internal class LoggingInterceptor : Interceptor {
     private fun log(headers: Headers, requestUrl: String, queryParams: String?, responseResult: String?) {
         LogUtil.e("LoggingInterceptor", " " +
                 "\n————————————————————————请求开始————————————————————————" +
-                "\n请求头:\n" + headers.toString().trim { it <= ' ' } +
+                "\n请求头:\n" + headers.toString().trimEnd { it == '\n' } +
                 "\n请求地址:\n" + requestUrl +
                 "\n请求参数:\n" + queryParams.orNoData() +
                 "\n返回参数:\n" + decode(responseResult) +
