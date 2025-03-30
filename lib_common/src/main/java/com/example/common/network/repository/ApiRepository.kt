@@ -65,7 +65,7 @@ suspend fun <T> requestLayer(
         throw wrapper
     }.also { response ->
         if (!response.successful() || response.tokenExpired()) {
-            val wrapper = ResponseWrapper(response.code, response.msg, RuntimeException("Unhandled error: ${response.toJson()} -> ${response.data.toString()}"))
+            val wrapper = ResponseWrapper(response.code, response.msg)
             err(wrapper)
             throw wrapper
         }
