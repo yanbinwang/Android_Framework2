@@ -11,7 +11,6 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.resString
 import com.example.common.utils.helper.AccountHelper
 import com.example.common.utils.toJson
-import com.example.framework.utils.logE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -59,19 +58,19 @@ suspend fun <T> requestLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     err: (ResponseWrapper) -> Unit = {}
 ): ApiResponse<T> {
-    try {
-        //请求+响应数据
-        val response = withContext(IO) { coroutineScope() }
-        if (!response.tokenExpired() && response.successful()) {
-            return response
-        } else {
-            //{"success":false,"errCode":"A0205","errMessage":"账号或密码错误 (A0205)","data":null}
-            val wrapper = ResponseWrapper(response.errCode, response.errMessage, null)
-            err.invoke(wrapper)
+    return try {
+        withContext(IO) { coroutineScope() }
+    } catch (e: Throwable) {
+        val wrapper = wrapper(e)
+        err(wrapper)
+        throw wrapper
+    }.also { response ->
+        //{"success":false,"errCode":"A0205","errMessage":"账号或密码错误 (A0205)","data":null}
+        if (!response.successful() || response.tokenExpired()) {
+            val wrapper = ResponseWrapper(response.errCode, response.errMessage)
+            err(wrapper)
             throw wrapper
         }
-    } catch (e: Exception) {
-        throw e
     }
 }
 
@@ -87,11 +86,9 @@ suspend fun <T> requestLayer(
 suspend fun <T> requestAffair(
     coroutineScope: suspend CoroutineScope.() -> T
 ): T {
-    try {
-        val response = withContext(IO) { coroutineScope() }
-        return response
-    } catch (e: Exception) {
-        log("当前异常：${e.toJson()}")
+    return try {
+        withContext(IO) { coroutineScope() }
+    } catch (e: Throwable) {
         throw e
     }
 }
@@ -126,19 +123,21 @@ fun <T> Flow<T>.withHandling(
     isShowToast: Boolean = false,
 ): Flow<T> {
     return flowOn(Main).catch { exception ->
-        val wrapper: ResponseWrapper = when (exception) {
-            is ResponseWrapper -> exception
-            else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
-        }
+        val wrapper = wrapper(exception)
         if (isShowToast) wrapper.errMessage?.responseToast()
-        log("当前异常：${exception.toJson()}")
         err(wrapper)
     }.onCompletion {
         end()
     }
 }
 
-private fun log(msg: String) = msg.logE("repository")
+private fun wrapper(exception: Throwable): ResponseWrapper {
+    val wrapper: ResponseWrapper = when (exception) {
+        is ResponseWrapper -> exception
+        else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
+    }
+    return wrapper
+}
 
 /**
  * 请求转换
