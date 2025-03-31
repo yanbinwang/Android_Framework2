@@ -34,18 +34,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
     private var dialogView: View? = null
 
     init {
-        val type = javaClass.genericSuperclass
-        if (type is ParameterizedType) {
-            try {
-                val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
-                val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
-                mBinding = method?.invoke(null, layoutInflater) as? VDB
-                mBinding?.root?.let { setContentView(it) }
-                dialogView = mBinding?.root
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+        initBinding()
         window?.let {
             val lp = it.attributes
             lp.width = if (dialogWidth < 0) dialogWidth else dialogWidth.pt
@@ -66,6 +55,21 @@ abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: 
     }
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
+    private fun initBinding() {
+        val type = javaClass.genericSuperclass
+        if (type is ParameterizedType) {
+            try {
+                val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
+                val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
+                mBinding = method?.invoke(null, layoutInflater) as? VDB
+                mBinding?.root?.let { setContentView(it) }
+                dialogView = mBinding?.root
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     open fun setType() {
         window?.setType(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
     }
