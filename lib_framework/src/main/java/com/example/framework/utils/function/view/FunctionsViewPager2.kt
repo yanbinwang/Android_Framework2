@@ -40,7 +40,23 @@ fun ViewPager2?.reduceSensitivity() {
         touchSlopField.isAccessible = true
         val touchSlop = touchSlopField.get(recyclerView) as? Int
         touchSlopField.set(recyclerView, touchSlop.orZero * 3)
-    } catch (ignore: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+/**
+ * 选中某页
+ */
+fun ViewPager2?.setCurrentItem(item: Int) {
+    this ?: return
+    val itemCount = adapter?.itemCount.orZero
+    if (item in 0 until itemCount && item != currentItem) {
+        try {
+            currentItem = item
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
 
