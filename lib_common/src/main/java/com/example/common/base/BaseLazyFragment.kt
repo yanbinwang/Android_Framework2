@@ -101,6 +101,7 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
 
     override fun onResume() {
         super.onResume()
+        if (isHidden) return
         if (!hasLoad) {
             if (canLoad) {
                 initData()
