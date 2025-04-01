@@ -190,7 +190,8 @@ class OssFactory private constructor() : CoroutineScope {
                 //在调用了cancel()后还会继续走几次progress
                 val value = taskIterator.next()
                 (value as? OSSAsyncTask<*>?)?.cancel()
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
         //取消所有协程
@@ -200,7 +201,8 @@ class OssFactory private constructor() : CoroutineScope {
                 //在调用了cancel()后还会继续走几次progress
                 val value = jobIterator.next()
                 (value as? Job)?.cancel()
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
         ossMap.clear()

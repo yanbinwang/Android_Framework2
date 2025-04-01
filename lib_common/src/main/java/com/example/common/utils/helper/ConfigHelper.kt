@@ -82,7 +82,8 @@ object ConfigHelper {
             val packageInfo = mContext.packageManager.getPackageInfo(mContext.packageName, 0)
             val labelRes = packageInfo.applicationInfo.labelRes
             return mContext.resources.getString(labelRes)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         return ""
     }

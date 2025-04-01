@@ -14,6 +14,7 @@ import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
 import com.example.common.BaseApplication
 import com.example.common.config.Constants
+import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
@@ -23,6 +24,7 @@ import com.example.framework.utils.logE
 import java.io.File
 import java.io.RandomAccessFile
 import java.math.BigDecimal
+import java.math.BigDecimal.ROUND_HALF_UP
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -54,7 +56,8 @@ fun Context.getApplicationIcon(): Bitmap? {
             draw(canvas)
             return bitmap
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     return null
 }
@@ -330,11 +333,12 @@ internal fun File?.getDuration(): Int {
     return try {
         player.setDataSource(absolutePath)
         player.prepare()
-//        //视频时长（毫秒）/1000=x秒
-//        (player.duration.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
+        //视频时长（毫秒）/1000=x秒
         val duration = player.duration.orZero
-        Math.round(duration / 1000.0).toSafeInt().apply { "文件时长：${this}秒".logE() }
-    } catch (_: Exception) {
+        duration.toString().divide("1000", ROUND_HALF_UP).toSafeInt().apply { "文件时长：${this}秒".logE() }
+//        Math.round(duration / 1000.0).toSafeInt().apply { "文件时长：${this}秒".logE() }
+    } catch (e: Exception) {
+        e.printStackTrace()
         0
     } finally {
         try {
@@ -343,7 +347,8 @@ internal fun File?.getDuration(): Int {
                 reset()
                 release()
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

@@ -226,7 +226,8 @@ fun EditText?.passwordDevelopment(): Boolean {
         }
         setSelection(text.length)
         postInvalidate()
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     return display
 }
@@ -355,7 +356,8 @@ fun EditText?.setSafeSelection(start: Int, stop: Int? = null) {
         } else {
             setSelection(start, stop)
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
@@ -465,7 +467,8 @@ fun Activity?.inputHidden(vararg edits: EditText?): ArrayList<EditText?>? {
         val setShowSoftInputOnFocus = EditText::class.java.getMethod("setShowSoftInputOnFocus", Boolean::class.javaPrimitiveType)
         setShowSoftInputOnFocus.isAccessible = true
         list.forEach { setShowSoftInputOnFocus.invoke(it, false) }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     return list.toArrayList()
 }

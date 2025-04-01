@@ -72,7 +72,8 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
                 val child = mapView.getChildAt(0) as? ViewGroup //地图框架
                 val logo = child?.getChildAt(2)
                 logo?.gone() //隐藏logo
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
         aMap?.isTrafficEnabled = true //显示实时交通状况

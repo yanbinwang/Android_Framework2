@@ -71,7 +71,8 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
                 //自定义代理事件监听器
                 onClickListenerField[listenerInfoObj] = ProxyOnclickListener(mOnClickListener)
             } else e("OnClickListenerProxy", "setted proxy listener ")
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

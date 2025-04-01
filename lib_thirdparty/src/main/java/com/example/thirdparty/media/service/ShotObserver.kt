@@ -76,7 +76,8 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
                     }
                 }
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         } finally {
             cursor?.close()
         }

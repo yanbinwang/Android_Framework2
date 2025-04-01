@@ -143,7 +143,8 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
         }
         try {
             locationClient?.startLocation()
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
             listener?.onLocationChanged(null, false)
             clear()
         }

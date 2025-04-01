@@ -41,7 +41,8 @@ fun <T : MutableList<K>, K> T?.safeSet(position: Int, value: K) {
     this ?: return
     if (position in indices) try {
         set(position, value)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
@@ -301,7 +302,8 @@ fun <T> Collection<T>.findIndexed(func: ((T) -> Boolean)): Pair<Int, T>? {
 fun <T> MutableList<T>.findAndRemove(func: ((T) -> Boolean)) {
     try {
         remove(find { func(it) })
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 

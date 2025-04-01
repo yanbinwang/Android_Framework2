@@ -54,7 +54,8 @@ class WXManager private constructor() {
         api = null
         try {
             mContext?.unregisterReceiver(wxReceiver)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

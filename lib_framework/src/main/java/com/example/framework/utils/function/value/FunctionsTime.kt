@@ -216,7 +216,8 @@ fun String?.compare(source: String, format: String = EN_YMD): Int {
             comparedDate.time < comparedDate2.time -> -1//日程时间小于系统时间
             else -> 0
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         0
     }
 }

@@ -28,7 +28,8 @@ object GsonUtil {
         var ret: String? = null
         try {
             ret = gson.toJson(obj)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         return ret
     }
@@ -42,7 +43,8 @@ object GsonUtil {
         var ret: T? = null
         try {
             ret = gson.fromJson(json, clazz)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         return ret
     }
@@ -56,7 +58,8 @@ object GsonUtil {
         var ret: T? = null
         try {
             ret = gson.fromJson(json, type)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         return ret
     }
@@ -74,7 +77,8 @@ object GsonUtil {
         try {
             val type = getType(List::class.java, clazz)
             ret = gson.fromJson(json, type)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         return ret
     }

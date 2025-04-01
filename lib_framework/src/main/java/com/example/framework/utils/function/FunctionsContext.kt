@@ -69,7 +69,8 @@ fun Context.dimen(@DimenRes res: Int) = resources.getDimension(res)
 fun Context.string(@StringRes res: Int): String {
     return try {
         resources.getString(res)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         ""
     }
 }
@@ -77,18 +78,11 @@ fun Context.string(@StringRes res: Int): String {
 /**
  * 通过字符串获取drawable下的xml文件
  */
-@SuppressLint("DiscouragedApi")
-//fun Context.defTypeDrawable(name: String): Int {
-//    return try {
-//        resources.getIdentifier(name, "drawable", packageName)
-//    } catch (_: Exception) {
-//        0
-//    }
-//}
 fun Context.defTypeDrawable(name: String): Drawable? {
     return drawable(try {
         resources.getIdentifier(name, "drawable", packageName)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         0
     })
 }
@@ -96,18 +90,11 @@ fun Context.defTypeDrawable(name: String): Drawable? {
 /**
  * 通过字符串获取mipmap下的图片文件
  */
-@SuppressLint("DiscouragedApi")
-//fun Context.defTypeMipmap(name: String): Int {
-//    return try {
-//        resources.getIdentifier(name, "mipmap", packageName)
-//    } catch (_: Exception) {
-//        0
-//    }
-//}
 fun Context.defTypeMipmap(name: String): Drawable? {
     return drawable(try {
         resources.getIdentifier(name, "mipmap", packageName)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         0
     })
 }
@@ -157,7 +144,8 @@ fun Context.sampleMemory(): Long {
                 memory = totalPss.toSafeLong()
             }
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     return memory * 1024
 }
@@ -337,7 +325,8 @@ fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, i
     owner.doOnDestroy {
         try {
             unregisterReceiver(receiver)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }
