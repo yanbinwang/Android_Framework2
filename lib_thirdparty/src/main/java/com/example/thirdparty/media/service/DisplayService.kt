@@ -22,6 +22,7 @@ import com.example.common.utils.StorageUtil.StorageType
 import com.example.common.utils.function.deleteFile
 import com.example.common.utils.function.getExtra
 import com.example.framework.utils.function.value.orZero
+import com.example.thirdparty.media.service.RecordingService.Companion
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick
@@ -80,7 +81,6 @@ import kotlinx.coroutines.withContext
  *       说明：当服务需要使用软件渲染时，可设置为该类型。例如，一些图形处理应用在进行复杂的图形渲染时，可能会使用软件渲染方式，此时将服务标记为 softwareRendering 类型，系统会为其分配相应的资源。
  */
 class DisplayService : LifecycleService() {
-    private var isRelease = false
     private var folderPath: String? = null
     private var recorder: MediaRecorder? = null
     private var projection: MediaProjection? = null
@@ -165,9 +165,10 @@ class DisplayService : LifecycleService() {
             //仅在 start 成功后触发
             listener?.onStart(folderPath)
         } catch (e: Exception) {
-            isRelease = true
+            isDestroy = true
+            releaseDisplay()//确保资源被释放（调用 stopSelf() 之后，onDestroy() 方法会在稍后的某个时刻被系统调用，而在这期间若有其他代码尝试访问未释放的资源，可能会引发异常）
             listener?.onError(e)
-            releaseDisplay()
+            stopSelf()
         }
     }
 
@@ -231,11 +232,7 @@ class DisplayService : LifecycleService() {
             releaseDisplay()
             folderPath.deleteFile()
         } else {
-            if (!isRelease) {
-                stopRecording()
-            } else {
-                isRelease = false
-            }
+            stopRecording()
         }
     }
 
