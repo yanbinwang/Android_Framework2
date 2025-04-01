@@ -75,7 +75,8 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
                 .load(string)
                 .dontAnimate()
                 .into(view)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
             view.setBackgroundResource(R.drawable.shape_glide_mask_bg)
         }
     }

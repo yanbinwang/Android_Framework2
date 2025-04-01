@@ -2,7 +2,6 @@ package com.example.common.base
 
 import android.app.Activity
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Looper
 import android.transition.Slide
@@ -15,10 +14,13 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
 import android.widget.PopupWindow
+import androidx.core.graphics.drawable.toDrawable
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
-import com.example.common.base.PopupAnimType.*
+import com.example.common.base.PopupAnimType.ALPHA
+import com.example.common.base.PopupAnimType.NONE
+import com.example.common.base.PopupAnimType.TRANSLATE
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
@@ -36,8 +38,8 @@ import java.lang.reflect.ParameterizedType
  * 需要注意binding使用了lateinit，但是不可能会不给值（VDB），稳妥期间，引用到view的地方，使用popupView
  */
 @Suppress("LeakingThis", "UNCHECKED_CAST")
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val light: Boolean = true) : PopupWindow() {
-    private val window get() = activity.window
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val mActivity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val light: Boolean = true) : PopupWindow() {
+    private val window get() = mActivity.window
     private val layoutParams by lazy { window.attributes }
     private var popupView: View? = null
     protected val mContext get() = window.context
@@ -48,6 +50,25 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         private set
 
     init {
+        initBinding()
+        width = if (popupWidth < 0) popupWidth else popupWidth.pt
+        height = if (popupHeight < 0) popupHeight else popupHeight.pt
+        isFocusable = true
+        isOutsideTouchable = true
+        softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        setAnimation()
+        setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
+        setOnDismissListener {
+            if (light) {
+                layoutParams?.alpha = 1f
+                window.attributes = layoutParams
+            }
+        }
+        measurePopupView()
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="基类方法">
+    private fun initBinding() {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
@@ -60,27 +81,20 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 e.printStackTrace()
             }
         }
-        width = if (popupWidth < 0) popupWidth else popupWidth.pt
-        height = if (popupHeight < 0) popupHeight else popupHeight.pt
-        isFocusable = true
-        isOutsideTouchable = true
-        softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-        setAnimation()
-        setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        setOnDismissListener {
-            if (light) {
-                layoutParams?.alpha = 1f
-                window.attributes = layoutParams
-            }
-        }
-        //获取自身的长宽高
+    }
+
+    /**
+     * 获取自身的长宽高
+     */
+    private fun measurePopupView() {
         popupView?.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
         measuredWidth = popupView?.measuredWidth.orZero
         measuredHeight = popupView?.measuredHeight.orZero
     }
 
-    // <editor-fold defaultstate="collapsed" desc="基类方法">
-    //默认底部弹出，可重写
+    /**
+     * 默认底部弹出
+     */
     private fun setAnimation() {
         when (popupAnimStyle) {
             ALPHA -> animationStyle = R.style.PopupAlphaAnimStyle
@@ -106,47 +120,88 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="重写方法">
-    override fun showAsDropDown(anchor: View?) {
-        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if (popupView?.context == null) return
-        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
-        try {
-            setAttributes()
-            super.showAsDropDown(anchor)
-        } catch (_: Exception) {
+//    override fun showAsDropDown(anchor: View?) {
+//        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
+//        if (popupView?.context == null) return
+//        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
+//        try {
+//            setAttributes()
+//            super.showAsDropDown(anchor)
+//        } catch (_: Exception) {
+//        }
+//    }
+//
+//    override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int) {
+//        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
+//        if (popupView?.context == null) return
+//        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
+//        try {
+//            setAttributes()
+//            super.showAsDropDown(anchor, xoff, yoff)
+//        } catch (_: Exception) {
+//        }
+//    }
+//
+//    override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
+//        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
+//        if (popupView?.context == null) return
+//        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
+//        try {
+//            setAttributes()
+//            super.showAsDropDown(anchor, xoff, yoff, gravity)
+//        } catch (_: Exception) {
+//        }
+//    }
+//
+//    override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
+//        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
+//        if ((mContext as? Activity)?.isFinishing.orFalse) return
+//        if ((mContext as? Activity)?.isDestroyed.orFalse) return
+//        try {
+//            setAttributes()
+//            super.showAtLocation(parent, gravity, x, y)
+//        } catch (_: Exception) {
+//        }
+//    }
+    private fun checkShowConditions() =
+        Looper.myLooper() == Looper.getMainLooper() &&
+                popupView?.context != null &&
+                (popupView?.context as? Activity)?.isFinishing == false
+
+    private fun showPopup(showFunction: () -> Unit) {
+        if (checkShowConditions()) {
+            try {
+                setAttributes()
+                showFunction()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
+    }
+
+    override fun showAsDropDown(anchor: View?) {
+        showPopup { super.showAsDropDown(anchor) }
     }
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int) {
-        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if (popupView?.context == null) return
-        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
-        try {
-            setAttributes()
-            super.showAsDropDown(anchor, xoff, yoff)
-        } catch (_: Exception) {
-        }
+        showPopup { super.showAsDropDown(anchor, xoff, yoff) }
     }
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
-        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if (popupView?.context == null) return
-        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
-        try {
-            setAttributes()
-            super.showAsDropDown(anchor, xoff, yoff, gravity)
-        } catch (_: Exception) {
-        }
+        showPopup { super.showAsDropDown(anchor, xoff, yoff, gravity) }
     }
 
     override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
-        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if ((mContext as? Activity)?.isFinishing.orFalse) return
-        if ((mContext as? Activity)?.isDestroyed.orFalse) return
-        try {
-            setAttributes()
-            super.showAtLocation(parent, gravity, x, y)
-        } catch (_: Exception) {
+        if (Looper.myLooper() == Looper.getMainLooper() &&
+            (mContext as? Activity)?.isFinishing == false &&
+            (mContext as? Activity)?.isDestroyed == false
+        ) {
+            try {
+                setAttributes()
+                super.showAtLocation(parent, gravity, x, y)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 

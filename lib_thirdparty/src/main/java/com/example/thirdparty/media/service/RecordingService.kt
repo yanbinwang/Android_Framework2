@@ -28,7 +28,6 @@ import kotlinx.coroutines.withContext
  *      android:foregroundServiceType="mediaPlayback"--》 Q开始后台服务需要配置，否则录制不正常  />
  */
 class RecordingService : LifecycleService() {
-    private var isRelease = false
     private var folderPath: String? = null
     private var recorder: MediaRecorder? = null
     private var wakeLock: PowerManager.WakeLock? = null
@@ -95,9 +94,10 @@ class RecordingService : LifecycleService() {
                 listener?.onStart(folderPath)
             }
         } catch (e: Exception) {
-            isRelease = true
+            isDestroy = true
+            releaseRecorder()//确保资源被释放（调用 stopSelf() 之后，onDestroy() 方法会在稍后的某个时刻被系统调用，而在这期间若有其他代码尝试访问未释放的资源，可能会引发异常）
             listener?.onError(e)
-            releaseRecorder()
+            stopSelf()
         }
     }
 
@@ -158,11 +158,7 @@ class RecordingService : LifecycleService() {
             releaseRecorder()
             folderPath.deleteFile()
         } else {
-            if (!isRelease) {
-                stopRecording()
-            } else {
-                isRelease = false
-            }
+            stopRecording()
         }
     }
 

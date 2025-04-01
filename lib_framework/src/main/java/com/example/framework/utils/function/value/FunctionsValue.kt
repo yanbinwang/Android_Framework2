@@ -114,7 +114,8 @@ fun getCpuInfo(): String {
         val info = localBufferedReader.readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
         localBufferedReader.close()
         return if ("0" == info || info.isEmpty()) "" else info
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         ""
     }
 }
@@ -127,7 +128,8 @@ fun mobileIsRoot(): Boolean {
         for (element in arrayOf("/system/bin/", "/system/xbin/", "/system/sbin/", "/sbin/", "/vendor/bin/")) {
             if (File(element + "su").exists()) return true
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     return false
 }

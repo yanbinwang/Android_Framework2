@@ -23,7 +23,8 @@ open class BaseViewDataBindingHolder(parent: ViewGroup, private val binding: Vie
             try {
                 val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
                 binding = method?.invoke(null, LayoutInflater.from(parent.context), parent, false) as? VDB
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
             return BaseViewDataBindingHolder(parent, binding)
         }

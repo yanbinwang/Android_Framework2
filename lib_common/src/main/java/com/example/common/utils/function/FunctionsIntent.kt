@@ -15,6 +15,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.base.page.RequestCode.REQUEST_ALBUM
@@ -27,7 +28,6 @@ import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.value.orZero
 import java.io.File
 import java.io.Serializable
-import androidx.core.net.toUri
 
 /**
  * 当前页面注册一个activity的result，获取resultCode
@@ -90,7 +90,7 @@ fun Activity?.pullUpImage() {
     this ?: return
     val file = getOutputFile(StorageType.IMAGE)
     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    getResult(file, intent, REQUEST_IMAGE)
+    forResult(file, intent, REQUEST_IMAGE)
 }
 
 /**
@@ -103,10 +103,10 @@ fun Activity?.pullUpVideo(second: Int? = 50000, quality: Double? = 0.5) {
     val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
     intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, second)//设置视频录制的最长时间
     intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, quality)
-    getResult(file, intent, REQUEST_VIDEO)
+    forResult(file, intent, REQUEST_VIDEO)
 }
 
-private fun Activity?.getResult(file: File?, intent: Intent, requestCode: Int) {
+private fun Activity?.forResult(file: File?, intent: Intent, requestCode: Int) {
     if (null == file || null == this) return
     try {
         val uri: Uri?
@@ -118,7 +118,8 @@ private fun Activity?.getResult(file: File?, intent: Intent, requestCode: Int) {
         }
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
         startActivityForResult(intent, requestCode)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
@@ -153,7 +154,8 @@ fun Context?.pullUpPackage(packageName: String) {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
