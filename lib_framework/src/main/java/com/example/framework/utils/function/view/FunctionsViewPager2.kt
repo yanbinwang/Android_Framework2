@@ -14,7 +14,8 @@ fun ViewPager2?.getRecyclerView(): RecyclerView? {
     if (this == null) return null
     return try {
         (getChildAt(0) as? RecyclerView)
-    } catch (ignore: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         null
     }
 }
@@ -26,20 +27,22 @@ fun ViewPager2?.hideFadingEdge() {
     if (this == null) return
     try {
         getRecyclerView()?.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
-    } catch (ignore: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
 /**
  * 降低ViewPager2灵敏度
+ * @param multiplier 灵敏度倍数，默认为 3
  */
-fun ViewPager2?.reduceSensitivity() {
+fun ViewPager2?.reduceSensitivity(multiplier: Int = 3) {
     try {
         val recyclerView = getRecyclerView()
         val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
         touchSlopField.isAccessible = true
         val touchSlop = touchSlopField.get(recyclerView) as? Int
-        touchSlopField.set(recyclerView, touchSlop.orZero * 3)
+        touchSlopField.set(recyclerView, touchSlop.orZero * multiplier)
     } catch (e: Exception) {
         e.printStackTrace()
     }
@@ -48,7 +51,7 @@ fun ViewPager2?.reduceSensitivity() {
 /**
  * 选中某页
  */
-fun ViewPager2?.setCurrentItem(item: Int) {
+fun ViewPager2?.setCurrent(item: Int) {
     this ?: return
     val itemCount = adapter?.itemCount.orZero
     if (item in 0 until itemCount && item != currentItem) {
