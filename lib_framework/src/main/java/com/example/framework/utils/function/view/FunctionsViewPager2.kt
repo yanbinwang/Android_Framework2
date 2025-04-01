@@ -50,13 +50,42 @@ fun ViewPager2?.reduceSensitivity(multiplier: Int = 3) {
 
 /**
  * 选中某页
+ * class EvidencePageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) : FragmentStateAdapter(fragmentManager, lifecycle) {
+ *     private val buffer by lazy { ConcurrentHashMap<Int, Fragment>() }//存储声明的fragment
+ *
+ *     init {
+ *         lifecycle.doOnDestroy {
+ *             buffer.clear()
+ *         }
+ *     }
+ *
+ *     override fun getItemCount() = 6
+ *
+ *     override fun createFragment(position: Int): Fragment {
+ *         val fragment = when (position) {
+ *             0 -> EvidenceExtraFragment()
+ *             else -> EvidenceListFragment().apply { arguments = Bundle().apply { putString(Extra.ID, (position - 1).toString()) } }
+ *         }
+ *         buffer[position] = fragment
+ *         return fragment
+ *     }
+ *
+ *     /**
+ *      * 获取对应的fragment
+ *      * 存在获取不到的情况(直接从0选择2,3的页面，然后获取1，本身并未添加进map，拿到的就是null)
+ *      */
+ *     fun <T : Fragment> getFragment(index: Int): T? {
+ *         return buffer[index] as? T
+ *     }
+ *
+ * }
  */
-fun ViewPager2?.setCurrent(item: Int) {
+fun ViewPager2?.setCurrent(item: Int, smoothScroll: Boolean = true) {
     this ?: return
     val itemCount = adapter?.itemCount.orZero
     if (item in 0 until itemCount && item != currentItem) {
         try {
-            currentItem = item
+            setCurrentItem(itemCount, smoothScroll)
         } catch (e: Exception) {
             e.printStackTrace()
         }
