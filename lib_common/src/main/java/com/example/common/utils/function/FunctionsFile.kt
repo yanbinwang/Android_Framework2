@@ -301,25 +301,40 @@ internal fun File?.getBase64(): String {
  * 获取文件hash值
  * 满足64位哈希，不足则前位补0
  */
+//internal fun File?.getHash(): String {
+//    this ?: return ""
+//    return inputStream().use { input ->
+//        val digest = MessageDigest.getInstance("SHA-256")
+//        val array = ByteArray(1024)
+//        var len: Int
+//        while (input.read(array, 0, 1024).also { len = it } != -1) {
+//            digest.update(array, 0, len)
+//        }
+//        //检测是否需要补0
+//        val bigInt = BigInteger(1, digest.digest())
+//        var hash = bigInt.toString(16)
+//        if (hash.length < 64) {
+//            for (i in 0 until 64 - hash.length) {
+//                hash = "0$hash"
+//            }
+//        }
+//        hash
+//    }
+//}
 internal fun File?.getHash(): String {
-    this ?: return ""
-    return inputStream().use { input ->
+    return this?.inputStream()?.use { input ->
         val digest = MessageDigest.getInstance("SHA-256")
-        val array = ByteArray(1024)
-        var len: Int
-        while (input.read(array, 0, 1024).also { len = it } != -1) {
-            digest.update(array, 0, len)
+        val buffer = ByteArray(1024)
+        var bytesRead: Int
+        while (input.read(buffer).also { bytesRead = it } != -1) {
+            digest.update(buffer, 0, bytesRead)
         }
-        //检测是否需要补0
-        val bigInt = BigInteger(1, digest.digest())
-        var hash = bigInt.toString(16)
-        if (hash.length < 64) {
-            for (i in 0 until 64 - hash.length) {
-                hash = "0$hash"
-            }
-        }
-        hash
-    }
+        digest.digest().toHexString()
+    } ?: ""
+}
+
+private fun ByteArray.toHexString(): String {
+    return BigInteger(1, this).toString(16).padStart(64, '0')
 }
 
 /**
