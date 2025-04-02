@@ -85,7 +85,7 @@ fun ViewPager2?.setCurrent(item: Int, smoothScroll: Boolean = true) {
     val itemCount = adapter?.itemCount.orZero
     if (item in 0 until itemCount && item != currentItem) {
         try {
-            setCurrentItem(itemCount, smoothScroll)
+            setCurrentItem(item, smoothScroll)
         } catch (e: Exception) {
             e.printStackTrace()
         }
