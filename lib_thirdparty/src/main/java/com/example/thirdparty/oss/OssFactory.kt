@@ -23,6 +23,8 @@ import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.deleteDir
 import com.example.common.utils.function.deleteFile
+import com.example.common.utils.function.getLength
+import com.example.common.utils.function.mb
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.common.utils.toJson
 import com.example.framework.utils.function.doOnDestroy
@@ -52,6 +54,7 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlin.random.Random
 
 /**
  * 阿里oss文件上传
@@ -243,12 +246,37 @@ class OssFactory private constructor() : CoroutineScope {
                     //调用OSSAsyncTask cancel()方法时，设置DeleteUploadOnCancelling为false，则不删除断点记录文件
                     //如果不设置此参数，则默认值为true，表示删除断点记录文件，下次再上传同一个文件时则重新上传
                     request.setDeleteUploadOnCancelling(false)
+//                    //设置上传过程回调(进度条)
+//                    var percentage = 0
+//                    request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->
+//                        percentage = currentSize.toString().divide(totalSize.toString(), 2).multiply("100").toSafeInt()
+//                        callback(1, baoquan, percentage)
+//                        log(sourcePath, "上传中\n保全号：${baoquan}\n已上传大小（currentSize）:${currentSize}\n总大小（totalSize）:${totalSize}\n上传百分比（percentage）:${percentage}%")
+//                    }
                     //设置上传过程回调(进度条)
                     var percentage = 0
+                    var lastPercentage = 0
+                    var randomMod = Random.nextInt(5, 11)
+                    val maxInterval = 7 //最大间隔，避免长时间无回调
+                    val isCallBack = sourcePath.getLength() >= 100.mb//是否需要回调（目前只有100M+的文件需要进度条）
                     request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->
-//                    percentage = ((currentSize.toSafeDouble() / totalSize.toSafeDouble()) * 100).toSafeInt()
                         percentage = currentSize.toString().divide(totalSize.toString(), 2).multiply("100").toSafeInt()
-                        callback(1, baoquan, percentage)
+                        when (percentage) {
+                            0, 100 -> {
+                                if (isCallBack) callback(1, baoquan, percentage)
+                                lastPercentage = percentage
+                                if (percentage < 100) {
+                                    randomMod = Random.nextInt(5, 11)
+                                }
+                            }
+                            in 1..99 -> {
+                                if (percentage % randomMod == 0 || percentage - lastPercentage >= maxInterval) {
+                                    if (isCallBack) callback(1, baoquan, percentage)
+                                    lastPercentage = percentage
+                                    randomMod = Random.nextInt(5, 11)
+                                }
+                            }
+                        }
                         log(sourcePath, "上传中\n保全号：${baoquan}\n已上传大小（currentSize）:${currentSize}\n总大小（totalSize）:${totalSize}\n上传百分比（percentage）:${percentage}%")
                     }
                     val resumableTask = oss?.asyncResumableUpload(request, object : OSSCompletedCallback<ResumableUploadRequest?, ResumableUploadResult?> {
