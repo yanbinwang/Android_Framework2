@@ -15,6 +15,6 @@ data class OssDB(
     var sourcePath: String? = null, //文件在手机中的路径
     var objectName: String? = null, //oss文件夹命名（每次都会根据时间戳产生，用于下次断点续传）
     var objectKey: String? = null, //oss上传完成后，服务器需要记录的值
-    var state: Int = 0, //0上传中 1上传失败 2上传完成（证据缺失直接校验源文件路径）
+    var state: Int? = null, //0上传中 1上传失败 2上传完成（证据缺失直接校验源文件路径）
     var extras: String? = null //保留字段
 )

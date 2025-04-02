@@ -225,11 +225,11 @@ class OssFactory private constructor() : CoroutineScope {
      * bucketName->Bucket名称，例如examplebucket
      * objectName->Object完整路径，例如exampledir/exampleobject.txt。Object完整路径中不能包含Bucket名称
      */
-    fun asyncResumableUpload(sourcePath: String?, baoquan: String, fileType: String) {
+    fun asyncResumableUpload(baoquan: String, sourcePath: String?, fileType: String) {
         sourcePath ?: return
         synchronized(postLock) {
             if (isInit()) {
-                val data = init(sourcePath, baoquan, fileType)
+                val data = init(baoquan, sourcePath, fileType)
                 val query = data.first
                 val recordDirectory = data.second
                 if (OssDBHelper.isComplete(baoquan)) {
@@ -279,7 +279,7 @@ class OssFactory private constructor() : CoroutineScope {
                     ossMap[baoquan] = resumableTask
                 }
             } else {
-                init(sourcePath, baoquan, fileType)
+                init(baoquan, sourcePath, fileType)
                 failure(baoquan, "oss初始化失败")
             }
         }
@@ -288,28 +288,29 @@ class OssFactory private constructor() : CoroutineScope {
     /**
      * 初始化相关参数
      */
-    private fun init(sourcePath: String, baoquan: String, fileType: String): Pair<OssDB, String> {
+    private fun init(baoquan: String, sourcePath: String, fileType: String): Pair<OssDB, String> {
         //设置对应文件的断点文件存放路径
         val file = File(sourcePath)
         val fileName = file.name.split(".")[0]
         //本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
         val recordDirectory = "${file.parent}/${fileName}_record"
         //查询或获取存储的值
-        return query(sourcePath, baoquan, fileType) to recordDirectory
+        return query(baoquan, sourcePath, fileType) to recordDirectory
     }
 
     /**
      * 断点续传开启
      */
-    private fun query(sourcePath: String, baoquan: String, fileType: String): OssDB {
+    private fun query(baoquan: String, sourcePath: String, fileType: String): OssDB {
         //查询本地存储的数据，不存在则添加一条
-        var query = OssDBHelper.query(sourcePath)
+        var query = OssDBHelper.query(baoquan)
         if (null == query) {
             query = OssDB().also {
-                it.sourcePath = sourcePath
-                it.userId = getUserId()
                 it.baoquan = baoquan
-                it.objectName = objectName(fileType)
+                it.userId = getUserId()
+                it.sourcePath = sourcePath
+                it.objectName = objectName(baoquan, fileType)
+                it.state = 1
                 it.extras = ""
             }
             OssDBHelper.insert(query)
