@@ -100,7 +100,8 @@ fun getMemInfo(): Long {
         //int值乘以1024转换为long类型
         memory = systemMemory.toSafeLong() * 1024
         localBufferedReader.close()
-    } catch (_: IOException) {
+    } catch (e: IOException) {
+        e.printStackTrace()
     }
     return memory
 }

@@ -42,8 +42,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val mActivity: Fra
     private val window get() = mActivity.window
     private val layoutParams by lazy { window.attributes }
     private var popupView: View? = null
-    protected val mContext get() = window.context
     protected var mBinding: VDB? = null
+    protected val mContext get() = window.context
     protected var measuredWidth = 0
         private set
     protected var measuredHeight = 0
@@ -75,7 +75,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val mActivity: Fra
                 val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
                 val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
                 mBinding = method?.invoke(null, window.layoutInflater) as? VDB
-                contentView = mBinding?.root
+                mBinding?.root?.let { setContentView(it) }
                 popupView = mBinding?.root
             } catch (e: Exception) {
                 e.printStackTrace()

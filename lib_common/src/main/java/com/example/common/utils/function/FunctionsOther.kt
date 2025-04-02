@@ -103,7 +103,8 @@ fun string(@StringRes res: Int): String {
 fun resString(@StringRes res: Int): String {
     return try {
         BaseApplication.instance.getString(res)
-    } catch (ignore: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         ""
     }
 }

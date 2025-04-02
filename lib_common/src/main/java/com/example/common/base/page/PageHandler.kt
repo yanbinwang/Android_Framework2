@@ -104,7 +104,8 @@ fun Postcard.getPostcardClass(mContext: Context): Class<*>? {
     return try {
         LogisticsCenter.completion(this)
         destination
-    } catch (_: NoRouteFoundException) {
+    } catch (e: NoRouteFoundException) {
+        e.printStackTrace()
         null
     }
 }

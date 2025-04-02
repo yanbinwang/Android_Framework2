@@ -22,7 +22,8 @@ object AppManager {
     fun forEach(func: Activity.() -> Unit) {
         try {
             synchronized(activityStack) { activityStack.forEach(func) }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
