@@ -347,19 +347,20 @@ class OssFactory private constructor() : CoroutineScope {
     private fun success(query: OssDB, fileType: String, recordDirectory: String) {
         val baoquan = query.baoquan
         ossJobMap[baoquan] = launch {
-            flow<Unit> {
-                request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query.objectKey)) })
+            flow {
+                emit(request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query.objectKey)) }))
+            }.withHandling({
+                failure(baoquan, it.errMessage)
+            }, {
+                end(baoquan)
+            }).collect {
                 //删除对应断点续传的文件夹和源文件
                 query.sourcePath.deleteDir()
                 recordDirectory.deleteFile()
                 OssDBHelper.delete(query)
                 callback(2, baoquan, success = true)
                 EVENT_EVIDENCE_UPDATE.post(fileType)
-            }.withHandling({
-                failure(baoquan, it.errMessage)
-            }, {
-                end(baoquan)
-            }).launchIn(this)
+            }
         }
         ossJobMap[baoquan]?.invokeOnCompletion { end(baoquan) }
     }
