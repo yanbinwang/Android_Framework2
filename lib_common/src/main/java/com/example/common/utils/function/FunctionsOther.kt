@@ -79,7 +79,8 @@ fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.
 fun resString(@StringRes res: Int): String {
     return try {
         BaseApplication.instance.getString(res)
-    } catch (ignore: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         ""
     }
 }

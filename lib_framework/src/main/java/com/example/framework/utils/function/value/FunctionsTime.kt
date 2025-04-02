@@ -141,7 +141,8 @@ fun Date.isToday(): Boolean {
                 parseEndTime
             )
         ) flag = true
-    } catch (_: ParseException) {
+    } catch (e: ParseException) {
+        e.printStackTrace()
     }
     return flag
 }
@@ -167,7 +168,8 @@ fun String?.convert(format: String, source: String): String {
     this ?: return ""
     return try {
         format.convert(getDateFormat().parse(source).toSafeDate())
-    } catch (_: ParseException) {
+    } catch (e: ParseException) {
+        e.printStackTrace()
         ""
     }
 }
@@ -227,7 +229,8 @@ fun String?.getWeekOfMonth(): Int {
             it.time = EN_YMD.getDateFormat().parse(this).toSafeDate()
             it.get(Calendar.WEEK_OF_MONTH)
         }
-    } catch (_: ParseException) {
+    } catch (e: ParseException) {
+        e.printStackTrace()
         0
     }
 }
@@ -245,7 +248,8 @@ fun String?.getWeekOfDate(): Int {
             if (weekIndex < 0) weekIndex = 0
             weekIndex
         }
-    } catch (_: ParseException) {
+    } catch (e: ParseException) {
+        e.printStackTrace()
         0
     }
 }

@@ -30,8 +30,8 @@ import java.lang.reflect.ParameterizedType
  */
 @Suppress("LeakingThis", "UNCHECKED_CAST")
 abstract class BaseDialog<VDB : ViewDataBinding>(context: Context, dialogWidth: Int = 320, dialogHeight: Int = WRAP_CONTENT, gravity: Int = CENTER, themeResId: Int = R.style.DialogStyle, animation: Boolean = true, close: Boolean = true) : Dialog(context, themeResId) {
-    protected var mBinding: VDB? = null
     private var dialogView: View? = null
+    protected var mBinding: VDB? = null
 
     init {
         initBinding()

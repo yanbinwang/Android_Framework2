@@ -79,7 +79,8 @@ fun RecyclerView?.smoothScroll(pos: Int, type: Int, scale: Float) {
     if (manager !is LinearLayoutManager) return
     try {
         (parent as ViewGroup).dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
-    } catch (ignore: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     val first = manager.findFirstVisibleItemPosition()
     val last = manager.findLastVisibleItemPosition()
@@ -108,7 +109,8 @@ fun RecyclerView?.toPosition(pos: Int, offset: Int = 0) {
     if (this == null) return
     try {
         (parent as ViewGroup).dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
-    } catch (ignore: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     scrollToPosition(pos)
     when (val mLayoutManager = layoutManager) {

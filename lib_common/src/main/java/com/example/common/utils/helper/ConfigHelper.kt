@@ -68,7 +68,8 @@ object ConfigHelper {
             } else {
                 packageInfo.versionCode.toSafeLong()
             }
-        } catch (_: PackageManager.NameNotFoundException) {
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
         }
         return appVersionCode
     }
@@ -81,7 +82,8 @@ object ConfigHelper {
         try {
             val packageInfo = mContext.applicationContext.packageManager.getPackageInfo(mContext.packageName, 0)
             appVersionName = packageInfo.versionName
-        } catch (_: PackageManager.NameNotFoundException) {
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
         }
         return appVersionName
     }
