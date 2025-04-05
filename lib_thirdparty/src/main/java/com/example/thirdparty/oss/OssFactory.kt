@@ -309,7 +309,7 @@ class OssFactory private constructor() : CoroutineScope {
                     ossMap[baoquan] = resumableTask
                 }
             } else {
-                query(baoquan, sourcePath, fileType, false)
+                queryOrInsert(baoquan, sourcePath, fileType, false)
 //                failure(baoquan, "oss初始化失败")
             }
         }
@@ -325,14 +325,14 @@ class OssFactory private constructor() : CoroutineScope {
         //本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
         val recordDirectory = "${file.parent}/${fileName}_record"
         //查询或获取存储的值
-        return query(baoquan, sourcePath, fileType) to recordDirectory
+        return queryOrInsert(baoquan, sourcePath, fileType) to recordDirectory
     }
 
     /**
      * 断点续传开启
      * success默认是成功的，列表回调也是，如果上传时oss初始化失败会为false
      */
-    private fun query(baoquan: String, sourcePath: String, fileType: String, success: Boolean = true): OssDB {
+    private fun queryOrInsert(baoquan: String, sourcePath: String, fileType: String, isInit: Boolean = true): OssDB {
         //查询本地存储的数据，不存在则添加一条
         var query = OssDBHelper.query(baoquan)
         if (null == query) {
@@ -346,8 +346,8 @@ class OssFactory private constructor() : CoroutineScope {
             }
             OssDBHelper.insert(query)
         }
-        OssDBHelper.update(baoquan, if (success) 0 else 1)
-        callback(if (success) 0 else 2, baoquan, success = false)//2的时候才会有success参数
+        OssDBHelper.update(baoquan, if (isInit) 0 else 1)
+        callback(if (isInit) 0 else 2, baoquan, success = false)//2的时候才会有success参数
         return query
     }
 
