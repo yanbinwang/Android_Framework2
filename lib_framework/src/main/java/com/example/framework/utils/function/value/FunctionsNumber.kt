@@ -1,7 +1,6 @@
 package com.example.framework.utils.function.value
 
 import java.math.BigDecimal
-import java.text.DecimalFormat
 
 //------------------------------------计算工具类------------------------------------
 /**
@@ -37,9 +36,6 @@ fun CharSequence?.toSafeInt(default: Int = 0): Int {
     }
 }
 
-/**
- * 防空转换Int
- */
 fun Number?.toSafeInt(default: Int = 0): Int {
     this ?: return default
     return this.toInt()
@@ -61,36 +57,9 @@ fun CharSequence?.toSafeLong(default: Long = 0L): Long {
     }
 }
 
-/**
- * 防空转换Long
- */
 fun Number?.toSafeLong(default: Long = 0L): Long {
     this ?: return default
     return this.toLong()
-}
-
-/**
- * 防空转换Double
- */
-fun CharSequence?.toSafeDouble(default: Double = 0.0): Double {
-    if (this.isNullOrEmpty() || this == ".") return default
-    return try {
-        if (this is String) {
-            this.toDouble()
-        } else {
-            this.toString().toDouble()
-        }
-    } catch (e: Exception) {
-        default
-    }
-}
-
-/**
- * 防空转换Double
- */
-fun Number?.toSafeDouble(default: Double = 0.0): Double {
-    this ?: return default
-    return this.toDouble()
 }
 
 /**
@@ -109,12 +78,30 @@ fun CharSequence?.toSafeFloat(default: Float = 0f): Float {
     }
 }
 
-/**
- * 防空转换Float
- */
 fun Number?.toSafeFloat(default: Float = 0f): Float {
     this ?: return default
     return this.toFloat()
+}
+
+/**
+ * 防空转换Double
+ */
+fun CharSequence?.toSafeDouble(default: Double = 0.0): Double {
+    if (this.isNullOrEmpty() || this == ".") return default
+    return try {
+        if (this is String) {
+            this.toDouble()
+        } else {
+            this.toString().toDouble()
+        }
+    } catch (e: Exception) {
+        default
+    }
+}
+
+fun Number?.toSafeDouble(default: Double = 0.0): Double {
+    this ?: return default
+    return this.toDouble()
 }
 
 /**
@@ -133,18 +120,38 @@ fun CharSequence?.toSafeBigDecimal(default: Double = 0.0): BigDecimal {
     }
 }
 
-/**
- * 防空转换BigDecimal
- */
 fun Number?.toSafeBigDecimal(default: BigDecimal = BigDecimal.ZERO): BigDecimal {
     this ?: return default
-    return this.toDouble().toBigDecimal()
+    return when (this) {
+        is BigDecimal -> this
+        is Int -> BigDecimal(this)
+        is Long -> BigDecimal(this)
+        is Float -> BigDecimal(this.toDouble())
+        is Double -> BigDecimal(this.toString())
+        else -> default
+    }
+}
+
+internal fun Any?.convertToSafeBigDecimal(default: Double = 0.0): BigDecimal {
+    return when (this) {
+        is CharSequence -> this.toSafeBigDecimal(default)
+        is Number -> this.toSafeBigDecimal()
+        else -> BigDecimal.valueOf(default)
+    }
 }
 
 /**
  * 设定最小值
  */
 fun Int?.min(min: Int): Int {
+    return when {
+        this == null -> min
+        this <= min -> min
+        else -> this
+    }
+}
+
+fun Long?.min(min: Long): Long {
     return when {
         this == null -> min
         this <= min -> min
@@ -168,22 +175,13 @@ fun Double?.min(min: Double): Double {
     }
 }
 
-fun Long?.min(min: Long): Long {
-    return when {
-        this == null -> min
-        this <= min -> min
-        else -> this
-    }
-}
-
 fun String?.min(min: String?): String {
-    val minValue = if(min.isNullOrEmpty()) "0" else min
-    return when {
-        this == null -> minValue
-        this.numberCompareTo(minValue).let {
-            it == -1 || it == 0
-        } -> minValue
-        else -> this
+    val current = this.removeEndZero()
+    val other = min.removeEndZero()
+    return when (current.numberCompareTo(other)) {
+        -1 -> current
+        1 -> other
+        else -> current
     }
 }
 
@@ -223,18 +221,39 @@ fun Double?.max(max: Double): Double {
 }
 
 fun String?.max(max: String?): String {
-    val maxValue = if(max.isNullOrEmpty()) "0" else max
-    return when {
-        this == null -> maxValue
-        this.numberCompareTo(maxValue).let {
-            it == 0 || it == 1
-        } -> maxValue
-        else -> this
+    val current = this.removeEndZero()
+    val other = max.removeEndZero()
+    return when (current.numberCompareTo(other)) {
+        -1 -> other
+        1 -> current
+        else -> current
     }
 }
 
 /**
  * 设定范围
+ * // 定义一个范围
+ * val range = 1..10
+ *
+ * // 情况 1: 传入 null
+ * val nullValue: Int? = null
+ * val result1 = nullValue.fitRange(range)
+ * println("当传入 null 时，结果为: $result1")
+ *
+ * // 情况 2: 传入小于范围起始值的值
+ * val belowRangeValue = 0
+ * val result2 = belowRangeValue.fitRange(range)
+ * println("当传入小于范围起始值的值时，结果为: $result2")
+ *
+ * // 情况 3: 传入大于范围结束值的值
+ * val aboveRangeValue = 15
+ * val result3 = aboveRangeValue.fitRange(range)
+ * println("当传入大于范围结束值的值时，结果为: $result3")
+ *
+ * // 情况 4: 传入在范围内的值
+ * val inRangeValue = 5
+ * val result4 = inRangeValue.fitRange(range)
+ * println("当传入在范围内的值时，结果为: $result4")
  */
 fun Int?.fitRange(range: IntRange): Int {
     return when {
@@ -245,9 +264,6 @@ fun Int?.fitRange(range: IntRange): Int {
     }
 }
 
-/**
- * 设定范围
- */
 fun Long?.fitRange(range: LongRange): Long {
     return when {
         this == null -> range.first
@@ -257,26 +273,20 @@ fun Long?.fitRange(range: LongRange): Long {
     }
 }
 
-/**
- * 设定范围
- */
-fun Double?.fitRange(range: IntRange): Double {
-    return when {
-        this == null -> range.first.toDouble()
-        this <= range.first -> range.first.toDouble()
-        this >= range.last -> range.last.toDouble()
-        else -> this
-    }
-}
-
-/**
- * 设定范围
- */
 fun Float?.fitRange(range: IntRange): Float {
     return when {
         this == null -> range.first.toFloat()
         this <= range.first -> range.first.toFloat()
         this >= range.last -> range.last.toFloat()
+        else -> this
+    }
+}
+
+fun Double?.fitRange(range: IntRange): Double {
+    return when {
+        this == null -> range.first.toDouble()
+        this <= range.first -> range.first.toDouble()
+        this >= range.last -> range.last.toDouble()
         else -> this
     }
 }
@@ -366,26 +376,17 @@ fun BigDecimal?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
  * ->1.66
  * val b = 1.6; fixed=2
  * ->1.6
- * -------------------------
- * '0'->会补
- * '#'->不会补
  */
 fun Number?.toFixedWithoutZero(fixed: Int = 1, replenish: Boolean = true): String {
-    val format = StringBuffer("0.")
-    for (i in 0 until fixed) {
-        format.append(if(replenish) "0" else "#")
+    // 设置小数位数，不进行四舍五入
+    val result = this.toSafeBigDecimal().setScale(fixed, BigDecimal.ROUND_DOWN)
+    // 如果不需要补零，去掉末尾的零
+    return if (!replenish) {
+        result.stripTrailingZeros().toPlainString()
+    } else {
+        result.toPlainString()
     }
-    return DecimalFormat(format.toString()).format((this.orZero).toString()) ?: "0"
 }
-
-///**
-// * 保留小数，末尾为零则不显示0
-// * 1.0000000->1
-// * 1.0003300->1.00033
-// */
-//fun Number?.toFixedWithoutZero(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
-//    return BigDecimal((this.orZero).toString()).setScale(fixed, mode).stripTrailingZeros().toPlainString()
-//}
 
 /**
  * 去除所有小数的0
@@ -404,9 +405,14 @@ fun String?.removeEndZero(): String {
  * 获取小数位
  */
 fun String?.numberDigits(): Int {
+//    this ?: return 0
+//    val list = this.split(".")
+//    return if(list.size > 1) list.safeGet(1)?.length.orZero else 0
     this ?: return 0
-    val list = this.split(".")
-    return if(list.size > 1) list.safeGet(1)?.length.orZero else 0
+    val dotIndex = this.indexOf('.')
+    //如果没有找到小数点（dotIndex == -1），说明没有小数部分，返回 0
+    //否则，使用 drop 方法去掉小数点及其前面的部分，然后获取剩余字符串的长度，最后使用 orZero 确保结果不会为 null
+    return if (dotIndex == -1) 0 else this.drop(dotIndex + 1).length.orZero
 }
 
 /**
@@ -424,8 +430,12 @@ fun String?.numberCompareTo(number: String?): Int {
  * number可以是Number類型轉換為字符串
  * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
  */
-fun String?.add(number: String?): String {
-    return toSafeBigDecimal().add(number.toSafeBigDecimal()).toPlainString().removeEndZero()
+fun String?.add(number: Any?): String {
+    return toSafeBigDecimal().add(number.convertToSafeBigDecimal()).toPlainString().removeEndZero()
+}
+
+fun Number?.add(number: Any?): String {
+    return toSafeBigDecimal().add(number.convertToSafeBigDecimal()).toPlainString().removeEndZero()
 }
 
 /**
@@ -433,8 +443,12 @@ fun String?.add(number: String?): String {
  * number可以是Number類型轉換為字符串
  * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
  */
-fun String?.subtract(number: String?): String {
-    return toSafeBigDecimal().subtract(number.toSafeBigDecimal()).toPlainString().removeEndZero()
+fun String?.subtract(number: Any?): String {
+    return toSafeBigDecimal().subtract(number.convertToSafeBigDecimal()).toPlainString().removeEndZero()
+}
+
+fun Number?.subtract(number: Any?): String {
+    return toSafeBigDecimal().subtract(number.convertToSafeBigDecimal()).toPlainString().removeEndZero()
 }
 
 /**
@@ -442,8 +456,12 @@ fun String?.subtract(number: String?): String {
  * number可以是Number類型轉換為字符串
  * 如果number是字符串，必須是數值（'0'或‘-1’）的字符串
  */
-fun String?.multiply(number: String?): String {
-    return toSafeBigDecimal().multiply(number.toSafeBigDecimal()).toPlainString().removeEndZero()
+fun String?.multiply(number: Any?): String {
+    return toSafeBigDecimal().multiply(number.convertToSafeBigDecimal()).toPlainString().removeEndZero()
+}
+
+fun Number?.multiply(number: Any?): String {
+    return toSafeBigDecimal().multiply(number.convertToSafeBigDecimal()).toPlainString().removeEndZero()
 }
 
 /**
@@ -452,8 +470,17 @@ fun String?.multiply(number: String?): String {
  * 如果number是字符串，必須是數值（'1'或‘-1’）的字符串
  * 如果除数是小数或除不尽，则必须指定小数位数
  */
-fun String?.divide(number: String?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN): String {
-    //抹去末尾多餘的0，某些字符串可能是0.0或0.00,除數不能為0，碰到這種情況直接返回0
-    if (number.toSafeBigDecimal().toPlainString().removeEndZero() == "0") return "0"
-    return toSafeBigDecimal().divide(number.removeEndZero().toSafeBigDecimal(), scale, mode).toPlainString().removeEndZero()
+fun String?.divide(number: Any?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN): String {
+    return performDivision(toSafeBigDecimal(), number, scale, mode)
+}
+
+fun Number?.divide(number: Any?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN): String {
+    return performDivision(toSafeBigDecimal(), number, scale, mode)
+}
+
+private fun performDivision(current: BigDecimal, number: Any?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN): String {
+    val divisor = number.convertToSafeBigDecimal()
+    //处理除数为 0 的情况
+    if (divisor.toPlainString().removeEndZero() == "0") return "0"
+    return current.divide(divisor, scale, mode).toPlainString().removeEndZero()
 }
