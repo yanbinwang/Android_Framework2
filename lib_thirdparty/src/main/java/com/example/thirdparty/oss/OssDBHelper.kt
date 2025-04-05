@@ -75,6 +75,17 @@ object OssDBHelper {
 
     // <editor-fold defaultstate="collapsed" desc="项目操作方法">
     /**
+     * 更新数据库中所有数据的上传状态
+     */
+    @JvmStatic
+    fun addObserver(observer: LifecycleOwner) {
+        //以main为底座，绑定main的生命周期
+        OssFactory.instance.cancelAllWork(observer)
+        //加载数据前，让数据库中所有上传中状态的数据，变为未上传
+        updateAll(1)
+    }
+
+    /**
      * 整理数据库对应用户的数据
      * 1.服务器请求完成后-》 val existsList = data.list.filter { it.isExists() }//整理服务器给的对照列表，抓出其中本地具备的文件
      * 2.调取sort方法，传入服务器的对照列表，对数据库进行一次删减
@@ -92,29 +103,15 @@ object OssDBHelper {
         }
     }
 
-//    /**
-//     * 获取对应文件在手机内的路径
-//     */
-//    @JvmStatic
-//    fun sourcePath(appType: String, title: String): String {
-//        return "${STORAGE}/${
-//            when (appType) {
-//                "1" -> "拍照"
-//                "2" -> "录音"
-//                "3" -> "录像"
-//                else -> "录屏"
-//            }
-//        }/${title}"
-//    }
-
     /**
-     * 开始上传文件
+     * 更新文件上传状态
+     * 0上传中 1上传失败 2上传完成（证据缺失直接校验源文件路径）
      */
     @JvmStatic
-    fun updateUpload(baoquan: String, isUpload: Boolean = true) {
+    fun update(baoquan: String, state: Int = 2) {
         val bean = query(baoquan)
         bean ?: return
-        bean.state = if (isUpload) 0 else 1
+        bean.state = state
         dao?.update(bean)
     }
 
@@ -122,32 +119,15 @@ object OssDBHelper {
      * 更新所有文件的上传状态（登录成功后调取一次）
      */
     @JvmStatic
-    fun updateUpload(isUpload: Boolean = false) {
-        val list = query()
-        list ?: return
-        list.forEach { updateUpload(it.baoquan, isUpload) }
-    }
-
-    /**
-     * 完成上传，通常此时这条数据已经被删除不存在了
-     */
-    @JvmStatic
-    fun updateComplete(baoquan: String, isComplete: Boolean = true) {
-        val bean = query(baoquan)
-        bean ?: return
-        bean.state = if (isComplete) 2 else 1
-        dao?.update(bean)
-    }
-
-    /**
-     * 更新数据库中所有数据的上传状态
-     */
-    @JvmStatic
-    fun addObserver(observer: LifecycleOwner) {
-        //以main为底座，绑定main的生命周期
-        OssFactory.instance.cancelAllWork(observer)
-        //加载数据前，让数据库中所有上传中状态的数据，变为未上传
-        dao?.loadAll()?.forEach { updateUpload(it.baoquan, false) }
+    fun updateAll(state: Int = 1) {
+        //获取所有任务
+        val allTasks = query().orEmpty()
+        //批量修改任务属性
+        for (task in allTasks) {
+            //批量保存修改后的任务
+            task.state = state
+            dao?.update(task)
+        }
     }
 
     /**

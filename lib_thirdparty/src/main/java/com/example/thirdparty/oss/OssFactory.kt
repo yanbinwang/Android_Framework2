@@ -309,8 +309,10 @@ class OssFactory private constructor() : CoroutineScope {
                     ossMap[baoquan] = resumableTask
                 }
             } else {
-                init(baoquan, sourcePath, fileType)
-                failure(baoquan, "oss初始化失败")
+                query(baoquan, sourcePath, fileType)
+                OssDBHelper.update(baoquan, 1)
+                callback(2, baoquan, success = false)
+//                failure(baoquan, "oss初始化失败")
             }
         }
     }
@@ -345,7 +347,7 @@ class OssFactory private constructor() : CoroutineScope {
             }
             OssDBHelper.insert(query)
         }
-        OssDBHelper.updateUpload(baoquan, true)
+        OssDBHelper.update(baoquan, 0)
         callback(0, baoquan)
         return query
     }
@@ -359,7 +361,7 @@ class OssFactory private constructor() : CoroutineScope {
             //全部传完停止服务器
             if (percentage == 100) {
                 //优先保证本地数据库记录成功
-                OssDBHelper.updateComplete(baoquan, true)
+                OssDBHelper.update(baoquan, 2)
                 success(query, fileType, recordDirectory.orEmpty())
             }
         } else {
@@ -392,21 +394,20 @@ class OssFactory private constructor() : CoroutineScope {
                 EVENT_EVIDENCE_UPDATE.post(fileType)
             }
         }
-        ossJobMap[baoquan]?.invokeOnCompletion { end(baoquan) }
     }
 
     /**
      * 告知服务器此次失败的链接地址-》只做通知
      */
     private fun failure(baoquan: String, errorMessage: String?) {
-        OssDBHelper.updateUpload(baoquan, false)
-        callback(2, baoquan, success = false)
         ossJobMap[baoquan] = flow<Unit> {
             request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)) })
         }.withHandling(end = {
             end(baoquan)
-        }).launchIn(this)
-        ossJobMap[baoquan]?.invokeOnCompletion { end(baoquan) }
+        }).onStart {
+            OssDBHelper.update(baoquan, 1)
+            callback(2, baoquan, success = false)
+        }.launchIn(this)
     }
 
     /**
