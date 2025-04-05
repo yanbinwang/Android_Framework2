@@ -232,9 +232,16 @@ class OssFactory private constructor() : CoroutineScope {
         sourcePath ?: return
         synchronized(postLock) {
             if (isInit()) {
-                val data = init(baoquan, sourcePath, fileType)
-                val query = data.first
-                val recordDirectory = data.second
+                //校验是否上传
+                if (OssDBHelper.isUpload(baoquan)) return
+                //查询或获取存储的值
+                val query = queryOrInsert(baoquan, sourcePath, fileType)
+                //设置对应文件的断点文件存放路径
+                val file = File(sourcePath)
+                val fileName = file.name.split(".")[0]
+                //本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
+                val recordDirectory = "${file.parent}/${fileName}_record"
+                //之前是否已经上传成功
                 if (OssDBHelper.isComplete(baoquan)) {
                     success(query, fileType, recordDirectory)
                 } else {
@@ -313,19 +320,6 @@ class OssFactory private constructor() : CoroutineScope {
 //                failure(baoquan, "oss初始化失败")
             }
         }
-    }
-
-    /**
-     * 初始化相关参数
-     */
-    private fun init(baoquan: String, sourcePath: String, fileType: String): Pair<OssDB, String> {
-        //设置对应文件的断点文件存放路径
-        val file = File(sourcePath)
-        val fileName = file.name.split(".")[0]
-        //本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
-        val recordDirectory = "${file.parent}/${fileName}_record"
-        //查询或获取存储的值
-        return queryOrInsert(baoquan, sourcePath, fileType) to recordDirectory
     }
 
     /**
