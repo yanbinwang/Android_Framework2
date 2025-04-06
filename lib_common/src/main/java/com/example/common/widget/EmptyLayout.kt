@@ -22,6 +22,7 @@ import com.example.framework.utils.function.view.string
 import com.example.framework.utils.function.view.tint
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
+import androidx.core.content.withStyledAttributes
 
 /**
  * Created by android on 2017/8/7.
@@ -43,11 +44,10 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private var listener: ((result: Boolean) -> Unit)? = null
 
     init {
-//        mBinding.root.layoutParamsMatch()
         //是否是全屏
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.EmptyLayout)
-        fullScreen = typedArray.getBoolean(R.styleable.EmptyLayout_elEnableFullScreen, false)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.EmptyLayout) {
+            fullScreen = getBoolean(R.styleable.EmptyLayout_elEnableFullScreen, false)
+        }
         //绘制大小撑到最大/默认背景
         mBinding.root.size(MATCH_PARENT, MATCH_PARENT)
         mBinding.root.setBackgroundColor(color(R.color.bgDefault))

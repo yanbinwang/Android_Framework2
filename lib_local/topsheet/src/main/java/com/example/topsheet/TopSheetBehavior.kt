@@ -44,6 +44,7 @@ import com.example.framework.utils.function.value.toSafeInt
 import java.lang.ref.WeakReference
 import kotlin.math.abs
 import kotlin.math.max
+import androidx.core.content.withStyledAttributes
 
 @SuppressLint("PrivateResource")
 class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : CoordinatorLayout.Behavior<V>(context, attrs) {
@@ -145,11 +146,11 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
      * Default constructor for inflating TopSheetBehaviors from layout.
      */
     init {
-        val a = context.obtainStyledAttributes(attrs, R.styleable.BottomSheetBehavior_Layout)
-        setPeekHeight(a.getDimensionPixelSize(R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight, 0))
-        setHideable(a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_hideable, false))
-        setSkipCollapsed(a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_skipCollapsed, true))
-        a.recycle()
+        context.withStyledAttributes(attrs, R.styleable.BottomSheetBehavior_Layout) {
+            setPeekHeight(getDimensionPixelSize(R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight, 0))
+            setHideable(getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_hideable, false))
+            setSkipCollapsed(getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_skipCollapsed, true))
+        }
         val configuration = ViewConfiguration.get(context)
         mMaximumVelocity = configuration.scaledMaximumFlingVelocity.toSafeFloat()
     }

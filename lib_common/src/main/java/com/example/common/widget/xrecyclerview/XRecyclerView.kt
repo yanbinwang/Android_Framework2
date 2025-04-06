@@ -36,6 +36,7 @@ import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
+import androidx.core.content.withStyledAttributes
 
 /**
  * author: wyb
@@ -71,11 +72,11 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         private set
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.XRecyclerView)
-        refreshEnable = typedArray.getBoolean(R.styleable.XRecyclerView_xrvEnableRefresh,false)
-        emptyEnable = typedArray.getBoolean(R.styleable.XRecyclerView_xrvEnableEmpty,false)
-        emptyHeight = typedArray.getDimension(R.styleable.XRecyclerView_xrvEmptyHeight, -1f)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.XRecyclerView) {
+            refreshEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableRefresh, false)
+            emptyEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableEmpty, false)
+            emptyHeight = getDimension(R.styleable.XRecyclerView_xrvEmptyHeight, -1f)
+        }
     }
 
     override fun onInflate() {
