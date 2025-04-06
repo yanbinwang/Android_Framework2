@@ -10,6 +10,7 @@ import java.io.File
 import java.io.FileReader
 import java.io.IOException
 import java.util.Locale
+import androidx.core.graphics.toColorInt
 
 //------------------------------------方法工具类------------------------------------
 /**
@@ -77,7 +78,7 @@ fun Bundle?.clearFragmentSavedState() {
  * eg: "#ffffff"
  */
 @ColorInt
-fun String?.parseColor() = Color.parseColor(this ?: "#ffffff")
+fun String?.parseColor() = (this ?: "#ffffff").toColorInt()
 
 /**
  * 不指定name，默认返回class命名
