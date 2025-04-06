@@ -497,16 +497,16 @@ fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
  * 获取一串拼接的json
  */
 fun <T> ArrayList<T>?.requestParams(): String {
-    if (this == null) return ""
-    var result = "["
-    for (index in indices) {
-        result = if (index + 1 == size) {
-            result + safeGet(index) + "]"
-        } else {
-            result + safeGet(index) + "],["
+    if (isNullOrEmpty()) return ""
+    val builder = StringBuilder("[")
+    for (i in indices) {
+        builder.append(safeGet(i))
+        if (i < lastIndex) {
+            builder.append("],[")
         }
     }
-    return result
+    builder.append("]")
+    return builder.toString()
 }
 
 /**
