@@ -158,6 +158,21 @@ fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
 }
 
 /**
+ * 取得async异步协程集合后，拿取对应的值强转
+ * reified:保留类型参数 T 的具体类型信息
+ */
+inline fun <reified T> List<Any?>?.safeAs(position: Int): T? {
+    if (this == null || position < 0 || position >= size) return null
+    val value = get(position)
+    return if (value is T) value else null
+}
+
+inline fun <reified T> Any?.safeAs(): T? {
+    if (this == null) return null
+    return if (this is T) this else null
+}
+
+/**
  * 提示方法，根据接口返回的msg提示
  */
 fun String?.responseToast() =
