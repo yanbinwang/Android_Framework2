@@ -41,11 +41,18 @@ object Constants {
     @JvmStatic
     val NO_DATA get() = string(R.string.unitNoData)
     //------app内接口的一些默认配置字段------
+    //固定配置页数
+    const val PAGE_LIMIT = "10"
     //语言包先写死
     val LANGUAGE_LIST by lazy { listOf(
         ServerLanguage(0, "zh_HK", "繁體中文", "", "1"),
         ServerLanguage(1, "en_IN", "English", "", "1"),
         ServerLanguage(2, "id_ID", "Bahasa Indonesia", "", "1")) }
-    //固定配置页数
-    const val PAGE_LIMIT = "10"
+    //------socket地址------
+    //訂單
+    const val SOCKET_DEAL_URL = "/user/topic/console/subscribe/pendingOrder"
+    //廣告
+    const val SOCKET_ADVERTISE_URL = "/user/topic/console/subscribe/entrustInProgress"
+    //資金
+    const val SOCKET_FUNDS_URL = "/user/topic/console/subscribe/assetInfo"
 }
