@@ -12,58 +12,58 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
     //检测布局绘制
     protected val isInflate get() = childCount <= 0
 
-//    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-//        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-//        for (i in 0 until childCount) {
-//            getChildAt(i).measure(widthMeasureSpec, heightMeasureSpec)
-//        }
-//    }
-//
-//    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-//        for (i in 0 until childCount) {
-//            getChildAt(i).layout(0, 0, r, b)
-//        }
-//    }
-
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        var maxWidth = 0
-        var maxHeight = 0
-
-        // 测量每个子视图
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         for (i in 0 until childCount) {
-            val child = getChildAt(i)
-            measureChild(child, widthMeasureSpec, heightMeasureSpec)
-            maxWidth = maxWidth.coerceAtLeast(child.measuredWidth)
-            maxHeight = maxHeight.coerceAtLeast(child.measuredHeight)
+            getChildAt(i).measure(widthMeasureSpec, heightMeasureSpec)
         }
-
-        // 根据测量模式计算最终的宽度和高度
-        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
-        val widthSize = MeasureSpec.getSize(widthMeasureSpec)
-        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
-        val heightSize = MeasureSpec.getSize(heightMeasureSpec)
-
-        val finalWidth = when (widthMode) {
-            MeasureSpec.EXACTLY -> widthSize
-            MeasureSpec.AT_MOST -> maxWidth.coerceAtMost(widthSize)
-            else -> maxWidth
-        }
-
-        val finalHeight = when (heightMode) {
-            MeasureSpec.EXACTLY -> heightSize
-            MeasureSpec.AT_MOST -> maxHeight.coerceAtMost(heightSize)
-            else -> maxHeight
-        }
-
-        setMeasuredDimension(finalWidth, finalHeight)
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         for (i in 0 until childCount) {
-            val child = getChildAt(i)
-            child.layout(0, 0, child.measuredWidth, child.measuredHeight)
+            getChildAt(i).layout(0, 0, r, b)
         }
     }
+
+//    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+//        var maxWidth = 0
+//        var maxHeight = 0
+//
+//        // 测量每个子视图
+//        for (i in 0 until childCount) {
+//            val child = getChildAt(i)
+//            measureChild(child, widthMeasureSpec, heightMeasureSpec)
+//            maxWidth = maxWidth.coerceAtLeast(child.measuredWidth)
+//            maxHeight = maxHeight.coerceAtLeast(child.measuredHeight)
+//        }
+//
+//        // 根据测量模式计算最终的宽度和高度
+//        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
+//        val widthSize = MeasureSpec.getSize(widthMeasureSpec)
+//        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
+//        val heightSize = MeasureSpec.getSize(heightMeasureSpec)
+//
+//        val finalWidth = when (widthMode) {
+//            MeasureSpec.EXACTLY -> widthSize
+//            MeasureSpec.AT_MOST -> maxWidth.coerceAtMost(widthSize)
+//            else -> maxWidth
+//        }
+//
+//        val finalHeight = when (heightMode) {
+//            MeasureSpec.EXACTLY -> heightSize
+//            MeasureSpec.AT_MOST -> maxHeight.coerceAtMost(heightSize)
+//            else -> maxHeight
+//        }
+//
+//        setMeasuredDimension(finalWidth, finalHeight)
+//    }
+//
+//    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+//        for (i in 0 until childCount) {
+//            val child = getChildAt(i)
+//            child.layout(0, 0, child.measuredWidth, child.measuredHeight)
+//        }
+//    }
 
     override fun onFinishInflate() {
         super.onFinishInflate()
