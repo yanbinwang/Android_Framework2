@@ -583,14 +583,17 @@ class RangeHelper(private val view: WeakReference<EditText>?, hasAuto: Boolean =
     init {
         editText?.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
         editText?.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                if (hasAuto) getText()
+            if (!hasFocus && hasAuto) {
+                getText()
             }
         }
     }
 
     /**
-     * 传入字符串避免小数位数比较的误差
+     * 设置输入范围和小数位数限制
+     * @param min 最小值，可为 null
+     * @param max 最大值，可为 null
+     * @param digits 小数位数限制，-1 表示不限制
      */
     fun setRange(min: String? = null, max: String? = null, digits: Int? = -1) {
         this.min = min
@@ -599,41 +602,35 @@ class RangeHelper(private val view: WeakReference<EditText>?, hasAuto: Boolean =
     }
 
     /**
-     * -1,表示小于最小值
-     * 0,表示正常
-     * 1,表示大于最大值
+     * 获取当前输入值的范围状态
+     * @return -1 表示小于最小值，0 表示正常，1 表示大于最大值
      */
     fun getRange(): Int {
-        var range = 0
         val text = editText.text()
-        if (!min.isNullOrEmpty()) {
-            if (text.numberCompareTo(min) == -1) {
-                range = -1
-            }
+        if (!min.isNullOrEmpty() && text.numberCompareTo(min) == -1) {
+            return -1
         }
-        if (!max.isNullOrEmpty()) {
-            if (text.numberCompareTo(max) == 1) {
-                range = 1
-            }
+        if (!max.isNullOrEmpty() && text.numberCompareTo(max) == 1) {
+            return 1
         }
-        return range
+        return 0
     }
 
     /**
-     * 取值使用此方法
+     * 获取符合范围要求的输入值
+     * @return 符合范围要求的输入值
      */
     fun getText(): String {
-        val range = getRange()
-        var text = editText.text()
-        if (-1 == range) {
-            text = min.orEmpty()
+        val currentText = editText.text()
+        val resultText = when (getRange()) {
+            -1 -> min.orEmpty()
+            1 -> max.orEmpty()
+            else -> currentText
         }
-        if (1 == range) {
-            text = max.orEmpty()
+        if (resultText != currentText) {
+            editText?.setText(resultText)
         }
-        //比较一下大小值有无改变
-        if (text != editText.text()) editText?.setText(text)
-        return text
+        return resultText
     }
 
 }
