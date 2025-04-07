@@ -24,7 +24,7 @@ versions.arouter = "1.5.2"
 versions.arouter_compiler = "1.5.2"
 //------------------------------------------------------------------------------------------
 versions.autosize = "v1.2.1"
-versions.mmkv = "2.1.0"
+versions.mmkv = "1.2.2"
 versions.recovery = "1.0.0"
 versions.guide = "v2.4.4"
 versions.smartrefresh = "2.0.5"
@@ -83,9 +83,9 @@ ext.deps = deps
 
 //全局版本配置
 def build_versions = [:]
-build_versions.compileSdkVersion = 35//构建版本号
+build_versions.compileSdkVersion = 34//构建版本号
 build_versions.minSdkVersion = 23//最低安装版本
-build_versions.targetSdkVersion = 33//最高安装版本
+build_versions.targetSdkVersion = 32//最高安装版本
 build_versions.versionCode = 1//版本号
 build_versions.versionName = "1.0.0"//版本名
 ext.build_versions = build_versions

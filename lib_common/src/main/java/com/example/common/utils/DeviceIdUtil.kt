@@ -65,12 +65,12 @@ object DeviceIdUtil {
      */
     val deviceId: String
         get() {
-            if (CacheData.deviceId.get().isNullOrEmpty()) {
+            if (CacheData.deviceId.get().isEmpty()) {
                 CacheData.deviceId.set(getId().let {
                     return@let if (it.length > 30) it.substring(0, 30) else it
                 })
             }
-            return CacheData.deviceId.get().orEmpty()
+            return CacheData.deviceId.get()
         }
 
     /**
