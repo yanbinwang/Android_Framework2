@@ -659,6 +659,15 @@ public static java.lang.String TABLENAME;
 -keep class com.alipay.rds.constant.* { *; }
 #------------------------阿里人脸识别混淆结束------------------------
 
+
+## 保留密封类及其子类
+#-keep class com.yourpackage.YourSealedClass { *; }
+#-keep class com.yourpackage.YourSealedClass$* { *; }
+#
+## 如果密封类有抽象方法，保留抽象方法所在的类
+#-keep class com.yourpackage.AbstractClassContainingMethodsOfSealedClass { *; }
+
+
 -keep class com.example.common.databinding.** {*;}
 -keep class com.example.common.base.binding.adapter.BaseItemType { *;}
 -keep class com.example.common.base.page.** {*;}
