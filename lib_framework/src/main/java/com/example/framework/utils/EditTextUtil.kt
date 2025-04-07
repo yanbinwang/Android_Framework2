@@ -602,27 +602,12 @@ class RangeHelper(private val view: WeakReference<EditText>?, hasAuto: Boolean =
     }
 
     /**
-     * 获取当前输入值的范围状态
-     * @return -1 表示小于最小值，0 表示正常，1 表示大于最大值
-     */
-    fun getRange(): Int {
-        val text = editText.text()
-        if (!min.isNullOrEmpty() && text.numberCompareTo(min) == -1) {
-            return -1
-        }
-        if (!max.isNullOrEmpty() && text.numberCompareTo(max) == 1) {
-            return 1
-        }
-        return 0
-    }
-
-    /**
      * 获取符合范围要求的输入值
      * @return 符合范围要求的输入值
      */
     fun getText(): String {
         val currentText = editText.text()
-        val resultText = when (getRange()) {
+        val resultText = when (numberCompare()) {
             -1 -> min.orEmpty()
             1 -> max.orEmpty()
             else -> currentText
@@ -631,6 +616,21 @@ class RangeHelper(private val view: WeakReference<EditText>?, hasAuto: Boolean =
             editText?.setText(resultText)
         }
         return resultText
+    }
+
+    /**
+     * 获取当前输入值的范围状态
+     * @return -1 表示小于最小值，0 表示正常，1 表示大于最大值
+     */
+    private fun numberCompare(): Int {
+        val text = editText.text()
+        if (!min.isNullOrEmpty() && text.numberCompareTo(min) == -1) {
+            return -1
+        }
+        if (!max.isNullOrEmpty() && text.numberCompareTo(max) == 1) {
+            return 1
+        }
+        return 0
     }
 
 }
