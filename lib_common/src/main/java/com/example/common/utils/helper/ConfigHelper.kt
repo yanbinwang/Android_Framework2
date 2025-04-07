@@ -9,6 +9,7 @@ import com.example.common.BaseApplication
 import com.example.common.config.CacheData
 import com.example.common.config.CacheData.deviceToken
 import com.example.common.config.CacheData.privacyAgreed
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeLong
 
 /**
@@ -81,7 +82,7 @@ object ConfigHelper {
         var appVersionName = ""
         try {
             val packageInfo = mContext.applicationContext.packageManager.getPackageInfo(mContext.packageName, 0)
-            appVersionName = packageInfo.versionName
+            appVersionName = packageInfo.versionName.orEmpty()
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
         }
@@ -94,7 +95,7 @@ object ConfigHelper {
     fun getAppName(): String {
         try {
             val packageInfo = mContext.packageManager.getPackageInfo(mContext.packageName, 0)
-            val labelRes = packageInfo.applicationInfo.labelRes
+            val labelRes = packageInfo.applicationInfo?.labelRes.orZero
             return mContext.resources.getString(labelRes)
         } catch (e: Exception) {
             e.printStackTrace()
