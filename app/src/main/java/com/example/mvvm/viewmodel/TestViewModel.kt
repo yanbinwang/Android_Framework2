@@ -5,9 +5,9 @@ import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.async
 import com.example.common.base.bridge.launch
 import com.example.common.network.repository.request
+import com.example.common.network.repository.safeAs
 import com.example.common.network.repository.withHandling
 import com.example.common.subscribe.CommonSubscribe
-import com.example.framework.utils.function.value.safeAs
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -132,8 +132,7 @@ class TestViewModel : BaseViewModel() {
                     async { request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
                 val task2 =
                     async { request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
-                val taskList = awaitAll(task1, task2)
-                emit(taskList)
+                emit(awaitAll(task1, task2))
             }.withHandling(mView).collect {
                 it.safeAs<Any>(0)
                 it.safeAs<Any>(1)
