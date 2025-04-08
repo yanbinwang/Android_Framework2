@@ -11,7 +11,6 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSet
 import com.example.framework.utils.function.value.safeSize
-import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.view.click
 
 /**
@@ -23,7 +22,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 适配器类型-后续可扩展
      */
-    private var itemType = BEAN
+    private var itemType: BaseItemType = LIST // 默认是 LIST 类型
     /**
      * 数据类型为集合
      */
@@ -38,9 +37,11 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     private var onItemClick: ((t: T?, position: Int) -> Unit)? = null
 
     /**
-     * 默认是返回对象
+     * 默认是返回集合
      */
-    constructor()
+    constructor() {
+        data = ArrayList() // 显式初始化空列表
+    }
 
     /**
      * 传入对象的方法
@@ -55,18 +56,18 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     constructor(list: ArrayList<T>?) {
         itemType = LIST
-        data = list.orEmpty().toArrayList()
+        data = list.orEmpty().toMutableList()
     }
 
     override fun getItemCount(): Int {
         return when (itemType) {
             LIST -> data.safeSize
-            BEAN -> 1
+            BEAN -> if (t != null) 1 else 0
         }
     }
 
     override fun onBindViewHolder(holder: BaseViewDataBindingHolder, position: Int) {
-        onConvertHolder(holder)
+        onConvertHolder(holder, null)
     }
 
     /**
@@ -76,14 +77,20 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
         onConvertHolder(holder, payloads)
     }
 
-    private fun onConvertHolder(holder: BaseViewDataBindingHolder, payloads: MutableList<Any>? = null) {
+    private fun onConvertHolder(holder: BaseViewDataBindingHolder, payloads: MutableList<Any>?) {
         val position = holder.absoluteAdapterPosition
         //注意判断当前适配器是否具有头部view
-        holder.itemView.click { onItemClick?.invoke(data.safeGet(position), position) }
-        onConvert(holder, when (itemType) {
-            LIST -> data.safeGet(position)
+        holder.itemView.click {
+            onItemClick?.invoke(data.safeGet(position), position)
+        }
+        onConvert(holder, getItem(position), payloads)
+    }
+
+    private fun getItem(position: Int): T? {
+        return when (itemType) {
+            LIST -> if (position in data.indices) data[position] else null
             BEAN -> t
-        }, payloads)
+        }
     }
 
     /**

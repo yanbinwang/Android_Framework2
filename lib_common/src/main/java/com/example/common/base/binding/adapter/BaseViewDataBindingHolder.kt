@@ -34,4 +34,8 @@ open class BaseViewDataBindingHolder(parent: ViewGroup, private val binding: Vie
         return binding as? VDB
     }
 
+    fun unbind() {
+        binding?.unbind()
+    }
+
 }
