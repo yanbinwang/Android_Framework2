@@ -30,7 +30,7 @@ abstract class BaseQuickAdapter<T, VDB : ViewDataBinding> : BaseAdapter<T> {
     }
 
     override fun onConvert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>?) {
-        mBinding = holder.getBinding()
+        mBinding = holder.viewBinding()
     }
 
     override fun onViewRecycled(holder: BaseViewDataBindingHolder) {

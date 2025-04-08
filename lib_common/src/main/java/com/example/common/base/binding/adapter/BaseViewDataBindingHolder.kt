@@ -30,10 +30,16 @@ open class BaseViewDataBindingHolder(parent: ViewGroup, private val binding: Vie
         }
     }
 
-    fun <VDB : ViewDataBinding> getBinding(): VDB? {
+    /**
+     * 获取binding
+     */
+    fun <VDB : ViewDataBinding> viewBinding(): VDB? {
         return binding as? VDB
     }
 
+    /**
+     * 解绑
+     */
     fun unbind() {
         binding?.unbind()
     }
