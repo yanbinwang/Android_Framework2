@@ -149,13 +149,14 @@ android {
                         outputFileName = "${appName}_v${versionName}_${date}.apk"
                     } else {
                         // 打包命令 ./gradlew bundleRelease -->执行后产生的aab包的路径：项目/app/build/outputs/bundle/release/XXX.aab
-//                        val desktopPath = "${System.getProperty("user.home")}/Desktop"
-//                        val provider = layout.buildDirectory.file("outputs/bundle/release/${appName}_v${versionName}_${date}.aab")
-                        //AndroidStudio手动打包，先在项目目录下创建outputs/bundle/release对应的文件夹，然后打包路径选择这个，就会输出到目录下
+                        // AndroidStudio手动打包，先在项目目录下创建outputs/bundle/release对应的文件夹，然后打包路径选择这个，就会输出到目录下
                         val provider = layout.projectDirectory.file("outputs/bundle/release/${appName}_v${versionName}_${date}.aab")
+                        // AndroidStudio手动打包，直接给出绝对路径，打包输出至桌面
+//                        val file = file("${System.getProperty("user.home")}/Desktop/${appName}_v${versionName}_${date}.aab")
                         val fileProperty = outputFile
                         if (fileProperty is RegularFileProperty) {
                             fileProperty.set(provider)
+//                            fileProperty.set(file)
                         }
                     }
                 }
