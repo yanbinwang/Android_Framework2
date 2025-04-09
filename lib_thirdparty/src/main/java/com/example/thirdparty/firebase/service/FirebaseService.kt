@@ -1,6 +1,6 @@
 package com.example.thirdparty.firebase.service
 
-import com.example.common.utils.toJsonString
+import com.example.common.utils.toJson
 import com.example.framework.utils.logWTF
 import com.example.thirdparty.firebase.utils.FireBaseUtil
 import com.example.thirdparty.firebase.utils.FireBaseUtil.notificationHandler
@@ -21,7 +21,7 @@ class FirebaseService : FirebaseMessagingService() {
     override fun onMessageReceived(msg: RemoteMessage) {
         if (notificationHandler?.invoke(msg.data) != true) {
             val map = msg.data
-            "msg:${msg.toJsonString()}\nmap:${map.toJsonString()}".logWTF
+            "msg:${msg.toJson()}\nmap:${map.toJson()}".logWTF
             showSimpleNotification(
                 msg.notification?.title,
                 msg.notification?.body,
