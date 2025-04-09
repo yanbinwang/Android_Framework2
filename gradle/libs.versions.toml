@@ -1,0 +1,101 @@
+[versions]
+#---------------------------------------------settings.gradle版本---------------------------------------------
+agp = "8.9.1"
+kotlin = "2.0.21"
+#---------------------------------------------模块测试库版本---------------------------------------------
+junit = "4.13.2"
+junit-ext = "1.1.5"
+espresso-core = "3.5.1"
+#---------------------------------------------安卓x库版本---------------------------------------------
+appcompat = "1.6.1"
+constraintlayout = "2.1.4"
+recyclerview = "1.3.0"
+core = "1.13.1"
+viewmodel = "2.8.7"
+#livedata = "2.8.7"
+#---------------------------------------------google扩展控件版本---------------------------------------------
+material = "1.10.0"
+flexbox = "3.0.0"
+#---------------------------------------------网络请求库retrofit2版本---------------------------------------------
+retrofit = "2.9.0"
+converter-gson = "2.9.0"
+#---------------------------------------------阿里路由版本---------------------------------------------
+arouter = "1.5.2"
+arouter-compiler = "1.5.2"
+#---------------------------------------------其余三方控件版本---------------------------------------------
+autosize = "v1.2.1"
+mmkv = "1.2.2"
+recovery = "1.0.0"
+guide = "v2.4.4"
+smartrefresh = "2.0.5"
+xxpermissions = "16.2"
+immersionbar = "3.2.2"
+circleprogressbar = "1.3.6"
+stomp = "4.0.1"
+#---------------------------------------------全局版本配置---------------------------------------------
+compileSdkVersion = "34" #构建版本号
+minSdkVersion = "21" #最低安装版本
+targetSdkVersion = "32" #最高安装版本
+versionCode = "1" #版本号
+versionName = "1.0.0" #版本名
+#---------------------------------------------基础参数配置---------------------------------------------
+applicationId = "com.example.mvvm" #主appId（包名）
+designWidth = "375"
+designHeight = "667"
+googleAuthApi = "503708557075-jjp550fvh0a2lgddr7n17bjrlqghrp1k.apps.googleusercontent.com"
+
+[libraries]
+#测试库
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+junitExt = { group = "androidx.test.ext", name = "junit", version.ref = "junit-ext" }
+espressoCore = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
+
+#安卓x库
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+core = { group = "androidx.core", name = "core-ktx", version.ref = "core" }
+viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "viewmodel" }
+#livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "livedata" }
+
+#google扩展控件
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }#design库
+flexbox = { group = "com.google.android.flexbox", name = "flexbox", version.ref = "flexbox" }#谷歌官方自动换行布局
+
+#网络请求库retrofit2
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+converterGson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converter-gson" }
+
+#阿里路由
+arouter = { group = "com.alibaba", name = "arouter-api", version.ref = "arouter" }
+arouterCompiler = { group = "com.alibaba", name = "arouter-compiler", version.ref = "arouter-compiler" }
+
+#其余三方控件
+autosize = { group = "com.github.JessYanCoding", name = "AndroidAutoSize", version.ref = "autosize" } #今日头条布局兼容
+mmkv = { group = "com.tencent", name = "mmkv-static", version.ref = "mmkv" } #腾讯读写库
+recovery = { group = "com.zxy.android", name = "recovery", version.ref = "recovery" } #闪退抓捕
+guide = { group = "com.github.huburt-Hu", name = "NewbieGuide", version.ref = "guide" } #遮罩引导
+smartrefresh = { group = "io.github.scwang90", name = "refresh-layout-kernel", version.ref = "smartrefresh" } #刷新控件
+xxpermissions = { group = "com.github.getActivity", name = "XXPermissions", version.ref = "xxpermissions" } #权限
+immersionbar = { group = "com.geyifeng.immersionbar", name = "immersionbar", version.ref = "immersionbar" } #状态栏
+circleprogressbar = { group = "com.dinuscxj", name = "circleprogressbar", version.ref = "circleprogressbar" } #加载进度条
+stomp = { group = "cn.zhxu", name = "okhttps-stomp", version.ref = "stomp" } #socket
+
+#settings.gradle配置
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-kapt = { id = "kotlin-kapt" }
+kotlin-parcelize = { id = "kotlin-parcelize" }
+
+#相关库打包
+[bundles]
+# Android 仪器化测试库
+android-testing = ["junitExt", "espressoCore"]
+# AndroidX 核心库
+androidx-common = ["appcompat", "constraintlayout", "recyclerview", "core", "viewmodel"]
+# Google 扩展控件库
+google-extensions = ["material", "flexbox"]
+# 网络请求库
+networking = ["retrofit", "converterGson"]
