@@ -2,6 +2,7 @@ package com.example.common.bean
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * 本地語言對象
@@ -9,7 +10,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 class LanguageBean(
     var version: String? = null,
-    var data: HashMap<String, String?>? = HashMap()
+    var data: ConcurrentHashMap<String, String?>? = ConcurrentHashMap()
 ) : Parcelable
 
 /**

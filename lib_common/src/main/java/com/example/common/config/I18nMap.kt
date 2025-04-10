@@ -1,13 +1,14 @@
 package com.example.common.config
 
 import com.example.common.R
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * @description key和对应的ResourcesId的map
  * @author yan
  */
 object I18nMap {
-    val map = hashMapOf(
+    val map = ConcurrentHashMap(hashMapOf(
         //------------------框架默认------------------
         R.string.hint to "hint",
         R.string.sure to "sure",
@@ -54,5 +55,5 @@ object I18nMap {
         R.string.mainMarket to "mainMarket",
         R.string.mainBalance to "mainBalance",
         R.string.mainUser to "mainUser",
-    )
+    ))
 }

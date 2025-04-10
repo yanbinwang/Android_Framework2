@@ -23,6 +23,8 @@ import com.google.gson.stream.JsonReader
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.lang.ref.WeakReference
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * @description 國際化工具類
@@ -30,23 +32,23 @@ import java.lang.ref.WeakReference
  */
 object I18nUtil {
     //用於存儲項目中所有繼承I18nImpl的view
-    private val viewList = ArrayList<WeakReference<I18nImpl>>()
+    private val viewList = AtomicReference(ArrayList<WeakReference<I18nImpl>>())
     //語言包
-    private val languageMap: HashMap<String, String?>
+    private val languageMap: ConcurrentHashMap<String, String?>
         get() {
             if (languageBean.get() == null) {
                 languageBean.set(LanguageBean())
             } else if (languageBean.get()?.data == null) {
-                languageBean.get()?.data = HashMap()
+                languageBean.get()?.data = ConcurrentHashMap()
             }
-            return languageBean.get()?.data ?: HashMap()
+            return languageBean.get()?.data ?: ConcurrentHashMap()
         }
 
     /**
      * 注册
      */
     fun register(textView: I18nImpl) {
-        viewList.add(textView.getWeakRef())
+        viewList.get().add(textView.getWeakRef())
         checkList()
     }
 
@@ -54,7 +56,7 @@ object I18nUtil {
      * 解除注册
      */
     fun unregister(textView: I18nImpl) {
-        viewList.remove(textView.getWeakRef())
+        viewList.get().remove(textView.getWeakRef())
         checkList()
     }
 
@@ -62,8 +64,8 @@ object I18nUtil {
      * 检查是否有已被回收的item
      */
     private fun checkList() {
-        viewList.filter { it.get() == null }.forEach {
-            viewList.remove(it)
+        viewList.get().filter { it.get() == null }.forEach {
+            viewList.get().remove(it)
         }
     }
 
@@ -73,7 +75,7 @@ object I18nUtil {
      */
     fun refreshLanguage() {
         checkList()
-        viewList.forEach {
+        viewList.get().forEach {
             it.get()?.refreshText()
         }
     }
