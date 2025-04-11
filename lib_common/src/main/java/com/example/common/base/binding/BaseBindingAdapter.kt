@@ -26,7 +26,7 @@ import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.adapter
-import com.example.framework.utils.function.view.background
+import com.example.framework.utils.function.view.backgroundCorner
 import com.example.framework.utils.function.view.charBlackList
 import com.example.framework.utils.function.view.charLimit
 import com.example.framework.utils.function.view.decimalFilter
@@ -70,7 +70,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["gradient_color", "gradient_radius"], requireAll = false)
     fun bindingGradientBackground(view: View, gradientColor: String?, gradientRadius: Int?) {
-        view.background(gradientColor.orEmpty(), gradientRadius.toSafeFloat(4.ptFloat))
+        view.backgroundCorner(gradientColor.orEmpty(), gradientRadius.toSafeFloat(4.ptFloat))
     }
     // </editor-fold>
 

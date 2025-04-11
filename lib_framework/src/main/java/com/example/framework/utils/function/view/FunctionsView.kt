@@ -9,6 +9,7 @@ import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.GradientDrawable.OVAL
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -180,16 +181,33 @@ fun View?.background(@DrawableRes bg: Int) {
     this.setBackgroundResource(bg)
 }
 
+fun View?.backgroundTag(@DrawableRes bg: Int) {
+    if (this == null) return
+    if (tag != null && tag is Int && tag == bg) {
+        return
+    }
+    this.setBackgroundResource(bg)
+    tag = bg
+}
+
 /**
  * 减少本地背景文件的绘制，直接代码绘制
  * colorString 颜色字符 -> "#cf111111"
  * radius 圆角 -> 传入X.ptFloat,代码添加一个对应圆角的背景
  */
-fun View?.background(colorString: String, radius: Float) {
+fun View?.backgroundCorner(colorString: String, radius: Float) {
     if (this == null) return
     this.background = GradientDrawable().apply {
         setColor(colorString.parseColor())
         cornerRadius = radius
+    }
+}
+
+fun View?.backgroundOval(colorString: String) {
+    if (this == null) return
+    this.background = GradientDrawable().apply {
+        shape = OVAL
+        setColor(colorString.parseColor())
     }
 }
 

@@ -8,7 +8,6 @@ import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.TitleBuilder
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.function.color
 import com.example.common.utils.function.insertImageResolver
 import com.example.common.utils.function.isExists
 import com.example.framework.utils.function.view.background
