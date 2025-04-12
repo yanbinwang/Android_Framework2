@@ -38,4 +38,4 @@ include(":lib_local:topsheet")
 include(":lib_local:amap_sdk")
 include(":lib_local:greendao")
 include(":lib_local:objectbox")
- 
+include(":lib_local:klinechart")
