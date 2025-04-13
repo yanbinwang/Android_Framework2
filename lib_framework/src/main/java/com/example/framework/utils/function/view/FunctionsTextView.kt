@@ -7,9 +7,9 @@ import android.text.*
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.LinkMovementMethod
 import android.text.method.PasswordTransformationMethod
-import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -115,111 +115,69 @@ fun TextView?.setFixDistance(editText: EditText?) {
 
 /**
  * 设置撑满的文本内容
- * private var lastProcessedText: String? by mutableStateOf(null)
- * private fun updateText(newText: String) {
- *         launch {
- *             if (newText == lastProcessedText) return@launch
- *             val processedText = withContext(Dispatchers.Default) {
- *                 processText(newText, textView.paint, textView.width - textView.paddingLeft - textView.paddingRight)
- *             }
- *             textView.text = processedText
- *             lastProcessedText = processedText
- *         }
- *     }
- *
- *     private suspend fun processText(rawText: String, tvPaint: TextPaint, tvWidth: Int): String {
- *         return withContext(Dispatchers.Default) {
- *             val layout = StaticLayout.Builder.obtain(
- *                 rawText,
- *                 0,
- *                 rawText.length,
- *                 tvPaint,
- *                 tvWidth
- *             ).setAlignment(Layout.Alignment.ALIGN_NORMAL)
- *                 .setLineSpacing(0.0f, 1.0f)
- *                 .setIncludePad(false)
- *                 .build()
- *
- *             val newText = StringBuilder()
- *             for (i in 0 until layout.lineCount) {
- *                 val start = layout.getLineStart(i)
- *                 val end = layout.getLineEnd(i)
- *                 newText.append(rawText, start, end)
- *                 if (i != layout.lineCount - 1) {
- *                     newText.append('\n')
- *                 }
- *             }
- *             newText.toString()
- *         }
- *     }
  */
 fun TextView?.setMatchText() {
     if (this == null) return
-    post {
-        val rawText = text.toString()//原始文本
-        val tvPaint = paint//paint包含字体等信息
-        val tvWidth = width - paddingLeft - paddingRight//控件可用宽度
-        val rawTextLines = rawText.replace("\r".toRegex(), "").split("\n").toTypedArray()//将原始文本按行拆分
-        val sbNewText = StringBuilder()
-        for (rawTextLine in rawTextLines) {
-            if (tvPaint.measureText(rawTextLine) <= tvWidth) {
-                //如果整行宽度在控件可用宽度之内，就不处理了
-                sbNewText.append(rawTextLine)
-            } else {
-                //如果整行宽度超过控件可用宽度，则按字符测量，在超过可用宽度的前一个字符处手动换行
-                var lineWidth = 0f
-                var cnt = 0
-                while (cnt != rawTextLine.length) {
-                    val ch = rawTextLine[cnt]
-                    lineWidth += tvPaint.measureText(ch.toString())
-                    if (lineWidth <= tvWidth) {
-                        sbNewText.append(ch)
-                    } else {
-                        sbNewText.append("\n")
-                        lineWidth = 0f
-                        --cnt
-                    }
-                    ++cnt
-                }
+    // 如果已经完成布局，直接处理文本
+    if (isLaidOut) {
+        processText()
+    } else {
+        // 若未完成布局，监听布局变化，布局完成后处理文本
+        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                // 移除监听器，避免重复触发
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
+                processText()
             }
-            sbNewText.append("\n")
-        }
-        //把结尾多余的\n去掉
-        if (!rawText.endsWith("\n")) sbNewText.deleteCharAt(sbNewText.length - 1)
-        text = sbNewText.toString()
+        })
     }
 }
 
-/**
- * 文案添加点击事件（单一）
- */
-fun TextView?.setClickSpan(txt: String, keyword: String, clickableSpan: ClickableSpan) {
-    if (this == null) return
-    val spannable = SpannableString(txt)
-    val index = txt.indexOf(keyword)
-    text = if (index != -1) {
-        spannable.setSpan(clickableSpan, index, index + keyword.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        spannable
-    } else txt
-    highlightColor = Color.TRANSPARENT
-    movementMethod = LinkMovementMethod.getInstance()
-}
-
-fun TextView?.setClickSpan(txt: String, keyword: String, colorRes: Int, listener: () -> Unit) {
-    if (this == null) return
-    setClickSpan(txt, keyword, object : ClickableSpan() {
-        override fun onClick(widget: View) {
-            listener.invoke()
-            highlightColor = Color.TRANSPARENT
-            movementMethod = LinkMovementMethod.getInstance()
+private fun TextView.processText() {
+    //获取原始文本
+    val rawText = text.toString()
+    //获取 TextView 的画笔，包含字体等信息
+    val tvPaint = paint
+    //计算 TextView 可用于显示文本的宽度
+    val tvWidth = width - paddingLeft - paddingRight
+    //移除原始文本中的 \r 并按 \n 分割成多行
+    val rawTextLines = rawText.replace("\r", "").split('\n')
+    //用于存储处理后的文本
+    val sbNewText = StringBuilder()
+    //重新生成字符串
+    for (line in rawTextLines) {
+        if (tvPaint.measureText(line) <= tvWidth) {
+            //若当前行宽度小于等于可用宽度，直接添加到结果中
+            sbNewText.append(line)
+        } else {
+            //若当前行宽度超过可用宽度，按字符拆分处理
+            var currentLine = StringBuilder()
+            var currentWidth = 0f
+            for (char in line) {
+                val charWidth = tvPaint.measureText(char.toString())
+                if (currentWidth + charWidth <= tvWidth) {
+                    //若添加当前字符后宽度仍小于等于可用宽度，添加该字符
+                    currentLine.append(char)
+                    currentWidth += charWidth
+                } else {
+                    //若添加当前字符后宽度超过可用宽度，换行并重置当前行和宽度
+                    sbNewText.append(currentLine).append('\n')
+                    currentLine = StringBuilder().append(char)
+                    currentWidth = charWidth
+                }
+            }
+            //添加最后一行处理后的文本
+            sbNewText.append(currentLine)
         }
-
-        override fun updateDrawState(ds: TextPaint) {
-            super.updateDrawState(ds)
-            ds.color = ContextCompat.getColor(context, colorRes)
-            ds.isUnderlineText = false
-        }
-    })
+        //每行处理完后添加换行符
+        sbNewText.append('\n')
+    }
+    //移除末尾多余的换行符
+    if (sbNewText.isNotEmpty() && sbNewText.last() == '\n') {
+        sbNewText.deleteCharAt(sbNewText.length - 1)
+    }
+    //更新 TextView 的文本
+    text = sbNewText.toString()
 }
 
 /**
@@ -235,8 +193,19 @@ inline fun TextView?.getEllipsisCount(crossinline listener: (ellipsisCount: Int)
         listener.invoke(0)
         return
     }
-    post {
-        listener.invoke(layout.getEllipsisCount(lineCount - 1))
+    // 若 TextView 已经完成布局，直接获取省略字符数量
+    if (isLaidOut) {
+        val ellipsisCount = layout?.getEllipsisCount(lineCount - 1).orZero
+        listener.invoke(ellipsisCount)
+    } else {
+        // 若未完成布局，在布局完成后获取省略字符数量
+        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
+                val ellipsisCount = layout?.getEllipsisCount(lineCount - 1).orZero
+                listener.invoke(ellipsisCount)
+            }
+        })
     }
 }
 
