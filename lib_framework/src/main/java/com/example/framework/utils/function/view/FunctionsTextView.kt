@@ -114,6 +114,15 @@ fun TextView?.setFixDistance(editText: EditText?) {
 }
 
 /**
+ * textview链接点击时，会有一个色块，调取当前方法取消这个色块
+ */
+fun TextView?.setFixClickSpan() {
+    if (this == null) return
+    highlightColor = Color.TRANSPARENT
+    movementMethod = LinkMovementMethod.getInstance()
+}
+
+/**
  * 设置撑满的文本内容
  * private var lastProcessedText: String? by mutableStateOf(null)
  * private fun updateText(newText: String) {
