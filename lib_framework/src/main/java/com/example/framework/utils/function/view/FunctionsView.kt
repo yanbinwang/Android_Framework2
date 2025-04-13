@@ -48,6 +48,9 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.isGone
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
@@ -112,20 +115,21 @@ fun View?.clearClick() {
     this.isClickable = false
 }
 
-/**
- * 判断是否可见
- */
-fun View?.isVisible(): Boolean {
-    if (this == null) return false
-    return this.visibility == View.VISIBLE
-}
+///**
+// * 判断是否可见
+// */
+//fun View?.isVisible(): Boolean {
+//    if (this == null) return false
+//    return this.visibility == View.VISIBLE
+//}
 
 /**
  * 显示view
  */
 fun View?.visible() {
     if (this == null) return
-    if (visibility == View.VISIBLE) return
+//    if (visibility == View.VISIBLE) return
+    if (isVisible) return
     this.visibility = View.VISIBLE
 }
 
@@ -134,7 +138,8 @@ fun View?.visible() {
  */
 fun View?.invisible() {
     if (this == null) return
-    if (visibility == View.INVISIBLE) return
+//    if (visibility == View.INVISIBLE) return
+    if (isInvisible) return
     this.visibility = View.INVISIBLE
 }
 
@@ -143,7 +148,8 @@ fun View?.invisible() {
  */
 fun View?.gone() {
     if (this == null) return
-    if (visibility == View.GONE) return
+//    if (visibility == View.GONE) return
+    if (isGone) return
     this.visibility = View.GONE
 }
 
@@ -174,20 +180,19 @@ fun View?.dimen(@DimenRes res: Int): Float {
 }
 
 /**
+ * 使用视图的 id + 业务后缀生成唯一键（hashCode 可能冲突，但概率极低）
+ */
+fun View?.generateTagKey(keySuffix: String): Int {
+    this ?: return 0
+    return ("${id}::${keySuffix}").hashCode()
+}
+
+/**
  * 背景
  */
 fun View?.background(@DrawableRes bg: Int) {
     if (this == null) return
     this.setBackgroundResource(bg)
-}
-
-fun View?.backgroundTag(@DrawableRes bg: Int) {
-    if (this == null) return
-    if (tag != null && tag is Int && tag == bg) {
-        return
-    }
-    this.setBackgroundResource(bg)
-    tag = bg
 }
 
 /**
@@ -398,7 +403,7 @@ fun View?.vibrate(milliseconds: Long) {
  */
 fun View?.fade(time: Long = 500, cancelAnim: Boolean = true) {
     if (this == null) return
-    if (!this.isVisible()) return
+    if (!this.isVisible) return
     if (time <= 0) {
         gone()
         return
@@ -457,7 +462,7 @@ fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)?
  */
 fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
     if (this == null) return
-    if (this.isVisible()) return
+    if (this.isVisible) return
     if (time <= 0) {
         visible()
         return
@@ -551,7 +556,7 @@ fun View?.rotate(from: Float, to: Float, timeMS: Long, interpolator: Interpolato
  * 移动
  * @param type Animation.ABSOLUTE, Animation.RELATIVE_TO_SELF, or Animation.RELATIVE_TO_PARENT.
  */
-fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long, fillAfter: Boolean = true, onStart: (() -> Unit)? = null, onEnd: (() -> Unit)? = null, type: Int = Animation.RELATIVE_TO_SELF, interpolator: Interpolator = LinearInterpolator(), ) {
+fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long, fillAfter: Boolean = true, onStart: (() -> Unit)? = null, onEnd: (() -> Unit)? = null, type: Int = Animation.RELATIVE_TO_SELF, interpolator: Interpolator = LinearInterpolator()) {
     this ?: return
     animation?.setAnimationListener(null)
     animation?.cancel()
@@ -825,11 +830,9 @@ fun ImageView?.setBitmap(observer: LifecycleOwner, bit: Bitmap?) {
  */
 fun ImageView?.recycle() {
     this ?: return
-//    val oldBitmap = (getDrawable() as? BitmapDrawable)?.bitmap
-//    oldBitmap?.recycle()
-    val drawable = this.drawable
-    if (drawable is BitmapDrawable) {
-        val bitmap = drawable.bitmap
+    val mDrawable = this.drawable
+    if (mDrawable is BitmapDrawable) {
+        val bitmap = mDrawable.bitmap
         if (!bitmap.isRecycled) {
             bitmap.recycle()
         }
