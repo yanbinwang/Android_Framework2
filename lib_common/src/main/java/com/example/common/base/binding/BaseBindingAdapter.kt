@@ -34,6 +34,7 @@ import com.example.framework.utils.function.view.charLimit
 import com.example.framework.utils.function.view.decimalFilter
 import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.generateTagKey
+import com.example.framework.utils.function.view.linearGradient
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.spaceLimit
@@ -219,6 +220,16 @@ object BaseBindingAdapter {
         if (textview.text != newText) {
             textview.text = newText
         }
+    }
+
+    /**
+     * 文案渐变
+     * tvTitle.linearGradient("#FFB818", "#8E00FE")
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["start_color", "end_color"], requireAll = false)
+    fun bindingTextViewGradient(textview: TextView, startColor: String?, endColor: String?) {
+        textview.linearGradient(startColor, endColor)
     }
 
     /**
