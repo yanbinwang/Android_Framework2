@@ -114,15 +114,6 @@ fun TextView?.setFixDistance(editText: EditText?) {
 }
 
 /**
- * textview链接点击时，会有一个色块，调取当前方法取消这个色块
- */
-fun TextView?.setFixClickSpan() {
-    if (this == null) return
-    highlightColor = Color.TRANSPARENT
-    movementMethod = LinkMovementMethod.getInstance()
-}
-
-/**
  * 设置撑满的文本内容
  * private var lastProcessedText: String? by mutableStateOf(null)
  * private fun updateText(newText: String) {
@@ -210,6 +201,7 @@ fun TextView?.setClickSpan(txt: String, keyword: String, clickableSpan: Clickabl
         spannable.setSpan(clickableSpan, index, index + keyword.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         spannable
     } else txt
+    highlightColor = Color.TRANSPARENT
     movementMethod = LinkMovementMethod.getInstance()
 }
 
@@ -218,6 +210,7 @@ fun TextView?.setClickSpan(txt: String, keyword: String, colorRes: Int, listener
     setClickSpan(txt, keyword, object : ClickableSpan() {
         override fun onClick(widget: View) {
             listener.invoke()
+            highlightColor = Color.TRANSPARENT
             movementMethod = LinkMovementMethod.getInstance()
         }
 
@@ -253,6 +246,7 @@ inline fun TextView?.getEllipsisCount(crossinline listener: (ellipsisCount: Int)
 fun TextView?.setSpannable(spannable: Spannable) {
     this ?: return
     text = spannable
+    highlightColor = Color.TRANSPARENT
     movementMethod = LinkMovementMethod.getInstance()
 }
 
