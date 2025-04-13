@@ -213,6 +213,7 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> 
  *          "点击隐私政策".logWTF
  *      }
  *  }))
+ *  textView.movementMethod = android.text.method.LinkMovementMethod.getInstance()
  */
 abstract class XClickableSpan(private val colorRes: Int = R.color.appTheme) : ClickableSpan() {
 
