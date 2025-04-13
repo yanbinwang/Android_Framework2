@@ -115,6 +115,43 @@ fun TextView?.setFixDistance(editText: EditText?) {
 
 /**
  * 设置撑满的文本内容
+ * private var lastProcessedText: String? by mutableStateOf(null)
+ * private fun updateText(newText: String) {
+ *         launch {
+ *             if (newText == lastProcessedText) return@launch
+ *             val processedText = withContext(Dispatchers.Default) {
+ *                 processText(newText, textView.paint, textView.width - textView.paddingLeft - textView.paddingRight)
+ *             }
+ *             textView.text = processedText
+ *             lastProcessedText = processedText
+ *         }
+ *     }
+ *
+ *     private suspend fun processText(rawText: String, tvPaint: TextPaint, tvWidth: Int): String {
+ *         return withContext(Dispatchers.Default) {
+ *             val layout = StaticLayout.Builder.obtain(
+ *                 rawText,
+ *                 0,
+ *                 rawText.length,
+ *                 tvPaint,
+ *                 tvWidth
+ *             ).setAlignment(Layout.Alignment.ALIGN_NORMAL)
+ *                 .setLineSpacing(0.0f, 1.0f)
+ *                 .setIncludePad(false)
+ *                 .build()
+ *
+ *             val newText = StringBuilder()
+ *             for (i in 0 until layout.lineCount) {
+ *                 val start = layout.getLineStart(i)
+ *                 val end = layout.getLineEnd(i)
+ *                 newText.append(rawText, start, end)
+ *                 if (i != layout.lineCount - 1) {
+ *                     newText.append('\n')
+ *                 }
+ *             }
+ *             newText.toString()
+ *         }
+ *     }
  */
 fun TextView?.setMatchText() {
     if (this == null) return
