@@ -1,13 +1,11 @@
 package com.example.common.base.binding
 
 import android.annotation.SuppressLint
-import android.graphics.drawable.Drawable
 import android.text.InputType
 import android.text.Spannable
 import android.view.View
 import android.webkit.WebView
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -142,41 +140,6 @@ object BaseBindingAdapter {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="textview绑定方法">
-    /**
-     * 图片样式
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["srcRes", "srcDrawable", "visibility"], requireAll = false)
-    fun bindingImageViewTheme(view: ImageView, srcRes: Int?, srcDrawable: Drawable?, visibility: Int?) {
-        when {
-            srcRes != null -> {
-                val srcResKey = view.generateTagKey("srcRes")
-                val oldSrcRes = view.getTag(srcResKey) as? Int
-                if (oldSrcRes != srcRes) {
-                    view.setImageResource(srcRes)
-                    view.setTag(srcResKey, srcRes)
-                }
-            }
-            srcDrawable != null -> {
-                val srcDrawableKey = view.generateTagKey("srcDrawable")
-                val oldSrcDrawable = view.getTag(srcDrawableKey) as? Drawable
-                if (oldSrcDrawable != srcDrawable) {
-                    view.setImageDrawable(srcDrawable)
-                    view.setTag(srcDrawableKey, srcDrawable)
-                }
-            }
-        }
-        //处理可见性设置
-        visibility?.let { newVisibility ->
-            val visibilityKey = view.generateTagKey("visibility")
-            val oldVisibility = view.getTag(visibilityKey) as? Int
-            if (oldVisibility != newVisibility) {
-                view.visibility = newVisibility
-                view.setTag(visibilityKey, newVisibility)
-            }
-        }
-    }
-
     /**
      * 首先是几组xml里结合mvvm的写法
      *  android:text="@{bean.nickText??@string/unitNoData}"

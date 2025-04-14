@@ -1,11 +1,13 @@
 package com.example.glide
 
+import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
+import com.example.framework.utils.function.view.generateTagKey
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -15,6 +17,41 @@ import com.example.framework.utils.function.view.enable
 object GlideBindingAdapter {
 
     // <editor-fold defaultstate="collapsed" desc="imageview绑定方法">
+    /**
+     * 图片样式
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["srcRes", "srcDrawable", "visibility"], requireAll = false)
+    fun bindingImageViewTheme(view: ImageView, srcRes: Int?, srcDrawable: Drawable?, visibility: Int?) {
+        when {
+            srcRes != null -> {
+                val srcResKey = view.generateTagKey("srcRes")
+                val oldSrcRes = view.getTag(srcResKey) as? Int
+                if (oldSrcRes != srcRes) {
+                    view.setImageResource(srcRes)
+                    view.setTag(srcResKey, srcRes)
+                }
+            }
+            srcDrawable != null -> {
+                val srcDrawableKey = view.generateTagKey("srcDrawable")
+                val oldSrcDrawable = view.getTag(srcDrawableKey) as? Drawable
+                if (oldSrcDrawable != srcDrawable) {
+                    view.setImageDrawable(srcDrawable)
+                    view.setTag(srcDrawableKey, srcDrawable)
+                }
+            }
+        }
+        //处理可见性设置
+        visibility?.let { newVisibility ->
+            val visibilityKey = view.generateTagKey("visibility")
+            val oldVisibility = view.getTag(visibilityKey) as? Int
+            if (oldVisibility != newVisibility) {
+                view.visibility = newVisibility
+                view.setTag(visibilityKey, newVisibility)
+            }
+        }
+    }
+
     /**
      * 加载图片（比例缩放）
      */
