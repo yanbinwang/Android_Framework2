@@ -1,11 +1,13 @@
 package com.example.common.base.binding
 
 import android.annotation.SuppressLint
+import android.graphics.drawable.Drawable
 import android.text.InputType
 import android.text.Spannable
 import android.view.View
 import android.webkit.WebView
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -141,6 +143,41 @@ object BaseBindingAdapter {
 
     // <editor-fold defaultstate="collapsed" desc="textview绑定方法">
     /**
+     * 图片样式
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["srcRes", "srcDrawable", "visibility"], requireAll = false)
+    fun bindingImageViewTheme(view: ImageView, srcRes: Int?, srcDrawable: Drawable?, visibility: Int?) {
+        when {
+            srcRes != null -> {
+                val srcResKey = view.generateTagKey("srcRes")
+                val oldSrcRes = view.getTag(srcResKey) as? Int
+                if (oldSrcRes != srcRes) {
+                    view.setImageResource(srcRes)
+                    view.setTag(srcResKey, srcRes)
+                }
+            }
+            srcDrawable != null -> {
+                val srcDrawableKey = view.generateTagKey("srcDrawable")
+                val oldSrcDrawable = view.getTag(srcDrawableKey) as? Drawable
+                if (oldSrcDrawable != srcDrawable) {
+                    view.setImageDrawable(srcDrawable)
+                    view.setTag(srcDrawableKey, srcDrawable)
+                }
+            }
+        }
+        //处理可见性设置
+        visibility?.let { newVisibility ->
+            val visibilityKey = view.generateTagKey("visibility")
+            val oldVisibility = view.getTag(visibilityKey) as? Int
+            if (oldVisibility != newVisibility) {
+                view.visibility = newVisibility
+                view.setTag(visibilityKey, newVisibility)
+            }
+        }
+    }
+
+    /**
      * 首先是几组xml里结合mvvm的写法
      *  android:text="@{bean.nickText??@string/unitNoData}"
      *  android:textColor="@{bean!=null?bean.getAuthColorRes():@color/textPrimary}"
@@ -166,14 +203,15 @@ object BaseBindingAdapter {
      * spannable:高亮文本文案
      * textColor:文本颜色
      * background:view背景
+     * visibility:view可见性
      *
      * textview.setSpanAll(text, keyText, keyColor.toSafeInt(R.color.textOrange))
      * textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.textOrange))
      * textview.setMatchText()
      */
     @JvmStatic
-    @BindingAdapter(value = ["text", "spannable", "textColor", "background"], requireAll = false)
-    fun bindingTextViewTheme(view: TextView, text: String?, spannable: Spannable?, textColor: Int?, background: Int?) {
+    @BindingAdapter(value = ["text", "spannable", "textColor", "background", "visibility"], requireAll = false)
+    fun bindingTextViewTheme(view: TextView, text: String?, spannable: Spannable?, textColor: Int?, background: Int?, visibility: Int?) {
         //处理高亮文本
         if (spannable != null) {
             val spanKey = view.generateTagKey("spannable")
@@ -210,6 +248,15 @@ object BaseBindingAdapter {
             if (oldBackground != newBackground) {
                 view.setBackgroundResource(newBackground)
                 view.setTag(backgroundKey, newBackground)
+            }
+        }
+        //处理可见性设置
+        visibility?.let { newVisibility ->
+            val visibilityKey = view.generateTagKey("visibility")
+            val oldVisibility = view.getTag(visibilityKey) as? Int
+            if (oldVisibility != newVisibility) {
+                view.visibility = newVisibility
+                view.setTag(visibilityKey, newVisibility)
             }
         }
     }
