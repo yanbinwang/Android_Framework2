@@ -1,6 +1,7 @@
 package com.example.common.base.binding
 
 import android.annotation.SuppressLint
+import android.graphics.drawable.Drawable
 import android.text.InputType
 import android.text.Spannable
 import android.view.View
@@ -178,8 +179,8 @@ object BaseBindingAdapter {
      * textview.setMatchText()
      */
     @JvmStatic
-    @BindingAdapter(value = ["text", "spannable", "textColor", "background", "src", "visibility"], requireAll = false)
-    fun bindingTextViewTheme(view: View, text: String?, spannable: Spannable?, textColor: Int?, background: Int?, src: Int?, visibility: Int?) {
+    @BindingAdapter(value = ["text", "spannable", "textColor", "background", "srcRes", "srcDrawable", "visibility"], requireAll = false)
+    fun bindingTextViewTheme(view: View, text: String?, spannable: Spannable?, textColor: Int?, background: Int?, srcRes: Int?, srcDrawable: Drawable?, visibility: Int?) {
         //处理背景设置
         handleBackground(view, background)
         //处理可见性设置
@@ -199,7 +200,7 @@ object BaseBindingAdapter {
             }
             is ImageView -> {
                 //处理图片资源设置
-                handleSrc(view, src)
+                handleSrc(view, srcRes, srcDrawable)
             }
         }
     }
@@ -258,13 +259,23 @@ object BaseBindingAdapter {
         }
     }
 
-    private fun handleSrc(view: ImageView, src: Int?) {
-        src?.let { newSrc ->
-            val srcKey = view.generateTagKey("src")
-            val oldSrc = view.getTag(srcKey) as? Int
-            if (oldSrc != newSrc) {
-                view.setImageResource(newSrc)
-                view.setTag(srcKey, newSrc)
+    private fun handleSrc(view: ImageView, srcRes: Int?, srcDrawable: Drawable?) {
+        when {
+            srcRes != null -> {
+                val srcResKey = view.generateTagKey("srcRes")
+                val oldSrcRes = view.getTag(srcResKey) as? Int
+                if (oldSrcRes != srcRes) {
+                    view.setImageResource(srcRes)
+                    view.setTag(srcResKey, srcRes)
+                }
+            }
+            srcDrawable != null -> {
+                val srcDrawableKey = view.generateTagKey("srcDrawable")
+                val oldSrcDrawable = view.getTag(srcDrawableKey) as? Drawable
+                if (oldSrcDrawable != srcDrawable) {
+                    view.setImageDrawable(srcDrawable)
+                    view.setTag(srcDrawableKey, srcDrawable)
+                }
             }
         }
     }
