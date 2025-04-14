@@ -215,9 +215,19 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
         return false
     }
 
-    protected open fun <T> MutableLiveData<T>?.observe(block: T?.() -> Unit) {
+//    protected open fun <T> MutableLiveData<T>?.observe(block: T?.() -> Unit) {
+//        this ?: return
+//        val observer = Observer<Any?> { value -> block(value as? T) }
+//        dataManager[this] = observer
+//        observe(this@BaseFragment, observer)
+//    }
+    protected open fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
         this ?: return
-        val observer = Observer<Any?> { value -> block(value as? T) }
+        val observer = Observer<Any?> { value ->
+            if (value != null) {
+                block(value as T)
+            }
+        }
         dataManager[this] = observer
         observe(this@BaseFragment, observer)
     }
