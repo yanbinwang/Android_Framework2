@@ -76,27 +76,30 @@ fun Context.string(@StringRes res: Int): String {
 }
 
 /**
- * 通过字符串获取drawable下的xml文件
+ * 获取资源文件id
  */
-fun Context.defTypeDrawable(name: String): Drawable? {
-    return drawable(try {
-        resources.getIdentifier(name, "drawable", packageName)
+fun Context.defTypeId(name: String, defType: String): Int {
+    return try {
+        resources.getIdentifier(name, defType, packageName)
     } catch (e: Exception) {
         e.printStackTrace()
         0
-    })
+    }
 }
+
+/**
+ * 通过字符串获取drawable下的xml文件
+ */
+fun Context.defTypeDrawable(name: String): Drawable? {
+    return drawable(defTypeId(name, "drawable"))
+}
+
 
 /**
  * 通过字符串获取mipmap下的图片文件
  */
 fun Context.defTypeMipmap(name: String): Drawable? {
-    return drawable(try {
-        resources.getIdentifier(name, "mipmap", packageName)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        0
-    })
+    return drawable(defTypeId(name, "mipmap"))
 }
 
 /**
