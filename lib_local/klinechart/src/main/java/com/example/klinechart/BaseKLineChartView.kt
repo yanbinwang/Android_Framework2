@@ -12,6 +12,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import androidx.core.view.GestureDetectorCompat
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
@@ -19,6 +20,11 @@ import com.example.klinechart.base.IAdapter
 import com.example.klinechart.base.IChartDraw
 import com.example.klinechart.base.IDateTimeFormatter
 import com.example.klinechart.base.IValueFormatter
+import com.example.klinechart.draw.MainDraw
+import com.example.klinechart.draw.Status
+import com.example.klinechart.entity.IKLine
+import com.example.klinechart.formatter.TimeFormatter
+import com.example.klinechart.formatter.ValueFormatter
 import com.example.klinechart.utils.ViewUtil
 import java.util.Date
 import kotlin.math.abs
@@ -27,36 +33,39 @@ import kotlin.math.abs
  * k线图
  * Created by tian on 2016/5/3.
  */
-abstract class BaseKLineChartView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : ScrollAndScaleView(context, attrs, defStyleAttr) {
+abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ScrollAndScaleView(context, attrs, defStyleAttr) {
+    private var mSelectedIndex = 0
     private var mChildDrawPosition = -1
-    private var mTranslateX = Float.MIN_VALUE
     private var mWidth = 0
     private var mTopPadding = 0
     private var mChildPadding = 0
     private var mBottomPadding = 0
-    private var mMainScaleY = 1f
-    private var mVolScaleY = 1f
-    private var mChildScaleY = 1f
-    private var mDataLen = 0f
-    private var mMainMaxValue = Float.MAX_VALUE
-    private var mMainMinValue = Float.MIN_VALUE
-    private var mMainHighMaxValue = 0f
-    private var mMainLowMinValue = 0f
+    private var mStartIndex = 0
+    private var mStopIndex = 0
+    private var mGridRows = 4
+    private var mGridColumns = 4
     private var mMainMaxIndex = 0
     private var mMainMinIndex = 0
+    private var mDataLen = 0f
+    private var mVolScaleY = 1f
+    private var mPointWidth = 6f
+    private var mChildScaleY = 1f
+    private var mMainScaleY = 1f
+    private var mMainHighMaxValue = 0f
+    private var mMainLowMinValue = 0f
+    private var mTranslateX = Float.MIN_VALUE
+    private var mMainMaxValue = Float.MAX_VALUE
+    private var mMainMinValue = Float.MIN_VALUE
     private var mVolMaxValue = Float.MAX_VALUE
     private var mVolMinValue = Float.MIN_VALUE
     private var mChildMaxValue = Float.MAX_VALUE
     private var mChildMinValue = Float.MIN_VALUE
-    private var mStartIndex = 0
-    private var mStopIndex = 0
-    private var mPointWidth = 6f
-    private var mGridRows = 4
-    private var mGridColumns = 4
+    private var isWR = false
+    private var isShowChild = false
+    private var mAdapter: IAdapter? = null
+    private var mainDraw: MainDraw? = null
+    private var mVolDraw: IChartDraw<Any?>? = null
+    private var mMainDraw: IChartDraw<Any?>? = null
     private val mGridPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mTextPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mMaxMinPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -65,38 +74,30 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
     private val mSelectedYLinePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mSelectPointPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mSelectorFramePaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private var mSelectedIndex = 0
-    private var mMainDraw: IChartDraw<*>? = null
-    private var mainDraw: MainDraw? = null
-    private var mVolDraw: IChartDraw<*>? = null
-    private var mAdapter: IAdapter? = null
-    private var isWR = false
-    private var isShowChild = false
-
     //当前点的个数
     private var mItemCount = 0
-    private var mChildDraw: IChartDraw<*>? = null
-    private val mChildDraws = ArrayList<IChartDraw<*>>()
-    private var mValueFormatter: IValueFormatter? = null
-    private var mDateTimeFormatter: IDateTimeFormatter? = null
-    private var mAnimator: ValueAnimator? = null
-    private val mAnimationDuration = 500L
+    private var mLineWidth = 0f
     private var mOverScrollRange = 0f
-    private var mOnSelectedChangedListener: OnSelectedChangedListener? = null
     private var mMainRect: Rect? = null
     private var mVolRect: Rect? = null
     private var mChildRect: Rect? = null
-    private var mLineWidth = 0f
+    private var mChildDraw: IChartDraw<Any?>? = null
+    private var mValueFormatter: IValueFormatter? = null
+    private var mDateTimeFormatter: IDateTimeFormatter? = null
+    private var mAnimator: ValueAnimator? = null
+    private var mOnSelectedChangedListener: OnSelectedChangedListener? = null
+    private val mChildDraws = ArrayList<IChartDraw<Any?>>()
+    private val mAnimationDuration = 500L
     var displayHeight = 0
 
     private val mDataSetObserver = object : DataSetObserver() {
         override fun onChanged() {
-            mItemCount = getAdapter().getCount()
+            mItemCount = getAdapter()?.getCount().orZero
             notifyChanged()
         }
 
         override fun onInvalidated() {
-            mItemCount = getAdapter().getCount()
+            mItemCount = getAdapter()?.getCount().orZero
             notifyChanged()
         }
     }
@@ -105,9 +106,9 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
         setWillNotDraw(false)
         mDetector = GestureDetectorCompat(getContext(), this)
         mScaleDetector = ScaleGestureDetector(getContext(), this)
-        mTopPadding = resources.getDimension(R.dimen.chart_top_padding) as Int
-        mChildPadding = resources.getDimension(R.dimen.child_top_padding) as Int
-        mBottomPadding = resources.getDimension(R.dimen.chart_bottom_padding) as Int
+        mTopPadding = resources.getDimension(R.dimen.chart_top_padding).toSafeInt()
+        mChildPadding = resources.getDimension(R.dimen.child_top_padding).toSafeInt()
+        mBottomPadding = resources.getDimension(R.dimen.chart_bottom_padding).toSafeInt()
         mAnimator = ValueAnimator.ofFloat(0f, 1f)
         mAnimator?.setDuration(mAnimationDuration)
         mAnimator?.addUpdateListener { invalidate() }
@@ -130,31 +131,13 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
             val mVolHeight = (displayHeight * 0.2f).toSafeInt()
             val mChildHeight = (displayHeight * 0.2f).toSafeInt()
             mMainRect = Rect(0, mTopPadding, mWidth, mTopPadding + mMainHeight)
-            mVolRect =
-                Rect(
-                    0,
-                    mMainRect?.bottom.orZero + mChildPadding,
-                    mWidth,
-                    mMainRect?.bottom.orZero + mVolHeight
-                )
-            mChildRect =
-                Rect(
-                    0,
-                    mVolRect?.bottom.orZero + mChildPadding,
-                    mWidth,
-                    mVolRect?.bottom.orZero + mChildHeight
-                )
+            mVolRect = Rect(0, mMainRect?.bottom.orZero + mChildPadding, mWidth, mMainRect?.bottom.orZero + mVolHeight)
+            mChildRect = Rect(0, mVolRect?.bottom.orZero + mChildPadding, mWidth, mVolRect?.bottom.orZero + mChildHeight)
         } else {
             val mMainHeight = (displayHeight * 0.75f).toSafeInt()
             val mVolHeight = (displayHeight * 0.25f).toSafeInt()
             mMainRect = Rect(0, mTopPadding, mWidth, mTopPadding + mMainHeight)
-            mVolRect =
-                Rect(
-                    0,
-                    mMainRect?.bottom.orZero + mChildPadding,
-                    mWidth,
-                    mMainRect?.bottom.orZero + mVolHeight
-                )
+            mVolRect = Rect(0, mMainRect?.bottom.orZero + mChildPadding, mWidth, mMainRect?.bottom.orZero + mVolHeight)
         }
     }
 
@@ -183,66 +166,24 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
     private fun drawGird(canvas: Canvas) {
         //-----------------------上方k线图------------------------
         //横向的grid
-        val rowSpace = (mMainRect!!.height() / mGridRows).toFloat()
+        val rowSpace = (mMainRect?.height().orZero / mGridRows).toSafeFloat()
         for (i in 0..mGridRows) {
-            canvas.drawLine(
-                0f,
-                rowSpace * i + mMainRect!!.top,
-                mWidth.toFloat(),
-                rowSpace * i + mMainRect!!.top,
-                mGridPaint
-            )
+            canvas.drawLine(0f, rowSpace * i + mMainRect?.top.orZero, mWidth.toSafeFloat(), rowSpace * i + mMainRect?.top.orZero, mGridPaint)
         }
         //-----------------------下方子图------------------------
         if (mChildDraw != null) {
-            canvas.drawLine(
-                0f,
-                mVolRect!!.bottom.toFloat(),
-                mWidth.toFloat(),
-                mVolRect!!.bottom.toFloat(),
-                mGridPaint
-            )
-            canvas.drawLine(
-                0f,
-                mChildRect!!.bottom.toFloat(),
-                mWidth.toFloat(),
-                mChildRect!!.bottom.toFloat(),
-                mGridPaint
-            )
+            canvas.drawLine(0f, mVolRect?.bottom.toSafeFloat(), mWidth.toSafeFloat(), mVolRect?.bottom.toSafeFloat(), mGridPaint)
+            canvas.drawLine(0f, mChildRect?.bottom.toSafeFloat(), mWidth.toSafeFloat(), mChildRect?.bottom.toSafeFloat(), mGridPaint)
         } else {
-            canvas.drawLine(
-                0f,
-                mVolRect!!.bottom.toFloat(),
-                mWidth.toFloat(),
-                mVolRect!!.bottom.toFloat(),
-                mGridPaint
-            )
+            canvas.drawLine(0f, mVolRect?.bottom.toSafeFloat(), mWidth.toSafeFloat(), mVolRect?.bottom.toSafeFloat(), mGridPaint)
         }
         //纵向的grid
-        val columnSpace = (mWidth / mGridColumns).toFloat()
+        val columnSpace = (mWidth / mGridColumns).toSafeFloat()
         for (i in 1..<mGridColumns) {
-            canvas.drawLine(
-                columnSpace * i,
-                0f,
-                columnSpace * i,
-                mMainRect!!.bottom.toFloat(),
-                mGridPaint
-            )
-            canvas.drawLine(
-                columnSpace * i,
-                mMainRect!!.bottom.toFloat(),
-                columnSpace * i,
-                mVolRect!!.bottom.toFloat(),
-                mGridPaint
-            )
+            canvas.drawLine(columnSpace * i, 0f, columnSpace * i, mMainRect?.bottom.toSafeFloat(), mGridPaint)
+            canvas.drawLine(columnSpace * i, mMainRect?.bottom.toSafeFloat(), columnSpace * i, mVolRect?.bottom.toSafeFloat(), mGridPaint)
             if (mChildDraw != null) {
-                canvas.drawLine(
-                    columnSpace * i,
-                    mVolRect!!.bottom.toFloat(),
-                    columnSpace * i,
-                    mChildRect!!.bottom.toFloat(),
-                    mGridPaint
-                )
+                canvas.drawLine(columnSpace * i, mVolRect?.bottom.toSafeFloat(), columnSpace * i, mChildRect?.bottom.toSafeFloat(), mGridPaint)
             }
         }
     }
@@ -258,72 +199,34 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
         canvas.translate(mTranslateX * mScaleX, 0f)
         canvas.scale(mScaleX, 1f)
         for (i in mStartIndex..mStopIndex) {
-            val currentPoint: Any = getItem(i)
+            val currentPoint = getItem(i)
             val currentPointX = getX(i)
             val lastPoint = if (i == 0) currentPoint else getItem(i - 1)
             val lastX = if (i == 0) currentPointX else getX(i - 1)
             if (mMainDraw != null) {
-                mMainDraw!!.drawTranslated(
-                    lastPoint, currentPoint, lastX, currentPointX, canvas,
-                    this, i
-                )
+                mMainDraw?.drawTranslated(lastPoint, currentPoint, lastX, currentPointX, canvas, this, i)
             }
             if (mVolDraw != null) {
-                mVolDraw!!.drawTranslated(
-                    lastPoint,
-                    currentPoint,
-                    lastX,
-                    currentPointX,
-                    canvas,
-                    this,
-                    i
-                )
+                mVolDraw?.drawTranslated(lastPoint, currentPoint, lastX, currentPointX, canvas, this, i)
             }
             if (mChildDraw != null) {
-                mChildDraw!!.drawTranslated(
-                    lastPoint, currentPoint, lastX, currentPointX, canvas,
-                    this, i
-                )
+                mChildDraw?.drawTranslated(lastPoint, currentPoint, lastX, currentPointX, canvas, this, i)
             }
         }
         //画选择线
         if (isLongPress) {
-            val point: IKLine? = getItem(mSelectedIndex) as IKLine?
+            val point = getItem(mSelectedIndex) as? IKLine
             val x = getX(mSelectedIndex)
-            val y = getMainY(point.getClosePrice())
+            val y = getMainY(point?.getClosePrice().orZero)
             // k线图竖线
-            canvas.drawLine(
-                x,
-                mMainRect!!.top.toFloat(),
-                x,
-                mMainRect!!.bottom.toFloat(),
-                mSelectedYLinePaint
-            )
+            canvas.drawLine(x, mMainRect?.top.toSafeFloat(), x, mMainRect?.bottom.toSafeFloat(), mSelectedYLinePaint)
             // k线图横线
-            canvas.drawLine(
-                -mTranslateX,
-                y,
-                -mTranslateX + mWidth / mScaleX,
-                y,
-                mSelectedXLinePaint
-            )
+            canvas.drawLine(-mTranslateX, y, -mTranslateX + mWidth / mScaleX, y, mSelectedXLinePaint)
             // 柱状图竖线
-            canvas.drawLine(
-                x,
-                mMainRect!!.bottom.toFloat(),
-                x,
-                mVolRect!!.bottom.toFloat(),
-                mSelectedYLinePaint
-            )
+            canvas.drawLine(x, mMainRect?.bottom.toSafeFloat(), x, mVolRect?.bottom.toSafeFloat(), mSelectedYLinePaint)
             if (mChildDraw != null) {
                 // 子线图竖线
-                canvas.drawLine(
-                    x,
-                    mVolRect!!.bottom.toFloat(),
-                    x,
-                    mChildRect!!.bottom.toFloat(),
-                    mSelectedYLinePaint
-                )
+                canvas.drawLine(x, mVolRect?.bottom.toSafeFloat(), x, mChildRect?.bottom.toSafeFloat(), mSelectedYLinePaint)
             }
         }
         //还原 平移缩放
@@ -363,96 +266,62 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
         val baseLine = (textHeight - fm.bottom - fm.top) / 2
         //--------------画上方k线图的值-------------
         if (mMainDraw != null) {
-            canvas.drawText(
-                formatValue(mMainMaxValue),
-                (mWidth - calculateWidth(formatValue(mMainMaxValue))).toFloat(),
-                baseLine + mMainRect!!.top,
-                mTextPaint
-            )
-            canvas.drawText(
-                formatValue(mMainMinValue),
-                (mWidth - calculateWidth(formatValue(mMainMinValue))).toFloat(),
-                mMainRect!!.bottom - textHeight + baseLine,
-                mTextPaint
-            )
+            canvas.drawText(formatValue(mMainMaxValue), (mWidth - calculateWidth(formatValue(mMainMaxValue))).toSafeFloat(), baseLine + mMainRect?.top.orZero, mTextPaint)
+            canvas.drawText(formatValue(mMainMinValue), (mWidth - calculateWidth(formatValue(mMainMinValue))).toSafeFloat(), mMainRect?.bottom.orZero - textHeight + baseLine, mTextPaint)
             val rowValue = (mMainMaxValue - mMainMinValue) / mGridRows
-            val rowSpace = (mMainRect!!.height() / mGridRows).toFloat()
+            val rowSpace = (mMainRect?.height().orZero / mGridRows).toSafeFloat()
             for (i in 1..<mGridRows) {
                 val text: String = formatValue(rowValue * (mGridRows - i) + mMainMinValue)
-                canvas.drawText(
-                    text,
-                    (mWidth - calculateWidth(text)).toFloat(),
-                    fixTextY(rowSpace * i + mMainRect!!.top),
-                    mTextPaint
-                )
+                canvas.drawText(text, (mWidth - calculateWidth(text)).toSafeFloat(), fixTextY(rowSpace * i + mMainRect?.top.orZero), mTextPaint)
             }
         }
         //--------------画中间子图的值-------------
         if (mVolDraw != null) {
-            canvas.drawText(
-                mVolDraw!!.getValueFormatter().format(mVolMaxValue),
-                (mWidth - calculateWidth(formatValue(mVolMaxValue))).toFloat(),
-                mMainRect!!.bottom + baseLine,
-                mTextPaint
-            )
+            canvas.drawText(mVolDraw?.getValueFormatter()?.format(mVolMaxValue).orEmpty(), (mWidth - calculateWidth(formatValue(mVolMaxValue))).toSafeFloat(), mMainRect?.bottom.orZero + baseLine, mTextPaint)
             /*canvas.drawText(mVolDraw.getValueFormatter().format(mVolMinValue),
                     mWidth - calculateWidth(formatValue(mVolMinValue)), mVolRect.bottom, mTextPaint);*/
         }
         //--------------画下方子图的值-------------
         if (mChildDraw != null) {
-            canvas.drawText(
-                mChildDraw!!.getValueFormatter().format(mChildMaxValue),
-                (mWidth - calculateWidth(formatValue(mChildMaxValue))).toFloat(),
-                mVolRect!!.bottom + baseLine,
-                mTextPaint
-            )
+            canvas.drawText(mChildDraw?.getValueFormatter()?.format(mChildMaxValue).orEmpty(), (mWidth - calculateWidth(formatValue(mChildMaxValue))).toSafeFloat(), mVolRect?.bottom.orZero + baseLine, mTextPaint)
             /*canvas.drawText(mChildDraw.getValueFormatter().format(mChildMinValue),
                     mWidth - calculateWidth(formatValue(mChildMinValue)), mChildRect.bottom, mTextPaint);*/
         }
         //--------------画时间---------------------
-        val columnSpace = (mWidth / mGridColumns).toFloat()
-        var y: Float
-        y = if (isShowChild) {
-            mChildRect!!.bottom + baseLine + 5
+        val columnSpace = (mWidth / mGridColumns).toSafeFloat()
+        var y = if (isShowChild) {
+            mChildRect?.bottom.orZero + baseLine + 5
         } else {
-            mVolRect!!.bottom + baseLine + 5
+            mVolRect?.bottom.orZero + baseLine + 5
         }
-
         val startX = getX(mStartIndex) - mPointWidth / 2
         val stopX = getX(mStopIndex) + mPointWidth / 2
-
         for (i in 1..<mGridColumns) {
             val translateX: Float = xToTranslateX(columnSpace * i)
-            if (translateX >= startX && translateX <= stopX) {
+            if (translateX in startX..stopX) {
                 val index: Int = indexOfTranslateX(translateX)
-                val text = mAdapter!!.getDate(index)
-                canvas.drawText(
-                    text,
-                    columnSpace * i - mTextPaint.measureText(text) / 2,
-                    y,
-                    mTextPaint
-                )
+                val text = mAdapter?.getDate(index)
+                canvas.drawText(text.orEmpty(), columnSpace * i - mTextPaint.measureText(text) / 2, y, mTextPaint)
             }
         }
-
-        var translateX: Float = xToTranslateX(0f)
-        if (translateX >= startX && translateX <= stopX) {
-            canvas.drawText(getAdapter().getDate(mStartIndex), 0f, y, mTextPaint)
+        var translateX = xToTranslateX(0f)
+        if (translateX in startX..stopX) {
+            canvas.drawText(getAdapter()?.getDate(mStartIndex).orEmpty(), 0f, y, mTextPaint)
         }
-        translateX = xToTranslateX(mWidth.toFloat())
-        if (translateX >= startX && translateX <= stopX) {
-            val text: String = getAdapter().getDate(mStopIndex)
+        translateX = xToTranslateX(mWidth.toSafeFloat())
+        if (translateX in startX..stopX) {
+            val text = getAdapter()?.getDate(mStopIndex).orEmpty()
             canvas.drawText(text, mWidth - mTextPaint.measureText(text), y, mTextPaint)
         }
         if (isLongPress) {
             // 画Y值
-            val point: IKLine? = getItem(mSelectedIndex) as IKLine?
-            val w1 = ViewUtil.Dp2Px(context, 5).toFloat()
-            val w2 = ViewUtil.Dp2Px(context, 3).toFloat()
+            val point = getItem(mSelectedIndex) as? IKLine
+            val w1 = ViewUtil.Dp2Px(context, 5f).toSafeFloat()
+            val w2 = ViewUtil.Dp2Px(context, 3f).toSafeFloat()
             var r = textHeight / 2 + w2
-            y = getMainY(point.getClosePrice())
+            y = getMainY(point?.getClosePrice().orZero)
             var x: Float
-            val text: String = formatValue(point.getClosePrice())
+            val text = formatValue(point?.getClosePrice().orZero)
             var textWidth = mTextPaint.measureText(text)
             if (translateXtoX(getX(mSelectedIndex)) < getChartWidth() / 2) {
                 x = 1f
@@ -471,47 +340,32 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
                 val path = Path()
                 path.moveTo(x, y)
                 path.lineTo(x + w2, y + r)
-                path.lineTo((mWidth - 2).toFloat(), y + r)
-                path.lineTo((mWidth - 2).toFloat(), y - r)
+                path.lineTo((mWidth - 2).toSafeFloat(), y + r)
+                path.lineTo((mWidth - 2).toSafeFloat(), y - r)
                 path.lineTo(x + w2, y - r)
                 path.close()
                 canvas.drawPath(path, mSelectPointPaint)
                 canvas.drawPath(path, mSelectorFramePaint)
                 canvas.drawText(text, x + w1 + w2, fixTextY1(y), mTextPaint)
             }
-
             // 画X值
-            val date = mAdapter!!.getDate(mSelectedIndex)
+            val date = mAdapter?.getDate(mSelectedIndex)
             textWidth = mTextPaint.measureText(date)
             r = textHeight / 2
             x = translateXtoX(getX(mSelectedIndex))
             y = if (isShowChild) {
-                mChildRect!!.bottom.toFloat()
+                mChildRect?.bottom.toSafeFloat()
             } else {
-                mVolRect!!.bottom.toFloat()
+                mVolRect?.bottom.toSafeFloat()
             }
-
             if (x < textWidth + 2 * w1) {
                 x = 1 + textWidth / 2 + w1
             } else if (mWidth - x < textWidth + 2 * w1) {
                 x = mWidth - 1 - textWidth / 2 - w1
             }
-
-            canvas.drawRect(
-                x - textWidth / 2 - w1,
-                y,
-                x + textWidth / 2 + w1,
-                y + baseLine + r,
-                mSelectPointPaint
-            )
-            canvas.drawRect(
-                x - textWidth / 2 - w1,
-                y,
-                x + textWidth / 2 + w1,
-                y + baseLine + r,
-                mSelectorFramePaint
-            )
-            canvas.drawText(date, x - textWidth / 2, y + baseLine + 5, mTextPaint)
+            canvas.drawRect(x - textWidth / 2 - w1, y, x + textWidth / 2 + w1, y + baseLine + r, mSelectPointPaint)
+            canvas.drawRect(x - textWidth / 2 - w1, y, x + textWidth / 2 + w1, y + baseLine + r, mSelectorFramePaint)
+            canvas.drawText(date.orEmpty(), x - textWidth / 2, y + baseLine + 5, mTextPaint)
         }
     }
 
@@ -521,12 +375,10 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      * @param canvas
      */
     private fun drawMaxAndMin(canvas: Canvas) {
-        if (!mainDraw.isLine()) {
+        if (!mainDraw?.isLine().orFalse) {
             val maxEntry: IKLine? = null
             val minEntry: IKLine? = null
             val firstInit = true
-
-
             //绘制最大值和最小值
             var x: Float = translateXtoX(getX(mMainMinIndex))
             var y = getMainY(mMainLowMinValue)
@@ -541,17 +393,10 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
             } else {
                 //画左边
                 LowString = "$mMainLowMinValue ──"
-                canvas.drawText(
-                    LowString,
-                    x - lowStringWidth,
-                    y + lowStringHeight / 2,
-                    mMaxMinPaint
-                )
+                canvas.drawText(LowString, x - lowStringWidth, y + lowStringHeight / 2, mMaxMinPaint)
             }
-
             x = translateXtoX(getX(mMainMaxIndex))
             y = getMainY(mMainHighMaxValue)
-
             var highString = "── $mMainHighMaxValue"
             val highStringWidth = calculateMaxMin(highString).width()
             val highStringHeight = calculateMaxMin(highString).height()
@@ -561,12 +406,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
             } else {
                 //画左边
                 highString = "$mMainHighMaxValue ──"
-                canvas.drawText(
-                    highString,
-                    x - highStringWidth,
-                    y + highStringHeight / 2,
-                    mMaxMinPaint
-                )
+                canvas.drawText(highString, x - highStringWidth, y + highStringHeight / 2, mMaxMinPaint)
             }
         }
     }
@@ -581,18 +421,18 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
         val fm = mTextPaint.fontMetrics
         val textHeight = fm.descent - fm.ascent
         val baseLine = (textHeight - fm.bottom - fm.top) / 2
-        if (position >= 0 && position < mItemCount) {
+        if (position in 0..<mItemCount) {
             if (mMainDraw != null) {
-                val y = mMainRect!!.top + baseLine - textHeight
-                mMainDraw!!.drawText(canvas, this, position, 0, y)
+                val y = mMainRect?.top.orZero + baseLine - textHeight
+                mMainDraw?.drawText(canvas, this, position, 0f, y)
             }
             if (mVolDraw != null) {
-                val y = mMainRect!!.bottom + baseLine
-                mVolDraw!!.drawText(canvas, this, position, 0, y)
+                val y = mMainRect?.bottom.orZero + baseLine
+                mVolDraw?.drawText(canvas, this, position, 0f, y)
             }
             if (mChildDraw != null) {
-                val y = mVolRect!!.bottom + baseLine
-                mChildDraw!!.drawText(canvas, this, position, 0, y)
+                val y = mVolRect?.bottom.orZero + baseLine
+                mChildDraw?.drawText(canvas, this, position, 0f, y)
             }
         }
     }
@@ -642,32 +482,32 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
         mChildMaxValue = Float.MIN_VALUE
         mChildMinValue = Float.MAX_VALUE
         mStartIndex = indexOfTranslateX(xToTranslateX(0f))
-        mStopIndex = indexOfTranslateX(xToTranslateX(mWidth.toFloat()))
+        mStopIndex = indexOfTranslateX(xToTranslateX(mWidth.toSafeFloat()))
         mMainMaxIndex = mStartIndex
         mMainMinIndex = mStartIndex
         mMainHighMaxValue = Float.MIN_VALUE
         mMainLowMinValue = Float.MAX_VALUE
         for (i in mStartIndex..mStopIndex) {
-            val point: IKLine? = getItem(i) as IKLine?
+            val point = getItem(i) as? IKLine
             if (mMainDraw != null) {
-                mMainMaxValue = Math.max(mMainMaxValue, mMainDraw!!.getMaxValue(point))
-                mMainMinValue = Math.min(mMainMinValue, mMainDraw!!.getMinValue(point))
-                if (mMainHighMaxValue != Math.max(mMainHighMaxValue, point.getHighPrice())) {
-                    mMainHighMaxValue = point.getHighPrice()
+                mMainMaxValue = mMainMaxValue.coerceAtLeast(mMainDraw?.getMaxValue(point).orZero)
+                mMainMinValue = mMainMinValue.coerceAtMost(mMainDraw?.getMinValue(point).orZero)
+                if (mMainHighMaxValue != mMainHighMaxValue.coerceAtLeast(point?.getHighPrice().orZero)) {
+                    mMainHighMaxValue = point?.getHighPrice().orZero
                     mMainMaxIndex = i
                 }
-                if (mMainLowMinValue != Math.min(mMainLowMinValue, point.getLowPrice())) {
-                    mMainLowMinValue = point.getLowPrice()
+                if (mMainLowMinValue != mMainLowMinValue.coerceAtMost(point?.getLowPrice().orZero)) {
+                    mMainLowMinValue = point?.getLowPrice().orZero
                     mMainMinIndex = i
                 }
             }
             if (mVolDraw != null) {
-                mVolMaxValue = Math.max(mVolMaxValue, mVolDraw!!.getMaxValue(point))
-                mVolMinValue = Math.min(mVolMinValue, mVolDraw!!.getMinValue(point))
+                mVolMaxValue = mVolMaxValue.coerceAtLeast(mVolDraw?.getMaxValue(point).orZero)
+                mVolMinValue = mVolMinValue.coerceAtMost(mVolDraw?.getMinValue(point).orZero)
             }
             if (mChildDraw != null) {
-                mChildMaxValue = Math.max(mChildMaxValue, mChildDraw!!.getMaxValue(point))
-                mChildMinValue = Math.min(mChildMinValue, mChildDraw!!.getMinValue(point))
+                mChildMaxValue = mChildMaxValue.coerceAtLeast(mChildDraw?.getMaxValue(point).orZero)
+                mChildMinValue = mChildMinValue.coerceAtMost(mChildDraw?.getMinValue(point).orZero)
             }
         }
         if (mMainMaxValue != mMainMinValue) {
@@ -676,39 +516,36 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
             mMainMinValue -= padding
         } else {
             //当最大值和最小值都相等的时候 分别增大最大值和 减小最小值
-            mMainMaxValue += abs((mMainMaxValue * 0.05f).toDouble()).toFloat()
-            mMainMinValue -= abs((mMainMinValue * 0.05f).toDouble()).toFloat()
+            mMainMaxValue += abs((mMainMaxValue * 0.05f).toDouble()).toSafeFloat()
+            mMainMinValue -= abs((mMainMinValue * 0.05f).toDouble()).toSafeFloat()
             if (mMainMaxValue == 0f) {
                 mMainMaxValue = 1f
             }
         }
-
         if (abs(mVolMaxValue.toDouble()) < 0.01) {
             mVolMaxValue = 15.00f
         }
-
         if (abs(mChildMaxValue.toDouble()) < 0.01 && abs(mChildMinValue.toDouble()) < 0.01) {
             mChildMaxValue = 1f
         } else if (mChildMaxValue.equals(mChildMinValue)) {
             //当最大值和最小值都相等的时候 分别增大最大值和 减小最小值
-            mChildMaxValue += abs((mChildMaxValue * 0.05f).toDouble()).toFloat()
-            mChildMinValue -= abs((mChildMinValue * 0.05f).toDouble()).toFloat()
+            mChildMaxValue += abs((mChildMaxValue * 0.05f).toDouble()).toSafeFloat()
+            mChildMinValue -= abs((mChildMinValue * 0.05f).toDouble()).toSafeFloat()
             if (mChildMaxValue == 0f) {
                 mChildMaxValue = 1f
             }
         }
-
         if (isWR) {
             mChildMaxValue = 0f
             if (abs(mChildMinValue.toDouble()) < 0.01) mChildMinValue = -10.00f
         }
-        mMainScaleY = mMainRect!!.height() * 1f / (mMainMaxValue - mMainMinValue)
-        mVolScaleY = mVolRect!!.height() * 1f / (mVolMaxValue - mVolMinValue)
+        mMainScaleY = mMainRect?.height().orZero * 1f / (mMainMaxValue - mMainMinValue)
+        mVolScaleY = mVolRect?.height().orZero * 1f / (mVolMaxValue - mVolMinValue)
         if (mChildRect != null) mChildScaleY =
-            mChildRect!!.height() * 1f / (mChildMaxValue - mChildMinValue)
-        if (mAnimator!!.isRunning) {
-            val value = mAnimator!!.animatedValue as Float
-            mStopIndex = mStartIndex + Math.round(value * (mStopIndex - mStartIndex))
+            mChildRect?.height().orZero * 1f / (mChildMaxValue - mChildMinValue)
+        if (mAnimator?.isRunning.orFalse) {
+            val value = mAnimator?.animatedValue as? Float
+            mStopIndex = mStartIndex + Math.round(value.orZero * (mStopIndex - mStartIndex))
         }
     }
 
@@ -743,7 +580,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
     }
 
     override fun getMinScrollX(): Int {
-        return -(mOverScrollRange / mScaleX) as Int
+        return -(mOverScrollRange / mScaleX).toSafeInt()
     }
 
     override fun getMaxScrollX(): Int {
@@ -758,7 +595,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
     }
 
     open fun getMainY(value: Float): Float {
-        return (mMainMaxValue - value) * mMainScaleY + mMainRect!!.top
+        return (mMainMaxValue - value) * mMainScaleY + mMainRect?.top.orZero
     }
 
     open fun getMainBottom(): Float {
@@ -791,12 +628,12 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
 
     open fun dp2px(dp: Float): Int {
         val scale = context.resources.displayMetrics.density
-        return (dp * scale + 0.5f).toInt()
+        return (dp * scale + 0.5f).toSafeInt()
     }
 
     open fun sp2px(spValue: Float): Int {
         val fontScale = context.resources.displayMetrics.scaledDensity
-        return (spValue * fontScale + 0.5f).toInt()
+        return (spValue * fontScale + 0.5f).toSafeInt()
     }
 
     /**
@@ -806,7 +643,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
         if (getValueFormatter() == null) {
             setValueFormatter(ValueFormatter())
         }
-        return getValueFormatter().format(value)
+        return getValueFormatter()?.format(value).orEmpty()
     }
 
     /**
@@ -833,8 +670,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      * @param status MA/BOLL/NONE
      */
     open fun changeMainDrawType(status: Status) {
-        if (mainDraw != null && mainDraw.getStatus() !== status) {
-            mainDraw.setStatus(status)
+        if (mainDraw != null && mainDraw?.getStatus() != status) {
+            mainDraw?.setStatus(status)
             invalidate()
         }
     }
@@ -851,14 +688,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      * @param stopX     结束点的横坐标
      * @param stopValue 结束点的值
      */
-    open fun drawMainLine(
-        canvas: Canvas,
-        paint: Paint,
-        startX: Float,
-        startValue: Float,
-        stopX: Float,
-        stopValue: Float
-    ) {
+    open fun drawMainLine(canvas: Canvas, paint: Paint, startX: Float, startValue: Float, stopX: Float, stopValue: Float) {
         canvas.drawLine(startX, getMainY(startValue), stopX, getMainY(stopValue), paint)
     }
 
@@ -870,19 +700,12 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      * @param stopX     结束点的横坐标
      * @param stopValue 结束点的值
      */
-    open fun drawMainMinuteLine(
-        canvas: Canvas,
-        paint: Paint,
-        startX: Float,
-        startValue: Float,
-        stopX: Float,
-        stopValue: Float
-    ) {
+    open fun drawMainMinuteLine(canvas: Canvas, paint: Paint, startX: Float, startValue: Float, stopX: Float, stopValue: Float) {
         val path5 = Path()
-        path5.moveTo(startX, (displayHeight + mTopPadding + mBottomPadding).toFloat())
+        path5.moveTo(startX, (displayHeight + mTopPadding + mBottomPadding).toSafeFloat())
         path5.lineTo(startX, getMainY(startValue))
         path5.lineTo(stopX, getMainY(stopValue))
-        path5.lineTo(stopX, (displayHeight + mTopPadding + mBottomPadding).toFloat())
+        path5.lineTo(stopX, (displayHeight + mTopPadding + mBottomPadding).toSafeFloat())
         path5.close()
         canvas.drawPath(path5, paint)
     }
@@ -895,14 +718,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      * @param stopX      结束点的横坐标
      * @param stopValue  结束点的值
      */
-    open fun drawChildLine(
-        canvas: Canvas,
-        paint: Paint,
-        startX: Float,
-        startValue: Float,
-        stopX: Float,
-        stopValue: Float
-    ) {
+    open fun drawChildLine(canvas: Canvas, paint: Paint, startX: Float, startValue: Float, stopX: Float, stopValue: Float) {
         canvas.drawLine(startX, getChildY(startValue), stopX, getChildY(stopValue), paint)
     }
 
@@ -914,14 +730,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      * @param stopX      结束点的横坐标
      * @param stopValue  结束点的值
      */
-    open fun drawVolLine(
-        canvas: Canvas,
-        paint: Paint,
-        startX: Float,
-        startValue: Float,
-        stopX: Float,
-        stopValue: Float
-    ) {
+    open fun drawVolLine(canvas: Canvas, paint: Paint, startX: Float, startValue: Float, stopX: Float, stopValue: Float) {
         canvas.drawLine(startX, getVolY(startValue), stopX, getVolY(stopValue), paint)
     }
 
@@ -933,7 +742,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      */
     open fun getItem(position: Int): Any? {
         return if (mAdapter != null) {
-            mAdapter!!.getItem(position)
+            mAdapter?.getItem(position)
         } else {
             null
         }
@@ -954,8 +763,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      *
      * @return
      */
-    open fun getAdapter(): IAdapter {
-        return mAdapter!!
+    open fun getAdapter(): IAdapter? {
+        return mAdapter
     }
 
     /**
@@ -992,7 +801,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      *
      * @param childDraw IChartDraw
      */
-    open fun addChildDraw(childDraw: IChartDraw?) {
+    open fun addChildDraw(childDraw: IChartDraw<Any?>?) {
+        childDraw ?: return
         mChildDraws.add(childDraw)
     }
 
@@ -1001,8 +811,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      *
      * @return
      */
-    open fun getValueFormatter(): IValueFormatter {
-        return mValueFormatter!!
+    open fun getValueFormatter(): IValueFormatter? {
+        return mValueFormatter
     }
 
     /**
@@ -1041,7 +851,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
         if (getDateTimeFormatter() == null) {
             setDateTimeFormatter(TimeFormatter())
         }
-        return getDateTimeFormatter()!!.format(date)
+        return getDateTimeFormatter()?.format(date).orEmpty()
     }
 
     /**
@@ -1049,7 +859,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      *
      * @return IChartDraw
      */
-    open fun getMainDraw(): IChartDraw {
+    open fun getMainDraw(): IChartDraw<Any?>? {
         return mMainDraw
     }
 
@@ -1058,16 +868,16 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      *
      * @param mainDraw IChartDraw
      */
-    open fun setMainDraw(mainDraw: IChartDraw) {
+    open fun setMainDraw(mainDraw: IChartDraw<Any?>?) {
         mMainDraw = mainDraw
-        this.mainDraw = mMainDraw as MainDraw?
+        this.mainDraw = mMainDraw as? MainDraw
     }
 
-    open fun getVolDraw(): IChartDraw {
+    open fun getVolDraw(): IChartDraw<Any?>? {
         return mVolDraw
     }
 
-    open fun setVolDraw(mVolDraw: IChartDraw?) {
+    open fun setVolDraw(mVolDraw: IChartDraw<Any?>?) {
         this.mVolDraw = mVolDraw
     }
 
@@ -1100,13 +910,13 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      * 设置数据适配器
      */
     open fun setAdapter(adapter: IAdapter) {
-        if (mAdapter != null && mDataSetObserver != null) {
-            mAdapter!!.unregisterDataSetObserver(mDataSetObserver)
+        if (mAdapter != null) {
+            mAdapter?.unregisterDataSetObserver(mDataSetObserver)
         }
         mAdapter = adapter
         if (mAdapter != null) {
-            mAdapter!!.registerDataSetObserver(mDataSetObserver)
-            mItemCount = mAdapter!!.getCount()
+            mAdapter?.registerDataSetObserver(mDataSetObserver)
+            mItemCount = mAdapter?.getCount().orZero
         } else {
             mItemCount = 0
         }
@@ -1118,7 +928,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      */
     open fun startAnimation() {
         if (mAnimator != null) {
-            mAnimator!!.start()
+            mAnimator?.start()
         }
     }
 
@@ -1127,15 +937,15 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      */
     open fun setAnimationDuration(duration: Long) {
         if (mAnimator != null) {
-            mAnimator!!.setDuration(duration)
+            mAnimator?.setDuration(duration)
         }
     }
 
     /**
      * 设置表格行数
      */
-    open fun setGridRows(gridRows: Int) {
-        var gridRows = gridRows
+    open fun setGridRows(rows: Int) {
+        var gridRows = rows
         if (gridRows < 1) {
             gridRows = 1
         }
@@ -1145,8 +955,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
     /**
      * 设置表格列数
      */
-    open fun setGridColumns(gridColumns: Int) {
-        var gridColumns = gridColumns
+    open fun setGridColumns(columns: Int) {
+        var gridColumns = columns
         if (gridColumns < 1) {
             gridColumns = 1
         }
@@ -1177,21 +987,21 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
      * 获取上方padding
      */
     open fun getTopPadding(): Float {
-        return mTopPadding.toFloat()
+        return mTopPadding.toSafeFloat()
     }
 
     /**
      * 获取上方padding
      */
     open fun getChildPadding(): Float {
-        return mChildPadding.toFloat()
+        return mChildPadding.toSafeFloat()
     }
 
     /**
      * 获取子试图上方padding
      */
     open fun getmChildScaleYPadding(): Float {
-        return mChildPadding.toFloat()
+        return mChildPadding.toSafeFloat()
     }
 
     /**
@@ -1217,12 +1027,12 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
         return mSelectedIndex
     }
 
-    open fun getChildRect(): Rect {
-        return mChildRect!!
+    open fun getChildRect(): Rect? {
+        return mChildRect
     }
 
-    open fun getVolRect(): Rect {
-        return mVolRect!!
+    open fun getVolRect(): Rect? {
+        return mVolRect
     }
 
     /**
@@ -1234,7 +1044,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
 
     open fun onSelectedChanged(view: BaseKLineChartView?, point: Any?, index: Int) {
         if (this.mOnSelectedChangedListener != null) {
-            mOnSelectedChangedListener!!.onSelectedChanged(view, point, index)
+            mOnSelectedChangedListener?.onSelectedChanged(view, point, index)
         }
     }
 
@@ -1250,8 +1060,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
     /**
      * 设置超出右方后可滑动的范围
      */
-    open fun setOverScrollRange(overScrollRange: Float) {
-        var overScrollRange = overScrollRange
+    open fun setOverScrollRange(range: Float) {
+        var overScrollRange = range
         if (overScrollRange < 0) {
             overScrollRange = 0f
         }
@@ -1408,6 +1218,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(
          * @param point 选中的点
          * @param index 选中点的索引
          */
-        fun onSelectedChanged(view: BaseKLineChartView, point: Any, index: Int)
+        fun onSelectedChanged(view: BaseKLineChartView?, point: Any?, index: Int)
     }
+
 }
