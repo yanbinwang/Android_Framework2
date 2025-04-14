@@ -265,7 +265,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
         this ?: return
         val observer = Observer<Any?> { value ->
             if (value != null) {
-                block(value as T)
+                (value as? T)?.let { block(it) }
             }
         }
         dataManager[this] = observer
