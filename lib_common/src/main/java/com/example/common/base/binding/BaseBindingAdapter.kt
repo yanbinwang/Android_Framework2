@@ -6,6 +6,7 @@ import android.text.Spannable
 import android.view.View
 import android.webkit.WebView
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -166,56 +167,105 @@ object BaseBindingAdapter {
      *
      * 特殊文本显示文本
      * text:文本文案
-     * text_color:文本颜色
-     * background:文本背景
+     * span_text:高亮文本文案
+     * textColor:文本颜色
+     * src:图片背景-》图片view的情况下
+     * background:view背景
+     * visibility:view显影
      *
      * textview.setSpanAll(text, keyText, keyColor.toSafeInt(R.color.textOrange))
      * textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.textOrange))
      * textview.setMatchText()
      */
     @JvmStatic
-    @BindingAdapter(value = ["text", "textColor", "background"], requireAll = false)
-    fun bindingTextViewTheme(textview: TextView, text: String?, textColor: Int?, background: Int?) {
-        //处理文本设置(文本是必须要加载出来的)
-        text.let {
-            val newText = it.orNoData()
-            val textKey = textview.generateTagKey("text")
-            val oldText = textview.getTag(textKey) as? String
-            if (oldText != newText) {
-                textview.text = newText
-                textview.setTag(textKey, newText)
-            }
-        }
-        //处理文本颜色设置
-        textColor?.let { newTextColor ->
-            val textColorKey = textview.generateTagKey("textColor")
-            val oldTextColor = textview.getTag(textColorKey) as? Int
-            if (oldTextColor != newTextColor) {
-                textview.textColor(newTextColor)
-                textview.setTag(textColorKey, newTextColor)
-            }
-        }
+    @BindingAdapter(value = ["text", "spannable", "textColor", "background", "src", "visibility"], requireAll = false)
+    fun bindingTextViewTheme(view: View, text: String?, spannable: Spannable?, textColor: Int?, background: Int?, src: Int?, visibility: Int?) {
         //处理背景设置
-        background?.let { newBackground ->
-            val backgroundKey = textview.generateTagKey("background")
-            val oldBackground = textview.getTag(backgroundKey) as? Int
-            if (oldBackground != newBackground) {
-                textview.background(newBackground)
-                textview.setTag(backgroundKey, newBackground)
+        handleBackground(view, background)
+        //处理可见性设置
+        handleVisibility(view, visibility)
+        //分批处理
+        when (view) {
+            is TextView -> {
+                if (spannable != null) {
+                    //处理高亮文本
+                    handleSpanText(view, spannable)
+                } else {
+                    //处理文本设置(文本是必须要加载出来的)
+                    handleText(view, text)
+                }
+                //处理文本颜色设置
+                handleTextColor(view, textColor)
+            }
+            is ImageView -> {
+                //处理图片资源设置
+                handleSrc(view, src)
             }
         }
     }
 
-    /**
-     * 高亮文本
-     * 利用TextSpan()类构建一个spannable
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["span_text"], requireAll = false)
-    fun bindingTextViewSpan(textview: TextView, span: Spannable?) {
-        val newText = span ?: NO_DATA
-        if (textview.text != newText) {
-            textview.text = newText
+    private fun handleBackground(view: View, background: Int?) {
+        background?.let { newBackground ->
+            val backgroundKey = view.generateTagKey("background")
+            val oldBackground = view.getTag(backgroundKey) as? Int
+            if (oldBackground != newBackground) {
+                view.setBackgroundResource(newBackground)
+                view.setTag(backgroundKey, newBackground)
+            }
+        }
+    }
+
+    private fun handleVisibility(view: View, visibility: Int?) {
+        visibility?.let { newVisibility ->
+            val visibilityKey = view.generateTagKey("visibility")
+            val oldVisibility = view.getTag(visibilityKey) as? Int
+            if (oldVisibility != newVisibility) {
+                view.visibility = newVisibility
+                view.setTag(visibilityKey, newVisibility)
+            }
+        }
+    }
+
+    private fun handleText(view: TextView, text: String?) {
+        text.let {
+            val newText = it.orNoData()
+            val textKey = view.generateTagKey("text")
+            val oldText = view.getTag(textKey) as? String
+            if (oldText != newText) {
+                view.text = newText
+                view.setTag(textKey, newText)
+            }
+        }
+    }
+
+    private fun handleSpanText(view: TextView, spannable: Spannable) {
+        val spanKey = view.generateTagKey("spannable")
+        val oldSpan = view.getTag(spanKey) as? Spannable
+        if (oldSpan != spannable) {
+            view.text = spannable
+            view.setTag(spanKey, spannable)
+        }
+    }
+
+    private fun handleTextColor(view: TextView, textColor: Int?) {
+        textColor?.let { newTextColor ->
+            val textColorKey = view.generateTagKey("textColor")
+            val oldTextColor = view.getTag(textColorKey) as? Int
+            if (oldTextColor != newTextColor) {
+                view.setTextColor(newTextColor)
+                view.setTag(textColorKey, newTextColor)
+            }
+        }
+    }
+
+    private fun handleSrc(view: ImageView, src: Int?) {
+        src?.let { newSrc ->
+            val srcKey = view.generateTagKey("src")
+            val oldSrc = view.getTag(srcKey) as? Int
+            if (oldSrc != newSrc) {
+                view.setImageResource(newSrc)
+                view.setTag(srcKey, newSrc)
+            }
         }
     }
 
