@@ -15,7 +15,6 @@ import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import com.example.common.base.binding.adapter.BaseQuickAdapter
-import com.example.common.config.Constants.NO_DATA
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
 import com.example.common.utils.function.orNoData
@@ -28,7 +27,6 @@ import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.adapter
-import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.backgroundCorner
 import com.example.framework.utils.function.view.backgroundOval
 import com.example.framework.utils.function.view.charBlackList
@@ -40,7 +38,6 @@ import com.example.framework.utils.function.view.linearGradient
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.spaceLimit
-import com.example.framework.utils.function.view.textColor
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -146,6 +143,41 @@ object BaseBindingAdapter {
 
     // <editor-fold defaultstate="collapsed" desc="textview绑定方法">
     /**
+     * 图片样式
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["srcRes", "srcDrawable", "visibility"], requireAll = false)
+    fun bindingImageViewTheme(view: ImageView, srcRes: Int?, srcDrawable: Drawable?, visibility: Int?) {
+        when {
+            srcRes != null -> {
+                val srcResKey = view.generateTagKey("srcRes")
+                val oldSrcRes = view.getTag(srcResKey) as? Int
+                if (oldSrcRes != srcRes) {
+                    view.setImageResource(srcRes)
+                    view.setTag(srcResKey, srcRes)
+                }
+            }
+            srcDrawable != null -> {
+                val srcDrawableKey = view.generateTagKey("srcDrawable")
+                val oldSrcDrawable = view.getTag(srcDrawableKey) as? Drawable
+                if (oldSrcDrawable != srcDrawable) {
+                    view.setImageDrawable(srcDrawable)
+                    view.setTag(srcDrawableKey, srcDrawable)
+                }
+            }
+        }
+        //处理可见性设置
+        visibility?.let { newVisibility ->
+            val visibilityKey = view.generateTagKey("visibility")
+            val oldVisibility = view.getTag(visibilityKey) as? Int
+            if (oldVisibility != newVisibility) {
+                view.visibility = newVisibility
+                view.setTag(visibilityKey, newVisibility)
+            }
+        }
+    }
+
+    /**
      * 首先是几组xml里结合mvvm的写法
      *  android:text="@{bean.nickText??@string/unitNoData}"
      *  android:textColor="@{bean!=null?bean.getAuthColorRes():@color/textPrimary}"
@@ -168,87 +200,39 @@ object BaseBindingAdapter {
      *
      * 特殊文本显示文本
      * text:文本文案
-     * span_text:高亮文本文案
+     * spannable:高亮文本文案
      * textColor:文本颜色
-     * src:图片背景-》图片view的情况下
      * background:view背景
-     * visibility:view显影
+     * visibility:view可见性
      *
      * textview.setSpanAll(text, keyText, keyColor.toSafeInt(R.color.textOrange))
      * textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.textOrange))
      * textview.setMatchText()
      */
     @JvmStatic
-    @BindingAdapter(value = ["text", "spannable", "textColor", "background", "srcRes", "srcDrawable", "visibility"], requireAll = false)
-    fun bindingTextViewTheme(view: View, text: String?, spannable: Spannable?, textColor: Int?, background: Int?, srcRes: Int?, srcDrawable: Drawable?, visibility: Int?) {
-        //处理背景设置
-        handleBackground(view, background)
-        //处理可见性设置
-        handleVisibility(view, visibility)
-        //分批处理
-        when (view) {
-            is TextView -> {
-                if (spannable != null) {
-                    //处理高亮文本
-                    handleSpanText(view, spannable)
-                } else {
-                    //处理文本设置(文本是必须要加载出来的)
-                    handleText(view, text)
+    @BindingAdapter(value = ["text", "spannable", "textColor", "background", "visibility"], requireAll = false)
+    fun bindingTextViewTheme(view: TextView, text: String?, spannable: Spannable?, textColor: Int?, background: Int?, visibility: Int?) {
+        //处理高亮文本
+        if (spannable != null) {
+            val spanKey = view.generateTagKey("spannable")
+            val oldSpan = view.getTag(spanKey) as? Spannable
+            if (oldSpan != spannable) {
+                view.text = spannable
+                view.setTag(spanKey, spannable)
+            }
+        } else {
+            //处理文本设置(文本是必须要加载出来的)
+            text.let {
+                val newText = it.orNoData()
+                val textKey = view.generateTagKey("text")
+                val oldText = view.getTag(textKey) as? String
+                if (oldText != newText) {
+                    view.text = newText
+                    view.setTag(textKey, newText)
                 }
-                //处理文本颜色设置
-                handleTextColor(view, textColor)
-            }
-            is ImageView -> {
-                //处理图片资源设置
-                handleSrc(view, srcRes, srcDrawable)
             }
         }
-    }
-
-    private fun handleBackground(view: View, background: Int?) {
-        background?.let { newBackground ->
-            val backgroundKey = view.generateTagKey("background")
-            val oldBackground = view.getTag(backgroundKey) as? Int
-            if (oldBackground != newBackground) {
-                view.setBackgroundResource(newBackground)
-                view.setTag(backgroundKey, newBackground)
-            }
-        }
-    }
-
-    private fun handleVisibility(view: View, visibility: Int?) {
-        visibility?.let { newVisibility ->
-            val visibilityKey = view.generateTagKey("visibility")
-            val oldVisibility = view.getTag(visibilityKey) as? Int
-            if (oldVisibility != newVisibility) {
-                view.visibility = newVisibility
-                view.setTag(visibilityKey, newVisibility)
-            }
-        }
-    }
-
-    private fun handleText(view: TextView, text: String?) {
-        text.let {
-            val newText = it.orNoData()
-            val textKey = view.generateTagKey("text")
-            val oldText = view.getTag(textKey) as? String
-            if (oldText != newText) {
-                view.text = newText
-                view.setTag(textKey, newText)
-            }
-        }
-    }
-
-    private fun handleSpanText(view: TextView, spannable: Spannable) {
-        val spanKey = view.generateTagKey("spannable")
-        val oldSpan = view.getTag(spanKey) as? Spannable
-        if (oldSpan != spannable) {
-            view.text = spannable
-            view.setTag(spanKey, spannable)
-        }
-    }
-
-    private fun handleTextColor(view: TextView, textColor: Int?) {
+        //处理文本颜色设置
         textColor?.let { newTextColor ->
             val textColorKey = view.generateTagKey("textColor")
             val oldTextColor = view.getTag(textColorKey) as? Int
@@ -257,25 +241,22 @@ object BaseBindingAdapter {
                 view.setTag(textColorKey, newTextColor)
             }
         }
-    }
-
-    private fun handleSrc(view: ImageView, srcRes: Int?, srcDrawable: Drawable?) {
-        when {
-            srcRes != null -> {
-                val srcResKey = view.generateTagKey("srcRes")
-                val oldSrcRes = view.getTag(srcResKey) as? Int
-                if (oldSrcRes != srcRes) {
-                    view.setImageResource(srcRes)
-                    view.setTag(srcResKey, srcRes)
-                }
+        //处理背景设置
+        background?.let { newBackground ->
+            val backgroundKey = view.generateTagKey("background")
+            val oldBackground = view.getTag(backgroundKey) as? Int
+            if (oldBackground != newBackground) {
+                view.setBackgroundResource(newBackground)
+                view.setTag(backgroundKey, newBackground)
             }
-            srcDrawable != null -> {
-                val srcDrawableKey = view.generateTagKey("srcDrawable")
-                val oldSrcDrawable = view.getTag(srcDrawableKey) as? Drawable
-                if (oldSrcDrawable != srcDrawable) {
-                    view.setImageDrawable(srcDrawable)
-                    view.setTag(srcDrawableKey, srcDrawable)
-                }
+        }
+        //处理可见性设置
+        visibility?.let { newVisibility ->
+            val visibilityKey = view.generateTagKey("visibility")
+            val oldVisibility = view.getTag(visibilityKey) as? Int
+            if (oldVisibility != newVisibility) {
+                view.visibility = newVisibility
+                view.setTag(visibilityKey, newVisibility)
             }
         }
     }
