@@ -174,19 +174,16 @@ object BaseBindingAdapter {
      * textview.setMatchText()
      */
     @JvmStatic
-    @BindingAdapter(value = ["text", "text_color", "background"], requireAll = false)
+    @BindingAdapter(value = ["text", "textColor", "background"], requireAll = false)
     fun bindingTextViewTheme(textview: TextView, text: String?, textColor: Int?, background: Int?) {
         //处理文本设置(文本是必须要加载出来的)
-        text.let { newText ->
-            if (!newText.isNullOrEmpty()) {
-                val textKey = textview.generateTagKey("text")
-                val oldText = textview.getTag(textKey) as? String
-                if (oldText != newText) {
-                    textview.text = newText
-                    textview.setTag(textKey, newText)
-                }
-            } else {
-                textview.text = text.orNoData()
+        text.let {
+            val newText = it.orNoData()
+            val textKey = textview.generateTagKey("text")
+            val oldText = textview.getTag(textKey) as? String
+            if (oldText != newText) {
+                textview.text = newText
+                textview.setTag(textKey, newText)
             }
         }
         //处理文本颜色设置
