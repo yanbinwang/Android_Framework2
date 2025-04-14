@@ -184,7 +184,7 @@ fun View?.dimen(@DimenRes res: Int): Float {
  */
 fun View?.generateTagKey(keySuffix: String): Int {
     this ?: return 0
-    return ("${id}::${keySuffix}").hashCode()
+    return ("${this.hashCode()}::$keySuffix").hashCode()
 }
 
 /**
