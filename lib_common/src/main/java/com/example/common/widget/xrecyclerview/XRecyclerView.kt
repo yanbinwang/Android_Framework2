@@ -199,7 +199,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun <VDB : ViewDataBinding> getViewHolder(position: Int): VDB? {
-        return getHolder<BaseViewDataBindingHolder>(position)?.getBinding() as? VDB
+        return getHolder<BaseViewDataBindingHolder>(position)?.viewBinding() as? VDB
     }
 
     /**
