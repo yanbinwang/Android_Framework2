@@ -7,6 +7,35 @@ import java.lang.ref.WeakReference
 
 /**
  * 全局提示框定制
+ * 1. 支持富文本（Spanned）
+ * 如果需要显示带格式的文本（如加粗、颜色），可在 custom 方法中处理：
+ * kotlin
+ * ToastBuilder.custom { toast ->
+ *     val spanned = Html.fromHtml("<b>这是加粗文本</b>")
+ *     toast.setText(spanned)
+ *     toast.setGravity(Gravity.CENTER, 0, 0)
+ * }
+ * 2. 添加动画扩展点
+ * 在 customBuilder 中开放动画接口，支持淡入淡出、滑动等效果：
+ * kotlin
+ * fun customWithAnimation(
+ *     length: Int = Toast.LENGTH_SHORT,
+ *     enterAnim: (View) -> Unit, // 入场动画
+ *     exitAnim: (View) -> Unit // 离场动画（可选）
+ * ) {
+ *     custom(length) { toast ->
+ *         val customView = toast.view ?: return@custom // 确保有自定义视图
+ *         enterAnim(customView)
+ *         // 监听 Toast 消失时执行离场动画（需通过反射或回调实现，Toast 原生不支持）
+ *     }
+ * }
+ *
+ * 3. 适配暗黑模式
+ * 在自定义布局中使用 ContextCompat.getColorStateList 或 android:theme，确保不同模式下样式一致：
+ * kotlin
+ * customView.findViewById<TextView>(R.id.toast_text).setTextColor(
+ *     ContextCompat.getColorStateList(toast.context, R.color.primary_text)
+ * )
  */
 @Suppress("UNCHECKED_CAST")
 object ToastBuilder {
