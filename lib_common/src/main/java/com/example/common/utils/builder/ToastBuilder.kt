@@ -5,7 +5,20 @@ import android.widget.Toast
 import com.example.common.BaseApplication
 import java.lang.ref.WeakReference
 
+/**
+ * 全局提示框定制
+ */
+@Suppress("UNCHECKED_CAST")
 object ToastBuilder {
+    /**
+     * 全局context
+     */
+    private val mContext get() = BaseApplication.instance.applicationContext
+    /**
+     * 弱引用toast
+     */
+    private var currentToast: WeakReference<Toast>? = null
+
     /**
      * 传入引用string格式的toast
      * ToastBuilder.short(R.string.homeRecommendedQuestsReceiveSuccess) { resId, length ->
@@ -21,8 +34,8 @@ object ToastBuilder {
      * toast
      * }
      */
-    private var resToastBuilder: (resId: Int, length: Int) -> Toast = { resId, length ->
-        val toast = Toast.makeText(BaseApplication.instance, null, length)
+    private var defaultResBuilder: (resId: Int, length: Int) -> Toast = { resId, length ->
+        val toast = Toast.makeText(mContext, null, length)
         toast?.setText(resId)
         toast
     }
@@ -30,63 +43,69 @@ object ToastBuilder {
     /**
      * 传入文字的toast
      */
-    private var toastBuilder: (message: String, length: Int) -> Toast = { message, length ->
-        val toast = Toast.makeText(BaseApplication.instance, null, length)
+    private var defaultTextBuilder: (message: String, length: Int) -> Toast = { message, length ->
+        val toast = Toast.makeText(mContext, null, length)
         toast?.setText(message)
         toast
     }
 
     /**
-     * 弱引用toast
+     * 全局调取toast方法
      */
-    private var toast: WeakReference<Toast>? = null
+    @JvmStatic
+    fun short(resId: Int, toastBuilder: ((resId: Int, length: Int) -> Toast) = this.defaultResBuilder) {
+        showToast(Toast.LENGTH_SHORT, resId) { input, len ->
+            (toastBuilder as? (Any, Int) -> Toast)?.invoke(input, len)
+        }
+    }
 
     @JvmStatic
-    fun short(resId: Int, toastBuilder: ((resId: Int, length: Int) -> Toast) = resToastBuilder) {
+    fun short(message: String, toastBuilder: ((message: String, length: Int) -> Toast) = this.defaultTextBuilder) {
+        showToast(Toast.LENGTH_SHORT, message) { input, len ->
+            (toastBuilder as? (Any, Int) -> Toast)?.invoke(input, len)
+        }
+    }
+
+    @JvmStatic
+    fun long(resId: Int, toastBuilder: ((resId: Int, length: Int) -> Toast) = this.defaultResBuilder) {
+        showToast(Toast.LENGTH_LONG, resId) { input, len ->
+            (toastBuilder as? (Any, Int) -> Toast)?.invoke(input, len)
+        }
+    }
+
+    @JvmStatic
+    fun long(message: String, toastBuilder: ((message: String, length: Int) -> Toast) = this.defaultTextBuilder) {
+        showToast(Toast.LENGTH_LONG, message) { input, len ->
+            (toastBuilder as? (Any, Int) -> Toast)?.invoke(input, len)
+        }
+    }
+
+    /**
+     * 显示 Toast 的公共方法
+     */
+    private fun showToast(length: Int, input: Any, builder: (Any, Int) -> Toast?) {
         if (Looper.getMainLooper() != Looper.myLooper()) return
-        if (resId == -1) return
+        if ((input is Int && input == -1) || (input is String && input.isEmpty())) return
         cancelToast()
-        toastBuilder(resId, Toast.LENGTH_SHORT).apply {
-            toast = WeakReference(this)
+        builder(input, length)?.apply {
+            currentToast = WeakReference(this)
             show()
         }
     }
 
     @JvmStatic
-    fun short(message: String, toastBuilder: ((message: String, length: Int) -> Toast) = this.toastBuilder) {
-        if (Looper.getMainLooper() != Looper.myLooper()) return
-        if (message.isEmpty()) return
-        cancelToast()
-        toastBuilder(message, Toast.LENGTH_SHORT).apply {
-            toast = WeakReference(this)
-            show()
-        }
-    }
-
-    @JvmStatic
-    fun long(resId: Int, toastBuilder: ((resId: Int, length: Int) -> Toast) = resToastBuilder) {
-        if (Looper.getMainLooper() != Looper.myLooper()) return
-        if (resId == -1) return
-        cancelToast()
-        toastBuilder(resId, Toast.LENGTH_LONG).apply {
-            toast = WeakReference(this)
-            show()
-        }
-    }
-
-    @JvmStatic
-    fun long(message: String, toastBuilder: ((message: String, length: Int) -> Toast) = this.toastBuilder) {
+    fun custom(length: Int = Toast.LENGTH_SHORT, customBuilder: (Toast) -> Unit) {
         if (Looper.getMainLooper() != Looper.myLooper()) return
         cancelToast()
-        toastBuilder(message, Toast.LENGTH_LONG).apply {
-            toast = WeakReference(this)
-            show()
-        }
+        val toast = Toast.makeText(mContext, "", length)
+        currentToast = WeakReference(toast)
+        customBuilder(toast)
+        toast.show()
     }
 
     @JvmStatic
     fun cancelToast() {
-        toast?.get()?.cancel()
+        currentToast?.get()?.cancel()
     }
 
     /**
@@ -94,13 +113,13 @@ object ToastBuilder {
      * 部分手機定制導致顯示不全，樣式不統一，故而再重寫一次，統一樣式
      */
     @JvmStatic
-    fun setResToastBuilder(builder: (message: Int, length: Int) -> Toast) {
-        resToastBuilder = builder
+    fun setResToastBuilder(builder: (resId: Int, length: Int) -> Toast) {
+        defaultResBuilder = builder
     }
 
     @JvmStatic
-    fun setStringToastBuilder(builder: (message: String, length: Int) -> Toast) {
-        toastBuilder = builder
+    fun setTextToastBuilder(builder: (message: String, length: Int) -> Toast) {
+        defaultTextBuilder = builder
     }
 
 }
@@ -114,3 +133,36 @@ fun String?.shortToast() {
     this ?: return
     ToastBuilder.short(this)
 }
+
+fun Int?.longToast() {
+    this ?: return
+    ToastBuilder.long(this)
+}
+
+fun String?.longToast() {
+    this ?: return
+    ToastBuilder.long(this)
+}
+
+///**
+// * 带提示的复制
+// */
+//fun String?.copy(label: String = "Label") {
+//    this ?: return
+//    setPrimaryClip(label)
+//    setToastView(R.mipmap.ic_toast, string(R.string.copySuccess))
+//}
+//
+///**
+// * 设置自定义toast提示view
+// */
+//fun setToastView(@DrawableRes resId: Int, message: String) {
+//    ToastBuilder.custom { context, toast ->
+//        toast.setGravity(Gravity.CENTER, 0, 0)
+//        toast.duration = Toast.LENGTH_SHORT
+//        val binding = ViewToastImageStyleBinding.bind(context.inflate(R.layout.view_toast_image_style))
+//        binding.ivType.setImageResource(resId)
+//        binding.tvLabel.text = message
+//        toast.view = binding.root
+//    }
+//}
