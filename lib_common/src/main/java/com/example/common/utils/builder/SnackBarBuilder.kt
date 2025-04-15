@@ -1,6 +1,7 @@
 package com.example.common.utils.builder
 
 import android.os.Looper
+import android.view.Gravity
 import android.view.View
 import com.google.android.material.snackbar.Snackbar
 import java.lang.ref.WeakReference
@@ -67,44 +68,44 @@ object SnackBarBuilder {
 
     @JvmStatic
     fun short(root: View, resId: Int, snackBuilder: ((root: View, resId: Int, length: Int) -> Snackbar) = defaultResBuilder) {
-        showSnackBar(root, Snackbar.LENGTH_SHORT, resId) { view, input, len ->
+        showSnackBar(root, Snackbar.LENGTH_SHORT, resId, { view, input, len ->
             (snackBuilder as? (View, Any, Int) -> Snackbar)?.invoke(view, input, len)
-        }
+        })
     }
 
     @JvmStatic
     fun short(root: View, message: String, snackBuilder: ((root: View, message: String, length: Int) -> Snackbar) = defaultTextBuilder) {
-        showSnackBar(root, Snackbar.LENGTH_SHORT, message) { view, input, len ->
+        showSnackBar(root, Snackbar.LENGTH_SHORT, message, { view, input, len ->
             (snackBuilder as? (View, Any, Int) -> Snackbar)?.invoke(view, input, len)
-        }
+        })
     }
 
     @JvmStatic
     fun long(root: View, resId: Int, snackBuilder: ((root: View, resId: Int, length: Int) -> Snackbar) = defaultResBuilder) {
-        showSnackBar(root, Snackbar.LENGTH_LONG, resId) { view, input, len ->
+        showSnackBar(root, Snackbar.LENGTH_LONG, resId, { view, input, len ->
             (snackBuilder as? (View, Any, Int) -> Snackbar)?.invoke(view, input, len)
-        }
+        })
     }
 
     @JvmStatic
     fun long(root: View, message: String, snackBuilder: ((root: View, message: String, length: Int) -> Snackbar) = defaultTextBuilder) {
-        showSnackBar(root, Snackbar.LENGTH_LONG, message) { view, input, len ->
+        showSnackBar(root, Snackbar.LENGTH_LONG, message, { view, input, len ->
             (snackBuilder as? (View, Any, Int) -> Snackbar)?.invoke(view, input, len)
-        }
+        })
     }
 
     @JvmStatic
     fun indefinite(root: View, resId: Int, snackBuilder: ((root: View, resId: Int, length: Int) -> Snackbar) = defaultResBuilder) {
-        showSnackBar(root, Snackbar.LENGTH_INDEFINITE, resId) { view, input, len ->
+        showSnackBar(root, Snackbar.LENGTH_INDEFINITE, resId, { view, input, len ->
             (snackBuilder as? (View, Any, Int) -> Snackbar)?.invoke(view, input, len)
-        }
+        })
     }
 
     @JvmStatic
     fun indefinite(root: View, message: String, snackBuilder: ((root: View, message: String, length: Int) -> Snackbar) = defaultTextBuilder) {
-        showSnackBar(root, Snackbar.LENGTH_INDEFINITE, message) { view, input, len ->
+        showSnackBar(root, Snackbar.LENGTH_INDEFINITE, message, { view, input, len ->
             (snackBuilder as? (View, Any, Int) -> Snackbar)?.invoke(view, input, len)
-        }
+        })
     }
 
     /**
@@ -127,12 +128,15 @@ object SnackBarBuilder {
      *     return@custom snackbar // 必须返回 Snackbar 实例
      * }
      */
-    private fun showSnackBar(root: View, length: Int, input: Any, builder: (View, Any, Int) -> Snackbar?) {
+    private fun showSnackBar(root: View, length: Int, input: Any, builder: (View, Any, Int) -> Snackbar?, isTop: Boolean = false) {
         if (Looper.getMainLooper() != Looper.myLooper()) return
         if (input is Int && input == -1 || input is String && input.isEmpty()) return
         cancelSnackBar()
         builder(root, input, length)?.apply {
             currentSnackBar = WeakReference(this)
+            if (isTop) {
+                setupTopSnackbar(this)
+            }
             show()
         }
     }
@@ -141,14 +145,46 @@ object SnackBarBuilder {
      * 自定义布局
      */
     @JvmStatic
-    fun custom(root: View, length: Int = Snackbar.LENGTH_LONG, customBuilder: (Snackbar) -> Snackbar) {
+    fun custom(root: View, length: Int = Snackbar.LENGTH_LONG, customBuilder: (Snackbar) -> Snackbar, isTop: Boolean = false) {
         //自定义构建逻辑
         if (Looper.getMainLooper() != Looper.myLooper()) return
         cancelSnackBar()
         val snackBar = Snackbar.make(root, "", length)
         currentSnackBar = WeakReference(snackBar)
-        customBuilder(snackBar).show() // 允许完全自定义 Snackbar 配置
+        val configuredSnackbar = customBuilder(snackBar)
+        if (isTop) {
+            setupTopSnackbar(configuredSnackbar)
+        }
+        configuredSnackbar.show()
     }
+
+    private fun setupTopSnackbar(snackbar: Snackbar) {
+        val snackbarView = snackbar.view
+        val params = snackbarView.layoutParams as android.widget.FrameLayout.LayoutParams
+        params.gravity = Gravity.TOP
+        snackbarView.layoutParams = params
+        // 添加动画效果
+        snackbarView.alpha = 0f
+        snackbarView.translationY = -snackbarView.height.toFloat()
+        snackbar.addCallback(object : Snackbar.Callback() {
+            override fun onShown(sb: Snackbar?) {
+                snackbarView.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setDuration(300)
+                    .start()
+            }
+
+            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                snackbarView.animate()
+                    .alpha(0f)
+                    .translationY(-snackbarView.height.toFloat())
+                    .setDuration(300)
+                    .start()
+            }
+        })
+    }
+
 
     @JvmStatic
     fun cancelSnackBar() {
