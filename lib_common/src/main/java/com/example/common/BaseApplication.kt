@@ -220,7 +220,7 @@ abstract class BaseApplication : Application() {
             toast.view = view
             return@setResToastBuilder toast
         }
-        ToastBuilder.setStringToastBuilder { message, length ->
+        ToastBuilder.setTextToastBuilder { message, length ->
             val toast = Toast(instance)
             //设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位，
             toast.setGravity(Gravity.CENTER, 0, 0)
@@ -236,7 +236,7 @@ abstract class BaseApplication : Application() {
             view.textSize(R.dimen.textSize14)
             view.textColor(R.color.textWhite)
             toast.view = view
-            return@setStringToastBuilder toast
+            return@setTextToastBuilder toast
         }
     }
 
