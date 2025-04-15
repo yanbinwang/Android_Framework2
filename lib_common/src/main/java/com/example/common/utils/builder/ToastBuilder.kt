@@ -1,5 +1,6 @@
 package com.example.common.utils.builder
 
+import android.content.Context
 import android.os.Looper
 import android.widget.Toast
 import com.example.common.BaseApplication
@@ -123,12 +124,12 @@ object ToastBuilder {
     }
 
     @JvmStatic
-    fun custom(length: Int = Toast.LENGTH_SHORT, customBuilder: (Toast) -> Unit) {
+    fun custom(length: Int = Toast.LENGTH_SHORT, customBuilder: (Context, Toast) -> Unit) {
         if (Looper.getMainLooper() != Looper.myLooper()) return
         cancelToast()
         val toast = Toast.makeText(mContext, "", length)
         currentToast = WeakReference(toast)
-        customBuilder(toast)
+        customBuilder(mContext, toast)
         toast.show()
     }
 
