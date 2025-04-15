@@ -1,11 +1,17 @@
 package com.example.mvvm.activity
 
+import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
+import com.example.common.utils.builder.SnackBarBuilder
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
@@ -22,19 +28,24 @@ import com.example.framework.utils.SizeSpan
 import com.example.framework.utils.TextSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
+import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
+import com.example.mvvm.databinding.ViewSnackbarImageStyleBinding
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestTopDialog
 import com.example.thirdparty.album.AlbumHelper
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
@@ -257,6 +268,7 @@ println("Unique users (method 2): $unique2")
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     //    private val illustratePopup by lazy { IllustratePopup(this) }
     private val testBottom by lazy { TestTopDialog() }
+
     //    private val ids = listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
 //    private val adapter by lazy { ImageAdapter() }
 //    private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
@@ -264,11 +276,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
     private val viewModel by lazy { TestViewModel().create() }
     private val bean by lazy { intentParcelable<UserBean>("bean") }
-//    private val builder by lazy { FileBuilder(this) }
+
+    //    private val builder by lazy { FileBuilder(this) }
     private val album by lazy { AlbumHelper(this) }
 
     data class Book(val title: String, val author: String, val genre: String)
 
+    @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
 //        BaseApplication.instance.initPrivacyAgreed()
@@ -276,11 +290,35 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         mBinding?.ivArrow.click {
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
-            mPermission.requestPermissions {
-                if (it) {
-                    navigation(ARouterPath.TestActivity)
-                }
-            }
+//            mPermission.requestPermissions {
+//                if (it) {
+//                    navigation(ARouterPath.TestActivity)
+//                }
+//            }
+            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
+                //透明背景
+                snackbar.setBackgroundTint(Color.TRANSPARENT)
+                // 获取 Snackbar 的根视图
+                val snackbarView = snackbar.view
+                // 隐藏默认的文本和动作视图
+                val snackbarText = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                snackbarText.gone()
+                val snackbarAction = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_action)
+                snackbarAction.gone()
+                // 加载自定义视图
+                val binding = ViewSnackbarImageStyleBinding.bind(this.inflate(R.layout.view_snackbar_image_style))
+                binding.ivType.setImageResource(R.mipmap.ic_toast)
+                binding.tvLabel.text = "复制成功"
+                //父布局
+                val root = snackbarView as? ViewGroup
+                // 移除默认视图
+                root?.removeAllViews()
+                // 添加自定义视图
+                root?.addView(binding.root)
+//                // 空出顶部导航栏
+//                binding.root.margin(top = getStatusBarHeight())
+                return@custom snackbar
+            }, true)
         }
 
         val books = listOf(
@@ -328,10 +366,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         //集合转json
         "------------------------集合转json------------------------\n${books.toJson()}".logE
         //json转集合
-        val testList = "[{\"author\":\"n11111\",\"genre\":\"11111\",\"title\":\"The Fng11111\"},{\"author\":\"J.D. Sa222\",\"genre\":\"Fn22222\",\"title\":\"Thye22222\"}]".toList(Book::class.java)
+        val testList =
+            "[{\"author\":\"n11111\",\"genre\":\"11111\",\"title\":\"The Fng11111\"},{\"author\":\"J.D. Sa222\",\"genre\":\"Fn22222\",\"title\":\"Thye22222\"}]".toList(
+                Book::class.java
+            )
         "------------------------json转集合------------------------\n${testList?.safeGet(0)?.author}".logE
         //json转对象
-        val testBean = "{\"author\":\"啊啊啊啊\",\"genre\":\"2 2 2 2 2 2\",\"title\":\"十大大大大1111\"}".toObj(Book::class.java)
+        val testBean =
+            "{\"author\":\"啊啊啊啊\",\"genre\":\"2 2 2 2 2 2\",\"title\":\"十大大大大1111\"}".toObj(
+                Book::class.java
+            )
         "------------------------json转对象------------------------\n${testBean?.title}".logE
 
 //        val numbers = listOf(1, 2, 3, 4, 5)
@@ -449,13 +493,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
     private val list by lazy { ArrayList<Int>() }
 
-    private suspend fun test(){
+    private suspend fun test() {
         //方式1-通过withTimeoutOrNull 函数可以实现取消flow携程功能， 通过该功能可以处理类似于某些场景下的超时机制，兜底逻辑等
         withTimeoutOrNull(250) { // 在 250 毫秒后超时
             var i = 0
             flow {
                 //重复3次
-                repeat(3){
+                repeat(3) {
                     delay(1000)
                     i++
                     emit(i)
@@ -467,13 +511,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         //方式2-flowof扩展函数其实内部也是调用flow扩展函数，只不过flowof是将传递进来的可变参数，遍历了一遍，并且调用flow收集器的emit方法发送取出而已
         val flow2 = flowOf(1, 2, 3).onEach {
             delay(1000)
-        }.collect{
+        }.collect {
             list.add(it)
         }
         //方式3-调用list顶级接口类Iterable的asFlow方法，其实内部还是调用了flow扩展函数，将元素遍历之后emit出去的
-        val flow3 = listOf(1,2,3).asFlow().onEach {
+        val flow3 = listOf(1, 2, 3).asFlow().onEach {
             delay(1000)
-        }.collect{
+        }.collect {
             list.add(it)
         }
 //        map<T>(transform: suspend T.() -> R)**

@@ -20,7 +20,7 @@ class CustomTabAdapter : BaseQuickAdapter<Triple<Boolean, String, String>, ItemC
             val url = item?.second.orEmpty()
             val label = item?.third.orNoData()
             if (localAsset) {
-                ImageLoader.instance.displayDefType(ivTab, mContext?.defTypeMipmap(url))
+                ImageLoader.instance.displayDefType(ivTab, holder.itemView.context?.defTypeMipmap(url))
             } else {
                 ImageLoader.instance.display(ivTab, url)
             }

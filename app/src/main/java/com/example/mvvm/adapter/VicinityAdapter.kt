@@ -33,7 +33,7 @@ class VicinityAdapter : BaseAdapter<TestBean?>() {
 
     override fun onConvert(holder: BaseViewDataBindingHolder, item: TestBean?, payloads: MutableList<Any>?) {
         if (holder is CurrencyHeaderViewHolder) {
-            holder.getBinding<ItemVicinityHeaderBinding>()?.apply {
+            holder.viewBinding<ItemVicinityHeaderBinding>()?.apply {
                 val first = list.safeGet(0)
                 val second = list.safeGet(1)
                 tvTips.click {
@@ -44,7 +44,7 @@ class VicinityAdapter : BaseAdapter<TestBean?>() {
                 }
             }
         } else {
-            holder.getBinding<ItemVicinityBodyBinding>()?.apply {
+            holder.viewBinding<ItemVicinityBodyBinding>()?.apply {
                 val absolutePosition = holder.absoluteAdapterPosition - 1
                 val bean = item(absolutePosition)
                 tvRoot.click {
@@ -59,8 +59,8 @@ class VicinityAdapter : BaseAdapter<TestBean?>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewDataBindingHolder {
         var binding: ViewDataBinding? = null
         when (viewType) {
-            TYPE_HEADER -> binding = CurrencyHeaderViewHolder(parent, ItemVicinityHeaderBinding.bind(parent.context.inflate(R.layout.item_vicinity_header))).getBinding()
-            TYPE_BODY -> binding = CurrencyBodyViewHolder(parent, ItemVicinityBodyBinding.bind(parent.context.inflate(R.layout.item_vicinity_body))).getBinding()
+            TYPE_HEADER -> binding = CurrencyHeaderViewHolder(parent, ItemVicinityHeaderBinding.bind(parent.context.inflate(R.layout.item_vicinity_header))).viewBinding()
+            TYPE_BODY -> binding = CurrencyBodyViewHolder(parent, ItemVicinityBodyBinding.bind(parent.context.inflate(R.layout.item_vicinity_body))).viewBinding()
         }
         return BaseViewDataBindingHolder(parent, binding)
     }
