@@ -136,7 +136,7 @@ object SnackBarBuilder {
      *             }, true)
      */
     @JvmStatic
-    fun custom(root: View, length: Int = Snackbar.LENGTH_LONG, customBuilder: (Snackbar) -> Snackbar, isTop: Boolean = false, onShown: (() -> Unit), onDismissed: (() -> Unit)) {
+    fun custom(root: View, length: Int = Snackbar.LENGTH_LONG, customBuilder: (Snackbar) -> Snackbar, isTop: Boolean = false, onShown: (() -> Unit)? = null, onDismissed: (() -> Unit)? = null) {
         //自定义构建逻辑
         if (Looper.getMainLooper() != Looper.myLooper()) return
         cancelSnackBar()
@@ -165,7 +165,7 @@ object SnackBarBuilder {
             snackBar.addCallback(object : Snackbar.Callback() {
                 override fun onShown(sb: Snackbar?) {
                     super.onShown(sb)
-                    onShown.invoke()
+                    onShown?.invoke()
                     // 先将视图移到顶部不可见位置
                     snackBarView.translationY = -snackBarView.height.toFloat()
                     // 执行进入动画
@@ -177,7 +177,7 @@ object SnackBarBuilder {
 
                 override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
                     super.onDismissed(transientBottomBar, event)
-                    onDismissed.invoke()
+                    onDismissed?.invoke()
 //                    if (snackBarView.isAttachedToWindow && snackBarView.isVisible) {
 //                        // 退出动画
 //                        snackBarView.animate()
@@ -235,32 +235,32 @@ object SnackBarBuilder {
 
 }
 
-fun Int?.shortSnackBar(root: View) {
+fun Int?.shortSnackBar(root: View, action: Int? = null, listener: View.OnClickListener? = null) {
     this ?: return
-    SnackBarBuilder.short(root, this)
+    SnackBarBuilder.short(root, this, action, listener)
 }
 
-fun String?.shortSnackBar(root: View) {
+fun String?.shortSnackBar(root: View, action: String? = null, listener: View.OnClickListener? = null) {
     this ?: return
-    SnackBarBuilder.short(root, this)
+    SnackBarBuilder.short(root, this, action, listener)
 }
 
-fun Int?.longSnackBar(root: View) {
+fun Int?.longSnackBar(root: View, action: Int? = null, listener: View.OnClickListener? = null) {
     this ?: return
-    SnackBarBuilder.long(root, this)
+    SnackBarBuilder.long(root, this, action, listener)
 }
 
-fun String?.longSnackBar(root: View) {
+fun String?.longSnackBar(root: View, action: String? = null, listener: View.OnClickListener? = null) {
     this ?: return
-    SnackBarBuilder.long(root, this)
+    SnackBarBuilder.long(root, this, action, listener)
 }
 
-fun Int?.indefiniteSnackBar(root: View) {
+fun Int?.indefiniteSnackBar(root: View, action: Int? = null, listener: View.OnClickListener? = null) {
     this ?: return
-    SnackBarBuilder.indefinite(root, this)
+    SnackBarBuilder.indefinite(root, this, action, listener)
 }
 
-fun String?.indefiniteSnackBar(root: View) {
+fun String?.indefiniteSnackBar(root: View, action: String? = null, listener: View.OnClickListener? = null) {
     this ?: return
-    SnackBarBuilder.indefinite(root, this)
+    SnackBarBuilder.indefinite(root, this, action, listener)
 }
