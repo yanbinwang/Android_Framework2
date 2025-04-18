@@ -49,7 +49,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.android.testing)
     //安卓x库
-    api(libs.bundles.androidx.common)
+    api(libs.bundles.androidx.general.core)
     //其余谷歌官方库
     api(libs.bundles.google.extensions)
 }
