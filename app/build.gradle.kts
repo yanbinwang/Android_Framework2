@@ -177,6 +177,6 @@ dependencies {
     //基础库
     implementation(project(":module_home"))
     //页面路由
-    implementation(libs.arouter)
-    kapt(libs.arouterCompiler)
+    implementation(libs.alibaba.arouter.api)
+    kapt(libs.alibaba.arouter.compiler)
 }

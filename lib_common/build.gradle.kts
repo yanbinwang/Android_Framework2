@@ -76,6 +76,6 @@ dependencies {
     implementation(libs.xxpermissions)
     implementation(libs.immersionbar)
     //页面路由
-    implementation(libs.arouter)
-    kapt(libs.arouterCompiler)
+    implementation(libs.alibaba.arouter.api)
+    kapt(libs.alibaba.arouter.compiler)
 }
