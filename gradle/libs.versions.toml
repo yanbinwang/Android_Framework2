@@ -57,8 +57,8 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 
 #google扩展控件
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }#design库
-flexbox = { group = "com.google.android.flexbox", name = "flexbox", version.ref = "flexbox" }#谷歌官方自动换行布局
+google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }#design库
+google-flexbox = { group = "com.google.android.flexbox", name = "flexbox", version.ref = "flexbox" }#谷歌官方自动换行布局
 
 #网络请求库retrofit2
 squareup-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
@@ -92,8 +92,8 @@ kotlin-parcelize = { id = "kotlin-parcelize" }
 # Android 仪器化测试库
 android-testing = ["androidx-junit", "androidx-espresso-core"]
 # AndroidX 核心库
-androidx-common = ["androidx-appcompat", "androidx-constraintlayout", "androidx-recyclerview", "androidx-core-ktx", "androidx-lifecycle-runtime-ktx"]
+androidx-general-core = ["androidx-appcompat", "androidx-constraintlayout", "androidx-recyclerview", "androidx-core-ktx", "androidx-lifecycle-runtime-ktx"]
 # Google 扩展控件库
-google-extensions = ["material", "flexbox"]
+google-extensions = ["google-material", "google-flexbox"]
 # 网络请求库
 networking = ["squareup-retrofit", "squareup-converter-gson"]
