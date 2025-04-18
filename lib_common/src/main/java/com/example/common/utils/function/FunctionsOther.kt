@@ -80,6 +80,15 @@ fun getStatusBarHeight(): Int {
 }
 
 /**
+ * 获取底栏高度
+ */
+fun getNavigationBarHeight(): Int {
+    val mContext = BaseApplication.instance.applicationContext
+    if (!ScreenUtil.hasNavigationBar(mContext)) return 0
+    return ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
+}
+
+/**
  * 获取resources中的color
  */
 @ColorInt
@@ -140,15 +149,6 @@ fun String?.orNoData(): String {
 fun String?.setPrimaryClip(label: String = "Label") {
     if (this == null) return
     BaseApplication.instance.setPrimaryClip(label, this)
-}
-
-/**
- * 获取底栏高度
- */
-fun getNavigationBarHeight(): Int {
-    val mContext = BaseApplication.instance.applicationContext
-    if (!ScreenUtil.hasNavigationBar(mContext)) return 0
-    return ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
 }
 
 /**
