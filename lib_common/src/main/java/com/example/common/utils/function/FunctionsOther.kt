@@ -3,6 +3,8 @@ package com.example.common.utils.function
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.text.Spannable
+import android.text.SpannableString
 import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.util.TypedValue
@@ -27,11 +29,13 @@ import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.common.utils.i18n.string
 import com.example.common.widget.i18n.I18nTextView
+import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.background
+import com.example.framework.utils.function.view.setSpannable
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanAll
 import com.example.framework.utils.setSpanFirst
@@ -61,6 +65,29 @@ val Number?.dp: Int
         this ?: return 0
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), BaseApplication.instance.resources.displayMetrics).toInt()
     }
+
+/**
+ * 获取Manifest中的参数
+ */
+fun getManifestString(name: String): String? {
+    return BaseApplication.instance.packageManager.getApplicationInfo(BaseApplication.instance.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
+}
+
+/**
+ * 获取顶栏高度
+ */
+fun getStatusBarHeight(): Int {
+    return ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
+}
+
+/**
+ * 获取底栏高度
+ */
+fun getNavigationBarHeight(): Int {
+    val mContext = BaseApplication.instance.applicationContext
+    if (!ScreenUtil.hasNavigationBar(mContext)) return 0
+    return ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
+}
 
 /**
  * 获取resources中的color
@@ -101,70 +128,58 @@ fun String?.setPrimaryClip(label: String = "Label") {
 }
 
 /**
- * 自定义反向动画
- */
-fun Context.translateAnimation(onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}, isShown: Boolean = true): Animation {
-    return AnimationUtils.loadAnimation(this, if (isShown) R.anim.set_translate_bottom_in else R.anim.set_translate_bottom_out).apply {
-        setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(animation: Animation?) {
-                onStart.invoke()
-            }
-
-            override fun onAnimationEnd(animation: Animation?) {
-                onEnd.invoke()
-            }
-
-            override fun onAnimationRepeat(animation: Animation?) {
-                onRepeat.invoke()
-            }
-        })
-    }
-}
-
-/**
- * 获取Manifest中的参数
- */
-fun getManifestString(name: String): String? {
-    return BaseApplication.instance.packageManager.getApplicationInfo(BaseApplication.instance.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
-}
-
-/**
- * 获取顶栏高度
- */
-fun getStatusBarHeight(): Int {
-    return ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
-}
-
-/**
- * 获取底栏高度
- */
-fun getNavigationBarHeight(): Int {
-    val mContext = BaseApplication.instance.applicationContext
-    if (!ScreenUtil.hasNavigationBar(mContext)) return 0
-    return ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
-}
-
-/**
  * 设置textview内容当中某一段的颜色
  */
-fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color.appTheme) {
+fun TextView?.setSpan(txt: Any, keyword: Any, colorRes: Int = R.color.appTheme, spanAll: Boolean = false) {
     this ?: return
-    text = txt.setSpanFirst(keyword, ColorSpan(context.color(colorRes)))
+    val textToProcess = when (txt) {
+        is Int -> string(txt)
+        is String -> txt
+        else -> ""
+    }
+    val keywordToProcess = when (keyword) {
+        is Int -> string(keyword)
+        is String -> keyword
+        else -> ""
+    }
+    val span = ColorSpan(context.color(colorRes))
+    setSpannable(if (spanAll) {
+        textToProcess.setSpanAll(keywordToProcess, span)
+    } else {
+        textToProcess.setSpanFirst(keywordToProcess, span)
+    })
 }
 
-fun TextView?.setSpanFirst(@StringRes res: Int, @StringRes resKeyword: Int, colorRes: Int = R.color.appTheme) {
+/**
+ * 设置点击跳转
+ */
+fun TextView?.setSpan(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
     this ?: return
-    setSpanFirst(string(res), string(resKeyword), colorRes)
+    val textToProcess = when (txt) {
+        is Int -> string(txt)
+        is String -> txt
+        else -> ""
+    }
+    var content: Spannable = SpannableString.valueOf(textToProcess)
+    keywords.forEach {
+        val keyword = when (val res = it.first) {
+            is Int -> string(res)
+            is String -> res
+            else -> ""
+        }
+        content = content.setSpanFirst(keyword, ColorSpan(context.color(it.second)), ClickSpan(object : XClickableSpan() {
+            override fun onLinkClick(widget: View) {
+                it.third.invoke()
+            }
+        }))
+    }
+    setSpannable(content)
 }
 
-fun TextView?.setSpanAll(txt: String, keyword: String, colorRes: Int = R.color.appTheme) {
-    this ?: return
-    text = txt.setSpanAll(keyword, ColorSpan(context.color(colorRes)))
-}
-
-fun TextView?.setSpanAll(@StringRes res: Int, @StringRes resKeyword: Int, colorRes: Int = R.color.appTheme) {
-    this ?: return
-    setSpanAll(string(res), string(resKeyword), colorRes)
+fun TextView?.setSpan(txt: Any, vararg keywords: Pair<Any, () -> Unit>, colorRes: Int = R.color.appTheme) {
+    setSpan(txt, *keywords.map {
+        Triple(it.first, colorRes, it.second)
+    }.toTypedArray())
 }
 
 /**
@@ -200,6 +215,27 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> 
     setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
         func.invoke(if (scrollY <= menuHeight.pt / 2f) 0 + scrollY / (menuHeight.pt / 4f) else 1f)
     })
+}
+
+/**
+ * 自定义反向动画
+ */
+fun Context.translate(onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}, isShown: Boolean = true): Animation {
+    return AnimationUtils.loadAnimation(this, if (isShown) R.anim.set_translate_bottom_in else R.anim.set_translate_bottom_out).apply {
+        setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(animation: Animation?) {
+                onStart.invoke()
+            }
+
+            override fun onAnimationEnd(animation: Animation?) {
+                onEnd.invoke()
+            }
+
+            override fun onAnimationRepeat(animation: Animation?) {
+                onRepeat.invoke()
+            }
+        })
+    }
 }
 
 /**
