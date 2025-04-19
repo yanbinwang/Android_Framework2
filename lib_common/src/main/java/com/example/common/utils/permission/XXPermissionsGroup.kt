@@ -68,7 +68,7 @@ fun Context.checkSelfSMS() = checkSelfPermission(this, *XXPermissionsGroup.SMS)
 /**
  * 存储权限组
  */
-fun Context.checkSelfStorage() = checkSelfPermission(this, Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE)
+fun Context.checkSelfStorage() = checkSelfPermission(this, *XXPermissionsGroup.STORAGE)
 
 /**
  * 权限检测
