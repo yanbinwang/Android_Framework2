@@ -257,20 +257,27 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         return false
     }
 
-//    protected open fun <T> MutableLiveData<T>?.observe(block: T?.() -> Unit) {
+    /**
+     * ViewModel 中定义无值事件（用 Unit 替代 Any）
+     * val reason by lazy { MutableLiveData<Unit>() } // 无值事件
+     * Unit 类型的 value 是 Unit 实例（非 null），会触发回调
+     */
+//    protected open fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
 //        this ?: return
-//        val observer = Observer<Any?> { value -> block(value as? T) }
+//        val observer = Observer<Any?> { value ->
+//            if (value != null) {
+//                (value as? T)?.let { block(it) }
+//            }
+//        }
 //        dataManager[this] = observer
 //        observe(this@BaseActivity, observer)
 //    }
-    protected open fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
+    protected open fun <T> MutableLiveData<T>?.observe(block: (T) -> Unit) {
         this ?: return
-        val observer = Observer<Any?> { value ->
-            if (value != null) {
-                (value as? T)?.let { block(it) }
-            }
+        val observer = Observer<T> { value -> // 直接使用泛型 T
+            value?.let { block(it) } // 若 T 是非空类型，value 不会为 null，可省略判空
         }
-        dataManager[this] = observer
+        dataManager[this] = observer as Observer<Any?> // 保存时需兼容 Map 的类型
         observe(this@BaseActivity, observer)
     }
     // </editor-fold>
