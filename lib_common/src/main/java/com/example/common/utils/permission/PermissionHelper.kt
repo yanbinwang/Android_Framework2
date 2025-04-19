@@ -51,7 +51,9 @@ class PermissionHelper(private val context: Context) {
                         if (force) onDenied(permissions)
                     }
                 })
-        } else listener.invoke(true)
+        } else {
+            listener.invoke(true)
+        }
     }
 
     /**
