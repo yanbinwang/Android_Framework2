@@ -8,7 +8,7 @@ import androidx.databinding.ViewDataBinding
  * Created by WangYanBin on 2020/6/10.
  * 数据懒加载，当界面不可展示时，不执行加载数据的方法
  *
- * 1）ViewPager2
+ * 1）ViewPager2(isAdded如果是无缓存模式下记得做判断，但如果只有2个页面无需判断，因为默认不管如何都是加载左右两个页面，3个及以上需要管控)
  * 1.子页面在适配器加载出来时只会加载当前下标页面的onResume方法，比如2个子页面，一开始适配器加载出来只会执行第一个页面的onResume方法
  * 2.所有子页面的onHiddenChanged会在主页面的Activity被盖住时全部触发，并且触发多次（如果你并未点击到后面几页，就只会频繁触发当前页的onHiddenChanged）且还会触发当前选中子页面的onPause，然后页面重新回来后，执行当前选中子页面的onResume方法
  *
