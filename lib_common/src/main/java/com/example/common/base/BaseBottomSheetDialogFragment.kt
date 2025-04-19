@@ -345,12 +345,14 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
         return false
     }
 
-    protected open fun <T> MutableLiveData<T>?.observe(block: (T) -> Unit) {
+    protected open fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
         this ?: return
-        val observer = Observer<T> { value -> // 直接使用泛型 T
-            value?.let { block(it) } // 若 T 是非空类型，value 不会为 null，可省略判空
+        val observer = Observer<Any?> { value ->
+            if (value != null) {
+                (value as? T)?.let { block(it) }
+            }
         }
-        dataManager[this] = observer as Observer<Any?> // 保存时需兼容 Map 的类型
+        dataManager[this] = observer
         observe(this@BaseBottomSheetDialogFragment, observer)
     }
     // </editor-fold>
