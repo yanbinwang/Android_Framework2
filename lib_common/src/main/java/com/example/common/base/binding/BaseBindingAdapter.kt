@@ -26,7 +26,6 @@ import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.AnimationUtil.Companion.elasticityEnter
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
-import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.adapter
@@ -375,7 +374,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["corner_radius", "corner_color"], requireAll = false)
     fun bindingAdvertisingCorner(view: Advertising, cornerRadius: Float?, cornerColor: String?) {
-        view.backgroundCorner(cornerColor ?: "#ccc", cornerRadius.orZero)
+        view.backgroundCorner(cornerColor ?: "#ccc", cornerRadius.ptFloat)
     }
     // </editor-fold>
 
