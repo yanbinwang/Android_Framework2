@@ -20,11 +20,13 @@ import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
+import com.example.common.widget.advertising.Advertising
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.AnimationUtil.Companion.elasticityEnter
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.adapter
@@ -238,6 +240,17 @@ object BaseBindingAdapter {
 
     /**
      * textview绘制图片
+     * <TextView
+     *  drawableHeight="@{80}"
+     *  drawablePadding="@{5}"
+     *  drawableTop="@{R.mipmap.ic_flash_on}"
+     *  drawableWidth="@{80}"
+     *  android:layout_width="wrap_content"
+     *  android:layout_height="wrap_content"
+     *  android:gravity="center"
+     *  android:text="闪光灯"
+     *  android:textColor="@color/textPrimary"
+     *  android:textSize="@dimen/textSize14" />
      */
     @JvmStatic
     @BindingAdapter(value = ["drawableStart", "drawableTop", "drawableEnd", "drawableBottom", "drawableWidth", "drawableHeight", "drawablePadding"], requireAll = false)
@@ -354,6 +367,15 @@ object BaseBindingAdapter {
     @BindingAdapter(value = ["number_decimal"])
     fun bindingEditTextNumberDecimal(editText: ClearEditText, numberDecimal: Boolean?) {
         if(numberDecimal.orFalse) editText.editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+    }
+
+    /**
+     * 广告加载时直接设置带弧形的背景
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["corner_radius", "corner_color"], requireAll = false)
+    fun bindingAdvertisingCorner(view: Advertising, cornerRadius: Float?, cornerColor: String?) {
+        view.backgroundCorner(cornerColor ?: "#ccc", cornerRadius.orZero)
     }
     // </editor-fold>
 
