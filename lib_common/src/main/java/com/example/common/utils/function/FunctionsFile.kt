@@ -148,7 +148,6 @@ fun totalSizeWithFile(file: File): Long {
 fun File?.getSizeFormat(): String {
     this ?: return ""
     return length().getSizeFormat()
-//    return Formatter.formatFileSize(BaseApplication.instance.applicationContext, length())
 }
 
 fun Number?.getSizeFormat(): String {

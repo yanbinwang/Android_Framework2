@@ -23,22 +23,19 @@ object GlideBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["srcRes", "srcDrawable", "visibility"], requireAll = false)
     fun bindingImageViewTheme(view: ImageView, srcRes: Int?, srcDrawable: Drawable?, visibility: Int?) {
-        when {
-            srcRes != null -> {
-                val srcResKey = view.generateTagKey("srcRes")
-                val oldSrcRes = view.getTag(srcResKey) as? Int
-                if (oldSrcRes != srcRes) {
-                    view.setImageResource(srcRes)
-                    view.setTag(srcResKey, srcRes)
-                }
+        if (srcRes != null) {
+            val srcResKey = view.generateTagKey("srcRes")
+            val oldSrcRes = view.getTag(srcResKey) as? Int
+            if (oldSrcRes != srcRes) {
+                view.setImageResource(srcRes)
+                view.setTag(srcResKey, srcRes)
             }
-            srcDrawable != null -> {
-                val srcDrawableKey = view.generateTagKey("srcDrawable")
-                val oldSrcDrawable = view.getTag(srcDrawableKey) as? Drawable
-                if (oldSrcDrawable != srcDrawable) {
-                    view.setImageDrawable(srcDrawable)
-                    view.setTag(srcDrawableKey, srcDrawable)
-                }
+        } else if (srcDrawable != null) {
+            val srcDrawableKey = view.generateTagKey("srcDrawable")
+            val oldSrcDrawable = view.getTag(srcDrawableKey) as? Drawable
+            if (oldSrcDrawable != srcDrawable) {
+                view.setImageDrawable(srcDrawable)
+                view.setTag(srcDrawableKey, srcDrawable)
             }
         }
         //处理可见性设置
