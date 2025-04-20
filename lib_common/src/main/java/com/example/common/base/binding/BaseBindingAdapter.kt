@@ -305,24 +305,6 @@ object BaseBindingAdapter {
     }
 
     /**
-     * 设置文本内容
-     */
-    private fun setTextContent(view: TextView, text: String?, spannable: Spannable?) {
-        val textToSet = spannable ?: text
-        if (view is ToggleButton) {
-            textToSet?.let {
-                view.text = it
-                view.textOn = it
-                view.textOff = it
-            }
-        } else {
-            textToSet?.let {
-                view.text = it
-            }
-        }
-    }
-
-    /**
      * 设置 Drawable 的边界
      */
     private fun setDrawableBounds(drawables: Array<Drawable?>, width: Int?, height: Int?) {
