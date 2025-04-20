@@ -268,12 +268,16 @@ object BaseBindingAdapter {
      *   android:textColor="@drawable/selector_flash_txt"
      *   android:textSize="@dimen/textSize14" />
      *
-     *   toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-     *     @Override
-     *     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-     *         // 可以在这里添加状态变化时的其他操作
+     *   private var isIntercepted = false // 标记是否拦截切换
+     *   toggleButton.setOnCheckedChangeListener { _, isChecked ->
+     *     if (isIntercepted) {
+     *         // 如果需要拦截，恢复到之前的状态
+     *         toggleButton.isChecked = !isChecked
+     *     } else {
+     *         // 在这里可以处理正常的状态改变逻辑
+     *        // 例如根据 isChecked 的值执行不同的操作
      *     }
-     *   });
+     *  }
      */
     @JvmStatic
     @BindingAdapter(value = ["text", "drawableStart", "drawableTop", "drawableEnd", "drawableBottom", "drawableWidth", "drawableHeight", "drawablePadding"], requireAll = false)
@@ -286,7 +290,7 @@ object BaseBindingAdapter {
                 view.textOff = it
             }
         }
-        //清除背景
+        // 清除背景
         view.clearBackground()
         view.clearHighlightColor()
         // 获取 Drawable
