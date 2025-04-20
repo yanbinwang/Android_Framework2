@@ -182,7 +182,7 @@ suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bit
                     PNG -> "png"
                     else -> "webp"
                 }
-                val tempFile = File(getStoragePath("保存图片"), file.name.replace(".${suffix}", "_degree.${suffix}"))
+                val tempFile = File(getStoragePath("Save Image"), file.name.replace(".${suffix}", "_degree.${suffix}"))
                 if (tempFile.exists()) tempFile.delete()
                 tempFile.outputStream().use { outputStream ->
                     //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
