@@ -2,23 +2,19 @@ package com.example.common.utils.function
 
 import android.content.Context
 import android.graphics.*
-import android.graphics.Bitmap.CompressFormat.JPEG
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.view.View
-import androidx.exifinterface.media.ExifInterface
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.drawable.toDrawable
 import androidx.exifinterface.media.ExifInterface.*
 import com.example.common.BaseApplication
-import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import java.io.File
-import java.io.IOException
 import java.util.*
-import androidx.core.graphics.createBitmap
 
 /**
  * 读取mipmap下的图片
@@ -62,13 +58,11 @@ fun String?.isValidImage(): Boolean {
         try {
             // 检查文件是否存在
             if (!File(path).exists()) return@let false
-
             // 仅获取图片宽高信息
             val options = BitmapFactory.Options().apply {
                 inJustDecodeBounds = true
             }
             BitmapFactory.decodeFile(path, options)
-
             // 有效图片的宽高必须大于0
             options.outWidth > 0 && options.outHeight > 0
         } catch (e: Exception) {
@@ -121,18 +115,36 @@ fun Bitmap?.scaleBitmap(): Bitmap? {
 /**
  * 根据宽高缩放图片
  */
-fun Drawable.zoomDrawable(w: Int, h: Int = w): Drawable {
-    val oldBit = drawableToBitmap()
+fun Drawable.scaleToSize(context: Context, width: Int, height: Int = width): Drawable {
+    if (width <= 0 || height <= 0 || intrinsicWidth == 0 || intrinsicHeight == 0) {
+        return this
+    }
+    /**
+     * 按指定宽高缩放 Drawable
+     * @param context 用于获取 Resources 创建 BitmapDrawable
+     * @param width   目标宽度（像素）
+     * @param height  目标高度（像素，默认等于宽度）
+     */
+    val sourceBitmap = toBitmap()
     val matrix = Matrix()
-    val scaleWidth = w.toFloat() / intrinsicWidth
-    val scaleHeight = h.toFloat() / intrinsicHeight
+    val scaleWidth = width.toSafeFloat() / intrinsicWidth
+    val scaleHeight = height.toSafeFloat() / intrinsicHeight
     matrix.postScale(scaleWidth, scaleHeight)
-    val newBit = Bitmap.createBitmap(oldBit, 0, 0, intrinsicWidth, intrinsicHeight, matrix, true)
-    oldBit.recycle()
-    return BitmapDrawable(null, newBit)
+    val newBit = try {
+        Bitmap.createBitmap(sourceBitmap, 0, 0, intrinsicWidth, intrinsicHeight, matrix, true)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        sourceBitmap.recycle()
+        return this
+    }
+    sourceBitmap.recycle()
+    return newBit.toDrawable(context.resources)
 }
 
-fun Drawable.drawableToBitmap(): Bitmap {
+fun Drawable.toBitmap(): Bitmap {
+    if (intrinsicWidth == 0 || intrinsicHeight == 0) {
+        return createBitmap(1, 1)
+    }
     val config = if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
     val bitmap = createBitmap(intrinsicWidth, intrinsicHeight, config)
     val canvas = Canvas(bitmap)
@@ -147,11 +159,11 @@ fun Drawable.drawableToBitmap(): Bitmap {
  * @param view
  * @return
  */
-fun View?.getBitmapFromView(w: Int? = null, h: Int? = null, needBg: Boolean = true): Bitmap? {
+fun View?.getBitmap(w: Int? = null, h: Int? = null, needBg: Boolean = true): Bitmap? {
     this ?: return null
     //请求转换
     return try {
-        val screenshot = Bitmap.createBitmap(width, height, if (needBg) Bitmap.Config.RGB_565 else Bitmap.Config.ARGB_8888)
+        val screenshot = createBitmap(width, height, if (needBg) Bitmap.Config.RGB_565 else Bitmap.Config.ARGB_8888)
         val canvas = Canvas(screenshot)
         if (needBg) canvas.drawColor(Color.WHITE)
         draw(canvas)
@@ -188,52 +200,6 @@ fun View.loadBitmap(): Bitmap {
     layout(0, 0, width, height)
     draw(canvas)
     return bitmap
-}
-
-/**
- * 旋转图片
- * 修整部分图片方向不正常
- * 取得一个新的图片文件
- */
-fun degreeImage(file: File, delete: Boolean = false): File {
-    var mFile = file
-    if (readDegree(file.absolutePath) != 0f) {
-        var bitmap: Bitmap
-        val matrix = Matrix()
-        BitmapFactory.decodeFile(file.absolutePath).let {
-            bitmap = Bitmap.createBitmap(it, 0, 0, it.width, it.height, matrix, true)
-            it.recycle()
-        }
-        val tempFile = File(getStoragePath("保存图片"), file.name.replace(".jpg", "_degree.jpg"))
-        if (tempFile.exists()) tempFile.delete()
-        tempFile.outputStream().use { outputStream ->
-            bitmap.compress(JPEG, 100, outputStream)
-            if (delete) file.delete()
-            mFile = tempFile
-        }
-        bitmap.recycle()
-    }
-    return mFile
-}
-
-/**
- * 读取图片的方向
- * 部分手机拍摄需要设置手机屏幕screenOrientation
- * 不然会读取为0
- */
-fun readDegree(path: String): Float {
-    var degree = 0f
-    var exifInterface: ExifInterface? = null
-    try {
-        exifInterface = ExifInterface(path)
-    } catch (_: IOException) {
-    }
-    when (exifInterface?.getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL)) {
-        ORIENTATION_ROTATE_90 -> degree = 90f
-        ORIENTATION_ROTATE_180 -> degree = 180f
-        ORIENTATION_ROTATE_270 -> degree = 270f
-    }
-    return degree
 }
 
 /**

@@ -41,6 +41,11 @@
 
     <!--    </FrameLayout>-->
 
+    <data>
+
+        <import type="com.example.mvvm.R" />
+    </data>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -148,8 +153,22 @@
                         <com.example.common.widget.SwitchView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:visibility="gone"
-                            android:layout_gravity="center" />
+                            android:layout_gravity="center"
+                            android:visibility="gone" />
+
+
+                        <TextView
+                            drawableHeight="@{80}"
+                            drawablePadding="@{5}"
+                            drawableTop="@{R.mipmap.ic_flash_on}"
+                            drawableWidth="@{80}"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:text="闪光灯"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="@dimen/textSize14" />
 
                     </FrameLayout>
 

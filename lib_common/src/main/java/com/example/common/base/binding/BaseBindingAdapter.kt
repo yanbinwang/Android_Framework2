@@ -1,6 +1,7 @@
 package com.example.common.base.binding
 
 import android.annotation.SuppressLint
+import android.graphics.drawable.Drawable
 import android.text.InputType
 import android.text.Spannable
 import android.view.View
@@ -13,9 +14,11 @@ import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import com.example.common.base.binding.adapter.BaseQuickAdapter
+import com.example.common.config.Constants.NO_DATA
+import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
-import com.example.common.utils.function.orNoData
+import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
@@ -175,8 +178,16 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["text", "spannable", "textColor", "background", "visibility"], requireAll = false)
     fun bindingTextViewTheme(view: TextView, text: String?, spannable: Spannable?, textColor: Int?, background: Int?, visibility: Int?) {
-        //处理高亮文本
-        if (spannable != null) {
+        if (text != null) {
+            //处理文本设置(文本是必须要加载出来的)
+            val textKey = view.generateTagKey("text")
+            val oldText = view.getTag(textKey) as? String
+            if (oldText != text) {
+                view.text = text
+                view.setTag(textKey, text)
+            }
+        } else if (spannable != null) {
+            //处理高亮文本
             val spanKey = view.generateTagKey("spannable")
             val oldSpan = view.getTag(spanKey) as? Spannable
             if (oldSpan != spannable) {
@@ -184,16 +195,7 @@ object BaseBindingAdapter {
                 view.setTag(spanKey, spannable)
             }
         } else {
-            //处理文本设置(文本是必须要加载出来的)
-            text.let {
-                val newText = it.orNoData()
-                val textKey = view.generateTagKey("text")
-                val oldText = view.getTag(textKey) as? String
-                if (oldText != newText) {
-                    view.text = newText
-                    view.setTag(textKey, newText)
-                }
-            }
+            view.text = NO_DATA
         }
         //处理文本颜色设置
         textColor?.let { newTextColor ->
@@ -232,6 +234,38 @@ object BaseBindingAdapter {
     @BindingAdapter(value = ["start_color", "end_color"], requireAll = false)
     fun bindingTextViewGradient(textview: TextView, startColor: String?, endColor: String?) {
         textview.linearGradient(startColor, endColor)
+    }
+
+    /**
+     * textview绘制图片
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["drawableStart", "drawableTop", "drawableEnd", "drawableBottom", "drawableWidth", "drawableHeight", "drawablePadding"], requireAll = false)
+    fun bindingTextViewDraw(textview: TextView, drawableStart: Int?, drawableTop: Int?, drawableEnd: Int?, drawableBottom: Int?, drawableWidth: Int?, drawableHeight: Int?, drawablePadding: Int?) {
+        // 获取 Drawable
+        val startDrawable = drawableStart?.let { drawable(it) }
+        val topDrawable = drawableTop?.let { drawable(it) }
+        val endDrawable = drawableEnd?.let { drawable(it) }
+        val bottomDrawable = drawableBottom?.let { drawable(it) }
+        // 存储 Drawable 的数组
+        val drawables = arrayOf(startDrawable, topDrawable, endDrawable, bottomDrawable)
+        // 设置 Drawable 大小
+        setDrawableBounds(drawables, drawableWidth, drawableHeight)
+        // 设置 TextView 的 CompoundDrawables
+        textview.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)
+        // 间距
+        drawablePadding?.let { textview.compoundDrawablePadding = it.pt }
+    }
+
+    /**
+     * 设置 Drawable 的边界
+     */
+    private fun setDrawableBounds(drawables: Array<Drawable?>, width: Int?, height: Int?) {
+        if (width != null && height != null) {
+            for (drawable in drawables) {
+                drawable?.setBounds(0, 0, width.pt, height.pt)
+            }
+        }
     }
 
     /**

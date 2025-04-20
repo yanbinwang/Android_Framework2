@@ -115,20 +115,11 @@ fun View?.clearClick() {
     this.isClickable = false
 }
 
-///**
-// * 判断是否可见
-// */
-//fun View?.isVisible(): Boolean {
-//    if (this == null) return false
-//    return this.visibility == View.VISIBLE
-//}
-
 /**
  * 显示view
  */
 fun View?.visible() {
     if (this == null) return
-//    if (visibility == View.VISIBLE) return
     if (isVisible) return
     this.visibility = View.VISIBLE
 }
@@ -138,7 +129,6 @@ fun View?.visible() {
  */
 fun View?.invisible() {
     if (this == null) return
-//    if (visibility == View.INVISIBLE) return
     if (isInvisible) return
     this.visibility = View.INVISIBLE
 }
@@ -148,7 +138,6 @@ fun View?.invisible() {
  */
 fun View?.gone() {
     if (this == null) return
-//    if (visibility == View.GONE) return
     if (isGone) return
     this.visibility = View.GONE
 }

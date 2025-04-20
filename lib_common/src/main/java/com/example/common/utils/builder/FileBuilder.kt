@@ -4,14 +4,23 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.Bitmap.CompressFormat.PNG
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import android.util.Patterns
 import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import androidx.core.graphics.createBitmap
+import androidx.exifinterface.media.ExifInterface
+import androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL
+import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180
+import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270
+import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90
+import androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION
 import com.example.common.R
 import com.example.common.subscribe.CommonSubscribe
 import com.example.common.utils.ScreenUtil.screenWidth
@@ -37,12 +46,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.util.Date
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import androidx.core.graphics.createBitmap
 
 /**
  * 存储图片保存bitmap
@@ -149,6 +158,65 @@ suspend fun suspendingSaveView(view: View, width: Int = screenWidth, height: Int
     } catch (e: Exception) {
         throw e
     }
+}
+
+/**
+ * 旋转图片
+ * 修整部分图片方向不正常
+ * 取得一个新的图片文件
+ */
+suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): File? {
+    return try {
+        withContext(IO) {
+            var mFile = file
+            if (readDegree(file.absolutePath) != 0f) {
+                var bitmap: Bitmap
+                val matrix = Matrix()
+                BitmapFactory.decodeFile(file.absolutePath).let {
+                    bitmap = Bitmap.createBitmap(it, 0, 0, it.width, it.height, matrix, true)
+                    it.recycle()
+                }
+                //根据格式，返回对应后缀名->安卓只支持以下三种
+                val suffix = when (format) {
+                    JPEG -> "jpg"
+                    PNG -> "png"
+                    else -> "webp"
+                }
+                val tempFile = File(getStoragePath("保存图片"), file.name.replace(".${suffix}", "_degree.${suffix}"))
+                if (tempFile.exists()) tempFile.delete()
+                tempFile.outputStream().use { outputStream ->
+                    //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
+                    bitmap.compress(format, if (format != PNG) quality else 100, outputStream)
+                    if (deleteDir) file.delete()
+                    mFile = tempFile
+                }
+                bitmap.recycle()
+            }
+            mFile
+        }
+    } catch (e: Exception) {
+        throw e
+    }
+}
+
+/**
+ * 读取图片的方向
+ * 部分手机拍摄需要设置手机屏幕screenOrientation
+ * 不然会读取为0
+ */
+private fun readDegree(path: String): Float {
+    var degree = 0f
+    var exifInterface: ExifInterface? = null
+    try {
+        exifInterface = ExifInterface(path)
+    } catch (_: IOException) {
+    }
+    when (exifInterface?.getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL)) {
+        ORIENTATION_ROTATE_90 -> degree = 90f
+        ORIENTATION_ROTATE_180 -> degree = 180f
+        ORIENTATION_ROTATE_270 -> degree = 270f
+    }
+    return degree
 }
 
 /**
