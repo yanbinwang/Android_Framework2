@@ -373,8 +373,8 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["corner_radius", "corner_color"], requireAll = false)
-    fun bindingAdvertisingCorner(view: Advertising, cornerRadius: Float?, cornerColor: String?) {
-        view.backgroundCorner(cornerColor ?: "#ccc", cornerRadius.ptFloat)
+    fun bindingAdvertisingCorner(view: Advertising, cornerRadius: Int?, cornerColor: String?) {
+        view.backgroundCorner(cornerColor ?: "#F9FAFB", cornerRadius.ptFloat)
     }
     // </editor-fold>
 
