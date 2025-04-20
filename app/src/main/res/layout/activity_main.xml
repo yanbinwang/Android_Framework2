@@ -156,7 +156,6 @@
                             android:layout_gravity="center"
                             android:visibility="gone" />
 
-
                         <TextView
                             drawableHeight="@{80}"
                             drawablePadding="@{5}"
@@ -169,6 +168,20 @@
                             android:text="闪光灯"
                             android:textColor="@color/textPrimary"
                             android:textSize="@dimen/textSize14" />
+
+<!--                        <ToggleButton-->
+<!--                            drawableHeight="@{80}"-->
+<!--                            drawablePadding="@{5}"-->
+<!--                            drawableTop="@{R.drawable.selector_flash}"-->
+<!--                            drawableWidth="@{80}"-->
+<!--                            text="@{`闪光灯`}"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_gravity="center"-->
+<!--                            android:checked="false"-->
+<!--                            android:gravity="center"-->
+<!--                            android:textColor="@drawable/selector_flash_txt"-->
+<!--                            android:textSize="@dimen/textSize14" />-->
 
                     </FrameLayout>
 
