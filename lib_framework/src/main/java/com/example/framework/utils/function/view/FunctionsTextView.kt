@@ -3,6 +3,7 @@ package com.example.framework.utils.function.view
 import android.app.Activity
 import android.content.Context
 import android.graphics.*
+import android.os.Build
 import android.text.*
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.LinkMovementMethod
@@ -215,8 +216,18 @@ inline fun TextView?.getEllipsisCount(crossinline listener: (ellipsisCount: Int)
 fun TextView?.setSpannable(spannable: Spannable) {
     this ?: return
     text = spannable
-    highlightColor = Color.TRANSPARENT
     movementMethod = LinkMovementMethod.getInstance()
+    clearHighlightColor()
+}
+
+/**
+ * 清除高亮
+ */
+fun TextView?.clearHighlightColor() {
+    if (this == null) return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        highlightColor = Color.TRANSPARENT
+    }
 }
 
 /**

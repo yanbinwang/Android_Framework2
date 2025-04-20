@@ -8,6 +8,7 @@ import android.view.View
 import android.webkit.WebView
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.ToggleButton
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.PagerAdapter
@@ -33,6 +34,8 @@ import com.example.framework.utils.function.view.backgroundCorner
 import com.example.framework.utils.function.view.backgroundOval
 import com.example.framework.utils.function.view.charBlackList
 import com.example.framework.utils.function.view.charLimit
+import com.example.framework.utils.function.view.clearBackground
+import com.example.framework.utils.function.view.clearHighlightColor
 import com.example.framework.utils.function.view.decimalFilter
 import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.generateTagKey
@@ -239,21 +242,53 @@ object BaseBindingAdapter {
 
     /**
      * textview绘制图片
-     * <TextView
+     * <TextView-->不需要配置自定义text值
      *  drawableHeight="@{80}"
      *  drawablePadding="@{5}"
      *  drawableTop="@{R.mipmap.ic_flash_on}"
      *  drawableWidth="@{80}"
+     *  android:text="闪光灯"
      *  android:layout_width="wrap_content"
      *  android:layout_height="wrap_content"
      *  android:gravity="center"
-     *  android:text="闪光灯"
      *  android:textColor="@color/textPrimary"
      *  android:textSize="@dimen/textSize14" />
+     *
+     * 可变点击按钮
+     * <ToggleButton
+     *   drawableHeight="@{80}"
+     *   drawablePadding="@{5}"
+     *   drawableTop="@{R.drawable.selector_flash}"
+     *   drawableWidth="@{80}"
+     *   text="@{`闪光灯`}"
+     *   android:layout_width="wrap_content"
+     *   android:layout_height="wrap_content"
+     *   android:checked="false"
+     *   android:gravity="center"
+     *   android:textColor="@drawable/selector_flash_txt"
+     *   android:textSize="@dimen/textSize14" />
+     *
+     *   toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+     *     @Override
+     *     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+     *         // 可以在这里添加状态变化时的其他操作
+     *     }
+     *   });
      */
     @JvmStatic
-    @BindingAdapter(value = ["drawableStart", "drawableTop", "drawableEnd", "drawableBottom", "drawableWidth", "drawableHeight", "drawablePadding"], requireAll = false)
-    fun bindingTextViewDraw(textview: TextView, drawableStart: Int?, drawableTop: Int?, drawableEnd: Int?, drawableBottom: Int?, drawableWidth: Int?, drawableHeight: Int?, drawablePadding: Int?) {
+    @BindingAdapter(value = ["text", "drawableStart", "drawableTop", "drawableEnd", "drawableBottom", "drawableWidth", "drawableHeight", "drawablePadding"], requireAll = false)
+    fun bindCompoundDrawable(view: TextView, text: String?, drawableStart: Int?, drawableTop: Int?, drawableEnd: Int?, drawableBottom: Int?, drawableWidth: Int?, drawableHeight: Int?, drawablePadding: Int?) {
+        // 设置文本内容
+        if (view is ToggleButton) {
+            text?.let {
+                view.text = it
+                view.textOn = it
+                view.textOff = it
+            }
+        }
+        //清除背景
+        view.clearBackground()
+        view.clearHighlightColor()
         // 获取 Drawable
         val startDrawable = drawableStart?.let { drawable(it) }
         val topDrawable = drawableTop?.let { drawable(it) }
@@ -264,9 +299,27 @@ object BaseBindingAdapter {
         // 设置 Drawable 大小
         setDrawableBounds(drawables, drawableWidth, drawableHeight)
         // 设置 TextView 的 CompoundDrawables
-        textview.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)
+        view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)
         // 间距
-        drawablePadding?.let { textview.compoundDrawablePadding = it.pt }
+        drawablePadding?.let { view.compoundDrawablePadding = it.pt }
+    }
+
+    /**
+     * 设置文本内容
+     */
+    private fun setTextContent(view: TextView, text: String?, spannable: Spannable?) {
+        val textToSet = spannable ?: text
+        if (view is ToggleButton) {
+            textToSet?.let {
+                view.text = it
+                view.textOn = it
+                view.textOff = it
+            }
+        } else {
+            textToSet?.let {
+                view.text = it
+            }
+        }
     }
 
     /**
