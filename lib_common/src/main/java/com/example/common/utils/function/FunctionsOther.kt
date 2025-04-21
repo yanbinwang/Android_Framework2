@@ -10,7 +10,6 @@ import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
 import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -29,6 +28,7 @@ import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.common.utils.i18n.string
 import com.example.common.widget.i18n.I18nTextView
+import com.example.framework.utils.AnimationUtil.Companion.loadAnimation
 import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
@@ -143,11 +143,11 @@ fun TextView?.setSpan(txt: Any, keyword: Any, colorRes: Int = R.color.appTheme, 
         else -> ""
     }
     val span = ColorSpan(context.color(colorRes))
-    setSpannable(if (spanAll) {
+    text = if (spanAll) {
         textToProcess.setSpanAll(keywordToProcess, span)
     } else {
         textToProcess.setSpanFirst(keywordToProcess, span)
-    })
+    }
 }
 
 /**
@@ -221,21 +221,7 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> 
  * 自定义反向动画
  */
 fun Context.translate(onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}, isShown: Boolean = true): Animation {
-    return AnimationUtils.loadAnimation(this, if (isShown) R.anim.set_translate_bottom_in else R.anim.set_translate_bottom_out).apply {
-        setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(animation: Animation?) {
-                onStart.invoke()
-            }
-
-            override fun onAnimationEnd(animation: Animation?) {
-                onEnd.invoke()
-            }
-
-            override fun onAnimationRepeat(animation: Animation?) {
-                onRepeat.invoke()
-            }
-        })
-    }
+    return loadAnimation(if (isShown) R.anim.set_translate_bottom_in else R.anim.set_translate_bottom_out, onStart, onEnd, onRepeat)
 }
 
 /**
