@@ -6,7 +6,6 @@ import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
@@ -17,8 +16,10 @@ import android.view.animation.AnimationSet
 import android.view.animation.AnimationUtils
 import android.view.animation.Interpolator
 import android.view.animation.ScaleAnimation
+import android.view.animation.TranslateAnimation
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.core.graphics.toColorInt
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
@@ -81,7 +82,12 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
          */
         @JvmStatic
         fun Context.loadAnimation(id: Int, onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}): Animation {
-            return AnimationUtils.loadAnimation(this, id).apply {
+            return AnimationUtils.loadAnimation(this, id).loadAnimation(onStart, onEnd, onRepeat)
+        }
+
+        @JvmStatic
+        fun Animation.loadAnimation(onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}): Animation {
+            return this.apply {
                 setAnimationListener(object : Animation.AnimationListener {
                     override fun onAnimationStart(animation: Animation?) {
                         onStart.invoke()
@@ -96,6 +102,50 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
                     }
                 })
             }
+        }
+
+        /**
+         * 自定义反向动画
+         */
+        @JvmStatic
+        fun translate(onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}, isShown: Boolean = true): Animation {
+            return (if (isShown) createBottomPopUpAnimation() else createBottomHideAnimation()).loadAnimation(onStart, onEnd, onRepeat)
+        }
+
+        /**
+         * 创建底部弹出动画
+         * @param duration 动画持续时间，单位为毫秒，默认为 300 毫秒
+         * @return 创建好的底部弹出动画
+         */
+        private fun createBottomPopUpAnimation(duration: Long = 300): Animation {
+            return createVerticalTranslateAnimation(1f, 0f, duration)
+        }
+
+        /**
+         * 创建底部隐藏动画
+         * @param duration 动画持续时间，单位为毫秒，默认为 300 毫秒
+         * @return 创建好的底部隐藏动画
+         */
+        private fun createBottomHideAnimation(duration: Long = 300): Animation {
+            return createVerticalTranslateAnimation(0f, 0.5f, duration)
+        }
+
+        /**
+         * 创建一个垂直方向的平移动画
+         * @param fromYDelta 动画起始的 Y 轴相对位置
+         * @param toYDelta 动画结束的 Y 轴相对位置
+         * @param duration 动画持续时间，单位为毫秒
+         * @return 创建好的 TranslateAnimation 对象
+         */
+        private fun createVerticalTranslateAnimation(fromYDelta: Float, toYDelta: Float, duration: Long = 300): Animation {
+            val translateAnimation = TranslateAnimation(
+                Animation.RELATIVE_TO_PARENT, 0f,
+                Animation.RELATIVE_TO_PARENT, 0f,
+                Animation.RELATIVE_TO_PARENT, fromYDelta,
+                Animation.RELATIVE_TO_PARENT, toYDelta
+            )
+            translateAnimation.duration = duration
+            return translateAnimation
         }
     }
 
@@ -168,8 +218,8 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
      */
     fun txtColor(start: String, end: String): AnimationUtil {
         if (view == null || view !is TextView) return this
-        val colorStart = Color.parseColor(start)
-        val colorEnd = Color.parseColor(end)
+        val colorStart = start.toColorInt()
+        val colorEnd = end.toColorInt()
         return txtColor(colorStart, colorEnd)
     }
 
@@ -203,8 +253,8 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
      */
     fun bgColor(start: String, end: String): AnimationUtil {
         if (view == null) return this
-        val colorStart = Color.parseColor(start)
-        val colorEnd = Color.parseColor(end)
+        val colorStart = start.toColorInt()
+        val colorEnd = end.toColorInt()
         return bgColor(colorStart, colorEnd)
     }
 
