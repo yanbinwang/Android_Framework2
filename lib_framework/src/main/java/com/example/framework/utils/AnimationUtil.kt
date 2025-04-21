@@ -14,6 +14,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.AnimationSet
+import android.view.animation.AnimationUtils
 import android.view.animation.Interpolator
 import android.view.animation.ScaleAnimation
 import android.widget.TextView
@@ -72,6 +73,28 @@ class AnimationUtil(private val view: View?, private val millisecond: Long) {
                 scale.duration = 150
                 addAnimation(alpha)
                 addAnimation(scale)
+            }
+        }
+
+        /**
+         * 加载
+         */
+        @JvmStatic
+        fun Context.loadAnimation(id: Int, onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}): Animation {
+            return AnimationUtils.loadAnimation(this, id).apply {
+                setAnimationListener(object : Animation.AnimationListener {
+                    override fun onAnimationStart(animation: Animation?) {
+                        onStart.invoke()
+                    }
+
+                    override fun onAnimationEnd(animation: Animation?) {
+                        onEnd.invoke()
+                    }
+
+                    override fun onAnimationRepeat(animation: Animation?) {
+                        onRepeat.invoke()
+                    }
+                })
             }
         }
     }

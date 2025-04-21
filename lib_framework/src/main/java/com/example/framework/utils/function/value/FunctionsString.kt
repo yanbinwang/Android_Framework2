@@ -1,6 +1,7 @@
 package com.example.framework.utils.function.value
 
 import android.net.Uri
+import android.os.Build
 import android.text.Html
 import android.text.Spanned
 import android.util.Base64
@@ -26,7 +27,7 @@ fun String?.base64Decode(): ByteArray {
 }
 
 /**
- * Url编码
+ * Uri编码
  */
 fun String?.uriEncode(): String? {
     this ?: return null
@@ -34,7 +35,7 @@ fun String?.uriEncode(): String? {
 }
 
 /**
- * Url解码
+ * Uri解码
  */
 fun String?.uriDecode(): String? {
     this ?: return null
@@ -115,7 +116,12 @@ fun String?.regCheck(reg: String): Boolean {
  */
 fun String?.toSpanned(): Spanned? {
     this ?: return null
-    return Html.fromHtml(this)
+//    return Html.fromHtml(this)
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY)
+    } else {
+        Html.fromHtml(this)
+    }
 }
 
 /**
@@ -154,15 +160,21 @@ fun String?.getValueByName(name: String): String {
 
 /**
  * 添加网页链接中的Param
+ * isNullOrEmpty()：该方法用于判断字符串是否为 null 或者长度为 0。也就是说，只要字符串为 null 或者是一个空字符串（""），此方法就会返回 true。
+ * isNullOrBlank()：此方法不仅会检查字符串是否为 null 或者长度为 0，还会检查字符串是否只包含空白字符（如空格、制表符、换行符等）。若字符串为 null、空字符串或者只包含空白字符，isNullOrBlank() 都会返回 true。
  */
 fun String?.addUrlParam(key: String?, value: String?): String? {
-    key ?: return this
-    value ?: return this
-    this ?: return this
+    // 若原字符串、键或值为空，直接返回原字符串
+    if (this.isNullOrEmpty() || key.isNullOrBlank() || value.isNullOrBlank()) {
+        return this
+    }
+    // 编码值以避免特殊字符问题
+    val encodedValue = Uri.encode(value)
+    // 判断原字符串是否已包含查询参数
     return if (this.contains("?")) {
-        "$this&$key=${Uri.encode(value)}"
+        "$this&$key=${encodedValue}"
     } else {
-        "$this?$key=${Uri.encode(value)}"
+        "$this?$key=${encodedValue}"
     }
 }
 
