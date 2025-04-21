@@ -1,16 +1,15 @@
 package com.example.framework.utils.function.value
 
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Looper
 import androidx.annotation.ColorInt
+import androidx.core.graphics.toColorInt
 import com.example.framework.BuildConfig
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import java.io.IOException
 import java.util.Locale
-import androidx.core.graphics.toColorInt
 
 //------------------------------------方法工具类------------------------------------
 /**
