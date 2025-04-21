@@ -48,6 +48,7 @@ import com.example.thirdparty.album.AlbumHelper
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
@@ -626,7 +627,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        val flow2 = flow { emit(2); delay(50); emit(4) }
 //        val merged = merge(flow1, flow2)
 //        merged.collect { println(it) } // 输出可能为 1 2 3 4 或 2 1 4 3 等
-//        2. flatMapMerge
+//        2. flatMapMerge->警告
 //        用途：将嵌套的Flow<Flow<T>>（即流的流）展平并合并，支持并发处理，不保证顺序。
 //        特性：
 //        并发性：内层流同时启动并发出数据。
@@ -673,6 +674,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            }
 //
 //            //串行
+//        val combinedFlow = flow {
+//            emitAll(flowAdvertiseInfo())->抽出去flow
+//            emitAll(flowCoinInfo(bean))
+//        }
 //            val result = Result()
 //            val taskCenter = flowWithType("bean", flowOf(req.request({ FundsSubscribe.getTaskCenterApi(reqBodyOf()) })))
 //            val taskList = flowWithType("list", flowOf(req.request({ FundsSubscribe.getTaskListApi(reqBodyOf()) })))
