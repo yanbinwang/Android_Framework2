@@ -98,6 +98,20 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
 //        }
         activityResultValue?.launch(Intent(this, postcard.getPostcardClass(this) ?: return))
     }
+//    //获取一下要跳转的页面的class
+//    val clazz = postcard.getPostcardClass(this) ?: return
+//    //检查目标页面是否已经在任务栈中
+//    if (AppManager.isExistActivity(clazz)) {
+//        val intent = Intent(this, clazz)
+//        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+//        startActivity(intent)
+//    } else {
+//        if (requestCode == null) {
+//            postcard.navigation()
+//        } else {
+//            activityResultValue?.launch(Intent(this, clazz))
+//        }
+//    }
 }
 
 fun Postcard.getPostcardClass(mContext: Context): Class<*>? {
