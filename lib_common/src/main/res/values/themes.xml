@@ -181,6 +181,7 @@
 
     <!--
          全局默认tablayout样式
+         app:tabIndicator="@android:color/transparent"->去除默认下划线
          app:tabMode="scrollable"
          app:tabIndicatorFullWidth = false 指示器宽度跟随文本宽度
          实际项目中往往会有自定义的导航栏，此处在原有的基础上在扩展一些属性 -->
