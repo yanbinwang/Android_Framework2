@@ -82,6 +82,8 @@ class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationList
             isOnceLocationLatest = true
             //请求超时时间，单位是毫秒，默认30000毫秒，建议超时时间不要低于8000毫秒
             httpTimeOut = retryTime
+            //开启地址解析
+            isNeedAddress = true
         }
         //设置定位参数
         locationClient?.setLocationOption(aMapLocationClientOption)

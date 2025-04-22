@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.base.page.ResultCode.RESULT_IMAGE
@@ -50,6 +51,13 @@ fun AppCompatActivity?.registerResult(func: ((it: ActivityResult) -> Unit)): Act
 }
 
 fun Fragment?.registerResult(func: ((it: ActivityResult) -> Unit)): ActivityResultLauncher<Intent>? {
+    this ?: return null
+    return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        func.invoke(it)
+    }
+}
+
+fun FragmentActivity?.registerResult(func: ((it: ActivityResult) -> Unit)): ActivityResultLauncher<Intent>? {
     this ?: return null
     return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         func.invoke(it)
