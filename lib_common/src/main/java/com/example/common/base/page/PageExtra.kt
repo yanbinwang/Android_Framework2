@@ -5,11 +5,11 @@ package com.example.common.base.page
  */
 object Extra {
     /**
-     * navigation(ARouterPath.LoginActivity, Extras.REQUEST_CODE to REQUEST_FINISH)
+     * navigation(ARouterPath.LoginActivity, Extra.RESULT_CODE to RESULT_FINISH)
      * setOnActivityResultListener { if (it.resultCode == REQUEST_FINISH) finish() }
      */
-    //页面跳转链接
-    const val REQUEST_CODE = "requestCode"
+    //页面跳转
+//    const val REQUEST_CODE = "requestCode"
     const val RESULT_CODE = "resultCode"
     //跳转对象
     const val BUNDLE_BEAN = "bundleBean"
@@ -32,13 +32,13 @@ object Extra {
 /**
  * app内跳转回调编码
  */
-object RequestCode {
+object ResultCode {
     //批量关闭回调编码
-    const val REQUEST_FINISH = 10000
+    const val RESULT_FINISH = 10000
     //图片回调编码
-    const val REQUEST_ALBUM = 10001
+    const val RESULT_ALBUM = 10001
     //拍照回调编码
-    const val REQUEST_IMAGE = 10002
+    const val RESULT_IMAGE = 10002
     //录像回调编码
-    const val REQUEST_VIDEO = 10003
+    const val RESULT_VIDEO = 10003
 }

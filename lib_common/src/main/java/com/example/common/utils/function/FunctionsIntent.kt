@@ -18,9 +18,9 @@ import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
-import com.example.common.base.page.RequestCode.REQUEST_ALBUM
-import com.example.common.base.page.RequestCode.REQUEST_IMAGE
-import com.example.common.base.page.RequestCode.REQUEST_VIDEO
+import com.example.common.base.page.ResultCode.RESULT_ALBUM
+import com.example.common.base.page.ResultCode.RESULT_IMAGE
+import com.example.common.base.page.ResultCode.RESULT_VIDEO
 import com.example.common.config.Constants
 import com.example.common.utils.StorageUtil.StorageType
 import com.example.common.utils.StorageUtil.getOutputFile
@@ -79,7 +79,7 @@ fun Activity?.pullUpAlbum() {
     this ?: return
     val intent = Intent(Intent.ACTION_PICK, null)
     intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
-    startActivityForResult(intent, REQUEST_ALBUM)
+    startActivityForResult(intent, RESULT_ALBUM)
 }
 
 /**
@@ -90,7 +90,7 @@ fun Activity?.pullUpImage() {
     this ?: return
     val file = getOutputFile(StorageType.IMAGE)
     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    forResult(file, intent, REQUEST_IMAGE)
+    forResult(file, intent, RESULT_IMAGE)
 }
 
 /**
@@ -103,7 +103,7 @@ fun Activity?.pullUpVideo(second: Int? = 50000, quality: Double? = 0.5) {
     val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
     intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, second)//设置视频录制的最长时间
     intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, quality)
-    forResult(file, intent, REQUEST_VIDEO)
+    forResult(file, intent, RESULT_VIDEO)
 }
 
 private fun Activity?.forResult(file: File?, intent: Intent, requestCode: Int) {
