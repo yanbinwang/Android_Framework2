@@ -76,7 +76,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
-    protected val mActivityResult = activity.registerResult { onActivityResultListener?.invoke(it) }
+    protected val mActivityResult = registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { AppDialog(mActivity) }
     protected val mPermission by lazy { PermissionHelper(mActivity) }
     private var showTime = 0L
