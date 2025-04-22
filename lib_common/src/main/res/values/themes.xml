@@ -151,7 +151,7 @@
 
     <!-- 系统默认提示框样式 -->
     <style name="AndDialogStyle" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:width">600pt</item>
+        <item name="android:width">320pt</item>
         <!-- 去除标题头等多余的部分 -->
         <item name="android:windowFrame">@null</item>
         <item name="android:windowNoTitle">true</item>
@@ -185,18 +185,23 @@
          app:tabIndicatorFullWidth = false 指示器宽度跟随文本宽度
          实际项目中往往会有自定义的导航栏，此处在原有的基础上在扩展一些属性 -->
     <style name="TabLayoutStyle" parent="Base.Widget.Design.TabLayout">
+        <item name="android:overScrollMode">never</item>
+        <item name="android:clipChildren">true</item>
+        <item name="android:clipToPadding">false</item>
         <item name="tabBackground">@android:color/transparent</item>
-        <item name="tabRippleColor">@android:color/transparent</item>
         <item name="tabIndicator">@drawable/layer_list_tab_line</item>
+        <item name="tabIndicatorColor">@color/bgMain</item>
         <item name="tabIndicatorFullWidth">false</item>
+        <item name="tabIndicatorHeight">3pt</item>
+        <item name="tabMinWidth">0dp</item>
+        <item name="tabRippleColor">@android:color/transparent</item>
         <item name="tabSelectedTextColor">@color/appTheme</item>
         <item name="tabTextColor">@color/textHint</item>
-        <item name="android:overScrollMode">never</item>
+        <item name="tabPadding">0dp</item>
         <item name="tabPaddingStart">0dp</item>
         <item name="tabPaddingTop">0dp</item>
         <item name="tabPaddingEnd">0dp</item>
         <item name="tabPaddingBottom">0dp</item>
-        <item name="tabMinWidth">0dp</item>
     </style>
 
     <!--
