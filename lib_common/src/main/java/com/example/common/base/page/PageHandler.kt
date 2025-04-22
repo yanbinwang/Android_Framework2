@@ -59,52 +59,16 @@ fun ViewGroup?.getEmptyView(index: Int = 1): EmptyLayout? {
  * 页面跳转的构建
  */
 fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activityResultValue: ActivityResultLauncher<Intent>? = null) {
-//    val postcard = ARouter.getInstance().build(path)
-//    var requestCode: Int? = null
-//    if (params.isNotEmpty()) {
-//        for (param in params) {
-//            val key = param?.first
-//            val value = param?.second
-//            val cls = value?.javaClass
-//            if (key == REQUEST_CODE) {
-//                requestCode = value as? Int
-//                continue
-//            }
-//            when {
-//                value is Parcelable -> postcard.withParcelable(key, value)
-//                value is Serializable -> postcard.withSerializable(key, value)
-//                cls == String::class.java -> postcard.withString(key, value as? String)
-//                cls == Int::class.javaPrimitiveType -> postcard.withInt(key, (value as? Int).orZero)
-//                cls == Long::class.javaPrimitiveType -> postcard.withLong(key, (value as? Long).orZero)
-//                cls == Boolean::class.javaPrimitiveType -> postcard.withBoolean(key, (value as? Boolean).orFalse)
-//                cls == Float::class.javaPrimitiveType -> postcard.withFloat(key, (value as? Float).orZero)
-//                cls == Double::class.javaPrimitiveType -> postcard.withDouble(key, (value as? Double).orZero)
-//                cls == CharArray::class.java -> postcard.withCharArray(key, value as? CharArray)
-//                cls == Bundle::class.java -> postcard.withBundle(key, value as? Bundle)
-//                else -> throw RuntimeException("不支持参数类型: ${cls?.simpleName}")
-//            }
-//        }
-//    }
-//    if (requestCode == null) {
-//        postcard.navigation()
-//    } else {
-////        postcard.context = this
-////        try {
-////            LogisticsCenter.completion(postcard)
-////            activityResultValue?.launch(Intent(this, postcard.destination))
-////        } catch (_: NoRouteFoundException) {
-////        }
-//        activityResultValue?.launch(Intent(this, postcard.getPostcardClass(this) ?: return))
-//    }
     //构建arouter跳转
     val postcard = ARouter.getInstance().build(path)
     //页面回执
     var resultCode: Int? = null
     //获取一下是否带有参数
     if (params.isNotEmpty()) {
-        for (param in params) {
-            val key = param?.first
-            val value = param?.second
+        //筛掉单个元素为空的情况
+        for (param in params.filterNotNull()) {
+            val key = param.first
+            val value = param.second
             val cls = value?.javaClass
             //参数如果是result的，获取到就跳过进入下一个循环
             if (key == RESULT_CODE) {
@@ -132,13 +96,18 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
     val intent = Intent(this, clazz)
     //检查目标页面是否已经在任务栈中，在的话直接拉起来
     if (AppManager.isExistActivity(clazz)) {
+        //Activity 会调用 onNewIntent 方法来接收新的 Intent，并且它的生命周期方法调用顺序与普通启动 Activity 有所不同，
+        //不会调用 onCreate 和 onStart 方法，而是调用 onRestart、onResume 等方法。
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
     }
-    //跳转对应页面
-    if (resultCode == null) {
-        startActivity(intent)
-    } else {
-        activityResultValue?.launch(intent)
+    //检查 Activity 是否存活
+    if (!isFinishing && !isDestroyed) {
+        //跳转对应页面
+        if (resultCode == null) {
+            startActivity(intent)
+        } else {
+            activityResultValue?.launch(intent)
+        }
     }
 }
 
