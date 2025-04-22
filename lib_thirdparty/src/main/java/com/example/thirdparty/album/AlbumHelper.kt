@@ -5,7 +5,7 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.example.common.base.page.RequestCode.REQUEST_ALBUM
+import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.mb
@@ -210,7 +210,7 @@ class AlbumHelper {
                     .scaleTitle(true)
                     .build())
             //创建控制面板配置
-            ?.requestCode(REQUEST_ALBUM)?.start()
+            ?.requestCode(RESULT_ALBUM)?.start()
     }
 
 }

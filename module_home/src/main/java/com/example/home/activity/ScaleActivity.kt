@@ -23,6 +23,7 @@ import com.example.home.widget.scale.ScaleImageView
  *     android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
  *     android:theme="@style/TransparentTheme"
  *     android:windowSoftInputMode="stateHidden|adjustPan" />
+ *     navigation(ARouterPath.ScaleActivity, Extra.BUNDLE_LIST to arrayListOf(value))
  */
 @TransparentOwner
 @Route(path = ARouterPath.ScaleActivity)
