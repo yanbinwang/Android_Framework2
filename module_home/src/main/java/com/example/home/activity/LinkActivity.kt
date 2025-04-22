@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
  * @author yan
  */
 class LinkActivity : BaseActivity<ViewDataBinding>() {
-    private val payload by lazy { intentString(Extra.PAYLOAD) }
+    private val source by lazy { intentString(Extra.SOURCE) }
     private var timeOutJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +45,17 @@ class LinkActivity : BaseActivity<ViewDataBinding>() {
     }
 
     private fun onLink() {
-
+//        BaseApplication.needOpenHome = true
+//        when (source) {
+//            //推送消息
+//            "push" -> {
+//                if (!handlePush(this)) navigation(ARouterPath.MainActivity)
+//                finish()
+//            }
+//            //其他情况统一走firebase处理
+////            else -> handleDeepLink(this) { finish() }
+//            else -> finish()
+//        }
     }
 
     private fun setTimeOut() {
