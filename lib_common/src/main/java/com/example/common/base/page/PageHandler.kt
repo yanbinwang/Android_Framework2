@@ -11,12 +11,10 @@ import com.alibaba.android.arouter.core.LogisticsCenter
 import com.alibaba.android.arouter.exception.NoRouteFoundException
 import com.alibaba.android.arouter.facade.Postcard
 import com.alibaba.android.arouter.launcher.ARouter
-import com.example.common.R
-import com.example.common.base.page.Extra.REQUEST_CODE
+import com.example.common.base.page.Extra.RESULT_CODE
+import com.example.common.utils.manager.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
-import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orZero
 import java.io.Serializable
 
 /**
@@ -61,59 +59,92 @@ fun ViewGroup?.getEmptyView(index: Int = 1): EmptyLayout? {
  * 页面跳转的构建
  */
 fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activityResultValue: ActivityResultLauncher<Intent>? = null) {
+//    val postcard = ARouter.getInstance().build(path)
+//    var requestCode: Int? = null
+//    if (params.isNotEmpty()) {
+//        for (param in params) {
+//            val key = param?.first
+//            val value = param?.second
+//            val cls = value?.javaClass
+//            if (key == REQUEST_CODE) {
+//                requestCode = value as? Int
+//                continue
+//            }
+//            when {
+//                value is Parcelable -> postcard.withParcelable(key, value)
+//                value is Serializable -> postcard.withSerializable(key, value)
+//                cls == String::class.java -> postcard.withString(key, value as? String)
+//                cls == Int::class.javaPrimitiveType -> postcard.withInt(key, (value as? Int).orZero)
+//                cls == Long::class.javaPrimitiveType -> postcard.withLong(key, (value as? Long).orZero)
+//                cls == Boolean::class.javaPrimitiveType -> postcard.withBoolean(key, (value as? Boolean).orFalse)
+//                cls == Float::class.javaPrimitiveType -> postcard.withFloat(key, (value as? Float).orZero)
+//                cls == Double::class.javaPrimitiveType -> postcard.withDouble(key, (value as? Double).orZero)
+//                cls == CharArray::class.java -> postcard.withCharArray(key, value as? CharArray)
+//                cls == Bundle::class.java -> postcard.withBundle(key, value as? Bundle)
+//                else -> throw RuntimeException("不支持参数类型: ${cls?.simpleName}")
+//            }
+//        }
+//    }
+//    if (requestCode == null) {
+//        postcard.navigation()
+//    } else {
+////        postcard.context = this
+////        try {
+////            LogisticsCenter.completion(postcard)
+////            activityResultValue?.launch(Intent(this, postcard.destination))
+////        } catch (_: NoRouteFoundException) {
+////        }
+//        activityResultValue?.launch(Intent(this, postcard.getPostcardClass(this) ?: return))
+//    }
+    //构建arouter跳转
     val postcard = ARouter.getInstance().build(path)
-    var requestCode: Int? = null
+    //页面回执
+    var resultCode: Int? = null
+    //获取一下是否带有参数
     if (params.isNotEmpty()) {
         for (param in params) {
             val key = param?.first
             val value = param?.second
             val cls = value?.javaClass
-            if (key == REQUEST_CODE) {
-                requestCode = value as? Int
+            //参数如果是result的，获取到就跳过进入下一个循环
+            if (key == RESULT_CODE) {
+                resultCode = value as? Int
                 continue
             }
-            when {
-                value is Parcelable -> postcard.withParcelable(key, value)
-                value is Serializable -> postcard.withSerializable(key, value)
-                cls == String::class.java -> postcard.withString(key, value as? String)
-                cls == Int::class.javaPrimitiveType -> postcard.withInt(key, (value as? Int).orZero)
-                cls == Long::class.javaPrimitiveType -> postcard.withLong(key, (value as? Long).orZero)
-                cls == Boolean::class.javaPrimitiveType -> postcard.withBoolean(key, (value as? Boolean).orFalse)
-                cls == Float::class.javaPrimitiveType -> postcard.withFloat(key, (value as? Float).orZero)
-                cls == Double::class.javaPrimitiveType -> postcard.withDouble(key, (value as? Double).orZero)
-                cls == CharArray::class.java -> postcard.withCharArray(key, value as? CharArray)
-                cls == Bundle::class.java -> postcard.withBundle(key, value as? Bundle)
+            //参数是其他设定的类型，则添加进构建arouter
+            when (value) {
+                is Parcelable -> postcard.withParcelable(key, value)
+                is Serializable -> postcard.withSerializable(key, value)
+                is String -> postcard.withString(key, value)
+                is Int -> postcard.withInt(key, value)
+                is Long -> postcard.withLong(key, value)
+                is Boolean -> postcard.withBoolean(key, value)
+                is Float -> postcard.withFloat(key, value)
+                is Double -> postcard.withDouble(key, value)
+                is CharArray -> postcard.withCharArray(key, value)
+                is Bundle -> postcard.withBundle(key, value)
                 else -> throw RuntimeException("不支持参数类型: ${cls?.simpleName}")
             }
         }
     }
-    if (requestCode == null) {
-        postcard.navigation()
-    } else {
-//        postcard.context = this
-//        try {
-//            LogisticsCenter.completion(postcard)
-//            activityResultValue?.launch(Intent(this, postcard.destination))
-//        } catch (_: NoRouteFoundException) {
-//        }
-        activityResultValue?.launch(Intent(this, postcard.getPostcardClass(this) ?: return))
+    //获取一下要跳转的页面及class
+    val clazz = postcard.getPostcardClass(this) ?: return
+    val intent = Intent(this, clazz)
+    //检查目标页面是否已经在任务栈中，在的话直接拉起来
+    if (AppManager.isExistActivity(clazz)) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
     }
-//    //获取一下要跳转的页面的class
-//    val clazz = postcard.getPostcardClass(this) ?: return
-//    //检查目标页面是否已经在任务栈中
-//    if (AppManager.isExistActivity(clazz)) {
-//        val intent = Intent(this, clazz)
-//        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-//        startActivity(intent)
-//    } else {
-//        if (requestCode == null) {
-//            postcard.navigation()
-//        } else {
-//            activityResultValue?.launch(Intent(this, clazz))
-//        }
-//    }
+    //跳转对应页面
+    if (resultCode == null) {
+        startActivity(intent)
+    } else {
+        activityResultValue?.launch(intent)
+    }
 }
 
+/**
+ * 获取arouter构建的class文件
+ */
 fun Postcard.getPostcardClass(mContext: Context): Class<*>? {
     context = mContext
     return try {
