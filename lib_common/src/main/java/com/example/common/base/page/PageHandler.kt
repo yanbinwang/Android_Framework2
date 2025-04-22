@@ -11,13 +11,10 @@ import com.alibaba.android.arouter.core.LogisticsCenter
 import com.alibaba.android.arouter.exception.NoRouteFoundException
 import com.alibaba.android.arouter.facade.Postcard
 import com.alibaba.android.arouter.launcher.ARouter
-import com.example.common.base.page.Extra.REQUEST_CODE
 import com.example.common.base.page.Extra.RESULT_CODE
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
-import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orZero
 import java.io.Serializable
 
 /**
@@ -145,6 +142,9 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
     }
 }
 
+/**
+ * 获取arouter构建的class文件
+ */
 fun Postcard.getPostcardClass(mContext: Context): Class<*>? {
     context = mContext
     return try {
