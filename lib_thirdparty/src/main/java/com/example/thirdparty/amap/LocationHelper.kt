@@ -197,7 +197,7 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
         return if (!manager?.isProviderEnabled(LocationManager.GPS_PROVIDER).orFalse) {
             mDialog
                 .setParams(string(R.string.hint), string(R.string.mapGps), string(R.string.mapGpsGoSetting), string(R.string.cancel))
-                .setDialogListener({ result?.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) })
+                .setDialogListener({ result.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) })
                 .show()
             false
         } else {
@@ -213,7 +213,7 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
             Lifecycle.Event.ON_PAUSE -> stop()
             Lifecycle.Event.ON_DESTROY -> {
                 destroy()
-                result?.unregister()
+                result.unregister()
                 source.lifecycle.removeObserver(this)
             }
             else -> {}

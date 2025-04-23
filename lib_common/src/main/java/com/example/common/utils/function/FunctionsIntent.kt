@@ -46,18 +46,18 @@ import java.io.Serializable
  */
 interface ActivityResultRegistrar {
     val activityResultCaller: ActivityResultCaller
-    fun registerResult(func: (ActivityResult) -> Unit): ActivityResultLauncher<Intent>? {
-        return activityResultCaller.takeIf { it is Activity }?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+    fun registerResult(func: (ActivityResult) -> Unit): ActivityResultLauncher<Intent> {
+        return activityResultCaller.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             func.invoke(it)
         }
     }
 }
 
-fun AppCompatActivity.registerResultWrapper(func: (ActivityResult) -> Unit): ActivityResultLauncher<Intent>? = object : ActivityResultRegistrar {
+fun AppCompatActivity.registerResultWrapper(func: (ActivityResult) -> Unit): ActivityResultLauncher<Intent> = object : ActivityResultRegistrar {
     override val activityResultCaller: ActivityResultCaller get() = this@registerResultWrapper
 }.registerResult(func)
 
-fun Fragment.registerResultWrapper(func: (ActivityResult) -> Unit): ActivityResultLauncher<Intent>? = object : ActivityResultRegistrar {
+fun Fragment.registerResultWrapper(func: (ActivityResult) -> Unit): ActivityResultLauncher<Intent> = object : ActivityResultRegistrar {
     override val activityResultCaller: ActivityResultCaller get() = this@registerResultWrapper
 }.registerResult(func)
 
