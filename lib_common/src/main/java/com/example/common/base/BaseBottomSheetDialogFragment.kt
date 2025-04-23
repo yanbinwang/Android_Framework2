@@ -41,7 +41,7 @@ import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
-import com.example.common.widget.textview.SpecialEditText
+import com.example.common.widget.textview.edittext.SpecialEditText
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.currentTimeNano
@@ -279,9 +279,13 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
 
     override fun enabled(vararg views: View?, second: Long) {
         views.forEach {
-            if (it != null) {
+            if (second > 0) {
                 it.disable()
-                WeakHandler(Looper.getMainLooper()).postDelayed({ it.enable() }, second)
+                TimerBuilder.schedule(this, {
+                    it.enable()
+                }, second)
+            } else {
+                it.enable()
             }
         }
     }
@@ -317,7 +321,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
             key.removeObserver(value)
         }
         dataManager.clear()
-        mActivityResult?.unregister()
+        mActivityResult.unregister()
         mBinding?.unbind()
         job.cancel()
     }
