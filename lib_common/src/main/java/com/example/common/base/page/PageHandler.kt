@@ -15,6 +15,7 @@ import com.example.common.base.page.Extra.RESULT_CODE
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
+import com.example.framework.utils.function.value.toBundle
 import java.io.Serializable
 
 /**
@@ -58,39 +59,9 @@ fun ViewGroup?.getEmptyView(index: Int = 1): EmptyLayout? {
 /**
  * 页面跳转的构建
  */
-fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activityResultValue: ActivityResultLauncher<Intent>? = null) {
+fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activityResultValue: ActivityResultLauncher<Intent>) {
     //构建arouter跳转
     val postcard = ARouter.getInstance().build(path)
-    //页面回执
-    var resultCode: Int? = null
-    //获取一下是否带有参数
-    if (params.isNotEmpty()) {
-        //筛掉单个元素为空的情况
-        for (param in params.filterNotNull()) {
-            val key = param.first
-            val value = param.second
-            val cls = value?.javaClass
-            //参数如果是result的，获取到就跳过进入下一个循环
-            if (key == RESULT_CODE) {
-                resultCode = value as? Int
-                continue
-            }
-            //参数是其他设定的类型，则添加进构建arouter
-            when (value) {
-                is Parcelable -> postcard.withParcelable(key, value)
-                is Serializable -> postcard.withSerializable(key, value)
-                is String -> postcard.withString(key, value)
-                is Int -> postcard.withInt(key, value)
-                is Long -> postcard.withLong(key, value)
-                is Boolean -> postcard.withBoolean(key, value)
-                is Float -> postcard.withFloat(key, value)
-                is Double -> postcard.withDouble(key, value)
-                is CharArray -> postcard.withCharArray(key, value)
-                is Bundle -> postcard.withBundle(key, value)
-                else -> throw RuntimeException("不支持参数类型: ${cls?.simpleName}")
-            }
-        }
-    }
     //获取一下要跳转的页面及class
     val clazz = postcard.getPostcardClass(this) ?: return
     val intent = Intent(this, clazz)
@@ -100,15 +71,23 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
         //不会调用 onCreate 和 onStart 方法，而是调用 onRestart、onResume 等方法。
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
     }
-    //postcard只能得到class，intent时候的值，需要添加
-    intent.putExtras(postcard.extras)
+    //判断一下跳转参数
+    var hasResultCode = false
+    if (params.isNotEmpty()) {
+        //过滤掉 null 值
+        val nonNullParams = params.filterNotNull()
+        hasResultCode = nonNullParams.find { it.first == RESULT_CODE } != null
+        //排除 RESULT_CODE 参数，将其他参数添加到 Bundle 中
+        val bundle = nonNullParams.filter { it.first != RESULT_CODE }.toBundle { this }
+        intent.putExtras(bundle)
+    }
     //检查 Activity 是否存活
     if (!isFinishing && !isDestroyed) {
         //跳转对应页面
-        if (resultCode == null) {
+        if (!hasResultCode) {
             startActivity(intent)
         } else {
-            activityResultValue?.launch(intent)
+            activityResultValue.launch(intent)
         }
     }
 }
