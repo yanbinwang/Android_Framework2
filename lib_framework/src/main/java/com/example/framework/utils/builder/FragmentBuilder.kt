@@ -1,7 +1,6 @@
 package com.example.framework.utils.builder
 
 import android.os.Bundle
-import android.os.Parcelable
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -11,7 +10,7 @@ import com.example.framework.utils.function.value.getSimpleName
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
-import java.io.Serializable
+import com.example.framework.utils.function.value.toBundle
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -276,32 +275,6 @@ fun Class<*>.getBind(name: String? = null): Pair<Class<*>, String> {
  * 默认返回自身和自身class名小写以及请求的id
  */
 fun Class<*>.getBindBundle(name: String? = null, vararg pairs: Pair<String, Any?>): Triple<Class<*>, String, Bundle> {
-    val bundle = Bundle()
-    pairs.forEach {
-        val key = it.first
-        when (val value = it.second) {
-            is Int -> bundle.putInt(key, value)
-            is Byte -> bundle.putByte(key, value)
-            is Char -> bundle.putChar(key, value)
-            is Long -> bundle.putLong(key, value)
-            is Float -> bundle.putFloat(key, value)
-            is Short -> bundle.putShort(key, value)
-            is Double -> bundle.putDouble(key, value)
-            is Boolean -> bundle.putBoolean(key, value)
-            is String? -> bundle.putString(key, value)
-            is Bundle? -> bundle.putBundle(key, value)
-            is IntArray? -> bundle.putIntArray(key, value)
-            is ByteArray? -> bundle.putByteArray(key, value)
-            is CharArray? -> bundle.putCharArray(key, value)
-            is LongArray? -> bundle.putLongArray(key, value)
-            is FloatArray? -> bundle.putFloatArray(key, value)
-            is Parcelable? -> bundle.putParcelable(key, value)
-            is ShortArray? -> bundle.putShortArray(key, value)
-            is DoubleArray? -> bundle.putDoubleArray(key, value)
-            is BooleanArray? -> bundle.putBooleanArray(key, value)
-            is CharSequence? -> bundle.putCharSequence(key, value)
-            is Serializable? -> bundle.putSerializable(key, value)
-        }
-    }
+    val bundle = pairs.toBundle { this }
     return Triple(this, getSimpleName(name), bundle)
 }

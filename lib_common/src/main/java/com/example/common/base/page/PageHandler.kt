@@ -100,6 +100,8 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
         //不会调用 onCreate 和 onStart 方法，而是调用 onRestart、onResume 等方法。
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
     }
+    //postcard只能得到class，intent时候的值，需要添加
+    intent.putExtras(postcard.extras)
     //检查 Activity 是否存活
     if (!isFinishing && !isDestroyed) {
         //跳转对应页面
