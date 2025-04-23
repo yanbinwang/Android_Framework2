@@ -228,6 +228,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         weakEmpty?.clear()
         weakRecycler?.clear()
         weakRefresh?.clear()
+        weakLifecycleOwner?.clear()
     }
     // </editor-fold>
 
