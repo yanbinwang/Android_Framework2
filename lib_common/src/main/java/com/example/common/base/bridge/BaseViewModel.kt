@@ -216,8 +216,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      */
     protected inline fun Job.manageJob(key: String? = null) {
         val methodName = object {}.javaClass.enclosingMethod?.name ?: "unknown"
-        "className:${mClassName}--methodName:${methodName}--key:${if (key.isNullOrEmpty()) "暂无" else key}".logWTF("manageJob")
-        mJobManager.manageJob(this, if (!key.isNullOrEmpty()) key else methodName)
+        val mJobKey = "${mClassName}::${if (!key.isNullOrEmpty()) key else methodName}"
+        "$mJobKey".logWTF("manageJob")
+        mJobManager.manageJob(this, mJobKey)
     }
 
     override fun onCleared() {
