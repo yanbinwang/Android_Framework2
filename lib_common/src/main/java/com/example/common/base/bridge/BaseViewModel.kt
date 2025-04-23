@@ -12,6 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
 import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
@@ -198,17 +199,26 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * hasNextPage是否有下一页
      */
     fun reset(hasNextPage: Boolean? = true) {
+//        finishRefreshing(hasNextPage)
+//        if (null != mRecycler) {
+//            if (currentCount() != 0) mEmpty?.fade(300)
+//        } else {
+//            mEmpty?.fade(300)
+//        }
         finishRefreshing(hasNextPage)
-        if (null != mRecycler) {
-            if (currentCount() != 0) mEmpty?.fade(300)
-        } else {
+        if (mRecycler != null && currentCount() != 0 || mRecycler == null) {
             mEmpty?.fade(300)
         }
     }
 
     private fun finishRefreshing(hasNextPage: Boolean? = true) {
-        if (null == mRecycler) mRefresh?.finishRefreshing()
-        mRecycler?.finishRefreshing(!hasNextPage.orTrue)
+//        if (null == mRecycler) mRefresh?.finishRefreshing()
+//        mRecycler?.finishRefreshing(!hasNextPage.orTrue)
+        if (mRecycler == null) {
+            mRefresh?.finishRefreshing()
+        } else {
+            mRecycler?.finishRefreshing(!hasNextPage.orTrue)
+        }
     }
 
     /**
@@ -217,18 +227,23 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected inline fun Job.manageJob(key: String? = null) {
         val methodName = object {}.javaClass.enclosingMethod?.name ?: "unknown"
         val mJobKey = "${mClassName}::${if (!key.isNullOrEmpty()) key else methodName}"
-        "$mJobKey".logWTF("manageJob")
+        mJobKey.logWTF("manageJob")
         mJobManager.manageJob(this, mJobKey)
     }
 
     override fun onCleared() {
         super.onCleared()
-        weakActivity?.clear()
-        weakView?.clear()
-        weakEmpty?.clear()
-        weakRecycler?.clear()
-        weakRefresh?.clear()
-        weakLifecycleOwner?.clear()
+        runCatching {
+            weakActivity?.clear()
+            weakView?.clear()
+            weakEmpty?.clear()
+            weakRecycler?.clear()
+            weakRefresh?.clear()
+            weakLifecycleOwner?.clear()
+        }.onFailure { e ->
+            //处理清除 WeakReference 时的异常
+            e.printStackTrace()
+        }
     }
     // </editor-fold>
 
@@ -287,11 +302,30 @@ fun <T> ViewModel.async(
     block: suspend CoroutineScope.() -> T
 ) = viewModelScope.async(context, start, block)
 
+///**
+// * activity中构建viewmodel使用此方法
+// * ViewModelStoreOwner
+// */
+//fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: AppCompatActivity): VM {
+//    val viewModel = ViewModelProvider(owner)[this]
+//    lifecycle.addObserver(viewModel)
+//    lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }
+//    return viewModel
+//}
+//
+///**
+// * fragment中构建viewmodel使用此方法
+// */
+//fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: Fragment): VM {
+//    val viewModel = ViewModelProvider(owner)[this]
+//    lifecycle.addObserver(viewModel)
+//    lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }
+//    return viewModel
+//}
 /**
- * activity中构建viewmodel使用此方法
- * ViewModelStoreOwner
+ * 通用的创建 ViewModel 方法
  */
-fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: AppCompatActivity): VM {
+private fun <VM : BaseViewModel> Class<VM>.createViewModel(lifecycle: Lifecycle, owner: ViewModelStoreOwner): VM {
     val viewModel = ViewModelProvider(owner)[this]
     lifecycle.addObserver(viewModel)
     lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }
@@ -299,11 +333,15 @@ fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: AppCompat
 }
 
 /**
- * fragment中构建viewmodel使用此方法
+ * activity 中构建 viewmodel 使用此方法
+ */
+fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: AppCompatActivity): VM {
+    return createViewModel(lifecycle, owner)
+}
+
+/**
+ * fragment 中构建 viewmodel 使用此方法
  */
 fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: Fragment): VM {
-    val viewModel = ViewModelProvider(owner)[this]
-    lifecycle.addObserver(viewModel)
-    lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }
-    return viewModel
+    return createViewModel(lifecycle, owner)
 }
