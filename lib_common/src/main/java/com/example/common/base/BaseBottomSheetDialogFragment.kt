@@ -41,8 +41,7 @@ import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
-import com.example.common.widget.textview.edittext.SpecialEditText
-import com.example.framework.utils.WeakHandler
+import com.example.common.widget.textview.SpecialEditText
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.isMainThread
