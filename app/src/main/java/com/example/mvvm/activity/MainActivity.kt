@@ -3,7 +3,6 @@ package com.example.mvvm.activity
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.graphics.drawable.toBitmapOrNull
@@ -26,6 +25,7 @@ import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.ImageSpan
 import com.example.framework.utils.SizeSpan
 import com.example.framework.utils.TextSpan
+import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
@@ -35,7 +35,6 @@ import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
-import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
@@ -48,7 +47,6 @@ import com.example.thirdparty.album.AlbumHelper
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
@@ -282,6 +280,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private val album by lazy { AlbumHelper(this) }
 
     data class Book(val title: String, val author: String, val genre: String)
+
+    private val timerBuilder by lazy { TimerBuilder(this) }
 
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
