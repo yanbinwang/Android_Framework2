@@ -18,6 +18,7 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.PolygonOptions
 import com.example.amap.utils.CoordinateTransUtil
+import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.permission.checkSelfLocation
 import com.example.common.utils.toObj
 import com.example.framework.utils.function.value.orFalse
@@ -31,10 +32,10 @@ import kotlin.math.roundToInt
  *  Created by wangyanbin
  *  高德地图工具类
  */
-class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
+class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResultRegistrar) : LifecycleEventObserver {
     private var mapView: MapView? = null
     private val mapLatLng by lazy { aMapLatLng.get().toObj(LatLng::class.java) }//默认地图经纬度-杭州
-    private val location by lazy { LocationHelper(mActivity) }
+    private val location by lazy { LocationHelper(mActivity, registrar) }
     /**
      * 地址控件
      */

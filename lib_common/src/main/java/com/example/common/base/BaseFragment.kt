@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,7 +35,6 @@ import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
-import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.view.disable
@@ -166,9 +164,13 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
 
     override fun enabled(vararg views: View?, second: Long) {
         views.forEach {
-            if (it != null) {
+            if (second > 0) {
                 it.disable()
-                WeakHandler(Looper.getMainLooper()).postDelayed({ it.enable() }, second)
+                TimerBuilder.schedule(this, {
+                    it.enable()
+                }, second)
+            } else {
+                it.enable()
             }
         }
     }
@@ -192,7 +194,7 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
             key.removeObserver(value)
         }
         dataManager.clear()
-        mActivityResult?.unregister()
+        mActivityResult.unregister()
         mBinding?.unbind()
         job.cancel()
     }

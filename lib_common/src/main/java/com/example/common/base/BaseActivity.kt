@@ -8,7 +8,6 @@ import android.content.pm.ActivityInfo
 import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.result.ActivityResult
@@ -39,7 +38,6 @@ import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
-import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.getIntent
@@ -179,9 +177,13 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     override fun enabled(vararg views: View?, second: Long) {
         views.forEach {
-            if (it != null) {
+            if (second > 0) {
                 it.disable()
-                WeakHandler(Looper.getMainLooper()).postDelayed({ it.enable() }, second)
+                TimerBuilder.schedule(this, {
+                    it.enable()
+                }, second)
+            } else {
+                it.enable()
             }
         }
     }
@@ -233,7 +235,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
             key.removeObserver(value)
         }
         dataManager.clear()
-        mActivityResult?.unregister()
+        mActivityResult.unregister()
         mBinding?.unbind()
         job.cancel()//之后再起的job无法工作
 //        coroutineContext.cancelChildren()//之后再起的可以工作
