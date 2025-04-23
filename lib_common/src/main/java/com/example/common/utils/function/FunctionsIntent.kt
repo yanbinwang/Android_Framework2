@@ -53,13 +53,13 @@ interface ActivityResultRegistrar {
     }
 }
 
-fun AppCompatActivity.registerResultWrapper(func: (ActivityResult) -> Unit): ActivityResultLauncher<Intent> = object : ActivityResultRegistrar {
+fun AppCompatActivity.registerResultWrapper(): ActivityResultRegistrar = object : ActivityResultRegistrar {
     override val activityResultCaller: ActivityResultCaller get() = this@registerResultWrapper
-}.registerResult(func)
+}
 
-fun Fragment.registerResultWrapper(func: (ActivityResult) -> Unit): ActivityResultLauncher<Intent> = object : ActivityResultRegistrar {
+fun Fragment.registerResultWrapper(): ActivityResultRegistrar = object : ActivityResultRegistrar {
     override val activityResultCaller: ActivityResultCaller get() = this@registerResultWrapper
-}.registerResult(func)
+}
 
 /**
  * 拉起屏幕录制
