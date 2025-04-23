@@ -31,7 +31,7 @@ import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
-import com.example.common.utils.function.registerResult
+import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.AppDialog
@@ -78,7 +78,7 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
-    protected val mActivityResult = registerResult { onActivityResultListener?.invoke(it) }
+    protected val mActivityResult = registerResultWrapper { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { AppDialog(mActivity) }
     protected val mPermission by lazy { PermissionHelper(mActivity) }
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
