@@ -28,6 +28,7 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
+import com.example.framework.utils.logWTF
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -35,6 +36,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -66,11 +68,11 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val mEmpty get() = weakEmpty?.get()
     protected val mRecycler get() = weakRecycler?.get()
     protected val mRefresh get() = weakRefresh?.get()
-    //弹框/获取权限
+    //弹框/获取权限/协程管理类/viewmodel命名
     protected val mDialog by lazy { AppDialog(mContext) }
     protected val mPermission by lazy { PermissionHelper(mContext) }
-    //协程管理类
-    val jobManager by lazy { JobManager() }
+    protected val mJobManager by lazy { JobManager(weakLifecycleOwner?.get()) }
+    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity, view: BaseView) {
@@ -214,7 +216,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      */
     protected inline fun Job.manageJob(key: String? = null) {
         val methodName = object {}.javaClass.enclosingMethod?.name ?: "unknown"
-        jobManager.manageJob(this, if (!key.isNullOrEmpty()) key else methodName)
+        "className:${mClassName}--methodName:${methodName}--key:${if (key.isNullOrEmpty()) "暂无" else key}".logWTF("manageJob")
+        mJobManager.manageJob(this, if (!key.isNullOrEmpty()) key else methodName)
     }
 
     override fun onCleared() {
@@ -240,7 +243,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
         weakLifecycleOwner = WeakReference(owner)
-        jobManager.addObserver(owner)
         if (isEventBusEnabled()) {
             EventBus.instance.register(owner) {
                 it.onEvent()
