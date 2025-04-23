@@ -71,7 +71,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     //弹框/获取权限/协程管理类/viewmodel命名
     protected val mDialog by lazy { AppDialog(mContext) }
     protected val mPermission by lazy { PermissionHelper(mContext) }
-    protected val mJobManager by lazy { JobManager() }
+    protected val mJobManager by lazy { JobManager(weakLifecycleOwner?.get()) }
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
@@ -243,7 +243,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
         weakLifecycleOwner = WeakReference(owner)
-        mJobManager.addObserver(owner)
         if (isEventBusEnabled()) {
             EventBus.instance.register(owner) {
                 it.onEvent()
