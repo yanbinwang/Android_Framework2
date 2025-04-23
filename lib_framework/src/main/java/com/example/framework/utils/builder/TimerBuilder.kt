@@ -82,18 +82,20 @@ class TimerBuilder(private val observer: LifecycleOwner) {
 //        timerMap[tag]?.apply {
 //            first?.schedule(second, delay, period)
 //        }
-        val job = observer.lifecycleScope.launch {
-            delay(delay)
-            flow {
-                while (true) {
-                    emit(Unit)
-                    delay(period)
+        if (timerMap[tag] == null) {
+            val job = observer.lifecycleScope.launch {
+                delay(delay)
+                flow {
+                    while (true) {
+                        emit(Unit)
+                        delay(period)
+                    }
+                }.flowOn(IO).collect {
+                    withContext(Main) { run() }
                 }
-            }.flowOn(IO).collect {
-                withContext(Main) { run() }
             }
+            timerMap[tag] = job
         }
-        timerMap[tag] = job
     }
 
     /**
@@ -136,8 +138,8 @@ class TimerBuilder(private val observer: LifecycleOwner) {
                     onFinish.invoke()
                 }
             }
+            countDownMap[tag]?.start()
         }
-        countDownMap[tag]?.start()
     }
 
     /**
