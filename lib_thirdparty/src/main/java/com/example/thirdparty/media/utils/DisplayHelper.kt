@@ -11,10 +11,10 @@ import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.function.isExists
 import com.example.common.utils.function.pullUpOverlay
 import com.example.common.utils.function.pullUpScreen
-import com.example.common.utils.function.registerResult
 import com.example.framework.utils.function.isServiceRunning
 import com.example.framework.utils.function.startService
 import com.example.framework.utils.function.stopService
@@ -29,7 +29,7 @@ import com.example.thirdparty.media.service.ShotObserver
  * @description 录屏工具类
  * @author yan
  */
-class DisplayHelper(private val mActivity: FragmentActivity, private val mView: BaseView, private val isZip: Boolean = false) : LifecycleEventObserver {
+class DisplayHelper(private val mActivity: FragmentActivity, registrar: ActivityResultRegistrar, private val mView: BaseView, private val isZip: Boolean = false) : LifecycleEventObserver {
     private var isRecording = false//是否正在进行录制，便于区分截图捕获到的图片路径
     private var lastRefreshTime = 0L//上一次的刷新时间
     private var filePath: String? = null
@@ -40,7 +40,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, private val mView: 
     /**
      * 处理录屏的回调
      */
-    private val result = mActivity.registerResult {
+    private val result = registrar.registerResult {
         if (it.resultCode == RESULT_OK) {
             mActivity.startService(DisplayService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
             mActivity.moveTaskToBack(true)

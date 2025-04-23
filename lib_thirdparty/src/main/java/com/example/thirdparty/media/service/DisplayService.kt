@@ -22,7 +22,6 @@ import com.example.common.utils.StorageUtil.StorageType
 import com.example.common.utils.function.deleteFile
 import com.example.common.utils.function.getExtra
 import com.example.framework.utils.function.value.orZero
-import com.example.thirdparty.media.service.RecordingService.Companion
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick

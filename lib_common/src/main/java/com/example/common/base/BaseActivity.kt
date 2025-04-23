@@ -34,7 +34,7 @@ import com.example.common.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCacheUtil
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
-import com.example.common.utils.function.registerResult
+import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.AppDialog
@@ -71,7 +71,8 @@ import kotlin.coroutines.CoroutineContext
 abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected var mBinding: VDB? = null
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
-    protected val mActivityResult = registerResult { onActivityResultListener?.invoke(it) }
+//    protected val mActivityResult = registerResult { onActivityResultListener?.invoke(it) }
+    protected val mActivityResult = registerResultWrapper { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { AppDialog(this) }
     protected val mPermission by lazy { PermissionHelper(this) }
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null

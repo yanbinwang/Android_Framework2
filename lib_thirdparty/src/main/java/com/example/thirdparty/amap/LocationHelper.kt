@@ -23,7 +23,7 @@ import com.amap.api.maps.model.LatLng
 import com.example.common.config.Constants.APPLICATION_NAME
 import com.example.common.utils.DataStringCacheUtil
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.function.registerResult
+import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.function.string
 import com.example.common.utils.toJson
 import com.example.common.widget.dialog.AppDialog
@@ -41,12 +41,13 @@ import kotlinx.coroutines.launch
  *  2.key文件一定要校准
  *  3.选择3d地图定位套件
  */
-class LocationHelper(private val mActivity: FragmentActivity) : AMapLocationListener, LifecycleEventObserver {
+class LocationHelper(private val mActivity: FragmentActivity, registrar: ActivityResultRegistrar) : AMapLocationListener, LifecycleEventObserver {
     private var retry = false
     private val retryTime = 8000L
     private var locationClient: AMapLocationClient? = null
     private var listener: OnLocationListener? = null
-    private val result = mActivity.registerResult { listener?.onGpsSetting(it.resultCode == Activity.RESULT_OK) }
+    private var result = registrar.registerResult { listener?.onGpsSetting(it.resultCode == Activity.RESULT_OK) }
+//    private val result = mActivity.registerResult { listener?.onGpsSetting(it.resultCode == Activity.RESULT_OK) }
     private val manager by lazy { mActivity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager }
     private val mDialog by lazy { AppDialog(mActivity) }
 

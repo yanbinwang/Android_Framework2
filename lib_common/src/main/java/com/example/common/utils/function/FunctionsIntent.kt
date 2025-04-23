@@ -11,6 +11,7 @@ import android.os.Parcelable
 import android.provider.MediaStore
 import android.provider.Settings
 import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -43,26 +44,22 @@ import java.io.Serializable
  *     }
  * }
  */
-fun AppCompatActivity?.registerResult(func: ((it: ActivityResult) -> Unit)): ActivityResultLauncher<Intent>? {
-    this ?: return null
-    return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        func.invoke(it)
+interface ActivityResultRegistrar {
+    val activityResultCaller: ActivityResultCaller
+    fun registerResult(func: (ActivityResult) -> Unit): ActivityResultLauncher<Intent>? {
+        return activityResultCaller.takeIf { it is Activity }?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            func.invoke(it)
+        }
     }
 }
 
-fun Fragment?.registerResult(func: ((it: ActivityResult) -> Unit)): ActivityResultLauncher<Intent>? {
-    this ?: return null
-    return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        func.invoke(it)
-    }
-}
+fun AppCompatActivity.registerResultWrapper(func: (ActivityResult) -> Unit): ActivityResultLauncher<Intent>? = object : ActivityResultRegistrar {
+    override val activityResultCaller: ActivityResultCaller get() = this@registerResultWrapper
+}.registerResult(func)
 
-fun FragmentActivity?.registerResult(func: ((it: ActivityResult) -> Unit)): ActivityResultLauncher<Intent>? {
-    this ?: return null
-    return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        func.invoke(it)
-    }
-}
+fun Fragment.registerResultWrapper(func: (ActivityResult) -> Unit): ActivityResultLauncher<Intent>? = object : ActivityResultRegistrar {
+    override val activityResultCaller: ActivityResultCaller get() = this@registerResultWrapper
+}.registerResult(func)
 
 /**
  * 拉起屏幕录制
