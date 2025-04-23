@@ -136,6 +136,7 @@ class TimerTick(mContext: Context, move: Boolean = true) {
         timer = null
         tickDialog?.dismiss()
         tickDialog = null
+        weakHandler.removeCallbacksAndMessages(null)
     }
 
 }

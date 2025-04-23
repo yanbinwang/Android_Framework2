@@ -152,6 +152,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             Lifecycle.Event.ON_RESUME -> startRoll()
             Lifecycle.Event.ON_PAUSE -> stopRoll()
             Lifecycle.Event.ON_DESTROY -> {
+                weakHandler.removeCallbacksAndMessages(null)
                 banner?.unregisterOnPageChangeCallback(callback)
                 source.lifecycle.removeObserver(this)
             }
