@@ -3,8 +3,6 @@ package com.example.common.base.page
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
-import android.os.Parcelable
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import com.alibaba.android.arouter.core.LogisticsCenter
@@ -18,7 +16,6 @@ import com.example.common.utils.manager.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.function.value.toBundle
-import java.io.Serializable
 
 /**
  * 列表页调取方法
