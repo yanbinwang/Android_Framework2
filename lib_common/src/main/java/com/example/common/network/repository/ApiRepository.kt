@@ -135,8 +135,10 @@ fun <T> Flow<T>.withHandling(
         val wrapper = wrapper(exception)
         if (isShowToast) wrapper.errMessage?.responseToast()
         err(wrapper)
-    }.onCompletion {
-        end()
+    }.onCompletion { cause ->
+        if (cause !is CancellationException) {
+            end()
+        }
     }
 }
 
