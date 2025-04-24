@@ -131,22 +131,30 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     /**
      * 获取当前页数
      */
-    fun getCurrentPage() = paging.page.toString()
+    fun getCurrentPage(): String {
+        return paging.page.toString()
+    }
 
     /**
      * 当前列表数额
      */
-    fun currentCount() = paging.currentCount
+    fun currentCount(): Int {
+        return paging.currentCount
+    }
 
     /**
      * 当前是否是刷新
      */
-    fun hasRefresh() = paging.hasRefresh
+    fun hasRefresh(): Boolean {
+        return paging.hasRefresh
+    }
 
     /**
      * 是否有下一页
      */
-    fun hasNextPage() = paging.hasNextPage()
+    fun hasNextPage(): Boolean {
+        return paging.hasNextPage()
+    }
 
     /**
      * 刷新监听
@@ -173,7 +181,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 空布局监听
      */
     fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
-        mEmpty?.setOnEmptyRefreshListener { listener.invoke(it) }
+        mEmpty?.setOnEmptyRefreshListener {
+            listener.invoke(it)
+        }
     }
 
     /**
@@ -199,25 +209,19 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * hasNextPage是否有下一页
      */
     fun reset(hasNextPage: Boolean? = true) {
-//        finishRefreshing(hasNextPage)
-//        if (null != mRecycler) {
-//            if (currentCount() != 0) mEmpty?.fade(300)
-//        } else {
-//            mEmpty?.fade(300)
-//        }
         finishRefreshing(hasNextPage)
-        if (mRecycler != null && currentCount() != 0 || mRecycler == null) {
+        val recycler = mRecycler // 缓存变量，减少重复调用
+        if (recycler != null && currentCount() != 0 || recycler == null) {
             mEmpty?.fade(300)
         }
     }
 
     private fun finishRefreshing(hasNextPage: Boolean? = true) {
-//        if (null == mRecycler) mRefresh?.finishRefreshing()
-//        mRecycler?.finishRefreshing(!hasNextPage.orTrue)
-        if (mRecycler == null) {
+        val recycler = mRecycler
+        if (recycler == null) {
             mRefresh?.finishRefreshing()
         } else {
-            mRecycler?.finishRefreshing(!hasNextPage.orTrue)
+            recycler.finishRefreshing(!hasNextPage.orTrue)
         }
     }
 
@@ -302,26 +306,6 @@ fun <T> ViewModel.async(
     block: suspend CoroutineScope.() -> T
 ) = viewModelScope.async(context, start, block)
 
-///**
-// * activity中构建viewmodel使用此方法
-// * ViewModelStoreOwner
-// */
-//fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: AppCompatActivity): VM {
-//    val viewModel = ViewModelProvider(owner)[this]
-//    lifecycle.addObserver(viewModel)
-//    lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }
-//    return viewModel
-//}
-//
-///**
-// * fragment中构建viewmodel使用此方法
-// */
-//fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: Fragment): VM {
-//    val viewModel = ViewModelProvider(owner)[this]
-//    lifecycle.addObserver(viewModel)
-//    lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }
-//    return viewModel
-//}
 /**
  * 通用的创建 ViewModel 方法
  */
