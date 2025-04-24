@@ -23,6 +23,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import kotlin.coroutines.cancellation.CancellationException
 
 //------------------------------------针对协程返回的参数(协程只有成功和失败,确保方法在flow内使用，并且实现withHandling扩展)------------------------------------
 /**
@@ -61,6 +62,10 @@ suspend fun <T> requestLayer(
     return try {
         withContext(IO) { coroutineScope() }
     } catch (e: Throwable) {
+        // 忽略 CancellationException，直接重新抛出
+        if (e is CancellationException) {
+            throw e
+        }
         val wrapper = wrapper(e)
         err(wrapper)
         throw wrapper
@@ -123,6 +128,10 @@ fun <T> Flow<T>.withHandling(
     isShowToast: Boolean = false,
 ): Flow<T> {
     return flowOn(Main).catch { exception ->
+        // 忽略 CancellationException，不做处理
+        if (exception is CancellationException) {
+            throw exception
+        }
         val wrapper = wrapper(exception)
         if (isShowToast) wrapper.errMessage?.responseToast()
         err(wrapper)
