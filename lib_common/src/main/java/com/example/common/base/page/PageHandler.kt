@@ -110,6 +110,10 @@ fun Postcard.getPostcardClass(mContext: Context): Class<*>? {
     }
 }
 
+fun Context.getPostcardClass(path: String): Class<*>? {
+    return ARouter.getInstance().build(path).getPostcardClass(this)
+}
+
 /**
  * 获取arouter构建的拦截器
  */
