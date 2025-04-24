@@ -19,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap
  * 定时器构建类
  */
 class TimerBuilder(private val observer: LifecycleOwner) {
-//    private val timerMap by lazy { ConcurrentHashMap<String, Pair<Timer?, TimerTask?>>() }
     private val timerMap by lazy { ConcurrentHashMap<String, Job>() }
     private val countDownMap by lazy { ConcurrentHashMap<String, CountDownTimer?>() }
 
@@ -28,8 +27,6 @@ class TimerBuilder(private val observer: LifecycleOwner) {
         private const val TASK_DEFAULT_TAG = "TASK_DEFAULT"
         //默认倒计时tag
         private const val COUNT_DOWN_DEFAULT_TAG = "COUNT_DOWN_DEFAULT"
-//        //默认全局延时handler
-//        private val handler by lazy { WeakHandler(Looper.getMainLooper()) }
 
         /**
          * delayMillis：延时时间（单位：毫秒）
@@ -48,9 +45,6 @@ class TimerBuilder(private val observer: LifecycleOwner) {
         observer.doOnDestroy {
             timerMap.values.forEach { it.cancel() }
             countDownMap.values.forEach { it?.cancel() }
-//            for ((key, value) in countDownMap) {
-//                value?.cancel()
-//            }
             timerMap.clear()
             countDownMap.clear()
         }
@@ -70,18 +64,6 @@ class TimerBuilder(private val observer: LifecycleOwner) {
      */
     fun startTask(tag: String = TASK_DEFAULT_TAG, run: (() -> Unit), delay: Long = 0, period: Long = 1000) {
         stopTask(tag)//先停止旧的任务
-//        if (timerMap[tag] == null) {
-//            timerMap[tag] = Timer() to object : TimerTask() {
-//                override fun run() {
-//                    handler.post {
-//                        run.invoke()
-//                    }
-//                }
-//            }
-//        }
-//        timerMap[tag]?.apply {
-//            first?.schedule(second, delay, period)
-//        }
         if (timerMap[tag] == null) {
             val job = observer.lifecycleScope.launch {
                 delay(delay)
@@ -104,11 +86,6 @@ class TimerBuilder(private val observer: LifecycleOwner) {
     fun stopTask(tag: String = TASK_DEFAULT_TAG) {
         timerMap[tag]?.cancel()
         timerMap.remove(tag)
-//        timerMap[tag]?.apply {
-//            first?.cancel()
-//            second?.cancel()
-//        }
-//        timerMap.remove(tag)
     }
 
     fun stopTask(vararg tags: String) {
