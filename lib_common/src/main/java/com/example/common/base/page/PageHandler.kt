@@ -10,6 +10,8 @@ import androidx.activity.result.ActivityResultLauncher
 import com.alibaba.android.arouter.core.LogisticsCenter
 import com.alibaba.android.arouter.exception.NoRouteFoundException
 import com.alibaba.android.arouter.facade.Postcard
+import com.alibaba.android.arouter.facade.callback.InterceptorCallback
+import com.alibaba.android.arouter.facade.service.InterceptorService
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.page.Extra.RESULT_CODE
 import com.example.common.utils.manager.AppManager
@@ -81,15 +83,20 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
         val bundle = nonNullParams.filter { it.first != RESULT_CODE }.toBundle { this }
         intent.putExtras(bundle)
     }
-    //检查 Activity 是否存活
-    if (!isFinishing && !isDestroyed) {
-        //跳转对应页面
-        if (!hasResultCode) {
-            startActivity(intent)
-        } else {
-            activityResultValue.launch(intent)
+    //获取一下拦截器
+    postcard.navigateWithInterceptors({
+        //检查 Activity 是否存活
+        if (!isFinishing && !isDestroyed) {
+            //跳转对应页面
+            if (!hasResultCode) {
+                startActivity(intent)
+            } else {
+                activityResultValue.launch(intent)
+            }
         }
-    }
+    }, {
+        it?.printStackTrace()
+    })
 }
 
 /**
@@ -108,4 +115,20 @@ fun Postcard.getPostcardClass(mContext: Context): Class<*>? {
 
 fun Context.getPostcardClass(path: String): Class<*>? {
     return ARouter.getInstance().build(path).getPostcardClass(this)
+}
+
+/**
+ * 获取arouter构建的拦截器
+ */
+fun Postcard.navigateWithInterceptors(onContinue: () -> Unit, onInterrupt: (Throwable?) -> Unit) {
+    val interceptorService = ARouter.getInstance().navigation(InterceptorService::class.java)
+    interceptorService.doInterceptions(this, object : InterceptorCallback {
+        override fun onContinue(postcard: Postcard) {
+            onContinue()
+        }
+
+        override fun onInterrupt(exception: Throwable?) {
+            onInterrupt(exception)
+        }
+    })
 }
