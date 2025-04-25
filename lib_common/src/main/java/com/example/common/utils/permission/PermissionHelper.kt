@@ -15,6 +15,8 @@ import com.hjq.permissions.XXPermissions
  * date: 2018/6/11.
  * 获取选项工具类
  * 根据项目需求哪取需要的权限组
+ * targetSdkVersion还是32为主，33开始读写是新的权限组了，编译api（compileSdkVersion）可以用33及以上
+ * 但高版本规定了androidmainfest里需要删除旧的读写权限，这就会引发6.0版本的兼容问题，官方后续版本如果没修复这个报错我们就还以32为主
  */
 class PermissionHelper(private val context: Context) {
     private val andDialog by lazy { AndDialog(context) }
