@@ -15,8 +15,6 @@ import com.hjq.permissions.XXPermissions
  * date: 2018/6/11.
  * 获取选项工具类
  * 根据项目需求哪取需要的权限组
- * targetSdkVersion还是32为主，33开始读写是新的权限组了，编译api（compileSdkVersion）可以用33及以上
- * 但高版本规定了androidmainfest里需要删除旧的读写权限，这就会引发6.0版本的兼容问题，官方后续版本如果没修复这个报错我们就还以32为主
  */
 class PermissionHelper(private val context: Context) {
     private val andDialog by lazy { AndDialog(context) }
@@ -37,14 +35,14 @@ class PermissionHelper(private val context: Context) {
             XXPermissions.with(context)
                 .permission(*groups)
                 .request(object : OnPermissionCallback {
-                    override fun onGranted(permissions: MutableList<String>?, all: Boolean) {
-                        //all->标记是否是获取部分权限成功，部分未正常授予，true全拿，false部分拿到
-                        listener.invoke(all)
+                    override fun onGranted(permissions: MutableList<String>, allGranted: Boolean) {
+                        //allGranted->标记是否是获取部分权限成功，部分未正常授予，true全拿，false部分拿到
+                        listener.invoke(allGranted)
                     }
 
-                    override fun onDenied(permissions: MutableList<String>?, never: Boolean) {
-                        super.onDenied(permissions, never)
-                        //never->被永久拒绝授权，请手动授予
+                    override fun onDenied(permissions: MutableList<String>, doNotAskAgain: Boolean) {
+                        super.onDenied(permissions, doNotAskAgain)
+                        //doNotAskAgain->被永久拒绝授权，请手动授予
                         listener.invoke(false)
                         if (force) onDenied(permissions)
                     }
