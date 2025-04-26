@@ -4,84 +4,142 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="MissingConstraints">
 
+    <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+    <!--        android:id="@+id/cl_root"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content">-->
+
+    <!--        <ImageView-->
+    <!--            android:id="@+id/iv_left"-->
+    <!--            android:layout_width="44pt"-->
+    <!--            android:layout_height="44pt"-->
+    <!--            android:layout_marginStart="5pt"-->
+    <!--            android:padding="10pt"-->
+    <!--            android:visibility="gone"-->
+    <!--            app:layout_constraintBottom_toBottomOf="@id/view_shade"-->
+    <!--            app:layout_constraintEnd_toStartOf="@+id/tv_left"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="parent"-->
+    <!--            tools:src="@mipmap/ic_btn_back"-->
+    <!--            tools:visibility="visible" />-->
+
+    <!--        <TextView-->
+    <!--            android:id="@+id/tv_left"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="0pt"-->
+    <!--            android:gravity="center"-->
+    <!--            android:lines="1"-->
+    <!--            android:paddingHorizontal="15pt"-->
+    <!--            android:textSize="@dimen/textSize14"-->
+    <!--            android:visibility="gone"-->
+    <!--            app:layout_constraintBottom_toBottomOf="@+id/iv_left"-->
+    <!--            app:layout_constraintStart_toEndOf="@+id/iv_left"-->
+    <!--            app:layout_constraintTop_toTopOf="@+id/iv_left"-->
+    <!--            tools:text="左侧文字"-->
+    <!--            tools:textColor="@color/textPrimary"-->
+    <!--            tools:visibility="visible" />-->
+
+    <!--        <TextView-->
+    <!--            android:id="@+id/tv_title"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:ellipsize="end"-->
+    <!--            android:maxLength="10"-->
+    <!--            android:textSize="@dimen/textSize18"-->
+    <!--            android:textStyle="bold"-->
+    <!--            app:layout_constraintBottom_toBottomOf="@+id/iv_left"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="@+id/iv_left"-->
+    <!--            tools:text="标题"-->
+    <!--            tools:textColor="@color/textPrimary" />-->
+
+    <!--        <TextView-->
+    <!--            android:id="@+id/tv_right"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="0pt"-->
+    <!--            android:gravity="center"-->
+    <!--            android:lines="1"-->
+    <!--            android:paddingHorizontal="15pt"-->
+    <!--            android:textSize="@dimen/textSize14"-->
+    <!--            android:visibility="gone"-->
+    <!--            app:layout_constraintBottom_toBottomOf="@+id/iv_left"-->
+    <!--            app:layout_constraintEnd_toStartOf="@+id/iv_right"-->
+    <!--            app:layout_constraintTop_toTopOf="@+id/iv_left"-->
+    <!--            tools:text="右侧文字"-->
+    <!--            tools:textColor="@color/textPrimary"-->
+    <!--            tools:visibility="visible" />-->
+
+    <!--        <ImageView-->
+    <!--            android:id="@+id/iv_right"-->
+    <!--            android:layout_width="44pt"-->
+    <!--            android:layout_height="44pt"-->
+    <!--            android:layout_marginEnd="5pt"-->
+    <!--            android:padding="10pt"-->
+    <!--            android:visibility="gone"-->
+    <!--            app:layout_constraintBottom_toBottomOf="@+id/iv_left"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="@+id/iv_left"-->
+    <!--            tools:src="@mipmap/ic_btn_back"-->
+    <!--            tools:visibility="visible" />-->
+
+    <!--        <View-->
+    <!--            android:id="@+id/view_shade"-->
+    <!--            style="@style/LineConstraintWidth"-->
+    <!--            android:visibility="gone"-->
+    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@+id/iv_left"-->
+    <!--            tools:visibility="visible" />-->
+
+    <!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_root"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        tools:paddingHorizontal="5pt">
 
-        <ImageView
-            android:id="@+id/iv_left"
-            android:layout_width="44pt"
-            android:layout_height="44pt"
-            android:layout_marginStart="5pt"
-            android:padding="10pt"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/view_shade"
-            app:layout_constraintEnd_toStartOf="@+id/tv_left"
+        <!-- 左侧整体 -->
+        <LinearLayout
+            android:id="@+id/ll_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@mipmap/ic_btn_back"
-            tools:visibility="visible" />
-
-        <TextView
-            android:id="@+id/tv_left"
-            android:layout_width="wrap_content"
-            android:layout_height="0pt"
-            android:gravity="center"
-            android:lines="1"
-            android:paddingHorizontal="15pt"
-            android:textSize="@dimen/textSize14"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_left"
-            app:layout_constraintStart_toEndOf="@+id/iv_left"
-            app:layout_constraintTop_toTopOf="@+id/iv_left"
-            tools:text="左侧文字"
-            tools:textColor="@color/textPrimary"
-            tools:visibility="visible" />
+            tools:minHeight="44pt" />
 
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
+            android:gravity="center"
             android:maxLength="10"
             android:textSize="@dimen/textSize18"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_left"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/iv_left"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:minHeight="44pt"
             tools:text="标题"
             tools:textColor="@color/textPrimary" />
 
-        <TextView
-            android:id="@+id/tv_right"
+        <!-- 右侧整体 -->
+        <LinearLayout
+            android:id="@+id/ll_right"
             android:layout_width="wrap_content"
-            android:layout_height="0pt"
-            android:gravity="center"
-            android:lines="1"
-            android:paddingHorizontal="15pt"
-            android:textSize="@dimen/textSize14"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_left"
-            app:layout_constraintEnd_toStartOf="@+id/iv_right"
-            app:layout_constraintTop_toTopOf="@+id/iv_left"
-            tools:text="右侧文字"
-            tools:textColor="@color/textPrimary"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/iv_right"
-            android:layout_width="44pt"
-            android:layout_height="44pt"
-            android:layout_marginEnd="5pt"
-            android:padding="10pt"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_left"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/iv_left"
-            tools:src="@mipmap/ic_btn_back"
-            tools:visibility="visible" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:minHeight="44pt" />
 
         <View
             android:id="@+id/view_shade"
@@ -90,7 +148,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_left"
             tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

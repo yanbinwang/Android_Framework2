@@ -39,7 +39,7 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
     override fun initEvent() {
         super.initEvent()
         helper.setClientListener({
-            titleBuilder.ivRight.gone()
+//            titleBuilder.ivRight.gone()
         }, { title ->
             if (bundle?.isTitleRequired().orFalse) {
                 titleBuilder
