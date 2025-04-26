@@ -2,11 +2,15 @@ package com.example.common.utils.builder
 
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.text.InputFilter
+import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintSet
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
 import com.example.common.utils.function.color
@@ -14,33 +18,40 @@ import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.setTheme
 import com.example.framework.utils.function.doOnDestroy
+import com.example.framework.utils.function.view.applyConstraints
+import com.example.framework.utils.function.view.background
+import com.example.framework.utils.function.view.bold
+import com.example.framework.utils.function.view.bottomToBottomOf
+import com.example.framework.utils.function.view.center
+import com.example.framework.utils.function.view.centerVertically
 import com.example.framework.utils.function.view.clearBackground
 import com.example.framework.utils.function.view.clearHighlightColor
 import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.endToEndOf
 import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.size
+import com.example.framework.utils.function.view.startToEndOf
+import com.example.framework.utils.function.view.startToStartOf
 import com.example.framework.utils.function.view.textSize
 import com.example.framework.utils.function.view.tint
-import com.example.framework.utils.function.view.visible
+import com.example.framework.utils.function.view.topToTopOf
+import java.util.concurrent.ConcurrentHashMap
+
 
 /**
  * 顶部标题默认不具备任何颜色和显示的按钮
- * 格式：
- * 1.左右侧图片/文本
- * 2.中间大标题
- * 3.左右侧间距默认，文本大小固定，图片可定制
+ * 格式：左右侧图片/文本，中间大标题
  */
 //class TitleBuilder(private val mActivity: AppCompatActivity, private val mBinding: ViewTitleBarBinding?) {
-//    /**
-//     * 实际项目组右侧按钮可能是刷新，需要延后显示
-//     */
-//    val ivRight get() = mBinding?.ivRight
 //
 //    init {
-//        mActivity.doOnDestroy { mBinding?.unbind() }
-//        mBinding?.clRoot.padding(top = getStatusBarHeight())
+//        mActivity.doOnDestroy {
+//            mBinding?.unbind()
+//        }
+//        mBinding?.clRoot.padding(5.pt, getStatusBarHeight(), 5.pt, 0)
 //    }
 //
 //    /**
@@ -51,7 +62,7 @@ import com.example.framework.utils.function.view.visible
 //     * isShade->标题底部是否带阴影
 //     */
 //    fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, isShade: Boolean = false): TitleBuilder {
-//        mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
+//        mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else color(bgColor))
 //        mBinding?.tvTitle?.setTheme(title, titleColor)
 //        mBinding?.viewShade?.apply { if (isShade) visible() else gone() }
 //        setLeft()
@@ -62,7 +73,7 @@ import com.example.framework.utils.function.view.visible
 //     * 页面不需要标题，只需要定制的返回按钮及特定背景
 //     */
 //    fun setTitleSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity.finish() }, bgColor: Int = R.color.bgToolbar): TitleBuilder {
-//        mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else mActivity.color(bgColor))
+//        mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else color(bgColor))
 //        setLeft(resId, tintColor, onClick = onClick)
 //        return this
 //    }
@@ -83,17 +94,12 @@ import com.example.framework.utils.function.view.visible
 //     * 设置左/右侧按钮图片资源
 //     * resId->图片
 //     * tintColor->图片覆盖色（存在相同图片颜色不同的情况，直接传覆盖色即可）
+//     * width/height->本身宽高
 //     * onClick->点击事件
 //     */
-//    fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int? = null, height: Int? = null, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
-//        mBinding?.ivLeft?.apply {
-//            visible()
-//            setResource(resId)
-//            if (0 != tintColor) tint(tintColor)
-//            if (null != width && null != height) size(width, height)
-//            click { onClick.invoke() }
-//        }
-//        mBinding?.tvLeft.gone()
+//    fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int = 44.pt, height: Int = 44.pt, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+//        val ivLeft = createImageView(resId, tintColor, width, height, onClick)
+//        setLeft(ivLeft)
 //        return this
 //    }
 //
@@ -101,63 +107,102 @@ import com.example.framework.utils.function.view.visible
 //     * 设置左/右侧文字
 //     * label->文案
 //     * labelColor->文案颜色
+//     * drawablePair->是否包含图片（默认就是左侧的）
+//     *  1.drawable(it)获取图片
+//     *  2.drawable?.setBounds(0, 0, width, height)设置宽高
+//     *  3.view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)调取绘制
+//     *  4.drawablePadding?.let { view.compoundDrawablePadding = it }文字间距
 //     * onClick->点击事件
 //     */
-//    fun setLeft(label: String, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
-//        mBinding?.tvLeft?.apply {
-//            visible()
-//            setTheme(label, labelColor)
-//            click { onClick.invoke() }
-//        }
-//        mBinding?.ivLeft.gone()
+//    fun setLeft(label: String, labelColor: Int = R.color.textPrimary, drawablePair: Pair<Drawable, Int>? = null, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+//        val tvLeft = createTextView(label, labelColor, drawablePair, onClick)
+//        setLeft(tvLeft)
 //        return this
 //    }
 //
 //    /**
-//     * 部分页面UI需要更深度的定制
+//     * 1.创建视图的函数
+//     * 2.配置视图的回调
+//     * titleBuilder.setLeft({ ImageView(mActivity) }) { img ->
+//     *     img.setImageResource(R.drawable.ic_back)
+//     *     img.setOnClickListener { mActivity.finish() }
+//     *     img.setPadding(10.pt, 10.pt, 10.pt, 10.pt)
+//     * }
 //     */
-//    fun setLeftSecondary(label: String, labelColor: Int = R.color.textPrimary, resId: Int = R.mipmap.ic_btn_back, width: Int? = null, height: Int? = null, onClick: (textView: TextView) -> Unit = { mActivity.finish() }): TitleBuilder {
-//        mBinding?.tvLeft?.apply {
-//            visible()
-//            setTheme(label, labelColor, resId)
-//            if (null != width && null != height) size(width, height)
-//            click { onClick.invoke(this) }
-//        }
-//        mBinding?.ivLeft.gone()
+//    fun <T : View> setLeft(viewCreator: () -> T, setup: (T) -> Unit = {}): TitleBuilder {
+//        val view = viewCreator()
+//        setup(view) // 先配置视图（如设置点击事件、属性）
+//        setLeft(view) // 最后添加到布局
 //        return this
 //    }
 //
-//    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int? = null, height: Int? = null, onClick: () -> Unit = {}): TitleBuilder {
-//        mBinding?.ivRight?.apply {
-//            visible()
+//    /**
+//     * 插入一个/多个自定义view
+//     */
+//    fun setLeft(view: View, isRemove: Boolean = true) {
+//        mBinding?.llLeft?.apply {
+//            if (isRemove) removeAllViews()
+//            addView(view)
+//        }
+//    }
+//
+//    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int = 44.pt, height: Int = 44.pt, onClick: () -> Unit = {}): TitleBuilder {
+//        val ivRight = createImageView(resId, tintColor, width, height, onClick)
+//        setRight(ivRight)
+//        return this
+//    }
+//
+//    fun setRight(label: String, labelColor: Int = R.color.textPrimary, drawablePair: Pair<Drawable, Int>? = null, onClick: () -> Unit = {}): TitleBuilder {
+//        val tvRight = createTextView(label, labelColor, drawablePair, onClick)
+//        setRight(tvRight)
+//        return this
+//    }
+//
+//    fun <T : View> setRight(viewCreator: () -> T, setup: (T) -> Unit = {}): TitleBuilder {
+//        val view = viewCreator()
+//        setup(view)
+//        setRight(view)
+//        return this
+//    }
+//
+//    fun setRight(view: View, isRemove: Boolean = true) {
+//        mBinding?.llRight?.apply {
+//            if (isRemove) removeAllViews()
+//            addView(view)
+//        }
+//    }
+//
+//    /**
+//     * 创建左右侧按钮方法
+//     */
+//    private fun createImageView(resId: Int, tintColor: Int, width: Int, height: Int, onClick: () -> Unit): ImageView {
+//        return ImageView(mActivity).apply {
 //            setResource(resId)
-//            if (0 != tintColor) tint(tintColor)
-//            if (null != width && null != height) size(width, height)
-//            click { onClick.invoke() }
+//            if (tintColor != 0) tint(tintColor)
+//            size(width, height)
+//            padding(10.pt, 10.pt, 10.pt, 10.pt)
+//            click {
+//                onClick.invoke()
+//            }
 //        }
-//        mBinding?.tvRight.gone()
-//        return this
 //    }
 //
-//    fun setRight(label: String, labelColor: Int = R.color.textPrimary, onClick: () -> Unit = {}): TitleBuilder {
-//        mBinding?.tvRight?.apply {
-//            visible()
+//    private fun createTextView(label: String, labelColor: Int, drawablePair: Pair<Drawable, Int>? = null, onClick: () -> Unit): TextView {
+//        return TextView(mActivity).apply {
 //            setTheme(label, labelColor)
-//            click { onClick.invoke() }
+//            padding(start = 15.pt, end = 15.pt)
+//            textSize(R.dimen.textSize14)
+//            gravity = Gravity.CENTER
+//            if (drawablePair != null) {
+//                clearBackground()
+//                clearHighlightColor()
+//                setCompoundDrawables(drawablePair.first, null, null, null)
+//                compoundDrawablePadding = drawablePair.second
+//            }
+//            click {
+//                onClick.invoke()
+//            }
 //        }
-//        mBinding?.ivRight.gone()
-//        return this
-//    }
-//
-//    fun setRightSecondary(label: String, labelColor: Int = R.color.textPrimary, resId: Int = R.mipmap.ic_btn_back, width: Int? = null, height: Int? = null, onClick: (textView: TextView) -> Unit = {}): TitleBuilder {
-//        mBinding?.tvRight?.apply {
-//            visible()
-//            setTheme(label, labelColor, resId)
-//            if (null != width && null != height) size(width, height)
-//            click { onClick.invoke(this) }
-//        }
-//        mBinding?.ivRight.gone()
-//        return this
 //    }
 //
 //    /**
@@ -168,7 +213,8 @@ import com.example.framework.utils.function.view.visible
 //    }
 //
 //}
-class TitleBuilder(private val mActivity: AppCompatActivity, private val mBinding: ViewTitleBarBinding?) {
+class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewTitleBarBinding?) {
+    val idsMap by lazy { ConcurrentHashMap<String, Int>() }
 
     init {
         mActivity.doOnDestroy {
@@ -184,10 +230,34 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
      * bgColor->背景颜色
      * isShade->标题底部是否带阴影
      */
-    fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, isShade: Boolean = false): TitleBuilder {
+    fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): TitleBuilder {
         mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else color(bgColor))
-        mBinding?.tvTitle?.setTheme(title, titleColor)
-        mBinding?.viewShade?.apply { if (isShade) visible() else gone() }
+        if (title.isNotBlank()) {
+            handleView<TextView>("tvTitle", {
+                TextView(mActivity).also {
+                    it.setTheme(title, titleColor)
+                    it.textSize(R.dimen.textSize18)
+                    it.bold(true)
+                    it.gravity = Gravity.CENTER
+                    it.filters = arrayOf(InputFilter.LengthFilter(10))
+                    it.ellipsize = TextUtils.TruncateAt.END
+                }
+            }, {
+                center(it)
+            })
+        }
+        if (hasShade) {
+            handleView<View>("viewLine", {
+                View(mActivity).also {
+                    it.background(R.color.bgLine)
+                    it.size(MATCH_PARENT, 1.pt)
+                }
+            }, {
+                startToEndOf(it)
+                endToEndOf(it)
+                topToTopOf(it)
+            }).margin(top = 44.pt)
+        }
         setLeft()
         return this
     }
@@ -221,8 +291,10 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
      * onClick->点击事件
      */
     fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int = 44.pt, height: Int = 44.pt, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
-        val ivLeft = createImageView(resId, tintColor, width, height, onClick)
-        setLeft(ivLeft)
+        createImageView("ivLeft", resId, tintColor, width, height, onClick) {
+            startToStartOf(it)
+            centerVertically(it)
+        }
         return this
     }
 
@@ -238,8 +310,10 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
      * onClick->点击事件
      */
     fun setLeft(label: String, labelColor: Int = R.color.textPrimary, drawablePair: Pair<Drawable, Int>? = null, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
-        val tvLeft = createTextView(label, labelColor, drawablePair, onClick)
-        setLeft(tvLeft)
+        createTextView("tvLeft", label, labelColor, drawablePair, onClick) {
+            startToStartOf(it)
+            centerVertically(it)
+        }
         return this
     }
 
@@ -252,80 +326,95 @@ class TitleBuilder(private val mActivity: AppCompatActivity, private val mBindin
      *     img.setPadding(10.pt, 10.pt, 10.pt, 10.pt)
      * }
      */
-    fun <T : View> setLeft(viewCreator: () -> T, setup: (T) -> Unit = {}): TitleBuilder {
-        val view = viewCreator()
-        setup(view) // 先配置视图（如设置点击事件、属性）
-        setLeft(view) // 最后添加到布局
+    inline fun <reified T : View> setLeft(crossinline creator: () -> T,rsp:(T)->Unit={}): TitleBuilder {
+        //margin属性是插入后才可以设置的
+        handleView("vLeft", creator) {
+            startToStartOf(it)
+            centerVertically(it)
+        }.also(rsp)
         return this
     }
 
-    /**
-     * 插入一个/多个自定义view
-     */
-    fun setLeft(view: View, isRemove: Boolean = true) {
-        mBinding?.llLeft?.apply {
-            if (isRemove) removeAllViews()
-            addView(view)
+    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int = 44.pt, height: Int = 44.pt, onClick: () -> Unit = {}): TitleBuilder {
+        createImageView("ivRight", resId, tintColor, width, height, onClick) {
+            endToEndOf(it)
+            centerVertically(it)
         }
-    }
-
-    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int = 44, height: Int = 44, onClick: () -> Unit = {}): TitleBuilder {
-        val ivRight = createImageView(resId, tintColor, width, height, onClick)
-        setRight(ivRight)
         return this
     }
 
     fun setRight(label: String, labelColor: Int = R.color.textPrimary, drawablePair: Pair<Drawable, Int>? = null, onClick: () -> Unit = {}): TitleBuilder {
-        val tvRight = createTextView(label, labelColor, drawablePair, onClick)
-        setRight(tvRight)
-        return this
-    }
-
-    fun <T : View> setRight(viewCreator: () -> T, setup: (T) -> Unit = {}): TitleBuilder {
-        val view = viewCreator()
-        setup(view)
-        setRight(view)
-        return this
-    }
-
-    fun setRight(view: View, isRemove: Boolean = true) {
-        mBinding?.llRight?.apply {
-            if (isRemove) removeAllViews()
-            addView(view)
+        createTextView("tvRight", label, labelColor, drawablePair, onClick) {
+            endToEndOf(it)
+            centerVertically(it)
         }
+        return this
+    }
+
+    inline fun <reified T : View> setRight(crossinline creator: () -> T,rsp:(T)->Unit={}): TitleBuilder {
+        handleView("vRight", creator) {
+            endToEndOf(it)
+            centerVertically(it)
+        }.also(rsp)
+        return this
     }
 
     /**
      * 创建左右侧按钮方法
      */
-    private fun createImageView(resId: Int, tintColor: Int, width: Int, height: Int, onClick: () -> Unit): ImageView {
-        return ImageView(mActivity).apply {
-            setResource(resId)
-            if (tintColor != 0) tint(tintColor)
-            size(width, height)
-            padding(10.pt, 10.pt, 10.pt, 10.pt)
-            click {
-                onClick.invoke()
+    private fun createImageView(key: String, resId: Int, tintColor: Int, width: Int, height: Int, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit = {}) {
+        handleView<ImageView>(key, {
+            ImageView(mActivity).also {
+                it.setResource(resId)
+                if (tintColor != 0) it.tint(tintColor)
+                it.size(width, height)
+                it.padding(10.pt, 10.pt, 10.pt, 10.pt)
+                it.click {
+                    onClick.invoke()
+                }
             }
-        }
+        }, block)
     }
 
-    private fun createTextView(label: String, labelColor: Int, drawablePair: Pair<Drawable, Int>? = null, onClick: () -> Unit): TextView {
-        return TextView(mActivity).apply {
-            setTheme(label, labelColor)
-            padding(start = 15.pt, end = 15.pt)
-            textSize(R.dimen.textSize14)
-            gravity = Gravity.CENTER
-            if (drawablePair != null) {
-                clearBackground()
-                clearHighlightColor()
-                setCompoundDrawables(drawablePair.first, null, null, null)
-                compoundDrawablePadding = drawablePair.second
+    private fun createTextView(key: String, label: String, labelColor: Int, drawablePair: Pair<Drawable, Int>? = null, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit = {}) {
+        handleView<TextView>(key, {
+            TextView(mActivity).also {
+                it.setTheme(label, labelColor)
+                it.padding(start = 15.pt, end = 15.pt)
+                it.textSize(R.dimen.textSize14)
+                it.gravity = Gravity.CENTER
+                if (drawablePair != null) {
+                    it.clearBackground()
+                    it.clearHighlightColor()
+                    it.setCompoundDrawables(drawablePair.first, null, null, null)
+                    it.compoundDrawablePadding = drawablePair.second
+                }
+                it.click {
+                    onClick.invoke()
+                }
             }
-            click {
-                onClick.invoke()
+        }, block)
+    }
+
+    inline fun <reified T : View> handleView(key: String, crossinline creator: () -> T, noinline block: ConstraintSet.(Int) -> Unit = {}):T {
+        val parent = mBinding?.clRoot
+        // 移除上一次的视图
+        val lastId = idsMap[key]
+        if (lastId != null && lastId != View.NO_ID) {
+            parent?.findViewById<T>(lastId)?.let {
+                parent.removeView(it)
             }
         }
+        // 生成新的唯一 id
+        val newViewId = View.generateViewId()
+        idsMap[key] = newViewId
+        val newView = creator.invoke()
+        newView.id = newViewId
+        parent?.addView(newView)
+        parent?.applyConstraints {
+            block(newViewId)
+        }
+        return newView
     }
 
     /**

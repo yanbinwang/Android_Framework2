@@ -47,6 +47,7 @@ import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
@@ -58,6 +59,7 @@ import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.logE
+import com.example.framework.utils.logWTF
 import com.google.android.material.appbar.AppBarLayout
 import java.util.WeakHashMap
 import java.util.concurrent.atomic.AtomicBoolean
@@ -864,4 +866,89 @@ abstract class AppBarStateChangeListener : AppBarLayout.OnOffsetChangedListener 
 
     abstract fun onStateChanged(appBarLayout: AppBarLayout?, state: State?)
 
+}
+
+/**
+ * 假设你有一个 TextView 的 ID 为 R.id.textView，需要设置：
+ * start_toStartOf="parent"
+ * end_toEndOf="parent"
+ * top_toTopOf="parent"
+ * // 创建 ConstraintSet 对象
+ * val constraintSet = ConstraintSet()
+ * // 克隆当前布局的约束
+ * constraintSet.clone(mBinding?.clRoot)
+ * constraintSet.apply {
+ *     textViewId.startToStartOf() // 默认目标为父布局
+ *     textViewId.endToEndOf()
+ *     textViewId.topToTopOf()
+ *     // 如需指定非父布局的目标视图，传入目标 ID 即可：
+ *     // textViewId.startToStartOf(targetId = R.id.anotherView)
+ * }
+ * constraintSet.applyTo(mBinding?.clRoot)
+ */
+fun ConstraintLayout?.applyConstraints(block: ConstraintSet.() -> Unit) {
+    this ?: return
+    val constraintSet = ConstraintSet()
+    constraintSet.clone(this)
+    constraintSet.block()
+    constraintSet.applyTo(this)
+}
+
+fun ConstraintSet.startToStartOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
+    if (!isValidIds(viewId, targetId, "startToStartOf")) return
+    connect(viewId, ConstraintSet.START, targetId, ConstraintSet.START, margin)
+}
+
+fun ConstraintSet.startToEndOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
+    if (!isValidIds(viewId, targetId, "startToEndOf")) return
+    connect(viewId, ConstraintSet.START, targetId, ConstraintSet.END, margin)
+}
+
+fun ConstraintSet.endToEndOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
+    if (!isValidIds(viewId, targetId, "endToEndOf")) return
+    connect(viewId, ConstraintSet.END, targetId, ConstraintSet.END, margin)
+}
+
+fun ConstraintSet.endToStartOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
+    if (!isValidIds(viewId, targetId, "endToStartOf")) return
+    connect(viewId, ConstraintSet.END, targetId, ConstraintSet.START, margin)
+}
+
+fun ConstraintSet.topToTopOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
+    if (!isValidIds(viewId, targetId, "topToTopOf")) return
+    connect(viewId, ConstraintSet.TOP, targetId, ConstraintSet.TOP, margin)
+}
+
+fun ConstraintSet.bottomToBottomOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
+    if (!isValidIds(viewId, targetId, "bottomToBottomOf")) return
+    connect(viewId, ConstraintSet.BOTTOM, targetId, ConstraintSet.BOTTOM, margin)
+}
+
+fun ConstraintSet.center(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID) {
+    if (!isValidIds(viewId, targetId, "center")) return
+    startToStartOf(viewId, targetId)
+    topToTopOf(viewId, targetId)
+    endToEndOf(viewId, targetId)
+    bottomToBottomOf(viewId, targetId)
+}
+
+fun ConstraintSet.centerHorizontally(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID) {
+    if (!isValidIds(viewId, targetId, "centerHorizontally")) return
+    startToStartOf(viewId, targetId)
+    endToEndOf(viewId, targetId)
+}
+
+fun ConstraintSet.centerVertically(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID) {
+    if (!isValidIds(viewId, targetId, "centerVertically")) return
+    topToTopOf(viewId, targetId)
+    bottomToBottomOf(viewId, targetId)
+}
+
+// 封装检查 viewId 和 targetId 是否有效的函数
+private fun isValidIds(viewId: Int, targetId: Int, methodName: String): Boolean {
+    if (viewId == ConstraintSet.UNSET || targetId == ConstraintSet.UNSET) {
+        "Invalid view ID provided for $methodName. viewId: $viewId, targetId: $targetId".logWTF
+        return false
+    }
+    return true
 }

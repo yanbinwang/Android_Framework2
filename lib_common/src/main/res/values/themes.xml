@@ -39,14 +39,14 @@
 
     <!-- 布局画高线样式 -->
     <style name="LineHeight">
-        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_width">1pt</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:background">@color/bgLine</item>
     </style>
 
     <style name="LineConstraintHeight" parent="LineHeight">
-        <item name="android:layout_width">1dp</item>
-        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_width">1pt</item>
+        <item name="android:layout_height">0pt</item>
         <item name="layout_constraintTop_toTopOf">parent</item>
         <item name="layout_constraintBottom_toBottomOf">parent</item>
     </style>
@@ -54,13 +54,13 @@
     <!-- 布局画横线样式 -->
     <style name="LineWidth">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_height">1pt</item>
         <item name="android:background">@color/bgLine</item>
     </style>
 
     <style name="LineConstraintWidth" parent="LineWidth">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_width">0pt</item>
+        <item name="android:layout_height">1pt</item>
         <item name="layout_constraintEnd_toEndOf">parent</item>
         <item name="layout_constraintStart_toStartOf">parent</item>
     </style>
@@ -194,15 +194,15 @@
         <item name="tabIndicatorColor">@color/bgMain</item>
         <item name="tabIndicatorFullWidth">false</item>
         <item name="tabIndicatorHeight">3pt</item>
-        <item name="tabMinWidth">0dp</item>
+        <item name="tabMinWidth">0pt</item>
         <item name="tabRippleColor">@android:color/transparent</item>
         <item name="tabSelectedTextColor">@color/appTheme</item>
         <item name="tabTextColor">@color/textHint</item>
-        <item name="tabPadding">0dp</item>
-        <item name="tabPaddingStart">0dp</item>
-        <item name="tabPaddingTop">0dp</item>
-        <item name="tabPaddingEnd">0dp</item>
-        <item name="tabPaddingBottom">0dp</item>
+        <item name="tabPadding">0pt</item>
+        <item name="tabPaddingStart">0pt</item>
+        <item name="tabPaddingTop">0pt</item>
+        <item name="tabPaddingEnd">0pt</item>
+        <item name="tabPaddingBottom">0pt</item>
     </style>
 
     <!--
