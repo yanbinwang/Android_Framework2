@@ -7,6 +7,7 @@ import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
@@ -207,6 +208,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
                 I18nTextView(mActivity).also {
                     it.textSize(R.dimen.textSize18)
                     it.bold(true)
+                    it.size(WRAP_CONTENT, 44.pt)
                     it.gravity = Gravity.CENTER
                     it.filters = arrayOf(InputFilter.LengthFilter(10))
                     it.ellipsize = TextUtils.TruncateAt.END
