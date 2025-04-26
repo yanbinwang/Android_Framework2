@@ -223,6 +223,20 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
         mBinding?.clRoot.padding(5.pt, getStatusBarHeight(), 5.pt, 0)
     }
 
+    companion object {
+        // 标题
+        const val TITLE_TEXT = "title_text"      // 标题文本
+        const val TITLE_SHADOW = "title_shadow"  // 标题阴影线
+        // 左侧按钮
+        const val LEFT_ICON = "left_icon"        // 左侧图标按钮
+        const val LEFT_TEXT = "left_text"        // 左侧文本按钮
+        const val LEFT_CUSTOM_VIEW = "left_custom_view" // 左侧自定义视图（任意 View 类型）
+        // 右侧按钮
+        const val RIGHT_ICON = "right_icon"      // 右侧图标按钮
+        const val RIGHT_TEXT = "right_text"      // 右侧文本按钮
+        const val RIGHT_CUSTOM_VIEW = "right_custom_view" // 右侧自定义视图（任意 View 类型）
+    }
+
     /**
      * 默认二级页面标题配置
      * title->标题
@@ -233,7 +247,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
     fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): TitleBuilder {
         mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else color(bgColor))
         if (title.isNotBlank()) {
-            handleView<TextView>("tvTitle", {
+            handleView<TextView>(TITLE_TEXT, {
                 TextView(mActivity).also {
                     it.setTheme(title, titleColor)
                     it.textSize(R.dimen.textSize18)
@@ -247,7 +261,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
             })
         }
         if (hasShade) {
-            handleView<View>("viewLine", {
+            handleView<View>(TITLE_SHADOW, {
                 View(mActivity).also {
                     it.background(R.color.bgLine)
                     it.size(MATCH_PARENT, 1.pt)
@@ -291,7 +305,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
      * onClick->点击事件
      */
     fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int = 44.pt, height: Int = 44.pt, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
-        createImageView("ivLeft", resId, tintColor, width, height, onClick) {
+        createImageView(LEFT_ICON, resId, tintColor, width, height, onClick) {
             startToStartOf(it)
             centerVertically(it)
         }
@@ -310,7 +324,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
      * onClick->点击事件
      */
     fun setLeft(label: String, labelColor: Int = R.color.textPrimary, drawablePair: Pair<Drawable, Int>? = null, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
-        createTextView("tvLeft", label, labelColor, drawablePair, onClick) {
+        createTextView(LEFT_TEXT, label, labelColor, drawablePair, onClick) {
             startToStartOf(it)
             centerVertically(it)
         }
@@ -328,7 +342,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
      */
     inline fun <reified T : View> setLeft(crossinline creator: () -> T, rsp: (T) -> Unit = {}): TitleBuilder {
         //margin属性是插入后才可以设置的
-        handleView("vLeft", creator) {
+        handleView(LEFT_CUSTOM_VIEW, creator) {
             startToStartOf(it)
             centerVertically(it)
         }.also(rsp)
@@ -336,7 +350,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
     }
 
     fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int = 44.pt, height: Int = 44.pt, onClick: () -> Unit = {}): TitleBuilder {
-        createImageView("ivRight", resId, tintColor, width, height, onClick) {
+        createImageView(RIGHT_ICON, resId, tintColor, width, height, onClick) {
             endToEndOf(it)
             centerVertically(it)
         }
@@ -344,7 +358,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
     }
 
     fun setRight(label: String, labelColor: Int = R.color.textPrimary, drawablePair: Pair<Drawable, Int>? = null, onClick: () -> Unit = {}): TitleBuilder {
-        createTextView("tvRight", label, labelColor, drawablePair, onClick) {
+        createTextView(RIGHT_TEXT, label, labelColor, drawablePair, onClick) {
             endToEndOf(it)
             centerVertically(it)
         }
@@ -352,7 +366,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
     }
 
     inline fun <reified T : View> setRight(crossinline creator: () -> T, rsp: (T) -> Unit = {}): TitleBuilder {
-        handleView("vRight", creator) {
+        handleView(RIGHT_CUSTOM_VIEW, creator) {
             endToEndOf(it)
             centerVertically(it)
         }.also(rsp)
@@ -396,6 +410,9 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
         }, block)
     }
 
+    /**
+     * 外层创建view
+     */
     inline fun <reified T : View> handleView(key: String, crossinline creator: () -> T, noinline block: ConstraintSet.(Int) -> Unit = {}): T {
         val parent = mBinding?.clRoot
         // 移除上一次的视图
@@ -415,6 +432,13 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
             block(newViewId)
         }
         return newView
+    }
+
+    /**
+     * 检测是否创建
+     */
+    fun nonNull(vararg keys: String): Boolean {
+        return keys.all { idsMap[it] != null }
     }
 
     /**
