@@ -218,6 +218,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
 
     init {
         mActivity.doOnDestroy {
+            idsMap.clear()
             mBinding?.unbind()
         }
         mBinding?.clRoot.padding(5.pt, getStatusBarHeight(), 5.pt, 0)
