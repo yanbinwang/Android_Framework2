@@ -100,6 +100,8 @@ fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.
  */
 fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
 
+fun drawable(@DrawableRes res: Int, width: Int, height: Int) = drawable(res)?.apply { setBounds(0, 0, width, height) }
+
 /**
  * 获取Resources中的String
  */

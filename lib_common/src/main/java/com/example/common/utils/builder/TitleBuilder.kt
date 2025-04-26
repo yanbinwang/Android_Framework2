@@ -286,7 +286,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
      *  4.drawablePadding?.let { view.compoundDrawablePadding = it }文字间距
      * onClick->点击事件
      */
-    fun setLeft(label: Any, labelColor: Int = R.color.textPrimary, drawablePair: Pair<Drawable, Int>? = null, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+    fun setLeft(label: Any, labelColor: Int = R.color.textPrimary, drawablePair: Pair<Drawable?, Int>? = null, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
         createTextView(LEFT_TEXT, label, labelColor, drawablePair, onClick) {
             startToStartOf(it)
             centerVertically(it)
@@ -320,7 +320,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
         return this
     }
 
-    fun setRight(label: Any, labelColor: Int = R.color.textPrimary, drawablePair: Pair<Drawable, Int>? = null, onClick: () -> Unit = {}): TitleBuilder {
+    fun setRight(label: Any, labelColor: Int = R.color.textPrimary, drawablePair: Pair<Drawable?, Int>? = null, onClick: () -> Unit = {}): TitleBuilder {
         createTextView(RIGHT_TEXT, label, labelColor, drawablePair, onClick) {
             endToEndOf(it)
             centerVertically(it)
@@ -339,7 +339,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
     /**
      * 创建左右侧按钮方法
      */
-    private fun createImageView(key: String, resId: Int, tintColor: Int, width: Int, height: Int, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit = {}) {
+    private fun createImageView(key: String, resId: Int, tintColor: Int, width: Int, height: Int, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
         handleView<ImageView>(key, {
             ImageView(mActivity).also {
                 it.setResource(resId)
@@ -353,7 +353,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
         }, block)
     }
 
-    private fun createTextView(key: String, label: Any, labelColor: Int, drawablePair: Pair<Drawable, Int>? = null, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit = {}) {
+    private fun createTextView(key: String, label: Any, labelColor: Int, drawablePair: Pair<Drawable?, Int>? = null, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
         handleView<I18nTextView>(key, {
             I18nTextView(mActivity).also {
                 when (label) {
@@ -367,7 +367,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
                     it.clearBackground()
                     it.clearHighlightColor()
                     val drawable = drawablePair.first
-                    drawable.setTint(color(labelColor))
+                    drawable?.setTint(color(labelColor))
                     it.setCompoundDrawables(drawable, null, null, null)
                     it.compoundDrawablePadding = drawablePair.second
                 }
