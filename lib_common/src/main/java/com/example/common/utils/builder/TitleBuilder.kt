@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import com.example.common.R
 import com.example.common.databinding.ViewTitleBarBinding
+import com.example.common.utils.function.color
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.setI18nTheme
@@ -365,7 +366,9 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
                 if (drawablePair != null) {
                     it.clearBackground()
                     it.clearHighlightColor()
-                    it.setCompoundDrawables(drawablePair.first, null, null, null)
+                    val drawable = drawablePair.first
+                    drawable.setTint(color(labelColor))
+                    it.setCompoundDrawables(drawable, null, null, null)
                     it.compoundDrawablePadding = drawablePair.second
                 }
                 it.click {
