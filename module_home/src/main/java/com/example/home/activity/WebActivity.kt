@@ -41,13 +41,14 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
         helper.setClientListener({
 //            titleBuilder.ivRight.gone()
         }, { title ->
-            if (bundle?.isTitleRequired().orFalse) {
-                titleBuilder
-                    //当传输的title为空时，取一次网页自带的标题并且刷新按钮浮现
-                    .setTitle(title.orNoData())
-                    .setRight(R.mipmap.ic_refresh, R.color.bgBlack, 60.pt, 60.pt) {
-                        helper.refresh()
-                    }
+            //当传输的title为空时，取一次网页自带的标题并且刷新按钮浮现
+            titleBuilder.apply {
+                if (bundle?.isTitleRequired().orFalse) {
+                    setTitle(title.orNoData())
+                }
+                setRight(R.mipmap.ic_refresh, R.color.bgBlack, 44.pt, 44.pt) {
+                    helper.refresh()
+                }
             }
         })
     }
