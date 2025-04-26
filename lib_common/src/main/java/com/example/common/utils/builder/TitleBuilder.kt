@@ -18,6 +18,7 @@ import com.example.common.utils.function.color
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.setTheme
+import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.applyConstraints
 import com.example.framework.utils.function.view.background
@@ -402,7 +403,9 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
                 if (drawablePair != null) {
                     it.clearBackground()
                     it.clearHighlightColor()
-                    it.setCompoundDrawables(drawablePair.first, null, null, null)
+                    val drawable = drawablePair.first
+                    drawable.setTint(color(labelColor))
+                    it.setCompoundDrawables(drawable, null, null, null)
                     it.compoundDrawablePadding = drawablePair.second
                 }
                 it.click {
