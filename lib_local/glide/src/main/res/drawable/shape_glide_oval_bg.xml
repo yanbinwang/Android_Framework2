@@ -6,7 +6,7 @@
     <solid android:color="@color/bgGlide" />
 
     <size
-        android:width="20dp"
-        android:height="20dp" />
+        android:width="20pt"
+        android:height="20pt" />
 
 </shape>

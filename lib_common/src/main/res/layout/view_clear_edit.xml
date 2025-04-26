@@ -10,7 +10,7 @@
 
         <com.example.common.widget.i18n.I18nEditText
             android:id="@+id/et_clear"
-            android:layout_width="0dp"
+            android:layout_width="0pt"
             android:layout_height="0pt"
             android:layout_marginStart="10pt"
             android:background="@null"

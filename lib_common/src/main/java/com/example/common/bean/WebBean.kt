@@ -1,6 +1,5 @@
 package com.example.common.bean
 
-import com.example.framework.utils.function.value.orFalse
 import java.io.Serializable
 
 /**
@@ -49,12 +48,5 @@ abstract class WebBundle : Serializable {
      *获取页面地址
      */
     abstract fun getUrl(): String
-
-    /**
-     * 如果需要标题头，并且未传默认标题
-     */
-    fun isTitleRequired(): Boolean {
-        return getTitleRequired().orFalse && getTitle().isEmpty()
-    }
 
 }
