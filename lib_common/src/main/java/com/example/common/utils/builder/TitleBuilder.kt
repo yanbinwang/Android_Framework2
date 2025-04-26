@@ -21,7 +21,6 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.applyConstraints
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.bold
-import com.example.framework.utils.function.view.bottomToBottomOf
 import com.example.framework.utils.function.view.center
 import com.example.framework.utils.function.view.centerVertically
 import com.example.framework.utils.function.view.clearBackground
@@ -327,7 +326,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
      *     img.setPadding(10.pt, 10.pt, 10.pt, 10.pt)
      * }
      */
-    inline fun <reified T : View> setLeft(crossinline creator: () -> T,rsp:(T)->Unit={}): TitleBuilder {
+    inline fun <reified T : View> setLeft(crossinline creator: () -> T, rsp: (T) -> Unit = {}): TitleBuilder {
         //margin属性是插入后才可以设置的
         handleView("vLeft", creator) {
             startToStartOf(it)
@@ -352,7 +351,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
         return this
     }
 
-    inline fun <reified T : View> setRight(crossinline creator: () -> T,rsp:(T)->Unit={}): TitleBuilder {
+    inline fun <reified T : View> setRight(crossinline creator: () -> T, rsp: (T) -> Unit = {}): TitleBuilder {
         handleView("vRight", creator) {
             endToEndOf(it)
             centerVertically(it)
@@ -397,7 +396,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
         }, block)
     }
 
-    inline fun <reified T : View> handleView(key: String, crossinline creator: () -> T, noinline block: ConstraintSet.(Int) -> Unit = {}):T {
+    inline fun <reified T : View> handleView(key: String, crossinline creator: () -> T, noinline block: ConstraintSet.(Int) -> Unit = {}): T {
         val parent = mBinding?.clRoot
         // 移除上一次的视图
         val lastId = idsMap[key]
