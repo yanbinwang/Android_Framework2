@@ -10,7 +10,6 @@ import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
 import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -99,6 +98,8 @@ fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.
  * 获取图片
  */
 fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
+
+fun drawable(@DrawableRes res: Int, width: Int, height: Int) = drawable(res)?.apply { setBounds(0, 0, width, height) }
 
 /**
  *  <string name="dollar">\$%1$s</string>
