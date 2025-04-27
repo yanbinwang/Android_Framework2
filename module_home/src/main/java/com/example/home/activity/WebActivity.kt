@@ -10,7 +10,6 @@ import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.TitleBuilder.Companion.RIGHT_ICON
 import com.example.common.utils.builder.TitleBuilder.Companion.TITLE_TEXT
 import com.example.common.utils.function.orNoData
-import com.example.common.utils.function.pt
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.orTrue
 import com.example.home.R
