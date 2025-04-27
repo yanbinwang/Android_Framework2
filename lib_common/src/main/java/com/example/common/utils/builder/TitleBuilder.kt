@@ -401,6 +401,18 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
     }
 
     /**
+     * 获取某个特定的view
+     */
+    inline fun <reified T : View> safeGet(key: String): T? {
+        val id = idsMap[key]
+        return if (id != null && id != View.NO_ID) {
+            mBinding?.clRoot?.findViewById(id)
+        } else {
+            null
+        }
+    }
+
+    /**
      * 检测是否创建
      */
     fun nonNull(vararg keys: String): Boolean {
