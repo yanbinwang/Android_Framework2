@@ -47,7 +47,7 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
                     if (bundle?.getTitle().isNullOrEmpty()) {
                         setTitle(title.orNoData())
                     }
-                    setRight(R.mipmap.ic_refresh, R.color.bgBlack, 44.pt, 44.pt) {
+                    setRight(R.mipmap.ic_refresh, R.color.bgBlack) {
                         helper.refresh()
                     }
                 }
