@@ -18,7 +18,6 @@ import com.example.common.utils.function.color
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.setTheme
-import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.applyConstraints
 import com.example.framework.utils.function.view.background
@@ -244,7 +243,7 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
      * title->标题
      * titleColor->标题颜色
      * bgColor->背景颜色
-     * isShade->标题底部是否带阴影
+     * hasShade->标题底部是否带阴影
      */
     fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): TitleBuilder {
         mBinding?.clRoot?.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else color(bgColor))
@@ -304,11 +303,10 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
      * 设置左/右侧按钮图片资源
      * resId->图片
      * tintColor->图片覆盖色（存在相同图片颜色不同的情况，直接传覆盖色即可）
-     * width/height->本身宽高
      * onClick->点击事件
      */
-    fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int = 44.pt, height: Int = 44.pt, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
-        createImageView(LEFT_ICON, resId, tintColor, width, height, onClick) {
+    fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+        createImageView(LEFT_ICON, resId, tintColor, onClick) {
             startToStartOf(it)
             centerVertically(it)
         }
@@ -319,15 +317,14 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
      * 设置左/右侧文字
      * label->文案
      * labelColor->文案颜色
-     * drawablePair->是否包含图片（默认就是左侧的）
-     *  1.drawable(it)获取图片
-     *  2.drawable?.setBounds(0, 0, width, height)设置宽高
+     * drawable->是否包含图片（默认就是左侧的）
+     *  1.drawable(res, width, height)获取图片，设置宽高
      *  3.view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)调取绘制
      *  4.drawablePadding?.let { view.compoundDrawablePadding = it }文字间距
      * onClick->点击事件
      */
-    fun setLeft(label: String, labelColor: Int = R.color.textPrimary, drawablePair: Pair<Drawable?, Int>? = null, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
-        createTextView(LEFT_TEXT, label, labelColor, drawablePair, onClick) {
+    fun setLeft(label: String, labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = { mActivity.finish() }): TitleBuilder {
+        createTextView(LEFT_TEXT, label, labelColor, drawable, onClick) {
             startToStartOf(it)
             centerVertically(it)
         }
@@ -352,16 +349,16 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
         return this
     }
 
-    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int = 44.pt, height: Int = 44.pt, onClick: () -> Unit = {}): TitleBuilder {
-        createImageView(RIGHT_ICON, resId, tintColor, width, height, onClick) {
+    fun setRight(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}): TitleBuilder {
+        createImageView(RIGHT_ICON, resId, tintColor, onClick) {
             endToEndOf(it)
             centerVertically(it)
         }
         return this
     }
 
-    fun setRight(label: String, labelColor: Int = R.color.textPrimary, drawablePair: Pair<Drawable, Int>? = null, onClick: () -> Unit = {}): TitleBuilder {
-        createTextView(RIGHT_TEXT, label, labelColor, drawablePair, onClick) {
+    fun setRight(label: String, labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = {}): TitleBuilder {
+        createTextView(RIGHT_TEXT, label, labelColor, drawable, onClick) {
             endToEndOf(it)
             centerVertically(it)
         }
@@ -379,12 +376,12 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
     /**
      * 创建左右侧按钮方法
      */
-    private fun createImageView(key: String, resId: Int, tintColor: Int, width: Int, height: Int, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
+    private fun createImageView(key: String, resId: Int, tintColor: Int, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
         handleView<ImageView>(key, {
             ImageView(mActivity).also {
                 it.setResource(resId)
                 if (tintColor != 0) it.tint(tintColor)
-                it.size(width, height)
+                it.size(44.pt, 44.pt)
                 it.padding(10.pt, 10.pt, 10.pt, 10.pt)
                 it.click {
                     onClick.invoke()
@@ -393,20 +390,19 @@ class TitleBuilder(private val mActivity: AppCompatActivity, val mBinding: ViewT
         }, block)
     }
 
-    private fun createTextView(key: String, label: String, labelColor: Int, drawablePair: Pair<Drawable?, Int>? = null, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
+    private fun createTextView(key: String, label: String, labelColor: Int, drawable: Drawable? = null, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
         handleView<TextView>(key, {
             TextView(mActivity).also {
                 it.setTheme(label, labelColor)
                 it.padding(start = 15.pt, end = 15.pt)
                 it.textSize(R.dimen.textSize14)
                 it.gravity = Gravity.CENTER
-                if (drawablePair != null) {
+                if (drawable != null) {
                     it.clearBackground()
                     it.clearHighlightColor()
-                    val drawable = drawablePair.first
-                    drawable?.setTint(color(labelColor))
+                    drawable.setTint(color(labelColor))
                     it.setCompoundDrawables(drawable, null, null, null)
-                    it.compoundDrawablePadding = drawablePair.second
+                    it.compoundDrawablePadding = 2.pt
                 }
                 it.click {
                     onClick.invoke()
