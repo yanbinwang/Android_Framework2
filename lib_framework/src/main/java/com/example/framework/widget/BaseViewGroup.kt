@@ -26,95 +26,21 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
             return
         }
-        for (i in 0 until childCount) {
-            val child = getChildAt(i)
-            // 让子视图使用父视图的测量规格进行测量
-            child.measure(widthMeasureSpec, heightMeasureSpec)
-        }
-        // 根据父视图的测量规格设置自身的测量尺寸
-        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec))
-//        // 判空
-//        if (isEmpty()) {
-//            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-//            return
-//        }
-//        // 获取插入的root
-//        val child = getChildAt(0)
-//        val lp = child.layoutParams
-//        // 测量子视图
-//        if (child is ConstraintLayout) {
-//            // 如果子视图是 ConstraintLayout，强制使用父容器的测量规格
-//            val childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY)
-//            val childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec), MeasureSpec.EXACTLY)
-//            child.measure(childWidthMeasureSpec, childHeightMeasureSpec)
-//        } else {
-//            // 对于其他类型的子视图，使用常规的测量规格生成方法
-//            val childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec, 0, lp.width)
-//            val childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec, 0, lp.height)
-//            child.measure(childWidthMeasureSpec, childHeightMeasureSpec)
-//        }
-//        // 获取父视图的测量模式和大小
-//        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
-//        val widthSize = MeasureSpec.getSize(widthMeasureSpec)
-//        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
-//        val heightSize = MeasureSpec.getSize(heightMeasureSpec)
-//        var measuredWidth = 0
-//        var measuredHeight = 0
-//        // 根据测量模式确定最终宽度
-//        when (widthMode) {
-//            MeasureSpec.EXACTLY -> {
-//                measuredWidth = widthSize
-//            }
-//            MeasureSpec.AT_MOST -> {
-//                measuredWidth = if (lp.width == LayoutParams.MATCH_PARENT) {
-//                    widthSize
-//                } else {
-//                    child.measuredWidth
-//                }
-//            }
-//            MeasureSpec.UNSPECIFIED -> {
-//                measuredWidth = child.measuredWidth
-//            }
-//        }
-//        // 根据测量模式确定最终高度
-//        when (heightMode) {
-//            MeasureSpec.EXACTLY -> {
-//                measuredHeight = heightSize
-//            }
-//            MeasureSpec.AT_MOST -> {
-//                measuredHeight = if (lp.height == LayoutParams.MATCH_PARENT) {
-//                    heightSize
-//                } else {
-//                    child.measuredHeight
-//                }
-//            }
-//            MeasureSpec.UNSPECIFIED -> {
-//                measuredHeight = child.measuredHeight
-//            }
-//        }
-//        // 设置父视图的测量尺寸
-//        setMeasuredDimension(measuredWidth, measuredHeight)
+        val child = getChildAt(0)
+        // 强制子视图使用父容器的测量规格（无论子视图布局参数）
+        child.measure(widthMeasureSpec, heightMeasureSpec)
+        // 父容器尺寸与子视图完全一致
+        setMeasuredDimension(child.measuredWidth, child.measuredHeight)
     }
 
     /**
      * 所有子类的子视图都撑满容器
      */
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-//        for (i in 0 until childCount) {
-//            getChildAt(i).layout(0, 0, measuredWidth, measuredHeight)
-//        }
         if (isNotEmpty()) {
             val child = getChildAt(0)
-            val lp = child.layoutParams
-            var left = paddingLeft
-            var top = paddingTop
-            if (lp is MarginLayoutParams) {
-                left += lp.leftMargin
-                top += lp.topMargin
-            }
-            val right = left + child.measuredWidth
-            val bottom = top + child.measuredHeight
-            child.layout(left, top, right, bottom)
+            // 子视图撑满父容器
+            child.layout(0, 0, measuredWidth, measuredHeight)
         }
     }
 
