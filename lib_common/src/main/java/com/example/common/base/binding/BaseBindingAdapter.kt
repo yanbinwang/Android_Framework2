@@ -280,11 +280,11 @@ object BaseBindingAdapter {
      *  }
      */
     @JvmStatic
-    @BindingAdapter(value = ["text", "drawableStart", "drawableTop", "drawableEnd", "drawableBottom", "drawableWidth", "drawableHeight", "drawablePadding"], requireAll = false)
-    fun bindCompoundDrawable(view: TextView, text: String?, drawableStart: Int?, drawableTop: Int?, drawableEnd: Int?, drawableBottom: Int?, drawableWidth: Int?, drawableHeight: Int?, drawablePadding: Int?) {
+    @BindingAdapter(value = ["drawableText", "drawableStart", "drawableTop", "drawableEnd", "drawableBottom", "drawableWidth", "drawableHeight", "drawablePadding"], requireAll = false)
+    fun bindingCompoundDrawable(view: TextView, drawableText: String?, drawableStart: Int?, drawableTop: Int?, drawableEnd: Int?, drawableBottom: Int?, drawableWidth: Int?, drawableHeight: Int?, drawablePadding: Int?) {
         // 设置文本内容
         if (view is ToggleButton) {
-            text?.let {
+            drawableText?.let {
                 view.text = it
                 view.textOn = it
                 view.textOff = it
