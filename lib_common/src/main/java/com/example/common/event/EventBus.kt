@@ -44,13 +44,13 @@ class EventBus private constructor() {
      * 存储所有订阅协程，每个 LifecycleOwner 独立
      */
     private val busSubscriber by lazy { ConcurrentHashMap<LifecycleOwner, Job>() }
-    /**
-     * @Synchronized 注解是对整个方法进行同步，相当于在方法体前添加 synchronized(this) 块，它会将整个方法的执行作为一个临界区，同一时间只有一个线程能够执行该方法。
-     * 而 synchronized(postLock) 可以将同步的范围缩小到只对需要同步的代码块进行加锁，提高了代码的并发度和性能。
-     * 综上所述，在 synchronized(postLock) 中传入一个 Any 类型的对象作为锁，是为了实现同步机制，确保在多线程环境下对共享资源的访问是线程安全的。
-     * 通过使用自定义的锁对象，可以灵活控制同步的范围，提高代码的性能和并发度。
-     */
-    private val postLock by lazy { Any() }
+//    /**
+//     * @Synchronized 注解是对整个方法进行同步，相当于在方法体前添加 synchronized(this) 块，它会将整个方法的执行作为一个临界区，同一时间只有一个线程能够执行该方法。
+//     * 而 synchronized(postLock) 可以将同步的范围缩小到只对需要同步的代码块进行加锁，提高了代码的并发度和性能。
+//     * 综上所述，在 synchronized(postLock) 中传入一个 Any 类型的对象作为锁，是为了实现同步机制，确保在多线程环境下对共享资源的访问是线程安全的。
+//     * 通过使用自定义的锁对象，可以灵活控制同步的范围，提高代码的性能和并发度。
+//     */
+//    private val postLock by lazy { Any() }
 
     companion object {
         @JvmStatic
@@ -83,7 +83,8 @@ class EventBus private constructor() {
      * tryEmit 是非挂起函数，它会尝试立即发射数据。如果缓冲区已满，它会返回 false。
      */
     fun post(event: Event) {
-        synchronized(postLock) {
+//        synchronized(postLock) {
+            //每个 post 方法调用都会创建一个独立的协程作用域
             val scope = CoroutineScope(SupervisorJob() + Main) // 独立作用域
             scope.launch {
                 try {
@@ -94,7 +95,7 @@ class EventBus private constructor() {
             }.invokeOnCompletion {
                 scope.cancel()//协程结束自动清理作用域
             }
-        }
+//        }
     }
 
     /**
