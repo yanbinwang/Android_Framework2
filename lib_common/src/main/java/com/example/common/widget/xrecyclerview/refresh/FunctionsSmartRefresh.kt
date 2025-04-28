@@ -28,6 +28,7 @@ fun SmartRefreshLayout?.init(listener: OnRefreshLoadMoreListener? = null, header
     setEnableRefresh(true)
     setEnableLoadMore(true)
     if (listener != null) setOnRefreshLoadMoreListener(listener)
+    setRefreshHeight()
 }
 
 fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: OnLoadMoreListener? = null, header: RefreshHeader? = null, footer: RefreshFooter? = null) {
@@ -46,6 +47,7 @@ fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: O
     } else {
         setEnableLoadMore(false)
     }
+    setRefreshHeight()
 }
 
 fun SmartRefreshLayout?.finishRefreshing(noMoreData: Boolean? = true) {
