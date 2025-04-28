@@ -278,16 +278,22 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var emptyHeight = -1f
     //空布局点击
     private var listener: ((result: Boolean) -> Unit)? = null
-    //自定义封装的空布局
-    val empty by lazy { EmptyLayout(context).apply { onInflate() } }
+    //----------------以下懒加载会在调取时候创建----------------
+    //整体容器
+    val root by lazy { FrameLayout(context) }
+    //自定义封装的空布局->大小会在添加时设置
+    val empty by lazy { EmptyLayout(context).apply {
+        onInflate()
+    }}
     //数据列表
     val recycler by lazy { ObserverRecyclerView(context).apply {
         size(MATCH_PARENT, MATCH_PARENT)
         init()
     }}
     //刷新控件 类型1才有
-    var refresh: SmartRefreshLayout? = null
-        private set
+    val refresh by lazy { SmartRefreshLayout(context).apply {
+        layoutParams = SmartRefreshLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+    }}
 
     init {
         context.withStyledAttributes(attrs, R.styleable.XRecyclerView) {
@@ -299,8 +305,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     override fun onInflate() {
         if (isInflate) {
-            //基础布局创建
-            val root = FrameLayout(context)
             when (refreshEnable) {
                 false -> {
                     root.addView(recycler)
@@ -310,11 +314,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                     }
                 }
                 true -> {
-                    refresh = SmartRefreshLayout(context).apply {
-                        layoutParams = SmartRefreshLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                    }
                     root.addView(refresh)
-                    refresh?.addView(recycler)
+                    refresh.addView(recycler)
                     if (emptyEnable) {
                         root.addView(empty)
                         emptyConfigure()
