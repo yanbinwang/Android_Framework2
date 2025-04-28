@@ -46,7 +46,7 @@ fun ViewGroup?.getEmptyView(index: Int = 1): EmptyLayout? {
     return if (childCount <= 1) {
         val empty = EmptyLayout(context).apply {
             onInflate()
-            loading()
+//            loading()
         }
         addView(empty)
         empty
