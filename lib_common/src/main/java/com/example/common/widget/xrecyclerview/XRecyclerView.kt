@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
+import androidx.core.content.withStyledAttributes
 import androidx.databinding.ViewDataBinding
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
@@ -36,7 +37,6 @@ import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
-import androidx.core.content.withStyledAttributes
 
 /**
  * author: wyb
@@ -108,40 +108,20 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         recycler?.cancelItemAnimator()
         addView(view)
         root = view
-//        rootSize(MATCH_PARENT, WRAP_CONTENT)
     }
 
     /**
      * 部分empty是有初始大小要求的，不必撑满整个屏幕
      */
     private fun emptyConfigure() {
-        if (-1f == emptyHeight) {
-            emptySize(MATCH_PARENT, MATCH_PARENT)
+        if (-1f == emptyHeight || (!refreshEnable && emptyEnable)) {
+            empty.size(MATCH_PARENT, MATCH_PARENT)
         } else {
-            emptySize(MATCH_PARENT, emptyHeight.toSafeInt())
+            empty.size(MATCH_PARENT, emptyHeight.toSafeInt())
         }
         empty.setOnEmptyRefreshListener {
             listener?.invoke(it)
         }
-    }
-
-    /**
-     * 设定内部view大小的方法
-     */
-    fun emptySize(width: Int? = null, height: Int? = null) {
-        viewSize(empty, width, height)
-    }
-
-    fun recyclerSize(width: Int? = null, height: Int? = null) {
-        viewSize(recycler, width, height)
-    }
-
-    fun rootSize(width: Int? = null, height: Int? = null) {
-        viewSize(root, width, height)
-    }
-
-    private fun viewSize(view: View?, width: Int? = null, height: Int? = null) {
-        view.size(width, height)
     }
 
     /**
