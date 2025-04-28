@@ -411,37 +411,37 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 根据传入不同的监听，确定是否具备头和尾，无需在xml中指定
      */
     fun setOnRefreshListener(listener: OnRefreshLoadMoreListener) {
-        refresh?.init(listener)
+        refresh.init(listener)
     }
 
     fun setOnRefreshListener(onRefresh: OnRefreshListener? = null, onLoadMore: OnLoadMoreListener? = null) {
-        refresh?.init(onRefresh, onLoadMore)
+        refresh.init(onRefresh, onLoadMore)
     }
 
     /**
      * 刷新的一些操作
      */
     fun setHeaderMaxDragRate() {
-        refresh?.setHeaderMaxDragRate()
+        refresh.setHeaderMaxDragRate()
     }
 
     fun setProgressTint(@ColorRes color: Int) {
-        refresh?.setProgressTint(color)
+        refresh.setProgressTint(color)
     }
 
     fun setHeaderDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
-        refresh?.setHeaderDragListener(listener)
+        refresh.setHeaderDragListener(listener)
     }
 
     fun setFooterDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
-        refresh?.setFooterDragListener(listener)
+        refresh.setFooterDragListener(listener)
     }
 
     /**
      * 自动触发刷新
      */
     fun autoRefresh() {
-        refresh?.autoRefresh()
+        refresh.autoRefresh()
     }
 
     /**
@@ -449,7 +449,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * noMoreData是否有更多数据
      */
     fun finishRefreshing(noMoreData: Boolean? = true) {
-        refresh?.finishRefreshing(noMoreData)
+        refresh.finishRefreshing(noMoreData)
     }
 
     /**
