@@ -17,9 +17,9 @@ import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
 
+//------------------------------------刷新控件扩展函数类------------------------------------
 /**
- * @description
- * @author 刷新控件
+ * 初始化刷新控件
  */
 fun SmartRefreshLayout?.init(listener: OnRefreshLoadMoreListener? = null, header: RefreshHeader? = null, footer: RefreshFooter? = null) {
     this ?: return
@@ -50,6 +50,9 @@ fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: O
     setRefreshHeight()
 }
 
+/**
+ * 完成刷新
+ */
 fun SmartRefreshLayout?.finishRefreshing(noMoreData: Boolean? = true) {
     this ?: return
     when (this.state) {
@@ -69,6 +72,9 @@ fun SmartRefreshLayout?.finishRefreshing(noMoreData: Boolean? = true) {
     }
 }
 
+/**
+ * 刷新控件状态
+ */
 fun SmartRefreshLayout?.isRefreshing(): Boolean {
     this ?: return false
     return when (this.state) {
@@ -85,11 +91,14 @@ fun SmartRefreshLayout?.isLoading(): Boolean {
     }
 }
 
+/**
+ * 没有更多数据初始化
+ */
 fun SmartRefreshLayout?.noMoreOnInit() {
     this ?: return
     setEnableLoadMore(true)
-    doOnceAfterLayout {
-        (refreshFooter as? ProjectRefreshFooter)?.setNoMoreData(true)
+    applyToHeaderAndFooter { _, footer ->
+        footer?.setNoMoreData(true)
     }
 }
 
@@ -100,8 +109,8 @@ fun SmartRefreshLayout?.noMoreOnInit() {
  */
 fun SmartRefreshLayout?.setHeaderMaxDragRate() {
     this ?: return
-    doOnceAfterLayout {
-        (refreshHeader as? ProjectRefreshHeader)?.apply {
+    applyToHeaderAndFooter { header, _ ->
+        header?.apply {
             val statusHeight = getStatusBarHeight()
             padding(top = statusHeight)
             setStatusBarHeight(statusHeight)
@@ -120,9 +129,9 @@ fun SmartRefreshLayout?.setHeaderMaxDragRate() {
  */
 fun SmartRefreshLayout?.setRefreshHeight(headerHeight: Int = 40.pt, footerHeight: Int = 40.pt) {
     this ?: return
-    doOnceAfterLayout {
-        (refreshHeader as? ProjectRefreshHeader)?.view.size(MATCH_PARENT, headerHeight)
-        (refreshFooter as? ProjectRefreshFooter)?.view.size(MATCH_PARENT, footerHeight)
+    applyToHeaderAndFooter { header, footer ->
+        header?.view?.size(MATCH_PARENT, headerHeight)
+        footer?.view?.size(MATCH_PARENT, footerHeight)
     }
 }
 
@@ -131,22 +140,36 @@ fun SmartRefreshLayout?.setRefreshHeight(headerHeight: Int = 40.pt, footerHeight
  */
 fun SmartRefreshLayout?.setProgressTint(@ColorRes color: Int) {
     this ?: return
-    doOnceAfterLayout {
-        (refreshHeader as? ProjectRefreshHeader)?.setProgressTint(color)
-        (refreshFooter as? ProjectRefreshFooter)?.setProgressTint(color)
+    applyToHeaderAndFooter { header, footer ->
+        header?.setProgressTint(color)
+        footer?.setProgressTint(color)
     }
 }
 
+/**
+ * 下拉时候头尾监听
+ */
 fun SmartRefreshLayout?.setHeaderDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
     this ?: return
-    doOnceAfterLayout {
-        (refreshHeader as? ProjectRefreshHeader)?.onDragListener = listener
+    applyToHeaderAndFooter { header, _ ->
+        header?.onDragListener = listener
     }
 }
 
 fun SmartRefreshLayout?.setFooterDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
     this ?: return
+    applyToHeaderAndFooter { _, footer ->
+        footer?.onDragListener = listener
+    }
+}
+
+/**
+ * 封装对 refreshHeader 和 refreshFooter 的操作
+ */
+inline fun <T : SmartRefreshLayout> T.applyToHeaderAndFooter(crossinline action: (header: ProjectRefreshHeader?, footer: ProjectRefreshFooter?) -> Unit) {
     doOnceAfterLayout {
-        (refreshFooter as? ProjectRefreshFooter)?.onDragListener = listener
+        val header = refreshHeader as? ProjectRefreshHeader
+        val footer = refreshFooter as? ProjectRefreshFooter
+        action(header, footer)
     }
 }
