@@ -659,7 +659,10 @@ public static java.lang.String TABLENAME;
 -keep class com.alipay.rds.constant.* { *; }
 #------------------------阿里人脸识别混淆结束------------------------
 
-
+#------------------------刷新混淆开始------------------------
+-keep class com.scwang.smart.** { *; }
+-dontwarn com.scwang.smart.**
+#------------------------刷新混淆结束------------------------
 ## 保留密封类及其子类
 #-keep class com.yourpackage.YourSealedClass { *; }
 #-keep class com.yourpackage.YourSealedClass$* { *; }
