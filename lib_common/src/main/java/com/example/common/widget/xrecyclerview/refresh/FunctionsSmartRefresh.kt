@@ -1,10 +1,14 @@
 package com.example.common.widget.xrecyclerview.refresh
 
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.annotation.ColorRes
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.doOnceAfterLayout
+import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.size
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.api.RefreshFooter
 import com.scwang.smart.refresh.layout.api.RefreshHeader
@@ -83,7 +87,7 @@ fun SmartRefreshLayout?.noMoreOnInit() {
     this ?: return
     setEnableLoadMore(true)
     doOnceAfterLayout {
-        (it.refreshFooter as? ProjectRefreshFooter)?.setNoMoreData(true)
+        (refreshFooter as? ProjectRefreshFooter)?.setNoMoreData(true)
     }
 }
 
@@ -95,33 +99,52 @@ fun SmartRefreshLayout?.noMoreOnInit() {
 fun SmartRefreshLayout?.setHeaderMaxDragRate() {
     this ?: return
     doOnceAfterLayout {
-        (it.refreshHeader as? ProjectRefreshHeader)?.apply {
-            val statusBarHeight = getStatusBarHeight()
-            setStatusBarSpacing(statusBarHeight)
-            val height = 40.pt + statusBarHeight
-            setHeaderMaxDragRate(height * 2.5f / (statusBarHeight + height))
+        (refreshHeader as? ProjectRefreshHeader)?.apply {
+            val statusHeight = getStatusBarHeight()
+            padding(top = statusHeight)
+            setStatusBarHeight(statusHeight)
+            val height = 40.ptFloat
+            /**
+             * 设置下拉最大高度和Header高度的比率（将会影响可以下拉的最大高度）
+             * rate – ratio = (the maximum height to drag header)/(the height of header) 比率 = 下拉最大高度 / Header的高度
+             */
+            setHeaderMaxDragRate(height * 2.5f / (statusHeight + height))
         }
     }
 }
 
+/**
+ * 设置顶部/底部的高->内部设置是没用的
+ */
+fun SmartRefreshLayout?.setRefreshHeight(headerHeight: Int = 40.pt, footerHeight: Int = 40.pt) {
+    this ?: return
+    doOnceAfterLayout {
+        (refreshHeader as? ProjectRefreshHeader)?.view.size(MATCH_PARENT, headerHeight)
+        (refreshFooter as? ProjectRefreshFooter)?.view.size(MATCH_PARENT, footerHeight)
+    }
+}
+
+/**
+ * 设置顶部/底部的颜色
+ */
 fun SmartRefreshLayout?.setProgressTint(@ColorRes color: Int) {
     this ?: return
     doOnceAfterLayout {
-        (it.refreshHeader as? ProjectRefreshHeader)?.setProgressTint(color)
-        (it.refreshFooter as? ProjectRefreshFooter)?.setProgressTint(color)
+        (refreshHeader as? ProjectRefreshHeader)?.setProgressTint(color)
+        (refreshFooter as? ProjectRefreshFooter)?.setProgressTint(color)
     }
 }
 
 fun SmartRefreshLayout?.setHeaderDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
     this ?: return
     doOnceAfterLayout {
-        (it.refreshHeader as? ProjectRefreshHeader)?.onDragListener = listener
+        (refreshHeader as? ProjectRefreshHeader)?.onDragListener = listener
     }
 }
 
 fun SmartRefreshLayout?.setFooterDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
     this ?: return
     doOnceAfterLayout {
-        (it.refreshFooter as? ProjectRefreshFooter)?.onDragListener = listener
+        (refreshFooter as? ProjectRefreshFooter)?.onDragListener = listener
     }
 }
