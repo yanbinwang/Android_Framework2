@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
+import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.config.Constants.NO_DATA
 import com.example.common.utils.function.drawable
@@ -38,7 +39,6 @@ import com.example.framework.utils.function.view.clearBackground
 import com.example.framework.utils.function.view.clearHighlightColor
 import com.example.framework.utils.function.view.decimalFilter
 import com.example.framework.utils.function.view.emojiLimit
-import com.example.framework.utils.function.view.generateTagKey
 import com.example.framework.utils.function.view.linearGradient
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
@@ -184,7 +184,7 @@ object BaseBindingAdapter {
     fun bindingTextViewTheme(view: TextView, text: String?, spannable: Spannable?, textColor: Int?, background: Int?, visibility: Int?) {
         if (text != null) {
             //处理文本设置(文本是必须要加载出来的)
-            val textKey = view.generateTagKey("text")
+            val textKey = R.id.theme_text_tag
             val oldText = view.getTag(textKey) as? String
             if (oldText != text) {
                 view.text = text
@@ -192,7 +192,7 @@ object BaseBindingAdapter {
             }
         } else if (spannable != null) {
             //处理高亮文本
-            val spanKey = view.generateTagKey("spannable")
+            val spanKey = R.id.theme_spannable_tag
             val oldSpan = view.getTag(spanKey) as? Spannable
             if (oldSpan != spannable) {
                 view.text = spannable
@@ -203,7 +203,7 @@ object BaseBindingAdapter {
         }
         //处理文本颜色设置
         textColor?.let { newTextColor ->
-            val textColorKey = view.generateTagKey("textColor")
+            val textColorKey = R.id.theme_text_color_tag
             val oldTextColor = view.getTag(textColorKey) as? Int
             if (oldTextColor != newTextColor) {
                 view.setTextColor(newTextColor)
@@ -212,7 +212,7 @@ object BaseBindingAdapter {
         }
         //处理背景设置
         background?.let { newBackground ->
-            val backgroundKey = view.generateTagKey("background")
+            val backgroundKey = R.id.theme_background_tag
             val oldBackground = view.getTag(backgroundKey) as? Int
             if (oldBackground != newBackground) {
                 view.setBackgroundResource(newBackground)
@@ -221,7 +221,7 @@ object BaseBindingAdapter {
         }
         //处理可见性设置
         visibility?.let { newVisibility ->
-            val visibilityKey = view.generateTagKey("visibility")
+            val visibilityKey = R.id.theme_visibility_tag
             val oldVisibility = view.getTag(visibilityKey) as? Int
             if (oldVisibility != newVisibility) {
                 view.visibility = newVisibility
