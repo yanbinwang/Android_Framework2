@@ -330,12 +330,18 @@ var View?.layoutGravity: Int
  */
 inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
     if (this == null) return
-    viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-        override fun onGlobalLayout() {
-            viewTreeObserver.removeOnGlobalLayoutListener(this)
-            listener(this@doOnceAfterLayout)
-        }
-    })
+    if (isLaidOut) {
+        // 如果视图已经完成布局，直接调用回调函数
+        listener(this)
+    } else {
+        // 如果视图还未完成布局，添加监听器
+        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
+                listener(this@doOnceAfterLayout)
+            }
+        })
+    }
 }
 
 /**
