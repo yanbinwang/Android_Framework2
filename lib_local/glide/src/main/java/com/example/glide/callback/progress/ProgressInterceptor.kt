@@ -19,7 +19,9 @@ class ProgressInterceptor : Interceptor {
          */
         @JvmStatic
         fun addListener(url: String, onProgress: ((progress: Int) -> Unit)) {
-            listenerMap[url] = onProgress
+            if (url.isNotBlank()) {
+                listenerMap[url] = onProgress
+            }
         }
 
         /**
@@ -27,7 +29,9 @@ class ProgressInterceptor : Interceptor {
          */
         @JvmStatic
         fun removeListener(url: String) {
-            listenerMap.remove(url)
+            if (url.isNotBlank()) {
+                listenerMap.remove(url)
+            }
         }
 
     }
@@ -36,7 +40,8 @@ class ProgressInterceptor : Interceptor {
         val request = chain.request()
         val response = chain.proceed(request)
         val url = request.url.toString()
-        return response.newBuilder().body(ProgressResponseBody(url, response.body ?: "".toResponseBody())).build()
+        val body = response.body ?: "".toResponseBody()
+        return response.newBuilder().body(ProgressResponseBody(url, body)).build()
     }
 
 }
