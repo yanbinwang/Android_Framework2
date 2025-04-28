@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="theme_text_tag" type="id"/>
+    <item name="theme_spannable_tag" type="id"/>
+    <item name="theme_text_color_tag" type="id"/>
+    <item name="theme_background_tag" type="id"/>
+    <item name="theme_visibility_tag" type="id"/>
+</resources>

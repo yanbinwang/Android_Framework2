@@ -7,7 +7,6 @@ import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
-import com.example.framework.utils.function.view.generateTagKey
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -21,26 +20,26 @@ object GlideBindingAdapter {
      * 图片样式
      */
     @JvmStatic
-    @BindingAdapter(value = ["srcRes", "srcDrawable", "visibility"], requireAll = false)
-    fun bindingImageViewTheme(view: ImageView, srcRes: Int?, srcDrawable: Drawable?, visibility: Int?) {
-        if (srcRes != null) {
-            val srcResKey = view.generateTagKey("srcRes")
-            val oldSrcRes = view.getTag(srcResKey) as? Int
-            if (oldSrcRes != srcRes) {
-                view.setImageResource(srcRes)
-                view.setTag(srcResKey, srcRes)
+    @BindingAdapter(value = ["res", "drawable", "visibility"], requireAll = false)
+    fun bindingImageViewTheme(view: ImageView, res: Int?, drawable: Drawable?, visibility: Int?) {
+        if (res != null) {
+            val resKey = R.id.glide_res_tag
+            val oldSrcRes = view.getTag(resKey) as? Int
+            if (oldSrcRes != res) {
+                view.setImageResource(res)
+                view.setTag(resKey, res)
             }
-        } else if (srcDrawable != null) {
-            val srcDrawableKey = view.generateTagKey("srcDrawable")
-            val oldSrcDrawable = view.getTag(srcDrawableKey) as? Drawable
-            if (oldSrcDrawable != srcDrawable) {
-                view.setImageDrawable(srcDrawable)
-                view.setTag(srcDrawableKey, srcDrawable)
+        } else if (drawable != null) {
+            val drawableKey = R.id.glide_drawable_tag
+            val oldDrawable = view.getTag(drawableKey) as? Drawable
+            if (oldDrawable != drawable) {
+                view.setImageDrawable(drawable)
+                view.setTag(drawableKey, drawable)
             }
         }
         //处理可见性设置
         visibility?.let { newVisibility ->
-            val visibilityKey = view.generateTagKey("visibility")
+            val visibilityKey = R.id.glide_visibility_tag
             val oldVisibility = view.getTag(visibilityKey) as? Int
             if (oldVisibility != newVisibility) {
                 view.visibility = newVisibility

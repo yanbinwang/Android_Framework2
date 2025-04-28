@@ -171,14 +171,6 @@ fun View?.dimen(@DimenRes res: Int): Float {
 }
 
 /**
- * 使用视图的 id + 业务后缀生成唯一键（hashCode 可能冲突，但概率极低）
- */
-fun View?.generateTagKey(keySuffix: String): Int {
-    this ?: return 0
-    return ("${this.hashCode()}::$keySuffix").hashCode()
-}
-
-/**
  * 背景
  */
 fun View?.background(@DrawableRes bg: Int) {
