@@ -88,9 +88,11 @@ class EventBus private constructor() {
             scope.launch {
                 try {
                     busDefault.emit(event)
-                } finally {
-                    scope.cancel()//协程结束自动清理作用域
+                } catch (e: Exception) {
+                    handleException(e)
                 }
+            }.invokeOnCompletion {
+                scope.cancel()//协程结束自动清理作用域
             }
         }
     }
