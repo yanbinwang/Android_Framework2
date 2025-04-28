@@ -114,7 +114,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 部分empty是有初始大小要求的，不必撑满整个屏幕
      */
     private fun emptyConfigure() {
-        if (-1f == emptyHeight || (!refreshEnable && emptyEnable)) {
+        if (-1f == emptyHeight) {
             empty.size(MATCH_PARENT, MATCH_PARENT)
         } else {
             empty.size(MATCH_PARENT, emptyHeight.toSafeInt())
