@@ -34,29 +34,26 @@ open class GlideModule : AppGlideModule() {
 
     /**
      * MemorySizeCalculator类主要关注设备的内存类型，设备 RAM 大小，以及屏幕分辨率
+     * 设置内存缓存应能容纳的屏幕数量。这里设置为 2f 意味着内存缓存的大小要能够容纳大约 2 个屏幕大小的图片数据
+     *
+     * LruResourceCache 是 Glide 实现的一个基于 LRU（Least Recently Used，最近最少使用）算法的内存缓存。LRU 算法会优先移除最近最少使用的元素，以此保证缓存空间的有效利用
+     * calculator.memoryCacheSize.toLong() 获取 MemorySizeCalculator 计算得出的内存缓存大小，并将其转换为 Long 类型
      */
     override fun applyOptions(context: Context, builder: GlideBuilder) {
-        //        int memoryCacheSizeBytes = 1024 * 1024 * 20; // 20mb
-        //        builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
-        //        //使用ActivityManager获取当前设备的内存情况，如果是处于lowMemory的时候，将图片的DecodeFormat设置为 RGB_565 ，
-        //        //RGB_565 和默认的 ARGB_8888 比，每个像素会少 2 个byte，这样，等于一张同样的图片，加载到内存中会少一半内存的占用
-        //        //（ARGB_8888 每个像素占 4 byte）
-        //        ActivityManager activityManager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
-        //        if(null != activityManager){
-        //            ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
-        //            activityManager.getMemoryInfo(memoryInfo);
-        //            builder.setDefaultRequestOptions((new RequestOptions()).format(memoryInfo.lowMemory? DecodeFormat.PREFER_RGB_565 : DecodeFormat.PREFER_ARGB_8888));
-        //        }
         val calculator = MemorySizeCalculator.Builder(context).setMemoryCacheScreens(2f).build()
         builder.setMemoryCache(LruResourceCache(calculator.memoryCacheSize.toLong()))
     }
 
-    //禁止解析Manifest文件,提升初始化速度，避免一些潜在错误
+    /**
+     * 禁止解析Manifest文件,提升初始化速度，避免一些潜在错误
+     */
     override fun isManifestParsingEnabled(): Boolean {
         return false
     }
 
-    //注册自定义组件
+    /**
+     * 注册自定义组件
+     */
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         registry.replace(GlideUrl::class.java, InputStream::class.java, OkHttpUrlLoader.Factory(okHttpClient))
     }
