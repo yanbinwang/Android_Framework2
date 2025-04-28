@@ -7,17 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.withStyledAttributes
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
-import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.appear
+import com.example.framework.utils.function.view.applyConstraints
 import com.example.framework.utils.function.view.clearClick
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
@@ -27,8 +25,10 @@ import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.size
+import com.example.framework.utils.function.view.startToStartOf
 import com.example.framework.utils.function.view.string
 import com.example.framework.utils.function.view.tint
+import com.example.framework.utils.function.view.topToTopOf
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 
@@ -71,36 +71,18 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
                  *    app:layout_constraintTop_toTopOf="parent" />
                  */
                 //创建 ImageView
-                val ivLeft = ImageView(context)
-                ivLeft.id = ImageView.generateViewId()
-                ivLeft.setResource(R.mipmap.ic_btn_back)
-                ivLeft.invisible()
+                ivLeft = ImageView(context).also {
+                    it.id = View.generateViewId()
+                    it.invisible()
+                }
                 //设置布局参数
-                val layoutParams = ConstraintLayout.LayoutParams(44.pt, 44.pt)
-                layoutParams.marginStart = 5.pt
-                ivLeft.layoutParams = layoutParams
-                ivLeft.padding(10.pt, 10.pt, 10.pt, 10.pt)
-                //将 ImageView 添加到 ConstraintLayout
                 mBinding.clRoot.addView(ivLeft)
-                //创建 ConstraintSet 并克隆当前布局的约束
-                val constraintSet = ConstraintSet()
-                constraintSet.clone(mBinding.clRoot)
-                //设置约束
-                constraintSet.connect(
-                    ivLeft.id,
-                    ConstraintSet.START,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.START
-                )
-                constraintSet.connect(
-                    ivLeft.id,
-                    ConstraintSet.TOP,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.TOP)
-                //应用约束
-                constraintSet.applyTo(mBinding.clRoot)
-                //设置状态栏margin
-                ivLeft.margin(top = getStatusBarHeight())
+                mBinding.clRoot.applyConstraints {
+                    val viewId = ivLeft?.id ?: return@applyConstraints
+                    topToTopOf(viewId)
+                    startToStartOf(viewId)
+                }
+                ivLeft.margin(start = 5.pt)
             }
         }
         //绘制大小撑到最大/默认背景
@@ -140,17 +122,12 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 1.只需关闭页面直接调setBack（this）
      * 2.返回按钮点击后做别的操作setBack（onClick = {}）->不需要传activity
      */
-    fun setBack(mActivity: FragmentActivity? = null, resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int? = null, height: Int? = null, onClick: () -> Unit = { mActivity?.finish() }) {
-//        mBinding.ivLeft.apply {
-//            setResource(resId)
-//            if (0 != tintColor) tint(tintColor)
-//            if (null != width && null != height) size(width, height)
-//            click { onClick.invoke() }
-//        }
-        ivLeft.apply {
-            setResource(resId)
-            if (0 != tintColor) tint(tintColor)
-            if (null != width && null != height) size(width, height)
+    fun setBack(mActivity: FragmentActivity? = null, resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }) {
+        ivLeft.also {
+            it.setResource(resId)
+            if (0 != tintColor) it.tint(tintColor)
+            it.size(44.pt, 44.pt)
+            it.padding(10.pt, 10.pt, 10.pt, 10.pt)
             click {
                 onClick.invoke()
             }
@@ -161,7 +138,6 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 全屏按钮状态
      */
     private fun fullState() {
-//        if (fullScreen) mBinding.ivLeft.visible() else mBinding.ivLeft.invisible()
         if (fullScreen) ivLeft.visible() else ivLeft.invisible()
     }
 
