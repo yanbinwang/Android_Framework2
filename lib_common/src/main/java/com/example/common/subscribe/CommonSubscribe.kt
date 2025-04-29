@@ -5,6 +5,11 @@ import com.example.common.network.factory.RetrofitFactory
 /**
  * author:wyb
  * 通用接口类
+ * //两种写法
+ * object HomeSubscribe : HomeApi by RetrofitFactory.instance.createByServer(HomeApi::class.java)
+ * object HomeSubscribe: HomeApi {
+ *     private val homeApi by lazy { RetrofitFactory.instance.createByServer(HomeApi::class.java) }
+ * }
  */
 object CommonSubscribe : CommonApi {
     private val commonApi by lazy { RetrofitFactory.instance.createByServer(CommonApi::class.java) }
