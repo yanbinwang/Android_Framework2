@@ -163,42 +163,41 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val mActivity: Fra
 //        } catch (_: Exception) {
 //        }
 //    }
-    private fun checkShowConditions() =
-        Looper.myLooper() == Looper.getMainLooper() &&
-                popupView?.context != null &&
-                (popupView?.context as? Activity)?.isFinishing == false
-
-    private fun showPopup(showFunction: () -> Unit) {
-        if (checkShowConditions()) {
-            try {
-                setAttributes()
-                showFunction()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
 
     override fun showAsDropDown(anchor: View?) {
-        showPopup { super.showAsDropDown(anchor) }
+        showPopup({ super.showAsDropDown(anchor) }, ::checkShowAsDropDownConditions)
     }
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int) {
-        showPopup { super.showAsDropDown(anchor, xoff, yoff) }
+        showPopup({ super.showAsDropDown(anchor, xoff, yoff) }, ::checkShowAsDropDownConditions)
     }
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
-        showPopup { super.showAsDropDown(anchor, xoff, yoff, gravity) }
+        showPopup({ super.showAsDropDown(anchor, xoff, yoff, gravity) }, ::checkShowAsDropDownConditions)
     }
 
     override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
-        if (Looper.myLooper() == Looper.getMainLooper() &&
-            (mContext as? Activity)?.isFinishing == false &&
-            (mContext as? Activity)?.isDestroyed == false
-        ) {
+        showPopup({ super.showAtLocation(parent, gravity, x, y) }, ::checkShowAtLocationConditions)
+    }
+
+    private fun checkShowAsDropDownConditions() =
+        Looper.myLooper() != null &&
+                Looper.myLooper() == Looper.getMainLooper() &&
+                popupView?.context != null &&
+                (popupView?.context as? Activity)?.isFinishing == false &&
+                (popupView?.context as? Activity)?.isDestroyed == false
+
+    private fun checkShowAtLocationConditions() =
+        Looper.myLooper() != null &&
+                Looper.myLooper() == Looper.getMainLooper() &&
+                (mContext as? Activity)?.isFinishing == false &&
+                (mContext as? Activity)?.isDestroyed == false
+
+    private fun showPopup(showFunction: () -> Unit, checkCondition: () -> Boolean) {
+        if (checkCondition()) {
             try {
                 setAttributes()
-                super.showAtLocation(parent, gravity, x, y)
+                showFunction()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
