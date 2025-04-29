@@ -45,10 +45,6 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val mActivity: Fra
     private var popupView: View? = null
     protected var mBinding: VDB? = null
     protected val mContext get() = window.context
-    protected var measuredWidth = 0
-        private set
-    protected var measuredHeight = 0
-        private set
 
     init {
         initBinding()
@@ -65,7 +61,6 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val mActivity: Fra
                 window.attributes = layoutParams
             }
         }
-        measurePopupView()
     }
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
@@ -81,25 +76,6 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val mActivity: Fra
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-        }
-    }
-
-    /**
-     * 获取自身的长宽高
-     * 一般情况：
-     * 若 popupView 及其子视图的布局参数和内容都是固定的，在调用 measure 方法之后，measuredWidth 和 measuredHeight 能够反映出 PopupWindow 根视图确切的宽高。例如，popupView 是一个包含固定文本的 TextView 或者有固定尺寸的 ImageView 等，测量得到的宽高是准确的。
-     * 特殊情况：
-     * 依赖外部资源：要是 popupView 依赖于外部资源（如网络图片），在资源还未加载完成时进行测量，得到的宽高可能不准确。因为在资源加载完成之前，视图并不知道其最终的大小。
-     * 布局依赖于父容器：如果 popupView 的布局依赖于父容器的大小或者其他动态因素，仅使用 View.MeasureSpec.UNSPECIFIED 进行测量可能无法得到确切的宽高。例如，popupView 中有一个 LinearLayout 其 layout_weight 属性生效，在这种情况下，需要根据实际的布局参数来创建合适的 MeasureSpec 进行测量。
-     */
-    private fun measurePopupView() {
-//        popupView?.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-//        measuredWidth = popupView?.measuredWidth.orZero
-//        measuredHeight = popupView?.measuredHeight.orZero
-        popupView?.doOnceAfterLayout {
-            it.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-            measuredWidth = it.measuredWidth.orZero
-            measuredHeight = it.measuredHeight.orZero
         }
     }
 
@@ -242,12 +218,36 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val mActivity: Fra
 
     /**
      * 控件上方显示(以v的中心位置/左边距->为开始位置)
+     * 获取自身的长宽高
+     * 一般情况：
+     * 若 popupView 及其子视图的布局参数和内容都是固定的，在调用 measure 方法之后，measuredWidth 和 measuredHeight 能够反映出 PopupWindow 根视图确切的宽高。例如，popupView 是一个包含固定文本的 TextView 或者有固定尺寸的 ImageView 等，测量得到的宽高是准确的。
+     * 特殊情况：
+     * 依赖外部资源：要是 popupView 依赖于外部资源（如网络图片），在资源还未加载完成时进行测量，得到的宽高可能不准确。因为在资源加载完成之前，视图并不知道其最终的大小。
+     * 布局依赖于父容器：如果 popupView 的布局依赖于父容器的大小或者其他动态因素，仅使用 View.MeasureSpec.UNSPECIFIED 进行测量可能无法得到确切的宽高。例如，popupView 中有一个 LinearLayout 其 layout_weight 属性生效，在这种情况下，需要根据实际的布局参数来创建合适的 MeasureSpec 进行测量。
      */
     open fun showUp(anchor: View?, center: Boolean = true) {
         if (!isShowing) {
-            val location = IntArray(2)
-            anchor?.getLocationOnScreen(location)
-            showAtLocation(anchor, Gravity.NO_GRAVITY, if (center) ((location[0] + anchor?.width.orZero / 2) - measuredWidth / 2) else ((location[0]) - measuredWidth / 2), location[1] - measuredHeight)
+            /**
+             * Gravity.NO_GRAVITY->用于指定 PopupWindow 的对齐方式。Gravity.NO_GRAVITY 表示不使用任何默认的对齐方式，而是完全根据后面传入的 x 和 y 坐标来确定位置
+             *
+             * x->
+             * 如果 center 为 true，则 x 坐标的计算方式是 (location[0] + anchor?.width.orZero / 2) - measuredWidth / 2。
+             * 其中 location[0] 是 anchor 视图在屏幕上的 x 坐标，anchor?.width.orZero 是 anchor 视图的宽度（如果 anchor 为 null 则宽度为 0），
+             * measuredWidth 是 PopupWindow 的根视图的宽度。这个计算的目的是将 PopupWindow 在水平方向上相对于 anchor 视图居中显示
+             * 如果 center 为 false，则 x 坐标的计算方式是 location[0] - measuredWidth，即将 PopupWindow 的左侧与 anchor 视图的左侧对齐，然后根据 PopupWindow 的宽度进行偏移
+             *
+             * y->
+             * y 坐标的计算是 location[1] - measuredHeight，其中 location[1] 是 anchor 视图在屏幕上的 y 坐标，
+             * measuredHeight 是 PopupWindow 的根视图的高度。这个计算的目的是将 PopupWindow 显示在 anchor 视图的上方，偏移量为 PopupWindow 的高度。
+             */
+            popupView?.doOnceAfterLayout {
+                val location = IntArray(2)
+                anchor?.getLocationOnScreen(location)
+                it.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+                val measuredWidth = it.measuredWidth.orZero
+                val measuredHeight = it.measuredHeight.orZero
+                showAtLocation(anchor, Gravity.NO_GRAVITY, if (center) ((location[0] + anchor?.width.orZero / 2) - measuredWidth / 2) else ((location[0]) - measuredWidth / 2), location[1] - measuredHeight)
+            }
         }
     }
 
