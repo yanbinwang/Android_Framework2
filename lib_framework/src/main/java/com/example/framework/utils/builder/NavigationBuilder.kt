@@ -7,7 +7,7 @@ import android.widget.ImageView
 import androidx.core.view.forEach
 import androidx.viewpager2.widget.ViewPager2
 import com.example.framework.R
-import com.example.framework.utils.AnimationUtil.Companion.elasticityEnter
+import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet

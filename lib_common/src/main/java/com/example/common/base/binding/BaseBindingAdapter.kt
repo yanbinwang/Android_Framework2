@@ -25,7 +25,7 @@ import com.example.common.utils.function.ptFloat
 import com.example.common.widget.advertising.Advertising
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
-import com.example.framework.utils.AnimationUtil.Companion.elasticityEnter
+import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.toSafeFloat
