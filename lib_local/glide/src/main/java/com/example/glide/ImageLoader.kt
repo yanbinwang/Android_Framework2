@@ -3,6 +3,7 @@ package com.example.glide
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Looper
 import android.widget.ImageView
 import androidx.lifecycle.LifecycleOwner
@@ -14,6 +15,7 @@ import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.glide.callback.GlideImpl
 import com.example.glide.callback.GlideRequestListener
@@ -45,7 +47,7 @@ class ImageLoader private constructor() : GlideImpl {
         Glide.with(view.context)
             .asBitmap()
             .load(imageUrl)
-            .placeholder(R.drawable.shape_glide_mask_bg)
+            .placeholder(maskDrawable())
             .dontAnimate()
             .listener(object : GlideRequestListener<Bitmap>() {
                 override fun onLoadStart() {
@@ -69,7 +71,13 @@ class ImageLoader private constructor() : GlideImpl {
                 .into(view)
         } catch (e: Exception) {
             e.printStackTrace()
-            view.setBackgroundResource(R.drawable.shape_glide_mask_bg)
+            view.background = maskDrawable()
+        }
+    }
+
+    private fun maskDrawable(): Drawable {
+        return GradientDrawable().apply {
+            setColor("#000000".parseColor())
         }
     }
 

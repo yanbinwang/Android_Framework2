@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bgGlide">#ccc</color>
-    <color name="bgMaskGlide">#000000</color>
+    <color name="bgGlide">#cccccc</color>
 </resources>
