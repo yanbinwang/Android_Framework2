@@ -25,7 +25,7 @@ import com.example.common.utils.function.ptFloat
 import com.example.common.widget.advertising.Advertising
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
-import com.example.framework.utils.AnimationUtil.Companion.elasticityEnter
+import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.toSafeFloat
@@ -130,9 +130,9 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
-    @BindingAdapter(value = ["load_url", "need_header"], requireAll = false)
-    fun bindingWebViewLoadUrl(webView: WebView, loadPageUrl: String, needHeader: Boolean?) {
-        webView.load(loadPageUrl, needHeader.orFalse)
+    @BindingAdapter(value = ["web_load_network_url", "web_need_header"], requireAll = false)
+    fun bindingWebViewLoadUrl(webView: WebView, networkUrl: String, needHeader: Boolean?) {
+        webView.load(networkUrl, needHeader.orFalse)
     }
 
     /**
@@ -140,7 +140,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
-    @BindingAdapter(value = ["load_asset_url", "need_header"], requireAll = false)
+    @BindingAdapter(value = ["web_load_asset_url", "web_need_header"], requireAll = false)
     fun bindingWebViewLoadAssetUrl(webView: WebView, assetPath: String, needHeader: Boolean?) {
         webView.load("file:///android_asset/$assetPath", needHeader.orFalse)
     }

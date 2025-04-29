@@ -21,7 +21,7 @@ class GifImageView @JvmOverloads constructor(context: Context, attrs: AttributeS
     init {
         context.withStyledAttributes(attrs, R.styleable.GifImageView) {
             val res = getResourceId(R.styleable.GifImageView_android_src, -1)
-            if (res != -1) ImageLoader.instance.displayGif(this@GifImageView, res)
+            if (res != -1) ImageLoader.instance.loadGifFromResource(this@GifImageView, res)
         }
     }
 

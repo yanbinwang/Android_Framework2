@@ -14,8 +14,8 @@ import android.view.WindowManager
 import androidx.databinding.ViewDataBinding
 import com.example.common.R
 import com.example.common.utils.function.pt
-import com.example.framework.utils.AnimationUtil.Companion.elasticityEnter
-import com.example.framework.utils.AnimationUtil.Companion.elasticityExit
+import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
+import com.example.framework.utils.PropertyAnimator.Companion.elasticityExit
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.logE
 import java.lang.reflect.ParameterizedType

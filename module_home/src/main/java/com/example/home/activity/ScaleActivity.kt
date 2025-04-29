@@ -7,7 +7,7 @@ import com.example.common.base.page.Extra
 import com.example.common.bean.interf.TransparentOwner
 import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.TitleBuilder
-import com.example.framework.utils.AnimationUtil.Companion.elasticityEnter
+import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.toNewList
 import com.example.home.R

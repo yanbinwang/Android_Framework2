@@ -309,19 +309,18 @@ suspend fun suspendingDownloadPic(mContext: Context, string: String, root: Strin
     }
 }
 
-private suspend fun suspendingGlideDownload(mContext: Context, string: String, storeDir: File) =
-    suspendCancellableCoroutine {
-        ImageLoader.instance.download(mContext, string) { file ->
-            //此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
-            if (null == file || !file.exists()) {
-                it.resumeWithException(RuntimeException("下载失败"))
-            } else {
-                file.copy(storeDir)
-                file.delete()
-                it.resume("${storeDir.absolutePath}/${file.name}")
-            }
+private suspend fun suspendingGlideDownload(mContext: Context, string: String, storeDir: File) = suspendCancellableCoroutine {
+    ImageLoader.instance.downloadImage(mContext, string) { file ->
+        //此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
+        if (null == file || !file.exists()) {
+            it.resumeWithException(RuntimeException("下载失败"))
+        } else {
+            file.copy(storeDir)
+            file.delete()
+            it.resume("${storeDir.absolutePath}/${file.name}")
         }
     }
+}
 
 /**
  * 文件分割

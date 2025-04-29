@@ -32,9 +32,9 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
             val bean = list.safeGet(position.mod(list.safeSize)) ?: return
             val image = (this as? ImageView) ?: return
             if (localAsset) {
-                ImageLoader.instance.displayRoundDefType(image, context.defTypeMipmap(bean), radius = radius.pt)
+                ImageLoader.instance.loadRoundedDrawableFromResource(image, context.defTypeMipmap(bean), cornerRadius = radius.pt)
             } else {
-                ImageLoader.instance.displayRound(image, bean, radius = radius.pt)
+                ImageLoader.instance.loadRoundedImageFromUrl(image, bean, cornerRadius = radius.pt)
             }
         }
     }

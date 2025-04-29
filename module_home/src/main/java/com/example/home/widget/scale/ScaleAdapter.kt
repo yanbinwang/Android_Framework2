@@ -29,7 +29,7 @@ class ScaleAdapter(private val data: List<Pair<ScaleImageView, String>>) : Pager
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val img = data.safeGet(position)?.first ?: return Any()
-        ImageLoader.instance.display(img, data.safeGet(position)?.second.orEmpty())
+        ImageLoader.instance.loadImageFromUrl(img, data.safeGet(position)?.second.orEmpty())
         container.addView(img, MATCH_PARENT, MATCH_PARENT)
         return img
     }

@@ -68,25 +68,25 @@ class XImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     fun load(url: String) {
-//        ImageLoader.instance.displayProgress(iv, url, {
-//            disable()
-//            iv.gone()
-//            iv.click {}
-//            progressBar.visible()
-//            progressBar.progress = 0
-//        }, {
-//            progressBar.progress = it.orZero
-//        }, {
-//            enable()
-//            iv.appear()
-//            progressBar.gone()
-//            //加载失败的话，点击可以再次加载
-//            if (!it) {
-//                iv.click {
-//                    load(url)
-//                }
-//            }
-//        })
+        ImageLoader.instance.loadImageWithProgress(iv, url, {
+            disable()
+            iv.gone()
+            iv.click {}
+            progressBar.visible()
+            progressBar.progress = 0
+        }, {
+            progressBar.progress = it.orZero
+        }, {
+            enable()
+            iv.appear()
+            progressBar.gone()
+            //加载失败的话，点击可以再次加载
+            if (!it) {
+                iv.click {
+                    load(url)
+                }
+            }
+        })
     }
 
 }
