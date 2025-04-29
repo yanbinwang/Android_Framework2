@@ -1,5 +1,6 @@
 package com.example.framework.utils.function.value
 
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Looper
 import androidx.annotation.ColorInt
@@ -10,6 +11,7 @@ import java.io.File
 import java.io.FileReader
 import java.io.IOException
 import java.util.Locale
+import java.util.regex.Pattern
 
 //------------------------------------方法工具类------------------------------------
 /**
@@ -73,11 +75,25 @@ fun Bundle?.clearFragmentSavedState() {
 }
 
 /**
- * 获取Color String中的color
- * eg: "#ffffff"
+ * 安全解析颜色字符串为 [ColorInt]，支持 null 处理和格式验证
+ * @param defaultColor 非法格式或 null 时使用的默认颜色（默认值：白色 #FFFFFF）
+ * @return 解析后的颜色值（符合 [ColorInt] 规范的 32 位 ARGB 整数）
  */
-@ColorInt
-fun String?.parseColor() = (this ?: "#ffffff").toColorInt()
+@ColorInt // 仅需标记返回值
+fun String?.parseColor(defaultColor: Int = Color.WHITE): Int {
+    return this?.let { colorString ->
+        val colorPattern = Pattern.compile("^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$")
+        if (colorPattern.matcher(colorString).matches()) {
+            try {
+                colorString.toColorInt()
+            } catch (_: IllegalArgumentException) {
+                defaultColor
+            }
+        } else {
+            defaultColor
+        }
+    } ?: defaultColor
+}
 
 /**
  * 不指定name，默认返回class命名

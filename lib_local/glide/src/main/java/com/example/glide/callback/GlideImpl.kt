@@ -14,6 +14,15 @@ import java.io.File
  */
 interface GlideImpl {
 
+    companion object {
+        private const val DEFAULT_CORNER_RADIUS = 5
+        private val DEFAULT_OVERRIDE_CORNERS = booleanArrayOf(false, false, false, false)
+        private val DEFAULT_ERROR_RESOURCE = R.drawable.shape_glide_bg
+        private val DEFAULT_CIRCULAR_ERROR_RESOURCE = R.drawable.shape_glide_oval_bg
+        private fun getDefaultErrorDrawable(view: ImageView?) = view?.context?.drawable(DEFAULT_ERROR_RESOURCE)
+        private fun getDefaultCircularErrorDrawable(view: ImageView?) = view?.context?.drawable(DEFAULT_CIRCULAR_ERROR_RESOURCE)
+    }
+
     //---------------------------------------------图片加载开始---------------------------------------------
     /**
      * 加载图片并根据设置的宽度等比例拉伸高度
@@ -70,7 +79,7 @@ interface GlideImpl {
      * @param onLoadStart 图片开始加载时的回调
      * @param onLoadComplete 图片加载完成时的回调，返回加载的 Drawable
      */
-    fun loadImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = R.drawable.shape_glide_bg, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {})
+    fun loadImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = DEFAULT_ERROR_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {})
 
     /**
      * 加载图片，支持不同的展示方式（资源 ID 方式）
@@ -80,7 +89,7 @@ interface GlideImpl {
      * @param onLoadStart 图片开始加载时的回调
      * @param onLoadComplete 图片加载完成时的回调，返回加载的 Drawable
      */
-    fun loadImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int? = R.drawable.shape_glide_bg, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {})
+    fun loadImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int? = DEFAULT_ERROR_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {})
 
     /**
      * 加载图片，支持不同的展示方式（Drawable 方式，URL 来源）
@@ -90,7 +99,7 @@ interface GlideImpl {
      * @param onLoadStart 图片开始加载时的回调
      * @param onLoadComplete 图片加载完成时的回调，返回加载的 Drawable
      */
-    fun loadImageDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {})
+    fun loadImageDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = getDefaultErrorDrawable(view), onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {})
 
     /**
      * 加载图片，支持不同的展示方式（Drawable 方式，资源 ID 来源）
@@ -100,7 +109,7 @@ interface GlideImpl {
      * @param onLoadStart 图片开始加载时的回调
      * @param onLoadComplete 图片加载完成时的回调，返回加载的 Drawable
      */
-    fun loadImageDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {})
+    fun loadImageDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable? = getDefaultErrorDrawable(view), onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {})
 
     /**
      * 加载圆角图片（URL 方式）
@@ -110,7 +119,7 @@ interface GlideImpl {
      * @param cornerRadius 圆角半径
      * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
      */
-    fun loadRoundedImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = R.drawable.shape_glide_bg, cornerRadius: Int, overrideCorners: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun loadRoundedImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = DEFAULT_ERROR_RESOURCE, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS)
 
     /**
      * 加载圆角图片（资源 ID 方式）
@@ -120,7 +129,7 @@ interface GlideImpl {
      * @param cornerRadius 圆角半径
      * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
      */
-    fun loadRoundedImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int? = R.drawable.shape_glide_bg, cornerRadius: Int, overrideCorners: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun loadRoundedImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int? = DEFAULT_ERROR_RESOURCE, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS)
 
     /**
      * 加载圆角图片（Drawable 方式，URL 来源）
@@ -130,7 +139,7 @@ interface GlideImpl {
      * @param cornerRadius 圆角半径，默认值为 5
      * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
      */
-    fun loadRoundedDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), cornerRadius: Int = 5, overrideCorners: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun loadRoundedDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = getDefaultErrorDrawable(view), cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS)
 
     /**
      * 加载圆角图片（Drawable 方式，资源 ID 来源）
@@ -140,7 +149,7 @@ interface GlideImpl {
      * @param cornerRadius 圆角半径，默认值为 5
      * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
      */
-    fun loadRoundedDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_bg), cornerRadius: Int = 5, overrideCorners: BooleanArray = booleanArrayOf(false, false, false, false))
+    fun loadRoundedDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable? = getDefaultErrorDrawable(view), cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS)
 
     /**
      * 加载圆形图片（URL 方式）
@@ -148,7 +157,7 @@ interface GlideImpl {
      * @param imageUrl 图片的 URL 地址
      * @param errorResource 加载失败时显示的错误图片资源 ID
      */
-    fun loadCircularImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = R.drawable.shape_glide_oval_bg)
+    fun loadCircularImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = DEFAULT_CIRCULAR_ERROR_RESOURCE)
 
     /**
      * 加载圆形图片（资源 ID 方式）
@@ -156,7 +165,7 @@ interface GlideImpl {
      * @param imageResource 图片的资源 ID
      * @param errorResource 加载失败时显示的错误图片资源 ID
      */
-    fun loadCircularImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int? = R.drawable.shape_glide_oval_bg)
+    fun loadCircularImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int? = DEFAULT_CIRCULAR_ERROR_RESOURCE)
 
     /**
      * 加载圆形图片（Drawable 方式，URL 来源）
@@ -164,7 +173,7 @@ interface GlideImpl {
      * @param imageUrl 图片的 URL 地址
      * @param errorDrawable 加载失败时显示的错误 Drawable
      */
-    fun loadCircularDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_oval_bg))
+    fun loadCircularDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = getDefaultCircularErrorDrawable(view))
 
     /**
      * 加载圆形图片（Drawable 方式，资源 ID 来源）
@@ -172,7 +181,7 @@ interface GlideImpl {
      * @param imageDrawable 图片的 Drawable
      * @param errorDrawable 加载失败时显示的错误 Drawable
      */
-    fun loadCircularDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable? = view?.context?.drawable(R.drawable.shape_glide_oval_bg))
+    fun loadCircularDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable? = getDefaultCircularErrorDrawable(view))
     //---------------------------------------------图片加载结束---------------------------------------------
 
     //---------------------------------------------图片库方法开始---------------------------------------------
