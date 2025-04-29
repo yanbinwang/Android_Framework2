@@ -39,40 +39,31 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         val instance by lazy { ImageLoader() }
     }
 
-    override fun displayZoom(view: ImageView?, string: String?, onStart: () -> Unit, onComplete: (bitmap: Bitmap?) -> Unit) {
+    override fun loadScaledImage(view: ImageView?, imageUrl: String?, onLoadStart: () -> Unit, onLoadComplete: (bitmap: Bitmap?) -> Unit) {
         view ?: return
         Glide.with(view.context)
             .asBitmap()
-            .load(string)
+            .load(imageUrl)
             .placeholder(R.drawable.shape_glide_mask_bg)
             .dontAnimate()
             .listener(object : GlideRequestListener<Bitmap>() {
-                override fun onStart() {
-                    onStart()
+                override fun onLoadStart() {
+                    onLoadStart()
                 }
 
-                override fun onComplete(resource: Bitmap?) {
-                    onComplete.invoke(resource)
+                override fun onLoadFinished(resource: Bitmap?) {
+                    onLoadComplete(resource)
                 }
             })
             .into(ZoomTransform(view))
     }
 
-    /**
-     * 所需帧的时间位置，单位为微秒。如果为负，返回一个代表性帧
-     * 1秒 = 10分秒
-     * 1分秒 = 10厘秒
-     * 1厘秒 = 10毫秒
-     * 1毫秒 = 1000微秒
-     * 1微秒 = 1000纳秒->取得的是微秒
-     * 1纳秒 = 1000皮秒
-     */
-    override fun displayFrame(view: ImageView?, string: String?, frameTimeMicros: Long) {
+    override fun loadVideoFrame(view: ImageView?, videoUrl: String?, frameTimeMicros: Long) {
         view ?: return
         try {
             Glide.with(view.context)
                 .setDefaultRequestOptions(RequestOptions().frame(frameTimeMicros).centerCrop())
-                .load(string)
+                .load(videoUrl)
                 .dontAnimate()
                 .into(view)
         } catch (e: Exception) {
@@ -81,123 +72,133 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         }
     }
 
-    override fun displayGif(view: ImageView?, string: String?) {
-        view ?: return
-        Glide.with(view.context).asGif().load(string).into(view)
-    }
-
-    override fun displayGif(view: ImageView?, resource: Int?) {
-        view ?: return
-        Glide.with(view.context).asGif().load(resource).into(view)
-    }
-
-    override fun displayProgress(view: ImageView?, string: String, onStart: () -> Unit, onProgress: (progress: Int?) -> Unit, onComplete: (result: Boolean) -> Unit) {
+    override fun loadGifFromUrl(view: ImageView?, gifUrl: String?) {
         view ?: return
         Glide.with(view.context)
-            .load(string)
+            .asGif()
+            .load(gifUrl)
+            .into(view)
+    }
+
+    override fun loadGifFromResource(view: ImageView?, gifResource: Int?) {
+        view ?: return
+        Glide.with(view.context)
+            .asGif()
+            .load(gifResource)
+            .into(view)
+    }
+
+    override fun loadImageWithProgress(view: ImageView?, imageUrl: String, onLoadStart: () -> Unit, onLoadProgress: (progress: Int?) -> Unit, onLoadResult: (result: Boolean) -> Unit) {
+        view ?: return
+        Glide.with(view.context)
+            .load(imageUrl)
             .apply(RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE))
             .addListener(object : GlideRequestListener<Drawable>() {
-                override fun onStart() {
-                    ProgressInterceptor.addListener(string) { weakHandler.post { onProgress(it) } }
-                    onStart()
+                override fun onLoadStart() {
+                    ProgressInterceptor.addListener(imageUrl) {
+                        weakHandler.post {
+                            onLoadProgress(it)
+                        }
+                    }
+                    onLoadStart()
                 }
 
-                override fun onComplete(resource: Drawable?) {
-                    ProgressInterceptor.removeListener(string)
-                    onComplete(resource != null)
+                override fun onLoadFinished(resource: Drawable?) {
+                    ProgressInterceptor.removeListener(imageUrl)
+                    onLoadResult(resource != null)
                 }
             })
             .into(view)
     }
 
-    override fun display(view: ImageView?, string: String?, error: Int?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
-        displayDefType(view, string, view?.context?.drawable(error.orZero), onStart, onComplete)
+    override fun loadImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int?, onLoadStart: () -> Unit, onLoadComplete: (drawable: Drawable?) -> Unit) {
+        loadImageDrawableFromUrl(view, imageUrl, view?.context?.drawable(errorResource.orZero), onLoadStart, onLoadComplete)
     }
 
-    override fun display(view: ImageView?, resource: Int?, error: Int?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
-        displayDefType(view, view?.context?.drawable(resource.orZero), view?.context?.drawable(error.orZero), onStart, onComplete)
+    override fun loadImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int?, onLoadStart: () -> Unit, onLoadComplete: (drawable: Drawable?) -> Unit) {
+        loadImageDrawableFromResource(view, view?.context?.drawable(imageResource.orZero), view?.context?.drawable(errorResource.orZero), onLoadStart, onLoadComplete)
     }
 
-    override fun displayDefType(view: ImageView?, string: String?, errorDrawable: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
+    override fun loadImageDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable?, onLoadStart: () -> Unit, onLoadComplete: (drawable: Drawable?) -> Unit) {
         view ?: return
         Glide.with(view.context)
-            .load(string)
+            .load(imageUrl)
             .placeholder(R.drawable.shape_glide_bg)
             .error(errorDrawable)
             .dontAnimate()
             .listener(object : GlideRequestListener<Drawable>() {
-                override fun onStart() {
-                    onStart()
+                override fun onLoadStart() {
+                    onLoadStart()
                 }
 
-                override fun onComplete(resource: Drawable?) {
-                    onComplete.invoke(resource)
+                override fun onLoadFinished(resource: Drawable?) {
+                    onLoadComplete(resource)
                 }
             })
             .into(view)
     }
 
-    override fun displayDefType(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable?, onStart: () -> Unit, onComplete: (drawable: Drawable?) -> Unit) {
+    override fun loadImageDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable?, onLoadStart: () -> Unit, onLoadComplete: (drawable: Drawable?) -> Unit) {
         view ?: return
         Glide.with(view.context)
-            .load(resourceDrawable)
+            .load(imageDrawable)
             .placeholder(R.drawable.shape_glide_bg)
             .error(errorDrawable)
             .dontAnimate()
             .listener(object : GlideRequestListener<Drawable>() {
-                override fun onStart() {
-                    onStart()
+                override fun onLoadStart() {
+                    onLoadStart()
                 }
 
-                override fun onComplete(resource: Drawable?) {
-                    onComplete.invoke(resource)
+                override fun onLoadFinished(resource: Drawable?) {
+                    onLoadComplete(resource)
                 }
             })
             .into(view)
     }
 
-    override fun displayRound(view: ImageView?, string: String?, error: Int?, radius: Int, overRide: BooleanArray) {
-        displayRoundDefType(view, string, view?.context?.drawable(error.orZero), radius, overRide)
+    override fun loadRoundedImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int?, cornerRadius: Int, overrideCorners: BooleanArray) {
+        loadRoundedDrawableFromUrl(view, imageUrl, view?.context?.drawable(errorResource.orZero), cornerRadius, overrideCorners)
     }
 
-    override fun displayRound(view: ImageView?, resource: Int?, error: Int?, radius: Int, overRide: BooleanArray) {
-        displayRoundDefType(view, view?.context?.drawable(resource.orZero), view?.context?.drawable(error.orZero), radius, overRide)
+    override fun loadRoundedImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int?, cornerRadius: Int, overrideCorners: BooleanArray) {
+        loadRoundedDrawableFromResource(view, view?.context?.drawable(imageResource.orZero), view?.context?.drawable(errorResource.orZero), cornerRadius, overrideCorners)
     }
 
-    override fun displayRoundDefType(view: ImageView?, string: String?, errorDrawable: Drawable?, radius: Int, overRide: BooleanArray) {
+    override fun loadRoundedDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable?, cornerRadius: Int, overrideCorners: BooleanArray) {
         view ?: return
         Glide.with(view.context)
-            .load(string)
-            .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, radius.toSafeFloat()).apply { setExceptCorner(overRide) }))
+            .load(imageUrl)
+            .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, cornerRadius.toSafeFloat()).apply { setExceptCorner(overrideCorners) }))
             .placeholder(R.drawable.shape_glide_bg)
             .error(errorDrawable)
             .dontAnimate()
             .into(view)
     }
 
-    override fun displayRoundDefType(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable?, radius: Int, overRide: BooleanArray) {
+    override fun loadRoundedDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable?, cornerRadius: Int, overrideCorners: BooleanArray) {
         view ?: return
         Glide.with(view.context)
-            .load(resourceDrawable)
-            .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, radius.toSafeFloat()).apply { setExceptCorner(overRide) }))
+            .load(imageDrawable)
+            .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, cornerRadius.toSafeFloat()).apply { setExceptCorner(overrideCorners) }))
             .placeholder(R.drawable.shape_glide_bg)
             .error(errorDrawable)
             .dontAnimate()
             .into(view)
     }
 
-    override fun displayCircle(view: ImageView?, string: String?, error: Int?) {
-        displayCircleDefType(view, string, view?.context?.drawable(error.orZero))
+    override fun loadCircularImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int?) {
+        loadCircularDrawableFromUrl(view, imageUrl, view?.context?.drawable(errorResource.orZero))
     }
 
-    override fun displayCircle(view: ImageView?, resource: Int?, error: Int?) {
-        displayCircleDefType(view, view?.context?.drawable(resource.orZero), view?.context?.drawable(error.orZero))
+    override fun loadCircularImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int?) {
+        loadCircularDrawableFromResource(view, view?.context?.drawable(imageResource.orZero), view?.context?.drawable(errorResource.orZero))
     }
 
-    override fun displayCircleDefType(view: ImageView?, string: String?, errorDrawable: Drawable?) {
+    override fun loadCircularDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable?) {
         view ?: return
         Glide.with(view.context)
-            .load(string)
+            .load(imageUrl)
             .apply(RequestOptions.circleCropTransform())
             .placeholder(R.drawable.shape_glide_oval_bg)
             .error(errorDrawable)
@@ -205,10 +206,10 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun displayCircleDefType(view: ImageView?, resourceDrawable: Drawable?, errorDrawable: Drawable?) {
+    override fun loadCircularDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable?) {
         view ?: return
         Glide.with(view.context)
-            .load(resourceDrawable)
+            .load(imageDrawable)
             .apply(RequestOptions.circleCropTransform())
             .placeholder(R.drawable.shape_glide_oval_bg)
             .error(errorDrawable)
@@ -216,20 +217,11 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
             .into(view)
     }
 
-    override fun download(context: Context, string: String?, onStart: () -> Unit, onComplete: (file: File?) -> Unit) {
-        Glide.with(context)
-            .downloadOnly()
-            .load(string)
-            .listener(object : GlideRequestListener<File>() {
-                override fun onStart() {
-                    onStart()
-                }
-
-                override fun onComplete(resource: File?) {
-                    onComplete.invoke(resource)
-                }
-            })
-            .preload()
+    /**
+     * 获取用于缓存图片的路劲
+     */
+    override fun getImageCacheDir(context: Context): File? {
+        return Glide.getPhotoCacheDir(context)
     }
 
     /**
@@ -272,11 +264,20 @@ class ImageLoader private constructor() : GlideModule(), GlideImpl {
         }
     }
 
-    /**
-     * 获取用于缓存图片的路劲
-     */
-    override fun cacheDir(context: Context): File? {
-        return Glide.getPhotoCacheDir(context)
+    override fun downloadImage(context: Context, imageUrl: String?, onDownloadStart: () -> Unit, onDownloadComplete: (file: File?) -> Unit) {
+        Glide.with(context)
+            .downloadOnly()
+            .load(imageUrl)
+            .listener(object : GlideRequestListener<File>() {
+                override fun onLoadStart() {
+                    onDownloadStart()
+                }
+
+                override fun onLoadFinished(resource: File?) {
+                    onDownloadComplete(resource)
+                }
+            })
+            .preload()
     }
 
 }

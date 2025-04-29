@@ -103,9 +103,9 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
     fun setUrl(url: String, thumbUrl: String? = null, setUpLazy: Boolean = false) {
         //加载图片
         if (thumbUrl.isNullOrEmpty()) {
-            ImageLoader.instance.displayFrame(mBinding?.ivThumb, url)
+            ImageLoader.instance.loadVideoFrame(mBinding?.ivThumb, url)
         } else {
-            ImageLoader.instance.display(mBinding?.ivThumb, thumbUrl)
+            ImageLoader.instance.loadImageFromUrl(mBinding?.ivThumb, thumbUrl)
         }
         GSYVideoOptionBuilder()
             .setIsTouchWiget(false)

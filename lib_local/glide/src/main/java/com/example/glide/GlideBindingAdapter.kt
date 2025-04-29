@@ -3,7 +3,6 @@ package com.example.glide
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
-import com.example.framework.utils.function.value.execute
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
@@ -12,7 +11,6 @@ import com.example.framework.utils.function.view.enable
  * Created by WangYanBin on 2020/6/10.
  * 图片加载工具类
  */
-@Suppress("HasPlatformType")
 object GlideBindingAdapter {
 
     // <editor-fold defaultstate="collapsed" desc="imageview绑定方法">
@@ -52,63 +50,63 @@ object GlideBindingAdapter {
      * 加载图片（比例缩放）
      */
     @JvmStatic
-    @BindingAdapter(value = ["display_zoom"])
-    fun bindingDisplayZoom(view: ImageView, url: String) {
-        ImageLoader.instance.displayZoom(view, url, { view.disable() }, { view.enable() })
+    @BindingAdapter(value = ["scaled_imageUrl"])
+    fun bindingScaledImage(view: ImageView, imageUrl: String) {
+        ImageLoader.instance.loadScaledImage(view, imageUrl, { view.disable() }, { view.enable() })
     }
 
     /**
      * 加载gif图片
      */
     @JvmStatic
-    @BindingAdapter(value = ["display_gif"])
-    fun bindingDisplayGif(view: ImageView, url: String) {
-        ImageLoader.instance.displayGif(view, url)
+    @BindingAdapter(value = ["gif_gifUrl"])
+    fun bindingGifFromUrl(view: ImageView, gifUrl: String) {
+        ImageLoader.instance.loadGifFromUrl(view, gifUrl)
     }
 
     /**
      * 加载图片
      */
     @JvmStatic
-    @BindingAdapter(value = ["display", "display_error"], requireAll = false)
-    fun bindingDisplay(view: ImageView, url: String, error: Int?) = view.context.execute {
-        ImageLoader.instance.display(view, url, error, { view.disable() }, onComplete = { view.enable() })
+    @BindingAdapter(value = ["imageUrl", "errorResource"], requireAll = false)
+    fun bindingImageFromUrl(view: ImageView, imageUrl: String, errorResource: Int?) {
+        ImageLoader.instance.loadImageFromUrl(view, imageUrl, errorResource, { view.disable() }, { view.enable() })
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["display_resource"])
-    fun bindingDisplayResource(view: ImageView, resource: Int) = view.context.execute {
-        ImageLoader.instance.display(view, resource, onStart = { view.disable() }, onComplete = { view.enable() })
+    @BindingAdapter(value = ["imageResource"])
+    fun bindingImageFromResource(view: ImageView, imageResource: Int) {
+        ImageLoader.instance.loadImageFromResource(view, imageResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
     }
 
     /**
      * 加载图片（带圆角）
      */
     @JvmStatic
-    @BindingAdapter(value = ["display_round", "round_radius", "round_error"], requireAll = false)
-    fun bindingDisplayRound(view: ImageView, url: String, roundRadius: Int?, roundError: Int?) = view.context.execute {
-        ImageLoader.instance.displayRound(view, url, roundError, roundRadius.toSafeInt(5))
+    @BindingAdapter(value = ["rounded_imageUrl", "rounded_errorResource", "rounded_cornerRadius"], requireAll = false)
+    fun bindingRoundedImageFromUrl(view: ImageView, imageUrl: String, errorResource: Int?, cornerRadius: Int?) {
+        ImageLoader.instance.loadRoundedImageFromUrl(view, imageUrl, errorResource, cornerRadius.toSafeInt(5))
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["display_round_resource", "round_resource_radius"], requireAll = false)
-    fun bindingDisplayRoundResource(view: ImageView, resource: Int, roundRadius: Int?) = view.context.execute {
-        ImageLoader.instance.displayRound(view, resource, radius = roundRadius.toSafeInt(5))
+    @BindingAdapter(value = ["rounded_imageResource", "rounded_cornerRadius"], requireAll = false)
+    fun bindingRoundedImageFromResource(view: ImageView, imageResource: Int, cornerRadius: Int?) {
+        ImageLoader.instance.loadRoundedImageFromResource(view, imageResource, cornerRadius = cornerRadius.toSafeInt(5))
     }
 
     /**
      * 加载图片（圆形）
      */
     @JvmStatic
-    @BindingAdapter(value = ["display_circle", "circle_error"], requireAll = false)
-    fun bindingDisplayCircle(view: ImageView, url: String, circleError: Int?) {
-        ImageLoader.instance.displayCircle(view, url, circleError)
+    @BindingAdapter(value = ["circular_imageUrl", "circular_errorResource"], requireAll = false)
+    fun bindingCircularImageFromUrl(view: ImageView, imageUrl: String, errorResource: Int?) {
+        ImageLoader.instance.loadCircularImageFromUrl(view, imageUrl, errorResource)
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["display_circle_resource"])
-    fun bindingDisplayCircleResource(view: ImageView, resource: Int) = view.context.execute {
-        ImageLoader.instance.displayCircle(view, resource)
+    @BindingAdapter(value = ["circular_imageResource"])
+    fun bindingCircularImageFromResource(view: ImageView, imageResource: Int) {
+        ImageLoader.instance.loadCircularImageFromResource(view, imageResource)
     }
     // </editor-fold>
 

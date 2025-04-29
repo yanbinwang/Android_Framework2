@@ -17,6 +17,7 @@ import com.example.common.utils.function.dp
 import com.example.common.utils.function.string
 import com.example.glide.ImageLoader
 import com.example.thirdparty.R
+import androidx.core.graphics.scale
 
 /**
  * @description 通知构建类
@@ -55,11 +56,11 @@ object NotificationUtil {
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent)
         if (!pictureUrl.isNullOrEmpty()) {
-            ImageLoader.instance.download(this, pictureUrl, onComplete = {
+            ImageLoader.instance.downloadImage(this, pictureUrl, onDownloadComplete = {
                 val bitmap = BitmapFactory.decodeFile(it?.absolutePath)
                 if (bitmap != null) {
                     val b: Bitmap? = null
-                    val smallIcon = Bitmap.createScaledBitmap(bitmap, 64.dp, 64.dp, false)
+                    val smallIcon = bitmap.scale(64.dp, 64.dp, false)
                     notificationBuilder
                         .setLargeIcon(smallIcon)
                         .setStyle(NotificationCompat.BigPictureStyle()

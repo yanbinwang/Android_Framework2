@@ -15,14 +15,16 @@ abstract class GlideRequestListener<R> : RequestListener<R> {
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
 
     init {
-        weakHandler.post { onStart() }
+        weakHandler.post {
+            onLoadStart()
+        }
     }
 
     /**
      * 加载成功
      */
     override fun onResourceReady(resource: R & Any, model: Any, target: Target<R>?, dataSource: DataSource, isFirstResource: Boolean): Boolean {
-        doResult(resource)
+        handleLoadResult(resource)
         /**
          * true->表示已经处理好资源，不让 Glide 继续默认流程
          * false->让 Glide 继续默认的显示流程
@@ -34,16 +36,25 @@ abstract class GlideRequestListener<R> : RequestListener<R> {
      * 加载失败
      */
     override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<R>, isFirstResource: Boolean): Boolean {
-        doResult(null)
+        e?.printStackTrace()
+        handleLoadResult(null)
         return false
     }
 
-    private fun doResult(resource: R?) {
-        weakHandler.post { onComplete(resource) }
+    private fun handleLoadResult(resource: R?) {
+        weakHandler.post {
+            onLoadFinished(resource)
+        }
     }
 
-    protected abstract fun onStart()
+    /**
+     * 开始加载
+     */
+    protected abstract fun onLoadStart()
 
-    protected abstract fun onComplete(resource: R?)
+    /**
+     * 完成加载，成功的情况下R是必定有值的
+     */
+    protected abstract fun onLoadFinished(resource: R?)
 
 }
