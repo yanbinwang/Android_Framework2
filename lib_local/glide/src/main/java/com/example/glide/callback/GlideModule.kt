@@ -40,6 +40,7 @@ open class GlideModule : AppGlideModule() {
      * calculator.memoryCacheSize.toLong() 获取 MemorySizeCalculator 计算得出的内存缓存大小，并将其转换为 Long 类型
      */
     override fun applyOptions(context: Context, builder: GlideBuilder) {
+        super.applyOptions(context, builder)
         val calculator = MemorySizeCalculator.Builder(context).setMemoryCacheScreens(2f).build()
         builder.setMemoryCache(LruResourceCache(calculator.memoryCacheSize.toLong()))
     }

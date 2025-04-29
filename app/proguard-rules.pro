@@ -165,6 +165,7 @@
 -keep public class * extends com.bumptech.glide.module.AppGlideModule
 -keep class com.bumptech.glide.GeneratedAppGlideModuleImpl
 -keep class com.bumptech.glide.integration.okhttp3.OkHttpGlideModule
+-keepnames class * com.example.glide.callback.GlideModule
 #------------------------glide图片库混淆结束------------------------
 
 #------------------------OKHttp混淆开始------------------------

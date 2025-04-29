@@ -16,7 +16,6 @@ import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.glide.callback.GlideImpl
-import com.example.glide.callback.GlideModule
 import com.example.glide.callback.GlideRequestListener
 import com.example.glide.callback.progress.ProgressInterceptor
 import com.example.glide.transform.CornerTransform
@@ -29,9 +28,11 @@ import java.io.File
 
 /**
  * Created by WangYanBin on 2020/5/29.
- * 图片加载库使用Application上下文，Glide请求将不受Activity/Fragment生命周期控制。
+ * 1.如果图片加载库使用Application上下文，Glide请求将不受Activity/Fragment生命周期控制。
+ * 2.GlideModule在高版本已经不需要继承，写好打上注解全局就会应用（glide的依赖需要都引入）
  */
-class ImageLoader private constructor() : GlideModule(), GlideImpl {
+//class ImageLoader private constructor() : GlideModule(), GlideImpl {
+class ImageLoader private constructor() : GlideImpl {
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
 
     companion object {
