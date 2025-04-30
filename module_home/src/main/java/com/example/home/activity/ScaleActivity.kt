@@ -4,7 +4,7 @@ import android.os.Bundle
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
-import com.example.common.bean.interf.TransparentOwner
+import com.example.common.base.page.interf.TransparentOwner
 import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.TitleBuilder
 import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter

@@ -1,4 +1,4 @@
-package com.example.common.bean.interf
+package com.example.common.base.page.interf
 
 /**
  * @author yan
