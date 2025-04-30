@@ -17,6 +17,24 @@ import kotlinx.coroutines.runBlocking
 
 /**
  * 串行/并发是否需要dialog需要主动调取，单纯一次性发起不需要
+ * private fun refreshNow() {
+ *         lastRefreshTime = currentTimeNano
+ *         getPageInfo(mRefresh?.autoRefreshAnimationOnly().orFalse)
+ *     }
+ *
+ *     private fun getPageInfo(isAuto: Boolean = false) {
+ *         launch {
+ *             if (isAuto) delay(300)
+ *             flow {
+ *                 emit(request({ CommonApi.instance.getUserInfoApi() }))
+ *             }.withHandling(end = {
+ *                 reset(false)
+ *                 location.postValue(Unit)
+ *             }).collect {
+ *                 AccountHelper.refresh(it)
+ *             }
+ *         }.manageJob()
+ *     }
  */
 class TestViewModel : BaseViewModel() {
 //    val token by lazy { MutableLiveData<String?>() }
