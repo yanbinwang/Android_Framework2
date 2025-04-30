@@ -56,7 +56,6 @@ import java.util.Locale
 /**
  * Created by WangYanBin on 2020/8/14.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 @SuppressLint("MissingPermission", "UnspecifiedRegisterReceiverFlag", "PrivateApi", "DiscouragedPrivateApi", "SoonBlockedPrivateApi", "Build.VERSION_CODES.ICE_CREAM_SANDWICH")
 abstract class BaseApplication : Application() {
     private var onStateChangedListener: (isForeground: Boolean) -> Unit = {}
