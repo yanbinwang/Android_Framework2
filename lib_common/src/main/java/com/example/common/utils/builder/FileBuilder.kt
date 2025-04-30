@@ -22,7 +22,7 @@ import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90
 import androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION
 import com.example.common.R
-import com.example.common.subscribe.CommonSubscribe
+import com.example.common.network.CommonApi
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.function.copy
@@ -272,7 +272,7 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
     return withContext(IO) {
         try {
             //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
-            val body = CommonSubscribe.getDownloadApi(downloadUrl)
+            val body = CommonApi.instance.getDownloadApi(downloadUrl)
             val buf = ByteArray(2048)
             val total = body.contentLength()
             body.byteStream().use { inputStream ->
