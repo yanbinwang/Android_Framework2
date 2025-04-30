@@ -8,6 +8,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkRequest
 import android.os.Build
+import android.os.SystemClock
 import android.view.Gravity
 import android.widget.TextView
 import android.widget.Toast
@@ -69,6 +70,8 @@ abstract class BaseApplication : Application() {
         var isForeground = true
         //是否需要回首頁
         var needOpenHome = false
+        //应用启动时间戳
+        var startTime = -1L
         //单列
         lateinit var instance: BaseApplication
     }
@@ -81,6 +84,21 @@ abstract class BaseApplication : Application() {
 
     //初始化一些第三方控件和单例工具类等
     private fun initialize() {
+        /**
+         * 存储启动时间戳
+         * 返回的是自系统启动开始到调用该方法时所经过的时间，包含了系统处于睡眠状态的时间。也就是说，从设备开机（包括关机充电等情况）起，
+         * 不管设备是处于正常运行、休眠还是其他状态，这个时间都会持续累加。该方法返回的时间单位是毫秒（ms）
+         * // 获取启动时间戳
+         * long startTime = MyApplication.getStartTime();
+         * // 计算已经过去的时间
+         * long elapsedTime = SystemClock.elapsedRealtime() - startTime;
+         * // 计算还需要等待的时间
+         * long remainingTime = SPLASH_DELAY - elapsedTime;
+         * if (remainingTime < 0) {
+         *    remainingTime = 0;
+         *  }
+         */
+        startTime = SystemClock.elapsedRealtime()
         //布局初始化
         AutoSizeConfig.getInstance()
             .setBaseOnWidth(true)
