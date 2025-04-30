@@ -96,8 +96,12 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
             is EmptyLayout -> weakEmpty = WeakReference(view)
             //传入用于刷新的empty
             is XRecyclerView -> {
-                weakEmpty = WeakReference(view.empty)
                 weakRecycler = WeakReference(view)
+                weakEmpty = WeakReference(view.empty)
+                //如果recyclerview是带有刷新的，且外层并未在该方法内注入refresh控件
+                if (view.isRefresh() && refresh == null) {
+                    weakRefresh = WeakReference(view.refresh)
+                }
             }
             //外层下拉刷新的控件
             is SmartRefreshLayout -> {
