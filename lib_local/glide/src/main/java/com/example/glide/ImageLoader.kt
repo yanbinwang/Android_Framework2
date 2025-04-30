@@ -3,7 +3,6 @@ package com.example.glide
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
 import android.os.Looper
 import android.widget.ImageView
 import androidx.lifecycle.LifecycleOwner
@@ -15,9 +14,12 @@ import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.glide.callback.GlideImpl
+import com.example.glide.callback.GlideImpl.Companion.DEFAULT_CIRCULAR_RESOURCE
+import com.example.glide.callback.GlideImpl.Companion.DEFAULT_RESOURCE
+import com.example.glide.callback.GlideImpl.Companion.DEFAULT_MASK_RESOURCE
+import com.example.glide.callback.GlideImpl.Companion.DEFAULT_ROUNDED_RESOURCE
 import com.example.glide.callback.GlideRequestListener
 import com.example.glide.callback.progress.ProgressInterceptor
 import com.example.glide.transform.CornerTransform
@@ -47,7 +49,7 @@ class ImageLoader private constructor() : GlideImpl {
         Glide.with(view.context)
             .asBitmap()
             .load(imageUrl)
-            .placeholder(maskDrawable())
+            .placeholder(DEFAULT_MASK_RESOURCE)
             .dontAnimate()
             .listener(object : GlideRequestListener<Bitmap>() {
                 override fun onLoadStart() {
@@ -71,13 +73,7 @@ class ImageLoader private constructor() : GlideImpl {
                 .into(view)
         } catch (e: Exception) {
             e.printStackTrace()
-            view.background = maskDrawable()
-        }
-    }
-
-    private fun maskDrawable(): Drawable {
-        return GradientDrawable().apply {
-            setColor("#000000".parseColor())
+            view.setBackgroundResource(DEFAULT_MASK_RESOURCE)
         }
     }
 
@@ -132,7 +128,7 @@ class ImageLoader private constructor() : GlideImpl {
         view ?: return
         Glide.with(view.context)
             .load(imageUrl)
-            .placeholder(R.drawable.shape_glide_bg)
+            .placeholder(DEFAULT_RESOURCE)
             .error(errorDrawable)
             .dontAnimate()
             .listener(object : GlideRequestListener<Drawable>() {
@@ -151,7 +147,7 @@ class ImageLoader private constructor() : GlideImpl {
         view ?: return
         Glide.with(view.context)
             .load(imageDrawable)
-            .placeholder(R.drawable.shape_glide_bg)
+            .placeholder(DEFAULT_RESOURCE)
             .error(errorDrawable)
             .dontAnimate()
             .listener(object : GlideRequestListener<Drawable>() {
@@ -179,7 +175,7 @@ class ImageLoader private constructor() : GlideImpl {
         Glide.with(view.context)
             .load(imageUrl)
             .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, cornerRadius.toSafeFloat()).apply { setExceptCorner(overrideCorners) }))
-            .placeholder(R.drawable.shape_glide_bg)
+            .placeholder(DEFAULT_ROUNDED_RESOURCE)
             .error(errorDrawable)
             .dontAnimate()
             .into(view)
@@ -190,7 +186,7 @@ class ImageLoader private constructor() : GlideImpl {
         Glide.with(view.context)
             .load(imageDrawable)
             .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, cornerRadius.toSafeFloat()).apply { setExceptCorner(overrideCorners) }))
-            .placeholder(R.drawable.shape_glide_bg)
+            .placeholder(DEFAULT_ROUNDED_RESOURCE)
             .error(errorDrawable)
             .dontAnimate()
             .into(view)
@@ -209,7 +205,7 @@ class ImageLoader private constructor() : GlideImpl {
         Glide.with(view.context)
             .load(imageUrl)
             .apply(RequestOptions.circleCropTransform())
-            .placeholder(R.drawable.shape_glide_oval_bg)
+            .placeholder(DEFAULT_CIRCULAR_RESOURCE)
             .error(errorDrawable)
             .dontAnimate()
             .into(view)
@@ -220,7 +216,7 @@ class ImageLoader private constructor() : GlideImpl {
         Glide.with(view.context)
             .load(imageDrawable)
             .apply(RequestOptions.circleCropTransform())
-            .placeholder(R.drawable.shape_glide_oval_bg)
+            .placeholder(DEFAULT_CIRCULAR_RESOURCE)
             .error(errorDrawable)
             .dontAnimate()
             .into(view)
