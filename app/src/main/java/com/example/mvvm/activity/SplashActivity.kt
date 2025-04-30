@@ -50,6 +50,16 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
         }
         window.fullScreen()
         super.onCreate(savedInstanceState)
+        //当前Activity不是任务栈的根，可能是通过其他Activity启动的
+        if (!isTaskRoot) {
+            jump()
+        } else {
+            //当前Activity是任务栈的根，执行相应逻辑
+            initSplash()
+        }
+    }
+
+    private fun initSplash() {
         launch {
             val SPLASH_DELAY = 2000L
             // 计算已经过去的时间
@@ -61,8 +71,12 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
                 SPLASH_DELAY - elapsedTime
             }
             delay(remainingTime)
-            navigation(ARouterPath.MainActivity).finish()
+            jump()
         }
+    }
+
+    private fun jump() {
+        navigation(ARouterPath.MainActivity).finish()
     }
 
 }
