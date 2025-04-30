@@ -217,6 +217,17 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
+     * 判断当前模式
+     */
+    fun isRefresh(): Boolean {
+        return refreshEnable
+    }
+
+    fun isEmpty(): Boolean {
+        return emptyEnable
+    }
+
+    /**
      * 自动触发刷新
      */
     fun autoRefresh() {
