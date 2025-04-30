@@ -73,6 +73,25 @@ fun SmartRefreshLayout?.finishRefreshing(noMoreData: Boolean? = true) {
 }
 
 /**
+ * 获取自动刷新的delay时间，如果是手动拖拽，会是false
+ * launch {
+ *   delay(mRefresh.getAutoRefreshTime())
+ *   flow {
+ *       emit(request({ CommonApi.instance.getUserInfoApi() }))
+ *   }.withHandling(end = {
+ *       reset(false)
+ *       location.postValue(Unit)
+ *   }).collect {
+ *       AccountHelper.refresh(it)
+ *   }
+ * }.manageJob()
+ */
+fun SmartRefreshLayout?.getAutoRefreshTime(): Long {
+    this ?: return 0
+    return if (autoRefreshAnimationOnly().orFalse) 300 else 0
+}
+
+/**
  * 刷新控件状态
  */
 fun SmartRefreshLayout?.isRefreshing(): Boolean {
