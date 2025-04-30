@@ -26,6 +26,10 @@ import me.jessyan.autosize.internal.CancelAdapt
  *  activity.finish()
  *  }
  *  进入登录页或者首页的背景如果不是纯白色，可以继承TransitionTheme自己写一个对应颜色的样式
+ *
+ *  SystemClock.elapsedRealtime() 是 Android 系统中 SystemClock 类提供的一个方法。
+ *  它返回的是自系统启动开始到调用该方法时所经过的时间，包含了系统处于睡眠状态的时间。也就是说，从设备开机（包括关机充电等情况）起，
+ *  不管设备是处于正常运行、休眠还是其他状态，这个时间都会持续累加。该方法返回的时间单位是毫秒（ms
  */
 @Route(path = ARouterPath.SplashActivity)
 class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
