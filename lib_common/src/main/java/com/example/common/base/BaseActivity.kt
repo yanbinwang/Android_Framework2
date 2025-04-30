@@ -26,7 +26,7 @@ import com.example.common.base.bridge.BaseView
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
-import com.example.common.bean.interf.TransparentOwner
+import com.example.common.base.page.interf.TransparentOwner
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.socket.topic.WebSocketObserver
