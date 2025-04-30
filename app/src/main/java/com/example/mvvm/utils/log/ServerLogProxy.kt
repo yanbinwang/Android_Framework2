@@ -1,8 +1,8 @@
 package com.example.mvvm.utils.log
 
+import com.example.common.network.CommonApi
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.EmptyBean
-import com.example.common.subscribe.CommonSubscribe
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.logWTF
@@ -65,7 +65,7 @@ class ServerLogProxy : CoroutineScope {
      * 模拟发起一个日志提交
      */
     private suspend fun logAsync(bean: ServerLog): Deferred<ApiResponse<EmptyBean>> {
-        return async { CommonSubscribe.getTestApi(mapOf("id" to bean.id.toString(), "type" to bean.type.toString())) }
+        return async { CommonApi.instance.getTestApi(mapOf("id" to bean.id.toString(), "type" to bean.type.toString())) }
     }
 
     /**

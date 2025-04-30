@@ -4,10 +4,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.async
 import com.example.common.base.bridge.launch
+import com.example.common.network.CommonApi
 import com.example.common.network.repository.request
 import com.example.common.network.repository.safeAs
 import com.example.common.network.repository.withHandling
-import com.example.common.subscribe.CommonSubscribe
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -89,8 +89,8 @@ class TestViewModel : BaseViewModel() {
     fun serialTask() {
         launch {
             flow {
-                val task1 = request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
-                val task2 = request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
+                val task1 = request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) })
+                val task2 = request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) })
                 emit(Unit)
             }.withHandling(mView, {
                 //每个请求如果失败了都会回调当前的err监听
@@ -129,9 +129,9 @@ class TestViewModel : BaseViewModel() {
         launch {
             flow {
                 val task1 =
-                    async { request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
+                    async { request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
                 val task2 =
-                    async { request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
+                    async { request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
                 emit(awaitAll(task1, task2))
             }.withHandling(mView).collect {
                 it.safeAs<Any>(0)
@@ -141,7 +141,7 @@ class TestViewModel : BaseViewModel() {
     }
 
     private fun getUserDataAsync(): Deferred<Any?> {
-        return async { request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) }) }
+        return async { request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) }) }
     }
 
     /**
@@ -150,7 +150,7 @@ class TestViewModel : BaseViewModel() {
     fun task() {
         flow<Unit> {
             //拿对象
-            val bean = request({ CommonSubscribe.getVerificationApi(mapOf("key" to "value")) })
+            val bean = request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) })
         }.withHandling().launchIn(viewModelScope)
     }
 

@@ -4,10 +4,10 @@ import android.util.ArrayMap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.common.network.CommonApi
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.EmptyBean
 import com.example.common.network.repository.successful
-import com.example.common.subscribe.CommonSubscribe
 import com.example.framework.utils.function.value.currentTimeNano
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -78,7 +78,7 @@ object ServerLogHelper: CoroutineScope, LifecycleEventObserver {
      * 模拟发起一个日志提交
      */
     private suspend fun logAsync(bean: ServerLog): Deferred<ApiResponse<EmptyBean>> {
-        return coroutineScope { async { CommonSubscribe.getTestApi(mapOf("id" to bean.id.toString(), "type" to bean.type.toString())) } }
+        return coroutineScope { async { CommonApi.instance.getTestApi(mapOf("id" to bean.id.toString(), "type" to bean.type.toString())) } }
     }
 
     /**
