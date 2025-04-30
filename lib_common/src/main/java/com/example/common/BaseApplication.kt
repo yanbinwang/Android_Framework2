@@ -8,6 +8,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkRequest
 import android.os.Build
+import android.os.SystemClock
 import android.view.Gravity
 import android.widget.TextView
 import android.widget.Toast
@@ -62,10 +63,14 @@ abstract class BaseApplication : Application() {
     private var onPrivacyAgreedListener: (isAgreed: Boolean) -> Unit = {}
 
     companion object {
-        //当前app进程是否处于前台
-        var isForeground = true
         //是否需要回首頁
         var needOpenHome = false
+        //当前app进程是否处于前台
+        var isForeground = true
+        //首次启动标记（仅在 onCreate 初始化）
+        var isFirstLaunch = true
+        // 最近一次点击图标启动的时间戳
+        var lastClickTime = 0L
         //单列
         lateinit var instance: BaseApplication
     }
@@ -78,6 +83,9 @@ abstract class BaseApplication : Application() {
 
     //初始化一些第三方控件和单例工具类等
     private fun initialize() {
+        //初次赋值
+        lastClickTime = SystemClock.elapsedRealtime()
+        isFirstLaunch = true
         //布局初始化
         AutoSizeConfig.getInstance()
             .setBaseOnWidth(true)

@@ -2,13 +2,14 @@ package com.example.mvvm.activity
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.databinding.ViewDataBinding
+import android.os.SystemClock
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.example.common.BaseApplication.Companion.lastClickTime
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.fullScreen
-import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
-import com.example.framework.utils.function.value.second
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.jessyan.autosize.internal.CancelAdapt
 
 /**
@@ -49,9 +50,19 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
         }
         window.fullScreen()
         super.onCreate(savedInstanceState)
-        schedule(this, {
+        launch {
+            val SPLASH_DELAY = 2000L
+            // 计算已经过去的时间
+            val elapsedTime = SystemClock.elapsedRealtime() - lastClickTime
+            // 计算还需要等待的时间
+            val remainingTime = if (SPLASH_DELAY - elapsedTime < 0) {
+                0
+            } else {
+                SPLASH_DELAY - elapsedTime
+            }
+            delay(remainingTime)
             navigation(ARouterPath.MainActivity).finish()
-        }, 2.second)
+        }
     }
 
 }
