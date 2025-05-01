@@ -66,8 +66,8 @@ dependencies {
     //网络请求
     api(libs.bundles.networking)
     //其余第三方库
+    debugApi(libs.recovery)//额外注意，debug包的时候才会把代码打入
     api(libs.autosize)
-    api(libs.recovery)
     api(libs.smartrefresh)
     api(libs.guide)
     api(libs.circleprogressbar)
