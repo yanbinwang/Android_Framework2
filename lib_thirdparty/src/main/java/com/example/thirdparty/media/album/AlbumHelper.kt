@@ -1,4 +1,4 @@
-package com.example.thirdparty.album
+package com.example.thirdparty.media.album
 
 import android.content.Context
 import android.graphics.Color

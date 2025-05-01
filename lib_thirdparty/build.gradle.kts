@@ -14,10 +14,9 @@ android {
                 srcDirs(
                     "src/main/res",
                     "src/main/res-amap",
-                    "src/main/res-album",
                     "src/main/res-media",
-                    "src/main/res-share",
-                    "src/main/res-pay"
+                    "src/main/res-pay",
+                    "src/main/res-share"
                 )
             }
         }

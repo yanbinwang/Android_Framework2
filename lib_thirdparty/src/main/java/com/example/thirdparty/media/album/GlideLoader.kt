@@ -1,4 +1,4 @@
-package com.example.thirdparty.album
+package com.example.thirdparty.media.album
 
 import android.widget.ImageView
 import com.example.glide.ImageLoader

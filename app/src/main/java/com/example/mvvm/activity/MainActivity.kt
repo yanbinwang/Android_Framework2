@@ -43,7 +43,7 @@ import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.databinding.ViewSnackbarImageStyleBinding
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestTopDialog
-import com.example.thirdparty.album.AlbumHelper
+import com.example.thirdparty.media.album.AlbumHelper
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow

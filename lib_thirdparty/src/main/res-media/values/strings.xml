@@ -8,4 +8,9 @@
     <string name="screenCancel">取消录屏</string>
     <string name="screenError">操作失败，请重试</string>
     <string name="screenGranted">请授权上层显示</string>
+    <!-- 相册/裁剪字段 -->
+    <string name="albumImageError">请选择%1$sM以内的图片</string>
+    <string name="albumVideoError">请选择%1$sM以内的视频</string>
+    <string name="albumTitle">相册</string>
+    <string name="cropTitle">图片裁剪</string>
 </resources>

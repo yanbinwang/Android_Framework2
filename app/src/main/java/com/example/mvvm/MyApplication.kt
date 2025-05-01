@@ -9,10 +9,10 @@ import com.example.framework.utils.function.value.isDebug
 import com.example.greendao.dao.DaoMaster
 import com.example.mvvm.activity.MainActivity
 import com.example.objectbox.dao.MyObjectBox
-import com.example.thirdparty.album.GlideLoader
-import com.example.thirdparty.oss.OssDBHelper
-import com.example.thirdparty.oss.OssDBHelper2
-import com.example.thirdparty.oss.OssFactory
+import com.example.thirdparty.media.album.GlideLoader
+import com.example.thirdparty.media.oss.OssDBHelper
+import com.example.thirdparty.media.oss.OssDBHelper2
+import com.example.thirdparty.media.oss.OssFactory
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import com.zxy.recovery.core.Recovery

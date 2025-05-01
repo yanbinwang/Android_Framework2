@@ -1,30 +1,25 @@
-package com.example.thirdparty.oss
+package com.example.thirdparty.media.oss
 
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.function.deleteFile
-import com.example.common.utils.helper.AccountHelper
+import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.framework.utils.function.value.safeSize
-import com.example.objectbox.dao.OssDB
-import com.example.objectbox.dao.OssDB_
-import io.objectbox.Box
-import io.objectbox.BoxStore
-import io.objectbox.query.Query
-import io.objectbox.query.QueryBuilder.StringOrder
+import com.example.greendao.bean.OssDB
+import com.example.greendao.dao.OssDBDao
 
 /**
  * OSS帮助类
- * application中调用MyObjectBox.builder().androidContext(context).build()
  */
-object OssDBHelper2 {
-    private var dao: Box<OssDB>? = null
+object OssDBHelper {
+    private var dao: OssDBDao? = null
 
     // <editor-fold defaultstate="collapsed" desc="数据库基础增删改查">
     /**
      * application中调取
      */
     @JvmStatic
-    fun init(store: BoxStore) {
-        dao = store.boxFor(OssDB::class.java)
+    fun init(dao: OssDBDao) {
+        OssDBHelper.dao = dao
     }
 
     /**
@@ -33,10 +28,7 @@ object OssDBHelper2 {
     @JvmStatic
     fun query(): MutableList<OssDB>? {
         return try {
-            dao?.query()
-                ?.equal(OssDB_.userId, AccountHelper.getUserId(), StringOrder.CASE_SENSITIVE)
-                ?.build()
-                ?.find()
+            dao?.queryBuilder()?.where(OssDBDao.Properties.UserId.eq(getUserId()))?.list()
         } catch (e: Exception) {
             null
         }
@@ -46,10 +38,9 @@ object OssDBHelper2 {
      * 查询对应保全号的具体文件信息
      */
     @JvmStatic
-    fun query(baoquan: String?): OssDB? {
-        baoquan ?: return null
+    fun query(baoquan: String): OssDB? {
         return try {
-            getOssDBByBaoquan(baoquan)?.findUnique()
+            dao?.queryBuilder()?.where(OssDBDao.Properties.Baoquan.eq(baoquan), OssDBDao.Properties.UserId.eq(getUserId()))?.unique()
         } catch (e: Exception) {
             null
         }
@@ -61,45 +52,24 @@ object OssDBHelper2 {
     @JvmStatic
     fun insert(bean: OssDB?) {
         bean ?: return
-        dao?.put(bean)
+        dao?.insertOrReplace(bean)
     }
 
     /**
      * 删除对应baoquan数据
      */
     @JvmStatic
-    fun delete(baoquan: String?) {
-        baoquan ?: return
-        try {
-            getOssDBByBaoquan(baoquan)?.remove()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    fun delete(baoquan: String) {
+        dao?.deleteByKey(baoquan)
     }
 
     /**
-     * 删除对应bean数据
+     * 删除对应model数据
      */
     @JvmStatic
     fun delete(bean: OssDB?) {
         bean ?: return
-        dao?.remove(bean)
-    }
-
-    /**
-     * 针对当前用户的保全号的删除
-     */
-    @JvmStatic
-    private fun getOssDBByBaoquan(baoquan: String?): Query<OssDB>? {
-        baoquan ?: return null
-        return try {
-            dao?.query()
-                ?.equal(OssDB_.userId, AccountHelper.getUserId(), StringOrder.CASE_SENSITIVE)
-                ?.equal(OssDB_.baoquan, baoquan, StringOrder.CASE_SENSITIVE)
-                ?.build()
-        } catch (e: Exception) {
-            null
-        }
+        dao?.delete(bean)
     }
     // </editor-fold>
 
@@ -111,7 +81,7 @@ object OssDBHelper2 {
     fun addObserver(observer: LifecycleOwner) {
         //以main为底座，绑定main的生命周期
         OssFactory.instance.cancelAllWork(observer)
-        //加载数据前，让数据库中所有上传中状态的数据，变为未上传（上传失败）
+        //加载数据前，让数据库中所有上传中状态的数据，变为未上传
         updateAll(1)
     }
 
@@ -138,11 +108,11 @@ object OssDBHelper2 {
      * 0上传中 1上传失败 2上传完成（证据缺失直接校验源文件路径）
      */
     @JvmStatic
-    fun update(baoquan: String?, state: Int = 2) {
+    fun update(baoquan: String, state: Int = 2) {
         val bean = query(baoquan)
         bean ?: return
         bean.state = state
-        dao?.put(bean)
+        dao?.update(bean)
     }
 
     /**
@@ -151,13 +121,13 @@ object OssDBHelper2 {
     @JvmStatic
     fun updateAll(state: Int = 1) {
         //获取所有任务
-        val allTasks = dao?.all.orEmpty()
+        val allTasks = query().orEmpty()
         //批量修改任务属性
         for (task in allTasks) {
+            //批量保存修改后的任务
             task.state = state
+            dao?.update(task)
         }
-        //批量保存修改后的任务
-        dao?.put(allTasks)
     }
 
     /**

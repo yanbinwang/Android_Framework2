@@ -1,4 +1,4 @@
-package com.example.thirdparty.oss
+package com.example.thirdparty.media.oss
 
 import androidx.lifecycle.LifecycleOwner
 import com.alibaba.sdk.android.oss.ClientConfiguration
@@ -34,9 +34,9 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
 import com.example.greendao.bean.OssDB
-import com.example.thirdparty.oss.bean.OssSts.Companion.bucketName
-import com.example.thirdparty.oss.bean.OssSts.Companion.objectName
-import com.example.thirdparty.oss.subscribe.OssSubscribe
+import com.example.thirdparty.media.oss.bean.OssSts.Companion.bucketName
+import com.example.thirdparty.media.oss.bean.OssSts.Companion.objectName
+import com.example.thirdparty.media.oss.network.OssApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -115,7 +115,7 @@ class OssFactory private constructor() : CoroutineScope {
             initJob?.cancel()
             initJob = launch {
                 flow {
-                    emit(request({ OssSubscribe.getOssTokenApi() }))
+                    emit(request({ OssApi.instance.getOssTokenApi() }))
                 }.withHandling({
                     isAuthorize = false
                 }, {
@@ -373,7 +373,7 @@ class OssFactory private constructor() : CoroutineScope {
         val baoquan = query.baoquan
         ossJobMap[baoquan] = launch {
             flow {
-                emit(request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query.objectKey)) }))
+                emit(request({ OssApi.instance.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query.objectKey)) }))
             }.withHandling({
                 failure(baoquan, it.errMessage)
             }, {
@@ -394,7 +394,7 @@ class OssFactory private constructor() : CoroutineScope {
      */
     private fun failure(baoquan: String, errorMessage: String?) {
         ossJobMap[baoquan] = flow<Unit> {
-            request({ OssSubscribe.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)) })
+            request({ OssApi.instance.getOssEditApi(baoquan, reqBodyOf("errorMessage" to errorMessage)) })
         }.withHandling(end = {
             end(baoquan)
         }).onStart {
