@@ -19,7 +19,7 @@ import java.nio.charset.Charset
  * 需要注意的是文件流上传不能拦截，会造成闪退（已处理）
  * 返回日志过长的话，也会打印不完整
  */
-internal class LoggingInterceptor : Interceptor {
+class LoggingInterceptor : Interceptor {
     private val UTF8 = Charset.forName("UTF-8")
     private val excludedUrls = arrayOf("user/uploadImg")
 

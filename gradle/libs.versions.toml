@@ -21,8 +21,10 @@ converterGson = "2.9.0"
 #---------------------------------------------阿里路由版本---------------------------------------------
 arouterApi = "1.5.2"
 arouterCompiler = "1.5.2"
-#---------------------------------------------其余三方控件版本---------------------------------------------
+#---------------------------------------------调试库---------------------------------------------
 recovery = "1.0.0"
+leakcanary = "2.11"
+#---------------------------------------------其余三方控件版本---------------------------------------------
 androidAutoSize = "v1.2.1"
 mmkvStatic = "1.2.2"
 newbieGuide = "v2.4.4"
@@ -67,8 +69,11 @@ squareup-converter-gson = { group = "com.squareup.retrofit2", name = "converter-
 alibaba-arouter-api = { group = "com.alibaba", name = "arouter-api", version.ref = "arouterApi" }
 alibaba-arouter-compiler = { group = "com.alibaba", name = "arouter-compiler", version.ref = "arouterCompiler" }
 
+#调试库
+debugging-recovery = { group = "com.zxy.android", name = "recovery", version.ref = "recovery" } #闪退抓捕
+debugging-leakcanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" } #内存泄露捕捉
+
 #其余三方控件
-recovery = { group = "com.zxy.android", name = "recovery", version.ref = "recovery" } #闪退抓捕
 autosize = { group = "com.github.JessYanCoding", name = "AndroidAutoSize", version.ref = "androidAutoSize" } #今日头条布局兼容
 mmkv = { group = "com.tencent", name = "mmkv-static", version.ref = "mmkvStatic" } #腾讯读写库
 guide = { group = "com.github.huburt-Hu", name = "NewbieGuide", version.ref = "newbieGuide" } #遮罩引导
@@ -95,3 +100,5 @@ androidx-general-core = ["androidx-appcompat", "androidx-constraintlayout", "and
 google-extensions = ["google-material", "google-flexbox"]
 # 网络请求库
 networking = ["squareup-retrofit", "squareup-converter-gson"]
+# 调试库
+debugging = ["debugging-recovery", "debugging-leakcanary"]
