@@ -3,8 +3,6 @@ package com.example.common.widget.advertising
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.GradientDrawable.OVAL
 import android.os.Looper
 import android.util.AttributeSet
 import android.view.Gravity
@@ -19,8 +17,8 @@ import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.common.utils.function.pt
 import com.example.framework.utils.WeakHandler
+import com.example.framework.utils.function.value.createOvalDrawable
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.doOnceAfterLayout
@@ -77,7 +75,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     //是否自动滚动
     private var autoScroll = true
     //3个资源路径->圆点选中时的背景ID second：圆点未选中时的背景ID third：圆点间距 （圆点容器可为空写0）
-    private var triple = Triple(drawable("#3d81f2"), drawable("#6e7ce2"), 10)
+    private var triple = Triple(createOvalDrawable("#3d81f2"), createOvalDrawable("#6e7ce2"), 10)
     //自动滚动的定时器
     private var timer: Timer? = null
     //广告容器
@@ -229,16 +227,6 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     override fun setPageTransformer(marginPx: Int) {
         banner?.setPageTransformer(MarginPageTransformer(marginPx.pt))
-    }
-
-    /**
-     * 默认图片资源
-     */
-    private fun drawable(colorString:String): Drawable {
-        return GradientDrawable().apply {
-            shape = OVAL
-            setColor(colorString.parseColor())
-        }
     }
 
     /**

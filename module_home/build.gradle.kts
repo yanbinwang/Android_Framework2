@@ -46,7 +46,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.android.testing)
     //框架库
-    api(project(":lib_common"))
     api(project(":lib_thirdparty"))
     //页面路由
     implementation(libs.alibaba.arouter.api)
