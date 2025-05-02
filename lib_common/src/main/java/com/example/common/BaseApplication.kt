@@ -94,7 +94,7 @@ abstract class BaseApplication : Application() {
             .setSupportSP(false)
             .supportSubunits = Subunits.PT
         //腾讯读写mmkv初始化
-        MMKV.initialize(this)
+        MMKV.initialize(applicationContext)
         //服务器地址类初始化
         ServerConfig.init()
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
@@ -151,7 +151,6 @@ abstract class BaseApplication : Application() {
         ARouter.init(this)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun initReceiver() {
         (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.registerNetworkCallback(NetworkRequest.Builder().build(), NetworkCallbackImpl())
         registerReceiver(NetworkReceiver().apply {
@@ -312,13 +311,13 @@ abstract class BaseApplication : Application() {
         super.onTrimMemory(level)
         System.gc()
         if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
-            ImageLoader.instance.clearMemoryCache(this, ProcessLifecycleOwner.get())
+            ImageLoader.instance.clearMemoryCache(applicationContext, ProcessLifecycleOwner.get())
         }
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        ImageLoader.instance.clearMemoryCache(this, ProcessLifecycleOwner.get())
+        ImageLoader.instance.clearMemoryCache(applicationContext, ProcessLifecycleOwner.get())
     }
 
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="value"
+            type="String" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minHeight="60pt"
+            android:paddingHorizontal="15pt"
+            android:text="@{value}"
+            android:textColor="@color/textPrimary"
+            android:textSize="@dimen/textSize15"
+            tools:text="默认默认" />
+
+        <View
+            android:id="@+id/view_line"
+            style="@style/LineWidth"
+            android:layout_gravity="bottom" />
+
+    </FrameLayout>
+
+</layout>

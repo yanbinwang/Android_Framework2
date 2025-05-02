@@ -23,7 +23,10 @@ object ServerConfig {
         serverType = 1
         servers = arrayListOf(
             ServerBean("user.cheezeebit.com", -1, "", "线上").https(),
-            ServerBean("user-test-acceptor.91fafafa.com", -1, "", "测试").https()
+            ServerBean("user-test-acceptor.91fafafa.com", -1, "", "测试").https(),
+            ServerBean("user-test-acceptor.91fafafa.com2", -1, "", "测试2").https(),
+            ServerBean("user-test-acceptor.91fafafa.com3", -1, "", "测试3").https(),
+            ServerBean("user-test-acceptor.91fafafa.com4", -1, "", "测试4").https(),
         )
     }
 

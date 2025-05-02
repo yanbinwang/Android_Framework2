@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingConstraints">
+
+    <data>
+
+        <variable
+            name="bean"
+            type="com.example.debugging.bean.RequestBean" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:background="@color/bgDefault">
+
+        <TextView
+            android:id="@+id/tv_method"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="15pt"
+            android:paddingTop="15pt"
+            android:paddingBottom="5pt"
+            android:text="@{bean.methodText}"
+            android:textSize="@dimen/textSize15"
+            android:textStyle="bold"
+            tools:text="POST"
+            tools:textColor="@color/log_red" />
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{bean.timeText}"
+            android:textColor="@color/log_gray"
+            android:textSize="@dimen/textSize13"
+            app:layout_constraintBaseline_toBaselineOf="@id/tv_method"
+            app:layout_constraintStart_toEndOf="@id/tv_method"
+            tools:text="2022/11/11 10:11:12" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="15pt"
+            android:paddingBottom="15pt"
+            android:text="@{bean.titleText}"
+            android:textColor="@color/textPrimary"
+            android:textSize="@dimen/textSize15"
+            app:layout_constraintTop_toBottomOf="@+id/tv_method"
+            tools:text="https://www.baidu.com" />
+
+        <View
+            style="@style/LineWidth"
+            app:layout_constraintTop_toBottomOf="@id/tv_title" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

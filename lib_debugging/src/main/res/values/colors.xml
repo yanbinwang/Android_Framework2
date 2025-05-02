@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="log_red">#fe0007</color>
+    <color name="log_blue">#087FFF</color>
+    <color name="log_yellow">#FF9D00</color>
+    <color name="log_gray">#999999</color>
+    <color name="log_pink">#0080c0</color>
+</resources>

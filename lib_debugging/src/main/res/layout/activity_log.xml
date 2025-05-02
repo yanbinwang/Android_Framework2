@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingConstraints">
+
+    <data>
+
+        <variable
+            name="adapter"
+            type="com.example.debugging.adapter.LogAdapter" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.example.common.widget.xrecyclerview.XRecyclerView
+            android:id="@+id/xrv_list"
+            quick_adapter="@{adapter}"
+            android:layout_width="match_parent"
+            android:layout_height="0pt"
+            android:layout_marginBottom="1pt"
+            android:background="@color/bgDefault"
+            app:layout_constraintBottom_toTopOf="@id/ll_bottom"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/ll_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="44pt"
+            android:background="@color/bgDefault"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/tv_server"
+                android:layout_width="331pt"
+                android:layout_height="match_parent"
+                android:ellipsize="end"
+                android:gravity="start|center_vertical"
+                android:maxLines="1"
+                android:paddingHorizontal="15pt"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14"
+                tools:text="https://www.baidu.com" />
+
+            <View style="@style/LineHeight" />
+
+            <TextView
+                android:id="@+id/tv_default"
+                android:layout_width="0pt"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="还原"
+                android:textColor="@color/appTheme"
+                android:textSize="@dimen/textSize14"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

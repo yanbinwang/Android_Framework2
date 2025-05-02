@@ -91,7 +91,7 @@ object NotificationUtil {
         return notificationBuilder.build()
     }
 
-    private fun getPendingIntentFlags(baseFlags: Int): Int {
+    fun getPendingIntentFlags(baseFlags: Int): Int {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) baseFlags or PendingIntent.FLAG_MUTABLE else baseFlags
     }
 
