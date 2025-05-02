@@ -12,8 +12,8 @@ import com.example.framework.utils.function.value.ELFormat.MOBILE
 import com.example.framework.utils.function.value.ELFormat.PASSWORD
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.divide
+import com.example.framework.utils.function.value.matches
 import com.example.framework.utils.function.value.multiply
-import com.example.framework.utils.function.value.regCheck
 import com.example.framework.utils.function.value.subtract
 import com.example.framework.utils.function.view.OnMultiTextWatcher
 import com.example.framework.utils.function.view.clear
@@ -89,7 +89,7 @@ interface EditTextImpl {
             if (-1 != res) res.shortToast()
             return false
         }
-        if (!regCheck(PASSWORD)) {
+        if (!matches(PASSWORD)) {
             if (-1 != res2) res2.shortToast()
             return false
         }
@@ -99,11 +99,11 @@ interface EditTextImpl {
     fun String?.passwordLevel(): Int {
         this ?: return 0
         //纯数字、纯字母、纯特殊字符
-        if (this.length < 8 || Pattern.matches("^\\d+$", this) || regCheck("^[a-z]+$") || regCheck("^[A-Z]+$") || regCheck("^[@#$%^&]+$")) return 1
+        if (this.length < 8 || Pattern.matches("^\\d+$", this) || matches("^[a-z]+$") || matches("^[A-Z]+$") || matches("^[@#$%^&]+$")) return 1
         //字母+数字、字母+特殊字符、数字+特殊字符
-        if (regCheck("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$") || regCheck("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$") || regCheck("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$") || regCheck("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$") || regCheck("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$") || regCheck("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$")) return 2
+        if (matches("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$") || matches("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$") || matches("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$") || matches("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$") || matches("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$") || matches("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$")) return 2
         //字母+数字+特殊字符
-        if (regCheck("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
+        if (matches("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
         return 3
     }
     // </editor-fold>
@@ -123,7 +123,7 @@ interface EditTextImpl {
             if (-1 != res) res.shortToast()
             return false
         }
-        if (regCheck(EMAIL)) return true
+        if (matches(EMAIL)) return true
         if (-1 != res2) res2.shortToast()
         return false
     }
@@ -144,7 +144,7 @@ interface EditTextImpl {
             if (-1 != res) res.shortToast()
             return false
         }
-        if (!regCheck(MOBILE)) {
+        if (!matches(MOBILE)) {
             if (-1 != res2) res2.shortToast()
             return false
         }

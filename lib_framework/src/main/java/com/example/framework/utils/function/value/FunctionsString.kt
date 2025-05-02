@@ -102,13 +102,25 @@ fun String?.unicodeDecode(): String? {
 }
 
 /**
+ * 长度限制
+ */
+fun String.limitLength(maxLength: Int = 4000): String {
+    return if (this.length > maxLength) {
+        this.substring(0, maxLength) + "..."
+    } else {
+        this
+    }
+}
+
+/**
  * 检测正则
  */
-fun String?.regCheck(reg: String): Boolean {
+fun String?.matches(regex: String): Boolean {
     this ?: return false
-    val pattern = Pattern.compile(reg)
-    val matcher = pattern.matcher(this)
-    return matcher.matches()
+    return this.matches(Regex(regex))
+//    val pattern = Pattern.compile(regex)
+//    val matcher = pattern.matcher(this)
+//    return matcher.matches()
 }
 
 /**
@@ -184,7 +196,7 @@ fun String?.addUrlParam(key: String?, value: String?): String? {
 fun String?.hidePhoneNumber(): String {
     this ?: return ""
     var value = ""
-    if (regCheck(MOBILE)) {
+    if (matches(MOBILE)) {
         val ch = toCharArray()
         for (index in ch.indices) {
             if (index in 3..6) {
