@@ -53,10 +53,10 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.android.testing)
-    //框架库
-    implementation(project(":lib_common"))
     //oss文件传输
     implementation("com.aliyun.dpa:oss-android-sdk:2.9.21")
+    //框架库
+    api(project(":lib_common"))
     //高德三方扩展
     api(project(":lib_local:amap_sdk"))
     //数据库

@@ -26,13 +26,13 @@ import com.example.common.widget.advertising.Advertising
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
+import com.example.framework.utils.function.value.createCornerDrawable
+import com.example.framework.utils.function.value.createOvalDrawable
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.adapter
-import com.example.framework.utils.function.view.backgroundCorner
-import com.example.framework.utils.function.view.backgroundOval
 import com.example.framework.utils.function.view.charBlackList
 import com.example.framework.utils.function.view.charLimit
 import com.example.framework.utils.function.view.clearBackground
@@ -78,7 +78,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["corner_color", "corner_radius"], requireAll = false)
     fun bindingBackgroundCorner(view: View, cornerColor: String?, cornerRadius: Int?) {
-        view.backgroundCorner(cornerColor.orEmpty(), cornerRadius.toSafeFloat(5f).ptFloat)
+        view.background = createCornerDrawable(cornerColor.orEmpty(), cornerRadius.toSafeFloat(5f).ptFloat)
     }
 
     /**
@@ -87,7 +87,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["oval_color"], requireAll = false)
     fun bindingBackgroundOval(view: View, ovalColor: String?) {
-        view.backgroundOval(ovalColor.orEmpty())
+        view.background = createOvalDrawable(ovalColor.orEmpty())
     }
     // </editor-fold>
 
@@ -413,7 +413,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["corner_radius", "corner_color"], requireAll = false)
     fun bindingAdvertisingCorner(view: Advertising, cornerRadius: Int?, cornerColor: String?) {
-        view.backgroundCorner(cornerColor ?: "#F9FAFB", cornerRadius.ptFloat)
+        view.background = createCornerDrawable(cornerColor ?: "#F9FAFB", cornerRadius.ptFloat)
     }
     // </editor-fold>
 
