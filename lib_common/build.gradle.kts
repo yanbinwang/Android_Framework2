@@ -58,8 +58,6 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.android.testing)
-    //报错抓取库
-    debugApi(libs.recovery)//额外注意，debug包的时候才会把代码打入
     //框架库
     api(project(":lib_framework"))
     //不依赖于common的库统一放在lib_local里

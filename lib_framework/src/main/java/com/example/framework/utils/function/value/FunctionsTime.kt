@@ -137,10 +137,7 @@ fun Date.isToday(): Boolean {
         val dateFormat = EN_YMDHMS.getDateFormat()
         val parseBeginTime = dateFormat.parse(beginTime)
         val parseEndTime = dateFormat.parse(endTime)
-        if ((after(parseBeginTime) && before(parseEndTime)) || equals(parseBeginTime) || equals(
-                parseEndTime
-            )
-        ) flag = true
+        if ((after(parseBeginTime) && before(parseEndTime)) || equals(parseBeginTime) || equals(parseEndTime)) flag = true
     } catch (e: ParseException) {
         e.printStackTrace()
     }
