@@ -48,7 +48,7 @@ class MyApplication : BaseApplication() {
 //                .callback(new MyCrashCallback())
                 .silent(false, Recovery.SilentMode.RECOVER_ACTIVITY_STACK)
 //                .skip(TestActivity.class)
-                .init(this)
+                .init(applicationContext)
         } else {
             //当前若是发布包，接管系统loop，让用户感知不到程序闪退
             while (true) {
@@ -93,14 +93,14 @@ class MyApplication : BaseApplication() {
     }
 
 //    private fun initAlbum() {
-//        Album.initialize(AlbumConfig.newBuilder(this)
+//        Album.initialize(AlbumConfig.newBuilder(applicationContext)
 //            .setAlbumLoader(GlideLoader()) //设置Album加载器。
 //            .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
 //            .build())
 //    }
 //
 //    private fun initOssDao() {
-//        OssHelper.init(DaoMaster(DaoMaster.DevOpenHelper(this, "${VERSION_NAME}.db", null).readableDb).newSession().ossDBDao)
+//        OssHelper.init(DaoMaster(DaoMaster.DevOpenHelper(applicationContext, "${VERSION_NAME}.db", null).readableDb).newSession().ossDBDao)
 //    }
 //
 //    private fun initOss() {
