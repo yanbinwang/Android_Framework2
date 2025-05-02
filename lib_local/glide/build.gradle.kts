@@ -41,6 +41,8 @@ dependencies {
     androidTestImplementation(libs.bundles.android.testing)
     //框架库
     implementation(project(":lib_framework"))
+    //进度条库依赖，可注释
+    api("com.dinuscxj:circleprogressbar:1.3.6")
     //Glide 依赖
     api("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")

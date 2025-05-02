@@ -1,30 +1,29 @@
-package com.example.common.widget
+package com.example.glide.widget
 
 import android.content.Context
 import android.graphics.Paint
-import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.view.Gravity
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import android.widget.ImageView
 import com.dinuscxj.progressbar.CircleProgressBar
 import com.dinuscxj.progressbar.CircleProgressBar.SOLID_LINE
-import com.example.common.R
-import com.example.common.utils.function.pt
-import com.example.common.utils.function.ptFloat
+import com.example.framework.utils.function.value.createCornerDrawable
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.parseColor
+import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.appear
+import com.example.framework.utils.function.view.clearClick
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.disable
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.layoutGravity
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.visible
 import com.example.glide.ImageLoader
+import com.example.glide.R
 
 /**
  * @description 进度条的加载
@@ -36,34 +35,35 @@ class XImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
     init {
         //背景为灰色
-        size(MATCH_PARENT, MATCH_PARENT)
-        background = GradientDrawable().apply { setColor("#cf111111".parseColor()) }
+        background = createCornerDrawable("#cf111111")
         //加载的图片
         addView(iv)
         //加载的进度条
         addView(progressBar)
-        //设置内部ui基础属性
-        iv.apply {
-            scaleType = ImageView.ScaleType.FIT_XY
-            size(MATCH_PARENT, MATCH_PARENT)
-            gone()
-        }
-        progressBar.apply {
-            size(40.pt, 40.pt)
-            setDrawBackgroundOutsideProgress(false)
-            setLineWidth(4.ptFloat)
-            setProgressBackgroundColor(color(R.color.bgProgress))
-            setProgressEndColor(color(R.color.bgProgressStart))
-            setProgressStartColor(color(R.color.bgProgressEnd))
-            setCap(Paint.Cap.ROUND)
-            setProgressStrokeWidth(4.ptFloat)
-            setStyle(SOLID_LINE)
-            setProgressTextColor(color(R.color.textWhite))
-            setProgressTextSize(9.ptFloat)
-            layoutGravity = Gravity.CENTER
-            max = 100
-            progress = 0
-            gone()
+        doOnceAfterLayout {
+            //设置内部ui基础属性
+            iv.apply {
+                scaleType = ImageView.ScaleType.FIT_XY
+                size(it.measuredWidth, it.measuredHeight)
+                gone()
+            }
+            progressBar.apply {
+                size(dip2px(40f), dip2px(40f))
+                setDrawBackgroundOutsideProgress(false)
+                setLineWidth(dip2px(4f).toSafeFloat())
+                setProgressBackgroundColor(color(R.color.bgProgress))
+                setProgressEndColor(color(R.color.bgProgressStart))
+                setProgressStartColor(color(R.color.bgProgressEnd))
+                setCap(Paint.Cap.ROUND)
+                setProgressStrokeWidth(dip2px(4f).toSafeFloat())
+                setStyle(SOLID_LINE)
+                setProgressTextColor(color(R.color.textProgress))
+                setProgressTextSize(dip2px(9f).toSafeFloat())
+                layoutGravity = Gravity.CENTER
+                max = 100
+                progress = 0
+                gone()
+            }
         }
     }
 
@@ -71,7 +71,7 @@ class XImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         ImageLoader.instance.loadImageWithProgress(iv, url, {
             disable()
             iv.gone()
-            iv.click {}
+            iv.clearClick()
             progressBar.visible()
             progressBar.progress = 0
         }, {
@@ -87,6 +87,22 @@ class XImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 }
             }
         })
+    }
+
+    /**
+     * dip转px
+     */
+    fun dip2px(dipValue: Float): Int {
+        val scale = context.resources.displayMetrics.density
+        return (dipValue * scale + 0.5f).toInt()
+    }
+
+    /**
+     * px转dip
+     */
+    fun px2dip(pxValue: Float): Int {
+        val scale = context.resources.displayMetrics.density
+        return (pxValue / scale + 0.5f).toInt()
     }
 
 }

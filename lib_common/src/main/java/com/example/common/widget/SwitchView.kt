@@ -7,9 +7,9 @@ import android.view.View
 import android.widget.FrameLayout
 import com.example.common.R
 import com.example.common.utils.function.ptFloat
+import com.example.framework.utils.function.value.createCornerDrawable
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.alpha
-import com.example.framework.utils.function.view.backgroundCorner
 import com.example.framework.utils.function.view.byHardwareAccelerate
 import com.example.framework.utils.function.view.cancelAnim
 import com.example.framework.utils.function.view.click
@@ -44,16 +44,16 @@ class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         //按钮背景
         viewBg = View(context)
         layout.addView(viewBg)
-        viewBg.backgroundCorner("#E5E4E4", 11.ptFloat)
+        viewBg.background = createCornerDrawable("#E5E4E4", 11.ptFloat)
         //选中背景
         viewBgSelected = View(context)
         layout.addView(viewBgSelected)
-        viewBgSelected.backgroundCorner("#5ebe77", 11.ptFloat)
+        viewBgSelected.background = createCornerDrawable("#5ebe77", 11.ptFloat)
         viewBgSelected.gone()
         //圆球
         viewCircle = View(context)
         layout.addView(viewCircle)
-        viewCircle.backgroundCorner("#ffffff", 9.ptFloat)
+        viewCircle.background = createCornerDrawable("#ffffff", 9.ptFloat)
         //布局属性绘制
         if (isInEditMode) {
             val ratio = dimen(R.dimen.textSize20) / 20

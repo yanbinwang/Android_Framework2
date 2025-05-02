@@ -8,8 +8,6 @@ import android.graphics.Bitmap
 import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.GradientDrawable.OVAL
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -57,7 +55,6 @@ import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.logE
 import com.example.framework.utils.logWTF
 import com.google.android.material.appbar.AppBarLayout
@@ -176,27 +173,6 @@ fun View?.dimen(@DimenRes res: Int): Float {
 fun View?.background(@DrawableRes bg: Int) {
     if (this == null) return
     this.setBackgroundResource(bg)
-}
-
-/**
- * 减少本地背景文件的绘制，直接代码绘制
- * colorString 颜色字符 -> "#cf111111"
- * radius 圆角 -> 传入X.ptFloat,代码添加一个对应圆角的背景
- */
-fun View?.backgroundCorner(colorString: String, radius: Float) {
-    if (this == null) return
-    this.background = GradientDrawable().apply {
-        setColor(colorString.parseColor())
-        cornerRadius = radius
-    }
-}
-
-fun View?.backgroundOval(colorString: String) {
-    if (this == null) return
-    this.background = GradientDrawable().apply {
-        shape = OVAL
-        setColor(colorString.parseColor())
-    }
 }
 
 /**
