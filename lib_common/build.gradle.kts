@@ -58,6 +58,8 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.android.testing)
+    //报错抓取库
+    debugApi(libs.recovery)//额外注意，debug包的时候才会把代码打入
     //框架库
     api(project(":lib_framework"))
     //不依赖于common的库统一放在lib_local里
@@ -66,12 +68,10 @@ dependencies {
     //网络请求
     api(libs.bundles.networking)
     //其余第三方库
-    debugApi(libs.recovery)//额外注意，debug包的时候才会把代码打入
     api(libs.autosize)
     api(libs.smartrefresh)
     api(libs.guide)
-    api(libs.circleprogressbar)
-    api(libs.stomp)
+    implementation(libs.stomp)
     implementation(libs.mmkv)
     implementation(libs.xxpermissions)
     implementation(libs.immersionbar)

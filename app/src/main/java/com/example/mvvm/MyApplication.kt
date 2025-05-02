@@ -57,7 +57,7 @@ class MyApplication : BaseApplication() {
                 //silent	SilentMode	是否使用静默恢复，如果设置为true的情况下，那么在发生Crash时将不显示RecoveryActivity界面来进行恢复，而是自动的恢复Activity的堆栈和数据，也就是无界面恢复
                 .silent(false, Recovery.SilentMode.RECOVER_ACTIVITY_STACK)
 //                .skip(TestActivity.class)
-                .init(this)
+                .init(applicationContext)
         } else {
             //当前若是发布包，接管系统loop，让用户感知不到程序闪退
             while (true) {

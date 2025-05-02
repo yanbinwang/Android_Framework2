@@ -1,8 +1,12 @@
 package com.example.framework.utils.function.value
 
 import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.GradientDrawable.OVAL
 import android.os.Bundle
 import android.os.Looper
+import android.view.View
 import androidx.annotation.ColorInt
 import androidx.core.graphics.toColorInt
 import com.example.framework.BuildConfig
@@ -100,6 +104,25 @@ fun String?.parseColor(defaultColor: Int = Color.WHITE): Int {
  */
 fun Class<*>.getSimpleName(name: String? = null): String {
     return name ?: this.simpleName.lowercase(Locale.getDefault())
+}
+
+/**
+ * 减少本地背景文件的绘制，直接代码绘制
+ * colorString 颜色字符 -> "#cf111111"
+ * radius 圆角 -> 传入X.ptFloat,代码添加一个对应圆角的背景
+ */
+fun createCornerDrawable(colorString: String, radius: Float = 0f): Drawable {
+    return GradientDrawable().apply {
+        setColor(colorString.parseColor())
+        cornerRadius = radius
+    }
+}
+
+fun createOvalDrawable(colorString: String): Drawable {
+    return GradientDrawable().apply {
+        shape = OVAL
+        setColor(colorString.parseColor())
+    }
 }
 
 /**

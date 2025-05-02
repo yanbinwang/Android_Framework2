@@ -2,4 +2,9 @@
 <resources>
     <color name="bgGlide">#cccccc</color>
     <color name="bgGlideMask">#000000</color>
+    <!-- 自定义图片进度条 -->
+    <color name="bgProgressStart">#2e60df</color>
+    <color name="bgProgressEnd">#3259e1</color>
+    <color name="bgProgress">#3e78f1</color>
+    <color name="textProgress">#ffffff</color>
 </resources>
