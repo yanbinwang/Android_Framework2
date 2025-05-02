@@ -11,6 +11,7 @@ import okhttp3.internal.http.promisesBody
 import okio.Buffer
 import java.io.IOException
 import java.nio.charset.Charset
+import java.util.Date
 
 /**
  * author: wyb
@@ -19,9 +20,20 @@ import java.nio.charset.Charset
  * 需要注意的是文件流上传不能拦截，会造成闪退（已处理）
  * 返回日志过长的话，也会打印不完整
  */
-internal class LoggingInterceptor : Interceptor {
+class LoggingInterceptor : Interceptor {
     private val UTF8 = Charset.forName("UTF-8")
     private val excludedUrls = arrayOf("user/uploadImg")
+
+    companion object {
+        private var listener: ((url: String?, method: String?, header: String?, body: String?, code: Int?, response: String?) -> Unit)? = null
+
+        /**
+         * 请求地址，请求方式，请求头，请求参数，响应编码，响应体
+         */
+        fun setOnInterceptorListener(listener: ((url: String?, method: String?, header: String?, body: String?, code: Int?, response: String?) -> Unit)) {
+            this.listener = listener
+        }
+    }
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -40,9 +52,11 @@ internal class LoggingInterceptor : Interceptor {
         val response = chain.proceed(request)
         val responseResult = if (response.promisesBody() && !bodyEncoded(response.headers)) {
             getResponseBody(response)
-        } else null
+        } else {
+            null
+        }
         //输出日志
-        log(requestHeaders, requestUrl, queryParams, responseResult)
+        log(requestHeaders, requestUrl, queryParams, responseResult, request.method, response.code)
         return response
     }
 
@@ -53,7 +67,9 @@ internal class LoggingInterceptor : Interceptor {
             requestBody.writeTo(buffer)
             val charset = requestBody.contentType()?.charset(UTF8) ?: UTF8
             if (isPlaintext(buffer)) buffer.readString(charset) else null
-        } else null
+        } else {
+            null
+        }
     }
 
     private fun getResponseBody(response: Response): String? {
@@ -92,15 +108,19 @@ internal class LoggingInterceptor : Interceptor {
         }
     }
 
-    private fun log(headers: Headers, requestUrl: String, queryParams: String?, responseResult: String?) {
+    private fun log(headers: Headers, requestUrl: String, queryParams: String?, responseResult: String?, method: String, code: Int?) {
+        val header = headers.toString().trimEnd { it == '\n' }
+        val body = decode(responseResult)
         LogUtil.e("LoggingInterceptor", " " +
                 "\n————————————————————————请求开始————————————————————————" +
-                "\n请求头:\n" + headers.toString().trimEnd { it == '\n' } +
+                "\n请求头:\n" + header +
                 "\n请求地址:\n" + requestUrl +
                 "\n请求参数:\n" + queryParams.orNoData() +
-                "\n返回参数:\n" + decode(responseResult) +
+                "\n返回参数:\n" + body +
                 "\n————————————————————————请求结束————————————————————————\n"
                 + " ")
+        //请求地址，请求方式，请求头，请求参数，响应时间，响应编码，响应体
+        listener?.invoke(requestUrl, method, header, queryParams, code, body)
     }
 
     private fun decode(unicodeStr: String?): String {

@@ -40,9 +40,11 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.android.testing)
-    //框架库
-    implementation(project(":lib_common"))
-    implementation(project(":lib_thirdparty"))
+    //框架库-》额外注意，debug包的时候才会把代码打入
+    debugImplementation(project(":lib_thirdparty"))
+    //报错抓取库
+    debugImplementation("com.zxy.android.recovery:1.0.0")
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.11")
 //    //codeedittext验证码输入框
 //    api 'com.chaos.view:pinview:1.4.4'
 }

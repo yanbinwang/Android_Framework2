@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="bean"
+            type="com.example.debugging.bean.RequestBean" />
+
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="15pt">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="请求url:"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_method"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{bean.method}"
+                android:textColor="@{bean.methodColorRes}"
+                android:textIsSelectable="true"
+                android:textSize="@dimen/textSize16"
+                android:textStyle="bold"
+                tools:text="POST" />
+
+            <TextView
+                android:id="@+id/tv_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{bean.url}"
+                android:textColor="#303F9F"
+                android:textIsSelectable="true"
+                android:textSize="@dimen/textSize16"
+                tools:text="https://www.baidu.com" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15pt"
+                android:text="请求header:"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{bean.header}"
+                android:textColor="#999999"
+                android:textIsSelectable="true"
+                android:textSize="@dimen/textSize14"
+                tools:text="post:::" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15pt"
+                android:text="请求body:"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14"
+                android:textStyle="bold" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                android:scrollbars="none">
+
+                <TextView
+                    android:id="@+id/tv_body"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{bean.body}"
+                    android:textColor="#999999"
+                    android:textIsSelectable="true"
+                    android:textSize="@dimen/textSize12"
+                    android:typeface="monospace" />
+
+            </HorizontalScrollView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15pt"
+                android:text="请求结果:"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{bean.code}"
+                android:textColor="#7D7DFF"
+                android:textIsSelectable="true"
+                android:textSize="@dimen/textSize14"
+                android:textStyle="bold"
+                tools:text="200" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15pt"
+                android:text="返回数据:"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14"
+                android:textStyle="bold" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                android:scrollbars="none">
+
+                <TextView
+                    android:id="@+id/tv_response"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{bean.response}"
+                    android:textColor="#666666"
+                    android:textIsSelectable="true"
+                    android:textSize="@dimen/textSize12"
+                    android:typeface="monospace" />
+
+            </HorizontalScrollView>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</layout>

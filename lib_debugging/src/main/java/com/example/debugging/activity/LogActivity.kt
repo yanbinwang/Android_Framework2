@@ -4,99 +4,49 @@ import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
 import com.example.common.base.BaseTitleActivity
-import com.example.common.utils.function.orNoData
+import com.example.common.base.page.Extra
+import com.example.common.config.ServerConfig
 import com.example.debugging.BR
 import com.example.debugging.R
 import com.example.debugging.adapter.LogAdapter
-import com.example.debugging.bean.ExtraInput
 import com.example.debugging.databinding.ActivityLogBinding
-import com.example.debugging.widget.dialog.InputDialog
-import com.example.debugging.widget.dialog.ListSelectDialog
-import com.example.framework.utils.function.value.safeGet
-import com.example.framework.utils.function.value.safeSize
-import com.example.framework.utils.function.value.toNewList
+import com.example.debugging.utils.DebuggingUtil.requestList
 import com.example.framework.utils.function.view.clicks
 
 /**
  * 测试用
  */
 class LogActivity : BaseTitleActivity<ActivityLogBinding>(), OnClickListener {
-    private val select by lazy {
-        ListSelectDialog(this).apply {
-            isNotify = false
-        }
-    }
-    private val input by lazy { InputDialog(this) }
-
-    companion object {
-        private val extraInputList by lazy { arrayListOf(ExtraInput("清空日志", type = 1)) }
-
-        @JvmStatic
-        fun addExtraInput(extraInput: ExtraInput) {
-            extraInputList.add(extraInput)
-        }
-    }
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        titleBuilder.setTitle("请求日志")
-        if (extraInputList.isNotEmpty()) {
-            if (extraInputList.safeSize == 1) {
-                titleBuilder.setRight(extraInputList.first().describe.orNoData()) {
-                    showInputDialog(extraInputList.safeGet(0))
-                }
-            } else {
-                titleBuilder.setRight("更多") {
-                    select.show()
-                }
-            }
+        titleBuilder.setTitle("请求日志").setRight("清空日志"){
+            mBinding?.adapter?.refresh(emptyList())
+            requestList.clear()
         }
         mBinding?.setVariable(BR.adapter, LogAdapter())
-
+        refreshUrl()
     }
 
     override fun initEvent() {
         super.initEvent()
         clicks(mBinding?.tvServer, mBinding?.tvDefault)
-        mBinding?.adapter?.setOnItemClickListener { t, position ->
-//            startActivity()
-        }
-        select.setOnItemClickListener { t, position ->
-            t?.let {
-                showInputDialog(extraInputList.safeGet(position))
-            }
+        mBinding?.adapter?.setOnItemClickListener { t, _ ->
+            startActivity(LogDetailActivity::class.java,Extra.BUNDLE_BEAN to t)
         }
     }
 
     override fun initData() {
         super.initData()
-        select.setParams(extraInputList.toNewList { it.describe })
-    }
-
-    private fun showInputDialog(extra: ExtraInput?) {
-        extra ?: return
-        if (extra.type == 1) {
-            mBinding?.adapter?.refresh(emptyList())
-//            BaseData.requestList.clear()
-        } else {
-            input.apply {
-                setDefaultText(extra.nowValue?.invoke())
-                setOnItemClickListener({
-                    extra.onInput?.invoke(it?.text.toString())
-                    true
-                }, {
-                    extra.defaultValue?.invoke().orEmpty()
-                })
-            }.show()
-        }
+        mBinding?.adapter?.refresh(requestList)
     }
 
     /**
      * 显示当前服务器
      */
     private fun refreshUrl() {
-//        val test = SERVER_TEST ?: serverBean()
-//        tv_server.text = test.getUrl()
+        val test = ServerConfig.serverBean()
+        mBinding?.tvServer?.text = test.getUrl()
     }
 
     override fun onClick(v: View?) {
@@ -106,10 +56,8 @@ class LogActivity : BaseTitleActivity<ActivityLogBinding>(), OnClickListener {
 //                    tv_server.text = it
 //                }).show()
             }
-
             R.id.tv_default -> {
-//                ::SERVER_TEST.del()
-//                refreshUrl()
+                refreshUrl()
             }
         }
     }

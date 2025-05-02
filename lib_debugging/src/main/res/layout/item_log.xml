@@ -24,22 +24,23 @@
             android:paddingHorizontal="15pt"
             android:paddingTop="15pt"
             android:paddingBottom="5pt"
-            android:text="@{bean.methodText}"
+            android:text="@{bean.method}"
             android:textSize="@dimen/textSize15"
             android:textStyle="bold"
+            android:textColor="@{bean.methodColorRes}"
             tools:text="POST"
-            tools:textColor="@color/log_red" />
+            tools:textColor="@color/http_post" />
 
         <TextView
             android:id="@+id/tv_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{bean.timeText}"
-            android:textColor="@color/log_gray"
             android:textSize="@dimen/textSize13"
             app:layout_constraintBaseline_toBaselineOf="@id/tv_method"
             app:layout_constraintStart_toEndOf="@id/tv_method"
-            tools:text="2022/11/11 10:11:12" />
+            tools:text="2022/11/11 10:11:12"
+            tools:textColor="@color/textSecondary" />
 
         <TextView
             android:id="@+id/tv_title"

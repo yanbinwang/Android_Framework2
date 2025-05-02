@@ -65,6 +65,7 @@ object ServerConfig {
     /**
      * 服务器序号
      */
+    @JvmStatic
     fun serverType(): Int {
         return serverType
     }
@@ -72,8 +73,19 @@ object ServerConfig {
     /**
      * 目前正在用的socket服务器地址
      */
+    @JvmStatic
     fun socketUrl(): String {
         return "wss://${serverBean().server}/api/ws_endpoint/websocket"
+    }
+
+    /**
+     * 修改serverType的方法
+     */
+    @JvmStatic
+    fun changeServerType(newType: Int) {
+        if (newType in servers.indices) {
+            serverType = newType
+        }
     }
 
 }

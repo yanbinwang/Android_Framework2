@@ -6,6 +6,7 @@
     <string name="sure">确定</string>
     <string name="cancel">取消</string>
     <string name="refresh">刷新</string>
+    <string name="copySuccess">复制成功</string>
     <!-- app内的默认单位 -->
     <string name="unitNoData">--</string>
     <!-- 权限库的的提示语句 -->

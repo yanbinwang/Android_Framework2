@@ -2,7 +2,9 @@ package com.example.debugging.bean
 
 import android.annotation.SuppressLint
 import android.os.Parcelable
+import com.example.common.utils.function.color
 import com.example.common.utils.function.orNoData
+import com.example.debugging.R
 import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 
@@ -14,7 +16,6 @@ import java.text.SimpleDateFormat
 data class RequestBean(
     var url: String? = null,
     var method: String? = null,
-    var type: String? = null,
     var header: String? = null,
     var body: String? = null,
     var time: Long? = null,
@@ -37,9 +38,19 @@ data class RequestBean(
     }
 
     /**
-     * 请求方式
+     * 请求方式颜色
+     * color(R.color.textRed)
      */
-    val methodText get() = if ("SOCKET" == method) "$method $type" else method
+    val methodColorRes get() = when (method) {
+        "POST" -> color(R.color.http_post)
+        "GET" -> color(R.color.http_get)
+        "PUT" -> color(R.color.http_put)
+        "PUSH" -> color(R.color.http_push)
+        "SOCKET" -> color(R.color.http_socket)
+        "PATCH" -> color(R.color.http_patch)
+        "DELETE" -> color(R.color.http_delete)
+        else -> color(R.color.http_other)
+    }
 
     /**
      * 时间

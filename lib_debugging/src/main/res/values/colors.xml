@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="log_red">#fe0007</color>
-    <color name="log_blue">#087FFF</color>
-    <color name="log_yellow">#FF9D00</color>
-    <color name="log_gray">#999999</color>
-    <color name="log_pink">#0080c0</color>
+    <color name="http_get">#087FFF</color>
+    <color name="http_post">#fe0007</color>
+    <color name="http_put">#00FFFF</color>
+    <color name="http_patch">#008000</color>
+    <color name="http_delete">#A52A2A</color>
+    <color name="http_push">#FF9D00</color>
+    <color name="http_socket">#0080c0</color>
+    <color name="http_other">#999999</color>
 </resources>

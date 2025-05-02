@@ -2,8 +2,15 @@ package com.example.common.utils.builder
 
 import android.content.Context
 import android.os.Looper
+import android.view.Gravity
 import android.widget.Toast
+import androidx.annotation.DrawableRes
 import com.example.common.BaseApplication
+import com.example.common.R
+import com.example.common.databinding.ViewToastImageStyleBinding
+import com.example.common.utils.function.setPrimaryClip
+import com.example.common.utils.function.string
+import com.example.framework.utils.function.inflate
 import java.lang.ref.WeakReference
 
 /**
@@ -174,25 +181,25 @@ fun String?.longToast() {
     ToastBuilder.long(this)
 }
 
-///**
-// * 带提示的复制
-// */
-//fun String?.copy(label: String = "Label") {
-//    this ?: return
-//    setPrimaryClip(label)
-//    setToastView(R.mipmap.ic_toast, string(R.string.copySuccess))
-//}
-//
-///**
-// * 设置自定义toast提示view
-// */
-//fun setToastView(@DrawableRes resId: Int, message: String) {
-//    ToastBuilder.custom { context, toast ->
-//        toast.setGravity(Gravity.CENTER, 0, 0)
-//        toast.duration = Toast.LENGTH_SHORT
-//        val binding = ViewToastImageStyleBinding.bind(context.inflate(R.layout.view_toast_image_style))
-//        binding.ivType.setImageResource(resId)
-//        binding.tvLabel.text = message
-//        toast.view = binding.root
-//    }
-//}
+/**
+ * 带提示的复制
+ */
+fun String?.copy(label: String = "Label") {
+    this ?: return
+    setPrimaryClip(label)
+    setToastView(R.mipmap.ic_toast, string(R.string.copySuccess))
+}
+
+/**
+ * 设置自定义toast提示view
+ */
+fun setToastView(@DrawableRes resId: Int, message: String) {
+    ToastBuilder.custom { context, toast ->
+        toast.setGravity(Gravity.CENTER, 0, 0)
+        toast.duration = Toast.LENGTH_SHORT
+        val binding = ViewToastImageStyleBinding.bind(context.inflate(R.layout.view_toast_image_style))
+        binding.ivType.setImageResource(resId)
+        binding.tvLabel.text = message
+        toast.view = binding.root
+    }
+}
