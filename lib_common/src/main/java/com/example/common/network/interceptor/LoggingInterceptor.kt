@@ -3,6 +3,7 @@ package com.example.common.network.interceptor
 import com.example.common.config.ServerConfig
 import com.example.common.utils.function.orNoData
 import com.example.framework.utils.LogUtil
+import com.example.framework.utils.function.value.limitLength
 import okhttp3.Headers
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -98,7 +99,7 @@ class LoggingInterceptor : Interceptor {
                 "\n请求头:\n" + headers.toString().trimEnd { it == '\n' } +
                 "\n请求地址:\n" + requestUrl +
                 "\n请求参数:\n" + queryParams.orNoData() +
-                "\n返回参数:\n" + decode(responseResult) +
+                "\n返回参数:\n" + decode(responseResult).limitLength() +
                 "\n————————————————————————请求结束————————————————————————\n"
                 + " ")
     }

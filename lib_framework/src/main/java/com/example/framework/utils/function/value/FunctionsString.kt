@@ -102,6 +102,17 @@ fun String?.unicodeDecode(): String? {
 }
 
 /**
+ * 长度限制
+ */
+fun String.limitLength(maxLength: Int = 4000): String {
+    return if (this.length > maxLength) {
+        this.substring(0, maxLength) + "..."
+    } else {
+        this
+    }
+}
+
+/**
  * 检测正则
  */
 fun String?.regCheck(reg: String): Boolean {
