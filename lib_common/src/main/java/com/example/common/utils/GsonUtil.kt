@@ -15,9 +15,12 @@ import java.lang.reflect.Type
  */
 object GsonUtil {
     private val gson by lazy {
+//        GsonBuilder().setLenient()//json宽松,针对json格式不规范
+//            .disableHtmlEscaping()//防止特殊字符出现乱码
+//            .registerTypeAdapter(Boolean::class.java, BooleanTypeAdapter()).create()
         GsonBuilder().setLenient()//json宽松,针对json格式不规范
             .disableHtmlEscaping()//防止特殊字符出现乱码
-            .registerTypeAdapter(Boolean::class.java, BooleanTypeAdapter()).create()
+            .create()
     }
 
     /**

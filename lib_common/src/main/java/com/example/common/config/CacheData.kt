@@ -13,7 +13,7 @@ import com.example.common.utils.DataStringCacheUtil
 object CacheData {
     //设备id
     private const val DEVICE_ID = "device_id"
-    internal val deviceId = DataStringCacheUtil(DEVICE_ID)
+    internal val deviceId = DataCacheUtil<String>(DEVICE_ID)
 
     //是否同意告知书
     private const val PRIVACY_AGREED = "privacy_agreed"
