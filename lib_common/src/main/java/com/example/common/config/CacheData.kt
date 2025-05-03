@@ -14,7 +14,7 @@ import com.example.common.utils.DataStringCacheUtil
 object CacheData {
     //设备id
     private const val DEVICE_ID = "device_id"
-    internal val deviceId = DataCacheUtil<String>(DEVICE_ID)
+    internal val deviceId = DataStringCacheUtil(DEVICE_ID)
 
     //推送token
     private const val DEVICE_TOKEN = "device_token"
