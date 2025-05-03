@@ -70,7 +70,11 @@ class LogActivity : BaseTitleActivity<ActivityLogBinding>(), OnClickListener {
             }
             //刷新列表->当前页面的数据并不是实时的，频繁获取损耗性能开销，改为手动刷新
             R.id.tv_refresh -> {
-                mBinding?.adapter?.refresh(requestList.get())
+                if (mBinding?.adapter?.list() != requestList.get()) {
+                    "刷新成功".shortToast()
+                } else {
+                    "未收到新的请求".shortToast()
+                }
             }
             //还原为最初的几个配置的请求地址
             R.id.tv_reset -> {
