@@ -88,19 +88,17 @@ class MyApplication : BaseApplication() {
             //callback	发生Crash时的回调
             .recoverEnabled(true)//发布版本不跳转
             .callback(object : RecoveryCallback {
-                private val exceptionBuilder = StringBuilder()
-                private val causeBuilder = StringBuilder()
-                private val stackTraceBuilder = StringBuilder()
+                private val infoList = mutableListOf<String>()
                 override fun stackTrace(stackTrace: String?) {
-                    stackTraceBuilder.append("StackTrace:\n$stackTrace\n\n")
+                    infoList.add("StackTrace:\n$stackTrace\n\n")
                 }
 
                 override fun cause(cause: String?) {
-                    causeBuilder.append("Cause:\n$cause\n\n")
+                    infoList.add("Cause:\n$cause\n\n")
                 }
 
                 override fun exception(throwExceptionType: String?, throwClassName: String?, throwMethodName: String?, throwLineNumber: Int) {
-                    exceptionBuilder.append("\nException:\nExceptionData{" +
+                    infoList.add("\nException:\nExceptionData{" +
                             "className='" + throwClassName + '\'' +
                             ", type='" + throwExceptionType + '\'' +
                             ", methodName='" + throwMethodName + '\'' +
@@ -111,9 +109,11 @@ class MyApplication : BaseApplication() {
 
                 override fun throwable(throwable: Throwable?) {
                     val report = StringBuilder()
-                    report.append(exceptionBuilder)
-                        .append(causeBuilder)
-                        .append(stackTraceBuilder)
+                    infoList.reverse()
+                    infoList.forEach {
+                        report.append(it)
+                    }
+                    infoList.clear()
                     ("————————————————————————应用崩溃————————————————————————" +
                             "${report}\n" +
                             " ").logE("LoggingInterceptor")
