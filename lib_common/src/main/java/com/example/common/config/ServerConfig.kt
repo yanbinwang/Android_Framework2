@@ -1,6 +1,7 @@
 package com.example.common.config
 
 import com.example.common.bean.ServerBean
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * @description 服务器配置类（可在master分支中，将serverType设为0，develop或release设为别的服务器类，避免上架合并分支接口地址获取错误）
@@ -11,7 +12,11 @@ object ServerConfig {
      * 0正式地址 1测试地址
      */
     var serverType = 0
-    var servers = arrayListOf<ServerBean>()
+
+    /**
+     * 请求地址集合
+     */
+    val servers by lazy { AtomicReference(ArrayList<ServerBean>()) }
 
     /**
      * BaseApplication初始化
@@ -21,13 +26,13 @@ object ServerConfig {
     @JvmStatic
     fun init() {
         serverType = 1
-        servers = arrayListOf(
+        servers.set(arrayListOf(
             ServerBean("user.cheezeebit.com", -1, "", "线上").https(),
             ServerBean("user-test-acceptor.91fafafa.com", -1, "", "测试").https(),
             ServerBean("user-test-acceptor.91fafafa.com2", -1, "", "测试2").https(),
             ServerBean("user-test-acceptor.91fafafa.com3", -1, "", "测试3").https(),
             ServerBean("user-test-acceptor.91fafafa.com4", -1, "", "测试4").https(),
-        )
+        ))
     }
 
     /**
@@ -43,7 +48,7 @@ object ServerConfig {
      */
     @JvmStatic
     fun serverBean(): ServerBean {
-        return servers[serverType]
+        return servers.get()[serverType]
     }
 
     /**
@@ -82,10 +87,9 @@ object ServerConfig {
      * 修改serverType的方法
      */
     @JvmStatic
-    fun changeServerType(newType: Int) {
-        if (newType in servers.indices) {
-            serverType = newType
-        }
+    fun changeServerType(newType: Int, newServers: ArrayList<ServerBean>) {
+        serverType = newType
+        servers.set(newServers)
     }
 
 }

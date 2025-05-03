@@ -8,28 +8,20 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.example.common.config.ServerConfig
-import com.example.common.network.interceptor.LoggingInterceptor
 import com.example.common.utils.function.string
 import com.example.debugging.R
 import com.example.debugging.activity.LogActivity
-import com.example.debugging.bean.RequestBean
 import com.example.framework.utils.function.value.currentTimeStamp
-import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.logE
 import com.example.thirdparty.utils.NotificationUtil.getPendingIntentFlags
 import com.zxy.recovery.callback.RecoveryCallback
 import com.zxy.recovery.core.Recovery
-import java.util.Date
 
 
 /**
  * 调试库
  */
 object DebuggingUtil {
-    /**
-     * 网络请求列表
-     */
-    internal val requestList by lazy { ArrayList<RequestBean>() }
 
     /**
      * 调用前做好isDebug的判断
@@ -95,44 +87,24 @@ object DebuggingUtil {
 //        LeakCanary.config = config
 //        // 启动 LeakCanary 显示 LeakCanary 图标
 //        LeakCanary.showLeakDisplayActivityLauncherIcon(true)
+        //服务器工具类初始化
+        ServerUtil.init()
         //开启一个常驻通知
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
         val intent = Intent(context, LogActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         val pendingIntent = PendingIntent.getActivity(context, -1, intent, getPendingIntentFlags(PendingIntent.FLAG_CANCEL_CURRENT))
         val notification = NotificationCompat.Builder(context, string(R.string.notificationChannelId))
-            .setSmallIcon(R.mipmap.ic_notification)
-            .setContentTitle(ServerConfig.serverName())
-            .setContentText("本程序包为 " + ServerConfig.serverName() + " 包")
-            .setAutoCancel(false)
-            .setDefaults(Notification.DEFAULT_ALL)
-            .setWhen(currentTimeStamp)
-            .setContentIntent(pendingIntent)
-            .build()
+                .setSmallIcon(R.mipmap.ic_notification)
+                .setContentTitle(ServerConfig.serverName())
+                .setContentText("本程序包为 " + ServerConfig.serverName() + " 包")
+                .setAutoCancel(false)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setWhen(currentTimeStamp)
+                .setContentIntent(pendingIntent)
+                .build()
         notification.flags = Notification.FLAG_ONGOING_EVENT
         manager?.notify(2, notification)
-        //请求拦截地址,只保留最近30个请求
-        LoggingInterceptor.setOnDebuggingListener { header, method, url, params, code, body ->
-            addRequest(url, method, header, params, code, body)
-        }
-    }
-
-    /**
-     * 因为debugging是继承自lib_thirdparty的，而lib_thirdparty继承common，
-     * 所有的三方库以及主库都是能添加的，如有需要，可在三方库里扩展回调，debugging里获取并添加
-     */
-    private fun addRequest(url: String? = null, method: String? = null, header: String? = null, params: String? = null, code: Int? = null, body: String? = null) {
-        val bean = RequestBean(url, method, header, params, Date().time, code, body)
-        // 在列表头部插入元素
-        requestList.add(0, bean)
-        // 检查列表长度是否超过 30
-        if (requestList.safeSize > 30) {
-            // 截取前 30 个元素
-            val newList = ArrayList<RequestBean>(requestList.subList(0, 30))
-            // 替换原列表
-            requestList.clear()
-            requestList.addAll(newList)
-        }
     }
 
 }

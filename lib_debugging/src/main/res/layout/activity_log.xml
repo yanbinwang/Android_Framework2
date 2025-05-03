@@ -34,8 +34,9 @@
 
             <TextView
                 android:id="@+id/tv_server"
-                android:layout_width="331pt"
+                android:layout_width="0pt"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:ellipsize="end"
                 android:gravity="start|center_vertical"
                 android:maxLines="1"
@@ -44,15 +45,47 @@
                 android:textSize="@dimen/textSize14"
                 tools:text="https://www.baidu.com" />
 
-            <View style="@style/LineHeight" />
+            <View
+                style="@style/LineHeight"
+                android:layout_marginVertical="5pt" />
 
             <TextView
-                android:id="@+id/tv_default"
-                android:layout_width="0pt"
+                android:id="@+id/tv_insert"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:gravity="center"
-                android:text="还原"
+                android:paddingHorizontal="15pt"
+                android:text="添加"
+                android:textColor="@color/appTheme"
+                android:textSize="@dimen/textSize14"
+                android:textStyle="bold" />
+
+            <View
+                style="@style/LineHeight"
+                android:layout_marginVertical="5pt" />
+
+            <TextView
+                android:id="@+id/tv_refresh"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingHorizontal="15pt"
+                android:text="刷新"
+                android:textColor="@color/appTheme"
+                android:textSize="@dimen/textSize14"
+                android:textStyle="bold" />
+
+            <View
+                style="@style/LineHeight"
+                android:layout_marginVertical="5pt" />
+
+            <TextView
+                android:id="@+id/tv_reset"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingHorizontal="15pt"
+                android:text="复位"
                 android:textColor="@color/appTheme"
                 android:textSize="@dimen/textSize14"
                 android:textStyle="bold" />

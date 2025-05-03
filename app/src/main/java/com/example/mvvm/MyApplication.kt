@@ -5,8 +5,10 @@ import android.util.Log
 import com.amap.api.services.core.ServiceSettings
 import com.example.common.BaseApplication
 import com.example.common.config.Constants.VERSION_NAME
+import com.example.debugging.utils.DebuggingUtil
 import com.example.framework.utils.function.value.isDebug
 import com.example.greendao.dao.DaoMaster
+import com.example.mvvm.activity.MainActivity
 import com.example.objectbox.dao.MyObjectBox
 import com.example.thirdparty.media.album.GlideLoader
 import com.example.thirdparty.media.oss.OssDBHelper
@@ -40,7 +42,7 @@ class MyApplication : BaseApplication() {
     //初始化一些第三方控件和单例工具类等
     private fun initialize() {
         if (isDebug) {
-//            initDebugging()
+            DebuggingUtil.init(applicationContext, MainActivity::class.java)
         } else {
             //当前若是发布包，接管系统loop，让用户感知不到程序闪退
             while (true) {

@@ -37,102 +37,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_tip">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="40pt"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tv_scheme"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:text="http://"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="@dimen/textSize14"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/tv_server"
-                    android:layout_width="0pt"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:gravity="center"
-                    android:hint="服务器"
-                    android:inputType="textVisiblePassword"
-                    android:textColor="@color/textPrimary"
-                    android:textColorHint="@color/textHint"
-                    android:textSize="@dimen/textSize14"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_middle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:text=":"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="@dimen/textSize14"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/tv_port"
-                    android:layout_width="50pt"
-                    android:layout_height="match_parent"
-                    android:background="@null"
-                    android:gravity="center"
-                    android:hint="端口"
-                    android:inputType="number"
-                    android:textColor="@color/textPrimary"
-                    android:textColorHint="@color/textHint"
-                    android:textSize="@dimen/textSize14"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_end"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:text="/"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="@dimen/textSize14"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <View style="@style/LineWidth" />
-
-            <EditText
-                android:id="@+id/tv_path"
-                android:layout_width="match_parent"
-                android:layout_height="40pt"
-                android:layout_marginTop="5pt"
-                android:background="@null"
-                android:gravity="center"
-                android:hint="额外路径"
-                android:inputType="textVisiblePassword"
-                android:textColor="@color/textPrimary"
-                android:textSize="@dimen/textSize14"
-                android:textStyle="bold" />
-
-            <View style="@style/LineWidth" />
-
-            <TextView
-                android:id="@+id/tv_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5pt"
-                android:gravity="center"
-                android:textColor="@color/textPrimary"
-                android:textSize="@dimen/textSize10" />
-
             <RadioGroup
-                android:id="@+id/rg"
+                android:id="@+id/rg_group"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10pt"
-                android:layout_marginBottom="13pt"
+                android:layout_marginVertical="10pt"
                 android:orientation="vertical"
                 android:paddingHorizontal="20pt" />
 

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingConstraints">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="320pt"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/shape_default">
+
+        <TextView
+            android:id="@+id/tv_tip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:paddingHorizontal="5pt"
+            android:paddingTop="24pt"
+            android:singleLine="true"
+            android:text="切换服务器"
+            android:textColor="@color/textPrimary"
+            android:textSize="@dimen/textSize14"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/ll_root"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24pt"
+            android:layout_marginTop="16pt"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_tip">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40pt"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_scheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="http://"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize14"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/et_server"
+                    android:layout_width="0pt"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:gravity="center"
+                    android:hint="服务器"
+                    android:inputType="textVisiblePassword"
+                    android:textColor="@color/textPrimary"
+                    android:textColorHint="@color/textHint"
+                    android:textSize="@dimen/textSize14"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_middle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text=":"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize14"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/et_port"
+                    android:layout_width="50pt"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:gravity="center"
+                    android:hint="端口"
+                    android:inputType="number"
+                    android:textColor="@color/textPrimary"
+                    android:textColorHint="@color/textHint"
+                    android:textSize="@dimen/textSize14"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="/"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="@dimen/textSize14"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <View style="@style/LineWidth" />
+
+            <EditText
+                android:id="@+id/et_path"
+                android:layout_width="match_parent"
+                android:layout_height="40pt"
+                android:layout_marginTop="5pt"
+                android:background="@null"
+                android:gravity="center"
+                android:hint="额外路径"
+                android:inputType="textVisiblePassword"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14"
+                android:textStyle="bold" />
+
+            <View style="@style/LineWidth" />
+
+            <TextView
+                android:id="@+id/tv_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5pt"
+                android:gravity="center"
+                tools:text="https://www.baidu.com"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize10" />
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/view_split_line"
+            style="@style/LineConstraintWidth"
+            android:layout_marginTop="24pt"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ll_root" />
+
+        <TextView
+            android:id="@+id/tv_cancel"
+            android:layout_width="0pt"
+            android:layout_height="48pt"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:paddingHorizontal="5pt"
+            android:singleLine="true"
+            android:text="取消"
+            android:textColor="@color/textPrimary"
+            android:textSize="@dimen/textSize14"
+            app:layout_constraintEnd_toStartOf="@+id/tv_sure"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view_split_line" />
+
+        <View
+            android:id="@+id/view_line"
+            style="@style/LineConstraintHeight"
+            app:layout_constraintBottom_toBottomOf="@id/tv_sure"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_sure" />
+
+        <TextView
+            android:id="@+id/tv_sure"
+            android:layout_width="0pt"
+            android:layout_height="48pt"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:paddingHorizontal="5pt"
+            android:singleLine="true"
+            android:text="确定"
+            android:textColor="@color/appTheme"
+            android:textSize="@dimen/textSize14"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@+id/tv_cancel"
+            app:layout_constraintTop_toBottomOf="@+id/view_split_line" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
