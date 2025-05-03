@@ -1,11 +1,14 @@
 package com.example.debugging.utils
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Notification
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.common.config.ServerConfig
 import com.example.common.utils.function.string
@@ -21,7 +24,10 @@ import com.zxy.recovery.core.Recovery
 /**
  * 调试库
  */
+@SuppressLint("StaticFieldLeak")
 object DebuggingUtil {
+    private var notificationManager: NotificationManager? = null
+    private var notificationBuilder: NotificationCompat.Builder? = null
 
     /**
      * 调用前做好isDebug的判断
@@ -90,11 +96,14 @@ object DebuggingUtil {
         //服务器工具类初始化
         ServerUtil.init()
         //开启一个常驻通知
-        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+        notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager?.createNotificationChannel(NotificationChannel(string(R.string.notificationChannelId), string(R.string.notificationChannelName), NotificationManager.IMPORTANCE_DEFAULT))
+        }
         val intent = Intent(context, LogActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         val pendingIntent = PendingIntent.getActivity(context, -1, intent, getPendingIntentFlags(PendingIntent.FLAG_CANCEL_CURRENT))
-        val notification = NotificationCompat.Builder(context, string(R.string.notificationChannelId))
+        notificationBuilder = NotificationCompat.Builder(context, string(R.string.notificationChannelId))
                 .setSmallIcon(R.mipmap.ic_notification)
                 .setContentTitle(ServerConfig.serverName())
                 .setContentText("本程序包为 " + ServerConfig.serverName() + " 包")
@@ -102,9 +111,16 @@ object DebuggingUtil {
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setWhen(currentTimeStamp)
                 .setContentIntent(pendingIntent)
-                .build()
-        notification.flags = Notification.FLAG_ONGOING_EVENT
-        manager?.notify(2, notification)
+        val notification = notificationBuilder?.build()
+        notification?.flags = Notification.FLAG_ONGOING_EVENT
+        notificationManager?.notify(2, notification)
+    }
+
+    fun updateNotificationContent(newContentText: String) {
+        notificationBuilder?.setContentText(newContentText)
+        val updatedNotification = notificationBuilder?.build()
+        updatedNotification?.flags = Notification.FLAG_ONGOING_EVENT
+        notificationManager?.notify(2, updatedNotification)
     }
 
 }

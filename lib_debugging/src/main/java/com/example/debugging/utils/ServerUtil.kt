@@ -8,6 +8,7 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.toJson
 import com.example.common.utils.toList
 import com.example.debugging.bean.RequestBean
+import com.example.debugging.utils.DebuggingUtil.updateNotificationContent
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.value.toArrayList
@@ -111,7 +112,9 @@ object ServerUtil {
     fun changeServer(newType: Int) {
         val data = serverData()
         val serverList = data.second
+        val serverBean = serverList.safeGet(newType)
         ServerConfig.changeServerType(newType, serverList.toArrayList())
+        updateNotificationContent("本程序包为 " + serverBean?.name + " 包")
     }
 
     /**

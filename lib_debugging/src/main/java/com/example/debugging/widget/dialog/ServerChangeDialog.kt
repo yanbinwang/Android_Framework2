@@ -50,18 +50,13 @@ class ServerChangeDialog(context: Context) : BaseDialog<ViewDialogServerChangeBi
         mBinding?.rgGroup?.removeAllViews()
         serverList.forEachIndexed { index, bean ->
             val button = RadioButton(context)
-            if (index == serverType) button.checked(true)
             button.size(MATCH_PARENT, WRAP_CONTENT)
             button.textColor(R.color.textPrimary)
             button.textSize(R.dimen.textSize13)
             button.text = bean.getUrl()
             mBinding?.rgGroup?.addView(button)
-            button.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    serverBean = serverList.safeGet(mBinding?.rgGroup.checkedIndex())
-                }
-            }
         }
+        mBinding?.rgGroup.checked(serverType,true)
     }
 
     fun setDialogListener(onConfirm: (ServerBean?) -> Unit = {}) {
@@ -72,8 +67,11 @@ class ServerChangeDialog(context: Context) : BaseDialog<ViewDialogServerChangeBi
         when (v?.id) {
             R.id.tv_cancel -> dismiss()
             R.id.tv_sure -> {
+                val index = mBinding?.rgGroup.checkedIndex()
+                val bean = serverData().second.safeGet(index)
                 //获取当前选中的地址下标
-                changeServer(mBinding?.rgGroup.checkedIndex())
+                changeServer(index)
+                onConfirm?.invoke(bean)
                 dismiss()
             }
         }

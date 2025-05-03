@@ -24,6 +24,7 @@
 
         <View
             style="@style/LineWidth"
+            android:layout_gravity="bottom"
             android:layout_marginBottom="44pt" />
 
         <LinearLayout
@@ -37,7 +38,7 @@
                 android:layout_width="0pt"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:ellipsize="end"
+                android:ellipsize="middle"
                 android:gravity="start|center_vertical"
                 android:maxLines="1"
                 android:paddingHorizontal="15pt"
