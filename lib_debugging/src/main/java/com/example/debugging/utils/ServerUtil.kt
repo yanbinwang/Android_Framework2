@@ -91,7 +91,7 @@ object ServerUtil {
         var serverList: List<ServerBean>
         serverData.get().let {
             //本地没有存储值的时候，第0个就是测试的第一个地址
-            if (it.isNotEmpty()) {
+            if (it.isNullOrEmpty()) {
                 serverType = 0
                 serverList = ServerConfig.servers.get().drop(1)//线上地址排除
                 serverData.set("${serverType}::${serverList.toJson()}")
