@@ -104,11 +104,12 @@ fun String?.unicodeDecode(): String? {
 /**
  * 检测正则
  */
-fun String?.regCheck(reg: String): Boolean {
+fun String?.matches(regex: String): Boolean {
     this ?: return false
-    val pattern = Pattern.compile(reg)
-    val matcher = pattern.matcher(this)
-    return matcher.matches()
+    return this.matches(Regex(regex))
+//    val pattern = Pattern.compile(regex)
+//    val matcher = pattern.matcher(this)
+//    return matcher.matches()
 }
 
 /**
@@ -184,7 +185,7 @@ fun String?.addUrlParam(key: String?, value: String?): String? {
 fun String?.hidePhoneNumber(): String {
     this ?: return ""
     var value = ""
-    if (regCheck(MOBILE)) {
+    if (matches(MOBILE)) {
         val ch = toCharArray()
         for (index in ch.indices) {
             if (index in 3..6) {
@@ -206,6 +207,17 @@ fun String?.fixLength(size: Int): String {
     if (this == null) return ""
     return if (length.orZero > size) {
         substring(0, size)
+    } else {
+        this
+    }
+}
+
+/**
+ * 长度限制
+ */
+fun String.limitLength(maxLength: Int = 3500): String {
+    return if (this.length > maxLength) {
+        this.substring(0, maxLength) + "..."
     } else {
         this
     }

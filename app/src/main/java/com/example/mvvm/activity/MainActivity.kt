@@ -845,11 +845,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                })
 
         }
-        launch {
-            delay(2000)
-            mBinding?.ivBg?.load("https://images.91fafafa.com/upload/image/banner/banner.png")
-        }
-
     }
 
     /**
