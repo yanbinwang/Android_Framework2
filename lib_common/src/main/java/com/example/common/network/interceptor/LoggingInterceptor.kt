@@ -2,8 +2,8 @@ package com.example.common.network.interceptor
 
 import com.example.common.config.ServerConfig
 import com.example.common.utils.function.orNoData
-import com.example.framework.utils.LogUtil
 import com.example.framework.utils.function.value.limitLength
+import com.example.framework.utils.logE
 import okhttp3.Headers
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -21,29 +21,33 @@ import java.nio.charset.Charset
  * 返回日志过长的话，也会打印不完整
  */
 class LoggingInterceptor : Interceptor {
-    private val UTF8 = Charset.forName("UTF-8")
-    private val excludedUrls = arrayOf("user/uploadImg")
+    private val UTF8 by lazy { Charset.forName("UTF-8") }
+    private val uploadFileUrls by lazy { arrayOf("user/uploadImg") }
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
-        val requestHeaders = request.headers
-        val requestUrl = request.url.toString()
+        val headers = request.headers
+        val method = request.method
+        val url = request.url.toString()
         //不包含服务器地址的属于下载地址或图片加载地址，不做拦截
-        if (!requestUrl.contains(ServerConfig.serverUrl())) return chain.proceed(request)
+        if (!url.contains(ServerConfig.serverUrl())) return chain.proceed(request)
         //上传文件接口文本量过大，请求参数不做拦截
-        val queryParams = if (excludedUrls.any { requestUrl.contains(it) }) {
+        val params = if (uploadFileUrls.any { url.contains(it) }) {
             "文件上传"
         } else {
             getRequestBody(request)
         }
         //获取响应体
         val response = chain.proceed(request)
-        val responseResult = if (response.promisesBody() && !bodyEncoded(response.headers)) {
+        val code = response.code
+        val body = if (response.promisesBody() && !bodyEncoded(response.headers)) {
             getResponseBody(response)
-        } else null
+        } else {
+            null
+        }
         //输出日志
-        log(requestHeaders, requestUrl, queryParams, responseResult)
+        log(headers, method, url, params, code, body)
         return response
     }
 
@@ -54,7 +58,9 @@ class LoggingInterceptor : Interceptor {
             requestBody.writeTo(buffer)
             val charset = requestBody.contentType()?.charset(UTF8) ?: UTF8
             if (isPlaintext(buffer)) buffer.readString(charset) else null
-        } else null
+        } else {
+            null
+        }
     }
 
     private fun getResponseBody(response: Response): String? {
@@ -93,15 +99,16 @@ class LoggingInterceptor : Interceptor {
         }
     }
 
-    private fun log(headers: Headers, requestUrl: String, queryParams: String?, responseResult: String?) {
-        LogUtil.e("LoggingInterceptor", " " +
-                "\n————————————————————————请求开始————————————————————————" +
+    private fun log(headers: Headers, method: String, url: String, params: String?, code: Int, body: String?) {
+        ("————————————————————————请求开始————————————————————————" +
                 "\n请求头:\n" + headers.toString().trimEnd { it == '\n' } +
-                "\n请求地址:\n" + requestUrl +
-                "\n请求参数:\n" + queryParams.orNoData() +
-                "\n返回参数:\n" + decode(responseResult).limitLength() +
-                "\n————————————————————————请求结束————————————————————————\n"
-                + " ")
+                "\n请求方式:\n" + method +
+                "\n请求地址:\n" + url +
+                "\n请求参数:\n" + params.orNoData() +
+                "\n响应编码:\n" + code +
+                "\n响应体:\n" + decode(body).limitLength() +
+                "\n————————————————————————请求结束————————————————————————\n" +
+                " ").logE("LoggingInterceptor")
     }
 
     private fun decode(unicodeStr: String?): String {

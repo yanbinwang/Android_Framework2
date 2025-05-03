@@ -129,12 +129,6 @@
                             android:textSize="29pt"
                             android:visibility="gone" />
 
-                        <com.example.common.widget.XImageView
-                            android:id="@+id/iv_bg"
-                            android:layout_width="match_parent"
-                            android:layout_height="108pt"
-                            android:visibility="gone" />
-
                         <ImageView
                             android:id="@+id/iv_arrow"
                             android:layout_width="24pt"
