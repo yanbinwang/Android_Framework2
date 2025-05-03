@@ -102,17 +102,6 @@ fun String?.unicodeDecode(): String? {
 }
 
 /**
- * 长度限制
- */
-fun String.limitLength(maxLength: Int = 4000): String {
-    return if (this.length > maxLength) {
-        this.substring(0, maxLength) + "..."
-    } else {
-        this
-    }
-}
-
-/**
  * 检测正则
  */
 fun String?.matches(regex: String): Boolean {
@@ -218,6 +207,17 @@ fun String?.fixLength(size: Int): String {
     if (this == null) return ""
     return if (length.orZero > size) {
         substring(0, size)
+    } else {
+        this
+    }
+}
+
+/**
+ * 长度限制
+ */
+fun String.limitLength(maxLength: Int = 3500): String {
+    return if (this.length > maxLength) {
+        this.substring(0, maxLength) + "..."
     } else {
         this
     }

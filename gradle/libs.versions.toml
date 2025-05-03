@@ -23,7 +23,7 @@ arouterApi = "1.5.2"
 arouterCompiler = "1.5.2"
 #---------------------------------------------调试库---------------------------------------------
 recovery = "1.0.0"
-leakcanary = "2.11"
+#leakcanary = "2.11"
 #---------------------------------------------其余三方控件版本---------------------------------------------
 androidAutoSize = "v1.2.1"
 mmkvStatic = "1.2.2"
@@ -71,7 +71,7 @@ alibaba-arouter-compiler = { group = "com.alibaba", name = "arouter-compiler", v
 
 #调试库
 debugging-recovery = { group = "com.zxy.android", name = "recovery", version.ref = "recovery" } #闪退抓捕
-debugging-leakcanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" } #内存泄露捕捉
+#debugging-leakcanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" } #内存泄露捕捉
 
 #其余三方控件
 autosize = { group = "com.github.JessYanCoding", name = "AndroidAutoSize", version.ref = "androidAutoSize" } #今日头条布局兼容
@@ -101,4 +101,5 @@ google-extensions = ["google-material", "google-flexbox"]
 # 网络请求库
 networking = ["squareup-retrofit", "squareup-converter-gson"]
 # 调试库
-debugging = ["debugging-recovery", "debugging-leakcanary"]
+#debugging = ["debugging-recovery", "debugging-leakcanary"]
+debugging = ["debugging-recovery"]
