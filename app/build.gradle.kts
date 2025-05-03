@@ -173,7 +173,6 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
-    androidTestImplementation(libs.bundles.android.testing)
     //调试库
     debugImplementation(libs.bundles.debugging)
     //基础库

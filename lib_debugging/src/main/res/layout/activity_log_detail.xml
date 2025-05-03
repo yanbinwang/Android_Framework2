@@ -25,7 +25,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="请求url:"
+                android:text="请求地址:"
                 android:textColor="@color/textPrimary"
                 android:textSize="@dimen/textSize14"
                 android:textStyle="bold" />
@@ -55,7 +55,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15pt"
-                android:text="请求header:"
+                android:text="请求头:"
                 android:textColor="@color/textPrimary"
                 android:textSize="@dimen/textSize14"
                 android:textStyle="bold" />
@@ -74,7 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15pt"
-                android:text="请求body:"
+                android:text="请求参数:"
                 android:textColor="@color/textPrimary"
                 android:textSize="@dimen/textSize14"
                 android:textStyle="bold" />
@@ -86,10 +86,10 @@
                 android:scrollbars="none">
 
                 <TextView
-                    android:id="@+id/tv_body"
+                    android:id="@+id/tv_params"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{bean.body}"
+                    android:text="@{bean.params}"
                     android:textColor="#999999"
                     android:textIsSelectable="true"
                     android:textSize="@dimen/textSize12"
@@ -101,7 +101,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15pt"
-                android:text="请求结果:"
+                android:text="响应编码:"
                 android:textColor="@color/textPrimary"
                 android:textSize="@dimen/textSize14"
                 android:textStyle="bold" />
@@ -121,7 +121,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15pt"
-                android:text="返回数据:"
+                android:text="响应体:"
                 android:textColor="@color/textPrimary"
                 android:textSize="@dimen/textSize14"
                 android:textStyle="bold" />
@@ -133,10 +133,10 @@
                 android:scrollbars="none">
 
                 <TextView
-                    android:id="@+id/tv_response"
+                    android:id="@+id/tv_body"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{bean.response}"
+                    android:text="@{bean.body}"
                     android:textColor="#666666"
                     android:textIsSelectable="true"
                     android:textSize="@dimen/textSize12"

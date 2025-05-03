@@ -1,7 +1,6 @@
 package com.example.common.network.factory
 
 import com.example.common.network.interceptor.LoggingInterceptor
-import com.example.common.network.interceptor.MemoryTrackingInterceptor
 import com.example.common.network.interceptor.UserAgentInterceptor
 import com.example.framework.utils.function.value.isDebug
 import okhttp3.OkHttpClient
@@ -26,7 +25,6 @@ class OkHttpFactory private constructor() {
             .addInterceptor(UserAgentInterceptor())//请求加头
         if (isDebug) {
             builder.addInterceptor(LoggingInterceptor())//日志监听
-            builder.addInterceptor(MemoryTrackingInterceptor())//请求内存监听
 //            .addInterceptor(RetryServerInterceptor())//重新构建请求
         }
         builder.build()

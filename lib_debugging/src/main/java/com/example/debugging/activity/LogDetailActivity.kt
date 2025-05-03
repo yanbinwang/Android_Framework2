@@ -27,15 +27,15 @@ class LogDetailActivity : BaseTitleActivity<ActivityLogDetailBinding>(), OnClick
 
     override fun initEvent() {
         super.initEvent()
-        clicks(mBinding?.tvUrl, mBinding?.tvHeader, mBinding?.tvBody, mBinding?.tvResponse)
+        clicks(mBinding?.tvUrl, mBinding?.tvHeader, mBinding?.tvParams, mBinding?.tvBody)
     }
 
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.tv_url -> mBinding?.bean?.url?.copy("url")
             R.id.tv_header -> mBinding?.bean?.header.copy("header")
+            R.id.tv_params -> mBinding?.bean?.params.copy("params")
             R.id.tv_body -> mBinding?.bean?.body.copy("body")
-            R.id.tv_response -> mBinding?.bean?.response.copy("response")
         }
     }
 
