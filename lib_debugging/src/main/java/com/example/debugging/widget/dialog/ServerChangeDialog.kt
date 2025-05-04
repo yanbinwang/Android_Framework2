@@ -28,7 +28,6 @@ import com.example.framework.utils.function.view.textSize
  */
 @SuppressLint("SetTextI18n")
 class ServerChangeDialog(context: Context) : BaseDialog<ViewDialogServerChangeBinding>(context), OnClickListener, EditTextImpl {
-    private var serverBean: ServerBean?=null
     private var onConfirm: ((ServerBean?) -> Unit)? = null
 
     init {
@@ -38,9 +37,7 @@ class ServerChangeDialog(context: Context) : BaseDialog<ViewDialogServerChangeBi
     override fun shown(flag: Boolean) {
         super.shown(flag)
         val data = serverData()
-        val serverType = data.first
         val serverList = data.second
-        serverBean = serverList.safeGet(serverType)
         mBinding?.rgGroup?.removeAllViews()
         serverList.forEachIndexed { _, bean ->
             val button = RadioButton(context)
