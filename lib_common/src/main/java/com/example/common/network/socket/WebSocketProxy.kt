@@ -1,4 +1,4 @@
-package com.example.common.socket
+package com.example.common.network.socket
 
 import cn.zhxu.okhttps.OkHttps
 import cn.zhxu.okhttps.WebSocket
