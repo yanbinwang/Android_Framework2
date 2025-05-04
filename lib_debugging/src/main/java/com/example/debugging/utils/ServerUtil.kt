@@ -3,7 +3,8 @@ package com.example.debugging.utils
 import com.example.common.bean.ServerBean
 import com.example.common.config.ServerConfig
 import com.example.common.network.interceptor.LoggingInterceptor
-import com.example.common.utils.DataStringCacheUtil
+import com.example.common.utils.DataIntCache
+import com.example.common.utils.DataStringCache
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.toJson
 import com.example.common.utils.toList
@@ -12,7 +13,6 @@ import com.example.debugging.utils.DebuggingUtil.updateNotificationContent
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.value.toArrayList
-import com.example.framework.utils.function.value.toSafeInt
 import java.util.Date
 import java.util.concurrent.atomic.AtomicReference
 
@@ -24,8 +24,14 @@ object ServerUtil {
      * 当前服务器版本号+本地集合
      * 使用server_type::server_list_json的形式
      */
+//    private const val SERVER_DATA = "server_data"
+//    internal val serverData = DataStringCache(SERVER_DATA)
+
+    private const val SERVER_TYPE = "server_type"
+    internal val serverType = DataIntCache(SERVER_TYPE)
+
     private const val SERVER_DATA = "server_data"
-    internal val serverData = DataStringCacheUtil(SERVER_DATA)
+    internal val serverData = DataStringCache(SERVER_DATA)
 
     /**
      * 网络请求列表
@@ -73,11 +79,11 @@ object ServerUtil {
      */
     fun addServer(server: String = "", port: Int = 0, path: String = "", name: String = "", https: Boolean = false) {
         val data = serverData()
-        val serverType = data.first
         val serverList = data.second
         if (serverList.find { it.server == server && it.port == port && it.path == path && it.name == name && it.https == https } == null) {
-            serverList.toArrayList().add(ServerBean(server, port, path, name, https))
-            serverData.set("${serverType}::${serverList.toJson()}")
+            val newList = serverList.toArrayList()
+            newList.add(ServerBean(server, port, path, name, https))
+            serverData.set(newList.toJson().orEmpty())
             "添加成功".shortToast()
         } else {
             "添加失败，已有相同地址".shortToast()
@@ -88,42 +94,50 @@ object ServerUtil {
      * 获取当前存储的服务器数据
      */
     fun serverData(): Pair<Int, List<ServerBean>> {
-        var serverType: Int //当前选中的服务器地址
+        val serverType = serverType.get() //当前选中的服务器地址,初始化没值则为0
         var serverList: List<ServerBean>
         serverData.get().let {
             //本地没有存储值的时候，第0个就是测试的第一个地址
             if (it.isNullOrEmpty()) {
-                serverType = 0
-                serverList = ServerConfig.servers.get().drop(1)//线上地址排除
-                serverData.set("${serverType}::${serverList.toJson()}")
+                //线上地址排除
+                serverList = ServerConfig.servers.get().drop(1)
+                serverData.set(serverList.toJson().orEmpty())
             } else {
                 //存值的话，取对应的值和集合
-                val list = it.split("::")
-                serverType = list.safeGet(0).toSafeInt()
-                serverList = list.safeGet(1).toList(ServerBean::class.java).orEmpty()
+                serverList = it.toList(ServerBean::class.java).orEmpty()
             }
         }
         return serverType to serverList
     }
 
     /**
-     * 修改请求地址
+     * 切换请求地址
      */
-    fun changeServer(newType: Int) {
+    fun changeServer(newType: Int): ServerBean? {
         val data = serverData()
         val serverList = data.second
         val serverBean = serverList.safeGet(newType)
-        ServerConfig.changeServerType(newType, serverList.toArrayList())
-        updateNotificationContent("本程序包为 " + serverBean?.name + " 包")
+        val cacheBean = ServerConfig.serverBean()
+        if (cacheBean.server == serverBean?.server && cacheBean.port == serverBean.port && cacheBean.path == serverBean.path && cacheBean.name == serverBean.name && cacheBean.https == serverBean.https) {
+            "切换失败，与当前地址相同".shortToast()
+            return cacheBean
+        } else {
+            updateNotificationContent("本程序包为 " + serverBean?.name + " 包")
+            ServerConfig.changeServerType(newType, serverList.toArrayList())
+            "切换成功".shortToast()
+            return serverBean
+        }
     }
 
     /**
      * 还原为原始数据
      */
     fun resetServer() {
+        //初始化服务器数据后，线上地址又会被算进来，故而做一次剪除
         ServerConfig.init()
         val serverList = ServerConfig.servers.get().drop(1)
-        serverData.set("0::${serverList.toJson()}")
+        serverType.set(0)
+        serverData.set(serverList.toJson().orEmpty())
         ServerConfig.changeServerType(0, serverList.toArrayList())
     }
 

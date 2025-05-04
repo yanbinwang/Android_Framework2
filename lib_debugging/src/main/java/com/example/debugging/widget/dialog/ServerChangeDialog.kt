@@ -9,23 +9,17 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.RadioButton
 import com.example.common.base.BaseDialog
 import com.example.common.bean.ServerBean
+import com.example.common.utils.function.pt
 import com.example.common.widget.textview.edittext.EditTextImpl
 import com.example.debugging.R
 import com.example.debugging.databinding.ViewDialogServerChangeBinding
-import com.example.debugging.databinding.ViewDialogServerInsertBinding
-import com.example.debugging.utils.ServerUtil.addServer
 import com.example.debugging.utils.ServerUtil.changeServer
 import com.example.debugging.utils.ServerUtil.serverData
-import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
-import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.function.view.OnMultiTextWatcher
-import com.example.framework.utils.function.view.checked
 import com.example.framework.utils.function.view.checkedIndex
 import com.example.framework.utils.function.view.clicks
+import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.size
-import com.example.framework.utils.function.view.text
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
 
@@ -48,15 +42,15 @@ class ServerChangeDialog(context: Context) : BaseDialog<ViewDialogServerChangeBi
         val serverList = data.second
         serverBean = serverList.safeGet(serverType)
         mBinding?.rgGroup?.removeAllViews()
-        serverList.forEachIndexed { index, bean ->
+        serverList.forEachIndexed { _, bean ->
             val button = RadioButton(context)
             button.size(MATCH_PARENT, WRAP_CONTENT)
             button.textColor(R.color.textPrimary)
-            button.textSize(R.dimen.textSize13)
+            button.textSize(R.dimen.textSize12)
             button.text = bean.getUrl()
             mBinding?.rgGroup?.addView(button)
+            button.margin(top = 2.pt)
         }
-        mBinding?.rgGroup.checked(serverType,true)
     }
 
     fun setDialogListener(onConfirm: (ServerBean?) -> Unit = {}) {
@@ -67,10 +61,9 @@ class ServerChangeDialog(context: Context) : BaseDialog<ViewDialogServerChangeBi
         when (v?.id) {
             R.id.tv_cancel -> dismiss()
             R.id.tv_sure -> {
-                val index = mBinding?.rgGroup.checkedIndex()
-                val bean = serverData().second.safeGet(index)
                 //获取当前选中的地址下标
-                changeServer(index)
+                val index = mBinding?.rgGroup.checkedIndex()
+                val bean = changeServer(index)
                 onConfirm?.invoke(bean)
                 dismiss()
             }

@@ -16,6 +16,7 @@ import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.OnMultiTextWatcher
 import com.example.framework.utils.function.view.clicks
+import com.example.framework.utils.function.view.closeDecor
 import com.example.framework.utils.function.view.text
 
 /**
@@ -83,6 +84,7 @@ class ServerInsertDialog(context: Context) : BaseDialog<ViewDialogServerInsertBi
                     else -> false
                 }
                 addServer(mBinding?.etServer.text(), port, mBinding?.etPath.text(), "自定义", https)
+                v.closeDecor()
                 dismiss()
             }
         }

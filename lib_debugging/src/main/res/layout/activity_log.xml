@@ -31,7 +31,8 @@
             android:layout_width="match_parent"
             android:layout_height="44pt"
             android:layout_gravity="bottom"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingHorizontal="5pt">
 
             <TextView
                 android:id="@+id/tv_server"
@@ -41,7 +42,7 @@
                 android:ellipsize="middle"
                 android:gravity="start|center_vertical"
                 android:maxLines="1"
-                android:paddingHorizontal="15pt"
+                android:paddingHorizontal="10pt"
                 android:textColor="@color/textPrimary"
                 android:textSize="@dimen/textSize14"
                 tools:text="https://www.baidu.com" />
@@ -55,37 +56,29 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:paddingHorizontal="15pt"
+                android:paddingHorizontal="10pt"
                 android:text="添加"
                 android:textColor="@color/appTheme"
                 android:textSize="@dimen/textSize14"
                 android:textStyle="bold" />
-
-            <View
-                style="@style/LineHeight"
-                android:layout_marginVertical="5pt" />
 
             <TextView
                 android:id="@+id/tv_refresh"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:paddingHorizontal="15pt"
+                android:paddingHorizontal="10pt"
                 android:text="刷新"
                 android:textColor="@color/appTheme"
                 android:textSize="@dimen/textSize14"
                 android:textStyle="bold" />
-
-            <View
-                style="@style/LineHeight"
-                android:layout_marginVertical="5pt" />
 
             <TextView
                 android:id="@+id/tv_reset"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:paddingHorizontal="15pt"
+                android:paddingHorizontal="10pt"
                 android:text="复位"
                 android:textColor="@color/appTheme"
                 android:textSize="@dimen/textSize14"

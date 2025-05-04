@@ -26,28 +26,17 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <LinearLayout
-            android:id="@+id/ll_root"
-            android:layout_width="0pt"
+        <RadioGroup
+            android:id="@+id/rg_group"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="24pt"
+            android:layout_marginHorizontal="10pt"
             android:layout_marginTop="16pt"
+            android:layout_marginBottom="10pt"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_tip">
-
-            <RadioGroup
-                android:id="@+id/rg_group"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="10pt"
-                android:orientation="vertical"
-                android:paddingHorizontal="20pt" />
-
-            <View style="@style/LineWidth" />
-
-        </LinearLayout>
+            app:layout_constraintTop_toBottomOf="@+id/tv_tip" />
 
         <View
             android:id="@+id/view_split_line"
@@ -55,7 +44,7 @@
             android:layout_marginTop="24pt"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ll_root" />
+            app:layout_constraintTop_toBottomOf="@+id/rg_group" />
 
         <TextView
             android:id="@+id/tv_cancel"
