@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="MissingConstraints">
 
@@ -20,12 +21,21 @@
             quick_adapter="@{adapter}"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="44pt" />
+            android:layout_marginBottom="44pt"
+            app:xrvEnableEmpty="true" />
 
         <View
             style="@style/LineWidth"
             android:layout_gravity="bottom"
             android:layout_marginBottom="44pt" />
+
+        <com.example.common.widget.SwitchView
+            android:id="@+id/sw_auto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="10pt"
+            android:layout_marginBottom="54pt" />
 
         <LinearLayout
             android:layout_width="match_parent"

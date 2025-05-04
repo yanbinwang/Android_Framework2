@@ -9,7 +9,6 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.example.common.config.ServerConfig
 import com.example.debugging.activity.LogActivity
-import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.logE
 import com.example.thirdparty.utils.NotificationUtil.builder
 import com.example.thirdparty.utils.NotificationUtil.getPendingIntent

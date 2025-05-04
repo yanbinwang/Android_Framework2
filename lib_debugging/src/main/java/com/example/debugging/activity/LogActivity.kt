@@ -15,14 +15,24 @@ import com.example.debugging.utils.ServerUtil.requestList
 import com.example.debugging.utils.ServerUtil.resetServer
 import com.example.debugging.widget.dialog.ServerChangeDialog
 import com.example.debugging.widget.dialog.ServerInsertDialog
+import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.view.clicks
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.visible
 
 /**
  * 测试用
  */
 class LogActivity : BaseTitleActivity<ActivityLogBinding>(), OnClickListener {
+    private val timer by lazy { TimerBuilder(this) }
     private val insert by lazy { ServerInsertDialog(this) }
     private val change by lazy { ServerChangeDialog(this) }
+    private val recyclerView get() = mBinding?.xrvList
+    private val empty get() = recyclerView?.empty
+
+    companion object {
+        private const val TASK_REFRESH_TAG = "TASK_REFRESH"
+    }
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
@@ -43,11 +53,41 @@ class LogActivity : BaseTitleActivity<ActivityLogBinding>(), OnClickListener {
         mBinding?.adapter?.setOnItemClickListener { t, _ ->
             startActivity(LogDetailActivity::class.java, Extra.BUNDLE_BEAN to t)
         }
+        mBinding?.swAuto?.setOnCheckChangeListener { isChecked, _, _ ->
+            if (isChecked) {
+                mBinding?.tvRefresh.gone()
+                timer.startTask(TASK_REFRESH_TAG, {
+                    refreshData(false)
+                }, period = 5000)
+            } else {
+                mBinding?.tvRefresh.visible()
+                timer.stopTask(TASK_REFRESH_TAG)
+            }
+        }
     }
 
     override fun initData() {
         super.initData()
-        mBinding?.adapter?.refresh(requestList.get())
+        refreshData(false)
+    }
+
+    /**
+     * 刷新列表数据
+     */
+    private fun refreshData(isToast: Boolean = true) {
+        val newList = requestList.get()
+        if (newList.isNullOrEmpty()) {
+            empty?.empty()
+        } else {
+            empty.gone()
+            val result = if (mBinding?.adapter?.list() != newList) {
+                mBinding?.adapter?.refresh(newList)
+                "刷新成功"
+            } else {
+                "未收到新的请求"
+            }
+            if (isToast) result.shortToast()
+        }
     }
 
     /**
@@ -70,11 +110,7 @@ class LogActivity : BaseTitleActivity<ActivityLogBinding>(), OnClickListener {
             }
             //刷新列表->当前页面的数据并不是实时的，频繁获取损耗性能开销，改为手动刷新
             R.id.tv_refresh -> {
-                if (mBinding?.adapter?.list() != requestList.get()) {
-                    "刷新成功".shortToast()
-                } else {
-                    "未收到新的请求".shortToast()
-                }
+                refreshData()
             }
             //还原为最初的几个配置的请求地址
             R.id.tv_reset -> {

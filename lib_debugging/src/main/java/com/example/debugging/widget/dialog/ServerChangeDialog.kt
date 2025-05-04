@@ -10,7 +10,7 @@ import android.widget.RadioButton
 import com.example.common.base.BaseDialog
 import com.example.common.bean.ServerBean
 import com.example.common.utils.function.pt
-import com.example.common.widget.textview.edittext.EditTextImpl
+import com.example.common.widget.textview.EditTextImpl
 import com.example.debugging.R
 import com.example.debugging.databinding.ViewDialogServerChangeBinding
 import com.example.debugging.utils.ServerUtil.changeServer

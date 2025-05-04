@@ -3,6 +3,7 @@ package com.example.debugging.utils
 import com.example.common.bean.ServerBean
 import com.example.common.config.ServerConfig
 import com.example.common.network.interceptor.LoggingInterceptor
+import com.example.common.network.socket.topic.WebSocketTopic
 import com.example.common.utils.DataIntCache
 import com.example.common.utils.DataStringCache
 import com.example.common.utils.builder.shortToast
@@ -13,6 +14,7 @@ import com.example.debugging.utils.DebuggingUtil.updateNotificationContent
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.value.toArrayList
+import com.example.thirdparty.firebase.service.FirebaseService
 import java.util.Date
 import java.util.concurrent.atomic.AtomicReference
 
@@ -24,9 +26,6 @@ object ServerUtil {
      * 当前服务器版本号+本地集合
      * 使用server_type::server_list_json的形式
      */
-//    private const val SERVER_DATA = "server_data"
-//    internal val serverData = DataStringCache(SERVER_DATA)
-
     private const val SERVER_TYPE = "server_type"
     internal val serverType = DataIntCache(SERVER_TYPE)
 
@@ -50,6 +49,14 @@ object ServerUtil {
         ServerConfig.changeServerType(serverType, serverList.toArrayList())
         //请求拦截地址,只保留最近30个请求
         LoggingInterceptor.setOnDebuggingListener { header, method, url, params, code, body ->
+            addRequest(url, method, header, params, code, body)
+        }
+        //推送拦截
+        FirebaseService.setOnDebuggingListener { header, method, url, params, code, body ->
+            addRequest(url, method, header, params, code, body)
+        }
+        //socket拦截
+        WebSocketTopic.setOnDebuggingListener { header, method, url, params, code, body ->
             addRequest(url, method, header, params, code, body)
         }
     }

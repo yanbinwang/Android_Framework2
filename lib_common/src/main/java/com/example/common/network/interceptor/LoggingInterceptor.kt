@@ -32,6 +32,7 @@ class LoggingInterceptor : Interceptor {
         /**
          * 请求头，请求方式，请求地址，请求参数，响应编码，响应体
          */
+        @JvmStatic
         fun setOnDebuggingListener(listener: ((header: String?, method: String?, url: String?, params: String?, code: Int?, body: String?) -> Unit)) {
             this.debuggingListener = listener
         }
