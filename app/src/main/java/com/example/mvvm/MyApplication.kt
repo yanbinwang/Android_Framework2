@@ -14,6 +14,7 @@ import com.example.thirdparty.media.album.GlideLoader
 import com.example.thirdparty.media.oss.OssDBHelper
 import com.example.thirdparty.media.oss.OssDBHelper2
 import com.example.thirdparty.media.oss.OssFactory
+import com.example.thirdparty.utils.NotificationUtil
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import com.zxy.recovery.callback.RecoveryCallback
@@ -55,6 +56,8 @@ class MyApplication : BaseApplication() {
                 }
             }
         }
+        //通知栏初始化
+        initNotification()
         //初始化图片库类
         initAlbum()
         //数据库初始化
@@ -133,6 +136,10 @@ class MyApplication : BaseApplication() {
 //        LeakCanary.config = config
 //        // 启动 LeakCanary 显示 LeakCanary 图标
 //        LeakCanary.showLeakDisplayActivityLauncherIcon(true)
+    }
+
+    private fun initNotification() {
+        NotificationUtil.init(applicationContext)
     }
 
     private fun initAlbum() {
