@@ -36,51 +36,51 @@ object MmkvUtil {
     fun decodeDouble(key: String, value: Double = 0.0) = mmkv.decodeDouble(key, value)
     fun decodeString(key: String, value: String = "") = mmkv.decodeString(key, value)
     fun decodeBytes(key: String, value: ByteArray = byteArrayOf()) = mmkv.decodeBytes(key, value)
-    fun <T : Parcelable> decodeParcelable(label: String, tClass: Class<T>) = mmkv.decodeParcelable(label, tClass)
+    fun <T : Parcelable> decodeParcelable(label: String, tClass: Class<T>, value: T? = null) = mmkv.decodeParcelable(label, tClass, value)
 
     fun removeValueForKey(label: String) = mmkv.removeValueForKey(label)
 }
 
-abstract class BaseDataCacheUtil(private val key: String) {
+abstract class BaseDataCache(private val key: String) {
     fun del() = removeValueForKey(key)
 }
 
-class DataBooleanCacheUtil(private val key: String, private val defaultValue: Boolean = false) : BaseDataCacheUtil(key) {
+class DataBooleanCache(private val key: String, private val defaultValue: Boolean = false) : BaseDataCache(key) {
     fun get() = decodeBool(key, defaultValue)
     fun set(value: Boolean) = encode(key, value)
 }
 
-class DataIntCacheUtil(private val key: String, private val defaultValue: Int = 0) : BaseDataCacheUtil(key) {
+class DataIntCache(private val key: String, private val defaultValue: Int = 0) : BaseDataCache(key) {
     fun get() = decodeInt(key, defaultValue)
     fun set(value: Int) = encode(key, value)
 }
 
-class DataLongCacheUtil(private val key: String, private val defaultValue: Long = 0) : BaseDataCacheUtil(key) {
+class DataLongCache(private val key: String, private val defaultValue: Long = 0) : BaseDataCache(key) {
     fun get() = decodeLong(key, defaultValue)
     fun set(value: Long) = encode(key, value)
 }
 
-class DataFloatCacheUtil(private val key: String, private val defaultValue: Float = 0f) : BaseDataCacheUtil(key) {
+class DataFloatCache(private val key: String, private val defaultValue: Float = 0f) : BaseDataCache(key) {
     fun get() = decodeFloat(key, defaultValue)
     fun set(value: Float) = encode(key, value)
 }
 
-class DataDoubleCacheUtil(private val key: String, private val defaultValue: Double = 0.0) : BaseDataCacheUtil(key) {
+class DataDoubleCache(private val key: String, private val defaultValue: Double = 0.0) : BaseDataCache(key) {
     fun get() = decodeDouble(key, defaultValue)
     fun set(value: Double) = encode(key, value)
 }
 
-class DataStringCacheUtil(private val key: String, private val defaultValue: String = "") : BaseDataCacheUtil(key) {
+class DataStringCache(private val key: String, private val defaultValue: String = "") : BaseDataCache(key) {
     fun get() = decodeString(key, defaultValue)
     fun set(value: String) = encode(key, value)
 }
 
-class DataBytesCacheUtil(private val key: String, private val defaultValue: ByteArray = byteArrayOf()) : BaseDataCacheUtil(key) {
+class DataBytesCache(private val key: String, private val defaultValue: ByteArray = byteArrayOf()) : BaseDataCache(key) {
     fun get() = decodeBytes(key, defaultValue)
     fun set(value: ByteArray) = encode(key, value)
 }
 
-class DataCacheUtil<T : Parcelable>(private val key: String, private val clazz: Class<T>) : BaseDataCacheUtil(key) {
-    fun get() = decodeParcelable(key, clazz)
+class DataParcelableCache<T : Parcelable>(private val key: String, private val clazz: Class<T>, private val value: T? = null) : BaseDataCache(key) {
+    fun get() = decodeParcelable(key, clazz, value)//可能存在获取到空对象的情况，切记写个?：UserBean()
     fun set(value: T) = encode(key, value)
 }
