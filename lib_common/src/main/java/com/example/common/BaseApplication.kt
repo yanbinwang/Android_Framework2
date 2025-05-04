@@ -30,10 +30,10 @@ import com.example.common.config.Constants.SOCKET_FUNDS_URL
 import com.example.common.config.ServerConfig
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
-import com.example.common.socket.SocketEventCode.EVENT_SOCKET_ADVERTISE
-import com.example.common.socket.SocketEventCode.EVENT_SOCKET_DEAL
-import com.example.common.socket.SocketEventCode.EVENT_SOCKET_FUNDS
-import com.example.common.socket.topic.WebSocketTopic
+import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_ADVERTISE
+import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_DEAL
+import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_FUNDS
+import com.example.common.network.socket.topic.WebSocketTopic
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.helper.ConfigHelper

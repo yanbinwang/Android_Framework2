@@ -1,9 +1,9 @@
-package com.example.common.socket.topic
+package com.example.common.network.socket.topic
 
 import cn.zhxu.okhttps.WebSocket
 import cn.zhxu.stomp.Message
 import cn.zhxu.stomp.Stomp
-import com.example.common.socket.WebSocketProxy
+import com.example.common.network.socket.WebSocketProxy
 import com.example.common.utils.helper.AccountHelper.isLogin
 
 /**
@@ -22,7 +22,7 @@ class WebSocketTopic(private val socketUrl: String) {
          */
         @JvmStatic
         fun setOnMessageListener(listener: (url: String?, data: Message?) -> Unit) {
-            this.listener = listener
+            Companion.listener = listener
         }
     }
 

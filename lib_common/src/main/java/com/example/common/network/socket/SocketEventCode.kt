@@ -1,4 +1,4 @@
-package com.example.common.socket
+package com.example.common.network.socket
 
 import com.example.common.event.Code
 

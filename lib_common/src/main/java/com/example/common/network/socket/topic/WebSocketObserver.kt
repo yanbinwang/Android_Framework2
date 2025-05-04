@@ -1,9 +1,9 @@
-package com.example.common.socket.topic
+package com.example.common.network.socket.topic
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.socket.topic.interf.SocketObserver
+import com.example.common.network.socket.topic.interf.SocketObserver
 import com.example.framework.utils.function.value.hasAnnotation
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicReference
