@@ -61,7 +61,7 @@ object NotificationUtil {
     /**
      * 带图片/跳转的通知栏
      */
-    fun Context?.showSimpleNotification(title: String?, text: String?, imageUrl: String?, intent: Intent?) {
+    fun Context?.showSimpleNotification(title: String? = "", text: String? = "", imageUrl: String? = null, intent: Intent? = null) {
         this ?: return
         //确定是否具备跳转
         var pendingIntent: PendingIntent? = null
