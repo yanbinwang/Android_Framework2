@@ -123,7 +123,7 @@ class MyApplication : BaseApplication() {
     }
 
     private fun initNotification() {
-        NotificationUtil.init()
+        NotificationUtil.init(applicationContext)
     }
 
     private fun initFireBase() {
