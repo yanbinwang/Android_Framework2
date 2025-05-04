@@ -5,7 +5,7 @@ import android.content.Context
 import android.view.View
 import android.view.View.OnClickListener
 import com.example.common.base.BaseDialog
-import com.example.common.widget.textview.edittext.EditTextImpl
+import com.example.common.widget.textview.EditTextImpl
 import com.example.debugging.R
 import com.example.debugging.databinding.ViewDialogServerInsertBinding
 import com.example.debugging.utils.ServerUtil.addServer
@@ -31,38 +31,6 @@ class ServerInsertDialog(context: Context) : BaseDialog<ViewDialogServerInsertBi
         changed()
     }
 
-    override fun shown(flag: Boolean) {
-        super.shown(flag)
-//        val data = serverData()
-//        val serverType = data.first
-//        val serverList = data.second
-//        val serverBean = serverList.safeGet(serverType)
-//        mBinding?.tvScheme?.text = if (serverBean?.https.orFalse) "https://" else "http://"
-//        mBinding?.etServer?.setText(serverBean?.server.orEmpty())
-//        mBinding?.etPort?.setText(serverBean?.port.orZero.toString())
-//        mBinding?.etPath?.setText(serverBean?.path.orEmpty())
-        changed()
-    }
-
-    private fun changed() {
-        val builder = StringBuilder()
-        builder.apply {
-            append(mBinding?.tvScheme.text())
-            append(mBinding?.etServer.text())
-            val port = mBinding?.etPort.text()
-            if (port.isNotEmpty() && port != "0") {
-                append(":")
-                append(port)
-            }
-            if (mBinding?.etPath.text().isNotEmpty()) {
-                append("/")
-                append(mBinding?.etPath.text())
-            }
-            append("/")
-        }
-        mBinding?.tvContent?.text = builder.toString()
-    }
-
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.tv_scheme -> {
@@ -85,8 +53,33 @@ class ServerInsertDialog(context: Context) : BaseDialog<ViewDialogServerInsertBi
         }
     }
 
+    private fun changed() {
+        val builder = StringBuilder()
+        builder.apply {
+            append(mBinding?.tvScheme.text())
+            append(mBinding?.etServer.text())
+            val port = mBinding?.etPort.text()
+            if (port.isNotEmpty() && port != "0") {
+                append(":")
+                append(port)
+            }
+            if (mBinding?.etPath.text().isNotEmpty()) {
+                append("/")
+                append(mBinding?.etPath.text())
+            }
+            append("/")
+        }
+        mBinding?.tvContent?.text = builder.toString()
+    }
+
     override fun dismiss() {
+        mBinding?.tvScheme?.text = "http://"
+        mBinding?.etServer?.setText("")
+        mBinding?.etPort?.setText("")
+        mBinding?.etPath?.setText("")
+        mBinding?.tvContent?.text = ""
         mBinding?.root.closeDecor()
+        mBinding?.root?.clearFocus()
         super.dismiss()
     }
 

@@ -102,7 +102,6 @@ object DebuggingUtil {
             autoCancel = false,
             pendingIntent = pendingIntent
         )
-        notificationBuilder?.setDefaults(Notification.DEFAULT_ALL)?.setWhen(currentTimeStamp)
         val notification = notificationBuilder?.build()
         notification?.flags = Notification.FLAG_ONGOING_EVENT
         notify(2, notification)

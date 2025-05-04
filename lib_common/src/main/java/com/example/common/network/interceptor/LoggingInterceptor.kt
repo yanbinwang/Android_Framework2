@@ -27,13 +27,13 @@ class LoggingInterceptor : Interceptor {
     private val uploadFileUrls by lazy { arrayOf("user/uploadImg") }
 
     companion object {
-        private var listener: ((header: String?, method: String?, url: String?, params: String?, code: Int?, body: String?) -> Unit)? = null
+        private var debuggingListener: ((header: String?, method: String?, url: String?, params: String?, code: Int?, body: String?) -> Unit)? = null
 
         /**
          * 请求头，请求方式，请求地址，请求参数，响应编码，响应体
          */
         fun setOnDebuggingListener(listener: ((header: String?, method: String?, url: String?, params: String?, code: Int?, body: String?) -> Unit)) {
-            this.listener = listener
+            this.debuggingListener = listener
         }
     }
 
@@ -125,7 +125,7 @@ class LoggingInterceptor : Interceptor {
                 "\n————————————————————————请求结束————————————————————————\n" +
                 " ").logE("LoggingInterceptor")
         //请求地址，请求方式，请求头，请求参数，响应时间，响应编码，响应体
-        listener?.invoke(trimHeader, method, url, params, code, body)
+        debuggingListener?.invoke(trimHeader, method, url, params, code, body)
     }
 
     private fun decode(unicodeStr: String?): String {
