@@ -21,7 +21,7 @@ import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.location.AMapLocationListener
 import com.amap.api.maps.model.LatLng
 import com.example.common.config.Constants.APPLICATION_NAME
-import com.example.common.utils.DataStringCacheUtil
+import com.example.common.utils.DataStringCache
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.function.string
@@ -54,7 +54,7 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
         //经纬度json->默认杭州
         private const val AMAP_JSON = "{latitude:30.2780010000,longitude:120.1680690000}"
         private const val AMAP_LATLNG = "amap_latlng"
-        internal val aMapLatLng = DataStringCacheUtil(AMAP_LATLNG, AMAP_JSON)
+        internal val aMapLatLng = DataStringCache(AMAP_LATLNG, AMAP_JSON)
     }
 
     init {
