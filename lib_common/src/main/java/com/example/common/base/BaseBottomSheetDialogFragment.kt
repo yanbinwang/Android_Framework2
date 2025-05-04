@@ -32,7 +32,7 @@ import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.utils.DataBooleanCacheUtil
+import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
@@ -377,7 +377,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     }
 
     override fun showGuide(label: String, isOnly: Boolean, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
-        val labelTag = DataBooleanCacheUtil(label)
+        val labelTag = DataBooleanCache(label)
         if (!labelTag.get()) {
             if (isOnly) labelTag.set(true)
             val builder = NewbieGuide.with(this)//传入activity
