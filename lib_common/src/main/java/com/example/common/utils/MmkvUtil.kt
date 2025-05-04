@@ -81,6 +81,6 @@ class DataBytesCache(private val key: String, private val defaultValue: ByteArra
 }
 
 class DataParcelableCache<T : Parcelable>(private val key: String, private val clazz: Class<T>, private val value: T? = null) : BaseDataCache(key) {
-    fun get() = decodeParcelable(key, clazz, value)//可能存在获取到空对象的情况，切记写个?：UserBean()
+    fun get() = decodeParcelable(key, clazz, value)//可能存在获取到空对象的情况，切记写个?：UserBean()，源码内部会在不为null的时候把clazz打成bytes存到mmkv里，先取的时候如果为null则返回默认值
     fun set(value: T) = encode(key, value)
 }
