@@ -96,7 +96,7 @@ object FireBaseUtil {
 
 private interface FireBaseApi {
     companion object {
-        val fireBaseApi get() = RetrofitFactory.instance.createByServer(FireBaseApi::class.java)
+        val instance by lazy { RetrofitFactory.instance.createByServer(FireBaseApi::class.java) }
     }
 
     /**
