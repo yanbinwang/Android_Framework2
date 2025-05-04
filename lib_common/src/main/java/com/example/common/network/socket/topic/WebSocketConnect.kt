@@ -1,4 +1,4 @@
-package com.example.common.socket.topic
+package com.example.common.network.socket.topic
 
 import com.example.common.config.ServerConfig
 

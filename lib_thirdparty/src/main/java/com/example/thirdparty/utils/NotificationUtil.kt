@@ -19,6 +19,7 @@ import com.example.common.utils.function.color
 import com.example.common.utils.function.dp
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.string
+import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.glide.ImageLoader
 import com.example.thirdparty.R
 import java.lang.ref.WeakReference
@@ -140,6 +141,8 @@ object NotificationUtil {
             .setColor(color(argb))
             .setAutoCancel(autoCancel)
             .setSound(sound)
+            //不主动调用setWhen则通知默认会使用通知被构建并发送时的时间戳，也就是大致相当于 System.currentTimeMillis() 所获取的当前时间，此处currentTimeStamp做一个大致修正
+            .setWhen(currentTimeStamp)
         if (null != pendingIntent) {
             builder.setContentIntent(pendingIntent)
         }
