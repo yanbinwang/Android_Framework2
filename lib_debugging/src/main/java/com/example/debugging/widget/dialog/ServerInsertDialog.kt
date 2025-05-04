@@ -9,10 +9,6 @@ import com.example.common.widget.textview.edittext.EditTextImpl
 import com.example.debugging.R
 import com.example.debugging.databinding.ViewDialogServerInsertBinding
 import com.example.debugging.utils.ServerUtil.addServer
-import com.example.debugging.utils.ServerUtil.serverData
-import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.OnMultiTextWatcher
 import com.example.framework.utils.function.view.clicks
@@ -37,14 +33,14 @@ class ServerInsertDialog(context: Context) : BaseDialog<ViewDialogServerInsertBi
 
     override fun shown(flag: Boolean) {
         super.shown(flag)
-        val data = serverData()
-        val serverType = data.first
-        val serverList = data.second
-        val serverBean = serverList.safeGet(serverType)
-        mBinding?.tvScheme?.text = if (serverBean?.https.orFalse) "https://" else "http://"
-        mBinding?.etServer?.setText(serverBean?.server.orEmpty())
-        mBinding?.etPort?.setText(serverBean?.port.orZero.toString())
-        mBinding?.etPath?.setText(serverBean?.path.orEmpty())
+//        val data = serverData()
+//        val serverType = data.first
+//        val serverList = data.second
+//        val serverBean = serverList.safeGet(serverType)
+//        mBinding?.tvScheme?.text = if (serverBean?.https.orFalse) "https://" else "http://"
+//        mBinding?.etServer?.setText(serverBean?.server.orEmpty())
+//        mBinding?.etPort?.setText(serverBean?.port.orZero.toString())
+//        mBinding?.etPath?.setText(serverBean?.path.orEmpty())
         changed()
     }
 
@@ -84,10 +80,14 @@ class ServerInsertDialog(context: Context) : BaseDialog<ViewDialogServerInsertBi
                     else -> false
                 }
                 addServer(mBinding?.etServer.text(), port, mBinding?.etPath.text(), "自定义", https)
-                v.closeDecor()
                 dismiss()
             }
         }
+    }
+
+    override fun dismiss() {
+        mBinding?.root.closeDecor()
+        super.dismiss()
     }
 
 }
