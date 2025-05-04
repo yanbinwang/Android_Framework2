@@ -97,7 +97,8 @@ object NotificationUtil {
     /**
      * 创建通知栏
      */
-    fun notify(id: Int, notification: Notification) {
+    fun notify(id: Int, notification: Notification?) {
+        notification ?: return
         // 在主线程调用 notify（确保 UI 相关操作安全）
         weakHandler.post {
             notificationManager?.notify(id, notification)
@@ -123,7 +124,15 @@ object NotificationUtil {
      * @param pendingIntent 点击通知后的跳转意图，默认为 null
      * @return 通知栏构建器实例
      */
-    fun Context.builder(icon: Int = R.mipmap.ic_notification, title: String = "", text: String = "", argb: Int = R.color.textWhite, autoCancel: Boolean = true, sound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), pendingIntent: PendingIntent? = null): NotificationCompat.Builder {
+    fun Context.builder(
+        icon: Int = R.mipmap.ic_notification,
+        title: String = "",
+        text: String = "",
+        argb: Int = R.color.textWhite,
+        autoCancel: Boolean = true,
+        sound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
+        pendingIntent: PendingIntent? = null
+    ): NotificationCompat.Builder {
         val builder = NotificationCompat.Builder(this, string(R.string.notificationChannelId))
             .setSmallIcon(icon)//96*96
             .setContentTitle(title)
