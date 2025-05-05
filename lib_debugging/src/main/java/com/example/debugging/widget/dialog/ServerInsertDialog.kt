@@ -5,7 +5,7 @@ import android.content.Context
 import android.view.View
 import android.view.View.OnClickListener
 import com.example.common.base.BaseDialog
-import com.example.common.widget.textview.EditTextImpl
+import com.example.common.widget.textview.edittext.EditTextImpl
 import com.example.debugging.R
 import com.example.debugging.databinding.ViewDialogServerInsertBinding
 import com.example.debugging.utils.ServerUtil.addServer
