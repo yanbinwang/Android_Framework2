@@ -57,33 +57,33 @@ import kotlin.reflect.KProperty
 @SuppressLint("StaticFieldLeak")
 abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     //基础引用
-    private var weakActivity: WeakReference<FragmentActivity>? = null//引用的activity
-    private var weakView: WeakReference<BaseView>? = null//基础UI操作
+    private var weakActivity: WeakReference<FragmentActivity?>? = null//引用的activity
+    private var weakView: WeakReference<BaseView?>? = null//基础UI操作
     //部分view的操作交予viewmodel去操作，不必让activity去操作
     private var weakEmpty: WeakReference<EmptyLayout?>? = null//遮罩UI
     private var weakRecycler: WeakReference<XRecyclerView?>? = null//列表UI
     private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
-    private var weakLifecycleOwner: WeakReference<LifecycleOwner>? = null//全局生命周期订阅
+    private var weakLifecycleOwner: WeakReference<LifecycleOwner?>? = null//全局生命周期订阅
     //分页
     private val paging by lazy { Paging() }
     //全局倒计时时间点
     protected var lastRefreshTime = 0L
     //基础的注入参数
-    protected val mActivity: FragmentActivity get() = weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity()
-    protected val mContext: Context get() = mActivity
+    protected val mActivity: FragmentActivity? get() = weakActivity?.get() ?: AppManager.currentActivity() as? FragmentActivity
+    protected val mContext: Context? get() = mActivity
     protected val mView: BaseView? get() = weakView?.get()
     //获取对应的控件/分页类
     protected val mEmpty get() = weakEmpty?.get()
     protected val mRecycler get() = weakRecycler?.get()
     protected val mRefresh get() = weakRefresh?.get()
     //弹框/获取权限/协程管理类/viewmodel命名
-    protected val mDialog by lazy { AppDialog(mContext) }
-    protected val mPermission by lazy { PermissionHelper(mContext) }
+    protected val mDialog by lazy { mContext?.let { AppDialog(it) } }
+    protected val mPermission by lazy { mContext?.let { PermissionHelper(it) } }
     protected val mJobManager by lazy { JobManager(weakLifecycleOwner?.get()) }
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    fun initialize(activity: FragmentActivity, view: BaseView) {
+    fun initialize(activity: FragmentActivity?, view: BaseView?) {
         this.weakActivity = WeakReference(activity)
         this.weakView = WeakReference(view)
     }
@@ -317,67 +317,74 @@ fun <T> ViewModel.async(
     block: suspend CoroutineScope.() -> T
 ) = viewModelScope.async(context, start, block)
 
-/**
- * 通用的创建 ViewModel 方法
- */
-private fun <VM : BaseViewModel> Class<VM>.createViewModel(lifecycle: Lifecycle, owner: ViewModelStoreOwner): VM {
-    val viewModel = ViewModelProvider(owner)[this]
-    lifecycle.addObserver(viewModel)
-    lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }//写了会影响onDestroy的调用
-    return viewModel
-}
+///**
+// * 通用的创建 ViewModel 方法
+// */
+//private fun <VM : BaseViewModel> Class<VM>.createViewModel(lifecycle: Lifecycle, owner: ViewModelStoreOwner): VM {
+//    val viewModel = ViewModelProvider(owner)[this]
+//    lifecycle.addObserver(viewModel)
+//    lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }//写了会影响onDestroy的调用
+//    return viewModel
+//}
+//
+///**
+// * activity 中构建 viewmodel 使用此方法
+// */
+//fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: AppCompatActivity): VM {
+//    return createViewModel(lifecycle, owner)
+//}
+//
+///**
+// * fragment 中构建 viewmodel 使用此方法
+// */
+//fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: Fragment): VM {
+//    return createViewModel(lifecycle, owner)
+//}
 
 /**
- * activity 中构建 viewmodel 使用此方法
- */
-fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: AppCompatActivity): VM {
-    return createViewModel(lifecycle, owner)
-}
-
-/**
- * fragment 中构建 viewmodel 使用此方法
- */
-fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: Fragment): VM {
-    return createViewModel(lifecycle, owner)
-}
-
-/**
- * 自己实现一整个委托
+ * viewModel委托类
  * private val viewModel :MarketListViewModel by viewModels()
- * 可以删除上面的一堆create和基类里的oncreate
  */
-// 委托类
 class ViewModelDelegate<VM : BaseViewModel>(
+    private val viewModelClass: Class<VM>,
     private val lifecycle: Lifecycle,
     private val owner: ViewModelStoreOwner,
-    private val activity: FragmentActivity,
-    private val view: BaseView,
-    private val viewModelClass: Class<VM>
+    private val activity: FragmentActivity?,
+    private val view: BaseView?
 ) : ReadOnlyProperty<Any, VM> {
 
+    /**
+     * 延迟初始化 ViewModel 实例。
+     * 只有在首次访问时才会创建 ViewModel 实例，并进行必要的初始化操作。
+     */
     private var lazyViewModel: Lazy<VM> = lazy {
+        // 创建 ViewModel 实例
         val viewModel = ViewModelProvider(owner)[viewModelClass]
-        lifecycle.addObserver(viewModel as LifecycleObserver)
+        // 将 ViewModel 注册为生命周期观察者
+        lifecycle.addObserver(viewModel)
+        // 初始化 ViewModel
         viewModel.initialize(activity, view)
         viewModel
     }
 
+    /**
+     * 获取 ViewModel 实例。
+     * 调用该方法时会触发 lazyViewModel 的初始化（如果还未初始化）。
+     */
     override fun getValue(thisRef: Any, property: KProperty<*>): VM {
         return lazyViewModel.value
     }
 }
 
-// Activity 扩展函数
 inline fun <reified VM : BaseViewModel> AppCompatActivity.viewModels(lifecycle: Lifecycle = this.lifecycle, owner: ViewModelStoreOwner = this): ViewModelDelegate<VM> {
     val view: BaseView = if (this is BaseActivity<*>) {
         this
     } else {
         throw IllegalArgumentException("Unsupported Activity type: ${this::class.simpleName}")
     }
-    return ViewModelDelegate(lifecycle, owner, this, view, VM::class.java)
+    return ViewModelDelegate(VM::class.java, lifecycle, owner, this, view)
 }
 
-// Fragment 扩展函数
 inline fun <reified VM : BaseViewModel> Fragment.viewModels(lifecycle: Lifecycle = this.lifecycle, owner: ViewModelStoreOwner = this): ViewModelDelegate<VM> {
     val view: BaseView = when (this) {
         is BaseFragment<*> -> this
@@ -385,6 +392,10 @@ inline fun <reified VM : BaseViewModel> Fragment.viewModels(lifecycle: Lifecycle
         is BaseBottomSheetDialogFragment<*> -> this
         else -> throw IllegalArgumentException("Unsupported Fragment type: ${this::class.simpleName}")
     }
-    val fragmentActivity = WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity()
-    return ViewModelDelegate(lifecycle, owner, fragmentActivity, view, VM::class.java)
+    /**
+     * Fragment 未附加到 Activity：在 Fragment 被创建之后，但还没调用 onAttach 方法与 Activity 关联时，activity 为 null。
+     * Fragment 已从 Activity 分离：当 Fragment 调用 onDetach 方法和 Activity 分离后，activity 会变为 null。
+     * Activity 被销毁：若 Activity 被销毁，Fragment 的 activity 属性也会变成 null。
+     */
+    return ViewModelDelegate(VM::class.java, lifecycle, owner, activity, view)
 }

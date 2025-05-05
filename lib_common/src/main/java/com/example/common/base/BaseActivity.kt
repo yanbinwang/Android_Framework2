@@ -23,10 +23,8 @@ import com.app.hubert.guide.model.GuidePage
 import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
-import com.example.common.base.bridge.BaseViewModel
-import com.example.common.base.bridge.create
-import com.example.common.base.page.navigation
 import com.example.common.base.page.interf.TransparentOwner
+import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.socket.topic.WebSocketObserver
@@ -136,9 +134,9 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         return true
     }
 
-    override fun <VM : BaseViewModel> VM.create(): VM? {
-        return javaClass.create(lifecycle, this@BaseActivity).also { it.initialize(this@BaseActivity, this@BaseActivity) }
-    }
+//    override fun <VM : BaseViewModel> VM.create(): VM? {
+//        return javaClass.create(lifecycle, this@BaseActivity).also { it.initialize(this@BaseActivity, this@BaseActivity) }
+//    }
 
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
         immersionBar?.apply {
@@ -309,7 +307,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         }
     }
 
-    override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity {
+    override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity? {
         navigation(path, params = params, activityResultValue = mActivityResult)
         return this
     }
