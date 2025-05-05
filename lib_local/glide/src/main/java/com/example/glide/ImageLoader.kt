@@ -24,8 +24,13 @@ import com.example.glide.callback.GlideRequestListener
 import com.example.glide.callback.progress.ProgressInterceptor
 import com.example.glide.transform.CornerTransform
 import com.example.glide.transform.ZoomTransform
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -37,7 +42,8 @@ import java.io.File
  */
 //class ImageLoader private constructor() : GlideModule(), GlideImpl {
 class ImageLoader private constructor() : GlideImpl {
-    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+//    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+    private val scope by lazy { CoroutineScope(SupervisorJob() + Main.immediate) }
 
     companion object {
         @JvmStatic
@@ -95,14 +101,44 @@ class ImageLoader private constructor() : GlideImpl {
 
     override fun loadImageWithProgress(view: ImageView?, imageUrl: String, onLoadStart: () -> Unit, onLoadProgress: (progress: Int?) -> Unit, onLoadResult: (result: Boolean) -> Unit) {
         view ?: return
+//        Glide.with(view.context)
+//            .load(imageUrl)
+//            .apply(RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE))
+//            .addListener(object : GlideRequestListener<Drawable>() {
+//                override fun onLoadStart() {
+//                    ProgressInterceptor.addListener(imageUrl) {
+//                        weakHandler.post {
+//                            onLoadProgress(it)
+//                        }
+//                    }
+//                    onLoadStart()
+//                }
+//
+//                override fun onLoadFinished(resource: Drawable?) {
+//                    ProgressInterceptor.removeListener(imageUrl)
+//                    onLoadResult(resource != null)
+//                }
+//            })
+//            .into(view)
+        /**
+         * 避免频繁创建协程
+         * callbackFlow 是 Kotlin 协程中专门用于将回调式 API 转换为流的构建器。它允许你在回调函数中向流中发射数据，并且可以处理流的关闭操作。
+         * callbackFlow 构建器内部会创建一个 SendChannel，你可以通过 trySend 方法向这个通道发送数据，这些数据会作为流中的元素被发射出去。
+         * 当流被收集时，callbackFlow 内部的代码会开始执行，通常会在这里注册回调函数。
+         * 当回调函数被触发时，调用 trySend 方法将数据发送到流中。
+         * 当流不再被收集或者需要关闭时，awaitClose 方法会被调用，你可以在 awaitClose 中进行资源清理操作，比如取消回调注册。
+         */
+        val progressFlow = createProgressFlow(imageUrl)
         Glide.with(view.context)
             .load(imageUrl)
             .apply(RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE))
             .addListener(object : GlideRequestListener<Drawable>() {
                 override fun onLoadStart() {
-                    ProgressInterceptor.addListener(imageUrl) {
-                        weakHandler.post {
-                            onLoadProgress(it)
+                    scope.launch {
+                        progressFlow.catch {
+                            it.printStackTrace()
+                        }.collect { progress ->
+                            onLoadProgress(progress)
                         }
                     }
                     onLoadStart()
@@ -114,6 +150,15 @@ class ImageLoader private constructor() : GlideImpl {
                 }
             })
             .into(view)
+    }
+
+    private fun createProgressFlow(imageUrl: String) = callbackFlow {
+        ProgressInterceptor.addListener(imageUrl) {
+            trySend(it)
+        }
+        awaitClose {
+            ProgressInterceptor.removeListener(imageUrl)
+        }
     }
 
     override fun loadImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int?, onLoadStart: () -> Unit, onLoadComplete: (drawable: Drawable?) -> Unit) {
