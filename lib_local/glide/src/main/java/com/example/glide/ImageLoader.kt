@@ -31,6 +31,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -135,7 +136,7 @@ class ImageLoader private constructor() : GlideImpl {
             .addListener(object : GlideRequestListener<Drawable>() {
                 override fun onLoadStart() {
                     scope.launch {
-                        progressFlow.catch {
+                        progressFlow.flowOn(Main.immediate).catch {
                             it.printStackTrace()
                         }.collect { progress ->
                             onLoadProgress(progress)
