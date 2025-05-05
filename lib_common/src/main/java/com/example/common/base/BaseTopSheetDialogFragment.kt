@@ -169,7 +169,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
     }
 
     override fun <VM : BaseViewModel> VM.create(): VM? {
-        return javaClass.create(mActivity.lifecycle, this@BaseTopSheetDialogFragment).also { it.initialize(mActivity, this@BaseTopSheetDialogFragment) }
+        return javaClass.create(viewLifecycleOwner.lifecycle, this@BaseTopSheetDialogFragment).also { it.initialize(mActivity, this@BaseTopSheetDialogFragment) }
     }
 
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {

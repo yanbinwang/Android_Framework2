@@ -9,11 +9,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
+import com.example.common.base.BaseActivity
+import com.example.common.base.BaseBottomSheetDialogFragment
+import com.example.common.base.BaseFragment
+import com.example.common.base.BaseTopSheetDialogFragment
 import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
@@ -40,6 +45,8 @@ import java.lang.ref.WeakReference
 import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty
 
 /**
  * Created by WangYanBin on 2020/6/3.
@@ -332,4 +339,52 @@ fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: AppCompat
  */
 fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: Fragment): VM {
     return createViewModel(lifecycle, owner)
+}
+
+/**
+ * 自己实现一整个委托
+ * private val viewModel :MarketListViewModel by viewModels()
+ * 可以删除上面的一堆create和基类里的oncreate
+ */
+// 委托类
+class ViewModelDelegate<VM : BaseViewModel>(
+    private val lifecycle: Lifecycle,
+    private val owner: ViewModelStoreOwner,
+    private val activity: FragmentActivity,
+    private val view: BaseView,
+    private val viewModelClass: Class<VM>
+) : ReadOnlyProperty<Any, VM> {
+
+    private var lazyViewModel: Lazy<VM> = lazy {
+        val viewModel = ViewModelProvider(owner)[viewModelClass]
+        lifecycle.addObserver(viewModel as LifecycleObserver)
+        viewModel.initialize(activity, view)
+        viewModel
+    }
+
+    override fun getValue(thisRef: Any, property: KProperty<*>): VM {
+        return lazyViewModel.value
+    }
+}
+
+// Activity 扩展函数
+inline fun <reified VM : BaseViewModel> AppCompatActivity.viewModels(lifecycle: Lifecycle = this.lifecycle, owner: ViewModelStoreOwner = this): ViewModelDelegate<VM> {
+    val view: BaseView = if (this is BaseActivity<*>) {
+        this
+    } else {
+        throw IllegalArgumentException("Unsupported Activity type: ${this::class.simpleName}")
+    }
+    return ViewModelDelegate(lifecycle, owner, this, view, VM::class.java)
+}
+
+// Fragment 扩展函数
+inline fun <reified VM : BaseViewModel> Fragment.viewModels(lifecycle: Lifecycle = this.lifecycle, owner: ViewModelStoreOwner = this): ViewModelDelegate<VM> {
+    val view: BaseView = when (this) {
+        is BaseFragment<*> -> this
+        is BaseTopSheetDialogFragment<*> -> this
+        is BaseBottomSheetDialogFragment<*> -> this
+        else -> throw IllegalArgumentException("Unsupported Fragment type: ${this::class.simpleName}")
+    }
+    val fragmentActivity = WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity()
+    return ViewModelDelegate(lifecycle, owner, fragmentActivity, view, VM::class.java)
 }

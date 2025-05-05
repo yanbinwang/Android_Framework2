@@ -253,7 +253,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     }
 
     override fun <VM : BaseViewModel> VM.create(): VM? {
-        return javaClass.create(mActivity.lifecycle, this@BaseBottomSheetDialogFragment).also { it.initialize(mActivity, this@BaseBottomSheetDialogFragment) }
+        return javaClass.create(viewLifecycleOwner.lifecycle, this@BaseBottomSheetDialogFragment).also { it.initialize(mActivity, this@BaseBottomSheetDialogFragment) }
     }
 
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
