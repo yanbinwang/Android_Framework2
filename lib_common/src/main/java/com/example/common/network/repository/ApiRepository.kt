@@ -127,7 +127,7 @@ fun <T> Flow<T>.withHandling(
     end: () -> Unit = {},
     isShowToast: Boolean = false,
 ): Flow<T> {
-    return flowOn(Main).catch { exception ->
+    return flowOn(Main.immediate).catch { exception ->
         // 忽略 CancellationException，不做处理
         if (exception is CancellationException) {
             throw exception

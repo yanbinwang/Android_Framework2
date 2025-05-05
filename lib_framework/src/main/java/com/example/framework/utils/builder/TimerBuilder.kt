@@ -35,7 +35,7 @@ class TimerBuilder(private val observer: LifecycleOwner) {
         fun schedule(observer: LifecycleOwner, run: (() -> Unit), delayMillis: Long = 1000) {
             observer.lifecycleScope.launch {
                 delay(delayMillis)
-                withContext(Main) { run() }
+                withContext(Main.immediate) { run() }
             }
         }
     }
