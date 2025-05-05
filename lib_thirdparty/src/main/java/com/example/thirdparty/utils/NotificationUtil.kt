@@ -39,7 +39,7 @@ object NotificationUtil {
     // 通知栏管理
     private var notificationManager: NotificationManager? = null
     // 切主线程-》使用 SupervisorJob允许子协程独立失败，不会因某个通知发送失败而取消整个作用域，若无需处理子协程异常，也可直接使用 CoroutineScope(Main)（默认使用 Job()，但 SupervisorJob 更安全
-    private val postScope by lazy { CoroutineScope(SupervisorJob() + Main) }
+    private val postScope by lazy { CoroutineScope(SupervisorJob() + Main.immediate) }
     // 线程安全的 ID 生成（初始值 100，每次自增）
     private val notificationIdCounter by lazy { AtomicInteger(100) }
     private val requestCodeCounter by lazy { AtomicInteger(100) }
