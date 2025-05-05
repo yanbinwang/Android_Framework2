@@ -262,6 +262,10 @@ println("Repeated users (method 1): $repeated1")
 println("Unique users (method 1): $unique1")
 println("Repeated users (method 2): $repeated2")
 println("Unique users (method 2): $unique2")
+
+ //关于Lifecycle和LifecycleOwner
+ 其中LifecycleOwner是Activity/Fragment所实现的生命周期管理，从中可以get到Lifecycle，而Lifecycle则可以获取到对应的生命周期回调
+ 在一些对上下文窗体不是很敏感的工具类里，可以用Lifecycle而非LifecycleOwner
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
