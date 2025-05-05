@@ -76,7 +76,7 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
     }
 
     private fun jump() {
-        navigation(ARouterPath.MainActivity).finish()
+        navigation(ARouterPath.MainActivity)?.finish()
     }
 
 }
