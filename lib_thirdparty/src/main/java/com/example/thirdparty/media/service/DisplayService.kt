@@ -85,7 +85,7 @@ class DisplayService : LifecycleService() {
     private var projection: MediaProjection? = null
     private var display: VirtualDisplay? = null
     private var wakeLock: PowerManager.WakeLock? = null
-    private val timerTick by lazy { TimerTick(this) }
+    private val timerTick by lazy { TimerTick(this, this) }
 
     companion object {
         /**
@@ -122,7 +122,7 @@ class DisplayService : LifecycleService() {
         //获取 WakeLock  获取一个带有超时限制的唤醒锁，当超过指定的超时时间后，唤醒锁会自动释放
         wakeLock?.acquire()
         //计时器挂载弹框
-        timerTick.start(lifecycle)
+        timerTick.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
