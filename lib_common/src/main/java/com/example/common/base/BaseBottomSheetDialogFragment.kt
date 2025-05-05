@@ -27,8 +27,6 @@ import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
-import com.example.common.base.bridge.BaseViewModel
-import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
@@ -73,17 +71,17 @@ import kotlin.coroutines.CoroutineContext
 abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
-    protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
+    protected val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected val mResultWrapper = registerResultWrapper()
     protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
-    protected val mDialog by lazy { AppDialog(mActivity) }
-    protected val mPermission by lazy { PermissionHelper(mActivity) }
+    protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
+    protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     private var showTime = 0L
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
-    private val immersionBar by lazy { ImmersionBar.with(mActivity) }
-    private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
+    private val immersionBar by lazy { ImmersionBar.with(this) }
+    private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }//刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main + job
@@ -252,9 +250,9 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
         return true
     }
 
-    override fun <VM : BaseViewModel> VM.create(): VM? {
-        return javaClass.create(viewLifecycleOwner.lifecycle, this@BaseBottomSheetDialogFragment).also { it.initialize(mActivity, this@BaseBottomSheetDialogFragment) }
-    }
+//    override fun <VM : BaseViewModel> VM.create(): VM? {
+//        return javaClass.create(viewLifecycleOwner.lifecycle, this@BaseBottomSheetDialogFragment).also { it.initialize(mActivity, this@BaseBottomSheetDialogFragment) }
+//    }
 
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
         immersionBar?.apply {
@@ -363,7 +361,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
-        loadingDialog.shown(flag)
+        loadingDialog?.shown(flag)
         if (second > 0) {
             TimerBuilder.schedule(this, {
                 hideDialog()
@@ -373,7 +371,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     }
 
     override fun hideDialog() {
-        loadingDialog.hidden()
+        loadingDialog?.hidden()
     }
 
     override fun showGuide(label: String, isOnly: Boolean, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
@@ -393,8 +391,8 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
         }
     }
 
-    override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity {
-        mActivity.navigation(path, params = params, activityResultValue = mActivityResult)
+    override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity? {
+        mActivity?.navigation(path, params = params, activityResultValue = mActivityResult)
         return mActivity
     }
     // </editor-fold>

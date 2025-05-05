@@ -10,10 +10,10 @@ import com.example.common.R
  */
 interface BaseImpl {
 
-    /**
-     * 构建viewmodel用作数据交互/网络请求
-     */
-    fun <VM : BaseViewModel> VM.create(): VM?
+//    /**
+//     * 构建viewmodel用作数据交互/网络请求
+//     */
+//    fun <VM : BaseViewModel> VM.create(): VM?
 
     /**
      * 初始化状态栏
