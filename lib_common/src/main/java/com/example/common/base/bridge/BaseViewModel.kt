@@ -291,9 +291,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         super.onStop(owner)
     }
 
-    override fun onDestroy(owner: LifecycleOwner) {
-        super.onDestroy(owner)
-    }
+//    override fun onDestroy(owner: LifecycleOwner) {
+//        super.onDestroy(owner)
+//    }
     // </editor-fold>
 
 }
@@ -316,7 +316,7 @@ fun <T> ViewModel.async(
 private fun <VM : BaseViewModel> Class<VM>.createViewModel(lifecycle: Lifecycle, owner: ViewModelStoreOwner): VM {
     val viewModel = ViewModelProvider(owner)[this]
     lifecycle.addObserver(viewModel)
-    lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }
+    lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }//写了会影响onDestroy的调用
     return viewModel
 }
 
