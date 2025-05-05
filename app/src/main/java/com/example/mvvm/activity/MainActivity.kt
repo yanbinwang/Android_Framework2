@@ -266,6 +266,104 @@ println("Unique users (method 2): $unique2")
  //关于Lifecycle和LifecycleOwner
  其中LifecycleOwner是Activity/Fragment所实现的生命周期管理，从中可以get到Lifecycle，而Lifecycle则可以获取到对应的生命周期回调
  在一些对上下文窗体不是很敏感的工具类里，可以用Lifecycle而非LifecycleOwner
+
+类委托
+类委托借助 by 关键字，把接口的实现委托给另一个对象。这样一来，当一个类实现某个接口时，就可以把接口方法的具体实现委托给另一个已经实现该接口的对象，而不用自己再去实现这些方法。
+
+// 定义一个接口
+interface MyInterface {
+fun doSomething()
+fun doAnotherThing()
+}
+
+// 实现接口的类
+class MyInterfaceImpl : MyInterface {
+override fun doSomething() {
+println("Doing something...")
+}
+
+override fun doAnotherThing() {
+println("Doing another thing...")
+}
+}
+
+// 使用类委托的类
+class MyDelegatingClass(private val delegate: MyInterface) : MyInterface by delegate
+
+fun main() {
+val impl = MyInterfaceImpl()
+val delegatingClass = MyDelegatingClass(impl)
+
+delegatingClass.doSomething()
+delegatingClass.doAnotherThing()
+}
+
+MyInterface 是一个接口，定义了两个方法 doSomething() 和 doAnotherThing()。
+MyInterfaceImpl 是实现了 MyInterface 接口的类，对接口方法进行了具体实现。
+MyDelegatingClass 类同样实现了 MyInterface 接口，但它把接口方法的实现委托给了传入的 delegate 对象。
+在 main 函数中，创建了 MyInterfaceImpl 和 MyDelegatingClass 的实例，调用 MyDelegatingClass 的方法时，实际上是调用了委托对象的方法。
+
+属性委托
+属性委托允许把属性的 getter 和 setter 方法委托给另一个对象。通过 by 关键字，能让属性的读写操作由另一个对象来处理。
+
+标准库中的属性委托
+Kotlin 标准库提供了一些常用的属性委托，例如 lazy、observable 等。
+lazy 委托
+lazy 委托用于实现属性的延迟初始化，即属性在第一次被访问时才会进行初始化
+
+val lazyValue: String by lazy {
+println("Initializing lazy value...")
+"Lazy value"
+}
+
+fun main() {
+println(lazyValue)
+println(lazyValue)
+}
+
+observable 委托
+observable 委托用于监听属性值的变化，当属性值发生改变时，会触发相应的回调函数。
+
+class User {
+var name: String by Delegates.observable("Initial Name") { property, oldValue, newValue ->
+println("Property ${property.name} changed from $oldValue to $newValue")
+}
+}
+
+fun main() {
+val user = User()
+user.name = "New Name"
+}
+
+在这个例子中，User 类的 name 属性使用 observable 委托，当 name 属性的值发生改变时，会打印出属性名、旧值和新值。
+
+自定义属性委托
+除了使用标准库中的属性委托，还可以自定义属性委托。自定义属性委托需要实现 ReadWriteProperty 或 ReadOnlyProperty 接口。
+
+class MyDelegate {
+private var value: String = ""
+
+operator fun getValue(thisRef: Any?, property: kotlin.reflect.KProperty<*>): String {
+println("Getting value of ${property.name}")
+return value
+}
+
+operator fun setValue(thisRef: Any?, property: kotlin.reflect.KProperty<*>, newValue: String) {
+println("Setting value of ${property.name} to $newValue")
+value = newValue
+}
+}
+
+class MyClass {
+var myProperty: String by MyDelegate()
+}
+
+fun main() {
+val myClass = MyClass()
+myClass.myProperty = "New Value"
+println(myClass.myProperty)
+}
+在这个例子中，MyDelegate 类实现了属性委托的 getValue 和 setValue 方法，MyClass 类的 myProperty 属性使用 MyDelegate 作为委托对象。当访问或修改 myProperty 属性时，会调用 MyDelegate 类的 getValue 或 setValue 方法。
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
