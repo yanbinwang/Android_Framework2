@@ -11,17 +11,19 @@ import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
-import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.scale
 import com.example.common.utils.function.color
 import com.example.common.utils.function.dp
-import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.glide.ImageLoader
 import com.example.thirdparty.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -36,8 +38,8 @@ import java.util.concurrent.atomic.AtomicInteger
 object NotificationUtil {
     // 通知栏管理
     private var notificationManager: NotificationManager? = null
-    // 弱handler切主线程
-    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+    // 切主线程-》使用 SupervisorJob允许子协程独立失败，不会因某个通知发送失败而取消整个作用域，若无需处理子协程异常，也可直接使用 CoroutineScope(Main)（默认使用 Job()，但 SupervisorJob 更安全
+    private val postScope by lazy { CoroutineScope(SupervisorJob() + Main) }
     // 线程安全的 ID 生成（初始值 100，每次自增）
     private val notificationIdCounter by lazy { AtomicInteger(100) }
     private val requestCodeCounter by lazy { AtomicInteger(100) }
@@ -101,7 +103,7 @@ object NotificationUtil {
     fun notify(id: Int, notification: Notification?) {
         notification ?: return
         // 在主线程调用 notify（确保 UI 相关操作安全）
-        weakHandler.post {
+        postScope.launch {
             notificationManager?.notify(id, notification)
         }
     }
