@@ -1,40 +1,60 @@
 package com.example.common.utils.manager
 
-import androidx.lifecycle.LifecycleOwner
-import com.alibaba.android.arouter.launcher.ARouter
-import com.example.common.BaseApplication
+import androidx.fragment.app.FragmentActivity
 import com.example.common.base.bridge.BaseView
 import com.example.common.widget.dialog.AppDialog
-import com.example.framework.utils.function.doOnDestroy
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.cancelChildren
+import java.lang.ref.WeakReference
 
 /**
  * 管理App中跳转
  */
-class ARouterManager(observer: LifecycleOwner) : CoroutineScope {
-    private var mView: BaseView? = null
-    private var reqJob: Job? = null
-    private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
+class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = null) {
+    private var weakActivity: WeakReference<FragmentActivity?>? = null
+    //保证获取到一个兜底的activity
+    private val mActivity: FragmentActivity?
+        get() {
+            val weakActivity = weakActivity?.get()
+            if (weakActivity != null &&!weakActivity.isFinishing &&!weakActivity.isDestroyed) {
+                return weakActivity
+            }
+            val currentActivity = AppManager.currentActivity()
+            return if (currentActivity is FragmentActivity &&!currentActivity.isFinishing &&!currentActivity.isDestroyed) {
+                currentActivity
+            } else {
+                null
+            }
+        }
+    private val mDialog by lazy { mActivity?.let { AppDialog(it) } }
 
     companion object {
-        private val mContext get() = BaseApplication.instance.applicationContext
-//        private val mDialog by lazy { AppDialog(mContext) }
-        private val mARouter by lazy { ARouter.getInstance() }
         //全局跳转页面url
         const val KOL_VERIFY = "kolVerify"
+
+        /**
+         * 共享的协程作用域（使用 SupervisorJob 避免子协程异常影响全局）
+         */
+        private val managerScope by lazy { CoroutineScope(SupervisorJob() + Main) }
+
+        /**
+         * 共享的 Job，确保任务串行执行
+         */
+        private var builderJob: Job? = null
+
+        /**
+         * 全局取消所有任务,MainActivity的OnDestory调取
+         */
+        fun cancelAll() {
+            managerScope.coroutineContext.cancelChildren()
+        }
     }
 
     init {
-        observer.doOnDestroy {
-            reqJob?.cancel()
-            job.cancel()
-        }
+        this.weakActivity = WeakReference(activity)
     }
 
     fun jump(url: String, id: String? = null) {
@@ -112,12 +132,5 @@ class ARouterManager(observer: LifecycleOwner) : CoroutineScope {
 //            }, end = { mView?.hideDialog() })
 //        }
 //    }
-
-    /**
-     * 如果不传view，做请求的时候不会有转圈弹框
-     */
-    fun setView(mView: BaseView?) {
-        this.mView = mView
-    }
 
 }
