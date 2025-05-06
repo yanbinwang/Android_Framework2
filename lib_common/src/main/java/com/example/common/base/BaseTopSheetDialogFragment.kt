@@ -37,11 +37,6 @@ import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.view.disable
-import com.example.framework.utils.function.view.enable
-import com.example.framework.utils.function.view.gone
-import com.example.framework.utils.function.view.invisible
-import com.example.framework.utils.function.view.visible
 import com.example.framework.utils.logE
 import com.example.topsheet.TopSheetDialogFragment
 import com.gyf.immersionbar.ImmersionBar
@@ -171,6 +166,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
 //    }
 
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
+        super.initImmersionBar(titleDark, naviTrans, navigationBarColor)
         immersionBar?.apply {
             reset()
             //如果当前设备支持状态栏字体变色，会设置状态栏字体为黑色
@@ -188,28 +184,6 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
     }
 
     override fun initData() {
-    }
-
-    override fun enabled(vararg views: View?, second: Long) {
-        if (second <= 0) return
-        views.forEach { it.disable() }
-        TimerBuilder.schedule(this, {
-            views.forEach {
-                it.enable()
-            }
-        }, second)
-    }
-
-    override fun visible(vararg views: View?) {
-        views.forEach { it?.visible() }
-    }
-
-    override fun invisible(vararg views: View?) {
-        views.forEach { it?.invisible() }
-    }
-
-    override fun gone(vararg views: View?) {
-        views.forEach { it?.gone() }
     }
 
     override fun onStart() {
@@ -268,7 +242,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
-        loadingDialog?.shown(flag)
+        loadingDialog?.apply { setDialogCancelable(flag) }?.show()
         if (second > 0) {
             TimerBuilder.schedule(this, {
                 hideDialog()
@@ -278,7 +252,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
     }
 
     override fun hideDialog() {
-        loadingDialog?.hidden()
+        loadingDialog?.dismiss()
     }
 
     override fun showGuide(label: String, isOnly: Boolean, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {

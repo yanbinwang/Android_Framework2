@@ -58,14 +58,6 @@ class NormalPicHolder(private val activity: AppCompatActivity, private val bean:
         }
     }
 
-    private fun showDialog() {
-        loadingDialog.shown(false)
-    }
-
-    private fun hideDialog() {
-        loadingDialog.hidden()
-    }
-
     override fun getBean() = bean
 
     override fun getValue() = value

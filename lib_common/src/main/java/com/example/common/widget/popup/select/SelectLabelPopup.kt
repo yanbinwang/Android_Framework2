@@ -25,7 +25,7 @@ class SelectLabelPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Str
                     // 获取根布局
                     val root = SelectItemHolder(llItem, formatter(t), index).also {
                         it.onItemClick = { item, index ->
-                            hidden()
+                            dismiss()
                             onCurrent?.invoke(item, index)
                         }
                     }.mBinding.root
@@ -38,7 +38,7 @@ class SelectLabelPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Str
                 }
             }
             tvCancel.click {
-                hidden()
+                dismiss()
             }
         }
     }

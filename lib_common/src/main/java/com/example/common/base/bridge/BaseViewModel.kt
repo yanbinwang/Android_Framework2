@@ -77,8 +77,8 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val mRecycler get() = weakRecycler?.get()
     protected val mRefresh get() = weakRefresh?.get()
     //弹框/获取权限/协程管理类/viewmodel命名
-    protected val mDialog by lazy { mContext?.let { AppDialog(it) } }
-    protected val mPermission by lazy { mContext?.let { PermissionHelper(it) } }
+    protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
+    protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     protected val mJobManager by lazy { JobManager(weakLifecycleOwner?.get()) }
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
 
