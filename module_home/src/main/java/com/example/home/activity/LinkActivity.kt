@@ -9,7 +9,9 @@ import androidx.databinding.ViewDataBinding
 import com.example.common.BaseApplication
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
+import com.example.common.config.ARouterPath.MainActivity
 import com.example.common.utils.ScreenUtil
+import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
 import com.example.home.R
@@ -70,7 +72,13 @@ class LinkActivity : BaseActivity<ViewDataBinding>() {
         when (source) {
 //            //推送消息
 //            "push" -> {
-//                if (!handlePush(this)) navigation(ARouterPath.MainActivity)
+//                if (!handlePush(this)) {
+//                    navigation(MainActivity)
+//                } else {
+//                    if (!AppManager.isExistActivity(MainActivity::class.java)) {
+//                        BaseApplication.needOpenHome = true
+//                    }
+//                }
 //                finish()
 //            }
             //其他情况统一走firebase处理
