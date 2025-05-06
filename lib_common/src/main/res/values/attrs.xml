@@ -5,7 +5,7 @@
     <declare-styleable name="XRecyclerView">
         <attr name="xrvEnableRefresh" format="boolean" />
         <attr name="xrvEnableEmpty" format="boolean" />
-        <attr name="xrvEmptyHeight" format="dimension" />
+        <attr name="xrvEmptyHeight" format="integer" />
     </declare-styleable>
 
     <!-- 自定义EmptyLayout -->
