@@ -205,7 +205,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
                     DisplayService.isDestroy = true
                     stopScreen()
                 }
-                result?.unregister()
+                result.unregister()
                 mActivity.lifecycle.removeObserver(this)
             }
             else -> {}
