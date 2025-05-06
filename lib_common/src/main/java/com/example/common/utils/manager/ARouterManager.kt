@@ -24,7 +24,7 @@ class ARouterManager(observer: LifecycleOwner) : CoroutineScope {
 
     companion object {
         private val mContext get() = BaseApplication.instance.applicationContext
-        private val mDialog by lazy { AppDialog(mContext) }
+//        private val mDialog by lazy { AppDialog(mContext) }
         private val mARouter by lazy { ARouter.getInstance() }
         //全局跳转页面url
         const val KOL_VERIFY = "kolVerify"

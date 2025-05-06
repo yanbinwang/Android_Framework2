@@ -1,6 +1,6 @@
 package com.example.common.widget.dialog
 
-import android.content.Context
+import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.base.BaseDialog
 import com.example.common.databinding.ViewDialogLoadingBinding
@@ -9,15 +9,15 @@ import com.example.common.databinding.ViewDialogLoadingBinding
  * Created by wyb on 2017/6/28.
  * 加载动画view
  */
-class LoadingDialog(context: Context) : BaseDialog<ViewDialogLoadingBinding>(context, 90, 90, themeResId = R.style.LoadingStyle, animation = false) {
+class LoadingDialog(activity: FragmentActivity) : BaseDialog<ViewDialogLoadingBinding>(activity, R.style.LoadingStyle, 90, 90, hasAnimation = false) {
 
-    override fun shown(flag: Boolean) {
-        super.shown(flag)
+    override fun show() {
+        super.show()
         mBinding?.pbProcess?.isIndeterminate = true
     }
 
-    override fun hidden() {
-        super.hidden()
+    override fun dismiss() {
+        super.dismiss()
         mBinding?.pbProcess?.isIndeterminate = false
     }
 
