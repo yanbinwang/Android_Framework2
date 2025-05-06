@@ -80,7 +80,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     companion object {
-        var onCreateListener: OnCreateListener? = null
         var onFinishListener: OnFinishListener? = null
         var isAnyActivityStarting = false
 
@@ -100,7 +99,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        onCreateListener?.onCreate(this)
         super.onCreate(savedInstanceState)
         if (needTransparentOwner) {
             overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
@@ -112,6 +110,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         }
         AppManager.addActivity(this)
         WebSocketObserver.addObserver(this)
+        isAnyActivityStarting = false
         if (isEventBusEnabled()) {
             EventBus.instance.register(this) {
                 it.onEvent()
