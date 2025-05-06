@@ -160,7 +160,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         appear(300)
         state = EmptyLayoutState.Empty
         fullState()
-        if (null != width && null != height) mBinding.ivEmpty.size(width, height)
+        if (null != width && null != height) mBinding.ivEmpty.size(width.pt, height.pt)
         mBinding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_empty)
         mBinding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataEmpty) else text
         if (!refreshText.isNullOrEmpty()) {
@@ -179,7 +179,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         appear(300)
         state = EmptyLayoutState.Error
         fullState()
-        if (null != width && null != height) mBinding.ivEmpty.size(width, height)
+        if (null != width && null != height) mBinding.ivEmpty.size(width.pt, height.pt)
         if (!isNetworkAvailable()) {
             mBinding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
             mBinding.tvEmpty.text = string(R.string.dataNetError)

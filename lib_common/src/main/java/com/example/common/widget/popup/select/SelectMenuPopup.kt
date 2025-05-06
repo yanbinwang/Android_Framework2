@@ -35,12 +35,12 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
      *    coin.setParams(listOf(string(R.string.unitINR), string(R.string.unitIDR)), mBinding?.llFilter?.measuredWidth.orZero)
      *  }
      */
-    fun setParams(list: List<T>, menuWidth: Int = 0, horizontalMargin: Int = 15.pt, verticalMargin: Int = 0, gravity: Int = Gravity.END) {
+    fun setParams(list: List<T>, menuWidth: Int = 0, horizontalMargin: Int = 15, verticalMargin: Int = 0, gravity: Int = Gravity.END) {
         lastMenuWidth = menuWidth
         setConfiguration(list, MenuBean().apply {
             this.menuWidth = menuWidth
-            this.horizontalMargin = horizontalMargin
-            this.verticalMargin = verticalMargin
+            this.horizontalMargin = horizontalMargin.pt
+            this.verticalMargin = verticalMargin.pt
             this.gravity = gravity
         })
     }
