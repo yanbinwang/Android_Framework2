@@ -263,11 +263,29 @@ class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = 
 //    }
 //
 //    /**
-//     * 处理弹框，其余的还是通过arouter正常拉起
+//     * 所有的弹窗都是关联到activity的生命周期的，正常情况下不需要弹框的话，都是通过arouter拉起的
+//     * 需要弹窗在正常情况下，activity和view也是具备的，可以正常走流程
+//     * 只有推送是需要拉起一个透明页面（存在3s）然后去走接口的，这会儿就有可能页面已经被销毁，弹框也拉不起来，
+//     * 所以如果是推送并且需要弹框的情况，让首页再去做一次请求（首页new ARouterManager）类持有首页的activity
+//     * 首页添加
+//     * override fun onNewIntent(intent: Intent?) {
+//     *         super.onNewIntent(intent)
+//     *         handleIntent(intent)
+//     *     }
+//     *
+//     *     private fun handleIntent(intent: Intent?){
+//     *         intent?.getStringExtra(Extra.SOURCE)?.let { source ->
+//     *             val list = source.split("::")
+//     *             val url = list.safeGet(0)
+//     *             val id = list.safeGet(1)
+//     *             if (url != null && id != null) {
+//     *                 manager.jump(url, id)
+//     *             }
+//     *         }
+//     *     }
 //     */
 //    private fun showDialogOrLaunchMainActivity(url: String?, id: String? = null, isPush: Boolean = false, dialogAction: () -> Unit) {
-//        //如果是推送，mActivity不存在，正在被关闭，已经销毁等情况，则需要拉起首页，让首页再做一次处理
-//        if (isPush || null == mActivity || mActivity?.isFinishing.orFalse || mActivity?.isDestroyed.orFalse) {
+//        if (isPush) {
 //            //构建arouter跳转
 //            ARouter.getInstance().build(ARouterPath.MainActivity)
 //                .withFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
