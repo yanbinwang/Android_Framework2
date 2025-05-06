@@ -38,7 +38,7 @@ interface BaseImpl {
     /**
      * 控件不可操作
      */
-    fun enabled(vararg views: View?, second: Long = 1000)
+    fun enabled(vararg views: View?, second: Long = -1L)
 
     /**
      * 控件显示

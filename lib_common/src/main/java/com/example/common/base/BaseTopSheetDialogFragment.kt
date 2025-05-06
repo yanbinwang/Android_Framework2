@@ -191,16 +191,13 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
     }
 
     override fun enabled(vararg views: View?, second: Long) {
-        views.forEach {
-            if (second > 0) {
-                it.disable()
-                TimerBuilder.schedule(this, {
-                    it.enable()
-                }, second)
-            } else {
+        if (second <= 0) return
+        views.forEach { it.disable() }
+        TimerBuilder.schedule(this, {
+            views.forEach {
                 it.enable()
             }
-        }
+        }, second)
     }
 
     override fun visible(vararg views: View?) {
