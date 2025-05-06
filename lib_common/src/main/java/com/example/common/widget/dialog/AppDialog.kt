@@ -1,11 +1,10 @@
 package com.example.common.widget.dialog
 
-import android.content.Context
 import android.view.Gravity
+import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.base.BaseDialog
 import com.example.common.databinding.ViewDialogBinding
-import com.example.common.utils.function.color
 import com.example.common.utils.function.string
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.view.click
@@ -18,7 +17,7 @@ import com.example.framework.utils.function.view.visible
  * date: 2017/8/25.
  * 类似苹果的弹出窗口类
  */
-class AppDialog(context: Context) : BaseDialog<ViewDialogBinding>(context) {
+class AppDialog(activity: FragmentActivity) : BaseDialog<ViewDialogBinding>(activity) {
     private var onConfirm: (() -> Unit)? = null
     private var onCancel: (() -> Unit)? = null
 

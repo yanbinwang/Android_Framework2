@@ -25,7 +25,7 @@ import java.lang.ref.WeakReference
  * 支持左右侧，部分单位可该系
  * private val occupationPopup by lazy { SelectBottomPopup<String>(this) { it }.apply { setParams(UserAuthBean.jobList) }}
  */
-class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> String?) : BasePopupWindow<ViewPopupSelectMenuBinding>(activity, light = false) {
+class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> String?) : BasePopupWindow<ViewPopupSelectMenuBinding>(activity, hasLight = false) {
     private var lastMenuWidth = 0
     private var onCurrent: ((item: String?, index: Int) -> Unit)? = null
 
@@ -86,7 +86,7 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
             list.forEachIndexed { index, t ->
                 addView(SelectItemHolder(this, formatter(t), index).also {
                     it.onItemClick = { item, clickIndex ->
-                        hidden()
+                        dismiss()
                         onCurrent?.invoke(item, clickIndex)
                     }
                 }.mBinding.root)
