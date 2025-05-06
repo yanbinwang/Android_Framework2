@@ -59,9 +59,9 @@ class NativeIndicator(tab: TabLayout?, tabTitle: List<Int>?) : TabLayoutBuilder<
 /**
  * 全局默认样式
  */
-fun I18nTextView?.setI18nTabTheme(resText: Int = -1, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15, padding: Pair<Int, Int> = 6.pt to 6.pt) {
+fun I18nTextView?.setI18nTabTheme(resText: Int = -1, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15, padding: Pair<Int, Int> = 6 to 6) {
     setI18nTheme(resText, if (selected) colorRes.first.orZero else colorRes.second.orZero,)
     textSize(if (selected) sizeRes.first.orZero else sizeRes.second.orZero)
-    padding(start = padding.first, end = padding.second)
+    padding(start = padding.first.pt, end = padding.second.pt)
     bold(selected)
 }
