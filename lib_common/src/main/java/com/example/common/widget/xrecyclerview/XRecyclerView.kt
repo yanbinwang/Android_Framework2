@@ -54,7 +54,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     //是否具有空布局
     private var emptyEnable = false
     //空遮罩高度，-1表示为全屏
-    private var emptyHeight = -1f
+    private var emptyHeight = -1
     //空布局点击
     private var listener: ((result: Boolean) -> Unit)? = null
     //----------------以下懒加载会在调取时候创建----------------
@@ -78,7 +78,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         context.withStyledAttributes(attrs, R.styleable.XRecyclerView) {
             refreshEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableRefresh, false)
             emptyEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableEmpty, false)
-            emptyHeight = getDimension(R.styleable.XRecyclerView_xrvEmptyHeight, -1f)
+            emptyHeight = getInt(R.styleable.XRecyclerView_xrvEmptyHeight, -1)
         }
     }
 
@@ -109,10 +109,10 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 部分empty是有初始大小要求的，不必撑满整个屏幕
      */
     private fun emptyConfigure() {
-        if (-1f == emptyHeight) {
+        if (-1 == emptyHeight) {
             empty.size(MATCH_PARENT, MATCH_PARENT)
         } else {
-            empty.size(MATCH_PARENT, emptyHeight.toSafeInt())
+            empty.size(MATCH_PARENT, emptyHeight.pt)
         }
         empty.setOnEmptyRefreshListener {
             listener?.invoke(it)
