@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.example.common.BaseApplication
 import com.example.common.base.BaseActivity
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
@@ -984,6 +985,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             }
         }
         return if (isDuplicate) ArrayList(duplicateSet) else ArrayList(incompleteSet)
+    }
+
+    override fun onResume() {
+        if (BaseApplication.needOpenHome) BaseApplication.needOpenHome = false
+        super.onResume()
     }
 
 }
