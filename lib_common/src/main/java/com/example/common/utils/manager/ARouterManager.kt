@@ -4,9 +4,12 @@ import android.content.Intent
 import android.util.Patterns
 import androidx.fragment.app.FragmentActivity
 import com.alibaba.android.arouter.launcher.ARouter
+import com.example.common.BaseApplication
+import com.example.common.BaseApplication.Companion.needOpenHome
 import com.example.common.R
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.page.Extra
+import com.example.common.base.page.getPostcardClass
 import com.example.common.bean.WebBean
 import com.example.common.config.ARouterPath
 import com.example.common.network.CommonApi
@@ -30,7 +33,6 @@ import java.lang.ref.WeakReference
 
 /**
  * 管理App中跳转
- * 如果是推送页面，这去activity里再做一次逻辑
  */
 class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = null) {
 //    private var weakActivity: WeakReference<FragmentActivity?>? = null
@@ -111,9 +113,9 @@ class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = 
 //                    ARouter.getInstance().build(ARouterPath.LoginActivity).navigation()
 //                } else {
 //                    when (url) {
-//                        CHARGE_COIN -> getPlatform(0, url, id, isPush)
-//                        WITHDRAW_COIN -> getPlatform(1, url, id, isPush)
-//                        ADD_ADS -> getAdsPlatform(url, id, isPush)
+//                        CHARGE_COIN -> getPlatform(0, id, isPush)
+//                        WITHDRAW_COIN -> getPlatform(1, id, isPush)
+//                        ADD_ADS -> getAdsPlatform(id, isPush)
 //                        MARKET_INDEX -> EVENT_MARKET_SELECT.post()
 //                        INVITE_FRIENDS -> ARouter.getInstance().build(ARouterPath.InviteFriendActivity).navigation()
 //                        METHOD_PAYMENT -> ARouter.getInstance().build(ARouterPath.PaymentActivity).navigation()
@@ -123,8 +125,7 @@ class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = 
 //                        ADS_DETAILS -> getAdsDetail(id)
 //                        DEPOSIT_DETAILS -> getDepositDetail(id)
 //                        WITHDRAWAL_DETAILS -> getWithdrawalDetail(id)
-//                        NOVICE_ACTIVITY -> ARouter.getInstance().build(ARouterPath.WebActivity).withSerializable(
-//                            Extra.BUNDLE_BEAN, WebBean.novice()).navigation()
+//                        NOVICE_ACTIVITY -> ARouter.getInstance().build(ARouterPath.WebActivity).withSerializable(Extra.BUNDLE_BEAN, WebBean.novice()).navigation()
 //                    }
 //                }
 //            }
@@ -136,23 +137,27 @@ class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = 
 //     * type: 0-》充币 1-》提币
 //     * currency: 币名
 //     */
-//    private fun getPlatform(type: Int, url: String?, currency: String?, isPush: Boolean) {
+//    private fun getPlatform(type: Int, currency: String?, isPush: Boolean) {
 //        builderJob?.cancel()
 //        builderJob = managerScope.launch {
 //            flow {
 //                val bean = request({ CommonApi.instance.getPlatformApi() })
 //                val value = if (0 == type) bean?.chargeMoneySwitch == 1 else bean?.mentionMoneySwitch == 1
 //                emit(bean to value)
-//            }.withHandling(view, isShowToast = true).collect { (bean, value) ->
+//            }.withHandling(view, {
+//                handlerPush(isPush)
+//            }, isShowToast = true).collect { (bean, value) ->
 //                if (value) {
-//                    showDialogOrLaunchMainActivity(url, currency, isPush) {
-//                        val content = string(
-//                            R.string.platformError, if (1 == bean?.chargeMoneySwitch) string(
-//                                R.string.platformRecharge) else string(R.string.platformWithdraw))
-//                        mDialog
-//                            ?.setPositive(message = content, positiveText = string(R.string.iKnow))
-//                            ?.setDialogListener({})
-//                            ?.show()
+//                    showDialogOrLaunchMainActivity(isPush) { isGranted ->
+//                        val message = string(R.string.platformError, if (1 == bean?.chargeMoneySwitch) string(R.string.platformRecharge) else string(R.string.platformWithdraw))
+//                        if (isGranted) {
+//                            mDialog
+//                                ?.setPositive(message = message, positiveText = string(R.string.iKnow))
+//                                ?.setDialogListener({})
+//                                ?.show()
+//                        } else {
+//                            message.shortToast()
+//                        }
 //                    }
 //                } else {
 //                    val aRouterPath = if (0 == type) ARouterPath.RechargeActivity else ARouterPath.WithdrawActivity
@@ -164,7 +169,7 @@ class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = 
 //        }
 //    }
 //
-//    private fun getAdsPlatform(url: String?, releaseJson: String?, isPush: Boolean) {
+//    private fun getAdsPlatform(releaseJson: String?, isPush: Boolean) {
 //        builderJob?.cancel()
 //        builderJob = managerScope.launch {
 //            flow {
@@ -175,12 +180,12 @@ class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = 
 //                //获取用户具备的权限
 //                val platformAsync = async { request({ CommonApi.instance.getPlatformApi() }) }
 //                //查詢用户所有收款方式
-//                val paymentWayListAsync = async { request({ CommonApi.instance.getPaymentWayListApi(
-//                    reqBodyOf()
-//                ) }) }
+//                val paymentWayListAsync = async { request({ CommonApi.instance.getPaymentWayListApi(reqBodyOf()) }) }
 //                //并行发起网络请求
 //                emit(awaitAll(coinListAsync, userInfoAsync, platformAsync, paymentWayListAsync))
-//            }.withHandling(view, isShowToast = true).collect {
+//            }.withHandling(view, {
+//                handlerPush(isPush)
+//            }, isShowToast = true).collect {
 //                val coinList = it.safeAs<List<CoinBean>>(0)
 //                if (coinList.safeSize <= 0) {
 //                    R.string.coinEmpty.shortToast()
@@ -189,11 +194,15 @@ class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = 
 //                    if (AccountHelper.getUserLevel() > 0) {
 //                        val platformBean = it.safeAs<PlatformBean>(2)
 //                        if (platformBean?.openAdvertise == 1) {
-//                            showDialogOrLaunchMainActivity(url, releaseJson, isPush) {
-//                                mDialog
-//                                    ?.setParams(message = string(R.string.certifiedReleaseError))
-//                                    ?.setDialogListener({ ARouter.getInstance().build(ARouterPath.CertifiedActivity).navigation() })
-//                                    ?.show()
+//                            showDialogOrLaunchMainActivity(isPush) { isGranted ->
+//                                if (isGranted) {
+//                                    mDialog
+//                                        ?.setParams(message = string(R.string.certifiedReleaseError))
+//                                        ?.setDialogListener({ ARouter.getInstance().build(ARouterPath.CertifiedActivity).navigation() })
+//                                        ?.show()
+//                                } else {
+//                                    string(R.string.certifiedReleaseError).shortToast()
+//                                }
 //                            }
 //                        } else {
 //                            val paymentWayList = it.safeAs<List<PaymentWayBean>>(3)
@@ -207,12 +216,15 @@ class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = 
 //                            if (hasPayWayAccount && enablePayWayAccount) {
 //                                //做用户交易的权限判断
 //                                if (platformBean?.c2cBuySwitch == 1 && platformBean.c2cSellSwitch == 1) {
-//                                    showDialogOrLaunchMainActivity(url, releaseJson, isPush) {
-//                                        mDialog
-//                                            ?.setPositive(message = string(R.string.businessError), positiveText = string(
-//                                                R.string.iKnow))
-//                                            ?.setDialogListener({})
-//                                            ?.show()
+//                                    showDialogOrLaunchMainActivity(isPush) { isGranted ->
+//                                        if (isGranted) {
+//                                            mDialog
+//                                                ?.setPositive(message = string(R.string.businessError), positiveText = string(R.string.iKnow))
+//                                                ?.setDialogListener({})
+//                                                ?.show()
+//                                        } else {
+//                                            string(R.string.businessError).shortToast()
+//                                        }
 //                                    }
 //                                } else {
 //                                    val tempBean = releaseJson.toObj(CoinBean::class.java)
@@ -222,21 +234,29 @@ class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = 
 //                                        .navigation()
 //                                }
 //                            } else {
-//                                showDialogOrLaunchMainActivity(url, releaseJson, isPush) {
-//                                    mDialog
-//                                        ?.setParams(message = string(R.string.payWayGoSetting))
-//                                        ?.setDialogListener({
-//                                            ARouter.getInstance().build(if (hasPayWayAccount) ARouterPath.PaymentActivity else ARouterPath.PaymentAdditionActivity)
-//                                                .withBoolean(Extra.BUNDLE_BOOLEAN, true)
-//                                                .navigation()
-//                                        })
-//                                        ?.show()
+//                                showDialogOrLaunchMainActivity(isPush) { isGranted ->
+//                                    if (isGranted) {
+//                                        mDialog
+//                                            ?.setParams(message = string(R.string.payWayGoSetting))
+//                                            ?.setDialogListener({
+//                                                ARouter.getInstance().build(if (hasPayWayAccount) ARouterPath.PaymentActivity else ARouterPath.PaymentAdditionActivity)
+//                                                    .withBoolean(Extra.BUNDLE_BOOLEAN, true)
+//                                                    .navigation()
+//                                            })
+//                                            ?.show()
+//                                    } else {
+//                                        string(R.string.payWayGoSetting).shortToast()
+//                                    }
 //                                }
 //                            }
 //                        }
 //                    } else {
-//                        showDialogOrLaunchMainActivity(url, releaseJson, isPush) {
-//                            mCertified?.show()
+//                        showDialogOrLaunchMainActivity(isPush) { isGranted ->
+//                            if (isGranted) {
+//                                mCertified?.show()
+//                            } else {
+//                                string(R.string.certifiedExplain).shortToast()
+//                            }
 //                        }
 //                    }
 //                }
@@ -253,20 +273,21 @@ class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = 
 //    }
 //
 //    private fun getDepositDetail(id: String?) {
-//        ARouter.getInstance().build(ARouterPath.FundsHistoryDetailActivity).withString(Extra.SOURCE, "0::${id}").withBoolean(
-//            Extra.BUNDLE_BEAN, true).navigation()
+//        ARouter.getInstance().build(ARouterPath.FundsHistoryDetailActivity).withString(Extra.SOURCE, "0::${id}").withBoolean(Extra.BUNDLE_BEAN, true).navigation()
 //    }
 //
 //    private fun getWithdrawalDetail(id: String?) {
-//        ARouter.getInstance().build(ARouterPath.FundsHistoryDetailActivity).withString(Extra.SOURCE, "1::${id}").withBoolean(
-//            Extra.BUNDLE_BEAN, true).navigation()
+//        ARouter.getInstance().build(ARouterPath.FundsHistoryDetailActivity).withString(Extra.SOURCE, "1::${id}").withBoolean(Extra.BUNDLE_BEAN, true).navigation()
 //    }
 //
 //    /**
-//     * 所有的弹窗都是关联到activity的生命周期的，正常情况下不需要弹框的话，都是通过arouter拉起的
-//     * 需要弹窗在正常情况下，activity和view也是具备的，可以正常走流程
+//     * 1.Dialog必须关联页面的activity/context，manager所有页面都必须遵守这条系统规则
+//     * 2.进到此处的逻辑都是需要弹框的（推送本质不需要弹框直接拉页面，如需弹框的也会进该逻辑）
+//     *
+//     * 正常情况下不需要弹框，通过ARouter拉起
+//     * 需要弹窗且在页面存在的情况下，activity和view是具备的，可以正常走流程
 //     * 只有推送是需要拉起一个透明页面（存在3s）然后去走接口的，这会儿就有可能页面已经被销毁，弹框也拉不起来，
-//     * 所以如果是推送并且需要弹框的情况，让首页再去做一次请求（首页new ARouterManager）类持有首页的activity
+//     *
 //     * 首页添加
 //     * override fun onNewIntent(intent: Intent?) {
 //     *         super.onNewIntent(intent)
@@ -284,16 +305,43 @@ class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = 
 //     *         }
 //     *     }
 //     */
-//    private fun showDialogOrLaunchMainActivity(url: String?, id: String? = null, isPush: Boolean = false, dialogAction: () -> Unit) {
+//    private fun showDialogOrLaunchMainActivity(isPush: Boolean = false, dialogAction: (Boolean) -> Unit) {
 //        if (isPush) {
-//            //构建arouter跳转
-//            ARouter.getInstance().build(ARouterPath.MainActivity)
-//                .withFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-//                .withString(Extra.SOURCE, "${url.orEmpty()}::${id.orEmpty()}")
-//                .navigation()
+////            //如果此时栈内存在首页和其他页面,关闭掉其余页面，只拉起首页
+////            val mContext = BaseApplication.instance.applicationContext
+////            val clazz = mContext.getPostcardClass(ARouterPath.MainActivity)
+////            AppManager.finishNotTargetActivity(clazz)
+////            ARouter.getInstance().build(ARouterPath.MainActivity)
+////                .withFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+////                .withString(Extra.SOURCE, "${url.orEmpty()}::${id.orEmpty()}")
+////                .navigation()
+//            dialogAction.invoke(false)
+//            handlerPush(true)
 //        } else {
-//            dialogAction.invoke()
+//            if (null == mActivity || mActivity?.isFinishing.orFalse || mActivity?.isDestroyed.orFalse) {
+//                dialogAction.invoke(false)
+//            } else {
+//                dialogAction.invoke(true)
+//            }
 //        }
+//    }
+//
+//    /**
+//     * 只属于push的请求失败跳转，之前已经给出提出就单独拉起首页即可
+//     */
+//    private fun handlerPush(isPush: Boolean = false) {
+//        if (!isPush) return
+//        val mContext = BaseApplication.instance.applicationContext
+//        val clazz = mContext.getPostcardClass(ARouterPath.MainActivity)
+//        //任务栈内不存在activity，关闭所有，强制拉起
+//        if (!AppManager.isExistActivity(clazz)) {
+//            AppManager.finishAll()
+//        }
+//        needOpenHome = false
+//        ARouter.getInstance().build(ARouterPath.MainActivity)
+//            //FLAG_ACTIVITY_REORDER_TO_FRONT：若首页已存在，提到栈顶而非新建实例/FLAG_ACTIVITY_NEW_TASK：确保在非 Activity 上下文（如 Service）中安全启动
+//            .withFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NEW_TASK)
+//            .navigation()
 //    }
 
 }
