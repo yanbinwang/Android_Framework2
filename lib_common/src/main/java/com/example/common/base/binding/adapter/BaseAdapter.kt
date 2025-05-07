@@ -146,7 +146,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     fun changed(index: Int?, bean: T?) {
         if (index == null || bean == null) return
-        if (index != -1 && data.safeGet(index) != null) {
+        if (index in data.indices) {
             data.safeSet(index, bean)
             notifyItemChanged(index)
         }
@@ -161,7 +161,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
 
     fun changed(index: Int?, payloads: MutableList<Any>, bean: T?) {
         if (index == null || bean == null) return
-        if (index != -1 && data.safeGet(index) != null) {
+        if (index in data.indices) {
             data.safeSet(index, bean)
             notifyItemChanged(index, payloads)
         }
@@ -171,7 +171,6 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 删除符合条件的对象
      */
     fun removed(func: ((T) -> Boolean)) {
-//        data.findAndRemove(func)
         removed(findIndexOf(func))
     }
 
@@ -180,7 +179,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     fun removed(index: Int?) {
         if (index == null) return
-        if (index != -1 && data.safeGet(index) != null) {
+        if (index in data.indices) {
             data.removeAt(index)
             notifyItemRemoved(index)
         }
