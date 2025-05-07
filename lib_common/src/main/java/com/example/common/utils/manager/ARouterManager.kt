@@ -331,17 +331,34 @@ class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = 
 //     */
 //    private fun handlerPush(isPush: Boolean = false) {
 //        if (!isPush) return
+//        val mainBuildAction = {
+//            //关闭所有，强制拉起，确保任务栈的干净
+//            AppManager.finishAll()
+//            needOpenHome = false
+//            ARouter.getInstance().build(ARouterPath.MainActivity)
+//                //FLAG_ACTIVITY_REORDER_TO_FRONT：若首页已存在，提到栈顶而非新建实例/FLAG_ACTIVITY_NEW_TASK：确保在非 Activity 上下文（如 Service）中安全启动
+//                .withFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NEW_TASK)
+//                .navigation()
+//        }
 //        val mContext = BaseApplication.instance.applicationContext
 //        val clazz = mContext.getPostcardClass(ARouterPath.MainActivity)
-//        //任务栈内不存在activity，关闭所有，强制拉起
-//        if (!AppManager.isExistActivity(clazz)) {
-//            AppManager.finishAll()
+//        //任务栈内是否存在activity
+//        if (AppManager.isExistActivity(clazz)) {
+//            //长度只有1且任务栈内存在activity，强制拉起
+//            if (AppManager.stackCount <= 1) {
+//                mainBuildAction()
+//            }
+//        } else {
+//            //任务栈内不存在activity
+//            mainBuildAction()
 //        }
-//        needOpenHome = false
-//        ARouter.getInstance().build(ARouterPath.MainActivity)
-//            //FLAG_ACTIVITY_REORDER_TO_FRONT：若首页已存在，提到栈顶而非新建实例/FLAG_ACTIVITY_NEW_TASK：确保在非 Activity 上下文（如 Service）中安全启动
-//            .withFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NEW_TASK)
-//            .navigation()
+////        //请求失败的情况下，如果首页不存在，拉起首页
+////        val mContext = BaseApplication.instance.applicationContext
+////        val clazz = mContext.getPostcardClass(ARouterPath.MainActivity)
+////        if (!AppManager.isExistActivity(clazz)) {
+////            needOpenHome = false
+////            ARouter.getInstance().build(ARouterPath.MainActivity).navigation()
+////        }
 //    }
 
 }
