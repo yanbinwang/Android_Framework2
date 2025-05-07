@@ -171,7 +171,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 删除符合条件的对象
      */
     fun removed(func: ((T) -> Boolean)) {
-        data.findAndRemove(func)
+//        data.findAndRemove(func)
+        removed(findIndexOf(func))
     }
 
     /**
