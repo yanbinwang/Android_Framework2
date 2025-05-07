@@ -64,6 +64,14 @@ import java.util.Locale
 abstract class BaseApplication : Application() {
     private var onStateChangedListener: (isForeground: Boolean) -> Unit = {}
     private var onPrivacyAgreedListener: (isAgreed: Boolean) -> Unit = {}
+    private val excludedRouterPaths by lazy {
+        listOf(
+            ARouterPath.MainActivity,
+            ARouterPath.SplashActivity,
+//            ARouterPath.LinkActivity,
+//            ARouterPath.LinkHandlerActivity
+        ).map { it.replace("/app/", "").lowercase(Locale.getDefault()) }.toSet()
+    }
 
     companion object {
         //是否需要回首頁
@@ -186,8 +194,7 @@ abstract class BaseApplication : Application() {
                 if (!needOpenHome) return
                 if (BaseActivity.isAnyActivityStarting) return
                 val clazzName = act.javaClass.simpleName.lowercase(Locale.getDefault())
-                if (clazzName == "mainactivity") return
-                if (clazzName == "splashactivity") return
+                if (excludedRouterPaths.contains(clazzName)) return
                 if (AppManager.currentActivity() != act) return
                 if (AppManager.stackCount <= 1) {
                     needOpenHome = false
