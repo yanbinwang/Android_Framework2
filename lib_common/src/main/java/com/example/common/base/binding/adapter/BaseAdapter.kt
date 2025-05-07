@@ -5,7 +5,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.common.base.binding.adapter.BaseItemType.BEAN
 import com.example.common.base.binding.adapter.BaseItemType.LIST
 import com.example.common.base.bridge.BaseViewModel
-import com.example.framework.utils.function.value.findAndRemove
 import com.example.framework.utils.function.value.findIndexOf
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.safeGet
@@ -138,7 +137,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 查找到符合条件的对象，改变为新的对象并刷新对应item
      */
     fun changed(func: ((T) -> Boolean), bean: T?) {
-        changed(findIndexOf(func), bean)
+        changed(findIndex(func), bean)
     }
 
     /**
@@ -171,7 +170,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 删除符合条件的对象
      */
     fun removed(func: ((T) -> Boolean)) {
-        removed(findIndexOf(func))
+        removed(findIndex(func))
     }
 
     /**
@@ -188,7 +187,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 查找并返回符合条件的对象
      */
-    fun find(func: ((T) -> Boolean)): T? {
+    fun findItem(func: ((T) -> Boolean)): T? {
         val index = data.findIndexOf(func)
         return data.safeGet(index)
     }
@@ -196,10 +195,9 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 查找到符合条件的对象，返回下标和对象本身，调用notifyItemChanged（position）修改改变的值
      */
-    fun find(func: ((T) -> Boolean), listener: (Pair<Int, T?>) -> Unit) {
-        data.findIndexOf(func).apply {
-            listener.invoke(this to data.safeGet(this))
-        }
+    fun findItemOf(func: ((T) -> Boolean)): Pair<Int, T?> {
+        val index = data.findIndexOf(func)
+        return index to data.safeGet(index)
     }
 
     /**
@@ -212,7 +210,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 返回查找到的符合条件的下标
      */
-    fun findIndexOf(func: ((T) -> Boolean)): Int {
+    fun findIndex(func: ((T) -> Boolean)): Int {
         return data.findIndexOf(func)
     }
 
