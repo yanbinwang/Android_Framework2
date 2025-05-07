@@ -14,6 +14,7 @@ import com.example.thirdparty.media.album.GlideLoader
 import com.example.thirdparty.media.oss.OssDBHelper
 import com.example.thirdparty.media.oss.OssDBHelper2
 import com.example.thirdparty.media.oss.OssFactory
+import com.example.thirdparty.utils.NotificationUtil
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import io.objectbox.BoxStore
@@ -41,6 +42,8 @@ class MyApplication : BaseApplication() {
 
     //初始化一些第三方控件和单例工具类等
     private fun initialize() {
+        //通知栏初始化
+        NotificationUtil.init(applicationContext)
         if (isDebug) {
             DebuggingUtil.init(applicationContext, MainActivity::class.java)
         } else {
