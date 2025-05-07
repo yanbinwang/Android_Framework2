@@ -164,8 +164,9 @@ abstract class BaseApplication : Application() {
                 if (!needOpenHome) return
                 if (BaseActivity.isAnyActivityStarting) return
                 val clazzName = act.javaClass.simpleName.lowercase(Locale.getDefault())
-                if (clazzName == "mainactivity") return
-                if (clazzName == "splashactivity") return
+                if (clazzName == ARouterPath.MainActivity.replace("/app/","").lowercase()) return
+                if (clazzName == ARouterPath.SplashActivity.replace("/app/","").lowercase()) return
+//                if (clazzName == ARouterPath.LinkActivity.replace("/app/","").lowercase()) return
                 if (AppManager.currentActivity() != act) return
                 if (AppManager.stackCount <= 1) {
                     needOpenHome = false
