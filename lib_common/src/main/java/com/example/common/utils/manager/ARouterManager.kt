@@ -351,6 +351,8 @@ class ARouterManager(activity: FragmentActivity?, private val view: BaseView? = 
 //            //长度只有1且任务栈内存在activity，强制拉起
 //            if (AppManager.stackCount <= 1) {
 //                mainBuildAction(true)
+//            } else {
+//                needOpenHome = false
 //            }
 //        } else {
 //            //任务栈内不存在activity
