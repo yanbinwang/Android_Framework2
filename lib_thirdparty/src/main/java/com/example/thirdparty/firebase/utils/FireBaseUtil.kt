@@ -37,10 +37,14 @@ import retrofit2.http.POST
  * }
  */
 object FireBaseUtil {
+    // 日志埋点
+    val firebaseAnalytics by lazy { FirebaseAnalytics.getInstance(BaseApplication.instance.applicationContext) }
+    // FirebaseService->onNewToken(获取到手机token)
     var tokenRefreshListener: ((String) -> Unit)? = null
-    var notificationIntentGenerator = { _: Context, _: Map<String, String> -> Intent() }
+    // FirebaseService->onMessageReceived(收到的推送消息体)
     var notificationHandler: ((data: Map<String, String>) -> Boolean)? = null
-    val firebaseAnalytics by lazy { FirebaseAnalytics.getInstance(BaseApplication.instance) }
+    // 构建推送的intent，掉起一个透明的页面LinkActivity然后处理跳转
+    var notificationIntentGenerator = { _: Context, _: Map<String, String> -> Intent() }
 
     /**
      * firebase本身会自动注册，但会有延迟，此时显式调用
