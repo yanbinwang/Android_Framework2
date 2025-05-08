@@ -160,6 +160,16 @@ fun View?.disable() {
 }
 
 /**
+ * 删除自身
+ */
+fun View?.removeSelf() {
+    if (this == null) return
+    if (parent != null) {
+        (parent as? ViewGroup)?.removeView(this)
+    }
+}
+
+/**
  * 获取resources中的drawable
  */
 fun View?.dimen(@DimenRes res: Int): Float {

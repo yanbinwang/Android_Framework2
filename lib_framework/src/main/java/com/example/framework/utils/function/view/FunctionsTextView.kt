@@ -71,25 +71,17 @@ fun TextView?.bold(isBold: Boolean) {
 /**
  * 字体颜色
  */
-fun TextView?.textColor(@ColorRes color: Int) {
+fun TextView?.textColor(@ColorRes res: Int) {
     if (this == null) return
-    this.setTextColor(ContextCompat.getColor(context, color))
+    this.setTextColor(ContextCompat.getColor(context, res))
 }
 
 /**
  * 以res设置textSize
  */
-fun TextView?.textSize(@DimenRes size: Int) {
+fun TextView?.textSize(@DimenRes res: Int) {
     if (this == null) return
-    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(size))
-}
-
-/**
- * 以px做单位设置textSize
- */
-fun TextView?.setPxTextSize(size: Float) {
-    if (this == null) return
-    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
+    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(res))
 }
 
 /**
@@ -105,13 +97,23 @@ fun TextView?.setRandomTextColor() {
 }
 
 /**
+ * 以px做单位设置textSize
+ */
+fun TextView?.setPxTextSize(size: Float) {
+    if (this == null) return
+    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
+}
+
+/**
  * 某些特殊布局如一个输入框最后测有个textview，然后输入框内容又是居中的
  * 通常外层会套一个Framelayout，然后把textview绘制在右侧，但是边距显示会很不正常，
  * 调用当前构造函数修整这种畸形效果,绘制时设置edittext宽度match，textview居左右侧都可以
  */
 fun TextView?.setFixDistance(editText: EditText?) {
     if (this == null || editText == null) return
-    doOnceAfterLayout { editText.margin(start = it.width, end = it.width) }
+    doOnceAfterLayout {
+        editText.margin(start = it.measuredWidth, end = it.measuredWidth)
+    }
 }
 
 /**
@@ -119,18 +121,9 @@ fun TextView?.setFixDistance(editText: EditText?) {
  */
 fun TextView?.setMatchText() {
     if (this == null) return
-    // 如果已经完成布局，直接处理文本
-    if (isLaidOut) {
+    // 如果已经完成布局，直接处理文本,若未完成布局，监听布局变化，布局完成后处理文本
+    doOnceAfterLayout {
         processText()
-    } else {
-        // 若未完成布局，监听布局变化，布局完成后处理文本
-        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                // 移除监听器，避免重复触发
-                viewTreeObserver.removeOnGlobalLayoutListener(this)
-                processText()
-            }
-        })
     }
 }
 
@@ -195,18 +188,9 @@ inline fun TextView?.getEllipsisCount(crossinline listener: (ellipsisCount: Int)
         return
     }
     // 若 TextView 已经完成布局，直接获取省略字符数量
-    if (isLaidOut) {
+    doOnceAfterLayout {
         val ellipsisCount = layout?.getEllipsisCount(lineCount - 1).orZero
         listener.invoke(ellipsisCount)
-    } else {
-        // 若未完成布局，在布局完成后获取省略字符数量
-        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                viewTreeObserver.removeOnGlobalLayoutListener(this)
-                val ellipsisCount = layout?.getEllipsisCount(lineCount - 1).orZero
-                listener.invoke(ellipsisCount)
-            }
-        })
     }
 }
 
