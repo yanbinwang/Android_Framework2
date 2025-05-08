@@ -74,7 +74,8 @@ class FullyStaggeredGridLayoutManager(spanCount: Int = 0, orientation: Int = 0) 
                 measuredDimension[0] = view.measuredWidth + lp?.leftMargin.orZero + lp?.rightMargin.orZero
                 measuredDimension[1] = view.measuredHeight + lp?.topMargin.orZero + lp?.bottomMargin.orZero
                 recycler.recycleView(view)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
