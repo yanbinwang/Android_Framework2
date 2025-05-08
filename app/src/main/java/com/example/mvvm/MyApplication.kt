@@ -33,6 +33,9 @@ class MyApplication : BaseApplication() {
 
     //初始化一些第三方控件和单例工具类等
     private fun initialize() {
+        //初始化系统通知
+        initNotification()
+        //不同包体初始化不同类
         if (isDebug) {
             initDebugging()
         } else {
@@ -44,10 +47,12 @@ class MyApplication : BaseApplication() {
                     println("AppCatch -${Log.getStackTraceString(e)}")
                 }
             }
-            //初始化系统通知
-            initNotification()
-            //初始化firebase
+        }
+        try {
+            //初始化firebase->没有谷歌服务的手机会报错
             initFireBase()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
 //        //初始化图片库类
 //        initAlbum()
@@ -127,16 +132,15 @@ class MyApplication : BaseApplication() {
     }
 
     private fun initFireBase() {
+        FireBaseUtil.initialize(applicationContext)
         FireBaseUtil.notificationIntentGenerator = { _, map ->
             " \n收到firebase\nmap:${map.toJson()}".logWTF
             LinkActivity.byPush(instance, *map.toArray { it.key to it.value })
         }
         FireBaseUtil.tokenRefreshListener = {
-            ConfigHelper.setDeviceToken(it)
             "firebase token $it".logE
+            ConfigHelper.setDeviceToken(it)
         }
-        FireBaseUtil.refreshToken()
-        FireBaseUtil.initTestReport()
     }
 
 //    private fun initAlbum() {

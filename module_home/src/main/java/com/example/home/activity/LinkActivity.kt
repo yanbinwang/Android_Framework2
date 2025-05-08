@@ -6,14 +6,17 @@ import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import androidx.databinding.ViewDataBinding
+import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
+import com.example.common.config.ARouterPath
 import com.example.common.config.ARouterPath.MainActivity
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
+import com.example.framework.utils.function.value.second
 import com.example.home.R
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -28,18 +31,21 @@ import kotlinx.coroutines.launch
  * </style>
  * @author yan
  */
-class LinkActivity : BaseActivity<ViewDataBinding>() {
+@Route(path = ARouterPath.LinkActivity)
+class LinkActivity : BaseActivity<Nothing>() {
     private val source by lazy { intentString(Extra.SOURCE) }
     private var timeOutJob: Job? = null
 
     companion object {
         //push信息用的intent
+        @JvmStatic
         fun byPush(context: Context, vararg pairs: Pair<String, Any>): Intent {
             (context as? BaseActivity<*>)?.overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
             return context.getIntent(LinkActivity::class.java, Extra.SOURCE to "push", *pairs)
         }
 
         //正常启动
+        @JvmStatic
         fun start(context: Context, vararg pairs: Pair<String, Any>) {
             (context as? BaseActivity<*>)?.overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
             context.startActivity(LinkActivity::class.java, Extra.SOURCE to "normal", *pairs)
@@ -58,9 +64,9 @@ class LinkActivity : BaseActivity<ViewDataBinding>() {
         setTimeOut()
         //處理推送透傳信息
         onLink()
-        ScreenUtil.screenWidth
-        ScreenUtil.screenHeight
     }
+
+    override fun isBindingEnabled() = false
 
     override fun finish() {
         overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
@@ -68,19 +74,16 @@ class LinkActivity : BaseActivity<ViewDataBinding>() {
     }
 
     private fun onLink() {
+        //只要是推送，全局开启onFinish监听，拉起首页
         BaseApplication.needOpenHome = true
         when (source) {
-//            //推送消息
-//            "push" -> {
+            //推送消息
+            "push" -> {
 //                if (!handlePush(this)) {
 //                    navigation(MainActivity)
-//                } else {
-//                    if (!AppManager.isExistActivity(MainActivity::class.java)) {
-//                        BaseApplication.needOpenHome = true
-//                    }
 //                }
-//                finish()
-//            }
+                finish()
+            }
             //其他情况统一走firebase处理
 //            else -> handleDeepLink(this) { finish() }
             else -> finish()
@@ -90,7 +93,7 @@ class LinkActivity : BaseActivity<ViewDataBinding>() {
     private fun setTimeOut() {
         timeOutJob?.cancel()
         timeOutJob = launch {
-            delay(3000)
+            delay(3.second)
             finish()
         }
     }

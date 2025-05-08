@@ -26,49 +26,59 @@ import retrofit2.http.POST
 
 /**
  * firebase推送
+ * FireBaseUtil.initialize(applicationContext)
+ * FireBaseUtil.notificationIntentGenerator = { _, map ->
+ * " \n收到firebase\nmap:${map.toJson()}".logWTF
+ * LinkActivity.byPush(instance, *map.toArray { it.key to it.value })
+ * }
+ * FireBaseUtil.tokenRefreshListener = {
+ * "firebase token $it".logE
+ * ConfigHelper.setDeviceToken(it)
+ * }
  */
 object FireBaseUtil {
-    val firebaseAnalytics by lazy { FirebaseAnalytics.getInstance(BaseApplication.instance) }
     var tokenRefreshListener: ((String) -> Unit)? = null
     var notificationIntentGenerator = { _: Context, _: Map<String, String> -> Intent() }
     var notificationHandler: ((data: Map<String, String>) -> Boolean)? = null
-
-    fun initSubApplication(application: Application) {
-        FirebaseApp.initializeApp(application)
-    }
+    val firebaseAnalytics by lazy { FirebaseAnalytics.getInstance(BaseApplication.instance) }
 
     /**
-     *  调试模式下不收集错误日志
+     * firebase本身会自动注册，但会有延迟，此时显式调用
      */
-    fun initTestReport() {
+    fun initialize(context: Context) {
+        //初始化
+        FirebaseApp.initializeApp(context)
+        //收集错误日志（调试模式下不开启）
         if (isDebug) {
             FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
         }
-    }
-
-    /**
-     * 刷新手机token
-     */
-    fun refreshToken() {
+        //刷新手机token
         FirebaseMessaging.getInstance().token.addOnCompleteListener {
-            tokenRefreshListener?.let { listen ->
-                val token = try {
-                    it.result
-                } catch (e: Exception) {
-                    e.logE
-                    null
-                }
-                if (!it.isSuccessful || token.isNullOrEmpty()) {
-                    "Fetching FCM registration token failed".logE
-                    return@addOnCompleteListener
-                }
-                listen(token)
+            val token = try {
+                it.result
+            } catch (e: Exception) {
+                e.logE
+                null
             }
+            if (!it.isSuccessful || token.isNullOrEmpty()) {
+                "Fetching FCM registration token failed".logE
+                return@addOnCompleteListener
+            }
+            tokenRefreshListener?.invoke(token)
         }
     }
 
     /**
-     * 获取深度连接
+     * 深度推送（Deep Linking）
+     * 指的是借助动态链接引导用户在应用内直接跳转到特定页面或执行特定操作，而不只是单纯打开应用
+     * 生成动态链接：你可以借助 Firebase 控制台或者 Firebase SDK 来生成动态链接。在生成链接时，能够指定当用户点击链接后要跳转的应用内页面或者要执行的操作。
+     * 用户点击链接：用户点击动态链接之后，系统会先判定该应用是否已经安装。
+     * 应用已安装：应用会直接启动，并且依据链接中的参数跳转到指定的页面或者执行特定操作。
+     * 应用未安装：用户会被引导至应用商店去下载安装应用，待安装完成并首次打开应用时，应用会依据链接参数跳转到指定页面或者执行特定操作。
+     * 深度推送的应用场景
+     * 分享内容：当用户在应用内分享文章、商品等内容时，能够生成包含深度链接的分享链接。其他用户点击这个链接，若已安装应用，就能直接查看分享的内容；若未安装应用，下载安装后也可直接查看。
+     * 广告推广：在广告投放时运用深度链接，用户点击广告链接，若已安装应用，就会直接进入推广的页面；若未安装应用，下载安装后也能直接进入推广页面，增强用户体验和转化率。
+     *
      */
     fun onDeepLink(activity: Activity, onSuccess: Uri.() -> Unit, onFailed: () -> Unit) {
         Firebase.dynamicLinks
@@ -88,7 +98,7 @@ object FireBaseUtil {
      */
     suspend fun bind(isBind: Boolean, listener: (isBind: Boolean) -> Unit = {}) {
         if (!isBind) {
-            FireBaseApi.fireBaseApi.getBindFireBaseApi(reqBodyOf("token" to ConfigHelper.getDeviceToken())).apply { listener.invoke(successful()) }
+            FireBaseApi.instance.getBindFireBaseApi(reqBodyOf("token" to ConfigHelper.getDeviceToken())).apply { listener.invoke(successful()) }
         }
     }
 
