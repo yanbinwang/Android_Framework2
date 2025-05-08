@@ -30,7 +30,8 @@ object AppManager {
     /**
      * 添加Activity到容器中
      */
-    fun addActivity(activity: Activity) {
+    fun addActivity(activity: Activity?) {
+        activity ?: return
         if (activityStack.size > 0) {
             if (!activityStack.contains(activity)) activityStack.push(activity)
         } else {
@@ -64,19 +65,17 @@ object AppManager {
      * 移除指定的Activity
      */
     fun removeActivity(activity: Activity?) {
-        if (activity != null) {
-            activityStack.remove(activity)
-        }
+        activity ?: return
+        activityStack.remove(activity)
     }
 
     /**
      * 结束指定的Activity
      */
     fun finishActivity(activity: Activity?) {
-        if (activity != null) {
-            activityStack.remove(activity)
-            activity.finish()
-        }
+        activity ?: return
+        activityStack.remove(activity)
+        activity.finish()
         checkStack()
     }
 
