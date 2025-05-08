@@ -17,35 +17,13 @@ object AppManager {
     val stackCount get() = activityStack.size//当前栈内所有的activity总数
 
     /**
-     * 循环所有栈内Activity
-     */
-    fun forEach(func: Activity.() -> Unit) {
-        try {
-            synchronized(activityStack) { activityStack.forEach(func) }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    /**
-     * 添加Activity到容器中
-     */
-    fun addActivity(activity: Activity?) {
-        activity ?: return
-        if (activityStack.size > 0) {
-            if (!activityStack.contains(activity)) activityStack.push(activity)
-        } else {
-            activityStack.push(activity)
-        }
-        checkStack()
-    }
-
-    /**
      * 获取当前activity
      */
     fun currentActivity(): Activity? {
         return try {
-            synchronized(activityStack) { activityStack.lastElement() }
+            synchronized(activityStack) {
+                activityStack.lastElement()
+            }
         } catch (e: Exception) {
             null
         }
@@ -60,6 +38,34 @@ object AppManager {
             val cn = am.getRunningTasks(1)[0].topActivity
             return cn?.shortClassName
         }
+
+    /**
+     * 循环所有栈内Activity
+     */
+    fun forEach(func: Activity.() -> Unit) {
+        try {
+            synchronized(activityStack) {
+                activityStack.forEach(func)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * 添加Activity到容器中
+     */
+    fun addActivity(activity: Activity?) {
+        activity ?: return
+        if (activityStack.size > 0) {
+            if (!activityStack.contains(activity)) {
+                activityStack.push(activity)
+            }
+        } else {
+            activityStack.push(activity)
+        }
+        checkStack()
+    }
 
     /**
      * 移除指定的Activity
@@ -98,7 +104,8 @@ object AppManager {
             }.forEach {
                 finishActivity(it)
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -112,7 +119,8 @@ object AppManager {
             }.forEach {
                 finishActivity(it)
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -126,33 +134,59 @@ object AppManager {
             }.forEach {
                 finishActivity(it)
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
     /**
-     * 结束所有Activity
+     * 结束所有Activity，可通过application再次拉起
+     * 单项操作不加锁
      */
     fun finishAll() {
         try {
             while (activityStack.isNotEmpty()) {
                 activityStack.pop()?.finish()
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
     /**
-     * 遍历所有Activity并finish
+     * 结束所有Activity，可通过application再次拉起
+     * 加锁后多线程调取
      */
-    fun finishAllForEach() {
+    fun finishAllActivity() {
+        try {
+            synchronized(activityStack) {
+                val iterator = activityStack.iterator()
+                while (iterator.hasNext()) {
+                    val activity = iterator.next()
+                    // 可以在这里添加资源释放的逻辑
+                    activity.finish()
+                    iterator.remove() // 移除已关闭的 Activity
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * 遍历所有Activity并finish，不可通过application掉起
+     */
+    fun exit() {
         try {
             if (activityStack.size > 0) {
                 synchronized(activityStack) {
-                    activityStack.forEach { it.finish() }
+                    activityStack.forEach {
+                        it.finish()
+                    }
                 }
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         val nPid = Process.myPid()
         Process.killProcess(nPid)
@@ -169,7 +203,8 @@ object AppManager {
             }.forEach {
                 activityStack.remove(it)
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

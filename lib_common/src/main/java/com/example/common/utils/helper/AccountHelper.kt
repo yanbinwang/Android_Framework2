@@ -162,7 +162,7 @@ object AccountHelper {
         userInfoBean.del()
 //        WebSocketConnect.disconnect()
 //        EVENT_USER_LOGIN_OUT.post()
-        AppManager.finishAll()
+        AppManager.finishAllActivity()
 //        ARouter.getInstance().build(ARouterPath.StartActivity).navigation()
         if (isNavigation) {
             ARouter.getInstance().build(ARouterPath.LoginActivity).navigation()
