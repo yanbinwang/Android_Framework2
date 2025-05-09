@@ -15,6 +15,7 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.bind
+import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.size
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -275,7 +276,22 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
         tab?.postDelayed({
             tab.getTabAt(index)?.select()
         }, 500)
-//        tab?.getTabAt(index)?.select()
+    }
+
+    /**
+     * isClickable：true拦截 false不拦截
+     */
+    fun setClickable(isClickable: Boolean, listener: (() -> Unit)? = {}) {
+        for (i in 0 until tab?.tabCount.orZero) {
+            tab?.getTabAt(i)?.customView.let {
+                it?.isClickable = isClickable
+                if (isClickable) {
+                    it?.click {
+                        listener?.invoke()
+                    }
+                }
+            }
+        }
     }
 
     /**
