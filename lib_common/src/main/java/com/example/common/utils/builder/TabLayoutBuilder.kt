@@ -15,6 +15,7 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.bind
+import com.example.framework.utils.function.view.clearClick
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.size
 import com.google.android.material.tabs.TabLayout
@@ -298,6 +299,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
                     it?.click {
                         listener?.invoke()
                     }
+                } else {
+                    it?.clearClick()
                 }
             }
         }
