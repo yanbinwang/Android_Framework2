@@ -31,6 +31,8 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
     private val titleBuilder by lazy { TitleBuilder(this, mBinding?.titleRoot) }
     private val list by lazy { intentSerializable<ArrayList<String>>(Extra.BUNDLE_LIST) }
 
+    override fun isImmersionBarEnabled() = false
+
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         initImmersionBar(false)

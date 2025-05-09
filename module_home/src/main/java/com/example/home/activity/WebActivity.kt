@@ -23,9 +23,11 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
     private val helper by lazy { WebHelper(this, mBinding).apply { setBundle(bundle, this@WebActivity) } }
     private val isTitleRequired get() = bundle?.getTitleRequired().orTrue
 
+    override fun isImmersionBarEnabled() = false
+
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        if (!bundle?.getLight().orTrue) initImmersionBar(false)
+        initImmersionBar(bundle?.getLight().orTrue)
         //需要标题头并且值已经传输过来了则设置标题
         titleBuilder.apply {
             if (isTitleRequired) {
