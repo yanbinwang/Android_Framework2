@@ -36,7 +36,7 @@
 <!--        &lt;!&ndash;        <item name="android:windowAnimationStyle">@null</item>&ndash;&gt;-->
 <!--    </style>-->
 
-    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="SplashTheme" parent="TransitionTheme">
         <!-- 基础全屏设置 -->
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
