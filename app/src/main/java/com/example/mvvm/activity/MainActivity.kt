@@ -264,9 +264,9 @@ println("Unique users (method 1): $unique1")
 println("Repeated users (method 2): $repeated2")
 println("Unique users (method 2): $unique2")
 
- //关于Lifecycle和LifecycleOwner
- 其中LifecycleOwner是Activity/Fragment所实现的生命周期管理，从中可以get到Lifecycle，而Lifecycle则可以获取到对应的生命周期回调
- 在一些对上下文窗体不是很敏感的工具类里，可以用Lifecycle而非LifecycleOwner
+//关于Lifecycle和LifecycleOwner
+其中LifecycleOwner是Activity/Fragment所实现的生命周期管理，从中可以get到Lifecycle，而Lifecycle则可以获取到对应的生命周期回调
+在一些对上下文窗体不是很敏感的工具类里，可以用Lifecycle而非LifecycleOwner
 
 类委托
 类委托借助 by 关键字，把接口的实现委托给另一个对象。这样一来，当一个类实现某个接口时，就可以把接口方法的具体实现委托给另一个已经实现该接口的对象，而不用自己再去实现这些方法。
@@ -376,7 +376,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //    private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
 //    private val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
-//    private val viewModel by lazy { TestViewModel().create() }
+    //    private val viewModel by lazy { TestViewModel().create() }
     private val bean by lazy { intentParcelable<UserBean>("bean") }
 
     //    private val builder by lazy { FileBuilder(this) }
