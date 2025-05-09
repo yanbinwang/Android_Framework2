@@ -25,15 +25,36 @@
     总之，在使用窗口背景时，请注意避免出现屏幕残留问题。如果出现了残留问题，可以尝试以上方法进行解决。建议在开发过程中经常测试应用程序，以确保应用程序的性能和用户体验。
     -->
     <!-- 启动页，直接背景是一张启动页图，点开app就是引导页的展示 -->
-    <style name="SplashTheme" parent="TransitionTheme">
-        <item name="colorPrimaryDark">@color/appTheme</item>
+<!--    <style name="SplashTheme" parent="TransitionTheme">-->
+<!--        <item name="colorPrimaryDark">@color/appTheme</item>-->
+<!--        <item name="android:navigationBarColor">@android:color/transparent</item>-->
+<!--        <item name="android:windowBackground">@drawable/layout_list_splash</item>-->
+<!--        <item name="android:windowAnimationStyle">@null</item>-->
+<!--        <item name="android:windowLightStatusBar">false</item>-->
+<!--        &lt;!&ndash;        <item name="android:windowIsTranslucent">true</item>&ndash;&gt;-->
+<!--        &lt;!&ndash;        <item name="android:windowBackground">@color/white_00ffffff</item>&ndash;&gt;-->
+<!--        &lt;!&ndash;        <item name="android:windowAnimationStyle">@null</item>&ndash;&gt;-->
+<!--    </style>-->
+
+    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
+        <!-- 基础全屏设置 -->
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <!-- 状态栏和导航栏颜色 -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <!-- 窗口背景 -->
         <item name="android:windowBackground">@drawable/layout_list_splash</item>
+        <!-- 移除窗口动画 -->
         <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <!--        <item name="android:windowIsTranslucent">true</item>-->
-        <!--        <item name="android:windowBackground">@color/white_00ffffff</item>-->
-        <!--        <item name="android:windowAnimationStyle">@null</item>-->
+        <!-- 沉浸式全屏（Android 4.4+） -->
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <!-- 适配刘海屏（Android 9.0+） -->
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <!-- 针对 Android 11+ 的特殊设置 -->
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
     </style>
 
     <!--注册选择页背景是蓝色，故而使用此样式-->
