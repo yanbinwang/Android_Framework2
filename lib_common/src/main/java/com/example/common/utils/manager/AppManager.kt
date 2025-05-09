@@ -3,8 +3,12 @@ package com.example.common.utils.manager
 import android.app.Activity
 import android.app.ActivityManager
 import android.content.Context
+import android.content.Intent
 import android.os.Process
+import androidx.core.content.ContextCompat.startActivity
 import com.example.common.BaseApplication
+import com.example.common.base.page.navigation
+import com.example.framework.utils.function.getIntent
 import java.util.Stack
 import kotlin.system.exitProcess
 
@@ -168,6 +172,32 @@ object AppManager {
                     val activity = iterator.next()
                     activity.finish()
                     iterator.remove()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * 关闭所有页面，除了传入的指定页面，并且会拉起它
+     */
+    fun finishAllActivity(cls: Class<*>) {
+        try {
+            synchronized(activityStack) {
+                // 关闭所有非指定类的Activity
+                activityStack.filter { it.javaClass != cls }.forEach {
+                    finishActivity(it)
+                }
+                // 检查指定类的Activity是否存在
+                if (activityStack.find { it.javaClass == cls } == null) {
+                    BaseApplication.instance.applicationContext?.let {
+                        //使用applicationContext启动 Activity 需要添加FLAG_ACTIVITY_NEW_TASK标志，否则会抛出异常
+                        val intent = Intent(it, cls).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        it.startActivity(intent)
+                    }
                 }
             }
         } catch (e: Exception) {
