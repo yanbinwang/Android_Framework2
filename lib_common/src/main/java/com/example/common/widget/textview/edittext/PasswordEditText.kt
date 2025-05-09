@@ -19,11 +19,13 @@ import com.example.common.databinding.ViewPasswordEditBinding
 import com.example.common.widget.textview.SpecialEditText
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.imeOptions
+import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.passwordDevelopment
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.visible
@@ -79,6 +81,14 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
             //配置输入法右下角按钮的样式
             val imeOptions = getInt(R.styleable.PasswordEditText_imeOptions, 0)
             mBinding.etClear.imeOptions(imeOptions)
+            //内部容器修正
+            val resolvedStart = if (paddingStart != 0) paddingStart else paddingLeft
+            val resolvedEnd = if (paddingEnd != 0) paddingEnd else paddingRight
+            if (resolvedStart == 0  && paddingTop == 0 && resolvedEnd == 0 &&  paddingBottom == 0) return@withStyledAttributes
+            //撑满父容器
+            setPadding(0, 0, 0, 0)
+            //子容器添加padding
+            mBinding.root.padding(resolvedStart.toSafeInt(), paddingTop.toSafeInt(), resolvedEnd.toSafeInt(), paddingBottom.toSafeInt())
         }
     }
 
