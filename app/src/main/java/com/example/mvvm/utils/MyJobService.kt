@@ -169,6 +169,13 @@ class MyJobService : JobService() {
 //                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 //                    jobFinished(params, false) // 第二个参数：是否需要重试
 //                }
+//            // 手动重新调度任务--->此处可再度开启一个一次性任务
+//            val jobInfo = JobInfo.Builder(JOB_ID, ComponentName(this@MyJobService, MyJobService::class.java))
+//                .setMinimumLatency(5000) // 延迟 5 秒执行
+//                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+//                .build()
+//            val jobScheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
+//            jobScheduler.schedule(jobInfo)
 //            } catch (e: Exception) {
 //                Log.e("MyJobService", "Job failed: ${e.message}")
 //                // 任务失败，需要重试

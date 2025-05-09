@@ -25,6 +25,15 @@ class SchedulerManager(private val context: Context) {
          *
          * build()：创建一次性任务，聚焦 单次执行的精确控制。
          * buildPeriodicJob()：创建周期性任务，聚焦 循环执行的系统优化。
+         *
+         * 1. 一次性任务
+         * 如果你的任务是一次性任务，即没有设置周期性调度，在调用 jobFinished(params, false) 后，这个 JobService 不会再自动触发。  jobFinished(params, false)
+         *
+         * 2. 周期性任务
+         * 如果你的任务是周期性任务，即使用了 setPeriodic() 方法进行调度，在调用 jobFinished(params, false) 后，
+         * 当前这次任务完成，但系统会根据设置的周期在后续合适的时间再次触发 JobService。
+         *
+         * jobFinished(params, false) 只是标记当前这次任务完成，后续 JobService 是否触发取决于任务的调度配置以及是否手动重新调度
          */
         @JvmStatic
         fun build(
