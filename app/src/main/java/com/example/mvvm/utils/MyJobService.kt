@@ -13,6 +13,11 @@ import kotlinx.coroutines.launch
  *     android:name=".MyJobService"
  *     android:permission="android.permission.BIND_JOB_SERVICE"
  *     android:exported="false" />
+ *
+ * android:exported 的作用
+ * true	组件可被其他应用调用（无论是否设置了 intent-filter）。
+ * false	组件只能被同一应用或具有相同用户 ID（UID）的应用调用。
+ *
  * 开始调度
  * private fun scheduleJob() {
  * val componentName = ComponentName(this, MyJobService::class.java)
