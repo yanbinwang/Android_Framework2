@@ -18,6 +18,7 @@ import com.example.framework.utils.function.view.bind
 import com.example.framework.utils.function.view.size
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * @author yan
@@ -113,9 +114,21 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     private var mediator: TabLayoutMediator? = null
     private var listener: OnTabChangeListener? = null
     private val tabViews by lazy { SparseArray<VDB>() }
+    private val eventMap by lazy { ConcurrentHashMap<Int, (() -> Unit)>() }
     private val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext//整体上下文
     private val mCurrentItem get() = tab?.selectedTabPosition.orZero//当前选中下标
     private val mTabCount get() = tab?.tabCount.orZero//当前需要管理的总长度
+
+    /**
+     * 在build之前调取，设置不需要点击切换的页面下标
+     */
+    fun addEvent(index: Int, onProgress: (() -> Unit)) {
+        eventMap[index] = onProgress
+    }
+
+    fun removeEvent(index: Int) {
+        eventMap.remove(index)
+    }
 
     /**
      * 无特殊绑定的自定义头
