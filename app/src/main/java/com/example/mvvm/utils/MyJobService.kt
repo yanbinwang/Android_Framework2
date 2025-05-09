@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
  * android:exported 的作用
  * true	组件可被其他应用调用（无论是否设置了 intent-filter）。
  * false	组件只能被同一应用或具有相同用户 ID（UID）的应用调用。
+ * 若组件声明了 intent-filter，则必须显式设置 android:exported，否则应用将无法安装
  *
  * 开始调度
  * private fun scheduleJob() {
