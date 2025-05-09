@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import com.example.common.BaseApplication
-import com.example.common.config.CacheData
 import com.example.common.config.CacheData.privacyAgreed
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeLong
@@ -51,7 +50,7 @@ object ConfigHelper {
     fun getAppVersionCode(): Long {
         var appVersionCode: Long = 0
         try {
-            val packageInfo = mContext.applicationContext.packageManager.getPackageInfo(mContext.packageName, 0)
+            val packageInfo = mContext.packageManager.getPackageInfo(mContext.packageName, 0)
             appVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 packageInfo.longVersionCode
             } else {
@@ -69,7 +68,7 @@ object ConfigHelper {
     fun getAppVersionName(): String {
         var appVersionName = ""
         try {
-            val packageInfo = mContext.applicationContext.packageManager.getPackageInfo(mContext.packageName, 0)
+            val packageInfo = mContext.packageManager.getPackageInfo(mContext.packageName, 0)
             appVersionName = packageInfo.versionName.orEmpty()
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()

@@ -53,7 +53,10 @@ object AppManager {
     }
 
     /**
-     * 添加Activity到容器中
+     * 添加Activity到任务栈中
+     * 需要注意，只是将页面添加进了自定义的任务栈，控制activity显示/关闭的是系统任务栈
+     * 自定义栈 activityStack：顺序为 [A, B, C, D, E]，这是通过在 Activity D 里调用 addActivity(E) 得到的结果
+     * 系统任务栈：顺序为 [A, B, C, D]，我们只是把 E 添加到了自定义栈，并没有调用 startActivity 方法将其添加到系统任务栈，所以 E 不在系统任务栈中
      */
     fun addActivity(activity: Activity?) {
         activity ?: return

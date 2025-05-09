@@ -80,7 +80,7 @@ class ARouterManager(private val view: BaseView? = null) {
 //                //强制拉起首页
 //                ARouter.getInstance().build(ARouterPath.MainActivity)
 //                    //FLAG_ACTIVITY_REORDER_TO_FRONT：若首页已存在，提到栈顶而非新建实例/FLAG_ACTIVITY_NEW_TASK：确保在非 Activity 上下文（如 Service）中安全启动
-//                    .withFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NEW_TASK)
+//                    .withFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
 //                    .navigation()
 //            }
 //            //任务栈内是否存在首页,以检测按下后为准，有可能用户长期不点通知，故而每次都要有个栈内总数的判断
@@ -275,7 +275,7 @@ class ARouterManager(private val view: BaseView? = null) {
 //     */
 //    private fun linkHandler(url: String, id: String? = null, vararg params: Pair<String, Any?>?) {
 //        ARouter.getInstance().build(ARouterPath.LinkHandlerActivity)
-//            .withFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NEW_TASK)
+//            .withFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
 //            .withParcelable(Extra.BUNDLE_BEAN, LinkBundle(url, id, params.filterNotNull().toBundle { this }))
 //            .navigation()
 //    }
