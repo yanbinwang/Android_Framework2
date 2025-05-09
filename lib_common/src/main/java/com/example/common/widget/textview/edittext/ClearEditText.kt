@@ -32,6 +32,8 @@ import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 import java.util.Arrays
 import androidx.core.content.withStyledAttributes
+import com.example.framework.utils.function.value.toSafeInt
+import com.example.framework.utils.function.view.padding
 
 /**
  * @description 带删除按钮的输入框
@@ -104,6 +106,14 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             //配置输入法右下角按钮的样式
             val imeOptions = getInt(R.styleable.ClearEditText_imeOptions, 0)
             mBinding.etClear.imeOptions(imeOptions)
+            //内部容器修正
+            val resolvedStart = if (paddingStart != 0) paddingStart else paddingLeft
+            val resolvedEnd = if (paddingEnd != 0) paddingEnd else paddingRight
+            if (resolvedStart == 0  && paddingTop == 0 && resolvedEnd == 0 &&  paddingBottom == 0) return@withStyledAttributes
+            //撑满父容器
+            setPadding(0, 0, 0, 0)
+            //子容器添加padding
+            mBinding.root.padding(resolvedStart.toSafeInt(), paddingTop.toSafeInt(), resolvedEnd.toSafeInt(), paddingBottom.toSafeInt())
         }
     }
 
