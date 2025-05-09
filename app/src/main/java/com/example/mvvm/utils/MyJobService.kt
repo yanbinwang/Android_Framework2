@@ -19,24 +19,28 @@ import kotlinx.coroutines.launch
  * false	组件只能被同一应用或具有相同用户 ID（UID）的应用调用。
  * 若组件声明了 intent-filter，则必须显式设置 android:exported，否则应用将无法安装
  *
- * 开始调度
+ * //开始调度
  * private fun scheduleJob() {
+ * val jobScheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
+ * //检查 Job 是否已调度
+ * val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+ * //检查是否已调度
+ * val isScheduled = jobScheduler.allPendingJobs.any { it.id == JOB_ID }
+ * if (isScheduled) return
  * val componentName = ComponentName(this, MyJobService::class.java)
  * val builder = JobInfo.Builder(JOB_ID, componentName)
  *
- * 设置任务触发条件（根据需求选择）
+ * //设置任务触发条件（根据需求选择）
  * builder.apply {
  *     setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) // 需要网络
  *     setRequiresCharging(false) // 不需要充电
  *     setRequiresDeviceIdle(false) // 不需要设备空闲
  *     setMinimumLatency(5000) // 延迟5秒执行
  *     setOverrideDeadline(60000) // 最长60秒后必须执行
- *
  *     // 若需周期性任务（API 24+）
  *     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
  *         setPeriodic(15 * 60 * 1000) // 最低15分钟（系统限制）
  *     }
- *
  *     // 添加额外数据（可选）
  *     val extras = Bundle().apply {
  *         putString("key", "value")
@@ -44,17 +48,16 @@ import kotlinx.coroutines.launch
  *     setExtras(extras)
  * }
  *
- * 获取 JobScheduler 并调度任务
- * val jobScheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
+ * //获取 JobScheduler 并调度任务
  * val resultCode = jobScheduler.schedule(builder.build())
- *
  * if (resultCode == JobScheduler.RESULT_SUCCESS) {
  *     Log.d("MainActivity", "Job scheduled successfully")
  * } else {
  *     Log.d("MainActivity", "Job scheduling failed")
  * }
+ * }
  *
- * 取消任务（例如在 Activity 销毁时）
+ * //取消任务（例如在 Activity 销毁时）
  * override fun onDestroy() {
  *   super.onDestroy()
  *   val jobScheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
