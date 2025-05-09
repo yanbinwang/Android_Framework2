@@ -163,9 +163,8 @@ object AppManager {
                 val iterator = activityStack.iterator()
                 while (iterator.hasNext()) {
                     val activity = iterator.next()
-                    // 可以在这里添加资源释放的逻辑
                     activity.finish()
-                    iterator.remove() // 移除已关闭的 Activity
+                    iterator.remove()
                 }
             }
         } catch (e: Exception) {
@@ -176,7 +175,7 @@ object AppManager {
     /**
      * 遍历所有Activity并finish，不可通过application掉起
      */
-    fun exit() {
+    fun exitProcess() {
         try {
             if (activityStack.size > 0) {
                 synchronized(activityStack) {
