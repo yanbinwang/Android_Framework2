@@ -115,7 +115,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     private var mediator: TabLayoutMediator? = null
     private var listener: OnTabChangeListener? = null
     private val tabViews by lazy { SparseArray<VDB>() }
-    private val eventMap by lazy { ConcurrentHashMap<Int, (() -> Unit)>() }
+    private val disableMap by lazy { ConcurrentHashMap<Int, (() -> Unit)>() }
     private val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext//整体上下文
     private val mCurrentItem get() = tab?.selectedTabPosition.orZero//当前选中下标
     private val mTabCount get() = tab?.tabCount.orZero//当前需要管理的总长度
@@ -123,12 +123,12 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     /**
      * 在build之前调取，设置不需要点击切换的页面下标
      */
-    fun addEvent(index: Int, onProgress: (() -> Unit)) {
-        eventMap[index] = onProgress
+    fun addDisable(index: Int, onProgress: (() -> Unit)) {
+        disableMap[index] = onProgress
     }
 
-    fun removeEvent(index: Int) {
-        eventMap.remove(index)
+    fun removeDisable(index: Int) {
+        disableMap.remove(index)
     }
 
     /**
@@ -180,7 +180,16 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             tab?.getTabAt(i)?.apply {
                 val mBinding = getBindView()
                 if (tabViews[i] == null) tabViews.put(i, mBinding)
-                customView = mBinding.root
+                customView = mBinding.root.apply {
+                    //时序问题，绘制前就得写好拦截，不然监听会比拦截更快响应
+                    val event = disableMap[i]
+                    if (null != event) {
+                        isClickable = true
+                        click {
+                            event.invoke()
+                        }
+                    }
+                }
                 customView.size(WRAP_CONTENT, MATCH_PARENT)
                 view.isLongClickable = false
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) view.tooltipText = null
