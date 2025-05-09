@@ -77,6 +77,83 @@ import kotlinx.coroutines.launch
  * 设备重启后任务丢失
  * 添加 setPersisted(true) 并声明 RECEIVE_BOOT_COMPLETED 权限
  * <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+ *
+ * setMinimumLatency()	设置任务最早执行时间（避免频繁调度，给系统缓冲时间）。
+ * setOverrideDeadline()	设置任务最晚执行时间（超时后强制执行，即使条件不满足）。
+ *
+ * 1. 立即执行任务
+ * 若需任务尽快执行（但非严格立即）：
+ * .setMinimumLatency(1000)  // 延迟1秒，给系统喘息时间
+ * .setOverrideDeadline(3000) // 最多延迟3秒
+ * Android 系统会对 0 做特殊处理（如加入额外延迟），设置小值（如 1-3 秒）反而更接近 “立即执行”。
+ *
+ * 2. 延迟执行任务
+ * 若任务不紧急（如批量数据同步）：
+ * .setMinimumLatency(5 * 60 * 1000)  // 至少延迟5分钟
+ * .setOverrideDeadline(30 * 60 * 1000) // 最多延迟30分钟
+ * 系统会在 5-30 分钟内选择最优时机执行（如网络空闲、CPU 负载低）
+ *
+ * 3. 周期性任务
+ * 若使用 setPeriodic()，建议搭配 setFlexPeriodMillis()（API 24+）：
+ * .setPeriodic(15 * 60 * 1000)       // 周期15分钟（系统最小间隔）
+ * .setFlexPeriodMillis(5 * 60 * 1000) // 在周期内的后5分钟内灵活执行
+ * 避免所有应用同时触发任务，减少系统压力
+ *
+ * 4. 重量级任务（如备份）
+ * 若任务消耗资源大，需在用户不活跃时执行：
+ * .setMinimumLatency(0)
+ * .setOverrideDeadline(24 * 60 * 60 * 1000) // 1天内执行
+ * .setRequiresDeviceIdle(true)              // 仅设备空闲时执行
+ * .setRequiresCharging(true)                // 仅充电时执行
+ * 系统会在夜间充电且用户休眠时执行，避免影响体验
+ *
+ * enum class JobPriority {
+ *     IMMEDIATE,      // 立即执行（如消息推送）
+ *     HIGH,           // 高优先级（如支付回调）
+ *     NORMAL,         // 普通优先级（如数据同步）
+ *     LOW;            // 低优先级（如日志上传）
+ *
+ *     fun getMinimumLatency(): Long = when(this) {
+ *         IMMEDIATE -> 1000
+ *         HIGH -> 5000
+ *         NORMAL -> 60000
+ *         LOW -> 5 * 60 * 1000
+ *     }
+ *
+ *     fun getOverrideDeadline(): Long = when(this) {
+ *         IMMEDIATE -> 3000
+ *         HIGH -> 30000
+ *         NORMAL -> 30 * 60 * 1000
+ *         LOW -> 24 * 60 * 60 * 1000
+ *     }
+ * }
+ * object JobConfigBuilder {
+ *     fun build(
+ *         context: Context,
+ *         jobId: Int,
+ *         priority: JobPriority,
+ *         networkType: Int = JobInfo.NETWORK_TYPE_ANY,
+ *         requiresCharging: Boolean = false,
+ *         requiresIdle: Boolean = false
+ *     ): JobInfo {
+ *         return JobInfo.Builder(jobId, ComponentName(context, MyJobService::class.java))
+ *             .setMinimumLatency(priority.getMinimumLatency())
+ *             .setOverrideDeadline(priority.getOverrideDeadline())
+ *             .setRequiredNetworkType(networkType)
+ *             .setRequiresCharging(requiresCharging)
+ *             .setRequiresDeviceIdle(requiresIdle)
+ *             .build()
+ *     }
+ * }
+ * // 高优先级任务（如支付结果同步）
+ * val jobInfo = JobConfigBuilder.build(
+ *     context = this,
+ *     jobId = JOB_ID_PAYMENT,
+ *     priority = JobPriority.HIGH,
+ *     networkType = JobInfo.NETWORK_TYPE_UNMETERED, // 仅 Wi-Fi
+ *     requiresCharging = true
+ * )
+ * jobScheduler.schedule(jobInfo)
  */
 class MyJobService : JobService() {
     private val job = SupervisorJob()
