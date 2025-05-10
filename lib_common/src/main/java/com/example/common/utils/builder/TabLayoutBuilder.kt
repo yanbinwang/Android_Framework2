@@ -199,7 +199,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * 这个方法需要放在setupWithViewPager()后面
      */
     private fun initEvent(default: Int = 0) {
-        for (i in 0 until tab?.tabCount.orZero) {
+        for (i in 0 until mTabCount) {
             tab?.getTabAt(i)?.apply {
                 val bindView = getBindView()
                 if (tabViews[i] == null) tabViews.put(i, bindView)
@@ -277,8 +277,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      */
     fun addClickAllowed(vararg params: Pair<Int, (() -> Unit)>) {
         clickActions = ConcurrentHashMap(params.toMap())
-        val tabCount = tab?.tabCount.orZero
-        for (i in 0 until tabCount) {
+        for (i in 0 until mTabCount) {
             val mTab = tab?.getTabAt(i)
             mTab?.customView.let {
                 it?.isClickable = true
@@ -289,7 +288,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
                             data.invoke()
                         } else {
                             mTab?.select()
-                            for (j in 0 until tabCount) {
+                            for (j in 0 until mTabCount) {
                                 onBindView(tabViews[j], tabList.safeGet(j), j == i, j)
                             }
                             if (0 == bindMode) builder?.selectTab(i)
@@ -314,7 +313,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             mTab?.customView.click {
                 weakHandler.post {
                     mTab?.select()
-                    for (j in 0 until tab?.tabCount.orZero) {
+                    for (j in 0 until mTabCount) {
                         onBindView(tabViews[j], tabList.safeGet(j), j == index, j)
                     }
                     if (0 == bindMode) builder?.selectTab(index)
@@ -328,7 +327,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * true拦截 false不拦截
      */
     fun setClickable(isClickable: Boolean, listener: (() -> Unit)? = {}) {
-        for (i in 0 until tab?.tabCount.orZero) {
+        for (i in 0 until mTabCount) {
             tab?.getTabAt(i)?.customView.let {
                 it?.isClickable = isClickable
                 if (isClickable) {
