@@ -2,6 +2,7 @@ package com.example.common.utils.builder
 
 import android.content.Context
 import android.os.Build
+import android.os.Looper
 import android.util.SparseArray
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -10,6 +11,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.common.BaseApplication
+import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.builder.FragmentBuilder
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
@@ -116,6 +118,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     private var mediator: TabLayoutMediator? = null
     private var listener: OnTabChangeListener? = null
     private var clickActions = ConcurrentHashMap<Int, (() -> Unit)>()
+    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
     private val tabViews by lazy { SparseArray<VDB>() }
     private val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext//整体上下文
     private val mCurrentItem get() = tab?.selectedTabPosition.orZero//当前选中下标
@@ -280,15 +283,17 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             mTab?.customView.let {
                 it?.isClickable = true
                 it?.click {
-                    val data = clickActions[i]
-                    if (data != null) {
-                        data.invoke()
-                    } else {
-                        mTab?.select()
-                        for (j in 0 until tabCount) {
-                            onBindView(tabViews[j], tabList.safeGet(j), j == i, j)
+                    weakHandler.post {
+                        val data = clickActions[i]
+                        if (data != null) {
+                            data.invoke()
+                        } else {
+                            mTab?.select()
+                            for (j in 0 until tabCount) {
+                                onBindView(tabViews[j], tabList.safeGet(j), j == i, j)
+                            }
+                            if (0 == bindMode) builder?.selectTab(i)
                         }
-                        if (0 == bindMode) builder?.selectTab(i)
                     }
                 }
             }
@@ -307,11 +312,13 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
         if (clickAction != null) {
             val mTab = tab?.getTabAt(index)
             mTab?.customView.click {
-                mTab?.select()
-                for (j in 0 until tab?.tabCount.orZero) {
-                    onBindView(tabViews[j], tabList.safeGet(j), j == index, j)
+                weakHandler.post {
+                    mTab?.select()
+                    for (j in 0 until tab?.tabCount.orZero) {
+                        onBindView(tabViews[j], tabList.safeGet(j), j == index, j)
+                    }
+                    if (0 == bindMode) builder?.selectTab(index)
                 }
-                if (0 == bindMode) builder?.selectTab(index)
             }
         }
     }
