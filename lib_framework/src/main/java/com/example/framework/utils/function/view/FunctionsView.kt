@@ -160,6 +160,14 @@ fun View?.disable() {
 }
 
 /**
+ * 是否存在
+ */
+fun View?.exist(): Boolean {
+    if (this == null) return false
+    return parent != null
+}
+
+/**
  * 删除自身
  */
 fun View?.removeSelf() {
