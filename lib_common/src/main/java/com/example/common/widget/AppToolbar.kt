@@ -374,7 +374,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         this.mActivity = mActivity
         mActivity.setSupportActionBar(this)
         mActivity.doOnDestroy {
-            idsMap.clear()
+            clearResources()
         }
     }
 
@@ -392,6 +392,13 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     /**
+     * 清理资源
+     */
+    private fun clearResources() {
+        idsMap.clear()
+    }
+
+    /**
      * 解除绑定并清理资源
      */
     private fun unbind() {
@@ -399,13 +406,6 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         mActivity = null
         mFragment = null
         clearResources()
-    }
-
-    /**
-     * 清理资源
-     */
-    private fun clearResources() {
-        idsMap.clear()
     }
 
     /**
