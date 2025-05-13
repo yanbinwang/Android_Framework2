@@ -22,7 +22,7 @@ abstract class BaseTitleFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        titleBuilder?.bind(mActivity)
+        titleBuilder?.bind(mActivity)
 //        // 监听返回按钮
 //        toolbar.setNavigationOnClickListener {
 //            findNavController().popBackStack()
