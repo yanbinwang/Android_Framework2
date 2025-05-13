@@ -69,11 +69,22 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         // 清除Toolbar的默认内边距
         setContentInsetsAbsolute(0, 0)
         setContentInsetsRelative(0, 0)
+        // 清除Toolbar的阴影
+        elevation = 0f
+        // 去掉背景颜色
+        background = null
+//        // 隐藏标题和副标题
+//        title = ""
+//        subtitle = ""
+//        // 去掉导航图标
+//        navigationIcon = null
+//        // 去掉菜单按钮
+//        inflateMenu(0)
         // 清空Toolbar所有子View
         removeAllViews()
         // 动态创建容器
         addView(rootView)
-        rootView.size(MATCH_PARENT, MATCH_PARENT)
+        rootView.size(MATCH_PARENT, WRAP_CONTENT)
         rootView.padding(top = getStatusBarHeight())
     }
 
