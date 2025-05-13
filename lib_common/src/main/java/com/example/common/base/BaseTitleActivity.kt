@@ -1,5 +1,6 @@
 package com.example.common.base
 
+import android.os.Bundle
 import android.view.View
 import androidx.databinding.ViewDataBinding
 import com.example.common.databinding.ActivityBaseBinding
@@ -12,10 +13,16 @@ import com.example.common.utils.builder.TitleBuilder
  */
 abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
     private val baseBinding by lazy { ActivityBaseBinding.inflate(layoutInflater) }
-    protected val titleBuilder by lazy { TitleBuilder(this, baseBinding.titleRoot) } //标题栏
+//    protected val titleBuilder by lazy { TitleBuilder(this, baseBinding.titleRoot) } //标题栏
+    protected val titleBuilder get() = baseBinding.toolbarTitle
     protected val viewGroup get() = baseBinding.flBaseRoot//标题页面的父容器，用于添加empty，如果不需要标题头的baseactivity，则在外层绘制一个FrameLayout
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        titleBuilder.bind(this)
+    }
+
     protected fun setBackgroundResource(resid: Int) {
         baseBinding.llRoot.setBackgroundResource(resid)
     }
