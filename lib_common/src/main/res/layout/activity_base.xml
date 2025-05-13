@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?><!-- App基类整体 -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout
-        android:id="@+id/ll_root"
+    <!--    <LinearLayout-->
+    <!--        android:id="@+id/ll_root"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:orientation="vertical">-->
+
+    <!--        <include-->
+    <!--            android:id="@+id/title_root"-->
+    <!--            layout="@layout/view_title_bar" />-->
+
+    <!--        <FrameLayout-->
+    <!--            android:id="@+id/fl_base_root"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="0pt"-->
+    <!--            android:layout_weight="1" />-->
+
+    <!--    </LinearLayout>-->
+
+    <FrameLayout
+        android:id="@+id/fl_root"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <!--        <include-->
-        <!--            android:id="@+id/title_root"-->
-        <!--            layout="@layout/view_title_bar" />-->
-
-        <com.example.common.widget.AppToolbar
-            android:id="@+id/toolbar_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <FrameLayout
-            android:id="@+id/fl_base_root"
-            android:layout_width="match_parent"
-            android:layout_height="0pt"
-            android:layout_weight="1" />
-
-    </LinearLayout>
+        android:layout_height="match_parent" />
 
 </layout>
 

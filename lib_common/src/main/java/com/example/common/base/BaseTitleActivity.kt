@@ -2,9 +2,11 @@ package com.example.common.base
 
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout
 import androidx.databinding.ViewDataBinding
-import com.example.common.databinding.ActivityBaseBinding
-import com.example.common.utils.builder.TitleBuilder
+import com.example.common.widget.AppToolbar
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -12,10 +14,42 @@ import com.example.common.utils.builder.TitleBuilder
  * 由于项目中带固定标题的页面占80%以上，故而实现一个带头的activity，直接可使用titleBuilder操作
  */
 abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
-    private val baseBinding by lazy { ActivityBaseBinding.inflate(layoutInflater) }
-//    protected val titleBuilder by lazy { TitleBuilder(this, baseBinding.titleRoot) } //标题栏
-    protected val titleBuilder get() = baseBinding.toolbarTitle
-    protected val viewGroup get() = baseBinding.flBaseRoot//标题页面的父容器，用于添加empty，如果不需要标题头的baseactivity，则在外层绘制一个FrameLayout
+    //    private val baseBinding by lazy { ActivityBaseBinding.inflate(layoutInflater) }
+////    protected val titleBuilder by lazy { TitleBuilder(this, baseBinding.titleRoot) } //标题栏
+//    protected val titleBuilder get() = baseBinding.toolbarTitle
+//    protected val viewGroup get() = baseBinding.flBaseRoot//标题页面的父容器，用于添加empty，如果不需要标题头的baseactivity，则在外层绘制一个FrameLayout
+//
+//    // <editor-fold defaultstate="collapsed" desc="基类方法">
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        titleBuilder.bind(this)
+//    }
+//
+//    protected fun setBackgroundResource(resid: Int) {
+//        baseBinding.llRoot.setBackgroundResource(resid)
+//    }
+//
+//    protected fun setBackgroundColor(color: Int) {
+//        baseBinding.llRoot.setBackgroundColor(color)
+//    }
+//
+//    override fun setContentView(view: View?) {
+//        baseBinding.flBaseRoot.addView(mBinding?.root)
+//        super.setContentView(baseBinding.root)
+//    }
+//
+//    override fun onDestroy() {
+//        super.onDestroy()
+//        baseBinding.unbind()
+//    }
+    private val toolbarTitle by lazy { AppToolbar(this) } //标题栏
+    private val rootView by lazy {
+        FrameLayout(this).apply {
+            layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        }
+    }
+    protected val titleBuilder get() = toolbarTitle
+    protected val viewGroup get() = rootView//标题页面的父容器，用于添加empty，如果不需要标题头的baseactivity，则在外层绘制一个FrameLayout
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,21 +58,19 @@ abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
     }
 
     protected fun setBackgroundResource(resid: Int) {
-        baseBinding.llRoot.setBackgroundResource(resid)
+        rootView.setBackgroundResource(resid)
     }
 
     protected fun setBackgroundColor(color: Int) {
-        baseBinding.llRoot.setBackgroundColor(color)
+        rootView.setBackgroundColor(color)
     }
 
     override fun setContentView(view: View?) {
-        baseBinding.flBaseRoot.addView(mBinding?.root)
-        super.setContentView(baseBinding.root)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        baseBinding.unbind()
+        val rootView = FrameLayout(this).apply {
+            layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        }
+        rootView.addView(mBinding?.root)
+        super.setContentView(rootView)
     }
     // </editor-fold>
 

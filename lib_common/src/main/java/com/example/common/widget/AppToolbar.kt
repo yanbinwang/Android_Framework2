@@ -13,10 +13,10 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.utils.function.color
 import com.example.common.utils.function.getStatusBarHeight
@@ -91,8 +91,9 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     /**
      * 建立页面视图绑定关系
      */
-    fun bind(mActivity: FragmentActivity) {
+    fun bind(mActivity: AppCompatActivity) {
         this.mActivity = mActivity
+        mActivity.setSupportActionBar(this)
         mActivity.doOnDestroy {
             idsMap.clear()
         }
