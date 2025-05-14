@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.alibaba.android.arouter.launcher.ARouter
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
@@ -37,8 +38,11 @@ import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.isMainThread
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import java.lang.ref.WeakReference
@@ -46,9 +50,12 @@ import java.lang.reflect.ParameterizedType
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * Created by WangYanBin on 2020/6/4.
+ * 在 Fragment 中使用协程时，必须使用 viewLifecycleOwner.lifecycleScope 而非 lifecycleScope，以确保协程在视图销毁时自动取消，避免内存泄漏
+ *
  * onAttach()‌：当Fragment与Activity关联时调用。
  * onCreate()‌：在Fragment创建时调用。
  * onCreateView()‌：创建Fragment的用户界面。
@@ -60,6 +67,21 @@ import kotlin.coroutines.CoroutineContext
  * onDestroyView()‌：当Fragment的视图被移除时调用。
  * onDestroy()‌：当Fragment被销毁时调用。
  * onDetach()‌：当Fragment与Activity解除关联时调用‌
+ *
+ * 当在 Fragment 中使用 fragment.viewLifecycleOwnerLiveData.observe() 监听视图生命周期，
+ * 且对应的 Activity 调用 finish() 时，Fragment 的生命周期执行流程及 viewLifecycleOwner 的行为如下：
+ * 1. Activity 销毁流程
+ * Activity.finish() 会触发 Activity 的销毁流程，顺序为：
+ * Activity.onPause() → Activity.onStop() → Activity.onDestroy()
+ * 2. Fragment 生命周期响应
+ * Fragment 作为 Activity 的子组件，其生命周期会随 Activity 销毁而逐步执行，关键步骤：
+ * Fragment.onPause() → Fragment.onStop() → Fragment.onDestroyView() → Fragment.onDestroy() → Fragment.onDetach()
+ * viewLifecycleOwnerLiveData 的作用范围
+ * viewLifecycleOwner 的生命周期：绑定 Fragment 的 视图生命周期（从 onCreateView() 到 onDestroyView()）。
+ * 监听行为：当 Activity.finish() 导致 Fragment 视图销毁时（即触发 Fragment.onDestroyView()），
+ * viewLifecycleOwner 的生命周期状态会变为 DESTROYED，所有基于它的观察者（包括 viewLifecycleOwnerLiveData 的回调）会自动停止观察，无需手动取消。
+ *
+ *
  */
 @Suppress("UNCHECKED_CAST")
 @SuppressLint("UseRequireInsteadOfGet")
@@ -238,3 +260,15 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
     // </editor-fold>
 
 }
+
+fun Fragment.launch(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+) = viewLifecycleOwner.lifecycleScope.launch(context, start, block)
+
+fun <T> Fragment.async(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> T
+) = viewLifecycleOwner.lifecycleScope.async(context, start, block)
