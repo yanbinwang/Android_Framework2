@@ -19,6 +19,7 @@ import com.example.framework.utils.function.view.applyConstraints
 import com.example.framework.utils.function.view.clearClick
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
+import com.example.framework.utils.function.view.exist
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.invisible
 import com.example.framework.utils.function.view.margin
@@ -145,6 +146,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载中
      */
     fun loading() {
+        if (!exist()) return
         appear(300)
         state = EmptyLayoutState.Loading
         fullState()
@@ -157,6 +159,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据为空--只会在200并且无数据的时候展示
      */
     fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+        if (!exist()) return
         appear(300)
         state = EmptyLayoutState.Empty
         fullState()
@@ -176,6 +179,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 无网络优先级最高
      */
     fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+        if (!exist()) return
         appear(300)
         state = EmptyLayoutState.Error
         fullState()

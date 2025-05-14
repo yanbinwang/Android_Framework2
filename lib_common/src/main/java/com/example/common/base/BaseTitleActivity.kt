@@ -14,6 +14,14 @@ abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
     private val baseBinding by lazy { ActivityBaseBinding.inflate(layoutInflater) }
     protected val titleBuilder by lazy { TitleBuilder(this, baseBinding.titleRoot) } //标题栏
     protected val viewGroup get() = baseBinding.flBaseRoot//标题页面的父容器，用于添加empty，如果不需要标题头的baseactivity，则在外层绘制一个FrameLayout
+//    private val rootView by lazy { FrameLayout(this).apply {
+//        size(MATCH_PARENT, MATCH_PARENT)
+//    }}
+//    private val titleBar by lazy { AppToolbar(this).apply {
+//        size(MATCH_PARENT, WRAP_CONTENT)
+//    }}
+//    protected val titleBuilder get() = titleBar //标题栏
+//    protected val viewGroup get() = rootView//标题页面的父容器，用于添加empty，如果不需要标题头的baseactivity，则在外层绘制一个FrameLayout
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     protected fun setBackgroundResource(resid: Int) {
@@ -33,6 +41,23 @@ abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
         super.onDestroy()
         baseBinding.unbind()
     }
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        titleBar.bind(this)
+//    }
+//
+//    override fun setContentView(view: View?) {
+//        rootView.addView(mBinding?.root)
+//        super.setContentView(rootView)
+//    }
+//
+//    protected fun setBackgroundResource(resid: Int) {
+//        rootView.setBackgroundResource(resid)
+//    }
+//
+//    protected fun setBackgroundColor(color: Int) {
+//        rootView.setBackgroundColor(color)
+//    }
     // </editor-fold>
 
 }
