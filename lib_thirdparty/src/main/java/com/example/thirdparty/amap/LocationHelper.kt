@@ -46,7 +46,7 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
     private val retryTime = 8000L
     private var locationClient: AMapLocationClient? = null
     private var listener: OnLocationListener? = null
-    private var result = registrar.registerResult { listener?.onGpsSetting(it.resultCode == Activity.RESULT_OK) }
+    private val result = registrar.registerResult { listener?.onGpsSetting(it.resultCode == Activity.RESULT_OK) }
     private val manager by lazy { mActivity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager }
     private val mDialog by lazy { AppDialog(mActivity) }
 
