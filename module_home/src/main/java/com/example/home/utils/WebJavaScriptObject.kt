@@ -5,61 +5,57 @@ import androidx.fragment.app.FragmentActivity
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.toBrowser
 import com.example.framework.utils.function.doOnDestroy
-import com.example.framework.utils.function.value.execute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
-import kotlin.coroutines.CoroutineContext
 
 /**
  * activity继承WebImpl，实现对应的方法
  * 然后helper中添加订阅
  */
-class WebJavaScriptObject(private val webImpl: WeakReference<WebImpl>) : CoroutineScope {
-    private var operationJob: Job? = null
-    private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext
-        get() = Main + job
+class WebJavaScriptObject(private val webImpl: WeakReference<WebImpl>) {
+    private var webJob: Job? = null
+    private val mScope by lazy { webImpl.get()?.getCoroutineScope() }
+    private val mActivity by lazy { webImpl.get()?.getActivity() }
 
     init {
-        webImpl.get()?.getActivity().doOnDestroy {
-            operationJob?.cancel()
-            job.cancel()
+        mActivity.doOnDestroy {
+            webJob?.cancel()
         }
     }
 
     @JavascriptInterface
-    fun goBack(value: String?) = webImpl.get()?.execute {
-        operationJob?.cancel()
-        operationJob = launch {
-            getGoBackJS(value)
+    fun goBack(value: String?) {
+        webJob?.cancel()
+        webJob = mScope?.launch {
+            withContext(Main.immediate) { webImpl.get()?.getGoBackJS(value) }
         }
     }
 
     @JavascriptInterface
     fun toast(value: String?) {
-        operationJob?.cancel()
-        operationJob = launch {
-            value.shortToast()
+        webJob?.cancel()
+        webJob = mScope?.launch {
+            withContext(Main.immediate) { value.shortToast() }
         }
     }
 
     @JavascriptInterface
-    fun download(value: String?) = webImpl.get()?.execute {
-        operationJob?.cancel()
-        operationJob = launch {
-            getActivity().toBrowser(value.orEmpty())
+    fun download(value: String?) {
+        webJob?.cancel()
+        webJob = mScope?.launch {
+            withContext(Main.immediate) { mActivity.toBrowser(value.orEmpty()) }
         }
     }
 
     @JavascriptInterface
-    fun toKol(value: String?) = webImpl.get()?.execute {
-        operationJob?.cancel()
-        operationJob = launch {
-            getToKolJS()
+    fun toKol(value: String?) {
+        webJob?.cancel()
+        webJob = mScope?.launch {
+            withContext(Main.immediate) { webImpl.get()?.getToKolJS() }
         }
     }
 
@@ -70,6 +66,11 @@ interface WebImpl {
      * 获取父页面页面管理
      */
     fun getActivity(): FragmentActivity
+
+    /**
+     * 获取协程上下文
+     */
+    fun getCoroutineScope(): CoroutineScope
 
     /**
      * WEB调取关闭时候的回调

@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -30,7 +29,6 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
-import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
@@ -316,30 +314,6 @@ fun <T> ViewModel.async(
     start: CoroutineStart = CoroutineStart.DEFAULT,
     block: suspend CoroutineScope.() -> T
 ) = viewModelScope.async(context, start, block)
-
-///**
-// * 通用的创建 ViewModel 方法
-// */
-//private fun <VM : BaseViewModel> Class<VM>.createViewModel(lifecycle: Lifecycle, owner: ViewModelStoreOwner): VM {
-//    val viewModel = ViewModelProvider(owner)[this]
-//    lifecycle.addObserver(viewModel)
-//    lifecycle.doOnDestroy { lifecycle.removeObserver(viewModel) }//写了会影响onDestroy的调用
-//    return viewModel
-//}
-//
-///**
-// * activity 中构建 viewmodel 使用此方法
-// */
-//fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: AppCompatActivity): VM {
-//    return createViewModel(lifecycle, owner)
-//}
-//
-///**
-// * fragment 中构建 viewmodel 使用此方法
-// */
-//fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: Fragment): VM {
-//    return createViewModel(lifecycle, owner)
-//}
 
 /**
  * viewModel委托类
