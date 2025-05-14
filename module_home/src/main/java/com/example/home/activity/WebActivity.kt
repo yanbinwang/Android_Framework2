@@ -70,8 +70,6 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
 
     override fun getActivity() = this
 
-    override fun getCoroutineScope() = this
-
     override fun getGoBackJS(value: String?) {
     }
 

@@ -54,7 +54,7 @@ class WebUtil : DefaultLifecycleObserver {
 
     fun init() {
         try {
-            webView = WebView(BaseApplication.instance)
+            webView = WebView(BaseApplication.instance.applicationContext)
         } catch (e: RuntimeException) {
             //这里捕捉一个webview不存在的bug
             if (lifecycleOwner is Fragment) {
