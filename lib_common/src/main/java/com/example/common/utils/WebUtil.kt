@@ -20,7 +20,6 @@ import com.example.framework.utils.function.view.invisible
 import com.example.framework.utils.function.view.visible
 import com.example.framework.utils.logE
 
-
 /**
  * @description webview工具类
  * 帮助处理WebView的内存泄漏问题的类，传入一个将用来装填WebView的ViewGroup
