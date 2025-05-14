@@ -385,11 +385,8 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         mFragment = fragment
         mActivity = fragment.activity as? AppCompatActivity
         mActivity?.setSupportActionBar(this)
-        // 使用Fragment的viewLifecycleOwner监听视图销毁
-        fragment.viewLifecycleOwnerLiveData.observe(fragment) {
-            it.lifecycle.doOnDestroy {
-                clearResources()
-            }
+        fragment.lifecycle.doOnDestroy {
+            clearResources()
         }
     }
 
