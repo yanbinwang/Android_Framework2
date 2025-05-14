@@ -141,7 +141,7 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
         retry = true
         mActivity.lifecycle.coroutineScope.launch {
             delay(retryTime)
-            retry = false
+            clear()
         }
         try {
             locationClient?.startLocation()
