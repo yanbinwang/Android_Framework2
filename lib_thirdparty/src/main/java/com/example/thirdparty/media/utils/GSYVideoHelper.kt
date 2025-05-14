@@ -47,20 +47,20 @@ import kotlin.coroutines.CoroutineContext
  *     android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
  *     android:screenOrientation="portrait" />
  */
-class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : CoroutineScope, LifecycleEventObserver {
+class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, LifecycleEventObserver {
     private var isPause = false
     private var isPlay = false
     private var retryWithPlay = false
     private var restartJob: Job? = null
     private var player: StandardGSYVideoPlayer? = null
     private var orientationUtils: OrientationUtils? = null
-    private val mBinding by lazy { mActivity?.inflate(R.layout.view_gsyvideo_thumb)?.let { ViewGsyvideoThumbBinding.bind(it) } }
+    private val mBinding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
     init {
-        mActivity?.lifecycle?.addObserver(this)
+        mActivity.lifecycle.addObserver(this)
     }
 
     /**
@@ -78,10 +78,10 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
         PlayerFactory.setPlayManager(Exo2PlayerManager::class.java)
         CacheFactory.setCacheManager(ExoPlayerCacheManager::class.java)
         //配置适配遮罩，隐藏默认的顶部菜单的返回/标题
-        player?.thumbImageView = mBinding?.root
+        player?.thumbImageView = mBinding.root
         player?.titleTextView?.gone()
         player?.backButton?.gone()
-        if (!fullScreen || null == mActivity) {
+        if (!fullScreen) {
             player?.fullscreenButton?.gone()
         } else {
             //外部辅助的旋转，帮助全屏
@@ -103,9 +103,9 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
     fun setUrl(url: String, thumbUrl: String? = null, setUpLazy: Boolean = false) {
         //加载图片
         if (thumbUrl.isNullOrEmpty()) {
-            ImageLoader.instance.loadVideoFrame(mBinding?.ivThumb, url)
+            ImageLoader.instance.loadVideoFrame(mBinding.ivThumb, url)
         } else {
-            ImageLoader.instance.loadImageFromUrl(mBinding?.ivThumb, thumbUrl)
+            ImageLoader.instance.loadImageFromUrl(mBinding.ivThumb, thumbUrl)
         }
         GSYVideoOptionBuilder()
             .setIsTouchWiget(false)
@@ -232,7 +232,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity? = null) : Coroutin
         player?.currentPlayer?.release()
         player?.release()
         player = null
-        mActivity?.lifecycle?.removeObserver(this)
+        mActivity.lifecycle.removeObserver(this)
     }
 
 }

@@ -28,7 +28,6 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
     private var recycler: RecyclerView? = null
     private val data by lazy { ConcurrentHashMap<Int, String>() }
 
-
     init {
         mActivity.lifecycle.addObserver(this)
     }
