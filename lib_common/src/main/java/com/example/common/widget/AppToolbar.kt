@@ -316,6 +316,7 @@ import java.util.concurrent.ConcurrentHashMap
 //
 //}
 class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : Toolbar(context, attrs, defStyleAttr) {
+    private var bindMode = -1//绑定模式 -> -1：未绑定 / 0：Activity / 1：Fragment
     private var mActivity: AppCompatActivity? = null
     private var mFragment: Fragment? = null
     val rootView by lazy { ConstraintLayout(context) }
@@ -361,34 +362,45 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     /**
      * 建立页面视图绑定关系
      */
-//    fun bind(mActivity: AppCompatActivity) {
-//        this.mActivity = mActivity
-//        mActivity.setSupportActionBar(this)
-//        mActivity.doOnDestroy {
-//            idsMap.clear()
-//        }
-//    }
-
-    fun bind(mActivity: AppCompatActivity) {
+    fun bind(activity: AppCompatActivity) {
         unbind()
-        this.mActivity = mActivity
-        mActivity.setSupportActionBar(this)
-        mActivity.doOnDestroy {
+        bindMode = 1
+        mActivity = activity
+        activity.setSupportActionBar(this)
+        activity.doOnDestroy {
             clearResources()
         }
     }
 
-    fun bind(mFragment: Fragment) {
+    /**
+     * 当 popBackStack() 被调用时，当前 Fragment 的生命周期会按以下顺序执行：
+     * onPause() → onStop() → onDestroyView() → onDestroy() → onDetach()
+     * viewLifecycleOwnerLiveData 会在 Fragment 的 onCreateView() 和 onDestroyView() 之间有效。
+     * 当 Fragment 视图被销毁时，其生命周期会自动结束，所有基于 viewLifecycleOwner 的观察者会被自动清除
+     */
+    fun bind(fragment: Fragment) {
         unbind()
-        this.mFragment = mFragment
-        mActivity = mFragment.activity as? AppCompatActivity
+        bindMode = 2
+        mFragment = fragment
+        mActivity = fragment.activity as? AppCompatActivity
         mActivity?.setSupportActionBar(this)
         // 使用Fragment的viewLifecycleOwner监听视图销毁
-        mFragment.viewLifecycleOwnerLiveData.observe(mFragment) {
+        fragment.viewLifecycleOwnerLiveData.observe(fragment) {
             it.lifecycle.doOnDestroy {
                 clearResources()
             }
         }
+    }
+
+    /**
+     * 解除绑定并清理资源
+     */
+    private fun unbind() {
+        bindMode = -1
+        mActivity?.setSupportActionBar(null)
+        mActivity = null
+        mFragment = null
+        clearResources()
     }
 
     /**
@@ -399,13 +411,10 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     /**
-     * 解除绑定并清理资源
+     * 关闭/返回上一项
      */
-    private fun unbind() {
-        mActivity?.setSupportActionBar(null)
-        mActivity = null
-        mFragment = null
-        clearResources()
+    private fun finish() {
+//        findNavController().popBackStack()
     }
 
     /**
