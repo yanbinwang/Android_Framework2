@@ -93,7 +93,6 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      */
     fun bind(activity: AppCompatActivity) {
         mActivity = activity
-        activity.setSupportActionBar(this)
         activity.doOnDestroy {
             idsMap.clear()
         }
