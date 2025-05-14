@@ -18,10 +18,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.example.common.R
-import com.example.common.utils.function.color
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.setTheme
+import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.applyConstraints
 import com.example.framework.utils.function.view.background
@@ -107,7 +107,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * hasShade->标题底部是否带阴影
      */
     fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): AppToolbar {
-        rootView.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else color(bgColor))
+        rootView.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else context.color(bgColor))
         if (title.isNotBlank()) {
             handleView<TextView>(TITLE_TEXT, {
                 TextView(context).also {
@@ -143,7 +143,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 页面不需要标题，只需要定制的返回按钮及特定背景
      */
     fun setTitleSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }, bgColor: Int = R.color.bgToolbar): Toolbar {
-        rootView.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else color(bgColor))
+        rootView.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else context.color(bgColor))
         setLeft(resId, tintColor, onClick = onClick)
         return this
     }
@@ -261,7 +261,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 if (drawable != null) {
                     it.clearBackground()
                     it.clearHighlightColor()
-                    drawable.setTint(color(labelColor))
+                    drawable.setTint(context.color(labelColor))
                     it.setCompoundDrawables(drawable, null, null, null)
                     it.compoundDrawablePadding = 2.pt
                 }
