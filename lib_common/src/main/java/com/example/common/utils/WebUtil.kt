@@ -27,8 +27,8 @@ import com.example.framework.utils.logE
  */
 @SuppressLint("SetJavaScriptEnabled", "SourceLockedOrientationActivity")
 class WebUtil : DefaultLifecycleObserver {
-    private var container: ViewGroup?
     private var lifecycleOwner: LifecycleOwner?
+    private var container: ViewGroup? = null
     private var mActivity: Activity? = null
     private var mXCustomView: View? = null
     private var mXCustomViewCallback: WebChromeClient.CustomViewCallback? = null
@@ -38,20 +38,18 @@ class WebUtil : DefaultLifecycleObserver {
     constructor(activity: AppCompatActivity, container: ViewGroup?) {
         this.mActivity = activity
         this.lifecycleOwner = activity
-        this.lifecycleOwner?.lifecycle?.addObserver(this)
-        this.container = container
-        init()
+        init(container)
     }
 
     constructor(fragment: Fragment, container: ViewGroup?) {
         this.mActivity = fragment.activity
         this.lifecycleOwner = fragment
-        this.lifecycleOwner?.lifecycle?.addObserver(this)
-        this.container = container
-        init()
+        init(container)
     }
 
-    fun init() {
+    private fun init(container: ViewGroup?) {
+        this.lifecycleOwner?.lifecycle?.addObserver(this)
+        this.container = container
         try {
             webView = WebView(BaseApplication.instance.applicationContext)
         } catch (e: RuntimeException) {
