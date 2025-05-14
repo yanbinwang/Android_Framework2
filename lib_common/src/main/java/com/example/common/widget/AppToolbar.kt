@@ -17,6 +17,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.common.R
 import com.example.common.utils.function.color
 import com.example.common.utils.function.getStatusBarHeight
@@ -414,7 +415,12 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 关闭/返回上一项
      */
     private fun finish() {
-//        findNavController().popBackStack()
+        if (-1 == bindMode) return
+        if (1 == bindMode) {
+            mActivity?.finish()
+        } else {
+            mFragment?.findNavController()?.popBackStack()
+        }
     }
 
     /**
@@ -460,7 +466,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     /**
      * 页面不需要标题，只需要定制的返回按钮及特定背景
      */
-    fun setTitleSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }, bgColor: Int = R.color.bgToolbar): Toolbar {
+    fun setTitleSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { finish() }, bgColor: Int = R.color.bgToolbar): Toolbar {
         rootView.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else color(bgColor))
         setLeft(resId, tintColor, onClick = onClick)
         return this
@@ -474,7 +480,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         return setTitle(title, titleColor, 0)
     }
 
-    fun setTransparentSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }): Toolbar {
+    fun setTransparentSecondary(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { finish() }): Toolbar {
         return setTitleSecondary(resId, tintColor, onClick, 0)
     }
 
@@ -484,7 +490,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * tintColor->图片覆盖色（存在相同图片颜色不同的情况，直接传覆盖色即可）
      * onClick->点击事件
      */
-    fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }): Toolbar {
+    fun setLeft(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { finish() }): Toolbar {
         createImageView(LEFT_ICON, resId, tintColor, onClick) {
             startToStartOf(it)
             centerVertically(it)
@@ -502,7 +508,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      *  4.drawablePadding?.let { view.compoundDrawablePadding = it }文字间距
      * onClick->点击事件
      */
-    fun setLeft(label: String, labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = { mActivity?.finish() }): Toolbar {
+    fun setLeft(label: String, labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = { finish() }): Toolbar {
         createTextView(LEFT_TEXT, label, labelColor, drawable, onClick) {
             startToStartOf(it)
             centerVertically(it)
