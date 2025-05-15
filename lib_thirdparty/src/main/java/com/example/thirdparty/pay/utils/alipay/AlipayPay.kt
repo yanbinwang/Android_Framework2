@@ -23,7 +23,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 支付宝支付
  */
-class AlipayPay(private val mActivity: FragmentActivity) : CoroutineScope {
+class AlipayPay(private val mActivity: FragmentActivity?) : CoroutineScope {
     private var payJob: Job? = null
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main.immediate + job
@@ -39,6 +39,10 @@ class AlipayPay(private val mActivity: FragmentActivity) : CoroutineScope {
      * 发起支付时需要传入服务器真理好的payInfo
      */
     fun pay(payInfo: String?) {
+        if (null == mActivity) {
+            results(R.string.payFailure, 2)
+            return
+        }
         //未安装
         if (!mActivity.isAvailable("com.eg.android.AlipayGphone")) {
             results(R.string.alipayUnInstalled, 2)
