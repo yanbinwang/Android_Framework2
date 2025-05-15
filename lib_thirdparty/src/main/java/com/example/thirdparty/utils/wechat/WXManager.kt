@@ -30,7 +30,7 @@ class WXManager private constructor() {
     /**
      * 注册到微信
      */
-    fun regToWx(owner: LifecycleOwner): IWXAPI? {
+    fun regToWx(owner: LifecycleOwner?): IWXAPI? {
         //通过WXAPIFactory工厂，获取IWXAPI的实例
         api = WXAPIFactory.createWXAPI(mContext, Constants.WX_APP_ID, true)
         //将应用的appId注册到微信
@@ -42,7 +42,9 @@ class WXManager private constructor() {
         } else {
             mContext?.registerReceiver(wxReceiver, intentFilter)
         }
-        owner.doOnDestroy { unRegToWx() }
+        owner.doOnDestroy {
+            unRegToWx()
+        }
         return api
     }
 

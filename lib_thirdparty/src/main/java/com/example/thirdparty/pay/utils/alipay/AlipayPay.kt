@@ -8,10 +8,10 @@ import com.example.common.event.EventCode.EVENT_PAY_SUCCESS
 import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.isAvailable
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.logWTF
 import com.example.thirdparty.R
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
@@ -39,12 +39,8 @@ class AlipayPay(private val mActivity: FragmentActivity?) : CoroutineScope {
      * 发起支付时需要传入服务器真理好的payInfo
      */
     fun pay(payInfo: String?) {
-        if (null == mActivity) {
-            results(R.string.payFailure, 2)
-            return
-        }
         //未安装
-        if (!mActivity.isAvailable("com.eg.android.AlipayGphone")) {
+        if (!mActivity?.isAvailable("com.eg.android.AlipayGphone").orFalse) {
             results(R.string.alipayUnInstalled, 2)
             return
         }

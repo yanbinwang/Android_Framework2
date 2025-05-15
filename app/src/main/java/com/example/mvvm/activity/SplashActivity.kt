@@ -6,7 +6,6 @@ import android.os.SystemClock
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication.Companion.lastClickTime
 import com.example.common.base.BaseActivity
-import com.example.common.base.launch
 import com.example.common.config.ARouterPath
 import com.example.common.utils.fullScreen
 import kotlinx.coroutines.delay
