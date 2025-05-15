@@ -161,10 +161,6 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
         return true
     }
 
-//    override fun <VM : BaseViewModel> VM.create(): VM? {
-//        return javaClass.create(viewLifecycleOwner.lifecycle, this@BaseTopSheetDialogFragment).also { it.initialize(mActivity, this@BaseTopSheetDialogFragment) }
-//    }
-
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
         super.initImmersionBar(titleDark, naviTrans, navigationBarColor)
         immersionBar?.apply {

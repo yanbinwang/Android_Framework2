@@ -127,10 +127,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         return true
     }
 
-//    override fun <VM : BaseViewModel> VM.create(): VM? {
-//        return javaClass.create(lifecycle, this@BaseActivity).also { it.initialize(this@BaseActivity, this@BaseActivity) }
-//    }
-
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
         super.initImmersionBar(titleDark, naviTrans, navigationBarColor)
         immersionBar?.apply {

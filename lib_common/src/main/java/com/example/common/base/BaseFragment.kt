@@ -145,10 +145,6 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
         return true
     }
 
-//    override fun <VM : BaseViewModel> VM.create(): VM? {
-//        return javaClass.create(viewLifecycleOwner.lifecycle, this@BaseFragment).also { it.initialize(mActivity, this@BaseFragment) }
-//    }
-
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
         super.initImmersionBar(titleDark, naviTrans, navigationBarColor)
         immersionBar?.apply {
