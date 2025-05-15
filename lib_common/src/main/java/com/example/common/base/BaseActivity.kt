@@ -61,8 +61,7 @@ import kotlin.coroutines.CoroutineContext
 abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected var mBinding: VDB? = null
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
-    protected val mResultWrapper = registerResultWrapper()
-    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
+    protected val mActivityResult = registerResultWrapper().registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { AppDialog(this) }
     protected val mPermission by lazy { PermissionHelper(this) }
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null

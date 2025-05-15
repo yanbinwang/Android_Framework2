@@ -84,8 +84,7 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
-    protected val mResultWrapper = registerResultWrapper()
-    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
+    protected val mActivityResult = registerResultWrapper().registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
     protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
