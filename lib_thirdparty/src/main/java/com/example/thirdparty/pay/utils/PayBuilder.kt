@@ -22,7 +22,7 @@ class PayBuilder(private val mActivity: FragmentActivity) : CoroutineScope {
     private var payJob: Job? = null
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
+        get() = Dispatchers.Main.immediate + job
 
     init {
         mActivity.doOnDestroy {

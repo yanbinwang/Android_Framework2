@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import com.alibaba.android.arouter.launcher.ARouter
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
@@ -38,11 +37,8 @@ import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.isMainThread
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import java.lang.ref.WeakReference
@@ -50,7 +46,6 @@ import java.lang.reflect.ParameterizedType
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * Created by WangYanBin on 2020/6/4.
@@ -100,7 +95,7 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }//刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext get() = Main + job
+    override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onAttach(context: Context) {
@@ -261,14 +256,14 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
 
 }
 
-fun Fragment.launch(
-    context: CoroutineContext = EmptyCoroutineContext,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
-    block: suspend CoroutineScope.() -> Unit
-) = viewLifecycleOwner.lifecycleScope.launch(context, start, block)
-
-fun <T> Fragment.async(
-    context: CoroutineContext = EmptyCoroutineContext,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
-    block: suspend CoroutineScope.() -> T
-) = viewLifecycleOwner.lifecycleScope.async(context, start, block)
+//fun Fragment.launch(
+//    context: CoroutineContext = EmptyCoroutineContext,
+//    start: CoroutineStart = CoroutineStart.DEFAULT,
+//    block: suspend CoroutineScope.() -> Unit
+//) = viewLifecycleOwner.lifecycleScope.launch(context, start, block)
+//
+//fun <T> Fragment.async(
+//    context: CoroutineContext = EmptyCoroutineContext,
+//    start: CoroutineStart = CoroutineStart.DEFAULT,
+//    block: suspend CoroutineScope.() -> T
+//) = viewLifecycleOwner.lifecycleScope.async(context, start, block)

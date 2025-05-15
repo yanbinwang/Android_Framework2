@@ -10,6 +10,7 @@ import com.example.common.base.launch
 import com.example.common.config.ARouterPath
 import com.example.common.utils.fullScreen
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.jessyan.autosize.internal.CancelAdapt
 
 /**

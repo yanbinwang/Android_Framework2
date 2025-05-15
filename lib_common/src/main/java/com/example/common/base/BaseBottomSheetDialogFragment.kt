@@ -79,7 +79,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }//刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext get() = Main + job
+    override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onAttach(context: Context) {

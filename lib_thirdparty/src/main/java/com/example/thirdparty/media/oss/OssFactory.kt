@@ -76,7 +76,7 @@ class OssFactory private constructor() : CoroutineScope {
     private var initJob: Job? = null
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
+        get() = Dispatchers.Main.immediate + job
 
     companion object {
         /**

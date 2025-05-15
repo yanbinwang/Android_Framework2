@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import com.alibaba.android.arouter.launcher.ARouter
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
@@ -43,18 +42,14 @@ import com.example.framework.utils.function.value.hasAnnotation
 import com.example.framework.utils.function.value.isMainThread
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * Created by WangYanBin on 2020/6/3.
@@ -75,7 +70,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val job = SupervisorJob()//https://blog.csdn.net/chuyouyinghe/article/details/123057776
-    override val coroutineContext: CoroutineContext get() = Main + job//加上SupervisorJob，提升协程作用域
+    override val coroutineContext: CoroutineContext get() = Main.immediate + job//加上SupervisorJob，提升协程作用域
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     companion object {
@@ -292,17 +287,17 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
 }
 
-fun AppCompatActivity.launch(
-    context: CoroutineContext = EmptyCoroutineContext,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
-    block: suspend CoroutineScope.() -> Unit
-) = lifecycleScope.launch(context, start, block)
-
-fun <T> AppCompatActivity.async(
-    context: CoroutineContext = EmptyCoroutineContext,
-    start: CoroutineStart = CoroutineStart.DEFAULT,
-    block: suspend CoroutineScope.() -> T
-) = lifecycleScope.async(context, start, block)
+//fun AppCompatActivity.launch(
+//    context: CoroutineContext = EmptyCoroutineContext,
+//    start: CoroutineStart = CoroutineStart.DEFAULT,
+//    block: suspend CoroutineScope.() -> Unit
+//) = lifecycleScope.launch(context, start, block)
+//
+//fun <T> AppCompatActivity.async(
+//    context: CoroutineContext = EmptyCoroutineContext,
+//    start: CoroutineStart = CoroutineStart.DEFAULT,
+//    block: suspend CoroutineScope.() -> T
+//) = lifecycleScope.async(context, start, block)
 
 val BaseActivity<*>.needTransparentOwner get() = hasAnnotation(TransparentOwner::class.java)
 

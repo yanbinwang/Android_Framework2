@@ -57,7 +57,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
     private val mBinding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
+        get() = Dispatchers.Main.immediate + job
 
     init {
         mActivity.lifecycle.addObserver(this)
