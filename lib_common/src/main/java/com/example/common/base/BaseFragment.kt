@@ -75,8 +75,6 @@ import kotlin.coroutines.CoroutineContext
  * viewLifecycleOwner 的生命周期：绑定 Fragment 的 视图生命周期（从 onCreateView() 到 onDestroyView()）。
  * 监听行为：当 Activity.finish() 导致 Fragment 视图销毁时（即触发 Fragment.onDestroyView()），
  * viewLifecycleOwner 的生命周期状态会变为 DESTROYED，所有基于它的观察者（包括 viewLifecycleOwnerLiveData 的回调）会自动停止观察，无需手动取消。
- *
- *
  */
 @Suppress("UNCHECKED_CAST")
 @SuppressLint("UseRequireInsteadOfGet")

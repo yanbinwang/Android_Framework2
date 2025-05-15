@@ -25,6 +25,7 @@ import com.shuyu.gsyvideoplayer.utils.OrientationUtils
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
@@ -56,8 +57,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
     private var orientationUtils: OrientationUtils? = null
     private val mBinding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
     private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main.immediate + job
+    override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
     init {
         mActivity.lifecycle.addObserver(this)

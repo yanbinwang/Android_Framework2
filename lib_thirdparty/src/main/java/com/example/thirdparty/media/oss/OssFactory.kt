@@ -39,6 +39,7 @@ import com.example.thirdparty.media.oss.bean.OssSts.Companion.objectName
 import com.example.thirdparty.media.oss.network.OssApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
@@ -75,8 +76,7 @@ class OssFactory private constructor() : CoroutineScope {
     //协程整体，因全局文件上传都需要调取oss，故而无需考虑cancel问题（方法可补充，main中调取）
     private var initJob: Job? = null
     private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main.immediate + job
+    override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
     companion object {
         /**

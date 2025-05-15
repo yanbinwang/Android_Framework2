@@ -8,6 +8,7 @@ import com.example.thirdparty.pay.utils.alipay.AlipayPay
 import com.example.thirdparty.pay.utils.wechat.WXPay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -21,8 +22,7 @@ class PayBuilder(private val mActivity: FragmentActivity) : CoroutineScope {
     private val wechat by lazy { WXPay(mActivity) }
     private var payJob: Job? = null
     private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main.immediate + job
+    override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
     init {
         mActivity.doOnDestroy {

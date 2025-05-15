@@ -35,9 +35,11 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeLong
+import kotlinx.coroutines.CoroutineScope
 import java.io.Serializable
 
 
@@ -335,6 +337,30 @@ fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, i
 }
 
 fun FragmentActivity?.doOnReceiver(receiver: BroadcastReceiver, intentFilter: IntentFilter) = doOnReceiver(this, receiver, intentFilter)
+
+/**
+ * 为 FragmentActivity 添加扩展属性，自动选择正确的协程作用域
+ */
+val FragmentActivity.safeScope: CoroutineScope
+    get() {
+        // 尝试查找当前 Activity 是否由 Fragment 持有
+        val fragment = findParentFragment()
+        return if (fragment != null && fragment.isAdded) {
+            fragment.viewLifecycleOwner.lifecycleScope
+        } else {
+            this.lifecycleScope
+        }
+    }
+
+private fun FragmentActivity.findParentFragment(): Fragment? {
+    return try {
+        val fragmentManager = supportFragmentManager
+        // 查找当前可见的 Fragment
+        fragmentManager.fragments.lastOrNull { it.isVisible }
+    } catch (e: Exception) {
+        null
+    }
+}
 
 /**
  * 可在协程类里传入AppComActivity，然后init{}方法里调取，销毁内部的job
