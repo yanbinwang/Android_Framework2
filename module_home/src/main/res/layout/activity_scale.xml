@@ -11,9 +11,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <include
+        <com.example.common.widget.AppToolbar
             android:id="@+id/title_root"
-            layout="@layout/view_title_bar" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
     </FrameLayout>
 

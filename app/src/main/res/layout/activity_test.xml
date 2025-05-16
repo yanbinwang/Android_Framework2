@@ -9,9 +9,10 @@
         android:layout_height="match_parent"
         android:background="@color/bgBlack">
 
-        <include
+        <com.example.common.widget.AppToolbar
             android:id="@+id/title_root"
-            layout="@layout/view_title_bar" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <com.otaliastudios.cameraview.CameraView
             android:id="@+id/camera"

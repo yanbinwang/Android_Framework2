@@ -7,11 +7,12 @@ import com.example.common.base.BaseTitleActivity
 import com.example.common.base.page.Extra
 import com.example.common.bean.WebBundle
 import com.example.common.config.ARouterPath
-import com.example.common.utils.builder.TitleBuilder.Companion.RIGHT_ICON
-import com.example.common.utils.builder.TitleBuilder.Companion.TITLE_TEXT
 import com.example.common.utils.function.orNoData
+import com.example.common.widget.AppToolbar.Companion.RIGHT_ICON
+import com.example.common.widget.AppToolbar.Companion.TITLE_TEXT
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.orTrue
+import com.example.framework.utils.function.view.gone
 import com.example.home.R
 import com.example.home.databinding.ActivityWebBinding
 import com.example.home.utils.WebHelper
@@ -29,11 +30,11 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
         super.initView(savedInstanceState)
         initImmersionBar(bundle?.getLight().orTrue)
         //需要标题头并且值已经传输过来了则设置标题
-        titleBuilder.apply {
+        titleRoot.apply {
             if (isTitleRequired) {
                 setTitle(bundle?.getTitle().orNoData())
             } else {
-                hideTitle()
+                gone()
             }
         }
     }
@@ -43,7 +44,7 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
         helper.setClientListener({}, { title ->
             if (isTitleRequired) {
                 //当传输的title为空时，取一次网页自带的标题并且刷新按钮浮现
-                titleBuilder.apply {
+                titleRoot.apply {
                     if (nonNull(TITLE_TEXT, RIGHT_ICON)) return@apply
                     if (bundle?.getTitle().isNullOrEmpty()) {
                         setTitle(title.orNoData())
