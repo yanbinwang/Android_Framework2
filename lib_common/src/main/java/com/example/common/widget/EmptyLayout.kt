@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
+import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.appear
@@ -24,6 +25,7 @@ import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.invisible
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.removeSelf
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.startToStartOf
@@ -84,6 +86,11 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
                     startToStartOf(viewId)
                 }
                 ivLeft.margin(start = 5.pt)
+                //部分情况下，头部的高度会被AppToolbar绘制，整体如果是在下方容器添加，居中就还会被拉下去一块，故而减去这块
+                val windows = getBoolean(R.styleable.EmptyLayout_elEnableWindow, false)
+                if (windows) {
+                    mBinding.ivEmpty.margin(top = -(getStatusBarHeight() + 44.pt))
+                }
             }
         }
         //绘制大小撑到最大/默认背景
@@ -146,7 +153,6 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载中
      */
     fun loading() {
-        if (!exist()) return
         appear(300)
         state = EmptyLayoutState.Loading
         fullState()
@@ -159,7 +165,6 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据为空--只会在200并且无数据的时候展示
      */
     fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
-        if (!exist()) return
         appear(300)
         state = EmptyLayoutState.Empty
         fullState()
@@ -179,7 +184,6 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 无网络优先级最高
      */
     fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
-        if (!exist()) return
         appear(300)
         state = EmptyLayoutState.Error
         fullState()
@@ -193,6 +197,18 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
         if (!refreshText.isNullOrEmpty()) mBinding.tvRefresh.text = refreshText
         mBinding.tvRefresh.visible()
+    }
+
+    /**
+     * 针对首页的遮罩，如果需要展示则显示，不然直接删除自身
+     */
+    fun complete(isSuccessful: Boolean, resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+        if (isSuccessful) {
+            removeSelf()
+        } else {
+            if (!exist()) return
+            error(resId, text, refreshText, width, height)
+        }
     }
 
     /**

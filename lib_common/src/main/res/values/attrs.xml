@@ -11,6 +11,7 @@
     <!-- 自定义EmptyLayout -->
     <declare-styleable name="EmptyLayout">
         <attr name="elEnableFullScreen" format="boolean" />
+        <attr name="elEnableWindow" format="boolean" />
     </declare-styleable>
 
     <!-- 删除按钮edittext -->
