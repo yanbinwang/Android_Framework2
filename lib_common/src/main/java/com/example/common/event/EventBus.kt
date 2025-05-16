@@ -51,7 +51,7 @@ class EventBus private constructor() {
      *
      * 协程自动清理机制：协程在执行完毕后会自动释放其占用的资源，包括内存。即使有多个 post 操作在 postScope 中并发执行，每个协程完成后都会被清理，不会造成内存累积
      */
-    private val postScope by lazy { CoroutineScope(SupervisorJob() + Main) }
+    private val postScope by lazy { CoroutineScope(SupervisorJob() + Main.immediate) }
 //    /**
 //     * @Synchronized 注解是对整个方法进行同步，相当于在方法体前添加 synchronized(this) 块，它会将整个方法的执行作为一个临界区，同一时间只有一个线程能够执行该方法。
 //     * 而 synchronized(postLock) 可以将同步的范围缩小到只对需要同步的代码块进行加锁，提高了代码的并发度和性能。

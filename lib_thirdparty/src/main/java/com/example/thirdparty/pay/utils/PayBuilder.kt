@@ -18,8 +18,8 @@ import kotlin.coroutines.CoroutineContext
  * 支付类
  */
 class PayBuilder(private val mActivity: FragmentActivity?) : CoroutineScope {
-    private val alipay by lazy { AlipayPay(mActivity) }
-    private val wechat by lazy { WXPay(mActivity) }
+    private val alipay by lazy { mActivity?.let { AlipayPay(it) } }
+    private val wechat by lazy { mActivity?.let { WXPay(it) } }
     private var payJob: Job? = null
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main.immediate + job
@@ -47,8 +47,8 @@ class PayBuilder(private val mActivity: FragmentActivity?) : CoroutineScope {
      */
     private fun pay(bean: PayBean, type: Int = 0) {
         when (type) {
-            0 -> alipay.pay(bean.sign)
-            1 -> wechat.pay(bean.wxPayReq)
+            0 -> alipay?.pay(bean.sign)
+            1 -> wechat?.pay(bean.wxPayReq)
         }
     }
 

@@ -8,7 +8,6 @@ import com.example.common.event.EventCode.EVENT_PAY_SUCCESS
 import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.isAvailable
-import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.logWTF
 import com.example.thirdparty.R
 import kotlinx.coroutines.CoroutineScope
@@ -23,7 +22,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 支付宝支付
  */
-class AlipayPay(private val mActivity: FragmentActivity?) : CoroutineScope {
+class AlipayPay(private val mActivity: FragmentActivity) : CoroutineScope {
     private var payJob: Job? = null
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main.immediate + job
@@ -40,7 +39,7 @@ class AlipayPay(private val mActivity: FragmentActivity?) : CoroutineScope {
      */
     fun pay(payInfo: String?) {
         //未安装
-        if (!mActivity?.isAvailable("com.eg.android.AlipayGphone").orFalse) {
+        if (!mActivity.isAvailable("com.eg.android.AlipayGphone")) {
             results(R.string.alipayUnInstalled, 2)
             return
         }
