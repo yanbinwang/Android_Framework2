@@ -8,8 +8,8 @@ import com.example.common.base.page.Extra
 import com.example.common.bean.WebBundle
 import com.example.common.config.ARouterPath
 import com.example.common.utils.function.orNoData
-import com.example.common.widget.AppToolbar.Companion.RIGHT_ICON
-import com.example.common.widget.AppToolbar.Companion.TITLE_TEXT
+import com.example.common.widget.AppToolbar.Companion.KEY_RIGHT_ICON
+import com.example.common.widget.AppToolbar.Companion.KEY_TITLE_TEXT
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.view.gone
@@ -45,11 +45,11 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
             if (isTitleRequired) {
                 //当传输的title为空时，取一次网页自带的标题并且刷新按钮浮现
                 titleRoot.apply {
-                    if (nonNull(TITLE_TEXT, RIGHT_ICON)) return@apply
+                    if (nonNull(KEY_TITLE_TEXT, KEY_RIGHT_ICON)) return@apply
                     if (bundle?.getTitle().isNullOrEmpty()) {
                         setTitle(title.orNoData())
                     }
-                    setRight(R.mipmap.ic_refresh, R.color.bgBlack) {
+                    setRightButton(R.mipmap.ic_refresh, R.color.bgBlack) {
                         helper.refresh()
                     }
                 }
