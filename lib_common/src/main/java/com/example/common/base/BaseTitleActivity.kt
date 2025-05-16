@@ -1,9 +1,13 @@
 package com.example.common.base
 
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.databinding.ViewDataBinding
 import com.example.common.databinding.ActivityBaseBinding
 import com.example.common.utils.builder.TitleBuilder
+import com.example.common.widget.AppToolbar
+import com.example.framework.utils.function.view.size
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -22,6 +26,7 @@ abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
 //    }
 //    private val titleBar by lazy { AppToolbar(this).apply {
 //        size(MATCH_PARENT, WRAP_CONTENT)
+//        onInflate()
 //    }}
 //    private val rootView by lazy { FrameLayout(this).apply {
 //        size(MATCH_PARENT, MATCH_PARENT)

@@ -66,7 +66,6 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     init {
-        addView(rootView)
         rootView.size(MATCH_PARENT, WRAP_CONTENT)
         rootView.padding(top = getStatusBarHeight())
     }
