@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
+import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.appear
@@ -19,10 +20,12 @@ import com.example.framework.utils.function.view.applyConstraints
 import com.example.framework.utils.function.view.clearClick
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
+import com.example.framework.utils.function.view.exist
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.invisible
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.removeSelf
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.startToStartOf
@@ -82,6 +85,11 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
                     startToStartOf(viewId)
                 }
                 ivLeft.margin(start = 5.pt)
+                //部分情况下，头部的高度会被AppToolbar绘制，整体如果是在下方容器添加，居中就还会被拉下去一块，故而减去这块
+                val windows = getBoolean(R.styleable.EmptyLayout_elEnableWindow, false)
+                if (windows) {
+                    mBinding.ivEmpty.margin(top = -(getStatusBarHeight() + 44.pt))
+                }
             }
         }
         //绘制大小撑到最大/默认背景
@@ -189,6 +197,18 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
         mBinding.tvRefresh.setI18nRes(resRefreshText ?: R.string.refresh)
         mBinding.tvRefresh.visible()
+    }
+
+    /**
+     * 针对首页的遮罩，如果需要展示则显示，不然直接删除自身
+     */
+    fun complete(isSuccessful: Boolean, resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
+        if (isSuccessful) {
+            removeSelf()
+        } else {
+            if (!exist()) return
+            error(resId, resText, resRefreshText, width, height)
+        }
     }
 
     /**

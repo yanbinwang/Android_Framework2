@@ -8,19 +8,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-<!--        <ImageView-->
-<!--            android:id="@+id/iv_left"-->
-<!--            statusBar_margin="@{true}"-->
-<!--            android:layout_width="44pt"-->
-<!--            android:layout_height="44pt"-->
-<!--            android:layout_marginStart="5pt"-->
-<!--            android:padding="10pt"-->
-<!--            android:src="@mipmap/ic_btn_back"-->
-<!--            android:visibility="invisible"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent"-->
-<!--            tools:visibility="visible" />-->
-
         <ImageView
             android:id="@+id/iv_empty"
             android:layout_width="120pt"

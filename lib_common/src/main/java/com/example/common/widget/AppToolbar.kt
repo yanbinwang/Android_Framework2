@@ -12,14 +12,16 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.example.common.R
+import com.example.common.utils.function.color
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.setI18nTheme
 import com.example.common.utils.function.setTheme
+import com.example.common.widget.i18n.I18nTextView
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.applyConstraints
@@ -54,7 +56,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     companion object {
         // 标题
         const val KEY_TITLE_TEXT = "title_text"      // 标题文本
-        const val KEY_TITLE_SHADOW = "title_shadow"  // 标题阴影线
+        const val TITLE_SHADOW = "title_shadow"  // 标题阴影线
         // 左侧按钮
         const val KEY_LEFT_ICON = "left_icon"        // 左侧图标按钮
         const val KEY_LEFT_TEXT = "left_text"        // 左侧文本按钮
@@ -67,7 +69,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
     init {
         rootView.size(MATCH_PARENT, WRAP_CONTENT)
-        rootView.padding(top = getStatusBarHeight())
+        rootView.padding(5.pt, getStatusBarHeight(), 5.pt, 0)
     }
 
     override fun onInflate() {
@@ -91,13 +93,12 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * bgColor->背景颜色
      * hasShade->标题底部是否带阴影
      */
-    fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): AppToolbar {
+    fun setTitle(title: Any? = null, titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): AppToolbar {
         rootView.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else context.color(bgColor))
-        if (title.isNotBlank()) {
-            createOrUpdateView<TextView>(KEY_TITLE_TEXT, {
-                TextView(context).also {
-                    it.setTheme(title, titleColor)
-                    it.textSize(R.dimen.textSize18)
+        if (null != title) {
+            createOrUpdateView<I18nTextView>(KEY_TITLE_TEXT, {
+                I18nTextView(context).also {
+                    it.textSize(R.dimen.textSize16)
                     it.bold(true)
                     it.size(WRAP_CONTENT, 44.pt)
                     it.gravity = Gravity.CENTER
@@ -106,10 +107,15 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 }
             }, {
                 center(it)
-            })
+            }).apply {
+                when (title) {
+                    is Int -> setI18nTheme(title, titleColor)
+                    is String -> setTheme(title, titleColor)
+                }
+            }
         }
         if (hasShade) {
-            createOrUpdateView<View>(KEY_TITLE_SHADOW, {
+            createOrUpdateView<View>(TITLE_SHADOW, {
                 View(context).also {
                     it.background(R.color.bgLine)
                     it.size(MATCH_PARENT, 1.pt)
@@ -135,9 +141,9 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
     /**
      * 1.继承BaseActivity，在xml中include对应标题布局
-     * 2.把布局bind传入工具类，实现绑定后，调取对应方法（private val titleBuilder by lazy { TitleBuilder(this, mBinding?.titleRoot) }）
+     * 2.把布局bind传入工具类，实现绑定后，调取对应方法（private val AppToolbar by lazy { AppToolbar(this, mBinding?.titleRoot) }）
      */
-    fun setTransparent(title: String = "", titleColor: Int = R.color.textPrimary): AppToolbar {
+    fun setTransparent(title: Any? = null, titleColor: Int = R.color.textPrimary): AppToolbar {
         return setTitle(title, titleColor, 0)
     }
 
@@ -149,6 +155,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 设置左/右侧按钮图片资源
      * resId->图片
      * tintColor->图片覆盖色（存在相同图片颜色不同的情况，直接传覆盖色即可）
+     * width/height->本身宽高
      * onClick->点击事件
      */
     fun setLeftButton(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
@@ -169,7 +176,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      *  4.drawablePadding?.let { view.compoundDrawablePadding = it }文字间距
      * onClick->点击事件
      */
-    fun setLeftText(label: String, labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
+    fun setLeftText(label: Any, labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
         createTextView(KEY_LEFT_TEXT, label, labelColor, drawable, onClick) {
             startToStartOf(it)
             centerVertically(it)
@@ -180,7 +187,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     /**
      * 1.创建视图的函数
      * 2.配置视图的回调
-     * setLeft({ ImageView(mActivity) }) { img ->
+     * AppToolbar.setLeft({ ImageView(mActivity) }) { img ->
      *     img.setImageResource(R.drawable.ic_back)
      *     img.setOnClickListener { mActivity.finish() }
      *     img.setPadding(10.pt, 10.pt, 10.pt, 10.pt)
@@ -203,7 +210,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         return this
     }
 
-    fun setRightText(label: String, labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = {}): AppToolbar {
+    fun setRightText(label: Any, labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = {}): AppToolbar {
         createTextView(KEY_RIGHT_TEXT, label, labelColor, drawable, onClick) {
             endToEndOf(it)
             centerVertically(it)
@@ -236,17 +243,20 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         }, block)
     }
 
-    private fun createTextView(key: String, label: String, labelColor: Int, drawable: Drawable? = null, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
-        createOrUpdateView<TextView>(key, {
-            TextView(context).also {
-                it.setTheme(label, labelColor)
+    private fun createTextView(key: String, label: Any, labelColor: Int, drawable: Drawable? = null, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
+        createOrUpdateView<I18nTextView>(key, {
+            I18nTextView(context).also {
+                when (label) {
+                    is Int -> it.setI18nTheme(label, labelColor)
+                    is String -> it.setTheme(label, labelColor)
+                }
                 it.padding(start = 15.pt, end = 15.pt)
                 it.textSize(R.dimen.textSize14)
                 it.gravity = Gravity.CENTER
                 if (drawable != null) {
                     it.clearBackground()
                     it.clearHighlightColor()
-                    drawable.setTint(context.color(labelColor))
+                    drawable.setTint(color(labelColor))
                     it.setCompoundDrawables(drawable, null, null, null)
                     it.compoundDrawablePadding = 2.pt
                 }
