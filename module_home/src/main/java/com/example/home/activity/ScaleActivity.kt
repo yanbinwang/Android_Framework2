@@ -6,7 +6,6 @@ import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
 import com.example.common.base.page.interf.TransparentOwner
 import com.example.common.config.ARouterPath
-import com.example.common.utils.builder.TitleBuilder
 import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.toNewList
@@ -28,7 +27,6 @@ import com.example.home.widget.scale.ScaleImageView
 @TransparentOwner
 @Route(path = ARouterPath.ScaleActivity)
 class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
-    private val titleBuilder by lazy { TitleBuilder(this, mBinding?.titleRoot) }
     private val list by lazy { intentSerializable<ArrayList<String>>(Extra.BUNDLE_LIST) }
 
     override fun isImmersionBarEnabled() = false
@@ -36,7 +34,7 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         initImmersionBar(false)
-        titleBuilder.setLeft(tintColor = R.color.bgWhite)
+        mBinding?.titleRoot?.setLeftButton(tintColor = R.color.bgWhite)
     }
 
     override fun initData() {

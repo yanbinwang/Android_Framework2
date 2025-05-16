@@ -302,6 +302,34 @@ fun EditText?.onDone(listener: () -> Unit) {
 
 /**
  * 弹出软键盘并获取焦点
+ * class InputDialog(mContext: Context) : BaseDialog<ViewDialogInputBinding>(mContext, MATCH_PARENT, 60, BOTTOM, R.style.InputDialogStyle, false, false) {
+ *     private var listener: ((text: String) -> Unit)? = null
+ *
+ *     init {
+ *         mBinding?.tvSend.click {
+ *             listener?.invoke(mBinding?.etContent.text())
+ *             mBinding?.etContent.clear()
+ *             dismiss()
+ *         }
+ *     }
+ *
+ *     fun showInput() {
+ *         show()
+ *         mBinding?.etContent.showInput()
+ *     }
+ *
+ *     fun setOnInputListener(listener: ((text: String) -> Unit)) {
+ *         this.listener = listener
+ *     }
+ *
+ * }
+ * <style name="InputDialogStyle" parent="android:Theme.Dialog">
+ *     <item name="android:windowBackground">@android:color/transparent</item>
+ *     <item name="android:windowNoTitle">true</item>
+ *     <item name="android:windowAnimationStyle">@null</item>
+ *     <!-- 完全透明加入下面这句 -->
+ *     <item name="android:backgroundDimEnabled">false</item>
+ * </style>
  */
 fun EditText?.showInput(observer: LifecycleOwner) {
     if (this == null) return

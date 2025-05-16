@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
+import android.transition.Fade
 import android.transition.Slide
 import android.transition.Visibility
 import android.view.Gravity
@@ -98,26 +99,64 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      * 默认底部弹出
      */
     private fun setAnimation() {
-        when (popupAnimStyle) {
-            ALPHA -> animationStyle = R.style.PopupAlphaAnimStyle
-            TRANSLATE -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    enterTransition = Slide().apply {
-                        duration = 500
-                        mode = Visibility.MODE_IN
-                        slideEdge = BOTTOM
-                    }
-                    setExitTransition(Slide().apply {
-                        duration = 500
-                        mode = Visibility.MODE_OUT
-                        slideEdge = BOTTOM
-                    })
-                } else {
-                    animationStyle = R.style.PopupTranslateAnimStyle
-                }
+//        when (popupAnimStyle) {
+//            ALPHA -> {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                    enterTransition = Fade().apply {
+//                        duration = 300
+//                        mode = Visibility.MODE_IN
+//                    }
+//                    exitTransition = Fade().apply {
+//                        duration = 300
+//                        mode = Visibility.MODE_OUT
+//                    }
+//                } else {
+//                    animationStyle = R.style.PopupAlphaAnimStyle
+//                }
+//            }
+//            TRANSLATE -> {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                    enterTransition = Slide().apply {
+//                        duration = 300
+//                        mode = Visibility.MODE_IN
+//                        slideEdge = BOTTOM
+//                    }
+//                    exitTransition = Slide().apply {
+//                        duration = 300
+//                        mode = Visibility.MODE_OUT
+//                        slideEdge = BOTTOM
+//                    }
+//                } else {
+//                    animationStyle = R.style.PopupTranslateAnimStyle
+//                }
+//            }
+//            NONE -> animationStyle = -1
+//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val (enter, exit) = when (popupAnimStyle) {
+                ALPHA -> Pair(
+                    Fade().apply { duration = 300; mode = Visibility.MODE_IN },
+                    Fade().apply { duration = 300; mode = Visibility.MODE_OUT }
+                )
+                TRANSLATE -> Pair(
+                    Slide().apply { duration = 300; mode = Visibility.MODE_IN; slideEdge = BOTTOM },
+                    Slide().apply { duration = 300; mode = Visibility.MODE_OUT; slideEdge = BOTTOM }
+                )
+                NONE -> null to null
             }
-
-            NONE -> animationStyle = -1
+            enterTransition = enter
+            exitTransition = exit
+            // 确保在 API >= M 时也设置 animationStyle
+            animationStyle = when (popupAnimStyle) {
+                NONE -> -1
+                else -> 0 // 使用 0 表示使用系统默认或不应用旧版动画
+            }
+        } else {
+            animationStyle = when (popupAnimStyle) {
+                ALPHA -> R.style.PopupAlphaAnimStyle
+                TRANSLATE -> R.style.PopupTranslateAnimStyle
+                NONE -> -1
+            }
         }
     }
 

@@ -1,11 +1,11 @@
 package com.example.home.utils
 
 import android.webkit.JavascriptInterface
-import androidx.fragment.app.FragmentActivity
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.toBrowser
 import com.example.framework.utils.function.doOnDestroy
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -18,8 +18,8 @@ import java.lang.ref.WeakReference
  */
 class WebJavaScriptObject(private val webImpl: WeakReference<WebImpl>) {
     private var webJob: Job? = null
-    private val mScope by lazy { webImpl.get()?.getCoroutineScope() }
     private val mActivity by lazy { webImpl.get()?.getActivity() }
+    private val mScope get() = mActivity?.lifecycleScope
 
     init {
         mActivity.doOnDestroy {
@@ -65,12 +65,7 @@ interface WebImpl {
     /**
      * 获取父页面页面管理
      */
-    fun getActivity(): FragmentActivity
-
-    /**
-     * 获取协程上下文
-     */
-    fun getCoroutineScope(): CoroutineScope
+    fun getActivity(): AppCompatActivity
 
     /**
      * WEB调取关闭时候的回调

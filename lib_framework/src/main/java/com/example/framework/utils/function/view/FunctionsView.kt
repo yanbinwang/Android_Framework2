@@ -673,18 +673,38 @@ fun View?.focus() {
     findFocus() //获取焦点
 }
 
+///**
+// * 控件获取默认值
+// * trim { it <= ' ' }//避免某些特殊空格字符的被切除掉
+// */
+//fun View?.text(): String {
+//    return when (this) {
+//        is EditText -> text.toString().trim { it <= ' ' }
+//        is TextView -> text.toString().trim { it <= ' ' }
+//        is CheckBox -> text.toString().trim { it <= ' ' }
+//        is RadioButton -> text.toString().trim { it <= ' ' }
+//        is Button -> text.toString().trim { it <= ' ' }
+//        else -> ""
+//    }
+//}
 /**
- * 控件获取默认值
- * trim { it <= ' ' }//避免某些特殊空格字符的被切除掉
+ * 获取View的文本内容并进行自定义trim处理
+ * @param trimPredicate 自定义trim规则，默认移除所有Unicode空白字符
+ * @param defaultValue 当View为空或文本为空时的默认值
+ * @return 处理后的文本内容
+ *
+ * // 获取EditText文本，默认空字符串
+ * val text = editText.text()
+ * // 自定义trim规则，保留换行符
+ * val customTrimmed = textView.text { !it.isWhitespace() || it == '\n' }
+ * // 设置默认值
+ * val safeText = nullableTextView.text(defaultValue = "N/A")
  */
-fun View?.text(): String {
+fun View?.text(trimPredicate: (Char) -> Boolean = { it.isWhitespace() }, defaultValue: String = ""): String {
     return when (this) {
-        is EditText -> text.toString().trim { it <= ' ' }
-        is TextView -> text.toString().trim { it <= ' ' }
-        is CheckBox -> text.toString().trim { it <= ' ' }
-        is RadioButton -> text.toString().trim { it <= ' ' }
-        is Button -> text.toString().trim { it <= ' ' }
-        else -> ""
+        null -> defaultValue
+        is TextView -> text.toString().trim(trimPredicate).ifEmpty { defaultValue }
+        else -> defaultValue
     }
 }
 

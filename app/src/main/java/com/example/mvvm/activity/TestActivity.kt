@@ -6,7 +6,6 @@ import android.view.View.OnClickListener
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
-import com.example.common.utils.builder.TitleBuilder
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.insertImageResolver
 import com.example.common.utils.function.isExists
@@ -25,12 +24,11 @@ import java.io.File
  */
 @Route(path = ARouterPath.TestActivity)
 class TestActivity : BaseActivity<ActivityTestBinding>() ,OnClickListener{
-    private val titleBuilder by lazy { TitleBuilder(this, mBinding?.titleRoot) }
     private val camera by lazy { CameraHelper(this) }
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        titleBuilder.setLeft(R.mipmap.ic_btn_back2)
+        mBinding?.titleRoot?.setLeft(R.mipmap.ic_btn_back2)
         camera.bind(mBinding?.camera)
     }
 
