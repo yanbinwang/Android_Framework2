@@ -229,12 +229,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     private fun finishRefreshing(hasNextPage: Boolean? = true) {
-        val recycler = mRecycler
-        if (recycler == null) {
-            mRefresh?.finishRefreshing()
-        } else {
-            recycler.finishRefreshing(!hasNextPage.orTrue)
-        }
+        mRefresh?.finishRefreshing(!hasNextPage.orTrue)
+//        val recycler = mRecycler
+//        if (recycler == null) {
+//            mRefresh?.finishRefreshing()
+//        } else {
+//            recycler.finishRefreshing(!hasNextPage.orTrue)
+//        }
     }
 
     /**
