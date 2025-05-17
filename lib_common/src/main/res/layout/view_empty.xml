@@ -8,46 +8,49 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/iv_empty"
-            android:layout_width="120pt"
-            android:layout_height="112pt"
+        <LinearLayout
+            android:id="@+id/ll_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@mipmap/bg_data_error" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <com.example.common.widget.i18n.I18nTextView
-            android:id="@+id/tv_empty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2pt"
-            android:gravity="center"
-            android:textColor="@color/textPrimary"
-            android:textSize="@dimen/textSize15"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_empty"
-            tools:text="页面加载失败，请重试" />
+            <ImageView
+                android:id="@+id/iv_empty"
+                android:layout_width="150pt"
+                android:layout_height="128pt"
+                tools:src="@mipmap/bg_data_error" />
 
-        <com.example.common.widget.i18n.I18nTextView
-            android:id="@+id/tv_refresh"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10pt"
-            android:background="@drawable/selector_r5_main"
-            android:gravity="center"
-            android:minWidth="164pt"
-            android:paddingHorizontal="14pt"
-            android:paddingVertical="11pt"
-            android:text="@string/refresh"
-            android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize15"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_empty" />
+            <com.example.common.widget.i18n.I18nTextView
+                android:id="@+id/tv_empty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2pt"
+                android:gravity="center"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize15"
+                android:textStyle="bold"
+                tools:text="页面加载失败，请重试" />
+
+            <com.example.common.widget.i18n.I18nTextView
+                android:id="@+id/tv_refresh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10pt"
+                android:background="@drawable/selector_r5_main"
+                android:gravity="center"
+                android:minWidth="164pt"
+                android:paddingHorizontal="14pt"
+                android:paddingVertical="11pt"
+                android:text="@string/refresh"
+                android:textColor="@color/textWhite"
+                android:textSize="@dimen/textSize15" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
