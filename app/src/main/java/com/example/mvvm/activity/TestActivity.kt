@@ -28,7 +28,7 @@ class TestActivity : BaseActivity<ActivityTestBinding>() ,OnClickListener{
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        mBinding?.titleRoot?.setLeft(R.mipmap.ic_btn_back2)
+        mBinding?.titleRoot?.setLeftButton(R.mipmap.ic_btn_back2)?.bind(this)
         camera.bind(mBinding?.camera)
     }
 
