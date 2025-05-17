@@ -34,7 +34,7 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         initImmersionBar(false)
-        mBinding?.titleRoot?.setLeftButton(tintColor = R.color.bgWhite)
+        mBinding?.titleRoot?.setLeftButton(tintColor = R.color.bgWhite)?.bind(this)
     }
 
     override fun initData() {

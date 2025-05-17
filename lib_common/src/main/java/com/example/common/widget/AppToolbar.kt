@@ -77,11 +77,12 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     /**
      * 建立页面视图绑定关系
      */
-    fun bind(activity: AppCompatActivity) {
+    fun bind(activity: AppCompatActivity): AppToolbar {
         mActivity = activity
         activity.doOnDestroy {
             idsMap.clear()
         }
+        return this
     }
 
     /**
