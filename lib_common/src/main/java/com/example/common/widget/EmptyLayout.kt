@@ -231,7 +231,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun setWindows(windows: Boolean) {
         if (windows) {
-            mBinding.ivEmpty.margin(top = -(getStatusBarHeight() + 44.pt))
+            mBinding.llContent.margin(top = -(getStatusBarHeight() + 44.pt))
         }
     }
 
