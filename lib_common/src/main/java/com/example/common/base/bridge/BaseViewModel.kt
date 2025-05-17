@@ -96,7 +96,10 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         //处理 view 的类型，设置 weakEmpty 和 weakRecycler
         when (view) {
             //传入BaseTitleActivity中写好的容器viewGroup
-            is FrameLayout -> weakEmpty = WeakReference(view.getEmptyView(1))
+            is FrameLayout -> {
+                weakEmpty = WeakReference(view.getEmptyView(1))
+                mEmpty?.setWindows(true)
+            }
             //界面上绘制好empty
             is EmptyLayout -> weakEmpty = WeakReference(view)
             //传入用于刷新的empty
