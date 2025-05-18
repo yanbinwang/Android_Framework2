@@ -3,23 +3,17 @@ package com.example.glide
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.os.Looper
 import android.widget.ImageView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
-import com.example.glide.callback.GlideImpl
-import com.example.glide.callback.GlideImpl.Companion.DEFAULT_CIRCULAR_RESOURCE
-import com.example.glide.callback.GlideImpl.Companion.DEFAULT_RESOURCE
-import com.example.glide.callback.GlideImpl.Companion.DEFAULT_MASK_RESOURCE
-import com.example.glide.callback.GlideImpl.Companion.DEFAULT_ROUNDED_RESOURCE
+import com.example.framework.utils.logWTF
 import com.example.glide.callback.GlideRequestListener
 import com.example.glide.callback.progress.ProgressInterceptor
 import com.example.glide.transform.CornerTransform
@@ -42,16 +36,70 @@ import java.io.File
  * 2.GlideModule在高版本已经不需要继承，写好打上注解全局就会应用（glide的依赖需要都引入）
  */
 //class ImageLoader private constructor() : GlideModule(), GlideImpl {
-class ImageLoader private constructor() : GlideImpl {
-//    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+class ImageLoader private constructor() {
     private val scope by lazy { CoroutineScope(SupervisorJob() + Main.immediate) }
 
     companion object {
         @JvmStatic
         val instance by lazy { ImageLoader() }
+
+        /**
+         * 默认遮罩
+         */
+        @JvmStatic
+        val DEFAULT_MASK_RESOURCE = R.drawable.shape_glide_mask
+
+        /**
+         * 默认加载
+         */
+        @JvmStatic
+        val DEFAULT_RESOURCE = R.drawable.shape_glide_default
+
+        /**
+         * 默认弧形加载
+         */
+        @JvmStatic
+        val DEFAULT_ROUNDED_RESOURCE = R.drawable.shape_glide_rounded
+
+        /**
+         * 默认圆形加载
+         */
+        @JvmStatic
+        val DEFAULT_CIRCULAR_RESOURCE = R.drawable.shape_glide_circular
+
+        /**
+         * 圆角图片弧度
+         */
+        @JvmStatic
+        val DEFAULT_CORNER_RADIUS = 5
+
+        /**
+         * 圆角图片4个边是否都是弧线
+         */
+        @JvmStatic
+        private val DEFAULT_OVERRIDE_CORNERS = booleanArrayOf(false, false, false, false)
+
+        /**
+         * 获取drawable的图片
+         */
+        @JvmStatic
+        private fun getDefaultDrawable(view: ImageView?) = view?.context?.drawable(DEFAULT_RESOURCE)
+
+        @JvmStatic
+        private fun getDefaultRoundedDrawable(view: ImageView?) = view?.context?.drawable(DEFAULT_ROUNDED_RESOURCE)
+
+        @JvmStatic
+        private fun getDefaultCircularDrawable(view: ImageView?) = view?.context?.drawable(DEFAULT_CIRCULAR_RESOURCE)
     }
 
-    override fun loadScaledImage(view: ImageView?, imageUrl: String?, onLoadStart: () -> Unit, onLoadComplete: (bitmap: Bitmap?) -> Unit) {
+    /**
+     * 加载图片并根据设置的宽度等比例拉伸高度
+     * @param view 用于显示图片的 ImageView
+     * @param imageUrl 图片的 URL 地址
+     * @param onLoadStart 图片开始加载时的回调
+     * @param onLoadComplete 图片加载完成时的回调，返回加载的 Bitmap
+     */
+    fun loadScaledImage(view: ImageView?, imageUrl: String?, onLoadStart: () -> Unit, onLoadComplete: (bitmap: Bitmap?) -> Unit) {
         view ?: return
         Glide.with(view.context)
             .asBitmap()
@@ -70,7 +118,19 @@ class ImageLoader private constructor() : GlideImpl {
             .into(ZoomTransform(view))
     }
 
-    override fun loadVideoFrame(view: ImageView?, videoUrl: String?, frameTimeMicros: Long) {
+    /**
+     * 加载线上视频的某一帧，所需帧的时间位置，单位为微秒。如果为负，返回一个代表性帧
+     *  1秒 = 10分秒
+     *  1分秒 = 10厘秒
+     *  1厘秒 = 10毫秒
+     *  1毫秒 = 1000微秒
+     *  1微秒 = 1000纳秒->取得的是微秒
+     *  1纳秒 = 1000皮秒
+     * @param view 用于显示视频帧的 ImageView
+     * @param videoUrl 视频的 URL 地址
+     * @param frameTimeMicros 要提取的帧的时间（微秒）
+     */
+    fun loadVideoFrame(view: ImageView?, videoUrl: String?, frameTimeMicros: Long = 1000000000) {
         view ?: return
         try {
             Glide.with(view.context)
@@ -84,7 +144,12 @@ class ImageLoader private constructor() : GlideImpl {
         }
     }
 
-    override fun loadGifFromUrl(view: ImageView?, gifUrl: String?) {
+    /**
+     * 加载网络 GIF 图片
+     * @param view 用于显示 GIF 图片的 ImageView
+     * @param gifUrl GIF 图片的 URL 地址
+     */
+    fun loadGifFromUrl(view: ImageView?, gifUrl: String?) {
         view ?: return
         Glide.with(view.context)
             .asGif()
@@ -92,7 +157,12 @@ class ImageLoader private constructor() : GlideImpl {
             .into(view)
     }
 
-    override fun loadGifFromResource(view: ImageView?, gifResource: Int?) {
+    /**
+     * 加载本地 GIF 图片
+     * @param view 用于显示 GIF 图片的 ImageView
+     * @param gifResource 本地 GIF 图片的资源 ID
+     */
+    fun loadGifFromResource(view: ImageView?, gifResource: Int?) {
         view ?: return
         Glide.with(view.context)
             .asGif()
@@ -100,27 +170,16 @@ class ImageLoader private constructor() : GlideImpl {
             .into(view)
     }
 
-    override fun loadImageWithProgress(view: ImageView?, imageUrl: String, onLoadStart: () -> Unit, onLoadProgress: (progress: Int?) -> Unit, onLoadResult: (result: Boolean) -> Unit) {
+    /**
+     * 加载图片并捕获加载进度
+     * @param view 用于显示图片的 ImageView
+     * @param imageUrl 图片的 URL 地址，不能为空
+     * @param onLoadStart 图片开始加载时的回调
+     * @param onLoadProgress 图片加载进度的回调
+     * @param onLoadResult 图片加载结果的回调，true 表示加载成功，false 表示失败
+     */
+    fun loadImageWithProgress(view: ImageView?, imageUrl: String, onLoadStart: () -> Unit = {}, onLoadProgress: (progress: Int?) -> Unit = {}, onLoadResult: (result: Boolean) -> Unit = {}) {
         view ?: return
-//        Glide.with(view.context)
-//            .load(imageUrl)
-//            .apply(RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE))
-//            .addListener(object : GlideRequestListener<Drawable>() {
-//                override fun onLoadStart() {
-//                    ProgressInterceptor.addListener(imageUrl) {
-//                        weakHandler.post {
-//                            onLoadProgress(it)
-//                        }
-//                    }
-//                    onLoadStart()
-//                }
-//
-//                override fun onLoadFinished(resource: Drawable?) {
-//                    ProgressInterceptor.removeListener(imageUrl)
-//                    onLoadResult(resource != null)
-//                }
-//            })
-//            .into(view)
         /**
          * 避免频繁创建协程
          * callbackFlow 是 Kotlin 协程中专门用于将回调式 API 转换为流的构建器。它允许你在回调函数中向流中发射数据，并且可以处理流的关闭操作。
@@ -162,15 +221,39 @@ class ImageLoader private constructor() : GlideImpl {
         }
     }
 
-    override fun loadImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int?, onLoadStart: () -> Unit, onLoadComplete: (drawable: Drawable?) -> Unit) {
+    /**
+     * 加载图片，支持不同的展示方式（URL 方式）
+     * @param view 用于显示图片的 ImageView
+     * @param imageUrl 图片的 URL 地址
+     * @param errorResource 加载失败时显示的错误图片资源 ID
+     * @param onLoadStart 图片开始加载时的回调
+     * @param onLoadComplete 图片加载完成时的回调，返回加载的 Drawable
+     */
+    fun loadImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = DEFAULT_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         loadImageDrawableFromUrl(view, imageUrl, view?.context?.drawable(errorResource.orZero), onLoadStart, onLoadComplete)
     }
 
-    override fun loadImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int?, onLoadStart: () -> Unit, onLoadComplete: (drawable: Drawable?) -> Unit) {
+    /**
+     * 加载图片，支持不同的展示方式（资源 ID 方式）
+     * @param view 用于显示图片的 ImageView
+     * @param imageResource 图片的资源 ID
+     * @param errorResource 加载失败时显示的错误图片资源 ID
+     * @param onLoadStart 图片开始加载时的回调
+     * @param onLoadComplete 图片加载完成时的回调，返回加载的 Drawable
+     */
+    fun loadImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int? = DEFAULT_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         loadImageDrawableFromResource(view, view?.context?.drawable(imageResource.orZero), view?.context?.drawable(errorResource.orZero), onLoadStart, onLoadComplete)
     }
 
-    override fun loadImageDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable?, onLoadStart: () -> Unit, onLoadComplete: (drawable: Drawable?) -> Unit) {
+    /**
+     * 加载图片，支持不同的展示方式（Drawable 方式，URL 来源）
+     * @param view 用于显示图片的 ImageView
+     * @param imageUrl 图片的 URL 地址
+     * @param errorDrawable 加载失败时显示的错误 Drawable
+     * @param onLoadStart 图片开始加载时的回调
+     * @param onLoadComplete 图片加载完成时的回调，返回加载的 Drawable
+     */
+    fun loadImageDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = getDefaultDrawable(view), onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         view ?: return
         Glide.with(view.context)
             .load(imageUrl)
@@ -189,7 +272,15 @@ class ImageLoader private constructor() : GlideImpl {
             .into(view)
     }
 
-    override fun loadImageDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable?, onLoadStart: () -> Unit, onLoadComplete: (drawable: Drawable?) -> Unit) {
+    /**
+     * 加载图片，支持不同的展示方式（Drawable 方式，资源 ID 来源）
+     * @param view 用于显示图片的 ImageView
+     * @param imageDrawable 图片的 Drawable
+     * @param errorDrawable 加载失败时显示的错误 Drawable
+     * @param onLoadStart 图片开始加载时的回调
+     * @param onLoadComplete 图片加载完成时的回调，返回加载的 Drawable
+     */
+    fun loadImageDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable? = getDefaultDrawable(view), onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         view ?: return
         Glide.with(view.context)
             .load(imageDrawable)
@@ -208,45 +299,108 @@ class ImageLoader private constructor() : GlideImpl {
             .into(view)
     }
 
-    override fun loadRoundedImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int?, cornerRadius: Int, overrideCorners: BooleanArray) {
+    /**
+     * 加载圆角图片（URL 方式）
+     * @param view 用于显示图片的 ImageView
+     * @param imageUrl 图片的 URL 地址
+     * @param errorResource 加载失败时显示的错误图片资源 ID
+     * @param cornerRadius 圆角半径
+     * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
+     */
+    fun loadRoundedImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = DEFAULT_ROUNDED_RESOURCE, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS) {
         loadRoundedDrawableFromUrl(view, imageUrl, view?.context?.drawable(errorResource.orZero), cornerRadius, overrideCorners)
     }
 
-    override fun loadRoundedImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int?, cornerRadius: Int, overrideCorners: BooleanArray) {
+    /**
+     * 加载圆角图片（资源 ID 方式）
+     * @param view 用于显示图片的 ImageView
+     * @param imageResource 图片的资源 ID
+     * @param errorResource 加载失败时显示的错误图片资源 ID
+     * @param cornerRadius 圆角半径
+     * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
+     */
+    fun loadRoundedImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int? = DEFAULT_ROUNDED_RESOURCE, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS) {
         loadRoundedDrawableFromResource(view, view?.context?.drawable(imageResource.orZero), view?.context?.drawable(errorResource.orZero), cornerRadius, overrideCorners)
     }
 
-    override fun loadRoundedDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable?, cornerRadius: Int, overrideCorners: BooleanArray) {
+    /**
+     * 加载圆角图片（Drawable 方式，URL 来源）
+     * @param view 用于显示图片的 ImageView
+     * @param imageUrl 图片的 URL 地址
+     * @param errorDrawable 加载失败时显示的错误 Drawable
+     * @param cornerRadius 圆角半径，默认值为 5
+     * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
+     */
+    fun loadRoundedDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = getDefaultRoundedDrawable(view), cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS) {
         view ?: return
         Glide.with(view.context)
             .load(imageUrl)
-            .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, cornerRadius.toSafeFloat()).apply { setExceptCorner(overrideCorners) }))
+            .apply(
+                RequestOptions.bitmapTransform(
+                    CornerTransform(
+                        view.context,
+                        cornerRadius.toSafeFloat()
+                    ).apply { setExceptCorner(overrideCorners) })
+            )
             .placeholder(DEFAULT_ROUNDED_RESOURCE)
             .error(errorDrawable)
             .dontAnimate()
             .into(view)
     }
 
-    override fun loadRoundedDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable?, cornerRadius: Int, overrideCorners: BooleanArray) {
+    /**
+     * 加载圆角图片（Drawable 方式，资源 ID 来源）
+     * @param view 用于显示图片的 ImageView
+     * @param imageDrawable 图片的 Drawable
+     * @param errorDrawable 加载失败时显示的错误 Drawable
+     * @param cornerRadius 圆角半径，默认值为 5
+     * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
+     */
+    fun loadRoundedDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable? = getDefaultRoundedDrawable(view), cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS) {
         view ?: return
         Glide.with(view.context)
             .load(imageDrawable)
-            .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, cornerRadius.toSafeFloat()).apply { setExceptCorner(overrideCorners) }))
+            .apply(
+                RequestOptions.bitmapTransform(
+                    CornerTransform(
+                        view.context,
+                        cornerRadius.toSafeFloat()
+                    ).apply { setExceptCorner(overrideCorners) })
+            )
             .placeholder(DEFAULT_ROUNDED_RESOURCE)
             .error(errorDrawable)
             .dontAnimate()
             .into(view)
     }
 
-    override fun loadCircularImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int?) {
+    /**
+     * 加载圆形图片（URL 方式）
+     * @param view 用于显示图片的 ImageView
+     * @param imageUrl 图片的 URL 地址
+     * @param errorResource 加载失败时显示的错误图片资源 ID
+     */
+    fun loadCircularImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = DEFAULT_CIRCULAR_RESOURCE) {
+        "File----imageUrl:${imageUrl}\ncircular_errorResource:${errorResource}".logWTF("wyb")
         loadCircularDrawableFromUrl(view, imageUrl, view?.context?.drawable(errorResource.orZero))
     }
 
-    override fun loadCircularImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int?) {
+    /**
+     * 加载圆形图片（资源 ID 方式）
+     * @param view 用于显示图片的 ImageView
+     * @param imageResource 图片的资源 ID
+     * @param errorResource 加载失败时显示的错误图片资源 ID
+     */
+    fun loadCircularImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int? = DEFAULT_CIRCULAR_RESOURCE) {
         loadCircularDrawableFromResource(view, view?.context?.drawable(imageResource.orZero), view?.context?.drawable(errorResource.orZero))
     }
 
-    override fun loadCircularDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable?) {
+    /**
+     * 加载圆形图片（Drawable 方式，URL 来源）
+     * @param view 用于显示图片的 ImageView
+     * @param imageUrl 图片的 URL 地址
+     * @param errorDrawable 加载失败时显示的错误 Drawable
+     */
+    fun loadCircularDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = getDefaultCircularDrawable(view)) {
         view ?: return
         Glide.with(view.context)
             .load(imageUrl)
@@ -257,7 +411,13 @@ class ImageLoader private constructor() : GlideImpl {
             .into(view)
     }
 
-    override fun loadCircularDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable?) {
+    /**
+     * 加载圆形图片（Drawable 方式，资源 ID 来源）
+     * @param view 用于显示图片的 ImageView
+     * @param imageDrawable 图片的 Drawable
+     * @param errorDrawable 加载失败时显示的错误 Drawable
+     */
+    fun loadCircularDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable? = getDefaultCircularDrawable(view)) {
         view ?: return
         Glide.with(view.context)
             .load(imageDrawable)
@@ -269,16 +429,20 @@ class ImageLoader private constructor() : GlideImpl {
     }
 
     /**
-     * 获取用于缓存图片的路劲
+     * 获取图片缓存目录
+     * @param context 上下文对象
+     * @return 图片缓存目录的 File 对象，如果获取失败返回 null
      */
-    override fun getImageCacheDir(context: Context): File? {
+    fun getImageCacheDir(context: Context): File? {
         return Glide.getPhotoCacheDir(context)
     }
 
     /**
-     * 清除内存缓存是在主线程中
+     * 清除内存缓存
+     * @param context 上下文对象
+     * @param owner 生命周期所有者，用于管理协程等操作
      */
-    override fun clearMemoryCache(context: Context, owner: LifecycleOwner) {
+    fun clearMemoryCache(context: Context, owner: LifecycleOwner) {
         val clearDiskCacheAction = {
             try {
                 Glide.get(context).clearMemory()
@@ -296,9 +460,11 @@ class ImageLoader private constructor() : GlideImpl {
     }
 
     /**
-     * 清除磁盘缓存是在子线程中进行
+     * 清除磁盘缓存
+     * @param context 上下文对象
+     * @param owner 生命周期所有者，用于管理协程等操作
      */
-    override fun clearDiskCache(context: Context, owner: LifecycleOwner) {
+    fun clearDiskCache(context: Context, owner: LifecycleOwner) {
         val clearDiskCacheAction = {
             try {
                 Glide.get(context).clearDiskCache()
@@ -315,7 +481,14 @@ class ImageLoader private constructor() : GlideImpl {
         }
     }
 
-    override fun downloadImage(context: Context, imageUrl: String?, onDownloadStart: () -> Unit, onDownloadComplete: (file: File?) -> Unit) {
+    /**
+     * 下载图片
+     * @param context 上下文对象
+     * @param imageUrl 图片的 URL 地址
+     * @param onDownloadStart 下载开始时的回调
+     * @param onDownloadComplete 下载完成时的回调，返回下载的文件
+     */
+    fun downloadImage(context: Context, imageUrl: String? = null, onDownloadStart: () -> Unit = {}, onDownloadComplete: (file: File?) -> Unit = {}) {
         Glide.with(context)
             .downloadOnly()
             .load(imageUrl)

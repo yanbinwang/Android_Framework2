@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
 import androidx.core.content.withStyledAttributes
@@ -58,13 +59,15 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     //空布局点击
     private var listener: ((result: Boolean) -> Unit)? = null
     //----------------以下懒加载会在调取时候创建----------------
-    //整体容器
-    val root by lazy { FrameLayout(context) }
-    //自定义封装的空布局->大小会在添加时设置
+    //整体容器->高度随着子child来拉伸
+    val root by lazy { FrameLayout(context).apply {
+        size(MATCH_PARENT, WRAP_CONTENT)
+    }}
+    //自定义封装的空布局->大小会在添加时设置，xml中是MATCH_PARENT
     val empty by lazy { EmptyLayout(context).apply {
         onInflate()
     }}
-    //数据列表
+    //数据列表，并且配置默认属性
     val recycler by lazy { ObserverRecyclerView(context).apply {
         size(MATCH_PARENT, MATCH_PARENT)
         init()

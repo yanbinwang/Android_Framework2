@@ -7,6 +7,7 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.lifecycle.Lifecycle
@@ -121,6 +122,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     init {
         banner = ViewPager2(context).apply {
+            size(MATCH_PARENT, MATCH_PARENT)
             reduceSensitivity()
             adapter(advAdapter)
             registerOnPageChangeCallback(callback)
