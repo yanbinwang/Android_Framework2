@@ -54,6 +54,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var refreshEnable = false
     //是否具有空布局
     private var emptyEnable = false
+    //固定高度，-1表示为全屏
+    private var rootFixedHeight = -1
     //空布局点击
     private var listener: ((result: Boolean) -> Unit)? = null
     //----------------以下懒加载会在调取时候创建----------------
@@ -79,6 +81,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         context.withStyledAttributes(attrs, R.styleable.XRecyclerView) {
             refreshEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableRefresh, false)
             emptyEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableEmpty, false)
+            rootFixedHeight = getInt(R.styleable.XRecyclerView_xrvFixedHeight, -1)
         }
     }
 
@@ -102,6 +105,10 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 }
             }
             addView(root)
+            //插入布局后，存在配置的特殊情况，即我可能只想给定一个固定的高度
+            if (-1 != rootFixedHeight) {
+                setSize(height = rootFixedHeight)
+            }
         }
     }
 
@@ -113,6 +120,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         empty.setOnEmptyRefreshListener {
             listener?.invoke(it)
         }
+    }
+
+    /**
+     * 设置整体大小
+     */
+    fun setSize(width: Int? = null, height: Int? = null) {
+        root.size(width.pt, height.pt)
     }
 
     /**
