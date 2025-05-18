@@ -2,12 +2,8 @@ package com.example.framework.widget
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isEmpty
 import androidx.core.view.isNotEmpty
@@ -145,73 +141,7 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         if (isNotEmpty()) {
             val child = getChildAt(0)
-            val lp = child.layoutParams
-            var left = 0
-            var top = 0
-            val parentWidth = r - l
-            val parentHeight = b - t
-            // 处理布局参数
-            when (lp) {
-                is LinearLayout.LayoutParams -> {
-                    // 处理LinearLayout的gravity
-                    val gravity = lp.gravity
-                    left = when (gravity and Gravity.HORIZONTAL_GRAVITY_MASK) {
-                        Gravity.LEFT -> 0
-                        Gravity.CENTER_HORIZONTAL -> (parentWidth - child.measuredWidth) / 2
-                        Gravity.RIGHT -> parentWidth - child.measuredWidth
-                        else -> 0
-                    }
-                    top = when (gravity and Gravity.VERTICAL_GRAVITY_MASK) {
-                        Gravity.TOP -> 0
-                        Gravity.CENTER_VERTICAL -> (parentHeight - child.measuredHeight) / 2
-                        Gravity.BOTTOM -> parentHeight - child.measuredHeight
-                        else -> 0
-                    }
-                }
-                is FrameLayout.LayoutParams -> {
-                    // 处理FrameLayout的gravity
-                    val gravity = lp.gravity
-                    left = when (gravity and Gravity.HORIZONTAL_GRAVITY_MASK) {
-                        Gravity.LEFT -> 0
-                        Gravity.CENTER_HORIZONTAL -> (parentWidth - child.measuredWidth) / 2
-                        Gravity.RIGHT -> parentWidth - child.measuredWidth
-                        else -> 0
-                    }
-                    top = when (gravity and Gravity.VERTICAL_GRAVITY_MASK) {
-                        Gravity.TOP -> 0
-                        Gravity.CENTER_VERTICAL -> (parentHeight - child.measuredHeight) / 2
-                        Gravity.BOTTOM -> parentHeight - child.measuredHeight
-                        else -> 0
-                    }
-                }
-                is ConstraintLayout.LayoutParams -> {
-                    // ConstraintLayout会自行处理布局，通常不需要特殊处理
-                    // 但如果父容器是wrap_content，可能需要调整
-                    if (parentWidth != child.measuredWidth) {
-                        left = (parentWidth - child.measuredWidth) / 2
-                    }
-                    if (parentHeight != child.measuredHeight) {
-                        top = (parentHeight - child.measuredHeight) / 2
-                    }
-                }
-                is RelativeLayout.LayoutParams -> {
-                    // 处理RelativeLayout的布局参数
-                    val rules = lp.rules
-                    left = when (RelativeLayout.TRUE) {
-                        rules[RelativeLayout.CENTER_HORIZONTAL] -> (parentWidth - child.measuredWidth) / 2
-                        rules[RelativeLayout.ALIGN_PARENT_LEFT] -> 0
-                        rules[RelativeLayout.ALIGN_PARENT_RIGHT] -> parentWidth - child.measuredWidth
-                        else -> 0
-                    }
-                    top = when (RelativeLayout.TRUE) {
-                        rules[RelativeLayout.CENTER_VERTICAL] -> (parentHeight - child.measuredHeight) / 2
-                        rules[RelativeLayout.ALIGN_PARENT_TOP] -> 0
-                        rules[RelativeLayout.ALIGN_PARENT_BOTTOM] -> parentHeight - child.measuredHeight
-                        else -> 0
-                    }
-                }
-            }
-            child.layout(left, top, left + child.measuredWidth, top + child.measuredHeight)
+            child.layout(0, 0, measuredWidth, measuredHeight)
         }
     }
 
