@@ -13,7 +13,6 @@ import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
-import com.example.framework.utils.logWTF
 import com.example.glide.callback.GlideRequestListener
 import com.example.glide.callback.progress.ProgressInterceptor
 import com.example.glide.transform.CornerTransform
@@ -380,7 +379,6 @@ class ImageLoader private constructor() {
      * @param errorResource 加载失败时显示的错误图片资源 ID
      */
     fun loadCircularImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = DEFAULT_CIRCULAR_RESOURCE) {
-        "File----imageUrl:${imageUrl}\ncircular_errorResource:${errorResource}".logWTF("wyb")
         loadCircularDrawableFromUrl(view, imageUrl, view?.context?.drawable(errorResource.orZero))
     }
 
