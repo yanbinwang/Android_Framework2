@@ -320,6 +320,21 @@ var View?.layoutGravity: Int
     }
 
 /**
+ * 递归查找特定类型的父视图
+ * val nestedScrollView = myView.findParentOfType(NestedScrollView::class.java)
+ */
+fun <T : View> View.findParentOfType(clazz: Class<T>): T? {
+    var parent = parent
+    while (parent != null) {
+        if (clazz.isInstance(parent)) {
+            return clazz.cast(parent)
+        }
+        parent = parent.parent
+    }
+    return null
+}
+
+/**
  * 获取view的LifecycleOwner
  * 如果你的 View 是在一个 Fragment 或者 Activity 中使用，而这个 Fragment 或 Activity 本身实现了 LifecycleOwner 接口
  * （在 AndroidX 中，Fragment 和 Activity 都默认实现了 LifecycleOwner 接口），那么你可以将 view.context 强制转换为 LifecycleOwner。

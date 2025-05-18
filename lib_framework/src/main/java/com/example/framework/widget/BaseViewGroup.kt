@@ -15,6 +15,7 @@ import androidx.core.view.isNotEmpty
 /**
  * 自定义控件继承ViewGroup需要清除边距，使用当前类做处理
  * 自定义控件如果宽度是手机宽度，则可用当前BaseViewGroup，否则推荐使用继承FrameLayout
+ * 如果嵌套NestedScrollView记得添加属性android:fillViewport="true"保证子布局撑满
  */
 abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ViewGroup(context, attrs, defStyleAttr) {
     //检测布局绘制->只容许容器内有一个插入的xml
@@ -41,9 +42,11 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
             return
         }
-        // 提取父容器提供的可用宽高（即自定义控件本身被绘制在xml时设置好wrap/match时得到的系统给的宽高）
-        val rootWidthMeasureSpec = MeasureSpec.getSize(widthMeasureSpec)
-        val rootHeightMeasureSpec = MeasureSpec.getSize(heightMeasureSpec)
+        // 提取父容器提供的可用宽高及对应测量模式（即自定义控件本身被绘制在xml时设置好wrap/match时得到的系统给的宽高）
+        val widthSize = MeasureSpec.getSize(widthMeasureSpec)
+        val heightSize = MeasureSpec.getSize(heightMeasureSpec)
+        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
+        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
         // 获取子视图
         val child = getChildAt(0)
         // 取得子视图布局参数，用于描述视图（View）在父容器（ViewGroup）中如何布局的一组参数
@@ -54,8 +57,8 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
         // 处理子视图未设置宽高的情况（代码直接创建，且并未设置size）
         if (childLayoutParams.width == LayoutParams.WRAP_CONTENT && childLayoutParams.height == LayoutParams.WRAP_CONTENT) {
             // 指定测量模式为 EXACTLY：表示子视图必须精确使用这个尺寸。当作 MATCH_PARENT 处理
-            childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(rootWidthMeasureSpec, MeasureSpec.EXACTLY)
-            childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(rootHeightMeasureSpec, MeasureSpec.EXACTLY)
+            childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY)
+            childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY)
         } else if (child is ConstraintLayout) {
             // 对于 ConstraintLayout，直接使用父容器的测量规格（内部具有0dp等各种约束条件）
             childWidthMeasureSpec = widthMeasureSpec
@@ -65,11 +68,19 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
             childWidthMeasureSpec = when (childLayoutParams.width) {
                 // 如果子视图宽度为 MATCH_PARENT，使用父容器的精确宽度
                 LayoutParams.MATCH_PARENT -> {
-                    MeasureSpec.makeMeasureSpec(rootWidthMeasureSpec, MeasureSpec.EXACTLY)
+                    if (widthMode == MeasureSpec.UNSPECIFIED) {
+                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.UNSPECIFIED) // 父容器无限制，子视图也无限制
+                    } else {
+                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY) // 父容器有确定尺寸，子视图填充
+                    }
                 }
                 // 如果子视图宽度为 WRAP_CONTENT，使用父容器的 AT_MOST 模式
                 LayoutParams.WRAP_CONTENT -> {
-                    MeasureSpec.makeMeasureSpec(rootWidthMeasureSpec, MeasureSpec.AT_MOST)
+                    if (widthMode == MeasureSpec.UNSPECIFIED) {
+                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.UNSPECIFIED) // 父容器无限制，子视图也无限制
+                    } else {
+                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.AT_MOST) // 子视图不能超过父容器
+                    }
                 }
                 // 如果子视图有固定宽度，使用精确模式，以子视图为主
                 else -> {
@@ -78,12 +89,18 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
             }
             childHeightMeasureSpec = when (childLayoutParams.height) {
                 LayoutParams.MATCH_PARENT -> {
-                    // 如果子视图高度为 MATCH_PARENT，使用父容器的精确高度
-                    MeasureSpec.makeMeasureSpec(rootHeightMeasureSpec, MeasureSpec.EXACTLY)
+                    if (heightMode == MeasureSpec.UNSPECIFIED) {
+                        MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.UNSPECIFIED) // 父容器无限制，子视图也无限制
+                    } else {
+                        MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY) // 父容器有确定尺寸，子视图填充
+                    }
                 }
                 LayoutParams.WRAP_CONTENT -> {
-                    // 如果子视图高度为 WRAP_CONTENT，使用父容器的 AT_MOST 模式
-                    MeasureSpec.makeMeasureSpec(rootHeightMeasureSpec, MeasureSpec.AT_MOST)
+                    if (heightMode == MeasureSpec.UNSPECIFIED) {
+                        MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.UNSPECIFIED) // 父容器无限制，子视图也无限制
+                    } else {
+                        MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.AT_MOST) // 子视图不能超过父容器
+                    }
                 }
                 else -> {
                     // 如果子视图有固定高度，使用精确模式
@@ -93,28 +110,30 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
         }
         // 测量子视图-->父容器传递 widthMeasureSpec 和 heightMeasureSpec 参数，描述子视图的可用空间和约束条件
         child.measure(childWidthMeasureSpec, childHeightMeasureSpec)
-        // 根据子视图的测量结果和父容器的测量规格确定父容器的尺寸
-        val finalWidth = when (MeasureSpec.getMode(widthMeasureSpec)) {
-            MeasureSpec.EXACTLY -> rootWidthMeasureSpec
+        // 计算最终尺寸
+        val finalWidth = when (widthMode) {
+            MeasureSpec.EXACTLY -> widthSize
             MeasureSpec.AT_MOST -> {
                 if (childLayoutParams.width == LayoutParams.MATCH_PARENT) {
-                    rootWidthMeasureSpec
+                    widthSize
                 } else {
-                    child.measuredWidth.coerceAtMost(rootWidthMeasureSpec)
+                    child.measuredWidth.coerceAtMost(widthSize)
                 }
             }
-            else -> child.measuredWidth
+            MeasureSpec.UNSPECIFIED -> child.measuredWidth
+            else -> widthSize
         }
-        val finalHeight = when (MeasureSpec.getMode(heightMeasureSpec)) {
-            MeasureSpec.EXACTLY -> rootHeightMeasureSpec
+        val finalHeight = when (heightMode) {
+            MeasureSpec.EXACTLY -> heightSize
             MeasureSpec.AT_MOST -> {
                 if (childLayoutParams.height == LayoutParams.MATCH_PARENT) {
-                    rootHeightMeasureSpec
+                    heightSize
                 } else {
-                    child.measuredHeight.coerceAtMost(rootHeightMeasureSpec)
+                    child.measuredHeight.coerceAtMost(heightSize)
                 }
             }
-            else -> child.measuredHeight
+            MeasureSpec.UNSPECIFIED -> child.measuredHeight
+            else -> heightSize
         }
         // 设置父容器的测量尺寸
         setMeasuredDimension(finalWidth, finalHeight)
@@ -131,63 +150,64 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
             var top = 0
             val parentWidth = r - l
             val parentHeight = b - t
+            // 处理布局参数
             when (lp) {
                 is LinearLayout.LayoutParams -> {
-                    val gravity = lp.gravity
                     // 处理LinearLayout的gravity
-                    when (gravity and Gravity.HORIZONTAL_GRAVITY_MASK) {
-                        Gravity.LEFT -> left = 0
-                        Gravity.CENTER_HORIZONTAL -> left = (parentWidth - child.measuredWidth) / 2
-                        Gravity.RIGHT -> left = parentWidth - child.measuredWidth
+                    val gravity = lp.gravity
+                    left = when (gravity and Gravity.HORIZONTAL_GRAVITY_MASK) {
+                        Gravity.LEFT -> 0
+                        Gravity.CENTER_HORIZONTAL -> (parentWidth - child.measuredWidth) / 2
+                        Gravity.RIGHT -> parentWidth - child.measuredWidth
+                        else -> 0
                     }
-                    when (gravity and Gravity.VERTICAL_GRAVITY_MASK) {
-                        Gravity.TOP -> top = 0
-                        Gravity.CENTER_VERTICAL -> top = (parentHeight - child.measuredHeight) / 2
-                        Gravity.BOTTOM -> top = parentHeight - child.measuredHeight
+                    top = when (gravity and Gravity.VERTICAL_GRAVITY_MASK) {
+                        Gravity.TOP -> 0
+                        Gravity.CENTER_VERTICAL -> (parentHeight - child.measuredHeight) / 2
+                        Gravity.BOTTOM -> parentHeight - child.measuredHeight
+                        else -> 0
                     }
                 }
                 is FrameLayout.LayoutParams -> {
-                    val gravity = lp.gravity
                     // 处理FrameLayout的gravity
-                    when (gravity and Gravity.HORIZONTAL_GRAVITY_MASK) {
-                        Gravity.LEFT -> left = 0
-                        Gravity.CENTER_HORIZONTAL -> left = (parentWidth - child.measuredWidth) / 2
-                        Gravity.RIGHT -> left = parentWidth - child.measuredWidth
+                    val gravity = lp.gravity
+                    left = when (gravity and Gravity.HORIZONTAL_GRAVITY_MASK) {
+                        Gravity.LEFT -> 0
+                        Gravity.CENTER_HORIZONTAL -> (parentWidth - child.measuredWidth) / 2
+                        Gravity.RIGHT -> parentWidth - child.measuredWidth
+                        else -> 0
                     }
-                    when (gravity and Gravity.VERTICAL_GRAVITY_MASK) {
-                        Gravity.TOP -> top = 0
-                        Gravity.CENTER_VERTICAL -> top = (parentHeight - child.measuredHeight) / 2
-                        Gravity.BOTTOM -> top = parentHeight - child.measuredHeight
+                    top = when (gravity and Gravity.VERTICAL_GRAVITY_MASK) {
+                        Gravity.TOP -> 0
+                        Gravity.CENTER_VERTICAL -> (parentHeight - child.measuredHeight) / 2
+                        Gravity.BOTTOM -> parentHeight - child.measuredHeight
+                        else -> 0
                     }
                 }
                 is ConstraintLayout.LayoutParams -> {
-                    // 对于ConstraintLayout，一般不需要在这里特殊处理位置，因为它会根据约束自行布局
-                    // 但如果有特殊需求，可以根据约束情况进行调整
+                    // ConstraintLayout会自行处理布局，通常不需要特殊处理
+                    // 但如果父容器是wrap_content，可能需要调整
+                    if (parentWidth != child.measuredWidth) {
+                        left = (parentWidth - child.measuredWidth) / 2
+                    }
+                    if (parentHeight != child.measuredHeight) {
+                        top = (parentHeight - child.measuredHeight) / 2
+                    }
                 }
                 is RelativeLayout.LayoutParams -> {
                     // 处理RelativeLayout的布局参数
                     val rules = lp.rules
-                    when (RelativeLayout.TRUE) {
-                        rules[RelativeLayout.CENTER_HORIZONTAL] -> {
-                            left = (parentWidth - child.measuredWidth) / 2
-                        }
-                        rules[RelativeLayout.ALIGN_PARENT_LEFT] -> {
-                            left = 0
-                        }
-                        rules[RelativeLayout.ALIGN_PARENT_RIGHT] -> {
-                            left = parentWidth - child.measuredWidth
-                        }
+                    left = when (RelativeLayout.TRUE) {
+                        rules[RelativeLayout.CENTER_HORIZONTAL] -> (parentWidth - child.measuredWidth) / 2
+                        rules[RelativeLayout.ALIGN_PARENT_LEFT] -> 0
+                        rules[RelativeLayout.ALIGN_PARENT_RIGHT] -> parentWidth - child.measuredWidth
+                        else -> 0
                     }
-                    when (RelativeLayout.TRUE) {
-                        rules[RelativeLayout.CENTER_VERTICAL] -> {
-                            top = (parentHeight - child.measuredHeight) / 2
-                        }
-                        rules[RelativeLayout.ALIGN_PARENT_TOP] -> {
-                            top = 0
-                        }
-                        rules[RelativeLayout.ALIGN_PARENT_BOTTOM] -> {
-                            top = parentHeight - child.measuredHeight
-                        }
+                    top = when (RelativeLayout.TRUE) {
+                        rules[RelativeLayout.CENTER_VERTICAL] -> (parentHeight - child.measuredHeight) / 2
+                        rules[RelativeLayout.ALIGN_PARENT_TOP] -> 0
+                        rules[RelativeLayout.ALIGN_PARENT_BOTTOM] -> parentHeight - child.measuredHeight
+                        else -> 0
                     }
                 }
             }
