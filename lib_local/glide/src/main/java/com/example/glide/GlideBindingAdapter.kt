@@ -6,6 +6,10 @@ import androidx.databinding.BindingAdapter
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
+import com.example.glide.ImageLoader.Companion.DEFAULT_CIRCULAR_RESOURCE
+import com.example.glide.ImageLoader.Companion.DEFAULT_CORNER_RADIUS
+import com.example.glide.ImageLoader.Companion.DEFAULT_RESOURCE
+import com.example.glide.ImageLoader.Companion.DEFAULT_ROUNDED_RESOURCE
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -51,7 +55,7 @@ object GlideBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["scaled_imageUrl"])
-    fun bindingScaledImage(view: ImageView, imageUrl: String) {
+    fun bindingScaledImage(view: ImageView, imageUrl: String?) {
         ImageLoader.instance.loadScaledImage(view, imageUrl, { view.disable() }, { view.enable() })
     }
 
@@ -60,7 +64,7 @@ object GlideBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["gif_gifUrl"])
-    fun bindingGifFromUrl(view: ImageView, gifUrl: String) {
+    fun bindingGifFromUrl(view: ImageView, gifUrl: String?) {
         ImageLoader.instance.loadGifFromUrl(view, gifUrl)
     }
 
@@ -69,13 +73,14 @@ object GlideBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["imageUrl", "errorResource"], requireAll = false)
-    fun bindingImageFromUrl(view: ImageView, imageUrl: String, errorResource: Int?) {
-        ImageLoader.instance.loadImageFromUrl(view, imageUrl, errorResource, { view.disable() }, { view.enable() })
+    fun bindingImageFromUrl(view: ImageView, imageUrl: String?, errorResource: Int?) {
+        val effectiveErrorResource = errorResource ?: DEFAULT_RESOURCE
+        ImageLoader.instance.loadImageFromUrl(view, imageUrl, effectiveErrorResource, { view.disable() }, { view.enable() })
     }
 
     @JvmStatic
     @BindingAdapter(value = ["imageResource"])
-    fun bindingImageFromResource(view: ImageView, imageResource: Int) {
+    fun bindingImageFromResource(view: ImageView, imageResource: Int?) {
         ImageLoader.instance.loadImageFromResource(view, imageResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
     }
 
@@ -84,14 +89,17 @@ object GlideBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["rounded_imageUrl", "rounded_errorResource", "rounded_cornerRadius"], requireAll = false)
-    fun bindingRoundedImageFromUrl(view: ImageView, imageUrl: String, errorResource: Int?, cornerRadius: Int?) {
-        ImageLoader.instance.loadRoundedImageFromUrl(view, imageUrl, errorResource, cornerRadius.toSafeInt(5))
+    fun bindingRoundedImageFromUrl(view: ImageView, imageUrl: String?, errorResource: Int?, cornerRadius: Int?) {
+        val effectiveErrorResource = errorResource ?: DEFAULT_ROUNDED_RESOURCE
+        val effectiveCornerRadius = cornerRadius ?: DEFAULT_CORNER_RADIUS
+        ImageLoader.instance.loadRoundedImageFromUrl(view, imageUrl, effectiveErrorResource, effectiveCornerRadius.toSafeInt())
     }
 
     @JvmStatic
     @BindingAdapter(value = ["rounded_imageResource", "rounded_cornerRadius"], requireAll = false)
-    fun bindingRoundedImageFromResource(view: ImageView, imageResource: Int, cornerRadius: Int?) {
-        ImageLoader.instance.loadRoundedImageFromResource(view, imageResource, cornerRadius = cornerRadius.toSafeInt(5))
+    fun bindingRoundedImageFromResource(view: ImageView, imageResource: Int?, cornerRadius: Int?) {
+        val effectiveCornerRadius = cornerRadius ?: DEFAULT_CORNER_RADIUS
+        ImageLoader.instance.loadRoundedImageFromResource(view, imageResource, cornerRadius = effectiveCornerRadius.toSafeInt())
     }
 
     /**
@@ -99,13 +107,14 @@ object GlideBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["circular_imageUrl", "circular_errorResource"], requireAll = false)
-    fun bindingCircularImageFromUrl(view: ImageView, imageUrl: String, errorResource: Int?) {
-        ImageLoader.instance.loadCircularImageFromUrl(view, imageUrl, errorResource)
+    fun bindingCircularImageFromUrl(view: ImageView, imageUrl: String?, errorResource: Int?) {
+        val effectiveErrorResource = errorResource ?: DEFAULT_CIRCULAR_RESOURCE
+        ImageLoader.instance.loadCircularImageFromUrl(view, imageUrl, effectiveErrorResource)
     }
 
     @JvmStatic
     @BindingAdapter(value = ["circular_imageResource"])
-    fun bindingCircularImageFromResource(view: ImageView, imageResource: Int) {
+    fun bindingCircularImageFromResource(view: ImageView, imageResource: Int?) {
         ImageLoader.instance.loadCircularImageFromResource(view, imageResource)
     }
     // </editor-fold>

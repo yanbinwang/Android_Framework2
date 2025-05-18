@@ -13,7 +13,7 @@ import androidx.core.view.isEmpty
 import androidx.core.view.isNotEmpty
 
 /**
- * 自定义控件继承viewgroup需要清除边距，使用当前类做处理
+ * 自定义控件继承ViewGroup需要清除边距，使用当前类做处理
  * 自定义控件如果宽度是手机宽度，则可用当前BaseViewGroup，否则推荐使用继承FrameLayout
  */
 abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ViewGroup(context, attrs, defStyleAttr) {
@@ -21,39 +21,41 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
     protected val isInflate get() = childCount <= 0
 
     /**
+     * widthMeasureSpec和heightMeasureSpec是由系统传入的测量规格参数，它们封装了父容器对该控件在宽度和高度上的测量要求，包括测量模式和尺寸大小
+     *
+     * 测量模式：
      * MeasureSpec.EXACTLY：父布局已经明确指定了子布局的大小，子布局应该按照这个指定大小来布局。
      * MeasureSpec.AT_MOST：子布局最大可以达到父布局指定的大小，但子布局可以根据自身内容调整大小，不过不能超过父布局指定的最大值。
      * MeasureSpec.UNSPECIFIED：父布局对子布局的大小没有限制，子布局可以根据自身内容来决定大小。
+     *
+     * 实现步骤：
+     * 首先，通过MeasureSpec.getMode和MeasureSpec.getSize方法来获取传入的测量模式和尺寸。
+     * 然后，根据不同的测量模式，结合自定义控件的特性，计算出合适的宽度和高度。
+     * 最后，通过setMeasuredDimension方法将计算出的宽度和高度设置给控件。
+     *
+     * MeasureSpec.makeMeasureSpec-->用于创建测量规格（MeasureSpec）的静态方法。测量规格是一个 32 位的整数，它封装了父容器对子视图的尺寸要求，包含两个部分：尺寸大小和测量模式
      */
-//    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-//        // 判空
-//        if (isEmpty()) {
-//            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-//            return
-//        }
-//        val child = getChildAt(0)
-//        // 强制子视图使用父容器的测量规格（无论子视图布局参数）
-//        child.measure(widthMeasureSpec, heightMeasureSpec)
-//        // 父容器尺寸与子视图完全一致
-//        setMeasuredDimension(child.measuredWidth, child.measuredHeight)
-//    }
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         if (isEmpty()) {
             // 如果没有子视图，使用默认的测量逻辑
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
             return
         }
+        // 提取父容器提供的可用宽高（即自定义控件本身被绘制在xml时设置好wrap/match时得到的系统给的宽高）
+        val rootWidthMeasureSpec = MeasureSpec.getSize(widthMeasureSpec)
+        val rootHeightMeasureSpec = MeasureSpec.getSize(heightMeasureSpec)
         // 获取子视图
         val child = getChildAt(0)
-        // 取得子视图的样式类，计算子视图宽高
+        // 取得子视图布局参数，用于描述视图（View）在父容器（ViewGroup）中如何布局的一组参数
         val childLayoutParams = child.layoutParams
+        // 预设子视图宽高
         val childWidthMeasureSpec: Int
         val childHeightMeasureSpec: Int
-        // 子视图处理未设置宽高的情况（代码直接创建，并未设置size）
+        // 处理子视图未设置宽高的情况（代码直接创建，且并未设置size）
         if (childLayoutParams.width == LayoutParams.WRAP_CONTENT && childLayoutParams.height == LayoutParams.WRAP_CONTENT) {
-            // 当作 MATCH_PARENT 处理
-            childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY)
-            childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec), MeasureSpec.EXACTLY)
+            // 指定测量模式为 EXACTLY：表示子视图必须精确使用这个尺寸。当作 MATCH_PARENT 处理
+            childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(rootWidthMeasureSpec, MeasureSpec.EXACTLY)
+            childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(rootHeightMeasureSpec, MeasureSpec.EXACTLY)
         } else if (child is ConstraintLayout) {
             // 对于 ConstraintLayout，直接使用父容器的测量规格（内部具有0dp等各种约束条件）
             childWidthMeasureSpec = widthMeasureSpec
@@ -61,27 +63,27 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
         } else {
             // 根据父容器的测量规格和子视图的 LayoutParams 确定子视图的测量规格
             childWidthMeasureSpec = when (childLayoutParams.width) {
+                // 如果子视图宽度为 MATCH_PARENT，使用父容器的精确宽度
                 LayoutParams.MATCH_PARENT -> {
-                    // 如果子视图宽度为 MATCH_PARENT，使用父容器的精确宽度
-                    MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY)
+                    MeasureSpec.makeMeasureSpec(rootWidthMeasureSpec, MeasureSpec.EXACTLY)
                 }
+                // 如果子视图宽度为 WRAP_CONTENT，使用父容器的 AT_MOST 模式
                 LayoutParams.WRAP_CONTENT -> {
-                    // 如果子视图宽度为 WRAP_CONTENT，使用父容器的 AT_MOST 模式
-                    MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.AT_MOST)
+                    MeasureSpec.makeMeasureSpec(rootWidthMeasureSpec, MeasureSpec.AT_MOST)
                 }
+                // 如果子视图有固定宽度，使用精确模式，以子视图为主
                 else -> {
-                    // 如果子视图有固定宽度，使用精确模式
                     MeasureSpec.makeMeasureSpec(childLayoutParams.width, MeasureSpec.EXACTLY)
                 }
             }
             childHeightMeasureSpec = when (childLayoutParams.height) {
                 LayoutParams.MATCH_PARENT -> {
                     // 如果子视图高度为 MATCH_PARENT，使用父容器的精确高度
-                    MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec), MeasureSpec.EXACTLY)
+                    MeasureSpec.makeMeasureSpec(rootHeightMeasureSpec, MeasureSpec.EXACTLY)
                 }
                 LayoutParams.WRAP_CONTENT -> {
                     // 如果子视图高度为 WRAP_CONTENT，使用父容器的 AT_MOST 模式
-                    MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec), MeasureSpec.AT_MOST)
+                    MeasureSpec.makeMeasureSpec(rootHeightMeasureSpec, MeasureSpec.AT_MOST)
                 }
                 else -> {
                     // 如果子视图有固定高度，使用精确模式
@@ -89,27 +91,27 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
                 }
             }
         }
-        // 测量子视图
+        // 测量子视图-->父容器传递 widthMeasureSpec 和 heightMeasureSpec 参数，描述子视图的可用空间和约束条件
         child.measure(childWidthMeasureSpec, childHeightMeasureSpec)
         // 根据子视图的测量结果和父容器的测量规格确定父容器的尺寸
         val finalWidth = when (MeasureSpec.getMode(widthMeasureSpec)) {
-            MeasureSpec.EXACTLY -> MeasureSpec.getSize(widthMeasureSpec)
+            MeasureSpec.EXACTLY -> rootWidthMeasureSpec
             MeasureSpec.AT_MOST -> {
                 if (childLayoutParams.width == LayoutParams.MATCH_PARENT) {
-                    MeasureSpec.getSize(widthMeasureSpec)
+                    rootWidthMeasureSpec
                 } else {
-                    child.measuredWidth.coerceAtMost(MeasureSpec.getSize(widthMeasureSpec))
+                    child.measuredWidth.coerceAtMost(rootWidthMeasureSpec)
                 }
             }
             else -> child.measuredWidth
         }
         val finalHeight = when (MeasureSpec.getMode(heightMeasureSpec)) {
-            MeasureSpec.EXACTLY -> MeasureSpec.getSize(heightMeasureSpec)
+            MeasureSpec.EXACTLY -> rootHeightMeasureSpec
             MeasureSpec.AT_MOST -> {
                 if (childLayoutParams.height == LayoutParams.MATCH_PARENT) {
-                    MeasureSpec.getSize(heightMeasureSpec)
+                    rootHeightMeasureSpec
                 } else {
-                    child.measuredHeight.coerceAtMost(MeasureSpec.getSize(heightMeasureSpec))
+                    child.measuredHeight.coerceAtMost(rootHeightMeasureSpec)
                 }
             }
             else -> child.measuredHeight
@@ -121,13 +123,6 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
     /**
      * 所有子类的子视图都撑满容器
      */
-//    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-//        if (isNotEmpty()) {
-//            val child = getChildAt(0)
-//            // 子视图撑满父容器
-//            child.layout(0, 0, measuredWidth, measuredHeight)
-//        }
-//    }
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         if (isNotEmpty()) {
             val child = getChildAt(0)

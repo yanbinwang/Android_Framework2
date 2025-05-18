@@ -47,9 +47,8 @@ import com.example.framework.utils.function.view.spaceLimit
 /**
  * Created by WangYanBin on 2020/6/10.
  * 全局通用工具类
- * 复用性高的代码，统一放在common中
- * 比如列表页都需要设置适配器属性，富文本加载网页
- * bindingAdapters不遵循默认值,生成的类使用Java，
+ * 复用性高的代码，统一放在common中，比如列表页都需要设置适配器属性，富文本加载网页
+ * bindingAdapters不遵循默认值,生成的类使用Java，需要额外注意，Data Binding 不会自动应用 Kotlin 方法的默认参数值！！
  * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
  * 如果requireAll设置为false，则未通过编程设置的所有内容都将为null，false（对于布尔值）或0（对于数字）
  */
@@ -131,8 +130,8 @@ object BaseBindingAdapter {
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["web_load_network_url", "web_need_header"], requireAll = false)
-    fun bindingWebViewLoadUrl(webView: WebView, networkUrl: String, needHeader: Boolean?) {
-        webView.load(networkUrl, needHeader.orFalse)
+    fun bindingWebViewLoadUrl(webView: WebView, networkUrl: String?, needHeader: Boolean?) {
+        webView.load(networkUrl.orEmpty(), needHeader.orFalse)
     }
 
     /**
@@ -141,7 +140,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["web_load_asset_url", "web_need_header"], requireAll = false)
-    fun bindingWebViewLoadAssetUrl(webView: WebView, assetPath: String, needHeader: Boolean?) {
+    fun bindingWebViewLoadAssetUrl(webView: WebView, assetPath: String?, needHeader: Boolean?) {
         webView.load("file:///android_asset/$assetPath", needHeader.orFalse)
     }
     // </editor-fold>
