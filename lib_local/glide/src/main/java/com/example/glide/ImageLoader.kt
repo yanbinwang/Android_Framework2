@@ -7,7 +7,12 @@ import android.widget.ImageView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
+import com.bumptech.glide.TransitionOptions
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.bumptech.glide.request.RequestOptions
 import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.value.isMainThread
@@ -76,7 +81,7 @@ class ImageLoader private constructor() {
          * 圆角图片4个边是否都是弧线
          */
         @JvmStatic
-        private val DEFAULT_OVERRIDE_CORNERS = booleanArrayOf(false, false, false, false)
+        val DEFAULT_OVERRIDE_CORNERS = booleanArrayOf(false, false, false, false)
 
         /**
          * 获取drawable的图片
@@ -89,6 +94,25 @@ class ImageLoader private constructor() {
 
         @JvmStatic
         private fun getDefaultCircularDrawable(view: ImageView?) = view?.context?.drawable(DEFAULT_CIRCULAR_RESOURCE)
+
+        /**
+         * dontAnimate()会造成闪屏，切换为渐隐动画，使其“流畅”
+         * // 假设未来添加了对 SVG 的支持
+         * import com.bumptech.glide.load.resource.svg.SvgDrawable
+         * // 在 when 表达式中添加新分支
+         * SvgDrawable::class -> DrawableTransitionOptions.withCrossFade(duration)
+         */
+        @JvmStatic
+        inline fun <reified T : Any> RequestBuilder<T>.smartFade(imageView: ImageView, firstLoadDuration: Int = 300, reloadDuration: Int = 0): RequestBuilder<T> {
+            val duration = if (imageView.drawable == null) firstLoadDuration else reloadDuration
+            // 根据泛型类型动态选择正确的 TransitionOptions
+            val options = when (T::class) {
+                Drawable::class, GifDrawable::class -> DrawableTransitionOptions.withCrossFade(duration)
+                Bitmap::class -> BitmapTransitionOptions.withCrossFade(duration)
+                else -> throw IllegalArgumentException("Unsupported type: ${T::class.java.simpleName}. Currently only supports Drawable and Bitmap.")
+            }
+            return transition(options as TransitionOptions<*, in T>)
+        }
     }
 
     /**
@@ -104,7 +128,8 @@ class ImageLoader private constructor() {
             .asBitmap()
             .load(imageUrl)
             .placeholder(DEFAULT_MASK_RESOURCE)
-            .dontAnimate()
+//            .dontAnimate()
+            .smartFade(view)
             .listener(object : GlideRequestListener<Bitmap>() {
                 override fun onLoadStart() {
                     onLoadStart()
@@ -135,7 +160,8 @@ class ImageLoader private constructor() {
             Glide.with(view.context)
                 .setDefaultRequestOptions(RequestOptions().frame(frameTimeMicros).centerCrop())
                 .load(videoUrl)
-                .dontAnimate()
+//                .dontAnimate()
+                .smartFade(view)
                 .into(view)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -258,7 +284,8 @@ class ImageLoader private constructor() {
             .load(imageUrl)
             .placeholder(DEFAULT_RESOURCE)
             .error(errorDrawable)
-            .dontAnimate()
+//            .dontAnimate()
+            .smartFade(view)
             .listener(object : GlideRequestListener<Drawable>() {
                 override fun onLoadStart() {
                     onLoadStart()
@@ -285,7 +312,8 @@ class ImageLoader private constructor() {
             .load(imageDrawable)
             .placeholder(DEFAULT_RESOURCE)
             .error(errorDrawable)
-            .dontAnimate()
+//            .dontAnimate()
+            .smartFade(view)
             .listener(object : GlideRequestListener<Drawable>() {
                 override fun onLoadStart() {
                     onLoadStart()
@@ -334,16 +362,13 @@ class ImageLoader private constructor() {
         view ?: return
         Glide.with(view.context)
             .load(imageUrl)
-            .apply(
-                RequestOptions.bitmapTransform(
-                    CornerTransform(
-                        view.context,
-                        cornerRadius.toSafeFloat()
-                    ).apply { setExceptCorner(overrideCorners) })
-            )
+            .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, cornerRadius.toSafeFloat()).apply {
+                setExceptCorner(overrideCorners)
+            }))
             .placeholder(DEFAULT_ROUNDED_RESOURCE)
             .error(errorDrawable)
-            .dontAnimate()
+//            .dontAnimate()
+            .smartFade(view)
             .into(view)
     }
 
@@ -359,16 +384,13 @@ class ImageLoader private constructor() {
         view ?: return
         Glide.with(view.context)
             .load(imageDrawable)
-            .apply(
-                RequestOptions.bitmapTransform(
-                    CornerTransform(
-                        view.context,
-                        cornerRadius.toSafeFloat()
-                    ).apply { setExceptCorner(overrideCorners) })
-            )
+            .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, cornerRadius.toSafeFloat()).apply {
+                setExceptCorner(overrideCorners)
+            }))
             .placeholder(DEFAULT_ROUNDED_RESOURCE)
             .error(errorDrawable)
-            .dontAnimate()
+//            .dontAnimate()
+            .smartFade(view)
             .into(view)
     }
 
@@ -405,7 +427,8 @@ class ImageLoader private constructor() {
             .apply(RequestOptions.circleCropTransform())
             .placeholder(DEFAULT_CIRCULAR_RESOURCE)
             .error(errorDrawable)
-            .dontAnimate()
+//            .dontAnimate()
+            .smartFade(view)
             .into(view)
     }
 
@@ -422,7 +445,8 @@ class ImageLoader private constructor() {
             .apply(RequestOptions.circleCropTransform())
             .placeholder(DEFAULT_CIRCULAR_RESOURCE)
             .error(errorDrawable)
-            .dontAnimate()
+//            .dontAnimate()
+            .smartFade(view)
             .into(view)
     }
 
