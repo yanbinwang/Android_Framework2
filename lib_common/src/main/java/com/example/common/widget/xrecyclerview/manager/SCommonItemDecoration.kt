@@ -18,13 +18,21 @@ import com.example.framework.utils.function.value.orZero
  * Created by bosong on 2017/3/10.
  */
 @SuppressLint("WrongConstant")
-class SCommonItemDecoration(private val mPropMap: SparseArray<ItemDecorationProps>) : ItemDecoration() {
+class SCommonItemDecoration(private val mPropMap: SparseArray<ItemDecorationProps>?) : ItemDecoration() {
 
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
         val position = parent.getChildAdapterPosition(view)
-        val adapter = parent.adapter ?: return
-        val itemType = adapter.getItemViewType(position)
-        val props = mPropMap[itemType] ?: return
+        val adapter = parent.adapter
+        val itemType = adapter?.getItemViewType(position).orZero
+        val props: ItemDecorationProps?
+        if (mPropMap != null) {
+            props = mPropMap[itemType]
+        } else {
+            return
+        }
+        if (props == null) {
+            return
+        }
         var spanIndex = 0
         var spanSize = 1
         var spanCount = 1
@@ -44,18 +52,16 @@ class SCommonItemDecoration(private val mPropMap: SparseArray<ItemDecorationProp
             spanSize = if (lp?.isFullSpan.orFalse) spanCount else 1
             orientation = layoutManager?.orientation.orZero
         }
-
         val isFirstRowOrColumn: Boolean
         val isLastRowOrColumn: Boolean
         val prePos = if (position > 0) position - 1 else -1
-        val nextPos = if (position < adapter.itemCount - 1) position + 1 else -1
+        val nextPos = if (position < adapter?.itemCount.orZero - 1) position + 1 else -1
         // Last position on the last row 上一行的最后一个位置
         val preRowPos = if (position > spanIndex) position - (1 + spanIndex) else -1
         // First position on the next row 下一行的第一个位置
-        val nextRowPos = if (position < adapter.itemCount - (spanCount - spanIndex)) position + (spanCount - spanIndex) else -1
-        isFirstRowOrColumn = position == 0 || prePos == -1 || itemType != adapter.getItemViewType(prePos) || preRowPos == -1 || itemType != adapter.getItemViewType(preRowPos)
-        isLastRowOrColumn = position == adapter.itemCount - 1 || nextPos == -1 || itemType != adapter.getItemViewType(nextPos) || nextRowPos == -1 || itemType != adapter.getItemViewType(nextRowPos)
-
+        val nextRowPos = if (position < adapter?.itemCount.orZero - (spanCount - spanIndex)) position + (spanCount - spanIndex) else -1
+        isFirstRowOrColumn = position == 0 || prePos == -1 || itemType != adapter?.getItemViewType(prePos) || preRowPos == -1 || itemType != adapter.getItemViewType(preRowPos)
+        isLastRowOrColumn = position == adapter?.itemCount.orZero - 1 || nextPos == -1 || itemType != adapter?.getItemViewType(nextPos) || nextRowPos == -1 || itemType != adapter.getItemViewType(nextRowPos)
         var left = 0
         var top = 0
         var right = 0
@@ -96,6 +102,6 @@ class SCommonItemDecoration(private val mPropMap: SparseArray<ItemDecorationProp
         outRect[left, top, right] = bottom
     }
 
-    class ItemDecorationProps(val horizontalSpace: Int, val verticalSpace: Int, val hasHorizontalEdge: Boolean, val hasVerticalEdge: Boolean)
+    data class ItemDecorationProps(var horizontalSpace: Int, var verticalSpace: Int, var hasHorizontalEdge: Boolean, var hasVerticalEdge: Boolean)
 
 }

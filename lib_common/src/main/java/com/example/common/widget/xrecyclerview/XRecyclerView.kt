@@ -23,7 +23,6 @@ import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.init
 import com.example.framework.utils.function.view.initConcat
@@ -63,6 +62,10 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     val root by lazy { FrameLayout(context).apply {
         size(MATCH_PARENT, WRAP_CONTENT)
     }}
+    //刷新控件 类型1才有
+    val refresh by lazy { SmartRefreshLayout(context).apply {
+        layoutParams = SmartRefreshLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+    }}
     //自定义封装的空布局->大小会在添加时设置，xml中是MATCH_PARENT
     val empty by lazy { EmptyLayout(context).apply {
         onInflate()
@@ -71,10 +74,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     val recycler by lazy { ObserverRecyclerView(context).apply {
         size(MATCH_PARENT, MATCH_PARENT)
         init()
-    }}
-    //刷新控件 类型1才有
-    val refresh by lazy { SmartRefreshLayout(context).apply {
-        layoutParams = SmartRefreshLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
     }}
 
     init {
@@ -123,76 +122,25 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
-     * 设置整体大小
+     * 设置整体布局大小
      */
     fun setSize(width: Int? = null, height: Int? = null) {
         root.size(width.pt, height.pt)
     }
 
     /**
-     * 设置默认recycler的输出manager
-     * 默认一行一个，线样式可自画可调整
+     * 自动触发刷新
      */
-    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
-        recycler.initGridVertical(adapter, spanCount)
-        addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
+    fun autoRefresh() {
+        refresh.autoRefresh()
     }
 
     /**
-     * 设置复杂的多个adapter直接拼接成一个
-     * recycler.layoutManager = GridLayoutManager(recycler.context, 3).apply {
-     *     spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-     *         override fun getSpanSize(position: Int): Int {
-     *             return when (getItemViewType(position)) {
-     *                 TYPE_HEADER -> 3
-     *                 TYPE_BODY -> 3
-     *                 else -> 1
-     *             }
-     *          }
-     *     }
-     * }
+     * 结束刷新
+     * noMoreData是否有更多数据
      */
-    fun <T : BaseQuickAdapter<*, *>> setConcatAdapter(vararg adapters: T) {
-        recycler.initConcat(*adapters)
-    }
-
-    /**
-     * 添加分隔线
-     */
-    fun addItemDecoration(horizontalSpace: Int, verticalSpace: Int, hasHorizontalEdge: Boolean, hasVerticalEdge: Boolean) {
-        val propMap = SparseArray<ItemDecorationProps>()
-        val prop1 = ItemDecorationProps(horizontalSpace.pt, verticalSpace.pt, hasHorizontalEdge, hasVerticalEdge)
-        propMap.put(0, prop1)
-        recycler.addItemDecoration(SCommonItemDecoration(propMap))
-    }
-
-    /**
-     * 设置横向左右滑动的adapter
-     */
-    fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) = recycler.initLinearHorizontal(adapter)
-
-    /**
-     * 获取适配器
-     */
-    fun <T : BaseQuickAdapter<*, *>> getAdapter() = recycler.adapter as? T
-
-    /**
-     * 获取一个列表中固定下标的holder
-     */
-    fun <K : BaseViewDataBindingHolder> getHolder(position: Int): K? {
-        return recycler.getHolder(position)
-    }
-
-    fun <VDB : ViewDataBinding> getViewHolder(position: Int): VDB? {
-        return getHolder<BaseViewDataBindingHolder>(position)?.viewBinding() as? VDB
-    }
-
-    /**
-     * 让列表滚动到对应下标点
-     */
-    fun scrollToPosition(position: Int) {
-        if (position < 0 || position > recycler.adapter?.itemCount.orZero -1) return
-        recycler.scrollToPosition(position)
+    fun finishRefreshing(noMoreData: Boolean? = true) {
+        refresh.finishRefreshing(noMoreData)
     }
 
     /**
@@ -227,44 +175,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
-     * 判断当前模式
-     */
-    fun isRefresh(): Boolean {
-        return refreshEnable
-    }
-
-    fun isEmpty(): Boolean {
-        return emptyEnable
-    }
-
-    /**
-     * 自动触发刷新
-     */
-    fun autoRefresh() {
-        refresh.autoRefresh()
-    }
-
-    /**
-     * 结束刷新
-     * noMoreData是否有更多数据
-     */
-    fun finishRefreshing(noMoreData: Boolean? = true) {
-        refresh.finishRefreshing(noMoreData)
-    }
-
-    /**
-     * 设置空布局点击
-     */
-    fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
-        this.listener = listener
-    }
-
-    /**
-     * 修改空布局背景颜色
-     */
-    fun setEmptyBackgroundColor(color: Int) = empty.setBackgroundColor(color)
-
-    /**
      * 当数据正在加载的时候显示
      */
     fun loading() {
@@ -283,6 +193,101 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
         empty.error(resId, text, refreshText, width, height)
+    }
+
+    /**
+     * 修改空布局背景颜色
+     */
+    fun setEmptyBackgroundColor(color: Int) {
+        empty.setBackgroundColor(color)
+    }
+
+    /**
+     * 设置空布局点击
+     */
+    fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
+        this.listener = listener
+    }
+
+    /**
+     * 设置默认recycler的输出manager
+     * 默认一行一个，线样式可自画可调整
+     */
+    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
+        recycler.initGridVertical(adapter, spanCount)
+        addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
+    }
+
+    /**
+     * 设置横向左右滑动的adapter
+     */
+    fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) {
+        recycler.initLinearHorizontal(adapter)
+    }
+
+    /**
+     * 设置复杂的多个adapter直接拼接成一个
+     * recycler.layoutManager = GridLayoutManager(recycler.context, 3).apply {
+     *     spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+     *         override fun getSpanSize(position: Int): Int {
+     *             return when (getItemViewType(position)) {
+     *                 TYPE_HEADER -> 3
+     *                 TYPE_BODY -> 3
+     *                 else -> 1
+     *             }
+     *          }
+     *     }
+     * }
+     */
+    fun <T : BaseQuickAdapter<*, *>> setConcatAdapter(vararg adapters: T) {
+        recycler.initConcat(*adapters)
+    }
+
+    /**
+     * 添加分隔线
+     */
+    fun addItemDecoration(horizontalSpace: Int, verticalSpace: Int, hasHorizontalEdge: Boolean, hasVerticalEdge: Boolean) {
+        val propMap = SparseArray<ItemDecorationProps>()
+        val prop1 = ItemDecorationProps(horizontalSpace.pt, verticalSpace.pt, hasHorizontalEdge, hasVerticalEdge)
+        propMap.put(0, prop1)
+        recycler.addItemDecoration(SCommonItemDecoration(propMap))
+    }
+
+    /**
+     * 获取适配器
+     */
+    fun <T : BaseQuickAdapter<*, *>> getAdapter(): T? {
+        return recycler.adapter as? T
+    }
+
+    /**
+     * 获取一个列表中固定下标的holder
+     */
+    fun <K : BaseViewDataBindingHolder> getHolder(position: Int): K? {
+        return recycler.getHolder(position)
+    }
+
+    fun <VDB : ViewDataBinding> getViewHolder(position: Int): VDB? {
+        return getHolder<BaseViewDataBindingHolder>(position)?.viewBinding() as? VDB
+    }
+
+    /**
+     * 让列表滚动到对应下标点
+     */
+    fun scrollToPosition(position: Int) {
+        if (position < 0 || position > recycler.adapter?.itemCount.orZero -1) return
+        recycler.scrollToPosition(position)
+    }
+
+    /**
+     * 判断当前模式
+     */
+    fun isRefresh(): Boolean {
+        return refreshEnable
+    }
+
+    fun isEmpty(): Boolean {
+        return emptyEnable
     }
 
 }

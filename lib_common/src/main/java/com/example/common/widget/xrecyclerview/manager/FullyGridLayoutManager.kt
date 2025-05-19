@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.Recycler
 import com.example.framework.utils.function.value.orZero
 
 /**
@@ -15,9 +14,9 @@ import com.example.framework.utils.function.value.orZero
 class FullyGridLayoutManager : GridLayoutManager {
     private val mMeasuredDimension by lazy { IntArray(2) }
 
-    constructor(context: Context?, spanCount: Int = 0) : super(context, spanCount)
+    constructor(context: Context, spanCount: Int) : super(context, spanCount)
 
-    constructor(context: Context?, spanCount: Int = 0, orientation: Int = 0, reverseLayout: Boolean = false) : super(context, spanCount, orientation, reverseLayout)
+    constructor(context: Context, spanCount: Int, @RecyclerView.Orientation orientation: Int, reverseLayout: Boolean) : super(context, spanCount, orientation, reverseLayout)
 
     override fun onMeasure(recycler: RecyclerView.Recycler, state: RecyclerView.State, widthSpec: Int, heightSpec: Int) {
         val widthMode = View.MeasureSpec.getMode(widthSpec)
@@ -28,14 +27,22 @@ class FullyGridLayoutManager : GridLayoutManager {
         var height = 0
         val count = itemCount
         val span = spanCount
-        for (i in 0 until count) {
+        for (i in 0..<count) {
             measureScrapChild(recycler, i, View.MeasureSpec.makeMeasureSpec(i, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(i, View.MeasureSpec.UNSPECIFIED), mMeasuredDimension)
             if (orientation == HORIZONTAL) {
-                if (i % span == 0) width += mMeasuredDimension[0]
-                if (i == 0) height = mMeasuredDimension[1]
+                if (i % span == 0) {
+                    width += mMeasuredDimension[0]
+                }
+                if (i == 0) {
+                    height = mMeasuredDimension[1]
+                }
             } else {
-                if (i % span == 0) height += mMeasuredDimension[1]
-                if (i == 0) width = mMeasuredDimension[0]
+                if (i % span == 0) {
+                    height += mMeasuredDimension[1]
+                }
+                if (i == 0) {
+                    width = mMeasuredDimension[0]
+                }
             }
         }
         when (widthMode) {
@@ -49,10 +56,11 @@ class FullyGridLayoutManager : GridLayoutManager {
         setMeasuredDimension(width, height)
     }
 
-    private fun measureScrapChild(recycler: Recycler, position: Int, widthSpec: Int, heightSpec: Int, measuredDimension: IntArray) {
-        if (position < itemCount) {
+    private fun measureScrapChild(recycler: RecyclerView.Recycler, position: Int, widthSpec: Int, heightSpec: Int, measuredDimension: IntArray) {
+        if (position < getItemCount()) {
             try {
-                val view = recycler.getViewForPosition(0) //fix 动态添加时报IndexOutOfBoundsException
+                //fix 动态添加时报IndexOutOfBoundsException
+                val view = recycler.getViewForPosition(0)
                 val p = view.layoutParams as? RecyclerView.LayoutParams
                 val childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec, paddingLeft + paddingRight, p?.width.orZero)
                 val childHeightSpec = ViewGroup.getChildMeasureSpec(heightSpec, paddingTop + paddingBottom, p?.height.orZero)
