@@ -29,6 +29,7 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
+import com.example.common.widget.xrecyclerview.refresh.getAutoRefreshTime
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
@@ -38,6 +39,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.Locale
@@ -236,6 +238,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 //        } else {
 //            recycler.finishRefreshing(!hasNextPage.orTrue)
 //        }
+    }
+
+    /**
+     * 自动刷新控件浮现，记得setExtraView
+     */
+    protected suspend fun autoRefresh() {
+        delay(mRefresh?.getAutoRefreshTime().orZero)
     }
 
     /**
