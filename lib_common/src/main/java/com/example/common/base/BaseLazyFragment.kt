@@ -31,7 +31,7 @@ import androidx.databinding.ViewDataBinding
  *
  *
  * 2)FragmentManager
- * 1.replace方法会直接清空之前的管理器内的所有页面，重新创建，所以只要管控好当前选中的页面的onResume方法即可，可以在该生命周期内网络请求或者刷新
+ * 1.replace方法会直接清空之前的管理器内的所有页面，重新创建，所以只要管控好当前选中的页面的onResume方法即可，可以在该生命周期内网络请求或者刷新(replace不要使用addToBackStack，不然资源释放会出问题)
  *
  * ------第一次进页面生命周期------
  * 当前页数：第1页---生命周期：onResume---页面显影（hidden-false显示，true不显示）：显示
