@@ -23,7 +23,6 @@ import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.init
 import com.example.framework.utils.function.view.initConcat
@@ -63,6 +62,10 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     val root by lazy { FrameLayout(context).apply {
         size(MATCH_PARENT, WRAP_CONTENT)
     }}
+    //刷新控件 类型1才有
+    val refresh by lazy { SmartRefreshLayout(context).apply {
+        layoutParams = SmartRefreshLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+    }}
     //自定义封装的空布局->大小会在添加时设置，xml中是MATCH_PARENT
     val empty by lazy { EmptyLayout(context).apply {
         onInflate()
@@ -71,10 +74,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     val recycler by lazy { ObserverRecyclerView(context).apply {
         size(MATCH_PARENT, MATCH_PARENT)
         init()
-    }}
-    //刷新控件 类型1才有
-    val refresh by lazy { SmartRefreshLayout(context).apply {
-        layoutParams = SmartRefreshLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
     }}
 
     init {
@@ -130,12 +129,100 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
+     * 自动触发刷新
+     */
+    fun autoRefresh() {
+        refresh.autoRefresh()
+    }
+
+    /**
+     * 结束刷新
+     * noMoreData是否有更多数据
+     */
+    fun finishRefreshing(noMoreData: Boolean? = true) {
+        refresh.finishRefreshing(noMoreData)
+    }
+
+    /**
+     * 刷新页面监听
+     * 根据传入不同的监听，确定是否具备头和尾，无需在xml中指定
+     */
+    fun setOnRefreshListener(listener: OnRefreshLoadMoreListener) {
+        refresh.init(listener)
+    }
+
+    fun setOnRefreshListener(onRefresh: OnRefreshListener? = null, onLoadMore: OnLoadMoreListener? = null) {
+        refresh.init(onRefresh, onLoadMore)
+    }
+
+    /**
+     * 刷新的一些操作
+     */
+    fun setHeaderMaxDragRate() {
+        refresh.setHeaderMaxDragRate()
+    }
+
+    fun setProgressTint(@ColorRes color: Int) {
+        refresh.setProgressTint(color)
+    }
+
+    fun setHeaderDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
+        refresh.setHeaderDragListener(listener)
+    }
+
+    fun setFooterDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
+        refresh.setFooterDragListener(listener)
+    }
+
+    /**
+     * 当数据正在加载的时候显示
+     */
+    fun loading() {
+        empty.loading()
+    }
+
+    /**
+     * 当数据为空时(显示需要显示的图片，以及内容字)
+     */
+    fun empty(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
+        empty.empty(resId, resText, resRefreshText, width, height)
+    }
+
+    /**
+     * 当数据异常时
+     */
+    fun error(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
+        empty.error(resId, resText, resRefreshText, width, height)
+    }
+
+    /**
+     * 修改空布局背景颜色
+     */
+    fun setEmptyBackgroundColor(color: Int) {
+        empty.setBackgroundColor(color)
+    }
+
+    /**
+     * 设置空布局点击
+     */
+    fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
+        this.listener = listener
+    }
+
+    /**
      * 设置默认recycler的输出manager
      * 默认一行一个，线样式可自画可调整
      */
     fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
         recycler.initGridVertical(adapter, spanCount)
         addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
+    }
+
+    /**
+     * 设置横向左右滑动的adapter
+     */
+    fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) {
+        recycler.initLinearHorizontal(adapter)
     }
 
     /**
@@ -167,14 +254,11 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
-     * 设置横向左右滑动的adapter
-     */
-    fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) = recycler.initLinearHorizontal(adapter)
-
-    /**
      * 获取适配器
      */
-    fun <T : BaseQuickAdapter<*, *>> getAdapter() = recycler.adapter as? T
+    fun <T : BaseQuickAdapter<*, *>> getAdapter(): T? {
+        return recycler.adapter as? T
+    }
 
     /**
      * 获取一个列表中固定下标的holder
@@ -196,37 +280,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
-     * 刷新页面监听
-     * 根据传入不同的监听，确定是否具备头和尾，无需在xml中指定
-     */
-    fun setOnRefreshListener(listener: OnRefreshLoadMoreListener) {
-        refresh?.init(listener)
-    }
-
-    fun setOnRefreshListener(onRefresh: OnRefreshListener? = null, onLoadMore: OnLoadMoreListener? = null) {
-        refresh?.init(onRefresh, onLoadMore)
-    }
-
-    /**
-     * 刷新的一些操作
-     */
-    fun setHeaderMaxDragRate() {
-        refresh?.setHeaderMaxDragRate()
-    }
-
-    fun setProgressTint(@ColorRes color: Int) {
-        refresh?.setProgressTint(color)
-    }
-
-    fun setHeaderDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
-        refresh?.setHeaderDragListener(listener)
-    }
-
-    fun setFooterDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
-        refresh?.setFooterDragListener(listener)
-    }
-
-    /**
      * 判断当前模式
      */
     fun isRefresh(): Boolean {
@@ -235,54 +288,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun isEmpty(): Boolean {
         return emptyEnable
-    }
-
-    /**
-     * 自动触发刷新
-     */
-    fun autoRefresh() {
-        refresh?.autoRefresh()
-    }
-
-    /**
-     * 结束刷新
-     * noMoreData是否有更多数据
-     */
-    fun finishRefreshing(noMoreData: Boolean? = true) {
-        refresh?.finishRefreshing(noMoreData)
-    }
-
-    /**
-     * 设置空布局点击
-     */
-    fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
-        this.listener = listener
-    }
-
-    /**
-     * 修改空布局背景颜色
-     */
-    fun setEmptyBackgroundColor(color: Int) = empty.setBackgroundColor(color)
-
-    /**
-     * 当数据正在加载的时候显示
-     */
-    fun loading() {
-        empty.loading()
-    }
-
-    /**
-     * 当数据为空时(显示需要显示的图片，以及内容字)
-     */
-    fun empty(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
-        empty.empty(resId, resText, resRefreshText, width, height)
-    }
-
-    /**
-     * 当数据异常时
-     */
-    fun error(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
-        empty.error(resId, resText, resRefreshText, width, height)
     }
 
 }
