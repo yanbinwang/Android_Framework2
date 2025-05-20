@@ -69,7 +69,9 @@ import kotlin.coroutines.CoroutineContext
  * // 自定义滑出动画（向右侧退出）
  * Slide slideExit = new Slide(Gravity.START);
  * slideExit.setDuration(300);
+ * 当 A 启动 B 时，A 被覆盖的过程	应用于 被启动的 Activity（B）
  * getWindow().setExitTransition(slideExit);
+ * 当 B 返回 A 时，B 退出的过程	应用于 返回的 Activity（B）
  * getWindow().setReturnTransition(slideExit);
  * }
  */
