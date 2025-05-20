@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.activity.result.ActivityResult
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityOptionsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -323,8 +324,8 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         }
     }
 
-    override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity? {
-        navigation(path, params = params, activityResultValue = mActivityResult)
+    override fun navigation(path: String, vararg params: Pair<String, Any?>?, options: ActivityOptionsCompat?): Activity? {
+        navigation(path, params = params, activityResultValue = mActivityResult, options = options)
         return this
     }
     // </editor-fold>

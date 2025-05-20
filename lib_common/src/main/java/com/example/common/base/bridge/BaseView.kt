@@ -1,6 +1,7 @@
 package com.example.common.base.bridge
 
 import android.app.Activity
+import androidx.core.app.ActivityOptionsCompat
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.listener.OnPageChangedListener
 import com.app.hubert.guide.model.GuidePage
@@ -48,6 +49,6 @@ interface BaseView {
      * 路由跳转
      * params->页面参数类，跳转的参数，刷新页面页数操作
      */
-    fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity?
+    fun navigation(path: String, vararg params: Pair<String, Any?>?, options: ActivityOptionsCompat? = null): Activity?
 
 }

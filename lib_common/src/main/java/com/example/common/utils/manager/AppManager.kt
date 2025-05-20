@@ -5,10 +5,7 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.os.Process
-import androidx.core.content.ContextCompat.startActivity
 import com.example.common.BaseApplication
-import com.example.common.base.page.navigation
-import com.example.framework.utils.function.getIntent
 import java.util.Stack
 import kotlin.system.exitProcess
 
