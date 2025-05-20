@@ -30,7 +30,7 @@ class CustomItemAdapter : RecyclerView.Adapter<CustomItemAdapter.ViewHolder>() {
         //每一页容器的适配器
         val adapter = CustomTabAdapter()
         //每一页容器的按钮点击回调
-        adapter.setOnItemClickListener { _, index ->
+        adapter.setOnItemClickListener { _, _, index ->
             //下标值计算：每页总按钮数*当前页数+下标（默认0）
             val mPosition = tabCount * page + index
             listener?.invoke(mPosition)

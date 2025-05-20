@@ -1,6 +1,7 @@
 package com.example.common.base.binding.adapter
 
 import android.annotation.SuppressLint
+import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.example.common.base.binding.adapter.BaseItemType.BEAN
 import com.example.common.base.binding.adapter.BaseItemType.LIST
@@ -33,7 +34,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 点击回调，返回对象和下标
      */
-    private var onItemClick: ((t: T?, position: Int) -> Unit)? = null
+    protected var onItemClick: ((v: View?, t: T?, position: Int) -> Unit)? = null
 
     /**
      * 默认是返回集合
@@ -104,7 +105,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
         val position = holder.absoluteAdapterPosition
         //注意判断当前适配器是否具有头部view
         holder.itemView.click {
-            onItemClick?.invoke(data.safeGet(position), position)
+            onItemClick?.invoke(it, data.safeGet(position), position)
         }
         onConvert(holder, getItem(position), payloads)
     }
@@ -345,7 +346,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 适配器点击
      */
-    fun setOnItemClickListener(onItemClick: ((t: T?, position: Int) -> Unit)) {
+    fun setOnItemClickListener(onItemClick: ((v: View?, t: T?, position: Int) -> Unit)) {
         this.onItemClick = onItemClick
     }
 

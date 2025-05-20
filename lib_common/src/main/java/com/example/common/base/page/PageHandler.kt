@@ -12,6 +12,7 @@ import com.alibaba.android.arouter.facade.Postcard
 import com.alibaba.android.arouter.facade.callback.InterceptorCallback
 import com.alibaba.android.arouter.facade.service.InterceptorService
 import com.alibaba.android.arouter.launcher.ARouter
+import com.example.common.base.page.Extra.BUNDLE_OPTIONS
 import com.example.common.base.page.Extra.RESULT_CODE
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.EmptyLayout
@@ -80,6 +81,10 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
         //排除 RESULT_CODE 参数，将其他参数添加到 Bundle 中
         val bundle = nonNullParams.filter { it.first != RESULT_CODE }.toBundle { this }
         intent.putExtras(bundle)
+    }
+    //标记是否有动画配置
+    if (null != options) {
+        intent.putExtra(BUNDLE_OPTIONS, true)
     }
     //获取一下拦截器
     postcard.navigateWithInterceptors({
