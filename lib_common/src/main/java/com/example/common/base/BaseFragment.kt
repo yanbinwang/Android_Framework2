@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResult
+import androidx.core.app.ActivityOptionsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -242,8 +243,8 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
         }
     }
 
-    override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity? {
-        mActivity?.navigation(path, params = params, activityResultValue = mActivityResult)
+    override fun navigation(path: String, vararg params: Pair<String, Any?>?, options: ActivityOptionsCompat?): Activity? {
+        mActivity?.navigation(path, params = params, activityResultValue = mActivityResult, options = options)
         return mActivity
     }
     // </editor-fold>

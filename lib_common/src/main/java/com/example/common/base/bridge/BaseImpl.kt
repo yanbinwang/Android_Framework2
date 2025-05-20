@@ -18,11 +18,6 @@ import com.example.framework.utils.function.view.visible
  */
 internal interface BaseImpl {
 
-//    /**
-//     * 构建viewmodel用作数据交互/网络请求
-//     */
-//    fun <VM : BaseViewModel> VM.create(): VM?
-
     /**
      * 初始化状态栏
      * activity/fragment具备，其余不可重写

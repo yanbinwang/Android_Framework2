@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.activity.result.ActivityResult
+import androidx.core.app.ActivityOptionsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
@@ -266,8 +267,8 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
         }
     }
 
-    override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity? {
-        mActivity?.navigation(path, params = params, activityResultValue = mActivityResult)
+    override fun navigation(path: String, vararg params: Pair<String, Any?>?, options: ActivityOptionsCompat?): Activity? {
+        mActivity?.navigation(path, params = params, activityResultValue = mActivityResult, options = options)
         return mActivity
     }
     // </editor-fold>
