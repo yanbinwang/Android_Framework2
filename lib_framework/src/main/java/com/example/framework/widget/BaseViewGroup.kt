@@ -23,7 +23,7 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
     /**
      * 手动绑定 LifecycleOwner（用于代码创建的 View）
      */
-    open fun setLifecycleOwner(owner: LifecycleOwner) {
+    open fun addLifecycleOwner(owner: LifecycleOwner) {
         if (isAdded) return
         lifecycleOwner = owner
         ensureAdded()
