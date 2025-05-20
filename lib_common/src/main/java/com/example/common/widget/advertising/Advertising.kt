@@ -141,6 +141,11 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         if (isInflate) addView(banner)
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        lifecycleOwner?.lifecycle?.addObserver(this)
+    }
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         stopRoll()

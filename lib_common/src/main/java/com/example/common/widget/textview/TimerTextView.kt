@@ -17,7 +17,7 @@ import com.example.framework.utils.function.view.textSize
 
 /**
  * Created by wangyanbin
- * 倒计时textview
+ * 倒计时textview,手动xml绘制
  */
 @SuppressLint("SetTextI18n")
 class TimerTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatTextView(context, attrs, defStyleAttr) {
@@ -30,10 +30,6 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
         textColor(R.color.appTheme)
         textSize(R.dimen.textSize14)
     }
-
-//    fun addObserver(observer: LifecycleOwner) {
-//        timerBuilder = TimerBuilder(observer)
-//    }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
