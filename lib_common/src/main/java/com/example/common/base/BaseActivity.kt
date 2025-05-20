@@ -57,6 +57,21 @@ import kotlin.coroutines.CoroutineContext
  * 对应页面传入继承自BaseViewModel的数据模型类，以及由系统生成的ViewDataBinding绑定类
  * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context
  * 無xml的界面，泛型括號裡傳ViewDataBinding
+ * 如果希望打开的页面有自定义的动画效果，可以重写oncreate，或者调取基类的initview方法
+ * // 在需要转换动画的 Activity 中
+ * @Override
+ * protected void onCreate(Bundle savedInstanceState) {
+ *     super.onCreate(savedInstanceState);
+ * // 自定义滑入动画（从右侧进入）
+ * Slide slide = new Slide(Gravity.END);
+ * slide.setDuration(300);
+ * getWindow().setEnterTransition(slide);
+ * // 自定义滑出动画（向右侧退出）
+ * Slide slideExit = new Slide(Gravity.START);
+ * slideExit.setDuration(300);
+ * getWindow().setExitTransition(slideExit);
+ * getWindow().setReturnTransition(slideExit);
+ * }
  */
 @Suppress("UNCHECKED_CAST")
 abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
