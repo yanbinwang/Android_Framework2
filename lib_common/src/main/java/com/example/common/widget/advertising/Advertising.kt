@@ -23,6 +23,7 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.doOnceAfterLayout
+import com.example.framework.utils.function.view.getLifecycleOwner
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.reduceSensitivity
@@ -139,6 +140,11 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     override fun onInflate() {
         if (isInflate) addView(banner)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        getLifecycleOwner()?.lifecycle?.addObserver(this)
     }
 
     override fun onDetachedFromWindow() {
@@ -267,13 +273,13 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
     }
 
-    /**
-     * 绑定对应页面的生命周期-》对应回调重写对应方法
-     * @param observer
-     */
-    fun addObserver(observer: LifecycleOwner) {
-        observer.lifecycle.addObserver(this)
-    }
+//    /**
+//     * 绑定对应页面的生命周期-》对应回调重写对应方法
+//     * @param observer
+//     */
+//    fun addObserver(observer: LifecycleOwner) {
+//        observer.lifecycle.addObserver(this)
+//    }
 
     /**
      * 设置广告监听

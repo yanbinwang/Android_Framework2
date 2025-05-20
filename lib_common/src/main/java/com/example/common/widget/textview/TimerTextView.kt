@@ -5,13 +5,13 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.Gravity
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
 import com.example.common.utils.function.string
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.second
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
+import com.example.framework.utils.function.view.getLifecycleOwner
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
 
@@ -31,8 +31,18 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
         textSize(R.dimen.textSize14)
     }
 
-    fun addObserver(observer: LifecycleOwner) {
-        timerBuilder = TimerBuilder(observer)
+//    fun addObserver(observer: LifecycleOwner) {
+//        timerBuilder = TimerBuilder(observer)
+//    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        getLifecycleOwner()?.let { timerBuilder = TimerBuilder(it) }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        timerBuilder?.stopCountDown(timerTag)
     }
 
     fun start(tag: String? = "", second: Int = 60) {
@@ -44,11 +54,6 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
             enable()
             text = string(R.string.timerDisabled)
         }, second.second)
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        timerBuilder?.stopCountDown(timerTag)
     }
 
 }
