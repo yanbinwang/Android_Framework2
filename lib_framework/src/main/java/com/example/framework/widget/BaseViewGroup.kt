@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isEmpty
 import androidx.core.view.isNotEmpty
+import androidx.lifecycle.LifecycleOwner
+import com.example.framework.utils.function.view.getLifecycleOwner
 
 /**
  * 自定义控件继承ViewGroup需要清除边距，使用当前类做处理
@@ -14,8 +16,39 @@ import androidx.core.view.isNotEmpty
  * 如果嵌套NestedScrollView记得添加属性android:fillViewport="true"保证子布局撑满
  */
 abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ViewGroup(context, attrs, defStyleAttr) {
-    //检测布局绘制->只容许容器内有一个插入的xml
-    protected val isInflate get() = childCount <= 0
+    private var isAdded = false
+    protected var lifecycleOwner: LifecycleOwner? = null
+    protected val isInflate get() = childCount <= 0 //检测布局绘制->只容许容器内有一个插入的xml
+
+    /**
+     * 手动绑定 LifecycleOwner（用于代码创建的 View）
+     */
+    open fun setLifecycleOwner(owner: LifecycleOwner) {
+        if (isAdded) return
+        lifecycleOwner = owner
+        ensureAdded()
+    }
+
+    /**
+     * 自动绑定 LifecycleOwner（XML 布局或已附加到窗口的情况）
+     */
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (isAdded) return
+        lifecycleOwner = getLifecycleOwner()
+        ensureAdded()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        isAdded = false // 解绑后重置标记
+        lifecycleOwner = null // 清空引用
+    }
+
+    private fun ensureAdded() {
+        if (isAdded) return
+        isAdded = true
+    }
 
     /**
      * widthMeasureSpec和heightMeasureSpec是由系统传入的测量规格参数，它们封装了父容器对该控件在宽度和高度上的测量要求，包括测量模式和尺寸大小

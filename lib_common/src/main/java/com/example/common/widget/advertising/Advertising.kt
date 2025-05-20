@@ -23,7 +23,6 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.doOnceAfterLayout
-import com.example.framework.utils.function.view.getLifecycleOwner
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.reduceSensitivity
@@ -140,11 +139,6 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     override fun onInflate() {
         if (isInflate) addView(banner)
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        getLifecycleOwner()?.lifecycle?.addObserver(this)
     }
 
     override fun onDetachedFromWindow() {
