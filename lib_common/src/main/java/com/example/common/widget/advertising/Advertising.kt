@@ -141,6 +141,11 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         if (isInflate) addView(banner)
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        lifecycleOwner?.lifecycle?.addObserver(this)
+    }
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         stopRoll()
@@ -267,13 +272,13 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
     }
 
-    /**
-     * 绑定对应页面的生命周期-》对应回调重写对应方法
-     * @param observer
-     */
-    fun addObserver(observer: LifecycleOwner) {
-        observer.lifecycle.addObserver(this)
-    }
+//    /**
+//     * 绑定对应页面的生命周期-》对应回调重写对应方法
+//     * @param observer
+//     */
+//    fun addObserver(observer: LifecycleOwner) {
+//        observer.lifecycle.addObserver(this)
+//    }
 
     /**
      * 设置广告监听

@@ -31,8 +31,14 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
         textSize(R.dimen.textSize14)
     }
 
-    fun addObserver(observer: LifecycleOwner) {
-        timerBuilder = TimerBuilder(observer)
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        getLifecycleOwner()?.let { timerBuilder = TimerBuilder(it) }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        timerBuilder?.stopCountDown(timerTag)
     }
 
     fun start(tag: String? = "", second: Int = 60) {
@@ -44,11 +50,6 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
             enable()
             text = string(R.string.timerDisabled)
         }, second.second)
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        timerBuilder?.stopCountDown(timerTag)
     }
 
 }
