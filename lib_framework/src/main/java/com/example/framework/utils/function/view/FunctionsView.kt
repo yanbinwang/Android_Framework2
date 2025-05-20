@@ -16,6 +16,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewParent
 import android.view.ViewTreeObserver
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
@@ -28,14 +29,10 @@ import android.view.animation.RotateAnimation
 import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
 import android.widget.BaseExpandableListAdapter
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
 import android.widget.ExpandableListView
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.RadioButton
 import android.widget.TextView
 import androidx.annotation.AnimRes
 import androidx.annotation.ColorRes
@@ -51,6 +48,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.string
@@ -324,12 +322,26 @@ var View?.layoutGravity: Int
  * val nestedScrollView = myView.findParentOfType(NestedScrollView::class.java)
  */
 fun <T : View> View.findParentOfType(clazz: Class<T>): T? {
-    var parent = parent
-    while (parent != null) {
-        if (clazz.isInstance(parent)) {
-            return clazz.cast(parent)
+    var mParent: ViewParent? = parent
+    while (mParent != null) {
+        if (clazz.isInstance(mParent)) {
+            return mParent as T
         }
-        parent = parent.parent
+        mParent = mParent.parent
+    }
+    return null
+}
+
+/**
+ * val recyclerView: RecyclerView? = findParentOfType()
+ */
+inline fun <reified T : ViewParent> View.findParentOfType(): T? {
+    var mParent: ViewParent? = parent
+    while (mParent != null) {
+        if (mParent is T) {
+            return mParent
+        }
+        mParent = mParent.parent
     }
     return null
 }
@@ -339,13 +351,10 @@ fun <T : View> View.findParentOfType(clazz: Class<T>): T? {
  * 如果你的 View 是在一个 Fragment 或者 Activity 中使用，而这个 Fragment 或 Activity 本身实现了 LifecycleOwner 接口
  * （在 AndroidX 中，Fragment 和 Activity 都默认实现了 LifecycleOwner 接口），那么你可以将 view.context 强制转换为 LifecycleOwner。
  * 但如果 View 的 context 是一个普通的 Context，比如是一个 Application 上下文，那么这种转换就会失败，因为 Application 通常没有实现 LifecycleOwner 接口。
+ * ViewTreeLifecycleOwner 是 AndroidX 提供的更可靠的方式，它会从 View 树中查找最近的 LifecycleOwner
  */
 fun View?.getLifecycleOwner(): LifecycleOwner? {
-    if (this == null) return null
-    return when (context) {
-        is LifecycleOwner -> context as LifecycleOwner
-        else -> null
-    }
+    return this?.findViewTreeLifecycleOwner()
 }
 
 /**
