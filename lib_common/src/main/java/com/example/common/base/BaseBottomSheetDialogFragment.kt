@@ -95,6 +95,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
                 it.onEvent()
             }
         }
+        if (isImmersionBarEnabled()) initImmersionBar()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -240,6 +241,10 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
         } catch (e: Exception) {
             e.logE
         }
+    }
+
+    protected open fun isImmersionBarEnabled(): Boolean {
+        return false
     }
 
     protected open fun isBindingEnabled(): Boolean {
