@@ -89,6 +89,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
                 it.onEvent()
             }
         }
+        if (isImmersionBarEnabled()) initImmersionBar()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -154,6 +155,10 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
         } catch (e: Exception) {
             e.logE
         }
+    }
+
+    protected open fun isImmersionBarEnabled(): Boolean {
+        return false
     }
 
     protected open fun isBindingEnabled(): Boolean {

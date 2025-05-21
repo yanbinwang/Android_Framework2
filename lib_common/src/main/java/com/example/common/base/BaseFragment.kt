@@ -109,6 +109,7 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
                 it.onEvent()
             }
         }
+        if (isImmersionBarEnabled()) initImmersionBar()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -140,6 +141,10 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
         initView(savedInstanceState)
         initEvent()
         if (!lazyData) initData()
+    }
+
+    protected open fun isImmersionBarEnabled(): Boolean {
+        return false
     }
 
     protected open fun isBindingEnabled(): Boolean {
