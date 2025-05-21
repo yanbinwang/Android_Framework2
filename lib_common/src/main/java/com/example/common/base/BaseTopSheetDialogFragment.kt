@@ -215,7 +215,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
     }
 
     open fun show(manager: FragmentManager) {
-        val tag = javaClass.simpleName.toLowerCase(Locale.getDefault())
+        val tag = javaClass.simpleName.lowercase(Locale.getDefault())
         show(manager, tag)
     }
     // </editor-fold>

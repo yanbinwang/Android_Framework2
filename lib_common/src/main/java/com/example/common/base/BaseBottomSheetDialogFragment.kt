@@ -307,7 +307,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     }
 
     open fun show(manager: FragmentManager) {
-        val tag = javaClass.simpleName.toLowerCase(Locale.getDefault())
+        val tag = javaClass.simpleName.lowercase(Locale.getDefault())
         show(manager, tag)
     }
     // </editor-fold>
