@@ -44,6 +44,7 @@ import com.example.common.utils.manager.AppManager
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.framework.utils.function.string
+import com.example.framework.utils.function.value.DateFormat.clearThreadLocalCache
 import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.function.value.minute
 import com.example.framework.utils.function.value.orFalse
@@ -347,6 +348,11 @@ abstract class BaseApplication : Application() {
     override fun onLowMemory() {
         super.onLowMemory()
         ImageLoader.instance.clearMemoryCache(applicationContext, ProcessLifecycleOwner.get())
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        clearThreadLocalCache()
     }
 
 }

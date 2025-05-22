@@ -16,11 +16,11 @@ import kotlin.math.floor
 /**
  * 获取毫秒值
  */
-val Int.hour get() = this * 1000L * 60L * 60L
-val Int.minute get() = this * 1000L * 60L
-val Int.second get() = this * 1000L
-val Int.day get() = this * 1000L * 60L * 60L * 24L
-val Int.week get() = this * 1000L * 60L * 60L * 24L * 7L
+val Int.hour get() = this * 1000L * 60 * 60  // 1小时 = 3600000毫秒
+val Int.minute get() = this * 1000L * 60     // 1分钟 = 60000毫秒
+val Int.second get() = this * 1000L          // 1秒 = 1000毫秒
+val Int.day get() = this * 24.hour           // 1天 = 24小时（复用hour扩展）
+val Int.week get() = this * 7.day            // 1周 = 7天（复用day扩展）
 
 /**
  * 服务器时间-推测的服务器接收时间
@@ -52,6 +52,16 @@ val currentTimeStamp: Long
 val currentTimeNano get() = System.nanoTime() / 1000000L
 
 /**
+ * 获取手机计算日历
+ */
+val timeContrast by lazy {
+    Calendar.getInstance().let {
+        it.set(2000, 0, 1, 0, 0, 0)
+        it.timeInMillis
+    }
+}
+
+/**
  * 是否为今天
  */
 val Long?.isToday: Boolean
@@ -70,8 +80,8 @@ val Long?.isToday: Boolean
 fun Long?.dayDiff(other: Long?): Int {
     this ?: return 0
     other ?: return 0
-    val timeDay = floor((this - DateFormat.timeContrast) / (1000f * 60f * 60f * 24f)).toInt()
-    val timeDay2 = floor((other - DateFormat.timeContrast) / (1000f * 60f * 60f * 24f)).toInt()
+    val timeDay = floor((this - timeContrast) / (1000f * 60f * 60f * 24f)).toInt()
+    val timeDay2 = floor((other - timeContrast) / (1000f * 60f * 60f * 24f)).toInt()
     return timeDay - timeDay2
 }
 
@@ -80,7 +90,7 @@ fun Long?.dayDiff(other: Long?): Int {
  * @param showMin 显示分钟和秒钟
  * @param showSec 显示秒钟
  * */
-fun Long?.timeCountDown(showMin: Boolean = true, showSec: Boolean = true): String {
+fun Long?.formatAsCountdown(showMin: Boolean = true, showSec: Boolean = true): String {
     this ?: return when {
         showMin && showSec -> "00:00:00"
         showMin && !showSec -> "00:00"
@@ -89,12 +99,18 @@ fun Long?.timeCountDown(showMin: Boolean = true, showSec: Boolean = true): Strin
     val hour = this / 1.hour
     if (!showMin) return hour.toString()
     val minute = (this % 1.hour) / 1.minute
-    if (!showSec) return "${hour.getNumber(false)}:${minute.getNumber(true)}"
+    if (!showSec) return "${hour.padZero(false)}:${minute.padZero(true)}"
     val second = (this % 1.minute) / 1.second
-    return "${hour.getNumber(false)}:${minute.getNumber(true)}:${second.getNumber(true)}"
+    return "${hour.padZero(false)}:${minute.padZero(true)}:${second.padZero(true)}"
 }
 
-private fun Long.getNumber(cap: Boolean = true): String {
+fun Long?.formatAsCountdownCN(): String {
+    var list = formatAsCountdown().split(":")
+    if (list.safeSize != 3) list = listOf("00", "00", "00")
+    return "${list.safeGet(0)}时${list.safeGet(1)}分${list.safeGet(2)}秒"
+}
+
+private fun Long.padZero(cap: Boolean = true): String {
     return when {
         this <= 0 -> "00"
         this < 10 -> "0$this"
@@ -148,18 +164,20 @@ fun Date.isToday(): Boolean {
  * 假定服务器给的日期格式为：yyyy-MM-dd HH:mm:ss，通常使用US或者China，本身为零时区
  * 此时应减去手机获取到的时区，从而得到转换后的时区
  * @param this 日期(2022-12-11 22:22:22)
+ * @return 将服务器返回的时间字符串解析为本地时间戳（毫秒），同时处理时区偏移问题
  */
-fun String?.convertServerTime(format: String = EN_YMDHMS): Long? {
-    if (isNullOrEmpty()) return null
-    val date = SimpleDateFormat(format, Locale.US).parse(this, ParsePosition(0)) ?: return null
+fun String?.convertServerTime(format: String = EN_YMDHMS): Long {
+    if (isNullOrEmpty()) return 0
+    val date = SimpleDateFormat(format, Locale.US).parse(this, ParsePosition(0)) ?: return 0
     return date.time - date.timezoneOffset * 60000
 }
 
 /**
  * 获取转换日期
  * @param this     被转换的日期格式(yyyy-MM-dd)
- * @param format   要转换的日期格式(yyyy-MM-dd)
+ * @param format   要转换的日期格式(yyyy-MM-dd HH:mm:ss)
  * @param source   被转换的日期(2022-12-11)
+ * @return         被转换的日期(2022-12-11 00:00:00)
  */
 fun String?.convert(format: String, source: String): String {
     this ?: return ""
@@ -175,28 +193,38 @@ fun String?.convert(format: String, source: String): String {
  * 传入指定格式的日期字符串转成毫秒
  * @param this   日期格式(yyyy-MM-dd)
  * @param source 日期(2022-12-11)
+ * @return       时间戳
  */
-fun String.convert(source: String) = getDateFormat().parse(source)?.time.orZero
+fun String.convert(source: String): Long {
+    return getDateFormat().parse(source)?.time.orZero
+}
 
 /**
  * 传入指定日期格式和毫秒转换成日期字符串
- * @param this 日期格式
+ * @param this      日期格式(yyyy-MM-dd)
  * @param timestamp 时间戳
+ * @return          日期(2022-12-11)
  */
-fun String.convert(timestamp: Long) = getDateFormat().format(Date(timestamp)).orEmpty()
+fun String.convert(timestamp: Long): String {
+    return getDateFormat().format(Date(timestamp)).orEmpty()
+}
 
 /**
  * 传入指定日期格式和日期類转换成日期字符串
  * @param this 日期格式(yyyy-MM-dd)
  * @param date 日期类
+ * @return     日期(2022-12-11)
  */
-fun String.convert(date: Date) = getDateFormat().format(date).orEmpty()
+fun String.convert(date: Date): String {
+    return getDateFormat().format(date).orEmpty()
+}
 
 /**
  * 日期对比（统一年月日形式）
  * @param this     比较日期a(2022-12-11 11:11:11)
  * @param source   比较日期b(2022-12-12 11:11:11)
  * @param format   比较日期的格式(a和b要一致->yyyy-MM-dd HH:mm:ss)
+ * @return         1（大于）-1（小于） 0（等于）
  */
 fun String?.compare(source: String, format: String = EN_YMD): Int {
     this ?: return 0
@@ -218,6 +246,7 @@ fun String?.compare(source: String, format: String = EN_YMD): Int {
 /**
  * 获取日期的当月的第几周
  * @param this 日期（yyyy-MM-dd）
+ * @return     星期数（记得+1）
  */
 fun String?.getWeekOfMonth(): Int {
     this ?: return 0
@@ -235,6 +264,7 @@ fun String?.getWeekOfMonth(): Int {
 /**
  * 获取日期是第几周
  * @param source 日期（yyyy-MM-dd）
+ * @return       周数（记得+1）
  */
 fun String?.getWeekOfDate(): Int {
     this ?: return 0
@@ -266,14 +296,9 @@ object DateFormat {
     const val EN_YMDHMS = "yyyy-MM-dd HH:mm:ss"
 
     /**
-     * 获取手机计算日历
+     * 缓存本地创建的日期格式（频繁创建SimpleDateFormat进行日期转换过于耗费内存）
      */
-    val timeContrast by lazy {
-        Calendar.getInstance().let {
-            it.set(2000, 0, 1, 0, 0, 0)
-            it.timeInMillis
-        }
-    }
+    private val threadLocalFormatters by lazy { ThreadLocal<MutableMap<String, SimpleDateFormat>>() }
 
     /**
      * 获取手机本身日期格式，指定为国内时区，避免用户手动改时区
@@ -281,40 +306,37 @@ object DateFormat {
      */
     @JvmStatic
     fun String.getDateFormat(): SimpleDateFormat {
-        val dateFormat = SimpleDateFormat(this, Locale.getDefault())
-        dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
-        return dateFormat
+//        val dateFormat = SimpleDateFormat(this, Locale.getDefault())
+//        dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+//        return dateFormat
+        // 获取当前线程的缓存Map，不存在则创建
+        val formatters = threadLocalFormatters.get() ?: mutableMapOf<String, SimpleDateFormat>().also {
+            threadLocalFormatters.set(it)
+        }
+        // 从缓存中获取，不存在则创建新实例并缓存
+        return formatters.getOrPut(this) {
+            SimpleDateFormat(this, Locale.getDefault()).apply {
+                timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+            }
+        }
     }
 
     /**
-     * 日期格式转换/对比
+     * 清理当前线程的所有日期格式缓存
+     * 建议在长时间运行的后台任务结束时或Activity/Fragment销毁时调用
      */
-    private val DEFAULT_FORMAT = EN_YMD
-
     @JvmStatic
-    fun convert(timeFormat: String, source: String, format: String = DEFAULT_FORMAT): String {
-        return timeFormat.convert(format, source)
+    fun clearThreadLocalCache() {
+        threadLocalFormatters.get()?.clear()
+        threadLocalFormatters.remove()
     }
 
+    /**
+     * 清理指定格式的缓存（若不再需要特定格式）
+     */
     @JvmStatic
-    fun convert(source: String, format: String = DEFAULT_FORMAT): Long {
-        return format.convert(source)
+    fun removeCachedFormat(formatPattern: String) {
+        threadLocalFormatters.get()?.remove(formatPattern)
     }
-
-    @JvmStatic
-    fun convert(timestamp: Long, format: String = DEFAULT_FORMAT): String {
-        return format.convert(timestamp)
-    }
-
-    @JvmStatic
-    fun convert(date: Date, format: String = DEFAULT_FORMAT): String {
-        return format.convert(date)
-    }
-
-    @JvmStatic
-    fun compare(timeDay: String, timeDay2: String, format: String = DEFAULT_FORMAT): Int {
-        return timeDay.compare(timeDay2, format)
-    }
-
 }
 // </editor-fold>
