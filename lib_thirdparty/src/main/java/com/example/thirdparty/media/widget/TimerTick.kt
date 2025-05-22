@@ -16,7 +16,7 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.second
-import com.example.framework.utils.function.value.timeCountDown
+import com.example.framework.utils.function.value.formatAsCountdown
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.thirdparty.R
 import com.example.thirdparty.databinding.ViewTimeTickBinding
@@ -220,7 +220,7 @@ class TimerTick(mContext: Context, private val observer: LifecycleOwner, move: B
                     tickDialog?.dismiss()
                 }
             }
-            mBinding.tvTimer.text = (timerSecond - 1).second.timeCountDown()
+            mBinding.tvTimer.text = (timerSecond - 1).second.formatAsCountdown()
         })
     }
 
