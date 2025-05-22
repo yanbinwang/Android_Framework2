@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.Calendar.MONTH
 import java.util.Calendar.YEAR
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.floor
 
 //------------------------------------日期时间工具类------------------------------------
@@ -306,7 +307,7 @@ object DateFormat {
     /**
      * 缓存本地创建的日期格式（频繁创建SimpleDateFormat进行日期转换过于耗费内存）
      */
-    private val threadLocalFormatters by lazy { ThreadLocal<MutableMap<String, SimpleDateFormat>>() }
+    private val formattersCache by lazy { ConcurrentHashMap<String, SimpleDateFormat>() }
 
     /**
      * 获取手机本身日期格式，指定为国内时区，避免用户手动改时区
@@ -317,12 +318,7 @@ object DateFormat {
 //        val dateFormat = SimpleDateFormat(this, Locale.getDefault())
 //        dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
 //        return dateFormat
-        // 获取当前线程的缓存Map，不存在则创建
-        val formatters = threadLocalFormatters.get() ?: mutableMapOf<String, SimpleDateFormat>().also {
-            threadLocalFormatters.set(it)
-        }
-        // 从缓存中获取，不存在则创建新实例并缓存
-        return formatters.getOrPut(this) {
+        return formattersCache.getOrPut(this) {
             SimpleDateFormat(this, Locale.getDefault()).apply {
                 timeZone = TimeZone.getTimeZone("Asia/Shanghai")
             }
@@ -335,8 +331,7 @@ object DateFormat {
      */
     @JvmStatic
     fun clearThreadLocalCache() {
-        threadLocalFormatters.get()?.clear()
-        threadLocalFormatters.remove()
+        formattersCache.clear()
     }
 
     /**
@@ -344,7 +339,7 @@ object DateFormat {
      */
     @JvmStatic
     fun removeCachedFormat(formatPattern: String) {
-        threadLocalFormatters.get()?.remove(formatPattern)
+        formattersCache.remove(formatPattern)
     }
 }
 // </editor-fold>
