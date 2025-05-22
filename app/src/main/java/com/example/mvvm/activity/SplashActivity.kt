@@ -7,7 +7,7 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication.Companion.lastClickTime
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
-import com.example.common.utils.fullScreen
+import com.example.common.utils.applyFullScreen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.jessyan.autosize.internal.CancelAdapt
@@ -48,7 +48,7 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
             finish()
             return
         }
-        window.fullScreen()
+        window.applyFullScreen()
         super.onCreate(savedInstanceState)
         //当前Activity不是任务栈的根，可能是通过其他Activity启动的
         if (!isTaskRoot) {

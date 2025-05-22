@@ -148,7 +148,7 @@ object ScreenUtil {
 /**
  * 全屏展示
  */
-fun Window.fullScreen() {
+fun Window.applyFullScreen() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         // Android 11+ 版本
         setDecorFitsSystemWindows(false)
