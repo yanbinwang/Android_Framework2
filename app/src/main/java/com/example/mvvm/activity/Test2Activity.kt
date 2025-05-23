@@ -16,6 +16,8 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.R
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
+import com.example.common.utils.ScreenUtil.screenHeight
+import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.setTheme
@@ -28,6 +30,7 @@ import com.example.framework.utils.function.view.bottomToBottomOf
 import com.example.framework.utils.function.view.centerVertically
 import com.example.framework.utils.function.view.fade
 import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.invisible
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.size
@@ -35,6 +38,7 @@ import com.example.framework.utils.function.view.startToEndOf
 import com.example.framework.utils.function.view.startToStartOf
 import com.example.framework.utils.function.view.textSize
 import com.example.framework.utils.function.view.topToTopOf
+import com.example.framework.utils.function.view.visible
 import com.example.mvvm.databinding.ActivityTest2Binding
 import com.google.android.material.appbar.AppBarLayout
 import kotlin.math.abs
@@ -134,9 +138,24 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
 //                        mBinding?.llInfo?.translationX.orZero, targetTranslationX,
 //                        mBinding?.llInfo?.translationY.orZero, targetTranslationY)
 //                }
-                mBinding?.llInfo?.alpha = 1 - percentage
-                mBinding?.llInfo?.scaleX = 1 - percentage
-                mBinding?.llInfo?.scaleY = 1 - percentage
+                
+                //大头像是88pt小头像是44pt，所以低于0.5就无需再做了
+                val scaleOffset = 1 - percentage
+                if (scaleOffset > 0.4) {
+                    mBinding?.tvNick?.visible()
+                    mBinding?.llInfo?.scaleX = scaleOffset
+                    mBinding?.llInfo?.scaleY = scaleOffset
+                } else {
+                    mBinding?.tvNick?.invisible()
+                }
+                // 添加位置动画
+//                val maxTranslationX = 50f // 最大平移距离（可根据需要调整）
+                val maxTranslationX = screenWidth * 0.09f
+                mBinding?.llInfo?.translationX = -(percentage * maxTranslationX)
+//                val maxTranslationY = 40f
+                val maxTranslationY = screenHeight * 0.03f
+                mBinding?.llInfo?.translationY = percentage * maxTranslationY
+
                 //折叠/显式状态动画
                 val needHide = offset < totalScrollRange
                 if (needHide != isHide) {
