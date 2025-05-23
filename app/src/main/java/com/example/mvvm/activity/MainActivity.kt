@@ -392,6 +392,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        BaseApplication.instance.initPrivacyAgreed()
 
         mBinding?.ivArrow.click {
+            navigation(ARouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
 //            mPermission.requestPermissions {
@@ -399,30 +400,30 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                    navigation(ARouterPath.TestActivity)
 //                }
 //            }
-            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
-                //透明背景
-                snackbar.setBackgroundTint(Color.TRANSPARENT)
-                // 获取 Snackbar 的根视图
-                val snackbarView = snackbar.view
-                // 隐藏默认的文本和动作视图
-                val snackbarText = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-                snackbarText.gone()
-                val snackbarAction = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_action)
-                snackbarAction.gone()
-                // 加载自定义视图
-                val binding = ViewSnackbarImageStyleBinding.bind(this.inflate(R.layout.view_snackbar_image_style))
-                binding.ivType.setImageResource(R.mipmap.ic_toast)
-                binding.tvLabel.text = "复制成功"
-                //父布局
-                val root = snackbarView as? ViewGroup
-                // 移除默认视图
-                root?.removeAllViews()
-                // 添加自定义视图
-                root?.addView(binding.root)
-//                // 空出顶部导航栏
-//                binding.root.margin(top = getStatusBarHeight())
-                return@custom snackbar
-            }, true)
+//            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
+//                //透明背景
+//                snackbar.setBackgroundTint(Color.TRANSPARENT)
+//                // 获取 Snackbar 的根视图
+//                val snackbarView = snackbar.view
+//                // 隐藏默认的文本和动作视图
+//                val snackbarText = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+//                snackbarText.gone()
+//                val snackbarAction = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_action)
+//                snackbarAction.gone()
+//                // 加载自定义视图
+//                val binding = ViewSnackbarImageStyleBinding.bind(this.inflate(R.layout.view_snackbar_image_style))
+//                binding.ivType.setImageResource(R.mipmap.ic_toast)
+//                binding.tvLabel.text = "复制成功"
+//                //父布局
+//                val root = snackbarView as? ViewGroup
+//                // 移除默认视图
+//                root?.removeAllViews()
+//                // 添加自定义视图
+//                root?.addView(binding.root)
+////                // 空出顶部导航栏
+////                binding.root.margin(top = getStatusBarHeight())
+//                return@custom snackbar
+//            }, true)
         }
 
         val books = listOf(
