@@ -61,7 +61,7 @@ import java.util.concurrent.ConcurrentHashMap
  *  add和replace区别，如果我要在容器内加载一连串fragment，它们使用的是同一个xml文件，只是id有区分，此时就可能出现ui错位
  *  这种时候就使用replace直接删除容器之前的fragment，直接替换（保证当前容器内只有一个fragment）
  */
-class FragmentBuilder(private val fragmentManager: FragmentManager, private val observer: LifecycleOwner, private val containerViewId: Int, private val isAdd: Boolean = true) {
+class FragmentBuilder(private val observer: LifecycleOwner, private val fragmentManager: FragmentManager, private val containerViewId: Int, private val isAdd: Boolean = true) {
     private var isArguments = false//是否是添加参数的模式
     private var isAnimation = false//是否执行动画
     private var currentItem = -1//默认下标->不指定任何值
@@ -87,11 +87,8 @@ class FragmentBuilder(private val fragmentManager: FragmentManager, private val 
      *  second：tag值，不传默认为class名
      */
     fun bind(list: List<Pair<Class<*>, String>>, default: Int = 0) {
-        isArguments = false
-        buffer.clear()
         clazz = list.toMutableList()
-        managerLength = list.safeSize
-        selectTab(default)
+        initView(false, default)
     }
 
     fun bind(vararg clazzPair: Pair<Class<*>, String>, default: Int = 0) {
@@ -105,15 +102,22 @@ class FragmentBuilder(private val fragmentManager: FragmentManager, private val 
      * third：pair对象 （first，fragment透传的key second，透传的值）
      */
     fun bindBundle(list: List<Triple<Class<*>, String, Bundle>>, default: Int = 0) {
-        isArguments = true
-        buffer.clear()
         clazzBundle = list.toMutableList()
-        managerLength = list.safeSize
-        selectTab(default)
+        initView(true, default)
     }
 
     fun bindBundle(vararg clazzTriple: Triple<Class<*>, String, Bundle>, default: Int = 0) {
         bindBundle(listOf(*clazzTriple), default)
+    }
+
+    /**
+     * 初始化配置
+     */
+    private fun initView(hasBundle: Boolean, default: Int) {
+        isArguments = hasBundle
+        managerLength = if (hasBundle) clazzBundle.safeSize else clazz.safeSize
+        buffer.clear()
+        selectTab(default)
     }
 
     /**
