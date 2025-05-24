@@ -12,6 +12,7 @@ object ARouterPath {
     const val MainActivity = "/app/MainActivity"
     const val LoginActivity = "/app/LoginActivity"
     const val TestActivity = "/app/TestActivity"
+    const val TestActivity2 = "/app/TestActivity2"
     //home模块
     const val LinkActivity = "/home/LinkActivity"//推送跳转
     const val WebActivity = "/home/WebActivity"
