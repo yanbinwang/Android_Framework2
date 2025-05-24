@@ -580,15 +580,11 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     }
 
     private val clickAllowedAction = { mTab: TabLayout.Tab?, i: Int ->
-        val data = clickActions[i]
-        if (data != null) {
-            data.invoke()
+        val action = clickActions[i]
+        if (action != null) {
+            action.invoke()
         } else {
-            mTab?.select()
-            for (j in 0 until mTabCount) {
-                onBindView(tabViews[j], tabList.safeGet(j), j == i, j)
-            }
-            if (0 == bindMode) builder?.selectTab(i)
+            allowedResetAction(mTab, i)
         }
     }
 
@@ -597,8 +593,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * addClickAllowed后可还原
      */
     fun allowedReset(index: Int) {
-        val clickAction = clickActions[index]
-        if (clickAction != null) {
+        val action = clickActions[index]
+        if (action != null) {
             val mTab = tab?.getTabAt(index)
             mTab?.customView.click {
                 if (isMainThread) {
