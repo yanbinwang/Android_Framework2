@@ -138,16 +138,25 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
         val transaction = fragmentManager.beginTransaction()
         //设置动画（进入、退出、返回进入、返回退出）->只有add这种保留原fragment在栈内的情况才会设置动画
         if (isAnimation && isAdd) {
+            //安全取值，没有为0的情况下就是默认不执行动画
+            val mEnterAnim = anim.safeGet(0).orZero
+            val mExitAnim = anim.safeGet(1).orZero
+            val mPopEnterAnim = anim.safeGet(2).orZero
+            val mPopExitAnim = anim.safeGet(3).orZero
+            //根据长度判断设定的动画
             if (anim.safeSize == 2) {
-                transaction.setCustomAnimations(anim.safeGet(0).orZero, anim.safeGet(1).orZero)
+                transaction.setCustomAnimations(mEnterAnim, mExitAnim)
             } else {
-                transaction.setCustomAnimations(anim.safeGet(0).orZero, anim.safeGet(1).orZero, anim.safeGet(2).orZero, anim.safeGet(3).orZero)
+                transaction.setCustomAnimations(mEnterAnim, mExitAnim, mPopEnterAnim, mPopExitAnim)
             }
         }
         //使现有的fragment，全部隐藏
-        for ((_, value) in buffer) {
-            transaction.hide(value)
+        buffer.values.forEach {
+            transaction.hide(it)
         }
+//        for ((_, value) in buffer) {
+//            transaction.hide(value)
+//        }
         //获取到选中的fragment
         val fragment = if (isArguments) {
             newInstanceArguments()
