@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import androidx.core.view.forEach
+import androidx.core.view.size
 import androidx.viewpager2.widget.ViewPager2
 import com.example.framework.R
 import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
@@ -12,11 +13,11 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
-import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.vibrate
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  *  Created by wangyanbin
@@ -59,10 +60,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  */
 @SuppressLint("RestrictedApi")
 class NavigationBuilder(private val navigationView: BottomNavigationView?, private val ids: List<Int>, private val animation: Boolean = true) {
+    private var bindMode = 0//绑定模式 -> 0：FragmentManager / 1：ViewPager2
+    private var hasAction: Boolean = false//是否重写过点击
     private var flipper: ViewPager2? = null
     private var builder: FragmentBuilder? = null
     private var listener: ((index: Int) -> Unit)? = null
-    private val isPager get() = null != flipper
+    private var clickActions = ConcurrentHashMap<Int, (() -> Unit)>()
     private val menuView get() = navigationView?.getChildAt(0) as? BottomNavigationMenuView
 
     /**
@@ -71,33 +74,50 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
     init {
         //去除长按的toast提示
         for (position in ids.indices) {
-            menuView?.getChildAt(position)?.findViewById<View>(ids.safeGet(position).toSafeInt())?.setOnLongClickListener { true }
+            menuView?.getChildAt(position)?.findViewById<View>(ids.safeGet(position).orZero)?.setOnLongClickListener { true }
         }
-        //最多配置5个tab，需要注意，每次点击都会触发回调
+        //最多配置5个tab，需要注意，每次点击都会触发回调(true：允许，false：拦截)
         navigationView?.setOnItemSelectedListener { item ->
             //返回此次点击的下标
             val index = ids.indexOfFirst { it == item.itemId }
-            //默认允许切换页面
-            selectTab(index)
-            //回调我们自己的监听，返回下标和前一次历史下标->-1就是没选过
-            listener?.invoke(index)
-            true
+            if (hasAction && clickActions.safeSize > 0) {
+                val action = clickActions[index]
+                if (action != null) {
+                    action.invoke()
+                    false
+                } else {
+                    onSelected(index)
+                    true
+                }
+            } else {
+                onSelected(index)
+                true
+            }
         }
         //默认效果删除
         navigationView?.itemIconTintList = null
         navigationView?.itemTextColor = null
     }
 
+    private fun onSelected(index: Int) {
+        //默认允许切换页面
+        selectTab(index)
+        //回调我们自己的监听，返回下标和前一次历史下标->-1就是没选过
+        listener?.invoke(index)
+    }
+
     /**
      * 绑定方法
      */
-    fun bind(flipper: ViewPager2, default: Int = 0) {
-        this.flipper = flipper
+    fun bind(builder: FragmentBuilder, default: Int = 0) {
+        this.bindMode = 0
+        this.builder = builder
         setSelect(default)
     }
 
-    fun bind(builder: FragmentBuilder, default: Int = 0) {
-        this.builder = builder
+    fun bind(flipper: ViewPager2, default: Int = 0) {
+        this.bindMode = 1
+        this.flipper = flipper
         setSelect(default)
     }
 
@@ -125,10 +145,10 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
      */
     private fun selectItem(index: Int) {
         val menu = navigationView?.menu
-        if (index < menu?.size().orZero) {
-            navigationView?.postDelayed({
+        if (index < menu?.size.orZero) {
+            navigationView?.post {
                 navigationView.selectedItemId = menu?.getItem(index)?.itemId.orZero
-            }, 500)
+            }
         }
     }
 
@@ -146,7 +166,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
 
     private fun selectTabNow(tab: Int, recreate: Boolean) {
         //如果频繁点击相同的页面tab，不执行切换代码
-        if (isPager) {
+        if (bindMode == 1) {
             flipper?.setCurrentItem(tab, false)
         } else {
             builder?.selectTab(tab, recreate)
@@ -157,6 +177,23 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
                 vibrate(50)
             }
         }
+    }
+
+    /**
+     * 对应下标需求对应不同的点击，改为自定义
+     */
+    fun addClickAllowed(vararg params: Pair<Int, (() -> Unit)>) {
+        hasAction = true
+        clickActions = ConcurrentHashMap(params.toMap())
+    }
+
+    /**
+     * 还原对应下标的点击
+     * addClickAllowed后可还原
+     */
+    fun allowedReset(index: Int) {
+        hasAction = true
+        clickActions.remove(index)
     }
 
     /**
