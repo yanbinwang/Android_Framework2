@@ -138,7 +138,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  * https://gitee.com/tryohang/EdgeTranslucent
  * com.ulive.common.widget.EdgeTransparentView
  *
- * kotlin的===等价于java的==
+ * kotlin的===等价于java的==  仅在需要严格比较引用时使用,如检查两个变量是否指向同一个对象实例
  * kotlin的==等价于java的equals
  *
  * 数组的比较
