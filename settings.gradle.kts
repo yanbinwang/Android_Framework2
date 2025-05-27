@@ -15,6 +15,7 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         maven("https://jitpack.io")
+        // 阿里云公共 Maven 镜像（替代 Maven Central）
         maven("https://maven.aliyun.com/repository/public")
         google()
         mavenCentral()

@@ -304,6 +304,13 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     /**
+     * 获取某个特定的view的id
+     */
+    fun findIdByKey(key: String): Int? {
+        return findViewByKey<View>(key)?.id
+    }
+
+    /**
      * 检测是否创建
      */
     fun nonNull(vararg keys: String): Boolean {
