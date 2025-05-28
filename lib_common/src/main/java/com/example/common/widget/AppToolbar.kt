@@ -56,7 +56,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     companion object {
         // 标题
         const val KEY_TITLE_TEXT = "title_text"      // 标题文本
-        const val TITLE_SHADOW = "title_shadow"  // 标题阴影线
+        const val KEY_TITLE_SHADOW = "title_shadow"  // 标题阴影线
         // 左侧按钮
         const val KEY_LEFT_ICON = "left_icon"        // 左侧图标按钮
         const val KEY_LEFT_TEXT = "left_text"        // 左侧文本按钮
@@ -115,18 +115,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 }
             }
         }
-        if (hasShade) {
-            createOrUpdateView<View>(TITLE_SHADOW, {
-                View(context).also {
-                    it.background(R.color.bgLine)
-                    it.size(MATCH_PARENT, 1.pt)
-                }
-            }, {
-                startToEndOf(it)
-                endToEndOf(it)
-                topToTopOf(it)
-            }).margin(top = 44.pt)
-        }
+        if (hasShade) createShade()
         setLeftButton()
         return this
     }
@@ -134,10 +123,27 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     /**
      * 页面不需要标题，只需要定制的返回按钮及特定背景
      */
-    fun setSecondaryTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }, bgColor: Int = R.color.bgToolbar): AppToolbar {
+    fun setSecondaryTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }, bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): AppToolbar {
         rootView.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else context.color(bgColor))
+        if (hasShade) createShade()
         setLeftButton(resId, tintColor, onClick = onClick)
         return this
+    }
+
+    /**
+     * 底部是否需要阴影
+     */
+    private fun createShade() {
+        createOrUpdateView<View>(KEY_TITLE_SHADOW, {
+            View(context).also {
+                it.background(R.color.bgLine)
+                it.size(MATCH_PARENT, 1.pt)
+            }
+        }, {
+            startToEndOf(it)
+            endToEndOf(it)
+            topToTopOf(it)
+        }).margin(top = 44.pt)
     }
 
     /**
