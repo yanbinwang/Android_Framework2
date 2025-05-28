@@ -67,7 +67,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
     init {
         rootView.size(MATCH_PARENT, WRAP_CONTENT)
-        rootView.padding(top = getStatusBarHeight())
+        rootView.padding(top = getStatusBarHeight(), start = 5.pt, end = 5.pt)
     }
 
     override fun onInflate() {
@@ -92,7 +92,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * bgColor->背景颜色
      * hasShade->标题底部是否带阴影
      */
-    fun setTitle(title: String = "", titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): AppToolbar {
+    fun setTitle(title: String, titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): AppToolbar {
         rootView.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else context.color(bgColor))
         if (title.isNotBlank()) {
             createOrUpdateView<TextView>(KEY_TITLE_TEXT, {
@@ -109,18 +109,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 center(it)
             })
         }
-        if (hasShade) {
-            createOrUpdateView<View>(KEY_TITLE_SHADOW, {
-                View(context).also {
-                    it.background(R.color.bgLine)
-                    it.size(MATCH_PARENT, 1.pt)
-                }
-            }, {
-                startToEndOf(it)
-                endToEndOf(it)
-                topToTopOf(it)
-            }).margin(top = 44.pt)
-        }
+        if (hasShade) createShade()
         setLeftButton()
         return this
     }
@@ -128,17 +117,34 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     /**
      * 页面不需要标题，只需要定制的返回按钮及特定背景
      */
-    fun setSecondaryTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }, bgColor: Int = R.color.bgToolbar): AppToolbar {
+    fun setSecondaryTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }, bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): AppToolbar {
         rootView.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else context.color(bgColor))
+        if (hasShade) createShade()
         setLeftButton(resId, tintColor, onClick = onClick)
         return this
+    }
+
+    /**
+     * 底部是否需要阴影
+     */
+    private fun createShade() {
+        createOrUpdateView<View>(KEY_TITLE_SHADOW, {
+            View(context).also {
+                it.background(R.color.bgLine)
+                it.size(MATCH_PARENT, 1.pt)
+            }
+        }, {
+            startToEndOf(it)
+            endToEndOf(it)
+            topToTopOf(it)
+        }).margin(top = 44.pt)
     }
 
     /**
      * 1.继承BaseActivity，在xml中include对应标题布局
      * 2.把布局bind传入工具类，实现绑定后，调取对应方法（private val titleBuilder by lazy { TitleBuilder(this, mBinding?.titleRoot) }）
      */
-    fun setTransparent(title: String = "", titleColor: Int = R.color.textPrimary): AppToolbar {
+    fun setTransparent(title: String, titleColor: Int = R.color.textPrimary): AppToolbar {
         return setTitle(title, titleColor, 0)
     }
 
