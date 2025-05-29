@@ -53,6 +53,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var refreshEnable = false
     //是否具有空布局
     private var emptyEnable = false
+    //空布局是否传递事件
+    private var emptyClickableEnable = false
     //固定高度，-1表示为全屏
     private var rootFixedHeight = -1
     //空布局点击
@@ -80,6 +82,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         context.withStyledAttributes(attrs, R.styleable.XRecyclerView) {
             refreshEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableRefresh, false)
             emptyEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableEmpty, false)
+            emptyClickableEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableEmptyClickable, false)
             rootFixedHeight = getInt(R.styleable.XRecyclerView_xrvFixedHeight, -1)
         }
     }
@@ -90,6 +93,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 false -> {
                     root.addView(recycler)
                     if (emptyEnable) {
+                        root.addView(empty)
                         recycler.setEmptyView(empty.setListView(recycler))
                         emptyConfigure()
                     }
@@ -115,6 +119,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 部分empty是有初始大小要求的，不必撑满整个屏幕
      */
     private fun emptyConfigure() {
+        empty.isClickable = emptyClickableEnable
         empty.size(MATCH_PARENT, MATCH_PARENT)
         empty.setOnEmptyRefreshListener {
             listener?.invoke(it)

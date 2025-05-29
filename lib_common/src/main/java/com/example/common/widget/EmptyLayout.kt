@@ -89,6 +89,9 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
             //部分情况下，头部的高度会被AppToolbar绘制，整体如果是在下方容器添加，居中就还会被拉下去一块，故而减去这块
             val windows = getBoolean(R.styleable.EmptyLayout_elEnableWindow, false)
             setWindows(windows)
+            //默认是否传递点击
+            val clickable = getBoolean(R.styleable.EmptyLayout_elEnableClickable, false)
+            isClickable = clickable
         }
         //绘制大小撑到最大/默认背景
         mBinding.root.size(MATCH_PARENT, MATCH_PARENT)
