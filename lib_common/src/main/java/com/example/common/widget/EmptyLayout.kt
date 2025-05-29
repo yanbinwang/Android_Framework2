@@ -204,11 +204,9 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     /**
-     * 设置列表所需的emptyview
+     * 获取当前根布局
      */
-    fun setListView(listView: View?): View {
-        removeView(mBinding.root)
-        (listView?.parent as? ViewGroup)?.addView(mBinding.root) //添加到当前的View hierarchy
+    fun getRoot(): View {
         return mBinding.root
     }
 

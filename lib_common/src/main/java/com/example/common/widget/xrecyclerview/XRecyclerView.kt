@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import androidx.annotation.ColorRes
 import androidx.core.content.withStyledAttributes
 import androidx.databinding.ViewDataBinding
+import androidx.recyclerview.widget.RecyclerView
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
@@ -30,7 +31,6 @@ import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
-import com.example.framework.widget.ObserverRecyclerView
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener
@@ -71,9 +71,10 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     //自定义封装的空布局->大小会在添加时设置，xml中是MATCH_PARENT
     val empty by lazy { EmptyLayout(context).apply {
         onInflate()
+        size(MATCH_PARENT, MATCH_PARENT)
     }}
     //数据列表，并且配置默认属性
-    val recycler by lazy { ObserverRecyclerView(context).apply {
+    val recycler by lazy { RecyclerView(context).apply {
         size(MATCH_PARENT, MATCH_PARENT)
         init()
     }}
@@ -92,19 +93,12 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
             when (refreshEnable) {
                 false -> {
                     root.addView(recycler)
-                    if (emptyEnable) {
-                        root.addView(empty)
-                        recycler.setEmptyView(empty.setListView(recycler))
-                        emptyConfigure()
-                    }
+                    emptyConfigure()
                 }
                 true -> {
                     root.addView(refresh)
                     refresh.addView(recycler)
-                    if (emptyEnable) {
-                        root.addView(empty)
-                        emptyConfigure()
-                    }
+                    emptyConfigure()
                 }
             }
             addView(root)
@@ -119,10 +113,12 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 部分empty是有初始大小要求的，不必撑满整个屏幕
      */
     private fun emptyConfigure() {
-        empty.isClickable = emptyClickableEnable
-        empty.size(MATCH_PARENT, MATCH_PARENT)
-        empty.setOnEmptyRefreshListener {
-            listener?.invoke(it)
+        if (emptyEnable) {
+            root.addView(empty)
+            empty.isClickable = emptyClickableEnable
+            empty.setOnEmptyRefreshListener {
+                listener?.invoke(it)
+            }
         }
     }
 
