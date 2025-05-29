@@ -12,7 +12,6 @@ import android.os.SystemClock
 import android.view.Gravity
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -301,9 +300,9 @@ abstract class BaseApplication : Application() {
         this.onPrivacyAgreedListener = onPrivacyAgreedListener
     }
 
-    fun initPrivacyAgreed(isInitial: Boolean = true) {
+    fun initPrivacyAgreed(isBaseLoaded: Boolean = true) {
         if (ConfigHelper.getPrivacyAgreed()) {
-            if (isInitial) {
+            if (isBaseLoaded) {
 //            //友盟日志收集
 //            initUM()
 //            //支付宝人脸识别

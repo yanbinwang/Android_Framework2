@@ -35,6 +35,8 @@ class MyApplication : BaseApplication() {
     companion object {
         val instance: MyApplication
             get() = BaseApplication.instance as MyApplication
+        //my中的三方库是否完成加载
+        var isLoaded = false
     }
 
     override fun onCreate() {
@@ -66,14 +68,19 @@ class MyApplication : BaseApplication() {
         //初始化oss
         initOss()
         //初始化进程监听
-        setOnStateChangedListener { if (it) initOss() }
+        setOnStateChangedListener {
+            if (it) {
+                initOss()
+            }
+        }
         //授权初始化
         setOnPrivacyAgreedListener {
-            if (it) {
+            if (it && !isLoaded) {
+                isLoaded = true
                 initAMap()
             }
         }
-        //初始化需要授权的库
+        //初始化需要授权的库->重写是为了触发setOnPrivacyAgreedListener，传false的话BaseApplication内的就不会再初始化一次了
         initPrivacyAgreed(false)
     }
 
