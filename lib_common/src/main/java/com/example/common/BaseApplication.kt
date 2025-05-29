@@ -129,8 +129,8 @@ abstract class BaseApplication : Application() {
         initSocket()
         //全局进程
         initLifecycle()
-        //初始化友盟/人脸识别->延后
-        initPrivacyAgreed()
+//        //初始化友盟/人脸识别->延后
+//        initPrivacyAgreed()
     }
 
     private fun closeAndroidPDialog() {
@@ -315,27 +315,27 @@ abstract class BaseApplication : Application() {
         })
     }
 
-    protected fun setOnStateChangedListener(onStateChangedListener: (isForeground: Boolean) -> Unit) {
-        this.onStateChangedListener = onStateChangedListener
-    }
-
-    protected fun setOnPrivacyAgreedListener(onPrivacyAgreedListener: (agreed: Boolean) -> Unit) {
-        this.onPrivacyAgreedListener = onPrivacyAgreedListener
-    }
-
-    fun initPrivacyAgreed(isBaseLoaded: Boolean = true) {
-        if (ConfigHelper.getPrivacyAgreed()) {
-            if (isBaseLoaded) {
-//            //友盟日志收集
-//            initUM()
-//            //支付宝人脸识别
-//            initVerify()
-            }
-            onPrivacyAgreedListener.invoke(true)
-        } else {
-            onPrivacyAgreedListener.invoke(false)
-        }
-    }
+//    protected fun setOnStateChangedListener(onStateChangedListener: (isForeground: Boolean) -> Unit) {
+//        this.onStateChangedListener = onStateChangedListener
+//    }
+//
+//    protected fun setOnPrivacyAgreedListener(onPrivacyAgreedListener: (agreed: Boolean) -> Unit) {
+//        this.onPrivacyAgreedListener = onPrivacyAgreedListener
+//    }
+//
+//    fun initPrivacyAgreed(isBaseLoaded: Boolean = true) {
+//        if (ConfigHelper.getPrivacyAgreed()) {
+//            if (isBaseLoaded) {
+////            //友盟日志收集
+////            initUM()
+////            //支付宝人脸识别
+////            initVerify()
+//            }
+//            onPrivacyAgreedListener.invoke(true)
+//        } else {
+//            onPrivacyAgreedListener.invoke(false)
+//        }
+//    }
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
