@@ -38,12 +38,14 @@ fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: O
     if (onRefresh != null) {
         setOnRefreshListener(onRefresh)
         setEnableRefresh(true)
+        setEnableScrollContentWhenRefreshed(false)
     } else {
         setEnableRefresh(false)
     }
     if (onLoadMore != null) {
         setOnLoadMoreListener(onLoadMore)
         setEnableLoadMore(true)
+        setEnableScrollContentWhenLoaded(false)
     } else {
         setEnableLoadMore(false)
     }
