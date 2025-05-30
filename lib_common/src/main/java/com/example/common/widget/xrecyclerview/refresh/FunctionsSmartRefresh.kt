@@ -1,5 +1,6 @@
 package com.example.common.widget.xrecyclerview.refresh
 
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.annotation.ColorRes
 import com.example.common.utils.function.getStatusBarHeight
@@ -28,7 +29,8 @@ fun SmartRefreshLayout?.init(listener: OnRefreshLoadMoreListener? = null, header
     setEnableRefresh(true)
     setEnableLoadMore(true)
     if (listener != null) setOnRefreshLoadMoreListener(listener)
-    setRefreshHeight()
+    setHeaderAndFooterHeight()
+    applyFullScreen()
 }
 
 fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: OnLoadMoreListener? = null, header: RefreshHeader? = null, footer: RefreshFooter? = null) {
@@ -49,7 +51,8 @@ fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: O
     } else {
         setEnableLoadMore(false)
     }
-    setRefreshHeight()
+    setHeaderAndFooterHeight()
+    applyFullScreen()
 }
 
 /**
@@ -148,7 +151,7 @@ fun SmartRefreshLayout?.setHeaderMaxDragRate() {
 /**
  * 设置顶部/底部的高->内部设置是没用的
  */
-fun SmartRefreshLayout?.setRefreshHeight(headerHeight: Int = 40.pt, footerHeight: Int = 40.pt) {
+fun SmartRefreshLayout?.setHeaderAndFooterHeight(headerHeight: Int = 40.pt, footerHeight: Int = 40.pt) {
     this ?: return
     applyToHeaderAndFooter { header, footer ->
         header?.view?.size(MATCH_PARENT, headerHeight)
@@ -192,5 +195,21 @@ inline fun <T : SmartRefreshLayout> T.applyToHeaderAndFooter(crossinline action:
         val header = refreshHeader as? ProjectRefreshHeader
         val footer = refreshFooter as? ProjectRefreshFooter
         action(header, footer)
+    }
+}
+
+/**
+ * 全屏
+ */
+fun SmartRefreshLayout?.applyFullScreen() {
+    this ?: return
+    // 获取刷新控件的父容器（可以是任何类型的布局）
+    val parentView = parent as? ViewGroup ?: return
+    // 在父容器布局完成后调整刷新控件大小
+    parentView.doOnceAfterLayout { container ->
+        // 强制刷新控件使用父容器的高度
+        layoutParams = layoutParams.apply {
+            height = container.height
+        }
     }
 }
