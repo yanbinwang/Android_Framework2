@@ -24,6 +24,7 @@ import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.init
 import com.example.framework.utils.function.view.initConcat
@@ -115,6 +116,10 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private fun emptyConfigure() {
         if (emptyEnable) {
             root.addView(empty)
+            //刷新控件全屏后会拉伸，从而影响到empty布局，新增把empty也拉伸
+            root.doOnceAfterLayout {
+                empty.size(height = it.height)
+            }
             empty.isClickable = emptyClickableEnable
             empty.setOnEmptyRefreshListener {
                 listener?.invoke(it)
