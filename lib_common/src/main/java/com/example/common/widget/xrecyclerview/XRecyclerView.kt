@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
 import androidx.core.content.withStyledAttributes
@@ -24,7 +23,6 @@ import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.init
 import com.example.framework.utils.function.view.initConcat
@@ -63,7 +61,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     //----------------以下懒加载会在调取时候创建----------------
     //整体容器->高度随着子child来拉伸
     val root by lazy { FrameLayout(context).apply {
-        size(MATCH_PARENT, WRAP_CONTENT)
+        size(MATCH_PARENT, MATCH_PARENT)
     }}
     //刷新控件 类型1才有
     val refresh by lazy { SmartRefreshLayout(context).apply {
@@ -72,7 +70,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     //自定义封装的空布局->大小会在添加时设置，xml中是MATCH_PARENT
     val empty by lazy { EmptyLayout(context).apply {
         onInflate()
-        size(MATCH_PARENT, MATCH_PARENT)
     }}
     //数据列表，并且配置默认属性
     val recycler by lazy { RecyclerView(context).apply {
@@ -116,10 +113,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private fun emptyConfigure() {
         if (emptyEnable) {
             root.addView(empty)
-            //刷新控件全屏后会拉伸，从而影响到empty布局，新增把empty也拉伸
-            root.doOnceAfterLayout {
-                empty.size(height = it.height)
-            }
+            empty.size(MATCH_PARENT, MATCH_PARENT)
             empty.isClickable = emptyClickableEnable
             empty.setOnEmptyRefreshListener {
                 listener?.invoke(it)
