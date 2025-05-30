@@ -267,6 +267,13 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     }
 
     /**
+     * 获取某个下标的tab
+     */
+    fun getTab(index: Int): VDB? {
+        return tabViews[index]
+    }
+
+    /**
      * 获取当前选中的下标
      */
     fun getCurrentIndex(): Int {
