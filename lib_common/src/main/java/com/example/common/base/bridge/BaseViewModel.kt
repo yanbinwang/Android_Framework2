@@ -146,7 +146,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 获取当前页数
      */
     fun getCurrentPage(): String {
-        return paging.page.toString()
+        return paging.currentPage.toString()
     }
 
     /**
