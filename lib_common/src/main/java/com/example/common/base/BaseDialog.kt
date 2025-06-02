@@ -121,6 +121,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
      */
     open fun setDialogCancelable(cancelable: Boolean) {
         setCancelable(cancelable)
+        setCanceledOnTouchOutside(cancelable)//新增
         if (cancelable) {
             setOnKeyListener(null)
         } else {
