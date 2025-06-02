@@ -34,7 +34,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 点击回调，返回对象和下标
      */
-    protected var onItemClick: OnItemClickListener<T>? = null
+    protected var onItemClick: ((v: View?, t: T?, position: Int) -> Unit)? = null
+    protected var onItemLongClick: ((v: View?, t: T?, position: Int) -> Boolean)? = null
 
     /**
      * 默认是返回集合
@@ -105,10 +106,10 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
         val position = holder.absoluteAdapterPosition
         //注意判断当前适配器是否具有头部view
         holder.itemView.click {
-            onItemClick?.onItemClick(it, data.safeGet(position), position)
+            onItemClick?.invoke(it, data.safeGet(position), position)
         }
         holder.itemView.setOnLongClickListener {
-            if (onItemClick != null) onItemClick?.onItemLongClick(it, data.safeGet(position), position).orFalse else false
+            onItemLongClick?.invoke(it, data.safeGet(position), position).orFalse
         }
         onConvert(holder, getItem(position), payloads)
     }
@@ -349,17 +350,12 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 适配器点击
      */
-    fun setOnItemClickListener(onItemClick: OnItemClickListener<T>) {
-        this.onItemClick = onItemClick
+    fun setOnItemClickListener(listener: ((v: View?, t: T?, position: Int) -> Unit)) {
+        this.onItemClick = listener
     }
 
-    /**
-     * 点击监听/点按/长按
-     */
-    interface OnItemClickListener<T> {
-        fun onItemClick(view: View?, t: T?, position: Int)
-
-        fun onItemLongClick(view: View?, t: T?, position: Int): Boolean
+    fun setOnItemLongClickListener(listener: ((v: View?, t: T?, position: Int) -> Boolean)) {
+        this.onItemLongClick = listener
     }
 
 }

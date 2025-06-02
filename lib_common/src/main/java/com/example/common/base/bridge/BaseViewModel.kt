@@ -139,6 +139,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 设置当前总记录数
      */
     fun setTotalCount(totalCount: Int?) {
+        if (!paging.hasRefresh) return
         paging.totalCount = totalCount.orZero
     }
 
