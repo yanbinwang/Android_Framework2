@@ -77,10 +77,10 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity, private val re
                 val visibleItemCount = max(0, layoutManager?.childCount.orZero)
                 // 获取最后一个可见的item的索引
                 val lastVisibleItem = firstVisibleItem + visibleItemCount - 1
+                //当前播放的位置
+                val position = GSYVideoManager.instance().playPosition
                 //大于0说明有播放
-                if (GSYVideoManager.instance().playPosition >= 0) {
-                    //当前播放的位置
-                    val position = GSYVideoManager.instance().playPosition
+                if (position >= 0) {
                     //当前播放tag
                     val playTag = data[position]
                     //对应的播放列表TAG
