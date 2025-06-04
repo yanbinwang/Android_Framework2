@@ -50,20 +50,20 @@ class AlbumHelper {
         widget = activity.getAlbumWidget()
     }
 
-    constructor(activity: FragmentActivity) {
-        imageCamera = Album.camera(activity)
-        videoMultiple = Album.video(activity)
-        imageMultiple = Album.image(activity)
-        durban = Durban.with(activity)
-        widget = activity.getAlbumWidget()
-    }
-
     constructor(fragment: Fragment) {
         imageCamera = Album.camera(fragment)
         videoMultiple = Album.video(fragment)
         imageMultiple = Album.image(fragment)
         durban = Durban.with(fragment)
         widget = fragment.context.getAlbumWidget()
+    }
+
+    constructor(activity: FragmentActivity) {
+        imageCamera = Album.camera(activity)
+        videoMultiple = Album.video(activity)
+        imageMultiple = Album.image(activity)
+        durban = Durban.with(activity)
+        widget = activity.getAlbumWidget()
     }
 
     /**

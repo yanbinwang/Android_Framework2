@@ -127,7 +127,9 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
     /**
      * 移动到中心点
      */
-    fun moveCamera(latLngList: MutableList<LatLng>, zoom: Float = 18f, anim: Boolean = false) = moveCamera(CoordinateTransUtil.getCenterPoint(latLngList), zoom, anim)
+    fun moveCamera(latLngList: MutableList<LatLng>, zoom: Float = 18f, anim: Boolean = false) {
+        moveCamera(CoordinateTransUtil.getCenterPoint(latLngList), zoom, anim)
+    }
 
     /**
      * 需要移动的经纬度，需要移动的范围（米）
@@ -200,36 +202,27 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
     /**
      * 存储-保存地图当前的状态（对应页面调取）
      */
-    fun saveInstanceState(outState: Bundle) = mapView?.onSaveInstanceState(outState)
+    fun saveInstanceState(outState: Bundle) {
+        mapView?.onSaveInstanceState(outState)
+    }
 
     /**
      * 生命周期管控
      */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_RESUME -> resume()
-            Lifecycle.Event.ON_PAUSE -> pause()
+            Lifecycle.Event.ON_RESUME -> {
+                mapView?.onResume()
+            }
+            Lifecycle.Event.ON_PAUSE -> {
+                mapView?.onPause()
+            }
             Lifecycle.Event.ON_DESTROY -> {
-                destroy()
+                mapView?.onDestroy()
                 source.lifecycle.removeObserver(this)
             }
             else -> {}
         }
     }
-
-    /**
-     * 加载
-     */
-    private fun resume() = mapView?.onResume()
-
-    /**
-     * 暂停
-     */
-    private fun pause() = mapView?.onPause()
-
-    /**
-     * 销毁
-     */
-    private fun destroy() = mapView?.onDestroy()
 
 }

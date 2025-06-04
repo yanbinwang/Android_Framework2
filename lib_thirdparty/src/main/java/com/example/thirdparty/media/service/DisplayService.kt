@@ -25,10 +25,8 @@ import com.example.framework.utils.function.value.orZero
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  *  Created by wangyanbin
@@ -178,8 +176,8 @@ class DisplayService : LifecycleService() {
         listener?.onShutter()
         lifecycleScope.launch {
             flow {
-                //阻塞直到文件写入完成,切到ui线程做停止
-                withContext(IO) { recorder?.stop() }
+                //阻塞直到文件写入完成
+                recorder?.stop()
                 emit(releaseDisplay())
             }.withHandling({
                 listener?.onError(it.throwable as? Exception)

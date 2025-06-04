@@ -14,10 +14,8 @@ import com.example.common.network.repository.withHandling
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType.AUDIO
 import com.example.common.utils.function.deleteFile
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  *  <service
@@ -108,8 +106,8 @@ class RecordingService : LifecycleService() {
         listener?.onShutter()
         lifecycleScope.launch {
             flow {
-                //阻塞直到文件写入完成,切到ui线程做停止
-                withContext(IO) { recorder?.stop() }
+                //阻塞直到文件写入完成
+                recorder?.stop()
                 emit(releaseRecorder())
             }.withHandling({
                 listener?.onError(it.throwable as? Exception)
