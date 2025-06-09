@@ -24,7 +24,6 @@ import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -56,6 +55,38 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
     private var player: StandardGSYVideoPlayer? = null
     private var orientationUtils: OrientationUtils? = null
     private val mBinding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
+    private val mGSYSampleCallBack by lazy { object : GSYSampleCallBack() {
+        override fun onPrepared(url: String?, vararg objects: Any?) {
+            super.onPrepared(url, *objects)
+            //开始播放了才能旋转和全屏
+            isPlay = true
+            orientationUtils?.setEnable(true)
+        }
+
+        override fun onQuitFullscreen(url: String, vararg objects: Any) {
+            super.onQuitFullscreen(url, *objects)
+            orientationUtils?.backToProtVideo()
+        }
+
+        override fun onPlayError(url: String?, vararg objects: Any?) {
+            super.onPlayError(url, *objects)
+            if (!retryWithPlay) {
+                retryWithPlay = true
+                player.disable()
+                restartJob?.cancel()
+                restartJob = launch {
+                    //允许硬件解码，装载IJK播放器内核
+//                GSYVideoType.enableMediaCodec()
+                    GSYVideoType.enableMediaCodecTexture()
+                    PlayerFactory.setPlayManager(IjkPlayerManager::class.java)
+                    CacheFactory.setCacheManager(ProxyCacheManager::class.java)
+                    delay(1000)
+                    player.enable()
+                    player?.startPlayLogic()
+                }
+            }
+        }
+    }}
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
@@ -116,38 +147,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
 //            .setSetUpLazy(setUpLazy)
             .setUrl(url)
             .setCacheWithPlay(false)
-            .setVideoAllCallBack(object : GSYSampleCallBack() {
-                override fun onPrepared(url: String?, vararg objects: Any?) {
-                    super.onPrepared(url, *objects)
-                    //开始播放了才能旋转和全屏
-                    isPlay = true
-                    orientationUtils?.setEnable(true)
-                }
-
-                override fun onQuitFullscreen(url: String, vararg objects: Any) {
-                    super.onQuitFullscreen(url, *objects)
-                    orientationUtils?.backToProtVideo()
-                }
-
-                override fun onPlayError(url: String?, vararg objects: Any?) {
-                    super.onPlayError(url, *objects)
-                    if (!retryWithPlay) {
-                        retryWithPlay = true
-                        player.disable()
-                        //允许硬件解码，装载IJK播放器内核
-//                        GSYVideoType.enableMediaCodec()
-                        GSYVideoType.enableMediaCodecTexture()
-                        PlayerFactory.setPlayManager(IjkPlayerManager::class.java)
-                        CacheFactory.setCacheManager(ProxyCacheManager::class.java)
-                        restartJob?.cancel()
-                        restartJob = launch {
-                            delay(1000)
-                            player.enable()
-                            player?.startPlayLogic()
-                        }
-                    }
-                }
-            })
+            .setVideoAllCallBack(mGSYSampleCallBack)
 //            .setLockClickListener { _, lock ->
 //                //配合下方的onConfigurationChanged
 //                orientationUtils?.setEnable(!lock)
