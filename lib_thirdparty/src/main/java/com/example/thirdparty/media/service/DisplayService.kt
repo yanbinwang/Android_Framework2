@@ -12,7 +12,6 @@ import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.example.common.base.page.Extra
 import com.example.common.network.repository.withHandling
@@ -21,6 +20,7 @@ import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType
 import com.example.common.utils.function.deleteFile
 import com.example.common.utils.function.getExtra
+import com.example.framework.utils.function.TrackableLifecycleService
 import com.example.framework.utils.function.value.orZero
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewWidth

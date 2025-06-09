@@ -8,12 +8,12 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.example.common.network.repository.withHandling
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType.AUDIO
 import com.example.common.utils.function.deleteFile
+import com.example.framework.utils.function.TrackableLifecycleService
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
