@@ -197,31 +197,33 @@ fun Context.stopService(cls: Class<out Service>) {
 /**
  * 检测服务是否正在运行
  */
-fun Context.isServiceRunning(cls: Class<*>): Boolean {
+fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
     val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-    val appProcesses = activityManager?.runningAppProcesses
-    if (appProcesses != null) {
-        for (appProcess in appProcesses) {
-            if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND ||
-                appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
-            ) {
-                val packageManager = packageManager
-                try {
-                    val serviceInfos = packageManager.getPackageInfo(packageName, PackageManager.GET_SERVICES).services
-                    if (serviceInfos != null) {
-                        for (serviceInfo in serviceInfos) {
-                            if (serviceInfo.name == cls.name) {
-                                return true
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+    val myUid = applicationInfo.uid
+    return when {
+        // Android 11+ (API 30+)：使用 runningAppProcesses（需注意：无法直接获取服务列表，仅能检测进程）
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+            val runningProcesses = activityManager?.runningAppProcesses
+            val result = runningProcesses?.any { processInfo ->
+                processInfo.uid == myUid &&
+                        processInfo.processName == packageName && // 精确匹配包名
+                        processInfo.importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
+            } ?: false
+            result
+        }
+        // Android 5.0-10 (API 21-29)：使用 getRunningServices()
+        else -> {
+            try {
+                val runningServices = activityManager?.getRunningServices(100)
+                val result = runningServices?.any { service ->
+                    service.service.className == serviceClass.name
+                } ?: false
+                result
+            } catch (e: Exception) {
+                false
             }
         }
     }
-    return false
 }
 
 /**
