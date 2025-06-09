@@ -199,7 +199,7 @@ fun Context.stopService(cls: Class<out Service>) {
 /**
  * 检测服务是否正在运行
  */
-private val serviceStateMap = WeakHashMap<Class<*>, Boolean>()// 服务状态跟踪器（使用 WeakHashMap 避免内存泄漏）
+val serviceStateMap by lazy { WeakHashMap<Class<*>, Boolean>() }// 服务状态跟踪器（使用 WeakHashMap 避免内存泄漏）
 
 fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
     val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
