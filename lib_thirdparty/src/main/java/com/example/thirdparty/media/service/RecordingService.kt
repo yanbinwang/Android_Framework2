@@ -108,7 +108,8 @@ class RecordingService : LifecycleService() {
             flow {
                 //阻塞直到文件写入完成
                 recorder?.stop()
-                emit(releaseRecorder())
+                releaseRecorder()
+                emit(Unit)
             }.withHandling({
                 listener?.onError(it.throwable as? Exception)
             }).collect {

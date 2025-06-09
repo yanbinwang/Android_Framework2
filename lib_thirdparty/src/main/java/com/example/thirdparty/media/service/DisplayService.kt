@@ -178,7 +178,8 @@ class DisplayService : LifecycleService() {
             flow {
                 //阻塞直到文件写入完成
                 recorder?.stop()
-                emit(releaseDisplay())
+                releaseDisplay()
+                emit(Unit)
             }.withHandling({
                 listener?.onError(it.throwable as? Exception)
             }).collect {
