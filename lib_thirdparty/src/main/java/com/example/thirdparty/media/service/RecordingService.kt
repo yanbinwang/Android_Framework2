@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
  *      android:configChanges="keyboardHidden|orientation|screenSize"//告诉系统，当指定的配置发生变化时，不要销毁并重新创建该服务，而是让服务自己处理这些变化
  *      android:foregroundServiceType="mediaPlayback"--》 Q开始后台服务需要配置，否则录制不正常  />
  */
-class RecordingService : LifecycleService() {
+class RecordingService : TrackableLifecycleService() {
     private var folderPath: String? = null
     private var recorder: MediaRecorder? = null
     private var wakeLock: PowerManager.WakeLock? = null

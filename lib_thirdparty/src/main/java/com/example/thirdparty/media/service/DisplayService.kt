@@ -77,7 +77,7 @@ import kotlinx.coroutines.launch
  *     1. softwareRendering
  *       说明：当服务需要使用软件渲染时，可设置为该类型。例如，一些图形处理应用在进行复杂的图形渲染时，可能会使用软件渲染方式，此时将服务标记为 softwareRendering 类型，系统会为其分配相应的资源。
  */
-class DisplayService : LifecycleService() {
+class DisplayService : TrackableLifecycleService() {
     private var folderPath: String? = null
     private var recorder: MediaRecorder? = null
     private var projection: MediaProjection? = null

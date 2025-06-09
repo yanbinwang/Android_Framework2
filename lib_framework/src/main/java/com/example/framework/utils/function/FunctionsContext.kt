@@ -8,6 +8,7 @@ import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -35,10 +36,12 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleService
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeLong
 import java.io.Serializable
+import java.util.WeakHashMap
 
 
 //------------------------------------context扩展函数类------------------------------------
@@ -196,33 +199,55 @@ fun Context.stopService(cls: Class<out Service>) {
 
 /**
  * 检测服务是否正在运行
+ * android.permission.GET_TASKS
  */
+// 服务状态跟踪器（使用 WeakHashMap 避免内存泄漏）
+private val serviceStateMap = WeakHashMap<Class<*>, Boolean>()
+
 fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
     val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
     val myUid = applicationInfo.uid
+    val serviceComponent = ComponentName(this, serviceClass)
     return when {
-        // Android 11+ (API 30+)：使用 runningAppProcesses（需注意：无法直接获取服务列表，仅能检测进程）
+        // Android 11+ (API 30+)：通过进程名和组件名双重匹配
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-            val runningProcesses = activityManager?.runningAppProcesses
-            val result = runningProcesses?.any { processInfo ->
+            // 1. 检查自维护的服务状态
+            val isServiceMarkedRunning = serviceStateMap[serviceClass] ?: false
+            // 2. 检查应用进程是否存活（避免进程被杀后状态未更新）
+            val isProcessAlive = activityManager?.runningAppProcesses?.any { processInfo ->
                 processInfo.uid == myUid &&
-                        processInfo.processName == packageName && // 精确匹配包名
+                        processInfo.processName == packageName &&
                         processInfo.importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
             } ?: false
-            result
+            isServiceMarkedRunning && isProcessAlive
         }
-        // Android 5.0-10 (API 21-29)：使用 getRunningServices()
+        // Android 5.0-10 (API 21-29)：保持原逻辑
         else -> {
             try {
-                val runningServices = activityManager?.getRunningServices(100)
-                val result = runningServices?.any { service ->
-                    service.service.className == serviceClass.name
+                //getRunningServices() 在 Android 8.0 (API 26) 及以上版本已被弃用，并且在 Android 11 (API 30) 及以上版本中无法获取其他应用的服务信息
+                activityManager?.getRunningServices(100)?.any { service ->
+                    service.service == serviceComponent
                 } ?: false
-                result
             } catch (e: Exception) {
                 false
             }
         }
+    }
+}
+
+/**
+ * 扩展 LifecycleService 自动管理状态,让服务继承 TrackableLifecycleService
+ */
+abstract class TrackableLifecycleService : LifecycleService() {
+    override fun onCreate() {
+        super.onCreate()
+        serviceStateMap[this::class.java] = true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+//        serviceStateMap[this::class.java] = false
+        serviceStateMap.remove(this::class.java)
     }
 }
 
