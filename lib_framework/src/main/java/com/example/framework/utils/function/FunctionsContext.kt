@@ -8,7 +8,6 @@ import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -199,40 +198,20 @@ fun Context.stopService(cls: Class<out Service>) {
 
 /**
  * 检测服务是否正在运行
- * android.permission.GET_TASKS
  */
-// 服务状态跟踪器（使用 WeakHashMap 避免内存泄漏）
-private val serviceStateMap = WeakHashMap<Class<*>, Boolean>()
+private val serviceStateMap = WeakHashMap<Class<*>, Boolean>()// 服务状态跟踪器（使用 WeakHashMap 避免内存泄漏）
 
 fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
     val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-    val myUid = applicationInfo.uid
-    val serviceComponent = ComponentName(this, serviceClass)
-    return when {
-        // Android 11+ (API 30+)：通过进程名和组件名双重匹配
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-            // 1. 检查自维护的服务状态
-            val isServiceMarkedRunning = serviceStateMap[serviceClass] ?: false
-            // 2. 检查应用进程是否存活（避免进程被杀后状态未更新）
-            val isProcessAlive = activityManager?.runningAppProcesses?.any { processInfo ->
-                processInfo.uid == myUid &&
-                        processInfo.processName == packageName &&
-                        processInfo.importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
-            } ?: false
-            isServiceMarkedRunning && isProcessAlive
-        }
-        // Android 5.0-10 (API 21-29)：保持原逻辑
-        else -> {
-            try {
-                //getRunningServices() 在 Android 8.0 (API 26) 及以上版本已被弃用，并且在 Android 11 (API 30) 及以上版本中无法获取其他应用的服务信息
-                activityManager?.getRunningServices(100)?.any { service ->
-                    service.service == serviceComponent
-                } ?: false
-            } catch (e: Exception) {
-                false
-            }
-        }
-    }
+    // 1. 检查自维护的服务状态
+    val isServiceMarkedRunning = serviceStateMap[serviceClass] ?: false
+    // 2. 检查应用进程是否存活（避免进程被杀后状态未更新）
+    val isProcessAlive = activityManager?.runningAppProcesses?.any { processInfo ->
+        processInfo.uid == applicationInfo.uid &&
+                processInfo.processName == packageName &&
+                processInfo.importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
+    } ?: false
+    return isServiceMarkedRunning && isProcessAlive
 }
 
 /**
