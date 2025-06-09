@@ -35,10 +35,12 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleService
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeLong
 import java.io.Serializable
+import java.util.WeakHashMap
 
 
 //------------------------------------context扩展函数类------------------------------------
@@ -197,31 +199,35 @@ fun Context.stopService(cls: Class<out Service>) {
 /**
  * 检测服务是否正在运行
  */
-fun Context.isServiceRunning(cls: Class<*>): Boolean {
+private val serviceStateMap = WeakHashMap<Class<*>, Boolean>()// 服务状态跟踪器（使用 WeakHashMap 避免内存泄漏）
+
+fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
     val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-    val appProcesses = activityManager?.runningAppProcesses
-    if (appProcesses != null) {
-        for (appProcess in appProcesses) {
-            if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND ||
-                appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
-            ) {
-                val packageManager = packageManager
-                try {
-                    val serviceInfos = packageManager.getPackageInfo(packageName, PackageManager.GET_SERVICES).services
-                    if (serviceInfos != null) {
-                        for (serviceInfo in serviceInfos) {
-                            if (serviceInfo.name == cls.name) {
-                                return true
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        }
+    // 1. 检查自维护的服务状态
+    val isServiceMarkedRunning = serviceStateMap[serviceClass] ?: false
+    // 2. 检查应用进程是否存活（避免进程被杀后状态未更新）
+    val isProcessAlive = activityManager?.runningAppProcesses?.any { processInfo ->
+        processInfo.uid == applicationInfo.uid &&
+                processInfo.processName == packageName &&
+                processInfo.importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
+    } ?: false
+    return isServiceMarkedRunning && isProcessAlive
+}
+
+/**
+ * 扩展 LifecycleService 自动管理状态,让服务继承 TrackableLifecycleService
+ */
+abstract class TrackableLifecycleService : LifecycleService() {
+    override fun onCreate() {
+        super.onCreate()
+        serviceStateMap[this::class.java] = true
     }
-    return false
+
+    override fun onDestroy() {
+        super.onDestroy()
+//        serviceStateMap[this::class.java] = false
+        serviceStateMap.remove(this::class.java)
+    }
 }
 
 /**
