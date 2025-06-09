@@ -59,15 +59,7 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
                     }
                     if (filePath != queryPath) {
                         filePath = queryPath
-//                        //inJustDecodeBounds=true不会把图片放入内存，只会获取宽高，判断当前路径是否为图片，是的话捕获文件路径
-//                        val options = BitmapFactory.Options()
-//                        options.inJustDecodeBounds = true
-//                        BitmapFactory.decodeFile(queryPath, options)
-//                        if (options.outWidth != -1) {
-//                            val file = File(queryPath)
-//                            " \n生成图片的路径:$queryPath\n手机截屏的路径：${file.parent}".logE(TAG)
-//                            listener.invoke(queryPath)
-//                        }
+                        //判断当前路径是否为图片，是的话捕获文件路径
                         if (queryPath.isValidImage()) {
                             val file = File(queryPath)
                             " \n生成图片的路径:$queryPath\n手机截屏的路径：${file.parent}".logE(TAG)
@@ -86,7 +78,9 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
     /**
      * 返回查询结果
      */
-    private fun getQueryResult(cursor: Cursor, columnName: String) = cursor.getString(cursor.getColumnIndex(columnName).orZero)
+    private fun getQueryResult(cursor: Cursor, columnName: String): String {
+        return cursor.getString(cursor.getColumnIndex(columnName).orZero)
+    }
 
     /**
      * 生命周期回调
@@ -105,12 +99,16 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
     /**
      * 注册监听
      */
-    private fun register() = mActivity.contentResolver?.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, this)
+    private fun register() {
+        mActivity.contentResolver?.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, this)
+    }
 
     /**
      * 注销监听
      */
-    private fun unregister() = mActivity.contentResolver?.unregisterContentObserver(this)
+    private fun unregister() {
+        mActivity.contentResolver?.unregisterContentObserver(this)
+    }
 
     /**
      * exists->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作
