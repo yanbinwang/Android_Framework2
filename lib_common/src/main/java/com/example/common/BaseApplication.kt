@@ -5,9 +5,10 @@ import android.app.ActivityManager
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.Context
-import android.graphics.drawable.GradientDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkRequest
+import android.os.Build
+import android.os.SystemClock
 import android.view.Gravity
 import android.widget.TextView
 import android.widget.Toast
@@ -22,22 +23,27 @@ import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
 import com.example.common.base.proxy.NetworkCallbackImpl
 import com.example.common.base.proxy.NetworkReceiver
 import com.example.common.config.ARouterPath
+import com.example.common.config.Constants.SOCKET_ADVERTISE_URL
+import com.example.common.config.Constants.SOCKET_DEAL_URL
+import com.example.common.config.Constants.SOCKET_FUNDS_URL
 import com.example.common.config.ServerConfig
 import com.example.common.event.EventCode.EVENT_OFFLINE
 import com.example.common.event.EventCode.EVENT_ONLINE
-import com.example.common.socket.WebSocketProxy
-import com.example.common.utils.AppManager
+import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_ADVERTISE
+import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_DEAL
+import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_FUNDS
+import com.example.common.network.socket.topic.WebSocketTopic
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.ptFloat
 import com.example.common.utils.helper.ConfigHelper
+import com.example.common.utils.manager.AppManager
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.framework.utils.function.string
+import com.example.framework.utils.function.value.DateFormat.clearThreadLocalCache
 import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.function.value.minute
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
@@ -51,16 +57,28 @@ import java.util.Locale
 /**
  * Created by WangYanBin on 2020/8/14.
  */
-@SuppressLint("MissingPermission", "UnspecifiedRegisterReceiverFlag")
+@SuppressLint("MissingPermission", "UnspecifiedRegisterReceiverFlag", "PrivateApi", "DiscouragedPrivateApi", "SoonBlockedPrivateApi", "Build.VERSION_CODES.ICE_CREAM_SANDWICH")
 abstract class BaseApplication : Application() {
     private var onStateChangedListener: (isForeground: Boolean) -> Unit = {}
-    private var onPrivacyAgreedListener: (agreed: Boolean) -> Unit = {}
+    private var onPrivacyAgreedListener: (isAgreed: Boolean) -> Unit = {}
+    private val excludedRouterPaths by lazy {
+        listOf(
+            ARouterPath.MainActivity,
+            ARouterPath.SplashActivity,
+//            ARouterPath.LinkActivity,
+//            ARouterPath.LinkHandlerActivity
+        ).map { it.replace("/app/", "").lowercase(Locale.getDefault()) }.toSet()
+    }
 
     companion object {
-        //当前app进程是否处于前台
-        var isForeground = true
         //是否需要回首頁
         var needOpenHome = false
+        //当前app进程是否处于前台
+        var isForeground = true
+        //首次启动标记（仅在 onCreate 初始化）
+        var isFirstLaunch = true
+        // 最近一次点击图标启动的时间戳
+        var lastClickTime = 0L
         //单列
         lateinit var instance: BaseApplication
     }
@@ -73,6 +91,9 @@ abstract class BaseApplication : Application() {
 
     //初始化一些第三方控件和单例工具类等
     private fun initialize() {
+        //初次赋值
+        lastClickTime = SystemClock.elapsedRealtime()
+        isFirstLaunch = true
         //布局初始化
         AutoSizeConfig.getInstance()
             .setBaseOnWidth(true)
@@ -80,14 +101,16 @@ abstract class BaseApplication : Application() {
             .setSupportDP(false)
             .setSupportSP(false)
             .supportSubunits = Subunits.PT
-        //阿里路由跳转初始化
-        initARouter()
         //腾讯读写mmkv初始化
-        MMKV.initialize(this)
+        MMKV.initialize(applicationContext)
         //服务器地址类初始化
         ServerConfig.init()
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
+        //解决androidP 第一次打开程序出现莫名弹窗-弹窗内容“detected problems with api ”
+        closeAndroidPDialog()
+        //阿里路由跳转初始化
+        initARouter()
         //注册网络监听
         initReceiver()
         //部分推送打開的頁面，需要在關閉時回首頁,實現一個透明的activity，跳轉到對應push的activity之前，讓needOpenHome=true
@@ -102,6 +125,29 @@ abstract class BaseApplication : Application() {
         initLifecycle()
         //初始化友盟/人脸识别->延后
         initPrivacyAgreed()
+    }
+
+    private fun closeAndroidPDialog() {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            try {
+                val aClass = Class.forName("android.content.pm.PackageParser\$Package")
+                val declaredConstructor = aClass.getDeclaredConstructor(String::class.java)
+                declaredConstructor.setAccessible(true)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            try {
+                val cls = Class.forName("android.app.ActivityThread")
+                val declaredMethod = cls.getDeclaredMethod("currentActivityThread")
+                declaredMethod.isAccessible = true
+                val activityThread = declaredMethod.invoke(null)
+                val mHiddenApiWarningShown = cls.getDeclaredField("mHiddenApiWarningShown")
+                mHiddenApiWarningShown.isAccessible = true
+                mHiddenApiWarningShown.setBoolean(activityThread, true)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun initARouter() {
@@ -126,8 +172,7 @@ abstract class BaseApplication : Application() {
                 if (!needOpenHome) return
                 if (BaseActivity.isAnyActivityStarting) return
                 val clazzName = act.javaClass.simpleName.lowercase(Locale.getDefault())
-                if (clazzName == "homeactivity") return
-                if (clazzName == "splashactivity") return
+                if (excludedRouterPaths.contains(clazzName)) return
                 if (AppManager.currentActivity() != act) return
                 if (AppManager.stackCount <= 1) {
                     needOpenHome = false
@@ -149,10 +194,6 @@ abstract class BaseApplication : Application() {
     }
 
     private fun initToast() {
-        val drawable = GradientDrawable().apply {
-            setColor("#cf111111".parseColor())
-            cornerRadius = 7.ptFloat
-        }
         ToastBuilder.setResToastBuilder { message, length ->
             val toast = Toast(instance)
             //设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位，
@@ -161,8 +202,8 @@ abstract class BaseApplication : Application() {
             toast.duration = length
             val view = TextView(instance)
             view.text = string(message)
-//            view.setBackgroundResource(R.drawable.shape_toast_bg)
-            view.background = drawable
+            view.setBackgroundResource(R.drawable.shape_toast)
+//            view.background = drawable
             view.minHeight = 40.pt
             view.minWidth = 190.pt
             view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
@@ -172,7 +213,7 @@ abstract class BaseApplication : Application() {
             toast.view = view
             return@setResToastBuilder toast
         }
-        ToastBuilder.setStringToastBuilder { message, length ->
+        ToastBuilder.setTextToastBuilder { message, length ->
             val toast = Toast(instance)
             //设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位，
             toast.setGravity(Gravity.CENTER, 0, 0)
@@ -180,7 +221,7 @@ abstract class BaseApplication : Application() {
             toast.duration = length
             val view = TextView(instance)
             view.text = message
-            view.background = drawable
+            view.setBackgroundResource(R.drawable.shape_toast)
             view.minHeight = 40.pt
             view.minWidth = 190.pt
             view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
@@ -188,13 +229,18 @@ abstract class BaseApplication : Application() {
             view.textSize(R.dimen.textSize14)
             view.textColor(R.color.textWhite)
             toast.view = view
-            return@setStringToastBuilder toast
+            return@setTextToastBuilder toast
         }
     }
 
     private fun initSocket() {
-        WebSocketProxy.setOnMessageListener { url, data ->
-
+        WebSocketTopic.setOnMessageListener { url, data ->
+            val payload = data?.payload.orEmpty()
+            when (url) {
+                SOCKET_DEAL_URL -> EVENT_SOCKET_DEAL.post(payload)
+                SOCKET_ADVERTISE_URL -> EVENT_SOCKET_ADVERTISE.post(payload)
+                SOCKET_FUNDS_URL -> EVENT_SOCKET_FUNDS.post(payload)
+            }
         }
     }
 
@@ -225,7 +271,6 @@ abstract class BaseApplication : Application() {
                             timeNano = System.nanoTime()
                         }
                     }
-
                     Lifecycle.Event.ON_STOP -> {
                         //判断本程序process中是否有在任意前台
                         val isAnyProcessForeground = try {
@@ -251,33 +296,40 @@ abstract class BaseApplication : Application() {
         this.onStateChangedListener = onStateChangedListener
     }
 
-    fun initPrivacyAgreed() {
+    protected fun setOnPrivacyAgreedListener(onPrivacyAgreedListener: (agreed: Boolean) -> Unit) {
+        this.onPrivacyAgreedListener = onPrivacyAgreedListener
+    }
+
+    fun initPrivacyAgreed(isBaseLoaded: Boolean = true) {
         if (ConfigHelper.getPrivacyAgreed()) {
+            if (isBaseLoaded) {
 //            //友盟日志收集
 //            initUM()
 //            //支付宝人脸识别
 //            initVerify()
+            }
             onPrivacyAgreedListener.invoke(true)
         } else {
             onPrivacyAgreedListener.invoke(false)
         }
     }
 
-    protected fun setOnPrivacyAgreedListener(onPrivacyAgreedListener: (agreed: Boolean) -> Unit) {
-        this.onPrivacyAgreedListener = onPrivacyAgreedListener
-    }
-
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         System.gc()
         if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
-            ImageLoader.instance.clearMemoryCache(this)
+            ImageLoader.instance.clearMemoryCache(applicationContext, ProcessLifecycleOwner.get())
         }
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        ImageLoader.instance.clearMemoryCache(this)
+        ImageLoader.instance.clearMemoryCache(applicationContext, ProcessLifecycleOwner.get())
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        clearThreadLocalCache()
     }
 
 }

@@ -17,7 +17,6 @@ package com.example.topsheet
  */
 
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
@@ -30,7 +29,7 @@ import androidx.appcompat.app.AppCompatDialog
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.example.topsheet.TopSheetBehavior.Companion.from
 
-class TopSheetDialog : AppCompatDialog {
+class TopSheetDialog @JvmOverloads constructor(context: Context, @StyleRes theme: Int = 0) : AppCompatDialog(context, getThemeResId(context, theme)) {
     private var topSheetBehavior: TopSheetBehavior<FrameLayout>? = null
     private val mTopSheetCallback by lazy { object : TopSheetBehavior.TopSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -43,7 +42,12 @@ class TopSheetDialog : AppCompatDialog {
         }
     }}
 
+    init {
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
+    }
+
     companion object {
+        @JvmStatic
         private fun getThemeResId(context: Context, themeId: Int): Int {
             var mThemeId = themeId
             if (mThemeId == 0) {
@@ -58,20 +62,6 @@ class TopSheetDialog : AppCompatDialog {
             }
             return mThemeId
         }
-    }
-
-    constructor(context: Context) : super(context, getThemeResId(context, 0)) {
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
-    }
-
-    constructor(context: Context, @StyleRes theme: Int) : super(context, getThemeResId(context, theme)) {
-        // We hide the title bar for any style configuration. Otherwise, there will be a gap
-        // above the bottom sheet when it is expanded.
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
-    }
-
-    constructor(context: Context, cancelable: Boolean, cancelListener: DialogInterface.OnCancelListener?) : super(context, cancelable, cancelListener) {
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -126,7 +116,9 @@ class TopSheetDialog : AppCompatDialog {
         val value = TypedValue()
         return if (context.theme.resolveAttribute(android.R.attr.windowCloseOnTouchOutside, value, true)) {
             value.data != 0
-        } else false
+        } else {
+            false
+        }
     }
 
     override fun show() {

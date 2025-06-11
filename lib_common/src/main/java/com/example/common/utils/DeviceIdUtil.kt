@@ -7,6 +7,7 @@ import android.provider.Settings
 import android.telephony.TelephonyManager
 import com.example.common.BaseApplication
 import com.example.common.config.CacheData
+import com.example.framework.utils.function.value.orFalse
 import java.security.MessageDigest
 import java.util.*
 
@@ -36,8 +37,8 @@ object DeviceIdUtil {
                         Build.PRODUCT.length % 10 +
                         serial.length % 10
                 UUID(dev.hashCode().toLong(), serial.hashCode().toLong()).toString()
-            } catch (ex: Exception) {
-                ex.printStackTrace()
+            } catch (e: Exception) {
+                e.printStackTrace()
                 ""
             }
         }
@@ -51,8 +52,8 @@ object DeviceIdUtil {
         get() {
             try {
                 return Build.SERIAL.orEmpty()
-            } catch (ex: Exception) {
-                ex.printStackTrace()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
             return ""
         }
@@ -119,8 +120,8 @@ object DeviceIdUtil {
                     //返回最终的DeviceId
                     return sha1
                 }
-            } catch (ex: Exception) {
-                ex.printStackTrace()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
         //如果以上硬件标识数据均无法获得，
@@ -134,8 +135,8 @@ object DeviceIdUtil {
         try {
             val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             return tm.deviceId
-        } catch (ex: Exception) {
-            ex.printStackTrace()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         return ""
     }
@@ -150,8 +151,8 @@ object DeviceIdUtil {
     private fun getAndroidId(context: Context): String? {
         try {
             return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-        } catch (ex: Exception) {
-            ex.printStackTrace()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         return ""
     }

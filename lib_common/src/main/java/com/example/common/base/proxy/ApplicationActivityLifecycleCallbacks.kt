@@ -4,10 +4,14 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application.ActivityLifecycleCallbacks
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AbsListView
+import com.example.common.BaseApplication.Companion.isFirstLaunch
+import com.example.common.BaseApplication.Companion.lastClickTime
 import com.example.framework.utils.LogUtil.e
+import java.util.Locale
 
 /**
  * Created by WangYanBin on 2020/8/10.
@@ -34,6 +38,14 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+        if (isFirstLaunch) {
+            isFirstLaunch = false
+        } else {
+            val clazzName = activity.javaClass.simpleName.lowercase(Locale.getDefault())
+            if (clazzName == "splashactivity") {
+                lastClickTime = SystemClock.elapsedRealtime()
+            }
+        }
         activity.window?.decorView?.viewTreeObserver?.addOnGlobalLayoutListener {
             proxyOnClick(activity.window.decorView, 5)
         }
@@ -71,7 +83,8 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
                 //自定义代理事件监听器
                 onClickListenerField[listenerInfoObj] = ProxyOnclickListener(mOnClickListener)
             } else e("OnClickListenerProxy", "setted proxy listener ")
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

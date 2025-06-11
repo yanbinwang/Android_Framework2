@@ -1,10 +1,12 @@
 package com.example.common.base
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Build
+import android.os.Bundle
 import android.os.Looper
+import android.transition.Fade
 import android.transition.Slide
 import android.transition.Visibility
 import android.view.Gravity
@@ -15,13 +17,20 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
 import android.widget.PopupWindow
+import androidx.core.graphics.drawable.toDrawable
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
-import com.example.common.base.PopupAnimType.*
+import com.example.common.base.PopupAnimType.ALPHA
+import com.example.common.base.PopupAnimType.NONE
+import com.example.common.base.PopupAnimType.TRANSLATE
+import com.example.common.base.bridge.BaseImpl
 import com.example.common.utils.function.pt
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -36,27 +45,32 @@ import java.lang.reflect.ParameterizedType
  * 需要注意binding使用了lateinit，但是不可能会不给值（VDB），稳妥期间，引用到view的地方，使用popupView
  */
 @Suppress("LeakingThis", "UNCHECKED_CAST")
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, popupWidth: Int = MATCH_PARENT, popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val light: Boolean = true) : PopupWindow() {
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, private val popupWidth: Int = MATCH_PARENT, private val popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val hasLight: Boolean = true) : PopupWindow(), BaseImpl {
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
-    private var popupView: View? = null
-    protected val mContext get() = window.context
     protected var mBinding: VDB? = null
-    protected var measuredWidth = 0
-        private set
-    protected var measuredHeight = 0
-        private set
+    protected val rootView get() = mBinding?.root
+    protected val context: Context get() = activity
+    protected val ownerActivity: Activity = activity
+    protected val lifecycleOwner get() = ownerActivity as? LifecycleOwner
 
     init {
+        initView(null)
+        initEvent()
+        initData()
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="基类方法">
+    override fun initView(savedInstanceState: Bundle?) {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
                 val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
                 val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
                 mBinding = method?.invoke(null, window.layoutInflater) as? VDB
-                contentView = mBinding?.root
-                popupView = mBinding?.root
-            } catch (_: Exception) {
+                mBinding?.root?.let { setContentView(it) }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
         width = if (popupWidth < 0) popupWidth else popupWidth.pt
@@ -64,93 +78,177 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         isFocusable = true
         isOutsideTouchable = true
         softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        lifecycleOwner.doOnDestroy {
+            mBinding?.unbind()
+            mBinding = null
+        }
+    }
+
+    override fun initEvent() {
         setAnimation()
-        setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         setOnDismissListener {
-            if (light) {
+            if (hasLight) {
                 layoutParams?.alpha = 1f
                 window.attributes = layoutParams
             }
         }
-        //获取自身的长宽高
-        popupView?.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-        measuredWidth = popupView?.measuredWidth.orZero
-        measuredHeight = popupView?.measuredHeight.orZero
     }
 
-    // <editor-fold defaultstate="collapsed" desc="基类方法">
-    //默认底部弹出，可重写
+    /**
+     * 默认底部弹出
+     */
     private fun setAnimation() {
-        when (popupAnimStyle) {
-            ALPHA -> animationStyle = R.style.PopupAlphaAnimStyle
-            TRANSLATE -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    enterTransition = Slide().apply {
-                        duration = 500
-                        mode = Visibility.MODE_IN
-                        slideEdge = BOTTOM
-                    }
-                    setExitTransition(Slide().apply {
-                        duration = 500
-                        mode = Visibility.MODE_OUT
-                        slideEdge = BOTTOM
-                    })
-                } else {
-                    animationStyle = R.style.PopupTranslateAnimStyle
-                }
+//        when (popupAnimStyle) {
+//            ALPHA -> {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                    enterTransition = Fade().apply {
+//                        duration = 300
+//                        mode = Visibility.MODE_IN
+//                    }
+//                    exitTransition = Fade().apply {
+//                        duration = 300
+//                        mode = Visibility.MODE_OUT
+//                    }
+//                } else {
+//                    animationStyle = R.style.PopupAlphaAnimStyle
+//                }
+//            }
+//            TRANSLATE -> {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                    enterTransition = Slide().apply {
+//                        duration = 300
+//                        mode = Visibility.MODE_IN
+//                        slideEdge = BOTTOM
+//                    }
+//                    exitTransition = Slide().apply {
+//                        duration = 300
+//                        mode = Visibility.MODE_OUT
+//                        slideEdge = BOTTOM
+//                    }
+//                } else {
+//                    animationStyle = R.style.PopupTranslateAnimStyle
+//                }
+//            }
+//            NONE -> animationStyle = -1
+//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val (enter, exit) = when (popupAnimStyle) {
+                ALPHA -> Pair(
+                    Fade().apply { duration = 300; mode = Visibility.MODE_IN },
+                    Fade().apply { duration = 300; mode = Visibility.MODE_OUT }
+                )
+                TRANSLATE -> Pair(
+                    Slide().apply { duration = 300; mode = Visibility.MODE_IN; slideEdge = BOTTOM },
+                    Slide().apply { duration = 300; mode = Visibility.MODE_OUT; slideEdge = BOTTOM }
+                )
+                NONE -> null to null
             }
-            NONE -> animationStyle = -1
+            enterTransition = enter
+            exitTransition = exit
+            // 确保在 API >= M 时也设置 animationStyle
+            animationStyle = when (popupAnimStyle) {
+                NONE -> -1
+                else -> 0 // 使用 0 表示使用系统默认或不应用旧版动画
+            }
+        } else {
+            animationStyle = when (popupAnimStyle) {
+                ALPHA -> R.style.PopupAlphaAnimStyle
+                TRANSLATE -> R.style.PopupTranslateAnimStyle
+                NONE -> -1
+            }
         }
+    }
+
+    override fun initData() {
     }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="重写方法">
+//    override fun showAsDropDown(anchor: View?) {
+//        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
+//        if (popupView?.context == null) return
+//        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
+//        try {
+//            setAttributes()
+//            super.showAsDropDown(anchor)
+//        } catch (_: Exception) {
+//        }
+//    }
+//
+//    override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int) {
+//        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
+//        if (popupView?.context == null) return
+//        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
+//        try {
+//            setAttributes()
+//            super.showAsDropDown(anchor, xoff, yoff)
+//        } catch (_: Exception) {
+//        }
+//    }
+//
+//    override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
+//        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
+//        if (popupView?.context == null) return
+//        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
+//        try {
+//            setAttributes()
+//            super.showAsDropDown(anchor, xoff, yoff, gravity)
+//        } catch (_: Exception) {
+//        }
+//    }
+//
+//    override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
+//        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
+//        if ((mContext as? Activity)?.isFinishing.orFalse) return
+//        if ((mContext as? Activity)?.isDestroyed.orFalse) return
+//        try {
+//            setAttributes()
+//            super.showAtLocation(parent, gravity, x, y)
+//        } catch (_: Exception) {
+//        }
+//    }
+
     override fun showAsDropDown(anchor: View?) {
-        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if (popupView?.context == null) return
-        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
-        try {
-            setAttributes()
-            super.showAsDropDown(anchor)
-        } catch (_: Exception) {
-        }
+        showPopup({ super.showAsDropDown(anchor) }, ::checkShowAsDropDownConditions)
     }
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int) {
-        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if (popupView?.context == null) return
-        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
-        try {
-            setAttributes()
-            super.showAsDropDown(anchor, xoff, yoff)
-        } catch (_: Exception) {
-        }
+        showPopup({ super.showAsDropDown(anchor, xoff, yoff) }, ::checkShowAsDropDownConditions)
     }
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
-        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if (popupView?.context == null) return
-        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
-        try {
-            setAttributes()
-            super.showAsDropDown(anchor, xoff, yoff, gravity)
-        } catch (_: Exception) {
-        }
+        showPopup({ super.showAsDropDown(anchor, xoff, yoff, gravity) }, ::checkShowAsDropDownConditions)
     }
 
     override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
-        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-        if ((mContext as? Activity)?.isFinishing.orFalse) return
-        if ((mContext as? Activity)?.isDestroyed.orFalse) return
-        try {
-            setAttributes()
-            super.showAtLocation(parent, gravity, x, y)
-        } catch (_: Exception) {
+        showPopup({ super.showAtLocation(parent, gravity, x, y) }, ::checkShowAtLocationConditions)
+    }
+
+    private fun checkShowAsDropDownConditions() = Looper.myLooper() != null &&
+                Looper.myLooper() == Looper.getMainLooper() &&
+                rootView?.context != null &&
+                (rootView?.context as? Activity)?.isFinishing == false &&
+                (rootView?.context as? Activity)?.isDestroyed == false
+
+    private fun checkShowAtLocationConditions() = Looper.myLooper() != null &&
+                Looper.myLooper() == Looper.getMainLooper() &&
+                (context as? Activity)?.isFinishing == false &&
+                (context as? Activity)?.isDestroyed == false
+
+    private fun showPopup(showFunction: () -> Unit, checkCondition: () -> Boolean) {
+        if (checkCondition()) {
+            try {
+                setAttributes()
+                showFunction()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
     private fun setAttributes() {
-        if (light) {
+        if (hasLight) {
             layoutParams?.alpha = 0.7f
             window.attributes = layoutParams
         }
@@ -158,30 +256,53 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     override fun dismiss() {
         if (!isShowing) return
-        if ((mContext as? Activity)?.isFinishing.orFalse) return
-        if ((mContext as? Activity)?.isDestroyed.orFalse) return
-        if ((mContext as? Activity)?.window?.windowManager == null) return
+        if ((context as? Activity)?.isFinishing.orFalse) return
+        if ((context as? Activity)?.isDestroyed.orFalse) return
+        if ((context as? Activity)?.window?.windowManager == null) return
         if (window.windowManager == null) return
         if (window.decorView.parent == null) return
         super.dismiss()
-        mBinding?.unbind()
     }
 
     /**
      * 默认底部坐标展示
      */
-    open fun shown() {
-        if (!isShowing) showAtLocation(popupView, BOTTOM, 0, 0)
+    open fun show() {
+        if (!isShowing) showAtLocation(rootView, BOTTOM, 0, 0)
     }
 
     /**
      * 控件上方显示(以v的中心位置/左边距->为开始位置)
+     * 获取自身的长宽高
+     * 一般情况：
+     * 若 popupView 及其子视图的布局参数和内容都是固定的，在调用 measure 方法之后，measuredWidth 和 measuredHeight 能够反映出 PopupWindow 根视图确切的宽高。例如，popupView 是一个包含固定文本的 TextView 或者有固定尺寸的 ImageView 等，测量得到的宽高是准确的。
+     * 特殊情况：
+     * 依赖外部资源：要是 popupView 依赖于外部资源（如网络图片），在资源还未加载完成时进行测量，得到的宽高可能不准确。因为在资源加载完成之前，视图并不知道其最终的大小。
+     * 布局依赖于父容器：如果 popupView 的布局依赖于父容器的大小或者其他动态因素，仅使用 View.MeasureSpec.UNSPECIFIED 进行测量可能无法得到确切的宽高。例如，popupView 中有一个 LinearLayout 其 layout_weight 属性生效，在这种情况下，需要根据实际的布局参数来创建合适的 MeasureSpec 进行测量。
      */
     open fun showUp(anchor: View?, center: Boolean = true) {
         if (!isShowing) {
-            val location = IntArray(2)
-            anchor?.getLocationOnScreen(location)
-            showAtLocation(anchor, Gravity.NO_GRAVITY, if (center) ((location[0] + anchor?.width.orZero / 2) - measuredWidth / 2) else ((location[0]) - measuredWidth / 2), location[1] - measuredHeight)
+            /**
+             * Gravity.NO_GRAVITY->用于指定 PopupWindow 的对齐方式。Gravity.NO_GRAVITY 表示不使用任何默认的对齐方式，而是完全根据后面传入的 x 和 y 坐标来确定位置
+             *
+             * x->
+             * 如果 center 为 true，则 x 坐标的计算方式是 (location[0] + anchor?.width.orZero / 2) - measuredWidth / 2。
+             * 其中 location[0] 是 anchor 视图在屏幕上的 x 坐标，anchor?.width.orZero 是 anchor 视图的宽度（如果 anchor 为 null 则宽度为 0），
+             * measuredWidth 是 PopupWindow 的根视图的宽度。这个计算的目的是将 PopupWindow 在水平方向上相对于 anchor 视图居中显示
+             * 如果 center 为 false，则 x 坐标的计算方式是 location[0] - measuredWidth，即将 PopupWindow 的左侧与 anchor 视图的左侧对齐，然后根据 PopupWindow 的宽度进行偏移
+             *
+             * y->
+             * y 坐标的计算是 location[1] - measuredHeight，其中 location[1] 是 anchor 视图在屏幕上的 y 坐标，
+             * measuredHeight 是 PopupWindow 的根视图的高度。这个计算的目的是将 PopupWindow 显示在 anchor 视图的上方，偏移量为 PopupWindow 的高度。
+             */
+            rootView?.doOnceAfterLayout {
+                val location = IntArray(2)
+                anchor?.getLocationOnScreen(location)
+                it.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+                val measuredWidth = it.measuredWidth.orZero
+                val measuredHeight = it.measuredHeight.orZero
+                showAtLocation(anchor, Gravity.NO_GRAVITY, if (center) ((location[0] + anchor?.width.orZero / 2) - measuredWidth / 2) else ((location[0]) - measuredWidth / 2), location[1] - measuredHeight)
+            }
         }
     }
 
@@ -190,10 +311,6 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      */
     open fun showDown(anchor: View?) {
         if (!isShowing) showAsDropDown(anchor)
-    }
-
-    open fun hidden() {
-        if (isShowing) dismiss()
     }
     // </editor-fold>
 

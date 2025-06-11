@@ -13,8 +13,8 @@ import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.core.app.ActivityOptionsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
@@ -28,31 +28,23 @@ import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
-import com.example.common.base.bridge.BaseViewModel
-import com.example.common.base.bridge.create
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.utils.AppManager
-import com.example.common.utils.DataBooleanCacheUtil
+import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.color
-import com.example.common.utils.function.registerResult
+import com.example.common.utils.function.registerResultWrapper
+import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.common.widget.textview.edittext.SpecialEditText
-import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.view.disable
-import com.example.framework.utils.function.view.enable
-import com.example.framework.utils.function.view.gone
-import com.example.framework.utils.function.view.invisible
-import com.example.framework.utils.function.view.visible
 import com.example.framework.utils.logE
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -62,7 +54,6 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
-import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
@@ -73,21 +64,23 @@ import kotlin.coroutines.CoroutineContext
  * 底部弹框使用的dialog
  */
 @Suppress("UNCHECKED_CAST")
-abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
+abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
-    protected val mActivity: FragmentActivity get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity ?: FragmentActivity() }
-    protected val mDialog by lazy { AppDialog(mActivity) }
-    protected val mPermission by lazy { PermissionHelper(mActivity) }
-    protected val mActivityResult = activity.registerResult { onActivityResultListener?.invoke(it) }
+    protected val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
+    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
+    protected val mResultWrapper = registerResultWrapper()
+    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
+    protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
+    protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     private var showTime = 0L
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
-    private val isShow: Boolean get() = dialog.let { it?.isShowing.orFalse } && !isRemoving
-    private val immersionBar by lazy { ImmersionBar.with(mActivity) }
-    private val loadingDialog by lazy { LoadingDialog(mActivity) }//刷新球控件，相当于加载动画
+    private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
+    private val immersionBar by lazy { ImmersionBar.with(this) }
+    private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }//刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext get() = Main + job
+    override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onAttach(context: Context) {
@@ -97,7 +90,12 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (isEventBusEnabled()) EventBus.instance.register(this, lifecycle)
+        if (isEventBusEnabled()) {
+            EventBus.instance.register(this) {
+                it.onEvent()
+            }
+        }
+        if (isImmersionBarEnabled()) initImmersionBar()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -107,13 +105,19 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
                 .setScreenHeight(screenHeight)
             AutoSizeCompat.autoConvertDensityOfGlobal(resources)
         }
-        return try {
-            val superclass = javaClass.genericSuperclass
-            val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
-            val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
-            mBinding = method?.invoke(null, layoutInflater, container, false) as? VDB
-            mBinding?.root
-        } catch (_: Exception) {
+        return if (isBindingEnabled()) {
+            try {
+                val superclass = javaClass.genericSuperclass
+                val aClass = (superclass as? ParameterizedType)?.actualTypeArguments?.get(0) as? Class<*>
+                val method = aClass?.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.javaPrimitiveType)
+                mBinding = method?.invoke(null, inflater, container, false) as? VDB
+                mBinding?.lifecycleOwner = this
+                mBinding?.root
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        } else {
             null
         }
     }
@@ -239,15 +243,16 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         }
     }
 
-//    override fun <VM : BaseViewModel> createViewModel(vmClass: Class<VM>): VM {
-//        return vmClass.create(mActivity.lifecycle, this).also { it.initialize(mActivity, this) }
-//    }
+    protected open fun isImmersionBarEnabled(): Boolean {
+        return false
+    }
 
-    override fun <VM : BaseViewModel> VM.create(): VM? {
-        return javaClass.create(mActivity.lifecycle, this@BaseBottomSheetDialogFragment).also { it.initialize(mActivity, this@BaseBottomSheetDialogFragment) }
+    protected open fun isBindingEnabled(): Boolean {
+        return true
     }
 
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
+        super.initImmersionBar(titleDark, naviTrans, navigationBarColor)
         immersionBar?.apply {
             reset()
             //如果当前设备支持状态栏字体变色，会设置状态栏字体为黑色
@@ -267,27 +272,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     override fun initData() {
     }
 
-    override fun enabled(vararg views: View?, second: Long) {
-        views.forEach {
-            if (it != null) {
-                it.disable()
-                WeakHandler(Looper.getMainLooper()).postDelayed({ it.enable() }, second)
-            }
-        }
-    }
-
-    override fun visible(vararg views: View?) {
-        views.forEach { it?.visible() }
-    }
-
-    override fun invisible(vararg views: View?) {
-        views.forEach { it?.invisible() }
-    }
-
-    override fun gone(vararg views: View?) {
-        views.forEach { it?.gone() }
-    }
-
     override fun onStart() {
         super.onStart()
         //设置软键盘不自动弹出
@@ -302,16 +286,12 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     override fun onDestroy() {
         super.onDestroy()
-        if (isEventBusEnabled()) EventBus.instance.unregister(this)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
+        clearOnActivityResultListener()
         for ((key, value) in dataManager) {
             key.removeObserver(value)
         }
         dataManager.clear()
-        mActivityResult?.unregister()
+        mActivityResult.unregister()
         mBinding?.unbind()
         job.cancel()
     }
@@ -327,17 +307,12 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     }
 
     open fun show(manager: FragmentManager) {
-        val tag = javaClass.simpleName.toLowerCase(Locale.getDefault())
+        val tag = javaClass.simpleName.lowercase(Locale.getDefault())
         show(manager, tag)
     }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="订阅相关">
-    @Subscribe
-    fun onReceive(event: Event) {
-        event.onEvent()
-    }
-
     protected open fun Event.onEvent() {
     }
 
@@ -345,9 +320,13 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         return false
     }
 
-    protected open fun <T> MutableLiveData<T>?.observe(block: T?.() -> Unit) {
+    protected open fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
         this ?: return
-        val observer = Observer<Any?> { value -> block(value as? T) }
+        val observer = Observer<Any?> { value ->
+            if (value != null) {
+                (value as? T)?.let { block(it) }
+            }
+        }
         dataManager[this] = observer
         observe(this@BaseBottomSheetDialogFragment, observer)
     }
@@ -355,25 +334,21 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
-        loadingDialog.shown(flag)
+        loadingDialog?.apply { setDialogCancelable(flag) }?.show()
         if (second > 0) {
-            TimerBuilder.schedule({
+            TimerBuilder.schedule(this, {
                 hideDialog()
                 block.invoke()
             }, second)
-//            WeakHandler(Looper.getMainLooper()).postDelayed({
-//                hideDialog()
-//                block.invoke()
-//            }, second)
         }
     }
 
     override fun hideDialog() {
-        loadingDialog.hidden()
+        loadingDialog?.dismiss()
     }
 
     override fun showGuide(label: String, isOnly: Boolean, vararg pages: GuidePage, guideListener: OnGuideChangedListener?, pageListener: OnPageChangedListener?) {
-        val labelTag = DataBooleanCacheUtil(label)
+        val labelTag = DataBooleanCache(label)
         if (!labelTag.get()) {
             if (isOnly) labelTag.set(true)
             val builder = NewbieGuide.with(this)//传入activity
@@ -389,8 +364,8 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         }
     }
 
-    override fun navigation(path: String, vararg params: Pair<String, Any?>?): Activity {
-        mActivity.navigation(path, params = params, activityResultValue = mActivityResult)
+    override fun navigation(path: String, vararg params: Pair<String, Any?>?, options: ActivityOptionsCompat?): Activity? {
+        mActivity?.navigation(path, params = params, activityResultValue = mActivityResult, options = options)
         return mActivity
     }
     // </editor-fold>

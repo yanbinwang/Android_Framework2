@@ -10,13 +10,23 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 
 //------------------------------------recyclerview扩展函数类------------------------------------
+
 /**
- * 触发本身绑定适配器的刷新
+ * 初始化一个recyclerview
  */
-@SuppressLint("NotifyDataSetChanged")
-fun RecyclerView?.refresh() {
-    if (this == null) return
-    this.adapter?.notifyDataSetChanged()
+fun RecyclerView?.init(hasFixedSize: Boolean = true) {
+    this ?: return
+    // 设置 android:clipToPadding="false"
+    clipToPadding = false
+    // 设置 android:overScrollMode="never"
+    overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+    // 设置 android:scrollbars="none"
+    isVerticalScrollBarEnabled = false
+    isHorizontalScrollBarEnabled = false
+    // 告诉 RecyclerView 尺寸是固定的，不会因为 RecyclerView 中数据项的变化（如添加、删除、更新数据）而改变自身的大小。 RecyclerView 在数据改变时，就不需要重新计算自身的尺寸
+    setHasFixedSize(hasFixedSize)
+    // 清除自带动画
+    cancelItemAnimator()
 }
 
 /**
@@ -31,6 +41,15 @@ fun RecyclerView?.cancelItemAnimator() {
         removeDuration = 0
         supportsChangeAnimations = false
     }
+}
+
+/**
+ * 触发本身绑定适配器的刷新
+ */
+@SuppressLint("NotifyDataSetChanged")
+fun RecyclerView?.refresh() {
+    if (this == null) return
+    this.adapter?.notifyDataSetChanged()
 }
 
 /**
@@ -79,7 +98,8 @@ fun RecyclerView?.smoothScroll(pos: Int, type: Int, scale: Float) {
     if (manager !is LinearLayoutManager) return
     try {
         (parent as ViewGroup).dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
-    } catch (ignore: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     val first = manager.findFirstVisibleItemPosition()
     val last = manager.findLastVisibleItemPosition()
@@ -108,7 +128,8 @@ fun RecyclerView?.toPosition(pos: Int, offset: Int = 0) {
     if (this == null) return
     try {
         (parent as ViewGroup).dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
-    } catch (ignore: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     scrollToPosition(pos)
     when (val mLayoutManager = layoutManager) {

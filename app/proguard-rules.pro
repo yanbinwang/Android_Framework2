@@ -127,6 +127,21 @@
     public static <fields>;
 }
 
+# 保留 ViewModel 类及其构造函数
+-keep class androidx.lifecycle.ViewModel { *; }
+# 保留使用 ViewModel 工厂创建 ViewModel 的相关类和方法
+-keepclassmembers class * extends androidx.lifecycle.ViewModel {
+    <init>(...);
+}
+
+# 保留协程相关类和方法
+-keep class kotlinx.coroutines.* { *; }
+# 保留协程内部使用的反射相关类
+-keepattributes InnerClasses
+
+# 保留 Kotlin Flow 相关类
+-keep class kotlinx.coroutines.flow.* { *; }
+
 #------------------------h5混淆开始------------------------
 #不混淆H5交互
 -keepattributes *JavascriptInterface*
@@ -150,6 +165,7 @@
 -keep public class * extends com.bumptech.glide.module.AppGlideModule
 -keep class com.bumptech.glide.GeneratedAppGlideModuleImpl
 -keep class com.bumptech.glide.integration.okhttp3.OkHttpGlideModule
+-keepnames class * com.example.glide.callback.GlideModule
 #------------------------glide图片库混淆结束------------------------
 
 #------------------------OKHttp混淆开始------------------------
@@ -177,13 +193,6 @@
 # Application classes that will be serialized/deserialized over Gson
 -keep class com.google.gson.examples.android.model.** { *; }
 ##---------------End: proguard configuration for Gson  ----------
-
-#------------------------百度地图混淆开始------------------------#
-#-libraryjars  ../XXX(此处为library名称)/src/main/jniLibs/armeabi/xxxxx.so
-#-libraryjars  libs/BaiduLBS_Android.jar
--keep class com.baidu.** { *; }
--keep class vi.com.gdi.bgl.android.**{*;}
-#------------------------百度地图混淆结束------------------------#
 
 #------------------------高德地图混淆开始------------------------#
 #3D 地图
@@ -525,16 +534,6 @@ rx.internal.util.atomic.LinkedQueueNode consumerNode;
 }
 #------------------------Retrofit混淆结束------------------------
 
-#------------------------sharesdk混淆开始------------------------
--keep class cn.sharesdk.**{*;}
--keep class com.sina.**{*;}
--keep class com.mob.**{*;}
--keep class com.bytedance.**{*;}
--dontwarn cn.sharesdk.**
--dontwarn com.sina.**
--dontwarn com.mob.**
-#------------------------sharesdk混淆结束------------------------
-
 #------------------------greendao混淆开始------------------------
 -keep class org.greenrobot.greendao.**{*;}
 -keep public interface org.greenrobot.greendao.**
@@ -660,20 +659,30 @@ public static java.lang.String TABLENAME;
 -keep class com.alipay.rds.v2.face.RDSClient { *; }
 -keep class com.alipay.rds.constant.* { *; }
 #------------------------阿里人脸识别混淆结束------------------------
-#------------------------gifimage混淆开始------------------------
--keep public class pl.droidsonroids.gif.GifIOException{<init>(int);}
--keep class pl.droidsonroids.gif.GifInfoHandle{<init>(long,int,int,int);}
--keep class pl.droidsonroids.relinker.** {*;}
--keep class pl.droidsonroids.gif.** {*;}
-#------------------------gifimage混淆结束------------------------
+
+#------------------------刷新混淆开始------------------------
+-keep class com.scwang.smart.** { *; }
+-dontwarn com.scwang.smart.**
+#------------------------刷新混淆结束------------------------
+## 保留密封类及其子类
+#-keep class com.yourpackage.YourSealedClass { *; }
+#-keep class com.yourpackage.YourSealedClass$* { *; }
+#
+## 如果密封类有抽象方法，保留抽象方法所在的类
+#-keep class com.yourpackage.AbstractClassContainingMethodsOfSealedClass { *; }
+
+
 -keep class com.example.common.databinding.** {*;}
-#-keep class com.dataqin.home.databinding.** {*;}
--keep class com.example.common.event.LiveDataEvent{*;}
--keep class com.example.common.network.repository.** {*;}
+-keep class com.example.common.base.binding.adapter.BaseItemType { *;}
 -keep class com.example.common.base.page.** {*;}
-
 -keep class com.example.common.bean.** {*;}
+-keep class com.example.common.event.** {*;}
+-keep class com.example.common.network.repository.** {*;}
+-keep class com.example.common.socket.** {*;}
+-keep class com.example.common.widget.advertising.** {*;}
+-keep class com.example.common.widget.popup.select.** {*;}
 
+#-keep class com.dataqin.home.databinding.** {*;}
 #-keep class com.dataqin.home.model.** {*;}
 #-keep class com.dataqin.evidence.model.** {*;}
 #-keep class com.dataqin.account.model.** {*;}

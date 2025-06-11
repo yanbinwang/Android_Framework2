@@ -37,6 +37,34 @@ class SwitchFlipper @JvmOverloads constructor(context: Context, attrs: Attribute
         views.forEach { addView(it) }
     }
 
+    override fun showNext() {
+        inAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_right_in)
+        outAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_left_out)
+        super.showNext()
+    }
+
+    override fun showPrevious() {
+        inAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_left_in)
+        outAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_right_out)
+        super.showPrevious()
+    }
+
+    /**
+     * 上一页
+     */
+    fun previousPage() {
+        if (childCount <= 0 || displayedChild <= 0) return
+        showPrevious()
+    }
+
+    /**
+     * 下一页
+     */
+    fun nextPage() {
+        if (childCount <= 0 || displayedChild >= childCount - 1) return
+        showNext()
+    }
+
     /**
      * 需保证只有2个view插入的情况下，调用此方法，实现左右切换
      */
@@ -48,18 +76,6 @@ class SwitchFlipper @JvmOverloads constructor(context: Context, attrs: Attribute
         } else {
             showNext()
         }
-    }
-
-    override fun showNext() {
-        inAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_right_in)
-        outAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_left_out)
-        super.showNext()
-    }
-
-    override fun showPrevious() {
-        inAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_left_in)
-        outAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_right_out)
-        super.showPrevious()
     }
 
 }

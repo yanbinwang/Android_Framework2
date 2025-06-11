@@ -6,20 +6,32 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.ImageView
+import androidx.core.content.withStyledAttributes
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.databinding.ViewEmptyBinding
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
+import com.example.common.utils.function.getStatusBarHeight
+import com.example.common.utils.function.pt
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.appear
+import com.example.framework.utils.function.view.applyConstraints
+import com.example.framework.utils.function.view.clearClick
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
+import com.example.framework.utils.function.view.exist
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.invisible
+import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.removeSelf
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.size
+import com.example.framework.utils.function.view.startToStartOf
 import com.example.framework.utils.function.view.string
 import com.example.framework.utils.function.view.tint
+import com.example.framework.utils.function.view.topToTopOf
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 
@@ -38,16 +50,50 @@ import com.example.framework.widget.BaseViewGroup
 @SuppressLint("InflateParams")
 class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     private val mBinding by lazy { ViewEmptyBinding.bind(context.inflate(R.layout.view_empty)) }
-    private var state = -1
     private var fullScreen = false
+    private var ivLeft: ImageView? = null
+    private var state: EmptyLayoutState = EmptyLayoutState.Loading
     private var listener: ((result: Boolean) -> Unit)? = null
 
     init {
-//        mBinding.root.layoutParamsMatch()
         //是否是全屏
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.EmptyLayout)
-        fullScreen = typedArray.getBoolean(R.styleable.EmptyLayout_elEnableFullScreen, false)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.EmptyLayout) {
+            fullScreen = getBoolean(R.styleable.EmptyLayout_elEnableFullScreen, false)
+            if (fullScreen) {
+                /**
+                 * <ImageView
+                 *    android:id="@+id/iv_left"
+                 *    statusBar_margin="@{true}"
+                 *    android:layout_width="44pt"
+                 *    android:layout_height="44pt"
+                 *    android:layout_marginStart="5pt"
+                 *    android:padding="10pt"
+                 *    android:src="@mipmap/ic_btn_back"
+                 *    android:visibility="invisible"
+                 *    app:layout_constraintStart_toStartOf="parent"
+                 *    app:layout_constraintTop_toTopOf="parent" />
+                 */
+                //创建 ImageView
+                ivLeft = ImageView(context).also {
+                    it.id = View.generateViewId()
+                    it.invisible()
+                }
+                //设置布局参数
+                mBinding.clRoot.addView(ivLeft)
+                mBinding.clRoot.applyConstraints {
+                    val viewId = ivLeft?.id ?: return@applyConstraints
+                    topToTopOf(viewId)
+                    startToStartOf(viewId)
+                }
+                ivLeft.margin(start = 5.pt)
+            }
+            //部分情况下，头部的高度会被AppToolbar绘制，整体如果是在下方容器添加，居中就还会被拉下去一块，故而减去这块
+            val windows = getBoolean(R.styleable.EmptyLayout_elEnableWindow, false)
+            setWindows(windows)
+            //默认是否传递点击
+            val clickable = getBoolean(R.styleable.EmptyLayout_elEnableClickable, false)
+            isClickable = clickable
+        }
         //绘制大小撑到最大/默认背景
         mBinding.root.size(MATCH_PARENT, MATCH_PARENT)
         mBinding.root.setBackgroundColor(color(R.color.bgDefault))
@@ -56,7 +102,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
             if (!isEmpty()) loading()
             listener?.invoke(isEmpty())
         }
-        mBinding.root.click(null)
+        mBinding.root.clearClick()
         loading()
     }
 
@@ -72,26 +118,10 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     /**
-     * 设置列表所需的emptyview
+     * 全屏按钮状态
      */
-    fun setListView(listView: View?): View {
-        removeView(mBinding.root)
-        (listView?.parent as? ViewGroup)?.addView(mBinding.root) //添加到当前的View hierarchy
-        return mBinding.root
-    }
-
-    /**
-     * 特殊用法，部分页面需要全屏的empty，带一个返回按钮
-     * 1.只需关闭页面直接调setBack（this）
-     * 2.返回按钮点击后做别的操作setBack（onClick = {}）->不需要传activity
-     */
-    fun setBack(mActivity: FragmentActivity? = null, resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, width: Int? = null, height: Int? = null, onClick: () -> Unit = { mActivity?.finish() }) {
-        mBinding.ivLeft.apply {
-            setResource(resId)
-            if (0 != tintColor) tint(tintColor)
-            if (null != width && null != height) size(width, height)
-            click { onClick.invoke() }
-        }
+    private fun fullScreenState() {
+        if (fullScreen) ivLeft.visible() else ivLeft.invisible()
     }
 
     /**
@@ -99,8 +129,8 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun loading() {
         appear(300)
-        state = 0
-        if (fullScreen) mBinding.ivLeft.visible() else mBinding.ivLeft.invisible()
+        state = EmptyLayoutState.Loading
+        fullScreenState()
         mBinding.ivEmpty.setResource(R.mipmap.bg_data_loading)
         mBinding.tvEmpty.text = string(R.string.dataLoading)
         mBinding.tvRefresh.gone()
@@ -111,9 +141,9 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
         appear(300)
-        state = 1
-        if (fullScreen) mBinding.ivLeft.visible() else mBinding.ivLeft.invisible()
-        if (null != width && null != height) mBinding.ivEmpty.size(width, height)
+        state = EmptyLayoutState.Empty
+        fullScreenState()
+        if (null != width && null != height) mBinding.ivEmpty.size(width.pt, height.pt)
         mBinding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_empty)
         mBinding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataEmpty) else text
         if (!refreshText.isNullOrEmpty()) {
@@ -130,9 +160,9 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
         appear(300)
-        state = 2
-        if (fullScreen) mBinding.ivLeft.visible() else mBinding.ivLeft.invisible()
-        if (null != width && null != height) mBinding.ivEmpty.size(width, height)
+        state = EmptyLayoutState.Error
+        fullScreenState()
+        if (null != width && null != height) mBinding.ivEmpty.size(width.pt, height.pt)
         if (!isNetworkAvailable()) {
             mBinding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
             mBinding.tvEmpty.text = string(R.string.dataNetError)
@@ -145,18 +175,63 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     /**
+     * 针对首页的遮罩，如果需要展示则显示，不然直接删除自身
+     */
+    fun completion(isSuccessful: Boolean, resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+        if (isSuccessful) {
+            removeSelf()
+        } else {
+            if (!exist()) return
+            error(resId, text, refreshText, width, height)
+        }
+    }
+
+    /**
      * 获取当前状态
      */
     fun isLoading(): Boolean {
-        return state == 0
+        return state is EmptyLayoutState.Loading
     }
 
     fun isEmpty(): Boolean {
-        return state == 1
+        return state is EmptyLayoutState.Empty
     }
 
     fun isError(): Boolean {
-        return state == 2
+        return state is EmptyLayoutState.Error
+    }
+
+    /**
+     * 获取当前根布局
+     */
+    fun getRoot(): View {
+        return mBinding.root
+    }
+
+    /**
+     * 特殊用法，部分页面需要全屏的empty，带一个返回按钮
+     * 1.只需关闭页面直接调setBack（this）
+     * 2.返回按钮点击后做别的操作setBack（onClick = {}）->不需要传activity
+     */
+    fun setFullScreen(mActivity: FragmentActivity? = null, resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }) {
+        ivLeft.also {
+            it.setResource(resId)
+            if (0 != tintColor) it.tint(tintColor)
+            it.size(44.pt, 44.pt)
+            it.padding(10.pt, 10.pt, 10.pt, 10.pt)
+            click {
+                onClick.invoke()
+            }
+        }
+    }
+
+    /**
+     * 设置是否是窗口
+     */
+    fun setWindows(windows: Boolean) {
+        if (windows) {
+            mBinding.llContent.margin(top = -(getStatusBarHeight() + 44.pt))
+        }
     }
 
     /**
@@ -164,6 +239,15 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
         this.listener = listener
+    }
+
+    /**
+     * 状态封闭类
+     */
+    sealed class EmptyLayoutState {
+        data object Loading : EmptyLayoutState()
+        data object Empty : EmptyLayoutState()
+        data object Error : EmptyLayoutState()
     }
 
 }

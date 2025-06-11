@@ -8,7 +8,7 @@
         android:layout_width="320pt"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/shape_r10_default">
+        android:background="@drawable/shape_default">
 
         <TextView
             android:id="@+id/tv_tip"
@@ -51,7 +51,7 @@
 
         <TextView
             android:id="@+id/tv_cancel"
-            android:layout_width="0dp"
+            android:layout_width="0pt"
             android:layout_height="48pt"
             android:ellipsize="end"
             android:gravity="center"
@@ -75,7 +75,7 @@
 
         <TextView
             android:id="@+id/tv_sure"
-            android:layout_width="0dp"
+            android:layout_width="0pt"
             android:layout_height="48pt"
             android:ellipsize="end"
             android:gravity="center"

@@ -3,13 +3,14 @@ package com.example.framework.utils.function.view
 import android.app.Activity
 import android.content.Context
 import android.graphics.*
+import android.os.Build
 import android.text.*
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.LinkMovementMethod
 import android.text.method.PasswordTransformationMethod
-import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -22,8 +23,10 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.DecimalInputFilter
 import com.example.framework.utils.EditTextUtil
+import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.*
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
@@ -68,25 +71,17 @@ fun TextView?.bold(isBold: Boolean) {
 /**
  * 字体颜色
  */
-fun TextView?.textColor(@ColorRes color: Int) {
+fun TextView?.textColor(@ColorRes res: Int) {
     if (this == null) return
-    this.setTextColor(ContextCompat.getColor(context, color))
+    this.setTextColor(ContextCompat.getColor(context, res))
 }
 
 /**
  * 以res设置textSize
  */
-fun TextView?.textSize(@DimenRes size: Int) {
+fun TextView?.textSize(@DimenRes res: Int) {
     if (this == null) return
-    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(size))
-}
-
-/**
- * 以px做单位设置textSize
- */
-fun TextView?.setPxTextSize(size: Float) {
-    if (this == null) return
-    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
+    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(res))
 }
 
 /**
@@ -102,13 +97,23 @@ fun TextView?.setRandomTextColor() {
 }
 
 /**
+ * 以px做单位设置textSize
+ */
+fun TextView?.setPxTextSize(size: Float) {
+    if (this == null) return
+    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
+}
+
+/**
  * 某些特殊布局如一个输入框最后测有个textview，然后输入框内容又是居中的
  * 通常外层会套一个Framelayout，然后把textview绘制在右侧，但是边距显示会很不正常，
  * 调用当前构造函数修整这种畸形效果,绘制时设置edittext宽度match，textview居左右侧都可以
  */
 fun TextView?.setFixDistance(editText: EditText?) {
     if (this == null || editText == null) return
-    doOnceAfterLayout { editText.margin(start = it.width, end = it.width) }
+    doOnceAfterLayout {
+        editText.margin(start = it.measuredWidth, end = it.measuredWidth)
+    }
 }
 
 /**
@@ -116,69 +121,57 @@ fun TextView?.setFixDistance(editText: EditText?) {
  */
 fun TextView?.setMatchText() {
     if (this == null) return
-    post {
-        val rawText = text.toString()//原始文本
-        val tvPaint = paint//paint包含字体等信息
-        val tvWidth = width - paddingLeft - paddingRight//控件可用宽度
-        val rawTextLines = rawText.replace("\r".toRegex(), "").split("\n").toTypedArray()//将原始文本按行拆分
-        val sbNewText = StringBuilder()
-        for (rawTextLine in rawTextLines) {
-            if (tvPaint.measureText(rawTextLine) <= tvWidth) {
-                //如果整行宽度在控件可用宽度之内，就不处理了
-                sbNewText.append(rawTextLine)
-            } else {
-                //如果整行宽度超过控件可用宽度，则按字符测量，在超过可用宽度的前一个字符处手动换行
-                var lineWidth = 0f
-                var cnt = 0
-                while (cnt != rawTextLine.length) {
-                    val ch = rawTextLine[cnt]
-                    lineWidth += tvPaint.measureText(ch.toString())
-                    if (lineWidth <= tvWidth) {
-                        sbNewText.append(ch)
-                    } else {
-                        sbNewText.append("\n")
-                        lineWidth = 0f
-                        --cnt
-                    }
-                    ++cnt
-                }
-            }
-            sbNewText.append("\n")
-        }
-        //把结尾多余的\n去掉
-        if (!rawText.endsWith("\n")) sbNewText.deleteCharAt(sbNewText.length - 1)
-        text = sbNewText.toString()
+    // 如果已经完成布局，直接处理文本,若未完成布局，监听布局变化，布局完成后处理文本
+    doOnceAfterLayout {
+        processText()
     }
 }
 
-/**
- * 文案添加点击事件（单一）
- */
-fun TextView?.setClickSpan(txt: String, keyword: String, clickableSpan: ClickableSpan) {
-    if (this == null) return
-    val spannable = SpannableString(txt)
-    val index = txt.indexOf(keyword)
-    text = if (index != -1) {
-        spannable.setSpan(clickableSpan, index, index + keyword.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        spannable
-    } else txt
-    movementMethod = LinkMovementMethod.getInstance()
-}
-
-fun TextView?.setClickSpan(txt: String, keyword: String, colorRes: Int, listener: () -> Unit) {
-    if (this == null) return
-    setClickSpan(txt, keyword, object : ClickableSpan() {
-        override fun onClick(widget: View) {
-            listener.invoke()
-            movementMethod = LinkMovementMethod.getInstance()
+private fun TextView.processText() {
+    //获取原始文本
+    val rawText = text.toString()
+    //获取 TextView 的画笔，包含字体等信息
+    val tvPaint = paint
+    //计算 TextView 可用于显示文本的宽度
+    val tvWidth = width - paddingLeft - paddingRight
+    //移除原始文本中的 \r 并按 \n 分割成多行
+    val rawTextLines = rawText.replace("\r", "").split('\n')
+    //用于存储处理后的文本
+    val sbNewText = StringBuilder()
+    //重新生成字符串
+    for (line in rawTextLines) {
+        if (tvPaint.measureText(line) <= tvWidth) {
+            //若当前行宽度小于等于可用宽度，直接添加到结果中
+            sbNewText.append(line)
+        } else {
+            //若当前行宽度超过可用宽度，按字符拆分处理
+            var currentLine = StringBuilder()
+            var currentWidth = 0f
+            for (char in line) {
+                val charWidth = tvPaint.measureText(char.toString())
+                if (currentWidth + charWidth <= tvWidth) {
+                    //若添加当前字符后宽度仍小于等于可用宽度，添加该字符
+                    currentLine.append(char)
+                    currentWidth += charWidth
+                } else {
+                    //若添加当前字符后宽度超过可用宽度，换行并重置当前行和宽度
+                    sbNewText.append(currentLine).append('\n')
+                    currentLine = StringBuilder().append(char)
+                    currentWidth = charWidth
+                }
+            }
+            //添加最后一行处理后的文本
+            sbNewText.append(currentLine)
         }
-
-        override fun updateDrawState(ds: TextPaint) {
-            super.updateDrawState(ds)
-            ds.color = ContextCompat.getColor(context, colorRes)
-            ds.isUnderlineText = false
-        }
-    })
+        //每行处理完后添加换行符
+        sbNewText.append('\n')
+    }
+    //移除末尾多余的换行符
+    if (sbNewText.isNotEmpty() && sbNewText.last() == '\n') {
+        sbNewText.deleteCharAt(sbNewText.length - 1)
+    }
+    //更新 TextView 的文本
+    text = sbNewText.toString()
 }
 
 /**
@@ -194,8 +187,10 @@ inline fun TextView?.getEllipsisCount(crossinline listener: (ellipsisCount: Int)
         listener.invoke(0)
         return
     }
-    post {
-        listener.invoke(layout.getEllipsisCount(lineCount - 1))
+    // 若 TextView 已经完成布局，直接获取省略字符数量
+    doOnceAfterLayout {
+        val ellipsisCount = layout?.getEllipsisCount(lineCount - 1).orZero
+        listener.invoke(ellipsisCount)
     }
 }
 
@@ -206,6 +201,17 @@ fun TextView?.setSpannable(spannable: Spannable) {
     this ?: return
     text = spannable
     movementMethod = LinkMovementMethod.getInstance()
+    clearHighlightColor()
+}
+
+/**
+ * 清除高亮
+ */
+fun TextView?.clearHighlightColor() {
+    if (this == null) return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        highlightColor = Color.TRANSPARENT
+    }
 }
 
 /**
@@ -224,7 +230,8 @@ fun EditText?.passwordDevelopment(): Boolean {
         }
         setSelection(text.length)
         postInvalidate()
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     return display
 }
@@ -293,25 +300,55 @@ fun EditText?.onDone(listener: () -> Unit) {
     }
 }
 
-///**
-// * 弹出软键盘并获取焦点
-// */
-//fun EditText?.showInput() {
-//    if (this == null) return
-//    focus()
-//    openDecor()
-//}
-
 /**
- * 弹出软键盘
+ * 弹出软键盘并获取焦点
+ * class InputDialog(mContext: Context) : BaseDialog<ViewDialogInputBinding>(mContext, MATCH_PARENT, 60, BOTTOM, R.style.InputDialogStyle, false, false) {
+ *     private var listener: ((text: String) -> Unit)? = null
+ *
+ *     init {
+ *         mBinding?.tvSend.click {
+ *             listener?.invoke(mBinding?.etContent.text())
+ *             mBinding?.etContent.clear()
+ *             dismiss()
+ *         }
+ *     }
+ *
+ *     fun showInput() {
+ *         show()
+ *         mBinding?.etContent.showInput()
+ *     }
+ *
+ *     fun setOnInputListener(listener: ((text: String) -> Unit)) {
+ *         this.listener = listener
+ *     }
+ *
+ * }
+ * <style name="InputDialogStyle" parent="android:Theme.Dialog">
+ *     <item name="android:windowBackground">@android:color/transparent</item>
+ *     <item name="android:windowNoTitle">true</item>
+ *     <item name="android:windowAnimationStyle">@null</item>
+ *     <!-- 完全透明加入下面这句 -->
+ *     <item name="android:backgroundDimEnabled">false</item>
+ * </style>
  */
-fun EditText?.doInput() {
+fun EditText?.showInput(observer: LifecycleOwner) {
     if (this == null) return
-    requestFocus()
-    showSoftKeyboard(context, this)
-//    val inputManager = this.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//    inputManager.showSoftInput(this, 0)
+    focus()
+    TimerBuilder.schedule(observer, {
+        showSoftKeyboard(context, this)
+    }, 200)
 }
+
+///**
+// * 弹出软键盘
+// */
+//fun EditText?.doInput() {
+//    if (this == null) return
+//    requestFocus()
+//    showSoftKeyboard(context, this)
+////    val inputManager = this.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+////    inputManager.showSoftInput(this, 0)
+//}
 
 /**
  * 隐藏软键盘
@@ -351,7 +388,8 @@ fun EditText?.setSafeSelection(start: Int, stop: Int? = null) {
         } else {
             setSelection(start, stop)
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
@@ -364,22 +402,22 @@ fun EditText?.getNumber(): String {
     return text.toString().ifEmpty { "0" }
 }
 
-fun EditText?.add(number: String) {
+fun EditText?.add(number: String?) {
     this ?: return
     setText(getNumber().add(number))
 }
 
-fun EditText?.subtract(number: String) {
+fun EditText?.subtract(number: String?) {
     this ?: return
     setText(getNumber().subtract(number))
 }
 
-fun EditText?.multiply(number: String) {
+fun EditText?.multiply(number: String?) {
     this ?: return
     setText(getNumber().multiply(number))
 }
 
-fun EditText?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
+fun EditText?.divide(number: String?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
     this ?: return
     setText(getNumber().divide(number, scale, mode))
 }
@@ -461,7 +499,8 @@ fun Activity?.inputHidden(vararg edits: EditText?): ArrayList<EditText?>? {
         val setShowSoftInputOnFocus = EditText::class.java.getMethod("setShowSoftInputOnFocus", Boolean::class.javaPrimitiveType)
         setShowSoftInputOnFocus.isAccessible = true
         list.forEach { setShowSoftInputOnFocus.invoke(it, false) }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     return list.toArrayList()
 }

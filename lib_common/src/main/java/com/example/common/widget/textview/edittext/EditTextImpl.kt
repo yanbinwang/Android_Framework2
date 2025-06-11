@@ -1,24 +1,24 @@
 package com.example.common.widget.textview.edittext
 
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.value.ELFormat.EMAIL
 import com.example.framework.utils.function.value.ELFormat.MOBILE
 import com.example.framework.utils.function.value.ELFormat.PASSWORD
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.divide
+import com.example.framework.utils.function.value.matches
 import com.example.framework.utils.function.value.multiply
-import com.example.framework.utils.function.value.regCheck
 import com.example.framework.utils.function.value.subtract
+import com.example.framework.utils.function.view.OnMultiTextWatcher
 import com.example.framework.utils.function.view.clear
-import com.example.framework.utils.function.view.doInput
 import com.example.framework.utils.function.view.getNumber
 import com.example.framework.utils.function.view.hideKeyboard
 import com.example.framework.utils.function.view.onDone
+import com.example.framework.utils.function.view.showInput
 import java.math.BigDecimal
 import java.util.regex.Pattern
 
@@ -81,39 +81,27 @@ interface EditTextImpl {
         return editText.checkPassReg(res, res2)
     }
 
-    fun EditText.checkPassReg(@StringRes res: Int = -1): Boolean {
-        return checkPassReg(res2 = res)
-    }
-
-    fun PasswordEditText.checkPassReg(@StringRes res: Int = -1): Boolean {
-        return editText.checkPassReg(res)
-    }
-
     fun String?.checkPassReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
         this ?: return false
         if (!notEmpty()) {
             if (-1 != res) res.shortToast()
             return false
         }
-        if (!regCheck(PASSWORD)) {
+        if (!matches(PASSWORD)) {
             if (-1 != res2) res2.shortToast()
             return false
         }
         return true
     }
 
-    fun String?.checkPassReg(@StringRes res: Int = -1): Boolean {
-        return checkPassReg(res2 = res)
-    }
-
     fun String?.passwordLevel(): Int {
         this ?: return 0
         //纯数字、纯字母、纯特殊字符
-        if (this.length < 8 || Pattern.matches("^\\d+$", this) || regCheck("^[a-z]+$") || regCheck("^[A-Z]+$") || regCheck("^[@#$%^&]+$")) return 1
+        if (this.length < 8 || Pattern.matches("^\\d+$", this) || matches("^[a-z]+$") || matches("^[A-Z]+$") || matches("^[@#$%^&]+$")) return 1
         //字母+数字、字母+特殊字符、数字+特殊字符
-        if (regCheck("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$") || regCheck("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$") || regCheck("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$") || regCheck("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$") || regCheck("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$") || regCheck("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$")) return 2
+        if (matches("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$") || matches("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$") || matches("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$") || matches("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$") || matches("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$") || matches("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$")) return 2
         //字母+数字+特殊字符
-        if (regCheck("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
+        if (matches("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
         return 3
     }
     // </editor-fold>
@@ -127,27 +115,15 @@ interface EditTextImpl {
         return editText.checkEmailReg(res, res2)
     }
 
-    fun EditText.checkEmailReg(@StringRes res: Int = -1): Boolean {
-        return checkEmailReg(res2 = res)
-    }
-
-    fun ClearEditText.checkEmailReg(@StringRes res: Int = -1): Boolean {
-        return editText.checkEmailReg(res)
-    }
-
     fun String?.checkEmailReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
         this ?: return false
         if (!notEmpty()) {
             if (-1 != res) res.shortToast()
             return false
         }
-        if (regCheck(EMAIL)) return true
+        if (matches(EMAIL)) return true
         if (-1 != res2) res2.shortToast()
         return false
-    }
-
-    fun String?.checkEmailReg(@StringRes res: Int = -1): Boolean {
-        return checkEmailReg(res2 = res)
     }
     // </editor-fold>
 
@@ -160,29 +136,17 @@ interface EditTextImpl {
         return editText.checkMobileReg(res, res2)
     }
 
-    fun EditText.checkMobileReg(@StringRes res: Int = -1): Boolean {
-        return checkMobileReg(res2 = res)
-    }
-
-    fun ClearEditText.checkMobileReg(@StringRes res: Int = -1): Boolean {
-        return editText.checkMobileReg(res)
-    }
-
     fun String?.checkMobileReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
         this ?: return false
         if (!notEmpty()) {
             if (-1 != res) res.shortToast()
             return false
         }
-        if (!regCheck(MOBILE)) {
+        if (!matches(MOBILE)) {
             if (-1 != res2) res2.shortToast()
             return false
         }
         return true
-    }
-
-    fun String?.checkMobileReg(@StringRes res: Int = -1): Boolean {
-        return checkMobileReg(res2 = res)
     }
     // </editor-fold>
 
@@ -191,16 +155,8 @@ interface EditTextImpl {
         return text.toString().checkVerifyReg(res, res2, length)
     }
 
-    fun ClearEditText.checkVerifyReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
-        return editText.checkVerifyReg(res, res2)
-    }
-
-    fun EditText.checkVerifyReg(@StringRes res: Int = -1, length: Int = 6): Boolean {
-        return checkVerifyReg(res2 = res, length = length)
-    }
-
-    fun ClearEditText.checkVerifyReg(@StringRes res: Int = -1): Boolean {
-        return editText.checkVerifyReg(res)
+    fun ClearEditText.checkVerifyReg(@StringRes res: Int = -1, @StringRes res2: Int = -1, length: Int = 6): Boolean {
+        return editText.checkVerifyReg(res, res2, length)
     }
 
     fun String?.checkVerifyReg(@StringRes res: Int = -1, @StringRes res2: Int = -1, length: Int = 6): Boolean {
@@ -215,10 +171,6 @@ interface EditTextImpl {
         }
         return true
     }
-
-    fun String?.checkVerifyReg(@StringRes res: Int = -1, length: Int = 6): Boolean {
-        return checkVerifyReg(res2 = res, length = length)
-    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="控件取值计算/监听等构造函数">
@@ -227,22 +179,22 @@ interface EditTextImpl {
         return editText.getNumber()
     }
 
-    fun ClearEditText?.add(number: String) {
+    fun ClearEditText?.add(number: String?) {
         this ?: return
         setText(getNumber().add(number))
     }
 
-    fun ClearEditText?.subtract(number: String) {
+    fun ClearEditText?.subtract(number: String?) {
         this ?: return
         setText(getNumber().subtract(number))
     }
 
-    fun ClearEditText?.multiply(number: String) {
+    fun ClearEditText?.multiply(number: String?) {
         this ?: return
         setText(getNumber().multiply(number))
     }
 
-    fun ClearEditText?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
+    fun ClearEditText?.divide(number: String?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
         this ?: return
         setText(getNumber().divide(number, scale, mode))
     }
@@ -271,14 +223,14 @@ interface EditTextImpl {
         editText.clear()
     }
 
-    fun ClearEditText?.doInput() {
+    fun ClearEditText?.showInput(observer: LifecycleOwner) {
         if (this == null) return
-        editText.doInput()
+        editText.showInput(observer)
     }
 
-    fun PasswordEditText?.doInput() {
+    fun PasswordEditText?.showInput(observer: LifecycleOwner) {
         if (this == null) return
-        editText.doInput()
+        editText.showInput(observer)
     }
 
     fun ClearEditText?.hideKeyboard() {
@@ -309,7 +261,7 @@ interface EditTextImpl {
         }
     }
 
-    fun OnMultiTextWatcher.textWatchers(vararg views: View) {
+    fun OnMultiTextWatcher.textWatchers(vararg views: View?) {
         for (view in views) {
             when (view) {
                 is EditText -> view.addTextChangedListener(this)
@@ -328,17 +280,3 @@ interface EditTextImpl {
  * @author yan
  */
 interface SpecialEditText
-
-/**
- * 简易的输入监听
- */
-interface OnMultiTextWatcher : TextWatcher {
-    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-    }
-
-    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-    }
-
-    override fun afterTextChanged(s: Editable) {
-    }
-}

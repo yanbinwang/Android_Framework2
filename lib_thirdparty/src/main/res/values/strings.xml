@@ -1,33 +1,8 @@
 <resources>
-    <!-- 相机/播放器字段 -->
-    <string name="cameraFlashError">闪光灯仅支持后置摄像头</string>
-    <string name="cameraPictureShutter">正在生成图片,请勿频繁操作…</string>
-    <string name="cameraVideoShutter">正在生成视频,请勿频繁操作…</string>
-    <!-- 录屏字段字段 -->
-    <string name="screenStart">开始录屏</string>
-    <string name="screenCancel">取消录屏</string>
-    <string name="screenGranted">请授权上层显示</string>
-    <!-- 相册/裁剪字段 -->
-    <string name="albumImageError">请选择%1$sM以内的图片</string>
-    <string name="albumVideoError">请选择%1$sM以内的视频</string>
-    <string name="albumTitle">相册</string>
-    <string name="cropTitle">图片裁剪</string>
-    <!-- 地图字段 -->
-    <string name="mapAMap">高德地图</string>
-    <string name="mapBMap">百度地图</string>
-    <string name="mapLocationLoading">正在定位…</string>
-    <string name="mapLocationError">未获取到地址</string>
-    <string name="mapGps">获取地址信息失败，开启定位服务可以提高定位精确度</string>
-    <string name="mapGpsGoSetting">去开启</string>
     <!-- 推送 -->
-    <color name="notificationDefaultColor">#ffffff</color>
     <string name="notificationChannelId">dataqin</string>
     <string name="notificationChannelName">数秦科技</string>
-    <!-- 支付 -->
-    <string name="payInitiate">正在发起支付,请稍后&#8230;</string>
-    <string name="paySuccess">支付成功</string>
-    <string name="payFailure">支付失败</string>
-    <string name="payCancel">支付取消</string>
+    <!-- 三方应用 -->
     <string name="wechatUnInstalled">您尚未安装微信</string>
     <string name="wechatSupportError">当前微信版本不支持</string>
     <string name="alipayUnInstalled">您尚未安装支付宝</string>

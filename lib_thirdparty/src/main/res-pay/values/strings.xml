@@ -1,0 +1,7 @@
+<resources>
+    <!-- 支付 -->
+    <string name="payInitiate">正在发起支付,请稍后&#8230;</string>
+    <string name="paySuccess">支付成功</string>
+    <string name="payFailure">支付失败</string>
+    <string name="payCancel">支付取消</string>
+</resources>

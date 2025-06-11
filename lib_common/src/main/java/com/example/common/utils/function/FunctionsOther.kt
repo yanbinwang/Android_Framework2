@@ -3,12 +3,12 @@ package com.example.common.utils.function
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.text.Spannable
+import android.text.SpannableString
 import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -25,12 +25,14 @@ import com.example.common.utils.ScreenUtil.getRealSize
 import com.example.common.utils.ScreenUtil.getRealSizeFloat
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
+import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
+import com.example.framework.utils.function.view.setSpannable
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanAll
 import com.example.framework.utils.setSpanFirst
@@ -62,6 +64,42 @@ val Number?.dp: Int
     }
 
 /**
+ * 获取Manifest中的参数
+ */
+fun getManifestString(name: String): String? {
+    return BaseApplication.instance.packageManager.getApplicationInfo(BaseApplication.instance.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
+}
+
+/**
+ * 获取顶栏高度
+ */
+fun getStatusBarHeight(): Int {
+    return ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
+}
+
+/**
+ * 获取底栏高度
+ */
+fun getNavigationBarHeight(): Int {
+    val mContext = BaseApplication.instance.applicationContext
+    if (!ScreenUtil.hasNavigationBar(mContext)) return 0
+    return ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
+}
+
+/**
+ * 获取应用缓存大小并格式化为易读的字符串
+ * @return 格式化后的缓存大小字符串，如 "2.5M"
+ */
+fun getFormattedCacheSize(): String {
+    val mContext = BaseApplication.instance.applicationContext
+    var value = "0M"
+    mContext?.cacheDir?.apply {
+        value = getTotalSize().let { if (it > 0) it.getSizeFormat() else value }
+    }
+    return value
+}
+
+/**
  * 获取resources中的color
  */
 @ColorInt
@@ -71,6 +109,8 @@ fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.
  * 获取图片
  */
 fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
+
+fun drawable(@DrawableRes res: Int, width: Int, height: Int) = drawable(res)?.apply { setBounds(0, 0, width, height) }
 
 /**
  *  <string name="dollar">\$%1$s</string>
@@ -103,7 +143,8 @@ fun string(@StringRes res: Int): String {
 fun resString(@StringRes res: Int): String {
     return try {
         BaseApplication.instance.getString(res)
-    } catch (ignore: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         ""
     }
 }
@@ -124,75 +165,64 @@ fun String?.setPrimaryClip(label: String = "Label") {
 }
 
 /**
- * 自定义反向动画
+ * 设置textview内容当中某一段的颜色
  */
-fun Context.translateAnimation(onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}, isShown: Boolean = true): Animation {
-    return AnimationUtils.loadAnimation(this, if (isShown) R.anim.set_translate_bottom_in else R.anim.set_translate_bottom_out).apply {
-        setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(animation: Animation?) {
-                onStart.invoke()
-            }
-
-            override fun onAnimationEnd(animation: Animation?) {
-                onEnd.invoke()
-            }
-
-            override fun onAnimationRepeat(animation: Animation?) {
-                onRepeat.invoke()
-            }
-        })
+fun TextView?.setSpan(txt: Any, keyword: Any, colorRes: Int = R.color.appTheme, spanAll: Boolean = false) {
+    this ?: return
+    val textToProcess = when (txt) {
+        is Int -> string(txt)
+        is String -> txt
+        else -> ""
+    }
+    val keywordToProcess = when (keyword) {
+        is Int -> string(keyword)
+        is String -> keyword
+        else -> ""
+    }
+    val span = ColorSpan(context.color(colorRes))
+    text = if (spanAll) {
+        textToProcess.setSpanAll(keywordToProcess, span)
+    } else {
+        textToProcess.setSpanFirst(keywordToProcess, span)
     }
 }
 
 /**
- * 获取Manifest中的参数
+ * 设置点击跳转
  */
-fun getManifestString(name: String): String? {
-    return BaseApplication.instance.packageManager.getApplicationInfo(BaseApplication.instance.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
-}
-
-/**
- * 获取顶栏高度
- */
-fun getStatusBarHeight(): Int {
-    return ExtraNumber.getInternalDimensionSize(BaseApplication.instance, "status_bar_height")
-}
-
-/**
- * 获取底栏高度
- */
-fun getNavigationBarHeight(context: Context): Int {
-    if (!ScreenUtil.hasNavigationBar(context)) return 0
-    return ExtraNumber.getInternalDimensionSize(context, "navigation_bar_height")
-}
-
-/**
- * 设置textview内容当中某一段的颜色
- */
-fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color.appTheme) {
+fun TextView?.setSpan(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
     this ?: return
-    text = txt.setSpanFirst(keyword, ColorSpan(context.color(colorRes)))
+    val textToProcess = when (txt) {
+        is Int -> string(txt)
+        is String -> txt
+        else -> ""
+    }
+    var content: Spannable = SpannableString.valueOf(textToProcess)
+    keywords.forEach {
+        val keyword = when (val res = it.first) {
+            is Int -> string(res)
+            is String -> res
+            else -> ""
+        }
+        content = content.setSpanFirst(keyword, ColorSpan(context.color(it.second)), ClickSpan(object : XClickableSpan() {
+            override fun onLinkClick(widget: View) {
+                it.third.invoke()
+            }
+        }))
+    }
+    setSpannable(content)
 }
 
-fun TextView?.setSpanFirst(@StringRes res: Int, @StringRes resKeyword: Int, colorRes: Int = R.color.appTheme) {
-    this ?: return
-    setSpanFirst(string(res), string(resKeyword), colorRes)
-}
-
-fun TextView?.setSpanAll(txt: String, keyword: String, colorRes: Int = R.color.appTheme) {
-    this ?: return
-    text = txt.setSpanAll(keyword, ColorSpan(context.color(colorRes)))
-}
-
-fun TextView?.setSpanAll(@StringRes res: Int, @StringRes resKeyword: Int, colorRes: Int = R.color.appTheme) {
-    this ?: return
-    setSpanAll(string(res), string(resKeyword), colorRes)
+fun TextView?.setSpan(txt: Any, vararg keywords: Pair<Any, () -> Unit>, colorRes: Int = R.color.appTheme) {
+    setSpan(txt, *keywords.map {
+        Triple(it.first, colorRes, it.second)
+    }.toTypedArray())
 }
 
 /**
  * 设置显示内容和对应文本颜色
  */
-fun TextView?.setArguments(txt: String = "", colorRes: Int = R.color.appTheme, resId: Int = -1) {
+fun TextView?.setTheme(txt: String = "", colorRes: Int = R.color.appTheme, resId: Int = -1) {
     this ?: return
     text = txt
     textColor(colorRes)
@@ -209,6 +239,13 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> 
     })
 }
 
+///**
+// * 自定义反向动画
+// */
+//fun Context.translate(onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}, isShown: Boolean = true): Animation {
+//    return loadAnimation(if (isShown) R.anim.set_translate_bottom_in else R.anim.set_translate_bottom_out, onStart, onEnd, onRepeat)
+//}
+
 /**
  * 点击链接的span
  * "我已阅读《用户协议》和《隐私政策》".setSpanFirst("《用户协议》",ClickSpan(object :XClickableSpan(){
@@ -220,6 +257,7 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> 
  *          "点击隐私政策".logWTF
  *      }
  *  }))
+ *  textView.movementMethod = android.text.method.LinkMovementMethod.getInstance()
  */
 abstract class XClickableSpan(private val colorRes: Int = R.color.appTheme) : ClickableSpan() {
 

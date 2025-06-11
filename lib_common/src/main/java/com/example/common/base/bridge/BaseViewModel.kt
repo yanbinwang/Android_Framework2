@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -12,36 +14,39 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
+import com.example.common.base.BaseActivity
+import com.example.common.base.BaseBottomSheetDialogFragment
+import com.example.common.base.BaseFragment
+import com.example.common.base.BaseTopSheetDialogFragment
 import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.network.repository.ApiResponse
-import com.example.common.network.repository.MultiReqUtil
-import com.example.common.network.repository.request
-import com.example.common.network.repository.requestLayer
-import com.example.common.utils.AppManager
+import com.example.common.utils.manager.AppManager
+import com.example.common.utils.manager.JobManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
+import com.example.common.widget.xrecyclerview.refresh.getAutoRefreshTime
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
+import com.example.framework.utils.logWTF
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.CoroutineStart.LAZY
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.greenrobot.eventbus.Subscribe
 import java.lang.ref.WeakReference
+import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty
 
 /**
  * Created by WangYanBin on 2020/6/3.
@@ -52,28 +57,33 @@ import kotlin.coroutines.EmptyCoroutineContext
 @SuppressLint("StaticFieldLeak")
 abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     //基础引用
-    private var weakActivity: WeakReference<FragmentActivity>? = null//引用的activity
-    private var weakView: WeakReference<BaseView>? = null//基础UI操作
+    private var weakActivity: WeakReference<FragmentActivity?>? = null//引用的activity
+    private var weakView: WeakReference<BaseView?>? = null//基础UI操作
     //部分view的操作交予viewmodel去操作，不必让activity去操作
     private var weakEmpty: WeakReference<EmptyLayout?>? = null//遮罩UI
     private var weakRecycler: WeakReference<XRecyclerView?>? = null//列表UI
     private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
+    private var weakLifecycleOwner: WeakReference<LifecycleOwner?>? = null//全局生命周期订阅
     //分页
     private val paging by lazy { Paging() }
+    //全局倒计时时间点
+    protected var lastRefreshTime = 0L
     //基础的注入参数
-    protected val mActivity: FragmentActivity get() = weakActivity?.get() ?: (AppManager.currentActivity() as? FragmentActivity) ?: FragmentActivity()
-    protected val mContext: Context get() = mActivity
+    protected val mActivity: FragmentActivity? get() = weakActivity?.get() ?: AppManager.currentActivity() as? FragmentActivity
+    protected val mContext: Context? get() = mActivity
     protected val mView: BaseView? get() = weakView?.get()
     //获取对应的控件/分页类
     protected val mEmpty get() = weakEmpty?.get()
     protected val mRecycler get() = weakRecycler?.get()
     protected val mRefresh get() = weakRefresh?.get()
-    //弹框/获取权限
-    protected val mDialog by lazy { AppDialog(mContext) }
-    protected val mPermission by lazy { PermissionHelper(mContext) }
+    //弹框/获取权限/协程管理类/viewmodel命名
+    protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
+    protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
+    protected val mJobManager by lazy { JobManager(weakLifecycleOwner?.get()) }
+    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
-    fun initialize(activity: FragmentActivity, view: BaseView) {
+    fun initialize(activity: FragmentActivity?, view: BaseView?) {
         this.weakActivity = WeakReference(activity)
         this.weakView = WeakReference(view)
     }
@@ -83,71 +93,37 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 继承BaseTitleActivity的页面传父类的ViewGroup
      * 其余页面外层写FrameLayout，套上要使用的布局后再initView中调用该方法
      */
-//    //BaseTitleActivity传入容器viewGroup
-//    fun setExtraView(viewGroup: ViewGroup?) {
-//        this.weakEmpty = WeakReference(viewGroup.getEmptyView(1))
-//    }
-//
-//    //直接界面上绘制好empty
-//    fun setExtraView(empty: EmptyLayout?) {
-//        this.weakEmpty = WeakReference(empty)
-//    }
-//
-//    //传入外层下拉刷新的控件
-//    fun setExtraView(refresh: SmartRefreshLayout?) {
-//        this.weakRefresh = WeakReference(refresh)
-//    }
-//
-//    //传入用于刷新的empty
-//    fun setExtraView(recycler: XRecyclerView?) {
-//        this.weakEmpty = WeakReference(recycler?.empty)
-//        this.weakRecycler = WeakReference(recycler)
-//    }
-    fun setExtraView(view: View?) {
+    fun setExtraView(view: View?, refresh: SmartRefreshLayout? = null) {
+        view ?: return
+        //处理 view 的类型，设置 weakEmpty 和 weakRecycler
         when (view) {
             //传入BaseTitleActivity中写好的容器viewGroup
-            is FrameLayout -> this.weakEmpty = WeakReference(view.getEmptyView(1))
+            is FrameLayout -> {
+                weakEmpty = WeakReference(view.getEmptyView(1))
+                mEmpty?.setWindows(true)
+            }
             //界面上绘制好empty
-            is EmptyLayout -> this.weakEmpty = WeakReference(view)
-            //外层下拉刷新的控件
-            is SmartRefreshLayout -> this.weakRefresh = WeakReference(view)
+            is EmptyLayout -> weakEmpty = WeakReference(view)
             //传入用于刷新的empty
             is XRecyclerView -> {
-                this.weakEmpty = WeakReference(view.empty)
-                this.weakRecycler = WeakReference(view)
+                weakRecycler = WeakReference(view)
+                weakEmpty = WeakReference(view.empty)
+                //如果recyclerview是带有刷新的，且外层并未在该方法内注入refresh控件
+                if (view.isRefresh() && refresh == null) {
+                    weakRefresh = WeakReference(view.refresh)
+                }
+            }
+            //外层下拉刷新的控件
+            is SmartRefreshLayout -> {
+                //仅在未显式传入 refresh 时从 view 中获取刷新控件
+                if (refresh == null) {
+                    weakRefresh = WeakReference(view)
+                }
             }
         }
-    }
-
-    //部分首页加载时需要使用empty，完成后需要使用下拉刷新（只有下拉），故而直接传入两层view
-//    fun setExtraView(empty: EmptyLayout?, refresh: SmartRefreshLayout?) {
-//        this.weakEmpty = WeakReference(empty)
-//        this.weakRefresh = WeakReference(refresh)
-//    }
-//
-//    fun setExtraView(viewGroup: ViewGroup?, refresh: SmartRefreshLayout?) {
-//        this.weakEmpty = WeakReference(viewGroup.getEmptyView(1))
-//        this.weakRefresh = WeakReference(refresh)
-//    }
-//
-//    fun setExtraView(recycler: XRecyclerView?, refresh: SmartRefreshLayout?) {
-//        this.weakEmpty = WeakReference(recycler?.empty)
-//        this.weakRefresh = WeakReference(refresh)
-//    }
-    fun setExtraView(view: View?, refresh: SmartRefreshLayout?) {
-        when (view) {
-            is FrameLayout -> {
-                this.weakEmpty = WeakReference(view.getEmptyView(1))
-                this.weakRefresh = WeakReference(refresh)
-            }
-            is EmptyLayout -> {
-                this.weakEmpty = WeakReference(view)
-                this.weakRefresh = WeakReference(refresh)
-            }
-            is XRecyclerView -> {
-                this.weakEmpty = WeakReference(view.empty)
-                this.weakRefresh = WeakReference(refresh)
-            }
+        // 显式传入刷新控件时覆盖之前的设置
+        if (refresh != null) {
+            weakRefresh = WeakReference(refresh)
         }
     }
 
@@ -156,34 +132,44 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      */
     fun setCurrentCount(currentCount: Int?) {
         paging.currentCount = currentCount.orZero
+        reset(hasNextPage())
     }
 
     /**
      * 设置当前总记录数
      */
     fun setTotalCount(totalCount: Int?) {
+        if (!paging.hasRefresh) return
         paging.totalCount = totalCount.orZero
     }
 
     /**
      * 获取当前页数
      */
-    fun getCurrentPage() = paging.page.toString()
+    fun getCurrentPage(): String {
+        return paging.currentPage.toString()
+    }
 
     /**
      * 当前列表数额
      */
-    fun currentCount() = paging.currentCount
+    fun currentCount(): Int {
+        return paging.currentCount
+    }
 
     /**
      * 当前是否是刷新
      */
-    fun hasRefresh() = paging.hasRefresh
+    fun hasRefresh(): Boolean {
+        return paging.hasRefresh
+    }
 
     /**
      * 是否有下一页
      */
-    fun hasNextPage() = paging.hasNextPage()
+    fun hasNextPage(): Boolean {
+        return paging.hasNextPage()
+    }
 
     /**
      * 刷新监听
@@ -200,10 +186,19 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     /**
+     * 此次请求失败
+     */
+    fun onError() {
+        paging.onError()
+    }
+
+    /**
      * 空布局监听
      */
     fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
-        mEmpty?.setOnEmptyRefreshListener { listener.invoke(it) }
+        mEmpty?.setOnEmptyRefreshListener {
+            listener.invoke(it)
+        }
     }
 
     /**
@@ -230,118 +225,56 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      */
     fun reset(hasNextPage: Boolean? = true) {
         finishRefreshing(hasNextPage)
-        mEmpty?.fade(300)
+        val recycler = mRecycler // 缓存变量，减少重复调用
+        if (recycler != null && currentCount() != 0 || recycler == null) {
+            mEmpty?.fade(300)
+        }
     }
 
     private fun finishRefreshing(hasNextPage: Boolean? = true) {
-        if (null == mRecycler) mRefresh?.finishRefreshing()
-        mRecycler?.finishRefreshing(hasNextPage.orTrue)
+        mRefresh?.finishRefreshing(!hasNextPage.orTrue)
+//        val recycler = mRecycler
+//        if (recycler == null) {
+//            mRefresh?.finishRefreshing()
+//        } else {
+//            recycler.finishRefreshing(!hasNextPage.orTrue)
+//        }
     }
 
     /**
-     * 常规发起一个网络请求
+     * 自动刷新控件浮现，记得setExtraView
      */
-    protected fun <T> launch(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>, // 请求
-        resp: (T?) -> Unit = {},                                     // 响应
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},   // 错误处理
-        end: () -> Unit = {},                                        // 最后执行方法
-        isShowToast: Boolean = true,                                 // 是否toast
-        isShowDialog: Boolean = true,                                // 是否显示加载框
-        isClose: Boolean = true                                      // 请求结束前是否关闭dialog
-    ): Job {
-        if (isShowDialog) mView?.showDialog()
-        return launch {
-            request(
-                { coroutineScope() },
-                { resp(it) },
-                { err(it) },
-                {
-                    if (isShowDialog || isClose) mView?.hideDialog()
-                    end()
-                },
-                isShowToast
-            )
-        }
-    }
-
-    protected fun <T> launchLayer(
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        resp: (ApiResponse<T>?) -> Unit = {},
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {},
-        end: () -> Unit = {},
-        isShowToast: Boolean = true,
-        isShowDialog: Boolean = true,
-        isClose: Boolean = true
-    ): Job {
-        if (isShowDialog) mView?.showDialog()
-        return launch {
-            requestLayer(
-                { coroutineScope() },
-                { resp(it) },
-                { err(it) },
-                {
-                    if (isShowDialog || isClose) mView?.hideDialog()
-                    end()
-                },
-                isShowToast
-            )
-        }
+    protected suspend fun autoRefresh() {
+        delay(mRefresh?.getAutoRefreshTime().orZero)
     }
 
     /**
-     * 不做回调，直接得到结果
-     * 在不调用await（）方法时可以当一个参数写，调用了才会发起请求并拿到结果
-     * //并发
-     * launch{
-     *   val task1 = async({ req.request(model.getUserData() })
-     *   val task2 = async({ req.request(model.getUserData() })
-     *   //单个请求主动发起，处理对象
-     *   task1.await()
-     *   task2.await()
-     *   //同时发起多个请求，list拿取对象
-     *   val taskList = awaitAll(task1, task2)
-     *   taskList.safeGet(0)
-     *   taskList.safeGet(1)
-     * }
-     * //串行
-     * launch{
-     *    val task1 = request({ model.getUserData() })
-     *    val task2 = request({ model.getUserData() })
-     * }
+     * 协程一旦启动，内部不调用cancel是会一直存在的，故而加一个管控
      */
-    protected fun <T> async(
-        req: MultiReqUtil,
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
-    ): Deferred<T?> {
-        return async(Main, LAZY) { req.request({ coroutineScope() }, err) }
-    }
-
-    protected fun <T> asyncLayer(
-        req: MultiReqUtil,
-        coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
-        err: (e: Triple<Int?, String?, Exception?>?) -> Unit = {}
-    ): Deferred<ApiResponse<T>?> {
-        return async(Main, LAZY) { req.requestLayer({ coroutineScope() }, err) }
+    protected inline fun Job.manageJob(key: String? = null) {
+        val methodName = object {}.javaClass.enclosingMethod?.name ?: "unknown"
+        val mJobKey = "${mClassName}::${if (!key.isNullOrEmpty()) key else methodName}"
+        mJobKey.logWTF("manageJob")
+        mJobManager.manageJob(this, mJobKey)
     }
 
     override fun onCleared() {
         super.onCleared()
-        weakActivity?.clear()
-        weakView?.clear()
-        weakEmpty?.clear()
-        weakRecycler?.clear()
-        weakRefresh?.clear()
+        runCatching {
+            weakActivity?.clear()
+            weakView?.clear()
+            weakEmpty?.clear()
+            weakRecycler?.clear()
+            weakRefresh?.clear()
+            weakLifecycleOwner?.clear()
+        }.onFailure { e ->
+            //处理清除 WeakReference 时的异常
+            e.printStackTrace()
+        }
     }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="订阅相关">
-    @Subscribe
-    fun onReceive(event: Event) {
-        event.onEvent()
-    }
-
     protected open fun Event.onEvent() {
     }
 
@@ -353,7 +286,12 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     // <editor-fold defaultstate="collapsed" desc="生命周期回调">
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
-        if (isEventBusEnabled()) EventBus.instance.register(this, owner.lifecycle)
+        weakLifecycleOwner = WeakReference(owner)
+        if (isEventBusEnabled()) {
+            EventBus.instance.register(owner) {
+                it.onEvent()
+            }
+        }
     }
 
     override fun onStart(owner: LifecycleOwner) {
@@ -372,10 +310,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         super.onStop(owner)
     }
 
-    override fun onDestroy(owner: LifecycleOwner) {
-        super.onDestroy(owner)
-        if (isEventBusEnabled()) EventBus.instance.unregister(this)
-    }
+//    override fun onDestroy(owner: LifecycleOwner) {
+//        super.onDestroy(owner)
+//    }
     // </editor-fold>
 
 }
@@ -392,8 +329,61 @@ fun <T> ViewModel.async(
     block: suspend CoroutineScope.() -> T
 ) = viewModelScope.async(context, start, block)
 
-fun <VM : BaseViewModel> Class<VM>.create(lifecycle: Lifecycle, owner: ViewModelStoreOwner): VM {
-    val viewModel = ViewModelProvider(owner)[this]
-    lifecycle.addObserver(viewModel)
-    return viewModel
+/**
+ * viewModel委托类
+ * private val viewModel :MarketListViewModel by viewModels()
+ */
+class ViewModelDelegate<VM : BaseViewModel>(
+    private val viewModelClass: Class<VM>,
+    private val lifecycle: Lifecycle,
+    private val owner: ViewModelStoreOwner,
+    private val activity: FragmentActivity?,
+    private val view: BaseView?
+) : ReadOnlyProperty<Any, VM> {
+
+    /**
+     * 延迟初始化 ViewModel 实例。
+     * 只有在首次访问时才会创建 ViewModel 实例，并进行必要的初始化操作。
+     */
+    private var lazyViewModel: Lazy<VM> = lazy {
+        // 创建 ViewModel 实例
+        val viewModel = ViewModelProvider(owner)[viewModelClass]
+        // 将 ViewModel 注册为生命周期观察者
+        lifecycle.addObserver(viewModel)
+        // 初始化 ViewModel
+        viewModel.initialize(activity, view)
+        viewModel
+    }
+
+    /**
+     * 获取 ViewModel 实例。
+     * 调用该方法时会触发 lazyViewModel 的初始化（如果还未初始化）。
+     */
+    override fun getValue(thisRef: Any, property: KProperty<*>): VM {
+        return lazyViewModel.value
+    }
+}
+
+inline fun <reified VM : BaseViewModel> AppCompatActivity.viewModels(lifecycle: Lifecycle = this.lifecycle, owner: ViewModelStoreOwner = this): ViewModelDelegate<VM> {
+    val view: BaseView = if (this is BaseActivity<*>) {
+        this
+    } else {
+        throw IllegalArgumentException("Unsupported Activity type: ${this::class.simpleName}")
+    }
+    return ViewModelDelegate(VM::class.java, lifecycle, owner, this, view)
+}
+
+inline fun <reified VM : BaseViewModel> Fragment.viewModels(lifecycle: Lifecycle = this.lifecycle, owner: ViewModelStoreOwner = this): ViewModelDelegate<VM> {
+    val view: BaseView = when (this) {
+        is BaseFragment<*> -> this
+        is BaseTopSheetDialogFragment<*> -> this
+        is BaseBottomSheetDialogFragment<*> -> this
+        else -> throw IllegalArgumentException("Unsupported Fragment type: ${this::class.simpleName}")
+    }
+    /**
+     * Fragment 未附加到 Activity：在 Fragment 被创建之后，但还没调用 onAttach 方法与 Activity 关联时，activity 为 null。
+     * Fragment 已从 Activity 分离：当 Fragment 调用 onDetach 方法和 Activity 分离后，activity 会变为 null。
+     * Activity 被销毁：若 Activity 被销毁，Fragment 的 activity 属性也会变成 null。
+     */
+    return ViewModelDelegate(VM::class.java, lifecycle, owner, activity, view)
 }

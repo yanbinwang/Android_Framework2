@@ -5,16 +5,15 @@ import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.common.config.Constants
 import com.example.common.event.EventCode.EVENT_PAY_CANCEL
 import com.example.common.event.EventCode.EVENT_PAY_FAILURE
 import com.example.common.event.EventCode.EVENT_PAY_SUCCESS
 import com.example.common.utils.builder.shortToast
 import com.example.thirdparty.R
+import com.example.thirdparty.utils.wechat.WXManager
 import com.tencent.mm.opensdk.modelbase.BaseReq
 import com.tencent.mm.opensdk.modelbase.BaseResp
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler
-import com.tencent.mm.opensdk.openapi.WXAPIFactory
 
 /**
  *  Created by wangyanbin
@@ -32,12 +31,12 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory
  * android:windowSoftInputMode="stateHidden|adjustPan" />
  */
 class WXPayEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
-    private val wxApi by lazy { WXAPIFactory.createWXAPI(this, Constants.WX_APP_ID) }// IWXAPI 是第三方app和微信通信的openapi接口
+    private val wxApi by lazy { WXManager.instance.regToWx(this) }// IWXAPI 是第三方app和微信通信的openapi接口
 
     override fun onCreate(savedInstanceState: Bundle?) {
         wxApi?.handleIntent(intent, this)
         super.onCreate(savedInstanceState)
-        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
+        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         } else {
@@ -47,7 +46,7 @@ class WXPayEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_in)
+        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -84,11 +83,6 @@ class WXPayEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
             1 -> EVENT_PAY_CANCEL.post()
             2 -> EVENT_PAY_FAILURE.post()
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        wxApi.unregisterApp()
     }
 
 }

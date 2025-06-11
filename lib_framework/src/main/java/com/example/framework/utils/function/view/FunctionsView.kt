@@ -4,13 +4,20 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Paint
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.view.*
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewParent
+import android.view.ViewTreeObserver
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.AlphaAnimation
@@ -21,7 +28,12 @@ import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.BaseExpandableListAdapter
+import android.widget.ExpandableListView
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.annotation.AnimRes
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
@@ -30,13 +42,22 @@ import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.core.view.isGone
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.logE
+import com.example.framework.utils.logWTF
 import com.google.android.material.appbar.AppBarLayout
+import java.util.WeakHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
 
 //------------------------------------view扩展函数类------------------------------------
@@ -92,19 +113,11 @@ fun View?.clearClick() {
 }
 
 /**
- * 判断是否可见
- */
-fun View?.isVisible(): Boolean {
-    if (this == null) return false
-    return this.visibility == View.VISIBLE
-}
-
-/**
  * 显示view
  */
 fun View?.visible() {
     if (this == null) return
-    if (visibility == View.VISIBLE) return
+    if (isVisible) return
     this.visibility = View.VISIBLE
 }
 
@@ -113,7 +126,7 @@ fun View?.visible() {
  */
 fun View?.invisible() {
     if (this == null) return
-    if (visibility == View.INVISIBLE) return
+    if (isInvisible) return
     this.visibility = View.INVISIBLE
 }
 
@@ -122,7 +135,7 @@ fun View?.invisible() {
  */
 fun View?.gone() {
     if (this == null) return
-    if (visibility == View.GONE) return
+    if (isGone) return
     this.visibility = View.GONE
 }
 
@@ -145,6 +158,24 @@ fun View?.disable() {
 }
 
 /**
+ * 是否存在
+ */
+fun View?.exist(): Boolean {
+    if (this == null) return false
+    return parent != null
+}
+
+/**
+ * 删除自身
+ */
+fun View?.removeSelf() {
+    if (this == null) return
+    if (parent != null) {
+        (parent as? ViewGroup)?.removeView(this)
+    }
+}
+
+/**
  * 获取resources中的drawable
  */
 fun View?.dimen(@DimenRes res: Int): Float {
@@ -158,19 +189,6 @@ fun View?.dimen(@DimenRes res: Int): Float {
 fun View?.background(@DrawableRes bg: Int) {
     if (this == null) return
     this.setBackgroundResource(bg)
-}
-
-/**
- * 减少本地背景文件的绘制，直接代码绘制
- * colorString 颜色字符 -> "#cf111111"
- * radius 圆角 -> 传入X.ptFloat,代码添加一个对应圆角的背景
- */
-fun View?.background(colorString: String, radius: Float) {
-    if (this == null) return
-    this.background = GradientDrawable().apply {
-        setColor(colorString.parseColor())
-        cornerRadius = radius
-    }
 }
 
 /**
@@ -300,16 +318,62 @@ var View?.layoutGravity: Int
     }
 
 /**
+ * 递归查找特定类型的父视图
+ * val nestedScrollView = myView.findParentOfType(NestedScrollView::class.java)
+ */
+fun <T : View> View.findParentOfType(clazz: Class<T>): T? {
+    var mParent: ViewParent? = parent
+    while (mParent != null) {
+        if (clazz.isInstance(mParent)) {
+            return mParent as T
+        }
+        mParent = mParent.parent
+    }
+    return null
+}
+
+/**
+ * val recyclerView: RecyclerView? = findParentOfType()
+ */
+inline fun <reified T : ViewParent> View.findParentOfType(): T? {
+    var mParent: ViewParent? = parent
+    while (mParent != null) {
+        if (mParent is T) {
+            return mParent
+        }
+        mParent = mParent.parent
+    }
+    return null
+}
+
+/**
+ * 获取view的LifecycleOwner
+ * 如果你的 View 是在一个 Fragment 或者 Activity 中使用，而这个 Fragment 或 Activity 本身实现了 LifecycleOwner 接口
+ * （在 AndroidX 中，Fragment 和 Activity 都默认实现了 LifecycleOwner 接口），那么你可以将 view.context 强制转换为 LifecycleOwner。
+ * 但如果 View 的 context 是一个普通的 Context，比如是一个 Application 上下文，那么这种转换就会失败，因为 Application 通常没有实现 LifecycleOwner 接口。
+ * ViewTreeLifecycleOwner 是 AndroidX 提供的更可靠的方式，它会从 View 树中查找最近的 LifecycleOwner
+ */
+fun View?.getLifecycleOwner(): LifecycleOwner? {
+    return this?.findViewTreeLifecycleOwner()
+}
+
+/**
  * 在layout完毕之后进行计算处理
  */
 inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
     if (this == null) return
-    viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-        override fun onGlobalLayout() {
-            viewTreeObserver.removeOnGlobalLayoutListener(this)
-            listener(this@doOnceAfterLayout)
-        }
-    })
+    if (isLaidOut) {
+        // 如果视图已经完成布局，直接调用回调函数
+        listener(this)
+    } else {
+        // 如果视图还未完成布局，添加监听器
+        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
+                listener(this@doOnceAfterLayout)
+            }
+        })
+    }
 }
 
 /**
@@ -360,7 +424,7 @@ fun View?.vibrate(milliseconds: Long) {
  */
 fun View?.fade(time: Long = 500, cancelAnim: Boolean = true) {
     if (this == null) return
-    if (!this.isVisible()) return
+    if (!this.isVisible) return
     if (time <= 0) {
         gone()
         return
@@ -419,7 +483,7 @@ fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)?
  */
 fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
     if (this == null) return
-    if (this.isVisible()) return
+    if (this.isVisible) return
     if (time <= 0) {
         visible()
         return
@@ -447,6 +511,25 @@ fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
 }
 
 /**
+ * 展开页面按钮的动画，传入是否是展开状态
+ */
+fun View?.rotate(default: Boolean = true): Boolean {
+    if (this == null) return false
+    if (animation != null) {
+        if (animation.hasStarted() && !animation.hasEnded()) return false
+    }
+    val isRotate = tag as? Boolean ?: default
+    val startRot = if (isRotate) 180f else 0f
+    val endRot = if (isRotate) 0f else 180f
+    tag = !isRotate
+    val anim = AnimatorSet()
+    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
+    anim.duration = 500
+    anim.start()
+    return isRotate
+}
+
+/**
  * 旋轉
  */
 fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
@@ -462,23 +545,6 @@ fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
     anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f))
     anim.duration = time
     anim.start()
-}
-
-/**
- * 展开页面按钮的动画，传入是否是展开状态
- */
-fun View?.rotate(isOpen: Boolean = false): Boolean {
-    if (this == null) return isOpen
-    if (animation != null) {
-        if (animation.hasStarted() && !animation.hasEnded()) return isOpen
-    }
-    val startRot = if (isOpen) 180f else 0f
-    val endRot = if (isOpen) 0f else 180f
-    val anim = AnimatorSet()
-    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
-    anim.duration = 500
-    anim.start()
-    return !isOpen
 }
 
 /**
@@ -499,7 +565,7 @@ fun View?.rotate(from: Float, to: Float, timeMS: Long, interpolator: Interpolato
  * 移动
  * @param type Animation.ABSOLUTE, Animation.RELATIVE_TO_SELF, or Animation.RELATIVE_TO_PARENT.
  */
-fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long, fillAfter: Boolean = true, onStart: (() -> Unit)? = null, onEnd: (() -> Unit)? = null, type: Int = Animation.RELATIVE_TO_SELF, interpolator: Interpolator = LinearInterpolator(), ) {
+fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long, fillAfter: Boolean = true, onStart: (() -> Unit)? = null, onEnd: (() -> Unit)? = null, type: Int = Animation.RELATIVE_TO_SELF, interpolator: Interpolator = LinearInterpolator()) {
     this ?: return
     animation?.setAnimationListener(null)
     animation?.cancel()
@@ -620,15 +686,6 @@ fun View?.stopHardwareAccelerate() {
     setLayerType(View.LAYER_TYPE_SOFTWARE, Paint())
 }
 
-///**
-// * 在viewgroup中插入一个xml引用的view，需设置这个view的root目录撑满
-// * 可调用该方法
-// */
-//fun View?.layoutParamsMatch() {
-//    if (this == null) return
-//    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
-//}
-
 /**
  * 控件获取焦点
  */
@@ -640,18 +697,38 @@ fun View?.focus() {
     findFocus() //获取焦点
 }
 
+///**
+// * 控件获取默认值
+// * trim { it <= ' ' }//避免某些特殊空格字符的被切除掉
+// */
+//fun View?.text(): String {
+//    return when (this) {
+//        is EditText -> text.toString().trim { it <= ' ' }
+//        is TextView -> text.toString().trim { it <= ' ' }
+//        is CheckBox -> text.toString().trim { it <= ' ' }
+//        is RadioButton -> text.toString().trim { it <= ' ' }
+//        is Button -> text.toString().trim { it <= ' ' }
+//        else -> ""
+//    }
+//}
 /**
- * 控件获取默认值
- * trim { it <= ' ' }//避免某些特殊空格字符的被切除掉
+ * 获取View的文本内容并进行自定义trim处理
+ * @param trimPredicate 自定义trim规则，默认移除所有Unicode空白字符
+ * @param defaultValue 当View为空或文本为空时的默认值
+ * @return 处理后的文本内容
+ *
+ * // 获取EditText文本，默认空字符串
+ * val text = editText.text()
+ * // 自定义trim规则，保留换行符
+ * val customTrimmed = textView.text { !it.isWhitespace() || it == '\n' }
+ * // 设置默认值
+ * val safeText = nullableTextView.text(defaultValue = "N/A")
  */
-fun View?.text(): String {
+fun View?.text(trimPredicate: (Char) -> Boolean = { it.isWhitespace() }, defaultValue: String = ""): String {
     return when (this) {
-        is EditText -> text.toString().trim { it <= ' ' }
-        is TextView -> text.toString().trim { it <= ' ' }
-        is CheckBox -> text.toString().trim { it <= ' ' }
-        is RadioButton -> text.toString().trim { it <= ' ' }
-        is Button -> text.toString().trim { it <= ' ' }
-        else -> ""
+        null -> defaultValue
+        is TextView -> text.toString().trim(trimPredicate).ifEmpty { defaultValue }
+        else -> defaultValue
     }
 }
 
@@ -733,6 +810,8 @@ fun ImageView?.tint(@ColorRes res: Int) {
 
 /**
  * 图片src资源
+ * setImageResource()里面是int类型 无法使用setImageResource来清空图片,不过Bitmap可以设置为nul从而达到设置为空的效果
+ * 设置setImageDrawable(null)
  */
 fun ImageView?.setDrawable(resId: Drawable?) {
     this ?: return
@@ -741,6 +820,8 @@ fun ImageView?.setDrawable(resId: Drawable?) {
 
 fun ImageView?.setResource(@DrawableRes resId: Int) {
     this ?: return
+    //‌调用setImageResource(0)会导致ImageView显示一个默认的占位符图片，而不是显示任何有效的图像资源‌
+    //-1则会闪退报错
     setImageResource(resId)
 }
 
@@ -753,6 +834,41 @@ fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
 }
 
 /**
+ * 设置一个新的bitmap
+ */
+//用于存储每个 ImageView 的订阅状态
+private val subscriptionMap by lazy { WeakHashMap<ImageView, AtomicBoolean>() }
+
+fun ImageView?.setBitmap(observer: LifecycleOwner, bit: Bitmap?) {
+    if (this == null || bit == null) return
+    //检查是否已经订阅过
+    val isSubscribed = subscriptionMap.getOrPut(this) { AtomicBoolean(false) }
+    if (!isSubscribed.getAndSet(true)) {
+        observer.doOnDestroy {
+            recycle()
+            //移除订阅状态标记
+            subscriptionMap.remove(this)
+        }
+    }
+    recycle()
+    setImageBitmap(bit)
+}
+
+/**
+ * imageview回收
+ */
+fun ImageView?.recycle() {
+    this ?: return
+    val mDrawable = this.drawable
+    if (mDrawable is BitmapDrawable) {
+        val bitmap = mDrawable.bitmap
+        if (!bitmap.isRecycled) {
+            bitmap.recycle()
+        }
+    }
+}
+
+/**
  * appbar监听
  */
 fun AppBarLayout?.stateChanged(func: (state: AppBarStateChangeListener.State?) -> Unit?) {
@@ -762,6 +878,16 @@ fun AppBarLayout?.stateChanged(func: (state: AppBarStateChangeListener.State?) -
             func.invoke(state)
         }
     })
+}
+
+/**
+ * 可折叠list初始化
+ */
+fun ExpandableListView?.init(adapter: BaseExpandableListAdapter) {
+    this ?: return
+    setGroupIndicator(null)//去除右侧箭头
+    setOnGroupClickListener { _, _, _, _ -> true }//使列表不能点击收缩
+    setAdapter(adapter)
 }
 
 /**
@@ -790,4 +916,89 @@ abstract class AppBarStateChangeListener : AppBarLayout.OnOffsetChangedListener 
 
     abstract fun onStateChanged(appBarLayout: AppBarLayout?, state: State?)
 
+}
+
+/**
+ * 假设你有一个 TextView 的 ID 为 R.id.textView，需要设置：
+ * start_toStartOf="parent"
+ * end_toEndOf="parent"
+ * top_toTopOf="parent"
+ * // 创建 ConstraintSet 对象
+ * val constraintSet = ConstraintSet()
+ * // 克隆当前布局的约束
+ * constraintSet.clone(mBinding?.clRoot)
+ * constraintSet.apply {
+ *     textViewId.startToStartOf() // 默认目标为父布局
+ *     textViewId.endToEndOf()
+ *     textViewId.topToTopOf()
+ *     // 如需指定非父布局的目标视图，传入目标 ID 即可：
+ *     // textViewId.startToStartOf(targetId = R.id.anotherView)
+ * }
+ * constraintSet.applyTo(mBinding?.clRoot)
+ */
+fun ConstraintLayout?.applyConstraints(block: ConstraintSet.() -> Unit) {
+    this ?: return
+    val constraintSet = ConstraintSet()
+    constraintSet.clone(this)
+    constraintSet.block()
+    constraintSet.applyTo(this)
+}
+
+fun ConstraintSet.startToStartOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
+    if (!isValidIds(viewId, targetId, "startToStartOf")) return
+    connect(viewId, ConstraintSet.START, targetId, ConstraintSet.START, margin)
+}
+
+fun ConstraintSet.startToEndOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
+    if (!isValidIds(viewId, targetId, "startToEndOf")) return
+    connect(viewId, ConstraintSet.START, targetId, ConstraintSet.END, margin)
+}
+
+fun ConstraintSet.endToEndOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
+    if (!isValidIds(viewId, targetId, "endToEndOf")) return
+    connect(viewId, ConstraintSet.END, targetId, ConstraintSet.END, margin)
+}
+
+fun ConstraintSet.endToStartOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
+    if (!isValidIds(viewId, targetId, "endToStartOf")) return
+    connect(viewId, ConstraintSet.END, targetId, ConstraintSet.START, margin)
+}
+
+fun ConstraintSet.topToTopOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
+    if (!isValidIds(viewId, targetId, "topToTopOf")) return
+    connect(viewId, ConstraintSet.TOP, targetId, ConstraintSet.TOP, margin)
+}
+
+fun ConstraintSet.bottomToBottomOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
+    if (!isValidIds(viewId, targetId, "bottomToBottomOf")) return
+    connect(viewId, ConstraintSet.BOTTOM, targetId, ConstraintSet.BOTTOM, margin)
+}
+
+fun ConstraintSet.center(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID) {
+    if (!isValidIds(viewId, targetId, "center")) return
+    startToStartOf(viewId, targetId)
+    topToTopOf(viewId, targetId)
+    endToEndOf(viewId, targetId)
+    bottomToBottomOf(viewId, targetId)
+}
+
+fun ConstraintSet.centerHorizontally(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID) {
+    if (!isValidIds(viewId, targetId, "centerHorizontally")) return
+    startToStartOf(viewId, targetId)
+    endToEndOf(viewId, targetId)
+}
+
+fun ConstraintSet.centerVertically(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID) {
+    if (!isValidIds(viewId, targetId, "centerVertically")) return
+    topToTopOf(viewId, targetId)
+    bottomToBottomOf(viewId, targetId)
+}
+
+// 封装检查 viewId 和 targetId 是否有效的函数
+private fun isValidIds(viewId: Int, targetId: Int, methodName: String): Boolean {
+    if (viewId == ConstraintSet.UNSET || targetId == ConstraintSet.UNSET) {
+        "Invalid view ID provided for $methodName. viewId: $viewId, targetId: $targetId".logWTF
+        return false
+    }
+    return true
 }

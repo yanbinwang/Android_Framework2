@@ -3,12 +3,11 @@ package com.example.common.widget.advertising
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.GradientDrawable.OVAL
 import android.os.Looper
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.lifecycle.Lifecycle
@@ -19,8 +18,8 @@ import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.common.utils.function.pt
 import com.example.framework.utils.WeakHandler
+import com.example.framework.utils.function.value.createOvalDrawable
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.doOnceAfterLayout
@@ -77,7 +76,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     //是否自动滚动
     private var autoScroll = true
     //3个资源路径->圆点选中时的背景ID second：圆点未选中时的背景ID third：圆点间距 （圆点容器可为空写0）
-    private var triple = Triple(drawable("#3d81f2"), drawable("#6e7ce2"), 10)
+    private var triple = Triple(createOvalDrawable("#3d81f2"), createOvalDrawable("#6e7ce2"), 10)
     //自动滚动的定时器
     private var timer: Timer? = null
     //广告容器
@@ -90,6 +89,30 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private val advAdapter by lazy { AdvertisingAdapter() }
     //切线程
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+    //注册广告监听
+    private val callback by lazy { object : OnPageChangeCallback() {
+        private var curIndex = 0//当前选中的数组索引
+        private var oldIndex = 0//上次选中的数组索引
+        override fun onPageSelected(position: Int) {
+            super.onPageSelected(position)
+            //切换圆点
+            curIndex = position % list.size
+            if (null != ovalLayout) {
+                if (list.size > 1) {
+                    ovalLayout?.getChildAt(oldIndex)?.background = triple.second
+                    ovalLayout?.getChildAt(curIndex)?.background = triple.first
+                    oldIndex = curIndex
+                }
+            }
+            //切换
+            onPagerCurrent?.invoke(curIndex)
+        }
+
+        override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+            super.onPageScrolled(position, positionOffset, positionOffsetPixels)
+            allowScroll = positionOffsetPixels == 0
+        }
+    }}
     //回调方法
     private var onPagerClick: ((index: Int) -> Unit)? = null
     private var onPagerCurrent: ((index: Int) -> Unit)? = null
@@ -99,31 +122,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     init {
         banner = ViewPager2(context).apply {
+            size(MATCH_PARENT, MATCH_PARENT)
             reduceSensitivity()
-            adapter(advAdapter, userInputEnabled = true)
-            registerOnPageChangeCallback(object : OnPageChangeCallback() {
-                private var curIndex = 0//当前选中的数组索引
-                private var oldIndex = 0//上次选中的数组索引
-                override fun onPageSelected(position: Int) {
-                    super.onPageSelected(position)
-                    //切换圆点
-                    curIndex = position % list.size
-                    if (null != ovalLayout) {
-                        if (list.size > 1) {
-                            ovalLayout?.getChildAt(oldIndex)?.background = triple.second
-                            ovalLayout?.getChildAt(curIndex)?.background = triple.first
-                            oldIndex = curIndex
-                        }
-                    }
-                    //切换
-                    onPagerCurrent?.invoke(curIndex)
-                }
-
-                override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-                    super.onPageScrolled(position, positionOffset, positionOffsetPixels)
-                    allowScroll = positionOffsetPixels == 0
-                }
-            })
+            adapter(advAdapter)
+            registerOnPageChangeCallback(callback)
 //            setOnTouchListener { _, event ->
 //                when (event?.action) {
 //                    MotionEvent.ACTION_UP -> if (autoScroll) startRoll()
@@ -139,6 +141,11 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         if (isInflate) addView(banner)
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        lifecycleOwner?.lifecycle?.addObserver(this)
+    }
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         stopRoll()
@@ -149,7 +156,11 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         when (event) {
             Lifecycle.Event.ON_RESUME -> startRoll()
             Lifecycle.Event.ON_PAUSE -> stopRoll()
-            Lifecycle.Event.ON_DESTROY -> source.lifecycle.removeObserver(this)
+            Lifecycle.Event.ON_DESTROY -> {
+                weakHandler.removeCallbacksAndMessages(null)
+                banner?.unregisterOnPageChangeCallback(callback)
+                source.lifecycle.removeObserver(this)
+            }
             else -> {}
         }
     }
@@ -200,7 +211,9 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
         //设置图片数据
         advAdapter.refresh(list)
-        advAdapter.setOnItemClickListener { onPagerClick?.invoke(it) }
+        advAdapter.setOnItemClickListener {
+            onPagerClick?.invoke(it)
+        }
         //设置默认选中的起始位置
         banner?.setCurrentItem(if (list.safeSize > 1) absolutePosition else 0, false)
     }
@@ -221,16 +234,6 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     override fun setPageTransformer(marginPx: Int) {
         banner?.setPageTransformer(MarginPageTransformer(marginPx.pt))
-    }
-
-    /**
-     * 默认图片资源
-     */
-    private fun drawable(colorString:String): Drawable {
-        return GradientDrawable().apply {
-            shape = OVAL
-            setColor(colorString.parseColor())
-        }
     }
 
     /**
@@ -269,13 +272,13 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
     }
 
-    /**
-     * 绑定对应页面的生命周期-》对应回调重写对应方法
-     * @param observer
-     */
-    fun addObserver(observer: LifecycleOwner) {
-        observer.lifecycle.addObserver(this)
-    }
+//    /**
+//     * 绑定对应页面的生命周期-》对应回调重写对应方法
+//     * @param observer
+//     */
+//    fun addObserver(observer: LifecycleOwner) {
+//        observer.lifecycle.addObserver(this)
+//    }
 
     /**
      * 设置广告监听

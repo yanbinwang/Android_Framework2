@@ -114,6 +114,7 @@ private class XWebViewClient(val onPageStarted: () -> Unit, val onPageFinished: 
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
         return shouldOverrideUrlLoading(view, url.toUri(), url)
     }
@@ -173,14 +174,14 @@ private class XWebViewClient(val onPageStarted: () -> Unit, val onPageFinished: 
 
 }
 
-private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, val webChangedListener: OnWebChangedListener?, ) : WebChromeClient() {
+private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, val listener: OnWebChangedListener?) : WebChromeClient() {
     private val runnable = Runnable {
         loading.get()?.fade(200)
         loading.get()?.progress = 0
     }
 
     override fun onProgressChanged(view: WebView, newProgress: Int) {
-        webChangedListener?.onProgressChanged(newProgress)
+        listener?.onProgressChanged(newProgress)
         if (!view.loadFinished) {
             loading.get().visible()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -207,11 +208,11 @@ private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, 
     }
 
     override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
-        webChangedListener?.onShowCustomView(view, callback)
+        listener?.onShowCustomView(view, callback)
     }
 
     override fun onHideCustomView() {
-        webChangedListener?.onHideCustomView()
+        listener?.onHideCustomView()
     }
 }
 

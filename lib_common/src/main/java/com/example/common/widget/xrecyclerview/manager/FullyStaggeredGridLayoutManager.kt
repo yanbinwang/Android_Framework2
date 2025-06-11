@@ -11,7 +11,7 @@ import com.example.framework.utils.function.value.orZero
  * author: wyb
  * date: 2017/9/5.
  */
-class FullyStaggeredGridLayoutManager(spanCount: Int = 0, orientation: Int = 0) : StaggeredGridLayoutManager(spanCount, orientation) {
+class FullyStaggeredGridLayoutManager(spanCount: Int, orientation: Int) : StaggeredGridLayoutManager(spanCount, orientation) {
     //尺寸的数组，[0]是宽，[1]是高
     private val measuredDimension by lazy { IntArray(2) }
 
@@ -47,11 +47,13 @@ class FullyStaggeredGridLayoutManager(spanCount: Int = 0, orientation: Int = 0) 
             width = findMax(dimension)
         }
         when (widthMode) {
+            // 当控件宽是match_parent时，宽度就是父控件的宽度
             View.MeasureSpec.EXACTLY -> width = widthSize
             View.MeasureSpec.AT_MOST -> {}
             View.MeasureSpec.UNSPECIFIED -> {}
         }
         when (heightMode) {
+            // 当控件高是match_parent时，高度就是父控件的高度
             View.MeasureSpec.EXACTLY -> height = heightSize
             View.MeasureSpec.AT_MOST -> {}
             View.MeasureSpec.UNSPECIFIED -> {}
@@ -64,7 +66,8 @@ class FullyStaggeredGridLayoutManager(spanCount: Int = 0, orientation: Int = 0) 
         // 挨个遍历所有item
         if (position < itemCount) {
             try {
-                val view = recycler.getViewForPosition(position) //fix 动态添加时报IndexOutOfBoundsException
+                //fix 动态添加时报IndexOutOfBoundsException
+                val view = recycler.getViewForPosition(position)
                 val lp = view.layoutParams as? RecyclerView.LayoutParams
                 val childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec, paddingLeft + paddingRight, lp?.width.orZero)
                 val childHeightSpec = ViewGroup.getChildMeasureSpec(heightSpec, paddingTop + paddingBottom, lp?.height.orZero)
@@ -74,7 +77,8 @@ class FullyStaggeredGridLayoutManager(spanCount: Int = 0, orientation: Int = 0) 
                 measuredDimension[0] = view.measuredWidth + lp?.leftMargin.orZero + lp?.rightMargin.orZero
                 measuredDimension[1] = view.measuredHeight + lp?.topMargin.orZero + lp?.bottomMargin.orZero
                 recycler.recycleView(view)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -82,7 +86,9 @@ class FullyStaggeredGridLayoutManager(spanCount: Int = 0, orientation: Int = 0) 
     private fun findMax(array: IntArray): Int {
         var max = array[0]
         for (value in array) {
-            if (value > max) max = value
+            if (value > max) {
+                max = value
+            }
         }
         return max
     }

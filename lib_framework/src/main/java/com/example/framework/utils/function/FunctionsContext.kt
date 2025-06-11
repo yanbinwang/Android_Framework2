@@ -5,10 +5,12 @@ import android.app.Activity
 import android.app.ActivityManager
 import android.app.Application
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -29,13 +31,16 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleService
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeLong
 import java.io.Serializable
+import java.util.WeakHashMap
 
 
 //------------------------------------context扩展函数类------------------------------------
@@ -66,47 +71,37 @@ fun Context.dimen(@DimenRes res: Int) = resources.getDimension(res)
 fun Context.string(@StringRes res: Int): String {
     return try {
         resources.getString(res)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         ""
+    }
+}
+
+/**
+ * 获取资源文件id
+ */
+fun Context.defTypeId(name: String, defType: String): Int {
+    return try {
+        resources.getIdentifier(name, defType, packageName)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0
     }
 }
 
 /**
  * 通过字符串获取drawable下的xml文件
  */
-@SuppressLint("DiscouragedApi")
-//fun Context.defTypeDrawable(name: String): Int {
-//    return try {
-//        resources.getIdentifier(name, "drawable", packageName)
-//    } catch (_: Exception) {
-//        0
-//    }
-//}
 fun Context.defTypeDrawable(name: String): Drawable? {
-    return drawable(try {
-        resources.getIdentifier(name, "drawable", packageName)
-    } catch (_: Exception) {
-        0
-    })
+    return drawable(defTypeId(name, "drawable"))
 }
+
 
 /**
  * 通过字符串获取mipmap下的图片文件
  */
-@SuppressLint("DiscouragedApi")
-//fun Context.defTypeMipmap(name: String): Int {
-//    return try {
-//        resources.getIdentifier(name, "mipmap", packageName)
-//    } catch (_: Exception) {
-//        0
-//    }
-//}
 fun Context.defTypeMipmap(name: String): Drawable? {
-    return drawable(try {
-        resources.getIdentifier(name, "mipmap", packageName)
-    } catch (_: Exception) {
-        0
-    })
+    return drawable(defTypeId(name, "mipmap"))
 }
 
 /**
@@ -154,7 +149,8 @@ fun Context.sampleMemory(): Long {
                 memory = totalPss.toSafeLong()
             }
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     return memory * 1024
 }
@@ -198,6 +194,40 @@ fun Context.startForegroundService(cls: Class<out Service>, vararg pairs: Pair<S
  */
 fun Context.stopService(cls: Class<out Service>) {
     stopService(getIntent(cls))
+}
+
+/**
+ * 检测服务是否正在运行
+ */
+val serviceStateMap by lazy { WeakHashMap<Class<*>, Boolean>() }// 服务状态跟踪器（使用 WeakHashMap 避免内存泄漏）
+
+fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
+    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+    // 1. 检查自维护的服务状态
+    val isServiceMarkedRunning = serviceStateMap[serviceClass] ?: false
+    // 2. 检查应用进程是否存活（避免进程被杀后状态未更新）
+    val isProcessAlive = activityManager?.runningAppProcesses?.any { processInfo ->
+        processInfo.uid == applicationInfo.uid &&
+                processInfo.processName == packageName &&
+                processInfo.importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
+    } ?: false
+    return isServiceMarkedRunning && isProcessAlive
+}
+
+/**
+ * 扩展 LifecycleService 自动管理状态,让服务继承 TrackableLifecycleService
+ */
+abstract class TrackableLifecycleService : LifecycleService() {
+    override fun onCreate() {
+        super.onCreate()
+        serviceStateMap[this::class.java] = true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+//        serviceStateMap[this::class.java] = false
+        serviceStateMap.remove(this::class.java)
+    }
 }
 
 /**
@@ -284,6 +314,33 @@ fun <T : Serializable> Fragment.intentSerializable(key: String) = arguments?.get
 //fun <T : Serializable> Fragment.intentSerializable(key: String, default: T) = arguments?.getSerializable(key) as? T ?: default
 
 fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParcelable(key) as? T
+
+/**
+ * 页面广播-》（Context.RECEIVER_EXPORTED 表示可以接收应用外部广播，Context.RECEIVER_NOT_EXPORTED 应用内部广播(否则安卓14报错)）
+ * mActivity.doOnReceiver(receiver, IntentFilter().apply {
+ * addAction(RECEIVER_USB)
+ * addAction(RECEIVER_USB_ATTACHED)
+ * addAction(RECEIVER_USB_DETACHED)
+ * })
+ */
+@SuppressLint("UnspecifiedRegisterReceiverFlag")
+fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, intentFilter: IntentFilter) {
+    this ?: return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        registerReceiver(receiver, intentFilter, Context.RECEIVER_EXPORTED)
+    } else {
+        registerReceiver(receiver, intentFilter)
+    }
+    owner.doOnDestroy {
+        try {
+            unregisterReceiver(receiver)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+}
+
+fun FragmentActivity?.doOnReceiver(receiver: BroadcastReceiver, intentFilter: IntentFilter) = doOnReceiver(this, receiver, intentFilter)
 
 /**
  * 可在协程类里传入AppComActivity，然后init{}方法里调取，销毁内部的job

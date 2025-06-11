@@ -8,38 +8,88 @@ import com.google.android.material.tabs.TabLayoutMediator
 
 //------------------------------------viewpager2扩展函数类------------------------------------
 /**
- * ViewPager2隐藏fadingEdge
- */
-fun ViewPager2?.hideFadingEdge() {
-    if (this == null) return
-    try {
-        getRecyclerView()?.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
-    } catch (ignore: Exception) {
-    }
-}
-
-/**
  * ViewPager2获取内部RecyclerView
  */
 fun ViewPager2?.getRecyclerView(): RecyclerView? {
     if (this == null) return null
     return try {
         (getChildAt(0) as? RecyclerView)
-    } catch (ignore: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         null
     }
 }
 
 /**
- * 设置适配器扩展
+ * ViewPager2隐藏fadingEdge
  */
-fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = false, pageLimit: Boolean = true) {
+fun ViewPager2?.hideFadingEdge() {
     if (this == null) return
-    hideFadingEdge()
-    setAdapter(adapter)
-    setOrientation(orientation)
-    if(pageLimit) offscreenPageLimit = adapter.itemCount  - 1//预加载数量
-    isUserInputEnabled = userInputEnabled //禁止左右滑动
+    try {
+        getRecyclerView()?.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+/**
+ * 降低ViewPager2灵敏度
+ * @param multiplier 灵敏度倍数，默认为 3
+ */
+fun ViewPager2?.reduceSensitivity(multiplier: Int = 3) {
+    try {
+        val recyclerView = getRecyclerView()
+        val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
+        touchSlopField.isAccessible = true
+        val touchSlop = touchSlopField.get(recyclerView) as? Int
+        touchSlopField.set(recyclerView, touchSlop.orZero * multiplier)
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+/**
+ * 选中某页
+ * class EvidencePageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) : FragmentStateAdapter(fragmentManager, lifecycle) {
+ *     private val buffer by lazy { ConcurrentHashMap<Int, Fragment>() }//存储声明的fragment
+ *
+ *     init {
+ *         lifecycle.doOnDestroy {
+ *             buffer.clear()
+ *         }
+ *     }
+ *
+ *     override fun getItemCount() = 6
+ *
+ *     override fun createFragment(position: Int): Fragment {
+ *         val fragment = when (position) {
+ *             0 -> EvidenceExtraFragment()
+ *             else -> EvidenceListFragment().apply { arguments = Bundle().apply { putString(Extra.ID, (position - 1).toString()) } }
+ *         }
+ *         buffer[position] = fragment
+ *         return fragment
+ *     }
+ *
+ *     /**
+ *      * 获取对应的fragment
+ *      * 存在获取不到的情况(直接从0选择2,3的页面，然后获取1，本身并未添加进map，拿到的就是null)
+ *      */
+ *     fun <T : Fragment> getFragment(index: Int): T? {
+ *         return buffer[index] as? T
+ *     }
+ *
+ * }
+ */
+fun ViewPager2?.setCurrent(item: Int, smoothScroll: Boolean = true) {
+    this ?: return
+    val itemCount = adapter?.itemCount.orZero
+    if (item in 0 until itemCount && item != currentItem) {
+        try {
+            setCurrentItem(item, smoothScroll)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 }
 
 /**
@@ -65,17 +115,30 @@ fun ViewPager2?.prevPage(isSmooth: Boolean = true) {
 }
 
 /**
- * 降低ViewPager2灵敏度
+ * 设置适配器扩展
  */
-fun ViewPager2?.reduceSensitivity() {
-    try {
-        val recyclerView = getRecyclerView()
-        val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
-        touchSlopField.isAccessible = true
-        val touchSlop = touchSlopField.get(recyclerView) as? Int
-        touchSlopField.set(recyclerView, touchSlop.orZero * 3)
-    } catch (ignore: Exception) {
-    }
+fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false) {
+    if (this == null) return
+    hideFadingEdge()
+    setAdapter(adapter)
+    setOrientation(orientation)
+    /**
+     * offscreenPageLimit默认值-1，系统会根据屏幕布局和可见区域自动计算可保留的页面数量
+     * 如果页面宽度与屏幕宽度一致，则仅保留当前页面，如果页面宽度小于屏幕宽度（如横向滑动的分屏布局），则可能保留多个页面
+     *
+     * offscreenPageLimit = -1 的实际逻辑：
+     * ViewPager2 会根据屏幕布局和页面尺寸动态计算可保留的页面数。通常情况下：
+     * 单列布局（每个页面占满屏幕宽度）：系统会自动将 offscreenPageLimit 视为 1，即保留当前页面和相邻的一个页面（如果存在）。
+     * 多列布局（页面宽度小于屏幕宽度）：可能保留更多页面以支持横向滚动。
+     *
+     * 1）目前已经不能被设为0，因为源码里规定如果要传值必须大于0，切默认配置是关闭，不会预加载，且fragment最好继承BaseLazyFragment，保证请求也滞后执行
+     * 2）不开启的情况下就是只加载当前页，开启的情况下，有多少子页面就预加载多少，推荐fragment继承BaseLazyFragment，保证请求滞后执行，节省一部分内存
+     * 3）不开启的情况下，如果使用EvenBus刷新子页面，需要获取Fragment的isAdded和对应参数来判断是否发起网络请求，开启的情况下，isAdded无需书写
+     */
+    val limitCount = adapter.itemCount - 1
+    if (pageLimit) offscreenPageLimit = if (limitCount <= 0) 1 else limitCount
+    //false 可以禁止用户通过手势左右滑动页面，但页面仍可通过代码控制
+    isUserInputEnabled = userInputEnabled
 }
 
 /**

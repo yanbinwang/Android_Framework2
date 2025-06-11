@@ -39,19 +39,21 @@ class PermissionHelper(private val context: Context) {
             XXPermissions.with(context)
                 .permission(*groups)
                 .request(object : OnPermissionCallback {
-                    override fun onGranted(permissions: MutableList<String>?, all: Boolean) {
-                        //all->标记是否是获取部分权限成功，部分未正常授予，true全拿，false部分拿到
-                        listener.invoke(all)
+                    override fun onGranted(permissions: MutableList<String>, allGranted: Boolean) {
+                        //allGranted->标记是否是获取部分权限成功，部分未正常授予，true全拿，false部分拿到
+                        listener.invoke(allGranted)
                     }
 
-                    override fun onDenied(permissions: MutableList<String>?, never: Boolean) {
-                        super.onDenied(permissions, never)
-                        //never->被永久拒绝授权，请手动授予
+                    override fun onDenied(permissions: MutableList<String>, doNotAskAgain: Boolean) {
+                        super.onDenied(permissions, doNotAskAgain)
+                        //doNotAskAgain->被永久拒绝授权，请手动授予
                         listener.invoke(false)
                         if (force) onDenied(permissions)
                     }
                 })
-        } else listener.invoke(true)
+        } else {
+            listener.invoke(true)
+        }
     }
 
     /**

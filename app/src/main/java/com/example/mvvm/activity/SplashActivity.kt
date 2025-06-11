@@ -2,12 +2,14 @@ package com.example.mvvm.activity
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.databinding.ViewDataBinding
+import android.os.SystemClock
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.example.common.BaseApplication.Companion.lastClickTime
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
-import com.example.common.utils.fullScreen
-import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
+import com.example.common.utils.applyFullScreen
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.jessyan.autosize.internal.CancelAdapt
 
 /**
@@ -25,25 +27,56 @@ import me.jessyan.autosize.internal.CancelAdapt
  *  activity.finish()
  *  }
  *  进入登录页或者首页的背景如果不是纯白色，可以继承TransitionTheme自己写一个对应颜色的样式
+ *
+ *  SystemClock.elapsedRealtime() 是 Android 系统中 SystemClock 类提供的一个方法。
+ *  它返回的是自系统启动开始到调用该方法时所经过的时间，包含了系统处于睡眠状态的时间。也就是说，从设备开机（包括关机充电等情况）起，
+ *  不管设备是处于正常运行、休眠还是其他状态，这个时间都会持续累加。该方法返回的时间单位是毫秒（ms
  */
 @Route(path = ARouterPath.SplashActivity)
-class SplashActivity : BaseActivity<ViewDataBinding>(), CancelAdapt {
+class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
 
     override fun isImmersionBarEnabled() = false
+
+    override fun isBindingEnabled() = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (!isTaskRoot
             && intent.hasCategory(Intent.CATEGORY_LAUNCHER)
             && intent.action != null
-            && intent.action == Intent.ACTION_MAIN) {
+            && intent.action == Intent.ACTION_MAIN
+        ) {
             finish()
             return
         }
-        window.fullScreen()
+        window.applyFullScreen()
         super.onCreate(savedInstanceState)
-        schedule({
-            navigation(ARouterPath.MainActivity).finish()
-        }, 2000)
+        //当前Activity不是任务栈的根，可能是通过其他Activity启动的
+        if (!isTaskRoot) {
+            jump()
+        } else {
+            //当前Activity是任务栈的根，执行相应逻辑
+            initSplash()
+        }
+    }
+
+    private fun initSplash() {
+        launch {
+            val SPLASH_DELAY = 2000L
+            // 计算已经过去的时间
+            val elapsedTime = SystemClock.elapsedRealtime() - lastClickTime
+            // 计算还需要等待的时间
+            val remainingTime = if (SPLASH_DELAY - elapsedTime < 0) {
+                0
+            } else {
+                SPLASH_DELAY - elapsedTime
+            }
+            delay(remainingTime)
+            jump()
+        }
+    }
+
+    private fun jump() {
+        navigation(ARouterPath.MainActivity)?.finish()
     }
 
 }

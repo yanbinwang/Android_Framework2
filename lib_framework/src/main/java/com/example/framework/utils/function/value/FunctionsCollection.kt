@@ -41,7 +41,20 @@ fun <T : MutableList<K>, K> T?.safeSet(position: Int, value: K) {
     this ?: return
     if (position in indices) try {
         set(position, value)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+/**
+ * 设置最后一个item的值，报错不处理
+ */
+fun <T> MutableList<T>?.safeSetLast(t: T) {
+    if (isNullOrEmpty()) return
+    try {
+        this[lastIndex] = t
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
@@ -84,18 +97,6 @@ fun <T> List<T>?.safeLast(): T? {
 }
 
 /**
- * 设置最后一个item的值，报错不处理
- */
-fun <T> MutableList<T>?.setSafeLast(t: T) {
-    if (isNullOrEmpty()) return
-    try {
-        this[lastIndex] = t
-    } catch (e: Exception) {
-        null
-    }
-}
-
-/**
  * 将旧list转换为新list
  */
 fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
@@ -109,16 +110,10 @@ fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     return list
 }
 
-/**
- * 将旧list转换为新list
- */
 fun <T, K> ArrayList<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     return (this as? List<T>).toNewList(func)
 }
 
-/**
- * 将旧list转换为新list
- */
 fun <T, K> Array<T>?.toNewList(func: (T) -> K): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
@@ -128,9 +123,6 @@ fun <T, K> Array<T>?.toNewList(func: (T) -> K): ArrayList<K> {
     return list
 }
 
-/**
- * 将旧list转换为新list
- */
 fun <K> IntArray?.toNewList(func: (Int) -> K): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
@@ -172,9 +164,28 @@ fun Bundle?.toMap(): Map<String, String> {
 }
 
 /**
- * 将Map转换为ArrayList
+ * 将List转换为ArrayList
  */
-fun <T, K, P> Map<P, T>?.toList(func: (Map.Entry<P, T>) -> K?): ArrayList<K> {
+fun <T> List<T>.toArrayList(): ArrayList<T> {
+    return ArrayList(this)
+}
+
+/**
+ * 将Map转换为ArrayList
+ * val map = mapOf(
+ *     "key1" to 1,
+ *     "key2" to 2,
+ *     "key3" to 3
+ * )
+ * ----------------------------------------
+ * val resultList = map.toList { entry ->
+ *     entry.value * 2
+ * }
+ * ----------------------------------------
+ * 转换逻辑：将每个 Map.Entry 的值（value）乘以 2。
+ * 结果：将 [1, 2, 3] 转换为 [2, 4, 6]。
+ */
+fun <T, K, P> Map<P, T>?.toArrayList(func: (Map.Entry<P, T>) -> K?): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
     forEach {
@@ -208,51 +219,6 @@ inline fun <T, reified K, P> Map<P, T>?.toArray(func: (Map.Entry<P, T>) -> K?): 
         }
     }
     return list.toTypedArray()
-}
-
-/**
- * 将List转换为ArrayList
- */
-fun <T> List<T>.toArrayList(): ArrayList<T> {
-    return ArrayList(this)
-}
-
-/**
- * list1为服务器中数据
- * list2为本地存储数据
- * isDuplicate:是否返回重复的或不重复的数据
- * 正向查为服务器新增数据
- * 反向查为本地删除数据
- */
-fun <T> List<T>?.toFilter(list: List<T>, isDuplicate: Boolean = false): ArrayList<T>? {
-    this ?: return null
-    val filterSet = HashSet<T>(this)//将list转换为set，去除重复元素
-    val duplicateSet = HashSet<T>()//重复的set
-    val incompleteSet = HashSet<T>()//不重复的set
-    list.forEach {
-        if (filterSet.contains(it)) {
-            duplicateSet.add(it)
-        } else {
-            incompleteSet.add(it)
-        }
-    }
-    return if (isDuplicate) ArrayList(duplicateSet) else ArrayList(incompleteSet)
-}
-
-/**
- * 获取一串拼接的json
- */
-fun <T> ArrayList<T>?.toRequestParams(): String {
-    if (this == null) return ""
-    var result = "["
-    for (index in indices) {
-        result = if (index + 1 == size) {
-            result + safeGet(index) + "]"
-        } else {
-            result + safeGet(index) + "],["
-        }
-    }
-    return result
 }
 
 /**
@@ -314,6 +280,72 @@ fun <T> Array<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
 }
 
 /**
+ * 集合转JSONArray
+ */
+fun <T> Collection<T>?.toJsonArray(): JSONArray? {
+    if (this == null) return null
+    val jsonArray = JSONArray()
+    for (item in this) {
+        try {
+            val jsonValue = convertToJsonValue(item)
+            jsonArray.put(jsonValue)
+        } catch (e: Exception) {
+            // 可以根据实际需求记录日志或进行其他处理
+            e.printStackTrace()
+        }
+    }
+    return jsonArray
+}
+
+private fun convertToJsonValue(item: Any?): Any? {
+    return when (item) {
+        null -> null
+        is JSONObject -> item
+        is JSONArray -> item
+        is Number -> item
+        is Boolean -> item
+        is String -> item
+        is Collection<*> -> item.toJsonArray()
+        is Map<*, *> -> convertMapToJsonObject(item)
+        else -> convertObjectToJsonObject(item)
+    }
+}
+
+private fun convertMapToJsonObject(map: Map<*, *>): JSONObject {
+    val jsonObject = JSONObject()
+    for ((key, value) in map) {
+        val jsonKey = key?.toString() ?: continue
+        val jsonValue = convertToJsonValue(value)
+        jsonObject.put(jsonKey, jsonValue)
+    }
+    return jsonObject
+}
+
+private fun convertObjectToJsonObject(obj: Any): JSONObject {
+    val jsonObject = JSONObject()
+    val fields = obj.javaClass.declaredFields
+    for (field in fields) {
+        field.isAccessible = true
+        val fieldName = field.name
+        val fieldValue = field.get(obj)
+        val jsonValue = convertToJsonValue(fieldValue)
+        jsonObject.put(fieldName, jsonValue)
+    }
+    return jsonObject
+}
+
+/**
+ * 集合转JSONObject
+ */
+fun <T> Collection<T>?.toJsonObject(key: String): JSONObject? {
+    if (this == null) return null
+    val jsonObject = JSONObject()
+    val jsonArray = this.toJsonArray()
+    jsonObject.put(key, jsonArray)
+    return jsonObject
+}
+
+/**
  * 寻找符合条件的第一个item的index
  */
 fun <T> Collection<T>.findIndexOf(func: ((T) -> Boolean)): Int {
@@ -339,7 +371,8 @@ fun <T> Collection<T>.findIndexed(func: ((T) -> Boolean)): Pair<Int, T>? {
 fun <T> MutableList<T>.findAndRemove(func: ((T) -> Boolean)) {
     try {
         remove(find { func(it) })
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
@@ -376,10 +409,51 @@ val CharArray?.randomItem: Char?
     }
 
 /**
+ * list1为服务器中数据
+ * list2为本地存储数据
+ * isRepeated:是否返回重复的或不重复的数据
+ * 正向查为服务器新增数据
+ * 反向查为本地删除数据
+ * 需重写equals和hasCode方法
+ * data class User(val id: Int, val name: String) {
+ *     override fun equals(other: Any?): Boolean {
+ *         if (this === other) return true
+ *         if (other is User) return id == other.id && name == other.name
+ *         return false
+ *     }
+ *
+ *     override fun hashCode(): Int {
+ *         return Objects.hash(id, name)
+ *     }
+ * }
+ */
+fun <T> List<T>?.extract(list: List<T>, isRepeated : Boolean = false): List<T>? {
+    this ?: return null
+    // 1. 生成重复集合（在两个列表中都存在的用户）
+    val repeated = toSet().intersect(list.toSet())
+    // 2. 生成不重复集合（只存在于一个列表中的用户）
+    val allUsers = toSet().union(list.toSet())
+    val unique = allUsers.subtract(repeated)
+    return if (isRepeated) repeated.toList() else unique.toList()
+}
+
+/**
  * string集合合并成一个string->某些id提取出来后需要‘,’号分隔拼接成string参数传递给后端，可以使用当前方法
  * val list = listOf("1111","2222","3333")
  * list.join(",")
  * 1111,2222,3333
+ *
+ * ArrayList<String>().apply {
+ * Triple(
+ *     mBinding?.ckDeal?.isChecked.orFalse,
+ *     mBinding?.ckTraded?.isChecked.orFalse,
+ *     mBinding?.ckBlock?.isChecked.orFalse
+ * ).toList().forEachIndexed { index, boolean ->
+ *     if (boolean) {
+ *         add((index + 1).toString())
+ *     }
+ * }
+ * }.join(",")
  */
 fun List<String>?.join(separator: String): String {
     if (isNullOrEmpty()) return ""
@@ -395,17 +469,9 @@ fun List<String>?.join(separator: String): String {
  *  val list = listOf("1" to true, "2" to true, "3" to true)
  *  部分接口参数需要id逗号拼接或者特殊符号拼接，可以使用当前方式提取出其中选中的值
  */
-fun List<Pair<String, Boolean>>?.joinSelect(separator: String): String {
+fun List<Pair<String, Boolean>>?.joinFilter(separator: String): String {
     if (isNullOrEmpty()) return ""
     return filter { it.second }.toNewList { it.first }.join(separator)
-}
-
-/**
- * 集合转jsonarray
- */
-fun List<*>?.toJsonArray(): JSONArray? {
-    this ?: return null
-    return JSONArray(this)
 }
 
 /**
@@ -425,4 +491,28 @@ fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
         }
     }
     return json
+}
+
+/**
+ * 获取一串拼接的json
+ */
+fun <T> ArrayList<T>?.requestParams(): String {
+    if (isNullOrEmpty()) return ""
+    val builder = StringBuilder("[")
+    for (i in indices) {
+        builder.append(safeGet(i))
+        if (i < lastIndex) {
+            builder.append("],[")
+        }
+    }
+    builder.append("]")
+    return builder.toString()
+}
+
+/**
+ * pair处理（如果都不为空，则返回true）
+ */
+fun Pair<String?, String?>?.isNotEmpty(): Boolean {
+    this ?: return false
+    return !first.isNullOrEmpty() && !second.isNullOrEmpty()
 }
