@@ -31,26 +31,40 @@ import java.io.UnsupportedEncodingException
 
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
 class USBTransfer(private val mActivity: FragmentActivity) : LifecycleEventObserver {
-    @Volatile
-    private var isConnectUSB = false
     private var readBuffer = ByteArray(1024 * 2) //缓冲区
-    private var receiver: BroadcastReceiver? = null//广播监听：判断usb设备授权操作
     private var listener: OnUSBDateReceiveListener? = null//接口
     private var availableDrivers: MutableList<UsbSerialDriver> = ArrayList() // 所有可用设备
     private var usbSerialDriver: UsbSerialDriver? = null//当前连接的设备（目标设备对象）
     private var usbDeviceConnection: UsbDeviceConnection? = null//设备连接对象
     private var usbSerialPort: UsbSerialPort? = null//设备端口对象，通过这个读写数据，一般只有1个
     private var inputOutputManager: SerialInputOutputManager? = null//数据输入输出流管理器
+    private var IDENTIFICATION = " USB-Serial Controller D"//目标设备标识
     private var baudRate = 115200//波特率
     private val dataBits = 8//数据位
     private val stopBits = UsbSerialPort.STOPBITS_1//停止位
     private val parity = UsbSerialPort.PARITY_NONE//奇偶校验（固定的8/1/none）
     private val manager by lazy { mActivity.getSystemService(Context.USB_SERVICE) as? UsbManager }
     private val handler by lazy { WeakHandler(Looper.getMainLooper()) }
-    private val INTENT_ACTION_GRANT_USB = "${Constants.APPLICATION_ID}.INTENT_ACTION_GRANT_USB"//usb权限请求标识
-    private val IDENTIFICATION = " USB-Serial Controller D"//目标设备标识
     private val TAG = "USBTransfer"
+    //广播监听：判断usb设备授权操作
+    private val receiver by lazy { object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            "onReceive: ${intent.action}".logE(TAG)
+            if (INTENT_ACTION_GRANT_USB == intent.action) {
+                // 授权操作完成，连接
+//                boolean granted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);  // 不知为何获取到的永远都是 false 因此无法判断授权还是拒绝
+                connectDevice()
+            }
+        }
+    }}
     private val hasPermission get() = manager?.hasPermission(usbSerialDriver?.device).orFalse
+
+    companion object {
+        @Volatile
+        private var isConnect = false
+        //usb权限请求标识->广播
+        private val INTENT_ACTION_GRANT_USB = "${Constants.APPLICATION_ID}.INTENT_ACTION_GRANT_USB"
+    }
 
     init {
         mActivity.lifecycle.addObserver(this)
@@ -60,7 +74,7 @@ class USBTransfer(private val mActivity: FragmentActivity) : LifecycleEventObser
      * 开始建立连接
      */
     fun connect() {
-        if (!isConnectUSB) {
+        if (!isConnect) {
             registerReceiver()
             refreshDevice()
             connectDevice()
@@ -71,16 +85,6 @@ class USBTransfer(private val mActivity: FragmentActivity) : LifecycleEventObser
      * 注册usb授权监听广播
      */
     private fun registerReceiver() {
-        receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                "onReceive: ${intent.action}".logE(TAG)
-                if (INTENT_ACTION_GRANT_USB == intent.action) {
-                    // 授权操作完成，连接
-//                    boolean granted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);  // 不知为何获取到的永远都是 false 因此无法判断授权还是拒绝
-                    connectDevice()
-                }
-            }
-        }
         mActivity.registerReceiver(receiver, IntentFilter(INTENT_ACTION_GRANT_USB))
     }
 
@@ -136,7 +140,8 @@ class USBTransfer(private val mActivity: FragmentActivity) : LifecycleEventObser
                 usbSerialPort?.setParameters(baudRate, dataBits, stopBits, parity)
                 startReceiveData()//开启数据监听
                 initDevice()//下发初始化指令
-            } catch (_: IOException) {
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
         } else {
             listener?.onConnect(false, "请先授予权限再连接")
@@ -175,7 +180,7 @@ class USBTransfer(private val mActivity: FragmentActivity) : LifecycleEventObser
         })
         inputOutputManager?.start()
         //修改连接标识
-        isConnectUSB = true
+        isConnect = true
         listener?.onConnect(true, "连接成功")
     }
 
@@ -185,7 +190,7 @@ class USBTransfer(private val mActivity: FragmentActivity) : LifecycleEventObser
         }
         var newStr: String? = null
         try {
-            newStr = String(bytes, charset("GB18030")).trim { it <= ' ' }
+            newStr = String(bytes, charset("GB18030")).trim()
         } catch (_: UnsupportedEncodingException) {
         }
         return newStr
@@ -275,13 +280,10 @@ class USBTransfer(private val mActivity: FragmentActivity) : LifecycleEventObser
             //清空设备列表
             availableDrivers.clear()
             //注销广播监听
-            if (receiver != null) {
-                mActivity.unregisterReceiver(receiver)
-                receiver = null
-            }
+            mActivity.unregisterReceiver(receiver)
             //修改标识
-            if (isConnectUSB) {
-                isConnectUSB = false
+            if (isConnect) {
+                isConnect = false
             }
             listener?.onDisconnect()
             "断开连接".logE(TAG)
