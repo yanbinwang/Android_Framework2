@@ -33,21 +33,18 @@ import java.io.UnsupportedEncodingException
 class USBTransfer(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     @Volatile
     private var isConnectUSB = false
-    private var readBuffer = ByteArray(1024 * 2)//缓冲区
+    private var readBuffer = ByteArray(1024 * 2) //缓冲区
     private var receiver: BroadcastReceiver? = null//广播监听：判断usb设备授权操作
     private var listener: OnUSBDateReceiveListener? = null//接口
-    // 顺序： manager - availableDrivers（所有可用设备） - UsbSerialDriver（目标设备对象） - UsbDeviceConnection（设备连接对象） - UsbSerialPort（设备的端口，一般只有1个）
     private var availableDrivers: MutableList<UsbSerialDriver> = ArrayList() // 所有可用设备
-    private var usbSerialDriver: UsbSerialDriver? = null//当前连接的设备
-    private var usbDeviceConnection: UsbDeviceConnection? = null//连接对象
-    private var usbSerialPort: UsbSerialPort? = null//设备端口对象，通过这个读写数据
+    private var usbSerialDriver: UsbSerialDriver? = null//当前连接的设备（目标设备对象）
+    private var usbDeviceConnection: UsbDeviceConnection? = null//设备连接对象
+    private var usbSerialPort: UsbSerialPort? = null//设备端口对象，通过这个读写数据，一般只有1个
     private var inputOutputManager: SerialInputOutputManager? = null//数据输入输出流管理器
-    // 连接参数，按需求自行修改，一般情况下改变的参数只有波特率，数据位、停止位、奇偶校验都是固定的8/1/none ---------------------
     private var baudRate = 115200//波特率
     private val dataBits = 8//数据位
     private val stopBits = UsbSerialPort.STOPBITS_1//停止位
-    private val parity = UsbSerialPort.PARITY_NONE//奇偶校验
-    //静态配置参数
+    private val parity = UsbSerialPort.PARITY_NONE//奇偶校验（固定的8/1/none）
     private val manager by lazy { mActivity.getSystemService(Context.USB_SERVICE) as? UsbManager }
     private val handler by lazy { WeakHandler(Looper.getMainLooper()) }
     private val INTENT_ACTION_GRANT_USB = "${Constants.APPLICATION_ID}.INTENT_ACTION_GRANT_USB"//usb权限请求标识

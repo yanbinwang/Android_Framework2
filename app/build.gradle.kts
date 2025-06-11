@@ -179,6 +179,8 @@ dependencies {
     //基础库
     implementation(project(":module_home"))
     implementation(project(":module_account"))
+    //usb扩展
+    implementation("com.github.mik3y:usb-serial-for-android:3.4.6")
     //页面路由
     implementation(libs.alibaba.arouter.api)
     kapt(libs.alibaba.arouter.compiler)

@@ -76,7 +76,7 @@
             android:layout_width="match_parent"
             android:layout_height="80pt"
             android:layout_marginTop="5pt"
-            android:background="@drawable/shape_r10_default"
+            android:background="@drawable/shape_default"
             android:textColor="@color/textPrimary"
             android:textColorHint="@color/textHint"
             app:layout_constraintTop_toBottomOf="@id/tv_label2" />

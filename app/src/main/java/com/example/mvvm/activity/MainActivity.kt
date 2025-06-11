@@ -21,6 +21,7 @@ import com.example.mvvm.utils.USBTransfer
  *         android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
  *         android:resource="@xml/device_filter" />
  * </activity>
+ * https://github.com/LXTTTTTT/USBtoSerialPortDemo
  */
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
