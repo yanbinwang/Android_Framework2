@@ -17,7 +17,7 @@ import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.PolygonOptions
-import com.example.amap.utils.CoordinateTransUtil
+import com.example.amap.utils.CoordinateUtil
 import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.permission.checkSelfLocation
 import com.example.common.utils.toObj
@@ -128,7 +128,7 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
      * 移动到中心点
      */
     fun moveCamera(latLngList: MutableList<LatLng>, zoom: Float = 18f, anim: Boolean = false) {
-        moveCamera(CoordinateTransUtil.getCenterPoint(latLngList), zoom, anim)
+        moveCamera(CoordinateUtil.calculateCenterPoint(latLngList), zoom, anim)
     }
 
     /**
