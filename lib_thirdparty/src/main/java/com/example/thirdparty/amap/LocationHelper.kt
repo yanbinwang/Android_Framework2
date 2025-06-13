@@ -30,6 +30,9 @@ import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
+import com.example.thirdparty.utils.NotificationUtil.builder
+import com.example.thirdparty.utils.NotificationUtil.notificationId
+import com.example.thirdparty.utils.NotificationUtil.showSimpleNotification
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -61,11 +64,10 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
         mActivity.lifecycle.addObserver(this)
         //初始化定位
         locationClient = AMapLocationClient(mActivity)
-        //初始化定位参数
-        val aMapLocationClientOption = AMapLocationClientOption()
         //设置定位监听
         locationClient?.setLocationListener(this)
-        aMapLocationClientOption.apply {
+        //初始化定位参数
+        val aMapLocationClientOption = AMapLocationClientOption().apply {
             //设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
             locationMode = AMapLocationClientOption.AMapLocationMode.Hight_Accuracy
             //设置是否gps优先，只在高精度模式下有效
@@ -79,6 +81,7 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
             //设置是否返回方向角(取值范围：【0，360】，其中0度表示正北方向，90度表示正东，180度表示正南，270度表示正西)
             isSensorEnable = true
             //启动定位时SDK会返回最近3s内精度最高的一次定位结果（+）
+            //如果设置其为true，setOnceLocation(boolean b)接口也会被设置为true，反之不会，默认为false。
             isOnceLocationLatest = true
             //请求超时时间，单位是毫秒，默认30000毫秒，建议超时时间不要低于8000毫秒
             httpTimeOut = retryTime
@@ -88,33 +91,34 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
         //设置定位参数
         locationClient?.setLocationOption(aMapLocationClientOption)
         //启动后台定位，第一个参数为通知栏ID，建议整个APP使用一个
-        locationClient?.enableBackgroundLocation(2001, mActivity.buildNotification())
+//        locationClient?.enableBackgroundLocation(2001, mActivity.buildNotification())
+        locationClient?.enableBackgroundLocation(notificationId, mActivity.builder(title = APPLICATION_NAME, text = string(R.string.mapLocationLoading)).build())
     }
 
-    /**
-     * 高德内部构建定位通知
-     */
-    private fun Context.buildNotification(): Notification {
-        val builder: Notification.Builder?
-        //Android O上对Notification进行了修改，如果设置的targetSDKVersion>=26建议使用此种方式创建通知栏
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannel(string(R.string.notificationChannelId), string(R.string.notificationChannelName), NotificationManager.IMPORTANCE_DEFAULT)
-            notificationChannel.apply {
-                enableLights(true) //是否在桌面icon右上角展示小圆点
-                lightColor = Color.BLUE //小圆点颜色
-                setShowBadge(true) //是否在久按桌面图标时显示此渠道的通知
-            }
-            (getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)?.createNotificationChannel(notificationChannel)
-            builder = Notification.Builder(this, string(R.string.notificationChannelId))
-        } else {
-            builder = Notification.Builder(this)
-        }
-        builder.setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle(APPLICATION_NAME)
-            .setContentText(string(R.string.mapLocationLoading))
-            .setWhen(System.currentTimeMillis())
-        return builder.build()
-    }
+//    /**
+//     * 高德内部构建定位通知
+//     */
+//    private fun Context.buildNotification(): Notification {
+//        val builder: Notification.Builder?
+//        //Android O上对Notification进行了修改，如果设置的targetSDKVersion>=26建议使用此种方式创建通知栏
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            val notificationChannel = NotificationChannel(string(R.string.notificationChannelId), string(R.string.notificationChannelName), NotificationManager.IMPORTANCE_DEFAULT)
+//            notificationChannel.apply {
+//                enableLights(true) //是否在桌面icon右上角展示小圆点
+//                lightColor = Color.BLUE //小圆点颜色
+//                setShowBadge(true) //是否在久按桌面图标时显示此渠道的通知
+//            }
+//            (getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)?.createNotificationChannel(notificationChannel)
+//            builder = Notification.Builder(this, string(R.string.notificationChannelId))
+//        } else {
+//            builder = Notification.Builder(this)
+//        }
+//        builder.setSmallIcon(R.mipmap.ic_launcher)
+//            .setContentTitle(APPLICATION_NAME)
+//            .setContentText(string(R.string.mapLocationLoading))
+//            .setWhen(System.currentTimeMillis())
+//        return builder.build()
+//    }
 
     override fun onLocationChanged(aMapLocation: AMapLocation?) {
         if (aMapLocation != null && aMapLocation.errorCode == AMapLocation.LOCATION_SUCCESS) {
