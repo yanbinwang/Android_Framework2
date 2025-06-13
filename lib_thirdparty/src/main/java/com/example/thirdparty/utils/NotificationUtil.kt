@@ -44,8 +44,8 @@ object NotificationUtil {
     private val notificationIdCounter by lazy { AtomicInteger(100) }
     private val requestCodeCounter by lazy { AtomicInteger(100) }
     // 获取ID
-    private val notificationId get() = notificationIdCounter.getAndIncrement()
-    private val requestCode get() = requestCodeCounter.getAndIncrement()
+    val notificationId get() = notificationIdCounter.getAndIncrement()
+    val requestCode get() = requestCodeCounter.getAndIncrement()
 
     /**
      * BaseApplication中初始化
