@@ -15,6 +15,7 @@ import com.example.thirdparty.media.oss.OssDBHelper
 import com.example.thirdparty.media.oss.OssDBHelper2
 import com.example.thirdparty.media.oss.OssFactory
 import com.example.thirdparty.utils.NotificationUtil
+import com.example.thirdparty.utils.wechat.WXManager
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import com.zxy.recovery.callback.RecoveryCallback
@@ -189,12 +190,14 @@ class MyApplication : BaseApplication() {
         ServiceSettings.updatePrivacyAgree(applicationContext, true)
     }
 
-//    /**
-//     * 程序被销毁时会调用，真机不会调取
-//     */
-//    override fun onTerminate() {
-//        super.onTerminate()
-//        WXManager.instance.unRegToWx()
-//    }
+    /**
+     * 程序被销毁时会调用，真机不会调取
+     */
+    override fun onTerminate() {
+        super.onTerminate()
+        isLoaded = false
+        boxStore.close()
+        WXManager.instance.unRegToWx()
+    }
 
 }
