@@ -324,7 +324,7 @@ fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParc
  * })
  */
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
-fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, intentFilter: IntentFilter) {
+fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, intentFilter: IntentFilter, end: () -> Unit = {}) {
     this ?: return
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         registerReceiver(receiver, intentFilter, Context.RECEIVER_EXPORTED)
@@ -336,11 +336,13 @@ fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, i
             unregisterReceiver(receiver)
         } catch (e: Exception) {
             e.printStackTrace()
+        } finally {
+            end()
         }
     }
 }
 
-fun FragmentActivity?.doOnReceiver(receiver: BroadcastReceiver, intentFilter: IntentFilter) = doOnReceiver(this, receiver, intentFilter)
+fun FragmentActivity?.doOnReceiver(receiver: BroadcastReceiver, intentFilter: IntentFilter, end: () -> Unit = {}) = doOnReceiver(this, receiver, intentFilter, end)
 
 /**
  * 可在协程类里传入AppComActivity，然后init{}方法里调取，销毁内部的job
