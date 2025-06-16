@@ -15,6 +15,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.scale
 import com.example.common.utils.function.color
+import com.example.common.utils.function.decodeResource
 import com.example.common.utils.function.dp
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.currentTimeStamp
@@ -34,6 +35,44 @@ import java.util.concurrent.atomic.AtomicInteger
  * private fun initNotification() {
  *    NotificationUtil.init()
  * }
+ * NotificationCompat.Style 接口提供了多种样式来丰富通知的显示效果
+ * 1. BigTextStyle
+ * 作用：显示长文本内容，折叠时显示摘要，展开时显示完整文本。
+ * 核心方法：
+ * bigText(String)：设置展开时的完整文本
+ * setBigContentTitle(String)：设置展开时的标题
+ * setSummaryText(String)：设置摘要文本
+ * 适用场景：新闻应用、长消息通知。
+ *
+ * 2. BigPictureStyle
+ * 作用：显示大图片，适合展示照片、新闻配图等。
+ * 核心方法：
+ * bigPicture(Bitmap)：设置展开时的大图 128dp*128dp
+ * bigLargeIcon(Bitmap)：设置展开时左侧的大图标（可选）
+ * setSummaryText(String)：设置图片下方的摘要
+ * 适用场景：社交媒体、图片分享应用。
+ *
+ * 3. InboxStyle
+ * 作用：以列表形式显示多条内容（类似邮件收件箱）。
+ * 核心方法：
+ * addLine(CharSequence)：添加一行内容（最多 7 行）
+ * setBigContentTitle(String)：设置展开时的标题
+ * setSummaryText(String)：设置底部摘要
+ * 适用场景：邮件客户端、即时通讯应用。
+ *
+ * 4. MediaStyle
+ * 作用：专为媒体播放设计，显示播放控制按钮。
+ * 核心方法：
+ * setMediaSession(MediaSession.Token)：关联媒体会话
+ * setShowActionsInCompactView(int...)：设置折叠时显示的按钮索引
+ * setShowCancelButton(boolean)：是否显示取消按钮
+ * 适用场景：音乐播放器、视频应用。
+ *
+ * 5. DecoratedCustomViewStyle
+ * 作用：增强自定义通知视图的显示效果，自动添加标准装饰（如小图标、时间）。
+ * 核心方法：
+ * 无特殊方法，需配合 setCustomContentView() 使用。
+ * 适用场景：需要高度自定义布局的通知。
  */
 object NotificationUtil {
     // 通知栏管理
@@ -78,17 +117,33 @@ object NotificationUtil {
             val weakContext = WeakReference(this)
             val context = weakContext.get()
             context ?: return
+            var bitmap: Bitmap?
+            var largeIcon: Bitmap? = null
+            var bigPicture: Bitmap? = null
+            var bigLargeIcon: Bitmap? = null
             ImageLoader.instance.downloadImage(context, imageUrl, onDownloadComplete = {
-                val bitmap = BitmapFactory.decodeFile(it?.absolutePath)
+                bitmap = BitmapFactory.decodeFile(it?.absolutePath)
                 if (bitmap != null) {
-                    val smallIcon = bitmap.scale(64.dp, 64.dp, false)
-                    val bigLargeIcon: Bitmap? = null
+                    /**
+                     * setLargeIcon()	折叠状态下的左侧图标	64dp × 64dp	系统自动裁剪为圆形，建议提供正方形图片
+                     * bigPicture()	展开状态下的大图区域	256dp × 256dp	建议使用横向矩形（如 2:1 比例），否则可能被拉伸或裁剪
+                     * bigLargeIcon()	展开状态下替代 setLargeIcon() 的图标	128dp × 128dp	可选，若不设置则默认使用 setLargeIcon() 的图标（64dp 会被放大）
+                     */
+                    largeIcon = bitmap?.scale(64.dp, 64.dp, false)
+                    bigPicture = bitmap?.scale(256.dp, 256.dp, false)
+                    bigLargeIcon = bitmap?.scale(128.dp, 128.dp, false)
                     notificationBuilder
-                        .setLargeIcon(smallIcon)
-                        .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bitmap).bigLargeIcon(bigLargeIcon))
+                        .setLargeIcon(largeIcon)
+                        .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bigPicture).bigLargeIcon(bigLargeIcon))
+                } else {
+                    notificationBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(text))
                 }
                 //整体下载完成后，创建通知
                 notify(notificationId, notificationBuilder.build())
+                bitmap?.recycle()
+                largeIcon?.recycle()
+                bigPicture?.recycle()
+                bigLargeIcon?.recycle()
             })
         } else {
             //没有图片的，直接创建通知
@@ -118,7 +173,22 @@ object NotificationUtil {
 
     /**
      * 创建通知栏构建器
-     * @param icon 通知栏小图标资源 ID，默认为 R.mipmap.ic_notification
+     * @param smallIconRes 通知栏小图标资源 ID，默认为 R.mipmap.ic_push_small
+     * 必须设置：若不设置，通知将无法显示。
+     * 尺寸要求：
+     * 推荐使用 24dp × 24dp 的矢量图标（VectorDrawable）。
+     * 需兼容不同屏幕密度（mdpi、hdpi、xhdpi 等），系统会自动缩放。
+     * 格式要求：
+     * 仅支持 alpha 通道（即图标应为透明背景，系统会自动应用主题色）。
+     * 推荐使用 AndroidX 的 VectorAsset 或 VectorDrawable。
+     * @param largeIconRes 通知栏展开大图标资源 ID，默认为 R.mipmap.ic_push_large
+     * 建议设置：提升通知辨识度（如显示用户头像、应用 Logo）。
+     * 尺寸要求：
+     * 常规通知：推荐 64dp × 64dp（系统会自动裁剪为圆形）。
+     * BigPictureStyle 样式：建议使用 128dp × 128dp 以适配展开视图。
+     * 格式要求：
+     * 支持任意格式（PNG、JPEG、Bitmap），但通常为正方形。
+     * 背景建议透明，避免变形。
      * @param title 通知栏标题，默认为空字符串
      * @param text 通知栏内容，默认为空字符串
      * @param argb 通知栏颜色资源 ID，默认为 R.color.textWhite
@@ -128,7 +198,8 @@ object NotificationUtil {
      * @return 通知栏构建器实例
      */
     fun Context.builder(
-        icon: Int = R.mipmap.ic_notification,
+        smallIconRes: Int = R.mipmap.ic_push_small,
+        largeIconRes: Int = R.mipmap.ic_push_large,
         title: String = "",
         text: String = "",
         argb: Int = R.color.textWhite,
@@ -137,7 +208,8 @@ object NotificationUtil {
         pendingIntent: PendingIntent? = null
     ): NotificationCompat.Builder {
         val builder = NotificationCompat.Builder(this, string(R.string.notificationChannelId))
-            .setSmallIcon(icon)//96*96
+            .setSmallIcon(smallIconRes)
+            .setLargeIcon(decodeResource(largeIconRes))
             .setContentTitle(title)
             .setContentText(text)
             .setColor(color(argb))
