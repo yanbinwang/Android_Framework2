@@ -116,8 +116,7 @@ object NotificationUtil {
             pendingIntent = getPendingIntent(requestCode, intent, getPendingIntentFlags(PendingIntent.FLAG_UPDATE_CURRENT))
         }
         //创建通知栏构建器
-        val notificationBuilder =
-            builder(title = title.orEmpty(), text = text.orEmpty(), pendingIntent = pendingIntent)
+        val notificationBuilder = builder(title = title.orEmpty(), text = text.orEmpty(), pendingIntent = pendingIntent)
         if (!imageUrl.isNullOrEmpty()) {
             // 防止 Context 泄漏
             val weakContext = WeakReference(this)
