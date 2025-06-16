@@ -107,7 +107,12 @@ object NotificationUtil {
     /**
      * 带图片/跳转的通知栏
      */
-    fun Context?.showSimpleNotification(title: String? = "", text: String? = "", imageUrl: String? = null, intent: Intent? = null) {
+    fun Context?.showSimpleNotification(
+        title: String? = "",
+        text: String? = "",
+        imageUrl: String? = null,
+        intent: Intent? = null
+    ) {
         this ?: return
         //确定是否具备跳转
         var pendingIntent: PendingIntent? = null
@@ -257,13 +262,11 @@ object NotificationUtil {
      * 配置可变性
      */
     fun getPendingIntentFlags(baseFlags: Int): Int {
-//        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) baseFlags or PendingIntent.FLAG_MUTABLE else baseFlags
         return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
                 // Android S 及以上必须显式指定可变性，推荐默认使用 FLAG_IMMUTABLE（更安全）
                 baseFlags or PendingIntent.FLAG_IMMUTABLE
             }
-
             else -> baseFlags
         }
     }
