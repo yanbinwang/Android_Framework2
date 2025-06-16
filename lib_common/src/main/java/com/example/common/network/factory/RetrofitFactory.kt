@@ -11,21 +11,6 @@ import retrofit2.converter.gson.GsonConverterFactory
  * retrofit单例
  */
 class RetrofitFactory private constructor() {
-//    private val serverRetrofit by lazy {
-//        Retrofit.Builder()
-//            .client(OkHttpFactory.instance.serverOkHttpClient)
-//            .baseUrl(ServerConfig.serverUrl())
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .build()
-//    }
-//
-//    private val retrofit by lazy {
-//        Retrofit.Builder()
-//            .client(OkHttpFactory.instance.okHttpClient)
-//            .baseUrl(ServerConfig.serverUrl())
-////            .addConverterFactory(GsonConverterFactory.create())//该方法的作用是把服务器返回的 JSON 数据转换为 Java 或 Kotlin 对象。如请求仅涉及下载文件，或者服务器返回的数据并非 JSON 格式，无需添加此转换器
-//            .build()
-//    }
     private val serverRetrofit by lazy {
         createRetrofitBuilder(OkHttpFactory.instance.serverOkHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
