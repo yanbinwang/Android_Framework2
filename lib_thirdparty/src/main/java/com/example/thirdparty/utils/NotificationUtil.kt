@@ -14,16 +14,21 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.scale
+import com.example.common.network.repository.requestAffair
+import com.example.common.network.repository.withHandling
+import com.example.common.utils.builder.suspendingDownloadPic
 import com.example.common.utils.function.color
 import com.example.common.utils.function.decodeResource
 import com.example.common.utils.function.dp
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.currentTimeStamp
-import com.example.glide.ImageLoader
+import com.example.framework.utils.function.value.isMainThread
 import com.example.thirdparty.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicInteger
@@ -111,40 +116,40 @@ object NotificationUtil {
             pendingIntent = getPendingIntent(requestCode, intent, getPendingIntentFlags(PendingIntent.FLAG_UPDATE_CURRENT))
         }
         //创建通知栏构建器
-        val notificationBuilder = builder(title = title.orEmpty(), text = text.orEmpty(), pendingIntent = pendingIntent)
+        val notificationBuilder =
+            builder(title = title.orEmpty(), text = text.orEmpty(), pendingIntent = pendingIntent)
         if (!imageUrl.isNullOrEmpty()) {
             // 防止 Context 泄漏
             val weakContext = WeakReference(this)
             val context = weakContext.get()
             context ?: return
-            var bitmap: Bitmap?
+            var bitmap: Bitmap? = null
             var largeIcon: Bitmap? = null
             var bigPicture: Bitmap? = null
             var bigLargeIcon: Bitmap? = null
-            ImageLoader.instance.downloadImage(context, imageUrl, onDownloadComplete = {
-                bitmap = BitmapFactory.decodeFile(it?.absolutePath)
-                if (bitmap != null) {
-                    /**
-                     * setLargeIcon()	折叠状态下的左侧图标	64dp × 64dp	系统自动裁剪为圆形，建议提供正方形图片
-                     * bigPicture()	展开状态下的大图区域	256dp × 256dp	建议使用横向矩形（如 2:1 比例），否则可能被拉伸或裁剪
-                     * bigLargeIcon()	展开状态下替代 setLargeIcon() 的图标	128dp × 128dp	可选，若不设置则默认使用 setLargeIcon() 的图标（64dp 会被放大）
-                     */
-                    largeIcon = bitmap?.scale(64.dp, 64.dp, false)
-                    bigPicture = bitmap?.scale(256.dp, 256.dp, false)
-                    bigLargeIcon = bitmap?.scale(128.dp, 128.dp, false)
-                    notificationBuilder
-                        .setLargeIcon(largeIcon)
-                        .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bigPicture).bigLargeIcon(bigLargeIcon))
-                } else {
-                    notificationBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(text))
-                }
+            flow<Unit> {
+                bitmap = BitmapFactory.decodeFile(requestAffair { suspendingDownloadPic(context, imageUrl) }) ?: throw RuntimeException("图片下载失败")
+                /**
+                 * setLargeIcon()	折叠状态下的左侧图标	64dp × 64dp	系统自动裁剪为圆形，建议提供正方形图片
+                 * bigPicture()	展开状态下的大图区域	256dp × 256dp	建议使用横向矩形（如 2:1 比例），否则可能被拉伸或裁剪
+                 * bigLargeIcon()	展开状态下替代 setLargeIcon() 的图标	128dp × 128dp	可选，若不设置则默认使用 setLargeIcon() 的图标（64dp 会被放大）
+                 */
+                largeIcon = bitmap?.scale(64.dp, 64.dp, false)
+                bigPicture = bitmap?.scale(256.dp, 256.dp, false)
+                bigLargeIcon = bitmap?.scale(128.dp, 128.dp, false)
+                notificationBuilder
+                    .setLargeIcon(largeIcon)
+                    .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bigPicture).bigLargeIcon(bigLargeIcon))
+            }.withHandling({
+                notificationBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            }, {
                 //整体下载完成后，创建通知
-                notify(notificationId, notificationBuilder.build())
+                notificationManager?.notify(notificationId, notificationBuilder.build())
                 bitmap?.recycle()
                 largeIcon?.recycle()
                 bigPicture?.recycle()
                 bigLargeIcon?.recycle()
-            })
+            }).launchIn(postScope)
         } else {
             //没有图片的，直接创建通知
             notificationBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(text))
@@ -157,9 +162,16 @@ object NotificationUtil {
      */
     fun notify(id: Int, notification: Notification?) {
         notification ?: return
-        // 在主线程调用 notify（确保 UI 相关操作安全）
-        postScope.launch {
+        val notifyAction = {
             notificationManager?.notify(id, notification)
+        }
+        // 在主线程调用 notify（确保 UI 相关操作安全）
+        if (!isMainThread) {
+            postScope.launch {
+                notifyAction()
+            }
+        } else {
+            notifyAction()
         }
     }
 
@@ -208,8 +220,8 @@ object NotificationUtil {
         pendingIntent: PendingIntent? = null
     ): NotificationCompat.Builder {
         val builder = NotificationCompat.Builder(this, string(R.string.notificationChannelId))
-            .setSmallIcon(smallIconRes)
-            .setLargeIcon(decodeResource(largeIconRes)?.scale(64.dp, 64.dp, false))
+            .setSmallIcon(smallIconRes)//24dp × 24dp
+            .setLargeIcon(decodeResource(largeIconRes))//64dp × 64dp
             .setContentTitle(title)
             .setContentText(text)
             .setColor(color(argb))
@@ -252,6 +264,7 @@ object NotificationUtil {
                 // Android S 及以上必须显式指定可变性，推荐默认使用 FLAG_IMMUTABLE（更安全）
                 baseFlags or PendingIntent.FLAG_IMMUTABLE
             }
+
             else -> baseFlags
         }
     }
