@@ -38,7 +38,7 @@ object CompressUtil {
                 format(Bitmap.CompressFormat.JPEG)
             }
         } catch (e: Exception) {
-            CrashlyticsUtil.postError("compressFile", e)
+            CrashlyticsUtil.recordException("compressFile", e)
             null
         }
     }

@@ -2,7 +2,6 @@ package com.example.thirdparty.auth.google
 
 import android.content.Context
 import android.os.CancellationSignal
-import androidx.activity.result.ActivityResult
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CredentialManagerCallback
@@ -16,18 +15,11 @@ import androidx.fragment.app.FragmentActivity
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.getManifestString
-import com.example.common.utils.function.registerResult
 import com.example.framework.utils.function.doOnDestroy
 import com.example.thirdparty.R
 import com.example.thirdparty.auth.google.bean.GoogleInfoBean
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.Status.RESULT_INTERNAL_ERROR
-import com.google.android.gms.tasks.Task
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -211,8 +203,7 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) : CoroutineScope {
 //                        .build()
 //                )
                 signOut()
-                val result = credentialManager.getCredential(mActivity, GetCredentialRequest.Builder().addCredentialOption(
-                    GetSignInWithGoogleOption.Builder(GOOGLE_AUTH_API.orEmpty()).build()).build())
+                val result = credentialManager.getCredential(mActivity, GetCredentialRequest.Builder().addCredentialOption(GetSignInWithGoogleOption.Builder(GOOGLE_AUTH_API.orEmpty()).build()).build())
                 handleSignInResult(result, onSuccess)
             } catch (e: Exception) {
                 when (e) {

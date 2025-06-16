@@ -8,7 +8,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
  */
 object CrashlyticsUtil {
 
-    fun postError(msg: String, e: Exception) {
+    fun recordException(msg: String, e: Exception) {
         if (!isDebug) FirebaseCrashlytics.getInstance().recordException(Exception(msg, e))
     }
 
