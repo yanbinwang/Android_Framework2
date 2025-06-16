@@ -209,7 +209,7 @@ object NotificationUtil {
     ): NotificationCompat.Builder {
         val builder = NotificationCompat.Builder(this, string(R.string.notificationChannelId))
             .setSmallIcon(smallIconRes)
-            .setLargeIcon(decodeResource(largeIconRes))
+            .setLargeIcon(decodeResource(largeIconRes)?.scale(64.dp, 64.dp, false))
             .setContentTitle(title)
             .setContentText(text)
             .setColor(color(argb))
