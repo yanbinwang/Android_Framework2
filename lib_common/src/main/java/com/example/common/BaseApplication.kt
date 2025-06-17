@@ -5,8 +5,6 @@ import android.app.ActivityManager
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkRequest
 import android.os.Build
 import android.os.SystemClock
 import android.view.Gravity
@@ -20,7 +18,6 @@ import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.BaseActivity
 import com.example.common.base.OnFinishListener
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
-import com.example.common.base.proxy.NetworkCallbackImpl
 import com.example.common.base.proxy.NetworkReceiver
 import com.example.common.config.ARouterPath
 import com.example.common.config.Constants.SOCKET_ADVERTISE_URL
@@ -168,6 +165,26 @@ abstract class BaseApplication : Application() {
         doOnReceiver(ProcessLifecycleOwner.get(), NetworkReceiver().apply {
             listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() }
         }, NetworkReceiver.filter)
+//        val networkCallback = object : ConnectivityManager.NetworkCallback() {
+//            var listener: (isOnline: Boolean) -> Unit = {}
+//            override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+//                super.onCapabilitiesChanged(network, networkCapabilities)
+//                val isOnline = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+//                listener(isOnline)
+//            }
+//        }
+//        val networkRequest = NetworkRequest.Builder()
+//            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+//            .build()
+//        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+//        connectivityManager?.registerNetworkCallback(networkRequest, networkCallback.apply { listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() } })
+//        ProcessLifecycleOwner.get().doOnDestroy {
+//            try {
+//                connectivityManager?.unregisterNetworkCallback(networkCallback)
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
     }
 
     private fun initListener() {
