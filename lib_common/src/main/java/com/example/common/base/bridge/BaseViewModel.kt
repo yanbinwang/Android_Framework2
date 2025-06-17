@@ -310,9 +310,9 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         super.onStop(owner)
     }
 
-//    override fun onDestroy(owner: LifecycleOwner) {
-//        super.onDestroy(owner)
-//    }
+    override fun onDestroy(owner: LifecycleOwner) {
+        super.onDestroy(owner)
+    }
     // </editor-fold>
 
 }
