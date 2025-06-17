@@ -39,6 +39,7 @@ import com.example.common.utils.helper.ConfigHelper
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
+import com.example.framework.utils.function.doOnReceiver
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.DateFormat.clearThreadLocalCache
 import com.example.framework.utils.function.value.isDebug
@@ -160,8 +161,11 @@ abstract class BaseApplication : Application() {
     }
 
     private fun initReceiver() {
-        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.registerNetworkCallback(NetworkRequest.Builder().build(), NetworkCallbackImpl())
-        registerReceiver(NetworkReceiver().apply {
+//        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.registerNetworkCallback(NetworkRequest.Builder().build(), NetworkCallbackImpl())
+//        registerReceiver(NetworkReceiver().apply {
+//            listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() }
+//        }, NetworkReceiver.filter)
+        doOnReceiver(ProcessLifecycleOwner.get(), NetworkReceiver().apply {
             listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() }
         }, NetworkReceiver.filter)
     }
