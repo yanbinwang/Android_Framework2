@@ -17,6 +17,11 @@ object CacheDataManager {
     const val KEY_HOME_BANNER = "home_banner"
 
     /**
+     * 首页-资金
+     */
+    const val KEY_HOME_FUND = "home_fund"
+
+    /**
      * 市场-购物车
      */
     const val KEY_MARKET_SHOPPING_CART = "market_shopping_cart"
@@ -32,6 +37,22 @@ object CacheDataManager {
     internal val moduleBuffer by lazy { ConcurrentHashMap<String, DataStringCache>() }
 
     /**
+     * 使用枚举管理缓存分组
+     */
+    enum class CacheGroup {
+        HOME, MARKET
+    }
+
+    /**
+     * 为每个缓存键指定所属分组
+     */
+    private val cacheKeyMap = mapOf(
+        KEY_HOME_BANNER to CacheGroup.HOME,
+        KEY_HOME_FUND to CacheGroup.HOME,
+        KEY_MARKET_SHOPPING_CART to CacheGroup.MARKET
+    )
+
+    /**
      * application里调用
      */
     fun init() {
@@ -39,17 +60,77 @@ object CacheDataManager {
             val mVersionCode = getAppVersionCode()
             if (get() != mVersionCode) {
                 //清除所有本地缓存(每次版本更新时检测)
-                getAllCacheKeys().forEach { getOrCreateCache(it).del() }
+                clearAllCache()
                 set(mVersionCode)
             }
         }
     }
 
     /**
+     * 是否包含cache
+     */
+    fun hasCache(): Boolean {
+        return getAllCacheKeys().any { getOrCreateCache(it).get()?.isNotEmpty() == true }
+    }
+
+    /**
+     * 检查指定分组的缓存是否存在
+     */
+    fun hasCache(group: CacheGroup): Boolean {
+        return getKeysByGroup(group).any { hasCache(it) }
+    }
+
+    /**
+     * 检查指定键的缓存是否存在
+     */
+    fun hasCache(key: String): Boolean {
+        return getOrCreateCache(key).get()?.isNotEmpty() == true
+    }
+
+    /**
+     * 清空所有缓存
+     */
+    fun clearAllCache() {
+        getAllCacheKeys().forEach { getOrCreateCache(it).del() }
+    }
+
+    /**
+     * 清空指定分组的缓存
+     */
+    fun clearCache(group: CacheGroup) {
+        getKeysByGroup(group).forEach { getOrCreateCache(it).del() }
+    }
+
+    /**
+     * 清空指定键的缓存
+     */
+    fun clearCache(vararg keys: String) {
+        keys.forEach { key ->
+            if (cacheKeyMap.containsKey(key)) {
+                getOrCreateCache(key).del()
+            }
+        }
+    }
+
+    /**
+     * 登出时特殊处理
+     */
+    fun clearCacheBySignOut() {
+        clearCache(KEY_HOME_FUND)
+    }
+
+    /**
      * 获取所有缓存键
      */
-    private fun getAllCacheKeys(): List<String> {
-        return listOf(KEY_HOME_BANNER, KEY_MARKET_SHOPPING_CART)
+    private fun getAllCacheKeys(): MutableList<String> {
+        return cacheKeyMap.keys.toMutableList()
+    }
+
+    /**
+     * 根据分组获取缓存键
+     */
+    private fun getKeysByGroup(group: CacheGroup): MutableList<String> {
+        return cacheKeyMap.filterValues { it == group }.keys.toMutableList()
     }
 
     /**
