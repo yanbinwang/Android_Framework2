@@ -79,6 +79,7 @@ object CacheDataManager {
     /**
      * 清除所有本地缓存(每次版本更新时检测)
      */
+    @Synchronized
     fun del() {
         moduleTag.forEach { getOrCreateCache(it).del() }
     }
