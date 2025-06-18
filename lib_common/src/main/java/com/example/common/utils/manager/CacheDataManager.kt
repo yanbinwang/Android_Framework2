@@ -14,12 +14,12 @@ object CacheDataManager {
     /**
      * 首页-广告
      */
-    const val MODULE_HOME_BANNER = "module_home_banner"
+    const val KEY_HOME_BANNER = "home_banner"
 
     /**
      * 市场-购物车
      */
-    const val MODULE_MARKET_SHOPPING_CART = "module_market_shopping_cart"
+    const val KEY_MARKET_SHOPPING_CART = "market_shopping_cart"
 
     /**
      * 历史版本号
@@ -39,10 +39,17 @@ object CacheDataManager {
             val mVersionCode = getAppVersionCode()
             if (get() != mVersionCode) {
                 //清除所有本地缓存(每次版本更新时检测)
-                listOf(MODULE_HOME_BANNER, MODULE_MARKET_SHOPPING_CART).forEach { getOrCreateCache(it).del() }
+                getAllCacheKeys().forEach { getOrCreateCache(it).del() }
                 set(mVersionCode)
             }
         }
+    }
+
+    /**
+     * 获取所有缓存键
+     */
+    private fun getAllCacheKeys(): List<String> {
+        return listOf(KEY_HOME_BANNER, KEY_MARKET_SHOPPING_CART)
     }
 
     /**
