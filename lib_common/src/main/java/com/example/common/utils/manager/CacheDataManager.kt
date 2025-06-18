@@ -1,10 +1,10 @@
 package com.example.common.utils.manager
 
+import com.example.common.utils.DataLongCache
 import com.example.common.utils.DataStringCache
 import com.example.common.utils.helper.ConfigHelper.getAppVersionCode
 import com.example.common.utils.toList
 import com.example.common.utils.toObj
-import com.example.framework.utils.function.value.toSafeLong
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -22,9 +22,9 @@ object CacheDataManager {
     const val MODULE_MARKET_SHOPPING_CART = "module_market_shopping_cart"
 
     /**
-     * 所有的花村key标签
+     * 历史版本号
      */
-    internal val moduleTag by lazy { listOf(MODULE_HOME_BANNER, MODULE_MARKET_SHOPPING_CART) }
+    internal val versionCode by lazy { DataLongCache("version_code") }
 
     /**
      * 所有的缓存的map
@@ -32,20 +32,25 @@ object CacheDataManager {
     internal val moduleBuffer by lazy { ConcurrentHashMap<String, DataStringCache>() }
 
     /**
-     * 获取或创建缓存实例
+     * application里调用
      */
-    private fun getOrCreateCache(key: String): DataStringCache {
-        return moduleBuffer.getOrPut(key) { DataStringCache(key) }
+    fun init() {
+        versionCode.apply {
+            val mVersionCode = getAppVersionCode()
+            if (get() != mVersionCode) {
+                //清除所有本地缓存(每次版本更新时检测)
+                listOf(MODULE_HOME_BANNER, MODULE_MARKET_SHOPPING_CART).forEach { getOrCreateCache(it).del() }
+                set(mVersionCode)
+            }
+        }
     }
-
 
     /**
      * 1.传入对应的key(MODULE_HOME_BANNER,MODULE_MARKET_SHOPPING_CART)
      * 2.传入转换成string的json
-     * 3.拼接当前的版本
      */
     fun set(key: String, json: String) {
-        getOrCreateCache(key).set("${json}::${getAppVersionCode()}")
+        getOrCreateCache(key).set(json)
     }
 
     /**
@@ -67,21 +72,15 @@ object CacheDataManager {
      */
     fun <T> parseCache(key: String, parser: (String) -> T?): T? {
         val cache = getOrCreateCache(key)
-        val (json, versionCode) = cache.get()?.split("::") ?: return null
-        return if (versionCode.toSafeLong() == getAppVersionCode()) {
-            parser(json)
-        } else {
-            del()
-            null
-        }
+        val json = cache.get() ?: return null
+        return parser(json)
     }
 
     /**
-     * 清除所有本地缓存(每次版本更新时检测)
+     * 获取或创建缓存实例
      */
-    @Synchronized
-    fun del() {
-        moduleTag.forEach { getOrCreateCache(it).del() }
+    private fun getOrCreateCache(key: String): DataStringCache {
+        return moduleBuffer.getOrPut(key) { DataStringCache(key) }
     }
 
 }
