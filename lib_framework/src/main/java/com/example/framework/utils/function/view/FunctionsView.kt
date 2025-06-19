@@ -653,7 +653,7 @@ fun View?.loopAnimation(ctx: Context?, @AnimRes animRes: Int) {
 fun View?.startAnimation(@AnimRes animRes: Int) {
     this ?: return
     val anim = AnimationUtils.loadAnimation(context, animRes)
-    clearAnimation()
+    clearAnimation()// 停止动画并重置 View 位置(会完全移除 View 上的动画引用，避免动画在 View 被销毁后仍持有引用,onDestroy也推荐使用)
     startAnimation(anim)
 }
 
@@ -663,8 +663,8 @@ fun View?.startAnimation(@AnimRes animRes: Int) {
 fun View?.cancelAnimation() {
     this ?: return
     try {
-        animation?.setAnimationListener(null)
-        animation?.cancel()
+        animation?.setAnimationListener(null)// 仅移除监听器，动画继续
+        animation?.cancel()// 停止动画，View 保持当前状态(虽然停止了动画，但 View 仍保留着对动画对象的引用)
     } catch (e: Exception) {
         e.logE
     }
