@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.graphics.Color
+import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
@@ -77,13 +78,18 @@ class WebUtil : DefaultLifecycleObserver {
                 domStorageEnabled = true
                 javaScriptEnabled = true
                 savePassword = false
-                allowFileAccess = true
+                allowFileAccess = true // 允许访问 file:// 协议
+                allowFileAccessFromFileURLs = true  // 允许从 file URL 加载其他 file 资源
+                allowUniversalAccessFromFileURLs = true   // 允许跨源访问（重要！）
                 builtInZoomControls = false
                 blockNetworkImage = false
                 textZoom = 100
                 cacheMode = WebSettings.LOAD_DEFAULT
                 domStorageEnabled = true
                 mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    safeBrowsingEnabled = false // 禁用安全浏览（可选）
+                }
             }
         }
     }
