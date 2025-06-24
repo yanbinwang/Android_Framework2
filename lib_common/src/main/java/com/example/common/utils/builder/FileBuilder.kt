@@ -220,41 +220,84 @@ private fun readDegree(path: String): Float {
 }
 
 /**
- * 存储zip压缩包
- * @param folderPath 要打成压缩包文件的路径
- * @param zipPath 压缩完成的Zip路径（包含压缩文件名）-"${Constants.SDCARD_PATH}/10086.zip"
+ * 压缩单个文件或目录到指定ZIP路径
+ * @param sourcePath 源文件或目录路径
+ * @param zipPath 目标ZIP文件路径
+ * @return 生成的ZIP文件路径
  */
-suspend fun suspendingZip(folderPath: String, zipPath: String): String {
-    return suspendingZip(mutableListOf(folderPath), zipPath)
+suspend fun suspendingZip(sourcePath: String, zipPath: String): String {
+    return suspendingZip(listOf(sourcePath), zipPath)
 }
 
-suspend fun suspendingZip(folderList: MutableList<String>, zipPath: String): String {
-    zipPath.isMkdirs()
-    withContext(IO) {
-        zipFolder(folderList, zipPath)
-    }
-    return zipPath
-}
-
-private fun zipFolder(folderList: MutableList<String>, zipPath: String) {
-    //创建ZIP
-    ZipOutputStream(FileOutputStream(zipPath)).use { outZipStream ->
-        //批量打入压缩包
-        for (folderPath in folderList) {
-            val file = File(folderPath)
-            val zipEntry = ZipEntry(file.name)
-            file.inputStream().use { inputStream ->
-                outZipStream.putNextEntry(zipEntry)
-                var len: Int
-                val buffer = ByteArray(4096)
-                while (inputStream.read(buffer).also { len = it } != -1) {
-                    outZipStream.write(buffer, 0, len)
-                }
-                outZipStream.closeEntry()
+/**
+ * 压缩多个文件或目录到指定ZIP路径
+ * @param sourcePaths 源文件或目录路径列表
+ * @param zipPath 目标ZIP文件路径
+ * @return 生成的ZIP文件路径
+ */
+suspend fun suspendingZip(sourcePaths: List<String>, zipPath: String): String {
+    return withContext(IO) {
+        // 创建ZIP文件所在的目录，而不是ZIP文件本身
+        val zipFile = File(zipPath)
+        zipFile.parentFile?.mkdirs()
+        // 检查ZIP文件是否已存在，如果存在则删除
+        if (zipFile.exists()) {
+            if (!zipFile.delete()) {
+                throw IOException("无法删除已存在的ZIP文件: $zipPath")
             }
         }
-        //完成和关闭
-        outZipStream.finish()
+        zipFiles(sourcePaths, zipPath)
+        zipPath
+    }
+}
+
+/**
+ * 压缩文件或目录列表到ZIP文件
+ */
+private fun zipFiles(sourcePaths: List<String>, zipPath: String) {
+    ZipOutputStream(FileOutputStream(zipPath)).use { zipOut ->
+        for (sourcePath in sourcePaths) {
+            val sourceFile = File(sourcePath)
+            if (!sourceFile.exists()) continue
+            if (sourceFile.isFile) {
+                addFileToZip(sourceFile, sourceFile.name, zipOut)
+            } else if (sourceFile.isDirectory) {
+                addDirectoryToZip(sourceFile, "", zipOut)
+            }
+        }
+    }
+}
+
+/**
+ * 将单个文件添加到ZIP流
+ */
+private fun addFileToZip(file: File, entryName: String, zipOut: ZipOutputStream) {
+    file.inputStream().use { input ->
+        zipOut.putNextEntry(ZipEntry(entryName))
+        val buffer = ByteArray(4096)
+        var length: Int
+        while (input.read(buffer).also { length = it } > 0) {
+            zipOut.write(buffer, 0, length)
+        }
+        zipOut.closeEntry()
+    }
+}
+
+/**
+ * 递归将目录添加到ZIP流
+ */
+private fun addDirectoryToZip(dir: File, parentPath: String, zipOut: ZipOutputStream) {
+    val entryPath = if (parentPath.isEmpty()) dir.name else "$parentPath/${dir.name}"
+    // 添加目录条目（必须以斜杠结尾）
+    zipOut.putNextEntry(ZipEntry("$entryPath/"))
+    zipOut.closeEntry()
+    // 递归处理子文件和子目录
+    dir.listFiles()?.forEach { file ->
+        if (file.isFile) {
+            addFileToZip(file, "$entryPath/${file.name}", zipOut)
+        } else if (file.isDirectory) {
+            addDirectoryToZip(file, entryPath, zipOut)
+        }
     }
 }
 

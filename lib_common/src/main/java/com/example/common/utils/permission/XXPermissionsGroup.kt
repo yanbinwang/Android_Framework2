@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.hjq.permissions.Permission
 
 /**
@@ -21,18 +22,31 @@ object XXPermissionsGroup {
     val STORAGE = getStorageGroup(true)
 
     /**
+     * 获取存储权限组（适配第三方库限制）
      * PermissionChecker.java:158权限库针对targetSdkVersion >= 33直接抛出了异常，会导致我们使用时闪退，内部已经对旧的读写权限写了兼容代码
      * 我们需要在使用时只传入Permission.READ_MEDIA_IMAGES, Permission.READ_MEDIA_VIDEO, Permission.READ_MEDIA_AUDIO，而本地检测时（调用系统）使用版本判断
+     * @param isRequest 是否为权限请求（true表示请求权限，false表示检查权限）
      */
     @JvmStatic
-    fun getStorageGroup(isGranted: Boolean = true): Array<String> {
-        return if (isGranted || Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    fun getStorageGroup(isRequest: Boolean = false): Array<String> {
+        return if (isRequest) {
             arrayOf(Permission.READ_MEDIA_IMAGES, Permission.READ_MEDIA_VIDEO, Permission.READ_MEDIA_AUDIO)
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                arrayOf(Permission.READ_EXTERNAL_STORAGE)
-            } else {
-                arrayOf(Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE)
+            val deviceSdkInt = Build.VERSION.SDK_INT
+            return when {
+                // Android 13+ 设备，使用媒体权限
+                deviceSdkInt >= Build.VERSION_CODES.TIRAMISU -> {
+                    arrayOf(Permission.READ_MEDIA_IMAGES, Permission.READ_MEDIA_VIDEO, Permission.READ_MEDIA_AUDIO)
+                }
+                // Android 12- 设备，使用旧存储权限
+                deviceSdkInt >= Build.VERSION_CODES.P -> {
+                    // Android 10-12：使用 READ_EXTERNAL_STORAGE
+                    arrayOf(Permission.READ_EXTERNAL_STORAGE)
+                }
+                // Android 9 及以下，需要读写权限
+                else -> {
+                    arrayOf(Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE)
+                }
             }
         }
     }
@@ -86,9 +100,12 @@ fun Context.checkSelfStorage() = checkSelfPermission(this, *XXPermissionsGroup.g
 /**
  * 权限检测
  */
-private fun checkSelfPermission(context: Context, vararg permission: String): Boolean {
-    permission.forEach {
-        if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(context, it)) return false
+private fun checkSelfPermission(context: Context, vararg permissions: String): Boolean {
+//    permissions.forEach {
+//        if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(context, it)) return false
+//    }
+//    return true
+    return permissions.all { permission ->
+        ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
     }
-    return true
 }
