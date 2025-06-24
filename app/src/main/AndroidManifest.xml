@@ -55,6 +55,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/appName"
         android:largeHeap="true"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
