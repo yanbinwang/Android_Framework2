@@ -39,7 +39,12 @@ class LoggingInterceptor : Interceptor {
             getRequestBody(request)
         }
         //获取响应体
-        val response = chain.proceed(request)
+        val response = try {
+            chain.proceed(request)
+        } catch (e: Exception) {
+            log(headers, method, url, params, -1, e.toString())
+            throw e
+        }
         val code = response.code
         val body = if (response.promisesBody() && !bodyEncoded(response.headers)) {
             getResponseBody(response)
