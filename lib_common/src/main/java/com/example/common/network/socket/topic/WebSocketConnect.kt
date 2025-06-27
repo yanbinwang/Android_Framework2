@@ -1,5 +1,6 @@
 package com.example.common.network.socket.topic
 
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.config.ServerConfig
 
 /**
@@ -11,8 +12,8 @@ object WebSocketConnect {
     private val proxy by lazy { WebSocketTopic(ServerConfig.socketUrl()) }
 
     @JvmStatic
-    fun topic(vararg destinations:  String) {
-        proxy.topic(*destinations)
+    fun topic(owner: LifecycleOwner, vararg destinations:  String) {
+        proxy.topic(owner, *destinations)
     }
 
     @JvmStatic

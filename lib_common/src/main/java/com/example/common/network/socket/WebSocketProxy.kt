@@ -1,11 +1,15 @@
 package com.example.common.network.socket
 
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import cn.zhxu.okhttps.OkHttps
 import cn.zhxu.okhttps.WebSocket
 import cn.zhxu.stomp.Header
 import cn.zhxu.stomp.Message
 import cn.zhxu.stomp.Stomp
 import com.example.framework.utils.logWTF
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * 非订阅长连接类->websocket代理类
@@ -24,16 +28,13 @@ class WebSocketProxy(private val socketUrl: String) {
     /**
      * 如果长连接此时正在连接，直接断开，1s后重新发起
      */
-    fun connect(list: List<Header>? = headers) {
+    fun connect(owner: LifecycleOwner, list: List<Header>? = headers) {
         if (isConnected()) {
             disconnect()
-//            /**
-//             * 尽量避免使用此类协程，容易造成内存泄漏
-//             */
-//            GlobalScope.launch(Main) {
-//                delay(1000)
+            owner.lifecycleScope.launch {
+                delay(1000)
                 connectNow(list)
-//            }
+            }
         } else {
             connectNow(list)
         }

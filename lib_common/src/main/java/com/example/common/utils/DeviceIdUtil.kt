@@ -65,12 +65,12 @@ object DeviceIdUtil {
      */
     val deviceId: String
         get() {
-            if (CacheData.deviceId.get().isEmpty()) {
+            if (CacheData.deviceId.get().isNullOrEmpty()) {
                 CacheData.deviceId.set(getId().let {
                     return@let if (it.length > 30) it.substring(0, 30) else it
                 })
             }
-            return CacheData.deviceId.get()
+            return CacheData.deviceId.get().orEmpty()
         }
 
     /**
@@ -186,7 +186,7 @@ object DeviceIdUtil {
             if (stmp.length == 1) sb.append("0")
             sb.append(stmp)
         }
-        return sb.toString().toUpperCase(Locale.CHINA)
+        return sb.toString().uppercase(Locale.CHINA)
     }
 
 }
