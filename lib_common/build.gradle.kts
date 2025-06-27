@@ -25,25 +25,26 @@ android {
         minSdk = libs.versions.minSdkVersion.get().toInt()
         targetSdk = libs.versions.targetSdkVersion.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        // arouter 编译
-        kapt {
-            arguments {
-                arg("AROUTER_MODULE_NAME", project.name)
-            }
-        }
     }
 
     buildFeatures {
         dataBinding = true
     }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+    // arouter 编译
+    kapt {
+        arguments {
+            arg("AROUTER_MODULE_NAME", project.name)
+        }
     }
 
     kotlinOptions {
         jvmTarget = "11"
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     buildTypes {

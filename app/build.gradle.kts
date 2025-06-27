@@ -24,8 +24,8 @@ android {
             storePassword = keystoreProperties.getProperty("storePassword")
             keyAlias = keystoreProperties.getProperty("keyAlias")
             keyPassword = keystoreProperties.getProperty("keyPassword")
-            isV1SigningEnabled = true
-            isV2SigningEnabled = true
+            enableV1Signing = true
+            enableV2Signing = true
         }
         create("customDebug") {
             storeFile = file(keystoreProperties.getProperty("storeFile"))
@@ -62,12 +62,6 @@ android {
         multiDexEnabled = true
 //        // 告知 Gradle 只打包 hdpi、xhdpi 和 xxhdpi 这三种屏幕密度的资源->如果23最低版本，启用这行
 //        resConfigs("hdpi", "xhdpi", "xxhdpi")
-        // arouter 编译
-        kapt {
-            arguments {
-                arg("AROUTER_MODULE_NAME", project.name)
-            }
-        }
         // Manifest 配置引用
         manifestPlaceholders.putAll(
             mutableMapOf(
@@ -83,13 +77,20 @@ android {
         dataBinding = true
     }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+    // arouter 编译
+    kapt {
+        arguments {
+            arg("AROUTER_MODULE_NAME", project.name)
+        }
     }
 
     kotlinOptions {
         jvmTarget = "11"
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     // AAB 打包配置（关键！）

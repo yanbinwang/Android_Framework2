@@ -1,5 +1,6 @@
 package com.example.common.network.socket.topic
 
+import androidx.lifecycle.LifecycleOwner
 import cn.zhxu.okhttps.WebSocket
 import cn.zhxu.stomp.Message
 import cn.zhxu.stomp.Stomp
@@ -47,14 +48,14 @@ class WebSocketTopic(private val socketUrl: String) {
     /**
      *  建立websocket连接，批量订阅务提供的wss地址
      */
-    fun topic(vararg destinations: String) {
+    fun topic(owner: LifecycleOwner, vararg destinations: String) {
         //未登录不订阅
         if (!isLogin()) return
         //未连接先不订阅，先做地址连接（proxy.connect()），连接成功后会在onConnected（）回调监听中订阅
         list.clear()
         list.addAll(destinations.toList())
         if (!proxy.isConnected()) {
-            proxy.connect()
+            proxy.connect(owner)
             return
         }
         //开始批量订阅wss地址

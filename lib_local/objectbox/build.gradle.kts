@@ -13,20 +13,21 @@ android {
         minSdk = libs.versions.minSdkVersion.get().toInt()
         targetSdk = libs.versions.targetSdkVersion.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        kapt {
-            arguments {
-                arg("objectbox.modelPath", "$projectDir/src/main/assets/dao/evidence.json")
-            }
+    }
+
+    kapt {
+        arguments {
+            arg("objectbox.modelPath", "$projectDir/src/main/assets/dao/evidence.json")
         }
+    }
+
+    kotlinOptions {
+        jvmTarget = "11"
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = "11"
     }
 
     buildTypes {

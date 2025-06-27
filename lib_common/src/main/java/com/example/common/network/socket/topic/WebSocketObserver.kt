@@ -53,7 +53,7 @@ object WebSocketObserver : LifecycleEventObserver {
         clazz ?: return
         val value = clazz.value
         when (event) {
-            Lifecycle.Event.ON_RESUME -> WebSocketConnect.topic(*value)
+            Lifecycle.Event.ON_RESUME -> WebSocketConnect.topic(source, *value)
             Lifecycle.Event.ON_PAUSE -> WebSocketConnect.untopic(*value)
             Lifecycle.Event.ON_DESTROY -> remove(source)
             else -> {}

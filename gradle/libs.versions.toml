@@ -1,7 +1,7 @@
 [versions]
 #---------------------------------------------settings.gradle版本---------------------------------------------
-agp = "8.10.1"
-kotlin = "2.0.21"
+agp = "8.11.0"
+kotlin = "2.2.0"
 #---------------------------------------------模块测试库版本---------------------------------------------
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -16,8 +16,8 @@ lifecycleRuntimeKtx = "2.8.7"#runtime库包含了viewmodel，livedata等一系�
 material = "1.10.0"
 flexbox = "3.0.0"
 #---------------------------------------------网络请求库retrofit2版本---------------------------------------------
-retrofit = "2.9.0"
-converterGson = "2.9.0"
+retrofit = "3.0.0"
+converterGson = "3.0.0"
 #---------------------------------------------阿里路由版本---------------------------------------------
 arouterApi = "1.5.2"
 arouterCompiler = "1.5.2"
@@ -26,16 +26,16 @@ recovery = "1.0.0"
 #leakcanary = "2.11"
 #---------------------------------------------其余三方控件版本---------------------------------------------
 androidAutoSize = "v1.2.1"
-mmkvStatic = "1.2.2"
+mmkvStatic = "2.2.2"
 newbieGuide = "v2.4.4"
-refreshLayoutKernel = "2.0.5"
-xxpermissions = "21.2"
+refreshLayoutKernel = "2.1.1"
+xxpermissions = "23.0"
 immersionbar = "3.2.2"
-stomp = "4.0.1"
+stomp = "4.1.0"
 #---------------------------------------------全局版本配置---------------------------------------------
-compileSdkVersion = "35" #构建版本号
+compileSdkVersion = "36" #构建版本号
 minSdkVersion = "21" #最低安装版本
-targetSdkVersion = "35" #最高安装版本/应用在运行时将遵循哪个版本的行为和特性
+targetSdkVersion = "36" #最高安装版本/应用在运行时将遵循哪个版本的行为和特性
 versionCode = "1" #版本号
 versionName = "1.0.0" #版本名
 #---------------------------------------------基础参数配置---------------------------------------------
@@ -61,7 +61,7 @@ androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecyc
 google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }#design库
 google-flexbox = { group = "com.google.android.flexbox", name = "flexbox", version.ref = "flexbox" }#谷歌官方自动换行布局
 
-#网络请求库retrofit2
+#网络请求库retrofit3
 squareup-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 squareup-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converterGson" }
 
