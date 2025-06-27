@@ -34,7 +34,7 @@ immersionbar = "3.2.2"
 stomp = "4.1.0"
 #---------------------------------------------全局版本配置---------------------------------------------
 compileSdkVersion = "36" #构建版本号
-minSdkVersion = "21" #最低安装版本
+minSdkVersion = "23" #最低安装版本
 targetSdkVersion = "36" #最高安装版本/应用在运行时将遵循哪个版本的行为和特性
 versionCode = "1" #版本号
 versionName = "1.0.0" #版本名
