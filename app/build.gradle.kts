@@ -91,7 +91,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    // AAB 打包配置（关键！）
+    // AAB 打包配置
     bundle {
         // 此配置用于控制是否按语言对资源进行拆分。当 enableSplit 设置为 true 时，Gradle 会根据应用中包含的不同语言资源，生成多个包含不同语言资源的 AAB 包。
         language {
@@ -136,11 +136,11 @@ android {
             }
 
             // 去除gradle升级版本后映射文件的警告
-            lintOptions {
+            lint {
                 // 不检查发布版本的构建
-                isCheckReleaseBuilds = false
+                checkReleaseBuilds = false
                 // 出现错误时不终止构建
-                isAbortOnError = false
+                abortOnError = false
             }
 
             isMinifyEnabled = true //最小化资源包
