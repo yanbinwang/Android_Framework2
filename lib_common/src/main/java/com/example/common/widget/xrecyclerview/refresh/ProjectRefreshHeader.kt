@@ -108,6 +108,10 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
         return false
     }
 
+    override fun autoOpen(duration: Int, dragRate: Float, animationOnly: Boolean): Boolean {
+        return true
+    }
+
     /**
      * 顶部如果直接是刷新，需要让刷新的头在状态栏下方展示并刷新，故而调用此代码重新设置一下顶部的高度和padding
      */
