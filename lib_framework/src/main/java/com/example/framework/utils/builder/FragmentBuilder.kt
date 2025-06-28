@@ -117,23 +117,23 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
         isArguments = hasBundle
         managerLength = if (hasBundle) clazzBundle.safeSize else clazz.safeSize
         buffer.clear()
-        selectTab(default)
+        commit(default)
     }
 
     /**
      * 切换选择
      * 重复选择或者超过初始化长度都return
      */
-    fun selectTab(tab: Int, recreate: Boolean = false) {
+    fun commit(tab: Int, recreate: Boolean = false) {
         if (recreate) {
-            selectTabNow(tab)
+            commitNow(tab)
         } else {
             if (currentItem == tab || tab > managerLength - 1 || tab < 0) return
-            selectTabNow(tab)
+            commitNow(tab)
         }
     }
 
-    private fun selectTabNow(tab: Int) {
+    private fun commitNow(tab: Int) {
         currentItem = tab
         val transaction = fragmentManager.beginTransaction()
         //设置动画（进入、退出、返回进入、返回退出）->只有add这种保留原fragment在栈内的情况才会设置动画

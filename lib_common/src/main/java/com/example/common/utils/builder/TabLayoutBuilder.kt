@@ -117,7 +117,6 @@ import java.util.concurrent.ConcurrentHashMap
 @SuppressLint("ClickableViewAccessibility")
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
     private var bindMode = -1//绑定模式 -> -1：正常 / 0：FragmentManager / 1：ViewPager2
-    private var lastCurrentItem = -1//上一次选中下标
     private var hasAction: Boolean = false//是否重写过点击
     private var builder: FragmentBuilder? = null
     private var mediator: TabLayoutMediator? = null
@@ -154,7 +153,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
                 //子tab状态回调
                 onBindView(tabViews[this], tabList.safeGet(this), selected, this)
                 //下标对应的fragment显示,只有manager需要手动切，viewpager2在绑定时就已经实现了切换
-                if (selected && 0 == bindMode) builder?.selectTab(this)
+                if (selected && 0 == bindMode) builder?.commit(this)
             }
         }
     }
@@ -171,7 +170,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
         for (j in 0 until mTabCount) {
             onBindView(tabViews[j], tabList.safeGet(j), j == i, j)
         }
-        if (0 == bindMode) builder?.selectTab(i)
+        if (0 == bindMode) builder?.commit(i)
     }
 
     /**
@@ -209,7 +208,6 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     }
 
     private fun initView(list: List<T>? = null) {
-        lastCurrentItem = -1
         tab?.removeAllTabs()
         tabViews.clear()
         if (null != list) tabList = list
@@ -286,10 +284,10 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      */
     fun setSelect(index: Int, recreate: Boolean = false) {
         if (recreate) {
-            builder?.selectTab(index, true)
+            if (0 == bindMode) builder?.commit(index, true)
             selectTabNow(index)
         } else {
-            if (index == lastCurrentItem || index > mTabCount - 1 || index < 0) return
+            if (index == mCurrentItem || index > mTabCount - 1 || index < 0) return
             selectTabNow(index)
         }
     }
@@ -301,7 +299,6 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * 如果当前线程不是 UI 线程，Runnable 会被发送到 UI 线程的消息队列中执行
      */
     private fun selectTabNow(index: Int) {
-        lastCurrentItem = index
         if (hasAction) {
             allowedResetAction(tab?.getTabAt(index), index)
         } else {
