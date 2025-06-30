@@ -2,7 +2,7 @@ package com.example.common.widget.popup.select
 
 import androidx.fragment.app.FragmentActivity
 import com.example.common.base.BasePopupWindow
-import com.example.common.base.PopupAnimType.TRANSLATE
+import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.TRANSLATE
 import com.example.common.databinding.ViewPopupSelectLabelBinding
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.safeSize
