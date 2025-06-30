@@ -22,9 +22,9 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
-import com.example.common.base.PopupAnimType.ALPHA
-import com.example.common.base.PopupAnimType.NONE
-import com.example.common.base.PopupAnimType.TRANSLATE
+import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.ALPHA
+import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.NONE
+import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.TRANSLATE
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.doOnDestroy
@@ -53,6 +53,15 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     protected val context: Context get() = activity
     protected val ownerActivity: Activity = activity
     protected val lifecycleOwner get() = ownerActivity as? LifecycleOwner
+
+    companion object {
+        /**
+         * 内置常量集
+         */
+        enum class PopupAnimType {
+            NONE, TRANSLATE, ALPHA
+        }
+    }
 
     init {
         initView(null)
@@ -99,39 +108,6 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      * 默认底部弹出
      */
     private fun setAnimation() {
-//        when (popupAnimStyle) {
-//            ALPHA -> {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                    enterTransition = Fade().apply {
-//                        duration = 300
-//                        mode = Visibility.MODE_IN
-//                    }
-//                    exitTransition = Fade().apply {
-//                        duration = 300
-//                        mode = Visibility.MODE_OUT
-//                    }
-//                } else {
-//                    animationStyle = R.style.PopupAlphaAnimStyle
-//                }
-//            }
-//            TRANSLATE -> {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                    enterTransition = Slide().apply {
-//                        duration = 300
-//                        mode = Visibility.MODE_IN
-//                        slideEdge = BOTTOM
-//                    }
-//                    exitTransition = Slide().apply {
-//                        duration = 300
-//                        mode = Visibility.MODE_OUT
-//                        slideEdge = BOTTOM
-//                    }
-//                } else {
-//                    animationStyle = R.style.PopupTranslateAnimStyle
-//                }
-//            }
-//            NONE -> animationStyle = -1
-//        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val (enter, exit) = when (popupAnimStyle) {
                 ALPHA -> Pair(
@@ -165,50 +141,6 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="重写方法">
-//    override fun showAsDropDown(anchor: View?) {
-//        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-//        if (popupView?.context == null) return
-//        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
-//        try {
-//            setAttributes()
-//            super.showAsDropDown(anchor)
-//        } catch (_: Exception) {
-//        }
-//    }
-//
-//    override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int) {
-//        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-//        if (popupView?.context == null) return
-//        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
-//        try {
-//            setAttributes()
-//            super.showAsDropDown(anchor, xoff, yoff)
-//        } catch (_: Exception) {
-//        }
-//    }
-//
-//    override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
-//        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-//        if (popupView?.context == null) return
-//        if ((popupView?.context as? Activity)?.isFinishing.orFalse) return
-//        try {
-//            setAttributes()
-//            super.showAsDropDown(anchor, xoff, yoff, gravity)
-//        } catch (_: Exception) {
-//        }
-//    }
-//
-//    override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
-//        if (Looper.myLooper() == null || Looper.myLooper() != Looper.getMainLooper()) return
-//        if ((mContext as? Activity)?.isFinishing.orFalse) return
-//        if ((mContext as? Activity)?.isDestroyed.orFalse) return
-//        try {
-//            setAttributes()
-//            super.showAtLocation(parent, gravity, x, y)
-//        } catch (_: Exception) {
-//        }
-//    }
-
     override fun showAsDropDown(anchor: View?) {
         showPopup({ super.showAsDropDown(anchor) }, ::checkShowAsDropDownConditions)
     }
@@ -226,15 +158,15 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     }
 
     private fun checkShowAsDropDownConditions() = Looper.myLooper() != null &&
-                Looper.myLooper() == Looper.getMainLooper() &&
-                rootView?.context != null &&
-                (rootView?.context as? Activity)?.isFinishing == false &&
-                (rootView?.context as? Activity)?.isDestroyed == false
+            Looper.myLooper() == Looper.getMainLooper() &&
+            rootView?.context != null &&
+            (rootView?.context as? Activity)?.isFinishing == false &&
+            (rootView?.context as? Activity)?.isDestroyed == false
 
     private fun checkShowAtLocationConditions() = Looper.myLooper() != null &&
-                Looper.myLooper() == Looper.getMainLooper() &&
-                (context as? Activity)?.isFinishing == false &&
-                (context as? Activity)?.isDestroyed == false
+            Looper.myLooper() == Looper.getMainLooper() &&
+            (context as? Activity)?.isFinishing == false &&
+            (context as? Activity)?.isDestroyed == false
 
     private fun showPopup(showFunction: () -> Unit, checkCondition: () -> Boolean) {
         if (checkCondition()) {
@@ -314,8 +246,4 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     }
     // </editor-fold>
 
-}
-
-enum class PopupAnimType {
-    NONE, TRANSLATE, ALPHA
 }
