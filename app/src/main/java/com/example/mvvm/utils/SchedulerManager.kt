@@ -17,6 +17,30 @@ class SchedulerManager(private val context: Context) {
     companion object {
 
         /**
+         * 自定义优先级
+         */
+        enum class JobPriority {
+            IMMEDIATE,      // 立即执行（如消息推送）
+            HIGH,           // 高优先级（如支付回调）
+            NORMAL,         // 普通优先级（如数据同步）
+            LOW;            // 低优先级（如日志上传）
+
+            fun getMinimumLatency(): Long = when (this) {
+                IMMEDIATE -> 1000
+                HIGH -> 5000
+                NORMAL -> 60000
+                LOW -> 5 * 60 * 1000
+            }
+
+            fun getOverrideDeadline(): Long = when (this) {
+                IMMEDIATE -> 3000
+                HIGH -> 30000
+                NORMAL -> 30 * 60 * 1000
+                LOW -> 24 * 60 * 60 * 1000
+            }
+        }
+
+        /**
          * 方法	      build()	               buildPeriodicJob()
          * 任务类型	  一次性任务（执行一次）	   周期性任务（循环执行）
          * 核心参数	  优先级、网络、充电状态等	   执行周期（intervalMillis）、灵活窗口（flexMillis）
@@ -121,28 +145,4 @@ class SchedulerManager(private val context: Context) {
         return this
     }
 
-}
-
-/**
- * 自定义优先级
- */
-enum class JobPriority {
-    IMMEDIATE,      // 立即执行（如消息推送）
-    HIGH,           // 高优先级（如支付回调）
-    NORMAL,         // 普通优先级（如数据同步）
-    LOW;            // 低优先级（如日志上传）
-
-    fun getMinimumLatency(): Long = when (this) {
-        IMMEDIATE -> 1000
-        HIGH -> 5000
-        NORMAL -> 60000
-        LOW -> 5 * 60 * 1000
-    }
-
-    fun getOverrideDeadline(): Long = when (this) {
-        IMMEDIATE -> 3000
-        HIGH -> 30000
-        NORMAL -> 30 * 60 * 1000
-        LOW -> 24 * 60 * 60 * 1000
-    }
 }
