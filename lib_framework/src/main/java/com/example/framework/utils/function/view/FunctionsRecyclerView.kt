@@ -4,7 +4,13 @@ import android.annotation.SuppressLint
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.ViewGroup
-import androidx.recyclerview.widget.*
+import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
@@ -30,6 +36,15 @@ fun RecyclerView?.init(hasFixedSize: Boolean = true) {
 }
 
 /**
+ * 触发本身绑定适配器的刷新
+ */
+@SuppressLint("NotifyDataSetChanged")
+fun RecyclerView?.refresh() {
+    if (this == null) return
+    this.adapter?.notifyDataSetChanged()
+}
+
+/**
  * 清空自带的动画
  */
 fun RecyclerView?.cancelItemAnimator() {
@@ -44,13 +59,64 @@ fun RecyclerView?.cancelItemAnimator() {
 }
 
 /**
- * 触发本身绑定适配器的刷新
+ * RecyclerView 缓存控制扩展函数
+ * 适用于需要精确控制资源加载的场景
  */
-@SuppressLint("NotifyDataSetChanged")
-fun RecyclerView?.refresh() {
-    if (this == null) return
-    this.adapter?.notifyDataSetChanged()
+fun RecyclerView?.disableViewHolderCache() {
+    this ?: return
+    // 禁用一级缓存（scrap cache）
+    setViewCacheExtension(null)
+    // 清空复用池（二级缓存）
+    recycledViewPool.clear()
+    // 禁用变更动画（避免复用导致的视觉问题）
+    (itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
 }
+
+/**
+ * 恢复 RecyclerView 默认缓存策略
+ */
+fun RecyclerView?.enableViewHolderCache() {
+    this ?: return
+    // 恢复默认缓存策略（一级缓存大小由系统管理）
+    setViewCacheExtension(null) // 保持默认值
+    // 不需要清空复用池，保持自然回收
+    (itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = true
+}
+
+/**
+ * 临时禁用缓存执行操作并自动恢复
+ * 它只在执行特定操作（如数据刷新）时临时禁用缓存，操作完成后立即恢复默认缓存策略，实现精确控制与性能优化的平衡
+ */
+fun RecyclerView?.withTempDisabledCache(block: () -> Unit) {
+    this ?: return
+    // 1. 保存当前动画状态
+    val originalAnimations = (itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations ?: true
+    // 2. 临时禁用缓存
+    disableViewHolderCache()
+    // 3. 执行具体操作（如刷新数据）
+    block()
+    // 4. 恢复缓存策略（在 block 之后执行）
+    enableViewHolderCache()
+    // 5. 恢复原始动画状态（在 block 之后执行）
+    (itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = originalAnimations
+}
+//* // 使用示例
+//* recyclerView.withAsyncTempDisabledCache { onComplete ->
+//    *     // ② 启动异步请求
+//    *     viewModel.fetchData { result ->
+//        *         adapter.updateData(result)
+//        *         onComplete()  // 请求完成后调用回调
+//        *     }
+//    * }
+//inline fun RecyclerView?.withTempDisabledCache(crossinline block: (onComplete: () -> Unit) -> Unit) {
+//    this ?: return
+//    val originalAnimations = (itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations ?: true
+//    disableViewHolderCache()
+//    block {
+//        enableViewHolderCache()
+//        (itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = originalAnimations
+//    }
+//}
 
 /**
  * 判断是否滑到顶端
