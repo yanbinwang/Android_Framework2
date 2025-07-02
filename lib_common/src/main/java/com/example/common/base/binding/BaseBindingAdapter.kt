@@ -181,23 +181,26 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["text", "spannable", "textColor", "background", "visibility"], requireAll = false)
     fun bindingTextViewTheme(view: TextView, text: String?, spannable: Spannable?, textColor: Int?, background: Int?, visibility: Int?) {
-        if (text != null) {
-            //处理文本设置(文本是必须要加载出来的)
+        //处理文本设置
+        text?.let { newText ->
             val textKey = R.id.theme_text_tag
             val oldText = view.getTag(textKey) as? String
-            if (oldText != text) {
-                view.text = text
-                view.setTag(textKey, text)
+            if (oldText != newText) {
+                view.text = newText
+                view.setTag(textKey, newText)
             }
-        } else if (spannable != null) {
-            //处理高亮文本
+        }
+        //处理高亮文本
+        spannable?.let { newSpannable ->
             val spanKey = R.id.theme_spannable_tag
             val oldSpan = view.getTag(spanKey) as? Spannable
-            if (oldSpan != spannable) {
-                view.text = spannable
-                view.setTag(spanKey, spannable)
+            if (oldSpan != newSpannable) {
+                view.text = newSpannable
+                view.setTag(spanKey, newSpannable)
             }
-        } else {
+        }
+        //文本是必须要加载出来的
+        if (text == null && spannable == null) {
             view.text = NO_DATA
         }
         //处理文本颜色设置
