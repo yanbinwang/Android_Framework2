@@ -258,7 +258,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     override fun finish() {
         onFinishListener?.onFinish(this)
         super.finish()
-        if (needTransparentOwner) overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_in)
+        if (needTransparentOwner) overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_out)
     }
 
     override fun onDestroy() {
