@@ -175,12 +175,13 @@
                 调整当前活动的内容，以便用户可以看到当前获得焦点的视图。
         -->
 
+        <!-- 不可变一般是adjustPan  可变会拉伸则是adjustResize(注册,登录等有输入框的页面) -->
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
 
         <activity
             android:name=".activity.TestActivity"

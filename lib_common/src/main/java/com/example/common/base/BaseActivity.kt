@@ -9,9 +9,14 @@ import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
 import android.view.WindowInsets
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import androidx.activity.result.ActivityResult
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.app.ActivityOptionsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.MutableLiveData
@@ -37,6 +42,7 @@ import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
+import com.example.common.widget.textview.edittext.SpecialEditText
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.getIntent
@@ -286,6 +292,68 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     protected open fun clearOnActivityResultListener() {
         onActivityResultListener = null
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="软键盘相关">
+    /**
+     * 点击EditText之外的部分关闭软键盘
+     */
+    private var flagMove = false
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        return super.dispatchTouchEvent(ev)
+    }
+
+    protected fun hideInputMethod(v: View?) {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.hideSoftInputFromWindow(v?.windowToken, 0)
+    }
+
+    /**
+     * 设置EditText失去焦点
+     */
+    private fun clearEditTextFocus(view: View?) {
+        if (view != null && view is EditText) {
+            view.clearFocus()
+        }
+    }
+
+    private fun View.findSpecialEditTextParent(maxTimes: Int): View? {
+        var view = this
+        for (i in 0..maxTimes) {
+            if (view is SpecialEditText) return view
+            view = view.parent as? View ?: return null
+        }
+        return null
+    }
+
+    /**
+     * 判断是否应该隐藏软键盘
+     */
+    private fun isShouldHideInput(v: View?, event: MotionEvent): Boolean {
+        if (v != null && (v is EditText || v is AppCompatEditText || v is SpecialEditText)) {
+            val leftTop = intArrayOf(0, 0)
+            val width: Int
+            val height: Int
+            //获取输入框当前的location位置
+            val parent = v.findSpecialEditTextParent(5)
+            if (parent != null) {
+                parent.getLocationInWindow(leftTop)
+                height = parent.height
+                width = parent.width
+            } else {
+                v.getLocationInWindow(leftTop)
+                height = v.height
+                width = v.width
+            }
+            val left = leftTop[0]
+            val top = leftTop[1]
+            val bottom = top + height
+            val right = left + width
+            //点击的是输入框区域，保留点击EditText的事件
+            return !(event.rawX.toInt() in left..right && event.rawY.toInt() in top..bottom)
+        }
+        return false
     }
     // </editor-fold>
 
