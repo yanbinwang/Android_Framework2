@@ -78,12 +78,17 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
             )
             removeAllViews()
             list.forEachIndexed { index, t ->
-                addView(SelectItemHolder(this, formatter(t), index).also {
+                // 获取根布局
+                val root = SelectItemHolder(this, formatter(t), index).also {
                     it.onItemClick = { item, clickIndex ->
                         dismiss()
                         onCurrent?.invoke(item, clickIndex)
                     }
-                }.mBinding.root)
+                }.mBinding.root
+                // 添加布局进外层父布局
+                addView(root)
+                // 添加完成后设置大小
+                root.size(height = 50.pt)
                 // 绘制下划线
                 if (list.safeSize - 1 > index) {
                     addDivider(this)

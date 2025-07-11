@@ -8,6 +8,7 @@ import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.function.view.size
 
 /**
  * Created by wangyanbin
@@ -31,6 +32,8 @@ class SelectLabelPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Str
                     }.mBinding.root
                     // 添加布局进外层父布局
                     addView(root)
+                    // 添加完成后设置大小
+                    root.size(height = 50.pt)
                     // 判断是否需要添加下划线
                     if (list.safeSize - 1 > index) {
                         root.margin(bottom = 1.pt)
