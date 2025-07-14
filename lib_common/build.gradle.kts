@@ -70,9 +70,9 @@ dependencies {
     api(libs.autosize)
     api(libs.smartrefresh)
     api(libs.guide)
+    api(libs.xxpermissions)
     implementation(libs.stomp)
     implementation(libs.mmkv)
-    implementation(libs.xxpermissions)
     implementation(libs.immersionbar)
     //页面路由
     implementation(libs.alibaba.arouter.api)
