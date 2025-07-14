@@ -3,50 +3,64 @@ package com.example.common.utils.permission
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.hjq.permissions.Permission
+import com.hjq.permissions.permission.PermissionLists
+import com.hjq.permissions.permission.PermissionNames
 
 /**
  * 方便直接通过权限组提取权限
+ * 特殊权限 (部分权限不属于任何组，需单独处理)
+ * ACCESS_BACKGROUND_LOCATION：后台定位（需先获得 ACCESS_FINE_LOCATION）。
+ * MANAGE_EXTERNAL_STORAGE：管理所有文件（Android 11+，需特殊申请）。
+ * SYSTEM_ALERT_WINDOW：悬浮窗权限。
  */
 object XXPermissionsGroup {
-    val CALENDAR = arrayOf(Permission.READ_CALENDAR, Permission.WRITE_CALENDAR)
-    val CAMERA = arrayOf(Permission.CAMERA)
-    val CONTACTS = arrayOf(Permission.READ_CONTACTS, Permission.WRITE_CONTACTS, Permission.GET_ACCOUNTS)
-    val LOCATION = arrayOf(Permission.ACCESS_FINE_LOCATION, Permission.ACCESS_COARSE_LOCATION)
-    val MICROPHONE = arrayOf(Permission.RECORD_AUDIO)
-    val PHONE = arrayOf(Permission.READ_PHONE_STATE, Permission.CALL_PHONE, Permission.READ_CALL_LOG, Permission.WRITE_CALL_LOG, Permission.ADD_VOICEMAIL, Permission.USE_SIP, Permission.PROCESS_OUTGOING_CALLS)
-    val SENSORS = arrayOf(Permission.BODY_SENSORS)
-    val SMS = arrayOf(Permission.SEND_SMS, Permission.RECEIVE_SMS, Permission.READ_SMS, Permission.RECEIVE_WAP_PUSH, Permission.RECEIVE_MMS)
-    val STORAGE = getStorageGroup(true)
+    // 静态文字权限组(用于系统检测)
+    val CALENDAR = arrayOf(PermissionNames.READ_CALENDAR, PermissionNames.WRITE_CALENDAR)
+    val CAMERA = arrayOf(PermissionNames.CAMERA)
+    val CONTACTS = arrayOf(PermissionNames.READ_CONTACTS, PermissionNames.WRITE_CONTACTS, PermissionNames.GET_ACCOUNTS)
+    val LOCATION = arrayOf(PermissionNames.ACCESS_FINE_LOCATION, PermissionNames.ACCESS_COARSE_LOCATION)
+    val MICROPHONE = arrayOf(PermissionNames.RECORD_AUDIO)
+    val PHONE = arrayOf(PermissionNames.READ_PHONE_STATE, PermissionNames.CALL_PHONE, PermissionNames.READ_CALL_LOG, PermissionNames.WRITE_CALL_LOG, PermissionNames.ADD_VOICEMAIL, PermissionNames.USE_SIP, PermissionNames.PROCESS_OUTGOING_CALLS)
+    val SENSORS = arrayOf(PermissionNames.BODY_SENSORS)
+    val SMS = arrayOf(PermissionNames.SEND_SMS, PermissionNames.RECEIVE_SMS, PermissionNames.READ_SMS, PermissionNames.RECEIVE_WAP_PUSH, PermissionNames.RECEIVE_MMS)
+    val STORAGE = getStorageGroup()
+    // 允许应用访问媒体文件中的地理位置信息（如照片的 EXIF 位置）-->Android 10 (API 29) 及以上。
+    val MEDIA_LOCATION = arrayOf(PermissionNames.ACCESS_MEDIA_LOCATION)
+    // 允许应用识别用户的身体活动（如步行、跑步、骑行）-->Android 10 (API 29) 及以上。
+    val ACTIVITY_RECOGNITION = arrayOf(PermissionNames.ACTIVITY_RECOGNITION)
+
+    // 动态权限组(用于库批量授权)
+    val CALENDAR_GROUP = listOf(PermissionLists.getReadCalendarPermission(), PermissionLists.getWriteCalendarPermission())
+    val CAMERA_GROUP = listOf(PermissionLists.getCameraPermission())
+    val CONTACTS_GROUP = listOf(PermissionLists.getReadContactsPermission(), PermissionLists.getWriteContactsPermission(), PermissionLists.getGetAccountsPermission())
+    val LOCATION_GROUP = listOf(PermissionLists.getAccessFineLocationPermission(), PermissionLists.getAccessCoarseLocationPermission())
+    val MICROPHONE_GROUP = listOf(PermissionLists.getRecordAudioPermission())
+    val PHONE_GROUP = listOf(PermissionLists.getReadPhoneStatePermission(), PermissionLists.getCallPhonePermission(), PermissionLists.getReadCallLogPermission(), PermissionLists.getWriteCallLogPermission(), PermissionLists.getAddVoicemailPermission(), PermissionLists.getUseSipPermission(), PermissionLists.getProcessOutgoingCallsPermission())
+    val SENSORS_GROUP = listOf(PermissionLists.getBodySensorsPermission())
+    val SMS_GROUP = listOf(PermissionLists.getSendSmsPermission(), PermissionLists.getReceiveSmsPermission(), PermissionLists.getReadSmsPermission(), PermissionLists.getReceiveWapPushPermission(), PermissionLists.getReceiveMmsPermission())
+    val STORAGE_GROUP = listOf(PermissionLists.getReadMediaImagesPermission(), PermissionLists.getReadMediaVideoPermission(), PermissionLists.getReadMediaAudioPermission())
+    val MEDIA_LOCATION_GROUP = listOf(PermissionLists.getAccessMediaLocationPermission())
+    val ACTIVITY_RECOGNITION_GROUP = listOf(PermissionLists.getActivityRecognitionPermission())
 
     /**
-     * 获取存储权限组（适配第三方库限制）
-     * PermissionChecker.java:158权限库针对targetSdkVersion >= 33直接抛出了异常，会导致我们使用时闪退，内部已经对旧的读写权限写了兼容代码
-     * 我们需要在使用时只传入Permission.READ_MEDIA_IMAGES, Permission.READ_MEDIA_VIDEO, Permission.READ_MEDIA_AUDIO，而本地检测时（调用系统）使用版本判断
-     * @param isRequest 是否为权限请求（true表示请求权限，false表示检查权限）
+     * 获取存储权限组
      */
     @JvmStatic
-    fun getStorageGroup(isRequest: Boolean = false): Array<String> {
-        return if (isRequest) {
-            arrayOf(Permission.READ_MEDIA_IMAGES, Permission.READ_MEDIA_VIDEO, Permission.READ_MEDIA_AUDIO)
-        } else {
-            val deviceSdkInt = Build.VERSION.SDK_INT
-            return when {
-                // Android 13+ 设备，使用媒体权限
-                deviceSdkInt >= Build.VERSION_CODES.TIRAMISU -> {
-                    arrayOf(Permission.READ_MEDIA_IMAGES, Permission.READ_MEDIA_VIDEO, Permission.READ_MEDIA_AUDIO)
-                }
-                // Android 12- 设备，使用旧存储权限
-                deviceSdkInt >= Build.VERSION_CODES.P -> {
-                    // Android 10-12：使用 READ_EXTERNAL_STORAGE
-                    arrayOf(Permission.READ_EXTERNAL_STORAGE)
-                }
-                // Android 9 及以下，需要读写权限
-                else -> {
-                    arrayOf(Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE)
-                }
+    fun getStorageGroup(): Array<String> {
+        val deviceSdkInt = Build.VERSION.SDK_INT
+        return when {
+            // Android 13+ 设备，使用媒体权限
+            deviceSdkInt >= Build.VERSION_CODES.TIRAMISU -> {
+                arrayOf(PermissionNames.READ_MEDIA_IMAGES, PermissionNames.READ_MEDIA_VIDEO, PermissionNames.READ_MEDIA_AUDIO)
+            }
+            // Android 10-12：使用 READ_EXTERNAL_STORAGE（已启用 requestLegacyExternalStorage=true）
+            deviceSdkInt >= Build.VERSION_CODES.Q -> {
+                arrayOf(PermissionNames.READ_EXTERNAL_STORAGE)
+            }
+            // Android 9 及以下，需要读写权限
+            else -> {
+                arrayOf(PermissionNames.READ_EXTERNAL_STORAGE, PermissionNames.WRITE_EXTERNAL_STORAGE)
             }
         }
     }
@@ -95,16 +109,22 @@ fun Context.checkSelfSMS() = checkSelfPermission(this, *XXPermissionsGroup.SMS)
 /**
  * 存储权限组
  */
-fun Context.checkSelfStorage() = checkSelfPermission(this, *XXPermissionsGroup.getStorageGroup(false))
+fun Context.checkSelfStorage() = checkSelfPermission(this, *XXPermissionsGroup.STORAGE)
+
+/**
+ * 媒体位置权限组
+ */
+fun Context.checkSelfMediaLocation() = checkSelfPermission(this, *XXPermissionsGroup.MEDIA_LOCATION)
+
+/**
+ * 活动识别权限组
+ */
+fun Context.checkSelfActivityRecognition() = checkSelfPermission(this, *XXPermissionsGroup.ACTIVITY_RECOGNITION)
 
 /**
  * 权限检测
  */
 private fun checkSelfPermission(context: Context, vararg permissions: String): Boolean {
-//    permissions.forEach {
-//        if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(context, it)) return false
-//    }
-//    return true
     return permissions.all { permission ->
         ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
     }
