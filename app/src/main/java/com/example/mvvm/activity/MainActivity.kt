@@ -392,14 +392,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        BaseApplication.instance.initPrivacyAgreed()
 
         mBinding?.ivArrow.click {
-            navigation(ARouterPath.TestActivity2)
+//            navigation(ARouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
-//            mPermission.requestPermissions {
-//                if (it) {
-//                    navigation(ARouterPath.TestActivity)
-//                }
-//            }
+            mPermission.requestPermissions {
+                if (it) {
+                    navigation(ARouterPath.TestActivity)
+                }
+            }
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                //透明背景
 //                snackbar.setBackgroundTint(Color.TRANSPARENT)

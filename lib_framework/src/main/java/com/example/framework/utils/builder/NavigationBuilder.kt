@@ -236,7 +236,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
         if (bindMode == 1) {
             flipper?.setCurrentItem(tab, false)
         } else {
-            builder?.selectTab(tab, recreate)
+            builder?.commit(tab, recreate)
         }
         if (animation) {
             getItemView(tab)?.getChildAt(0)?.apply {
