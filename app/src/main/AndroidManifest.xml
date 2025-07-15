@@ -51,7 +51,7 @@
         android:name=".MyApplication"
         android:allowBackup="false"
         android:fullBackupContent="false"
-        android:hardwareAccelerated="false"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/appName"
         android:largeHeap="true"
