@@ -33,9 +33,9 @@ abstract class BaseQuickAdapter<T, VDB : ViewDataBinding> : BaseAdapter<T> {
         mBinding = holder.viewBinding()
     }
 
-    override fun onViewRecycled(holder: BaseViewDataBindingHolder) {
-        super.onViewRecycled(holder)
-        holder.unbind()
-    }
+//    override fun onViewRecycled(holder: BaseViewDataBindingHolder) {
+//        super.onViewRecycled(holder)
+//        holder.unbind()
+//    }
 
 }

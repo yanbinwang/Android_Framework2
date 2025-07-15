@@ -37,25 +37,11 @@ open class BaseViewDataBindingHolder(parent: ViewGroup, private val binding: Vie
         return binding as? VDB
     }
 
-    /**
-     * 解绑
-     */
-    fun unbind() {
-        binding?.unbind()
-    }
-
-    /**
-     * 设置tag的方法
-     */
-    fun setItemViewTag(key: Any, value: Any) {
-        itemView.setTag(key.hashCode(), value)
-    }
-
-    /**
-     * 获取tag的方法
-     */
-    fun <T> getItemViewTag(key: Any): T? {
-        return itemView.getTag(key.hashCode()) as? T
-    }
+//    /**
+//     * 解绑
+//     */
+//    fun unbind() {
+//        binding?.unbind()
+//    }
 
 }
