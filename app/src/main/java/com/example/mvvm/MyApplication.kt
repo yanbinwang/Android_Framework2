@@ -89,6 +89,8 @@ class MyApplication : BaseApplication() {
             val debuggingUtilClass = Class.forName("com.example.debugging.utils.DebuggingUtil")
             // 获取 init 方法（参数：Context, Class<?>）
             val initMethod = debuggingUtilClass.getMethod("init", Context::class.java, Class::class.java)
+//            // 解除访问限制（如果是private）
+//            initMethod.isAccessible = true
             // 调用静态方法
             initMethod.invoke(null, applicationContext, MainActivity::class.java)
         } catch (e: Exception) {
