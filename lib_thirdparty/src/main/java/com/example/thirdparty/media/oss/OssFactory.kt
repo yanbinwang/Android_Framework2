@@ -266,7 +266,13 @@ class OssFactory private constructor() : CoroutineScope {
                     var randomMod = Random.nextInt(5, 11)
                     val maxInterval = 7 //最大间隔，避免长时间无回调
                     val isCallBack = sourcePath.getLength() >= 100.mb//是否需要回调（目前只有100M+的文件需要进度条）
+                    var isUploadStarted = false
                     request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->
+                        if (!isUploadStarted && currentSize > 0) {
+                            isUploadStarted = true
+                            // 在这里执行上传开始后的操作，比如更新UI显示上传已开始
+                            callback(0 , baoquan)
+                        }
                         percentage = currentSize.divide(totalSize, 2).multiply(100).toSafeInt()
                         if (isCallBack) {
                             when (percentage) {
