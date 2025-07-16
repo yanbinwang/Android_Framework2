@@ -665,6 +665,7 @@ public static java.lang.String TABLENAME;
 -keep class com.scwang.smart.** { *; }
 -dontwarn com.scwang.smart.**
 #------------------------刷新混淆结束------------------------
+
 #------------------------测试库混淆开始------------------------
 # 1. 忽略测试库所有类的缺失警告（解决 R8 报错）
 -dontwarn com.example.debugging.**

@@ -36,3 +36,4 @@ include(":lib_common")
 include(":lib_framework")
 include(":lib_local:glide")
 include(":lib_local:topsheet")
+include(":lib_debugging")//调试库，正式包不会被打入
