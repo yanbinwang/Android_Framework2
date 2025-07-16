@@ -78,12 +78,24 @@ class MyApplication : BaseApplication() {
 //        initPrivacyAgreed(false)
     }
 
+    /**
+     * 1. getMethod(String name, Class<?>... parameterTypes)
+     * 作用：获取当前类或其父类中所有 public 方法，包括继承的方法。
+     * 若方法存在但非 public，会抛出 NoSuchMethodException。
+     * 只能获取 public 方法，无法获取 private/protected 方法。
+     * 2. getDeclaredMethod(String name, Class<?>... parameterTypes)
+     * 作用：获取当前类中所有声明的方法（无论访问修饰符），但不包括父类的方法。
+     * 虽然能获取私有方法，但调用前需通过 method.setAccessible(true) 突破访问限制。
+     * 无法获取父类的方法（即使父类方法是 public）。
+     */
     private fun initDebugging() {
         try {
             // 加载 DebuggingUtil 类
             val debuggingUtilClass = Class.forName("com.example.debugging.utils.DebuggingUtil")
             // 获取 init 方法（参数：Context, Class<?>）
             val initMethod = debuggingUtilClass.getMethod("init", Context::class.java, Class::class.java)
+//            // 解除访问限制（如果是private）
+//            initMethod.isAccessible = true
             // 调用静态方法
             initMethod.invoke(null, applicationContext, MainActivity::class.java)
         } catch (e: Exception) {

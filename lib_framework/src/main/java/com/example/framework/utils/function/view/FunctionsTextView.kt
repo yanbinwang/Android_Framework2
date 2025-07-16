@@ -10,7 +10,6 @@ import android.text.method.LinkMovementMethod
 import android.text.method.PasswordTransformationMethod
 import android.util.TypedValue
 import android.view.View
-import android.view.ViewTreeObserver
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -495,12 +494,21 @@ fun Activity?.inputHidden(vararg edits: EditText?): ArrayList<EditText?>? {
     val list = listOf(*edits)
     //建立对应的绑定关系，让edittext不再弹出系统的输入框
     window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
-    try {
-        val setShowSoftInputOnFocus = EditText::class.java.getMethod("setShowSoftInputOnFocus", Boolean::class.javaPrimitiveType)
-        setShowSoftInputOnFocus.isAccessible = true
-        list.forEach { setShowSoftInputOnFocus.invoke(it, false) }
-    } catch (e: Exception) {
-        e.printStackTrace()
+    // api26+的版本已经公开了setShowSoftInputOnFocus,不再需要反射
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        list.forEach { editText ->
+            editText?.showSoftInputOnFocus = false
+        }
+    } else {
+        try {
+            val method = EditText::class.java.getMethod("setShowSoftInputOnFocus", Boolean::class.javaPrimitiveType)
+            method.isAccessible = true
+            list.forEach { editText ->
+                editText?.let { method.invoke(it, false) }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
     return list.toArrayList()
 }
