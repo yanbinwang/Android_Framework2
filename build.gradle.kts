@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     val greendao = "3.3.1"
-    val objectbox = "4.2.0"
+    val objectbox = "4.3.0"
     dependencies {
         // 使用列表管理依赖
         val pluginDependencies = listOf(

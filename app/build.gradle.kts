@@ -121,7 +121,7 @@ android {
         release {
             // 架构支持
             ndk {
-                abiFilters.add("armeabi")
+                abiFilters.add("arm64-v8a")
             }
 
             // 剔除冗余资源/定义了资源拆分的配置块，用于对 APK 进行不同维度的拆分，比如按屏幕密度、ABI 架构、语言等（为兼容21，更高版本就可注释掉）
@@ -180,7 +180,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.android.testing)
     //调试库
-    debugImplementation(libs.bundles.debugging)
+    implementation(libs.bundles.debugging)
     //基础库
     implementation(project(":module_home"))
     implementation(project(":module_account"))
