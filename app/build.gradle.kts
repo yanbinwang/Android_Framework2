@@ -180,7 +180,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.android.testing)
     //调试库
-    implementation(libs.bundles.debugging)
+    debugImplementation(project(":lib_debugging"))
     //基础库
     implementation(project(":module_home"))
     implementation(project(":module_account"))
