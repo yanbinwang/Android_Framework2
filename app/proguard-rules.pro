@@ -165,7 +165,7 @@
 -keep public class * extends com.bumptech.glide.module.AppGlideModule
 -keep class com.bumptech.glide.GeneratedAppGlideModuleImpl
 -keep class com.bumptech.glide.integration.okhttp3.OkHttpGlideModule
--keepnames class * com.example.glide.callback.GlideModule
+#-keepnames class * com.example.glide.callback.GlideModule
 #------------------------glide图片库混淆结束------------------------
 
 #------------------------OKHttp混淆开始------------------------
@@ -311,6 +311,7 @@ public static final int *;
 
 # 如果使用了 单类注入，即不定义接口实现 IProvider，需添加下面规则，保护实现
 # -keep class * implements com.alibaba.android.arouter.facade.template.IProvider
+-dontwarn javax.lang.model.element.Element
 #------------------------阿里ARouter混淆结束------------------------
 
 #------------------------腾讯x5混淆开始------------------------
@@ -664,6 +665,15 @@ public static java.lang.String TABLENAME;
 -keep class com.scwang.smart.** { *; }
 -dontwarn com.scwang.smart.**
 #------------------------刷新混淆结束------------------------
+#------------------------测试库混淆开始------------------------
+# 1. 忽略测试库所有类的缺失警告（解决 R8 报错）
+-dontwarn com.example.debugging.**
+# 2. 如果主项目有用反射/条件调用测试库代码，保留相关类名/方法名
+-keepnames class com.example.debugging.utils.DebuggingUtil {
+    public static void init(android.content.Context, java.lang.Class);
+}
+#------------------------测试库混淆结束------------------------
+
 ## 保留密封类及其子类
 #-keep class com.yourpackage.YourSealedClass { *; }
 #-keep class com.yourpackage.YourSealedClass$* { *; }
