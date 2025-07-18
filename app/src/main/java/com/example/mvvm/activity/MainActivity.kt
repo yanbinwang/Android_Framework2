@@ -392,9 +392,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            mBinding?.finder?.onShutter()
             mPermission.requestPermissions {
                 if (it) {
-                    album.imageSelection(hasDurban = true) {
-
-                    }
+                    album.imageSelection(hasDurban = true)
 //                    navigation(ARouterPath.TestActivity)
                 }
             }

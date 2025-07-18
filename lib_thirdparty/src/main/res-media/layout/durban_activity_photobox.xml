@@ -15,7 +15,6 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     style="@style/durban_MatchParent">
 
     <androidx.appcompat.widget.Toolbar
@@ -111,14 +110,6 @@
         android:layout_above="@id/iv_controller_root"
         android:layout_below="@id/toolbar"
         android:background="@color/durban_CropBackground">
-
-        <ImageView
-            android:id="@+id/image_view_logo"
-            android:layout_width="@dimen/durban_dp_200"
-            android:layout_height="@dimen/durban_dp_200"
-            android:layout_gravity="center"
-            app:srcCompat="@drawable/shape_durban"
-            tools:ignore="MissingPrefix" />
 
         <com.yanzhenjie.durban.view.CropView
             android:id="@+id/crop_view"
