@@ -87,7 +87,9 @@ class AlbumHelper {
     fun takePicture(filePath: String, hasDurban: Boolean = false, listener: (albumPath: String?) -> Unit = {}) {
         imageCamera?.image()
             ?.filePath(filePath)
-            ?.onResult { if (hasDurban) toDurban(it) else listener.invoke(it) }
+            ?.onResult {
+                if (hasDurban) toDurban(it) else listener.invoke(it)
+            }
             ?.start()
     }
 
@@ -100,7 +102,9 @@ class AlbumHelper {
             ?.quality(1)//视频质量, [0, 1].
             ?.limitDuration(duration)//视频的最长持续时间以毫秒为单位
 //                           .limitBytes(Long.MAX_VALUE)//视频的最大大小，以字节为单位
-            ?.onResult { listener.invoke(it) }
+            ?.onResult {
+                listener.invoke(it)
+            }
             ?.start()
     }
 
@@ -128,7 +132,8 @@ class AlbumHelper {
                     }
                     if (hasDurban) toDurban(path) else listener.invoke(path)
                 }
-            }?.start()
+            }
+            ?.start()
     }
 
     /**
@@ -155,24 +160,19 @@ class AlbumHelper {
                     }
                     listener.invoke(path)
                 }
-            }?.start()
+            }
+            ?.start()
     }
 
     /**
      * 开始裁剪
-     * @Override
-     * protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-     *     switch (requestCode) {
-     *         case 200: {
-     *             // Analyze the list of paths after cropping.
-     *             if (resultCode != RESULT_OK) {
-     *                 ArrayList<String> mImageList = Durban.parseResult(data);
-     *             } else {
-     *                 // TODO other...
-     *             }
-     *             break;
-     *         }
-     *     }
+     * override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+     * super.onActivityResult(requestCode, resultCode, data)
+     * if (requestCode == RESULT_ALBUM) {
+     * data ?: return
+     * val mImageList = Durban.parseResult(data)
+     * mImageList.safeGet(0).shortToast()
+     * }
      * }
      */
     fun toDurban(vararg imagePathArray: String?, width: Int = 500, height: Int = 500, quality: Int = 80) {
@@ -210,7 +210,8 @@ class AlbumHelper {
                     .scaleTitle(true)
                     .build())
             //创建控制面板配置
-            ?.requestCode(RESULT_ALBUM)?.start()
+            ?.requestCode(RESULT_ALBUM)
+            ?.start()
     }
 
 }

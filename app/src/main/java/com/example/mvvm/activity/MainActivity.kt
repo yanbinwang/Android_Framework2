@@ -1,13 +1,16 @@
 package com.example.mvvm.activity
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication
 import com.example.common.base.BaseActivity
+import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
+import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
@@ -37,6 +40,7 @@ import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.dialog.TestTopDialog
 import com.example.thirdparty.media.album.AlbumHelper
+import com.yanzhenjie.durban.Durban
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
@@ -366,6 +370,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //    private val halfPosition by lazy { Int.MAX_VALUE / 2 }  //设定一个中心值下标
 //    private val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
+
     //    private val viewModel by lazy { TestViewModel().create() }
     private val bean by lazy { intentParcelable<UserBean>("bean") }
 
@@ -387,7 +392,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            mBinding?.finder?.onShutter()
             mPermission.requestPermissions {
                 if (it) {
-                    navigation(ARouterPath.TestActivity)
+                    album.imageSelection(hasDurban = true) {
+
+                    }
+//                    navigation(ARouterPath.TestActivity)
                 }
             }
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
@@ -579,6 +587,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            .build()
         //判断是全角字符  \u0020为半角空格，\u3000为全角空格
 //        "${"是".regCheck("[^\\x00-\\xff]")}".logWTF
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == RESULT_ALBUM) {
+            data ?: return
+            val mImageList = Durban.parseResult(data)
+            mImageList.safeGet(0).shortToast()
+        }
     }
 
 //    class TestBean(
