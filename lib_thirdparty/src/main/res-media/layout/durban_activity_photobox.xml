@@ -29,7 +29,7 @@
             android:ellipsize="end"
             android:lines="1"
             android:scrollHorizontally="true"
-            android:text="@string/cropTitle"
+            android:text="@string/durbanTitle"
             android:textColor="@color/textWhite"
             android:textSize="@dimen/album_sp_18" />
 
