@@ -31,6 +31,19 @@ import kotlin.math.roundToInt
 /**
  *  Created by wangyanbin
  *  高德地图工具类
+ *  override fun onSaveInstanceState(outState: Bundle) {
+ *     super.onSaveInstanceState(outState)
+ *     helper.saveInstanceState(outState)
+ * }
+ *
+ * override fun initView(savedInstanceState: Bundle?) {
+ *     super.initView(savedInstanceState)
+ *     //绑定地图，让地图移动到传入的经纬度点
+ *     helper.bind(savedInstanceState, mBinding?.aMap)
+ *     helper.moveCamera(LatLng(bean?.latitude.orZero, bean?.longitude.orZero))
+ *     //禁止滑动
+ *     helper.aMap?.uiSettings?.isScrollGesturesEnabled = false
+ * }
  */
 class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResultRegistrar) : LifecycleEventObserver {
     private var mapView: MapView? = null
