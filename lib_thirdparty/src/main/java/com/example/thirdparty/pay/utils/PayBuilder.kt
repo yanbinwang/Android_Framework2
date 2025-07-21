@@ -7,7 +7,6 @@ import com.example.thirdparty.pay.bean.PayBean
 import com.example.thirdparty.pay.utils.alipay.AlipayPay
 import com.example.thirdparty.pay.utils.wechat.WXPay
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -17,7 +16,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 支付类
  */
-class PayBuilder(private val mActivity: FragmentActivity?) : CoroutineScope {
+class PayBuilder(private val mActivity: FragmentActivity?, private val mView: BaseView? = null) : CoroutineScope {
     private val alipay by lazy { mActivity?.let { AlipayPay(it) } }
     private val wechat by lazy { mActivity?.let { WXPay(it) } }
     private var payJob: Job? = null
@@ -32,12 +31,12 @@ class PayBuilder(private val mActivity: FragmentActivity?) : CoroutineScope {
     }
 
     /**
-     * 创建一笔用于拉起第三方应用的订单-0支付宝 1微信
+     * 创建一笔用于拉起第三方应用的订单
+     * 1支付宝 2微信
      */
-    fun create(mView: BaseView? = null) {
+    fun create(orderNo: String, type: String = "1") {
         payJob?.cancel()
         payJob = launch {
-
 //            pay()
         }
     }
@@ -45,10 +44,10 @@ class PayBuilder(private val mActivity: FragmentActivity?) : CoroutineScope {
     /**
      * 发起支付
      */
-    private fun pay(bean: PayBean, type: Int = 0) {
+    private fun pay(bean: PayBean, type: String = "1") {
         when (type) {
-            0 -> alipay?.pay(bean.sign)
-            1 -> wechat?.pay(bean.wxPayReq)
+            "1" -> alipay?.pay(bean.sign)
+            else -> wechat?.pay(bean.wxPayReq)
         }
     }
 

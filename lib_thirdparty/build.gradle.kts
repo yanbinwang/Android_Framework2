@@ -70,6 +70,6 @@ dependencies {
     api("com.yanzhenjie:album:2.1.3")
     api("com.yanzhenjie:durban:1.0.1")
     //支付宝/微信
-    api("com.alipay.sdk:alipaysdk-android:15.8.17@aar")
+    api("com.alipay.sdk:alipaysdk-android:15.8.35@aar")
     api("com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0")
 }
