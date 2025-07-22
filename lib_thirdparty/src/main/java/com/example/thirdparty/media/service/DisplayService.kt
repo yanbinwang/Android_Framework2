@@ -122,7 +122,6 @@ class DisplayService : TrackableLifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         //获取到页面OnActivityResult取得的值
         val resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1)
-//        val resultData = intent?.getParcelableExtra(Extra.BUNDLE_BEAN) ?: Intent()
         val resultData = intent?.getExtra(Extra.BUNDLE_BEAN, Intent::class.java)
         startRecording(resultCode, resultData)
 //        return START_STICKY
@@ -170,32 +169,28 @@ class DisplayService : TrackableLifecycleService() {
      */
     private fun stopRecording() {
         listener?.onShutter()
-//        lifecycleScope.launch {
-//            flow {
-//                //阻塞直到文件写入完成
-//                recorder?.stop()
-//                releaseDisplay()
-//                emit(Unit)
-//            }.withHandling({
-//                listener?.onError(it.throwable as? Exception)
-//            }).collect {
+        recorder?.runCatching {
+            stop()//阻塞直到文件写入完成
+            releaseDisplay()
+        }?.onSuccess {
+            listener?.onStop()
+        }?.onFailure {
+            listener?.onError(it as? Exception)
+        }
+//        var exception: Exception? = null
+//        try {
+//            //阻塞直到文件写入完成
+//            recorder?.stop()
+//            releaseDisplay()
+//        } catch (e: Exception) {
+//            exception = e
+//        } finally {
+//            if (null != exception) {
+//                listener?.onError(exception)
+//            } else {
 //                listener?.onStop()
 //            }
 //        }
-        var exception: Exception? = null
-        try {
-            //阻塞直到文件写入完成
-            recorder?.stop()
-            releaseDisplay()
-        } catch (e: Exception) {
-            exception = e
-        } finally {
-            if (null != exception) {
-                listener?.onError(exception)
-            } else {
-                listener?.onStop()
-            }
-        }
     }
 
     private fun releaseDisplay() {

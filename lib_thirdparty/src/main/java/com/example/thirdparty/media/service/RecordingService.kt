@@ -100,32 +100,28 @@ class RecordingService : TrackableLifecycleService() {
      */
     private fun stopRecording() {
         listener?.onShutter()
-//        lifecycleScope.launch {
-//            flow {
-//                //阻塞直到文件写入完成
-//                recorder?.stop()
-//                releaseRecorder()
-//                emit(Unit)
-//            }.withHandling({
-//                listener?.onError(it.throwable as? Exception)
-//            }).collect {
+        recorder?.runCatching {
+            stop()//阻塞直到文件写入完成
+            releaseRecorder()
+        }?.onSuccess {
+            listener?.onStop()
+        }?.onFailure {
+            listener?.onError(it as? Exception)
+        }
+//        var exception: Exception? = null
+//        try {
+//            //阻塞直到文件写入完成
+//            recorder?.stop()
+//            releaseRecorder()
+//        } catch (e: Exception) {
+//            exception = e
+//        } finally {
+//            if (null != exception) {
+//                listener?.onError(exception)
+//            } else {
 //                listener?.onStop()
 //            }
 //        }
-        var exception: Exception? = null
-        try {
-            //阻塞直到文件写入完成
-            recorder?.stop()
-            releaseRecorder()
-        } catch (e: Exception) {
-            exception = e
-        } finally {
-            if (null != exception) {
-                listener?.onError(exception)
-            } else {
-                listener?.onStop()
-            }
-        }
     }
 
     /**
