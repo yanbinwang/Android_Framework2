@@ -5,11 +5,11 @@
 # 禁止类名混合大小写（避免跨平台问题）
 -dontusemixedcaseclassnames
 
-# 禁用预校验（Android不需要）
--dontpreverify
-
 # 输出混淆日志（开发阶段保留，发布可删除）
 -verbose
+
+# 允许反射访问类的成员
+-allowaccessmodification
 
 # 混淆时所采用的算法
 -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
@@ -19,7 +19,6 @@
 
 # 兼容第三方库可能的旧支持库引用（必须保留）
 -dontwarn android.support.**
-
 # ---------------------------- 日志输出配置 ----------------------------
 #未混淆的类和成员
 -printseeds seeds.txt
@@ -29,7 +28,6 @@
 
 #混淆前后的映射
 -printmapping mapping.txt
-
 # ---------------------------- 系统核心组件（AndroidX适配） ----------------------------
 # Application（全局上下文）
 -keep public class * extends android.app.Application {
@@ -70,6 +68,17 @@
     public android.os.IBinder onBind(android.content.Intent);
 }
 
+# LifecycleService
+-keep public class * extends androidx.lifecycle.LifecycleService {
+    public <init>();  # 保留构造方法
+    public void onCreate();
+    public int onStartCommand(android.content.Intent, int, int);
+    public void onDestroy();
+    public android.os.IBinder onBind(android.content.Intent);
+    # 保护 LifecycleService 特有的生命周期相关方法
+    public androidx.lifecycle.Lifecycle getLifecycle();
+}
+
 # BroadcastReceiver
 -keepclassmembers public class * extends android.content.BroadcastReceiver {
     public void onReceive(android.content.Context, android.content.Intent);  # 接收广播
@@ -88,7 +97,6 @@
 # Fragment管理核心类
 -keep class androidx.fragment.app.FragmentManager { *; }
 -keep class androidx.fragment.app.FragmentTransaction { *; }
-
 # ----------------------------  AndroidX架构组件 (ViewModel & LiveData) ----------------------------
 # ViewModel（避免反射创建失败）
 -keep class androidx.lifecycle.ViewModel { *; }
@@ -106,11 +114,11 @@
 # Lifecycle（生命周期管理）
 -keep class androidx.lifecycle.Lifecycle { *; }
 -keep class androidx.lifecycle.LifecycleOwner { *; }
+-keep class androidx.lifecycle.LifecycleObserver { *; }
 -keep class androidx.lifecycle.Observer { *; }
 -keepclassmembers class * {
     @androidx.lifecycle.OnLifecycleEvent <methods>;  # 保留生命周期注解方法
 }
-
 # ---------------------------- AndroidX 视图绑定 (DataBinding/ViewBinding) ----------------------------
 # 保留ViewDataBinding子类（生成的绑定类）
 -keep class * extends androidx.databinding.ViewDataBinding { *; }
@@ -123,7 +131,6 @@
 
 # 保留项目中DataBinding生成的包（替换为你的实际包名）
 -keep class com.sqkj.lpevidence.databinding.** { *; }
-
 # ---------------------------- AndroidX 常用UI组件 (RecyclerView等) ----------------------------
 # RecyclerView（列表组件）
 -keepclassmembers class * extends androidx.recyclerview.widget.RecyclerView$Adapter {
@@ -148,7 +155,6 @@
 -keep public class * extends androidx.appcompat.widget.AppCompatTextView {
     public <init>(android.content.Context, android.util.AttributeSet);
 }
-
 # ---------------------------- Kotlin协程 ----------------------------
 # 保留协程核心类和反射所需的元数据
 -keepattributes InnerClasses, Signature  # 补充泛型信息，Flow 依赖泛型
@@ -168,7 +174,6 @@
 -keepclassmembers class kotlinx.coroutines.flow.** {
     *** lambda$*(...);
 }
-
 # ---------------------------- 资源与权限相关 ----------------------------
 # 保留资源ID（布局/控件引用不失效）
 -keepclassmembers class **.R$* {
@@ -180,7 +185,6 @@
 -keepclassmembers class * {
     public void onActivityResult(int, int, android.content.Intent);
 }
-
 # ---------------------------- ID/编译数据类 ----------------------------
 # 保留所有native方法（JNI调用必需）
 -keepclasseswithmembers,allowshrinking class * {
@@ -210,7 +214,6 @@
     java.lang.Object writeReplace();
     java.lang.Object readResolve();
 }
-
 # ---------------------------- 按需添加的组件（根据项目使用情况选择） ----------------------------
 # 若使用Navigation导航组件
 # -keep class androidx.navigation.** { *; }
@@ -229,7 +232,6 @@
 # -keepclassmembers class * extends androidx.work.Worker {
 #     public <init>(android.content.Context, androidx.work.WorkerParameters);
 # }
-
 # ---------------------------- h5混淆 ----------------------------
 # 保留 H5 与原生交互的关键注解和方法
 -keepattributes *JavascriptInterface*
@@ -241,7 +243,6 @@
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface <methods>;
 }
-
 # ---------------------------- Glide图片库混淆 ----------------------------
 -keep public class * implements com.bumptech.glide.module.GlideModule
 -keep class * extends com.bumptech.glide.module.AppGlideModule {
@@ -256,7 +257,6 @@
 }
 # Uncomment for DexGuard only
 #-keepresourcexmlelements manifest/application/meta-data@value=GlideModule
-
 # ---------------------------- OKHttp + Retrofit2混淆 ----------------------------
 #okhttp
 -dontwarn okhttp3.**
@@ -273,7 +273,6 @@
 -keepattributes Exceptions
 # okhttp
 -dontwarn okio.**
-
 
 -dontwarn sun.misc.**
 -keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
@@ -300,7 +299,6 @@ rx.internal.util.atomic.LinkedQueueNode consumerNode;
 
 # Application classes that will be serialized/deserialized over Gson
 -keep class com.google.gson.examples.android.model.** { *; }
-
 # ---------------------------- 高德地图混淆 ----------------------------
 # 3D 地图
 -keep class com.amap.api.maps.**{*;}
@@ -318,7 +316,6 @@ rx.internal.util.atomic.LinkedQueueNode consumerNode;
 # 导航
 -keep class com.amap.api.navi.**{*;}
 -keep class com.autonavi.**{*;}
-
 # ---------------------------- 支付宝混淆 ----------------------------
 #-libraryjars  libs/alipaySdk-20170725.jar
 -keep class com.alipay.android.app.IAlixPay{*;}
@@ -327,44 +324,247 @@ rx.internal.util.atomic.LinkedQueueNode consumerNode;
 -keep class com.alipay.android.app.IRemoteServiceCallback$Stub{*;}
 -keep class com.alipay.sdk.app.PayTask{ public *;}
 -keep class com.alipay.sdk.app.AuthTask{ public *;}
-
 # ---------------------------- 微信分享 ----------------------------
 -dontwarn com.tencent.mm.**
 -keep class com.tencent.mm.**{*;}
 -keep class com.tencent.mm.sdk.modelmsg.WXMediaMessage { *;}
 -keep class com.tencent.mm.sdk.modelmsg.** implements com.tencent.mm.sdk.modelmsg.WXMediaMessage$IMediaObject {*;}
-
 # ---------------------------- 图片裁剪混淆 ----------------------------
 -dontwarn com.yanzhenjie.curban.**
 -keep class com.yanzhenjie.curban.**{*;}
 -dontwarn com.yanzhenjie.loading.**
 -keep class com.yanzhenjie.loading.**{*;}
-
 # ---------------------------- 图片库混淆 ----------------------------
 -dontwarn com.yanzhenjie.album.**
 -keep class com.yanzhenjie.album.**{*;}
-
 # ---------------------------- 阿里oss混淆 ----------------------------
 -keep class com.alibaba.sdk.android.oss.** { *; }
 -dontwarn okio.**
 -dontwarn org.apache.commons.codec.binary.**
-
 # ---------------------------- 阿里ARouter混淆 ----------------------------
+#-dontwarn javax.lang.model.element.Element
+# 1. 保留所有带 @Route 注解的类（类名不混淆、不被移除）
+-keep @com.alibaba.android.arouter.facade.annotation.Route class * { *; }
+
+# 2. 保留 ARouter 路由表和核心接口
 -keep public class com.alibaba.android.arouter.routes.**{*;}
 -keep public class com.alibaba.android.arouter.facade.**{*;}
 -keep class * implements com.alibaba.android.arouter.facade.template.ISyringe{*;}
 
-# 如果使用了 byType 的方式获取 Service，需添加下面规则，保护接口
+# 3. 保护 IProvider 接口及实现类（如果使用）
 -keep interface * implements com.alibaba.android.arouter.facade.template.IProvider
+-keep class * implements com.alibaba.android.arouter.facade.template.IProvider { *; }
 
-# 如果使用了 单类注入，即不定义接口实现 IProvider，需添加下面规则，保护实现
-# -keep class * implements com.alibaba.android.arouter.facade.template.IProvider
--dontwarn javax.lang.model.element.Element
+# 4. 保留带 @Route 注解的 Activity/Fragment 的核心方法
+-keepclassmembers @com.alibaba.android.arouter.facade.annotation.Route class * extends android.app.Activity {
+    public void onCreate(android.os.Bundle);
+    public void onResume();
+    public void onPause();
+    public void onDestroy();
+}
+-keepclassmembers @com.alibaba.android.arouter.facade.annotation.Route class * extends androidx.fragment.app.Fragment {
+    public void onCreate(android.os.Bundle);
+    public android.view.View onCreateView(...);
+    public void onViewCreated(android.view.View, android.os.Bundle);
+}
 
+# 5. 忽略编译期注解类的缺失（运行时无需存在）
+-dontwarn javax.lang.model.**
+-dontwarn com.sun.source.**
+-dontwarn javax.annotation.**
+# ---------------------------- 腾讯x5混淆 ----------------------------
+-dontwarn dalvik.**
+-dontwarn com.tencent.smtt.**
+# ------------------ Keep LineNumbers and properties ---------------- #
+-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
+# --------------------------------------------------------------------------
+-keep class com.tencent.smtt.export.external.**{
+    *;
+}
+-keep class  com.tencent.smtt.export.internal.**{
+    *;
+}
+-keep class com.tencent.tbs.video.interfaces.IUserStateChangedListener {
+	*;
+}
+-keep class com.tencent.smtt.sdk.CacheManager {
+	public *;
+}
+-keep class com.tencent.smtt.sdk.CookieManager {
+	public *;
+}
+-keep class com.tencent.smtt.sdk.WebHistoryItem {
+	public *;
+}
+-keep class com.tencent.smtt.sdk.WebViewDatabase {
+	public *;
+}
+-keep class com.tencent.smtt.sdk.WebBackForwardList {
+	public *;
+}
+-keep public class com.tencent.smtt.sdk.WebView {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.WebView$HitTestResult {
+	public static final <fields>;
+	public java.lang.String getExtra();
+	public int getType();
+}
+-keep public class com.tencent.smtt.sdk.WebView$WebViewTransport {
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.WebView$PictureListener {
+	public <fields>;
+	public <methods>;
+}
+-keepattributes InnerClasses
+-keep public enum com.tencent.smtt.sdk.WebSettings$** {
+    *;
+}
+-keep public enum com.tencent.smtt.sdk.QbSdk$** {
+    *;
+}
+-keep public class com.tencent.smtt.sdk.WebSettings {
+    public *;
+}
+-keepattributes Signature
+-keep public class com.tencent.smtt.sdk.ValueCallback {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.WebViewClient {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.DownloadListener {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.WebChromeClient {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.WebChromeClient$FileChooserParams {
+	public <fields>;
+	public <methods>;
+}
+-keep class com.tencent.smtt.sdk.SystemWebChromeClient{
+	public *;
+}
+# 1. extension interfaces should be apparent
+-keep public class com.tencent.smtt.export.external.extension.interfaces.* {
+	public protected *;
+}
+# 2. interfaces should be apparent
+-keep public class com.tencent.smtt.export.external.interfaces.* {
+	public protected *;
+}
+-keep public class com.tencent.smtt.sdk.WebViewCallbackClient {
+	public protected *;
+}
+-keep public class com.tencent.smtt.sdk.WebStorage$QuotaUpdater {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.WebIconDatabase {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.WebStorage {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.DownloadListener {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.QbSdk {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.QbSdk$PreInitCallback {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.CookieSyncManager {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.Tbs* {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.utils.LogFileUtils {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.utils.TbsLog {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.utils.TbsLogClient {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.CookieSyncManager {
+	public <fields>;
+	public <methods>;
+}
+# Added for game demos
+-keep public class com.tencent.smtt.sdk.TBSGamePlayer {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.TBSGamePlayerClient* {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.TBSGamePlayerClientExtension {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.TBSGamePlayerService* {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.utils.Apn {
+	public <fields>;
+	public <methods>;
+}
+-keep class com.tencent.smtt.** {
+	*;
+}
+-keep public class com.tencent.smtt.export.external.extension.proxy.ProxyWebViewClientExtension {
+	public <fields>;
+	public <methods>;
+}
+-keep class MTT.ThirdAppInfoNew {
+	*;
+}
+-keep class com.tencent.mtt.MttTraceEvent {
+	*;
+}
+# Game related
+-keep public class com.tencent.smtt.gamesdk.* {
+	public protected *;
+}
+-keep public class com.tencent.smtt.sdk.TBSGameBooter {
+        public <fields>;
+        public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.TBSGameBaseActivity {
+	public protected *;
+}
+-keep public class com.tencent.smtt.sdk.TBSGameBaseActivityProxy {
+	public protected *;
+}
+-keep public class com.tencent.smtt.gamesdk.internal.TBSGameServiceClient {
+	public *;
+}
 # ---------------------------- 今日头条兼容 ----------------------------
  -keep class me.jessyan.autosize.** { *; }
  -keep interface me.jessyan.autosize.** { *; }
-
 # ---------------------------- GreenDao混淆 ----------------------------
 -keep class org.greenrobot.greendao.**{*;}
 -keep public interface org.greenrobot.greendao.**
@@ -376,7 +576,6 @@ public static java.lang.String TABLENAME;
 -keep public interface net.sqlcipher.database.**
 -dontwarn net.sqlcipher.database.**
 -dontwarn org.greenrobot.greendao.**
-
 # ---------------------------- 播放器混淆 ----------------------------
 -keep class com.shuyu.gsyvideoplayer.video.** { *; }
 -dontwarn com.shuyu.gsyvideoplayer.video.**
@@ -386,11 +585,9 @@ public static java.lang.String TABLENAME;
 -dontwarn com.shuyu.gsyvideoplayer.utils.**
 -keep class tv.danmaku.ijk.** { *; }
 -dontwarn tv.danmaku.ijk.**
-
 # ---------------------------- 刷新混淆 ----------------------------
 -keep class com.scwang.smart.** { *; }
 -dontwarn com.scwang.smart.**
-
 # ---------------------------- 测试库混淆 ----------------------------
 # 1. 忽略测试库所有类的缺失警告（解决 R8 报错）
 -dontwarn com.example.debugging.**
@@ -398,28 +595,32 @@ public static java.lang.String TABLENAME;
 -keepnames class com.example.debugging.utils.DebuggingUtil {
     public static void init(android.content.Context, java.lang.Class);
 }
-
 # ---------------------------- 项目库混淆 ----------------------------
--keep class com.sqkj.lpevidence.MyApplication { *; }
--keep class com.example.common.BaseApplication { *; }
-
--keep class com.example.common.databinding.** {*;}
--keep class com.example.common.base.page.** {*;}
--keep class com.example.common.bean.** {*;}
--keep class com.example.common.event.** {*;}
--keep class com.example.common.network.repository.** {*;}
--keep class com.example.common.socket.** {*;}
-
+-keep class com.example.topsheet.** {*;}
 -keep class com.example.thirdparty.media.** {*;}
 -keep class com.example.thirdparty.pay.** {*;}
 
-#-keep class com.example.common.widget.advertising.** {*;}
-#-keep class com.example.common.widget.popup.select.** {*;}
+-keep class com.sqkj.lpevidence.widget.widget.** {*;}
+-keep class com.example.framework.widget.** {*;}
 
-#-keep class com.dataqin.home.databinding.** {*;}
-#-keep class com.dataqin.home.model.** {*;}
-#-keep class com.dataqin.evidence.model.** {*;}
-#-keep class com.dataqin.account.model.** {*;}
-#-keep class com.dataqin.pay.model.** {*;}
-#-keep class com.dataqin.map.model.** {*;}
-#-keep class com.dataqin.certification.model.** {*;}
+-keep class com.example.common.databinding.** {*;}
+-keep class com.example.common.base.** {*;}
+-keep class com.example.common.bean.** {*;}
+-keep class com.example.common.event.** {*;}
+-keep class com.example.common.network.repository.** {*;}
+-keep class com.example.common.widget.** {*;}
+
+-keep class com.example.home.databinding.** {*;}
+-keep class com.example.home.bean.** {*;}
+-keep class com.example.home.widget.** {*;}
+
+-keep class com.example.evidence.databinding.** {*;}
+-keep class com.example.evidence.bean.** {*;}
+-keep class com.example.evidence.widget.** {*;}
+-keep class com.example.evidence.adapter.** {*;}
+
+-keep class com.example.account.databinding.** {*;}
+-keep class com.example.account.bean.** {*;}
+-keep class com.example.account.widget.** {*;}
+-keep class com.example.account.adapter.** {*;}
+-keep class com.example.account.utils.faceverify.** {*;}
