@@ -66,7 +66,7 @@ object ToastBuilder {
      */
     private var defaultResBuilder: (resId: Int, length: Int) -> Toast = { resId, length ->
         val toast = Toast.makeText(mContext, null, length)
-        toast?.setText(resId)
+        toast.setText(resId)
         toast
     }
 
@@ -75,7 +75,7 @@ object ToastBuilder {
      */
     private var defaultTextBuilder: (message: String, length: Int) -> Toast = { message, length ->
         val toast = Toast.makeText(mContext, null, length)
-        toast?.setText(message)
+        toast.setText(message)
         toast
     }
 

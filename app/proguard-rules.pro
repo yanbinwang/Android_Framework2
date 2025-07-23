@@ -462,8 +462,8 @@
 # ---------------------------- 项目库混淆 ----------------------------
 -keep class com.example.topsheet.** {*;}
 -keep class com.example.objectbox.dao.** {*;}
--keep class com.example.thirdparty.media.** {*;}
--keep class com.example.thirdparty.pay.** {*;}
+-keep class com.example.thirdparty.media.oss.bean.** {*;}
+-keep class com.example.thirdparty.pay.bean.** {*;}
 
 -keep class com.example.common.databinding.** {*;}
 -keep class com.example.common.base.** {*;}
@@ -479,4 +479,3 @@
 
 -keep class com.example.account.databinding.** {*;}
 -keep class com.example.account.bean.** {*;}
--keep class com.example.account.utils.faceverify.** {*;}
