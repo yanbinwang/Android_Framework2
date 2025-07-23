@@ -47,6 +47,6 @@ dependencies {
     api("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
     //OkHttp 依赖
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    api("com.squareup.okhttp3:okhttp:5.1.0")
     implementation("com.github.bumptech.glide:okhttp3-integration:4.16.0")
 }
