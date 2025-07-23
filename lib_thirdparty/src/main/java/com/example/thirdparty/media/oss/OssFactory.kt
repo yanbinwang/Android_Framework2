@@ -386,7 +386,7 @@ class OssFactory private constructor() : CoroutineScope {
                 end(baoquan)
             }).collect {
                 //删除对应断点续传的文件夹和源文件
-                query.sourcePath.deleteDir()
+                query.sourcePath.deleteFile()
                 recordDirectory.deleteFile()
                 OssDBHelper.delete(query)
                 callback(2, baoquan, success = true)

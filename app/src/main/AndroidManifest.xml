@@ -47,6 +47,19 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
+    <queries>
+        <!--支付宝-正式环境-->
+        <package android:name="com.eg.android.AlipayGphone" />
+        <!--支付宝-沙箱环境-->
+        <package android:name="com.eg.android.AlipayGphoneRC" />
+        <package android:name="hk.alipay.wallet" />
+        <!--微信-->
+        <package android:name="com.tencent.mm" />
+        <!--地图-->
+        <package android:name="com.baidu.BaiduMap" />
+        <package android:name="com.autonavi.minimap" />
+    </queries>
+
     <application
         android:name=".MyApplication"
         android:allowBackup="false"
@@ -197,6 +210,21 @@
         <activity
             android:name="com.example.home.activity.ScaleActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:theme="@style/TransparentTheme"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
+        <!-- ******************************************************微信 SDK****************************************************** -->
+        <activity
+            android:name="com.dataqin.baoquan.wxapi.WXEntryActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/TransparentTheme"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
+        <activity
+            android:name="com.dataqin.baoquan.wxapi.WXPayEntryActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:exported="true"
+            android:launchMode="singleInstance"
             android:theme="@style/TransparentTheme"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- ******************************************************服务****************************************************** -->

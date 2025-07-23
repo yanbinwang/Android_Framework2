@@ -94,6 +94,26 @@
     public java.lang.String getType(...);
 }
 
+# 保留 RecyclerView.Adapter的所有子类不被混淆
+-keep public class * extends androidx.recyclerview.widget.RecyclerView$Adapter {
+    public <init>();
+    public void onBindViewHolder(androidx.recyclerview.widget.RecyclerView$ViewHolder, int);
+    public int getItemCount();
+    public androidx.recyclerview.widget.RecyclerView$ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
+}
+-keep public class * extends androidx.recyclerview.widget.RecyclerView$ViewHolder {
+    public <init>(android.view.View);
+}
+
+# 保留自定义 Dialog 子类
+-keep public class * extends android.app.Dialog { *; }
+
+# 保留自定义 PopupWindow 子类
+-keep public class * extends android.widget.PopupWindow { *; }
+
+# 保留自定义 ViewGroup 子类
+-keep public class * extends android.view.ViewGroup { *; }
+
 # Fragment管理核心类
 -keep class androidx.fragment.app.FragmentManager { *; }
 -keep class androidx.fragment.app.FragmentTransaction { *; }
@@ -266,25 +286,54 @@
 -dontwarn okio.**
 -keep class okio.**{*;}
 
-# Retrofit
--dontnote retrofit2.Platform
--dontnote retrofit2.Platform$IOS$MainThreadExecutor
--dontwarn retrofit2.Platform$Java8
--keepattributes Exceptions
-# okhttp
--dontwarn okio.**
+# Retrofit does reflection on generic parameters. InnerClasses is required to use Signature and
+# EnclosingMethod is required to use InnerClasses.
+-keepattributes Signature, InnerClasses, EnclosingMethod
 
--dontwarn sun.misc.**
--keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
-long producerIndex;
-long consumerIndex;
+# Retrofit does reflection on method and parameter annotations.
+-keepattributes RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations
+
+# Keep annotation default values (e.g., retrofit2.http.Field.encoded).
+-keepattributes AnnotationDefault
+
+# Retain service method parameters when optimizing.
+-keepclassmembers,allowshrinking,allowobfuscation interface * {
+    @retrofit2.http.* <methods>;
 }
--keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueProducerNodeRef {
-rx.internal.util.atomic.LinkedQueueNode producerNode;
-}
--keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueConsumerNodeRef {
-rx.internal.util.atomic.LinkedQueueNode consumerNode;
-}
+
+# Ignore annotation used for build tooling.
+-dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
+
+# Ignore JSR 305 annotations for embedding nullability information.
+-dontwarn javax.annotation.**
+
+# Guarded by a NoClassDefFoundError try/catch and only used when on the classpath.
+-dontwarn kotlin.Unit
+
+# Top-level functions that can only be used by Kotlin.
+-dontwarn retrofit2.KotlinExtensions
+-dontwarn retrofit2.KotlinExtensions$*
+
+# With R8 full mode, it sees no subtypes of Retrofit interfaces since they are created with a Proxy
+# and replaces all potential values with null. Explicitly keeping the interfaces prevents this.
+-if interface * { @retrofit2.http.* <methods>; }
+-keep,allowobfuscation interface <1>
+
+# Keep inherited services.
+-if interface * { @retrofit2.http.* <methods>; }
+-keep,allowobfuscation interface * extends <1>
+
+# With R8 full mode generic signatures are stripped for classes that are not
+# kept. Suspend functions are wrapped in continuations where the type argument
+# is used.
+-keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
+
+# R8 full mode strips generic signatures from return types if not kept.
+-if interface * { @retrofit2.http.* public *** *(...); }
+-keep,allowoptimization,allowshrinking,allowobfuscation class <3>
+
+# With R8 full mode generic signatures are stripped for classes that are not kept.
+-keep,allowobfuscation,allowshrinking class retrofit2.Response
 # ---------------------------- Begin: proguard configuration for Gson ----------------------------
 # Gson uses generic type information stored in a class file when working with fields. Proguard
 # removes such information by default, so configure it to keep all of it.
@@ -294,8 +343,8 @@ rx.internal.util.atomic.LinkedQueueNode consumerNode;
 -keepattributes *Annotation*
 
 # Gson specific classes
--keep class sun.misc.Unsafe { *; }
-#-keep class com.google.gson.stream.** { *; }
+#-keep class sun.misc.Unsafe { *; }
+-keep class com.google.gson.stream.** { *; }
 
 # Application classes that will be serialized/deserialized over Gson
 -keep class com.google.gson.examples.android.model.** { *; }
@@ -325,10 +374,15 @@ rx.internal.util.atomic.LinkedQueueNode consumerNode;
 -keep class com.alipay.sdk.app.PayTask{ public *;}
 -keep class com.alipay.sdk.app.AuthTask{ public *;}
 # ---------------------------- 微信分享 ----------------------------
--dontwarn com.tencent.mm.**
--keep class com.tencent.mm.**{*;}
--keep class com.tencent.mm.sdk.modelmsg.WXMediaMessage { *;}
--keep class com.tencent.mm.sdk.modelmsg.** implements com.tencent.mm.sdk.modelmsg.WXMediaMessage$IMediaObject {*;}
+-keep class com.tencent.mm.opensdk.** {
+    *;
+}
+-keep class com.tencent.wxop.** {
+    *;
+}
+-keep class com.tencent.mm.sdk.** {
+    *;
+}
 # ---------------------------- 图片裁剪混淆 ----------------------------
 -dontwarn com.yanzhenjie.curban.**
 -keep class com.yanzhenjie.curban.**{*;}
@@ -372,210 +426,20 @@ rx.internal.util.atomic.LinkedQueueNode consumerNode;
 -dontwarn javax.lang.model.**
 -dontwarn com.sun.source.**
 -dontwarn javax.annotation.**
-# ---------------------------- 腾讯x5混淆 ----------------------------
--dontwarn dalvik.**
--dontwarn com.tencent.smtt.**
-# ------------------ Keep LineNumbers and properties ---------------- #
--keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
-# --------------------------------------------------------------------------
--keep class com.tencent.smtt.export.external.**{
-    *;
-}
--keep class  com.tencent.smtt.export.internal.**{
-    *;
-}
--keep class com.tencent.tbs.video.interfaces.IUserStateChangedListener {
-	*;
-}
--keep class com.tencent.smtt.sdk.CacheManager {
-	public *;
-}
--keep class com.tencent.smtt.sdk.CookieManager {
-	public *;
-}
--keep class com.tencent.smtt.sdk.WebHistoryItem {
-	public *;
-}
--keep class com.tencent.smtt.sdk.WebViewDatabase {
-	public *;
-}
--keep class com.tencent.smtt.sdk.WebBackForwardList {
-	public *;
-}
--keep public class com.tencent.smtt.sdk.WebView {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.WebView$HitTestResult {
-	public static final <fields>;
-	public java.lang.String getExtra();
-	public int getType();
-}
--keep public class com.tencent.smtt.sdk.WebView$WebViewTransport {
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.WebView$PictureListener {
-	public <fields>;
-	public <methods>;
-}
--keepattributes InnerClasses
--keep public enum com.tencent.smtt.sdk.WebSettings$** {
-    *;
-}
--keep public enum com.tencent.smtt.sdk.QbSdk$** {
-    *;
-}
--keep public class com.tencent.smtt.sdk.WebSettings {
-    public *;
-}
--keepattributes Signature
--keep public class com.tencent.smtt.sdk.ValueCallback {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.WebViewClient {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.DownloadListener {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.WebChromeClient {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.WebChromeClient$FileChooserParams {
-	public <fields>;
-	public <methods>;
-}
--keep class com.tencent.smtt.sdk.SystemWebChromeClient{
-	public *;
-}
-# 1. extension interfaces should be apparent
--keep public class com.tencent.smtt.export.external.extension.interfaces.* {
-	public protected *;
-}
-# 2. interfaces should be apparent
--keep public class com.tencent.smtt.export.external.interfaces.* {
-	public protected *;
-}
--keep public class com.tencent.smtt.sdk.WebViewCallbackClient {
-	public protected *;
-}
--keep public class com.tencent.smtt.sdk.WebStorage$QuotaUpdater {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.WebIconDatabase {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.WebStorage {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.DownloadListener {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.QbSdk {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.QbSdk$PreInitCallback {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.CookieSyncManager {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.Tbs* {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.utils.LogFileUtils {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.utils.TbsLog {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.utils.TbsLogClient {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.CookieSyncManager {
-	public <fields>;
-	public <methods>;
-}
-# Added for game demos
--keep public class com.tencent.smtt.sdk.TBSGamePlayer {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.TBSGamePlayerClient* {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.TBSGamePlayerClientExtension {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.sdk.TBSGamePlayerService* {
-	public <fields>;
-	public <methods>;
-}
--keep public class com.tencent.smtt.utils.Apn {
-	public <fields>;
-	public <methods>;
-}
--keep class com.tencent.smtt.** {
-	*;
-}
--keep public class com.tencent.smtt.export.external.extension.proxy.ProxyWebViewClientExtension {
-	public <fields>;
-	public <methods>;
-}
--keep class MTT.ThirdAppInfoNew {
-	*;
-}
--keep class com.tencent.mtt.MttTraceEvent {
-	*;
-}
-# Game related
--keep public class com.tencent.smtt.gamesdk.* {
-	public protected *;
-}
--keep public class com.tencent.smtt.sdk.TBSGameBooter {
-        public <fields>;
-        public <methods>;
-}
--keep public class com.tencent.smtt.sdk.TBSGameBaseActivity {
-	public protected *;
-}
--keep public class com.tencent.smtt.sdk.TBSGameBaseActivityProxy {
-	public protected *;
-}
--keep public class com.tencent.smtt.gamesdk.internal.TBSGameServiceClient {
-	public *;
-}
 # ---------------------------- 今日头条兼容 ----------------------------
- -keep class me.jessyan.autosize.** { *; }
- -keep interface me.jessyan.autosize.** { *; }
-# ---------------------------- GreenDao混淆 ----------------------------
--keep class org.greenrobot.greendao.**{*;}
--keep public interface org.greenrobot.greendao.**
--keepclassmembers class * extends org.greenrobot.greendao.AbstractDao {
-public static java.lang.String TABLENAME;
-}
--keep class **$Properties
--keep class net.sqlcipher.database.**{*;}
--keep public interface net.sqlcipher.database.**
--dontwarn net.sqlcipher.database.**
--dontwarn org.greenrobot.greendao.**
+-keep class me.jessyan.autosize.** { *; }
+-keep interface me.jessyan.autosize.** { *; }
+## ---------------------------- GreenDao混淆 ----------------------------
+#-keep class org.greenrobot.greendao.**{*;}
+#-keep public interface org.greenrobot.greendao.**
+#-keepclassmembers class * extends org.greenrobot.greendao.AbstractDao {
+#public static java.lang.String TABLENAME;
+#}
+#-keep class **$Properties
+#-keep class net.sqlcipher.database.**{*;}
+#-keep public interface net.sqlcipher.database.**
+#-dontwarn net.sqlcipher.database.**
+#-dontwarn org.greenrobot.greendao.**
 # ---------------------------- 播放器混淆 ----------------------------
 -keep class com.shuyu.gsyvideoplayer.video.** { *; }
 -dontwarn com.shuyu.gsyvideoplayer.video.**
@@ -597,30 +461,22 @@ public static java.lang.String TABLENAME;
 }
 # ---------------------------- 项目库混淆 ----------------------------
 -keep class com.example.topsheet.** {*;}
+-keep class com.example.objectbox.dao.** {*;}
 -keep class com.example.thirdparty.media.** {*;}
 -keep class com.example.thirdparty.pay.** {*;}
-
--keep class com.sqkj.lpevidence.widget.widget.** {*;}
--keep class com.example.framework.widget.** {*;}
 
 -keep class com.example.common.databinding.** {*;}
 -keep class com.example.common.base.** {*;}
 -keep class com.example.common.bean.** {*;}
 -keep class com.example.common.event.** {*;}
 -keep class com.example.common.network.repository.** {*;}
--keep class com.example.common.widget.** {*;}
 
 -keep class com.example.home.databinding.** {*;}
 -keep class com.example.home.bean.** {*;}
--keep class com.example.home.widget.** {*;}
 
 -keep class com.example.evidence.databinding.** {*;}
 -keep class com.example.evidence.bean.** {*;}
--keep class com.example.evidence.widget.** {*;}
--keep class com.example.evidence.adapter.** {*;}
 
 -keep class com.example.account.databinding.** {*;}
 -keep class com.example.account.bean.** {*;}
--keep class com.example.account.widget.** {*;}
--keep class com.example.account.adapter.** {*;}
 -keep class com.example.account.utils.faceverify.** {*;}
