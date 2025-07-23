@@ -12,24 +12,19 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object CacheDataManager {
     /**
-     * 首页-广告
-     */
-    const val KEY_HOME_BANNER = "home_banner"
-
-    /**
      * 首页-资金
      */
     const val KEY_HOME_FUND = "home_fund"
 
     /**
+     * 首页-广告
+     */
+    const val KEY_HOME_BANNER = "home_banner"
+
+    /**
      * 市场-购物车
      */
     const val KEY_MARKET_SHOPPING_CART = "market_shopping_cart"
-
-    /**
-     * 历史版本号
-     */
-    internal val versionCode by lazy { DataLongCache("version_code") }
 
     /**
      * 所有的缓存的map
@@ -53,8 +48,15 @@ object CacheDataManager {
     )
 
     /**
+     * 历史版本号
+     */
+    private const val VERSION_CODE = "version_code"
+    internal val versionCode by lazy { DataLongCache(VERSION_CODE) }
+
+    /**
      * application里调用
      */
+    @JvmStatic
     fun init() {
         versionCode.apply {
             val mVersionCode = getAppVersionCode()
@@ -69,6 +71,7 @@ object CacheDataManager {
     /**
      * 是否包含cache
      */
+    @JvmStatic
     fun hasCache(): Boolean {
         return getAllCacheKeys().any { getOrCreateCache(it).get()?.isNotEmpty() == true }
     }
@@ -76,6 +79,7 @@ object CacheDataManager {
     /**
      * 检查指定分组的缓存是否存在
      */
+    @JvmStatic
     fun hasCache(group: CacheGroup): Boolean {
         return getKeysByGroup(group).any { hasCache(it) }
     }
@@ -83,6 +87,7 @@ object CacheDataManager {
     /**
      * 检查指定键的缓存是否存在
      */
+    @JvmStatic
     fun hasCache(key: String): Boolean {
         return getOrCreateCache(key).get()?.isNotEmpty() == true
     }
@@ -90,6 +95,7 @@ object CacheDataManager {
     /**
      * 清空所有缓存
      */
+    @JvmStatic
     fun clearAllCache() {
         getAllCacheKeys().forEach { getOrCreateCache(it).del() }
     }
@@ -97,6 +103,7 @@ object CacheDataManager {
     /**
      * 清空指定分组的缓存
      */
+    @JvmStatic
     fun clearCache(group: CacheGroup) {
         getKeysByGroup(group).forEach { getOrCreateCache(it).del() }
     }
@@ -104,6 +111,7 @@ object CacheDataManager {
     /**
      * 清空指定键的缓存
      */
+    @JvmStatic
     fun clearCache(vararg keys: String) {
         keys.forEach { key ->
             if (cacheKeyMap.containsKey(key)) {
@@ -115,6 +123,7 @@ object CacheDataManager {
     /**
      * 登出时特殊处理
      */
+    @JvmStatic
     fun clearCacheBySignOut() {
         clearCache(KEY_HOME_FUND)
     }
@@ -137,6 +146,7 @@ object CacheDataManager {
      * 1.传入对应的key(MODULE_HOME_BANNER,MODULE_MARKET_SHOPPING_CART)
      * 2.传入转换成string的json
      */
+    @JvmStatic
     fun set(key: String, json: String) {
         getOrCreateCache(key).set(json)
     }
@@ -144,6 +154,7 @@ object CacheDataManager {
     /**
      * 获取缓存中的对象
      */
+    @JvmStatic
     inline fun <reified T> getObj(key: String): T? {
         return parseCache(key) { it.toObj(T::class.java) }
     }
@@ -151,6 +162,7 @@ object CacheDataManager {
     /**
      * 获取缓存中的集合
      */
+    @JvmStatic
     inline fun <reified T> getList(key: String): List<T>? {
         return parseCache(key) { it.toList(T::class.java) }
     }
@@ -158,6 +170,7 @@ object CacheDataManager {
     /**
      * 解析缓存数据的公共逻辑
      */
+    @JvmStatic
     fun <T> parseCache(key: String, parser: (String) -> T?): T? {
         val cache = getOrCreateCache(key)
         val json = cache.get() ?: return null
