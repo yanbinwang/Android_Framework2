@@ -448,6 +448,7 @@
 -keep public class com.alibaba.android.arouter.routes.**{*;}
 -keep public class com.alibaba.android.arouter.facade.**{*;}
 -keep class * implements com.alibaba.android.arouter.facade.template.ISyringe{*;}
+-keep class * implements com.alibaba.android.arouter.facade.service.InterceptorService { *; }
 
 # 3. 保护 IProvider 接口及实现类（如果使用）
 -keep interface * implements com.alibaba.android.arouter.facade.template.IProvider
@@ -478,11 +479,212 @@
 # 保留 Kotlin 元数据（避免 Lambda 和扩展函数被误处理）
 -keepattributes KotlinMetadata
 -keep class kotlin.Metadata { *; }
+# 保留ARouter的LogisticsCenter类及其init方法（用于反射调用）
+-keep class com.alibaba.android.arouter.core.LogisticsCenter {
+    public static void init(android.content.Context, java.util.concurrent.ThreadPoolExecutor);
+}
+# 允许反射访问ARouter路由表的字段
+-keepclassmembers class *$$ARouter$$Group$$* {
+    public static <fields>;
+    public static <methods>;
+}
 
 # 5. 忽略编译期注解类的缺失（运行时无需存在）
 -dontwarn javax.lang.model.**
 -dontwarn com.sun.source.**
 -dontwarn javax.annotation.**
+# ---------------------------- 腾讯x5混淆 ----------------------------
+-dontwarn dalvik.**
+-dontwarn com.tencent.smtt.**
+# ------------------ Keep LineNumbers and properties ---------------- #
+-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
+# --------------------------------------------------------------------------
+-keep class com.tencent.smtt.export.external.**{
+    *;
+}
+-keep class  com.tencent.smtt.export.internal.**{
+    *;
+}
+-keep class com.tencent.tbs.video.interfaces.IUserStateChangedListener {
+	*;
+}
+-keep class com.tencent.smtt.sdk.CacheManager {
+	public *;
+}
+-keep class com.tencent.smtt.sdk.CookieManager {
+	public *;
+}
+-keep class com.tencent.smtt.sdk.WebHistoryItem {
+	public *;
+}
+-keep class com.tencent.smtt.sdk.WebViewDatabase {
+	public *;
+}
+-keep class com.tencent.smtt.sdk.WebBackForwardList {
+	public *;
+}
+-keep public class com.tencent.smtt.sdk.WebView {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.WebView$HitTestResult {
+	public static final <fields>;
+	public java.lang.String getExtra();
+	public int getType();
+}
+-keep public class com.tencent.smtt.sdk.WebView$WebViewTransport {
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.WebView$PictureListener {
+	public <fields>;
+	public <methods>;
+}
+-keepattributes InnerClasses
+-keep public enum com.tencent.smtt.sdk.WebSettings$** {
+    *;
+}
+-keep public enum com.tencent.smtt.sdk.QbSdk$** {
+    *;
+}
+-keep public class com.tencent.smtt.sdk.WebSettings {
+    public *;
+}
+-keepattributes Signature
+-keep public class com.tencent.smtt.sdk.ValueCallback {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.WebViewClient {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.DownloadListener {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.WebChromeClient {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.WebChromeClient$FileChooserParams {
+	public <fields>;
+	public <methods>;
+}
+-keep class com.tencent.smtt.sdk.SystemWebChromeClient{
+	public *;
+}
+# 1. extension interfaces should be apparent
+-keep public class com.tencent.smtt.export.external.extension.interfaces.* {
+	public protected *;
+}
+# 2. interfaces should be apparent
+-keep public class com.tencent.smtt.export.external.interfaces.* {
+	public protected *;
+}
+-keep public class com.tencent.smtt.sdk.WebViewCallbackClient {
+	public protected *;
+}
+-keep public class com.tencent.smtt.sdk.WebStorage$QuotaUpdater {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.WebIconDatabase {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.WebStorage {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.DownloadListener {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.QbSdk {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.QbSdk$PreInitCallback {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.CookieSyncManager {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.Tbs* {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.utils.LogFileUtils {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.utils.TbsLog {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.utils.TbsLogClient {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.CookieSyncManager {
+	public <fields>;
+	public <methods>;
+}
+# Added for game demos
+-keep public class com.tencent.smtt.sdk.TBSGamePlayer {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.TBSGamePlayerClient* {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.TBSGamePlayerClientExtension {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.TBSGamePlayerService* {
+	public <fields>;
+	public <methods>;
+}
+-keep public class com.tencent.smtt.utils.Apn {
+	public <fields>;
+	public <methods>;
+}
+-keep class com.tencent.smtt.** {
+	*;
+}
+-keep public class com.tencent.smtt.export.external.extension.proxy.ProxyWebViewClientExtension {
+	public <fields>;
+	public <methods>;
+}
+-keep class MTT.ThirdAppInfoNew {
+	*;
+}
+-keep class com.tencent.mtt.MttTraceEvent {
+	*;
+}
+# Game related
+-keep public class com.tencent.smtt.gamesdk.* {
+	public protected *;
+}
+-keep public class com.tencent.smtt.sdk.TBSGameBooter {
+        public <fields>;
+        public <methods>;
+}
+-keep public class com.tencent.smtt.sdk.TBSGameBaseActivity {
+	public protected *;
+}
+-keep public class com.tencent.smtt.sdk.TBSGameBaseActivityProxy {
+	public protected *;
+}
+-keep public class com.tencent.smtt.gamesdk.internal.TBSGameServiceClient {
+	public *;
+}
+-keep class com.tencent.smtt.** {*;}
+-keep class com.tencent.tbs.** {*;}
 # ---------------------------- 今日头条兼容 ----------------------------
 -keep class me.jessyan.autosize.** { *; }
 -keep interface me.jessyan.autosize.** { *; }
