@@ -10,6 +10,9 @@ import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_MOVE
+import android.view.MotionEvent.ACTION_UP
 import android.view.View
 import android.view.WindowInsets
 import android.view.inputmethod.InputMethodManager
@@ -300,8 +303,31 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
      * 点击EditText之外的部分关闭软键盘
      */
     private var flagMove = false
-    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        return super.dispatchTouchEvent(ev)
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        when (ev.action) {
+            ACTION_DOWN -> {
+                flagMove = false
+            }
+            ACTION_MOVE -> {
+                flagMove = true
+            }
+            ACTION_UP -> {
+                if (!flagMove) {
+                    val v = currentFocus
+                    if (isShouldHideInput(v, ev)) {
+                        clearEditTextFocus(v)
+                        hideInputMethod(v)
+                    }
+                    return super.dispatchTouchEvent(ev)
+                }
+            }
+        }
+        // 必不可少，否则所有的组件都不会有TouchEvent了
+        return if (window.superDispatchTouchEvent(ev)) {
+            true
+        } else {
+            onTouchEvent(ev)
+        }
     }
 
     protected fun hideInputMethod(v: View?) {
@@ -316,15 +342,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         if (view != null && view is EditText) {
             view.clearFocus()
         }
-    }
-
-    private fun View.findSpecialEditTextParent(maxTimes: Int): View? {
-        var view = this
-        for (i in 0..maxTimes) {
-            if (view is SpecialEditText) return view
-            view = view.parent as? View ?: return null
-        }
-        return null
     }
 
     /**
@@ -350,10 +367,19 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
             val top = leftTop[1]
             val bottom = top + height
             val right = left + width
-            //点击的是输入框区域，保留点击EditText的事件
-            return !(event.rawX.toInt() in left..right && event.rawY.toInt() in top..bottom)
+            // 点击的是输入框区域，保留点击EditText的事件
+            return !(event.x > left && event.x < right && event.y > top && event.y < bottom)
         }
         return false
+    }
+
+    private fun View.findSpecialEditTextParent(maxTimes: Int): View? {
+        var view = this
+        for (i in 0..maxTimes) {
+            if (view is SpecialEditText) return view
+            view = view.parent as? View ?: return null
+        }
+        return null
     }
     // </editor-fold>
 
