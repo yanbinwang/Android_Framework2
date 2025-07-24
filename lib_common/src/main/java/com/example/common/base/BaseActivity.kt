@@ -118,11 +118,11 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         // 彻底屏蔽边缘滑动
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.hide(WindowInsets.Type.systemGestures())
         }
-        super.onCreate(savedInstanceState)
         if (needTransparentOwner) {
             overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
             requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
