@@ -48,6 +48,12 @@
         tools:ignore="ScopedStorage" />
 
     <queries>
+        <!-- 声明模块的根包名，批量授权该模块下所有组件的可见性 android 15+模块化必须,且要加  android:exported="true" -->
+        <package android:name="com.sqkj.lpevidence" />
+        <package android:name="com.example.common" />
+        <package android:name="com.example.evidence" />   <!-- 证据模块 -->
+        <package android:name="com.example.account" />    <!-- 账户模块 -->
+        <package android:name="com.example.home" />       <!-- 首页模块 -->
         <!--支付宝-正式环境-->
         <package android:name="com.eg.android.AlipayGphone" />
         <!--支付宝-沙箱环境-->
@@ -193,6 +199,7 @@
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:launchMode="singleTask"
+            android:exported="true"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
 
@@ -200,17 +207,20 @@
             android:name=".activity.TestActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
+            android:exported="true"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity
             android:name=".activity.Test2Activity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
+            android:exported="true"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- 伸縮大圖 -->
         <activity
             android:name="com.example.home.activity.ScaleActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:theme="@style/TransparentTheme"
+            android:exported="true"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- ******************************************************微信 SDK****************************************************** -->
         <activity
