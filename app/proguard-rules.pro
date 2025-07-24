@@ -31,16 +31,45 @@
 # ---------------------------- 系统核心组件（AndroidX适配） ----------------------------
 # Application（全局上下文）
 -keep public class * extends android.app.Application {
-    public <init>();  # 无参构造（系统反射创建）
-    public void onCreate();
+     public <init>();  # 无参构造（系统反射创建）
+     public void onCreate();
+     public void attachBaseContext(android.content.Context);  # 安卓15可能更早调用
 }
 
-# Activity（AndroidX AppCompatActivity）
--keepclassmembers public class * extends androidx.appcompat.app.AppCompatActivity {
+# Activity 及子类（含 AppCompatActivity）的生命周期方法保留
+# 同时适配原生 Activity 和 AndroidX 的 AppCompatActivity
+-keepclassmembers class * extends android.app.Activity {
+    # 构造方法
     public <init>();
-    protected void onCreate(android.os.Bundle);  # 初始化核心
-    public void onSaveInstanceState(android.os.Bundle);  # 状态保存
-    public void setContentView(...);  # 布局加载
+    public <init>(android.os.Bundle);  # 某些场景下的带参构造
+    # 核心生命周期
+    public void onCreate(...);
+    public void onStart();
+    public void onResume();
+    public void onPause();
+    public void onStop();
+    public void onDestroy();
+    # 状态保存与恢复
+    public void onSaveInstanceState(android.os.Bundle);
+    public void onRestoreInstanceState(android.os.Bundle);  # 补充状态恢复方法
+    # 高版本适配
+    public void onNewIntent(android.content.Intent);  # 安卓13+强化
+    public void onCreateContextMenu(...);  # 上下文菜单
+    public void onRequestPermissionsResult(int, java.lang.String[], int[]);  # 权限回调
+    # 布局加载
+    public void setContentView(...);
+}
+
+# 特别保留 AppCompatActivity 的额外方法（如支持库特有的生命周期）
+-keepclassmembers class * extends androidx.appcompat.app.AppCompatActivity {
+    public void onSupportActionModeStarted(androidx.appcompat.view.ActionMode);
+    public void onSupportActionModeFinished(androidx.appcompat.view.ActionMode);
+}
+
+# 保留权限相关的回调类（安卓13+权限申请必需）
+-keep class androidx.core.app.ActivityCompat$OnRequestPermissionsResultCallback { *; }
+-keepclassmembers class * implements androidx.core.app.ActivityCompat$OnRequestPermissionsResultCallback {
+    public void onRequestPermissionsResult(int, java.lang.String[], int[]);
 }
 
 # FragmentActivity（与Fragment配合使用）
@@ -117,6 +146,15 @@
 # Fragment管理核心类
 -keep class androidx.fragment.app.FragmentManager { *; }
 -keep class androidx.fragment.app.FragmentTransaction { *; }
+
+# 保留所有匿名内部类（避免回调逻辑被移除）
+-keepclassmembers class * {
+    **$Lambda$*(...);
+}
+# 保留接口实现类的回调方法（如OnClickListener）
+-keepclassmembers class * implements android.view.View$OnClickListener {
+    public void onClick(android.view.View);
+}
 # ----------------------------  AndroidX架构组件 (ViewModel & LiveData) ----------------------------
 # ViewModel（避免反射创建失败）
 -keep class androidx.lifecycle.ViewModel { *; }
@@ -193,6 +231,13 @@
 }
 -keepclassmembers class kotlinx.coroutines.flow.** {
     *** lambda$*(...);
+}
+
+# 保留协程的调度器和异常处理器（避免崩溃时无法捕获异常）
+-keep class kotlinx.coroutines.android.AndroidDispatcherFactory { *; }
+-keep class kotlinx.coroutines.CoroutineExceptionHandler { *; }
+-keepclassmembers class * {
+    @kotlinx.coroutines.CoroutineScope <fields>;
 }
 # ---------------------------- 资源与权限相关 ----------------------------
 # 保留资源ID（布局/控件引用不失效）
@@ -396,7 +441,6 @@
 -dontwarn okio.**
 -dontwarn org.apache.commons.codec.binary.**
 # ---------------------------- 阿里ARouter混淆 ----------------------------
-#-dontwarn javax.lang.model.element.Element
 # 1. 保留所有带 @Route 注解的类（类名不混淆、不被移除）
 -keep @com.alibaba.android.arouter.facade.annotation.Route class * { *; }
 
@@ -421,6 +465,19 @@
     public android.view.View onCreateView(...);
     public void onViewCreated(android.view.View, android.os.Bundle);
 }
+# 保留 ARouter 生成的所有路由表类
+-keep class *$$ARouter$$Group$$* { *; }
+-keep class *$$ARouter$$Provider$$* { *; }
+-keep class *$$ARouter$$Inject$$* { *; }
+# 保留 @Autowired 注解
+-keep class com.alibaba.android.arouter.facade.annotation.Autowired { *; }
+# 保留所有类中被 @Autowired 标记的字段
+-keepclassmembers class * {
+    @com.alibaba.android.arouter.facade.annotation.Autowired <fields>;
+}
+# 保留 Kotlin 元数据（避免 Lambda 和扩展函数被误处理）
+-keepattributes KotlinMetadata
+-keep class kotlin.Metadata { *; }
 
 # 5. 忽略编译期注解类的缺失（运行时无需存在）
 -dontwarn javax.lang.model.**
@@ -462,8 +519,8 @@
 # ---------------------------- 项目库混淆 ----------------------------
 -keep class com.example.topsheet.** {*;}
 -keep class com.example.objectbox.dao.** {*;}
--keep class com.example.thirdparty.media.** {*;}
--keep class com.example.thirdparty.pay.** {*;}
+-keep class com.example.thirdparty.media.oss.bean.** {*;}
+-keep class com.example.thirdparty.pay.bean.** {*;}
 
 -keep class com.example.common.databinding.** {*;}
 -keep class com.example.common.base.** {*;}
