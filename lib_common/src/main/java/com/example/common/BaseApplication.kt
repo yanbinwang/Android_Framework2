@@ -153,8 +153,23 @@ abstract class BaseApplication : Application() {
         if (isDebug) {
             ARouter.openLog()//打印日志
             ARouter.openDebug()
+            ARouter.printStackTrace()
         }
         ARouter.init(this)
+        //安卓12（API 31）及以上版本，强制同步加载路由表
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                // 反射获取LogisticsCenter类
+                val logisticsCenterClass = Class.forName("com.alibaba.android.arouter.core.LogisticsCenter")
+                // 获取init方法（参数为Context）
+                val initMethod = logisticsCenterClass.getDeclaredMethod("init", Context::class.java)
+                initMethod.isAccessible = true // 允许访问私有方法
+                // 手动调用init，强制加载路由表
+                initMethod.invoke(null, this, null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun initReceiver() {
