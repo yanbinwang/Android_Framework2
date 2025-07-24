@@ -2,6 +2,7 @@ package com.example.common.utils
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Color
 import android.graphics.Point
 import android.os.Build
 import android.view.View
@@ -150,63 +151,62 @@ object ScreenUtil {
  */
 fun Window.applyFullScreen() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        // Android 11+ 版本
+        // 安卓11+ 现代全屏方案（移除重复的layoutInDisplayCutoutMode设置）
         setDecorFitsSystemWindows(false)
-        val controller = insetsController
-        controller?.let {
-            // 隐藏状态栏和导航栏
-            it.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-            // 设置沉浸式行为（用户滑动时临时显示系统栏）
-            it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            // 针对手势导航的特殊处理
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                // Android 12+：使用新的 API 控制系统栏可见性
-                it.hide(WindowInsets.Type.systemBars())
-            }
+        insetsController?.let { controller ->
+            // 隐藏系统栏（安卓15中Type.systemBars()已包含statusBars和navigationBars）
+            controller.hide(WindowInsets.Type.systemBars())
+            // 滑动时临时显示系统栏（保持原有行为）
+            controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
-        // 确保窗口布局延伸到屏幕边缘
-        attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
     } else {
-        // Android 10- 版本
-        var flags = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_FULLSCREEN)
+        var flags = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+//        // API 23+：若背景为浅色，设置状态栏文字为深色
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            flags = flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+//        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            // Android 4.4+ 添加沉浸式粘性标志
             flags = flags or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         }
         decorView.systemUiVisibility = flags
+        // 针对安卓4.4-9，强制设置导航栏透明（覆盖厂商默认）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+            && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            navigationBarColor = Color.TRANSPARENT
+        }
     }
 //    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//        // Android 11 及以上版本
+//        // Android 11+ 版本
 //        setDecorFitsSystemWindows(false)
 //        val controller = insetsController
 //        controller?.let {
+//            // 隐藏状态栏和导航栏
 //            it.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+//            // 设置沉浸式行为（用户滑动时临时显示系统栏）
 //            it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+//            // 针对手势导航的特殊处理
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//                // Android 12+：使用新的 API 控制系统栏可见性
+//                it.hide(WindowInsets.Type.systemBars())
+//            }
 //        }
-//    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//        // Android 4.4（KitKat）到 Android 10
-//        val flags = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//                or View.SYSTEM_UI_FLAG_FULLSCREEN
-//                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-//        decorView.systemUiVisibility = flags
-//    } else {
-//        // Android 4.4 以下版本
-//        val flags = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//                or View.SYSTEM_UI_FLAG_FULLSCREEN)
-//        decorView.systemUiVisibility = flags
-//    }
-//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-//        // 适配刘海屏
+//        // 确保窗口布局延伸到屏幕边缘
 //        attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+//    } else {
+//        // Android 10- 版本
+//        var flags = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+//                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+//                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+//                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+//                View.SYSTEM_UI_FLAG_FULLSCREEN)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//            // Android 4.4+ 添加沉浸式粘性标志
+//            flags = flags or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+//        }
+//        decorView.systemUiVisibility = flags
 //    }
 }

@@ -105,8 +105,8 @@ abstract class BaseApplication : Application() {
         ServerConfig.init()
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
-        //解决androidP 第一次打开程序出现莫名弹窗-弹窗内容“detected problems with api ”
-        closeAndroidPDialog()
+//        //解决androidP 第一次打开程序出现莫名弹窗-弹窗内容“detected problems with api ”
+//        closeAndroidPDialog()
         //阿里路由跳转初始化
         initARouter()
         //注册网络监听
@@ -125,28 +125,28 @@ abstract class BaseApplication : Application() {
         initPrivacyAgreed()
     }
 
-    private fun closeAndroidPDialog() {
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
-            try {
-                val aClass = Class.forName("android.content.pm.PackageParser\$Package")
-                val declaredConstructor = aClass.getDeclaredConstructor(String::class.java)
-                declaredConstructor.setAccessible(true)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            try {
-                val cls = Class.forName("android.app.ActivityThread")
-                val declaredMethod = cls.getDeclaredMethod("currentActivityThread")
-                declaredMethod.isAccessible = true
-                val activityThread = declaredMethod.invoke(null)
-                val mHiddenApiWarningShown = cls.getDeclaredField("mHiddenApiWarningShown")
-                mHiddenApiWarningShown.isAccessible = true
-                mHiddenApiWarningShown.setBoolean(activityThread, true)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
+//    private fun closeAndroidPDialog() {
+//        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+//            try {
+//                val aClass = Class.forName("android.content.pm.PackageParser\$Package")
+//                val declaredConstructor = aClass.getDeclaredConstructor(String::class.java)
+//                declaredConstructor.setAccessible(true)
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//            try {
+//                val cls = Class.forName("android.app.ActivityThread")
+//                val declaredMethod = cls.getDeclaredMethod("currentActivityThread")
+//                declaredMethod.isAccessible = true
+//                val activityThread = declaredMethod.invoke(null)
+//                val mHiddenApiWarningShown = cls.getDeclaredField("mHiddenApiWarningShown")
+//                mHiddenApiWarningShown.isAccessible = true
+//                mHiddenApiWarningShown.setBoolean(activityThread, true)
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
+//    }
 
     private fun initARouter() {
         //开启调试模式(如果在InstantRun模式下运行，必须开启调试模式！线上版本需要关闭,否则有安全风险)
@@ -156,20 +156,6 @@ abstract class BaseApplication : Application() {
             ARouter.printStackTrace()
         }
         ARouter.init(this)
-        //安卓12（API 31）及以上版本，强制同步加载路由表
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            try {
-                // 反射获取LogisticsCenter类
-                val logisticsCenterClass = Class.forName("com.alibaba.android.arouter.core.LogisticsCenter")
-                // 获取init方法（参数为Context）
-                val initMethod = logisticsCenterClass.getDeclaredMethod("init", Context::class.java)
-                initMethod.isAccessible = true // 允许访问私有方法
-                // 手动调用init，强制加载路由表
-                initMethod.invoke(null, this, null)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
     }
 
     private fun initReceiver() {

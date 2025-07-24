@@ -40,6 +40,7 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
     override fun isBindingEnabled() = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         if (!isTaskRoot
             && intent.hasCategory(Intent.CATEGORY_LAUNCHER)
             && intent.action != null
@@ -49,7 +50,6 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
             return
         }
         window.applyFullScreen()
-        super.onCreate(savedInstanceState)
         //当前Activity不是任务栈的根，可能是通过其他Activity启动的
         if (!isTaskRoot) {
             jump()
