@@ -1,6 +1,5 @@
 package com.example.thirdparty.media.service
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
@@ -133,20 +132,6 @@ class RecordingService : TrackableLifecycleService() {
         }?.onFailure {
             listener?.onError(it as? Exception)
         }
-//        var exception: Exception? = null
-//        try {
-//            //阻塞直到文件写入完成
-//            recorder?.stop()
-//            releaseRecorder()
-//        } catch (e: Exception) {
-//            exception = e
-//        } finally {
-//            if (null != exception) {
-//                listener?.onError(exception)
-//            } else {
-//                listener?.onStop()
-//            }
-//        }
     }
 
     /**
