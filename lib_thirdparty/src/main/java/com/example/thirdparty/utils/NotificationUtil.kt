@@ -1,9 +1,12 @@
 package com.example.thirdparty.utils
 
+import android.Manifest
+import android.app.Activity
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -11,11 +14,16 @@ import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
+import android.provider.Settings
+import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.scale
+import androidx.core.net.toUri
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.withHandling
+import com.example.common.utils.builder.shortToast
 import com.example.common.utils.builder.suspendingDownloadPic
 import com.example.common.utils.function.color
 import com.example.common.utils.function.decodeResource
@@ -268,6 +276,73 @@ object NotificationUtil {
                 baseFlags or PendingIntent.FLAG_IMMUTABLE
             }
             else -> baseFlags
+        }
+    }
+
+    /**
+     * 判断是否具备通知
+     */
+    @JvmStatic
+    fun hasNotificationPermission(context: Context): Boolean {
+        // Android 13及以上需要检查POST_NOTIFICATIONS权限
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        } else {
+            // Android 12及以下默认拥有通知权限
+            true
+        }
+    }
+
+    /**
+     * 通知权限(安卓13开始强制要求授予通知权限才能弹出通知)
+     *  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+     * 请求权限的实现（需在Activity中）
+     * private val requestPermissionLauncher = mActivity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+     * if (isGranted) {
+     * startRecording()
+     * } else {
+     * if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+     * mActivity.navigateToNotificationSettings()
+     * }
+     * }
+     * }
+     */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @JvmStatic
+    fun ActivityResultLauncher<String>?.requestNotificationPermission() {
+        this ?: return
+        launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
+
+    /**
+     * 直接跳转对应通知设置
+     */
+    @JvmStatic
+    fun Activity?.navigateToNotificationSettings() {
+        this ?: return
+        R.string.notificationGranted.shortToast()
+        val intent = when {
+            // Android 8.0+（API 26+）：直接跳通知设置
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                    // 关键参数：指定应用包名
+                    putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                }
+            }
+            // Android 6.0-7.1（API 23-25）：跳应用详情页
+            else -> {
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = "package:$packageName".toUri()
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            }
+        }
+        // 尝试启动Intent，防止仍有设备不支持
+        try {
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            // 终极 fallback：跳系统设置首页
+            startActivity(Intent(Settings.ACTION_SETTINGS))
         }
     }
 
