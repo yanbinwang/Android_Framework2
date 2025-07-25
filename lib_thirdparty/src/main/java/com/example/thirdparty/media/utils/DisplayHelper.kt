@@ -156,7 +156,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
         if (mActivity.pullUpOverlay()) {
             result.pullUpScreen(mActivity)
         } else {
-            R.string.screenGranted.shortToast()
+            R.string.overlayGranted.shortToast()
         }
     }
 
