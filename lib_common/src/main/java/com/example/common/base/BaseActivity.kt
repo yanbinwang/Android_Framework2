@@ -10,10 +10,16 @@ import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_MOVE
+import android.view.MotionEvent.ACTION_UP
 import android.view.View
 import android.view.WindowInsets
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
@@ -48,6 +54,7 @@ import com.example.framework.utils.function.color
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.value.hasAnnotation
 import com.example.framework.utils.function.value.isMainThread
+import com.example.framework.utils.function.view.background
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -121,7 +128,17 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         super.onCreate(savedInstanceState)
         // 彻底屏蔽边缘滑动
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.hide(WindowInsets.Type.systemGestures())
+            window.decorView.setOnApplyWindowInsetsListener { v, insets ->
+                // 仅在导航栏可见时设置内边距
+                val navBottom = insets.getInsets(WindowInsets.Type.navigationBars()).bottom
+                if (v.paddingBottom != navBottom) { // 只有变化时才更新
+                    v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
+                }
+                // 默认情况下都是白的
+                v.background(R.color.appNavigationBar)
+                // 避免重复处理
+                insets
+            }
         }
         if (needTransparentOwner) {
             overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
@@ -269,6 +286,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     override fun onDestroy() {
         super.onDestroy()
+        removeBackCallback()
         clearOnActivityResultListener()
         AppManager.removeActivity(this)
         for ((key, value) in dataManager) {
@@ -283,6 +301,54 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
+    // 保存当前注册的回调（用于移除旧回调）
+    private var backCallback: Any? = null
+    protected open fun setOnBackPressedListener(onBackPressedListener: (() -> Unit)) {
+        // 移除旧回调，避免重复执行
+        removeBackCallback()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // API 33+ 使用 OnBackInvokedCallback
+            val callback = OnBackInvokedCallback {
+                onBackPressedListener.invoke()
+            }
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback)
+            backCallback = callback
+        } else {
+            // API <33 使用 OnBackPressedCallback
+            val callback = object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    onBackPressedListener.invoke()
+                }
+            }
+            onBackPressedDispatcher.addCallback(this, callback)
+            backCallback = callback
+        }
+    }
+
+    /**
+     * 移除当前注册的返回回调（恢复默认返回行为）
+     */
+    protected open fun removeBackCallback() {
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                (backCallback as? OnBackInvokedCallback)?.let {
+                    onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it)
+                }
+            }
+            else -> {
+                (backCallback as? OnBackPressedCallback)?.remove()
+            }
+        }
+        backCallback = null
+    }
+
+    /**
+     * 恢复默认返回行为（移除所有自定义回调）
+     */
+    protected open fun restoreDefaultBackBehavior() {
+        removeBackCallback()
+    }
+
     /**
      * 实际开发中，严禁new一个activity，这是安卓框架所不允许的，故而跳转的回调也只能开给子类，但是fragment可以公开
      */
@@ -300,8 +366,31 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
      * 点击EditText之外的部分关闭软键盘
      */
     private var flagMove = false
-    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        return super.dispatchTouchEvent(ev)
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        when (ev.action) {
+            ACTION_DOWN -> {
+                flagMove = false
+            }
+            ACTION_MOVE -> {
+                flagMove = true
+            }
+            ACTION_UP -> {
+                if (!flagMove) {
+                    val v = currentFocus
+                    if (isShouldHideInput(v, ev)) {
+                        clearEditTextFocus(v)
+                        hideInputMethod(v)
+                    }
+                    return super.dispatchTouchEvent(ev)
+                }
+            }
+        }
+        // 必不可少，否则所有的组件都不会有TouchEvent了
+        return if (window.superDispatchTouchEvent(ev)) {
+            true
+        } else {
+            onTouchEvent(ev)
+        }
     }
 
     protected fun hideInputMethod(v: View?) {
@@ -316,15 +405,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         if (view != null && view is EditText) {
             view.clearFocus()
         }
-    }
-
-    private fun View.findSpecialEditTextParent(maxTimes: Int): View? {
-        var view = this
-        for (i in 0..maxTimes) {
-            if (view is SpecialEditText) return view
-            view = view.parent as? View ?: return null
-        }
-        return null
     }
 
     /**
@@ -350,10 +430,19 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
             val top = leftTop[1]
             val bottom = top + height
             val right = left + width
-            //点击的是输入框区域，保留点击EditText的事件
-            return !(event.rawX.toInt() in left..right && event.rawY.toInt() in top..bottom)
+            // 点击的是输入框区域，保留点击EditText的事件
+            return !(event.x > left && event.x < right && event.y > top && event.y < bottom)
         }
         return false
+    }
+
+    private fun View.findSpecialEditTextParent(maxTimes: Int): View? {
+        var view = this
+        for (i in 0..maxTimes) {
+            if (view is SpecialEditText) return view
+            view = view.parent as? View ?: return null
+        }
+        return null
     }
     // </editor-fold>
 
