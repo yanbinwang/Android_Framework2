@@ -2,6 +2,11 @@ package com.example.common.utils.permission
 
 import android.content.Context
 import android.os.Build
+import androidx.activity.result.ActivityResultCaller
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.example.common.R
 import com.example.common.utils.i18n.string
 import com.example.common.utils.permission.XXPermissionsGroup.CAMERA_GROUP
@@ -83,4 +88,25 @@ class PermissionHelper(private val context: Context) {
         }
     }
 
+}
+
+/**
+ *  private val mRequestPermissionWrapper = registerRequestPermissionWrapper()
+ *  private val mRequestPermissionResult = mRequestPermissionWrapper.registerResult { ... }
+ */
+interface RequestPermissionRegistrar {
+    val requestPermissionCaller: ActivityResultCaller
+    fun registerResult(func: (Boolean) -> Unit): ActivityResultLauncher<String> {
+        return requestPermissionCaller.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            func.invoke(it)
+        }
+    }
+}
+
+fun AppCompatActivity.registerRequestPermissionWrapper(): RequestPermissionRegistrar = object : RequestPermissionRegistrar {
+    override val requestPermissionCaller: ActivityResultCaller get() = this@registerRequestPermissionWrapper
+}
+
+fun Fragment.registerRequestPermissionWrapper(): RequestPermissionRegistrar = object : RequestPermissionRegistrar {
+    override val requestPermissionCaller: ActivityResultCaller get() = this@registerRequestPermissionWrapper
 }
