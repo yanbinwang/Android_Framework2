@@ -14,6 +14,7 @@ import com.example.common.BaseApplication
 import com.example.common.utils.function.getManifestString
 import com.example.framework.utils.function.value.min
 import com.example.framework.utils.function.value.toSafeInt
+import com.example.framework.utils.function.view.background
 import kotlin.LazyThreadSafetyMode.NONE
 
 /**
@@ -209,4 +210,37 @@ fun Window.applyFullScreen() {
 //        }
 //        decorView.systemUiVisibility = flags
 //    }
+}
+
+fun Window.setupNavigationBarPadding(navBarColorRes: Int) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        // 先设置背景色（确保初始状态正确）
+        decorView.background(navBarColorRes)
+        // 1. 监听视图附加到窗口（延迟获取Insets，确保数据准备好）
+        decorView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) {
+                // 视图已附加到窗口，此时rootWindowInsets有效
+                val initialInsets = v.rootWindowInsets
+                val initialNavBottom = initialInsets.getInsets(WindowInsets.Type.navigationBars()).bottom
+                // 设置初始padding
+                v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, initialNavBottom)
+                // 移除监听器（只需要执行一次）
+                v.removeOnAttachStateChangeListener(this)
+            }
+
+            override fun onViewDetachedFromWindow(v: View) {}
+        })
+        // 2. 监听Insets变化（处理动态更新）
+        decorView.setOnApplyWindowInsetsListener { v, insets ->
+            // 仅在导航栏可见时设置内边距
+            val navBottom = insets.getInsets(WindowInsets.Type.navigationBars()).bottom
+            if (v.paddingBottom != navBottom) { // 只有变化时才更新
+                v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
+            }
+            // 默认情况下都是白的
+            v.background(navBarColorRes)
+            // 避免重复处理
+            insets
+        }
+    }
 }

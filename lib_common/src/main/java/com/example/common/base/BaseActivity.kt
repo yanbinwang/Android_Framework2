@@ -14,7 +14,6 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
 import android.view.View
-import android.view.WindowInsets
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.window.OnBackInvokedCallback
@@ -46,6 +45,7 @@ import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
+import com.example.common.utils.setupNavigationBarPadding
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.common.widget.textview.edittext.SpecialEditText
@@ -54,7 +54,6 @@ import com.example.framework.utils.function.color
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.value.hasAnnotation
 import com.example.framework.utils.function.value.isMainThread
-import com.example.framework.utils.function.view.background
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -126,20 +125,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // 彻底屏蔽边缘滑动
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.decorView.setOnApplyWindowInsetsListener { v, insets ->
-                // 仅在导航栏可见时设置内边距
-                val navBottom = insets.getInsets(WindowInsets.Type.navigationBars()).bottom
-                if (v.paddingBottom != navBottom) { // 只有变化时才更新
-                    v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
-                }
-                // 默认情况下都是白的
-                v.background(R.color.appNavigationBar)
-                // 避免重复处理
-                insets
-            }
-        }
         if (needTransparentOwner) {
             overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
             requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
@@ -243,6 +228,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
                     mBinding = method?.invoke(null, layoutInflater) as? VDB
                     mBinding?.lifecycleOwner = this
                     setContentView(mBinding?.root)
+                    window.setupNavigationBarPadding(R.color.appNavigationBar)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
