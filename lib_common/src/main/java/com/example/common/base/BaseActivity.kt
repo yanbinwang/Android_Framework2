@@ -135,7 +135,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
                     v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
                 }
                 // 默认情况下都是白的
-                v.background(R.color.bgWhite)
+                v.background(R.color.appNavigationBar)
                 // 避免重复处理
                 insets
             }
