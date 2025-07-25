@@ -51,6 +51,7 @@ import com.example.framework.utils.function.color
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.value.hasAnnotation
 import com.example.framework.utils.function.value.isMainThread
+import com.example.framework.utils.function.view.background
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -125,6 +126,18 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         // 彻底屏蔽边缘滑动
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.hide(WindowInsets.Type.systemGestures())
+            window.decorView.setOnApplyWindowInsetsListener { v, insets ->
+                // 仅在导航栏可见时设置内边距
+                if ((insets.getInsets(WindowInsets.Type.navigationBars()).bottom > 0)) {
+                    v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, insets.getInsets(WindowInsets.Type.navigationBars()).bottom)
+                } else {
+                    // 导航栏隐藏时清除底部内边距
+                    v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, 0)
+                }
+                // 默认情况下都是白的
+                v.background(R.color.bgWhite)
+                insets// 避免重复处理
+            }
         }
         if (needTransparentOwner) {
             overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)

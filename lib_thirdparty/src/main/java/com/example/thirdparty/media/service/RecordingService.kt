@@ -12,6 +12,9 @@ import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType.AUDIO
 import com.example.common.utils.function.deleteFile
 import com.example.framework.utils.function.TrackableLifecycleService
+import com.example.framework.utils.function.string
+import com.example.thirdparty.R
+import com.example.thirdparty.utils.NotificationUtil.notificationId
 
 /**
  *  <service
@@ -41,16 +44,38 @@ class RecordingService : TrackableLifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            startForeground(1, Notification())
-        } else {
-            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as? NotificationManager
-            notificationManager?.createNotificationChannel(NotificationChannel(packageName, packageName, NotificationManager.IMPORTANCE_DEFAULT))
-            val builder = NotificationCompat.Builder(this, packageName)
-            //id不为0即可，该方法表示将服务设置为前台服务
-            startForeground(1, builder.build())
+        // 1. 创建符合Android 15要求的通知渠道
+        val channelId = string(R.string.notificationChannelId)
+        val channelName = string(R.string.notificationChannelName)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // 录屏服务建议使用低重要性，避免打扰用户
+            val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW).apply {
+                description = "用于显示音频录制状态"
+                setSound(null, null) // 关闭通知声音
+            }
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
         }
-//        stopForeground(true)//关闭录屏的图标-可注释
+        // 2. 构建完整的通知（必须包含图标、标题）
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("正在录音") // 强制要求：标题
+            .setSmallIcon(R.mipmap.ic_launcher) // 强制要求：图标（替换为你的资源）
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOngoing(true) // 标记为持续通知，用户无法手动清除
+            .setSilent(true) // 静音通知
+            .build()
+        // 3. 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
+        startForeground(notificationId, notification)
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+//            startForeground(1, Notification())
+//        } else {
+//            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as? NotificationManager
+//            notificationManager?.createNotificationChannel(NotificationChannel(packageName, packageName, NotificationManager.IMPORTANCE_DEFAULT))
+//            val builder = NotificationCompat.Builder(this, packageName)
+//            //id不为0即可，该方法表示将服务设置为前台服务
+//            startForeground(1, builder.build())
+//        }
+////        stopForeground(true)//关闭录屏的图标-可注释
         //获取 PowerManager 实例
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
         //创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
