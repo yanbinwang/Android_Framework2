@@ -17,6 +17,9 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
@@ -125,18 +128,16 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         super.onCreate(savedInstanceState)
         // 彻底屏蔽边缘滑动
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.hide(WindowInsets.Type.systemGestures())
             window.decorView.setOnApplyWindowInsetsListener { v, insets ->
                 // 仅在导航栏可见时设置内边距
-                if ((insets.getInsets(WindowInsets.Type.navigationBars()).bottom > 0)) {
-                    v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, insets.getInsets(WindowInsets.Type.navigationBars()).bottom)
-                } else {
-                    // 导航栏隐藏时清除底部内边距
-                    v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, 0)
+                val navBottom = insets.getInsets(WindowInsets.Type.navigationBars()).bottom
+                if (v.paddingBottom != navBottom) { // 只有变化时才更新
+                    v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
                 }
                 // 默认情况下都是白的
                 v.background(R.color.bgWhite)
-                insets// 避免重复处理
+                // 避免重复处理
+                insets
             }
         }
         if (needTransparentOwner) {
@@ -285,6 +286,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     override fun onDestroy() {
         super.onDestroy()
+        removeBackCallback()
         clearOnActivityResultListener()
         AppManager.removeActivity(this)
         for ((key, value) in dataManager) {
@@ -299,6 +301,54 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
+    // 保存当前注册的回调（用于移除旧回调）
+    private var backCallback: Any? = null
+    protected open fun setOnBackPressedListener(onBackPressedListener: (() -> Unit)) {
+        // 移除旧回调，避免重复执行
+        removeBackCallback()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // API 33+ 使用 OnBackInvokedCallback
+            val callback = OnBackInvokedCallback {
+                onBackPressedListener.invoke()
+            }
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback)
+            backCallback = callback
+        } else {
+            // API <33 使用 OnBackPressedCallback
+            val callback = object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    onBackPressedListener.invoke()
+                }
+            }
+            onBackPressedDispatcher.addCallback(this, callback)
+            backCallback = callback
+        }
+    }
+
+    /**
+     * 移除当前注册的返回回调（恢复默认返回行为）
+     */
+    protected open fun removeBackCallback() {
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                (backCallback as? OnBackInvokedCallback)?.let {
+                    onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it)
+                }
+            }
+            else -> {
+                (backCallback as? OnBackPressedCallback)?.remove()
+            }
+        }
+        backCallback = null
+    }
+
+    /**
+     * 恢复默认返回行为（移除所有自定义回调）
+     */
+    protected open fun restoreDefaultBackBehavior() {
+        removeBackCallback()
+    }
+
     /**
      * 实际开发中，严禁new一个activity，这是安卓框架所不允许的，故而跳转的回调也只能开给子类，但是fragment可以公开
      */
