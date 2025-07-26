@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.yanzhenjie.album.widget.SquareCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Album.Item.Card.MatchParent">
+
+    <RelativeLayout style="@style/Album.MatchParent">
+
+        <ImageView
+            android:id="@+id/iv_album_content_image"
+            style="@style/Album.MatchParent"
+            android:contentDescription="@string/album_title"
+            android:scaleType="centerCrop" />
+
+        <com.yanzhenjie.album.widget.TransferLayout
+            style="@style/Album.WrapContent.Transfer"
+            android:layout_alignParentEnd="true">
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/check_box"
+                style="@style/Album.CheckBox.WrapContent" />
+
+        </com.yanzhenjie.album.widget.TransferLayout>
+
+        <TextView
+            android:id="@+id/tv_duration"
+            style="@style/Album.WrapContent"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="@dimen/album_dp_6"
+            android:layout_marginBottom="@dimen/album_dp_6"
+            android:drawableStart="@drawable/album_tag_video_white"
+            android:drawablePadding="@dimen/album_dp_4"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textColor="@color/albumFontLight" />
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/layout_layer"
+        style="@style/Album.MatchParent"
+        android:background="@color/albumSheetLayer">
+
+        <TextView
+            style="@style/Album.WrapContent"
+            android:layout_gravity="center"
+            android:text="@string/album_item_unavailable"
+            android:textColor="@color/albumFontLight"
+            android:textSize="@dimen/album_sp_16" />
+
+    </FrameLayout>
+
+</com.yanzhenjie.album.widget.SquareCardView>

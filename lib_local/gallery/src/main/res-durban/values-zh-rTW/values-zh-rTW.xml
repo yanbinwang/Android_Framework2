@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="durban_controller_title_rotation">旋轉</string>
+    <string name="durban_controller_title_scale">縮放</string>
+    <string name="durban_menu_crop">确定</string>
+    <string name="durban_title_crop">图片裁剪</string>
+</resources>

@@ -4,20 +4,25 @@
     <style name="AppTheme" parent="AppTheme.Base" />
 
     <style name="AppTheme.Base" parent="Theme.AppCompat">
+        <!-- 禁用 ActionBar 并隐藏标题栏 -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <!-- 设置页面切换动画 -->
         <item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
-        <!-- 字体颜色 -->
-        <item name="colorPrimary">@color/appPrimary</item>
-        <!-- 状态栏栏颜色 -->
-        <item name="colorPrimaryDark">@color/appPrimaryDark</item>
         <!-- 状态栏深色UI -->
         <item name="android:windowLightStatusBar">true</item>
+        <!-- 状态栏颜色 -->
+        <item name="android:statusBarColor">@color/appPrimaryDark</item>
         <!-- 导航栏颜色 -->
         <item name="android:navigationBarColor">@color/appNavigationBar</item>
         <!-- 页面背景色 -->
         <item name="android:windowBackground">@color/appWindowBackground</item>
+        <!-- 剔除页面加载过度页 -->
+        <item name="android:windowDisablePreview">true</item>
+        <!-- 状态栏栏颜色 -->
+        <item name="colorPrimaryDark">@color/appPrimaryDark</item>
+        <!-- 字体颜色 -->
+        <item name="colorPrimary">@color/appPrimary</item>
         <!-- 控件被选中时的颜色（光标） -->
         <item name="colorAccent">@color/appAccent</item>
         <!-- 控制控件的默认颜色 -->
@@ -118,9 +123,11 @@
 
     <!-- 启动页/引导页/首页/背景纯色的页面，单独使用该样式，可重写把背景替换掉，解决页面切换之间不会黑一下屏 -->
     <style name="TransitionTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowBackground">@color/bgWhite</item>
         <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:navigationBarColor">@color/appNavigationBar</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="colorPrimaryDark">@android:color/transparent</item>
     </style>
 
     <!--底部弹出样式 -->
