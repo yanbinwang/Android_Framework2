@@ -179,7 +179,6 @@ fun Window.applyFullScreen() {
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 //            flags = flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
 //        }
-        flags = flags or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         decorView.systemUiVisibility = flags
         // 针对安卓4.4-9，强制设置导航栏透明（覆盖厂商默认）
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
