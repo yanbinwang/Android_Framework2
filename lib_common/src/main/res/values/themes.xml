@@ -9,19 +9,21 @@
         <item name="windowNoTitle">true</item>
         <!-- 设置页面切换动画 -->
         <item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
-        <!-- 状态栏深色UI -->
+        <!-- 状态栏使用深色图标（适用于浅色状态栏背景）API 23+ 生效，低于则忽略 -->
         <item name="android:windowLightStatusBar">true</item>
-        <!-- 状态栏颜色 -->
-        <item name="android:statusBarColor">@color/appPrimaryDark</item>
-        <!-- 导航栏颜色 -->
+        <!-- 状态栏颜色 低于 API 21 时，该属性被忽略，状态栏保持系统默认颜色（通常为黑色） -->
+        <item name="android:statusBarColor">@color/appStatusBar</item>
+        <!-- 导航栏使用深色图标（适用于浅色导航栏背景）API 26+ 生效，低于则忽略 -->
+        <item name="android:windowLightNavigationBar">true</item>
+        <!-- 导航栏颜色 低于 API 21 时，该属性被忽略，导航栏保持系统默认颜色-->
         <item name="android:navigationBarColor">@color/appNavigationBar</item>
         <!-- 页面背景色 -->
         <item name="android:windowBackground">@color/appWindowBackground</item>
-        <!-- 剔除页面加载过度页 -->
+        <!-- 屏蔽页面加载过度页 -->
         <item name="android:windowDisablePreview">true</item>
-        <!-- 状态栏栏颜色 -->
+        <!-- 主题深色强调色（API < 21 时影响状态栏颜色） -->
         <item name="colorPrimaryDark">@color/appPrimaryDark</item>
-        <!-- 字体颜色 -->
+        <!-- 主题主色调（影响ActionBar、标题栏等背景） -->
         <item name="colorPrimary">@color/appPrimary</item>
         <!-- 控件被选中时的颜色（光标） -->
         <item name="colorAccent">@color/appAccent</item>

@@ -3,6 +3,7 @@ package com.example.mvvm.activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.SystemClock
+import android.view.MotionEvent
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication.Companion.lastClickTime
 import com.example.common.base.BaseActivity
@@ -77,6 +78,20 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
 
     private fun jump() {
         navigation(ARouterPath.MainActivity)?.finish()
+    }
+
+    /**
+     * 尝试解决启动页的dispatch闪退问题，这边切换成系统默认的dispatch逻辑
+     */
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (ev.action == MotionEvent.ACTION_DOWN) {
+            onUserInteraction()
+        }
+        return if (window.superDispatchTouchEvent(ev)) {
+            true
+        } else {
+            onTouchEvent(ev)
+        }
     }
 
 }

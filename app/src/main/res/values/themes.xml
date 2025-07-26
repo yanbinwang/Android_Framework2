@@ -26,11 +26,8 @@
     -->
     <!-- 启动页，直接背景是一张启动页图，点开app就是引导页的展示 -->
     <style name="SplashTheme" parent="TransitionTheme">
-        <!-- 窗口背景 -->
         <item name="android:windowBackground">@drawable/layout_list_splash</item>
-        <!-- 移除窗口动画 -->
-        <item name="android:windowAnimationStyle">@null</item>
-        <!-- 适配刘海屏 -->
+        <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
 
@@ -58,24 +55,21 @@
     <!--注册选择页背景是蓝色，故而使用此样式-->
     <style name="StartTheme" parent="TransitionTheme">
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowBackground">@color/appTheme</item>
         <item name="android:navigationBarColor">@color/appTheme</item>
     </style>
 
     <!--首页 -->
     <style name="MainTheme" parent="TransitionTheme">
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowBackground">@color/appWindowBackground</item>
+        <item name="android:windowLightNavigationBar">true</item>
         <item name="android:navigationBarColor">@color/appNavigationBar</item>
     </style>
 
     <!-- 选择页背景直接是白色默认 -->
     <style name="DefaultTheme" parent="TransitionTheme">
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowBackground">@color/bgDefault</item>
+        <item name="android:windowLightNavigationBar">true</item>
         <item name="android:navigationBarColor">@color/appNavigationBar</item>
     </style>
 

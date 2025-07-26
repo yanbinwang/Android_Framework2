@@ -3,9 +3,10 @@
     <!-- app内的一些颜色-->
     <color name="appTheme">#3d81f2</color><!-- app主题色 -->
     <color name="appPrimary">#202630</color><!-- app全局字体默认颜色 -->
-    <color name="appPrimaryDark">#ffffff</color><!-- app状态栏栏颜色 -->
+    <color name="appStatusBar">#ffffff</color><!-- app状态栏颜色 -->
     <color name="appNavigationBar">#ffffff</color><!-- app导航栏颜色 -->
     <color name="appWindowBackground">#f6f8ff</color><!-- app背景色 -->
+    <color name="appPrimaryDark">#ffffff</color><!-- app主题深色强调色（API < 21 时影响状态栏颜色） -->
     <color name="appAccent">#3d81f2</color><!-- 光标色 -->
     <color name="appControlNormal">#333333</color><!-- 控制控件的默认颜色 -->
     <!-- 输入框/显示文本 -->
