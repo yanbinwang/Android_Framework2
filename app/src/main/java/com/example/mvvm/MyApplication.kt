@@ -7,6 +7,7 @@ import com.amap.api.services.core.ServiceSettings
 import com.example.common.BaseApplication
 import com.example.common.config.Constants.VERSION_NAME
 import com.example.framework.utils.function.value.isDebug
+import com.example.gallery.utils.album.Album
 import com.example.greendao.dao.DaoMaster
 import com.example.mvvm.activity.MainActivity
 import com.example.objectbox.dao.MyObjectBox
@@ -16,7 +17,6 @@ import com.example.thirdparty.media.oss.OssDBHelper2
 import com.example.thirdparty.media.oss.OssFactory
 import com.example.thirdparty.utils.NotificationUtil
 import com.example.thirdparty.utils.wechat.WXManager
-import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import io.objectbox.BoxStore
 import java.util.Locale

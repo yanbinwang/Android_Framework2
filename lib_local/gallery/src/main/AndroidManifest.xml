@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- 裁剪页 -->
+        <activity
+            android:name="com.example.gallery.activity.DurbanActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
+
+        <!-- 相机页 -->
+        <activity
+            android:name="com.example.gallery.activity.CameraActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Album.Theme.Activity.Transparent"
+            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <!-- 相册选择页 -->
+        <activity
+            android:name="com.example.gallery.activity.AlbumActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Album.Theme.Activity"
+            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <!-- 空页面 -->
+        <activity
+            android:name="com.example.gallery.activity.NullActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Album.Theme.Activity"
+            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+
+    </application>
+
+</manifest>
