@@ -9,9 +9,10 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!--震动提示-->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!--通知弹出权限(安卓13开始强制要求授予)-->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!--录屏服务窗口-->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <!--声明前台服务权限 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
