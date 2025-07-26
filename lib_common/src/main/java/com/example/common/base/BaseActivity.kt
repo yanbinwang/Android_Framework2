@@ -208,12 +208,15 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
      */
     override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
         super.initImmersionBar(titleDark, naviTrans, navigationBarColor)
+        /**
+         * 1.如果当前设备支持状态栏字体变色，会设置状态栏字体为黑色/如果当前设备不支持状态栏字体变色，会使当前状态栏加上透明度，否则不执行透明度
+         * 2.导航栏字体深色或亮色，只支持android O(api26)以上版本,背景在5.0+可设置,为兼顾最低6.0(23+)的手机,统一底部为白色
+         */
         immersionBar?.apply {
             reset()
-            //如果当前设备支持状态栏字体变色，会设置状态栏字体为黑色
-            //如果当前设备不支持状态栏字体变色，会使当前状态栏加上透明度，否则不执行透明度
             statusBarDarkFont(titleDark, 0.2f)
-            navigationBarColor(navigationBarColor)?.navigationBarDarkIcon(naviTrans, 0.2f)
+            navigationBarColor(navigationBarColor)
+            navigationBarDarkIcon(naviTrans, 0.2f)
             init()
         }
     }
