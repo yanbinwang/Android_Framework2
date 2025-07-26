@@ -13,17 +13,18 @@ import com.example.common.utils.function.string
 import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
 import com.example.gallery.R
-import com.example.gallery.utils.album.Album
-import com.example.gallery.utils.album.api.camera.ImageCameraWrapper
-import com.example.gallery.utils.album.api.camera.VideoCameraWrapper
-import com.example.gallery.utils.album.api.choice.ImageMultipleWrapper
-import com.example.gallery.utils.album.api.choice.ImageSingleWrapper
-import com.example.gallery.utils.album.api.choice.VideoMultipleWrapper
-import com.example.gallery.utils.album.api.choice.VideoSingleWrapper
+import com.yanzhenjie.album.Album
+import com.yanzhenjie.album.api.ImageCameraWrapper
+import com.yanzhenjie.album.api.ImageMultipleWrapper
+import com.yanzhenjie.album.api.ImageSingleWrapper
+import com.yanzhenjie.album.api.VideoCameraWrapper
+import com.yanzhenjie.album.api.VideoMultipleWrapper
+import com.yanzhenjie.album.api.VideoSingleWrapper
 import com.yanzhenjie.album.api.camera.Camera
 import com.yanzhenjie.album.api.choice.Choice
 import com.yanzhenjie.album.api.widget.Widget
 import com.yanzhenjie.durban.Controller
+import com.yanzhenjie.durban.Durban
 
 /**
  * author: wyb

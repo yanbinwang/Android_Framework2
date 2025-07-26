@@ -2,6 +2,4 @@
 <resources>
     <!-- 计时框-->
     <color name="bgTimeTick">#ef111111</color>
-    <!-- 相册-->
-    <color name="textAlbum">#00ffffff</color>
 </resources>

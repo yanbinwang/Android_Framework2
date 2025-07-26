@@ -8,14 +8,22 @@ android {
     namespace = "com.example.gallery"
     compileSdk = libs.versions.compileSdkVersion.get().toInt()
 
+    sourceSets {
+        getByName("main") {
+            res {
+                srcDirs(
+                    "src/main/res",
+                    "src/main/res-album",
+                    "src/main/res-durban"
+                )
+            }
+        }
+    }
+
     defaultConfig {
         minSdk = libs.versions.minSdkVersion.get().toInt()
         targetSdk = libs.versions.targetSdkVersion.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    buildFeatures {
-        dataBinding = true
     }
 
     kotlinOptions {
@@ -41,7 +49,8 @@ dependencies {
     androidTestImplementation(libs.bundles.android.testing)
     //框架库
     implementation(project(":lib_common"))
-    //相册/裁剪
-    api("com.yanzhenjie:album:2.1.3")
-    api("com.yanzhenjie:durban:1.0.1")
+    //转圈控件
+    implementation("com.yanzhenjie:loading:1.0.2")
+    //媒体扫描
+    implementation("com.yanzhenjie:mediascanner:1.0.3")
 }

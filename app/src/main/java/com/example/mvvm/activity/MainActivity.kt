@@ -2,7 +2,6 @@ package com.example.mvvm.activity
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.alibaba.android.arouter.facade.annotation.Route
@@ -11,13 +10,10 @@ import com.example.common.base.BaseActivity
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
-import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.drawable
-import com.example.common.utils.function.getFileFromUri
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.pullUpAlbum
 import com.example.common.utils.toJson
 import com.example.common.utils.toList
 import com.example.common.utils.toObj
@@ -40,13 +36,11 @@ import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
-import com.example.gallery.utils.Durban
 import com.example.gallery.utils.GalleryHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.dialog.TestTopDialog
-import com.example.thirdparty.media.album.AlbumHelper
-import com.yanzhenjie.durban.Controller
+import com.yanzhenjie.durban.Durban
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
@@ -381,7 +375,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private val bean by lazy { intentParcelable<UserBean>("bean") }
 
     //    private val builder by lazy { FileBuilder(this) }
-    private val album by lazy { AlbumHelper(this) }
+//    private val album by lazy { AlbumHelper(this) }
 
     data class Book(val title: String, val author: String, val genre: String)
 
