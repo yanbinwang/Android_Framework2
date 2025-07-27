@@ -27,7 +27,7 @@
     <!-- 启动页，直接背景是一张启动页图，点开app就是引导页的展示 -->
     <style name="SplashTheme" parent="TransitionTheme">
         <item name="android:windowBackground">@drawable/layout_list_splash</item>
-        <item name="android:windowIsTranslucent">true</item>
+<!--        <item name="android:windowIsTranslucent">true</item>--> <!-- 加了高版本会直接导致首页被加载前先看到桌面 -->
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
 
