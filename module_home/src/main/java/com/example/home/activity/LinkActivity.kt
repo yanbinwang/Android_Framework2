@@ -53,8 +53,8 @@ class LinkActivity : BaseActivity<Nothing>() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         super.onCreate(savedInstanceState)
+        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         requestedOrientation = if (Build.VERSION.SDK_INT == 26) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         } else {

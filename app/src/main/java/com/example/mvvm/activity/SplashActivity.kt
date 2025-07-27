@@ -40,8 +40,12 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
 
     override fun isBindingEnabled() = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
+        /**
+         * 当用户从最近任务列表重启 App 时，系统可能会创建新的SplashActivity实例并置于已有任务栈顶部（而非复用根部实例），导致启动页重复显示。
+         * 通过finish()销毁了这个多余的顶部实例，确保用户看到的是任务栈根部的页面，该逻辑在standard模式下是有效的
+         */
         if (!isTaskRoot
             && intent.hasCategory(Intent.CATEGORY_LAUNCHER)
             && intent.action != null
