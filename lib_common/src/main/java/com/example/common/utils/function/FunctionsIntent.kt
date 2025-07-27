@@ -1,7 +1,6 @@
 package com.example.common.utils.function
 
 import android.app.Activity
-import android.app.ActivityOptions
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
@@ -13,7 +12,6 @@ import android.os.Build
 import android.os.Parcelable
 import android.provider.MediaStore
 import android.provider.Settings
-import android.util.Pair
 import android.view.View
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCaller
@@ -21,8 +19,10 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import com.example.common.R
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
@@ -248,7 +248,8 @@ fun Context?.openWorld(filePath: String) = openFile(filePath, "application/mswor
 /**
  * 打开安装包
  */
-fun Context?.openSetupApk(filePath: String) = openFile(filePath, "application/vnd.android.package-archive")
+fun Context?.openSetupApk(filePath: String) =
+    openFile(filePath, "application/vnd.android.package-archive")
 
 /**
  * 统一开启文件
@@ -369,8 +370,8 @@ fun <T> Intent?.getArrayListExtra(name: String): ArrayList<T>? {
  * ActivityCompat.startActivity(activityA, intent, options.toBundle());
  * 实现效果：新 Activity 从右侧滑入，旧 Activity 向左侧滑出。
  */
-fun getCustomOption(context: Context, enterResId: Int, exitResId: Int): ActivityOptions? {
-    return ActivityOptions.makeCustomAnimation(context, enterResId, exitResId)
+fun getCustomOption(context: Context, enterResId: Int, exitResId: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeCustomAnimation(context, enterResId, exitResId)
 }
 
 /**
@@ -387,8 +388,8 @@ fun getCustomOption(context: Context, enterResId: Int, exitResId: Int): Activity
  * );
  * 实现效果：新 Activity 从指定点开始，逐渐放大到全屏
  */
-fun getScaleUpOption(view: View, startX: Int, startY: Int, width: Int, height: Int): ActivityOptions? {
-    return ActivityOptions.makeScaleUpAnimation(view, startX, startY, width, height)
+fun getScaleUpOption(view: View, startX: Int, startY: Int, width: Int, height: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeScaleUpAnimation(view, startX, startY, width, height)
 }
 
 /**
@@ -405,8 +406,8 @@ fun getScaleUpOption(view: View, startX: Int, startY: Int, width: Int, height: I
  * );
  * 实现效果：新 Activity 从缩略图位置开始，逐步放大到全屏。
  */
-fun getThumbnailScaleUpOption(view: View, thumbnail: Bitmap, startX: Int, startY: Int): ActivityOptions? {
-    return ActivityOptions.makeThumbnailScaleUpAnimation(view, thumbnail, startX, startY)
+fun getThumbnailScaleUpOption(view: View, thumbnail: Bitmap, startX: Int, startY: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeThumbnailScaleUpAnimation(view, thumbnail, startX, startY)
 }
 
 /**
@@ -423,8 +424,8 @@ fun getThumbnailScaleUpOption(view: View, thumbnail: Bitmap, startX: Int, startY
  * ActivityCompat.startActivity(this, intent, options.toBundle());
  * 实现效果：共享元素在 Activity 切换时保持视觉连贯性，仿佛是同一个元素在移动或变换。
  */
-fun getSceneTransitionOption(activity: Activity, vararg sharedElements: Pair<View, String>): ActivityOptions? {
-    return ActivityOptions.makeSceneTransitionAnimation(activity, *sharedElements)
+fun getSceneTransitionOption(activity: Activity, vararg sharedElements: Pair<View, String>): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeSceneTransitionAnimation(activity, *sharedElements)
 }
 
 /**
@@ -442,8 +443,8 @@ fun getSceneTransitionOption(activity: Activity, vararg sharedElements: Pair<Vie
  * 实现效果：新 Activity 从指定点开始，像水波一样逐渐显示出来。
  */
 @RequiresApi(Build.VERSION_CODES.M)
-fun getClipRevealOption(view: View, startX: Int, startY: Int, width: Int, height: Int): ActivityOptions? {
-    return ActivityOptions.makeClipRevealAnimation(view, startX, startY, width, height)
+fun getClipRevealOption(view: View, startX: Int, startY: Int, width: Int, height: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeClipRevealAnimation(view, startX, startY, width, height)
 }
 
 /**
@@ -454,8 +455,8 @@ fun getClipRevealOption(view: View, startX: Int, startY: Int, width: Int, height
  * ActivityOptions options = ActivityOptions.makeTaskLaunchBehind();
  * startActivity(intent, options.toBundle());
  */
-fun getTaskLaunchBehind(): ActivityOptions? {
-    return ActivityOptions.makeTaskLaunchBehind()
+fun getTaskLaunchBehind(): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeTaskLaunchBehind()
 }
 
 /**
@@ -468,6 +469,6 @@ fun getTaskLaunchBehind(): ActivityOptions? {
  * startActivity(intent, options.toBundle());
  */
 @RequiresApi(Build.VERSION_CODES.N)
-fun getMakeBasic(left: Int, top: Int, right: Int, bottom: Int): ActivityOptions? {
-    return ActivityOptions.makeBasic().apply { setLaunchBounds(Rect(left, top, right, bottom)) }
+fun getMakeBasic(left: Int, top: Int, right: Int, bottom: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeBasic().apply { launchBounds = Rect(left, top, right, bottom) }
 }
