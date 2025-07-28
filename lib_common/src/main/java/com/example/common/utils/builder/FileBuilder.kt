@@ -10,6 +10,7 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.pdf.PdfRenderer
+import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.util.Patterns
 import android.view.View
@@ -38,6 +39,7 @@ import com.example.common.utils.function.split
 import com.example.common.utils.i18n.string
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
+import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.glide.ImageLoader
 import kotlinx.coroutines.Dispatchers.IO
@@ -46,7 +48,10 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.io.FileWriter
 import java.io.IOException
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.util.Date
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -424,5 +429,55 @@ suspend fun suspendingFileDuration(sourcePath: String?): Int {
     sourcePath ?: return 0
     return withContext(IO) {
         File(sourcePath).getDuration()
+    }
+}
+
+/**
+ * 生成崩溃日志内容
+ */
+fun generateCrashLog(throwable: Throwable, thread: Pair<String, Long> = Thread.currentThread().let { it.name to it.id }): String {
+    val stringWriter = StringWriter()
+    val printWriter = PrintWriter(stringWriter)
+    // 写入异常信息
+    throwable.printStackTrace(printWriter)
+    var cause = throwable.cause
+    while (cause != null) {
+        cause.printStackTrace(printWriter)
+        cause = cause.cause
+    }
+    val exceptionInfo = stringWriter.toString()
+    printWriter.close()
+    // 构建日志内容（包含设备信息和异常信息）
+    return buildString {
+        append("===== 崩溃时间: $currentTimeStamp =====\n")
+        append("设备型号: ${Build.MODEL}\n")
+        append("系统版本: Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})\n")
+        append("崩溃线程: ${thread.first} (id: ${thread.second})\n")
+        append("===== 异常信息 =====\n")
+        append(exceptionInfo)
+        append("\n===== 日志结束 =====\n\n")
+    }
+}
+
+/**
+ * 保存崩溃日志到本地文件
+ */
+fun saveCrashLogToFile(logContent: String) {
+    try {
+        // 获取存储路径（优先使用应用内部存储，避免权限问题）
+        val logDir = File(getStoragePath("Crash Log", false))
+        if (!logDir.exists()) {
+            logDir.mkdirs()
+        }
+        // 日志文件名（以时间命名）
+        val fileName = "crash_${EN_YMDHMS.convert(currentTimeStamp)}.txt"
+        val logFile = File(logDir, fileName)
+        // 写入日志
+        FileWriter(logFile, true).use { writer ->
+            writer.write(logContent)
+            writer.flush()
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
