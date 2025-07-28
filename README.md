@@ -29,3 +29,4 @@
       <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
       <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
       <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />  
+   9) 混淆文件调整,之前不过非kts架构的配置,使用的混淆文件是proguard,调整kts后,格式变为R8,导致部分混淆代码直接被移除,部分直接不执行,部分写法调整,kts文档本身内部的写法也有很多修改的地方
