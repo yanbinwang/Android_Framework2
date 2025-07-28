@@ -1,15 +1,11 @@
 package com.example.mvvm
 
 import android.content.Context
-import android.content.Intent
-import android.os.Build
-import android.os.Looper
-import android.util.Log
 import com.amap.api.services.core.ServiceSettings
 import com.example.common.BaseApplication
 import com.example.common.config.Constants.VERSION_NAME
-import com.example.common.utils.StorageUtil.getStoragePath
-import com.example.framework.utils.function.value.currentTimeStamp
+import com.example.common.utils.builder.generateCrashLog
+import com.example.common.utils.builder.saveCrashLogToFile
 import com.example.framework.utils.function.value.isDebug
 import com.example.gallery.GlideLoader
 import com.example.greendao.dao.DaoMaster
@@ -23,10 +19,6 @@ import com.example.thirdparty.utils.wechat.WXManager
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import io.objectbox.BoxStore
-import java.io.File
-import java.io.FileWriter
-import java.io.PrintWriter
-import java.io.StringWriter
 import java.util.Locale
 import kotlin.system.exitProcess
 
@@ -57,14 +49,6 @@ class MyApplication : BaseApplication() {
         if (isDebug) {
             initDebugging()
         } else {
-//            //当前若是发布包，接管系统loop，让用户感知不到程序闪退
-//            while (true) {
-//                try {
-//                    Looper.loop()
-//                } catch (e: Throwable) {
-//                    println("AppCatch -${Log.getStackTraceString(e)}")
-//                }
-//            }
             initCrashHandler()
         }
         //通知栏初始化
@@ -121,70 +105,14 @@ class MyApplication : BaseApplication() {
     private fun initCrashHandler() {
         // 设置全局异常处理器
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-//            // 1. 捕获异常并生成日志
-//            val crashLog = generateCrashLog(thread, throwable)
-//             // 2. 保存日志到本地文件
-//            saveCrashLogToFile(crashLog)
-            restartApp()
+            // 1. 捕获异常并生成日志
+            val crashLog = generateCrashLog(throwable, thread.let { it.name to it.id })
+            // 2. 保存日志到本地文件
+            saveCrashLogToFile(crashLog)
+            // 3.正常退出，不强行重启
+            android.os.Process.killProcess(android.os.Process.myPid())
+            exitProcess(0)
         }
-    }
-
-    /**
-     * 生成崩溃日志内容
-     */
-    private fun generateCrashLog(thread: Thread, throwable: Throwable): String {
-        val stringWriter = StringWriter()
-        val printWriter = PrintWriter(stringWriter)
-        // 写入异常信息
-        throwable.printStackTrace(printWriter)
-        var cause = throwable.cause
-        while (cause != null) {
-            cause.printStackTrace(printWriter)
-            cause = cause.cause
-        }
-        val exceptionInfo = stringWriter.toString()
-        printWriter.close()
-        // 构建日志内容（包含设备信息和异常信息）
-        return buildString {
-            append("===== 崩溃时间: $currentTimeStamp =====\n")
-            append("设备型号: ${Build.MODEL}\n")
-            append("系统版本: Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})\n")
-            append("崩溃线程: ${thread.name} (id: ${thread.id})\n")
-            append("===== 异常信息 =====\n")
-            append(exceptionInfo)
-            append("\n===== 日志结束 =====\n\n")
-        }
-    }
-
-    /**
-     * 保存崩溃日志到本地文件
-     */
-    private fun saveCrashLogToFile(logContent: String) {
-        try {
-            // 获取存储路径（优先使用应用内部存储，避免权限问题）
-            val logDir = File(getStoragePath("崩溃日志", false))
-            if (!logDir.exists()) {
-                logDir.mkdirs()
-            }
-            // 日志文件名（以时间命名）
-            val fileName = "crash_$currentTimeStamp.txt"
-            val logFile = File(logDir, fileName)
-            // 写入日志
-            FileWriter(logFile, true).use { writer ->
-                writer.write(logContent)
-                writer.flush()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    private fun restartApp() {
-        val intent = packageManager.getLaunchIntentForPackage(packageName)
-        intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
-        android.os.Process.killProcess(android.os.Process.myPid())
-        exitProcess(0)
     }
 
     private fun initNotification() {
