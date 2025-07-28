@@ -1,18 +1,3 @@
-/*
- * Copyright 2017 Yan Zhenjie.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.yanzhenjie.album;
 
 import android.os.Parcel;
@@ -27,7 +12,6 @@ import java.lang.annotation.RetentionPolicy;
  * Created by YanZhenjie on 2017/8/15.
  */
 public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
-
     public static final int TYPE_IMAGE = 1;
     public static final int TYPE_VIDEO = 2;
 
@@ -100,7 +84,7 @@ public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj != null && obj instanceof AlbumFile) {
+        if (obj instanceof AlbumFile) {
             AlbumFile o = (AlbumFile) obj;
             String inPath = o.getPath();
             if (mPath != null && inPath != null) {
