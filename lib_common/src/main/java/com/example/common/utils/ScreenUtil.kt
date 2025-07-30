@@ -187,10 +187,10 @@ fun Window.applyFullScreen() {
     }
 }
 
-fun Window.setupNavigationBarPadding(navBarColorRes: Int) {
+fun Window.setupNavigationBarPadding() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        // 先设置背景色（确保初始状态正确）
-        decorView.background(navBarColorRes)
+//        // 先设置背景色（确保初始状态正确）
+//        decorView.background(navBarColorRes)
         // 1. 监听视图附加到窗口（延迟获取Insets，确保数据准备好）
         decorView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
             override fun onViewAttachedToWindow(v: View) {
@@ -212,8 +212,8 @@ fun Window.setupNavigationBarPadding(navBarColorRes: Int) {
             if (v.paddingBottom != navBottom) { // 只有变化时才更新
                 v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
             }
-            // 默认情况下都是白的
-            v.background(navBarColorRes)
+//            // 默认情况下都是白的
+//            v.background(navBarColorRes)
             // 避免重复处理
             insets
         }

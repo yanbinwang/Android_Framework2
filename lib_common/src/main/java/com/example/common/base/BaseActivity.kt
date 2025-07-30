@@ -230,7 +230,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
                     mBinding = method?.invoke(null, layoutInflater) as? VDB
                     mBinding?.lifecycleOwner = this
                     setContentView(mBinding?.root)
-                    window.setupNavigationBarPadding(R.color.appNavigationBar)
+                    window.setupNavigationBarPadding()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

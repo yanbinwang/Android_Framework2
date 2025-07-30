@@ -78,8 +78,9 @@ public class DurbanActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Locale locale = Durban.getDurbanConfig().getLocale();
-        DurbanUtils.applyLanguageForContext(this, locale);
+        //基类会以Album相册语言为主,此处不做重复操作
+//        Locale locale = Durban.getDurbanConfig().getLocale();
+//        DurbanUtils.applyLanguageForContext(this, locale);
 
         setContentView(R.layout.durban_activity_photobox);
         final Intent intent = getIntent();
