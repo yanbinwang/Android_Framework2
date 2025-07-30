@@ -258,7 +258,8 @@ fun Window.setupNavigationBarPadding() {
         decorView.setOnApplyWindowInsetsListener { v, insets ->
             // 仅在导航栏可见时设置内边距
             val navBottom = insets.getInsets(WindowInsets.Type.navigationBars()).bottom
-            if (v.paddingBottom != navBottom) { // 只有变化时才更新
+            // 只有变化时才更新
+            if (v.paddingBottom != navBottom) {
                 v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
             }
 //            // 默认情况下都是白的
