@@ -383,11 +383,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
     private val gallery by lazy { GalleryHelper(this) }
 
+    override fun isImmersionBarEnabled() = false
+
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
 //        BaseApplication.instance.initPrivacyAgreed()
 
+        initImmersionBar(naviTrans = false,navigationBarColor = R.color.bgMain)
         mBinding?.ivArrow.click {
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()

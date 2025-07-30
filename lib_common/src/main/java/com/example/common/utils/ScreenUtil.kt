@@ -2,19 +2,31 @@ package com.example.common.utils
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.ColorFilter
+import android.graphics.Paint
+import android.graphics.PixelFormat
 import android.graphics.Point
+import android.graphics.Rect
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.view.View
 import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
+import androidx.core.graphics.drawable.toDrawable
 import com.example.common.BaseApplication
+import com.example.common.R
+import com.example.common.utils.function.color
 import com.example.common.utils.function.getManifestString
+import com.example.common.utils.function.getNavigationBarHeight
 import com.example.framework.utils.function.value.min
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
+import com.example.framework.utils.function.view.padding
 import kotlin.LazyThreadSafetyMode.NONE
 
 /**
@@ -235,36 +247,88 @@ fun Window.applyFullScreen() {
     }
 }
 
-fun Window.setupNavigationBarPadding() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//        // 先设置背景色（确保初始状态正确）
-//        decorView.background(navBarColorRes)
-        // 1. 监听视图附加到窗口（延迟获取Insets，确保数据准备好）
-        decorView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-            override fun onViewAttachedToWindow(v: View) {
-                // 视图已附加到窗口，此时rootWindowInsets有效
-                val initialInsets = v.rootWindowInsets
-                val initialNavBottom = initialInsets.getInsets(WindowInsets.Type.navigationBars()).bottom
-                // 设置初始padding
-                v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, initialNavBottom)
-                // 移除监听器（只需要执行一次）
-                v.removeOnAttachStateChangeListener(this)
-            }
+fun Window.setupNavigationBar(navigationBarColor: Int) {
+    // 1. 获取全局样式中的 windowBackground（作为底层背景）
+    val windowBackground = decorView.background ?: color(R.color.appWindowBackground).toDrawable()
+    // 2. 创建底部色块 Drawable
+    val bottomBarDrawable = NavigationBarDrawable(color(navigationBarColor))
+    // 3. 组合成 LayerDrawable（底层：windowBackground，上层：底部色块）
+    val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomBarDrawable))
+    // 4. 设置为 decorView 背景（此时两者会叠加显示）
+    decorView.background = combinedDrawable
+    // 5. 监听视图附加到窗口（延迟获取Insets，确保数据准备好）
+    decorView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+        override fun onViewAttachedToWindow(v: View) {
+            // 视图已附加到窗口，此时rootWindowInsets有效
+            val initialNavBottom = getNavigationBarHeight()
+            // 设置初始padding
+            v.padding(v.paddingLeft, v.paddingTop, v.paddingRight, initialNavBottom)
+            bottomBarDrawable.updateNavigationBarHeight(initialNavBottom)
+            // 移除监听器（只需要执行一次）
+            v.removeOnAttachStateChangeListener(this)
+        }
 
-            override fun onViewDetachedFromWindow(v: View) {}
-        })
-        // 2. 监听Insets变化（处理动态更新）
-        decorView.setOnApplyWindowInsetsListener { v, insets ->
-            // 仅在导航栏可见时设置内边距
-            val navBottom = insets.getInsets(WindowInsets.Type.navigationBars()).bottom
-            // 只有变化时才更新
-            if (v.paddingBottom != navBottom) {
-                v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
-            }
-//            // 默认情况下都是白的
-//            v.background(navBarColorRes)
-            // 避免重复处理
-            insets
+        override fun onViewDetachedFromWindow(v: View) {}
+    })
+    // 6. 监听Insets变化（处理动态更新）
+    decorView.setOnApplyWindowInsetsListener { v, insets ->
+        // 仅在导航栏可见时设置内边距
+        val navBottom = getNavigationBarHeight()
+        // 只有变化时才更新
+        if (v.paddingBottom != navBottom) {
+            v.padding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
+            bottomBarDrawable.updateNavigationBarHeight(navBottom)
+        }
+        // 避免重复处理
+        insets
+    }
+}
+
+/**
+ * navigationBarColor // 底部色块颜色
+ * navigationBarHeight // 底部色块高度
+ */
+class NavigationBarDrawable(private val navigationBarColor: Int, private var navigationBarHeight: Int = 0) : Drawable() {
+
+    private val paint = Paint().apply {
+        color = navigationBarColor
+        isAntiAlias = true
+        style = Paint.Style.FILL
+    }
+
+    override fun draw(canvas: Canvas) {
+        if (bounds.isEmpty || navigationBarHeight <= 0) return
+        // 计算绘制区域
+        val top = (bounds.height() - navigationBarHeight).toFloat()
+        val bottom = bounds.height().toFloat()
+        // 绘制底部色块
+        if (top < bottom) {
+            canvas.drawRect(bounds.left.toFloat(), top, bounds.right.toFloat(), bottom, paint)
         }
     }
+
+    override fun onBoundsChange(bounds: Rect) {
+        super.onBoundsChange(bounds)
+        invalidateSelf()
+    }
+
+    override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+
+    override fun setAlpha(alpha: Int) {
+        paint.alpha = alpha
+        invalidateSelf()
+    }
+
+    override fun setColorFilter(colorFilter: ColorFilter?) {
+        paint.colorFilter = colorFilter
+        invalidateSelf()
+    }
+
+    fun updateNavigationBarHeight(height: Int) {
+        if (navigationBarHeight != height) {
+            navigationBarHeight = height
+            invalidateSelf()
+        }
+    }
+
 }

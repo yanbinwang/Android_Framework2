@@ -8,10 +8,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils.calculateLuminance
 import com.example.common.utils.function.getStatusBarHeight
-import com.example.common.utils.setupNavigationBarPadding
+import com.example.common.utils.setupNavigationBar
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
+import com.example.gallery.R
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.util.AlbumUtils
 
@@ -57,7 +58,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         val flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         window.decorView.systemUiVisibility = flags
         // 设置导航栏高版本新增间距
-        window.setupNavigationBarPadding()
+        window.setupNavigationBar(R.color.appNavigationBar)
     }
 
     override fun bye() {
