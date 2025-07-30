@@ -15,7 +15,6 @@ import com.example.common.utils.function.getManifestString
 import com.example.framework.utils.function.value.min
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.function.view.background
 import kotlin.LazyThreadSafetyMode.NONE
 
 /**
