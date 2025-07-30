@@ -7,7 +7,6 @@ import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils.calculateLuminance
-import com.example.common.R
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.setupNavigationBarPadding
 import com.example.framework.utils.function.view.doOnceAfterLayout
@@ -58,7 +57,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         val flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         window.decorView.systemUiVisibility = flags
         // 设置导航栏高版本新增间距
-        window.setupNavigationBarPadding(R.color.appNavigationBar)
+        window.setupNavigationBarPadding()
     }
 
     override fun bye() {
