@@ -13,6 +13,7 @@ import android.view.WindowManager
 import com.example.common.BaseApplication
 import com.example.common.utils.function.getManifestString
 import com.example.framework.utils.function.value.min
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.background
 import kotlin.LazyThreadSafetyMode.NONE
@@ -129,20 +130,68 @@ object ScreenUtil {
         return false
     }
 
+//    private fun getAppUsableScreenSize(context: Context): Point {
+//        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
+//        val display = windowManager?.defaultDisplay
+//        val size = Point()
+//        display?.getSize(size)
+//        return size
+//    }
+//
+//    private fun getRealScreenSize(context: Context): Point {
+//        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
+//        val display = windowManager?.defaultDisplay
+//        val size = Point()
+//        display?.getRealSize(size)
+//        return size
+//    }
+
+    /**
+     * 获取应用实际可用的屏幕尺寸（即扣除状态栏、导航栏等系统栏后的区域）
+     */
     private fun getAppUsableScreenSize(context: Context): Point {
+        // API 30+：用 WindowMetrics + WindowInsets 计算可用区域（替代 display.getSize()）
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
-        val display = windowManager?.defaultDisplay
-        val size = Point()
-        display?.getSize(size)
-        return size
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val currentMetrics = windowManager?.currentWindowMetrics
+            // 1. 获取当前窗口的整体边界（包含系统栏）
+            val bounds = currentMetrics?.bounds
+            // 2. 获取系统栏（状态栏、导航栏、显示切口）的 insets（遮挡区域）
+            val insets = currentMetrics?.windowInsets?.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
+            // 3. 从整体边界中减去系统栏尺寸 → 得到应用可用区域（与旧版 getSize() 一致）
+            val usableWidth = bounds?.width().orZero - (insets?.left.orZero + insets?.right.orZero)
+            val usableHeight = bounds?.height().orZero - (insets?.top.orZero + insets?.bottom.orZero)
+            Point(usableWidth, usableHeight)
+        } else {
+            // API 23-29：沿用旧版 getSize()
+            val display = windowManager?.defaultDisplay
+            val size = Point()
+            // 避免 null 导致尺寸为 (0,0) 以外的异常值
+            display?.getSize(size) ?: size.set(0, 0)
+            size
+        }
     }
 
+    /**
+     * 获取真实屏幕尺寸
+     */
     private fun getRealScreenSize(context: Context): Point {
+        // API 30：获取真实屏幕最大尺寸（替代 display.getRealSize()）
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
-        val display = windowManager?.defaultDisplay
-        val size = Point()
-        display?.getRealSize(size)
-        return size
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // 获取最大窗口尺寸的 metrics
+            val maxWindowMetrics = windowManager?.maximumWindowMetrics
+            // 获取当前窗口真实物理尺寸
+            val rect = maxWindowMetrics?.bounds
+            Point(rect?.width().orZero, rect?.height().orZero)
+        } else {
+            // API 23-29：沿用旧版 getRealSize() 获取屏幕真实物理尺寸
+            val display = windowManager?.defaultDisplay
+            val size = Point()
+            // 避免 null 导致尺寸为 (0,0) 以外的异常值
+            display?.getRealSize(size) ?: size.set(0, 0)
+            size
+        }
     }
 
 }
