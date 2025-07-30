@@ -42,10 +42,10 @@ import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.function.getNavigationBarHeight
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
-import com.example.common.utils.setupNavigationBarPadding
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.common.widget.textview.edittext.SpecialEditText
@@ -54,6 +54,7 @@ import com.example.framework.utils.function.color
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.value.hasAnnotation
 import com.example.framework.utils.function.value.isMainThread
+import com.example.framework.utils.function.view.padding
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -214,9 +215,37 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         immersionBar?.apply {
             reset()
             statusBarDarkFont(titleDark, 0.2f)
-            navigationBarColor(navigationBarColor)
+//            navigationBarColor(navigationBarColor)
             navigationBarDarkIcon(naviTrans, 0.2f)
             init()
+        }
+//        window.navigationBarColor = navigationBarColor
+//        // 使用系统API获取相对亮度（0.0-1.0之间）
+//        val luminance = calculateLuminance(navigationBarColor)
+//        // 亮度阈值，这里使用0.5作为中间值
+//        // 亮度低于阈值，使用白色图标；高于阈值，使用黑色图标
+//        if (luminance < 0.5) Color.WHITE else Color.BLACK
+        // 监听视图附加到窗口（延迟获取Insets，确保数据准备好）
+        window.decorView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) {
+                // 设置初始padding
+                v.padding(v.paddingLeft, v.paddingTop, v.paddingRight, getNavigationBarHeight())
+                // 移除监听器（只需要执行一次）
+                v.removeOnAttachStateChangeListener(this)
+            }
+
+            override fun onViewDetachedFromWindow(v: View) {}
+        })
+        // 监听Insets变化（处理动态更新）
+        window.decorView.setOnApplyWindowInsetsListener { v, insets ->
+            // 仅在导航栏可见时设置内边距
+            val navBottom = getNavigationBarHeight()
+            // 只有变化时才更新
+            if (v.paddingBottom != navBottom) {
+                v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
+            }
+            // 避免重复处理
+            insets
         }
     }
 
@@ -230,7 +259,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
                     mBinding = method?.invoke(null, layoutInflater) as? VDB
                     mBinding?.lifecycleOwner = this
                     setContentView(mBinding?.root)
-                    window.setupNavigationBarPadding()
+//                    window.setupNavigationBarPadding()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

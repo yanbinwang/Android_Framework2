@@ -12,7 +12,9 @@ import android.view.WindowInsetsController
 import android.view.WindowManager
 import com.example.common.BaseApplication
 import com.example.common.utils.function.getManifestString
+import com.example.common.utils.function.getNavigationBarHeight
 import com.example.framework.utils.function.value.min
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.background
 import kotlin.LazyThreadSafetyMode.NONE
@@ -129,26 +131,77 @@ object ScreenUtil {
         return false
     }
 
+//    private fun getAppUsableScreenSize(context: Context): Point {
+//        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
+//        val display = windowManager?.defaultDisplay
+//        val size = Point()
+//        display?.getSize(size)
+//        return size
+//    }
+//
+//    private fun getRealScreenSize(context: Context): Point {
+//        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
+//        val display = windowManager?.defaultDisplay
+//        val size = Point()
+//        display?.getRealSize(size)
+//        return size
+//    }
+
+    /**
+     * 获取应用实际可用的屏幕尺寸（即扣除状态栏、导航栏等系统栏后的区域）
+     */
     private fun getAppUsableScreenSize(context: Context): Point {
+        // API 30+：用 WindowMetrics + WindowInsets 计算可用区域（替代 display.getSize()）
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
-        val display = windowManager?.defaultDisplay
-        val size = Point()
-        display?.getSize(size)
-        return size
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val currentMetrics = windowManager?.currentWindowMetrics
+            // 1. 获取当前窗口的整体边界（包含系统栏）
+            val bounds = currentMetrics?.bounds
+            // 2. 获取系统栏（状态栏、导航栏、显示切口）的 insets（遮挡区域）
+            val insets = currentMetrics?.windowInsets?.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
+            // 3. 从整体边界中减去系统栏尺寸 → 得到应用可用区域（与旧版 getSize() 一致）
+            val usableWidth = bounds?.width().orZero - (insets?.left.orZero + insets?.right.orZero)
+            val usableHeight = bounds?.height().orZero - (insets?.top.orZero + insets?.bottom.orZero)
+            Point(usableWidth, usableHeight)
+        } else {
+            // API 23-29：沿用旧版 getSize()
+            val display = windowManager?.defaultDisplay
+            val size = Point()
+            // 避免 null 导致尺寸为 (0,0) 以外的异常值
+            display?.getSize(size) ?: size.set(0, 0)
+            size
+        }
     }
 
+    /**
+     * 获取真实屏幕尺寸
+     */
     private fun getRealScreenSize(context: Context): Point {
+        // API 30：获取真实屏幕最大尺寸（替代 display.getRealSize()）
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
-        val display = windowManager?.defaultDisplay
-        val size = Point()
-        display?.getRealSize(size)
-        return size
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // 获取最大窗口尺寸的 metrics
+            val maxWindowMetrics = windowManager?.maximumWindowMetrics
+            // 获取当前窗口真实物理尺寸
+            val rect = maxWindowMetrics?.bounds
+            Point(rect?.width().orZero, rect?.height().orZero)
+        } else {
+            // API 23-29：沿用旧版 getRealSize() 获取屏幕真实物理尺寸
+            val display = windowManager?.defaultDisplay
+            val size = Point()
+            // 避免 null 导致尺寸为 (0,0) 以外的异常值
+            display?.getRealSize(size) ?: size.set(0, 0)
+            size
+        }
     }
 
 }
 
 /**
- * 全屏展示
+ * 全屏展示 -> onCreate的super()后调用
+ * window.decorView 是窗口的根视图（整个界面的最顶层容器），它的初始化早于 setContentView：
+ * 当 Activity 被创建时，系统会先初始化 Window 对象，decorView 作为 Window 的一部分，此时已经存在（即使内容视图还未加载）。
+ * setContentView 的作用是将布局文件加载到 decorView 的子容器中（通常是 android.R.id.content 对应的容器），但不影响 decorView 本身的存在。
  */
 fun Window.applyFullScreen() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -194,11 +247,11 @@ fun Window.setupNavigationBarPadding() {
         // 1. 监听视图附加到窗口（延迟获取Insets，确保数据准备好）
         decorView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
             override fun onViewAttachedToWindow(v: View) {
-                // 视图已附加到窗口，此时rootWindowInsets有效
-                val initialInsets = v.rootWindowInsets
-                val initialNavBottom = initialInsets.getInsets(WindowInsets.Type.navigationBars()).bottom
+//                // 视图已附加到窗口，此时rootWindowInsets有效
+//                val initialInsets = v.rootWindowInsets
+//                val initialNavBottom = initialInsets.getInsets(WindowInsets.Type.navigationBars()).bottom
                 // 设置初始padding
-                v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, initialNavBottom)
+                v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, getNavigationBarHeight())
                 // 移除监听器（只需要执行一次）
                 v.removeOnAttachStateChangeListener(this)
             }
@@ -208,7 +261,7 @@ fun Window.setupNavigationBarPadding() {
         // 2. 监听Insets变化（处理动态更新）
         decorView.setOnApplyWindowInsetsListener { v, insets ->
             // 仅在导航栏可见时设置内边距
-            val navBottom = insets.getInsets(WindowInsets.Type.navigationBars()).bottom
+            val navBottom = getNavigationBarHeight()
             if (v.paddingBottom != navBottom) { // 只有变化时才更新
                 v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
             }
