@@ -252,6 +252,9 @@ fun Window.applyFullScreen() {
     }
 }
 
+/**
+ * 针对edge-to-edge后的底部导航栏做的背景颜色适配
+ */
 fun Window.setNavigationBarDrawable(navigationBarColor: Int) {
 //    // 1. 获取全局样式中的 windowBackground（作为底层背景）
 //    val windowBackground = decorView.background ?: color(R.color.appWindowBackground).toDrawable()
@@ -290,7 +293,7 @@ fun Window.setNavigationBarDrawable(navigationBarColor: Int) {
 //        // 避免重复处理
 //        insets.consumeSystemWindowInsets()
 //    }
-    // 1. 项目MinSdk为23，TargetSdk为36,底部包含背景/UI深浅两部分，API 23-25无法操作UI深浅，默认做成黑背景白电池
+    // 1. 项目MinSdk为23，TargetSdk为36,底部包含背景/UI深浅两部分，API 23-25无法操作图标颜色，系统默认就是白色，故而采用强制指定背景颜色规避这个问题
     val mNavigationBarColor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarColor else R.color.bgBlack
     // 2. 获取样式中的 android:windowBackground 作为底层背景（Activity如果不单独设置style样式，默认采取的是全局背景色）
     val windowBackground = decorView.background?.let { background ->
