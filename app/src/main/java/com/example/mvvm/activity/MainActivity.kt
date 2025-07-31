@@ -390,7 +390,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         super.initView(savedInstanceState)
 //        BaseApplication.instance.initPrivacyAgreed()
 
-        initImmersionBar(naviTrans = false,navigationBarColor = R.color.bgMain)
+        initImmersionBar(navigationBarDark = true,navigationBarColor = R.color.bgWhite)
         mBinding?.ivArrow.click {
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()

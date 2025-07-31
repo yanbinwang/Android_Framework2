@@ -93,13 +93,6 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-//        //单独重新用对象赋值一次
-//        ImmersionBar.with(this).apply {
-//            reset()
-//            statusBarDarkFont(true, 0.2f)
-//            navigationBarColor(R.color.appPrimaryDark)?.navigationBarDarkIcon(true, 0.2f)
-//            init()
-//        }
         //设置软键盘不自动弹出
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
         if (isMainThread) {
@@ -165,13 +158,13 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
         return true
     }
 
-    override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
-        super.initImmersionBar(titleDark, naviTrans, navigationBarColor)
+    override fun initImmersionBar(statusBarDark: Boolean, navigationBarDark: Boolean, navigationBarColor: Int) {
+        super.initImmersionBar(statusBarDark, navigationBarDark, navigationBarColor)
         immersionBar?.apply {
             reset()
-            statusBarDarkFont(titleDark, 0.2f)
-            navigationBarColor(navigationBarColor)
-            navigationBarDarkIcon(naviTrans, 0.2f)
+            statusBarDarkFont(statusBarDark, 0.2f)
+//            navigationBarDarkIcon(navigationBarDark, 0.2f)
+//            navigationBarColor(navigationBarColor)
             init()
         }
     }

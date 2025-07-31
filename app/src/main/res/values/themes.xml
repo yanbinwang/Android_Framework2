@@ -25,7 +25,7 @@
     总之，在使用窗口背景时，请注意避免出现屏幕残留问题。如果出现了残留问题，可以尝试以上方法进行解决。建议在开发过程中经常测试应用程序，以确保应用程序的性能和用户体验。
     -->
     <!-- 启动页，直接背景是一张启动页图，点开app就是引导页的展示 -->
-    <style name="SplashTheme" parent="TransitionTheme">
+    <style name="SplashTheme" parent="TransparentTheme">
         <item name="android:windowBackground">@drawable/layout_list_splash</item>
 <!--        <item name="android:windowIsTranslucent">true</item>--> <!-- 加了高版本会直接导致首页被加载前先看到桌面 -->
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
@@ -53,25 +53,25 @@
 <!--    </style>-->
 
     <!--注册选择页背景是蓝色，故而使用此样式-->
-    <style name="StartTheme" parent="TransitionTheme">
+    <style name="StartTheme" parent="TransparentTheme">
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowBackground">@color/appTheme</item>
         <item name="android:navigationBarColor">@color/appTheme</item>
     </style>
 
-    <!--首页 -->
-    <style name="MainTheme" parent="TransitionTheme">
+    <!--首页(android:windowBackground属性还是必要的,关乎到开启页面展示的背景) -->
+    <style name="MainTheme" parent="TransparentTheme">
         <item name="android:windowBackground">@color/appWindowBackground</item>
         <item name="android:windowLightNavigationBar">true</item>
         <item name="android:navigationBarColor">@color/appNavigationBar</item>
     </style>
 
-    <!-- 选择页背景直接是白色默认 -->
-    <style name="DefaultTheme" parent="TransitionTheme">
-        <item name="android:windowBackground">@color/bgDefault</item>
-        <item name="android:windowLightNavigationBar">true</item>
-        <item name="android:navigationBarColor">@color/appNavigationBar</item>
-    </style>
+<!--    &lt;!&ndash; 选择页背景直接是白色默认 &ndash;&gt;-->
+<!--    <style name="DefaultTheme" parent="TransitionTheme">-->
+<!--        <item name="android:windowBackground">@color/bgDefault</item>-->
+<!--        <item name="android:windowLightNavigationBar">true</item>-->
+<!--        <item name="android:navigationBarColor">@color/appNavigationBar</item>-->
+<!--    </style>-->
 
 <!-- https://cloud.tencent.com/developer/article/1946216?areaSource=102001.14&traceId=cOGlHQmuBlUqVJUXnEtT9 -->
 <!--    <style name="SplashTheme" parent="Theme.SplashScreen">-->

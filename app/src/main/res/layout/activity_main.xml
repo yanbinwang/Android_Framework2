@@ -180,14 +180,14 @@
 
                     </FrameLayout>
 
-<!--                    <TextView-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="44pt"-->
-<!--                        android:background="@color/bgMain"-->
-<!--                        android:gravity="center"-->
-<!--                        android:text="底部内容"-->
-<!--                        android:textColor="@color/textWhite"-->
-<!--                        android:textSize="@dimen/textSize16" />-->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="44pt"
+                        android:background="@color/bgMain"
+                        android:gravity="center"
+                        android:text="底部内容"
+                        android:textColor="@color/textWhite"
+                        android:textSize="@dimen/textSize16" />
 
                 </LinearLayout>
 

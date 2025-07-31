@@ -194,6 +194,7 @@
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:launchMode="singleTask"
+            android:theme="@style/MainTheme"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
 
@@ -211,7 +212,7 @@
         <activity
             android:name="com.example.home.activity.ScaleActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-            android:theme="@style/TransparentTheme"
+            android:theme="@style/TranslucentTheme"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- ******************************************************微信 SDK****************************************************** -->
         <activity
@@ -219,14 +220,14 @@
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/TransparentTheme"
+            android:theme="@style/TranslucentTheme"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity
             android:name="com.dataqin.baoquan.wxapi.WXPayEntryActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:exported="true"
             android:launchMode="singleInstance"
-            android:theme="@style/TransparentTheme"
+            android:theme="@style/TranslucentTheme"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- ******************************************************服务****************************************************** -->
         <!-- 高德地图 -->

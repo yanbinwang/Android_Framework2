@@ -2,21 +2,23 @@ package com.yanzhenjie.album.mvp
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
+import androidx.activity.enableEdgeToEdge
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils.calculateLuminance
+import com.example.common.R
 import com.example.common.utils.function.getStatusBarHeight
-import com.example.common.utils.setupNavigationBar
+import com.example.common.utils.setNavigationBarDrawable
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
-import com.example.gallery.R
+import com.gyf.immersionbar.ImmersionBar
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.util.AlbumUtils
 
 abstract class BaseActivity : AppCompatActivity(), Bye {
+    private val immersionBar by lazy { ImmersionBar.with(this) }
 
     companion object {
 
@@ -47,18 +49,25 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val locale = Album.getAlbumConfig().locale
         AlbumUtils.applyLanguageForContext(this, locale)
+        if (isImmersionBarEnabled()) initImmersionBar()
     }
 
-    override fun setContentView(layoutResID: Int) {
-        super.setContentView(layoutResID)
-        // 布局延伸到状态栏
-        val flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        window.decorView.systemUiVisibility = flags
-        // 设置导航栏高版本新增间距
-        window.setupNavigationBar(R.color.appNavigationBar)
+    protected open fun isImmersionBarEnabled(): Boolean {
+        return true
+    }
+
+    protected open fun initImmersionBar(statusBarDark: Boolean = false, navigationBarDark: Boolean = false, navigationBarColor: Int = R.color.appNavigationBar) {
+        immersionBar?.apply {
+            reset()
+            statusBarDarkFont(statusBarDark, 0.2f)
+            navigationBarDarkIcon(navigationBarDark, 0.2f)
+            init()
+        }
+        window.setNavigationBarDrawable(navigationBarColor)
     }
 
     override fun bye() {

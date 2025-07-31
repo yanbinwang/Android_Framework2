@@ -22,7 +22,7 @@ internal interface BaseImpl {
      * 初始化状态栏
      * activity/fragment具备，其余不可重写
      */
-    fun initImmersionBar(titleDark: Boolean = true, naviTrans: Boolean = true, navigationBarColor: Int = R.color.appNavigationBar) {}
+    fun initImmersionBar(statusBarDark: Boolean = true, navigationBarDark: Boolean = true, navigationBarColor: Int = R.color.appNavigationBar) {}
 
     /**
      * 初始化控件

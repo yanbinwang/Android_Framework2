@@ -46,7 +46,7 @@ import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
-import com.example.common.utils.setupNavigationBar
+import com.example.common.utils.setNavigationBarDrawable
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.common.widget.textview.edittext.SpecialEditText
@@ -155,6 +155,9 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         initData()
     }
 
+    /**
+     * 是否默认操作状态栏/导航栏属性
+     */
     protected open fun isImmersionBarEnabled(): Boolean {
         return true
     }
@@ -217,17 +220,17 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
      *              .reset()  //重置所以沉浸式参数
      *              .init();  //必须调用方可应用以上所配置的参数
      */
-    override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
-        super.initImmersionBar(titleDark, naviTrans, navigationBarColor)
+    override fun initImmersionBar(statusBarDark: Boolean, navigationBarDark: Boolean, navigationBarColor: Int) {
+        super.initImmersionBar(statusBarDark, navigationBarDark, navigationBarColor)
         immersionBar?.apply {
             reset()
-            statusBarDarkFont(titleDark, 0.2f)
-            navigationBarColor(navigationBarColor)
-            navigationBarDarkIcon(naviTrans, 0.2f)
+            statusBarDarkFont(statusBarDark, 0.2f)
+            navigationBarDarkIcon(navigationBarDark, 0.2f)//edge会导致低版本ui深浅代码失效,但是会以传入的颜色值为主(偏深为白,反之为黑)
+//            navigationBarColor(navigationBarColor)//颜色的配置在高版本上容易出问题,统一改为底部方法
             init()
         }
         //导航栏背景
-        window.setupNavigationBar(navigationBarColor)
+        window.setNavigationBarDrawable(navigationBarColor)
     }
 
     override fun initView(savedInstanceState: Bundle?) {

@@ -9,25 +9,30 @@ import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.view.View
 import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
+import androidx.annotation.ColorInt
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.utils.function.color
 import com.example.common.utils.function.getManifestString
-import com.example.common.utils.function.getNavigationBarHeight
 import com.example.framework.utils.function.value.min
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.function.view.padding
 import kotlin.LazyThreadSafetyMode.NONE
+import kotlin.math.max
 
 /**
  * @description 屏幕数值相关类
@@ -247,51 +252,92 @@ fun Window.applyFullScreen() {
     }
 }
 
-fun Window.setupNavigationBar(navigationBarColor: Int) {
-    // 1. 获取全局样式中的 windowBackground（作为底层背景）
-    val windowBackground = decorView.background ?: color(R.color.appWindowBackground).toDrawable()
-    // 2. 创建底部色块 Drawable
-    val bottomBarDrawable = NavigationBarDrawable(color(navigationBarColor))
-    // 3. 组合成 LayerDrawable（底层：windowBackground，上层：底部色块）
-    val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomBarDrawable))
-    // 4. 设置为 decorView 背景（此时两者会叠加显示）
-    decorView.background = combinedDrawable
-    // 5. 监听视图附加到窗口（延迟获取Insets，确保数据准备好）
-    decorView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-        override fun onViewAttachedToWindow(v: View) {
-            // 视图已附加到窗口，此时rootWindowInsets有效
-            val initialNavBottom = getNavigationBarHeight()
-            // 设置初始padding
-            v.padding(v.paddingLeft, v.paddingTop, v.paddingRight, initialNavBottom)
-            bottomBarDrawable.updateNavigationBarHeight(initialNavBottom)
-            // 移除监听器（只需要执行一次）
-            v.removeOnAttachStateChangeListener(this)
+fun Window.setNavigationBarDrawable(navigationBarColor: Int) {
+//    // 1. 获取全局样式中的 windowBackground（作为底层背景）
+//    val windowBackground = decorView.background ?: color(R.color.appWindowBackground).toDrawable()
+//    // 2. 创建底部色块 Drawable
+//    val bottomBarDrawable = NavigationBarDrawable(color(navigationBarColor))
+//    // 3. 组合成 LayerDrawable（底层：windowBackground，上层：底部色块）
+//    val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomBarDrawable))
+//    // 4. 设置为 decorView 背景（此时两者会叠加显示）
+//    decorView.background = combinedDrawable
+//    // 5. 监听视图附加到窗口（延迟获取Insets，确保数据准备好）
+//    decorView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+//        override fun onViewAttachedToWindow(v: View) {
+//            // 视图已附加到窗口，此时rootWindowInsets有效
+//            val initialNavBottom = getNavigationBarHeight()
+////    val initialInsets = v.rootWindowInsets
+////    val initialNavBottom = initialInsets.getInsets(WindowInsets.Type.navigationBars()).bottom
+//            // 设置初始padding
+//            v.padding(v.paddingLeft, v.paddingTop, v.paddingRight, initialNavBottom)
+//            bottomBarDrawable.updateNavigationBarHeight(initialNavBottom)
+//            // 移除监听器（只需要执行一次）
+//            v.removeOnAttachStateChangeListener(this)
+//        }
+//
+//        override fun onViewDetachedFromWindow(v: View) {}
+//    })
+//    // 6. 监听Insets变化（处理动态更新）
+//    decorView.setOnApplyWindowInsetsListener { v, insets ->
+//        // 仅在导航栏可见时设置内边距
+//        val navBottom = getNavigationBarHeight()
+////    val navBottom = insets.getInsets(WindowInsets.Type.navigationBars()).bottom
+//        // 只有变化时才更新
+//        if (v.paddingBottom != navBottom) {
+//            v.padding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
+//            bottomBarDrawable.updateNavigationBarHeight(navBottom)
+//        }
+//        // 避免重复处理
+//        insets.consumeSystemWindowInsets()
+//    }
+    // 1. 项目MinSdk为23，TargetSdk为36,底部包含背景/UI深浅两部分，API 23-25无法操作UI深浅，默认做成黑背景白电池
+    val mNavigationBarColor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarColor else R.color.bgBlack
+    // 2. 获取样式中的 android:windowBackground 作为底层背景（Activity如果不单独设置style样式，默认采取的是全局背景色）
+    val windowBackground = decorView.background?.let { background ->
+        when (background) {
+            // 纯颜色背景直接使用
+            is ColorDrawable -> background
+            // 图片类背景（如BitmapDrawable、VectorDrawable等）单独处理
+            is BitmapDrawable, is VectorDrawable -> {
+                // 保留图片背景或根据图片主题色动态适配，直接返回图片Drawable，或做其他处理
+                background
+            }
+            // 其他未知类型Drawable默认处理
+            else -> {
+                null
+            }
         }
-
-        override fun onViewDetachedFromWindow(v: View) {}
-    })
+    } ?: color(R.color.appWindowBackground).toDrawable()
+    // 3. 创建底部色块 Drawable
+    val bottomBarDrawable = NavigationBarDrawable(color(mNavigationBarColor))
+    // 4. 组合成 LayerDrawable（上层：android:windowBackground，底层：底部色块）
+    val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomBarDrawable))
+    // 5. 设置为 decorView 背景（此时两者会叠加显示）
+    decorView.background = combinedDrawable
     // 6. 监听Insets变化（处理动态更新）
-    decorView.setOnApplyWindowInsetsListener { v, insets ->
-        // 仅在导航栏可见时设置内边距
-        val navBottom = getNavigationBarHeight()
-        // 只有变化时才更新
+    ViewCompat.setOnApplyWindowInsetsListener(decorView) { v, insets ->
+        // 1. 获取系统栏的尺寸（单位：px）
+//        val statusBarInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars()) // 状态栏高度
+        val navigationBarInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars()) // 导航栏高度（含底部或侧边）
+        // 2. 仅设置底部padding，其他方向保持不变
+        val navBottom = navigationBarInsets.bottom
         if (v.paddingBottom != navBottom) {
-            v.padding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
+            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navigationBarInsets.bottom)
             bottomBarDrawable.updateNavigationBarHeight(navBottom)
         }
-        // 避免重复处理
-        insets
+        WindowInsetsCompat.CONSUMED
     }
 }
 
 /**
- * navigationBarColor // 底部色块颜色
- * navigationBarHeight // 底部色块高度
+ * 导航栏背景绘制工具，用于在Edge-to-Edge模式下绘制底部导航栏区域背景
+ * 支持动态更新导航栏高度，适配不同设备和屏幕旋转场景
+ * navigationBarColor 底部色块颜色
+ * navigationBarHeight 底部色块高度
  */
-class NavigationBarDrawable(private val navigationBarColor: Int, private var navigationBarHeight: Int = 0) : Drawable() {
-
+class NavigationBarDrawable(@ColorInt private val backgroundColor: Int, private var navigationBarHeight: Int = 0) : Drawable() {
     private val paint = Paint().apply {
-        color = navigationBarColor
+        color = backgroundColor
         isAntiAlias = true
         style = Paint.Style.FILL
     }
@@ -315,8 +361,11 @@ class NavigationBarDrawable(private val navigationBarColor: Int, private var nav
     override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
 
     override fun setAlpha(alpha: Int) {
-        paint.alpha = alpha
-        invalidateSelf()
+        val adjustedAlpha = alpha.coerceIn(0, 255)
+        if (paint.alpha != adjustedAlpha) {
+            paint.alpha = adjustedAlpha
+            invalidateSelf()
+        }
     }
 
     override fun setColorFilter(colorFilter: ColorFilter?) {
@@ -325,8 +374,9 @@ class NavigationBarDrawable(private val navigationBarColor: Int, private var nav
     }
 
     fun updateNavigationBarHeight(height: Int) {
-        if (navigationBarHeight != height) {
-            navigationBarHeight = height
+        val validHeight = max(0, height)
+        if (navigationBarHeight != validHeight) {
+            navigationBarHeight = validHeight
             invalidateSelf()
         }
     }
