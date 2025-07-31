@@ -60,7 +60,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         return true
     }
 
-    protected open fun initImmersionBar(statusBarDark: Boolean = false, navigationBarDark: Boolean = false, navigationBarColor: Int = R.color.appNavigationBar) {
+    protected open fun initImmersionBar(statusBarDark: Boolean = false, navigationBarDark: Boolean = false, navigationBarColor: Int = R.color.bgBlack) {
         immersionBar?.apply {
             reset()
             statusBarDarkFont(statusBarDark, 0.2f)
