@@ -251,13 +251,13 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
         return true
     }
 
-    override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
-        super.initImmersionBar(titleDark, naviTrans, navigationBarColor)
+    override fun initImmersionBar(statusBarDark: Boolean, navigationBarDark: Boolean, navigationBarColor: Int) {
+        super.initImmersionBar(statusBarDark, navigationBarDark, navigationBarColor)
         immersionBar?.apply {
             reset()
-            statusBarDarkFont(titleDark, 0.2f)
-            navigationBarColor(navigationBarColor)
-            navigationBarDarkIcon(naviTrans, 0.2f)
+            statusBarDarkFont(statusBarDark, 0.2f)
+//            navigationBarDarkIcon(navigationBarDark, 0.2f)
+//            navigationBarColor(navigationBarColor)
             init()
         }
     }

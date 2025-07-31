@@ -131,14 +131,14 @@ public class DurbanActivity extends BaseActivity {
     }
 
     private void initFrameViews() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            final Window window = getWindow();
-            if (window != null) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                window.setStatusBarColor(mStatusColor);
-                window.setNavigationBarColor(mNavigationColor);
-            }
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            final Window window = getWindow();
+//            if (window != null) {
+//                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//                window.setStatusBarColor(mStatusColor);
+//                window.setNavigationBarColor(mNavigationColor);
+//            }
+//        }
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(mToolbarColor);

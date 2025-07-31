@@ -99,7 +99,7 @@
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 
-    <!-- 透明主题
+    <!-- 透明主题(部分三方库,无动画无过渡的透明页面)
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             overridePendingTransition(R.anim.set_alpha_trans_in, R.anim.set_alpha_no)
@@ -118,13 +118,16 @@
             }
         }
     -->
-    <style name="TransparentTheme" parent="NoAnimTheme">
+    <style name="TranslucentTheme" parent="NoAnimTheme">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="colorPrimaryDark">@android:color/transparent</item>
     </style>
 
     <!-- 启动页/引导页/首页/背景纯色的页面，单独使用该样式，可重写把背景替换掉，解决页面切换之间不会黑一下屏 -->
-    <style name="TransitionTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="TransparentTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>

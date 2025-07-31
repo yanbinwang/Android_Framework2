@@ -19,6 +19,7 @@ import android.widget.EditText
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
@@ -45,7 +46,7 @@ import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
-import com.example.common.utils.setupNavigationBarPadding
+import com.example.common.utils.setNavigationBarDrawable
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.common.widget.textview.edittext.SpecialEditText
@@ -124,6 +125,13 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        /**
+         * 在 Android 中，enableEdgeToEdge() 方法是在 API 29（Android 10） 及以上版本引入的，用于实现「边缘到边缘」（edge-to-edge）的显示效果（让内容延伸到状态栏和导航栏下方）。它的兼容性逻辑是：
+         * 高版本（API 29+ (>=安卓10)）：正常生效，系统会自动处理内容与系统栏（状态栏、导航栏）的布局关系，实现内容渗透到系统栏区域。
+         * 低版本（API < 29 (<=安卓9)）：该方法本质上是一个「空实现」（no-op），不会做任何操作。因为低版本 Android 系统本身不支持边缘到边缘的显示模式，系统栏（尤其是导航栏）会保持默认的不透明状态，内容不会渗透下去。
+         * 该方法会默认将系统栏（状态栏、导航栏）设置为「透明 / 半透明」以实现内容延伸效果
+         */
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         if (needTransparentOwner) {
             overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
@@ -147,6 +155,9 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         initData()
     }
 
+    /**
+     * 是否默认操作状态栏/导航栏属性
+     */
     protected open fun isImmersionBarEnabled(): Boolean {
         return true
     }
@@ -209,15 +220,17 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
      *              .reset()  //重置所以沉浸式参数
      *              .init();  //必须调用方可应用以上所配置的参数
      */
-    override fun initImmersionBar(titleDark: Boolean, naviTrans: Boolean, navigationBarColor: Int) {
-        super.initImmersionBar(titleDark, naviTrans, navigationBarColor)
+    override fun initImmersionBar(statusBarDark: Boolean, navigationBarDark: Boolean, navigationBarColor: Int) {
+        super.initImmersionBar(statusBarDark, navigationBarDark, navigationBarColor)
         immersionBar?.apply {
             reset()
-            statusBarDarkFont(titleDark, 0.2f)
-            navigationBarColor(navigationBarColor)
-            navigationBarDarkIcon(naviTrans, 0.2f)
+            statusBarDarkFont(statusBarDark, 0.2f)
+            navigationBarDarkIcon(navigationBarDark, 0.2f)//edge会导致低版本ui深浅代码失效,但是会以传入的颜色值为主(偏深为白,反之为黑)
+//            navigationBarColor(navigationBarColor)//颜色的配置在高版本上容易出问题,统一改为底部方法
             init()
         }
+        //导航栏背景
+        window.setNavigationBarDrawable(navigationBarColor)
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -230,7 +243,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
                     mBinding = method?.invoke(null, layoutInflater) as? VDB
                     mBinding?.lifecycleOwner = this
                     setContentView(mBinding?.root)
-                    window.setupNavigationBarPadding()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
