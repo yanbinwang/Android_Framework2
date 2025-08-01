@@ -127,7 +127,6 @@ class DisplayService : TrackableLifecycleService() {
             .build()
         // 3. 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
         startForeground(notificationId, notification)
-//        stopForeground(true)//关闭录屏的图标-可注释
         //获取 PowerManager 实例
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
         //创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
@@ -176,13 +175,11 @@ class DisplayService : TrackableLifecycleService() {
                 // 音频编码
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                 // 视频尺寸（必须与 VirtualDisplay 一致）
-//                setVideoSize(previewWidth, previewHeight)
                 setVideoSize(currentWidth, currentHeight)
                 // 帧率（60 降为 30，高版本对 60fps 支持有限）
                 setVideoFrameRate(30)
                 // 比特率（关键修改：用计算值替代固定公式）
-//                setVideoEncodingBitRate(calculateBitRate(previewWidth, previewHeight))
-                setVideoEncodingBitRate(calculateBitRate(currentWidth, currentHeight))
+                setVideoEncodingBitRate(currentBitRate)
                 // 屏幕旋转角度（根据实际情况调整，0 表示默认）
                 setOrientationHint(0)
                 // 输出文件

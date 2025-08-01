@@ -65,16 +65,6 @@ class RecordingService : TrackableLifecycleService() {
             .build()
         // 3. 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
         startForeground(notificationId, notification)
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-//            startForeground(1, Notification())
-//        } else {
-//            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as? NotificationManager
-//            notificationManager?.createNotificationChannel(NotificationChannel(packageName, packageName, NotificationManager.IMPORTANCE_DEFAULT))
-//            val builder = NotificationCompat.Builder(this, packageName)
-//            //id不为0即可，该方法表示将服务设置为前台服务
-//            startForeground(1, builder.build())
-//        }
-////        stopForeground(true)//关闭录屏的图标-可注释
         //获取 PowerManager 实例
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
         //创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
