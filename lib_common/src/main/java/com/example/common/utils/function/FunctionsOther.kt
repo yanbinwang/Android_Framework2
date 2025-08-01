@@ -1,8 +1,10 @@
 package com.example.common.utils.function
 
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextPaint
@@ -13,6 +15,7 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
@@ -25,6 +28,7 @@ import com.example.common.utils.ScreenUtil.getRealSize
 import com.example.common.utils.ScreenUtil.getRealSizeFloat
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
+import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
@@ -36,6 +40,7 @@ import com.example.framework.utils.function.view.setSpannable
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanAll
 import com.example.framework.utils.setSpanFirst
+import kotlin.math.max
 
 //------------------------------------按钮，控件行为工具类------------------------------------
 /**
@@ -71,14 +76,54 @@ fun getManifestString(name: String): String? {
 }
 
 /**
- * 获取顶栏高度
+ * 获取顶栏高度(静态默认值)
+ * 设备出厂时定义的固定值（如大多数手机为 24dp~32dp），写死在系统资源文件中；
+ * 不考虑当前窗口的状态（如是否全屏、是否隐藏状态栏、是否启用边缘到边缘模式）；
+ * 不包含刘海屏（display cutout）等额外区域的高度（部分高版本手机可能优化，但本质仍是静态值）
+ * BaseBindingAdapter
+ * AppToolbar
  */
 fun getStatusBarHeight(): Int {
-    return ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
+//    return ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
+    // 1. 获取基础状态栏高度（不含刘海）
+    val baseStatusBarHeight = ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
+    // 2. 获取顶部刘海高度（仅API 28+支持）
+    val cutoutHeight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        // 取得当前选中页面
+        AppManager.currentActivity()?.getTopCutoutHeight(baseStatusBarHeight)
+    } else {
+        0
+    }
+    // 3. 总和 = 基础状态栏高度 + 顶部刘海高度
+    return baseStatusBarHeight + cutoutHeight.orZero
 }
 
 /**
- * 获取底栏高度
+ * 获取顶部刘海高度（仅支持 Android 9.0+）
+ * @param 必须传入 Activity 上下文（有窗口信息）
+ * @return 刘海高度（无刘海或不支持时返回 0）
+ */
+@RequiresApi(Build.VERSION_CODES.P)
+private fun Activity?.getTopCutoutHeight(baseStatusBarHeight: Int): Int {
+    this ?: return 0
+    // 1. 获取 WindowInsets（可能为 null，需判空）
+    val windowInsets = window?.decorView?.rootWindowInsets
+    val displayCutout = windowInsets?.displayCutout ?: return 0
+    // 2. 解析顶部刘海区域
+    var cutoutHeight = 0
+    displayCutout.boundingRects.forEach { rect ->
+        // 顶部刘海的 top 坐标为 0（状态栏起始位置）
+        if (rect.top == 0) {
+            // 只保留正数，负数说明无超出的刘海
+            val currentCutout = maxOf(cutoutHeight, rect.bottom) - baseStatusBarHeight
+            cutoutHeight = max(0, currentCutout)
+        }
+    }
+    return cutoutHeight
+}
+
+/**
+ * 获取底栏高度(静态默认值)
  */
 fun getNavigationBarHeight(): Int {
     val mContext = BaseApplication.instance.applicationContext
