@@ -388,6 +388,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
+        overridePendingTransition(0, 0)
 //        BaseApplication.instance.initPrivacyAgreed()
 
         initImmersionBar(navigationBarDark = true,navigationBarColor = R.color.bgWhite)

@@ -38,14 +38,14 @@
         <item name="android:navigationBarColor">@color/appTheme</item>
     </style>
 
-    <!--首页(android:windowBackground属性还是必要的,关乎到开启页面展示的背景) -->
+    <!--首页(android:windowBackground属性还是必要的,关乎到开启页面展示的背景) 对应页面设置overridePendingTransition(0, 0) -->
     <style name="MainTheme" parent="TransparentTheme">
         <item name="android:windowBackground">@color/appWindowBackground</item>
         <item name="android:windowLightNavigationBar">true</item>
         <item name="android:navigationBarColor">@color/appNavigationBar</item>
     </style>
 
-    <!-- 选择页背景直接是白色默认(白色背景但不需要动画) -->
+    <!-- 选择页背景直接是白色默认(白色背景但不需要动画) 对应页面设置overridePendingTransition(0, 0)-->
     <style name="DefaultTheme" parent="TransparentTheme">
         <item name="android:windowBackground">@color/bgDefault</item>
         <item name="android:windowLightNavigationBar">true</item>
