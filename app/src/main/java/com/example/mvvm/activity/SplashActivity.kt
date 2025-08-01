@@ -88,7 +88,7 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
         TimerBuilder.schedule(this, {
             finish()
         }, 500)
-//        overridePendingTransition(0, 0)
+        overridePendingTransition(0, 0)
     }
 
     /**

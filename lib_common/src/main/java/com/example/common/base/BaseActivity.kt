@@ -97,6 +97,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { AppDialog(this) }
     protected val mPermission by lazy { PermissionHelper(this) }
+    private var onApplyInsets = false//窗体监听等回调是否已经加载完毕
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
@@ -229,8 +230,10 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 //            navigationBarColor(navigationBarColor)//颜色的配置在高版本上容易出问题,统一改为底部方法
             init()
         }
-        //导航栏背景
-        window.setNavigationBarDrawable(navigationBarColor)
+        if (!onApplyInsets) {
+            onApplyInsets = true
+            window.setNavigationBarDrawable(navigationBarColor)
+        }
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -286,6 +289,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     override fun onDestroy() {
         super.onDestroy()
+        onApplyInsets = false
         removeBackCallback()
         clearOnActivityResultListener()
         AppManager.removeActivity(this)
