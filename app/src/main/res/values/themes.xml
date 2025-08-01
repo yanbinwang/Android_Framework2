@@ -31,27 +31,6 @@
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
 
-<!--    <style name="SplashTheme" parent="TransitionTheme">-->
-<!--        &lt;!&ndash; 基础全屏设置 &ndash;&gt;-->
-<!--        <item name="android:windowFullscreen">true</item>-->
-<!--        <item name="android:windowContentOverlay">@null</item>-->
-<!--        &lt;!&ndash; 状态栏和导航栏颜色 &ndash;&gt;-->
-<!--        <item name="android:statusBarColor">@android:color/transparent</item>-->
-<!--        <item name="android:navigationBarColor">@android:color/transparent</item>-->
-<!--        &lt;!&ndash; 窗口背景 &ndash;&gt;-->
-<!--        <item name="android:windowBackground">@drawable/layout_list_splash</item>-->
-<!--        &lt;!&ndash; 移除窗口动画 &ndash;&gt;-->
-<!--        <item name="android:windowAnimationStyle">@null</item>-->
-<!--        &lt;!&ndash; 沉浸式全屏（Android 4.4+） &ndash;&gt;-->
-<!--        <item name="android:windowTranslucentStatus">true</item>-->
-<!--        <item name="android:windowTranslucentNavigation">true</item>-->
-<!--        &lt;!&ndash; 适配刘海屏（Android 9.0+） &ndash;&gt;-->
-<!--        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>-->
-<!--        &lt;!&ndash; 针对 Android 11+ 的特殊设置 &ndash;&gt;-->
-<!--        <item name="android:enforceStatusBarContrast">false</item>-->
-<!--        <item name="android:enforceNavigationBarContrast">false</item>-->
-<!--    </style>-->
-
     <!--注册选择页背景是蓝色，故而使用此样式-->
     <style name="StartTheme" parent="TransparentTheme">
         <item name="android:windowLightStatusBar">false</item>
@@ -66,12 +45,12 @@
         <item name="android:navigationBarColor">@color/appNavigationBar</item>
     </style>
 
-<!--    &lt;!&ndash; 选择页背景直接是白色默认 &ndash;&gt;-->
-<!--    <style name="DefaultTheme" parent="TransitionTheme">-->
-<!--        <item name="android:windowBackground">@color/bgDefault</item>-->
-<!--        <item name="android:windowLightNavigationBar">true</item>-->
-<!--        <item name="android:navigationBarColor">@color/appNavigationBar</item>-->
-<!--    </style>-->
+    <!-- 选择页背景直接是白色默认(白色背景但不需要动画) -->
+    <style name="DefaultTheme" parent="TransparentTheme">
+        <item name="android:windowBackground">@color/bgDefault</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:navigationBarColor">@color/appNavigationBar</item>
+    </style>
 
 <!-- https://cloud.tencent.com/developer/article/1946216?areaSource=102001.14&traceId=cOGlHQmuBlUqVJUXnEtT9 -->
 <!--    <style name="SplashTheme" parent="Theme.SplashScreen">-->
