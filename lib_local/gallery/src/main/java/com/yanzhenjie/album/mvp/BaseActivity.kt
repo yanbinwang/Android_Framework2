@@ -9,6 +9,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils.calculateLuminance
 import com.example.common.R
 import com.example.common.utils.function.getStatusBarHeight
+import com.example.common.utils.manager.AppManager
 import com.example.common.utils.setNavigationBarDrawable
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.padding
@@ -18,6 +19,7 @@ import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.util.AlbumUtils
 
 abstract class BaseActivity : AppCompatActivity(), Bye {
+    private var onApplyInsets = false//窗体监听等回调是否已经加载完毕
     private val immersionBar by lazy { ImmersionBar.with(this) }
 
     companion object {
@@ -51,6 +53,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        AppManager.addActivity(this)
         val locale = Album.getAlbumConfig().locale
         AlbumUtils.applyLanguageForContext(this, locale)
         if (isImmersionBarEnabled()) initImmersionBar()
@@ -67,11 +70,20 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
             navigationBarDarkIcon(navigationBarDark, 0.2f)
             init()
         }
-        window.setNavigationBarDrawable(navigationBarColor)
+        if (!onApplyInsets) {
+            onApplyInsets = true
+            window.setNavigationBarDrawable(navigationBarColor)
+        }
     }
 
     override fun bye() {
         onBackPressed()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        onApplyInsets = false
+        AppManager.removeActivity(this)
     }
 
 }
