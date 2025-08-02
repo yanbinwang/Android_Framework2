@@ -1,4 +1,5 @@
 <resources>
     <string name="notificationChannelId">cbMsg</string>
     <string name="notificationChannelName">东合信息科技有限公司</string>
+    <string name="permissionNotification">通知权限,该权限用于应用推送相关信息</string>
 </resources>
