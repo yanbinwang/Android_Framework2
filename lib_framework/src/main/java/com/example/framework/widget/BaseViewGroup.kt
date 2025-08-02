@@ -8,6 +8,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isEmpty
 import androidx.core.view.isNotEmpty
 import androidx.lifecycle.LifecycleOwner
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.getLifecycleOwner
 
 /**
@@ -179,11 +180,14 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
     }
 
     /**
-     * 当页面被绘制好了，如果本身内部没有容器，回调onInflate抽象方法，让自定义view去在onInflate方法里去addView
+     * onFinishInflate() 仅表示 XML 解析完成，但此时视图可能还未经过测量（measure）和布局（layout）流程，宽高可能尚未确定
      */
     override fun onFinishInflate() {
         super.onFinishInflate()
-        if (isInflate) onInflate()
+        // 确保 onInflate() 在视图完成布局后再执行，避免因布局未就绪导致的测量问题，如Viewpager2缓存导致页面高度为0
+        doOnceAfterLayout {
+            if (isInflate) onInflate()
+        }
     }
 
     /**
