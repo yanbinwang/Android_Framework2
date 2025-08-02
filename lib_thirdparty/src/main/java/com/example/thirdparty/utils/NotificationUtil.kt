@@ -368,7 +368,7 @@ class NotificationManager(private val mActivity: AppCompatActivity) {
             mListener.invoke(true)
         } else {
             mDialog
-                .setParams(string(R.string.hint), "请授予通知权限,该权限用于应用推送相关信息")
+                .setParams(string(R.string.hint), string(R.string.permissionNotification))
                 .setDialogListener({
                     mActivity.navigateToNotificationSettings()
                 },{
