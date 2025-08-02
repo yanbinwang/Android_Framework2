@@ -100,12 +100,11 @@ fun getStatusBarHeight(): Int {
 }
 
 /**
- * 获取顶部刘海高度（仅支持 Android 9.0+）
- * @param 必须传入 Activity 上下文（有窗口信息）
+ * 获取顶部刘海高度（整个状态栏-->仅支持 Android 9.0+）
  * @return 刘海高度（无刘海或不支持时返回 0）
  */
 @RequiresApi(Build.VERSION_CODES.P)
-private fun Activity?.getTopCutoutHeight(baseStatusBarHeight: Int): Int {
+fun Activity?.getTopCutoutHeight(baseStatusBarHeight: Int = 0): Int {
     this ?: return 0
     // 1. 获取 WindowInsets（可能为 null，需判空）
     val windowInsets = window?.decorView?.rootWindowInsets
