@@ -20,7 +20,6 @@ import com.example.common.utils.function.getExtra
 import com.example.framework.utils.function.TrackableLifecycleService
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.logWTF
 import com.example.thirdparty.R
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.calculateBitRate
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.getCompatibleParameters
