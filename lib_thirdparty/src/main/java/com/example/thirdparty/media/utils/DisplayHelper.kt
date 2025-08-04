@@ -5,6 +5,7 @@ import android.media.MediaCodecInfo
 import android.media.MediaCodecList
 import android.media.MediaFormat
 import android.os.Build
+import android.provider.Settings
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -18,6 +19,8 @@ import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.function.isExists
 import com.example.common.utils.function.pullUpOverlay
 import com.example.common.utils.function.pullUpScreen
+import com.example.common.utils.function.string
+import com.example.common.widget.dialog.AndDialog
 import com.example.framework.utils.function.isServiceRunning
 import com.example.framework.utils.function.startService
 import com.example.framework.utils.function.stopService
@@ -38,6 +41,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
     private var filePath: String? = null
     private var listener: OnDisplayListener? = null
     private val list by lazy { ArrayList<String>() }
+    private val dialog by lazy { AndDialog(mActivity) }
     private val observer by lazy { ShotObserver(mActivity) }
 
     /**
@@ -261,11 +265,21 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
      * 尝试唤起手机录屏弹窗，会在onActivityResult中回调结果
      */
     fun startScreen() {
-        if (mActivity.pullUpOverlay()) {
-            result.pullUpScreen(mActivity)
+        if (!Settings.canDrawOverlays(mActivity)) {
+            dialog
+                .setParams(message = string(R.string.overlayGranted))
+                .setDialogListener({
+                    mActivity.pullUpOverlay()
+                })
+                .show()
         } else {
-            R.string.overlayGranted.shortToast()
+            result.pullUpScreen(mActivity)
         }
+//        if (mActivity.pullUpOverlay()) {
+//            result.pullUpScreen(mActivity)
+//        } else {
+//            R.string.overlayGranted.shortToast()
+//        }
     }
 
     /**

@@ -143,16 +143,20 @@ private fun Activity?.forResult(file: File?, intent: Intent, requestCode: Int) {
 /**
  * 高版本后台服务有浮层需要允许当前设置
  */
-fun Activity?.pullUpOverlay(): Boolean {
-    this ?: return false
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
-        intent.data = "package:${packageName}".toUri()
-        startActivity(intent)
-        false
-    } else {
-        true
-    }
+fun Activity?.pullUpOverlay() {
+//    this ?: return false
+//    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+//        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+//        intent.data = "package:${packageName}".toUri()
+//        startActivity(intent)
+//        false
+//    } else {
+//        true
+//    }
+    this ?: return
+    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+    intent.data = "package:${packageName}".toUri()
+    startActivity(intent)
 }
 
 /**
