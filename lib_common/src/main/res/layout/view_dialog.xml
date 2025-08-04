@@ -27,27 +27,20 @@
             app:layout_constraintStart_toStartOf="parent"
             tools:text="标题" />
 
-        <FrameLayout
-            android:id="@+id/fl_message"
+        <TextView
+            android:id="@+id/tv_message"
             android:layout_width="0pt"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24pt"
             android:layout_marginTop="16pt"
+            android:gravity="center"
+            android:lineSpacingExtra="2pt"
+            android:textColor="@color/textPrimary"
+            android:textSize="@dimen/textSize14"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_title">
-
-            <TextView
-                android:id="@+id/tv_message"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:lineSpacingExtra="2pt"
-                android:textColor="@color/textPrimary"
-                android:textSize="@dimen/textSize14"
-                tools:text="内容" />
-
-        </FrameLayout>
+            app:layout_constraintTop_toBottomOf="@+id/tv_title"
+            tools:text="内容" />
 
         <View
             android:id="@+id/view_controller_line"
@@ -55,7 +48,7 @@
             android:layout_marginTop="16pt"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fl_message" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_message" />
 
         <TextView
             android:id="@+id/tv_negative"
