@@ -15,16 +15,17 @@
             android:id="@+id/tv_title"
             android:layout_width="0pt"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24pt"
+            android:layout_marginTop="18pt"
             android:ellipsize="end"
             android:gravity="center"
-            android:paddingHorizontal="5pt"
-            android:paddingTop="18pt"
             android:singleLine="true"
             android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize14"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="标题" />
 
         <TextView
