@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.base.BaseDialog
 import com.example.common.databinding.ViewDialogBinding
+import com.example.common.utils.function.orNoData
 import com.example.common.utils.i18n.string
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
@@ -39,14 +40,14 @@ class AppDialog(activity: FragmentActivity) : BaseDialog<ViewDialogBinding>(acti
                 tvTitle.gone()
             } else {
                 tvTitle.visible()
-                tvTitle.text = title
+                tvTitle.text = title.orNoData()
             }
             // 内容
             tvMessage.gravity = gravity
-            tvMessage.text = message
+            tvMessage.text = message.orNoData()
             // 操作键
             tvPositive.apply {
-                text = positiveText
+                text = positiveText.orNoData()
                 click {
                     dismiss()
                     onPositive?.invoke()

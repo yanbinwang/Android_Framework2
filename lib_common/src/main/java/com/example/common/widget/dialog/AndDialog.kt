@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.DialogInterface
 import androidx.appcompat.app.AlertDialog
 import com.example.common.R
+import com.example.common.utils.function.orNoData
 import com.example.common.utils.i18n.string
 
 /**
@@ -20,13 +21,15 @@ class AndDialog(context: Context) : AlertDialog.Builder(context, R.style.AndDial
     }
 
     fun setParams(title: String? = string(R.string.hint), message: String? = null, positiveText: String? = string(R.string.sure), negativeText: String? = string(R.string.cancel), hasTitle: Boolean = true): AndDialog {
-        if (hasTitle) setTitle(title)
-        setMessage(message)
-        setPositiveButton(positiveText) { _: DialogInterface?, _: Int ->
+        if (hasTitle) setTitle(title.orNoData())
+        setMessage(message.orNoData())
+        setPositiveButton(positiveText.orNoData()) { _: DialogInterface?, _: Int ->
             onPositive?.invoke()
         }
-        if (!negativeText.isNullOrEmpty()) setNegativeButton(negativeText) { _: DialogInterface?, _: Int ->
-            onNegative?.invoke()
+        if (!negativeText.isNullOrEmpty()) {
+            setNegativeButton(negativeText) { _: DialogInterface?, _: Int ->
+                onNegative?.invoke()
+            }
         }
         return this
     }
