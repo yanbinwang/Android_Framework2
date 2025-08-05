@@ -53,6 +53,6 @@ dependencies {
     implementation(libs.immersionbar)
     //转圈控件
     implementation("com.yanzhenjie:loading:1.0.2")
-    //媒体扫描
-    implementation("com.yanzhenjie:mediascanner:1.0.3")
+//    //媒体扫描
+//    implementation("com.yanzhenjie:mediascanner:1.0.3")
 }
