@@ -7,6 +7,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.utils.i18n.string
 import com.example.common.utils.permission.XXPermissionsGroup.CAMERA_GROUP
@@ -22,8 +23,8 @@ import com.hjq.permissions.permission.base.IPermission
  * 获取选项工具类
  * 根据项目需求哪取需要的权限组
  */
-class PermissionHelper(private val context: Context) {
-    private val andDialog by lazy { AndDialog(context) }
+class PermissionHelper(private val activity: FragmentActivity) {
+    private val andDialog by lazy { AndDialog(activity) }
     private val permsGroup = arrayOf(
         CAMERA_GROUP,//拍摄照片，录制视频
         STORAGE_GROUP)//访问照片。媒体。内容和文件
@@ -38,7 +39,7 @@ class PermissionHelper(private val context: Context) {
     fun requestPermissions(vararg groups: List<IPermission>, listener: (hasPermissions: Boolean) -> Unit = {}, force: Boolean = true) {
         //6.0+系统做特殊处理
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            XXPermissions.with(context)
+            XXPermissions.with(activity)
                 .permissions(groups.toMutableList().flatten())
                 .request(object : OnPermissionCallback {
                     override fun onGranted(permissions: MutableList<IPermission>, allGranted: Boolean) {

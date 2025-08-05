@@ -146,7 +146,7 @@
         <!-- 移除窗口内容的叠加层（如阴影或边框叠加效果） -->
         <item name="android:windowContentOverlay">@null</item>
         <!-- 窗口背景设置为指定颜色（作用于整个窗口的背景,包括对话框的整体区域（如边框、圆角范围等） -->
-        <item name="android:windowBackground">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
         <!-- 控件背景设为透明（作用于样式所应用的具体控件本身,最外层容器视图） -->
         <item name="android:background">@null</item>
         <!-- 启用背景模糊/变暗效果（打开对话框时，背后的界面会变暗） -->
