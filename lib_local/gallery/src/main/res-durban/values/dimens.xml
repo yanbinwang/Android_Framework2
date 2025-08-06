@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="durban_dp_1">1dp</dimen>
+    <dimen name="durban_dp_10">10dp</dimen>
+    <dimen name="durban_dp_100">100dp</dimen>
+    <dimen name="durban_dp_16">16dp</dimen>
+    <dimen name="durban_dp_200">200dp</dimen>
+    <dimen name="durban_dp_30">30dp</dimen>
+    <dimen name="durban_dp_70">70dp</dimen>
+</resources>
