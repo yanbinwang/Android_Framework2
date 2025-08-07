@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
@@ -39,6 +38,9 @@ import java.util.Collections;
  * Create by Yan Zhenjie on 2017/5/23.
  */
 public class Durban {
+    /**
+     * 页面跳转参数
+     */
     private static final String KEY_PREFIX = "AlbumCrop";
     static final String KEY_INPUT_STATUS_COLOR = KEY_PREFIX + ".KEY_INPUT_STATUS_COLOR";
     static final String KEY_INPUT_NAVIGATION_COLOR = KEY_PREFIX + ".KEY_INPUT_NAVIGATION_COLOR";
@@ -89,46 +91,11 @@ public class Durban {
     public @interface FormatTypes {
     }
 
-//    private static DurbanConfig sDurbanConfig;
-//
-//    /**
-//     * 初始化裁剪库
-//     *
-//     * @param durbanConfig {@link DurbanConfig}.
-//     */
-//    public static void initialize(DurbanConfig durbanConfig) {
-//        sDurbanConfig = durbanConfig;
-//    }
-//
-//    /**
-//     * Get the durban configuration.
-//     *
-//     * @return {@link DurbanConfig}.
-//     */
-//    public static DurbanConfig getDurbanConfig() {
-//        if (sDurbanConfig == null) {
-//            initialize(DurbanConfig.newBuilder(null)
-//                    .setLocale(Locale.getDefault())
-//                    .build()
-//            );
-//        }
-//        return sDurbanConfig;
-//    }
-
+    /**
+     * 类本身持有对象
+     */
     private Object o;
     private Intent mCropIntent;
-
-    public static Durban with(Activity activity) {
-        return new Durban(activity);
-    }
-
-    public static Durban with(Fragment fragment) {
-        return new Durban(fragment);
-    }
-
-    public static Durban with(android.app.Fragment fragment) {
-        return new Durban(fragment);
-    }
 
     /**
      * 优先构建好传输的intent
@@ -147,6 +114,36 @@ public class Durban {
         else if (o instanceof Fragment) return ((Fragment) o).getContext();
         else if (o instanceof android.app.Fragment) return ((android.app.Fragment) o).getActivity();
         throw new IllegalArgumentException(o.getClass() + " is not supported.");
+    }
+
+    /**
+     * 发起裁剪的页面需要得到裁剪后的图片路径集合的时候在onActivityResult中使用
+     * override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+     * super.onActivityResult(requestCode, resultCode, data)
+     * if (requestCode == RESULT_ALBUM) {
+     * data ?: return
+     * val mImageList = Durban.parseResult(data)
+     * mImageList.safeGet(0).shortToast()
+     * }
+     * }
+     */
+    public static ArrayList<String> parseResult(@NonNull Intent intent) {
+        return intent.getStringArrayListExtra(KEY_OUTPUT_IMAGE_LIST);
+    }
+
+    /**
+     * 构造方法
+     */
+    public static Durban with(Activity activity) {
+        return new Durban(activity);
+    }
+
+    public static Durban with(Fragment fragment) {
+        return new Durban(fragment);
+    }
+
+    public static Durban with(android.app.Fragment fragment) {
+        return new Durban(fragment);
     }
 
     /**
@@ -292,21 +289,6 @@ public class Durban {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * 发起裁剪的页面需要得到裁剪后的图片路径集合的时候在onActivityResult中使用
-     * override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-     * super.onActivityResult(requestCode, resultCode, data)
-     * if (requestCode == RESULT_ALBUM) {
-     * data ?: return
-     * val mImageList = Durban.parseResult(data)
-     * mImageList.safeGet(0).shortToast()
-     * }
-     * }
-     */
-    public static ArrayList<String> parseResult(@NonNull Intent intent) {
-        return intent.getStringArrayListExtra(KEY_OUTPUT_IMAGE_LIST);
     }
 
 }

@@ -40,34 +40,35 @@ class GalleryHelper {
     private var videoMultiple: Choice<VideoMultipleWrapper, VideoSingleWrapper>? = null
 
     /**
-     * activity和fragment在裁剪或者OnActivityResult时是必须指明的，不然返回会错误
+     * 1.AppCompatActivity和Fragment在裁剪或者OnActivityResult时是必须指明的，不然返回会错误
+     * 2.FragmentActivity无需指明,在Activity中传this,在Fragment传getActivity(),系统会做发起判断
      */
     constructor(activity: AppCompatActivity) {
         imageCamera = Album.camera(activity)
         videoMultiple = Album.video(activity)
         imageMultiple = Album.image(activity)
-        durban = Durban.with(activity)
         widget = activity.getAlbumWidget()
+        durban = Durban.with(activity)
     }
 
     constructor(fragment: Fragment) {
         imageCamera = Album.camera(fragment)
         videoMultiple = Album.video(fragment)
         imageMultiple = Album.image(fragment)
-        durban = Durban.with(fragment)
         widget = fragment.context.getAlbumWidget()
+        durban = Durban.with(fragment)
     }
 
     constructor(activity: FragmentActivity) {
         imageCamera = Album.camera(activity)
         videoMultiple = Album.video(activity)
         imageMultiple = Album.image(activity)
-        durban = Durban.with(activity)
         widget = activity.getAlbumWidget()
+        durban = Durban.with(activity)
     }
 
     /**
-     * 创建一个widget
+     * 创建相册统一配置
      */
     private fun Context?.getAlbumWidget(color: Int = Color.BLACK): Widget? {
         this ?: return null
@@ -76,8 +77,11 @@ class GalleryHelper {
             .title(" ")
             //状态栏颜色
             .statusBarColor(color)
+            //导航栏颜色
+            .navigationBarColor(color)
             //Toolbar颜色
             .toolBarColor(color)
+            //构建配置
             .build()
     }
 
@@ -181,7 +185,7 @@ class GalleryHelper {
             ?.title(string(R.string.durbanTitle))
             //状态栏颜色
             ?.statusBarColor(R.color.bgBlack)
-            //导航栏栏颜色
+            //导航栏颜色
             ?.navigationBarColor(R.color.bgBlack)
             //图片路径list或者数组
             ?.inputImagePaths(*imagePathArray)
