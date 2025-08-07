@@ -19,7 +19,6 @@ import com.example.thirdparty.utils.wechat.WXManager
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import io.objectbox.BoxStore
-import java.util.Locale
 import kotlin.system.exitProcess
 
 /**
@@ -120,9 +119,8 @@ class MyApplication : BaseApplication() {
     }
 
     private fun initAlbum() {
-        Album.initialize(AlbumConfig.newBuilder(applicationContext)
+        Album.initialize(AlbumConfig.newBuilder()
             .setAlbumLoader(GlideLoader()) //设置Album加载器。
-            .setLocale(Locale.CHINA) //强制设置在任何语言下都用中文显示。
             .build())
     }
 

@@ -20,30 +20,24 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import com.example.gallery.R;
 import com.yanzhenjie.album.Action;
 import com.yanzhenjie.album.Album;
-import com.example.gallery.R;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.mvp.BaseActivity;
 
 /**
+ * 相册内无任何数据的空页面
  * Created by YanZhenjie on 2017/3/28.
  */
 public class NullActivity extends BaseActivity implements Contract.NullPresenter {
-
-    private static final String KEY_OUTPUT_IMAGE_PATH = "KEY_OUTPUT_IMAGE_PATH";
-
-    public static String parsePath(Intent intent) {
-        return intent.getStringExtra(KEY_OUTPUT_IMAGE_PATH);
-    }
-
-    private Widget mWidget;
     private int mQuality = 1;
     private long mLimitDuration;
     private long mLimitBytes;
-
+    private Widget mWidget;
     private Contract.NullView mView;
+    private static final String KEY_OUTPUT_IMAGE_PATH = "KEY_OUTPUT_IMAGE_PATH";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -115,4 +109,9 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
         setResult(RESULT_OK, intent);
         finish();
     };
+
+    public static String parsePath(Intent intent) {
+        return intent.getStringExtra(KEY_OUTPUT_IMAGE_PATH);
+    }
+
 }

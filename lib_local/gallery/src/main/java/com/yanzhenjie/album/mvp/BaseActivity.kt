@@ -16,8 +16,6 @@ import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.gyf.immersionbar.ImmersionBar
-import com.yanzhenjie.album.Album
-import com.yanzhenjie.album.util.AlbumUtils
 
 abstract class BaseActivity : AppCompatActivity(), Bye {
     private var onApplyInsets = false//窗体监听等回调是否已经加载完毕
@@ -58,9 +56,6 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         // 添加至统一页面管理类
         AppManager.addActivity(this)
-        // 基类全局语言配置以相册配置为主(多语言本地化可删除)
-        val locale = Album.getAlbumConfig().locale
-        AlbumUtils.applyLanguageForContext(this, locale)
         // 子页不实现方法走默认窗体配置(状态栏+导航栏)
         if (isImmersionBarEnabled()) initImmersionBar()
     }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="albumColorPrimary">#2196F3</color>
+    <color name="albumColorPrimaryBlack">#2B2B2B</color>
+    <color name="albumColorPrimaryDark">#1E88E5</color>
+    <color name="albumFontDark">#333</color>
+    <color name="albumFontHint">#808080</color>
+    <color name="albumFontLight">#FFF</color>
+    <color name="albumIconDark">#333</color>
+    <color name="albumLoadingDark">#333</color>
+    <color name="albumPageLight">#FFF</color>
+    <color name="albumSelectorNormal">#E0E0E0</color>
+    <color name="albumSheetBottom">#992B2B2B</color>
+    <color name="albumSheetLayer">#EE2B2B2B</color>
+    <color name="albumTransparent">#0000</color>
+</resources>

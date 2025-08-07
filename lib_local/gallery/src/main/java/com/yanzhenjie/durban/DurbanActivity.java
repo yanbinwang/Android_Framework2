@@ -94,11 +94,8 @@ public class DurbanActivity extends BaseActivity {
      * 处理页面传输而来的参数
      */
     private void initArgument(Intent intent) {
-        mStatusColor = R.color.durban_ColorPrimaryDark;
-        mNavigationColor = R.color.durban_ColorPrimaryBlack;
-
-        mStatusColor = intent.getIntExtra(Durban.KEY_INPUT_STATUS_COLOR, mStatusColor);
-        mNavigationColor = intent.getIntExtra(Durban.KEY_INPUT_NAVIGATION_COLOR, mNavigationColor);
+        mStatusColor = intent.getIntExtra(Durban.KEY_INPUT_STATUS_COLOR, R.color.durban_ColorPrimaryDark);
+        mNavigationColor = intent.getIntExtra(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.durban_ColorPrimaryBlack);
         mTitle = intent.getStringExtra(Durban.KEY_INPUT_TITLE);
         if (TextUtils.isEmpty(mTitle)) mTitle = getString(R.string.durban_title_crop);
 
@@ -313,12 +310,13 @@ public class DurbanActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.durban_menu_activity, menu);
+        // 获取右侧菜单按钮的 MenuItem
+        MenuItem okItem = menu.findItem(R.id.menu_action_ok);
+        // 根据导航栏颜色定义对应的图片
         if (!getBatteryIcon(mStatusColor)) {
             Drawable doneIcon = ContextCompat.getDrawable(this, R.drawable.durban_ic_done_white);
             assert doneIcon != null;
             doneIcon.setTint(ContextCompat.getColor(this, R.color.bgBlack));
-            // 获取右侧菜单按钮的 MenuItem
-            MenuItem okItem = menu.findItem(R.id.menu_action_ok);
             // 如果菜单按钮是自定义 View（通过 actionLayout 指定）
             View okView = okItem.getActionView();
             if (okView != null) {
