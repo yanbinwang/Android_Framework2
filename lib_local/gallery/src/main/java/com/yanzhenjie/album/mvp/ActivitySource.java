@@ -15,14 +15,13 @@
  */
 package com.yanzhenjie.album.mvp;
 
-import static com.yanzhenjie.album.mvp.BaseActivity.setToolbar;
+import static com.yanzhenjie.album.mvp.BaseActivity.setSupportToolbar;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
@@ -54,7 +53,7 @@ class ActivitySource extends Source<Activity> {
     void prepare() {
         Toolbar toolbar = getHost().findViewById(R.id.toolbar);
         setActionBar(toolbar);
-        setToolbar(toolbar);
+        setSupportToolbar(toolbar);
     }
 
     @Override

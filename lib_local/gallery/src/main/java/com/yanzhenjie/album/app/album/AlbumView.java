@@ -15,7 +15,7 @@
  */
 package com.yanzhenjie.album.app.album;
 
-import static com.yanzhenjie.album.mvp.BaseActivity.setToolbar;
+import static com.yanzhenjie.album.mvp.BaseActivity.setSupportToolbar;
 
 import android.app.Activity;
 import android.content.res.Configuration;
@@ -70,7 +70,7 @@ class AlbumView extends Contract.AlbumView implements View.OnClickListener {
         this.mActivity = activity;
 
         this.mToolbar = activity.findViewById(R.id.toolbar);
-        setToolbar(mToolbar);
+        setSupportToolbar(mToolbar);
         this.mRecyclerView = activity.findViewById(R.id.recycler_view);
 
         this.mBtnSwitchFolder = activity.findViewById(R.id.btn_switch_dir);

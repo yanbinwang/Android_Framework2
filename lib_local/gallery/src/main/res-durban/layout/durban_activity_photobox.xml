@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     style="@style/durban_MatchParent">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         style="@style/durban_Toolbar.PopupTheme"
-        app:navigationIcon="@drawable/durban_ic_back_white">
+        tools:navigationIcon="@drawable/durban_ic_back_white">
 
         <TextView
+            android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:ellipsize="end"
             android:lines="1"
             android:scrollHorizontally="true"
-            android:text="@string/durbanTitle"
             android:textColor="@color/textWhite"
-            android:textSize="@dimen/album_sp_18" />
+            android:textSize="@dimen/album_sp_18"
+            tools:text="@string/durbanTitle" />
 
     </androidx.appcompat.widget.Toolbar>
 

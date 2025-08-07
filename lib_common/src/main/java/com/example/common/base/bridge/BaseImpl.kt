@@ -2,6 +2,7 @@ package com.example.common.base.bridge
 
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.ColorRes
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
 import com.example.framework.utils.builder.TimerBuilder
@@ -22,7 +23,7 @@ internal interface BaseImpl {
      * 初始化状态栏
      * activity/fragment具备，其余不可重写
      */
-    fun initImmersionBar(statusBarDark: Boolean = true, navigationBarDark: Boolean = true, navigationBarColor: Int = R.color.appNavigationBar) {}
+    fun initImmersionBar(statusBarDark: Boolean = true, navigationBarDark: Boolean = true, @ColorRes navigationBarColor: Int = R.color.appNavigationBar) {}
 
     /**
      * 初始化控件

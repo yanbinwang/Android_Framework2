@@ -178,11 +178,11 @@ class GalleryHelper {
     fun toDurban(vararg imagePathArray: String, width: Int = 500, height: Int = 500, quality: Int = 80) {
         durban
             //裁剪界面的标题
-            ?.title(" ")
+            ?.title(string(R.string.durbanTitle))
             //状态栏颜色
-            ?.statusBarColor(Color.BLACK)
-            //Toolbar颜色
-            ?.toolBarColor(Color.BLACK)
+            ?.statusBarColor(R.color.bgBlack)
+            //导航栏栏颜色
+            ?.navigationBarColor(R.color.bgBlack)
             //图片路径list或者数组
             ?.inputImagePaths(*imagePathArray)
             //图片输出文件夹路径
@@ -197,22 +197,23 @@ class GalleryHelper {
             ?.compressQuality(quality)
             //裁剪时的手势支持：ROTATE, SCALE, ALL, NONE.
             ?.gesture(Durban.GESTURE_SCALE)
-            ?.controller(
-                Controller.newBuilder()
-                    //是否开启控制面板
-                    .enable(false)
-                    //是否有旋转按钮
-                    .rotation(true)
-                    //旋转控制按钮上面的标题
-                    .rotationTitle(true)
-                    //是否有缩放按钮
-                    .scale(true)
-                    //缩放控制按钮上面的标题
-                    .scaleTitle(true)
-                    .build()
-            )
+            //底部操作栏配置
+            ?.controller(Controller.newBuilder()
+                //是否开启控制面板
+                .enable(false)
+                //是否有旋转按钮
+                .rotation(true)
+                //旋转控制按钮上面的标题
+                .rotationTitle(true)
+                //是否有缩放按钮
+                .scale(true)
+                //缩放控制按钮上面的标题
+                .scaleTitle(true)
+                //构建配置
+                .build())
             //创建控制面板配置
             ?.requestCode(RESULT_ALBUM)
+            //开始跳转
             ?.start()
     }
 

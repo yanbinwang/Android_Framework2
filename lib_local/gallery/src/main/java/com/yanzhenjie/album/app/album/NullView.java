@@ -15,7 +15,7 @@
  */
 package com.yanzhenjie.album.app.album;
 
-import static com.yanzhenjie.album.mvp.BaseActivity.setToolbar;
+import static com.yanzhenjie.album.mvp.BaseActivity.setSupportToolbar;
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
@@ -48,7 +48,7 @@ class NullView extends Contract.NullView implements View.OnClickListener {
         super(activity, presenter);
         this.mActivity = activity;
         this.mToolbar = activity.findViewById(R.id.toolbar);
-        setToolbar(mToolbar);
+        setSupportToolbar(mToolbar);
         this.mTvMessage = activity.findViewById(R.id.tv_message);
         this.mBtnTakeImage = activity.findViewById(R.id.btn_camera_image);
         this.mBtnTakeVideo = activity.findViewById(R.id.btn_camera_video);
