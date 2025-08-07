@@ -3,6 +3,7 @@
 
     <application>
         <!-- 裁剪 -->
+        <!-- 裁剪操作页 -->
         <activity
             android:name="com.yanzhenjie.durban.DurbanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -10,16 +11,19 @@
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
 
         <!-- 相册 -->
+        <!-- 相册整体页 -->
         <activity
             android:name="com.yanzhenjie.album.app.album.AlbumActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/Album.Theme.Activity"
             android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <!-- 多选模式下,右下角的眼睛可以进入画廊引导页 -->
         <activity
             android:name="com.yanzhenjie.album.app.album.GalleryActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/Album.Theme.Activity"
             android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <!-- 相册无数据加载页 -->
         <activity
             android:name="com.yanzhenjie.album.app.album.NullActivity"
             android:configChanges="orientation|screenSize"

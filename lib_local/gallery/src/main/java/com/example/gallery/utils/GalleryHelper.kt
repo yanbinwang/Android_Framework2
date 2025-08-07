@@ -1,7 +1,6 @@
 package com.example.gallery.utils
 
 import android.content.Context
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -70,17 +69,15 @@ class GalleryHelper {
     /**
      * 创建相册统一配置
      */
-    private fun Context?.getAlbumWidget(color: Int = Color.BLACK): Widget? {
+    private fun Context?.getAlbumWidget(color: Int = R.color.bgBlack): Widget? {
         this ?: return null
         return Widget.newDarkBuilder(this)
             //标题 ---标题颜色只有黑色白色
-            .title(" ")
+            .title(string(R.string.albumTitle))
             //状态栏颜色
             .statusBarColor(color)
             //导航栏颜色
             .navigationBarColor(color)
-            //Toolbar颜色
-            .toolBarColor(color)
             //构建配置
             .build()
     }
@@ -127,7 +124,9 @@ class GalleryHelper {
             ?.columnCount(3)
             //防止加载系统缓存图片
             ?.filterSize { it == 0L }
+            //筛选文件的可见性
             ?.afterFilterVisibility(false)
+            //选择后回调
             ?.onResult {
                 it.safeGet(0)?.apply {
                     if (size > megabyte.mb) {

@@ -16,9 +16,9 @@
             android:ellipsize="end"
             android:lines="1"
             android:scrollHorizontally="true"
-            android:textColor="@color/textWhite"
             android:textSize="@dimen/album_sp_18"
-            tools:text="@string/durbanTitle" />
+            tools:text="@string/durbanTitle"
+            tools:textColor="@color/textWhite" />
 
     </androidx.appcompat.widget.Toolbar>
 

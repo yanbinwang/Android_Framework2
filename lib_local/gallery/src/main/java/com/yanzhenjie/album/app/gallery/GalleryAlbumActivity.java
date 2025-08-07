@@ -62,7 +62,7 @@ public class GalleryAlbumActivity extends BaseActivity implements Contract.Galle
         mCurrentPosition = argument.getInt(Album.KEY_INPUT_CURRENT_POSITION);
         mCheckable = argument.getBoolean(Album.KEY_INPUT_GALLERY_CHECKABLE);
 
-        mView.setTitle(mWidget.getTitle());
+        mView.setTitle("");
         mView.setupViews(mWidget, mCheckable);
         mView.bindData(mAlbumFiles);
         if (mCurrentPosition == 0) {

@@ -40,6 +40,11 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
     private static final String KEY_OUTPUT_IMAGE_PATH = "KEY_OUTPUT_IMAGE_PATH";
 
     @Override
+    protected boolean isImmersionBarEnabled() {
+        return false;
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_activity_null);
@@ -56,8 +61,7 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
 
         mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
         mView.setupViews(mWidget);
-        mView.setTitle(mWidget.getTitle());
-
+        mView.setTitle("");
         switch (function) {
             case Album.FUNCTION_CHOICE_IMAGE: {
                 mView.setMessage(R.string.album_not_found_image);
@@ -82,6 +86,11 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
             mView.setMakeImageDisplay(false);
             mView.setMakeVideoDisplay(false);
         }
+
+        // 设置图标样式
+        boolean statusBarBattery = getBatteryIcon(mWidget.getStatusBarColor());
+        boolean navigationBarBattery = getBatteryIcon(mWidget.getNavigationBarColor());
+        initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
     }
 
     @Override

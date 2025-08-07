@@ -30,7 +30,6 @@ import com.yanzhenjie.album.api.widget.Widget;
  * Created by YanZhenjie on 2018/4/10.
  */
 public class LoadingDialog extends Dialog {
-
     private ColorProgressBar mProgressBar;
     private TextView mTvMessage;
 
@@ -53,7 +52,8 @@ public class LoadingDialog extends Dialog {
             int color = ContextCompat.getColor(getContext(), R.color.albumLoadingDark);
             mProgressBar.setColorFilter(color);
         } else {
-            mProgressBar.setColorFilter(widget.getToolBarColor());
+            int color = ContextCompat.getColor(getContext(), widget.getStatusBarColor());
+            mProgressBar.setColorFilter(color);
         }
     }
 
