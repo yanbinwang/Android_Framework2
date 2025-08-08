@@ -15,7 +15,7 @@
  */
 package com.yanzhenjie.album.mvp;
 
-import static com.yanzhenjie.album.mvp.BaseActivity.setToolbar;
+import static com.yanzhenjie.album.mvp.BaseActivity.setSupportToolbar;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -49,7 +49,7 @@ class ViewSource extends Source<View> {
     void prepare() {
         Toolbar toolbar = getHost().findViewById(R.id.toolbar);
         setActionBar(toolbar);
-        setToolbar(toolbar);
+        setSupportToolbar(toolbar);
     }
 
     @Override

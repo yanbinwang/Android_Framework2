@@ -22,10 +22,10 @@ import android.provider.MediaStore;
 
 import androidx.annotation.WorkerThread;
 
+import com.example.gallery.R;
 import com.yanzhenjie.album.AlbumFile;
 import com.yanzhenjie.album.AlbumFolder;
 import com.yanzhenjie.album.Filter;
-import com.example.gallery.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,9 +36,7 @@ import java.util.Map;
  * Created by YanZhenjie on 2017/8/15.
  */
 public class MediaReader {
-
     private Context mContext;
-
     private Filter<Long> mSizeFilter;
     private Filter<String> mMimeFilter;
     private Filter<Long> mDurationFilter;
@@ -46,7 +44,6 @@ public class MediaReader {
 
     public MediaReader(Context context, Filter<Long> sizeFilter, Filter<String> mimeFilter, Filter<Long> durationFilter, boolean filterVisibility) {
         this.mContext = context;
-
         this.mSizeFilter = sizeFilter;
         this.mMimeFilter = mimeFilter;
         this.mDurationFilter = durationFilter;
@@ -72,11 +69,7 @@ public class MediaReader {
     @WorkerThread
     private void scanImageFile(Map<String, AlbumFolder> albumFolderMap, AlbumFolder allFileFolder) {
         ContentResolver contentResolver = mContext.getContentResolver();
-        Cursor cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                IMAGES,
-                null,
-                null,
-                null);
+        Cursor cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, IMAGES, null, null, null);
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
@@ -144,11 +137,7 @@ public class MediaReader {
     @WorkerThread
     private void scanVideoFile(Map<String, AlbumFolder> albumFolderMap, AlbumFolder allFileFolder) {
         ContentResolver contentResolver = mContext.getContentResolver();
-        Cursor cursor = contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                VIDEOS,
-                null,
-                null,
-                null);
+        Cursor cursor = contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, VIDEOS, null, null, null);
 
         if (cursor != null) {
             while (cursor.moveToNext()) {

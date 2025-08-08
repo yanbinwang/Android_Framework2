@@ -20,35 +20,35 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import com.example.gallery.R;
 import com.yanzhenjie.album.Action;
 import com.yanzhenjie.album.Album;
-import com.example.gallery.R;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.mvp.BaseActivity;
 
 /**
+ * 相册内无任何数据的空页面
  * Created by YanZhenjie on 2017/3/28.
  */
 public class NullActivity extends BaseActivity implements Contract.NullPresenter {
-
-    private static final String KEY_OUTPUT_IMAGE_PATH = "KEY_OUTPUT_IMAGE_PATH";
-
-    public static String parsePath(Intent intent) {
-        return intent.getStringExtra(KEY_OUTPUT_IMAGE_PATH);
-    }
-
-    private Widget mWidget;
     private int mQuality = 1;
     private long mLimitDuration;
     private long mLimitBytes;
-
+    private Widget mWidget;
     private Contract.NullView mView;
+    private static final String KEY_OUTPUT_IMAGE_PATH = "KEY_OUTPUT_IMAGE_PATH";
+
+    @Override
+    protected boolean isImmersionBarEnabled() {
+        return false;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_activity_null);
+        overridePendingTransition(0, 0);
         mView = new NullView(this, this);
 
         Bundle argument = getIntent().getExtras();
@@ -62,8 +62,7 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
 
         mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
         mView.setupViews(mWidget);
-        mView.setTitle(mWidget.getTitle());
-
+        mView.setTitle("");
         switch (function) {
             case Album.FUNCTION_CHOICE_IMAGE: {
                 mView.setMessage(R.string.album_not_found_image);
@@ -88,6 +87,11 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
             mView.setMakeImageDisplay(false);
             mView.setMakeVideoDisplay(false);
         }
+
+        // 设置图标样式
+        boolean statusBarBattery = getBatteryIcon(mWidget.getStatusBarColor());
+        boolean navigationBarBattery = getBatteryIcon(mWidget.getNavigationBarColor());
+        initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
     }
 
     @Override
@@ -115,4 +119,9 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
         setResult(RESULT_OK, intent);
         finish();
     };
+
+    public static String parsePath(Intent intent) {
+        return intent.getStringExtra(KEY_OUTPUT_IMAGE_PATH);
+    }
+
 }

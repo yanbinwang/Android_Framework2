@@ -19,6 +19,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -26,12 +27,13 @@ import android.widget.CompoundButton;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 
+import com.example.framework.utils.WeakHandler;
+import com.example.gallery.R;
 import com.yanzhenjie.album.Action;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.AlbumFile;
 import com.yanzhenjie.album.AlbumFolder;
 import com.yanzhenjie.album.Filter;
-import com.example.gallery.R;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.app.album.data.MediaReadTask;
@@ -60,7 +62,6 @@ public class AlbumActivity extends BaseActivity implements
         ThumbnailBuildTask.Callback {
 
     private static final int CODE_ACTIVITY_NULL = 1;
-//    private static final int CODE_PERMISSION_STORAGE = 1;
 
     public static Filter<Long> sSizeFilter;
     public static Filter<String> sMimeFilter;
@@ -102,11 +103,16 @@ public class AlbumActivity extends BaseActivity implements
         setContentView(createView());
         mView = new AlbumView(this, this);
         mView.setupViews(mWidget, mColumnCount, mHasCamera, mChoiceMode);
-        mView.setTitle(mWidget.getTitle());
+        mView.setTitle("");
         mView.setCompleteDisplay(false);
         mView.setLoadingDisplay(true);
 
-//        requestPermission(PERMISSION_STORAGE, CODE_PERMISSION_STORAGE);
+        // 设置图标样式
+        boolean statusBarBattery = getBatteryIcon(mWidget.getStatusBarColor());
+        boolean navigationBarBattery = getBatteryIcon(mWidget.getNavigationBarColor());
+        initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
+
+        // 扫描相册
         ArrayList<AlbumFile> checkedList = getIntent().getParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST);
         MediaReader mediaReader = new MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility);
         mMediaReadTask = new MediaReadTask(mFunction, checkedList, mediaReader, this);
@@ -154,47 +160,26 @@ public class AlbumActivity extends BaseActivity implements
         if (mFolderDialog != null && !mFolderDialog.isShowing()) mFolderDialog = null;
     }
 
-//    @Override
-//    protected void onPermissionGranted(int code) {
-//        ArrayList<AlbumFile> checkedList = getIntent().getParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST);
-//        MediaReader mediaReader = new MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility);
-//        mMediaReadTask = new MediaReadTask(mFunction, checkedList, mediaReader, this);
-//        mMediaReadTask.execute();
-//    }
-//
-//    @Override
-//    protected void onPermissionDenied(int code) {
-//        new AlertDialog.Builder(this)
-//                .setCancelable(false)
-//                .setTitle(R.string.album_title_permission_failed)
-//                .setMessage(R.string.album_permission_storage_failed_hint)
-//                .setPositiveButton(R.string.album_ok, new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        callbackCancel();
-//                    }
-//                })
-//                .show();
-//    }
-
     @Override
     public void onScanCallback(ArrayList<AlbumFolder> albumFolders, ArrayList<AlbumFile> checkedFiles) {
         mMediaReadTask = null;
-        switch (mChoiceMode) {
-            case Album.MODE_MULTIPLE: {
-                mView.setCompleteDisplay(true);
-                break;
+        // 遮罩延迟半秒,有个页面过渡时间
+        new WeakHandler(Looper.getMainLooper()).postDelayed(() -> {
+            switch (mChoiceMode) {
+                case Album.MODE_MULTIPLE: {
+                    mView.setCompleteDisplay(true);
+                    break;
+                }
+                case Album.MODE_SINGLE: {
+                    mView.setCompleteDisplay(false);
+                    break;
+                }
+                default: {
+                    throw new AssertionError("This should not be the case.");
+                }
             }
-            case Album.MODE_SINGLE: {
-                mView.setCompleteDisplay(false);
-                break;
-            }
-            default: {
-                throw new AssertionError("This should not be the case.");
-            }
-        }
-
-        mView.setLoadingDisplay(false);
+            mView.setLoadingDisplay(false);
+        }, 500);
         mAlbumFolders = albumFolders;
         mCheckedList = checkedFiles;
 
@@ -202,6 +187,7 @@ public class AlbumActivity extends BaseActivity implements
             Intent intent = new Intent(this, NullActivity.class);
             intent.putExtras(getIntent());
             startActivityForResult(intent, CODE_ACTIVITY_NULL);
+            overridePendingTransition(0, 0);
         } else {
             showFolderAlbumFiles(0);
             int count = mCheckedList.size();
@@ -213,16 +199,13 @@ public class AlbumActivity extends BaseActivity implements
     @SuppressLint("MissingSuperCall")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case CODE_ACTIVITY_NULL: {
-                if (resultCode == RESULT_OK) {
-                    String imagePath = NullActivity.parsePath(data);
-                    String mimeType = AlbumUtils.getMimeType(imagePath);
-                    if (!TextUtils.isEmpty(mimeType)) mCameraAction.onAction(imagePath);
-                } else {
-                    callbackCancel();
-                }
-                break;
+        if (requestCode == CODE_ACTIVITY_NULL) {
+            if (resultCode == RESULT_OK) {
+                String imagePath = NullActivity.parsePath(data);
+                String mimeType = AlbumUtils.getMimeType(imagePath);
+                if (!TextUtils.isEmpty(mimeType)) mCameraAction.onAction(imagePath);
+            } else {
+                callbackCancel();
             }
         }
     }
@@ -606,4 +589,5 @@ public class AlbumActivity extends BaseActivity implements
         sCancel = null;
         super.finish();
     }
+
 }

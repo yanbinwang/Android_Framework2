@@ -99,7 +99,7 @@ public final class Album {
      */
     public static AlbumConfig getAlbumConfig() {
         if (sAlbumConfig == null) {
-            sAlbumConfig = AlbumConfig.newBuilder(null).build();
+            sAlbumConfig = AlbumConfig.newBuilder().build();
         }
         return sAlbumConfig;
     }
@@ -271,4 +271,5 @@ public final class Album {
     public static BasicGalleryWrapper<GalleryAlbumWrapper, AlbumFile, String, AlbumFile> galleryAlbum(android.app.Fragment fragment) {
         return new GalleryAlbumWrapper(fragment.getContext());
     }
+
 }

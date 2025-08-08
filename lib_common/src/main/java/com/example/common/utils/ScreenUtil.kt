@@ -338,7 +338,7 @@ fun Window.setNavigationBarDrawable(navigationBarColor: Int) {
  * navigationBarColor 底部色块颜色
  * navigationBarHeight 底部色块高度
  */
-class NavigationBarDrawable(@ColorInt private val backgroundColor: Int, private var navigationBarHeight: Int = 0) : Drawable() {
+class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigationBarHeight: Int = 0) : Drawable() {
     private val paint = Paint().apply {
         color = backgroundColor
         isAntiAlias = true

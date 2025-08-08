@@ -40,7 +40,6 @@ import java.util.List;
  * Created by Yan Zhenjie on 2016/10/18.
  */
 public class FolderDialog extends BottomSheetDialog {
-
     private Widget mWidget;
     private FolderAdapter mFolderAdapter;
     private List<AlbumFolder> mAlbumFolders;
@@ -60,23 +59,20 @@ public class FolderDialog extends BottomSheetDialog {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         mFolderAdapter = new FolderAdapter(context, mAlbumFolders, widget.getBucketItemCheckSelector());
-        mFolderAdapter.setItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(final View view, final int position) {
-                if (mCurrentPosition != position) {
-                    mAlbumFolders.get(mCurrentPosition).setChecked(false);
-                    mFolderAdapter.notifyItemChanged(mCurrentPosition);
+        mFolderAdapter.setItemClickListener((view, position) -> {
+            if (mCurrentPosition != position) {
+                mAlbumFolders.get(mCurrentPosition).setChecked(false);
+                mFolderAdapter.notifyItemChanged(mCurrentPosition);
 
-                    mCurrentPosition = position;
-                    mAlbumFolders.get(mCurrentPosition).setChecked(true);
-                    mFolderAdapter.notifyItemChanged(mCurrentPosition);
+                mCurrentPosition = position;
+                mAlbumFolders.get(mCurrentPosition).setChecked(true);
+                mFolderAdapter.notifyItemChanged(mCurrentPosition);
 
-                    if (mItemClickListener != null) {
-                        mItemClickListener.onItemClick(view, position);
-                    }
+                if (mItemClickListener != null) {
+                    mItemClickListener.onItemClick(view, position);
                 }
-                dismiss();
             }
+            dismiss();
         });
         recyclerView.setAdapter(mFolderAdapter);
     }
@@ -88,14 +84,13 @@ public class FolderDialog extends BottomSheetDialog {
         if (window != null) {
             Display display = window.getWindowManager().getDefaultDisplay();
             DisplayMetrics metrics = new DisplayMetrics();
-            if (Build.VERSION.SDK_INT >= 17) display.getRealMetrics(metrics);
-            else display.getMetrics(metrics);
+            display.getRealMetrics(metrics);
             int minSize = Math.min(metrics.widthPixels, metrics.heightPixels);
             window.setLayout(minSize, -1);
-            if (Build.VERSION.SDK_INT >= 21) {
-                window.setStatusBarColor(Color.TRANSPARENT);
-                window.setNavigationBarColor(mWidget.getNavigationBarColor());
-            }
+//            if (Build.VERSION.SDK_INT >= 21) {
+//                window.setStatusBarColor(Color.TRANSPARENT);
+//                window.setNavigationBarColor(mWidget.getNavigationBarColor());
+//            }
         }
     }
 }

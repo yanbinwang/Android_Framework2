@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     style="@style/Album.MatchParent"
     android:background="@color/albumColorPrimaryBlack">
 
@@ -17,7 +18,21 @@
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
-                style="@style/Album.Toolbar.Dark" />
+                style="@style/Album.Toolbar.Dark">
+
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:ellipsize="end"
+                    android:lines="1"
+                    android:scrollHorizontally="true"
+                    android:textSize="@dimen/album_sp_18"
+                    tools:text="@string/albumTitle"
+                    tools:textColor="@color/textWhite" />
+
+            </androidx.appcompat.widget.Toolbar>
 
         </com.google.android.material.appbar.AppBarLayout>
 

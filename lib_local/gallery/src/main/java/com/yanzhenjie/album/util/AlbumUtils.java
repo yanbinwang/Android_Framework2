@@ -19,8 +19,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -86,30 +84,10 @@ public class AlbumUtils {
     }
 
     /**
-     * Setting {@link Locale} for {@link Context}.
-     *
-     * @param context to set the specified locale context.
-     * @param locale  locale.
-     */
-    @NonNull
-    public static Context applyLanguageForContext(@NonNull Context context, @NonNull Locale locale) {
-        Resources resources = context.getResources();
-        Configuration config = resources.getConfiguration();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            config.setLocale(locale);
-            return context.createConfigurationContext(config);
-        } else {
-            config.locale = locale;
-            resources.updateConfiguration(config, resources.getDisplayMetrics());
-            return context;
-        }
-    }
-
-    /**
      * Take picture.
      *
      * @param activity    activity.
-     * @param requestCode code, see {@link Activity#onActivityResult(int, int, Intent)}.
+     * @param requestCode code, see {@link Activity#`onActivityResult`(int, int, Intent)}.
      * @param outPath     file path.
      */
     public static void takeImage(@NonNull Activity activity, int requestCode, File outPath) {
@@ -125,7 +103,7 @@ public class AlbumUtils {
      * Take video.
      *
      * @param activity    activity.
-     * @param requestCode code, see {@link Activity#onActivityResult(int, int, Intent)}.
+     * @param requestCode code, see {@link Activity#`onActivityResult`(int, int, Intent)}.
      * @param outPath     file path.
      * @param quality     currently value 0 means low quality, suitable for MMS messages, and  value 1 means high quality.
      * @param duration    specify the maximum allowed recording duration in seconds.
@@ -168,7 +146,6 @@ public class AlbumUtils {
      * Generate a random jpg file path.
      *
      * @return file path.
-     *
      * @deprecated use {@link #randomJPGPath(Context)} instead.
      */
     @NonNull
@@ -182,12 +159,11 @@ public class AlbumUtils {
      * Generate a random jpg file path.
      *
      * @param context context.
-     *
      * @return file path.
      */
     @NonNull
     public static String randomJPGPath(Context context) {
-        if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             return randomJPGPath(context.getCacheDir());
         }
         return randomJPGPath();
@@ -208,7 +184,6 @@ public class AlbumUtils {
      * Generate a random mp4 file path.
      *
      * @return file path.
-     *
      * @deprecated use {@link #randomMP4Path(Context)} instead.
      */
     @NonNull
@@ -222,12 +197,11 @@ public class AlbumUtils {
      * Generate a random mp4 file path.
      *
      * @param context context.
-     *
      * @return file path.
      */
     @NonNull
     public static String randomMP4Path(Context context) {
-        if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             return randomMP4Path(context.getCacheDir());
         }
         return randomMP4Path();

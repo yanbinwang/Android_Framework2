@@ -35,15 +35,11 @@ import java.io.File;
  * Created by YanZhenjie on 2017/8/16.
  */
 public class CameraActivity extends BaseActivity {
-
     private static final String INSTANCE_CAMERA_FUNCTION = "INSTANCE_CAMERA_FUNCTION";
     private static final String INSTANCE_CAMERA_FILE_PATH = "INSTANCE_CAMERA_FILE_PATH";
     private static final String INSTANCE_CAMERA_QUALITY = "INSTANCE_CAMERA_QUALITY";
     private static final String INSTANCE_CAMERA_DURATION = "INSTANCE_CAMERA_DURATION";
     private static final String INSTANCE_CAMERA_BYTES = "INSTANCE_CAMERA_BYTES";
-
-//    private static final int CODE_PERMISSION_IMAGE = 1;
-//    private static final int CODE_PERMISSION_VIDEO = 2;
 
     private static final int CODE_ACTIVITY_TAKE_IMAGE = 1;
     private static final int CODE_ACTIVITY_TAKE_VIDEO = 2;
@@ -83,14 +79,12 @@ public class CameraActivity extends BaseActivity {
                 case Album.FUNCTION_CAMERA_IMAGE: {
                     if (TextUtils.isEmpty(mCameraFilePath))
                         mCameraFilePath = AlbumUtils.randomJPGPath(this);
-//                    requestPermission(PERMISSION_TAKE_PICTURE, CODE_PERMISSION_IMAGE);
                     AlbumUtils.takeImage(this, CODE_ACTIVITY_TAKE_IMAGE, new File(mCameraFilePath));
                     break;
                 }
                 case Album.FUNCTION_CAMERA_VIDEO: {
                     if (TextUtils.isEmpty(mCameraFilePath))
                         mCameraFilePath = AlbumUtils.randomMP4Path(this);
-//                    requestPermission(PERMISSION_TAKE_VIDEO, CODE_PERMISSION_VIDEO);
                     AlbumUtils.takeVideo(this, CODE_ACTIVITY_TAKE_VIDEO, new File(mCameraFilePath), mQuality, mLimitDuration, mLimitBytes);
                     break;
                 }
@@ -110,52 +104,6 @@ public class CameraActivity extends BaseActivity {
         outState.putLong(INSTANCE_CAMERA_BYTES, mLimitBytes);
         super.onSaveInstanceState(outState);
     }
-
-//    @Override
-//    protected void onPermissionGranted(int code) {
-//        switch (code) {
-//            case CODE_PERMISSION_IMAGE: {
-//                AlbumUtils.takeImage(this, CODE_ACTIVITY_TAKE_IMAGE, new File(mCameraFilePath));
-//                break;
-//            }
-//            case CODE_PERMISSION_VIDEO: {
-//                AlbumUtils.takeVideo(this, CODE_ACTIVITY_TAKE_VIDEO, new File(mCameraFilePath), mQuality, mLimitDuration, mLimitBytes);
-//                break;
-//            }
-//            default: {
-//                throw new AssertionError("This should not be the case.");
-//            }
-//        }
-//    }
-//
-//    @Override
-//    protected void onPermissionDenied(int code) {
-//        int messageRes;
-//        switch (mFunction) {
-//            case Album.FUNCTION_CAMERA_IMAGE: {
-//                messageRes = R.string.album_permission_camera_image_failed_hint;
-//                break;
-//            }
-//            case Album.FUNCTION_CAMERA_VIDEO: {
-//                messageRes = R.string.album_permission_camera_video_failed_hint;
-//                break;
-//            }
-//            default: {
-//                throw new AssertionError("This should not be the case.");
-//            }
-//        }
-//        new AlertDialog.Builder(this)
-//                .setCancelable(false)
-//                .setTitle(R.string.album_title_permission_failed)
-//                .setMessage(messageRes)
-//                .setPositiveButton(R.string.album_ok, new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        callbackCancel();
-//                    }
-//                })
-//                .show();
-//    }
 
     @SuppressLint("MissingSuperCall")
     @Override

@@ -1,13 +1,14 @@
 package com.yanzhenjie.album.mvp
 
-import android.graphics.Color
 import android.os.Bundle
+import android.view.Window
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils.calculateLuminance
 import com.example.common.R
+import com.example.common.utils.function.color
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.setNavigationBarDrawable
@@ -15,8 +16,6 @@ import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.gyf.immersionbar.ImmersionBar
-import com.yanzhenjie.album.Album
-import com.yanzhenjie.album.util.AlbumUtils
 
 abstract class BaseActivity : AppCompatActivity(), Bye {
     private var onApplyInsets = false//窗体监听等回调是否已经加载完毕
@@ -28,34 +27,36 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
          * 兼容控件内toolbar
          */
         @JvmStatic
-        fun setToolbar(toolbar: Toolbar) {
+        fun setSupportToolbar(toolbar: Toolbar) {
             toolbar.doOnceAfterLayout {
-                toolbar.size(height = it.measuredHeight + getStatusBarHeight())
-                toolbar.padding(top = getStatusBarHeight())
+                it.size(height = it.measuredHeight + getStatusBarHeight())
+                it.padding(top = getStatusBarHeight())
             }
         }
 
         /**
          * 根据背景颜色决定电池图标的颜色（黑或白）
-         * @param backgroundColor 背景颜色值，如Color.BLACK
-         * @return 适合的图标颜色（Color.WHITE或Color.BLACK）
          */
         @JvmStatic
-        fun getBatteryIconColor(@ColorInt backgroundColor: Int): Int {
+        fun getBatteryIcon(@ColorRes backgroundColor: Int): Boolean {
             // 使用系统API获取相对亮度（0.0-1.0之间）
-            val luminance = calculateLuminance(backgroundColor)
+            val luminance = calculateLuminance(color(backgroundColor))
             // 亮度阈值，这里使用0.5作为中间值
-            // 亮度低于阈值，使用白色图标；高于阈值，使用黑色图标
-            return if (luminance < 0.5) Color.WHITE else Color.BLACK
+            // 白色的相对亮度（luminance）是 1.0（最高值），黑色是 0.0（最低值）
+            return if (luminance < 0.5) true else false
         }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 开启谷歌全屏模式
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        // 禁用ActionBar
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
+        // 添加至统一页面管理类
         AppManager.addActivity(this)
-        val locale = Album.getAlbumConfig().locale
-        AlbumUtils.applyLanguageForContext(this, locale)
+        // 子页不实现方法走默认窗体配置(状态栏+导航栏)
         if (isImmersionBarEnabled()) initImmersionBar()
     }
 

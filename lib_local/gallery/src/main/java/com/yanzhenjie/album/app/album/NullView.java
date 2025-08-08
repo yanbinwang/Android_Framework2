@@ -15,7 +15,7 @@
  */
 package com.yanzhenjie.album.app.album;
 
-import static com.yanzhenjie.album.mvp.BaseActivity.setToolbar;
+import static com.yanzhenjie.album.mvp.BaseActivity.setSupportToolbar;
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
@@ -30,16 +30,14 @@ import com.example.gallery.R;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.util.AlbumUtils;
-import com.yanzhenjie.album.util.SystemBar;
 
 /**
  * Created by YanZhenjie on 2018/4/7.
  */
 class NullView extends Contract.NullView implements View.OnClickListener {
-
     private Activity mActivity;
-
     private Toolbar mToolbar;
+    private TextView mTitle;
     private TextView mTvMessage;
     private AppCompatButton mBtnTakeImage;
     private AppCompatButton mBtnTakeVideo;
@@ -48,36 +46,29 @@ class NullView extends Contract.NullView implements View.OnClickListener {
         super(activity, presenter);
         this.mActivity = activity;
         this.mToolbar = activity.findViewById(R.id.toolbar);
-        setToolbar(mToolbar);
+        setSupportToolbar(mToolbar);
+        this.mTitle = activity.findViewById(R.id.tv_title);
         this.mTvMessage = activity.findViewById(R.id.tv_message);
         this.mBtnTakeImage = activity.findViewById(R.id.btn_camera_image);
         this.mBtnTakeVideo = activity.findViewById(R.id.btn_camera_video);
-
         this.mBtnTakeImage.setOnClickListener(this);
         this.mBtnTakeVideo.setOnClickListener(this);
     }
 
     @Override
     public void setupViews(Widget widget) {
-        mToolbar.setBackgroundColor(widget.getToolBarColor());
-
-        int statusBarColor = widget.getStatusBarColor();
+        int mStatusColor = widget.getStatusBarColor();
+        mToolbar.setBackgroundColor(getColor(mStatusColor));
+        mTitle.setText(widget.getTitle());
         Drawable navigationIcon = getDrawable(R.drawable.album_ic_back_white);
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
-            if (SystemBar.setStatusBarDarkFont(mActivity, true)) {
-                SystemBar.setStatusBarColor(mActivity, statusBarColor);
-            } else {
-                SystemBar.setStatusBarColor(mActivity, getColor(R.color.albumColorPrimaryBlack));
-            }
-
+            mTitle.setTextColor(getColor(R.color.textBlack));
             AlbumUtils.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
             setHomeAsUpIndicator(navigationIcon);
         } else {
-            SystemBar.setStatusBarColor(mActivity, statusBarColor);
+            mTitle.setTextColor(getColor(R.color.textWhite));
             setHomeAsUpIndicator(navigationIcon);
         }
-        SystemBar.setNavigationBarColor(mActivity, widget.getNavigationBarColor());
-
         Widget.ButtonStyle buttonStyle = widget.getButtonStyle();
         ColorStateList buttonSelector = buttonStyle.getButtonSelector();
         mBtnTakeImage.setBackgroundTintList(buttonSelector);
@@ -86,7 +77,6 @@ class NullView extends Contract.NullView implements View.OnClickListener {
             Drawable drawable = mBtnTakeImage.getCompoundDrawables()[0];
             AlbumUtils.setDrawableTint(drawable, getColor(R.color.albumIconDark));
             mBtnTakeImage.setCompoundDrawables(drawable, null, null, null);
-
             drawable = mBtnTakeVideo.getCompoundDrawables()[0];
             AlbumUtils.setDrawableTint(drawable, getColor(R.color.albumIconDark));
             mBtnTakeVideo.setCompoundDrawables(drawable, null, null, null);

@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 
-import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -32,49 +32,43 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Locale;
 
 /**
  * <p>Entrance.</p>
  * Create by Yan Zhenjie on 2017/5/23.
  */
 public class Durban {
-
+    /**
+     * 页面跳转参数
+     */
     private static final String KEY_PREFIX = "AlbumCrop";
-
     static final String KEY_INPUT_STATUS_COLOR = KEY_PREFIX + ".KEY_INPUT_STATUS_COLOR";
-    static final String KEY_INPUT_TOOLBAR_COLOR = KEY_PREFIX + ".KEY_INPUT_TOOLBAR_COLOR";
     static final String KEY_INPUT_NAVIGATION_COLOR = KEY_PREFIX + ".KEY_INPUT_NAVIGATION_COLOR";
     static final String KEY_INPUT_TITLE = KEY_PREFIX + ".KEY_INPUT_TITLE";
-
     static final String KEY_INPUT_GESTURE = KEY_PREFIX + ".KEY_INPUT_GESTURE";
     static final String KEY_INPUT_ASPECT_RATIO = KEY_PREFIX + ".KEY_INPUT_ASPECT_RATIO";
     static final String KEY_INPUT_MAX_WIDTH_HEIGHT = KEY_PREFIX + ".KEY_INPUT_MAX_WIDTH_HEIGHT";
-
     static final String KEY_INPUT_COMPRESS_FORMAT = KEY_PREFIX + ".KEY_INPUT_COMPRESS_FORMAT";
     static final String KEY_INPUT_COMPRESS_QUALITY = KEY_PREFIX + ".KEY_INPUT_COMPRESS_QUALITY";
-
     static final String KEY_INPUT_DIRECTORY = KEY_PREFIX + ".KEY_INPUT_DIRECTORY";
     static final String KEY_INPUT_PATH_ARRAY = KEY_PREFIX + ".KEY_INPUT_PATH_ARRAY";
-
     static final String KEY_INPUT_CONTROLLER = KEY_PREFIX + ".KEY_INPUT_CONTROLLER";
-
     static final String KEY_OUTPUT_IMAGE_LIST = KEY_PREFIX + ".KEY_OUTPUT_IMAGE_LIST";
 
     /**
-     * Do not allow any gestures.
+     * 不允许任何手势
      */
     public static final int GESTURE_NONE = 0;
     /**
-     * Allow scaling.
+     * 允许缩放
      */
     public static final int GESTURE_SCALE = 1;
     /**
-     * Allow rotation.
+     * 允许旋转
      */
     public static final int GESTURE_ROTATE = 2;
     /**
-     * Allow rotation and scaling.
+     * 允许旋转和缩放
      */
     public static final int GESTURE_ALL = 3;
 
@@ -84,11 +78,11 @@ public class Durban {
     }
 
     /**
-     * JPEG format.
+     * JPEG 格式
      */
     public static final int COMPRESS_JPEG = 0;
     /**
-     * PNG format.
+     * PNG 格式
      */
     public static final int COMPRESS_PNG = 1;
 
@@ -97,36 +91,49 @@ public class Durban {
     public @interface FormatTypes {
     }
 
-    private static DurbanConfig sDurbanConfig;
-
     /**
-     * Initialize Album.
-     *
-     * @param durbanConfig {@link DurbanConfig}.
+     * 类本身持有对象
      */
-    public static void initialize(DurbanConfig durbanConfig) {
-        sDurbanConfig = durbanConfig;
-    }
-
-    /**
-     * Get the durban configuration.
-     *
-     * @return {@link DurbanConfig}.
-     */
-    public static DurbanConfig getDurbanConfig() {
-        if (sDurbanConfig == null) {
-            initialize(DurbanConfig.newBuilder(null)
-                    .setLocale(Locale.getDefault())
-                    .build()
-            );
-        }
-        return sDurbanConfig;
-    }
-
-
     private Object o;
     private Intent mCropIntent;
 
+    /**
+     * 优先构建好传输的intent
+     */
+    private Durban(Object o) {
+        this.o = o;
+        mCropIntent = new Intent(getContext(o), DurbanActivity.class);
+    }
+
+    /**
+     * activity/fragment如果是需要在对应页面的onActivityResult获取到值,通过该方法实现拿取上下文,然后映射的方式进行页面跳转
+     */
+    @NonNull
+    protected static Context getContext(Object o) {
+        if (o instanceof Activity) return (Context) o;
+        else if (o instanceof Fragment) return ((Fragment) o).getContext();
+        else if (o instanceof android.app.Fragment) return ((android.app.Fragment) o).getActivity();
+        throw new IllegalArgumentException(o.getClass() + " is not supported.");
+    }
+
+    /**
+     * 发起裁剪的页面需要得到裁剪后的图片路径集合的时候在onActivityResult中使用
+     * override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+     * super.onActivityResult(requestCode, resultCode, data)
+     * if (requestCode == RESULT_ALBUM) {
+     * data ?: return
+     * val mImageList = Durban.parseResult(data)
+     * mImageList.safeGet(0).shortToast()
+     * }
+     * }
+     */
+    public static ArrayList<String> parseResult(@NonNull Intent intent) {
+        return intent.getStringArrayListExtra(KEY_OUTPUT_IMAGE_LIST);
+    }
+
+    /**
+     * 构造方法
+     */
     public static Durban with(Activity activity) {
         return new Durban(activity);
     }
@@ -139,37 +146,24 @@ public class Durban {
         return new Durban(fragment);
     }
 
-    private Durban(Object o) {
-        this.o = o;
-        mCropIntent = new Intent(getContext(o), DurbanActivity.class);
-    }
-
     /**
-     * The color of the StatusBar.
+     * 设置状态栏背景颜色/通常随标题栏背景
      */
-    public Durban statusBarColor(@ColorInt int color) {
+    public Durban statusBarColor(@ColorRes int color) {
         mCropIntent.putExtra(KEY_INPUT_STATUS_COLOR, color);
         return this;
     }
 
     /**
-     * The color of the Toolbar.
+     * 设置导航栏背景背景
      */
-    public Durban toolBarColor(@ColorInt int color) {
-        mCropIntent.putExtra(KEY_INPUT_TOOLBAR_COLOR, color);
-        return this;
-    }
-
-    /**
-     * Set the color of the NavigationBar.
-     */
-    public Durban navigationBarColor(@ColorInt int color) {
+    public Durban navigationBarColor(@ColorRes int color) {
         mCropIntent.putExtra(KEY_INPUT_NAVIGATION_COLOR, color);
         return this;
     }
 
     /**
-     * The title of the interface.
+     * 设置标题
      */
     public Durban title(String title) {
         mCropIntent.putExtra(KEY_INPUT_TITLE, title);
@@ -177,7 +171,7 @@ public class Durban {
     }
 
     /**
-     * The gestures that allow operation.
+     * 裁剪时的手势支持
      *
      * @param gesture gesture sign.
      * @see #GESTURE_NONE
@@ -191,7 +185,7 @@ public class Durban {
     }
 
     /**
-     * The aspect ratio column of the crop box.
+     * 裁剪时的宽高比
      *
      * @param x aspect ratio X.
      * @param y aspect ratio Y.
@@ -202,14 +196,14 @@ public class Durban {
     }
 
     /**
-     * Use the aspect ratio column of the original image.
+     * 裁剪时使用原始图像的纵横比列
      */
     public Durban aspectRatioWithSourceImage() {
         return aspectRatio(0F, 0F);
     }
 
     /**
-     * Set maximum size for result cropped image.
+     * 裁剪图片输出的最大宽高
      *
      * @param width  max cropped image width.
      * @param height max cropped image height.
@@ -220,7 +214,7 @@ public class Durban {
     }
 
     /**
-     * The compression format of the cropped image.
+     * 图片压缩格式：JPEG、PNG
      *
      * @param format image format.
      * @see #COMPRESS_JPEG
@@ -232,7 +226,7 @@ public class Durban {
     }
 
     /**
-     * The compression quality of the cropped image.
+     * 图片压缩质量，请参考：Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
      *
      * @param quality see {@link Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)}.
      * @see Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
@@ -243,7 +237,7 @@ public class Durban {
     }
 
     /**
-     * Set the output directory of the cropped picture.
+     * 图片输出文件夹路径
      */
     public Durban outputDirectory(String folder) {
         mCropIntent.putExtra(KEY_INPUT_DIRECTORY, folder);
@@ -251,7 +245,7 @@ public class Durban {
     }
 
     /**
-     * The pictures to be cropped.
+     * 图片路径
      */
     public Durban inputImagePaths(String... imagePathArray) {
         ArrayList<String> arrayList = new ArrayList<>();
@@ -261,7 +255,7 @@ public class Durban {
     }
 
     /**
-     * The pictures to be cropped.
+     * 图片路径list
      */
     public Durban inputImagePaths(ArrayList<String> imagePathList) {
         mCropIntent.putStringArrayListExtra(KEY_INPUT_PATH_ARRAY, imagePathList);
@@ -269,7 +263,7 @@ public class Durban {
     }
 
     /**
-     * Control panel configuration.
+     * 底部操作盘配置
      */
     public Durban controller(Controller controller) {
         mCropIntent.putExtra(KEY_INPUT_CONTROLLER, controller);
@@ -277,7 +271,7 @@ public class Durban {
     }
 
     /**
-     * Request code, callback to {@code onActivityResult()}.
+     * 页面的Request code回调编码, callback to {@code onActivityResult()}.
      */
     public Durban requestCode(int requestCode) {
         mCropIntent.putExtra("requestCode", requestCode);
@@ -285,7 +279,7 @@ public class Durban {
     }
 
     /**
-     * Start cropping.
+     * 通过反射跳转执行startActivityForResult,
      */
     public void start() {
         try {
@@ -295,22 +289,6 @@ public class Durban {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Analyze the crop results.
-     */
-    public static ArrayList<String> parseResult(@NonNull Intent intent) {
-        return intent.getStringArrayListExtra(KEY_OUTPUT_IMAGE_LIST);
-    }
-
-    protected static
-    @NonNull
-    Context getContext(Object o) {
-        if (o instanceof Activity) return (Context) o;
-        else if (o instanceof Fragment) return ((Fragment) o).getContext();
-        else if (o instanceof android.app.Fragment) ((android.app.Fragment) o).getActivity();
-        throw new IllegalArgumentException(o.getClass() + " is not supported.");
     }
 
 }

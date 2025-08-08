@@ -1,88 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="albumColorPrimary">#2196F3</color>
-    <color name="albumColorPrimaryBlack">#2B2B2B</color>
-    <color name="albumColorPrimaryDark">#1E88E5</color>
-    <color name="albumFontDark">#333</color>
-    <color name="albumFontHint">#808080</color>
-    <color name="albumFontLight">#FFF</color>
-    <color name="albumIconDark">#333</color>
-    <color name="albumLoadingDark">#333</color>
-    <color name="albumPageLight">#FFF</color>
-    <color name="albumSelectorNormal">#E0E0E0</color>
-    <color name="albumSheetBottom">#992B2B2B</color>
-    <color name="albumSheetLayer">#EE2B2B2B</color>
-    <color name="albumTransparent">#0000</color>
-    <dimen name="album_dp_0">0dp</dimen>
-    <dimen name="album_dp_1">1dp</dimen>
-    <dimen name="album_dp_10">10dp</dimen>
-    <dimen name="album_dp_100">100dp</dimen>
-    <dimen name="album_dp_15">15dp</dimen>
-    <dimen name="album_dp_2">2dp</dimen>
-    <dimen name="album_dp_20">20dp</dimen>
-    <dimen name="album_dp_200">200dp</dimen>
-    <dimen name="album_dp_30">30dp</dimen>
-    <dimen name="album_dp_35">35dp</dimen>
-    <dimen name="album_dp_4">4dp</dimen>
-    <dimen name="album_dp_40">35dp</dimen>
-    <dimen name="album_dp_45">45dp</dimen>
-    <dimen name="album_dp_50">50dp</dimen>
-    <dimen name="album_dp_6">6dp</dimen>
-    <dimen name="album_dp_80">80dp</dimen>
-    <dimen name="album_sp_14">14sp</dimen>
-    <dimen name="album_sp_16">16sp</dimen>
-    <dimen name="album_sp_18">18sp</dimen>
-    <dimen name="album_sp_20">20sp</dimen>
-    <plurals name="album_check_album_limit">
-        <item quantity="one">You can only select %1$d media item.</item>
-        <item quantity="other">You can only select %1$d media items.</item>
-    </plurals>
-    <plurals name="album_check_album_limit_camera">
-        <item quantity="one">You can only select %1$d media item, can\'t use camera.</item>
-        <item quantity="other">You can only select %1$d media items, can\'t use camera.</item>
-    </plurals>
-    <plurals name="album_check_image_limit">
-        <item quantity="one">You can only select %1$d image item.</item>
-        <item quantity="other">You can only select %1$d image items.</item>
-    </plurals>
-    <plurals name="album_check_image_limit_camera">
-        <item quantity="one">You can only select %1$d image item, can\'t use camera.</item>
-        <item quantity="other">You can only select %1$d image items, can\'t use camera.</item>
-    </plurals>
-    <plurals name="album_check_video_limit">
-        <item quantity="one">You can only select %1$d video.</item>
-        <item quantity="other">You can only select %1$d videos.</item>
-    </plurals>
-    <plurals name="album_check_video_limit_camera">
-        <item quantity="one">You can only select %1$d video item, can\'t use camera.</item>
-        <item quantity="other">You can only select %1$d video items, can\'t use camera.</item>
-    </plurals>
-    <string name="album_all_images">All Images</string>
-    <string name="album_all_images_videos">All Images/Videos</string>
-    <string name="album_all_videos">All Videos</string>
-    <string name="album_camera_image_capture">Take Picture</string>
-    <string name="album_camera_video_capture">Record Video</string>
-    <string name="album_cancel">Cancel</string>
-    <string name="album_check">Selected</string>
-    <string name="album_check_album_little">Please select a media item.</string>
-    <string name="album_check_image_little">Please select a image item.</string>
-    <string name="album_check_video_little">Please select a video item.</string>
-    <string name="album_confirm">Confirm</string>
-    <string name="album_converting">Loading…</string>
-    <string name="album_item_unavailable">Unavailable</string>
-    <string name="album_loading">Loading…</string>
-    <string name="album_menu_finish">Finish</string>
-    <string name="album_not_found_album">No media items found</string>
-    <string name="album_not_found_image">No image items found</string>
-    <string name="album_not_found_video">No video items found</string>
-    <string name="album_ok">OK</string>
-    <string name="album_permission_camera_image_failed_hint">No Camera permission or Storage permission, please authorize before use.</string>
-    <string name="album_permission_camera_video_failed_hint">No Camera permission, Storage permission or Microphone permission, please authorize it before use.</string>
-    <string name="album_permission_storage_failed_hint">No storage permission, please authorize before use.</string>
-    <string name="album_take_file_unavailable">Unavailable file, please try again.</string>
-    <string name="album_thumbnail">Generating thumbnails…</string>
-    <string name="album_title">Media Album</string>
-    <string name="album_title_permission_failed">Permission denied</string>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="NewApi">
 
     <style name="Album" />
 
@@ -247,4 +164,5 @@
     <style name="Album.WrapContent.WidthMatchParent">
         <item name="android:layout_width">match_parent</item>
     </style>
+
 </resources>

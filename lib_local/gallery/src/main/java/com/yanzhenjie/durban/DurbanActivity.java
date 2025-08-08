@@ -17,16 +17,15 @@ package com.yanzhenjie.durban;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Build;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -37,25 +36,19 @@ import androidx.core.view.ViewCompat;
 import com.example.gallery.R;
 import com.yanzhenjie.album.mvp.BaseActivity;
 import com.yanzhenjie.durban.callback.BitmapCropCallback;
-import com.yanzhenjie.durban.util.DurbanUtils;
 import com.yanzhenjie.durban.view.CropView;
 import com.yanzhenjie.durban.view.GestureCropImageView;
 import com.yanzhenjie.durban.view.OverlayView;
 import com.yanzhenjie.durban.view.TransformImageView;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 /**
  * Update by Yan Zhenjie on 2017/5/23.
  */
 public class DurbanActivity extends BaseActivity {
-
-//    private static final int PERMISSION_CODE_STORAGE = 1;
-
     private int mStatusColor;
     private int mNavigationColor;
-    private int mToolbarColor;
     private String mTitle;
 
     private int mGesture;
@@ -69,22 +62,21 @@ public class DurbanActivity extends BaseActivity {
     private ArrayList<String> mInputPathList;
 
     private Controller mController;
-
     private CropView mCropView;
     private GestureCropImageView mCropImageView;
-
     private ArrayList<String> mOutputPathList;
+
+    @Override
+    protected boolean isImmersionBarEnabled() {
+        return false;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //基类会以Album相册语言为主,此处不做重复操作
-//        Locale locale = Durban.getDurbanConfig().getLocale();
-//        DurbanUtils.applyLanguageForContext(this, locale);
-
         setContentView(R.layout.durban_activity_photobox);
-        final Intent intent = getIntent();
 
+        final Intent intent = getIntent();
         initArgument(intent);
         initFrameViews();
         initContentViews();
@@ -98,14 +90,12 @@ public class DurbanActivity extends BaseActivity {
         if (mCropImageView != null) mCropImageView.cancelAllAnimations();
     }
 
+    /**
+     * 处理页面传输而来的参数
+     */
     private void initArgument(Intent intent) {
-        mStatusColor = ContextCompat.getColor(this, R.color.durban_ColorPrimaryDark);
-        mToolbarColor = ContextCompat.getColor(this, R.color.durban_ColorPrimary);
-        mNavigationColor = ContextCompat.getColor(this, R.color.durban_ColorPrimaryBlack);
-
-        mStatusColor = intent.getIntExtra(Durban.KEY_INPUT_STATUS_COLOR, mStatusColor);
-        mToolbarColor = intent.getIntExtra(Durban.KEY_INPUT_TOOLBAR_COLOR, mToolbarColor);
-        mNavigationColor = intent.getIntExtra(Durban.KEY_INPUT_NAVIGATION_COLOR, mNavigationColor);
+        mStatusColor = intent.getIntExtra(Durban.KEY_INPUT_STATUS_COLOR, R.color.durban_ColorPrimaryDark);
+        mNavigationColor = intent.getIntExtra(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.durban_ColorPrimaryBlack);
         mTitle = intent.getStringExtra(Durban.KEY_INPUT_TITLE);
         if (TextUtils.isEmpty(mTitle)) mTitle = getString(R.string.durban_title_crop);
 
@@ -130,26 +120,45 @@ public class DurbanActivity extends BaseActivity {
         mOutputPathList = new ArrayList<>();
     }
 
+    /**
+     * 初始化窗体(状态栏/导航栏)
+     */
     private void initFrameViews() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            final Window window = getWindow();
-//            if (window != null) {
-//                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-//                window.setStatusBarColor(mStatusColor);
-//                window.setNavigationBarColor(mNavigationColor);
-//            }
-//        }
-
+        // 获取自定义Toolbar并设置为ActionBar替代品
         final Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setBackgroundColor(mToolbarColor);
         setSupportActionBar(toolbar);
 
+        // 通过getSupportActionBar()操作这个Toolbar
         final ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(mTitle);
+        actionBar.setDisplayHomeAsUpEnabled(true); // 显示返回键
+        actionBar.setTitle("");
 
-        setToolbar(toolbar);
+        // 设置Toolbar样式
+        setSupportToolbar(toolbar);
+        toolbar.setBackgroundColor(ContextCompat.getColor(this, mStatusColor));
+
+        // 设置图标样式
+        boolean statusBarBattery = getBatteryIcon(mStatusColor);
+        boolean navigationBarBattery = getBatteryIcon(mNavigationColor);
+        initImmersionBar(!statusBarBattery, !navigationBarBattery, mNavigationColor);
+
+        // 设置标题
+        final TextView tvTitle = findViewById(R.id.tv_title);
+        tvTitle.setText(mTitle);
+        if (statusBarBattery) {
+            tvTitle.setTextColor(ContextCompat.getColor(this, R.color.textWhite));
+        } else {
+            tvTitle.setTextColor(ContextCompat.getColor(this, R.color.textBlack));
+        }
+
+        // 设置返回按钮
+        Drawable navigationIcon = ContextCompat.getDrawable(this, R.drawable.durban_ic_back_white);
+        assert navigationIcon != null;
+        if (!statusBarBattery) {
+            navigationIcon.setTint(ContextCompat.getColor(this, R.color.bgBlack));
+        }
+        toolbar.setNavigationIcon(navigationIcon);
     }
 
     private void initContentViews() {
@@ -179,7 +188,8 @@ public class DurbanActivity extends BaseActivity {
         overlayView.setCropGridStrokeWidth(getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
 
         // Aspect ratio options
-        if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0) mCropImageView.setTargetAspectRatio(mAspectRatio[0] / mAspectRatio[1]);
+        if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0)
+            mCropImageView.setTargetAspectRatio(mAspectRatio[0] / mAspectRatio[1]);
         else mCropImageView.setTargetAspectRatio(GestureCropImageView.SOURCE_IMAGE_ASPECT_RATIO);
 
         // Result exception max size options
@@ -214,7 +224,6 @@ public class DurbanActivity extends BaseActivity {
 
     private void initControllerViews() {
         View controllerRoot = findViewById(R.id.iv_controller_root);
-
         View rotationTitle = findViewById(R.id.tv_controller_title_rotation);
         View rotationLeft = findViewById(R.id.layout_controller_rotation_left);
         View rotationRight = findViewById(R.id.layout_controller_rotation_right);
@@ -223,7 +232,6 @@ public class DurbanActivity extends BaseActivity {
         View scaleSmall = findViewById(R.id.layout_controller_scale_small);
 
         controllerRoot.setVisibility(mController.isEnable() ? View.VISIBLE : View.GONE);
-
         rotationTitle.setVisibility(mController.isRotationTitle() ? View.VISIBLE : View.INVISIBLE);
         rotationLeft.setVisibility(mController.isRotation() ? View.VISIBLE : View.GONE);
         rotationRight.setVisibility(mController.isRotation() ? View.VISIBLE : View.GONE);
@@ -271,7 +279,6 @@ public class DurbanActivity extends BaseActivity {
      */
     private void cropNextImage() {
         resetRotation();
-//        requestStoragePermission(PERMISSION_CODE_STORAGE);
         cropNextImageWithPermission();
     }
 
@@ -282,43 +289,6 @@ public class DurbanActivity extends BaseActivity {
         mCropImageView.postRotate(-mCropImageView.getCurrentAngle());
         mCropImageView.setImageToWrapCropBounds();
     }
-
-//    private void requestStoragePermission(int requestCode) {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            int permissionResult = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-//            if (permissionResult == PackageManager.PERMISSION_GRANTED) {
-//                onRequestPermissionsResult(
-//                        requestCode,
-//                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                        new int[]{PackageManager.PERMISSION_GRANTED});
-//            } else {
-//                ActivityCompat.requestPermissions(
-//                        this,
-//                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
-//                        requestCode);
-//            }
-//        } else {
-//            onRequestPermissionsResult(
-//                    requestCode,
-//                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                    new int[]{PackageManager.PERMISSION_GRANTED});
-//        }
-//    }
-//
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        switch (requestCode) {
-//            case PERMISSION_CODE_STORAGE: {
-//                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    cropNextImageWithPermission();
-//                } else {
-//                    Log.e("Durban", "Storage device permission is denied.");
-//                    setResultFailure();
-//                }
-//                break;
-//            }
-//        }
-//    }
 
     private void cropNextImageWithPermission() {
         if (mInputPathList != null) {
@@ -340,6 +310,19 @@ public class DurbanActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.durban_menu_activity, menu);
+        // 获取右侧菜单按钮的 MenuItem
+        MenuItem okItem = menu.findItem(R.id.menu_action_ok);
+        // 根据导航栏颜色定义对应的图片
+        if (!getBatteryIcon(mStatusColor)) {
+            Drawable doneIcon = ContextCompat.getDrawable(this, R.drawable.durban_ic_done_white);
+            assert doneIcon != null;
+            doneIcon.setTint(ContextCompat.getColor(this, R.color.bgBlack));
+            // 如果菜单按钮是自定义 View（通过 actionLayout 指定）
+            View okView = okItem.getActionView();
+            if (okView != null) {
+                okView.setBackground(doneIcon);
+            }
+        }
         return true;
     }
 
