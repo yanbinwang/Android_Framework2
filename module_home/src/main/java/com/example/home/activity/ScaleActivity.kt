@@ -9,6 +9,7 @@ import com.example.common.config.ARouterPath
 import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.toNewList
+import com.example.framework.utils.function.view.appear
 import com.example.home.R
 import com.example.home.databinding.ActivityScaleBinding
 import com.example.home.widget.scale.ScaleAdapter
@@ -43,7 +44,8 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
         mBinding?.vpPage?.apply {
             adapter = ScaleAdapter(imgList.orEmpty())
             currentItem = 0
-            animation = elasticityEnter()
+//            animation = elasticityEnter()
+            appear()
         }
     }
 
