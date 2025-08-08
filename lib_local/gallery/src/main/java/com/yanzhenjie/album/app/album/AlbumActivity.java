@@ -19,6 +19,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -26,6 +27,7 @@ import android.widget.CompoundButton;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 
+import com.example.framework.utils.WeakHandler;
 import com.example.gallery.R;
 import com.yanzhenjie.album.Action;
 import com.yanzhenjie.album.Album;
@@ -161,21 +163,23 @@ public class AlbumActivity extends BaseActivity implements
     @Override
     public void onScanCallback(ArrayList<AlbumFolder> albumFolders, ArrayList<AlbumFile> checkedFiles) {
         mMediaReadTask = null;
-        switch (mChoiceMode) {
-            case Album.MODE_MULTIPLE: {
-                mView.setCompleteDisplay(true);
-                break;
+        // 遮罩延迟半秒,有个页面过渡时间
+        new WeakHandler(Looper.getMainLooper()).postDelayed(() -> {
+            switch (mChoiceMode) {
+                case Album.MODE_MULTIPLE: {
+                    mView.setCompleteDisplay(true);
+                    break;
+                }
+                case Album.MODE_SINGLE: {
+                    mView.setCompleteDisplay(false);
+                    break;
+                }
+                default: {
+                    throw new AssertionError("This should not be the case.");
+                }
             }
-            case Album.MODE_SINGLE: {
-                mView.setCompleteDisplay(false);
-                break;
-            }
-            default: {
-                throw new AssertionError("This should not be the case.");
-            }
-        }
-
-        mView.setLoadingDisplay(false);
+            mView.setLoadingDisplay(false);
+        }, 500);
         mAlbumFolders = albumFolders;
         mCheckedList = checkedFiles;
 
@@ -183,6 +187,7 @@ public class AlbumActivity extends BaseActivity implements
             Intent intent = new Intent(this, NullActivity.class);
             intent.putExtras(getIntent());
             startActivityForResult(intent, CODE_ACTIVITY_NULL);
+            overridePendingTransition(0, 0);
         } else {
             showFolderAlbumFiles(0);
             int count = mCheckedList.size();
