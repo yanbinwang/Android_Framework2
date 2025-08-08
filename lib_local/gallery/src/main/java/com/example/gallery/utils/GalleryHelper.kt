@@ -99,10 +99,14 @@ class GalleryHelper {
      */
     fun recordVideo(filePath: String, duration: Long = 1.hour, listener: (albumPath: String?) -> Unit = {}) {
         imageCamera?.video()
+            //视频输出路径
             ?.filePath(filePath)
-            ?.quality(1)//视频质量, [0, 1].
-            ?.limitDuration(duration)//视频的最长持续时间以毫秒为单位
+            //视频质量, [0, 1].
+            ?.quality(1)
+            //视频的最长持续时间以毫秒为单位
+            ?.limitDuration(duration)
 //                           .limitBytes(Long.MAX_VALUE)//视频的最大大小，以字节为单位
+            //完成回调
             ?.onResult {
                 listener.invoke(it)
             }
@@ -144,15 +148,10 @@ class GalleryHelper {
      */
     fun videoSelection(megabyte: Long = 100, listener: (albumPath: String?) -> Unit = {}) {
         videoMultiple
-            //多选模式为：multipleChoice,单选模式为：singleChoice()
             ?.singleChoice()
-            //状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
             ?.widget(widget)
-            //是否具备相机
             ?.camera(true)
-            //页面列表的列数
             ?.columnCount(3)
-            //防止加载系统缓存图片
             ?.filterSize { it == 0L }
             ?.afterFilterVisibility(false)
             ?.onResult {
