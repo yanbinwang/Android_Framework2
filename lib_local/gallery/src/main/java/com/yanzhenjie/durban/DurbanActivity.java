@@ -137,6 +137,8 @@ public class DurbanActivity extends BaseActivity {
         // 设置Toolbar样式
         setSupportToolbar(toolbar);
         toolbar.setBackgroundColor(ContextCompat.getColor(this, mStatusColor));
+        toolbar.setSubtitleTextColor(ContextCompat.getColor(this, mStatusColor));
+        toolbar.setTitleTextColor(ContextCompat.getColor(this, mStatusColor));
 
         // 设置图标样式
         boolean statusBarBattery = getBatteryIcon(mStatusColor);

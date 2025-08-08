@@ -21,6 +21,7 @@ import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -255,44 +256,7 @@ fun Window.applyFullScreen() {
 /**
  * 针对edge-to-edge后的底部导航栏做的背景颜色适配
  */
-fun Window.setNavigationBarDrawable(navigationBarColor: Int) {
-//    // 1. 获取全局样式中的 windowBackground（作为底层背景）
-//    val windowBackground = decorView.background ?: color(R.color.appWindowBackground).toDrawable()
-//    // 2. 创建底部色块 Drawable
-//    val bottomBarDrawable = NavigationBarDrawable(color(navigationBarColor))
-//    // 3. 组合成 LayerDrawable（底层：windowBackground，上层：底部色块）
-//    val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomBarDrawable))
-//    // 4. 设置为 decorView 背景（此时两者会叠加显示）
-//    decorView.background = combinedDrawable
-//    // 5. 监听视图附加到窗口（延迟获取Insets，确保数据准备好）
-//    decorView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-//        override fun onViewAttachedToWindow(v: View) {
-//            // 视图已附加到窗口，此时rootWindowInsets有效
-//            val initialNavBottom = getNavigationBarHeight()
-////    val initialInsets = v.rootWindowInsets
-////    val initialNavBottom = initialInsets.getInsets(WindowInsets.Type.navigationBars()).bottom
-//            // 设置初始padding
-//            v.padding(v.paddingLeft, v.paddingTop, v.paddingRight, initialNavBottom)
-//            bottomBarDrawable.updateNavigationBarHeight(initialNavBottom)
-//            // 移除监听器（只需要执行一次）
-//            v.removeOnAttachStateChangeListener(this)
-//        }
-//
-//        override fun onViewDetachedFromWindow(v: View) {}
-//    })
-//    // 6. 监听Insets变化（处理动态更新）
-//    decorView.setOnApplyWindowInsetsListener { v, insets ->
-//        // 仅在导航栏可见时设置内边距
-//        val navBottom = getNavigationBarHeight()
-////    val navBottom = insets.getInsets(WindowInsets.Type.navigationBars()).bottom
-//        // 只有变化时才更新
-//        if (v.paddingBottom != navBottom) {
-//            v.padding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
-//            bottomBarDrawable.updateNavigationBarHeight(navBottom)
-//        }
-//        // 避免重复处理
-//        insets.consumeSystemWindowInsets()
-//    }
+fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int) {
     // 1. 项目MinSdk为23，TargetSdk为36,底部包含背景/UI深浅两部分，API 23-25无法操作图标颜色，系统默认就是白色，故而采用强制指定背景颜色规避这个问题
     val mNavigationBarColor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarColor else R.color.bgBlack
     // 2. 获取样式中的 android:windowBackground 作为底层背景（Activity如果不单独设置style样式，默认采取的是全局背景色）
@@ -318,6 +282,9 @@ fun Window.setNavigationBarDrawable(navigationBarColor: Int) {
     // 5. 设置为 decorView 背景（此时两者会叠加显示）
     decorView.background = combinedDrawable
     // 6. 监听Insets变化（处理动态更新）
+    // 先移除旧的监听器，避免累积
+    ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
+    // 再设置新的监听器
     ViewCompat.setOnApplyWindowInsetsListener(decorView) { v, insets ->
         // 1. 获取系统栏的尺寸（单位：px）
 //        val statusBarInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars()) // 状态栏高度
@@ -384,4 +351,57 @@ class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigati
         }
     }
 
+}
+
+/**
+ * 导航栏图标亮/暗
+ */
+fun Window.setNavigationBarLightMode(isLight: Boolean) {
+    val mIsLight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) isLight else false
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        // Android 11+ 推荐接口
+        insetsController?.apply {
+            if (mIsLight) {
+                // 浅色模式（黑色图标）
+                setSystemBarsAppearance(WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS, WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS)
+            } else {
+                // 深色模式（白色图标）
+                setSystemBarsAppearance(0, WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS)
+            }
+        }
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        // Android 10 兼容接口
+        decorView.systemUiVisibility = if (mIsLight) {
+            decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+        } else {
+            decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+        }
+    }
+}
+
+/**
+ * 状态栏图标亮/暗
+ */
+fun Window.setStatusBarLightMode(isLight: Boolean) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        // Android 11+（API 30+）推荐使用 InsetsController
+        insetsController?.apply {
+            if (isLight) {
+                // 浅色模式（黑色图标）
+                setSystemBarsAppearance(WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS, WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS)
+            } else {
+                // 深色模式（白色图标）
+                setSystemBarsAppearance(0, WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS)
+            }
+        }
+    } else {
+        // Android 6.0+（API 23-29）使用系统UI标志
+        decorView.systemUiVisibility = if (isLight) {
+            // 浅色模式（黑色图标）：添加 LIGHT_STATUS_BAR 标志
+            decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        } else {
+            // 深色模式（白色图标）：移除 LIGHT_STATUS_BAR 标志
+            decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+        }
+    }
 }

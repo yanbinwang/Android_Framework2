@@ -38,6 +38,9 @@ import com.example.common.utils.function.color
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
+import com.example.common.utils.setNavigationBarDrawable
+import com.example.common.utils.setNavigationBarLightMode
+import com.example.common.utils.setStatusBarLightMode
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.common.widget.textview.SpecialEditText
@@ -75,8 +78,8 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     private var showTime = 0L
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
-    private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
     private val immersionBar by lazy { ImmersionBar.with(this) }
+    private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }//刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val job = SupervisorJob()
@@ -253,11 +256,15 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
 
     override fun initImmersionBar(statusBarDark: Boolean, navigationBarDark: Boolean, navigationBarColor: Int) {
         super.initImmersionBar(statusBarDark, navigationBarDark, navigationBarColor)
+        dialog?.window?.apply {
+            setStatusBarLightMode(statusBarDark)
+            setNavigationBarLightMode(navigationBarDark)
+            setNavigationBarDrawable(navigationBarColor)
+        }
         immersionBar?.apply {
             reset()
             statusBarDarkFont(statusBarDark, 0.2f)
-//            navigationBarDarkIcon(navigationBarDark, 0.2f)
-//            navigationBarColor(navigationBarColor)
+            navigationBarDarkIcon(navigationBarDark, 0.2f)
             init()
         }
     }

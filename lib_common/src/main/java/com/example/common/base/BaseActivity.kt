@@ -47,6 +47,8 @@ import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.utils.setNavigationBarDrawable
+import com.example.common.utils.setNavigationBarLightMode
+import com.example.common.utils.setStatusBarLightMode
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.common.widget.textview.edittext.SpecialEditText
@@ -97,7 +99,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { AppDialog(this) }
     protected val mPermission by lazy { PermissionHelper(this) }
-    private var onApplyInsets = false//窗体监听等回调是否已经加载完毕
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
@@ -223,16 +224,17 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
      */
     override fun initImmersionBar(statusBarDark: Boolean, navigationBarDark: Boolean, navigationBarColor: Int) {
         super.initImmersionBar(statusBarDark, navigationBarDark, navigationBarColor)
+        window?.apply {
+            setStatusBarLightMode(statusBarDark)
+            setNavigationBarLightMode(navigationBarDark)
+            setNavigationBarDrawable(navigationBarColor)
+        }
         immersionBar?.apply {
             reset()
             statusBarDarkFont(statusBarDark, 0.2f)
             navigationBarDarkIcon(navigationBarDark, 0.2f)//edge会导致低版本ui深浅代码失效,但是会以传入的颜色值为主(偏深为白,反之为黑)
 //            navigationBarColor(navigationBarColor)//颜色的配置在高版本上容易出问题,统一改为底部方法
             init()
-        }
-        if (!onApplyInsets) {
-            onApplyInsets = true
-            window.setNavigationBarDrawable(navigationBarColor)
         }
     }
 
@@ -289,7 +291,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     override fun onDestroy() {
         super.onDestroy()
-        onApplyInsets = false
         removeBackCallback()
         clearOnActivityResultListener()
         AppManager.removeActivity(this)

@@ -49,10 +49,6 @@ dependencies {
     androidTestImplementation(libs.bundles.android.testing)
     //框架库
     implementation(project(":lib_common"))
-    //状态栏/导航栏库
-    implementation(libs.immersionbar)
     //转圈控件
     implementation("com.yanzhenjie:loading:1.0.2")
-//    //媒体扫描
-//    implementation("com.yanzhenjie:mediascanner:1.0.3")
 }

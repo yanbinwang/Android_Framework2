@@ -59,6 +59,8 @@ class NullView extends Contract.NullView implements View.OnClickListener {
     public void setupViews(Widget widget) {
         int mStatusColor = widget.getStatusBarColor();
         mToolbar.setBackgroundColor(getColor(mStatusColor));
+        mToolbar.setSubtitleTextColor(getColor(mStatusColor));
+        mToolbar.setTitleTextColor(getColor(mStatusColor));
         mTitle.setText(widget.getTitle());
         Drawable navigationIcon = getDrawable(R.drawable.album_ic_back_white);
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
