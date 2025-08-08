@@ -114,7 +114,7 @@ class GalleryHelper {
      */
     fun imageSelection(hasCamera: Boolean = true, hasDurban: Boolean = false, megabyte: Long = 10, listener: (albumPath: String?) -> Unit = {}) {
         imageMultiple
-            //多选模式为：multipleChoice,单选模式为：singleChoice()
+            //多选模式为：multipleChoice(同时添加?.apply { multipleChoice()?.selectCount(100) }设定上限),单选模式为：singleChoice()
             ?.singleChoice()
             //状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
             ?.widget(widget)
