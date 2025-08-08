@@ -17,6 +17,7 @@ import com.example.common.utils.function.pt
 import com.example.common.utils.toJson
 import com.example.common.utils.toList
 import com.example.common.utils.toObj
+import com.example.common.widget.popup.select.SelectLabelPopup
 import com.example.common.widget.textview.edittext.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
@@ -39,6 +40,7 @@ import com.example.framework.utils.logE
 import com.example.gallery.utils.GalleryHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
+import com.example.mvvm.widget.dialog.TestBottomDialog
 import com.example.mvvm.widget.dialog.TestTopDialog
 import com.yanzhenjie.durban.Durban
 import kotlinx.coroutines.delay
@@ -363,7 +365,7 @@ println(myClass.myProperty)
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     //    private val illustratePopup by lazy { IllustratePopup(this) }
-    private val testBottom by lazy { TestTopDialog() }
+    private val testDialog by lazy { TestTopDialog() }
 
     //    private val ids = listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
 //    private val adapter by lazy { ImageAdapter() }
@@ -382,6 +384,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private val timerBuilder by lazy { TimerBuilder(this) }
 
     private val gallery by lazy { GalleryHelper(this) }
+    private val sexPop by lazy { SelectLabelPopup<String>(this) { it }.apply { setParams(listOf("男", "女")) } }
 
     override fun isImmersionBarEnabled() = false
 
@@ -396,12 +399,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
-            mPermission.requestPermissions {
-                if (it) {
-                    gallery.imageSelection(hasDurban = true)
-//                    navigation(ARouterPath.TestActivity)
-                }
-            }
+//            mPermission.requestPermissions {
+//                if (it) {
+//                    gallery.imageSelection(hasDurban = true)
+////                    navigation(ARouterPath.TestActivity)
+//                }
+//            }
+            sexPop.show()
+//            testDialog.show(supportFragmentManager)
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                //透明背景
 //                snackbar.setBackgroundTint(Color.TRANSPARENT)

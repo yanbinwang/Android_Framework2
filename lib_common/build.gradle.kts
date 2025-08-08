@@ -71,9 +71,9 @@ dependencies {
     api(libs.smartrefresh)
     api(libs.guide)
     api(libs.xxpermissions)
+    api(libs.immersionbar)
     implementation(libs.stomp)
     implementation(libs.mmkv)
-    implementation(libs.immersionbar)
     //页面路由
     implementation(libs.alibaba.arouter.api)
     kapt(libs.alibaba.arouter.compiler)

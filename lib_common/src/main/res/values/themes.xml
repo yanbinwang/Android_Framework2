@@ -101,16 +101,26 @@
 
     <!--底部弹出样式 -->
     <style name="TransparentBottomSheetStyle" parent="Theme.Design.Light.BottomSheetDialog">
+        <!-- 指定 BottomSheet 本体样式，关联到自定义的 SheetStyle -->
         <item name="bottomSheetStyle">@style/SheetStyle</item>
+        <!-- 设为 false ，让 BottomSheet 占满屏幕宽度，而非默认悬浮形态 -->
         <item name="android:windowIsFloating">false</item>
+        <!-- 软键盘弹出时，调整 BottomSheet 尺寸避免内容被遮挡 -->
         <item name="android:windowSoftInputMode">adjustResize</item>
+        <!-- 将状态栏背景设为透明，使内容可延伸到状态栏区域 -->
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <!-- 将导航栏背景设为透明，使内容可延伸到导航栏区域 -->
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
     <style name="SheetStyle" parent="android:Widget">
+        <!-- 把 BottomSheet 背景设为透明，可自定义内容背景 -->
         <item name="android:background">@android:color/transparent</item>
+        <!-- 收起状态下，预览高度设为自动适配（或可配固定值） -->
         <item name="behavior_peekHeight">auto</item>
+        <!-- 允许用户下滑时完全隐藏 BottomSheet ，而非仅收起 -->
         <item name="behavior_hideable">true</item>
+        <!-- 打开时直接全屏展开，跳过“半收起预览”状态 -->
         <item name="behavior_skipCollapsed">true</item>
     </style>
 

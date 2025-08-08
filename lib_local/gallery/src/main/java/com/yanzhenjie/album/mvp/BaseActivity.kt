@@ -12,13 +12,14 @@ import com.example.common.utils.function.color
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.setNavigationBarDrawable
+import com.example.common.utils.setNavigationBarLightMode
+import com.example.common.utils.setStatusBarLightMode
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.gyf.immersionbar.ImmersionBar
 
 abstract class BaseActivity : AppCompatActivity(), Bye {
-    private var onApplyInsets = false//窗体监听等回调是否已经加载完毕
     private val immersionBar by lazy { ImmersionBar.with(this) }
 
     companion object {
@@ -65,15 +66,17 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
     }
 
     protected open fun initImmersionBar(statusBarDark: Boolean = false, navigationBarDark: Boolean = false, navigationBarColor: Int = R.color.bgBlack) {
+        window?.apply {
+            setStatusBarLightMode(statusBarDark)
+            setNavigationBarLightMode(navigationBarDark)
+            setNavigationBarDrawable(navigationBarColor)
+        }
         immersionBar?.apply {
             reset()
             statusBarDarkFont(statusBarDark, 0.2f)
-            navigationBarDarkIcon(navigationBarDark, 0.2f)
+            navigationBarDarkIcon(navigationBarDark, 0.2f)//edge会导致低版本ui深浅代码失效,但是会以传入的颜色值为主(偏深为白,反之为黑)
+//            navigationBarColor(navigationBarColor)//颜色的配置在高版本上容易出问题,统一改为底部方法
             init()
-        }
-        if (!onApplyInsets) {
-            onApplyInsets = true
-            window.setNavigationBarDrawable(navigationBarColor)
         }
     }
 
@@ -83,7 +86,6 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
 
     override fun onDestroy() {
         super.onDestroy()
-        onApplyInsets = false
         AppManager.removeActivity(this)
     }
 

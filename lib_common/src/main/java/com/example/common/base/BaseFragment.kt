@@ -32,6 +32,7 @@ import com.example.common.utils.function.color
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
+import com.example.common.utils.setStatusBarLightMode
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.framework.utils.builder.TimerBuilder
@@ -153,11 +154,12 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
 
     override fun initImmersionBar(statusBarDark: Boolean, navigationBarDark: Boolean, navigationBarColor: Int) {
         super.initImmersionBar(statusBarDark, navigationBarDark, navigationBarColor)
+        mActivity?.window?.apply {
+            setStatusBarLightMode(statusBarDark)
+        }
         immersionBar?.apply {
             reset()
             statusBarDarkFont(statusBarDark, 0.2f)
-//            navigationBarDarkIcon(navigationBarDark, 0.2f)
-//            navigationBarColor(navigationBarColor)
             init()
         }
     }
