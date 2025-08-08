@@ -48,6 +48,7 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_activity_null);
+        overridePendingTransition(0, 0);
         mView = new NullView(this, this);
 
         Bundle argument = getIntent().getExtras();

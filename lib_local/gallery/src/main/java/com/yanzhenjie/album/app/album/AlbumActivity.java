@@ -110,6 +110,7 @@ public class AlbumActivity extends BaseActivity implements
         boolean navigationBarBattery = getBatteryIcon(mWidget.getNavigationBarColor());
         initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
 
+        // 扫描相册
         ArrayList<AlbumFile> checkedList = getIntent().getParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST);
         MediaReader mediaReader = new MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility);
         mMediaReadTask = new MediaReadTask(mFunction, checkedList, mediaReader, this);
@@ -193,16 +194,13 @@ public class AlbumActivity extends BaseActivity implements
     @SuppressLint("MissingSuperCall")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case CODE_ACTIVITY_NULL: {
-                if (resultCode == RESULT_OK) {
-                    String imagePath = NullActivity.parsePath(data);
-                    String mimeType = AlbumUtils.getMimeType(imagePath);
-                    if (!TextUtils.isEmpty(mimeType)) mCameraAction.onAction(imagePath);
-                } else {
-                    callbackCancel();
-                }
-                break;
+        if (requestCode == CODE_ACTIVITY_NULL) {
+            if (resultCode == RESULT_OK) {
+                String imagePath = NullActivity.parsePath(data);
+                String mimeType = AlbumUtils.getMimeType(imagePath);
+                if (!TextUtils.isEmpty(mimeType)) mCameraAction.onAction(imagePath);
+            } else {
+                callbackCancel();
             }
         }
     }
@@ -586,4 +584,5 @@ public class AlbumActivity extends BaseActivity implements
         sCancel = null;
         super.finish();
     }
+
 }
