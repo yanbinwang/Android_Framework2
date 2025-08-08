@@ -37,12 +37,42 @@ import java.lang.annotation.RetentionPolicy;
  * Created by YanZhenjie on 2017/8/16.
  */
 public class Widget implements Parcelable {
+    /**
+     * 亮/暗样式
+     */
     public static final int STYLE_LIGHT = 1;
     public static final int STYLE_DARK = 2;
 
     @IntDef({STYLE_DARK, STYLE_LIGHT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface UiStyle {
+    }
+
+    /**
+     * 类本身持有对象
+     */
+    private Context mContext;
+    private int mUiStyle;
+    private int mStatusBarColor;
+    private int mNavigationBarColor;
+    private String mTitle;
+    private ColorStateList mMediaItemCheckSelector;
+    private ColorStateList mBucketItemCheckSelector;
+    private ButtonStyle mButtonStyle;
+
+    private Widget(Builder builder) {
+        this.mContext = builder.mContext;
+        this.mUiStyle = builder.mUiStyle;
+        this.mStatusBarColor = builder.mStatusBarColor == 0 ? R.color.albumColorPrimaryDark : builder.mStatusBarColor;
+        this.mNavigationBarColor = builder.mNavigationBarColor == 0 ? R.color.albumColorPrimaryBlack : builder.mNavigationBarColor;
+        this.mTitle = TextUtils.isEmpty(builder.mTitle) ? mContext.getString(R.string.album_title) : builder.mTitle;
+        this.mMediaItemCheckSelector = builder.mMediaItemCheckSelector == null ? AlbumUtils.getColorStateList(getColor(R.color.albumSelectorNormal), getColor(R.color.albumColorPrimary)) : builder.mMediaItemCheckSelector;
+        this.mBucketItemCheckSelector = builder.mBucketItemCheckSelector == null ? AlbumUtils.getColorStateList(getColor(R.color.albumSelectorNormal), getColor(R.color.albumColorPrimary)) : builder.mBucketItemCheckSelector;
+        this.mButtonStyle = builder.mButtonStyle == null ? ButtonStyle.newDarkBuilder(mContext).build() : builder.mButtonStyle;
+    }
+
+    private int getColor(int colorId) {
+        return ContextCompat.getColor(mContext, colorId);
     }
 
     /**
@@ -64,26 +94,6 @@ public class Widget implements Parcelable {
      */
     public static Builder newBuilder(Context context, @UiStyle int style) {
         return new Builder(context, style);
-    }
-
-    private Context mContext;
-    private int mUiStyle;
-    private int mStatusBarColor;
-    private int mNavigationBarColor;
-    private String mTitle;
-    private ColorStateList mMediaItemCheckSelector;
-    private ColorStateList mBucketItemCheckSelector;
-    private ButtonStyle mButtonStyle;
-
-    private Widget(Builder builder) {
-        this.mContext = builder.mContext;
-        this.mUiStyle = builder.mUiStyle;
-        this.mStatusBarColor = builder.mStatusBarColor == 0 ? R.color.albumColorPrimaryDark : builder.mStatusBarColor;
-        this.mNavigationBarColor = builder.mNavigationBarColor == 0 ? R.color.albumColorPrimaryBlack : builder.mNavigationBarColor;
-        this.mTitle = TextUtils.isEmpty(builder.mTitle) ? mContext.getString(R.string.album_title) : builder.mTitle;
-        this.mMediaItemCheckSelector = builder.mMediaItemCheckSelector == null ? AlbumUtils.getColorStateList(getColor(R.color.albumSelectorNormal), getColor(R.color.albumColorPrimary)) : builder.mMediaItemCheckSelector;
-        this.mBucketItemCheckSelector = builder.mBucketItemCheckSelector == null ? AlbumUtils.getColorStateList(getColor(R.color.albumSelectorNormal), getColor(R.color.albumColorPrimary)) : builder.mBucketItemCheckSelector;
-        this.mButtonStyle = builder.mButtonStyle == null ? ButtonStyle.newDarkBuilder(mContext).build() : builder.mButtonStyle;
     }
 
     @UiStyle
@@ -143,7 +153,7 @@ public class Widget implements Parcelable {
         return 0;
     }
 
-    public static final Creator<Widget> CREATOR = new Creator<Widget>() {
+    public static final Creator<Widget> CREATOR = new Creator<>() {
         @Override
         public Widget createFromParcel(Parcel in) {
             return new Widget(in);
@@ -154,10 +164,6 @@ public class Widget implements Parcelable {
             return new Widget[size];
         }
     };
-
-    private int getColor(int colorId) {
-        return ContextCompat.getColor(mContext, colorId);
-    }
 
     public static class Builder {
         private int mUiStyle;
@@ -339,16 +345,12 @@ public class Widget implements Parcelable {
                 .statusBarColor(R.color.albumColorPrimaryDark)
                 .navigationBarColor(R.color.albumColorPrimaryBlack)
                 .title(R.string.album_title)
-                .mediaItemCheckSelector(ContextCompat.getColor(context, R.color.albumSelectorNormal),
-                        ContextCompat.getColor(context, R.color.albumColorPrimary))
-                .bucketItemCheckSelector(ContextCompat.getColor(context, R.color.albumSelectorNormal),
-                        ContextCompat.getColor(context, R.color.albumColorPrimary))
-                .buttonStyle(
-                        ButtonStyle.newDarkBuilder(context)
-                                .setButtonSelector(ContextCompat.getColor(context, R.color.albumColorPrimary),
-                                        ContextCompat.getColor(context, R.color.albumColorPrimaryDark))
-                                .build()
-                )
+                .mediaItemCheckSelector(ContextCompat.getColor(context, R.color.albumSelectorNormal), ContextCompat.getColor(context, R.color.albumColorPrimary))
+                .bucketItemCheckSelector(ContextCompat.getColor(context, R.color.albumSelectorNormal), ContextCompat.getColor(context, R.color.albumColorPrimary))
+                .buttonStyle(ButtonStyle
+                        .newDarkBuilder(context)
+                        .setButtonSelector(ContextCompat.getColor(context, R.color.albumColorPrimary), ContextCompat.getColor(context, R.color.albumColorPrimaryDark)).build())
                 .build();
     }
+
 }
