@@ -24,6 +24,8 @@ object NetWorkUtil {
 
     /**
      * 验证是否联网,保证连接正常建立
+     * 在 Android 14 及更高版本中，NetworkCapabilities.NET_CAPABILITY_VALIDATED 表示网络已经通过运营商验证并且可以访问互联网。
+     * 但实际使用中，这个条件比较严格，很多时候即使网络正常也可能不满足
      */
     fun isNetworkAvailable(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -32,21 +34,14 @@ object NetWorkUtil {
         } else {
             val network = manager?.activeNetwork ?: return false
             val capabilities = manager?.getNetworkCapabilities(network) ?: return false
-            if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) return true
-        }
-        return false
-    }
-
-    /**
-     * 判断当前网络环境是否为wifi，只需校验是否是wifi
-     */
-    fun isWifiConnected(): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return manager?.activeNetworkInfo?.type == ConnectivityManager.TYPE_WIFI
-        } else {
-            val network = manager?.activeNetwork ?: return false
-            val capabilities = manager?.getNetworkCapabilities(network) ?: return false
-            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) return true
+//            if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) return true
+//            // NetworkCapabilities.NET_CAPABILITY_VALIDATED 是 Android 系统对网络「已验证可联网」的标识，系统会通过 DNS 解析、简单网络请求等方式，验证网络是否真正可用。
+            // 1. 检查是否有网络传输通道（Wi-Fi/蜂窝网络等）
+            val hasTransport = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+            // 2. 检查网络是否已通过系统验证（可联网）
+            val isValidated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            // 3.返回联网结果
+            return hasTransport && isValidated
         }
         return false
     }
@@ -66,9 +61,27 @@ object NetWorkUtil {
     }
 
     /**
+     * 判断当前网络环境是否为wifi，只需校验是否是wifi
+     */
+    fun isWifiConnected(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return manager?.activeNetworkInfo?.type == ConnectivityManager.TYPE_WIFI
+        } else {
+            val network = manager?.activeNetwork ?: return false
+            val capabilities = manager?.getNetworkCapabilities(network) ?: return false
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) return true
+        }
+        return false
+    }
+
+    /**
      * 是否挂载了网络代理（wifi模式下）
      */
-    fun isMountAgent() = (!System.getProperty("http.proxyHost").isNullOrEmpty()) && ((System.getProperty("http.proxyPort") ?: "-1").toInt() != -1)
+    fun isMountAgent(): Boolean {
+        val httpProxy = !System.getProperty("http.proxyHost").isNullOrEmpty() && (System.getProperty("http.proxyPort")?.toIntOrNull() ?: -1) != -1
+        val httpsProxy = !System.getProperty("https.proxyHost").isNullOrEmpty() && (System.getProperty("https.proxyPort")?.toIntOrNull() ?: -1) != -1
+        return httpProxy || httpsProxy
+    }
 
     /**
      * 是否挂载了VPN，只需校验是否是Vpn
@@ -86,6 +99,7 @@ object NetWorkUtil {
 
     /**
      * 获取当前wifi密码的加密策略(需要定位权限)
+     * <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
      * 无线路由器里带有的加密模式主要有：WEP，WPA-PSK（TKIP），WPA2-PSK（AES）和WPA-PSK（TKIP）+WPA2-PSK（AES）。
      * WPA2-PSK的加密方式基本无法破解，无线网络加密一般需要用此种加密方式才可以有效防止不被蹭网，考虑到设备兼容性，有WPA-PSK（TKIP）+WPA2-PSK（AES）混合加密选项的话一般选择此项，加密性能好，兼容性也广。
      * WEP是Wired Equivalent Privacy（有线等效保密）的英文缩写，目前常见的是64位WEP加密和128位WEP加密。它是一种最老也是最不安全的加密方式，不建议大家选用。
