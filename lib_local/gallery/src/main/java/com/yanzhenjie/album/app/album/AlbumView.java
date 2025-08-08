@@ -96,6 +96,8 @@ class AlbumView extends Contract.AlbumView implements View.OnClickListener {
         int mStatusColor = widget.getStatusBarColor();
         mTitle.setText(widget.getTitle());
         mToolbar.setBackgroundColor(getColor(mStatusColor));
+        mToolbar.setSubtitleTextColor(getColor(mStatusColor));
+        mToolbar.setTitleTextColor(getColor(mStatusColor));
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
             mTitle.setTextColor(getColor(R.color.textBlack));
             mProgressBar.setColorFilter(getColor(R.color.albumLoadingDark));
