@@ -1,5 +1,6 @@
 package com.example.common.utils
 
+import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Canvas
@@ -22,15 +23,14 @@ import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.annotation.RequiresApi
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.common.BaseApplication
 import com.example.common.R
-import com.example.common.utils.ScreenUtil.isNavBarVisible
 import com.example.common.utils.function.color
 import com.example.common.utils.function.getManifestString
-import com.example.common.utils.function.getNavigationBarHeight
 import com.example.framework.utils.function.value.min
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
@@ -137,8 +137,37 @@ object ScreenUtil {
     }
 
     /**
-     * 是否具备底部导航栏
+     * 获取顶部刘海高度（整个状态栏-->仅支持 Android 9.0+）
+     * @return 刘海高度（无刘海或不支持时返回 0）
      */
+    @RequiresApi(Build.VERSION_CODES.P)
+    fun Activity?.getTopCutoutHeight(): Int {
+        this ?: return 0
+        // 1. 获取 WindowInsets（可能为 null，需判空）
+        val windowInsets = window?.decorView?.rootWindowInsets
+        val displayCutout = windowInsets?.displayCutout ?: return 0
+        // 2. 解析顶部刘海区域
+        var cutoutHeight = 0
+        displayCutout.boundingRects.forEach { rect ->
+            // 顶部刘海的 top 坐标为 0（状态栏起始位置）
+            if (rect.top == 0) {
+                // 只保留正数，负数说明无超出的刘海
+                val currentCutout = maxOf(cutoutHeight, rect.bottom)
+                cutoutHeight = max(0, currentCutout)
+            }
+        }
+        return cutoutHeight
+    }
+
+    /**
+     * 是否具备底部导航栏
+     * 如是扩展函数,view必须是window.decorView
+     */
+    fun View.hasNavigationBar(): Boolean {
+        val insets = ViewCompat.getRootWindowInsets(this) ?: return false
+        return insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom > 0
+    }
+
     fun hasNavigationBar(context: Context): Boolean {
         val appUsableSize = getAppUsableScreenSize(context)
         val realScreenSize = getRealScreenSize(context)
@@ -148,30 +177,6 @@ object ScreenUtil {
         if (appUsableSize.y < realScreenSize.y) return true
         return false
     }
-
-    /**
-     * 是否具备底部导航栏
-     */
-    fun View.isNavBarVisible(): Boolean {
-        val insets = ViewCompat.getRootWindowInsets(this) ?: return false
-        return insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom > 0
-    }
-
-//    private fun getAppUsableScreenSize(context: Context): Point {
-//        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
-//        val display = windowManager?.defaultDisplay
-//        val size = Point()
-//        display?.getSize(size)
-//        return size
-//    }
-//
-//    private fun getRealScreenSize(context: Context): Point {
-//        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
-//        val display = windowManager?.defaultDisplay
-//        val size = Point()
-//        display?.getRealSize(size)
-//        return size
-//    }
 
     /**
      * 获取应用实际可用的屏幕尺寸（即扣除状态栏、导航栏等系统栏后的区域）
@@ -329,8 +334,8 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int) {
  * 更新导航栏高度和 padding
  */
 private fun updateNavBar(v: View, bottomBarDrawable: NavigationBarDrawable, navBottom: Int, lastNavBottom: Int): Int {
-    val actualNavBottom = if (!v.isNavBarVisible()) 0 else getNavigationBarHeight()
-    if (actualNavBottom == navBottom && navBottom != lastNavBottom) {
+//    val actualNavBottom = if (!v.hasNavigationBar()) 0 else getNavigationBarHeight()
+    if (navBottom != lastNavBottom) {
         if (v.paddingBottom != navBottom) {
             v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
         }
@@ -372,7 +377,9 @@ class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigati
         invalidateSelf()
     }
 
-    override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+    override fun getOpacity(): Int {
+        return PixelFormat.TRANSLUCENT
+    }
 
     override fun setAlpha(alpha: Int) {
         val adjustedAlpha = alpha.coerceIn(0, 255)
