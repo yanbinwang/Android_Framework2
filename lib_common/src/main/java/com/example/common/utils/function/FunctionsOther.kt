@@ -100,10 +100,15 @@ fun getNavigationBarHeight(): Int {
 //    val mContext = BaseApplication.instance.applicationContext
 //    if (!ScreenUtil.hasNavigationBar(mContext)) return 0
 //    return ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
-    val baseNavigationBarHeight = ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "navigation_bar_height")
+    val mContext = BaseApplication.instance.applicationContext
+    val baseNavigationBarHeight = ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
     val currentActivity = AppManager.currentActivity()
     return if (null == currentActivity) {
-        baseNavigationBarHeight
+        if (!hasNavigationBar(mContext)) {
+            0
+        } else {
+            baseNavigationBarHeight
+        }
     } else {
         val decodeView = currentActivity.window.decorView
         if (decodeView.hasNavigationBar()) {
